@@ -28,16 +28,22 @@ CREATE TABLE IF NOT EXISTS ArticleEmbargoOption(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     type                  VARCHAR(32),
     ip_name               VARCHAR(255),
-    group_id              INT UNSIGNED,
+    group_id              INT UNSIGNED
 
-    FOREIGN KEY (group_id) REFERENCES ArticleEmbargoOptionGroup(id))
-    ENGINE=InnoDB;
+    -- FOREIGN KEY (group_id) REFERENCES ArticleEmbargoOptionGroup(id)
+    ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleEmbargo(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     date                  datetime,
     title                 VARCHAR(255),
     reason                VARCHAR(255)) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ArticleReference(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    article_id            INT UNSIGNED,
+    url                   VARCHAR(255)
+    ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS Article(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -62,11 +68,12 @@ CREATE TABLE IF NOT EXISTS Article(
     -- must be linked to an institution somehow, but needs not
     -- necessarily be implemented using a foreign key.
     institution_id        INT UNSIGNED,
-    is_private            BOOLEAN NOT NULL DEFAULT 0,
+    is_private            BOOLEAN NOT NULL DEFAULT 0
 
-    FOREIGN KEY (institution_id) REFERENCES Institution(id),
-    FOREIGN KEY (timeline_id)    REFERENCES Timeline(id),
-    FOREIGN KEY (embargo_id)     REFERENCES ArticleEmbargo(id)) ENGINE=InnoDB;
+    -- FOREIGN KEY (institution_id) REFERENCES Institution(id),
+    -- FOREIGN KEY (timeline_id)    REFERENCES Timeline(id),
+    -- FOREIGN KEY (embargo_id)     REFERENCES ArticleEmbargo(id)
+    ) ENGINE=InnoDB;
 
 
 CREATE TABLE IF NOT EXISTS ArticleComplete(
@@ -78,7 +85,7 @@ CREATE TABLE IF NOT EXISTS ArticleComplete(
     authors_id            INT UNSIGNED,
     custom_fields_id      INT UNSIGNED,
     embargo_options_id    INT UNSIGNED,
-    citation              VARCHAR(255),
+    citation              TEXT,
     confidential_reason   VARCHAR(255),
     embargo_type          VARCHAR(255),
     is_confidential       BOOLEAN NOT NULL DEFAULT 0,
@@ -91,7 +98,7 @@ CREATE TABLE IF NOT EXISTS ArticleComplete(
     is_metadata_record    BOOLEAN NOT NULL DEFAULT 0,
     metadata_reason       VARCHAR(255),
     status                VARCHAR(255),
-    description           VARCHAR(512),
+    description           TEXT,
     is_embargoed          BOOLEAN NOT NULL DEFAULT 0,
     embargo_date          DATETIME,
     is_public             BOOLEAN NOT NULL DEFAULT 1,
@@ -103,10 +110,20 @@ CREATE TABLE IF NOT EXISTS ArticleComplete(
     embargo_title         VARCHAR(255),
     embargo_reason        VARCHAR(255),
     references_id         INT UNSIGNED,
-    article_id            INT UNSIGNED,
+    article_id            INT UNSIGNED
 
-    FOREIGN KEY (article_id) REFERENCES Article(id),
-    FOREIGN KEY (license_id) REFERENCES License(id)) ENGINE=InnoDB;
+    -- FOREIGN KEY (article_id) REFERENCES Article(id),
+    -- FOREIGN KEY (license_id) REFERENCES License(id)
+    ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ArticleAuthors(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    article_id            INT UNSIGNED,
+    author_id             INT UNSIGNED
+
+    -- FOREIGN KEY (collection_id) REFERENCES Collection(id),
+    -- FOREIGN KEY (author_id) REFERENCES AuthorComplete(id),
+    ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS PublicFile(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -116,6 +133,15 @@ CREATE TABLE IF NOT EXISTS PublicFile(
     download_url          VARCHAR(255),
     supplied_md5          VARCHAR(64),
     computed_md5          VARCHAR(64)) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ArticleFiles(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    article_id            INT UNSIGNED,
+    file_id               INT UNSIGNED
+
+    -- FOREIGN KEY (article_id) REFERENCES ArticleComplete(id),
+    -- FOREIGN KEY (file_id) REFERENCES PublicFile(id),
+    ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS AuthorComplete(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -159,10 +185,27 @@ CREATE TABLE IF NOT EXISTS Collection(
     doi                   VARCHAR(255),
     handle                VARCHAR(255),
     url                   VARCHAR(255),
+    citation              TEXT,
+    description           TEXT,
+    group_id              INT UNSIGNED,
+    institution_id        INT UNSIGNED,
     timeline_id           INT UNSIGNED,
     published_date        DATETIME,
+    modified_date         DATETIME,
+    created_date          DATETIME
 
-    FOREIGN KEY (timeline_id) REFERENCES Timeline(id)) ENGINE=InnoDB;
+    -- FOREIGN KEY (institution_id) REFERENCES Institution(id),
+    -- FOREIGN KEY (timeline_id) REFERENCES Timeline(id)
+    ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS CollectionAuthors(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    collection_id         INT UNSIGNED,
+    author_id             INT UNSIGNED
+
+    -- FOREIGN KEY (collection_id) REFERENCES Collection(id),
+    -- FOREIGN KEY (author_id) REFERENCES AuthorComplete(id),
+    ) ENGINE=InnoDB;
 
 -------------------------------------------------------------------------------
 -- PROJECTS
