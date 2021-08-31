@@ -20,6 +20,11 @@ CREATE TABLE IF NOT EXISTS Institution(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name                  VARCHAR(255)) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS Tag(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    tag                   VARCHAR(255),
+    article_id            INT UNSIGNED) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS ArticleEmbargoOptionGroup(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name                  VARCHAR(255)) ENGINE=InnoDB;
@@ -31,6 +36,11 @@ CREATE TABLE IF NOT EXISTS ArticleEmbargoOption(
     group_id              INT UNSIGNED
 
     -- FOREIGN KEY (group_id) REFERENCES ArticleEmbargoOptionGroup(id)
+    ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ArticleType(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name                  VARCHAR(255)
     ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleEmbargo(
@@ -76,8 +86,26 @@ CREATE TABLE IF NOT EXISTS Article(
     ) ENGINE=InnoDB;
 
 
+CREATE TABLE IF NOT EXISTS ArticleCategory(
+    category_id           INT UNSIGNED,
+    article_id            INT UNSIGNED) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS ArticleComplete(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    title                 VARCHAR(255),
+    doi                   VARCHAR(255),
+    handle                VARCHAR(255),
+    group_id              INT DEFAULT NULL,
+    url                   VARCHAR(255),
+    url_public_html       VARCHAR(255),
+    url_public_api        VARCHAR(255),
+    url_private_html      VARCHAR(255),
+    url_private_api       VARCHAR(255),
+    published_date        VARCHAR(32),
+    timeline_id           INT UNSIGNED,
+    thumb                 VARCHAR(255),
+    defined_type          INT,
+    defined_type_name     VARCHAR(255),
     figshare_url          VARCHAR(255),
     resource_title        VARCHAR(255),
     resource_doi          VARCHAR(255),
@@ -105,18 +133,23 @@ CREATE TABLE IF NOT EXISTS ArticleComplete(
     modified_date         DATETIME,
     created_date          DATETIME,
     has_linked_file       BOOLEAN NOT NULL DEFAULT 0,
-    categories_id         INT UNSIGNED,
     license_id            INT UNSIGNED,
     embargo_title         VARCHAR(255),
     embargo_reason        VARCHAR(255),
     references_id         INT UNSIGNED,
-    article_id            INT UNSIGNED
+
+    -- The following fields are inferred from the search interfaces
+    -- rather than the data descriptions.  For example, an article
+    -- must be linked to an institution somehow, but needs not
+    -- necessarily be implemented using a foreign key.
+    institution_id        INT UNSIGNED,
+    is_private            BOOLEAN NOT NULL DEFAULT 0
 
     -- FOREIGN KEY (article_id) REFERENCES Article(id),
     -- FOREIGN KEY (license_id) REFERENCES License(id)
     ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS ArticleAuthors(
+CREATE TABLE IF NOT EXISTS ArticleAuthor(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     article_id            INT UNSIGNED,
     author_id             INT UNSIGNED
@@ -125,22 +158,27 @@ CREATE TABLE IF NOT EXISTS ArticleAuthors(
     -- FOREIGN KEY (author_id) REFERENCES AuthorComplete(id),
     ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS PublicFile(
+CREATE TABLE IF NOT EXISTS File(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name                  VARCHAR(255),
     size                  INT UNSIGNED,
     is_link_only          BOOLEAN NOT NULL DEFAULT 0,
     download_url          VARCHAR(255),
     supplied_md5          VARCHAR(64),
-    computed_md5          VARCHAR(64)) ENGINE=InnoDB;
+    computed_md5          VARCHAR(64),
+    viewer_type           VARCHAR(64),
+    preview_state         VARCHAR(64),
+    status                VARCHAR(64),
+    upload_url            VARCHAR(255),
+    upload_token          VARCHAR(255)) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS ArticleFiles(
+CREATE TABLE IF NOT EXISTS ArticleFile(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     article_id            INT UNSIGNED,
     file_id               INT UNSIGNED
 
     -- FOREIGN KEY (article_id) REFERENCES ArticleComplete(id),
-    -- FOREIGN KEY (file_id) REFERENCES PublicFile(id),
+    -- FOREIGN KEY (file_id) REFERENCES File(id),
     ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS AuthorComplete(
@@ -250,3 +288,16 @@ CREATE TABLE IF NOT EXISTS Account(
     used_quota            INT,
     used_quota_private    INT,
     used_quota_public     INT) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ArticleCustomField(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    article_id            INT UNSIGNED,
+    name                  VARCHAR(255),
+    value                 TEXT,
+    default_value         TEXT,
+    placeholder           TEXT,
+    max_length            INT UNSIGNED,
+    min_length            INT UNSIGNED,
+    field_type            VARCHAR(128),
+    is_multiple           BOOLEAN NOT NULL DEFAULT 0,
+    is_mandatory          BOOLEAN NOT NULL DEFAULT 0) ENGINE=InnoDB;
