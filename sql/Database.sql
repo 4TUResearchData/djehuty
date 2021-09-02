@@ -301,3 +301,10 @@ CREATE TABLE IF NOT EXISTS ArticleCustomField(
     field_type            VARCHAR(128),
     is_multiple           BOOLEAN NOT NULL DEFAULT 0,
     is_mandatory          BOOLEAN NOT NULL DEFAULT 0) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ArticleStatistics(
+    article_id            INT UNSIGNED,
+    views                 INT UNSIGNED,
+    downloads             INT UNSIGNED,
+    shares                INT UNSIGNED,
+    date                  DATETIME) ENGINE=InnoDB;

@@ -9,11 +9,12 @@ import time
 class FigshareEndpoint:
 
     def __init__ (self):
-        self.api_location   = "/v2"
-        self.domain         = "api.figshare.com"
-        self.base           = "https://api.figshare.com/v2"
-        self.token          = None
-        self.institution_id = 898 # Defaults to 4TU.ResearchData
+        self.api_location     = "/v2"
+        self.domain           = "api.figshare.com"
+        self.base             = "https://api.figshare.com/v2"
+        self.token            = None
+        self.institution_id   = 898 # Defaults to 4TU.ResearchData
+        self.institution_name = "4tu"
 
     # REQUEST HANDLING PROCEDURES
     # -----------------------------------------------------------------------------
@@ -30,6 +31,18 @@ class FigshareEndpoint:
             return { **defaults, **additional_headers }
         else:
             return defaults
+
+    def getStats (self, path: str, headers, parameters):
+        """Procedure to perform a GET request to a Figshare-compatible endpoint."""
+        response = requests.get("https://stats.figshare.com" + path,
+                                headers = headers,
+                                params  = parameters)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            logging.error(f"{path} returned {response.status_code}.")
+            logging.error(f"Error message:\n---\n{response.text}\n---")
+            return []
 
     def get (self, path: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
@@ -192,3 +205,18 @@ class FigshareEndpoint:
     def getInstitutionalAccounts (self):
         logging.info("Getting institutional accounts.")
         return self.getAll("/account/institution/accounts")
+
+    def getStatisticsForArticle (self, article_id):
+
+        headers = self.request_headers()
+        headers["Authorization"] = "Basic FIGSHARE_STATS_AUTH"
+
+        views     = self.getStats (f"/4tu/total/views/article/{article_id}", headers, {})
+        downloads = self.getStats (f"/4tu/total/downloads/article/{article_id}", headers, {})
+        shares    = self.getStats (f"/4tu/total/shares/article/{article_id}", headers, {})
+
+        return {
+            "views": views["totals"],
+            "downloads": downloads["totals"],
+            "shares": shares["totals"]
+        }

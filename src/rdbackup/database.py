@@ -225,6 +225,19 @@ class DatabaseInterface:
 
         return True
 
+    def insertStatistics (self, record, article_id):
+        template = ("INSERT INTO ArticleStatistics (article_id, views, "
+                    "downloads, shares, date) VALUES (%s, %s, %s, %s, %s)")
+
+        date = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S")
+        data = (
+            article_id,
+            record["views"],
+            record["downloads"],
+            record["shares"],
+            date)
+        return self.executeQuery (template, data)
+
     def insertFile (self, record, article_id):
         template = ("INSERT IGNORE INTO File (id, name, size, is_link_only, "
                     "download_url, supplied_md5, computed_md5, viewer_type, "
