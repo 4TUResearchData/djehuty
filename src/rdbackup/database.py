@@ -229,13 +229,13 @@ class DatabaseInterface:
         template = ("INSERT INTO ArticleStatistics (article_id, views, "
                     "downloads, shares, date) VALUES (%s, %s, %s, %s, %s)")
 
-        date = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S")
         data = (
             article_id,
             record["views"],
             record["downloads"],
             record["shares"],
-            date)
+            record["date"])
+
         return self.executeQuery (template, data)
 
     def insertFile (self, record, article_id):
@@ -313,6 +313,10 @@ class DatabaseInterface:
         files = record["files"]
         for file in files:
             self.insertFile(file, article_id)
+
+        stats = record["statistics"]
+        for day in stats:
+            self.insertStatistics(day, article_id)
 
         created_date = None
         if "created_date" in record and not record["created_date"] is None:

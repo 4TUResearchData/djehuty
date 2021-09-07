@@ -1,3 +1,5 @@
+from datetime import datetime
+from datetime import timedelta
 import concurrent.futures
 import multiprocessing
 import requests
@@ -169,9 +171,17 @@ class FigshareEndpoint:
         return self.getAll("/articles", published_since=published_since)
 
     def getArticleDetailsByAccountById (self, account_id, article_id):
-        headers    = self.request_headers()
-        parameters = { "impersonate": account_id }
-        return self.get(f"/account/articles/{article_id}", headers, parameters)
+        headers      = self.request_headers()
+        parameters   = { "impersonate": account_id }
+        record       = self.get(f"/account/articles/{article_id}", headers, parameters)
+
+        now          = datetime.strptime(datetime.now(), "%Y-%m-%d")
+        created_date = now
+        if "created_date" in record and not record["created_date"] is None:
+            created_date  = datetime.strptime(record["created_date"], "%Y-%m-%d")
+
+        record["statistics"] = self.getStatisticsForArticle(article_id, created_date, now)
+        return record
 
     def getArticlesByAccount (self, account_id):
         summaries = self.getAll ("/account/articles", impersonate=account_id)
@@ -206,17 +216,43 @@ class FigshareEndpoint:
         logging.info("Getting institutional accounts.")
         return self.getAll("/account/institution/accounts")
 
-    def getStatisticsForArticle (self, article_id):
+    def getStatisticsForArticle (self,
+                                 article_id,
+                                 start_date = None,
+                                 end_date   = None):
 
-        headers = self.request_headers()
+        headers    = self.request_headers()
         headers["Authorization"] = "Basic FIGSHARE_STATS_AUTH"
 
-        views     = self.getStats (f"/4tu/total/views/article/{article_id}", headers, {})
-        downloads = self.getStats (f"/4tu/total/downloads/article/{article_id}", headers, {})
-        shares    = self.getStats (f"/4tu/total/shares/article/{article_id}", headers, {})
+        output     = []
+        start      = datetime.now()                     if start_date is None else datetime.strptime(start_date, "%Y-%m-%d")
+        end        = datetime.now() + timedelta(days=1) if end_date   is None else datetime.strptime(end_date, "%Y-%m-%d")
 
-        return {
-            "views": views["totals"],
-            "downloads": downloads["totals"],
-            "shares": shares["totals"]
-        }
+        parameters = { "start_date": start, "end_date": end }
+        parameters = {}
+        views      = self.getStats (f"/4tu/timeline/day/views/article/{article_id}", headers, parameters)
+        downloads  = self.getStats (f"/4tu/timeline/day/downloads/article/{article_id}", headers, parameters)
+        shares     = self.getStats (f"/4tu/timeline/day/shares/article/{article_id}", headers, parameters)
+
+        if views["timeline"] is None:
+            output.append({
+                "views":      0,
+                "downloads":  0,
+                "shares":     0,
+                "date":       datetime.strftime(datetime.now(), "%Y-%m-%d")
+            })
+        else:
+            dates = list(views["timeline"].keys())
+            for date in dates:
+                nviews     = views["timeline"][date]
+                ndownloads = downloads["timeline"][date] if not downloads["timeline"] is None and date in downloads["timeline"] else 0
+                nshares    = shares["timeline"][date]    if not shares["timeline"] is None and date in shares["timeline"] else 0
+
+                output.append({
+                    "views":      nviews,
+                    "downloads":  ndownloads,
+                    "shares":     nshares,
+                    "date":       date
+                })
+
+        return output
