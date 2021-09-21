@@ -1,12 +1,67 @@
 from datetime import datetime
 from mysql.connector import connect, Error
-import logging
+import ast
 import json
+import logging
+import requests
+import xml.etree.ElementTree as ET
 
 class DatabaseInterface:
 
     def __init__(self):
         self.connection = None
+
+    def getFromUrl (self, url: str, headers, parameters):
+        """Procedure to perform a GET request to a Figshare-compatible endpoint."""
+        response = requests.get(url,
+                                headers = headers,
+                                params  = parameters)
+        if response.status_code == 200:
+            return response.text
+        else:
+            logging.error(f"{url} returned {response.status_code}.")
+            logging.error(f"Error message:\n---\n{response.text}\n---")
+            return False
+
+    def getFileSizeForCatalog (self, url, article_id):
+        total_filesize = 0
+        metadata_url   = url.replace(".html", ".xml")
+        metadata       = self.getFromUrl(metadata_url, {}, {})
+        if not metadata:
+            logging.info(f"Couldn't get file information for {article_id}.")
+        else:
+            namespaces  = { "c": "http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0" }
+            xml_root    = ET.fromstring(metadata)
+            references  = xml_root.findall(".//c:catalogRef", namespaces)
+
+            ## Recursively handle directories.
+            ## XXX: This may overflow the stack.
+            for reference in references:
+                suffix = reference.attrib["{http://www.w3.org/1999/xlink}href"]
+                suburl = metadata_url.replace("catalog.xml", suffix)
+                total_filesize += self.getFileSizeForCatalog(suburl, article_id)
+
+            ## Handle regular files.
+            files          = xml_root.findall(".//c:dataSize", namespaces)
+            if not files:
+                logging.info(f"Could not find file sizes for {article_id}.")
+            else:
+                for file in files:
+                    units = file.attrib["units"]
+                    size  = ast.literal_eval(file.text)
+                    if units == "Tbytes":
+                        size = size * 1000000000000
+                    elif units == "Gbytes":
+                        size = size * 1000000000
+                    elif units == "Mbytes":
+                        size = size * 1000000
+                    elif units == "Kbytes":
+                        size = size * 1000
+
+                    total_filesize += size
+
+
+        return total_filesize
 
     def connect(self, host, username, password, database):
         try:
@@ -82,9 +137,9 @@ class DatabaseInterface:
         return self.executeQuery(template, data)
 
     def insertAuthor (self, record, article_id):
-        template = ("INSERT IGNORE INTO AuthorComplete "
-                  "(id, full_name, is_active, url_name, orcid_id) "
-                  "VALUES (%s, %s, %s, %s, %s)")
+        template = ("INSERT IGNORE INTO Author "
+                    "(id, full_name, is_active, url_name, orcid_id) "
+                    "VALUES (%s, %s, %s, %s, %s)")
 
         data     = (record["id"],
                     record["full_name"],
@@ -244,6 +299,12 @@ class DatabaseInterface:
                     "preview_state, status, upload_url, upload_token) VALUES "
                     "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
+
+        if record["download_url"].startswith("https://opendap.4tu.nl/thredds") and record["size"] == 0:
+            metadata_url   = record["download_url"].replace(".html", ".xml")
+            metadata       = self.getFromUrl(metadata_url, {}, {})
+            record["size"] = self.getFileSizeForCatalog(record["download_url"], article_id)
+
         data = (record["id"],
                 record["name"],
                 record["size"],
@@ -270,18 +331,17 @@ class DatabaseInterface:
         data     = (article_id, url)
 
     def insertArticle (self, record):
-        template = ("INSERT IGNORE INTO ArticleComplete (id, title, doi, "
+        template = ("INSERT IGNORE INTO Article (id, account_id, title, doi, "
                     "handle, group_id, url, url_public_html, url_public_api, "
-                    "url_private_html, url_private_api, published_date, "
-                    "thumb, defined_type, defined_type_name, is_embargoed, "
-                    "citation, has_linked_file, metadata_reason, "
-                    "confidential_reason, is_metadata_record, is_confidential, "
-                    "is_public, modified_date, created_date, size, status, "
-                    "version, description, figshare_url, resource_doi, "
-                    "resource_title, timeline_id, license_id) VALUES (%s, %s, "
+                    "url_private_html, url_private_api, published_date, thumb, "
+                    "defined_type, defined_type_name, is_embargoed, citation, "
+                    "has_linked_file, metadata_reason, confidential_reason, "
+                    "is_metadata_record, is_confidential, is_public, "
+                    "modified_date, created_date, size, status, version, "
+                    "description, figshare_url, resource_doi, resource_title, "
+                    "timeline_id, license_id) VALUES (%s, %s, %s, %s, %s, %s, "
                     "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                    "%s, %s, %s)")
+                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
         article_id  = record["id"]
         timeline_id = None
@@ -314,9 +374,10 @@ class DatabaseInterface:
         for file in files:
             self.insertFile(file, article_id)
 
-        stats = record["statistics"]
-        for day in stats:
-            self.insertStatistics(day, article_id)
+        if "statistics" in record:
+            stats = record["statistics"]
+            for day in stats:
+                self.insertStatistics(day, article_id)
 
         created_date = None
         if "created_date" in record and not record["created_date"] is None:
@@ -331,6 +392,7 @@ class DatabaseInterface:
             self.insertCustomField(field, article_id)
 
         data          = (article_id,
+                         record["account_id"],
                          record["title"],
                          record["doi"],
                          record["handle"],
