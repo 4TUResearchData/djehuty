@@ -43,7 +43,6 @@ class FigshareEndpoint:
             return response.json()
         else:
             logging.error(f"{path} returned {response.status_code}.")
-            logging.error(f"Error message:\n---\n{response.text}\n---")
             return []
 
     def get (self, path: str, headers, parameters):
@@ -175,12 +174,20 @@ class FigshareEndpoint:
         parameters   = { "impersonate": account_id }
         record       = self.get(f"/account/articles/{article_id}", headers, parameters)
 
-        now          = datetime.strptime(datetime.now(), "%Y-%m-%d")
+        now          = datetime.now()
         created_date = now
         if "created_date" in record and not record["created_date"] is None:
-            created_date  = datetime.strptime(record["created_date"], "%Y-%m-%d")
+            created_date  = datetime.strptime(record["created_date"]
+                                              .replace("Z", "")
+                                              .replace("T", " "),
+                                              "%Y-%m-%d %H:%M:%S")
 
-        record["statistics"] = self.getStatisticsForArticle(article_id, created_date, now)
+        record["account_id"] = account_id
+        record["statistics"] = self.getStatisticsForArticle(
+            article_id,
+            datetime.strftime(created_date, "%Y-%m-%d"),
+            datetime.strftime(now, "%Y-%m-%d"))
+
         return record
 
     def getArticlesByAccount (self, account_id):
@@ -225,16 +232,21 @@ class FigshareEndpoint:
         headers["Authorization"] = "Basic FIGSHARE_STATS_AUTH"
 
         output     = []
-        start      = datetime.now()                     if start_date is None else datetime.strptime(start_date, "%Y-%m-%d")
-        end        = datetime.now() + timedelta(days=1) if end_date   is None else datetime.strptime(end_date, "%Y-%m-%d")
+        if start_date is None:
+            start_date = datetime.strftime(datetime.now(), "%Y-%m-%d")
 
-        parameters = { "start_date": start, "end_date": end }
-        parameters = {}
+        if end_date is None:
+            end_date    = datetime.strftime(datetime.now(), "%Y-%m-%d") ##  + timedelta(days=1)
+
+        parameters = {
+            "start_date": start_date,
+            "end_date":   end_date
+        }
         views      = self.getStats (f"/4tu/timeline/day/views/article/{article_id}", headers, parameters)
         downloads  = self.getStats (f"/4tu/timeline/day/downloads/article/{article_id}", headers, parameters)
         shares     = self.getStats (f"/4tu/timeline/day/shares/article/{article_id}", headers, parameters)
 
-        if views["timeline"] is None:
+        if not views or views["timeline"] is None:
             output.append({
                 "views":      0,
                 "downloads":  0,
