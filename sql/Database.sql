@@ -55,42 +55,11 @@ CREATE TABLE IF NOT EXISTS ArticleReference(
     url                   VARCHAR(255)
     ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS Article(
-    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    title                 VARCHAR(255),
-    doi                   VARCHAR(255),
-    handle                VARCHAR(255),
-    group_id              INT DEFAULT NULL,
-    url                   VARCHAR(255),
-    url_public_html       VARCHAR(255),
-    url_public_api        VARCHAR(255),
-    url_private_html      VARCHAR(255),
-    url_private_api       VARCHAR(255),
-    published_date        VARCHAR(32),
-    timeline_id           INT UNSIGNED,
-    thumb                 VARCHAR(255),
-    defined_type          INT,
-    defined_type_name     VARCHAR(255),
-    embargo_id            INT UNSIGNED,
-
-    -- The following fields are inferred from the search interfaces
-    -- rather than the data descriptions.  For example, an article
-    -- must be linked to an institution somehow, but needs not
-    -- necessarily be implemented using a foreign key.
-    institution_id        INT UNSIGNED,
-    is_private            BOOLEAN NOT NULL DEFAULT 0
-
-    -- FOREIGN KEY (institution_id) REFERENCES Institution(id),
-    -- FOREIGN KEY (timeline_id)    REFERENCES Timeline(id),
-    -- FOREIGN KEY (embargo_id)     REFERENCES ArticleEmbargo(id)
-    ) ENGINE=InnoDB;
-
-
 CREATE TABLE IF NOT EXISTS ArticleCategory(
     category_id           INT UNSIGNED,
     article_id            INT UNSIGNED) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS ArticleComplete(
+CREATE TABLE IF NOT EXISTS Article(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     account_id            INT UNSIGNED,
     title                 VARCHAR(255),
@@ -143,10 +112,8 @@ CREATE TABLE IF NOT EXISTS ArticleComplete(
     -- rather than the data descriptions.  For example, an article
     -- must be linked to an institution somehow, but needs not
     -- necessarily be implemented using a foreign key.
-    institution_id        INT UNSIGNED,
-    is_private            BOOLEAN NOT NULL DEFAULT 0
+    institution_id        INT UNSIGNED
 
-    -- FOREIGN KEY (article_id) REFERENCES Article(id),
     -- FOREIGN KEY (license_id) REFERENCES License(id)
     ) ENGINE=InnoDB;
 
@@ -182,7 +149,7 @@ CREATE TABLE IF NOT EXISTS ArticleFile(
     -- FOREIGN KEY (file_id) REFERENCES File(id),
     ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS AuthorComplete(
+CREATE TABLE IF NOT EXISTS Author(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     institution_id        INT UNSIGNED,
     group_id              INT UNSIGNED,
@@ -243,7 +210,7 @@ CREATE TABLE IF NOT EXISTS CollectionAuthors(
     author_id             INT UNSIGNED
 
     -- FOREIGN KEY (collection_id) REFERENCES Collection(id),
-    -- FOREIGN KEY (author_id) REFERENCES AuthorComplete(id),
+    -- FOREIGN KEY (author_id) REFERENCES Author(id),
     ) ENGINE=InnoDB;
 
 -------------------------------------------------------------------------------
@@ -252,6 +219,7 @@ CREATE TABLE IF NOT EXISTS CollectionAuthors(
 
 CREATE TABLE IF NOT EXISTS Project(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    account_id            INT UNSIGNED,
     title                 VARCHAR(255),
     url                   VARCHAR(255),
     published_date        DATETIME) ENGINE=InnoDB;
@@ -266,7 +234,7 @@ CREATE TABLE IF NOT EXISTS Project(
 -- AUTHORS
 -------------------------------------------------------------------------------
 
--- See table AuthorComplete above.
+-- See table Author above.
 
 -------------------------------------------------------------------------------
 -- ACCOUNTS
