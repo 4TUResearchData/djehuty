@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS ArticleComplete(
     confidential_reason   VARCHAR(255),
     embargo_type          VARCHAR(255),
     is_confidential       BOOLEAN NOT NULL DEFAULT 0,
-    size                  INT UNSIGNED,
+    size                  BIGINT UNSIGNED,
     funding               VARCHAR(255),
     funding_id            INT UNSIGNED,
     tags_id               INT UNSIGNED,
@@ -155,13 +155,13 @@ CREATE TABLE IF NOT EXISTS ArticleAuthor(
     author_id             INT UNSIGNED
 
     -- FOREIGN KEY (collection_id) REFERENCES Collection(id),
-    -- FOREIGN KEY (author_id) REFERENCES AuthorComplete(id),
+    -- FOREIGN KEY (author_id) REFERENCES Author(id),
     ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS File(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name                  VARCHAR(255),
-    size                  INT UNSIGNED,
+    size                  BIGINT UNSIGNED,
     is_link_only          BOOLEAN NOT NULL DEFAULT 0,
     download_url          VARCHAR(255),
     supplied_md5          VARCHAR(64),
