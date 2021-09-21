@@ -92,6 +92,7 @@ CREATE TABLE IF NOT EXISTS ArticleCategory(
 
 CREATE TABLE IF NOT EXISTS ArticleComplete(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    account_id            INT UNSIGNED,
     title                 VARCHAR(255),
     doi                   VARCHAR(255),
     handle                VARCHAR(255),
