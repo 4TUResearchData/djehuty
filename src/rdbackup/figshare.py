@@ -233,7 +233,7 @@ class FigshareEndpoint:
 
         output     = []
         if start_date is None:
-            start_date = datetime.strftime(datetime.now(), "%Y-%m-%d")
+            start_date = datetime.strftime(datetime.now() - timedelta(days=365), "%Y-%m-%d")
 
         if end_date is None:
             end_date    = datetime.strftime(datetime.now(), "%Y-%m-%d") ##  + timedelta(days=1)
