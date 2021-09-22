@@ -28,7 +28,7 @@ class DatabaseInterface:
         metadata_url   = url.replace(".html", ".xml")
         metadata       = self.getFromUrl(metadata_url, {}, {})
         if not metadata:
-            logging.info(f"Couldn't get file information for {article_id}.")
+            logging.info(f"Couldn't get metadata for {article_id}.")
         else:
             namespaces  = { "c": "http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0" }
             xml_root    = ET.fromstring(metadata)
@@ -36,15 +36,19 @@ class DatabaseInterface:
 
             ## Recursively handle directories.
             ## XXX: This may overflow the stack.
-            for reference in references:
-                suffix = reference.attrib["{http://www.w3.org/1999/xlink}href"]
-                suburl = metadata_url.replace("catalog.xml", suffix)
-                total_filesize += self.getFileSizeForCatalog(suburl, article_id)
+            if not references:
+                logging.info(f"Catalog {url} does not contain subdirectories.")
+            else:
+                for reference in references:
+                    suffix = reference.attrib["{http://www.w3.org/1999/xlink}href"]
+                    suburl = metadata_url.replace("catalog.xml", suffix)
+                    total_filesize += self.getFileSizeForCatalog(suburl, article_id)
 
             ## Handle regular files.
             files          = xml_root.findall(".//c:dataSize", namespaces)
             if not files:
-                logging.info(f"Could not find file sizes for {article_id}.")
+                if total_filesize == 0:
+                    logging.info(f"There are no files in {url}.")
             else:
                 for file in files:
                     units = file.attrib["units"]
