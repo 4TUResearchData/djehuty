@@ -211,6 +211,7 @@ WHERE {{
             query += f"FILTER(CONTAINS(?resource_title, \"{search_for}\"))\n"
             query += f"FILTER(CONTAINS(?description, \"{search_for}\"))\n"
             query += f"FILTER(CONTAINS(?citation, \"{search_for}\"))\n"
+
         query += "}\n"
 
         if order is not None:
@@ -224,6 +225,397 @@ LIMIT {limit}
         try:
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+        except:
+            logging.error(f"SPARQL query failed.")
+            logging.error(f"Query:\n---\n{query}\n---")
+
+        return results
+
+    def article_authors (self, first_name=None, full_name=None, group_id=None,
+                         id=None, institution_id=None, is_active=None,
+                         is_public=None, job_title=None, last_name=None,
+                         orcid_id=None, url_name=None, limit=10, order=None,
+                         order_direction=None, article_id=None):
+
+        if order_direction is None:
+            order_direction = "DESC"
+        if order is None:
+            order="?id"
+        if limit is None:
+            limit = 10
+
+        query = f"""\
+{self.default_prefixes}
+SELECT DISTINCT ?first_name      ?full_name       ?group_id
+                ?id              ?institution_id  ?is_active
+                ?is_public       ?job_title       ?last_name
+                ?orcid_id        ?url_name
+WHERE {{
+  GRAPH <https://data.4tu.nl/portal/2021-09-22> {{
+    ?author            rdf:type                 sg:Author .
+    ?author            col:id                   ?id .
+"""
+
+        if article_id is not None:
+            query += f"""\
+    ?article           rdf:type                 sg:Article .
+    ?link              rdf:type                 sg:ArticleAuthorLink .
+    ?link              col:article_id           {article_id} .
+    ?link              col:author_id            ?id .
+"""
+
+        query += f"""\
+    OPTIONAL {{ ?author col:first_name            ?first_name . }}
+    OPTIONAL {{ ?author col:full_name             ?full_name . }}
+    OPTIONAL {{ ?author col:group_id              ?group_id . }}
+    OPTIONAL {{ ?author col:institution_id        ?institution_id . }}
+    OPTIONAL {{ ?author col:is_active             ?is_active . }}
+    OPTIONAL {{ ?author col:is_public             ?is_public . }}
+    OPTIONAL {{ ?author col:job_title             ?job_title . }}
+    OPTIONAL {{ ?author col:last_name             ?last_name . }}
+    OPTIONAL {{ ?author col:orcid_id              ?orcid_id . }}
+    OPTIONAL {{ ?author col:url_name              ?url_name . }}
+  }}
+"""
+
+        if first_name is not None:
+            query += f"FILTER (STR(?first_name) = \"{first_name}\")\n"
+
+        if full_name is not None:
+            query += f"FILTER (STR(?full_name) = \"{full_name}\")\n"
+
+        if group_id is not None:
+            query += f"FILTER (?group_id = {group_id})\n"
+
+        if id is not None:
+            query += f"FILTER (?id = {id})\n"
+
+        if institution_id is not None:
+            query += f"FILTER (?institution_id = {institution_id})\n"
+
+        if is_active is not None:
+            query += f"FILTER (?is_active = {is_active})\n"
+
+        if is_public is not None:
+            query += f"FILTER (?is_public = {is_public})\n"
+
+        if job_title is not None:
+            query += f"FILTER (?job_title = \"{job_title}\")\n"
+
+        if last_name is not None:
+            query += f"FILTER (?last_name = \"{last_name}\")\n"
+
+        if orcid_id is not None:
+            query += f"FILTER (?orcid_id = \"{orcid_id}\")\n"
+
+        if url_name is not None:
+            query += f"FILTER (?url_name = \"{url_name}\")\n"
+
+        query += "}\n"
+
+        if order is not None:
+            query += f"""\
+ORDER BY {order_direction}({order})
+LIMIT {limit}
+"""
+
+        self.sparql.setQuery(query)
+        results = None
+        try:
+            query_results = self.sparql.query().convert()
+            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+        except:
+            logging.error(f"SPARQL query failed.")
+            logging.error(f"Query:\n---\n{query}\n---")
+
+        return results
+
+    def article_files (self, name=None, size=None, is_link_only=None,
+                       id=None, download_url=None, supplied_md5=None,
+                       computed_md5=None, viewer_type=None, preview_state=None,
+                       status=None, upload_url=None, upload_token=None,
+                       order=None, order_direction=None, limit=None,
+                       article_id=None):
+
+        if order_direction is None:
+            order_direction = "DESC"
+        if order is None:
+            order="?id"
+        if limit is None:
+            limit = 10
+
+        query = f"""\
+{self.default_prefixes}
+SELECT DISTINCT ?name          ?size          ?is_link_only
+                ?id            ?download_url  ?supplied_md5
+                ?computed_md5  ?viewer_type   ?preview_state
+                ?status        ?upload_url    ?upload_token
+WHERE {{
+  GRAPH <https://data.4tu.nl/portal/2021-09-22> {{
+    ?file              rdf:type                 sg:File .
+    ?file              col:id                   ?id .
+"""
+
+        if article_id is not None:
+            query += f"""\
+    ?article           rdf:type                 sg:Article .
+    ?link              rdf:type                 sg:ArticleFileLink .
+    ?link              col:article_id           {article_id} .
+    ?link              col:file_id              ?id .
+"""
+
+        query += f"""\
+    OPTIONAL {{ ?file  col:name                 ?name . }}
+    OPTIONAL {{ ?file  col:size                 ?size . }}
+    OPTIONAL {{ ?file  col:is_link_only         ?is_link_only . }}
+    OPTIONAL {{ ?file  col:download_url         ?download_url . }}
+    OPTIONAL {{ ?file  col:supplied_md5         ?supplied_md5 . }}
+    OPTIONAL {{ ?file  col:computed_md5         ?computed_md5 . }}
+    OPTIONAL {{ ?file  col:viewer_type          ?viewer_type . }}
+    OPTIONAL {{ ?file  col:preview_state        ?preview_state . }}
+    OPTIONAL {{ ?file  col:status               ?status . }}
+    OPTIONAL {{ ?file  col:upload_url           ?upload_url . }}
+    OPTIONAL {{ ?file  col:upload_token         ?upload_token . }}
+  }}
+"""
+        if name is not None:
+            query += f"FILTER (STR(?name) = \"{name}\")\n"
+
+        if size is not None:
+            query += f"FILTER (?size = {size})\n"
+
+        if is_link_only is not None:
+            query += f"FILTER (?is_link_only = {is_link_only})\n"
+
+        if id is not None:
+            query += f"FILTER (?id = {id})\n"
+
+        if download_url is not None:
+            query += f"FILTER (STR(?download_url) = \"{download_url}\")\n"
+
+        if supplied_md5 is not None:
+            query += f"FILTER (STR(?supplied_md5) = \"{supplied_md5}\")\n"
+
+        if computed_md5 is not None:
+            query += f"FILTER (STR(?computed_md5) = \"{computed_md5}\")\n"
+
+        if viewer_type is not None:
+            query += f"FILTER (STR(?viewer_type) = \"{viewer_type}\")\n"
+
+        if preview_state is not None:
+            query += f"FILTER (STR(?preview_state) = \"{preview_state}\")\n"
+
+        if status is not None:
+            query += f"FILTER (STR(?status) = \"{status}\")\n"
+
+        if upload_url is not None:
+            query += f"FILTER (STR(?upload_url) = \"{upload_url}\")\n"
+
+        if upload_token is not None:
+            query += f"FILTER (STR(?upload_token) = \"{upload_token}\")\n"
+
+        query += "}\n"
+
+        if order is not None:
+            query += f"""\
+ORDER BY {order_direction}({order})
+LIMIT {limit}
+"""
+
+        self.sparql.setQuery(query)
+        results = None
+        try:
+            query_results = self.sparql.query().convert()
+            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+        except:
+            logging.error(f"SPARQL query failed.")
+            logging.error(f"Query:\n---\n{query}\n---")
+
+        return results
+
+    def article_custom_fields (self, name=None, value=None, default_value=None,
+                               id=None, placeholder=None, max_length=None,
+                               min_length=None, field_type=None, is_multiple=None,
+                               is_mandatory=None, order=None, order_direction=None,
+                               limit=None, article_id=None):
+
+        if order_direction is None:
+            order_direction = "DESC"
+        if order is None:
+            order="?id"
+        if limit is None:
+            limit = 10
+
+        query = f"""\
+{self.default_prefixes}
+SELECT DISTINCT ?name          ?value         ?default_value
+                ?id            ?placeholder   ?max_length
+                ?min_length    ?field_type    ?is_multiple
+                ?is_mandatory
+WHERE {{
+  GRAPH <https://data.4tu.nl/portal/2021-09-22> {{
+    ?field             rdf:type                 sg:ArticleCustomField .
+    ?field             col:id                   ?id .
+"""
+
+        if article_id is not None:
+            query += f"""\
+    ?field             col:article_id           {article_id} .
+"""
+
+        query += f"""\
+    OPTIONAL {{ ?field  col:name                 ?name . }}
+    OPTIONAL {{ ?field  col:value                ?value . }}
+    OPTIONAL {{ ?field  col:default_value        ?default_value . }}
+    OPTIONAL {{ ?field  col:placeholder          ?placeholder . }}
+    OPTIONAL {{ ?field  col:max_length           ?max_length . }}
+    OPTIONAL {{ ?field  col:min_length           ?min_length . }}
+    OPTIONAL {{ ?field  col:field_type           ?field_type . }}
+    OPTIONAL {{ ?field  col:is_multiple          ?is_multiple . }}
+    OPTIONAL {{ ?field  col:is_mandatory         ?is_mandatory . }}
+  }}
+"""
+        if name is not None:
+            query += f"FILTER (STR(?name) = \"{name}\")\n"
+
+        if value is not None:
+            query += f"FILTER (STR(?value) = \"{value}\")\n"
+
+        if default_value is not None:
+            query += f"FILTER (STR(?default_value) = \"{default_value}\")\n"
+
+        if id is not None:
+            query += f"FILTER (?id = {id})\n"
+
+        if placeholder is not None:
+            query += f"FILTER (STR(?placeholder) = \"{placeholder}\")\n"
+
+        if max_length is not None:
+            query += f"FILTER (?max_length = {max_length})\n"
+
+        if min_length is not None:
+            query += f"FILTER (?min_length = {min_length})\n"
+
+        if field_type is not None:
+            query += f"FILTER (STR(?field_type) = \"{field_type}\")\n"
+
+        if is_multiple is not None:
+            query += f"FILTER (?is_multiple = {is_multiple})\n"
+
+        if is_mandatory is not None:
+            query += f"FILTER (?is_mandatory = {is_mandatory})\n"
+
+        query += "}\n"
+
+        if order is not None:
+            query += f"""\
+ORDER BY {order_direction}({order})
+LIMIT {limit}
+"""
+
+        self.sparql.setQuery(query)
+        results = None
+        try:
+            query_results = self.sparql.query().convert()
+            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+        except:
+            logging.error(f"SPARQL query failed.")
+            logging.error(f"Query:\n---\n{query}\n---")
+
+        return results
+
+    def article_tags (self, order=None, order_direction=None, limit=None, article_id=None):
+
+        if order_direction is None:
+            order_direction = "DESC"
+        if order is None:
+            order="?id"
+        if limit is None:
+            limit = 10
+
+        query = f"""\
+{self.default_prefixes}
+SELECT DISTINCT ?id ?tag
+WHERE {{
+  GRAPH <https://data.4tu.nl/portal/2021-09-22> {{
+    ?row             rdf:type                 sg:Tag .
+    ?row             col:id                   ?id .
+    ?row             col:tag                  ?tag .
+"""
+
+        if article_id is not None:
+            query += f"""\
+    ?row             col:article_id           {article_id} .
+"""
+
+        query += f"""\
+  }}
+}}
+"""
+        if order is not None:
+            query += f"""\
+ORDER BY {order_direction}({order})
+LIMIT {limit}
+"""
+
+        self.sparql.setQuery(query)
+        results = None
+        try:
+            query_results = self.sparql.query().convert()
+            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+        except:
+            logging.error(f"SPARQL query failed.")
+            logging.error(f"Query:\n---\n{query}\n---")
+
+        return results
+
+    def article_categories (self, title=None, order=None, order_direction=None,
+                            limit=None, article_id=None):
+
+        if order_direction is None:
+            order_direction = "DESC"
+        if order is None:
+            order="?id"
+        if limit is None:
+            limit = 10
+
+        query = f"""\
+{self.default_prefixes}
+SELECT DISTINCT ?id ?parent_id ?title
+WHERE {{
+  GRAPH <https://data.4tu.nl/portal/2021-09-22> {{
+    ?row             rdf:type                 sg:Category .
+    ?row             col:id                   ?id .
+    ?row             col:parent_id            ?parent_id .
+    ?row             col:title                ?title .
+"""
+
+        if article_id is not None:
+            query += f"""\
+    ?article         rdf:type                 sg:ArticleCategoryLink .
+    ?article         col:article_id           {article_id} .
+    ?article         col:category_id          ?id .
+"""
+
+        query += "  }\n"
+
+        if title is not None:
+            query += f"FILTER (STR(?title) = \"{title}\")\n"
+
+        query += "}\n"
+
+        if order is not None:
+            query += f"""\
+ORDER BY {order_direction}({order})
+LIMIT {limit}
+"""
+
+        self.sparql.setQuery(query)
+        results = None
+        try:
+            query_results = self.sparql.query().convert()
+            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            logging.error(f"Query:\n---\n{query}\n---")
         except:
             logging.error(f"SPARQL query failed.")
             logging.error(f"Query:\n---\n{query}\n---")
