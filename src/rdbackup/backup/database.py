@@ -5,6 +5,7 @@ import json
 import logging
 import requests
 import xml.etree.ElementTree as ET
+import rdbackup.utils import convenience
 
 class DatabaseInterface:
 
@@ -64,7 +65,6 @@ class DatabaseInterface:
 
                     total_filesize += size
 
-
         return total_filesize
 
     def connect(self, host, username, password, database):
@@ -107,12 +107,12 @@ class DatabaseInterface:
                          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
                          "%s, %s, %s, %s)")
 
-        created_date  = None
-        if "created_date" in record and not record["created_date"] is None:
+        created_date  = convenience.value_or_none (record, "created_date")
+        if created_date is None:
             created_date  = datetime.strptime(record["created_date"], "%Y-%m-%dT%H:%M:%SZ")
 
-        modified_date = None
-        if "modified_date" in record and not record["modified_date"] is None:
+        modified_date = convenience.value_or_none (record, "modified_date")
+        if modified_date is None:
             modified_date = datetime.strptime(record["modified_date"], "%Y-%m-%dT%H:%M:%SZ")
 
         data          = (
@@ -123,13 +123,13 @@ class DatabaseInterface:
             record["last_name"],
             record["institution_user_id"],
             record["institution_id"],
-            None if not "pending_quota_request" in record else record["pending_quota_request"],
-            None if not "used_quota_public" in record else record["used_quota_public"],
-            None if not "used_quota_private" in record else record["used_quota_private"],
-            None if not "used_quota" in record else record["used_quota"],
-            None if not "maximum_file_size" in record else record["maximum_file_size"],
-            None if not "quota" in record else record["quota"],
-            None if not "modified_date" in record else datetime.strftime (modified_date, "%Y-%m-%d %H:%M:%S"),
+            convenience.value_or_none (record, "pending_quota_request"),
+            convenience.value_or_none (record, "used_quota_public"),
+            convenience.value_or_none (record, "used_quota_private"),
+            convenience.value_or_none (record, "used_quota"),
+            convenience.value_or_none (record, "maximum_file_size"),
+            convenience.value_or_none (record, "quota"),
+            convenience.value_or_none (record, "modified_date"),
             None if not "created_date" in record else datetime.strftime (created_date, "%Y-%m-%d %H:%M:%S")
         )
 
@@ -162,13 +162,16 @@ class DatabaseInterface:
 
     def insertTimeline (self, record, article_id):
         template = ("INSERT IGNORE INTO Timeline "
-                    "(revision, firstOnline, publisherPublication, posted) "
-                    "VALUES (%s, %s, %s, %s)")
+                    "(revision, firstOnline, publisherPublication, "
+                    "publisherAcceptance, posted, submission) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)")
 
-        data     = (None if not "revision" in record else record["revision"],
-                    None if not "firstOnline" in record else record["firstOnline"],
-                    None if not "publisherPublication" in record else record["publisherPublication"],
-                    None if not "posted" in record else record["posted"])
+        data     = (convenience.value_or_none (record, "revision"),
+                    convenience.value_or_none (record, "firstOnline"),
+                    convenience.value_or_none (record, "publisherPublication"),
+                    convenience.value_or_none (record, "publisherAcceptance"),
+                    convenience.value_or_none (record, "posted"),
+                    convenience.value_or_none (record, "submission"))
 
         return self.executeQuery(template, data)
 
@@ -288,12 +291,11 @@ class DatabaseInterface:
         template = ("INSERT INTO ArticleStatistics (article_id, views, "
                     "downloads, shares, date) VALUES (%s, %s, %s, %s, %s)")
 
-        data = (
-            article_id,
-            record["views"],
-            record["downloads"],
-            record["shares"],
-            record["date"])
+        data = (article_id,
+                record["views"],
+                record["downloads"],
+                record["shares"],
+                record["date"])
 
         return self.executeQuery (template, data)
 
