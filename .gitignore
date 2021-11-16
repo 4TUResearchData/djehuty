@@ -1,6 +1,5 @@
 src/rdbackup.egg-info/
-src/rdbackup/__pycache__/
-src/rdbackup/backup/__pycache__/
+*__pycache__*
 dist/
 build/
 dump/
