@@ -63,7 +63,7 @@ LIMIT {limit}
                   published_since=None, modified_since=None,
                   group=None, resource_doi=None, item_type=None,
                   doi=None, handle=None, account_id=None,
-                  search_for=None):
+                  search_for=None, id=None):
 
         if order_direction is None:
             order_direction = "DESC"
@@ -189,6 +189,9 @@ WHERE {{
 
         if handle is not None:
             query += f"FILTER (STR(?handle) = \"{handle}\")\n"
+
+        if id is not None:
+            query += f"FILTER (?id = {id})\n"
 
         if account_id is None:
             query += "FILTER (?is_public = 1)\n"
