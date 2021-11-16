@@ -59,6 +59,13 @@ CREATE TABLE IF NOT EXISTS ArticleCategory(
     category_id           INT UNSIGNED,
     article_id            INT UNSIGNED) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS ArticleVersion(
+    article_id            INT UNSIGNED,
+    version               INT UNSIGNED,
+
+    -- This field can be auto-generated.
+    url                   VARCHAR(255)) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS Article(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     account_id            INT UNSIGNED,
