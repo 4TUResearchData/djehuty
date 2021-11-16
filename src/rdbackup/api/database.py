@@ -85,6 +85,7 @@ SELECT DISTINCT ?account_id ?authors_id ?citation
                 ?has_linked_file ?id ?institution_id
                 ?is_active ?is_confidential ?is_embargoed
                 ?is_metadata_record ?is_public ?license_id
+                ?license_name ?license_url
                 ?metadata_reason ?modified_date
                 ?published_date ?references_id
                 ?resource_doi ?resource_title ?size
@@ -111,6 +112,14 @@ WHERE {{
         OPTIONAL {{ ?timeline col:submission           ?timeline_submission . }}
         OPTIONAL {{ ?timeline col:posted               ?timeline_posted . }}
         OPTIONAL {{ ?timeline col:revision             ?timeline_revision . }}
+    }}
+
+    OPTIONAL {{
+        ?license            rdf:type                  sg:License .
+        ?license            col:id                    ?license_id .
+        ?license            col:name                  ?license_name .
+        ?license            col:url                   ?license_url .
+        ?article            col:license_id            ?license_id .
     }}
 
     OPTIONAL {{ ?article col:account_id            ?account_id . }}
@@ -141,7 +150,6 @@ WHERE {{
     OPTIONAL {{ ?article col:is_embargoed          ?is_embargoed . }}
     OPTIONAL {{ ?article col:is_metadata_record    ?is_metadata_record . }}
     OPTIONAL {{ ?article col:is_public             ?is_public . }}
-    OPTIONAL {{ ?article col:license_id            ?license_id . }}
     OPTIONAL {{ ?article col:metadata_reason       ?metadata_reason . }}
     OPTIONAL {{ ?article col:modified_date         ?modified_date . }}
     OPTIONAL {{ ?article col:published_date        ?published_date . }}
