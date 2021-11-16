@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="description" content="4TU.ResearchData API">
+    <meta name="keywords" content="figshare, api, 4tu">
+    <meta name="author" content="4TU.ResearchData">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+    <title>4TU.ResearchData API</title>
+    <link rel='shortcut icon' type='image/x-icon' href='/static/images/favicon.ico' />
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="header">
+        <img id="logo" src="/static/images/logo.png" alt="4TU.ResearchData">
+      </div>
+      <div id="content">
+        <div id="content-wrapper">
+          {% block body %}{% endblock %}
+        </div>
+      </div>
+    </div>
+    <div id="footer">
+      <p><a href="https://gitlab.tudelft.nl/roelj/rdbackup">Source code</a>
+      <p><a href="/documentation">Documentation</a>
+    </div>
+  </body>
+</html>

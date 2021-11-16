@@ -1,0 +1,111 @@
+@font-face {
+    font-family: 'Roboto';
+    src: url('/static/fonts/Roboto-Light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Roboto-Italic';
+    src: url('/static/fonts/Roboto-LightItalic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+@font-face {
+    font-family: 'Roboto-Bold';
+    src: url('/static/fonts/Roboto-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'FiraMono';
+    src: url('/static/fonts/FiraMono-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'FiraMono';
+    src: url('/static/fonts/FiraMono-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+body,html {
+    width: 100%;
+    height: 100%;
+    padding: 0em;
+    margin: 0em;
+    font-family: 'Roboto', sans-serif;
+    color: #000000;
+    background: #ffffff;
+}
+#wrapper {
+    width: 100%;
+    min-height: 100%;
+    padding: 0em;
+    margin: 0em auto auto auto;
+    margin-bottom: -20mm;
+    border: none;
+}
+#content {
+    width: 90%;
+    max-width: 80em;
+    margin: 0 auto;
+    padding: 5mm;
+    color: #000000;
+    border: solid 1pt #cccccc;
+    background: #f9f9f9;
+    -webkit-border-radius: 5pt;
+    -moz-border-radius: 5pt;
+    border-radius: 5pt;
+}
+#header img {
+    padding: 5mm 0mm 5mm 0mm;
+    user-select: none;
+    margin: 0em;
+}
+#header {
+    height: auto;
+    text-align: center;
+    margin: 0em;
+    padding: 0em;
+}
+#footer {
+    column-count: 2;
+    column-gap: 5mm;
+    height: 20mm;
+    width: auto;
+    text-align: center;
+    color: #333333;
+    border: none;
+}
+#footer p {
+    padding: 0.5em 0em 0em 0em;
+    margin: 0em;
+}
+a {
+    color: #000000;
+}
+a:hover {
+    color: #555555;
+}
+h1 {
+    padding: 0em;
+    margin: 0em;
+}
+a {
+    color: #000000;
+    text-decoration: underline;
+    font-weight: bold;
+}
+a:hover {
+    color: #666666;
+    text-decoration: underline;
+    font-weight: bold;
+}
+pre {
+    background: #eeeeee;
+    border: solid 1pt #cccccc;
+    padding: 5pt;
+    -webkit-border-radius: 5pt;
+    -moz-border-radius: 5pt;
+    border-radius: 5pt;    
+}
