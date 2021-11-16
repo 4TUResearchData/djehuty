@@ -4,3 +4,5 @@ def value_or_none (record, key):
         return record[key]
     except KeyError:
         return None
+    except TypeError:
+        return None
