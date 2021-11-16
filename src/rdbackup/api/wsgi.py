@@ -27,12 +27,15 @@ class ApiServer:
         ## --------------------------------------------------------------------
 
         self.url_map = Map([
-            Rule("/",                                  endpoint = "home"),
-            Rule("/v2/account/applications/authorize", endpoint = "authorize"),
-            Rule("/v2/token",                          endpoint = "token"),
-            Rule("/v2/articles",                       endpoint = "articles"),
-            Rule("/v2/collections",                    endpoint = "collections"),
-            Rule("/v2/articles/search",                endpoint = "articles_search"),
+            Rule("/",                                         endpoint = "home"),
+            Rule("/v2/account/applications/authorize",        endpoint = "authorize"),
+            Rule("/v2/token",                                 endpoint = "token"),
+            Rule("/v2/articles",                              endpoint = "articles"),
+            Rule("/v2/collections",                           endpoint = "collections"),
+            Rule("/v2/articles/search",                       endpoint = "articles_search"),
+            Rule("/v2/articles/<article_id>",                 endpoint = "article_details"),
+            Rule("/v2/articles/<article_id>/files",           endpoint = "article_files"),
+            Rule("/v2/articles/<article_id>/files/<file_id>", endpoint = "article_file_details"),
         ])
 
         ## Routes for static resources.
@@ -194,11 +197,11 @@ class ApiServer:
                                        item_type=item_type,
                                        doi=doi,
                                        handle=handle)
-            output = None
+            output = []
             try:
                 output = list(map (formatter.format_article_record, records))
             except TypeError:
-                output = []
+                logging.error("api_articles: A TypeError occurred.")
 
             return Response(json.dumps(output),
                             mimetype='application/json; charset=utf-8')
@@ -231,4 +234,47 @@ class ApiServer:
                 logging.error("api_articles_search: A TypeError occurred.")
 
             return Response(json.dumps(output),
+                            mimetype='application/json; charset=utf-8')
+
+    def api_article_details (self, request, article_id):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            article       = self.db.articles(id=article_id)[0]
+            authors       = self.db.article_authors(article_id=article_id)
+            files         = self.db.article_files(article_id=article_id)
+            custom_fields = self.db.article_custom_fields(article_id=article_id)
+            tags          = self.db.article_tags(article_id=article_id)
+            categories    = self.db.article_categories(article_id=article_id)
+            total         = formatter.format_article_details_record (article,
+                                                                     authors,
+                                                                     files,
+                                                                     custom_fields,
+                                                                     tags,
+                                                                     categories)
+            return Response(json.dumps(total),
+                            mimetype='application/json; charset=utf-8')
+
+    def api_article_files (self, request, article_id):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            files = self.db.article_files(article_id=article_id)
+            results = list (map (formatter.format_file_for_article_record, files))
+            return Response(json.dumps(results),
+                            mimetype='application/json; charset=utf-8')
+
+    def api_article_file_details (self, request, article_id, file_id):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            files = self.db.article_files(id=file_id, article_id=article_id)[0]
+            results = formatter.format_file_for_article_record(files)
+            return Response(json.dumps(results),
                             mimetype='application/json; charset=utf-8')
