@@ -79,9 +79,6 @@ CREATE TABLE IF NOT EXISTS Article(
     figshare_url          VARCHAR(255),
     resource_title        VARCHAR(255),
     resource_doi          VARCHAR(255),
-    files_id              INT UNSIGNED,
-    authors_id            INT UNSIGNED,
-    custom_fields_id      INT UNSIGNED,
     embargo_options_id    INT UNSIGNED,
     citation              TEXT,
     confidential_reason   VARCHAR(255),
@@ -90,7 +87,6 @@ CREATE TABLE IF NOT EXISTS Article(
     size                  BIGINT UNSIGNED,
     funding               VARCHAR(255),
     funding_id            INT UNSIGNED,
-    tags_id               INT UNSIGNED,
     version               INT UNSIGNED,
     is_active             BOOLEAN NOT NULL DEFAULT 1,
     is_metadata_record    BOOLEAN NOT NULL DEFAULT 0,
@@ -106,7 +102,6 @@ CREATE TABLE IF NOT EXISTS Article(
     license_id            INT UNSIGNED,
     embargo_title         VARCHAR(255),
     embargo_reason        VARCHAR(255),
-    references_id         INT UNSIGNED,
 
     -- The following fields are inferred from the search interfaces
     -- rather than the data descriptions.  For example, an article
