@@ -44,6 +44,10 @@ class ApiServer:
             Rule("/v2/articles/<article_id>",                 endpoint = "article_details"),
             Rule("/v2/articles/<article_id>/files",           endpoint = "article_files"),
             Rule("/v2/articles/<article_id>/files/<file_id>", endpoint = "article_file_details"),
+
+            ## Private articles
+            ## ----------------------------------------------------------------
+            Rule("/v2/account/articles",                      endpoint = "private_articles"),
         ])
 
         ## Routes for static resources.
@@ -317,4 +321,40 @@ class ApiServer:
             files = self.db.article_files(id=file_id, article_id=article_id)[0]
             results = formatter.format_file_for_article_record(files)
             return Response(json.dumps(results),
+                            mimetype='application/json; charset=utf-8')
+
+    def api_private_articles (self, request):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            ## Authorization
+            ## ----------------------------------------------------------------
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            ## TODO: Setting "limit" to "TEST" crashes the app. Do type checking
+            ## and sanitization.
+
+            ## Parameters
+            ## ----------------------------------------------------------------
+            page            = self.get_parameter (request, "page")
+            page_size       = self.get_parameter (request, "page_size")
+            limit           = self.get_parameter (request, "limit")
+            offset          = self.get_parameter (request, "offset")
+
+            records = self.db.articles(#page=page,
+                                       #page_size=page_size,
+                                       limit=limit,
+                                       offset=offset,
+                                       account_id=account_id)
+            output = []
+            try:
+                output = list(map (formatter.format_article_record, records))
+            except TypeError:
+                logging.error("api_private_articles: A TypeError occurred.")
+
+            return Response(json.dumps(output),
                             mimetype='application/json; charset=utf-8')
