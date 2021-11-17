@@ -49,7 +49,7 @@ LIMIT {limit}
 """
 
         self.sparql.setQuery(query)
-        results = None
+        results = []
         try:
             results = self.sparql.query().convert()
         except:
@@ -221,7 +221,7 @@ LIMIT {limit}
 """
 
         self.sparql.setQuery(query)
-        results = None
+        results = []
         try:
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
@@ -320,7 +320,7 @@ LIMIT {limit}
 """
 
         self.sparql.setQuery(query)
-        results = None
+        results = []
         try:
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
@@ -423,7 +423,7 @@ LIMIT {limit}
 """
 
         self.sparql.setQuery(query)
-        results = None
+        results = []
         try:
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
@@ -514,7 +514,7 @@ LIMIT {limit}
 """
 
         self.sparql.setQuery(query)
-        results = None
+        results = []
         try:
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
@@ -559,7 +559,7 @@ LIMIT {limit}
 """
 
         self.sparql.setQuery(query)
-        results = None
+        results = []
         try:
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
@@ -611,7 +611,7 @@ LIMIT {limit}
 """
 
         self.sparql.setQuery(query)
-        results = None
+        results = []
         try:
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
