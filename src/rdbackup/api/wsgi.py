@@ -38,8 +38,11 @@ class ApiServer:
             Rule("/",                                         endpoint = "home"),
             Rule("/v2/account/applications/authorize",        endpoint = "authorize"),
             Rule("/v2/token",                                 endpoint = "token"),
-            Rule("/v2/articles",                              endpoint = "articles"),
             Rule("/v2/collections",                           endpoint = "collections"),
+
+            ## Public articles
+            ## ----------------------------------------------------------------
+            Rule("/v2/articles",                              endpoint = "articles"),
             Rule("/v2/articles/search",                       endpoint = "articles_search"),
             Rule("/v2/articles/<article_id>",                 endpoint = "article_details"),
             Rule("/v2/articles/<article_id>/files",           endpoint = "article_files"),
