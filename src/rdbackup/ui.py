@@ -2,6 +2,8 @@ import argparse
 import sys
 from rdbackup.backup import figshare
 from rdbackup.backup import database
+import rdbackup.backup.ui as backup_ui
+import rdbackup.api.ui as api_ui
 
 def show_version ():
     print(f"This is rdbackup v0.0.1")
@@ -49,6 +51,8 @@ def main ():
     api_parser = subparsers.add_parser('api', help="Options for the 'api' subcommand.")
     api_parser.add_argument('--address',    '-a', type=str, default='127.0.0.1')
     api_parser.add_argument('--port',       '-p', type=int, default=8080)
+    api_parser.add_argument('--debug',      '-d', action='store_true')
+    api_parser.add_argument('--dev-reload', '-r', action='store_true')
 
 
     ### GLOBAL ARGUMENTS
@@ -60,8 +64,15 @@ def main ():
     if args.help:    show_help()
     if args.version: show_version()
 
-    if args.command == "backup" and args.token == "":
-        print ("The 'backup' command requires specifying a --token.")
-        print("Try --help for usage options.")
+    if args.command == "backup":
+        if args.token == "":
+            print ("The 'backup' command requires specifying a --token.")
+            print("Try --help for usage options.")
+        else:
+            backup_ui.main (args.token)
+
+    if args.command == "api":
+        api_ui.main (args.address, args.port, args.debug, args.dev_reload)
+
     elif len(sys.argv) == 1:
         print("Try --help for usage options.")

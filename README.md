@@ -14,6 +14,6 @@ local API testing endpoint.
 To get an interactive development environment, use:
 ```python
 pip install --editable .
-python run_api_server.py
+rdbackup api -d -r
 ```
 
