@@ -108,11 +108,11 @@ class DatabaseInterface:
                          "%s, %s, %s, %s)")
 
         created_date  = convenience.value_or_none (record, "created_date")
-        if created_date is None:
+        if created_date is not None:
             created_date  = datetime.strptime(record["created_date"], "%Y-%m-%dT%H:%M:%SZ")
 
         modified_date = convenience.value_or_none (record, "modified_date")
-        if modified_date is None:
+        if modified_date is not None:
             modified_date = datetime.strptime(record["modified_date"], "%Y-%m-%dT%H:%M:%SZ")
 
         data          = (
@@ -435,6 +435,8 @@ class DatabaseInterface:
         if not self.executeQuery(template, data):
             logging.error("Inserting article failed.")
             return False
+
+        return True
 
     def disconnect(self):
         self.connection.commit()
