@@ -5,7 +5,7 @@ import json
 import logging
 import requests
 import xml.etree.ElementTree as ET
-import rdbackup.utils import convenience
+from rdbackup.utils import convenience
 
 class DatabaseInterface:
 
