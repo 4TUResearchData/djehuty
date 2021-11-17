@@ -187,6 +187,7 @@ class ApiServer:
             records = self.db.articles(#page=page,
                                        #page_size=page_size,
                                        limit=limit,
+                                       offset=offset,
                                        order=order,
                                        order_direction=order_direction,
                                        institution=institution,
