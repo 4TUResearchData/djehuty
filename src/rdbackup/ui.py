@@ -1,7 +1,5 @@
 import argparse
 import sys
-from rdbackup.backup import figshare
-from rdbackup.backup import database
 import rdbackup.backup.ui as backup_ui
 import rdbackup.api.ui as api_ui
 
@@ -17,7 +15,11 @@ Available subcommands and options:
 
   backup:
     --help               -h Show a help message.
-    --token=ARG          -t  The API token to use.
+    --token=ARG          -t The API token to use.
+    --db-host=ARG        -H The database host to connect to.
+    --db-name=ARG        -d The database name to use.
+    --db-username=ARG    -u The database username to use.
+    --db-password=ARG    -p The database password to use.
 
   api:
     --help               -h Show a help message.
@@ -43,8 +45,12 @@ def main ():
     ### BACKUP SUBCOMMAND
     ### -----------------------------------------------------------------------
     backup_parser = subparsers.add_parser('backup', help="Options for the 'backup' subcommand.")
-
-    backup_parser.add_argument('--token',   '-t', type=str, default='')
+    backup_parser.add_argument('--token',       '-t', type=str, default='')
+    backup_parser.add_argument('--stats-auth',  '-s', type=str, default='')
+    backup_parser.add_argument('--db-host',     '-H', type=str, default='')
+    backup_parser.add_argument('--db-name',     '-d', type=str, default='')
+    backup_parser.add_argument('--db-username', '-u', type=str, default='')
+    backup_parser.add_argument('--db-password', '-p', type=str, default='')
 
     ### API SUBCOMMAND
     ### -----------------------------------------------------------------------
@@ -53,7 +59,6 @@ def main ():
     api_parser.add_argument('--port',       '-p', type=int, default=8080)
     api_parser.add_argument('--debug',      '-d', action='store_true')
     api_parser.add_argument('--dev-reload', '-r', action='store_true')
-
 
     ### GLOBAL ARGUMENTS
     ### -----------------------------------------------------------------------
@@ -65,11 +70,14 @@ def main ():
     if args.version: show_version()
 
     if args.command == "backup":
-        if args.token == "":
-            print ("The 'backup' command requires specifying a --token.")
-            print("Try --help for usage options.")
+        if (args.token == ""       or args.stats_auth == "" or
+            args.db_host == ""     or args.db_name == ""    or
+            args.db_username == "" or args.db_password == ""):
+            print ("The 'backup' command requires multiple arguments.")
+            print ("Try --help for usage options.")
         else:
-            backup_ui.main (args.token)
+            backup_ui.main (args.token, args.stats_auth, args.db_host,
+                            args.db_username, args.db_password, args.db_name)
 
     if args.command == "api":
         api_ui.main (args.address, args.port, args.debug, args.dev_reload)
