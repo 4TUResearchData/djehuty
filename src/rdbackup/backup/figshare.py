@@ -15,6 +15,7 @@ class FigshareEndpoint:
         self.domain           = "api.figshare.com"
         self.base             = "https://api.figshare.com/v2"
         self.token            = None
+        self.stats_auth       = None
         self.institution_id   = 898 # Defaults to 4TU.ResearchData
         self.institution_name = "4tu"
 
@@ -228,8 +229,16 @@ class FigshareEndpoint:
                                  start_date = None,
                                  end_date   = None):
 
+        if self.stats_auth is None:
+            return [{
+                "views":      0,
+                "downloads":  0,
+                "shares":     0,
+                "date":       datetime.strftime(datetime.now(), "%Y-%m-%d")
+            }]
+
         headers    = self.request_headers()
-        headers["Authorization"] = "Basic FIGSHARE_STATS_AUTH"
+        headers["Authorization"] = f"Basic {self.stats_auth}"
 
         output     = []
         if start_date is None:
