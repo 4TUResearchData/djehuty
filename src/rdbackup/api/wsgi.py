@@ -23,6 +23,14 @@ class ApiServer:
         self.port             = 8080
         self.db               = database.SparqlInterface()
 
+        ## This is a temporary predefined set of tokens to test the private
+        ## articles functionality.
+        self.tokens           = {
+            "2bc2d4c4ea5e3c5f3da70e2aa697c51730d66adadc5c4503e0ff7b4541683b99": 2391394,
+            "e33bfd5e4b05a342f496f53939d4ab29d835d7bbe2d925b69d40a712908ccddc": 2397553,
+            "60b2a1fbae694cb7c85105aeaa57a2d04644f078db32c23732b420c68abb0efe": 1000002
+        }
+
         ## Routes to all API calls.
         ## --------------------------------------------------------------------
 
@@ -114,6 +122,12 @@ class ApiServer:
         response.status_code = 406
         return response
 
+    def error_authorization_failed (self):
+        return Response(json.dumps({
+            "message": "Invalid or unknown OAuth token",
+            "code":    "OAuthInvalidToken"
+        }), mimetype='application/json; charset=utf-8')
+
     ## CONVENIENCE PROCEDURES
     ## ------------------------------------------------------------------------
 
@@ -137,6 +151,31 @@ class ApiServer:
             return request.form[parameter]
         except KeyError:
             return request.args.get(parameter)
+
+
+    def account_id_from_request (self, request):
+        token_string = None
+        account_id = None
+        token = ""
+
+        ## Get the token from the "Authorization" HTTP header.
+        ## If no such header is provided, we cannot authenticate.
+        try:
+            token_string = request.environ["HTTP_AUTHORIZATION"]
+        except KeyError:
+            return account_id
+
+        if token_string.startswith("token "):
+            token = token_string[6:]
+
+        ## Match the token to an account_id.  If the token does not
+        ## exist, we cannot authenticate.
+        try:
+            account_id = self.tokens[token]
+        except KeyError:
+            logging.error(f"Attempt to authenticate with {token} failed.")
+
+        return account_id
 
     ## API CALLS
     ## ------------------------------------------------------------------------
