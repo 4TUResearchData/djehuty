@@ -51,6 +51,22 @@ def format_file_for_article_record (record):
       "computed_md5": convenience.value_or_none(record, "computed_md5")
     }
 
+def format_file_details_record (record):
+    return {
+      "status":        convenience.value_or_none(record, "status"),
+      "viewer_type":   convenience.value_or_none(record, "viewer_type"),
+      "preview_state": convenience.value_or_none(record, "preview_state"),
+      "upload_url":    convenience.value_or_none(record, "upload_url"),
+      "upload_token":  convenience.value_or_none(record, "upload_token"),
+      "id":            convenience.value_or_none(record, "id"),
+      "name":          convenience.value_or_none(record, "name"),
+      "size":          convenience.value_or_none(record, "size"),
+      "is_link_only":  convenience.value_or_none(record, "is_link_only"),
+      "download_url":  convenience.value_or_none(record, "download_url"),
+      "supplied_md5":  convenience.value_or_none(record, "supplied_md5"),
+      "computed_md5":  convenience.value_or_none(record, "computed_md5")
+    }
+
 def format_custom_field_for_article_record (record):
     return {
       "name":         convenience.value_or_none(record, "name"),

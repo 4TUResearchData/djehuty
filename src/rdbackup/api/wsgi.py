@@ -56,6 +56,7 @@ class ApiServer:
             Rule("/v2/account/articles/<article_id>/authors", endpoint = "private_article_authors"),
             Rule("/v2/account/articles/<article_id>/categories", endpoint = "private_article_categories"),
             Rule("/v2/account/articles/<article_id>/files",   endpoint = "private_article_files"),
+            Rule("/v2/account/articles/<article_id>/files/<file_id>", endpoint = "private_article_file_details")
         ])
 
         ## Routes for static resources.
@@ -465,6 +466,30 @@ class ApiServer:
                                 mimetype='application/json; charset=utf-8')
 
             output        = list (map (formatter.format_file_for_article_record, files))
+
+            return Response(json.dumps(output),
+                            mimetype='application/json; charset=utf-8')
+
+    def api_private_article_file_details (self, request, article_id, file_id):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            ## Authorization
+            ## ----------------------------------------------------------------
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            files         = self.db.article_files (article_id = article_id,
+                                                   account_id = account_id,
+                                                   id         = file_id)
+            if not files:
+                return Response(json.dumps([]),
+                                mimetype='application/json; charset=utf-8')
+
+            output        = list (map (formatter.format_file_details_record, files))
 
             return Response(json.dumps(output),
                             mimetype='application/json; charset=utf-8')
