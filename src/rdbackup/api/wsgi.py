@@ -51,6 +51,10 @@ class ApiServer:
             ## Private articles
             ## ----------------------------------------------------------------
             Rule("/v2/account/articles",                      endpoint = "private_articles"),
+            Rule("/v2/account/articles/<article_id>",         endpoint = "private_article_details"),
+            Rule("/v2/account/articles/<article_id>/authors", endpoint = "private_article_authors"),
+            Rule("/v2/account/articles/<article_id>/categories", endpoint = "private_article_categories"),
+            Rule("/v2/account/articles/<article_id>/files",   endpoint = "private_article_files"),
         ])
 
         ## Routes for static resources.
@@ -358,6 +362,108 @@ class ApiServer:
                 output = list(map (formatter.format_article_record, records))
             except TypeError:
                 logging.error("api_private_articles: A TypeError occurred.")
+
+            return Response(json.dumps(output),
+                            mimetype='application/json; charset=utf-8')
+
+    def api_private_article_details (self, request, article_id):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            ## Authorization
+            ## ----------------------------------------------------------------
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            article       = self.db.articles (id=article_id, account_id=account_id)
+            if not article:
+                return Response(json.dumps([]),
+                                mimetype='application/json; charset=utf-8')
+
+            article       = article[0]
+            authors       = self.db.article_authors(article_id=article_id)
+            files         = self.db.article_files(article_id=article_id)
+            custom_fields = self.db.article_custom_fields(article_id=article_id)
+            tags          = self.db.article_tags(article_id=article_id)
+            categories    = self.db.article_categories(article_id=article_id)
+            total         = formatter.format_article_details_record (article,
+                                                                     authors,
+                                                                     files,
+                                                                     custom_fields,
+                                                                     tags,
+                                                                     categories)
+
+            return Response(json.dumps(total),
+                            mimetype='application/json; charset=utf-8')
+
+    def api_private_article_authors (self, request, article_id):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            ## Authorization
+            ## ----------------------------------------------------------------
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+
+            authors       = self.db.article_authors(article_id = article_id,
+                                                    account_id = account_id)
+            if not authors:
+                return Response(json.dumps([]),
+                                mimetype='application/json; charset=utf-8')
+            output        = list (map (formatter.format_author_for_article_record, authors))
+
+            return Response(json.dumps(output),
+                            mimetype='application/json; charset=utf-8')
+
+    def api_private_article_categories (self, request, article_id):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            ## Authorization
+            ## ----------------------------------------------------------------
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            categories    = self.db.article_categories(article_id = article_id,
+                                                       account_id = account_id)
+            if not categories:
+                return Response(json.dumps([]),
+                                mimetype='application/json; charset=utf-8')
+
+            output        = list (map (formatter.format_category_for_article_record, categories))
+
+            return Response(json.dumps(output),
+                            mimetype='application/json; charset=utf-8')
+
+    def api_private_article_files (self, request, article_id):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            ## Authorization
+            ## ----------------------------------------------------------------
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            files         = self.db.article_files (article_id = article_id,
+                                                   account_id = account_id)
+            if not files:
+                return Response(json.dumps([]),
+                                mimetype='application/json; charset=utf-8')
+
+            output        = list (map (formatter.format_file_for_article_record, files))
 
             return Response(json.dumps(output),
                             mimetype='application/json; charset=utf-8')
