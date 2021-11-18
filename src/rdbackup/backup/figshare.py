@@ -209,8 +209,9 @@ class FigshareEndpoint:
             logging.info(f"Fetched {total_fetched} full articles in {end_time - start_time:0.2f} seconds")
             return results
 
-    def getCollectionsByAccount(self, account_id):
-        return False
+    def getCollectionsByAccount (self, account_id):
+        logging.info(f"Getting collections for account {account_id}.")
+        return self.getAll("/account/collections", impersonate=account_id)
 
     def getCollections (self, published_since="1970-01-01"):
         logging.info("Getting collections.")
