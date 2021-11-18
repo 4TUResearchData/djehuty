@@ -233,28 +233,45 @@ class DatabaseInterface:
             return self.executeQuery(template, data)
 
     def insertCollection (self, record):
-        template = ("INSERT IGNORE INTO Collection (url, title, id, modified_date, "
-                    "created_date, citation, group_id, institution_id, "
-                    "description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
+        template = ("INSERT IGNORE INTO Collection (url, title, id, "
+                    "modified_date, created_date, published_date, doi, "
+                    "citation, group_id, institution_id, description, "
+                    "timeline_id) VALUES (%s, %s, %s, %s, %s, %s, %s, "
+                    "%s, %s, %s, %s, %s)")
+
+        collection_id  = record["id"]
+        timeline_id = None
+        if "timeline" in record:
+            timeline_id = self.insertTimeline(record["timeline"])
 
         created_date = None
         if "created_date" in record and not record["created_date"] is None:
             created_date  = datetime.strptime(record["created_date"], "%Y-%m-%dT%H:%M:%SZ")
+            created_date  = datetime.strftime (created_date, "%Y-%m-%d %H:%M:%S"),
 
         modified_date = None
         if "modified_date" in record and not record["modified_date"] is None:
             modified_date = datetime.strptime(record["modified_date"], "%Y-%m-%dT%H:%M:%SZ")
+            modified_date = datetime.strftime (modified_date, "%Y-%m-%d %H:%M:%S")
+
+        published_date = None
+        if "published_date" in record and not record["published_date"] is None:
+            published_date = datetime.strptime(record["published_date"], "%Y-%m-%dT%H:%M:%SZ")
+            published_date = datetime.strftime (published_date, "%Y-%m-%d %H:%M:%S")
 
         data     = (
-            record["url"],
-            record["title"],
-            record["id"],
-            datetime.strftime (modified_date, "%Y-%m-%d %H:%M:%S"),
-            datetime.strftime (created_date, "%Y-%m-%d %H:%M:%S"),
-            record["citation"],
-            record["group_id"],
-            record["institution_id"],
-            None if not "description" in record else record["description"]
+            convenience.value_or_none(record, "url"),
+            convenience.value_or_none(record, "title"),
+            convenience.value_or_none(record, "id"),
+            modified_date,
+            created_date,
+            published_date,
+            convenience.value_or_none(record, "doi"),
+            convenience.value_or_none(record, "citation"),
+            convenience.value_or_none(record, "group_id"),
+            convenience.value_or_none(record, "institution_id"),
+            convenience.value_or_none(record, "description"),
+            timeline_id
         )
         if not self.executeQuery(template, data):
             logging.error("Inserting collection failed.")
