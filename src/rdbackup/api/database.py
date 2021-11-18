@@ -631,7 +631,6 @@ LIMIT {limit}
         try:
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
-            logging.error(f"Query:\n---\n{query}\n---")
         except:
             logging.error(f"SPARQL query failed.")
             logging.error(f"Query:\n---\n{query}\n---")
