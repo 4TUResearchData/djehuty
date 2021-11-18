@@ -51,6 +51,7 @@ class ApiServer:
             ## Private articles
             ## ----------------------------------------------------------------
             Rule("/v2/account/articles",                      endpoint = "private_articles"),
+            Rule("/v2/account/articles/search",               endpoint = "private_articles_search"),
             Rule("/v2/account/articles/<article_id>",         endpoint = "private_article_details"),
             Rule("/v2/account/articles/<article_id>/authors", endpoint = "private_article_authors"),
             Rule("/v2/account/articles/<article_id>/categories", endpoint = "private_article_categories"),
@@ -464,6 +465,40 @@ class ApiServer:
                                 mimetype='application/json; charset=utf-8')
 
             output        = list (map (formatter.format_file_for_article_record, files))
+
+            return Response(json.dumps(output),
+                            mimetype='application/json; charset=utf-8')
+
+    def api_private_articles_search (self, request):
+        if request.method != 'POST':
+            return self.error_405 ("POST")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            parameters = request.get_json()
+            records = self.db.articles(
+                resource_doi    = convenience.value_or_none(parameters, "resource_doi"),
+                id              = convenience.value_or_none(parameters, "resource_id"),
+                item_type       = convenience.value_or_none(parameters, "item_type"),
+                doi             = convenience.value_or_none(parameters, "doi"),
+                handle          = convenience.value_or_none(parameters, "handle"),
+                order           = convenience.value_or_none(parameters, "order"),
+                search_for      = convenience.value_or_none(parameters, "search_for"),
+                #page            = convenience.value_or_none(parameters, "page"),
+                #page_size       = convenience.value_or_none(parameters, "page_size"),
+                limit           = convenience.value_or_none(parameters, "limit"),
+                offset          = convenience.value_or_none(parameters, "offset"),
+                order_direction = convenience.value_or_none(parameters, "order_direction"),
+                institution     = convenience.value_or_none(parameters, "institution"),
+                published_since = convenience.value_or_none(parameters, "published_since"),
+                modified_since  = convenience.value_or_none(parameters, "modified_since"),
+                group           = convenience.value_or_none(parameters, "group"),
+            )
+            output  = []
+            try:
+                output = list(map (formatter.format_article_record, records))
+            except TypeError:
+                logging.error("api_articles_search: A TypeError occurred.")
 
             return Response(json.dumps(output),
                             mimetype='application/json; charset=utf-8')
