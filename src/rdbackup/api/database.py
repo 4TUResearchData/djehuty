@@ -235,7 +235,8 @@ LIMIT {limit}
                          id=None, institution_id=None, is_active=None,
                          is_public=None, job_title=None, last_name=None,
                          orcid_id=None, url_name=None, limit=10, order=None,
-                         order_direction=None, article_id=None):
+                         order_direction=None, article_id=None,
+                         account_id=None):
 
         if order_direction is None:
             order_direction = "DESC"
@@ -262,6 +263,11 @@ WHERE {{
     ?link              rdf:type                 sg:ArticleAuthorLink .
     ?link              col:article_id           {article_id} .
     ?link              col:author_id            ?id .
+"""
+
+        if (article_id is not None) and (account_id is not None):
+            query += f"""\
+    ?article           col:account_id           ?account_id .
 """
 
         query += f"""\
@@ -335,7 +341,7 @@ LIMIT {limit}
                        computed_md5=None, viewer_type=None, preview_state=None,
                        status=None, upload_url=None, upload_token=None,
                        order=None, order_direction=None, limit=None,
-                       article_id=None):
+                       article_id=None, account_id=None):
 
         if order_direction is None:
             order_direction = "DESC"
@@ -362,6 +368,11 @@ WHERE {{
     ?link              rdf:type                 sg:ArticleFileLink .
     ?link              col:article_id           {article_id} .
     ?link              col:file_id              ?id .
+"""
+
+        if (article_id is not None) and (account_id is not None):
+            query += f"""\
+    ?article           col:account_id           ?account_id .
 """
 
         query += f"""\
@@ -570,7 +581,7 @@ LIMIT {limit}
         return results
 
     def article_categories (self, title=None, order=None, order_direction=None,
-                            limit=None, article_id=None):
+                            limit=None, article_id=None, account_id=None):
 
         if order_direction is None:
             order_direction = "DESC"
@@ -595,6 +606,11 @@ WHERE {{
     ?article         rdf:type                 sg:ArticleCategoryLink .
     ?article         col:article_id           {article_id} .
     ?article         col:category_id          ?id .
+"""
+
+        if (article_id is not None) and (account_id is not None):
+            query += f"""\
+    ?article           col:account_id           ?account_id .
 """
 
         query += "  }\n"
