@@ -295,6 +295,8 @@ class DatabaseInterface:
                 logging.error("Inserting links between a connection and its authors failed.")
                 return False
 
+        return True
+
     def insertLicense (self, record):
         template = "INSERT IGNORE INTO License (id, name, url) VALUES (%s, %s, %s)"
 

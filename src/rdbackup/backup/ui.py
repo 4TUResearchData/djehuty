@@ -19,8 +19,10 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
 
     accounts = endpoint.getInstitutionalAccounts()
     logging.info(f"Found {len(accounts)} institutional accounts.")
-    articles_written = 0
-    articles_failed  = 0
+    articles_written    = 0
+    articles_failed     = 0
+    collections_written = 0
+    collections_failed  = 0
     for account in accounts:
         db.insertAccount(account)
 
@@ -31,6 +33,15 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
             else:
                 articles_failed  += 1
 
+        collections = endpoint.getCollectionsByAccount(account["id"])
+        for collection in collections:
+            if db.insertCollection(collection):
+                collections_written += 1
+            else:
+                collections_failed += 1
+
     logging.info(f"Succesfully processed {articles_written} articles.")
     logging.info(f"Failed to process {articles_failed} articles.")
+    logging.info(f"Succesfully processed {collections_written} articles.")
+    logging.info(f"Failed to process {collections_failed} articles.")
     return True
