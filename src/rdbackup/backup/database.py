@@ -160,7 +160,7 @@ class DatabaseInterface:
 
         return False
 
-    def insertTimeline (self, record, article_id):
+    def insertTimeline (self, record):
         template = ("INSERT IGNORE INTO Timeline "
                     "(revision, firstOnline, publisherPublication, "
                     "publisherAcceptance, posted, submission) "
@@ -352,7 +352,7 @@ class DatabaseInterface:
         article_id  = record["id"]
         timeline_id = None
         if "timeline" in record:
-            timeline_id = self.insertTimeline(record["timeline"], article_id)
+            timeline_id = self.insertTimeline(record["timeline"])
 
         ## embargo_option_id = 0
         ## embargo_id        = self.insertArticleEmbargo(record)
