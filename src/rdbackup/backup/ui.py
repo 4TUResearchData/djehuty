@@ -35,7 +35,7 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
 
         collections = endpoint.getCollectionsByAccount(account["id"])
         for collection in collections:
-            if db.insertCollection(collection):
+            if db.insertCollection(collection, account["id"]):
                 collections_written += 1
             else:
                 collections_failed += 1

@@ -198,6 +198,7 @@ CREATE TABLE IF NOT EXISTS Collection(
     group_id              INT UNSIGNED,
     institution_id        INT UNSIGNED,
     timeline_id           INT UNSIGNED,
+    account_id            INT UNSIGNED,
     published_date        DATETIME,
     modified_date         DATETIME,
     created_date          DATETIME

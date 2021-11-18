@@ -232,12 +232,12 @@ class DatabaseInterface:
             )
             return self.executeQuery(template, data)
 
-    def insertCollection (self, record):
+    def insertCollection (self, record, account_id):
         template = ("INSERT IGNORE INTO Collection (url, title, id, "
                     "modified_date, created_date, published_date, doi, "
                     "citation, group_id, institution_id, description, "
-                    "timeline_id) VALUES (%s, %s, %s, %s, %s, %s, %s, "
-                    "%s, %s, %s, %s, %s)")
+                    "timeline_id, account_id) VALUES (%s, %s, %s, %s, "
+                    "%s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
         collection_id  = record["id"]
         timeline_id = None
@@ -271,7 +271,8 @@ class DatabaseInterface:
             convenience.value_or_none(record, "group_id"),
             convenience.value_or_none(record, "institution_id"),
             convenience.value_or_none(record, "description"),
-            timeline_id
+            timeline_id,
+            account_id
         )
         if not self.executeQuery(template, data):
             logging.error("Inserting collection failed.")
