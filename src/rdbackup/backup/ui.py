@@ -42,6 +42,6 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
 
     logging.info(f"Succesfully processed {articles_written} articles.")
     logging.info(f"Failed to process {articles_failed} articles.")
-    logging.info(f"Succesfully processed {collections_written} articles.")
-    logging.info(f"Failed to process {collections_failed} articles.")
+    logging.info(f"Succesfully processed {collections_written} collections.")
+    logging.info(f"Failed to process {collections_failed} collections.")
     return True
