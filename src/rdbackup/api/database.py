@@ -32,8 +32,10 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                           order_direction=None):
         if not order_direction:
             order_direction = "DESC"
-        if not order:
+        if order is None:
             order="?id"
+        else:
+            order = f"?{order}"
 
         query = f"""\
 {self.default_prefixes}
@@ -67,10 +69,12 @@ LIMIT {limit}
 
         if order_direction is None:
             order_direction = "DESC"
-        if order is None:
-            order="?id"
         if limit is None:
             limit = 10
+        if order is None:
+            order="?id"
+        else:
+            order = f"?{order}"
 
         query = f"""\
 {self.default_prefixes}
@@ -240,10 +244,12 @@ LIMIT {limit}
 
         if order_direction is None:
             order_direction = "DESC"
-        if order is None:
-            order="?id"
         if limit is None:
             limit = 10
+        if order is None:
+            order="?id"
+        else:
+            order = f"?{order}"
 
         query = f"""\
 {self.default_prefixes}
@@ -345,10 +351,12 @@ LIMIT {limit}
 
         if order_direction is None:
             order_direction = "DESC"
-        if order is None:
-            order="?id"
         if limit is None:
             limit = 10
+        if order is None:
+            order="?id"
+        else:
+            order = f"?{order}"
 
         query = f"""\
 {self.default_prefixes}
