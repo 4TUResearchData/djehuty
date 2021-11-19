@@ -168,4 +168,19 @@ def format_article_version_record (record):
     }]
 
 def format_collection_record (record):
-    return False
+    return {
+        "id":                convenience.value_or_none(record, "id"),
+        "title":             convenience.value_or_none(record, "title"),
+        "doi":               convenience.value_or_none(record, "doi"),
+        "handle":            convenience.value_or_none(record, "handle"),
+        "url":               convenience.value_or_none(record, "url"),
+        "timeline": {
+            "posted":        convenience.value_or_none(record, "timeline_posted"),
+            "submission":    convenience.value_or_none(record, "timeline_submission"),
+            "revision":      convenience.value_or_none(record, "timeline_revision"),
+            "firstOnline":   convenience.value_or_none(record, "timeline_first_online"),
+            "publisherPublication": convenience.value_or_none(record, "timeline_publisher_publication"),
+            "publisherAcceptance": convenience.value_or_none(record, "timeline_publisher_acceptance"),
+        },
+        "published_date":    convenience.value_or_none(record, "published_date"),
+    }
