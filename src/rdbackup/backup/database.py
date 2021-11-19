@@ -142,20 +142,22 @@ class DatabaseInterface:
         data     = (record["institution_id"], record["name"])
         return self.executeQuery(template, data)
 
-    def insertAuthor (self, record, article_id):
+    def insertAuthor (self, record, id, type = "article"):
+        prefix   = "Article" if type == "article" else "Collection"
         template = ("INSERT IGNORE INTO Author "
                     "(id, full_name, is_active, url_name, orcid_id) "
                     "VALUES (%s, %s, %s, %s, %s)")
 
-        data     = (record["id"],
-                    record["full_name"],
+        data     = (convenience.value_or_none (record, "id"),
+                    convenience.value_or_none (record, "full_name"),
                     "is_active" in record and record["is_active"],
-                    record["url_name"],
-                    None if not "orcid_id" in record else record["orcid_id"])
+                    convenience.value_or_none (record, "url_name"),
+                    convenience.value_or_none (record, "orcid_id"))
 
         if self.executeQuery(template, data):
-            template = "INSERT IGNORE INTO ArticleAuthor (article_id, author_id) VALUES (%s, %s)"
-            data     = (article_id, record["id"])
+            template = (f"INSERT IGNORE INTO {prefix}Author ({type}_id, "
+                        "author_id) VALUES (%s, %s)")
+            data     = (id, record["id"])
 
             if self.executeQuery(template, data):
                 return record["id"]
