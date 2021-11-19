@@ -6,6 +6,7 @@ class SparqlInterface:
 
     def __init__ (self):
         self.endpoint = "http://127.0.0.1:8890/sparql"
+        self.state_graph = "https://data.4tu.nl/portal/2021-11-19"
         self.sparql = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)
         self.default_prefixes = """\
@@ -101,7 +102,7 @@ SELECT DISTINCT ?account_id ?authors_id ?citation
                 ?url_private_html ?url_public_api
                 ?url_public_html ?version
 WHERE {{
-  GRAPH <https://data.4tu.nl/portal/2021-09-22> {{
+  GRAPH <{self.state_graph}> {{
     ?article            rdf:type                 sg:Article .
     ?article            col:id                   ?id .
     ?article            col:timeline_id          ?timeline_id .
@@ -258,7 +259,7 @@ SELECT DISTINCT ?first_name      ?full_name       ?group_id
                 ?is_public       ?job_title       ?last_name
                 ?orcid_id        ?url_name
 WHERE {{
-  GRAPH <https://data.4tu.nl/portal/2021-09-22> {{
+  GRAPH <{self.state_graph}> {{
     ?author            rdf:type                 sg:Author .
     ?author            col:id                   ?id .
 """
@@ -365,7 +366,7 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?computed_md5  ?viewer_type   ?preview_state
                 ?status        ?upload_url    ?upload_token
 WHERE {{
-  GRAPH <https://data.4tu.nl/portal/2021-09-22> {{
+  GRAPH <{self.state_graph}> {{
     ?file              rdf:type                 sg:File .
     ?file              col:id                   ?id .
 """
@@ -472,7 +473,7 @@ SELECT DISTINCT ?name          ?value         ?default_value
                 ?min_length    ?field_type    ?is_multiple
                 ?is_mandatory
 WHERE {{
-  GRAPH <https://data.4tu.nl/portal/2021-09-22> {{
+  GRAPH <{self.state_graph}> {{
     ?field             rdf:type                 sg:ArticleCustomField .
     ?field             col:id                   ?id .
 """
@@ -556,7 +557,7 @@ LIMIT {limit}
 {self.default_prefixes}
 SELECT DISTINCT ?id ?tag
 WHERE {{
-  GRAPH <https://data.4tu.nl/portal/2021-09-22> {{
+  GRAPH <{self.state_graph}> {{
     ?row             rdf:type                 sg:Tag .
     ?row             col:id                   ?id .
     ?row             col:tag                  ?tag .
@@ -602,7 +603,7 @@ LIMIT {limit}
 {self.default_prefixes}
 SELECT DISTINCT ?id ?parent_id ?title
 WHERE {{
-  GRAPH <https://data.4tu.nl/portal/2021-09-22> {{
+  GRAPH <{self.state_graph}> {{
     ?row             rdf:type                 sg:Category .
     ?row             col:id                   ?id .
     ?row             col:parent_id            ?parent_id .
