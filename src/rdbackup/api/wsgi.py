@@ -146,6 +146,15 @@ class ApiServer:
             "code":    "OAuthInvalidToken"
         }), mimetype='application/json; charset=utf-8')
 
+
+    def default_error_handling (self, request, method):
+        if request.method != method:
+            return self.error_405 (method)
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            return None
+
     ## CONVENIENCE PROCEDURES
     ## ------------------------------------------------------------------------
 
@@ -194,6 +203,16 @@ class ApiServer:
             logging.error(f"Attempt to authenticate with {token} failed.")
 
         return account_id
+
+    def default_list_response (self, records, format_function):
+        output     = []
+        try:
+            output = list(map (format_function, records))
+        except TypeError:
+            logging.error(f"{format_function}: A TypeError occurred.")
+
+        return Response(json.dumps(output),
+                        mimetype='application/json; charset=utf-8')
 
     ## API CALLS
     ## ------------------------------------------------------------------------
