@@ -211,7 +211,29 @@ class FigshareEndpoint:
 
     def getCollectionsByAccount (self, account_id):
         logging.info(f"Getting collections for account {account_id}.")
-        return self.getAll("/account/collections", impersonate=account_id)
+        summaries = self.getAll("/account/collections", impersonate=account_id)
+
+        collection_ids = list(map(lambda collection : collection['id'], summaries))
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            start_time  = time.perf_counter()
+            collections = [executor.submit(self.getCollectionById,
+                                        account_id,
+                                        collection_id)
+                        for collection_id in collection_ids]
+            results     = list(map(lambda item : item.result(), collections))
+            end_time   = time.perf_counter()
+            total_fetched = len(results)
+            logging.info(f"Fetched {total_fetched} full collections in {end_time - start_time:0.2f} seconds")
+            return results
+
+    def getCollectionById (self, account_id, collection_id):
+        headers      = self.request_headers ()
+        parameters   = { "impersonate": account_id }
+        record       = self.get(f"/account/collections/{collection_id}",
+                                headers, parameters)
+
+        record["account_id"] = account_id
+        return record
 
     def getCollections (self, published_since="1970-01-01"):
         logging.info("Getting collections.")
