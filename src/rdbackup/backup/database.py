@@ -110,27 +110,29 @@ class DatabaseInterface:
         created_date  = convenience.value_or_none (record, "created_date")
         if created_date is not None:
             created_date  = datetime.strptime(record["created_date"], "%Y-%m-%dT%H:%M:%SZ")
+            created_date  = datetime.strftime (created_date, "%Y-%m-%d %H:%M:%S")
 
         modified_date = convenience.value_or_none (record, "modified_date")
         if modified_date is not None:
             modified_date = datetime.strptime(record["modified_date"], "%Y-%m-%dT%H:%M:%SZ")
+            modified_date = datetime.strftime (modified_date, "%Y-%m-%d %H:%M:%S")
 
         data          = (
             record["id"],
             record["active"],
-            record["email"],
-            record["first_name"],
-            record["last_name"],
-            record["institution_user_id"],
-            record["institution_id"],
+            convenience.value_or_none (record, "email"),
+            convenience.value_or_none (record, "first_name"),
+            convenience.value_or_none (record, "last_name"),
+            convenience.value_or_none (record, "institution_user_id"),
+            convenience.value_or_none (record, "institution_id"),
             convenience.value_or_none (record, "pending_quota_request"),
             convenience.value_or_none (record, "used_quota_public"),
             convenience.value_or_none (record, "used_quota_private"),
             convenience.value_or_none (record, "used_quota"),
             convenience.value_or_none (record, "maximum_file_size"),
             convenience.value_or_none (record, "quota"),
-            convenience.value_or_none (record, "modified_date"),
-            None if not "created_date" in record else datetime.strftime (created_date, "%Y-%m-%d %H:%M:%S")
+            modified_date,
+            created_date
         )
 
         return self.executeQuery(template, data)
