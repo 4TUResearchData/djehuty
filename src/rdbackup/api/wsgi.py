@@ -59,13 +59,13 @@ class ApiServer:
             Rule("/v2/account/articles/<article_id>/files/<file_id>", endpoint = "private_article_file_details")
         ])
 
-        ## Routes for static resources.
+        ## Static resources and HTML templates.
         ## --------------------------------------------------------------------
 
         self.jinja   = Environment(loader = FileSystemLoader(
                         os.path.join(os.path.dirname(__file__),
                                      "resources/templates")),
-                                   autoescape = True)
+                                     autoescape = True)
 
         self.wsgi    = SharedDataMiddleware(self.wsgi, {
             "/static": os.path.join(os.path.dirname(__file__),
