@@ -268,6 +268,7 @@ class ApiServer:
             parameters = request.get_json()
             records = self.db.articles(
                 limit           = convenience.value_or_none(parameters, "limit"),
+                offset          = convenience.value_or_none(parameters, "offset"),
                 order           = convenience.value_or_none(parameters, "order"),
                 order_direction = convenience.value_or_none(parameters, "order_direction"),
                 institution     = convenience.value_or_none(parameters, "institution"),
