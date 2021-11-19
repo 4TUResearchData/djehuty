@@ -56,7 +56,12 @@ class ApiServer:
             Rule("/v2/account/articles/<article_id>/authors", endpoint = "private_article_authors"),
             Rule("/v2/account/articles/<article_id>/categories", endpoint = "private_article_categories"),
             Rule("/v2/account/articles/<article_id>/files",   endpoint = "private_article_files"),
-            Rule("/v2/account/articles/<article_id>/files/<file_id>", endpoint = "private_article_file_details")
+            Rule("/v2/account/articles/<article_id>/files/<file_id>", endpoint = "private_article_file_details"),
+
+            ## Public collections
+            ## ----------------------------------------------------------------
+            Rule("/v2/collections",                           endpoint = "collections"),
+            Rule("/v2/collections/search",                    endpoint = "collections_search")
         ])
 
         ## Static resources and HTML templates.
@@ -525,6 +530,87 @@ class ApiServer:
                 output = list(map (formatter.format_article_record, records))
             except TypeError:
                 logging.error("api_articles_search: A TypeError occurred.")
+
+            return Response(json.dumps(output),
+                            mimetype='application/json; charset=utf-8')
+
+    ## ------------------------------------------------------------------------
+    ## COLLECTIONS
+    ## ------------------------------------------------------------------------
+
+    def api_collections (self, request):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            ## TODO: Setting "limit" to "TEST" crashes the app. Do type checking
+            ## and sanitization.
+
+            ## Parameters
+            ## ----------------------------------------------------------------
+            page            = self.get_parameter (request, "page")
+            page_size       = self.get_parameter (request, "page_size")
+            limit           = self.get_parameter (request, "limit")
+            offset          = self.get_parameter (request, "offset")
+            order           = self.get_parameter (request, "order")
+            order_direction = self.get_parameter (request, "order_direction")
+            institution     = self.get_parameter (request, "institution")
+            published_since = self.get_parameter (request, "published_since")
+            modified_since  = self.get_parameter (request, "modified_since")
+            group           = self.get_parameter (request, "group")
+            resource_doi    = self.get_parameter (request, "resource_doi")
+            doi             = self.get_parameter (request, "doi")
+            handle          = self.get_parameter (request, "handle")
+
+            records = self.db.collections(#page=page,
+                                         #page_size=page_size,
+                                         limit=limit,
+                                         offset=offset,
+                                         order=order,
+                                         order_direction=order_direction,
+                                         institution=institution,
+                                         published_since=published_since,
+                                         modified_since=modified_since,
+                                         group=group,
+                                         resource_doi=resource_doi,
+                                         doi=doi,
+                                         handle=handle)
+            output = []
+            try:
+                output = list(map (formatter.format_collection_record, records))
+            except TypeError:
+                logging.error("api_collections: A TypeError occurred.")
+
+            return Response(json.dumps(output),
+                            mimetype='application/json; charset=utf-8')
+
+    def api_collections_search (self, request):
+        if request.method != 'POST':
+            return self.error_405 ("POST")
+        elif not self.accepts_json(request):
+            return self.error_406 ("application/json")
+        else:
+            parameters = request.get_json()
+            records = self.db.collections(
+                limit           = convenience.value_or_none(parameters, "limit"),
+                offset          = convenience.value_or_none(parameters, "offset"),
+                order           = convenience.value_or_none(parameters, "order"),
+                order_direction = convenience.value_or_none(parameters, "order_direction"),
+                institution     = convenience.value_or_none(parameters, "institution"),
+                published_since = convenience.value_or_none(parameters, "published_since"),
+                modified_since  = convenience.value_or_none(parameters, "modified_since"),
+                group           = convenience.value_or_none(parameters, "group"),
+                resource_doi    = convenience.value_or_none(parameters, "resource_doi"),
+                doi             = convenience.value_or_none(parameters, "doi"),
+                handle          = convenience.value_or_none(parameters, "handle"),
+                search_for      = convenience.value_or_none(parameters, "search_for")
+            )
+            output  = []
+            try:
+                output = list(map (formatter.format_collection_record, records))
+            except TypeError:
+                logging.error("api_collections_search: A TypeError occurred.")
 
             return Response(json.dumps(output),
                             mimetype='application/json; charset=utf-8')
