@@ -434,18 +434,18 @@ class DatabaseInterface:
 
         categories = record["categories"]
         for category in categories:
-            self.insertCategory (category, article_id)
+            self.insertCategory (category, article_id, "article")
 
         license_id = record["license"]["value"]
         self.insertLicense (record["license"])
 
         tags = record["tags"]
         for tag in tags:
-            self.insertTag(tag, article_id)
+            self.insertTag(tag, article_id, type="article")
 
         authors = record["authors"]
         for author in authors:
-            self.insertAuthor(author, article_id)
+            self.insertAuthor(author, article_id, type="article")
 
         files = record["files"]
         for file in files:
@@ -466,7 +466,7 @@ class DatabaseInterface:
 
         custom_fields = record["custom_fields"]
         for field in custom_fields:
-            self.insertCustomField(field, article_id)
+            self.insertCustomField (field, article_id, type="article")
 
         data          = (article_id,
                          convenience.value_or_none (record, "account_id"),
