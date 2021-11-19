@@ -205,12 +205,16 @@ class DatabaseInterface:
         data     = (tag, id)
         return self.executeQuery(template, data)
 
-    def insertCustomField (self, field, article_id):
-        template    = ("INSERT IGNORE INTO ArticleCustomField (name, value, "
-                       "article_id) VALUES (%s, %s, %s)")
+    def insertCustomField (self, field, id, type="article"):
 
-        settings    = []
-        validations = []
+        prefix      = "Article" if type == "article" else "Collection"
+        template    = (f"INSERT IGNORE INTO {prefix}CustomField (name, value, "
+                       "default_value, max_length, min_length, field_type, "
+                       f"is_mandatory, placeholder, is_multiple, {type}_id) "
+                       "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+
+        settings    = {}
+        validations = {}
         if "settings" in field:
             settings = field["settings"]
             if "validations" in settings:
@@ -223,28 +227,44 @@ class DatabaseInterface:
         if isinstance(field["value"], list):
             retval = 0
 
+            field_type = convenience.value_or_none (field, "field_type")
             for value in field["value"]:
-                data = (
-                    field["name"],
-                    default_value if value is None else value,
-                    ##None if not "default_value" in settings else settings["default_value"],
-                    ##None if not "max_length" in validations else validations["max_length"],
-                    ##None if not "min_length" in validations else validations["min_length"],
-                    ##None if not "field_type" in field else field["field_type"],
-                    ##None if not "is_mandatory" in field else field["is_mandatory"],
-                    ##None if not "placeholder" in settings else settings["placeholder"],
-                    ##None if not "is_multiple" in settings else settings["is_multiple"],
-                    article_id
+                data = (field["name"],
+                        default_value if value is None else value,
+                        default_value,
+                        convenience.value_or_none (validations, "max_length"),
+                        convenience.value_or_none (validations, "min_length"),
+                        field_type,
+                        convenience.value_or_none (field, "is_mandatory"),
+                        convenience.value_or_none (settings, "placeholder"),
+                        convenience.value_or_none (settings, "is_multiple"),
+                        id
                 )
-                retval = self.executeQuery(template, data)
+
+                retval = self.executeQuery (template, data)
+                if field_type == "dropdown":
+                    temp = (f"INSERT IGNORE INTO {prefix}CustomFieldOption "
+                            f"({type}_custom_field_id, value)"
+                            "VALUES (%s, %s)")
+                    for option in settings["options"]:
+                        data = (retval, option)
+                        self.executeQuery (temp, data)
+
             return retval
         else:
             data    = (
                 field["name"],
                 default_value if field["value"] is None else field["value"],
-                article_id
+                default_value,
+                convenience.value_or_none (validations, "max_length"),
+                convenience.value_or_none (validations, "min_length"),
+                convenience.value_or_none (field, "field_type"),
+                convenience.value_or_none (field, "is_mandatory"),
+                convenience.value_or_none (settings, "placeholder"),
+                convenience.value_or_none (settings, "is_multiple"),
+                id
             )
-            return self.executeQuery(template, data)
+            return self.executeQuery (template, data)
 
     def insertCollection (self, record, account_id):
         template = ("INSERT IGNORE INTO Collection (url, title, id, "
