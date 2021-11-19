@@ -20,10 +20,15 @@ CREATE TABLE IF NOT EXISTS Institution(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name                  VARCHAR(255)) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS Tag(
+CREATE TABLE IF NOT EXISTS ArticleTag(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     tag                   VARCHAR(255),
     article_id            INT UNSIGNED) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS CollectionTag(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    tag                   VARCHAR(255),
+    collection_id         INT UNSIGNED) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleEmbargoOptionGroup(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -58,6 +63,10 @@ CREATE TABLE IF NOT EXISTS ArticleReference(
 CREATE TABLE IF NOT EXISTS ArticleCategory(
     category_id           INT UNSIGNED,
     article_id            INT UNSIGNED) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS CollectionCategory(
+    category_id           INT UNSIGNED,
+    collection_id         INT UNSIGNED) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleVersion(
     article_id            INT UNSIGNED,
@@ -167,12 +176,6 @@ CREATE TABLE IF NOT EXISTS Author(
     url_name              VARCHAR(255),
     orcid_id              VARCHAR(255)) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS CustomArticleField(
-    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name                  VARCHAR(255),
-    value                 VARCHAR(255),
-    is_mandatory          BOOLEAN NOT NULL DEFAULT 0) ENGINE=InnoDB;
-
 CREATE TABLE IF NOT EXISTS GroupEmbargoOptions(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     type                  ENUM('logged_in', 'ip_range', 'administrator'),
@@ -180,8 +183,10 @@ CREATE TABLE IF NOT EXISTS GroupEmbargoOptions(
 
 CREATE TABLE IF NOT EXISTS Category(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    title                 VARCHAR(255),
     parent_id             INT UNSIGNED,
-    title                 VARCHAR(255)) ENGINE=InnoDB;
+    source_id             INT UNSIGNED,
+    taxonomy_id           INT UNSIGNED) ENGINE=InnoDB;
 
 -------------------------------------------------------------------------------
 -- COLLECTIONS
@@ -201,13 +206,22 @@ CREATE TABLE IF NOT EXISTS Collection(
     account_id            INT UNSIGNED,
     published_date        DATETIME,
     modified_date         DATETIME,
-    created_date          DATETIME
+    created_date          DATETIME,
+    version               INT UNSIGNED,
+    resource_id           INT UNSIGNED,
+    resource_doi          VARCHAR(255),
+    resource_title        VARCHAR(255),
+    resource_link         VARCHAR(255),
+    resource_version      INT UNSIGNED,
+    articles_count        INT UNSIGNED,
+    group_resource_id     INT UNSIGNED,
+    is_public             BOOLEAN NOT NULL DEFAULT 0
 
     -- FOREIGN KEY (institution_id) REFERENCES Institution(id),
     -- FOREIGN KEY (timeline_id) REFERENCES Timeline(id)
     ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS CollectionAuthors(
+CREATE TABLE IF NOT EXISTS CollectionAuthor(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     collection_id         INT UNSIGNED,
     author_id             INT UNSIGNED
@@ -273,6 +287,29 @@ CREATE TABLE IF NOT EXISTS ArticleCustomField(
     field_type            VARCHAR(128),
     is_multiple           BOOLEAN NOT NULL DEFAULT 0,
     is_mandatory          BOOLEAN NOT NULL DEFAULT 0) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ArticleCustomFieldOption(
+    id                      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    article_custom_field_id INT UNSIGNED,
+    value                   VARCHAR(255)) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS CollectionCustomField(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    collection_id         INT UNSIGNED,
+    name                  VARCHAR(255),
+    value                 TEXT,
+    default_value         TEXT,
+    placeholder           TEXT,
+    max_length            INT UNSIGNED,
+    min_length            INT UNSIGNED,
+    field_type            VARCHAR(128),
+    is_multiple           BOOLEAN NOT NULL DEFAULT 0,
+    is_mandatory          BOOLEAN NOT NULL DEFAULT 0) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS CollectionCustomFieldOption(
+    id                         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    collection_custom_field_id INT UNSIGNED,
+    value                      VARCHAR(255)) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleStatistics(
     article_id            INT UNSIGNED,
