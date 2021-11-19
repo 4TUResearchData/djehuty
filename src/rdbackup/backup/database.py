@@ -363,10 +363,10 @@ class DatabaseInterface:
                     "downloads, shares, date) VALUES (%s, %s, %s, %s, %s)")
 
         data = (article_id,
-                record["views"],
-                record["downloads"],
-                record["shares"],
-                record["date"])
+                convenience.value_or_none (record, "views"),
+                convenience.value_or_none (record, "downloads"),
+                convenience.value_or_none (record, "shares"),
+                convenience.value_or_none (record, "date"))
 
         return self.executeQuery (template, data)
 
@@ -382,18 +382,18 @@ class DatabaseInterface:
             metadata       = self.getFromUrl(metadata_url, {}, {})
             record["size"] = self.getFileSizeForCatalog(record["download_url"], article_id)
 
-        data = (record["id"],
-                record["name"],
-                record["size"],
-                record["is_link_only"],
-                record["download_url"],
-                record["supplied_md5"],
-                record["computed_md5"],
-                record["viewer_type"],
-                record["preview_state"],
-                record["status"],
-                record["upload_url"],
-                record["upload_token"])
+        data = (convenience.value_or_none (record, "id"),
+                convenience.value_or_none (record, "name"),
+                convenience.value_or_none (record, "size"),
+                convenience.value_or_none (record, "is_link_only"),
+                convenience.value_or_none (record, "download_url"),
+                convenience.value_or_none (record, "supplied_md5"),
+                convenience.value_or_none (record, "computed_md5"),
+                convenience.value_or_none (record, "viewer_type"),
+                convenience.value_or_none (record, "preview_state"),
+                convenience.value_or_none (record, "status"),
+                convenience.value_or_none (record, "upload_url"),
+                convenience.value_or_none (record, "upload_token"))
 
         if self.executeQuery (template, data):
             template = "INSERT IGNORE INTO ArticleFile (article_id, file_id) VALUES (%s, %s)"
@@ -469,37 +469,37 @@ class DatabaseInterface:
             self.insertCustomField(field, article_id)
 
         data          = (article_id,
-                         record["account_id"],
-                         record["title"],
-                         record["doi"],
-                         record["handle"],
-                         record["group_id"],
-                         record["url"],
-                         record["url_public_html"],
-                         record["url_public_api"],
-                         record["url_private_html"],
-                         record["url_private_api"],
-                         record["published_date"],
-                         record["thumb"],
-                         record["defined_type"],
-                         record["defined_type_name"],
+                         convenience.value_or_none (record, "account_id"),
+                         convenience.value_or_none (record, "title"),
+                         convenience.value_or_none (record, "doi"),
+                         convenience.value_or_none (record, "handle"),
+                         convenience.value_or_none (record, "group_id"),
+                         convenience.value_or_none (record, "url"),
+                         convenience.value_or_none (record, "url_public_html"),
+                         convenience.value_or_none (record, "url_public_api"),
+                         convenience.value_or_none (record, "url_private_html"),
+                         convenience.value_or_none (record, "url_private_api"),
+                         convenience.value_or_none (record, "published_date"),
+                         convenience.value_or_none (record, "thumb"),
+                         convenience.value_or_none (record, "defined_type"),
+                         convenience.value_or_none (record, "defined_type_name"),
                          "is_embargoed" in record and record["is_embargoed"],
-                         record["citation"],
+                         convenience.value_or_none (record, "citation"),
                          "has_linked_file" in record and record["has_linked_file"],
-                         record["metadata_reason"],
-                         record["confidential_reason"],
-                         record["is_metadata_record"],
-                         record["is_confidential"],
-                         record["is_public"],
+                         convenience.value_or_none (record, "metadata_reason"),
+                         convenience.value_or_none (record, "confidential_reason"),
+                         convenience.value_or_none (record, "is_metadata_record"),
+                         convenience.value_or_none (record, "is_confidential"),
+                         convenience.value_or_none (record, "is_public"),
                          modified_date,
                          created_date,
-                         record["size"],
-                         record["status"],
-                         record["version"],
-                         record["description"],
-                         record["figshare_url"],
-                         record["resource_doi"],
-                         record["resource_title"],
+                         convenience.value_or_none (record, "size"),
+                         convenience.value_or_none (record, "status"),
+                         convenience.value_or_none (record, "version"),
+                         convenience.value_or_none (record, "description"),
+                         convenience.value_or_none (record, "figshare_url"),
+                         convenience.value_or_none (record, "resource_doi"),
+                         convenience.value_or_none (record, "resource_title"),
                          timeline_id,
                          license_id)
 
