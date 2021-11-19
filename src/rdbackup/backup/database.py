@@ -197,10 +197,12 @@ class DatabaseInterface:
         data     = (category_id, id)
         return self.executeQuery(template, data)
 
-    def insertTag (self, tag, article_id):
-        template = ("INSERT IGNORE INTO Tag (tag, article_id) VALUES (%s, %s)")
-        data     = (tag, article_id)
 
+    def insertTag (self, tag, id, type = "article"):
+        prefix   = "Article" if type == "article" else "Collection"
+        template = (f"INSERT IGNORE INTO {prefix}Tag (tag, {type}_id) "
+                    "VALUES (%s, %s)")
+        data     = (tag, id)
         return self.executeQuery(template, data)
 
     def insertCustomField (self, field, article_id):
