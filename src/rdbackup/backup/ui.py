@@ -1,13 +1,14 @@
 from rdbackup.backup import figshare
 from rdbackup.backup import database
 
+import base64
 import logging
 
 def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password, db_name,
           since="1970-01-01"):
     endpoint                = figshare.FigshareEndpoint()
     endpoint.token          = figshare_token
-    endpoint.stats_auth     = base64.b64encode(fishare_stats_auth.encode('ascii')).decode('ascii')
+    endpoint.stats_auth     = base64.b64encode(figshare_stats_auth.encode('ascii')).decode('ascii')
     endpoint.institution_id = 898
 
     db = database.DatabaseInterface()
