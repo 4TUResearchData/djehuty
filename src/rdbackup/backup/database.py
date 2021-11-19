@@ -270,18 +270,43 @@ class DatabaseInterface:
         template = ("INSERT IGNORE INTO Collection (url, title, id, "
                     "modified_date, created_date, published_date, doi, "
                     "citation, group_id, institution_id, description, "
-                    "timeline_id, account_id) VALUES (%s, %s, %s, %s, "
-                    "%s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                    "timeline_id, account_id, version, resource_id, "
+                    "resource_doi, resource_title, resource_link, "
+                    "resource_version, handle, group_resource_id, "
+                    "articles_count, is_public) VALUES (%s, %s, %s, %s, %s, "
+                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
+                    "%s, %s, %s, %s)")
 
         collection_id  = record["id"]
+
+        authors = convenience.value_or_none (record, "authors")
+        if authors:
+            for author in authors:
+                self.insertAuthor (author, collection_id, type="collection")
+
+        categories = convenience.value_or_none (record, "categories")
+        if categories:
+            for category in categories:
+                self.insertCategory (category, collection_id, "collection")
+
         timeline_id = None
         if "timeline" in record:
             timeline_id = self.insertTimeline(record["timeline"])
 
+        tags = record["tags"]
+        if tags:
+            for tag in tags:
+                self.insertTag (tag, collection_id, type="collection")
+
+        custom_fields = record["custom_fields"]
+        if custom_fields:
+            for field in custom_fields:
+                self.insertCustomField (field, collection_id, type="collection")
+
         created_date = None
         if "created_date" in record and not record["created_date"] is None:
             created_date  = datetime.strptime(record["created_date"], "%Y-%m-%dT%H:%M:%SZ")
-            created_date  = datetime.strftime (created_date, "%Y-%m-%d %H:%M:%S"),
+            created_date  = datetime.strftime (created_date, "%Y-%m-%d %H:%M:%S")
 
         modified_date = None
         if "modified_date" in record and not record["modified_date"] is None:
@@ -296,7 +321,7 @@ class DatabaseInterface:
         data     = (
             convenience.value_or_none(record, "url"),
             convenience.value_or_none(record, "title"),
-            convenience.value_or_none(record, "id"),
+            collection_id,
             modified_date,
             created_date,
             published_date,
@@ -306,29 +331,21 @@ class DatabaseInterface:
             convenience.value_or_none(record, "institution_id"),
             convenience.value_or_none(record, "description"),
             timeline_id,
-            account_id
+            account_id,
+            convenience.value_or_none(record, "version"),
+            convenience.value_or_none(record, "resource_id"),
+            convenience.value_or_none(record, "resource_doi"),
+            convenience.value_or_none(record, "resource_title"),
+            convenience.value_or_none(record, "resource_link"),
+            convenience.value_or_none(record, "resource_version"),
+            convenience.value_or_none(record, "handle"),
+            convenience.value_or_none(record, "group_resource_id"),
+            convenience.value_or_none(record, "articles_count"),
+            convenience.value_or_none(record, "public"),
         )
         if not self.executeQuery(template, data):
             logging.error("Inserting collection failed.")
             return False
-
-        ## Insert links between Collections and authors
-        if "authors" in record:
-            author_ids = list(map (self.insertAuthor, record["authors"]))
-            if not all(author_ids):
-                logging.error("Inserting authors of collection failed.")
-                return False
-
-            template   = ("INSERT IGNORE INTO CollectionAuthors "
-                          "(collection_id, author_id) VALUES (%s, %s)")
-            tuples     = map (lambda author_id : (record["id"], author_id), author_ids)
-            retvals    = map (lambda record : self.executeQuery(template, record), tuples)
-
-            if all(retvals):
-                return True
-            else:
-                logging.error("Inserting links between a connection and its authors failed.")
-                return False
 
         return True
 
