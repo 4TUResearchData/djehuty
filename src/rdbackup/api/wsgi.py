@@ -274,14 +274,8 @@ class ApiServer:
                                        item_type=item_type,
                                        doi=doi,
                                        handle=handle)
-            output = []
-            try:
-                output = list(map (formatter.format_article_record, records))
-            except TypeError:
-                logging.error("api_articles: A TypeError occurred.")
 
-            return Response(json.dumps(output),
-                            mimetype='application/json; charset=utf-8')
+            return self.default_list_response (records, formatter.format_article_record)
 
     def api_articles_search (self, request):
         if request.method != 'POST':
@@ -305,14 +299,8 @@ class ApiServer:
                 handle          = convenience.value_or_none(parameters, "handle"),
                 search_for      = convenience.value_or_none(parameters, "search_for")
             )
-            output  = []
-            try:
-                output = list(map (formatter.format_article_record, records))
-            except TypeError:
-                logging.error("api_articles_search: A TypeError occurred.")
 
-            return Response(json.dumps(output),
-                            mimetype='application/json; charset=utf-8')
+            return self.default_list_response (records, formatter.format_article_record)
 
     def api_article_details (self, request, article_id):
         if request.method != 'GET':
@@ -342,9 +330,7 @@ class ApiServer:
             return self.error_406 ("application/json")
         else:
             files = self.db.article_files(article_id=article_id)
-            results = list (map (formatter.format_file_for_article_record, files))
-            return Response(json.dumps(results),
-                            mimetype='application/json; charset=utf-8')
+            return self.default_list_response (files, formatter.format_file_for_article_record)
 
     def api_article_file_details (self, request, article_id, file_id):
         if request.method != 'GET':
@@ -384,14 +370,8 @@ class ApiServer:
                                        limit=limit,
                                        offset=offset,
                                        account_id=account_id)
-            output = []
-            try:
-                output = list(map (formatter.format_article_record, records))
-            except TypeError:
-                logging.error("api_private_articles: A TypeError occurred.")
 
-            return Response(json.dumps(output),
-                            mimetype='application/json; charset=utf-8')
+            return self.default_list_response (records, formatter.format_article_record)
 
     def api_private_article_details (self, request, article_id):
         if request.method != 'GET':
@@ -441,13 +421,8 @@ class ApiServer:
 
             authors       = self.db.article_authors(article_id = article_id,
                                                     account_id = account_id)
-            if not authors:
-                return Response(json.dumps([]),
-                                mimetype='application/json; charset=utf-8')
-            output        = list (map (formatter.format_author_for_article_record, authors))
 
-            return Response(json.dumps(output),
-                            mimetype='application/json; charset=utf-8')
+            return self.default_list_response (authors, formatter.format_author_for_article_record)
 
     def api_private_article_categories (self, request, article_id):
         if request.method != 'GET':
@@ -463,14 +438,8 @@ class ApiServer:
 
             categories    = self.db.article_categories(article_id = article_id,
                                                        account_id = account_id)
-            if not categories:
-                return Response(json.dumps([]),
-                                mimetype='application/json; charset=utf-8')
 
-            output        = list (map (formatter.format_category_for_article_record, categories))
-
-            return Response(json.dumps(output),
-                            mimetype='application/json; charset=utf-8')
+            return self.default_list_response (categories, formatter.format_category_for_article_record)
 
     def api_private_article_files (self, request, article_id):
         if request.method != 'GET':
@@ -486,14 +455,8 @@ class ApiServer:
 
             files         = self.db.article_files (article_id = article_id,
                                                    account_id = account_id)
-            if not files:
-                return Response(json.dumps([]),
-                                mimetype='application/json; charset=utf-8')
 
-            output        = list (map (formatter.format_file_for_article_record, files))
-
-            return Response(json.dumps(output),
-                            mimetype='application/json; charset=utf-8')
+            return self.default_list_response (files, formatter.format_file_for_article_record)
 
     def api_private_article_file_details (self, request, article_id, file_id):
         if request.method != 'GET':
@@ -510,14 +473,8 @@ class ApiServer:
             files         = self.db.article_files (article_id = article_id,
                                                    account_id = account_id,
                                                    id         = file_id)
-            if not files:
-                return Response(json.dumps([]),
-                                mimetype='application/json; charset=utf-8')
 
-            output        = list (map (formatter.format_file_details_record, files))
-
-            return Response(json.dumps(output),
-                            mimetype='application/json; charset=utf-8')
+            return self.default_list_response (files, formatter.format_file_details_record)
 
     def api_private_articles_search (self, request):
         if request.method != 'POST':
@@ -544,14 +501,8 @@ class ApiServer:
                 modified_since  = convenience.value_or_none(parameters, "modified_since"),
                 group           = convenience.value_or_none(parameters, "group"),
             )
-            output  = []
-            try:
-                output = list(map (formatter.format_article_record, records))
-            except TypeError:
-                logging.error("api_articles_search: A TypeError occurred.")
 
-            return Response(json.dumps(output),
-                            mimetype='application/json; charset=utf-8')
+            return self.default_list_response (records, formatter.format_article_record)
 
     ## ------------------------------------------------------------------------
     ## COLLECTIONS
@@ -595,14 +546,8 @@ class ApiServer:
                                          resource_doi=resource_doi,
                                          doi=doi,
                                          handle=handle)
-            output = []
-            try:
-                output = list(map (formatter.format_collection_record, records))
-            except TypeError:
-                logging.error("api_collections: A TypeError occurred.")
 
-            return Response(json.dumps(output),
-                            mimetype='application/json; charset=utf-8')
+            return self.default_list_response (records, formatter.format_collection_record)
 
     def api_collections_search (self, request):
         if request.method != 'POST':
@@ -625,11 +570,5 @@ class ApiServer:
                 handle          = convenience.value_or_none(parameters, "handle"),
                 search_for      = convenience.value_or_none(parameters, "search_for")
             )
-            output  = []
-            try:
-                output = list(map (formatter.format_collection_record, records))
-            except TypeError:
-                logging.error("api_collections_search: A TypeError occurred.")
 
-            return Response(json.dumps(output),
-                            mimetype='application/json; charset=utf-8')
+            return self.default_list_response (records, formatter.format_collection_record)
