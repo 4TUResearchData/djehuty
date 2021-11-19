@@ -179,14 +179,22 @@ class DatabaseInterface:
 
         return self.executeQuery(template, data)
 
-    def insertCategory (self, record, article_id):
-        template = ("INSERT IGNORE INTO Category (id, title, parent_id) VALUES (%s, %s, %s)")
-        data     = (record["id"], record["title"], record["parent_id"])
+    def insertCategory (self, record, id, type = "article"):
+        prefix   = "Article" if type == "article" else "Collection"
+        template = (f"INSERT IGNORE INTO Category (id, title, "
+                    "parent_id, source_id, taxonomy_id) "
+                    "VALUES (%s, %s, %s, %s, %s)")
+        data     = (convenience.value_or_none (record, "id"),
+                    convenience.value_or_none (record, "title"),
+                    convenience.value_or_none (record, "parent_id"),
+                    convenience.value_or_none (record, "source_id"),
+                    convenience.value_or_none (record, "taxonomy_id"))
 
         category_id = self.executeQuery(template, data)
 
-        template = "INSERT IGNORE INTO ArticleCategory (category_id, article_id) VALUES (%s, %s)"
-        data     = (category_id, article_id)
+        template = (f"INSERT IGNORE INTO {prefix}Category (category_id, "
+                    f"{type}_id) VALUES (%s, %s)")
+        data     = (category_id, id)
         return self.executeQuery(template, data)
 
     def insertTag (self, tag, article_id):
