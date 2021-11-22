@@ -593,8 +593,10 @@ LIMIT {limit}
 
         return results
 
-    def article_categories (self, title=None, order=None, order_direction=None,
-                            limit=None, article_id=None, account_id=None):
+    def categories (self, title=None, order=None, order_direction=None,
+                    limit=None, item_id=None, account_id=None,
+                    type="article"):
+        prefix = "Article" if type == "article" else "Collection"
 
         if order_direction is None:
             order_direction = "DESC"
@@ -614,16 +616,16 @@ WHERE {{
     ?row             col:title                ?title .
 """
 
-        if article_id is not None:
+        if item_id is not None:
             query += f"""\
-    ?article         rdf:type                 sg:ArticleCategoryLink .
-    ?article         col:article_id           {article_id} .
-    ?article         col:category_id          ?id .
+    ?item            rdf:type                 sg:{prefix}CategoryLink .
+    ?item            col:{type}_id            {item_id} .
+    ?item            col:category_id          ?id .
 """
 
-        if (article_id is not None) and (account_id is not None):
+        if (item_id is not None) and (account_id is not None):
             query += f"""\
-    ?article           col:account_id           ?account_id .
+    ?item            col:account_id           ?account_id .
 """
 
         query += "  }\n"
