@@ -9,6 +9,10 @@ from mysql.connector import connect, Error
 from rdbackup.utils import convenience
 
 class DatabaseInterface:
+    """
+    A class that handles all interaction between a MySQL database and the
+    output produced by the 'figshare' module.
+    """
 
     def __init__(self):
         self.connection = None
@@ -26,6 +30,7 @@ class DatabaseInterface:
         return False
 
     def getFileSizeForCatalog (self, url, article_id):
+        """Returns the file size for an OPeNDAP catalog."""
         total_filesize = 0
         metadata_url   = url.replace(".html", ".xml")
         metadata       = self.getFromUrl(metadata_url, {}, {})
@@ -69,6 +74,7 @@ class DatabaseInterface:
         return total_filesize
 
     def connect(self, host, username, password, database):
+        """Procedure to establish a database connection."""
         try:
             self.connection = connect(
                 host     = host,
@@ -77,18 +83,20 @@ class DatabaseInterface:
                 database = database)
             return self.connection.is_connected()
 
-        except Error as e:
+        except Error as error:
             logging.error("Could not establish connection to database. Reason:")
-            logging.error(e)
+            logging.error(error)
             return False
 
     def is_connected (self):
+        """Returns True when this instance is connected to a database."""
         return self.connection.is_connected()
 
     def executeQuery (self, template, data):
+        """Procedure to execute a SQL query."""
         try:
-            cursor   = self.connection.cursor()
-            result = cursor.execute(template, data)
+            cursor = self.connection.cursor()
+            cursor.execute(template, data)
             self.connection.commit()
             cursor.execute("SELECT LAST_INSERT_ID()")
             row = cursor.fetchone()
@@ -99,6 +107,8 @@ class DatabaseInterface:
             return False
 
     def insertAccount (self, record):
+        """Procedure to insert an account record."""
+
         template      = ("INSERT IGNORE INTO Account "
                          "(id, active, email, first_name, last_name, "
                          "institution_user_id, institution_id, "
@@ -139,11 +149,15 @@ class DatabaseInterface:
         return self.executeQuery(template, data)
 
     def insertInstitution (self, record):
+        """Procedure to insert an institution record."""
+
         template = "INSERT IGNORE INTO Institution (id, name) VALUES (%s, %s)"
         data     = (record["institution_id"], record["name"])
         return self.executeQuery(template, data)
 
     def insertAuthor (self, record, item_id, item_type = "article"):
+        """Procedure to insert an author record."""
+
         prefix   = "Article" if item_type == "article" else "Collection"
         template = ("INSERT IGNORE INTO Author "
                     "(id, full_name, is_active, url_name, orcid_id) "
@@ -166,6 +180,8 @@ class DatabaseInterface:
         return False
 
     def insertTimeline (self, record):
+        """Procedure to insert a timeline record."""
+
         template = ("INSERT IGNORE INTO Timeline "
                     "(revision, firstOnline, publisherPublication, "
                     "publisherAcceptance, posted, submission) "
@@ -181,6 +197,8 @@ class DatabaseInterface:
         return self.executeQuery(template, data)
 
     def insertCategory (self, record, item_id, item_type = "article"):
+        """Procedure to insert a category record."""
+
         prefix   = "Article" if item_type == "article" else "Collection"
         template = ("INSERT IGNORE INTO Category (id, title, "
                     "parent_id, source_id, taxonomy_id) "
@@ -200,6 +218,8 @@ class DatabaseInterface:
 
 
     def insertTag (self, tag, item_id, item_type = "article"):
+        """Procedure to insert a tag record."""
+
         prefix   = "Article" if item_type == "article" else "Collection"
         template = (f"INSERT IGNORE INTO {prefix}Tag (tag, {item_type}_id) "
                     "VALUES (%s, %s)")
@@ -207,6 +227,7 @@ class DatabaseInterface:
         return self.executeQuery(template, data)
 
     def insertCustomField (self, field, item_id, item_type="article"):
+        """Procedure to insert a custom_field record."""
 
         prefix      = "Article" if item_type == "article" else "Collection"
         template    = (f"INSERT IGNORE INTO {prefix}CustomField (name, value, "
@@ -252,22 +273,25 @@ class DatabaseInterface:
                         self.executeQuery (temp, data)
 
             return retval
-        else:
-            data    = (
-                field["name"],
-                default_value if field["value"] is None else field["value"],
-                default_value,
-                convenience.value_or_none (validations, "max_length"),
-                convenience.value_or_none (validations, "min_length"),
-                convenience.value_or_none (field, "field_type"),
-                convenience.value_or_none (field, "is_mandatory"),
-                convenience.value_or_none (settings, "placeholder"),
-                convenience.value_or_none (settings, "is_multiple"),
-                item_id
-            )
-            return self.executeQuery (template, data)
+
+        data    = (
+            field["name"],
+            default_value if field["value"] is None else field["value"],
+            default_value,
+            convenience.value_or_none (validations, "max_length"),
+            convenience.value_or_none (validations, "min_length"),
+            convenience.value_or_none (field, "field_type"),
+            convenience.value_or_none (field, "is_mandatory"),
+            convenience.value_or_none (settings, "placeholder"),
+            convenience.value_or_none (settings, "is_multiple"),
+            item_id
+        )
+
+        return self.executeQuery (template, data)
 
     def insertCollection (self, record, account_id):
+        """Procedure to insert a collection record."""
+
         template = ("INSERT IGNORE INTO Collection (url, title, id, "
                     "modified_date, created_date, published_date, doi, "
                     "citation, group_id, institution_id, description, "
@@ -291,7 +315,7 @@ class DatabaseInterface:
                 self.insertCategory (category, collection_id, "collection")
 
         fundings = convenience.value_or_none (record, "funding")
-        if funding:
+        if fundings:
             for funding in fundings:
                 self.insertCollectionFunding (funding, collection_id)
 
@@ -306,7 +330,7 @@ class DatabaseInterface:
 
         references = record["references"]
         for url in references:
-            self.insertReference(url, article_id, item_type="article")
+            self.insertReference(url, collection_id, item_type="collection")
 
         custom_fields = record["custom_fields"]
         if custom_fields:
@@ -360,11 +384,14 @@ class DatabaseInterface:
         return True
 
     def insertCollectionFunding (self, record, collection_id):
-        template = ("INSERT IGNORE INTO CollectionFunding (id, title, "
-                    "grant_code, funder_name, is_user_defined, url) "
-                    "VALUES (%s, %s, %s, %s, %s, %s)")
+        """Procedure to insert a funding record."""
+
+        template = ("INSERT IGNORE INTO CollectionFunding (id, collection_id, "
+                    "title, grant_code, funder_name, is_user_defined, url) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
         data     = (convenience.value_or_none (record, "id"),
+                    collection_id,
                     convenience.value_or_none (record, "title"),
                     convenience.value_or_none (record, "grant_code"),
                     convenience.value_or_none (record, "funder_name"),
@@ -378,6 +405,8 @@ class DatabaseInterface:
         return True
 
     def insertLicense (self, record):
+        """Procedure to insert a license record."""
+
         template = "INSERT IGNORE INTO License (id, name, url) VALUES (%s, %s, %s)"
 
         if not self.executeQuery (template, (record["value"], record["name"], record["url"])):
@@ -387,6 +416,8 @@ class DatabaseInterface:
         return True
 
     def insertStatistics (self, record, article_id):
+        """Procedure to insert statistics for an article."""
+
         template = ("INSERT INTO ArticleStatistics (article_id, views, "
                     "downloads, shares, date) VALUES (%s, %s, %s, %s, %s)")
 
@@ -399,6 +430,8 @@ class DatabaseInterface:
         return self.executeQuery (template, data)
 
     def insertFile (self, record, article_id):
+        """Procedure to insert a file record."""
+
         template = ("INSERT IGNORE INTO File (id, name, size, is_link_only, "
                     "download_url, supplied_md5, computed_md5, viewer_type, "
                     "preview_state, status, upload_url, upload_token) VALUES "
@@ -407,8 +440,6 @@ class DatabaseInterface:
 
         if (record["download_url"].startswith("https://opendap.4tu.nl/thredds") and
             record["size"] == 0):
-            metadata_url   = record["download_url"].replace(".html", ".xml")
-            metadata       = self.getFromUrl(metadata_url, {}, {})
             record["size"] = self.getFileSizeForCatalog(record["download_url"], article_id)
 
         data = (convenience.value_or_none (record, "id"),
@@ -433,6 +464,8 @@ class DatabaseInterface:
         return False
 
     def insertReference (self, url, item_id, item_type="article"):
+        """Procedure to insert an article reference."""
+
         prefix   = "Article" if item_type == "article" else "Collection"
         template = "INSERT IGNORE INTO {prefix}Reference ({item_type}_id, url) VALUES (%s, %s)"
         data     = (item_id, url)
@@ -440,6 +473,8 @@ class DatabaseInterface:
         return self.executeQuery (template, data)
 
     def insertArticle (self, record):
+        """Procedure to insert an article record."""
+
         template = ("INSERT IGNORE INTO Article (id, account_id, title, doi, "
                     "handle, group_id, url, url_public_html, url_public_api, "
                     "url_private_html, url_private_api, published_date, thumb, "
@@ -542,6 +577,8 @@ class DatabaseInterface:
         return True
 
     def disconnect(self):
+        """Procedure disconnect from the currently connected database."""
+
         self.connection.commit()
         cursor = self.connection.cursor()
         cursor.close()
