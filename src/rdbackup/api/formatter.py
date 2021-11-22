@@ -31,7 +31,7 @@ def format_article_record (record):
         "resource_doi":            convenience.value_or_none(record, "resource_doi")
     }
 
-def format_author_for_article_record (record):
+def format_author_record (record):
     return {
       "id":        convenience.value_or_none(record, "id"),
       "full_name": convenience.value_or_none(record, "full_name"),
@@ -67,20 +67,20 @@ def format_file_details_record (record):
       "computed_md5":  convenience.value_or_none(record, "computed_md5")
     }
 
-def format_custom_field_for_article_record (record):
+def format_custom_field_record (record):
     return {
       "name":         convenience.value_or_none(record, "name"),
       "value":        convenience.value_or_none(record, "value"),
     }
 
-def format_category_for_article_record (record):
+def format_category_record (record):
     return {
         "parent_id":  convenience.value_or_none(record, "parent_id"),
         "id":         convenience.value_or_none(record, "id"),
         "title":      convenience.value_or_none(record, "title")
     }
 
-def format_tag_for_article_record (record):
+def format_tag_record (record):
     return convenience.value_or_none(record, "tag")
 
 def format_article_details_record (article, authors, files, custom_fields, tags, categories):
@@ -89,8 +89,8 @@ def format_article_details_record (article, authors, files, custom_fields, tags,
         "resource_title":    convenience.value_or_none(article, "resource_title"),
         "resource_doi":      convenience.value_or_none(article, "resource_doi"),
         "files":             list (map (format_file_for_article_record, files)),
-        "authors":           list (map (format_author_for_article_record, authors)),
-        "custom_fields":     list (map (format_custom_field_for_article_record, custom_fields)),
+        "authors":           list (map (format_author_record, authors)),
+        "custom_fields":     list (map (format_custom_field_record, custom_fields)),
         ## TODO: Currently not stored in the backup.
         #"embargo_options": [
         #    {
@@ -109,7 +109,7 @@ def format_article_details_record (article, authors, files, custom_fields, tags,
         #"funding_list": [
         #    0
         #],
-        "tags":              list (map (format_tag_for_article_record, tags)),
+        "tags":              list (map (format_tag_record, tags)),
         "version":           convenience.value_or_none(article, "version"),
         "is_active":         convenience.value_or_none(article, "is_active"),
         "is_metadata_record": convenience.value_or_none(article, "is_metadata_record"),
@@ -122,7 +122,7 @@ def format_article_details_record (article, authors, files, custom_fields, tags,
         "modified_date":     convenience.value_or_none(article, "modified_date"),
         "created_date":      convenience.value_or_none(article, "created_date"),
         "has_linked_file":   convenience.value_or_none(article, "has_linked_file"),
-        "categories":        list (map (format_category_for_article_record, categories)),
+        "categories":        list (map (format_category_record, categories)),
         "license": {
             "value":         convenience.value_or_none(article, "license_id"),
             "name":          convenience.value_or_none(article, "license_name"),

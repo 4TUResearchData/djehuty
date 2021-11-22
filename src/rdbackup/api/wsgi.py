@@ -308,20 +308,26 @@ class ApiServer:
         elif not self.accepts_json(request):
             return self.error_406 ("application/json")
         else:
-            article       = self.db.articles(id=article_id)[0]
-            authors       = self.db.article_authors(article_id=article_id)
-            files         = self.db.article_files(article_id=article_id)
-            custom_fields = self.db.article_custom_fields(article_id=article_id)
-            tags          = self.db.article_tags(article_id=article_id)
-            categories    = self.db.article_categories(article_id=article_id)
-            total         = formatter.format_article_details_record (article,
-                                                                     authors,
-                                                                     files,
-                                                                     custom_fields,
-                                                                     tags,
-                                                                     categories)
-            return Response(json.dumps(total),
-                            mimetype='application/json; charset=utf-8')
+            try:
+                article       = self.db.articles(id=article_id)[0]
+                authors       = self.db.authors(item_id=article_id, type="article")
+                files         = self.db.article_files(article_id=article_id)
+                custom_fields = self.db.custom_fields(item_id=article_id, type="article")
+                tags          = self.db.tags(item_id=article_id, type="article")
+                categories    = self.db.categories(item_id=article_id, type="article")
+                total         = formatter.format_article_details_record (article,
+                                                                         authors,
+                                                                         files,
+                                                                         custom_fields,
+                                                                         tags,
+                                                                         categories)
+                return Response(json.dumps(total),
+                                mimetype='application/json; charset=utf-8')
+            except IndexError:
+                response = Response(json.dumps({ "message": "This article cannot be found." }),
+                                    mimetype="application/json; charset=utf-8")
+                response.status_code = 404
+                return response
 
     def api_article_files (self, request, article_id):
         if request.method != 'GET':
@@ -389,22 +395,28 @@ class ApiServer:
             if not article:
                 return Response(json.dumps([]),
                                 mimetype='application/json; charset=utf-8')
+            try:
+                article       = article[0]
+                authors       = self.db.authors(item_id=article_id, type="article")
+                files         = self.db.article_files(article_id=article_id)
+                custom_fields = self.db.custom_fields(item_id=article_id, type="article")
+                tags          = self.db.tags(item_id=article_id, type="article")
+                categories    = self.db.categories(item_id=article_id, type="article")
+                total         = formatter.format_article_details_record (article,
+                                                                         authors,
+                                                                         files,
+                                                                         custom_fields,
+                                                                         tags,
+                                                                         categories)
 
-            article       = article[0]
-            authors       = self.db.article_authors(article_id=article_id)
-            files         = self.db.article_files(article_id=article_id)
-            custom_fields = self.db.article_custom_fields(article_id=article_id)
-            tags          = self.db.article_tags(article_id=article_id)
-            categories    = self.db.article_categories(article_id=article_id)
-            total         = formatter.format_article_details_record (article,
-                                                                     authors,
-                                                                     files,
-                                                                     custom_fields,
-                                                                     tags,
-                                                                     categories)
+                return Response(json.dumps(total),
+                                mimetype='application/json; charset=utf-8')
+            except IndexError:
+                response = Response(json.dumps({ "message": "This article cannot be found." }),
+                                    mimetype="application/json; charset=utf-8")
+                response.status_code = 404
+                return response
 
-            return Response(json.dumps(total),
-                            mimetype='application/json; charset=utf-8')
 
     def api_private_article_authors (self, request, article_id):
         if request.method != 'GET':
@@ -419,8 +431,9 @@ class ApiServer:
                 return self.error_authorization_failed()
 
 
-            authors       = self.db.article_authors(article_id = article_id,
-                                                    account_id = account_id)
+            authors       = self.db.authors(item_id    = article_id,
+                                            account_id = account_id,
+                                            type       = "article")
 
             return self.default_list_response (authors, formatter.format_author_for_article_record)
 
@@ -436,8 +449,9 @@ class ApiServer:
             if account_id is None:
                 return self.error_authorization_failed()
 
-            categories    = self.db.article_categories(article_id = article_id,
-                                                       account_id = account_id)
+            categories    = self.db.categories(item_id    = article_id,
+                                               account_id = account_id,
+                                               type       = "article")
 
             return self.default_list_response (categories, formatter.format_category_for_article_record)
 

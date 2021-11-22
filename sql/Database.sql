@@ -30,6 +30,15 @@ CREATE TABLE IF NOT EXISTS CollectionTag(
     tag                   VARCHAR(255),
     collection_id         INT UNSIGNED) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS CollectionFunding(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    collection_id         INT UNSIGNED,
+    title                 VARCHAR(255),
+    grant_code            VARCHAR(255),
+    funder_name           VARCHAR(255),
+    is_user_defined       BOOLEAN NOT NULL DEFAULT 0,
+    url                   VARCHAR(255)) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS ArticleEmbargoOptionGroup(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name                  VARCHAR(255)) ENGINE=InnoDB;
@@ -57,8 +66,12 @@ CREATE TABLE IF NOT EXISTS ArticleEmbargo(
 CREATE TABLE IF NOT EXISTS ArticleReference(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     article_id            INT UNSIGNED,
-    url                   VARCHAR(255)
-    ) ENGINE=InnoDB;
+    url                   VARCHAR(255)) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS CollectionReference(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    collection_id         INT UNSIGNED,
+    url                   VARCHAR(255)) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleCategory(
     category_id           INT UNSIGNED,
