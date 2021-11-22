@@ -290,6 +290,11 @@ class DatabaseInterface:
             for category in categories:
                 self.insertCategory (category, collection_id, "collection")
 
+        fundings = convenience.value_or_none (record, "funding")
+        if funding:
+            for funding in fundings:
+                self.insertCollectionFunding (funding, collection_id)
+
         timeline_id = None
         if "timeline" in record:
             timeline_id = self.insertTimeline(record["timeline"])
@@ -350,6 +355,24 @@ class DatabaseInterface:
         )
         if not self.executeQuery(template, data):
             logging.error("Inserting collection failed.")
+            return False
+
+        return True
+
+    def insertCollectionFunding (self, record, collection_id):
+        template = ("INSERT IGNORE INTO CollectionFunding (id, title, "
+                    "grant_code, funder_name, is_user_defined, url) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)")
+
+        data     = (convenience.value_or_none (record, "id"),
+                    convenience.value_or_none (record, "title"),
+                    convenience.value_or_none (record, "grant_code"),
+                    convenience.value_or_none (record, "funder_name"),
+                    convenience.value_or_none (record, "is_user_defined"),
+                    convenience.value_or_none (record, "url"))
+
+        if not self.executeQuery(template, data):
+            logging.error("Inserting funding for collection failed.")
             return False
 
         return True
