@@ -19,10 +19,10 @@ class DatabaseInterface:
                                 params  = parameters)
         if response.status_code == 200:
             return response.text
-        else:
-            logging.error(f"{url} returned {response.status_code}.")
-            logging.error(f"Error message:\n---\n{response.text}\n---")
-            return False
+
+        logging.error(f"{url} returned {response.status_code}.")
+        logging.error(f"Error message:\n---\n{response.text}\n---")
+        return False
 
     def getFileSizeForCatalog (self, url, article_id):
         total_filesize = 0
