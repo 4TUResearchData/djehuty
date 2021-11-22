@@ -85,14 +85,14 @@ SELECT DISTINCT ?account_id ?authors_id ?citation
                 ?defined_type_name ?description
                 ?doi ?embargo_date ?embargo_options_id
                 ?embargo_reason ?embargo_title
-                ?embargo_type ?figshare_url ?files_id
+                ?embargo_type ?figshare_url
                 ?funding ?funding_id ?group_id
                 ?has_linked_file ?id ?institution_id
                 ?is_active ?is_confidential ?is_embargoed
                 ?is_metadata_record ?is_public ?license_id
                 ?license_name ?license_url
                 ?metadata_reason ?modified_date
-                ?published_date ?references_id
+                ?published_date
                 ?resource_doi ?resource_title ?size
                 ?status ?tags_id ?thumb ?timeline_posted
                 ?timeline_publisher_acceptance
@@ -143,7 +143,6 @@ WHERE {{
     OPTIONAL {{ ?article col:embargo_title         ?embargo_title . }}
     OPTIONAL {{ ?article col:embargo_type          ?embargo_type . }}
     OPTIONAL {{ ?article col:figshare_url          ?figshare_url . }}
-    OPTIONAL {{ ?article col:files_id              ?files_id . }}
     OPTIONAL {{ ?article col:funding               ?funding . }}
     OPTIONAL {{ ?article col:funding_id            ?funding_id . }}
     OPTIONAL {{ ?article col:group_id              ?group_id . }}
@@ -158,7 +157,6 @@ WHERE {{
     OPTIONAL {{ ?article col:metadata_reason       ?metadata_reason . }}
     OPTIONAL {{ ?article col:modified_date         ?modified_date . }}
     OPTIONAL {{ ?article col:published_date        ?published_date . }}
-    OPTIONAL {{ ?article col:references_id         ?references_id . }}
     OPTIONAL {{ ?article col:resource_doi          ?resource_doi . }}
     OPTIONAL {{ ?article col:resource_title        ?resource_title . }}
     OPTIONAL {{ ?article col:size                  ?size . }}
