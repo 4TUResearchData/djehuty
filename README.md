@@ -17,3 +17,18 @@ pip install --editable .
 rdbackup api -d -r
 ```
 
+## Deploy
+
+Create a portable executable with:
+
+```
+pip install pyinstaller
+pyinstaller -s -F --onefile --add-data "src/rdbackup/api/resources:rdbackup/api/resources" main.py -n rdbackup
+```
+
+On Windows, use:
+
+```
+pip install pyinstaller
+pyinstaller -F --onefile --add-data "src/rdbackup/api/resources;rdbackup/api/resources" main.py -n rdbackup
+```
