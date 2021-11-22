@@ -1,93 +1,93 @@
-from rdbackup.utils import convenience
+"""
+This module contains procedures to format a record from
+rdbackup.database to be backward-compatible with Figshare.
+"""
 
-##
-## This module contains procedures to format a record from
-## rdbackup.database to be backward-compatible with Figshare.
-##
+from rdbackup.utils import convenience as conv
 
 def format_article_record (record):
     return {
-        "id":                      convenience.value_or_none(record, "id"),
-        "title":                   convenience.value_or_none(record, "title"),
-        "doi":                     convenience.value_or_none(record, "doi"),
-        "handle":                  convenience.value_or_none(record, "handle"),
-        "url":                     convenience.value_or_none(record, "url"),
-        "published_date":          convenience.value_or_none(record, "published_date"),
-        "thumb":                   convenience.value_or_none(record, "thumb"),
-        "defined_type":            convenience.value_or_none(record, "defined_type"),
-        "defined_type_name":       convenience.value_or_none(record, "defined_type_name"),
-        "group_id":                convenience.value_or_none(record, "group_id"),
-        "url_private_api":         convenience.value_or_none(record, "url_private_api"),
-        "url_public_api":          convenience.value_or_none(record, "url_public_api"),
-        "url_private_html":        convenience.value_or_none(record, "url_private_html"),
-        "url_public_html":         convenience.value_or_none(record, "url_public_html"),
+        "id":                      conv.value_or_none(record, "id"),
+        "title":                   conv.value_or_none(record, "title"),
+        "doi":                     conv.value_or_none(record, "doi"),
+        "handle":                  conv.value_or_none(record, "handle"),
+        "url":                     conv.value_or_none(record, "url"),
+        "published_date":          conv.value_or_none(record, "published_date"),
+        "thumb":                   conv.value_or_none(record, "thumb"),
+        "defined_type":            conv.value_or_none(record, "defined_type"),
+        "defined_type_name":       conv.value_or_none(record, "defined_type_name"),
+        "group_id":                conv.value_or_none(record, "group_id"),
+        "url_private_api":         conv.value_or_none(record, "url_private_api"),
+        "url_public_api":          conv.value_or_none(record, "url_public_api"),
+        "url_private_html":        conv.value_or_none(record, "url_private_html"),
+        "url_public_html":         conv.value_or_none(record, "url_public_html"),
         "timeline": {
-            "posted":              convenience.value_or_none(record, "timeline_posted"),
-            "firstOnline":         convenience.value_or_none(record, "timeline_first_online"),
-            "revision":            convenience.value_or_none(record, "timeline_revision"),
-            "publisherAcceptance": convenience.value_or_none(record, "timeline_publisher_acceptance"),
+            "posted":              conv.value_or_none(record, "timeline_posted"),
+            "firstOnline":         conv.value_or_none(record, "timeline_first_online"),
+            "revision":            conv.value_or_none(record, "timeline_revision"),
+            "publisherAcceptance": conv.value_or_none(record, "timeline_publisher_acceptance"),
         },
-        "resource_title":          convenience.value_or_none(record, "resource_title"),
-        "resource_doi":            convenience.value_or_none(record, "resource_doi")
+        "resource_title":          conv.value_or_none(record, "resource_title"),
+        "resource_doi":            conv.value_or_none(record, "resource_doi")
     }
 
 def format_author_record (record):
     return {
-      "id":        convenience.value_or_none(record, "id"),
-      "full_name": convenience.value_or_none(record, "full_name"),
-      "is_active": convenience.value_or_none(record, "is_active"),
-      "url_name":  convenience.value_or_none(record, "url_name"),
-      "orcid_id":  convenience.value_or_none(record, "orcid_id")
+      "id":        conv.value_or_none(record, "id"),
+      "full_name": conv.value_or_none(record, "full_name"),
+      "is_active": conv.value_or_none(record, "is_active"),
+      "url_name":  conv.value_or_none(record, "url_name"),
+      "orcid_id":  conv.value_or_none(record, "orcid_id")
     }
 
 def format_file_for_article_record (record):
     return {
-      "id":           convenience.value_or_none(record, "id"),
-      "name":         convenience.value_or_none(record, "name"),
-      "size":         convenience.value_or_none(record, "size"),
-      "is_link_only": convenience.value_or_none(record, "is_link_only"),
-      "download_url": convenience.value_or_none(record, "download_url"),
-      "supplied_md5": convenience.value_or_none(record, "supplied_md5"),
-      "computed_md5": convenience.value_or_none(record, "computed_md5")
+      "id":           conv.value_or_none(record, "id"),
+      "name":         conv.value_or_none(record, "name"),
+      "size":         conv.value_or_none(record, "size"),
+      "is_link_only": conv.value_or_none(record, "is_link_only"),
+      "download_url": conv.value_or_none(record, "download_url"),
+      "supplied_md5": conv.value_or_none(record, "supplied_md5"),
+      "computed_md5": conv.value_or_none(record, "computed_md5")
     }
 
 def format_file_details_record (record):
     return {
-      "status":        convenience.value_or_none(record, "status"),
-      "viewer_type":   convenience.value_or_none(record, "viewer_type"),
-      "preview_state": convenience.value_or_none(record, "preview_state"),
-      "upload_url":    convenience.value_or_none(record, "upload_url"),
-      "upload_token":  convenience.value_or_none(record, "upload_token"),
-      "id":            convenience.value_or_none(record, "id"),
-      "name":          convenience.value_or_none(record, "name"),
-      "size":          convenience.value_or_none(record, "size"),
-      "is_link_only":  convenience.value_or_none(record, "is_link_only"),
-      "download_url":  convenience.value_or_none(record, "download_url"),
-      "supplied_md5":  convenience.value_or_none(record, "supplied_md5"),
-      "computed_md5":  convenience.value_or_none(record, "computed_md5")
+      "status":        conv.value_or_none(record, "status"),
+      "viewer_type":   conv.value_or_none(record, "viewer_type"),
+      "preview_state": conv.value_or_none(record, "preview_state"),
+      "upload_url":    conv.value_or_none(record, "upload_url"),
+      "upload_token":  conv.value_or_none(record, "upload_token"),
+      "id":            conv.value_or_none(record, "id"),
+      "name":          conv.value_or_none(record, "name"),
+      "size":          conv.value_or_none(record, "size"),
+      "is_link_only":  conv.value_or_none(record, "is_link_only"),
+      "download_url":  conv.value_or_none(record, "download_url"),
+      "supplied_md5":  conv.value_or_none(record, "supplied_md5"),
+      "computed_md5":  conv.value_or_none(record, "computed_md5")
     }
 
 def format_custom_field_record (record):
     return {
-      "name":         convenience.value_or_none(record, "name"),
-      "value":        convenience.value_or_none(record, "value"),
+      "name":         conv.value_or_none(record, "name"),
+      "value":        conv.value_or_none(record, "value"),
     }
 
 def format_category_record (record):
     return {
-        "parent_id":  convenience.value_or_none(record, "parent_id"),
-        "id":         convenience.value_or_none(record, "id"),
-        "title":      convenience.value_or_none(record, "title")
+        "parent_id":  conv.value_or_none(record, "parent_id"),
+        "id":         conv.value_or_none(record, "id"),
+        "title":      conv.value_or_none(record, "title")
     }
 
 def format_tag_record (record):
-    return convenience.value_or_none(record, "tag")
+    return conv.value_or_none(record, "tag")
 
 def format_article_details_record (article, authors, files, custom_fields, tags, categories):
     return {
-        "figshare_url":      convenience.value_or_none(article, "figshare_url"),
-        "resource_title":    convenience.value_or_none(article, "resource_title"),
-        "resource_doi":      convenience.value_or_none(article, "resource_doi"),
+        "figshare_url":      conv.value_or_none(article, "figshare_url"),
+        "resource_title":    conv.value_or_none(article, "resource_title"),
+        "resource_doi":      conv.value_or_none(article, "resource_doi"),
         "files":             list (map (format_file_for_article_record, files)),
         "authors":           list (map (format_author_record, authors)),
         "custom_fields":     list (map (format_custom_field_record, custom_fields)),
@@ -99,138 +99,135 @@ def format_article_details_record (article, authors, files, custom_fields, tags,
         #        "ip_name": "Figshare IP range"
         #    }
         #],
-        "citation":          convenience.value_or_none(article, "citation"),
-        "confidential_reason": convenience.value_or_none(article, "confidential_reason"),
-        "embargo_type":      convenience.value_or_none(article, "embargo_type"),
-        "is_confidential":   convenience.value_or_none(article, "is_confidential"),
-        "size":              convenience.value_or_none(article, "size"),
-        "funding":           convenience.value_or_none(article, "funding"),
+        "citation":          conv.value_or_none(article, "citation"),
+        "confidential_reason": conv.value_or_none(article, "confidential_reason"),
+        "embargo_type":      conv.value_or_none(article, "embargo_type"),
+        "is_confidential":   conv.value_or_none(article, "is_confidential"),
+        "size":              conv.value_or_none(article, "size"),
+        "funding":           conv.value_or_none(article, "funding"),
         ## TODO: Currently not stored in the backup.
         #"funding_list": [
         #    0
         #],
         "tags":              list (map (format_tag_record, tags)),
-        "version":           convenience.value_or_none(article, "version"),
-        "is_active":         convenience.value_or_none(article, "is_active"),
-        "is_metadata_record": convenience.value_or_none(article, "is_metadata_record"),
-        "metadata_reason":   convenience.value_or_none(article, "metadata_reason"),
-        "status":            convenience.value_or_none(article, "status"),
-        "description":       convenience.value_or_none(article, "description"),
-        "is_embargoed":      convenience.value_or_none(article, "is_embargoed"),
-        "embargo_date":      convenience.value_or_none(article, "embargo_date"),
-        "is_public":         convenience.value_or_none(article, "is_public"),
-        "modified_date":     convenience.value_or_none(article, "modified_date"),
-        "created_date":      convenience.value_or_none(article, "created_date"),
-        "has_linked_file":   convenience.value_or_none(article, "has_linked_file"),
+        "version":           conv.value_or_none(article, "version"),
+        "is_active":         conv.value_or_none(article, "is_active"),
+        "is_metadata_record": conv.value_or_none(article, "is_metadata_record"),
+        "metadata_reason":   conv.value_or_none(article, "metadata_reason"),
+        "status":            conv.value_or_none(article, "status"),
+        "description":       conv.value_or_none(article, "description"),
+        "is_embargoed":      conv.value_or_none(article, "is_embargoed"),
+        "embargo_date":      conv.value_or_none(article, "embargo_date"),
+        "is_public":         conv.value_or_none(article, "is_public"),
+        "modified_date":     conv.value_or_none(article, "modified_date"),
+        "created_date":      conv.value_or_none(article, "created_date"),
+        "has_linked_file":   conv.value_or_none(article, "has_linked_file"),
         "categories":        list (map (format_category_record, categories)),
         "license": {
-            "value":         convenience.value_or_none(article, "license_id"),
-            "name":          convenience.value_or_none(article, "license_name"),
-            "url":           convenience.value_or_none(article, "license_url"),
+            "value":         conv.value_or_none(article, "license_id"),
+            "name":          conv.value_or_none(article, "license_name"),
+            "url":           conv.value_or_none(article, "license_url"),
         },
-        "embargo_title":     convenience.value_or_none(article, "embargo_title"),
-        "embargo_reason":    convenience.value_or_none(article, "embargo_reason"),
+        "embargo_title":     conv.value_or_none(article, "embargo_title"),
+        "embargo_reason":    conv.value_or_none(article, "embargo_reason"),
         "references": [
             "http://figshare.com",
             "http://figshare.com/api"
         ],
-        "id":                convenience.value_or_none(article, "id"),
-        "title":             convenience.value_or_none(article, "title"),
-        "doi":               convenience.value_or_none(article, "doi"),
-        "handle":            convenience.value_or_none(article, "handle"),
-        "group_id":          convenience.value_or_none(article, "group_id"),
-        "url":               convenience.value_or_none(article, "url"),
-        "url_public_html":   convenience.value_or_none(article, "url_public_html"),
-        "url_public_api":    convenience.value_or_none(article, "url_public_api"),
-        "url_private_html":  convenience.value_or_none(article, "url_private_html"),
-        "url_private_api":   convenience.value_or_none(article, "url_private_api"),
-        "published_date":    convenience.value_or_none(article, "published_date"),
+        "id":                conv.value_or_none(article, "id"),
+        "title":             conv.value_or_none(article, "title"),
+        "doi":               conv.value_or_none(article, "doi"),
+        "handle":            conv.value_or_none(article, "handle"),
+        "group_id":          conv.value_or_none(article, "group_id"),
+        "url":               conv.value_or_none(article, "url"),
+        "url_public_html":   conv.value_or_none(article, "url_public_html"),
+        "url_public_api":    conv.value_or_none(article, "url_public_api"),
+        "url_private_html":  conv.value_or_none(article, "url_private_html"),
+        "url_private_api":   conv.value_or_none(article, "url_private_api"),
+        "published_date":    conv.value_or_none(article, "published_date"),
         "timeline": {
-            "posted":        convenience.value_or_none(article, "timeline_posted"),
-            "submission":    convenience.value_or_none(article, "timeline_submission"),
-            "revision":      convenience.value_or_none(article, "timeline_revision"),
-            "firstOnline":   convenience.value_or_none(article, "timeline_first_online"),
-            "publisherPublication": convenience.value_or_none(article, "timeline_publisher_publication"),
-            "publisherAcceptance": convenience.value_or_none(article, "timeline_publisher_acceptance"),
+            "posted":        conv.value_or_none(article, "timeline_posted"),
+            "submission":    conv.value_or_none(article, "timeline_submission"),
+            "revision":      conv.value_or_none(article, "timeline_revision"),
+            "firstOnline":   conv.value_or_none(article, "timeline_first_online"),
+            "publisherPublication": conv.value_or_none(article, "timeline_publisher_publication"),
+            "publisherAcceptance": conv.value_or_none(article, "timeline_publisher_acceptance"),
         },
-        "thumb":             convenience.value_or_none(article, "thumb"),
-        "defined_type":      convenience.value_or_none(article, "defined_type"),
-        "defined_type_name": convenience.value_or_none(article, "defined_type_name"),
+        "thumb":             conv.value_or_none(article, "thumb"),
+        "defined_type":      conv.value_or_none(article, "defined_type"),
+        "defined_type_name": conv.value_or_none(article, "defined_type_name"),
     }
 
 def format_article_version_record (record):
-    return [{
-        "version": 1,
-        "url": "https://api.figshare.com/v2/articles/17013092/versions/1"
-    }, {
-        "version": 2,
-        "url": "https://api.figshare.com/v2/articles/17013092/versions/2"
-    }]
+    return {
+        "version":           conv.value_or_none(record, "version"),
+        "url":               conv.value_or_none(record, "url")
+    }
 
 def format_collection_record (record):
     return {
-        "id":                convenience.value_or_none(record, "id"),
-        "title":             convenience.value_or_none(record, "title"),
-        "doi":               convenience.value_or_none(record, "doi"),
-        "handle":            convenience.value_or_none(record, "handle"),
-        "url":               convenience.value_or_none(record, "url"),
+        "id":                conv.value_or_none(record, "id"),
+        "title":             conv.value_or_none(record, "title"),
+        "doi":               conv.value_or_none(record, "doi"),
+        "handle":            conv.value_or_none(record, "handle"),
+        "url":               conv.value_or_none(record, "url"),
         "timeline": {
-            "posted":        convenience.value_or_none(record, "timeline_posted"),
-            "submission":    convenience.value_or_none(record, "timeline_submission"),
-            "revision":      convenience.value_or_none(record, "timeline_revision"),
-            "firstOnline":   convenience.value_or_none(record, "timeline_first_online"),
-            "publisherPublication": convenience.value_or_none(record, "timeline_publisher_publication"),
-            "publisherAcceptance": convenience.value_or_none(record, "timeline_publisher_acceptance"),
+            "posted":        conv.value_or_none(record, "timeline_posted"),
+            "submission":    conv.value_or_none(record, "timeline_submission"),
+            "revision":      conv.value_or_none(record, "timeline_revision"),
+            "firstOnline":   conv.value_or_none(record, "timeline_first_online"),
+            "publisherPublication": conv.value_or_none(record, "timeline_publisher_publication"),
+            "publisherAcceptance": conv.value_or_none(record, "timeline_publisher_acceptance"),
         },
-        "published_date":    convenience.value_or_none(record, "published_date"),
+        "published_date":    conv.value_or_none(record, "published_date"),
     }
 
 def format_collection_details_record (collection, funding, categories,
                                       references, tags, authors, custom_fields):
     return {
         "funding":           list (map (format_funding_record, funding)),
-        "resource_id":       convenience.value_or_none(collection, "resource_id"),
-        "resource_doi":      convenience.value_or_none(collection, "resource_doi"),
-        "resource_title":    convenience.value_or_none(collection, "resource_title"),
-        "resource_link":     convenience.value_or_none(collection, "resource_link"),
-        "resource_version":  convenience.value_or_none(collection, "resource_version"),
-        "version":           convenience.value_or_none(collection, "version"),
-        "description":       convenience.value_or_none(collection, "description"),
+        "resource_id":       conv.value_or_none(collection, "resource_id"),
+        "resource_doi":      conv.value_or_none(collection, "resource_doi"),
+        "resource_title":    conv.value_or_none(collection, "resource_title"),
+        "resource_link":     conv.value_or_none(collection, "resource_link"),
+        "resource_version":  conv.value_or_none(collection, "resource_version"),
+        "version":           conv.value_or_none(collection, "version"),
+        "description":       conv.value_or_none(collection, "description"),
         "categories":        list (map (format_category_record, categories)),
         "references":        references,
         "tags":              list (map (format_tag_record, tags)),
-        "authors":           list (map (format_author_record, tags)),
-        "institution_id":    convenience.value_or_none(collection, "institution_id"),
-        "group_id":          convenience.value_or_none(collection, "group_id"),
-        "articles_count":    convenience.value_or_none(collection, "articles_count"),
-        "public":            convenience.value_or_none(collection, "is_public"),
-        "citation":          convenience.value_or_none(collection, "citation"),
-        "group_resource_id": convenience.value_or_none(collection, "group_resource_id"),
+        "authors":           list (map (format_author_record, authors)),
+        "institution_id":    conv.value_or_none(collection, "institution_id"),
+        "group_id":          conv.value_or_none(collection, "group_id"),
+        "articles_count":    conv.value_or_none(collection, "articles_count"),
+        "public":            conv.value_or_none(collection, "is_public"),
+        "citation":          conv.value_or_none(collection, "citation"),
+        "group_resource_id": conv.value_or_none(collection, "group_resource_id"),
         "custom_fields":     list (map (format_custom_field_record, custom_fields)),
-        "modified_date":     convenience.value_or_none(collection, "modified_date"),
-        "created_date":      convenience.value_or_none(collection, "created_date"),
+        "modified_date":     conv.value_or_none(collection, "modified_date"),
+        "created_date":      conv.value_or_none(collection, "created_date"),
         "timeline": {
-            "posted":               convenience.value_or_none(collection, "timeline_posted"),
-            "firstOnline":          convenience.value_or_none(collection, "timeline_first_online"),
-            "revision":             convenience.value_or_none(collection, "timeline_revision"),
-            "publisherAcceptance":  convenience.value_or_none(collection, "timeline_publisher_acceptance"),
-            "submission":           convenience.value_or_none(collection, "timeline_submission"),
-            "publisherPublication": convenience.value_or_none(collection, "timeline_publisher_publication")
+            "posted":               conv.value_or_none(collection, "timeline_posted"),
+            "firstOnline":          conv.value_or_none(collection, "timeline_first_online"),
+            "revision":             conv.value_or_none(collection, "timeline_revision"),
+            "publisherAcceptance":  conv.value_or_none(collection, "timeline_publisher_acceptance"),
+            "submission":           conv.value_or_none(collection, "timeline_submission"),
+            "publisherPublication": conv.value_or_none(collection, "timeline_publisher_publication")
         },
-        "id":                convenience.value_or_none(collection, "id"),
-        "title":             convenience.value_or_none(collection, "title"),
-        "doi":               convenience.value_or_none(collection, "doi"),
-        "handle":            convenience.value_or_none(collection, "handle"),
-        "url":               convenience.value_or_none(collection, "url"),
-        "published_date":    convenience.value_or_none(collection, "published_date")
+        "id":                conv.value_or_none(collection, "id"),
+        "title":             conv.value_or_none(collection, "title"),
+        "doi":               conv.value_or_none(collection, "doi"),
+        "handle":            conv.value_or_none(collection, "handle"),
+        "url":               conv.value_or_none(collection, "url"),
+        "published_date":    conv.value_or_none(collection, "published_date")
     }
 
 def format_funding_record (record):
     return {
-        "id":                convenience.value_or_none(record, "id"),
-        "title":             convenience.value_or_none(record, "title"),
-        "grant_code":        convenience.value_or_none(record, "grant_code"),
-        "funder_name":       convenience.value_or_none(record, "funder_name"),
-        "is_user_defined":   convenience.value_or_none(record, "is_user_defined"),
-        "url":               convenience.value_or_none(record, "url")
+        "id":                conv.value_or_none(record, "id"),
+        "title":             conv.value_or_none(record, "title"),
+        "grant_code":        conv.value_or_none(record, "grant_code"),
+        "funder_name":       conv.value_or_none(record, "funder_name"),
+        "is_user_defined":   conv.value_or_none(record, "is_user_defined"),
+        "url":               conv.value_or_none(record, "url")
     }

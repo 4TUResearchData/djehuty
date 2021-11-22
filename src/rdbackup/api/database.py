@@ -1,6 +1,10 @@
-from SPARQLWrapper import SPARQLWrapper, JSON
-import json
+"""
+This module provides the communication with the SPARQL endpoint to provide
+data for the API server.
+"""
+
 import logging
+from SPARQLWrapper import SPARQLWrapper, JSON
 
 class SparqlInterface:
 
@@ -56,8 +60,8 @@ LIMIT {limit}
         try:
             results = self.sparql.query().convert()
         except:
-            logging.error(f"SPARQL query failed.")
-            logging.error(f"Query:\n{query}\n")
+            logging.error("SPARQL query failed.")
+            logging.error("Query:\n%s\n", query)
 
         return results
 
@@ -66,7 +70,7 @@ LIMIT {limit}
                   published_since=None, modified_since=None,
                   group=None, resource_doi=None, item_type=None,
                   doi=None, handle=None, account_id=None,
-                  search_for=None, id=None):
+                  search_for=None, article_id=None):
 
         if order_direction is None:
             order_direction = "DESC"
@@ -201,8 +205,8 @@ WHERE {{
         if handle is not None:
             query += f"FILTER (STR(?handle) = \"{handle}\")\n"
 
-        if id is not None:
-            query += f"FILTER (?id = {id})\n"
+        if article_id is not None:
+            query += f"FILTER (?id = {article_id})\n"
 
         if account_id is None:
             query += "FILTER (?is_public = 1)\n"
@@ -229,13 +233,13 @@ LIMIT {limit}
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
         except:
-            logging.error(f"SPARQL query failed.")
-            logging.error(f"Query:\n---\n{query}\n---")
+            logging.error("SPARQL query failed.")
+            logging.error("Query:\n---\n%s\n---", query)
 
         return results
 
     def authors (self, first_name=None, full_name=None, group_id=None,
-                 id=None, institution_id=None, is_active=None,
+                 author_id=None, institution_id=None, is_active=None,
                  is_public=None, job_title=None, last_name=None,
                  orcid_id=None, url_name=None, limit=10, order=None,
                  order_direction=None, item_id=None,
@@ -268,27 +272,27 @@ WHERE {{
             query += f"""\
     ?item              rdf:type                 sg:{prefix} .
     ?link              rdf:type                 sg:{prefix}AuthorLink .
-    ?link              col:{type}_id            {item_id} .
+    ?link              col:{item_type}_id       {item_id} .
     ?link              col:author_id            ?id .
 """
 
         if (item_id is not None) and (account_id is not None):
-            query += f"""\
+            query += """\
     ?item              col:account_id           ?account_id .
 """
 
-        query += f"""\
-    OPTIONAL {{ ?author col:first_name            ?first_name . }}
-    OPTIONAL {{ ?author col:full_name             ?full_name . }}
-    OPTIONAL {{ ?author col:group_id              ?group_id . }}
-    OPTIONAL {{ ?author col:institution_id        ?institution_id . }}
-    OPTIONAL {{ ?author col:is_active             ?is_active . }}
-    OPTIONAL {{ ?author col:is_public             ?is_public . }}
-    OPTIONAL {{ ?author col:job_title             ?job_title . }}
-    OPTIONAL {{ ?author col:last_name             ?last_name . }}
-    OPTIONAL {{ ?author col:orcid_id              ?orcid_id . }}
-    OPTIONAL {{ ?author col:url_name              ?url_name . }}
-  }}
+        query += """\
+    OPTIONAL { ?author col:first_name            ?first_name . }
+    OPTIONAL { ?author col:full_name             ?full_name . }
+    OPTIONAL { ?author col:group_id              ?group_id . }
+    OPTIONAL { ?author col:institution_id        ?institution_id . }
+    OPTIONAL { ?author col:is_active             ?is_active . }
+    OPTIONAL { ?author col:is_public             ?is_public . }
+    OPTIONAL { ?author col:job_title             ?job_title . }
+    OPTIONAL { ?author col:last_name             ?last_name . }
+    OPTIONAL { ?author col:orcid_id              ?orcid_id . }
+    OPTIONAL { ?author col:url_name              ?url_name . }
+  }
 """
 
         if first_name is not None:
@@ -300,8 +304,8 @@ WHERE {{
         if group_id is not None:
             query += f"FILTER (?group_id = {group_id})\n"
 
-        if id is not None:
-            query += f"FILTER (?id = {id})\n"
+        if author_id is not None:
+            query += f"FILTER (?id = {author_id})\n"
 
         if institution_id is not None:
             query += f"FILTER (?institution_id = {institution_id})\n"
@@ -338,13 +342,23 @@ LIMIT {limit}
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
         except:
-            logging.error(f"SPARQL query failed.")
-            logging.error(f"Query:\n---\n{query}\n---")
+            logging.error("SPARQL query failed.")
+            logging.error("Query:\n---\n%s\n---", query)
 
         return results
 
+    def insert_article (self, title=None, description=None, tags=None,
+                        keywords=None, references=None, categories=None,
+                        authors=None, custom_fields=None, defined_type=None,
+                        funding=None, funding_list=None, license_id=None, doi=None,
+                        handle=None, resource_doi=None, resource_title=None,
+                        first_online=None, publisher_publication=None,
+                        publisher_acceptance=None, submission=None, posted=None,
+                        revision=None, group_id=None):
+        return False
+
     def article_files (self, name=None, size=None, is_link_only=None,
-                       id=None, download_url=None, supplied_md5=None,
+                       file_id=None, download_url=None, supplied_md5=None,
                        computed_md5=None, viewer_type=None, preview_state=None,
                        status=None, upload_url=None, upload_token=None,
                        order=None, order_direction=None, limit=None,
@@ -380,23 +394,23 @@ WHERE {{
 """
 
         if (article_id is not None) and (account_id is not None):
-            query += f"""\
+            query += """\
     ?article           col:account_id           ?account_id .
 """
 
-        query += f"""\
-    OPTIONAL {{ ?file  col:name                 ?name . }}
-    OPTIONAL {{ ?file  col:size                 ?size . }}
-    OPTIONAL {{ ?file  col:is_link_only         ?is_link_only . }}
-    OPTIONAL {{ ?file  col:download_url         ?download_url . }}
-    OPTIONAL {{ ?file  col:supplied_md5         ?supplied_md5 . }}
-    OPTIONAL {{ ?file  col:computed_md5         ?computed_md5 . }}
-    OPTIONAL {{ ?file  col:viewer_type          ?viewer_type . }}
-    OPTIONAL {{ ?file  col:preview_state        ?preview_state . }}
-    OPTIONAL {{ ?file  col:status               ?status . }}
-    OPTIONAL {{ ?file  col:upload_url           ?upload_url . }}
-    OPTIONAL {{ ?file  col:upload_token         ?upload_token . }}
-  }}
+        query += """\
+    OPTIONAL { ?file  col:name                 ?name . }
+    OPTIONAL { ?file  col:size                 ?size . }
+    OPTIONAL { ?file  col:is_link_only         ?is_link_only . }
+    OPTIONAL { ?file  col:download_url         ?download_url . }
+    OPTIONAL { ?file  col:supplied_md5         ?supplied_md5 . }
+    OPTIONAL { ?file  col:computed_md5         ?computed_md5 . }
+    OPTIONAL { ?file  col:viewer_type          ?viewer_type . }
+    OPTIONAL { ?file  col:preview_state        ?preview_state . }
+    OPTIONAL { ?file  col:status               ?status . }
+    OPTIONAL { ?file  col:upload_url           ?upload_url . }
+    OPTIONAL { ?file  col:upload_token         ?upload_token . }
+  }
 """
         if name is not None:
             query += f"FILTER (STR(?name) = \"{name}\")\n"
@@ -407,8 +421,8 @@ WHERE {{
         if is_link_only is not None:
             query += f"FILTER (?is_link_only = {is_link_only})\n"
 
-        if id is not None:
-            query += f"FILTER (?id = {id})\n"
+        if file_id is not None:
+            query += f"FILTER (?id = {file_id})\n"
 
         if download_url is not None:
             query += f"FILTER (STR(?download_url) = \"{download_url}\")\n"
@@ -448,13 +462,13 @@ LIMIT {limit}
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
         except:
-            logging.error(f"SPARQL query failed.")
-            logging.error(f"Query:\n---\n{query}\n---")
+            logging.error("SPARQL query failed.")
+            logging.error("Query:\n---\n%s\n---", query)
 
         return results
 
     def custom_fields (self, name=None, value=None, default_value=None,
-                       id=None, placeholder=None, max_length=None,
+                       field_id=None, placeholder=None, max_length=None,
                        min_length=None, field_type=None, is_multiple=None,
                        is_mandatory=None, order=None, order_direction=None,
                        limit=None, item_id=None, item_type="article"):
@@ -482,20 +496,20 @@ WHERE {{
 
         if item_id is not None:
             query += f"""\
-    ?field             col:{type}_id            {item_id} .
+    ?field             col:{item_type}_id        {item_id} .
 """
 
-        query += f"""\
-    OPTIONAL {{ ?field  col:name                 ?name . }}
-    OPTIONAL {{ ?field  col:value                ?value . }}
-    OPTIONAL {{ ?field  col:default_value        ?default_value . }}
-    OPTIONAL {{ ?field  col:placeholder          ?placeholder . }}
-    OPTIONAL {{ ?field  col:max_length           ?max_length . }}
-    OPTIONAL {{ ?field  col:min_length           ?min_length . }}
-    OPTIONAL {{ ?field  col:field_type           ?field_type . }}
-    OPTIONAL {{ ?field  col:is_multiple          ?is_multiple . }}
-    OPTIONAL {{ ?field  col:is_mandatory         ?is_mandatory . }}
-  }}
+        query += """\
+    OPTIONAL { ?field  col:name                 ?name . }
+    OPTIONAL { ?field  col:value                ?value . }
+    OPTIONAL { ?field  col:default_value        ?default_value . }
+    OPTIONAL { ?field  col:placeholder          ?placeholder . }
+    OPTIONAL { ?field  col:max_length           ?max_length . }
+    OPTIONAL { ?field  col:min_length           ?min_length . }
+    OPTIONAL { ?field  col:field_type           ?field_type . }
+    OPTIONAL { ?field  col:is_multiple          ?is_multiple . }
+    OPTIONAL { ?field  col:is_mandatory         ?is_mandatory . }
+  }
 """
         if name is not None:
             query += f"FILTER (STR(?name) = \"{name}\")\n"
@@ -506,8 +520,8 @@ WHERE {{
         if default_value is not None:
             query += f"FILTER (STR(?default_value) = \"{default_value}\")\n"
 
-        if id is not None:
-            query += f"FILTER (?id = {id})\n"
+        if field_id is not None:
+            query += f"FILTER (?id = {field_id})\n"
 
         if placeholder is not None:
             query += f"FILTER (STR(?placeholder) = \"{placeholder}\")\n"
@@ -541,8 +555,8 @@ LIMIT {limit}
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
         except:
-            logging.error(f"SPARQL query failed.")
-            logging.error(f"Query:\n---\n{query}\n---")
+            logging.error("SPARQL query failed.")
+            logging.error("Query:\n---\n%s\n---", query)
 
         return results
 
@@ -569,12 +583,12 @@ WHERE {{
 
         if item_id is not None:
             query += f"""\
-    ?row             col:{type}_id           {item_id} .
+    ?row             col:{item_type}_id       {item_id} .
 """
 
-        query += f"""\
-  }}
-}}
+        query += """\
+  }
+}
 """
         if order is not None:
             query += f"""\
@@ -588,8 +602,8 @@ LIMIT {limit}
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
         except:
-            logging.error(f"SPARQL query failed.")
-            logging.error(f"Query:\n---\n{query}\n---")
+            logging.error("SPARQL query failed.")
+            logging.error("Query:\n---\n%s\n---", query)
 
         return results
 
@@ -619,12 +633,12 @@ WHERE {{
         if item_id is not None:
             query += f"""\
     ?item            rdf:type                 sg:{prefix}CategoryLink .
-    ?item            col:{type}_id            {item_id} .
+    ?item            col:{item_type}_id       {item_id} .
     ?item            col:category_id          ?id .
 """
 
         if (item_id is not None) and (account_id is not None):
-            query += f"""\
+            query += """\
     ?item            col:account_id           ?account_id .
 """
 
@@ -647,8 +661,8 @@ LIMIT {limit}
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
         except:
-            logging.error(f"SPARQL query failed.")
-            logging.error(f"Query:\n---\n{query}\n---")
+            logging.error("SPARQL query failed.")
+            logging.error("Query:\n---\n%s\n---", query)
 
         return results
 
@@ -660,7 +674,7 @@ LIMIT {limit}
                      order_direction=None, institution=None,
                      published_since=None, modified_since=None, group=None,
                      resource_doi=None, doi=None, handle=None, account_id=None,
-                     search_for=None, id=None):
+                     search_for=None, collection_id=None):
 
         if order_direction is None:
             order_direction = "DESC"
@@ -770,8 +784,8 @@ WHERE {{
         if handle is not None:
             query += f"FILTER (STR(?handle) = \"{handle}\")\n"
 
-        if id is not None:
-            query += f"FILTER (?id = {id})\n"
+        if collection_id is not None:
+            query += f"FILTER (?id = {collection_id})\n"
 
         if account_id is None:
             query += "FILTER (?is_public = 1)\n"
@@ -798,8 +812,8 @@ LIMIT {limit}
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
         except:
-            logging.error(f"SPARQL query failed.")
-            logging.error(f"Query:\n---\n{query}\n---")
+            logging.error("SPARQL query failed.")
+            logging.error("Query:\n---\n%s\n---", query)
 
         return results
 
@@ -820,7 +834,7 @@ WHERE {{
   GRAPH <{self.state_graph}> {{
     ?row             rdf:type                 sg:CollectionFunding .
     ?row             col:id                   ?id .
-    ?row             coL:collectionId         ?collection_id .
+    ?row             col:collectionId         ?collection_id .
     OPTIONAL {{ ?row             col:title                ?title . }}
     OPTIONAL {{ ?row             col:grant_code           ?grant_code . }}
     OPTIONAL {{ ?row             col:funder_name          ?funder_name . }}
@@ -828,20 +842,20 @@ WHERE {{
 """
 
         if collection_id is not None:
-            query += f"""\
+            query += """\
     ?collection           rdf:type                 sg:CollectionFundingLink .
     ?collection           col:collection_id        ?collection_id .
 """
 
         if (collection_id is not None) and (account_id is not None):
-            query += f"""\
+            query += """\
     ?collection           col:account_id           ?account_id .
 """
 
         query += "  }\n"
 
         if collection_id is not None:
-            query += f"FILTER(?collection_id = {collection_id})"
+            query += f"FILTER(?collection_id = {collection_id})\n"
 
         if title is not None:
             query += f"FILTER (STR(?title) = \"{title}\")\n"
@@ -860,7 +874,7 @@ LIMIT {limit}
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
         except:
-            logging.error(f"SPARQL query failed.")
-            logging.error(f"Query:\n---\n{query}\n---")
+            logging.error("SPARQL query failed.")
+            logging.error("Query:\n---\n%s\n---", query)
 
         return results
