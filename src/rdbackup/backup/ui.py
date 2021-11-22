@@ -29,18 +29,18 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
     collections_written = 0
     collections_failed  = 0
     for account in accounts:
-        db.insertAccount(account)
+        db.insert_account (account)
 
         articles = endpoint.getArticlesByAccount(account["id"])
         for article in articles:
-            if db.insertArticle(article):
+            if db.insert_article (article):
                 articles_written += 1
             else:
                 articles_failed  += 1
 
         collections = endpoint.getCollectionsByAccount(account["id"])
         for collection in collections:
-            if db.insertCollection(collection, account["id"]):
+            if db.insert_collection (collection, account["id"]):
                 collections_written += 1
             else:
                 collections_failed += 1

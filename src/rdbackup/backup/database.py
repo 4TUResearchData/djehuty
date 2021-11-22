@@ -17,7 +17,7 @@ class DatabaseInterface:
     def __init__(self):
         self.connection = None
 
-    def getFromUrl (self, url: str, headers, parameters):
+    def get_from_url (self, url: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
         response = requests.get(url,
                                 headers = headers,
@@ -29,11 +29,11 @@ class DatabaseInterface:
         logging.error(f"Error message:\n---\n{response.text}\n---")
         return False
 
-    def getFileSizeForCatalog (self, url, article_id):
+    def get_file_size_for_catalog (self, url, article_id):
         """Returns the file size for an OPeNDAP catalog."""
         total_filesize = 0
         metadata_url   = url.replace(".html", ".xml")
-        metadata       = self.getFromUrl(metadata_url, {}, {})
+        metadata       = self.get_from_url (metadata_url, {}, {})
         if not metadata:
             logging.info(f"Couldn't get metadata for {article_id}.")
         else:
@@ -49,7 +49,7 @@ class DatabaseInterface:
                 for reference in references:
                     suffix = reference.attrib["{http://www.w3.org/1999/xlink}href"]
                     suburl = metadata_url.replace("catalog.xml", suffix)
-                    total_filesize += self.getFileSizeForCatalog(suburl, article_id)
+                    total_filesize += self.get_file_size_for_catalog (suburl, article_id)
 
             ## Handle regular files.
             files          = xml_root.findall(".//c:dataSize", namespaces)
@@ -73,7 +73,7 @@ class DatabaseInterface:
 
         return total_filesize
 
-    def connect(self, host, username, password, database):
+    def connect (self, host, username, password, database):
         """Procedure to establish a database connection."""
         try:
             self.connection = connect(
@@ -92,7 +92,7 @@ class DatabaseInterface:
         """Returns True when this instance is connected to a database."""
         return self.connection.is_connected()
 
-    def executeQuery (self, template, data):
+    def execute_query (self, template, data):
         """Procedure to execute a SQL query."""
         try:
             cursor = self.connection.cursor()
@@ -106,7 +106,7 @@ class DatabaseInterface:
             logging.error(error)
             return False
 
-    def insertAccount (self, record):
+    def insert_account (self, record):
         """Procedure to insert an account record."""
 
         template      = ("INSERT IGNORE INTO Account "
@@ -146,16 +146,16 @@ class DatabaseInterface:
             created_date
         )
 
-        return self.executeQuery(template, data)
+        return self.execute_query (template, data)
 
-    def insertInstitution (self, record):
+    def insert_institution (self, record):
         """Procedure to insert an institution record."""
 
         template = "INSERT IGNORE INTO Institution (id, name) VALUES (%s, %s)"
         data     = (record["institution_id"], record["name"])
-        return self.executeQuery(template, data)
+        return self.execute_query (template, data)
 
-    def insertAuthor (self, record, item_id, item_type = "article"):
+    def insert_author (self, record, item_id, item_type = "article"):
         """Procedure to insert an author record."""
 
         prefix   = "Article" if item_type == "article" else "Collection"
@@ -169,17 +169,17 @@ class DatabaseInterface:
                     convenience.value_or_none (record, "url_name"),
                     convenience.value_or_none (record, "orcid_id"))
 
-        if self.executeQuery(template, data):
+        if self.execute_query (template, data):
             template = (f"INSERT IGNORE INTO {prefix}Author ({item_type}_id, "
                         "author_id) VALUES (%s, %s)")
             data     = (item_id, record["id"])
 
-            if self.executeQuery(template, data):
+            if self.execute_query (template, data):
                 return record["id"]
 
         return False
 
-    def insertTimeline (self, record):
+    def insert_timeline (self, record):
         """Procedure to insert a timeline record."""
 
         template = ("INSERT IGNORE INTO Timeline "
@@ -194,9 +194,9 @@ class DatabaseInterface:
                     convenience.value_or_none (record, "posted"),
                     convenience.value_or_none (record, "submission"))
 
-        return self.executeQuery(template, data)
+        return self.execute_query (template, data)
 
-    def insertCategory (self, record, item_id, item_type = "article"):
+    def insert_category (self, record, item_id, item_type = "article"):
         """Procedure to insert a category record."""
 
         prefix   = "Article" if item_type == "article" else "Collection"
@@ -209,24 +209,24 @@ class DatabaseInterface:
                     convenience.value_or_none (record, "source_id"),
                     convenience.value_or_none (record, "taxonomy_id"))
 
-        category_id = self.executeQuery(template, data)
+        category_id = self.execute_query (template, data)
 
         template = (f"INSERT IGNORE INTO {prefix}Category (category_id, "
                     f"{item_type}_id) VALUES (%s, %s)")
         data     = (category_id, item_id)
-        return self.executeQuery(template, data)
+        return self.execute_query (template, data)
 
 
-    def insertTag (self, tag, item_id, item_type = "article"):
+    def insert_tag (self, tag, item_id, item_type = "article"):
         """Procedure to insert a tag record."""
 
         prefix   = "Article" if item_type == "article" else "Collection"
         template = (f"INSERT IGNORE INTO {prefix}Tag (tag, {item_type}_id) "
                     "VALUES (%s, %s)")
         data     = (tag, item_id)
-        return self.executeQuery(template, data)
+        return self.execute_query (template, data)
 
-    def insertCustomField (self, field, item_id, item_type="article"):
+    def insert_custom_field (self, field, item_id, item_type="article"):
         """Procedure to insert a custom_field record."""
 
         prefix      = "Article" if item_type == "article" else "Collection"
@@ -263,14 +263,14 @@ class DatabaseInterface:
                         item_id
                 )
 
-                retval = self.executeQuery (template, data)
+                retval = self.execute_query (template, data)
                 if field_type == "dropdown":
                     temp = (f"INSERT IGNORE INTO {prefix}CustomFieldOption "
                             f"({item_type}_custom_field_id, value)"
                             "VALUES (%s, %s)")
                     for option in settings["options"]:
                         data = (retval, option)
-                        self.executeQuery (temp, data)
+                        self.execute_query (temp, data)
 
             return retval
 
@@ -287,9 +287,9 @@ class DatabaseInterface:
             item_id
         )
 
-        return self.executeQuery (template, data)
+        return self.execute_query (template, data)
 
-    def insertCollection (self, record, account_id):
+    def insert_collection (self, record, account_id):
         """Procedure to insert a collection record."""
 
         template = ("INSERT IGNORE INTO Collection (url, title, id, "
@@ -307,35 +307,35 @@ class DatabaseInterface:
         authors = convenience.value_or_none (record, "authors")
         if authors:
             for author in authors:
-                self.insertAuthor (author, collection_id, item_type="collection")
+                self.insert_author (author, collection_id, item_type="collection")
 
         categories = convenience.value_or_none (record, "categories")
         if categories:
             for category in categories:
-                self.insertCategory (category, collection_id, "collection")
+                self.insert_category (category, collection_id, "collection")
 
         fundings = convenience.value_or_none (record, "funding")
         if fundings:
             for funding in fundings:
-                self.insertCollectionFunding (funding, collection_id)
+                self.insert_collection_funding (funding, collection_id)
 
         timeline_id = None
         if "timeline" in record:
-            timeline_id = self.insertTimeline(record["timeline"])
+            timeline_id = self.insert_timeline (record["timeline"])
 
         tags = record["tags"]
         if tags:
             for tag in tags:
-                self.insertTag (tag, collection_id, item_type="collection")
+                self.insert_tag (tag, collection_id, item_type="collection")
 
         references = record["references"]
         for url in references:
-            self.insertReference(url, collection_id, item_type="collection")
+            self.insert_reference (url, collection_id, item_type="collection")
 
         custom_fields = record["custom_fields"]
         if custom_fields:
             for field in custom_fields:
-                self.insertCustomField (field, collection_id, item_type="collection")
+                self.insert_custom_field (field, collection_id, item_type="collection")
 
         created_date = None
         if "created_date" in record and not record["created_date"] is None:
@@ -377,13 +377,13 @@ class DatabaseInterface:
             convenience.value_or_none(record, "articles_count"),
             convenience.value_or_none(record, "public"),
         )
-        if not self.executeQuery(template, data):
+        if not self.execute_query (template, data):
             logging.error("Inserting collection failed.")
             return False
 
         return True
 
-    def insertCollectionFunding (self, record, collection_id):
+    def insert_collection_funding (self, record, collection_id):
         """Procedure to insert a funding record."""
 
         template = ("INSERT IGNORE INTO CollectionFunding (id, collection_id, "
@@ -398,7 +398,7 @@ class DatabaseInterface:
                     convenience.value_or_none (record, "is_user_defined"),
                     convenience.value_or_none (record, "url"))
 
-        if not self.executeQuery(template, data):
+        if not self.execute_query (template, data):
             logging.error("Inserting funding for collection failed.")
             return False
 
@@ -409,13 +409,13 @@ class DatabaseInterface:
 
         template = "INSERT IGNORE INTO License (id, name, url) VALUES (%s, %s, %s)"
 
-        if not self.executeQuery (template, (record["value"], record["name"], record["url"])):
+        if not self.execute_query (template, (record["value"], record["name"], record["url"])):
             logging.error("Inserting license failed.")
             return False
 
         return True
 
-    def insertStatistics (self, record, article_id):
+    def insert_statistics (self, record, article_id):
         """Procedure to insert statistics for an article."""
 
         template = ("INSERT INTO ArticleStatistics (article_id, views, "
@@ -427,9 +427,9 @@ class DatabaseInterface:
                 convenience.value_or_none (record, "shares"),
                 convenience.value_or_none (record, "date"))
 
-        return self.executeQuery (template, data)
+        return self.execute_query (template, data)
 
-    def insertFile (self, record, article_id):
+    def insert_file (self, record, article_id):
         """Procedure to insert a file record."""
 
         template = ("INSERT IGNORE INTO File (id, name, size, is_link_only, "
@@ -440,7 +440,7 @@ class DatabaseInterface:
 
         if (record["download_url"].startswith("https://opendap.4tu.nl/thredds") and
             record["size"] == 0):
-            record["size"] = self.getFileSizeForCatalog(record["download_url"], article_id)
+            record["size"] = self.get_file_size_for_catalog (record["download_url"], article_id)
 
         data = (convenience.value_or_none (record, "id"),
                 convenience.value_or_none (record, "name"),
@@ -455,24 +455,24 @@ class DatabaseInterface:
                 convenience.value_or_none (record, "upload_url"),
                 convenience.value_or_none (record, "upload_token"))
 
-        if self.executeQuery (template, data):
+        if self.execute_query (template, data):
             template = "INSERT IGNORE INTO ArticleFile (article_id, file_id) VALUES (%s, %s)"
             data     = (article_id, record["id"])
-            if self.executeQuery (template, data):
+            if self.execute_query (template, data):
                 return record["id"]
 
         return False
 
-    def insertReference (self, url, item_id, item_type="article"):
+    def insert_reference (self, url, item_id, item_type="article"):
         """Procedure to insert an article reference."""
 
         prefix   = "Article" if item_type == "article" else "Collection"
         template = "INSERT IGNORE INTO {prefix}Reference ({item_type}_id, url) VALUES (%s, %s)"
         data     = (item_id, url)
 
-        return self.executeQuery (template, data)
+        return self.execute_query (template, data)
 
-    def insertArticle (self, record):
+    def insert_article (self, record):
         """Procedure to insert an article record."""
 
         template = ("INSERT IGNORE INTO Article (id, account_id, title, doi, "
@@ -490,38 +490,38 @@ class DatabaseInterface:
         article_id  = record["id"]
         timeline_id = None
         if "timeline" in record:
-            timeline_id = self.insertTimeline(record["timeline"])
+            timeline_id = self.insert_timeline (record["timeline"])
 
         ## embargo_option_id = 0
         ## embargo_id        = self.insertArticleEmbargo(record)
 
         references = record["references"]
         for url in references:
-            self.insertReference(url, article_id, item_type="article")
+            self.insert_reference (url, article_id, item_type="article")
 
         categories = record["categories"]
         for category in categories:
-            self.insertCategory (category, article_id, "article")
+            self.insert_category (category, article_id, "article")
 
         license_id = record["license"]["value"]
-        self.insertLicense (record["license"])
+        self.insert_license (record["license"])
 
         tags = record["tags"]
         for tag in tags:
-            self.insertTag(tag, article_id, item_type="article")
+            self.insert_tag (tag, article_id, item_type="article")
 
         authors = record["authors"]
         for author in authors:
-            self.insertAuthor(author, article_id, item_type="article")
+            self.insert_author (author, article_id, item_type="article")
 
         files = record["files"]
         for file in files:
-            self.insertFile(file, article_id)
+            self.insert_file (file, article_id)
 
         if "statistics" in record:
             stats = record["statistics"]
             for day in stats:
-                self.insertStatistics(day, article_id)
+                self.insert_statistics (day, article_id)
 
         created_date = None
         if "created_date" in record and not record["created_date"] is None:
@@ -533,7 +533,7 @@ class DatabaseInterface:
 
         custom_fields = record["custom_fields"]
         for field in custom_fields:
-            self.insertCustomField (field, article_id, item_type="article")
+            self.insert_custom_field (field, article_id, item_type="article")
 
         data          = (article_id,
                          convenience.value_or_none (record, "account_id"),
@@ -570,7 +570,7 @@ class DatabaseInterface:
                          timeline_id,
                          license_id)
 
-        if not self.executeQuery(template, data):
+        if not self.execute_query (template, data):
             logging.error("Inserting article failed.")
             return False
 
