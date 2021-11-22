@@ -184,3 +184,53 @@ def format_collection_record (record):
         },
         "published_date":    convenience.value_or_none(record, "published_date"),
     }
+
+def format_collection_details_record (collection, funding, categories,
+                                      references, tags, authors, custom_fields):
+    return {
+        "funding":           list (map (format_funding_record, funding)),
+        "resource_id":       convenience.value_or_none(collection, "resource_id"),
+        "resource_doi":      convenience.value_or_none(collection, "resource_doi"),
+        "resource_title":    convenience.value_or_none(collection, "resource_title"),
+        "resource_link":     convenience.value_or_none(collection, "resource_link"),
+        "resource_version":  convenience.value_or_none(collection, "resource_version"),
+        "version":           convenience.value_or_none(collection, "version"),
+        "description":       convenience.value_or_none(collection, "description"),
+        "categories":        list (map (format_category_record, categories)),
+        "references":        references,
+        "tags":              list (map (format_tag_record, tags)),
+        "authors":           list (map (format_author_record, tags)),
+        "institution_id":    convenience.value_or_none(collection, "institution_id"),
+        "group_id":          convenience.value_or_none(collection, "group_id"),
+        "articles_count":    convenience.value_or_none(collection, "articles_count"),
+        "public":            convenience.value_or_none(collection, "is_public"),
+        "citation":          convenience.value_or_none(collection, "citation"),
+        "group_resource_id": convenience.value_or_none(collection, "group_resource_id"),
+        "custom_fields":     list (map (format_custom_field_record, custom_fields)),
+        "modified_date":     convenience.value_or_none(collection, "modified_date"),
+        "created_date":      convenience.value_or_none(collection, "created_date"),
+        "timeline": {
+            "posted":               convenience.value_or_none(collection, "timeline_posted"),
+            "firstOnline":          convenience.value_or_none(collection, "timeline_first_online"),
+            "revision":             convenience.value_or_none(collection, "timeline_revision"),
+            "publisherAcceptance":  convenience.value_or_none(collection, "timeline_publisher_acceptance"),
+            "submission":           convenience.value_or_none(collection, "timeline_submission"),
+            "publisherPublication": convenience.value_or_none(collection, "timeline_publisher_publication")
+        },
+        "id":                convenience.value_or_none(collection, "id"),
+        "title":             convenience.value_or_none(collection, "title"),
+        "doi":               convenience.value_or_none(collection, "doi"),
+        "handle":            convenience.value_or_none(collection, "handle"),
+        "url":               convenience.value_or_none(collection, "url"),
+        "published_date":    convenience.value_or_none(collection, "published_date")
+    }
+
+def format_funding_record (record):
+    return {
+        "id":                convenience.value_or_none(record, "id"),
+        "title":             convenience.value_or_none(record, "title"),
+        "grant_code":        convenience.value_or_none(record, "grant_code"),
+        "funder_name":       convenience.value_or_none(record, "funder_name"),
+        "is_user_defined":   convenience.value_or_none(record, "is_user_defined"),
+        "url":               convenience.value_or_none(record, "url")
+    }
