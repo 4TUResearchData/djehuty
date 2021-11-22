@@ -509,10 +509,9 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def api_collections (self, request):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
-        elif not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
         else:
             ## TODO: Setting "limit" to "TEST" crashes the app. Do type checking
             ## and sanitization.
@@ -550,10 +549,9 @@ class ApiServer:
             return self.default_list_response (records, formatter.format_collection_record)
 
     def api_collections_search (self, request):
-        if request.method != 'POST':
-            return self.error_405 ("POST")
-        elif not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        handler = self.default_error_handling (request, "POST")
+        if handler is not None:
+            return handler
         else:
             parameters = request.get_json()
             records = self.db.collections(
