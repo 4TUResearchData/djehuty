@@ -1,10 +1,11 @@
-from datetime import datetime
-from mysql.connector import connect, Error
-import ast
-import json
-import logging
-import requests
+"""This module provides a MySQL interface to store data fetched by the 'figshare' module."""
+
 import xml.etree.ElementTree as ET
+import ast
+import logging
+from datetime import datetime
+import requests
+from mysql.connector import connect, Error
 from rdbackup.utils import convenience
 
 class DatabaseInterface:
@@ -92,9 +93,9 @@ class DatabaseInterface:
             cursor.execute("SELECT LAST_INSERT_ID()")
             row = cursor.fetchone()
             return row[0]
-        except Error as e:
+        except Error as error:
             logging.error("Executing query failed. Reason:")
-            logging.error(e)
+            logging.error(error)
             return False
 
     def insertAccount (self, record):
@@ -142,8 +143,8 @@ class DatabaseInterface:
         data     = (record["institution_id"], record["name"])
         return self.executeQuery(template, data)
 
-    def insertAuthor (self, record, id, type = "article"):
-        prefix   = "Article" if type == "article" else "Collection"
+    def insertAuthor (self, record, item_id, item_type = "article"):
+        prefix   = "Article" if item_type == "article" else "Collection"
         template = ("INSERT IGNORE INTO Author "
                     "(id, full_name, is_active, url_name, orcid_id) "
                     "VALUES (%s, %s, %s, %s, %s)")
@@ -155,9 +156,9 @@ class DatabaseInterface:
                     convenience.value_or_none (record, "orcid_id"))
 
         if self.executeQuery(template, data):
-            template = (f"INSERT IGNORE INTO {prefix}Author ({type}_id, "
+            template = (f"INSERT IGNORE INTO {prefix}Author ({item_type}_id, "
                         "author_id) VALUES (%s, %s)")
-            data     = (id, record["id"])
+            data     = (item_id, record["id"])
 
             if self.executeQuery(template, data):
                 return record["id"]
@@ -179,9 +180,9 @@ class DatabaseInterface:
 
         return self.executeQuery(template, data)
 
-    def insertCategory (self, record, id, type = "article"):
-        prefix   = "Article" if type == "article" else "Collection"
-        template = (f"INSERT IGNORE INTO Category (id, title, "
+    def insertCategory (self, record, item_id, item_type = "article"):
+        prefix   = "Article" if item_type == "article" else "Collection"
+        template = ("INSERT IGNORE INTO Category (id, title, "
                     "parent_id, source_id, taxonomy_id) "
                     "VALUES (%s, %s, %s, %s, %s)")
         data     = (convenience.value_or_none (record, "id"),
@@ -193,24 +194,24 @@ class DatabaseInterface:
         category_id = self.executeQuery(template, data)
 
         template = (f"INSERT IGNORE INTO {prefix}Category (category_id, "
-                    f"{type}_id) VALUES (%s, %s)")
-        data     = (category_id, id)
+                    f"{item_type}_id) VALUES (%s, %s)")
+        data     = (category_id, item_id)
         return self.executeQuery(template, data)
 
 
-    def insertTag (self, tag, id, type = "article"):
-        prefix   = "Article" if type == "article" else "Collection"
-        template = (f"INSERT IGNORE INTO {prefix}Tag (tag, {type}_id) "
+    def insertTag (self, tag, item_id, item_type = "article"):
+        prefix   = "Article" if item_type == "article" else "Collection"
+        template = (f"INSERT IGNORE INTO {prefix}Tag (tag, {item_type}_id) "
                     "VALUES (%s, %s)")
-        data     = (tag, id)
+        data     = (tag, item_id)
         return self.executeQuery(template, data)
 
-    def insertCustomField (self, field, id, type="article"):
+    def insertCustomField (self, field, item_id, item_type="article"):
 
-        prefix      = "Article" if type == "article" else "Collection"
+        prefix      = "Article" if item_type == "article" else "Collection"
         template    = (f"INSERT IGNORE INTO {prefix}CustomField (name, value, "
                        "default_value, max_length, min_length, field_type, "
-                       f"is_mandatory, placeholder, is_multiple, {type}_id) "
+                       f"is_mandatory, placeholder, is_multiple, {item_type}_id) "
                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
         settings    = {}
@@ -238,13 +239,13 @@ class DatabaseInterface:
                         convenience.value_or_none (field, "is_mandatory"),
                         convenience.value_or_none (settings, "placeholder"),
                         convenience.value_or_none (settings, "is_multiple"),
-                        id
+                        item_id
                 )
 
                 retval = self.executeQuery (template, data)
                 if field_type == "dropdown":
                     temp = (f"INSERT IGNORE INTO {prefix}CustomFieldOption "
-                            f"({type}_custom_field_id, value)"
+                            f"({item_type}_custom_field_id, value)"
                             "VALUES (%s, %s)")
                     for option in settings["options"]:
                         data = (retval, option)
@@ -262,7 +263,7 @@ class DatabaseInterface:
                 convenience.value_or_none (field, "is_mandatory"),
                 convenience.value_or_none (settings, "placeholder"),
                 convenience.value_or_none (settings, "is_multiple"),
-                id
+                item_id
             )
             return self.executeQuery (template, data)
 
@@ -282,7 +283,7 @@ class DatabaseInterface:
         authors = convenience.value_or_none (record, "authors")
         if authors:
             for author in authors:
-                self.insertAuthor (author, collection_id, type="collection")
+                self.insertAuthor (author, collection_id, item_type="collection")
 
         categories = convenience.value_or_none (record, "categories")
         if categories:
@@ -296,12 +297,16 @@ class DatabaseInterface:
         tags = record["tags"]
         if tags:
             for tag in tags:
-                self.insertTag (tag, collection_id, type="collection")
+                self.insertTag (tag, collection_id, item_type="collection")
+
+        references = record["references"]
+        for url in references:
+            self.insertReference(url, article_id, item_type="article")
 
         custom_fields = record["custom_fields"]
         if custom_fields:
             for field in custom_fields:
-                self.insertCustomField (field, collection_id, type="collection")
+                self.insertCustomField (field, collection_id, item_type="collection")
 
         created_date = None
         if "created_date" in record and not record["created_date"] is None:
@@ -377,7 +382,8 @@ class DatabaseInterface:
                     "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
 
-        if record["download_url"].startswith("https://opendap.4tu.nl/thredds") and record["size"] == 0:
+        if (record["download_url"].startswith("https://opendap.4tu.nl/thredds") and
+            record["size"] == 0):
             metadata_url   = record["download_url"].replace(".html", ".xml")
             metadata       = self.getFromUrl(metadata_url, {}, {})
             record["size"] = self.getFileSizeForCatalog(record["download_url"], article_id)
@@ -403,9 +409,12 @@ class DatabaseInterface:
 
         return False
 
-    def insertArticleReference (self, url, article_id):
-        template = "INSERT IGNORE INTO ArticleReference (article_id, url) VALUES (%s, %s)"
-        data     = (article_id, url)
+    def insertReference (self, url, item_id, item_type="article"):
+        prefix   = "Article" if item_type == "article" else "Collection"
+        template = "INSERT IGNORE INTO {prefix}Reference ({item_type}_id, url) VALUES (%s, %s)"
+        data     = (item_id, url)
+
+        return self.executeQuery (template, data)
 
     def insertArticle (self, record):
         template = ("INSERT IGNORE INTO Article (id, account_id, title, doi, "
@@ -430,7 +439,7 @@ class DatabaseInterface:
 
         references = record["references"]
         for url in references:
-            self.insertArticleReference(url, article_id)
+            self.insertReference(url, article_id, item_type="article")
 
         categories = record["categories"]
         for category in categories:
@@ -441,11 +450,11 @@ class DatabaseInterface:
 
         tags = record["tags"]
         for tag in tags:
-            self.insertTag(tag, article_id, type="article")
+            self.insertTag(tag, article_id, item_type="article")
 
         authors = record["authors"]
         for author in authors:
-            self.insertAuthor(author, article_id, type="article")
+            self.insertAuthor(author, article_id, item_type="article")
 
         files = record["files"]
         for file in files:
@@ -466,7 +475,7 @@ class DatabaseInterface:
 
         custom_fields = record["custom_fields"]
         for field in custom_fields:
-            self.insertCustomField (field, article_id, type="article")
+            self.insertCustomField (field, article_id, item_type="article")
 
         data          = (article_id,
                          convenience.value_or_none (record, "account_id"),
