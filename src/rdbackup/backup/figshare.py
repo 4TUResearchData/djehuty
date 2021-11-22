@@ -48,7 +48,7 @@ class FigshareEndpoint:
         if response.status_code == 200:
             return response.json()
 
-        logging.error(f"{path} returned {response.status_code}.")
+        logging.error("%s returned %d.", path, response.status_code)
         return []
 
     def get (self, path: str, headers, parameters):
@@ -59,8 +59,8 @@ class FigshareEndpoint:
         if response.status_code == 200:
             return response.json()
 
-        logging.error(f"{path} returned {response.status_code}.")
-        logging.error(f"Error message:\n---\n{response.text}\n---")
+        logging.error("%s returned %d.", path, response.status_code)
+        logging.error("Error message:\n---\n%s\n---", response.text)
         return []
 
     def post (self, path: str, parameters):
@@ -169,7 +169,7 @@ class FigshareEndpoint:
 
         end_time   = time.perf_counter()
         total_fetched = len(total)
-        logging.info(f"Fetched {total_fetched} items in {end_time - start_time:0.2f} seconds")
+        logging.info("Fetched %d items in %.2f seconds", total_fetched, end_time - start_time)
         return total
 
     def getArticles (self,
@@ -221,13 +221,14 @@ class FigshareEndpoint:
             results = list(map(lambda item : item.result(), articles))
             end_time   = time.perf_counter()
             total_fetched = len(results)
-            logging.info(f"Fetched {total_fetched} full articles in {end_time - start_time:0.2f} seconds")
+            logging.info("Fetched %d full articles in %.2f seconds",
+                         total_fetched, end_time - start_time)
             return results
 
     def getCollectionsByAccount (self, account_id):
         """Procedure to get collections for a given account_id."""
 
-        logging.info(f"Getting collections for account {account_id}.")
+        logging.info("Getting collections for account %d.", account_id)
         summaries = self.getAll("/account/collections", impersonate=account_id)
 
         collection_ids = list(map(lambda collection : collection['id'], summaries))
@@ -240,7 +241,8 @@ class FigshareEndpoint:
             results     = list(map(lambda item : item.result(), collections))
             end_time   = time.perf_counter()
             total_fetched = len(results)
-            logging.info(f"Fetched {total_fetched} full collections in {end_time - start_time:0.2f} seconds")
+            logging.info("Fetched %d full collections in %.2f seconds",
+                         total_fetched, end_time - start_time)
             return results
 
     def getCollectionById (self, account_id, collection_id):

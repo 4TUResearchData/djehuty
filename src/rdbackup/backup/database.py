@@ -25,8 +25,8 @@ class DatabaseInterface:
         if response.status_code == 200:
             return response.text
 
-        logging.error(f"{url} returned {response.status_code}.")
-        logging.error(f"Error message:\n---\n{response.text}\n---")
+        logging.error("%s returned %d.", url, response.status_code)
+        logging.error("Error message:\n---\n%s\n---", response.text)
         return False
 
     def __get_file_size_for_catalog (self, url, article_id):
@@ -35,7 +35,7 @@ class DatabaseInterface:
         metadata_url   = url.replace(".html", ".xml")
         metadata       = self.__get_from_url (metadata_url, {}, {})
         if not metadata:
-            logging.info(f"Couldn't get metadata for {article_id}.")
+            logging.info("Couldn't get metadata for %d.", article_id)
         else:
             namespaces  = { "c": "http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0" }
             xml_root    = ET.fromstring(metadata)
@@ -44,7 +44,7 @@ class DatabaseInterface:
             ## Recursively handle directories.
             ## XXX: This may overflow the stack.
             if not references:
-                logging.info(f"Catalog {url} does not contain subdirectories.")
+                logging.info("Catalog %s does not contain subdirectories.", url)
             else:
                 for reference in references:
                     suffix = reference.attrib["{http://www.w3.org/1999/xlink}href"]
@@ -55,7 +55,7 @@ class DatabaseInterface:
             files          = xml_root.findall(".//c:dataSize", namespaces)
             if not files:
                 if total_filesize == 0:
-                    logging.info(f"There are no files in {url}.")
+                    logging.info("There are no files in %s.", url)
             else:
                 for file in files:
                     units = file.attrib["units"]
