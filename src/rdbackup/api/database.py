@@ -546,7 +546,9 @@ LIMIT {limit}
 
         return results
 
-    def article_tags (self, order=None, order_direction=None, limit=None, article_id=None):
+    def tags (self, order=None, order_direction=None, limit=None, item_id=None, type="article"):
+
+        prefix = "Article" if type == "article" else "Collection"
 
         if order_direction is None:
             order_direction = "DESC"
@@ -560,14 +562,14 @@ LIMIT {limit}
 SELECT DISTINCT ?id ?tag
 WHERE {{
   GRAPH <{self.state_graph}> {{
-    ?row             rdf:type                 sg:Tag .
+    ?row             rdf:type                 sg:{prefix}Tag .
     ?row             col:id                   ?id .
     ?row             col:tag                  ?tag .
 """
 
-        if article_id is not None:
+        if item_id is not None:
             query += f"""\
-    ?row             col:article_id           {article_id} .
+    ?row             col:{type}_id           {item_id} .
 """
 
         query += f"""\
