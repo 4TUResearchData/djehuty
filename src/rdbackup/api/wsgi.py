@@ -344,10 +344,17 @@ class ApiServer:
         elif not self.accepts_json(request):
             return self.error_406 ("application/json")
         else:
-            files = self.db.article_files(id=file_id, article_id=article_id)[0]
-            results = formatter.format_file_for_article_record(files)
-            return Response(json.dumps(results),
-                            mimetype='application/json; charset=utf-8')
+            try:
+                files = self.db.article_files(id=file_id, article_id=article_id)[0]
+                results = formatter.format_file_for_article_record(files)
+                return Response(json.dumps(results),
+                                mimetype='application/json; charset=utf-8')
+            except IndexError:
+                response = Response(json.dumps({ "message": "This file cannot be found." }),
+                                    mimetype="application/json; charset=utf-8")
+                response.status_code = 404
+                return response
+
 
     def api_private_articles (self, request):
         if request.method != 'GET':
