@@ -1,14 +1,19 @@
+"""This module provides an interface to extract data from Figshare."""
+
 from datetime import datetime
 from datetime import timedelta
 import concurrent.futures
 import multiprocessing
-import requests
-import json
-import logging
-import threading
 import time
+import logging
+import requests
 
 class FigshareEndpoint:
+    """
+    This class provides the functionality to retrieve information using the
+    Figshare API.  It is tailored to retrieve all metadata related to
+    4TU.ResearchData.
+    """
 
     def __init__ (self):
         self.api_location     = "/v2"
@@ -32,8 +37,8 @@ class FigshareEndpoint:
         }
         if not additional_headers is None:
             return { **defaults, **additional_headers }
-        else:
-            return defaults
+
+        return defaults
 
     def getStats (self, path: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
@@ -42,9 +47,9 @@ class FigshareEndpoint:
                                 params  = parameters)
         if response.status_code == 200:
             return response.json()
-        else:
-            logging.error(f"{path} returned {response.status_code}.")
-            return []
+
+        logging.error(f"{path} returned {response.status_code}.")
+        return []
 
     def get (self, path: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
@@ -53,14 +58,14 @@ class FigshareEndpoint:
                                 params  = parameters)
         if response.status_code == 200:
             return response.json()
-        else:
-            logging.error(f"{path} returned {response.status_code}.")
-            logging.error(f"Error message:\n---\n{response.text}\n---")
-            return []
+
+        logging.error(f"{path} returned {response.status_code}.")
+        logging.error(f"Error message:\n---\n{response.text}\n---")
+        return []
 
     def post (self, path: str, parameters):
         """Procedure to perform a POST request to a Figshare-compatible endpoint."""
-        return self.request ("POST", path, parameters)
+        return requests.post (self.base + path, parameters)
 
     # API SPECIFICS
     # -----------------------------------------------------------------------------
@@ -73,6 +78,7 @@ class FigshareEndpoint:
                     published_since,
                     published_until,
                     impersonate):
+        """Procedure to get one results page from the Figshare API."""
 
         ## Even though 'page_size' is a parameter, any setting higher than 10
         ## does not provide more than 10 results.
@@ -109,6 +115,7 @@ class FigshareEndpoint:
                 published_since=None,
                 published_until=None,
                 impersonate=None):
+        """Procedure to get all results from the Figshare API."""
 
         if institution_id is None:
             institution_id = self.institution_id
@@ -168,9 +175,15 @@ class FigshareEndpoint:
     def getArticles (self,
                      published_since="1970-01-01",
                      published_until="2300-01-01"):
-        return self.getAll("/articles", published_since=published_since)
+        """Procedure to get articles from the Figshare API."""
+
+        return self.getAll("/articles",
+                           published_since = published_since,
+                           published_until = published_until)
 
     def getArticleDetailsByAccountById (self, account_id, article_id):
+        """Procedure to get detailed article information for a given account_id."""
+
         headers      = self.request_headers()
         parameters   = { "impersonate": account_id }
         record       = self.get(f"/account/articles/{article_id}", headers, parameters)
@@ -192,9 +205,11 @@ class FigshareEndpoint:
         return record
 
     def getArticlesByAccount (self, account_id):
+        """Procedure to get articles for a given account_id."""
+
         summaries = self.getAll ("/account/articles", impersonate=account_id)
         if not summaries:
-           return []
+            return []
 
         article_ids = list(map(lambda article : article['id'], summaries))
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -210,6 +225,8 @@ class FigshareEndpoint:
             return results
 
     def getCollectionsByAccount (self, account_id):
+        """Procedure to get collections for a given account_id."""
+
         logging.info(f"Getting collections for account {account_id}.")
         summaries = self.getAll("/account/collections", impersonate=account_id)
 
@@ -227,6 +244,8 @@ class FigshareEndpoint:
             return results
 
     def getCollectionById (self, account_id, collection_id):
+        """Procedure to get detailed collection information."""
+
         headers      = self.request_headers ()
         parameters   = { "impersonate": account_id }
         record       = self.get(f"/account/collections/{collection_id}",
@@ -236,14 +255,20 @@ class FigshareEndpoint:
         return record
 
     def getCollections (self, published_since="1970-01-01"):
+        """Procedure to get collections."""
+
         logging.info("Getting collections.")
         return self.getAll("/collections", published_since=published_since)
 
     def getProjects (self):
+        """Procedure to get projects."""
+
         logging.info("Getting projects.")
         return self.getAll("/projects")
 
     def getInstitutionalAccounts (self):
+        """Procedure to get institutional accounts."""
+
         logging.info("Getting institutional accounts.")
         return self.getAll("/account/institution/accounts")
 
@@ -251,6 +276,7 @@ class FigshareEndpoint:
                                  article_id,
                                  start_date = None,
                                  end_date   = None):
+        """Procedure to get statistics for an article."""
 
         if self.stats_auth is None:
             return [{
@@ -274,9 +300,10 @@ class FigshareEndpoint:
             "start_date": start_date,
             "end_date":   end_date
         }
-        views      = self.getStats (f"/4tu/timeline/day/views/article/{article_id}", headers, parameters)
-        downloads  = self.getStats (f"/4tu/timeline/day/downloads/article/{article_id}", headers, parameters)
-        shares     = self.getStats (f"/4tu/timeline/day/shares/article/{article_id}", headers, parameters)
+        prefix     = "/4tu/timeline/day"
+        views      = self.getStats (f"{prefix}/views/article/{article_id}", headers, parameters)
+        downloads  = self.getStats (f"{prefix}/downloads/article/{article_id}", headers, parameters)
+        shares     = self.getStats (f"{prefix}/shares/article/{article_id}", headers, parameters)
 
         if not views or views["timeline"] is None:
             output.append({
@@ -289,8 +316,8 @@ class FigshareEndpoint:
             dates = list(views["timeline"].keys())
             for date in dates:
                 nviews     = views["timeline"][date]
-                ndownloads = downloads["timeline"][date] if not downloads["timeline"] is None and date in downloads["timeline"] else 0
-                nshares    = shares["timeline"][date]    if not shares["timeline"] is None and date in shares["timeline"] else 0
+                ndownloads = downloads["timeline"][date] if downloads["timeline"] is not None and date in downloads["timeline"] else 0
+                nshares    = shares["timeline"][date]    if shares["timeline"] is not None and date in shares["timeline"] else 0
 
                 output.append({
                     "views":      nviews,
