@@ -453,11 +453,13 @@ LIMIT {limit}
 
         return results
 
-    def article_custom_fields (self, name=None, value=None, default_value=None,
-                               id=None, placeholder=None, max_length=None,
-                               min_length=None, field_type=None, is_multiple=None,
-                               is_mandatory=None, order=None, order_direction=None,
-                               limit=None, article_id=None):
+    def custom_fields (self, name=None, value=None, default_value=None,
+                       id=None, placeholder=None, max_length=None,
+                       min_length=None, field_type=None, is_multiple=None,
+                       is_mandatory=None, order=None, order_direction=None,
+                       limit=None, item_id=None, type="article"):
+
+        prefix = "Article" if type == "article" else "Collection"
 
         if order_direction is None:
             order_direction = "DESC"
@@ -474,13 +476,13 @@ SELECT DISTINCT ?name          ?value         ?default_value
                 ?is_mandatory
 WHERE {{
   GRAPH <{self.state_graph}> {{
-    ?field             rdf:type                 sg:ArticleCustomField .
+    ?field             rdf:type                 sg:{prefix}CustomField .
     ?field             col:id                   ?id .
 """
 
-        if article_id is not None:
+        if item_id is not None:
             query += f"""\
-    ?field             col:article_id           {article_id} .
+    ?field             col:{type}_id            {item_id} .
 """
 
         query += f"""\
