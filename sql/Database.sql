@@ -39,18 +39,17 @@ CREATE TABLE IF NOT EXISTS CollectionFunding(
     is_user_defined       BOOLEAN NOT NULL DEFAULT 0,
     url                   VARCHAR(255)) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS ArticleEmbargoOptionGroup(
-    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name                  VARCHAR(255)) ENGINE=InnoDB;
-
 CREATE TABLE IF NOT EXISTS ArticleEmbargoOption(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    article_id            INT UNSIGNED,
     type                  VARCHAR(32),
-    ip_name               VARCHAR(255),
-    group_id              INT UNSIGNED
+    ip_name               VARCHAR(255)) ENGINE=InnoDB;
 
-    -- FOREIGN KEY (group_id) REFERENCES ArticleEmbargoOptionGroup(id)
-    ) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS CollectionEmbargoOption(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    collection_id         INT UNSIGNED,
+    type                  VARCHAR(32),
+    ip_name               VARCHAR(255)) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleType(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

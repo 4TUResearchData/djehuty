@@ -404,7 +404,21 @@ class DatabaseInterface:
 
         return True
 
-    def insertLicense (self, record):
+    def insert_embargo (self, record, article_id):
+        """Procedure to insert an embargo record."""
+
+        template = (f"INSERT IGNORE INTO ArticleEmbargoOption "
+                    "(id, article_id, type, ip_name) "
+                    "VALUES (%s, %s, %s, %s)")
+
+        data     = (convenience.value_or_none (record, "id"),
+                    article_id,
+                    convenience.value_or_none (record, "type"),
+                    convenience.value_or_none (record, "ip_name"))
+
+        return self.execute_query (template, data)
+
+    def insert_license (self, record):
         """Procedure to insert a license record."""
 
         template = "INSERT IGNORE INTO License (id, name, url) VALUES (%s, %s, %s)"
@@ -492,8 +506,9 @@ class DatabaseInterface:
         if "timeline" in record:
             timeline_id = self.insert_timeline (record["timeline"])
 
-        ## embargo_option_id = 0
-        ## embargo_id        = self.insertArticleEmbargo(record)
+        embargos = record["embargo_options"]
+        for embargo in embargos:
+            self.insert_embargo (embargo, article_id)
 
         references = record["references"]
         for url in references:
