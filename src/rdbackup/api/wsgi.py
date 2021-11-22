@@ -310,11 +310,11 @@ class ApiServer:
         else:
             try:
                 article       = self.db.articles(id=article_id)[0]
-                authors       = self.db.authors(item_id=article_id, type="article")
+                authors       = self.db.authors(item_id=article_id, item_type="article")
                 files         = self.db.article_files(article_id=article_id)
-                custom_fields = self.db.custom_fields(item_id=article_id, type="article")
-                tags          = self.db.tags(item_id=article_id, type="article")
-                categories    = self.db.categories(item_id=article_id, type="article")
+                custom_fields = self.db.custom_fields(item_id=article_id, item_type="article")
+                tags          = self.db.tags(item_id=article_id, item_type="article")
+                categories    = self.db.categories(item_id=article_id, item_type="article")
                 total         = formatter.format_article_details_record (article,
                                                                          authors,
                                                                          files,
@@ -404,11 +404,11 @@ class ApiServer:
                                 mimetype='application/json; charset=utf-8')
             try:
                 article       = article[0]
-                authors       = self.db.authors(item_id=article_id, type="article")
+                authors       = self.db.authors(item_id=article_id, item_type="article")
                 files         = self.db.article_files(article_id=article_id)
-                custom_fields = self.db.custom_fields(item_id=article_id, type="article")
-                tags          = self.db.tags(item_id=article_id, type="article")
-                categories    = self.db.categories(item_id=article_id, type="article")
+                custom_fields = self.db.custom_fields(item_id=article_id, item_type="article")
+                tags          = self.db.tags(item_id=article_id, item_type="article")
+                categories    = self.db.categories(item_id=article_id, item_type="article")
                 total         = formatter.format_article_details_record (article,
                                                                          authors,
                                                                          files,

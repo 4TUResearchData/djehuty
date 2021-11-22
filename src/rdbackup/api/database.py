@@ -239,7 +239,7 @@ LIMIT {limit}
                  is_public=None, job_title=None, last_name=None,
                  orcid_id=None, url_name=None, limit=10, order=None,
                  order_direction=None, item_id=None,
-                 account_id=None, type="article"):
+                 account_id=None, item_type="article"):
 
         prefix = "Article" if type == "article" else "Collection"
 
@@ -457,7 +457,7 @@ LIMIT {limit}
                        id=None, placeholder=None, max_length=None,
                        min_length=None, field_type=None, is_multiple=None,
                        is_mandatory=None, order=None, order_direction=None,
-                       limit=None, item_id=None, type="article"):
+                       limit=None, item_id=None, item_type="article"):
 
         prefix = "Article" if type == "article" else "Collection"
 
@@ -546,7 +546,7 @@ LIMIT {limit}
 
         return results
 
-    def tags (self, order=None, order_direction=None, limit=None, item_id=None, type="article"):
+    def tags (self, order=None, order_direction=None, limit=None, item_id=None, item_type="article"):
 
         prefix = "Article" if type == "article" else "Collection"
 
@@ -595,7 +595,7 @@ LIMIT {limit}
 
     def categories (self, title=None, order=None, order_direction=None,
                     limit=None, item_id=None, account_id=None,
-                    type="article"):
+                    item_type="article"):
         prefix = "Article" if type == "article" else "Collection"
 
         if order_direction is None:
