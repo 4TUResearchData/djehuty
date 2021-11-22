@@ -27,7 +27,7 @@ class FigshareEndpoint:
     # REQUEST HANDLING PROCEDURES
     # -----------------------------------------------------------------------------
 
-    def request_headers (self, additional_headers=None):
+    def __request_headers (self, additional_headers=None):
         """Returns a dictionary of HTTP headers"""
         defaults = {
             "Accept":        "application/json",
@@ -40,7 +40,7 @@ class FigshareEndpoint:
 
         return defaults
 
-    def getStats (self, path: str, headers, parameters):
+    def get_statistics (self, path: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
         response = requests.get("https://stats.figshare.com" + path,
                                 headers = headers,
@@ -70,14 +70,14 @@ class FigshareEndpoint:
     # API SPECIFICS
     # -----------------------------------------------------------------------------
 
-    def getOnePage (self,
-                    path,
-                    page_size,
-                    page,
-                    institution_id,
-                    published_since,
-                    published_until,
-                    impersonate):
+    def get_one_page (self,
+                      path,
+                      page_size,
+                      page,
+                      institution_id=None,
+                      published_since=None,
+                      published_until=None,
+                      impersonate=None):
         """Procedure to get one results page from the Figshare API."""
 
         ## Even though 'page_size' is a parameter, any setting higher than 10
@@ -86,7 +86,7 @@ class FigshareEndpoint:
         if institution_id is None:
             institution_id = self.institution_id
 
-        headers    = self.request_headers()
+        headers    = self.__request_headers()
         parameters = {
             "page_size": page_size,
             "page": page,
@@ -109,12 +109,12 @@ class FigshareEndpoint:
         chunk      = self.get(path, headers, parameters)
         return chunk
 
-    def getAll (self,
-                path,
-                institution_id=None,
-                published_since=None,
-                published_until=None,
-                impersonate=None):
+    def get_all (self,
+                 path,
+                 institution_id=None,
+                 published_since=None,
+                 published_until=None,
+                 impersonate=None):
         """Procedure to get all results from the Figshare API."""
 
         if institution_id is None:
@@ -146,7 +146,7 @@ class FigshareEndpoint:
         while iteration < 10000 and fetch_more:
             end_page   = start_page + number_of_pages
             with concurrent.futures.ThreadPoolExecutor() as executor:
-                results = [executor.submit(self.getOnePage,
+                results = [executor.submit(self.get_one_page,
                                            path,
                                            10,
                                            page,
@@ -172,19 +172,19 @@ class FigshareEndpoint:
         logging.info("Fetched %d items in %.2f seconds", total_fetched, end_time - start_time)
         return total
 
-    def getArticles (self,
-                     published_since="1970-01-01",
-                     published_until="2300-01-01"):
+    def get_articles (self,
+                      published_since="1970-01-01",
+                      published_until="2300-01-01"):
         """Procedure to get articles from the Figshare API."""
 
-        return self.getAll("/articles",
-                           published_since = published_since,
-                           published_until = published_until)
+        return self.get_all ("/articles",
+                             published_since = published_since,
+                             published_until = published_until)
 
-    def getArticleDetailsByAccountById (self, account_id, article_id):
+    def get_article_details_by_account_by_id (self, account_id, article_id):
         """Procedure to get detailed article information for a given account_id."""
 
-        headers      = self.request_headers()
+        headers      = self.__request_headers()
         parameters   = { "impersonate": account_id }
         record       = self.get(f"/account/articles/{article_id}", headers, parameters)
 
@@ -197,24 +197,24 @@ class FigshareEndpoint:
                                               "%Y-%m-%d %H:%M:%S")
 
         record["account_id"] = account_id
-        record["statistics"] = self.getStatisticsForArticle(
+        record["statistics"] = self.get_statistics_for_article(
             article_id,
             datetime.strftime(created_date, "%Y-%m-%d"),
             datetime.strftime(now, "%Y-%m-%d"))
 
         return record
 
-    def getArticlesByAccount (self, account_id):
+    def get_articles_by_account (self, account_id):
         """Procedure to get articles for a given account_id."""
 
-        summaries = self.getAll ("/account/articles", impersonate=account_id)
+        summaries = self.get_all ("/account/articles", impersonate=account_id)
         if not summaries:
             return []
 
         article_ids = list(map(lambda article : article['id'], summaries))
         with concurrent.futures.ThreadPoolExecutor() as executor:
             start_time = time.perf_counter()
-            articles = [executor.submit(self.getArticleDetailsByAccountById,
+            articles = [executor.submit(self.get_article_details_by_account_by_id,
                                         account_id,
                                         article_id)
                         for article_id in article_ids]
@@ -225,16 +225,16 @@ class FigshareEndpoint:
                          total_fetched, end_time - start_time)
             return results
 
-    def getCollectionsByAccount (self, account_id):
+    def get_collections_by_account (self, account_id):
         """Procedure to get collections for a given account_id."""
 
         logging.info("Getting collections for account %d.", account_id)
-        summaries = self.getAll("/account/collections", impersonate=account_id)
+        summaries = self.get_all ("/account/collections", impersonate=account_id)
 
         collection_ids = list(map(lambda collection : collection['id'], summaries))
         with concurrent.futures.ThreadPoolExecutor() as executor:
             start_time  = time.perf_counter()
-            collections = [executor.submit(self.getCollectionById,
+            collections = [executor.submit(self.get_collection_by_id,
                                         account_id,
                                         collection_id)
                         for collection_id in collection_ids]
@@ -245,10 +245,10 @@ class FigshareEndpoint:
                          total_fetched, end_time - start_time)
             return results
 
-    def getCollectionById (self, account_id, collection_id):
+    def get_collection_by_id (self, account_id, collection_id):
         """Procedure to get detailed collection information."""
 
-        headers      = self.request_headers ()
+        headers      = self.__request_headers ()
         parameters   = { "impersonate": account_id }
         record       = self.get(f"/account/collections/{collection_id}",
                                 headers, parameters)
@@ -256,28 +256,42 @@ class FigshareEndpoint:
         record["account_id"] = account_id
         return record
 
-    def getCollections (self, published_since="1970-01-01"):
+    def get_collections (self, published_since="1970-01-01"):
         """Procedure to get collections."""
 
         logging.info("Getting collections.")
-        return self.getAll("/collections", published_since=published_since)
+        return self.get_all ("/collections", published_since=published_since)
 
-    def getProjects (self):
+    def get_article_versions (self, article_id):
+        """Procedure to get versioning information for an article."""
+
+        headers  = self.__request_headers ()
+        versions = self.get (f"/articles/{article_id}/versions", headers, {})
+        output   = []
+
+        for item in versions:
+            version = item["version"]
+            record  = self.get (f"/articles/{article_id}/versions/{version}", headers, {})
+            output.append (record)
+
+        return output
+
+    def get_projects (self):
         """Procedure to get projects."""
 
         logging.info("Getting projects.")
-        return self.getAll("/projects")
+        return self.get_all ("/projects")
 
-    def getInstitutionalAccounts (self):
+    def get_institutional_accounts (self):
         """Procedure to get institutional accounts."""
 
         logging.info("Getting institutional accounts.")
-        return self.getAll("/account/institution/accounts")
+        return self.get_all ("/account/institution/accounts")
 
-    def getStatisticsForArticle (self,
-                                 article_id,
-                                 start_date = None,
-                                 end_date   = None):
+    def get_statistics_for_article (self,
+                                    article_id,
+                                    start_date = None,
+                                    end_date   = None):
         """Procedure to get statistics for an article."""
 
         if self.stats_auth is None:
@@ -288,7 +302,7 @@ class FigshareEndpoint:
                 "date":       datetime.strftime(datetime.now(), "%Y-%m-%d")
             }]
 
-        headers    = self.request_headers()
+        headers    = self.__request_headers()
         headers["Authorization"] = f"Basic {self.stats_auth}"
 
         output     = []
@@ -303,9 +317,9 @@ class FigshareEndpoint:
             "end_date":   end_date
         }
         prefix     = "/4tu/timeline/day"
-        views      = self.getStats (f"{prefix}/views/article/{article_id}", headers, parameters)
-        downloads  = self.getStats (f"{prefix}/downloads/article/{article_id}", headers, parameters)
-        shares     = self.getStats (f"{prefix}/shares/article/{article_id}", headers, parameters)
+        views      = self.get_statistics (f"{prefix}/views/article/{article_id}", headers, parameters)
+        downloads  = self.get_statistics (f"{prefix}/downloads/article/{article_id}", headers, parameters)
+        shares     = self.get_statistics (f"{prefix}/shares/article/{article_id}", headers, parameters)
 
         if not views or views["timeline"] is None:
             output.append({

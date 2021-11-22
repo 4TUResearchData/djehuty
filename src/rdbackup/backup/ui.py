@@ -22,7 +22,7 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
         logging.error("Cannot establish a connection to the MySQL server.")
         return False
 
-    accounts = endpoint.getInstitutionalAccounts()
+    accounts = endpoint.get_institutional_accounts ()
     logging.info(f"Found {len(accounts)} institutional accounts.")
     articles_written    = 0
     articles_failed     = 0
@@ -31,14 +31,14 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
     for account in accounts:
         db.insert_account (account)
 
-        articles = endpoint.getArticlesByAccount(account["id"])
+        articles = endpoint.get_articles_by_account (account["id"])
         for article in articles:
             if db.insert_article (article):
                 articles_written += 1
             else:
                 articles_failed  += 1
 
-        collections = endpoint.getCollectionsByAccount(account["id"])
+        collections = endpoint.get_collections_by_account (account["id"])
         for collection in collections:
             if db.insert_collection (collection, account["id"]):
                 collections_written += 1
