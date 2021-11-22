@@ -234,12 +234,14 @@ LIMIT {limit}
 
         return results
 
-    def article_authors (self, first_name=None, full_name=None, group_id=None,
-                         id=None, institution_id=None, is_active=None,
-                         is_public=None, job_title=None, last_name=None,
-                         orcid_id=None, url_name=None, limit=10, order=None,
-                         order_direction=None, article_id=None,
-                         account_id=None):
+    def authors (self, first_name=None, full_name=None, group_id=None,
+                 id=None, institution_id=None, is_active=None,
+                 is_public=None, job_title=None, last_name=None,
+                 orcid_id=None, url_name=None, limit=10, order=None,
+                 order_direction=None, item_id=None,
+                 account_id=None, type="article"):
+
+        prefix = "Article" if type == "article" else "Collection"
 
         if order_direction is None:
             order_direction = "DESC"
@@ -262,17 +264,17 @@ WHERE {{
     ?author            col:id                   ?id .
 """
 
-        if article_id is not None:
+        if item_id is not None:
             query += f"""\
-    ?article           rdf:type                 sg:Article .
-    ?link              rdf:type                 sg:ArticleAuthorLink .
-    ?link              col:article_id           {article_id} .
+    ?item              rdf:type                 sg:{prefix} .
+    ?link              rdf:type                 sg:{prefix}AuthorLink .
+    ?link              col:{type}_id            {item_id} .
     ?link              col:author_id            ?id .
 """
 
-        if (article_id is not None) and (account_id is not None):
+        if (item_id is not None) and (account_id is not None):
             query += f"""\
-    ?article           col:account_id           ?account_id .
+    ?item              col:account_id           ?account_id .
 """
 
         query += f"""\
