@@ -802,3 +802,65 @@ LIMIT {limit}
             logging.error(f"Query:\n---\n{query}\n---")
 
         return results
+
+    def collection_fundings (self, title=None, order=None, order_direction=None,
+                             limit=None, collection_id=None, account_id=None):
+
+        if order_direction is None:
+            order_direction = "DESC"
+        if order is None:
+            order="?id"
+        if limit is None:
+            limit = 10
+
+        query = f"""\
+{self.default_prefixes}
+SELECT DISTINCT ?id ?title ?grant_code ?funder_name ?url
+WHERE {{
+  GRAPH <{self.state_graph}> {{
+    ?row             rdf:type                 sg:CollectionFunding .
+    ?row             col:id                   ?id .
+    ?row             coL:collectionId         ?collection_id .
+    OPTIONAL {{ ?row             col:title                ?title . }}
+    OPTIONAL {{ ?row             col:grant_code           ?grant_code . }}
+    OPTIONAL {{ ?row             col:funder_name          ?funder_name . }}
+    OPTIONAL {{ ?row             col:url                  ?url . }}
+"""
+
+        if collection_id is not None:
+            query += f"""\
+    ?collection           rdf:type                 sg:CollectionFundingLink .
+    ?collection           col:collection_id        ?collection_id .
+"""
+
+        if (collection_id is not None) and (account_id is not None):
+            query += f"""\
+    ?collection           col:account_id           ?account_id .
+"""
+
+        query += "  }\n"
+
+        if collection_id is not None:
+            query += f"FILTER(?collection_id = {collection_id})"
+
+        if title is not None:
+            query += f"FILTER (STR(?title) = \"{title}\")\n"
+
+        query += "}\n"
+
+        if order is not None:
+            query += f"""\
+ORDER BY {order_direction}({order})
+LIMIT {limit}
+"""
+
+        self.sparql.setQuery(query)
+        results = []
+        try:
+            query_results = self.sparql.query().convert()
+            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+        except:
+            logging.error(f"SPARQL query failed.")
+            logging.error(f"Query:\n---\n{query}\n---")
+
+        return results
