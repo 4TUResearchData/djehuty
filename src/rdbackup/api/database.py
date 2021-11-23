@@ -479,7 +479,7 @@ LIMIT {limit}
                        is_mandatory=None, order=None, order_direction=None,
                        limit=None, item_id=None, item_type="article"):
 
-        prefix = "Article" if type == "article" else "Collection"
+        prefix = "Article" if item_type == "article" else "Collection"
 
         if order_direction is None:
             order_direction = "DESC"
@@ -568,7 +568,7 @@ LIMIT {limit}
 
     def tags (self, order=None, order_direction=None, limit=None, item_id=None, item_type="article"):
 
-        prefix = "Article" if type == "article" else "Collection"
+        prefix = "Article" if item_type == "article" else "Collection"
 
         if order_direction is None:
             order_direction = "DESC"
@@ -616,7 +616,7 @@ LIMIT {limit}
     def categories (self, title=None, order=None, order_direction=None,
                     limit=None, item_id=None, account_id=None,
                     item_type="article"):
-        prefix = "Article" if type == "article" else "Collection"
+        prefix = "Article" if item_type == "article" else "Collection"
 
         if order_direction is None:
             order_direction = "DESC"
