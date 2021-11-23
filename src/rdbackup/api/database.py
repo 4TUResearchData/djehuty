@@ -843,7 +843,7 @@ WHERE {{
   GRAPH <{self.state_graph}> {{
     ?row             rdf:type                 sg:CollectionFunding .
     ?row             col:id                   ?id .
-    ?row             col:collectionId         ?collection_id .
+    ?row             col:collection_id         ?collection_id .
     OPTIONAL {{ ?row             col:title                ?title . }}
     OPTIONAL {{ ?row             col:grant_code           ?grant_code . }}
     OPTIONAL {{ ?row             col:funder_name          ?funder_name . }}
