@@ -251,7 +251,7 @@ LIMIT {limit}
                  order_direction=None, item_id=None,
                  account_id=None, item_type="article"):
 
-        prefix = "Article" if type == "article" else "Collection"
+        prefix = "Article" if item_type == "article" else "Collection"
 
         if order_direction is None:
             order_direction = "DESC"
