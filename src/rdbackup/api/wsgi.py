@@ -87,7 +87,7 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def __call__ (self, environ, start_response):
-        return self.respond (environ, start_response)
+        return self.wsgi (environ, start_response)
 
     def render_template (self, template_name, **context):
         template = self.jinja.get_template (template_name)
