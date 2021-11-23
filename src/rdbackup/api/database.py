@@ -24,6 +24,8 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             if record[item]["type"] == "typed-literal":
                 if record[item]["datatype"] == "http://www.w3.org/2001/XMLSchema#integer":
                     record[item] = int(record[item]["value"])
+                elif record[item]["datatype"] == "http://www.w3.org/2001/XMLSchema#boolean":
+                    record[item] = bool(record[item]["value"])
                 elif record[item]["datatype"] == "http://www.w3.org/2001/XMLSchema#string":
                     if record[item]["value"] == "NULL":
                         record[item] = None
