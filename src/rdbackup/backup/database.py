@@ -160,12 +160,20 @@ class DatabaseInterface:
 
         prefix   = "Article" if item_type == "article" else "Collection"
         template = ("INSERT IGNORE INTO Author "
-                    "(id, full_name, is_active, url_name, orcid_id) "
-                    "VALUES (%s, %s, %s, %s, %s)")
+                    "(id, institution_id, group_id, first_name, last_name, "
+                    "full_name, job_title, is_active, is_public, url_name, "
+                    "orcid_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
+                    "%s)")
 
         data     = (convenience.value_or_none (record, "id"),
+                    convenience.value_or_none (record, "institution_id"),
+                    convenience.value_or_none (record, "group_id"),
+                    convenience.value_or_none (record, "first_name"),
+                    convenience.value_or_none (record, "last_name"),
                     convenience.value_or_none (record, "full_name"),
+                    convenience.value_or_none (record, "job_title"),
                     "is_active" in record and record["is_active"],
+                    "is_public" in record and record["is_public"],
                     convenience.value_or_none (record, "url_name"),
                     convenience.value_or_none (record, "orcid_id"))
 
