@@ -23,7 +23,7 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
         return False
 
     accounts = endpoint.get_institutional_accounts ()
-    logging.info(f"Found {len(accounts)} institutional accounts.")
+    logging.info("Found %d institutional accounts.", len(accounts))
     articles_written    = 0
     articles_failed     = 0
     collections_written = 0
@@ -45,8 +45,8 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
             else:
                 collections_failed += 1
 
-    logging.info(f"Succesfully processed {articles_written} articles.")
-    logging.info(f"Failed to process {articles_failed} articles.")
-    logging.info(f"Succesfully processed {collections_written} collections.")
-    logging.info(f"Failed to process {collections_failed} collections.")
+    logging.info("Succesfully processed %d articles.", articles_written)
+    logging.info("Failed to process %d articles.", articles_failed)
+    logging.info("Succesfully processed %d collections.", collections_written)
+    logging.info("Failed to process %d collections.", collections_failed)
     return True
