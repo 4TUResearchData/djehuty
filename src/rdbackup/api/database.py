@@ -887,3 +887,59 @@ LIMIT {limit}
             logging.error("Query:\n---\n%s\n---", query)
 
         return results
+
+    def collection_references (self, order=None, order_direction=None, limit=None,
+                               collection_id=None, account_id=None):
+
+        if order_direction is None:
+            order_direction = "DESC"
+        if order is None:
+            order="?id"
+        if limit is None:
+            limit = 10
+
+        query = f"""\
+{self.default_prefixes}
+SELECT DISTINCT ?id ?url
+WHERE {{
+  GRAPH <{self.state_graph}> {{
+    ?row             rdf:type                 sg:CollectionReference .
+    ?row             col:id                   ?id .
+    ?row             col:collection_id        ?collection_id .
+    ?row             col:url                  ?url .
+"""
+
+        if collection_id is not None:
+            query += """\
+    ?collection           rdf:type                 sg:Collection .
+    ?collection           col:collection_id        ?collection_id .
+"""
+
+        if (collection_id is not None) and (account_id is not None):
+            query += """\
+    ?collection           col:account_id           ?account_id .
+"""
+
+        query += "  }\n"
+
+        if collection_id is not None:
+            query += f"FILTER(?collection_id = {collection_id})\n"
+
+        query += "}\n"
+
+        if order is not None:
+            query += f"""\
+ORDER BY {order_direction}({order})
+LIMIT {limit}
+"""
+
+        self.sparql.setQuery(query)
+        results = []
+        try:
+            query_results = self.sparql.query().convert()
+            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+        except:
+            logging.error("SPARQL query failed.")
+            logging.error("Query:\n---\n%s\n---", query)
+
+        return results
