@@ -1,10 +1,16 @@
+"""
+This module contains the entry point for the program.
+"""
+
 import argparse
 import sys
 import rdbackup.backup.ui as backup_ui
 import rdbackup.api.ui as api_ui
 
 def show_version ():
-    print(f"This is rdbackup v0.0.1")
+    """Show the program's version."""
+
+    print("This is rdbackup v0.0.1")
     sys.exit(0)
 
 def show_help ():
@@ -32,6 +38,7 @@ Available subcommands and options:
     sys.exit(0)
 
 def main ():
+    """The main entry point of the program."""
 
     ## COMMAND-LINE ARGUMENTS
     ## ------------------------------------------------------------------------

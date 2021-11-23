@@ -1,3 +1,8 @@
+"""
+This module provides convenience functions that can be used throughout
+the codebase.
+"""
+
 def value_or_none (record, key):
     """Return the value of KEY or None."""
     try:
