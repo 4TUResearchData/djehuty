@@ -490,7 +490,7 @@ class DatabaseInterface:
         """Procedure to insert an article reference."""
 
         prefix   = "Article" if item_type == "article" else "Collection"
-        template = "INSERT IGNORE INTO {prefix}Reference ({item_type}_id, url) VALUES (%s, %s)"
+        template = f"INSERT IGNORE INTO {prefix}Reference ({item_type}_id, url) VALUES (%s, %s)"
         data     = (item_id, url)
 
         return self.__execute_query (template, data)
