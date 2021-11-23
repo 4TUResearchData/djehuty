@@ -62,7 +62,8 @@ class ApiServer:
             ## Public collections
             ## ----------------------------------------------------------------
             Rule("/v2/collections",                           endpoint = "collections"),
-            Rule("/v2/collections/search",                    endpoint = "collections_search")
+            Rule("/v2/collections/search",                    endpoint = "collections_search"),
+            Rule("/v2/collections/<collection_id>",           endpoint = "collection_details")
         ])
 
         ## Static resources and HTML templates.
@@ -600,3 +601,32 @@ class ApiServer:
         )
 
         return self.default_list_response (records, formatter.format_collection_record)
+
+    def api_collection_details (self, request, collection_id):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        try:
+            collection    = self.db.collections(collection_id=collection_id, limit=1)[0]
+            fundings      = self.db.collection_fundings(collection_id=collection_id)
+            categories    = self.db.categories(item_id=collection_id, item_type="collection")
+            references    = self.db.collection_references(collection_id=collection_id)
+            custom_fields = self.db.custom_fields(item_id=collection_id, item_type="collection")
+            tags          = self.db.tags(item_id=collection_id, item_type="collection")
+            authors       = self.db.authors(item_id=collection_id, item_type="collection")
+            total         = formatter.format_collection_details_record (collection,
+                                                                        fundings,
+                                                                        categories,
+                                                                        references,
+                                                                        tags,
+                                                                        authors,
+                                                                        custom_fields)
+            return Response(json.dumps(total),
+                            mimetype='application/json; charset=utf-8')
+
+        except IndexError:
+            response = Response(json.dumps({ "message": "This collection cannot be found." }),
+                                mimetype="application/json; charset=utf-8")
+            response.status_code = 404
+            return response
