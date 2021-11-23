@@ -56,6 +56,8 @@ WHERE {{
 ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
+        if offset is not None:
+            query += f"OFFSET {offset}"
 
         self.sparql.setQuery(query)
         results = []
@@ -228,6 +230,8 @@ WHERE {{
 ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
+        if offset is not None:
+            query += f"OFFSET {offset}"
 
         self.sparql.setQuery(query)
         results = []
@@ -807,6 +811,9 @@ WHERE {{
 ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
+
+        if offset is not None:
+            query += f"OFFSET {offset}"
 
         self.sparql.setQuery(query)
         results = []
