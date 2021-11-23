@@ -207,17 +207,18 @@ class DatabaseInterface:
     def insert_category (self, record, item_id, item_type = "article"):
         """Procedure to insert a category record."""
 
-        prefix   = "Article" if item_type == "article" else "Collection"
-        template = ("INSERT IGNORE INTO Category (id, title, "
-                    "parent_id, source_id, taxonomy_id) "
-                    "VALUES (%s, %s, %s, %s, %s)")
-        data     = (convenience.value_or_none (record, "id"),
-                    convenience.value_or_none (record, "title"),
-                    convenience.value_or_none (record, "parent_id"),
-                    convenience.value_or_none (record, "source_id"),
-                    convenience.value_or_none (record, "taxonomy_id"))
+        prefix      = "Article" if item_type == "article" else "Collection"
+        template    = ("INSERT IGNORE INTO Category (id, title, "
+                       "parent_id, source_id, taxonomy_id) "
+                       "VALUES (%s, %s, %s, %s, %s)")
+        category_id = convenience.value_or_none (record, "id")
+        data        = (category_id,
+                       convenience.value_or_none (record, "title"),
+                       convenience.value_or_none (record, "parent_id"),
+                       convenience.value_or_none (record, "source_id"),
+                       convenience.value_or_none (record, "taxonomy_id"))
 
-        category_id = self.__execute_query (template, data)
+        self.__execute_query (template, data)
 
         template = (f"INSERT IGNORE INTO {prefix}Category (category_id, "
                     f"{item_type}_id) VALUES (%s, %s)")
