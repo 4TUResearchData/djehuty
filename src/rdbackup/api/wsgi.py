@@ -41,6 +41,10 @@ class ApiServer:
             Rule("/v2/token",                                 endpoint = "token"),
             Rule("/v2/collections",                           endpoint = "collections"),
 
+            ## Private institutions
+            ## ----------------------------------------------------------------
+            Rule("/v2/account/institution",                   endpoint = "private_institution"),
+
             ## Public articles
             ## ----------------------------------------------------------------
             Rule("/v2/articles",                              endpoint = "articles"),
@@ -242,6 +246,21 @@ class ApiServer:
 
     def api_token (self, request):
         return False
+
+    def api_private_institution (self, request):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        ## Our API only contains data from 4TU.ResearchData.
+        return Response(json.dumps({ "id": 898, "name": "4TU.ResearchData" }),
+                        mimetype='application/json; charset=utf-8')
 
     def api_articles (self, request):
         if request.method != 'GET':
