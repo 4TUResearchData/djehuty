@@ -63,8 +63,11 @@ class ApiServer:
             ## ----------------------------------------------------------------
             Rule("/v2/collections",                           endpoint = "collections"),
             Rule("/v2/collections/search",                    endpoint = "collections_search"),
-            Rule("/v2/collections/<collection_id>",           endpoint = "collection_details")
-        ])
+            Rule("/v2/collections/<collection_id>",           endpoint = "collection_details"),
+
+            ## Private collections
+            ## ----------------------------------------------------------------
+            Rule("/v2/account/collections",                   endpoint = "private_collections"),
 
         ## Static resources and HTML templates.
         ## --------------------------------------------------------------------
@@ -650,6 +653,51 @@ class ApiServer:
             response.status_code = 404
             return response
 
+    def api_private_collections (self, request):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        ## Parameters
+        ## ----------------------------------------------------------------
+        page            = self.get_parameter (request, "page")
+        page_size       = self.get_parameter (request, "page_size")
+        limit           = self.get_parameter (request, "limit")
+        offset          = self.get_parameter (request, "offset")
+        order           = self.get_parameter (request, "order")
+        order_direction = self.get_parameter (request, "order_direction")
+
+        ## These parameters aren't in the Figshare spec.
+        institution     = self.get_parameter (request, "institution")
+        published_since = self.get_parameter (request, "published_since")
+        modified_since  = self.get_parameter (request, "modified_since")
+        group           = self.get_parameter (request, "group")
+        resource_doi    = self.get_parameter (request, "resource_doi")
+        doi             = self.get_parameter (request, "doi")
+        handle          = self.get_parameter (request, "handle")
+
+        records = self.db.collections (#page=page,
+                                       #page_size=page_size,
+                                       limit=limit,
+                                       offset=offset,
+                                       order=order,
+                                       order_direction=order_direction,
+                                       institution=institution,
+                                       published_since=published_since,
+                                       modified_since=modified_since,
+                                       group=group,
+                                       resource_doi=resource_doi,
+                                       doi=doi,
+                                       handle=handle,
+                                       account_id=account_id)
+
+        return self.default_list_response (records, formatter.format_collection_record)
             categories    = self.db.categories(item_id=collection_id, item_type="collection")
             references    = self.db.collection_references(collection_id=collection_id)
             custom_fields = self.db.custom_fields(item_id=collection_id, item_type="collection")
