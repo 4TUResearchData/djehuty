@@ -123,7 +123,7 @@ WHERE {{
     ?link               col:collection_id        {collection_id} .
  """
 
-            query += """\
+        query += """\
     OPTIONAL {
         ?timeline           rdf:type                 sg:Timeline .
         ?timeline           col:id                   ?timeline_id .
@@ -569,7 +569,6 @@ LIMIT {limit}
         try:
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
-            logging.error("Query:\n---\n%s\n---", query)
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)
@@ -916,7 +915,7 @@ WHERE {{
 """
 
         if item_id is not None:
-            query += """\
+            query += f"""\
     ?item           rdf:type                 sg:{prefix}FundingLink .
     ?item           col:{item_type}_id        ?{item_type}_id .
 """
