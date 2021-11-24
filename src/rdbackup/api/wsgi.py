@@ -525,6 +525,12 @@ class ApiServer:
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
         parameters = request.get_json()
         records = self.db.articles(
             resource_doi    = convenience.value_or_none(parameters, "resource_doi"),
@@ -543,6 +549,7 @@ class ApiServer:
             published_since = convenience.value_or_none(parameters, "published_since"),
             modified_since  = convenience.value_or_none(parameters, "modified_since"),
             group           = convenience.value_or_none(parameters, "group"),
+            account_id      = account_id
         )
 
         return self.default_list_response (records, formatter.format_article_record)
