@@ -24,6 +24,8 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             if record[item]["type"] == "typed-literal":
                 if record[item]["datatype"] == "http://www.w3.org/2001/XMLSchema#integer":
                     record[item] = int(record[item]["value"])
+                elif record[item]["datatype"] == "http://www.w3.org/2001/XMLSchema#decimal":
+                    record[item] = int(record[item]["value"])
                 elif record[item]["datatype"] == "http://www.w3.org/2001/XMLSchema#boolean":
                     record[item] = bool(record[item]["value"])
                 elif record[item]["datatype"] == "http://www.w3.org/2001/XMLSchema#string":
@@ -493,7 +495,7 @@ LIMIT {limit}
         if order_direction is None:
             order_direction = "DESC"
         if order is None:
-            order="?id"
+            order="?name"
         if limit is None:
             limit = 10
 
@@ -688,13 +690,15 @@ LIMIT {limit}
 
         query = f"""\
 {self.default_prefixes}
-SELECT DISTINCT ?id ?parent_id ?title
+SELECT DISTINCT ?id ?parent_id ?title ?source_id ?taxonomy_id
 WHERE {{
   GRAPH <{self.state_graph}> {{
     ?row             rdf:type                 sg:Category .
     ?row             col:id                   ?id .
-    ?row             col:parent_id            ?parent_id .
     ?row             col:title                ?title .
+    OPTIONAL {{ ?row         col:parent_id        ?parent_id . }}
+    OPTIONAL {{ ?row         col:source_id        ?source_id . }}
+    OPTIONAL {{ ?row         col:taxonomy_id      ?taxonomy_id . }}
 """
 
         if item_id is not None:
