@@ -60,6 +60,7 @@ class FigshareEndpoint:
             return response.json()
 
         logging.error("%s returned %d.", path, response.status_code)
+        logging.error("Parameters:\n---\n%s\n---", parameters)
         logging.error("Error message:\n---\n%s\n---", response.text)
         return []
 
