@@ -628,7 +628,28 @@ class ApiServer:
 
         try:
             collection    = self.db.collections(collection_id=collection_id, limit=1)[0]
-            fundings      = self.db.collection_fundings(collection_id=collection_id)
+            fundings      = self.db.fundings(item_id=collection_id, item_type="collection")
+            categories    = self.db.categories(item_id=collection_id, item_type="collection")
+            references    = self.db.references(item_id=collection_id, item_type="collection")
+            custom_fields = self.db.custom_fields(item_id=collection_id, item_type="collection")
+            tags          = self.db.tags(item_id=collection_id, item_type="collection")
+            authors       = self.db.authors(item_id=collection_id, item_type="collection")
+            total         = formatter.format_collection_details_record (collection,
+                                                                        fundings,
+                                                                        categories,
+                                                                        references,
+                                                                        tags,
+                                                                        authors,
+                                                                        custom_fields)
+            return Response(json.dumps(total),
+                            mimetype='application/json; charset=utf-8')
+
+        except IndexError:
+            response = Response(json.dumps({ "message": "This collection cannot be found." }),
+                                mimetype="application/json; charset=utf-8")
+            response.status_code = 404
+            return response
+
             categories    = self.db.categories(item_id=collection_id, item_type="collection")
             references    = self.db.collection_references(collection_id=collection_id)
             custom_fields = self.db.custom_fields(item_id=collection_id, item_type="collection")
