@@ -835,8 +835,11 @@ LIMIT {limit}
 
         return results
 
-    def collection_fundings (self, title=None, order=None, order_direction=None,
-                             limit=None, collection_id=None, account_id=None):
+    def fundings (self, title=None, order=None, order_direction=None,
+                  limit=None, item_id=None, account_id=None,
+                  item_type="article"):
+
+        prefix = "Article" if item_type == "article" else "Collection"
 
         if order_direction is None:
             order_direction = "DESC"
@@ -850,30 +853,28 @@ LIMIT {limit}
 SELECT DISTINCT ?id ?title ?grant_code ?funder_name ?url
 WHERE {{
   GRAPH <{self.state_graph}> {{
-    ?row             rdf:type                 sg:CollectionFunding .
+    ?row             rdf:type                 sg:{prefix}Funding .
     ?row             col:id                   ?id .
-    ?row             col:collection_id         ?collection_id .
+    ?row             col:{item_type}_id       ?{item_type}_id .
     OPTIONAL {{ ?row             col:title                ?title . }}
     OPTIONAL {{ ?row             col:grant_code           ?grant_code . }}
     OPTIONAL {{ ?row             col:funder_name          ?funder_name . }}
     OPTIONAL {{ ?row             col:url                  ?url . }}
 """
 
-        if collection_id is not None:
+        if item_id is not None:
             query += """\
-    ?collection           rdf:type                 sg:CollectionFundingLink .
-    ?collection           col:collection_id        ?collection_id .
+    ?item           rdf:type                 sg:{prefix}FundingLink .
+    ?item           col:{item_type}_id        ?{item_type}_id .
 """
 
-        if (collection_id is not None) and (account_id is not None):
-            query += """\
-    ?collection           col:account_id           ?account_id .
-"""
+        if (item_id is not None) and (account_id is not None):
+            query += "    ?item  col:account_id  ?account_id .\n"
 
         query += "  }\n"
 
-        if collection_id is not None:
-            query += f"FILTER(?collection_id = {collection_id})\n"
+        if item_id is not None:
+            query += f"FILTER(?{item_type}_id = {item_id})\n"
 
         if title is not None:
             query += f"FILTER (STR(?title) = \"{title}\")\n"

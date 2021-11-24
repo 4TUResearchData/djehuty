@@ -326,7 +326,9 @@ class DatabaseInterface:
         fundings = convenience.value_or_none (record, "funding")
         if fundings:
             for funding in fundings:
-                self.insert_collection_funding (funding, collection_id)
+                self.insert_funding (funding,
+                                     item_id   = collection_id,
+                                     item_type = "collection")
 
         timeline_id = None
         if "timeline" in record:
@@ -397,8 +399,6 @@ class DatabaseInterface:
 
         return True
 
-    def insert_collection_funding (self, record, collection_id):
-        """Procedure to insert a funding record."""
     def insert_collection_article (self, collection_id, article_id):
         """Procedure to insert a collection-article relationship."""
 
@@ -408,7 +408,11 @@ class DatabaseInterface:
 
         return self.__execute_query (template, data)
 
-        template = ("INSERT IGNORE INTO CollectionFunding (id, collection_id, "
+    def insert_funding (self, record, item_id, item_type="article"):
+        """Procedure to insert a funding record."""
+
+        prefix   = "Article" if item_type == "article" else "Collection"
+        template = (f"INSERT IGNORE INTO {prefix}Funding (id, {item_type}_id, "
                     "title, grant_code, funder_name, is_user_defined, url) "
                     "VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
@@ -516,7 +520,7 @@ class DatabaseInterface:
                     "url_private_html, url_private_api, published_date, thumb, "
                     "defined_type, defined_type_name, is_embargoed, citation, "
                     "has_linked_file, metadata_reason, confidential_reason, "
-                    "is_metadata_record, is_confidential, is_public, "
+                    "is_metadata_record, is_confidential, is_public, funding, "
                     "modified_date, created_date, size, status, version, "
                     "description, figshare_url, resource_doi, resource_title, "
                     "timeline_id, license_id) VALUES (%s, %s, %s, %s, %s, %s, "
@@ -554,6 +558,13 @@ class DatabaseInterface:
         files = record["files"]
         for file in files:
             self.insert_file (file, article_id)
+
+        funding_list = convenience.value_or_none (record, "funding_list")
+        if funding_list:
+            for funding in funding_list:
+                self.insert_funding (funding,
+                                     item_id   = article_id,
+                                     item_type = "article")
 
         if "statistics" in record:
             stats = record["statistics"]
@@ -595,6 +606,7 @@ class DatabaseInterface:
                          convenience.value_or_none (record, "is_metadata_record"),
                          convenience.value_or_none (record, "is_confidential"),
                          convenience.value_or_none (record, "is_public"),
+                         convenience.value_or_none (record, "funding"),
                          modified_date,
                          created_date,
                          convenience.value_or_none (record, "size"),

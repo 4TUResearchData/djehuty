@@ -30,6 +30,15 @@ CREATE TABLE IF NOT EXISTS CollectionTag(
     tag                   VARCHAR(255),
     collection_id         INT UNSIGNED) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS ArticleFunding(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    article_id            INT UNSIGNED,
+    title                 VARCHAR(255),
+    grant_code            VARCHAR(255),
+    funder_name           VARCHAR(255),
+    is_user_defined       BOOLEAN NOT NULL DEFAULT 0,
+    url                   VARCHAR(255)) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS CollectionFunding(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     collection_id         INT UNSIGNED,
@@ -114,7 +123,6 @@ CREATE TABLE IF NOT EXISTS Article(
     is_confidential       BOOLEAN NOT NULL DEFAULT 0,
     size                  BIGINT UNSIGNED,
     funding               VARCHAR(255),
-    funding_id            INT UNSIGNED,
     version               INT UNSIGNED,
     is_active             BOOLEAN NOT NULL DEFAULT 1,
     is_metadata_record    BOOLEAN NOT NULL DEFAULT 0,
