@@ -221,7 +221,7 @@ class FigshareEndpoint:
 
         headers    = self.__request_headers()
         parameters = { "impersonate": account_id }
-        record     = self.get(f"/account/collections/{article_id}/private_links",
+        record     = self.get(f"/account/collections/{collection_id}/private_links",
                               headers,
                               parameters)
         return record
@@ -293,8 +293,8 @@ class FigshareEndpoint:
     def get_articles_for_collection (self, account_id, collection_id):
         """Procedure to retrieve the articles for a given collection."""
 
-        headers  = self.__request_headers ()
-        articles = self.get (f"/account/collections/{collection_id}/articles", headers, {})
+        articles = self.get_all (f"/account/collections/{collection_id}/articles",
+                                 impersonate=account_id)
         output   = []
 
         for item in articles:

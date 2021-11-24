@@ -424,7 +424,7 @@ class DatabaseInterface:
                     "VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
         data     = (convenience.value_or_none (record, "id"),
-                    collection_id,
+                    item_id,
                     convenience.value_or_none (record, "title"),
                     convenience.value_or_none (record, "grant_code"),
                     convenience.value_or_none (record, "funder_name"),
@@ -550,7 +550,7 @@ class DatabaseInterface:
                     "description, figshare_url, resource_doi, resource_title, "
                     "timeline_id, license_id) VALUES (%s, %s, %s, %s, %s, %s, "
                     "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
         article_id  = record["id"]
         timeline_id = None
