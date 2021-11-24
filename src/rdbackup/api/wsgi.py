@@ -69,6 +69,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             Rule("/v2/account/collections",                   endpoint = "private_collections"),
             Rule("/v2/account/collections/<collection_id>",   endpoint = "private_collection_details"),
+            Rule("/v2/account/collections/<collection_id>/authors", endpoint = "private_collection_authors"),
 
         ## Static resources and HTML templates.
         ## --------------------------------------------------------------------
@@ -736,3 +737,20 @@ class ApiServer:
                                 mimetype="application/json; charset=utf-8")
             response.status_code = 404
             return response
+    def api_private_collection_authors (self, request, collection_id):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        authors    = self.db.authors(item_id    = collection_id,
+                                     account_id = account_id,
+                                     item_type  = "collection")
+
+        return self.default_list_response (authors, formatter.format_author_record)
+
