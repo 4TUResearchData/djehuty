@@ -83,7 +83,9 @@ def format_category_record (record):
 def format_tag_record (record):
     return conv.value_or_none(record, "tag")
 
-def format_article_details_record (article, authors, files, custom_fields, tags, categories):
+def format_article_details_record (article, authors, files, custom_fields,
+                                   embargo_options, tags, categories, funding,
+                                   references):
     return {
         "figshare_url":      conv.value_or_none(article, "figshare_url"),
         "resource_title":    conv.value_or_none(article, "resource_title"),
@@ -91,24 +93,14 @@ def format_article_details_record (article, authors, files, custom_fields, tags,
         "files":             list (map (format_file_for_article_record, files)),
         "authors":           list (map (format_author_record, authors)),
         "custom_fields":     list (map (format_custom_field_record, custom_fields)),
-        ## TODO: Currently not stored in the backup.
-        #"embargo_options": [
-        #    {
-        #        "id": 364,
-        #        "type": "ip_range",
-        #        "ip_name": "Figshare IP range"
-        #    }
-        #],
+        "embargo_options":   list (map (format_article_embargo_option_record, embargo_options)),
         "citation":          conv.value_or_none(article, "citation"),
         "confidential_reason": conv.value_or_none(article, "confidential_reason"),
         "embargo_type":      conv.value_or_none(article, "embargo_type"),
         "is_confidential":   conv.value_or_none(article, "is_confidential"),
         "size":              conv.value_or_none(article, "size"),
         "funding":           conv.value_or_none(article, "funding"),
-        ## TODO: Currently not stored in the backup.
-        #"funding_list": [
-        #    0
-        #],
+        "funding_list":      list (map (format_funding_record, funding)),
         "tags":              list (map (format_tag_record, tags)),
         "version":           conv.value_or_none(article, "version"),
         "is_active":         conv.value_or_none(article, "is_active"),
@@ -130,10 +122,7 @@ def format_article_details_record (article, authors, files, custom_fields, tags,
         },
         "embargo_title":     conv.value_or_none(article, "embargo_title"),
         "embargo_reason":    conv.value_or_none(article, "embargo_reason"),
-        "references": [
-            "http://figshare.com",
-            "http://figshare.com/api"
-        ],
+        "references":        references,
         "id":                conv.value_or_none(article, "id"),
         "title":             conv.value_or_none(article, "title"),
         "doi":               conv.value_or_none(article, "doi"),

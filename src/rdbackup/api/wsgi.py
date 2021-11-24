@@ -316,14 +316,20 @@ class ApiServer:
             authors       = self.db.authors(item_id=article_id, item_type="article")
             files         = self.db.article_files(article_id=article_id)
             custom_fields = self.db.custom_fields(item_id=article_id, item_type="article")
+            embargo_options = self.db.article_embargo_options(article_id=article_id)
             tags          = self.db.tags(item_id=article_id, item_type="article")
             categories    = self.db.categories(item_id=article_id, item_type="article")
+            references    = self.db.references(item_id=article_id, item_type="article")
+            fundings      = self.db.fundings(item_id=article_id, item_type="article")
             total         = formatter.format_article_details_record (article,
                                                                      authors,
                                                                      files,
                                                                      custom_fields,
+                                                                     embargo_options,
                                                                      tags,
-                                                                     categories)
+                                                                     categories,
+                                                                     fundings,
+                                                                     references)
             return Response(json.dumps(total),
                             mimetype='application/json; charset=utf-8')
         except IndexError:
@@ -410,18 +416,24 @@ class ApiServer:
                             mimetype='application/json; charset=utf-8')
 
         try:
-            article       = article[0]
-            authors       = self.db.authors(item_id=article_id, item_type="article")
-            files         = self.db.article_files(article_id=article_id)
-            custom_fields = self.db.custom_fields(item_id=article_id, item_type="article")
-            tags          = self.db.tags(item_id=article_id, item_type="article")
-            categories    = self.db.categories(item_id=article_id, item_type="article")
-            total         = formatter.format_article_details_record (article,
-                                                                     authors,
-                                                                     files,
-                                                                     custom_fields,
-                                                                     tags,
-                                                                     categories)
+            article         = article[0]
+            authors         = self.db.authors(item_id=article_id, item_type="article")
+            files           = self.db.article_files(article_id=article_id)
+            custom_fields   = self.db.custom_fields(item_id=article_id, item_type="article")
+            embargo_options = self.db.article_embargo_options(article_id=article_id)
+            tags            = self.db.tags(item_id=article_id, item_type="article")
+            categories      = self.db.categories(item_id=article_id, item_type="article")
+            funding         = self.db.fundings(item_id=article_id, item_type="article")
+            references      = self.db.references(item_id=article_id, item_type="article")
+            total           = formatter.format_article_details_record (article,
+                                                                       authors,
+                                                                       files,
+                                                                       custom_fields,
+                                                                       embargo_options,
+                                                                       tags,
+                                                                       categories,
+                                                                       funding,
+                                                                       references)
 
             return Response(json.dumps(total),
                             mimetype='application/json; charset=utf-8')
