@@ -569,6 +569,59 @@ LIMIT {limit}
         try:
             query_results = self.sparql.query().convert()
             results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            logging.error("Query:\n---\n%s\n---", query)
+        except:
+            logging.error("SPARQL query failed.")
+            logging.error("Query:\n---\n%s\n---", query)
+
+        return results
+
+    def article_embargo_options (self, ip_name=None, embargo_type=None,
+                                 order=None, order_direction=None,
+                                 limit=None, article_id=None):
+
+        if order_direction is None:
+            order_direction = "DESC"
+        if order is None:
+            order="?id"
+        if limit is None:
+            limit = 10
+
+        query = f"""\
+{self.default_prefixes}
+SELECT DISTINCT ?id ?article_id ?type ?ip_name
+WHERE {{
+  GRAPH <{self.state_graph}> {{
+    ?field             rdf:type                 sg:ArticleEmbargoOption .
+    ?field             col:id                   ?id .
+    OPTIONAL {{ ?field  col:type                 ?type . }}
+    OPTIONAL {{ ?field  col:ip_name              ?ip_name . }}
+"""
+
+        if article_id is not None:
+            query += f"    ?field  col:article_id  {article_id} .\n"
+
+        query += "  }\n"
+
+        if ip_name is not None:
+            query += f"  FILTER (STR(?ip_name) = \"{ip_name}\")\n"
+
+        if embargo_type is not None:
+            query += f"  FILTER (STR(?type) = \"{embargo_type}\")\n"
+
+        query += "}\n"
+
+        if order is not None:
+            query += f"""\
+ORDER BY {order_direction}({order})
+LIMIT {limit}
+"""
+
+        self.sparql.setQuery(query)
+        results = []
+        try:
+            query_results = self.sparql.query().convert()
+            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)

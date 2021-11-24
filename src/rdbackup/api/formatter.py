@@ -158,6 +158,13 @@ def format_article_details_record (article, authors, files, custom_fields, tags,
         "defined_type_name": conv.value_or_none(article, "defined_type_name"),
     }
 
+def format_article_embargo_option_record (record):
+    return {
+        "id":                conv.value_or_none (record, "id"),
+        "type":              conv.value_or_none (record, "type"),
+        "ip_name":           conv.value_or_none (record, "ip_name")
+    }
+
 def format_article_version_record (record):
     return {
         "version":           conv.value_or_none(record, "version"),
