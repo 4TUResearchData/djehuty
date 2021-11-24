@@ -30,6 +30,18 @@ CREATE TABLE IF NOT EXISTS CollectionTag(
     tag                   VARCHAR(255),
     collection_id         INT UNSIGNED) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS ArticlePrivateLink(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    article_id            INT UNSIGNED,
+    is_active             BOOLEAN NOT NULL DEFAULT 0,
+    expires_date          DATETIME) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS CollectionPrivateLink(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    collection_id         INT UNSIGNED,
+    is_active             BOOLEAN NOT NULL DEFAULT 0,
+    expires_date          DATETIME) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS ArticleFunding(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     article_id            INT UNSIGNED,

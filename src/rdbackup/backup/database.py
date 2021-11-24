@@ -330,6 +330,13 @@ class DatabaseInterface:
                                      item_id   = collection_id,
                                      item_type = "collection")
 
+        private_links = convenience.value_or_none (record, "private_links")
+        if private_links:
+            for link in private_links:
+                self.insert_private_links (link,
+                                           item_id   = collection_id,
+                                           item_type = "collection")
+
         timeline_id = None
         if "timeline" in record:
             timeline_id = self.insert_timeline (record["timeline"])
@@ -429,6 +436,24 @@ class DatabaseInterface:
             return False
 
         return True
+
+    def insert_private_links (self, record, item_id, item_type="article"):
+        """Procedure to insert a private link to an article or a collection."""
+
+        prefix   = "Article" if item_type == "article" else "Collection"
+        template = (f"INSERT IGNORE INTO {prefix}PrivateLink "
+                    "(id, {item_type}_id, is_active, expires_date) "
+                    "VALUES (%s, %s, %s, %s)")
+
+        expires_date  = convenience.value_or_none (record, "expires_date")
+        if expires_date is not None:
+            expires_date  = datetime.strptime(record["expires_date"], "%Y-%m-%dT%H:%M:%SZ")
+            expires_date  = datetime.strftime (expires_date, "%Y-%m-%d %H:%M:%S")
+
+        data     = (convenience.value_or_none (record, "id"),
+                    item_id,
+                    convenience.value_or_none (record, "is_active"),
+                    expires_date)
 
     def insert_embargo (self, record, article_id):
         """Procedure to insert an embargo record."""
@@ -565,6 +590,13 @@ class DatabaseInterface:
                 self.insert_funding (funding,
                                      item_id   = article_id,
                                      item_type = "article")
+
+        private_links = convenience.value_or_none (record, "private_links")
+        if private_links:
+            for link in private_links:
+                self.insert_private_links (link,
+                                           item_id   = article_id,
+                                           item_type = "article")
 
         if "statistics" in record:
             stats = record["statistics"]

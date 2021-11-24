@@ -196,12 +196,34 @@ class FigshareEndpoint:
                                               .replace("T", " "),
                                               "%Y-%m-%d %H:%M:%S")
 
+        record["private_links"] = self.get_article_private_links_by_account_by_id (account_id,
+                                                                                   article_id)
         record["account_id"] = account_id
         record["statistics"] = self.get_statistics_for_article(
             article_id,
             datetime.strftime(created_date, "%Y-%m-%d"),
             datetime.strftime(now, "%Y-%m-%d"))
 
+        return record
+
+    def get_article_private_links_by_account_by_id (self, account_id, article_id):
+        """Procedure to get private links to an article."""
+
+        headers    = self.__request_headers()
+        parameters = { "impersonate": account_id }
+        record     = self.get(f"/account/articles/{article_id}/private_links",
+                              headers,
+                              parameters)
+        return record
+
+    def get_collection_private_links_by_account_by_id (self, account_id, collection_id):
+        """Procedure to get private links to an collection."""
+
+        headers    = self.__request_headers()
+        parameters = { "impersonate": account_id }
+        record     = self.get(f"/account/collections/{article_id}/private_links",
+                              headers,
+                              parameters)
         return record
 
     def get_articles_by_account (self, account_id):
@@ -254,9 +276,12 @@ class FigshareEndpoint:
                                 headers, parameters)
         articles     = self.get_articles_for_collection (account_id,
                                                          collection_id)
+        private_links = self.get_collection_private_links_by_account_by_id (account_id,
+                                                                            collection_id)
 
-        record["articles"]   = articles
-        record["account_id"] = account_id
+        record["private_links"] = private_links
+        record["articles"]      = articles
+        record["account_id"]    = account_id
         return record
 
     def get_collections (self, published_since="1970-01-01"):
