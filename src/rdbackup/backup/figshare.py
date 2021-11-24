@@ -252,7 +252,10 @@ class FigshareEndpoint:
         parameters   = { "impersonate": account_id }
         record       = self.get(f"/account/collections/{collection_id}",
                                 headers, parameters)
+        articles     = self.get_articles_for_collection (account_id,
+                                                         collection_id)
 
+        record["articles"]   = articles
         record["account_id"] = account_id
         return record
 
@@ -261,6 +264,18 @@ class FigshareEndpoint:
 
         logging.info("Getting collections.")
         return self.get_all ("/collections", published_since=published_since)
+
+    def get_articles_for_collection (self, account_id, collection_id):
+        """Procedure to retrieve the articles for a given collection."""
+
+        headers  = self.__request_headers ()
+        articles = self.get (f"/account/collections/{collection_id}/articles", headers, {})
+        output   = []
+
+        for item in articles:
+            output.append (item["id"])
+
+        return output
 
     def get_article_versions (self, article_id):
         """Procedure to get versioning information for an article."""

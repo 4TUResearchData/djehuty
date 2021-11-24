@@ -242,6 +242,11 @@ CREATE TABLE IF NOT EXISTS CollectionAuthor(
     -- FOREIGN KEY (author_id) REFERENCES Author(id),
     ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS CollectionArticle(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    collection_id         INT UNSIGNED,
+    article_id            INT UNSIGNED) ENGINE=InnoDB;
+
 -------------------------------------------------------------------------------
 -- PROJECTS
 -------------------------------------------------------------------------------

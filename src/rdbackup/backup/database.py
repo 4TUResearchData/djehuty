@@ -346,6 +346,11 @@ class DatabaseInterface:
             for field in custom_fields:
                 self.insert_custom_field (field, collection_id, item_type="collection")
 
+        articles = record["articles"]
+        if articles:
+            for article in articles:
+                self.insert_collection_article (collection_id, article)
+
         created_date = None
         if "created_date" in record and not record["created_date"] is None:
             created_date  = datetime.strptime(record["created_date"], "%Y-%m-%dT%H:%M:%SZ")
@@ -394,6 +399,14 @@ class DatabaseInterface:
 
     def insert_collection_funding (self, record, collection_id):
         """Procedure to insert a funding record."""
+    def insert_collection_article (self, collection_id, article_id):
+        """Procedure to insert a collection-article relationship."""
+
+        template = ("INSERT IGNORE INTO CollectionArticle "
+                    "(collection_id, article_id) VALUES (%s, %s)")
+        data     = (collection_id, article_id)
+
+        return self.__execute_query (template, data)
 
         template = ("INSERT IGNORE INTO CollectionFunding (id, collection_id, "
                     "title, grant_code, funder_name, is_user_defined, url) "
