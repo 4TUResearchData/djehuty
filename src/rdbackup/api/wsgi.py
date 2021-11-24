@@ -72,6 +72,8 @@ class ApiServer:
             Rule("/v2/account/collections/<collection_id>",   endpoint = "private_collection_details"),
             Rule("/v2/account/collections/<collection_id>/authors", endpoint = "private_collection_authors"),
             Rule("/v2/account/collections/<collection_id>/categories", endpoint = "private_collection_categories"),
+            Rule("/v2/account/collections/<collection_id>/articles", endpoint = "private_collection_articles"),
+          ])
 
         ## Static resources and HTML templates.
         ## --------------------------------------------------------------------
@@ -807,3 +809,18 @@ class ApiServer:
 
         return self.default_list_response (categories, formatter.format_category_record)
 
+    def api_private_collection_articles (self, request, collection_id):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        articles   = self.db.articles (collection_id = collection_id,
+                                       account_id    = account_id)
+
+        return self.default_list_response (articles, formatter.format_article_record)
