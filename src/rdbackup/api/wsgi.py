@@ -68,6 +68,7 @@ class ApiServer:
             ## Private collections
             ## ----------------------------------------------------------------
             Rule("/v2/account/collections",                   endpoint = "private_collections"),
+            Rule("/v2/account/collections/<collection_id>",   endpoint = "private_collection_details"),
 
         ## Static resources and HTML templates.
         ## --------------------------------------------------------------------
@@ -698,8 +699,25 @@ class ApiServer:
                                        account_id=account_id)
 
         return self.default_list_response (records, formatter.format_collection_record)
+
+    def api_private_collection_details (self, request, collection_id):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        try:
+            collection    = self.db.collections(collection_id = collection_id,
+                                                account_id    = account_id,
+                                                limit         = 1)[0]
+            fundings      = self.db.fundings(item_id=collection_id, item_type="collection")
             categories    = self.db.categories(item_id=collection_id, item_type="collection")
-            references    = self.db.collection_references(collection_id=collection_id)
+            references    = self.db.references(item_id=collection_id, item_type="collection")
             custom_fields = self.db.custom_fields(item_id=collection_id, item_type="collection")
             tags          = self.db.tags(item_id=collection_id, item_type="collection")
             authors       = self.db.authors(item_id=collection_id, item_type="collection")
