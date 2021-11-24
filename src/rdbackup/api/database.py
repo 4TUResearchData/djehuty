@@ -898,8 +898,10 @@ LIMIT {limit}
 
         return results
 
-    def collection_references (self, order=None, order_direction=None, limit=None,
-                               collection_id=None, account_id=None):
+    def references (self, order=None, order_direction=None, limit=None,
+                    item_id=None, account_id=None, item_type="article"):
+
+        prefix = "Article" if item_type == "article" else "Collection"
 
         if order_direction is None:
             order_direction = "DESC"
@@ -913,27 +915,27 @@ LIMIT {limit}
 SELECT DISTINCT ?id ?url
 WHERE {{
   GRAPH <{self.state_graph}> {{
-    ?row             rdf:type                 sg:CollectionReference .
+    ?row             rdf:type                 sg:{prefix}Reference .
     ?row             col:id                   ?id .
-    ?row             col:collection_id        ?collection_id .
+    ?row             col:{item_type}_id       ?{item_type}_id .
     ?row             col:url                  ?url .
 """
 
-        if collection_id is not None:
-            query += """\
-    ?collection           rdf:type                 sg:Collection .
-    ?collection           col:collection_id        ?collection_id .
+        if item_id is not None:
+            query += f"""\
+    ?item            rdf:type                 sg:{prefix} .
+    ?item            col:{item_type}_id       ?{item_type}_id .
 """
 
-        if (collection_id is not None) and (account_id is not None):
+        if (item_id is not None) and (account_id is not None):
             query += """\
-    ?collection           col:account_id           ?account_id .
+    ?item            col:account_id           ?account_id .
 """
 
         query += "  }\n"
 
-        if collection_id is not None:
-            query += f"FILTER(?collection_id = {collection_id})\n"
+        if item_id is not None:
+            query += f"FILTER(?{item_type}_id = {item_id})\n"
 
         query += "}\n"
 
