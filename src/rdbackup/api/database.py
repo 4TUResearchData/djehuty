@@ -265,11 +265,11 @@ LIMIT {limit}
         prefix = "Article" if item_type == "article" else "Collection"
 
         if order_direction is None:
-            order_direction = "DESC"
+            order_direction = "ASC"
         if limit is None:
             limit = 10
         if order is None:
-            order="?id"
+            order="?full_name"
         else:
             order = f"?{order}"
 
