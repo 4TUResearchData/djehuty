@@ -68,6 +68,7 @@ class ApiServer:
             ## Private collections
             ## ----------------------------------------------------------------
             Rule("/v2/account/collections",                   endpoint = "private_collections"),
+            Rule("/v2/account/collections/search",            endpoint = "private_collections_search"),
             Rule("/v2/account/collections/<collection_id>",   endpoint = "private_collection_details"),
             Rule("/v2/account/collections/<collection_id>/authors", endpoint = "private_collection_authors"),
 
@@ -737,6 +738,40 @@ class ApiServer:
                                 mimetype="application/json; charset=utf-8")
             response.status_code = 404
             return response
+
+    def api_private_collections_search (self, request):
+        handler = self.default_error_handling (request, "POST")
+        if handler is not None:
+            return handler
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        parameters = request.get_json()
+        records = self.db.collections(
+            resource_doi    = convenience.value_or_none(parameters, "resource_doi"),
+            article_id      = convenience.value_or_none(parameters, "resource_id"),
+            doi             = convenience.value_or_none(parameters, "doi"),
+            handle          = convenience.value_or_none(parameters, "handle"),
+            order           = convenience.value_or_none(parameters, "order"),
+            search_for      = convenience.value_or_none(parameters, "search_for"),
+            #page            = convenience.value_or_none(parameters, "page"),
+            #page_size       = convenience.value_or_none(parameters, "page_size"),
+            limit           = convenience.value_or_none(parameters, "limit"),
+            offset          = convenience.value_or_none(parameters, "offset"),
+            order_direction = convenience.value_or_none(parameters, "order_direction"),
+            institution     = convenience.value_or_none(parameters, "institution"),
+            published_since = convenience.value_or_none(parameters, "published_since"),
+            modified_since  = convenience.value_or_none(parameters, "modified_since"),
+            group           = convenience.value_or_none(parameters, "group"),
+            account_id      = account_id
+        )
+
+        return self.default_list_response (records, formatter.format_article_record)
+
     def api_private_collection_authors (self, request, collection_id):
         handler = self.default_error_handling (request, "GET")
         if handler is not None:
