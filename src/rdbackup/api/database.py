@@ -4,8 +4,8 @@ data for the API server.
 """
 
 import logging
-from SPARQLWrapper import SPARQLWrapper, JSON
 from urllib.error import URLError
+from SPARQLWrapper import SPARQLWrapper, JSON
 
 class SparqlInterface:
 
@@ -689,8 +689,8 @@ LIMIT {limit}
     def collections (self, limit=10, offset=None, order=None,
                      order_direction=None, institution=None,
                      published_since=None, modified_since=None, group=None,
-                     resource_doi=None, doi=None, handle=None, account_id=None,
-                     search_for=None, collection_id=None):
+                     resource_doi=None, resource_id=None, doi=None, handle=None,
+                     account_id=None, search_for=None, collection_id=None):
 
         if order_direction is None:
             order_direction = "DESC"
@@ -793,6 +793,9 @@ WHERE {{
 
         if resource_doi is not None:
             query += f"FILTER (STR(?resource_doi) = \"{resource_doi}\")\n"
+
+        if resource_id is not None:
+            query += f"FILTER (STR(?resource_id) = \"{resource_id}\")\n"
 
         if doi is not None:
             query += f"FILTER (STR(?doi) = \"{doi}\")\n"
