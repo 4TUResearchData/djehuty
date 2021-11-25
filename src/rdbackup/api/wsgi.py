@@ -105,7 +105,8 @@ class ApiServer:
 
     def render_template (self, template_name, **context):
         template = self.jinja.get_template (template_name)
-        return self.response (template.render(context))
+        return self.response (template.render(context),
+                              mimetype='text/html; charset=utf-8')
 
     def dispatch_request (self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
