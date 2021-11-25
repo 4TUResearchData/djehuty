@@ -36,40 +36,42 @@ class DatabaseInterface:
         metadata       = self.__get_from_url (metadata_url, {}, {})
         if not metadata:
             logging.info("Couldn't get metadata for %d.", article_id)
+            return total_filesize
+
+        namespaces  = { "c": "http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0" }
+        xml_root    = ET.fromstring(metadata)
+        references  = xml_root.findall(".//c:catalogRef", namespaces)
+
+        ## Recursively handle directories.
+        ## XXX: This may overflow the stack.
+        if not references:
+            logging.info("Catalog %s does not contain subdirectories.", url)
         else:
-            namespaces  = { "c": "http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0" }
-            xml_root    = ET.fromstring(metadata)
-            references  = xml_root.findall(".//c:catalogRef", namespaces)
+            for reference in references:
+                suffix = reference.attrib["{http://www.w3.org/1999/xlink}href"]
+                suburl = metadata_url.replace("catalog.xml", suffix)
+                total_filesize += self.__get_file_size_for_catalog (suburl, article_id)
 
-            ## Recursively handle directories.
-            ## XXX: This may overflow the stack.
-            if not references:
-                logging.info("Catalog %s does not contain subdirectories.", url)
-            else:
-                for reference in references:
-                    suffix = reference.attrib["{http://www.w3.org/1999/xlink}href"]
-                    suburl = metadata_url.replace("catalog.xml", suffix)
-                    total_filesize += self.__get_file_size_for_catalog (suburl, article_id)
+        ## Handle regular files.
+        files          = xml_root.findall(".//c:dataSize", namespaces)
+        if not files:
+            if total_filesize == 0:
+                logging.info("There are no files in %s.", url)
+            return total_filesize
 
-            ## Handle regular files.
-            files          = xml_root.findall(".//c:dataSize", namespaces)
-            if not files:
-                if total_filesize == 0:
-                    logging.info("There are no files in %s.", url)
-            else:
-                for file in files:
-                    units = file.attrib["units"]
-                    size  = ast.literal_eval(file.text)
-                    if units == "Tbytes":
-                        size = size * 1000000000000
-                    elif units == "Gbytes":
-                        size = size * 1000000000
-                    elif units == "Mbytes":
-                        size = size * 1000000
-                    elif units == "Kbytes":
-                        size = size * 1000
+        for file in files:
+            units = file.attrib["units"]
+            size  = ast.literal_eval(file.text)
+            if units == "Tbytes":
+                size = size * 1000000000000
+            elif units == "Gbytes":
+                size = size * 1000000000
+            elif units == "Mbytes":
+                size = size * 1000000
+            elif units == "Kbytes":
+                size = size * 1000
 
-                    total_filesize += size
+            total_filesize += size
 
         return total_filesize
 
