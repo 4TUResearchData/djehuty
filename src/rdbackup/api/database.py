@@ -19,7 +19,7 @@ PREFIX sg:  <https://sparqling-genomics.org/0.99.12/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         """
 
-    def normalize_binding (self, record):
+    def __normalize_binding (self, record):
         for item in record:
             if record[item]["type"] == "typed-literal":
                 datatype = record[item]["datatype"]
@@ -249,7 +249,7 @@ LIMIT {limit}
         results = []
         try:
             query_results = self.sparql.query().convert()
-            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)
@@ -358,7 +358,7 @@ LIMIT {limit}
         results = []
         try:
             query_results = self.sparql.query().convert()
-            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)
@@ -478,7 +478,7 @@ LIMIT {limit}
         results = []
         try:
             query_results = self.sparql.query().convert()
-            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)
@@ -571,7 +571,7 @@ LIMIT {limit}
         results = []
         try:
             query_results = self.sparql.query().convert()
-            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)
@@ -623,7 +623,7 @@ LIMIT {limit}
         results = []
         try:
             query_results = self.sparql.query().convert()
-            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)
@@ -670,7 +670,7 @@ LIMIT {limit}
         results = []
         try:
             query_results = self.sparql.query().convert()
-            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)
@@ -731,7 +731,7 @@ LIMIT {limit}
         results = []
         try:
             query_results = self.sparql.query().convert()
-            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)
@@ -885,7 +885,7 @@ LIMIT {limit}
         results = []
         try:
             query_results = self.sparql.query().convert()
-            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)
@@ -948,7 +948,7 @@ LIMIT {limit}
         results = []
         try:
             query_results = self.sparql.query().convert()
-            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)
@@ -1006,7 +1006,7 @@ LIMIT {limit}
         results = []
         try:
             query_results = self.sparql.query().convert()
-            results = list(map(self.normalize_binding, query_results["results"]["bindings"]))
+            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
         except:
             logging.error("SPARQL query failed.")
             logging.error("Query:\n---\n%s\n---", query)
