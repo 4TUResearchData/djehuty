@@ -5,6 +5,7 @@ data for the API server.
 
 import logging
 from SPARQLWrapper import SPARQLWrapper, JSON
+from urllib.error import URLError
 
 class SparqlInterface:
 
@@ -38,6 +39,22 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                 logging.error("Not a typed-literal: %s", record[item]['type'])
         return record
 
+    def __run_query (self, query):
+        self.sparql.setQuery(query)
+        results = []
+        try:
+            query_results = self.sparql.query().convert()
+            results = list(map(self.__normalize_binding,
+                               query_results["results"]["bindings"]))
+        except URLError:
+            logging.error("Connection to the SPARQL endpoint seems down.")
+        except Exception as error:
+            logging.error("SPARQL query failed.")
+            logging.error("Exception: %s", error)
+            logging.error("Query:\n---\n%s\n---", query)
+
+        return results
+
     def article_versions (self, limit=10, offset=0, order=None,
                           order_direction=None):
         if not order_direction:
@@ -62,15 +79,7 @@ LIMIT {limit}
         if offset is not None:
             query += f"OFFSET {offset}"
 
-        self.sparql.setQuery(query)
-        results = []
-        try:
-            results = self.sparql.query().convert()
-        except:
-            logging.error("SPARQL query failed.")
-            logging.error("Query:\n%s\n", query)
-
-        return results
+        return self.__run_query (query)
 
     def articles (self, limit=10, offset=None, order=None,
                   order_direction=None, institution=None,
@@ -245,16 +254,7 @@ LIMIT {limit}
         if offset is not None:
             query += f"OFFSET {offset}"
 
-        self.sparql.setQuery(query)
-        results = []
-        try:
-            query_results = self.sparql.query().convert()
-            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
-        except:
-            logging.error("SPARQL query failed.")
-            logging.error("Query:\n---\n%s\n---", query)
-
-        return results
+        return self.__run_query (query)
 
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
@@ -354,16 +354,7 @@ ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
 
-        self.sparql.setQuery(query)
-        results = []
-        try:
-            query_results = self.sparql.query().convert()
-            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
-        except:
-            logging.error("SPARQL query failed.")
-            logging.error("Query:\n---\n%s\n---", query)
-
-        return results
+        return self.__run_query(query)
 
     def insert_article (self, title=None, description=None, tags=None,
                         keywords=None, references=None, categories=None,
@@ -474,16 +465,7 @@ ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
 
-        self.sparql.setQuery(query)
-        results = []
-        try:
-            query_results = self.sparql.query().convert()
-            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
-        except:
-            logging.error("SPARQL query failed.")
-            logging.error("Query:\n---\n%s\n---", query)
-
-        return results
+        return self.__run_query(query)
 
     def custom_fields (self, name=None, value=None, default_value=None,
                        field_id=None, placeholder=None, max_length=None,
@@ -566,17 +548,7 @@ WHERE {{
 ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
-
-        self.sparql.setQuery(query)
-        results = []
-        try:
-            query_results = self.sparql.query().convert()
-            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
-        except:
-            logging.error("SPARQL query failed.")
-            logging.error("Query:\n---\n%s\n---", query)
-
-        return results
+        return self.__run_query(query)
 
     def article_embargo_options (self, ip_name=None, embargo_type=None,
                                  order=None, order_direction=None,
@@ -618,17 +590,7 @@ WHERE {{
 ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
-
-        self.sparql.setQuery(query)
-        results = []
-        try:
-            query_results = self.sparql.query().convert()
-            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
-        except:
-            logging.error("SPARQL query failed.")
-            logging.error("Query:\n---\n%s\n---", query)
-
-        return results
+        return self.__run_query(query)
 
     def tags (self, order=None, order_direction=None, limit=None, item_id=None, item_type="article"):
 
@@ -666,16 +628,7 @@ ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
 
-        self.sparql.setQuery(query)
-        results = []
-        try:
-            query_results = self.sparql.query().convert()
-            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
-        except:
-            logging.error("SPARQL query failed.")
-            logging.error("Query:\n---\n%s\n---", query)
-
-        return results
+        return self.__run_query(query)
 
     def categories (self, title=None, order=None, order_direction=None,
                     limit=None, item_id=None, account_id=None,
@@ -727,16 +680,7 @@ ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
 
-        self.sparql.setQuery(query)
-        results = []
-        try:
-            query_results = self.sparql.query().convert()
-            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
-        except:
-            logging.error("SPARQL query failed.")
-            logging.error("Query:\n---\n%s\n---", query)
-
-        return results
+        return self.__run_query(query)
 
     ## ------------------------------------------------------------------------
     ## COLLECTIONS
@@ -881,16 +825,7 @@ LIMIT {limit}
         if offset is not None:
             query += f"OFFSET {offset}"
 
-        self.sparql.setQuery(query)
-        results = []
-        try:
-            query_results = self.sparql.query().convert()
-            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
-        except:
-            logging.error("SPARQL query failed.")
-            logging.error("Query:\n---\n%s\n---", query)
-
-        return results
+        return self.__run_query(query)
 
     def fundings (self, title=None, order=None, order_direction=None,
                   limit=None, item_id=None, account_id=None,
@@ -944,16 +879,7 @@ ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
 
-        self.sparql.setQuery(query)
-        results = []
-        try:
-            query_results = self.sparql.query().convert()
-            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
-        except:
-            logging.error("SPARQL query failed.")
-            logging.error("Query:\n---\n%s\n---", query)
-
-        return results
+        return self.__run_query(query)
 
     def references (self, order=None, order_direction=None, limit=None,
                     item_id=None, account_id=None, item_type="article"):
@@ -1002,13 +928,4 @@ ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
 
-        self.sparql.setQuery(query)
-        results = []
-        try:
-            query_results = self.sparql.query().convert()
-            results = list(map(self.__normalize_binding, query_results["results"]["bindings"]))
-        except:
-            logging.error("SPARQL query failed.")
-            logging.error("Query:\n---\n%s\n---", query)
-
-        return results
+        return self.__run_query(query)
