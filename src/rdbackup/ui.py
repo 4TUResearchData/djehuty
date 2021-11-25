@@ -4,6 +4,8 @@ This module contains the entry point for the program.
 
 import argparse
 import sys
+import logging
+
 import rdbackup.backup.ui as backup_ui
 import rdbackup.api.ui as api_ui
 
@@ -39,6 +41,8 @@ Available subcommands and options:
 
 def main ():
     """The main entry point of the program."""
+
+    logging.basicConfig(format='[ %(levelname)s ] %(asctime)s: %(message)s')
 
     ## COMMAND-LINE ARGUMENTS
     ## ------------------------------------------------------------------------
