@@ -781,7 +781,7 @@ class ApiServer:
         parameters = request.get_json()
         records = self.db.collections(
             resource_doi    = convenience.value_or_none(parameters, "resource_doi"),
-            article_id      = convenience.value_or_none(parameters, "resource_id"),
+            resource_id     = convenience.value_or_none(parameters, "resource_id"),
             doi             = convenience.value_or_none(parameters, "doi"),
             handle          = convenience.value_or_none(parameters, "handle"),
             order           = convenience.value_or_none(parameters, "order"),
