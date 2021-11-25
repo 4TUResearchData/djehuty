@@ -105,7 +105,7 @@ class ApiServer:
 
     def render_template (self, template_name, **context):
         template = self.jinja.get_template (template_name)
-        return Response(template.render(context), mimetype='text/html; charset=utf-8')
+        return self.response (template.render(context))
 
     def dispatch_request (self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
@@ -138,30 +138,29 @@ class ApiServer:
         if self.accepts_html (request):
             response = self.render_template ("404.html")
         else:
-            response = Response(json.dumps({
+            response = self.response (json.dumps({
                 "message": "This call does not exist."
-            }), mimetype='application/json; charset=utf-8')
+            }))
         response.status_code = 404
         return response
 
     def error_405 (self, allowed_methods):
-        response = Response(f"Acceptable methods: {allowed_methods}",
-                            mimetype="text/plain")
+        response = self.response (f"Acceptable methods: {allowed_methods}",
+                                  mimetype="text/plain")
         response.status_code = 405
         return response
 
     def error_406 (self, allowed_formats):
-        response = Response(f"Acceptable formats: {allowed_formats}",
-                            mimetype="text/plain")
+        response = self.response (f"Acceptable formats: {allowed_formats}",
+                                  mimetype="text/plain")
         response.status_code = 406
         return response
 
     def error_authorization_failed (self):
-        return Response(json.dumps({
+        return self.response (json.dumps({
             "message": "Invalid or unknown OAuth token",
             "code":    "OAuthInvalidToken"
-        }), mimetype='application/json; charset=utf-8')
-
+        }))
 
     def default_error_handling (self, request, method):
         if request.method != method:
@@ -171,6 +170,13 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         return None
+
+    def response (self, content, mimetype='application/json; charset=utf-8'):
+        """Returns a self.response object with some tweaks."""
+
+        output                   = Response(content, mimetype=mimetype)
+        output.headers["Server"] = "4TU.ResearchData API"
+        return output
 
     ## CONVENIENCE PROCEDURES
     ## ------------------------------------------------------------------------
@@ -228,8 +234,7 @@ class ApiServer:
         except TypeError:
             logging.error("%s: A TypeError occurred.", format_function)
 
-        return Response(json.dumps(output),
-                        mimetype='application/json; charset=utf-8')
+        return self.response (json.dumps(output))
 
     ## API CALLS
     ## ------------------------------------------------------------------------
@@ -238,8 +243,7 @@ class ApiServer:
         if self.accepts_html (request):
             return self.render_template ("home.html")
 
-        return Response(json.dumps({ "status": "OK" }),
-                        mimetype='application/json; charset=utf-8')
+        return self.response (json.dumps({ "status": "OK" }))
 
     def api_authorize (self, request):
         return False
@@ -259,8 +263,10 @@ class ApiServer:
             return self.error_authorization_failed()
 
         ## Our API only contains data from 4TU.ResearchData.
-        return Response(json.dumps({ "id": 898, "name": "4TU.ResearchData" }),
-                        mimetype='application/json; charset=utf-8')
+        return self.response (json.dumps({
+            "id": 898,
+            "name": "4TU.ResearchData"
+        }))
 
     def api_articles (self, request):
         if request.method != 'GET':
@@ -358,11 +364,11 @@ class ApiServer:
                                                                      categories,
                                                                      fundings,
                                                                      references)
-            return Response(json.dumps(total),
-                            mimetype='application/json; charset=utf-8')
+            return self.response (json.dumps(total))
         except IndexError:
-            response = Response(json.dumps({ "message": "This article cannot be found." }),
-                                mimetype="application/json; charset=utf-8")
+            response = self.response (json.dumps({
+                "message": "This article cannot be found."
+            }))
             response.status_code = 404
             return response
 
@@ -385,11 +391,11 @@ class ApiServer:
         try:
             files = self.db.article_files(file_id=file_id, article_id=article_id)[0]
             results = formatter.format_file_for_article_record(files)
-            return Response(json.dumps(results),
-                            mimetype='application/json; charset=utf-8')
+            return self.response (json.dumps(results))
         except IndexError:
-            response = Response(json.dumps({ "message": "This file cannot be found." }),
-                                mimetype="application/json; charset=utf-8")
+            response = self.response (json.dumps({
+                "message": "This file cannot be found."
+            }))
             response.status_code = 404
             return response
 
@@ -440,8 +446,7 @@ class ApiServer:
 
         article    = self.db.articles (article_id=article_id, account_id=account_id)
         if not article:
-            return Response(json.dumps([]),
-                            mimetype='application/json; charset=utf-8')
+            return self.response (json.dumps([]))
 
         try:
             article         = article[0]
@@ -463,11 +468,11 @@ class ApiServer:
                                                                        funding,
                                                                        references)
 
-            return Response(json.dumps(total),
-                            mimetype='application/json; charset=utf-8')
+            return self.response (json.dumps(total))
         except IndexError:
-            response = Response(json.dumps({ "message": "This article cannot be found." }),
-                                mimetype="application/json; charset=utf-8")
+            response = self.response (json.dumps({
+                "message": "This article cannot be found."
+            }))
             response.status_code = 404
             return response
 
@@ -669,12 +674,12 @@ class ApiServer:
                                                                         tags,
                                                                         authors,
                                                                         custom_fields)
-            return Response(json.dumps(total),
-                            mimetype='application/json; charset=utf-8')
+            return self.response (json.dumps(total))
 
         except IndexError:
-            response = Response(json.dumps({ "message": "This collection cannot be found." }),
-                                mimetype="application/json; charset=utf-8")
+            response = self.response (json.dumps({
+                "message": "This collection cannot be found."
+            }))
             response.status_code = 404
             return response
 
@@ -752,12 +757,12 @@ class ApiServer:
                                                                         tags,
                                                                         authors,
                                                                         custom_fields)
-            return Response(json.dumps(total),
-                            mimetype='application/json; charset=utf-8')
+            return self.response (json.dumps(total))
 
         except IndexError:
-            response = Response(json.dumps({ "message": "This collection cannot be found." }),
-                                mimetype="application/json; charset=utf-8")
+            response = self.response (json.dumps({
+                "message": "This collection cannot be found."
+            }))
             response.status_code = 404
             return response
 
