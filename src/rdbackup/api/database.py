@@ -22,19 +22,20 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     def normalize_binding (self, record):
         for item in record:
             if record[item]["type"] == "typed-literal":
-                if record[item]["datatype"] == "http://www.w3.org/2001/XMLSchema#integer":
+                datatype = record[item]["datatype"]
+                if datatype == "http://www.w3.org/2001/XMLSchema#integer":
                     record[item] = int(record[item]["value"])
-                elif record[item]["datatype"] == "http://www.w3.org/2001/XMLSchema#decimal":
+                elif datatype == "http://www.w3.org/2001/XMLSchema#decimal":
                     record[item] = int(record[item]["value"])
-                elif record[item]["datatype"] == "http://www.w3.org/2001/XMLSchema#boolean":
+                elif datatype == "http://www.w3.org/2001/XMLSchema#boolean":
                     record[item] = bool(record[item]["value"])
-                elif record[item]["datatype"] == "http://www.w3.org/2001/XMLSchema#string":
+                elif datatype == "http://www.w3.org/2001/XMLSchema#string":
                     if record[item]["value"] == "NULL":
                         record[item] = None
                     else:
                         record[item] = record[item]["value"]
             else:
-                print(f"Not a typed-literal: {record[item]['type']}")
+                logging.error("Not a typed-literal: %s", record[item]['type'])
         return record
 
     def article_versions (self, limit=10, offset=0, order=None,
