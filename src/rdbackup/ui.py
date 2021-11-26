@@ -42,7 +42,8 @@ Available subcommands and options:
 def main ():
     """The main entry point of the program."""
 
-    logging.basicConfig(format='[ %(levelname)s ] %(asctime)s: %(message)s')
+    logging.basicConfig(format='[ %(levelname)s ] %(asctime)s: %(message)s',
+                        level=logging.DEBUG)
 
     ## COMMAND-LINE ARGUMENTS
     ## ------------------------------------------------------------------------
@@ -76,9 +77,11 @@ def main ():
     parser.add_argument('--help',    '-h', action='store_true')
     parser.add_argument('--version', '-v', action='store_true')
 
-    args    = parser.parse_args()
-    if args.help:    show_help()
-    if args.version: show_version()
+    args = parser.parse_args()
+    if args.help:
+        show_help()
+    if args.version:
+        show_version()
 
     if args.command == "backup":
         if (args.token == ""       or args.stats_auth == "" or
