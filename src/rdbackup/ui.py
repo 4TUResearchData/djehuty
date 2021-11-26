@@ -33,6 +33,8 @@ Available subcommands and options:
     --help               -h Show a help message.
     --port=ARG           -p The port to start the API server on.
     --address=ARG        -a The address to bind the server on.
+    --debug              -d Enable debugging.
+    --dev-reload         -r Enable active reloading.
 
   Global options:
   --help                 -h  Show this message.
