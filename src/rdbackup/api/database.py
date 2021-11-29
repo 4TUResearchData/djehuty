@@ -116,7 +116,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                     else:
                         record[item] = record[item]["value"]
             else:
-                logging.error("Not a typed-literal: %s", record[item]['type'])
+                logging.info("Not a typed-literal: %s", record[item]['type'])
         return record
 
     def __run_query (self, query):
