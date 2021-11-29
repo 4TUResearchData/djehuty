@@ -6,6 +6,10 @@ data for the API server.
 import logging
 from urllib.error import URLError
 from SPARQLWrapper import SPARQLWrapper, JSON
+from rdflib import Graph, Literal, RDF, XSD, URIRef, Namespace
+from rdbackup.utils import counters
+from rdbackup.utils import rdf
+
 class UnknownDatabaseState(Exception):
     """Raised when the database is not queryable."""
     pass
@@ -17,6 +21,8 @@ class EmptyDatabase(Exception):
 class SparqlInterface:
 
     def __init__ (self):
+
+        self.ids = counters.IdGenerator()
         self.endpoint = "http://127.0.0.1:8890/sparql"
         self.state_graph = "https://data.4tu.nl/portal/2021-11-19"
         self.sparql = SPARQLWrapper(self.endpoint)
@@ -26,6 +32,73 @@ PREFIX col: <sg://0.99.12/table2rdf/Column/>
 PREFIX sg:  <https://sparqling-genomics.org/0.99.12/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         """
+
+        current_article_id     = 0
+        current_collection_id  = 0
+        current_author_id      = 0
+        current_account_id     = 0
+        current_file_id        = 0
+        current_category_id    = 0
+        current_project_id     = 0
+        current_timeline_id    = 0
+        current_institution_id = 0
+        current_tag_id         = 0
+
+        # Set the article_id and collection_id iterator to continue
+        # where we left off last time the program was run.
+        try:
+            current_article_id     = self.__highest_id (item_type="article")
+            current_collection_id  = self.__highest_id (item_type="collection")
+            current_author_id      = self.__highest_id (item_type="author")
+            current_account_id     = self.__highest_id (item_type="account")
+            current_file_id        = self.__highest_id (item_type="file")
+            current_category_id    = self.__highest_id (item_type="category")
+            current_project_id     = self.__highest_id (item_type="project")
+            current_timeline_id    = self.__highest_id (item_type="timeline")
+            current_institution_id = self.__highest_id (item_type="institution")
+            current_tag_id         = self.__highest_id (item_type="tag")
+
+            if (current_article_id     is None or
+                current_collection_id  is None or
+                current_author_id      is None or
+                current_account_id     is None or
+                current_file_id        is None or
+                current_category_id    is None or
+                current_project_id     is None or
+                current_timeline_id    is None or
+                current_institution_id is None or
+                current_tag_id         is None):
+                logging.error ("Cannot determine the database state.")
+                raise UnknownDatabaseState
+
+        except EmptyDatabase:
+            logging.warning ("It looks like the database is empty.")
+
+        self.ids.set_article_id (current_article_id)
+        self.ids.set_collection_id (current_collection_id)
+        self.ids.set_author_id (current_author_id)
+        self.ids.set_account_id (current_account_id)
+        self.ids.set_file_id (current_file_id)
+        self.ids.set_category_id (current_category_id)
+        self.ids.set_project_id (current_project_id)
+        self.ids.set_timeline_id (current_timeline_id)
+        self.ids.set_institution_id (current_institution_id)
+        self.ids.set_tag_id (current_tag_id)
+
+        logging.info ("Article enumerator set to %d", current_article_id)
+        logging.info ("Collection enumerator set to %d", current_collection_id)
+        logging.info ("Author enumerator set to %d", current_author_id)
+        logging.info ("Account enumerator set to %d", current_account_id)
+        logging.info ("File enumerator set to %d", current_file_id)
+        logging.info ("Category enumerator set to %d", current_category_id)
+        logging.info ("Project enumerator set to %d", current_project_id)
+        logging.info ("Timeline enumerator set to %d", current_timeline_id)
+        logging.info ("Institution enumerator set to %d", current_institution_id)
+        logging.info ("Tag enumerator set to %d", current_tag_id)
+
+    ## ------------------------------------------------------------------------
+    ## Private methods
+    ## ------------------------------------------------------------------------
 
     def __normalize_binding (self, record):
         for item in record:
@@ -47,6 +120,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         return record
 
     def __run_query (self, query):
+        self.sparql.method = 'POST'
         self.sparql.setQuery(query)
         results = []
         try:
@@ -61,6 +135,40 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             logging.error("Query:\n---\n%s\n---", query)
 
         return results
+
+    def __highest_id (self, item_type="article"):
+        """Return the highest numeric ID for ITEM_TYPE."""
+        prefix = item_type.capitalize()
+        query  = f"""\
+{self.default_prefixes}
+SELECT ?id WHERE {{
+  GRAPH <{self.state_graph}> {{
+    ?item rdf:type    sg:{prefix} .
+    ?item col:id      ?id .
+  }}
+}}
+ORDER BY DESC(?id)
+LIMIT 1
+"""
+        try:
+            results = self.__run_query (query)
+            return results[0]["id"]
+        except IndexError:
+            raise EmptyDatabase
+        except KeyError:
+            return None
+
+    def __insert_query_for_graph (self, graph):
+        query = "INSERT { GRAPH <%s> { %s } }" % (
+            self.state_graph,
+            graph.serialize(format="ntriples").decode('utf-8')
+        )
+
+        return query
+
+    ## ------------------------------------------------------------------------
+    ## GET METHODS
+    ## ------------------------------------------------------------------------
 
     def article_versions (self, limit=10, offset=0, order=None,
                           order_direction=None):
