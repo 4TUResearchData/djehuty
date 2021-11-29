@@ -6,6 +6,13 @@ data for the API server.
 import logging
 from urllib.error import URLError
 from SPARQLWrapper import SPARQLWrapper, JSON
+class UnknownDatabaseState(Exception):
+    """Raised when the database is not queryable."""
+    pass
+
+class EmptyDatabase(Exception):
+    """Raised when the database is empty."""
+    pass
 
 class SparqlInterface:
 
