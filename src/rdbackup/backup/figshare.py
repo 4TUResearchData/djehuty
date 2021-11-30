@@ -197,6 +197,12 @@ class FigshareEndpoint:
                                               .replace("T", " "),
                                               "%Y-%m-%d %H:%M:%S")
 
+        authors = []
+        for author in record["authors"]:
+            details = self.get_author_details_by_id (author["id"])
+            authors.append(details)
+        record["authors"]       = authors
+
         record["private_links"] = self.get_article_private_links_by_account_by_id (account_id,
                                                                                    article_id)
         record["account_id"] = account_id
@@ -277,9 +283,15 @@ class FigshareEndpoint:
                                 headers, parameters)
         articles     = self.get_articles_for_collection (account_id,
                                                          collection_id)
+        authors      = []
+        for author in record["authors"]:
+            details = self.get_author_details_by_id (author["id"])
+            authors.append(details)
+
         private_links = self.get_collection_private_links_by_account_by_id (account_id,
                                                                             collection_id)
 
+        record["authors"]       = authors
         record["private_links"] = private_links
         record["articles"]      = articles
         record["account_id"]    = account_id
@@ -328,6 +340,10 @@ class FigshareEndpoint:
 
         logging.info("Getting institutional accounts.")
         return self.get_all ("/account/institution/accounts")
+
+    def get_author_details_by_id (self, author_id):
+        return self.get_all (f"/account/authors/{author_id}",
+                               impersonate=account_id)
 
     def get_statistics_for_article (self,
                                     article_id,
