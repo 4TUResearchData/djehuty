@@ -28,6 +28,7 @@ class IdGenerator:
         self.timeline_id         = Value('i', 0)
         self.institution_id      = Value('i', 0)
         self.tag_id              = Value('i', 0)
+        self.custom_field_id     = Value('i', 0)
 
     ## ------------------------------------------------------------------------
     ## ARTICLES
@@ -262,3 +263,21 @@ class IdGenerator:
     def current_article_file_id (self):
         """Returns the current ARTICLE_FILE_ID value."""
         return self.article_file_id.value
+
+    ## ------------------------------------------------------------------------
+    ## CUSTOM_FIELDS
+    ## ------------------------------------------------------------------------
+
+    def set_custom_field_id (self, custom_field_id):
+        """Procedure to set the current value of CUSTOM_FIELD_ID."""
+        self.custom_field_id.value = custom_field_id
+        return True
+
+    def next_custom_field_id (self):
+        """Returns the next CUSTOM_FIELD_ID value to assign to an custom_field."""
+        self.custom_field_id.value += 1
+        return self.custom_field_id.value
+
+    def current_custom_field_id (self):
+        """Returns the current CUSTOM_FIELD_ID value."""
+        return self.custom_field_id.value
