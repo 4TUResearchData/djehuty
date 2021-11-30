@@ -19,6 +19,7 @@ class IdGenerator:
         self.article_id          = Value('i', 0)
         self.article_category_id = Value('i', 0)
         self.article_author_id   = Value('i', 0)
+        self.article_file_id     = Value('i', 0)
         self.collection_id       = Value('i', 0)
         self.author_id           = Value('i', 0)
         self.account_id          = Value('i', 0)
