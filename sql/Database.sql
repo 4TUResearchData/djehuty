@@ -354,3 +354,9 @@ CREATE TABLE IF NOT EXISTS ArticleStatistics(
     downloads             INT UNSIGNED,
     shares                INT UNSIGNED,
     date                  DATETIME) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS Session(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    token                 VARCHAR(65),
+    account_id            INT UNSIGNED,
+    created_at            DATETIME DEFAULT NOW()) ENGINE=InnoDB;
