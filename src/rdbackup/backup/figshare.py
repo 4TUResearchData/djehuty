@@ -71,6 +71,18 @@ class FigshareEndpoint:
     # API SPECIFICS
     # -----------------------------------------------------------------------------
 
+    def get_record (self, path, impersonate=None):
+        """Procedure to get a single record from the Figshare API."""
+
+        headers    = self.__request_headers()
+        parameters = {}
+
+        if not impersonate is None:
+            parameters["impersonate"] = impersonate
+
+        chunk      = self.get(path, headers, parameters)
+        return chunk
+
     def get_one_page (self,
                       path,
                       page_size,
@@ -342,8 +354,8 @@ class FigshareEndpoint:
         return self.get_all ("/account/institution/accounts")
 
     def get_author_details_by_id (self, author_id, account_id):
-        return self.get_all (f"/account/authors/{author_id}",
-                               impersonate=account_id)
+        return self.get_record (f"/account/authors/{author_id}",
+                                impersonate=account_id)
 
     def get_statistics_for_article (self,
                                     article_id,
