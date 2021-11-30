@@ -16,16 +16,18 @@ class IdGenerator:
     """
 
     def __init__ (self):
-        self.article_id     = Value('i', 0)
-        self.collection_id  = Value('i', 0)
-        self.author_id      = Value('i', 0)
-        self.account_id     = Value('i', 0)
-        self.file_id        = Value('i', 0)
-        self.category_id    = Value('i', 0)
-        self.project_id     = Value('i', 0)
-        self.timeline_id    = Value('i', 0)
-        self.institution_id = Value('i', 0)
-        self.tag_id         = Value('i', 0)
+        self.article_id          = Value('i', 0)
+        self.article_category_id = Value('i', 0)
+        self.article_author_id   = Value('i', 0)
+        self.collection_id       = Value('i', 0)
+        self.author_id           = Value('i', 0)
+        self.account_id          = Value('i', 0)
+        self.file_id             = Value('i', 0)
+        self.category_id         = Value('i', 0)
+        self.project_id          = Value('i', 0)
+        self.timeline_id         = Value('i', 0)
+        self.institution_id      = Value('i', 0)
+        self.tag_id              = Value('i', 0)
 
     ## ------------------------------------------------------------------------
     ## ARTICLES
@@ -206,3 +208,57 @@ class IdGenerator:
     def current_tag_id (self):
         """Returns the current TAG_ID value."""
         return self.tag_id.value
+
+    ## ------------------------------------------------------------------------
+    ## ARTICLE_CATEGORIES
+    ## ------------------------------------------------------------------------
+
+    def set_article_category_id (self, article_category_id):
+        """Procedure to set the current value of ARTICLE_CATEGORY_ID."""
+        self.article_category_id.value = article_category_id
+        return True
+
+    def next_article_category_id (self):
+        """Returns the next ARTICLE_CATEGORY_ID value to assign to an article_category."""
+        self.article_category_id.value += 1
+        return self.article_category_id.value
+
+    def current_article_category_id (self):
+        """Returns the current ARTICLE_CATEGORY_ID value."""
+        return self.article_category_id.value
+
+    ## ------------------------------------------------------------------------
+    ## ARTICLE_AUTHORS
+    ## ------------------------------------------------------------------------
+
+    def set_article_author_id (self, article_author_id):
+        """Procedure to set the current value of ARTICLE_AUTHOR_ID."""
+        self.article_author_id.value = article_author_id
+        return True
+
+    def next_article_author_id (self):
+        """Returns the next ARTICLE_AUTHOR_ID value to assign to an article_author."""
+        self.article_author_id.value += 1
+        return self.article_author_id.value
+
+    def current_article_author_id (self):
+        """Returns the current ARTICLE_AUTHOR_ID value."""
+        return self.article_author_id.value
+
+    ## ------------------------------------------------------------------------
+    ## ARTICLE_FILES
+    ## ------------------------------------------------------------------------
+
+    def set_article_file_id (self, article_file_id):
+        """Procedure to set the current value of ARTICLE_FILE_ID."""
+        self.article_file_id.value = article_file_id
+        return True
+
+    def next_article_file_id (self):
+        """Returns the next ARTICLE_FILE_ID value to assign to an article_file."""
+        self.article_file_id.value += 1
+        return self.article_file_id.value
+
+    def current_article_file_id (self):
+        """Returns the current ARTICLE_FILE_ID value."""
+        return self.article_file_id.value
