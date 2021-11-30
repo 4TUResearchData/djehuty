@@ -113,12 +113,12 @@ class DatabaseInterface:
 
         template      = ("INSERT IGNORE INTO Account "
                          "(id, active, email, first_name, last_name, "
-                         "institution_user_id, institution_id, "
+                         "institution_user_id, institution_id, group_id, "
                          "pending_quota_request, used_quota_public, "
                          "used_quota_private, used_quota, maximum_file_size, "
                          "quota, modified_date, created_date) "
                          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                         "%s, %s, %s, %s)")
+                         "%s, %s, %s, %s, %s)")
 
         created_date  = convenience.value_or_none (record, "created_date")
         if created_date is not None:
@@ -138,6 +138,7 @@ class DatabaseInterface:
             convenience.value_or_none (record, "last_name"),
             convenience.value_or_none (record, "institution_user_id"),
             convenience.value_or_none (record, "institution_id"),
+            convenience.value_or_none (record, "group_id"),
             convenience.value_or_none (record, "pending_quota_request"),
             convenience.value_or_none (record, "used_quota_public"),
             convenience.value_or_none (record, "used_quota_private"),
