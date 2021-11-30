@@ -199,7 +199,7 @@ class FigshareEndpoint:
 
         authors = []
         for author in record["authors"]:
-            details = self.get_author_details_by_id (author["id"])
+            details = self.get_author_details_by_id (author["id"], account_id)
             authors.append(details)
         record["authors"]       = authors
 
@@ -285,7 +285,7 @@ class FigshareEndpoint:
                                                          collection_id)
         authors      = []
         for author in record["authors"]:
-            details = self.get_author_details_by_id (author["id"])
+            details = self.get_author_details_by_id (author["id"], account_id)
             authors.append(details)
 
         private_links = self.get_collection_private_links_by_account_by_id (account_id,
@@ -341,7 +341,7 @@ class FigshareEndpoint:
         logging.info("Getting institutional accounts.")
         return self.get_all ("/account/institution/accounts")
 
-    def get_author_details_by_id (self, author_id):
+    def get_author_details_by_id (self, author_id, account_id):
         return self.get_all (f"/account/authors/{author_id}",
                                impersonate=account_id)
 
