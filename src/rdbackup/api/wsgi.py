@@ -157,6 +157,11 @@ class ApiServer:
         response.status_code = 406
         return response
 
+    def error_500 (self):
+        response = self.response ("")
+        response.status_code = 500
+        return response
+
     def error_authorization_failed (self):
         response = self.response (json.dumps({
             "message": "Invalid or unknown OAuth token",
@@ -238,6 +243,12 @@ class ApiServer:
             logging.error("%s: A TypeError occurred.", format_function)
 
         return self.response (json.dumps(output))
+
+    def respond_204 (self):
+        output = Response("", 204, {})
+        output.headers["Server"] = "4TU.ResearchData API"
+        return output
+
 
     ## API CALLS
     ## ------------------------------------------------------------------------
