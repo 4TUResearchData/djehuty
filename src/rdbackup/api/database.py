@@ -1346,10 +1346,10 @@ LIMIT {limit}
         if self.__run_query(query):
             return author_id
 
-    def insert_timeline (self, revision=None, firstOnline=None,
-                         publisherPublication=None, publisherAcceptance=None,
         return None
 
+    def insert_timeline (self, revision=None, first_online=None,
+                         publisher_publication=None, publisher_acceptance=None,
                          posted=None, submission=None):
         """Procedure to add a timeline to the state graph."""
 
