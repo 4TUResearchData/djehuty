@@ -2,7 +2,7 @@
 This module provides convenience functions for handling RDF.
 """
 
-from rdflib import Graph, Literal, Namespace
+from rdflib import Literal, Namespace
 
 def add (graph, subject, predicate, value):
     """Adds the triplet SUBJECT PREDICATE VALUE if VALUE is set."""
