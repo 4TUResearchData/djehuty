@@ -33,6 +33,9 @@ PREFIX sg:  <https://sparqling-genomics.org/0.99.12/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         """
 
+    def load_state (self):
+        """Procedure to load the database state."""
+
         current_article_id          = 0
         current_article_category_id = 0
         current_article_author_id   = 0

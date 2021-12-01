@@ -71,6 +71,7 @@ def main ():
     api_parser = subparsers.add_parser('api', help="Options for the 'api' subcommand.")
     api_parser.add_argument('--address',    '-a', type=str, default='127.0.0.1')
     api_parser.add_argument('--port',       '-p', type=int, default=8080)
+    api_parser.add_argument('--state-graph','-s', type=str, default='https://data.4tu.nl/portal')
     api_parser.add_argument('--debug',      '-d', action='store_true')
     api_parser.add_argument('--dev-reload', '-r', action='store_true')
 
@@ -96,7 +97,7 @@ def main ():
                             args.db_username, args.db_password, args.db_name)
 
     if args.command == "api":
-        api_ui.main (args.address, args.port, args.debug, args.dev_reload)
+        api_ui.main (args.address, args.port, args.state_graph, args.debug, args.dev_reload)
 
     elif len(sys.argv) == 1:
         print("Try --help for usage options.")

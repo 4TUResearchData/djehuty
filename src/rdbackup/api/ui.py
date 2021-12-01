@@ -5,10 +5,15 @@ from werkzeug.serving import run_simple
 from rdbackup.api import database
 from rdbackup.api import wsgi
 
-def main (address, port, use_debugger=False, use_reloader=False):
+def main (address, port, state_graph, use_debugger=False, use_reloader=False):
     """The main entry point for the 'api' subcommand."""
     try:
         server = wsgi.ApiServer ()
+
+        server.db.state_graph = state_graph
+        server.db.load_state()
+
+        logging.info("State graph set to: %s.", server.db.state_graph)
         run_simple (address, port, server,
                     use_debugger=use_debugger,
                     use_reloader=use_reloader)
