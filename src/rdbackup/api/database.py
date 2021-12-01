@@ -6,20 +6,19 @@ data for the API server.
 import logging
 from urllib.error import URLError
 from SPARQLWrapper import SPARQLWrapper, JSON
-from rdflib import Graph, Literal, RDF, XSD, URIRef, Namespace
+from rdflib import Graph, Literal, RDF
 from rdbackup.utils import counters
 from rdbackup.utils import rdf
 from rdbackup.utils import convenience as conv
 
 class UnknownDatabaseState(Exception):
     """Raised when the database is not queryable."""
-    pass
 
 class EmptyDatabase(Exception):
     """Raised when the database is empty."""
-    pass
 
 class SparqlInterface:
+    """This class reads and writes data from a SPARQL endpoint."""
 
     def __init__ (self):
 
@@ -45,11 +44,13 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         current_author_id           = 0
         current_account_id          = 0
         current_file_id             = 0
+        current_funding_id          = 0
         current_category_id         = 0
         current_project_id          = 0
         current_timeline_id         = 0
         current_institution_id      = 0
         current_tag_id              = 0
+        current_reference_id        = 0
 
         # Set the iterators to continue where we left off last time the
         # program was run.
@@ -62,11 +63,13 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             current_author_id           = self.__highest_id (item_type="author")
             current_account_id          = self.__highest_id (item_type="account")
             current_file_id             = self.__highest_id (item_type="file")
+            current_funding_id          = self.__highest_id (item_type="funding")
             current_category_id         = self.__highest_id (item_type="category")
             current_project_id          = self.__highest_id (item_type="project")
             current_timeline_id         = self.__highest_id (item_type="timeline")
             current_institution_id      = self.__highest_id (item_type="institution")
             current_tag_id              = self.__highest_id (item_type="tag")
+            current_reference_id        = self.__highest_id (item_type="reference")
 
             if (current_article_id          is None or
                 current_article_category_id is None or
@@ -76,11 +79,13 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                 current_author_id           is None or
                 current_account_id          is None or
                 current_file_id             is None or
+                current_funding_id          is None or
                 current_category_id         is None or
                 current_project_id          is None or
                 current_timeline_id         is None or
                 current_institution_id      is None or
-                current_tag_id              is None):
+                current_tag_id              is None or
+                current_reference_id        is None):
                 logging.error ("Cannot determine the database state.")
                 raise UnknownDatabaseState
 
@@ -95,11 +100,13 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         self.ids.set_author_id (current_author_id)
         self.ids.set_account_id (current_account_id)
         self.ids.set_file_id (current_file_id)
+        self.ids.set_funding_id (current_funding_id)
         self.ids.set_category_id (current_category_id)
         self.ids.set_project_id (current_project_id)
         self.ids.set_timeline_id (current_timeline_id)
         self.ids.set_institution_id (current_institution_id)
         self.ids.set_tag_id (current_tag_id)
+        self.ids.set_reference_id (current_reference_id)
 
         logging.info ("Article enumerator set to %d", current_article_id)
         logging.info ("ArticleCategory enumerator set to %d", current_article_category_id)
@@ -109,11 +116,13 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         logging.info ("Author enumerator set to %d", current_author_id)
         logging.info ("Account enumerator set to %d", current_account_id)
         logging.info ("File enumerator set to %d", current_file_id)
+        logging.info ("Funding enumerator set to %d", current_funding_id)
         logging.info ("Category enumerator set to %d", current_category_id)
         logging.info ("Project enumerator set to %d", current_project_id)
         logging.info ("Timeline enumerator set to %d", current_timeline_id)
         logging.info ("Institution enumerator set to %d", current_institution_id)
         logging.info ("Tag enumerator set to %d", current_tag_id)
+        logging.info ("Reference enumerator set to %d", current_reference_id)
 
     ## ------------------------------------------------------------------------
     ## Private methods
@@ -175,8 +184,8 @@ LIMIT 1
         try:
             results = self.__run_query (query)
             return results[0]["id"]
-        except IndexError:
-            raise EmptyDatabase
+        except IndexError as error:
+            raise EmptyDatabase from error
         except KeyError:
             return None
 
@@ -1103,12 +1112,12 @@ LIMIT {limit}
         ## TIMELINE
         ## --------------------------------------------------------------------
         timeline_id = self.insert_timeline (
-            revision             = revision,
-            firstOnline          = first_online,
-            publisherPublication = publisher_publication,
-            publisherAcceptance  = publisher_acceptance,
-            posted               = posted,
-            submission           = submission
+            revision              = revision,
+            first_online          = first_online,
+            publisher_publication = publisher_publication,
+            publisher_acceptance  = publisher_acceptance,
+            posted                = posted,
+            submission            = submission
         )
 
         rdf.add (graph, article_uri, rdf.COL["timeline_id"], timeline_id)
@@ -1125,22 +1134,25 @@ LIMIT {limit}
 
         ## FUNDING
         ## --------------------------------------------------------------------
-        for funding in funding_list:
+        for fund in funding_list:
             self.insert_funding (
-                title           = conv.value_or_none (funding, "title"),
-                grant_code      = conv.value_or_none (funding, "grant_code"),
-                funder_name     = conv.value_or_none (funding, "funder_name"),
-                is_user_defined = conv.value_or_none (funding, "is_user_defined"),
-                url             = conv.value_or_none (funding, "url"),
+                title           = conv.value_or_none (fund, "title"),
+                grant_code      = conv.value_or_none (fund, "grant_code"),
+                funder_name     = conv.value_or_none (fund, "funder_name"),
+                is_user_defined = conv.value_or_none (fund, "is_user_defined"),
+                url             = conv.value_or_none (fund, "url"),
                 item_id         = article_id,
                 item_type       = "article")
 
         ## CATEGORIES
         ## --------------------------------------------------------------------
         for category in categories:
-            category_id = self.insert_category (title,
-                                                item_id   = article_id,
-                                                item_type = "article")
+            category_id = self.insert_category (
+                category_id = conv.value_or_none (category, "id"),
+                title       = conv.value_or_none (category, "title"),
+                parent_id   = conv.value_or_none (category, "parent_id"),
+                source_id   = conv.value_or_none (category, "source_id"),
+                taxonomy    = conv.value_or_none (category, "taxonomy"))
             self.insert_article_category (article_id, category_id)
 
         ## EMBARGOS
@@ -1241,8 +1253,8 @@ LIMIT {limit}
         if self.__run_query(query):
             logging.info ("Inserted article %d", article_id)
             return article_id
-        else:
-            return None
+
+        return None
 
     def insert_account (self, account_id=None, active=None, email=None,
                         first_name=None, last_name=None, institution_user_id=None,
@@ -1280,8 +1292,8 @@ LIMIT {limit}
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return account_id
-        else:
-            return None
+
+        return None
 
     def insert_institution (self, name, institution_id=None):
         """Procedure to add an institution to the state graph."""
@@ -1296,13 +1308,13 @@ LIMIT {limit}
         graph.add ((institution_uri, RDF.type,      rdf.SG["Institution"]))
         graph.add ((institution_uri, rdf.COL["id"], Literal(institution_id)))
 
-        rdf.add (institution_uri, rdf.COL["name"], name)
+        rdf.add (graph, institution_uri, rdf.COL["name"], name)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return institution_id
-        else:
-            return None
+
+        return None
 
     def insert_author (self, author_id=None, is_active=None, first_name=None,
                        last_name=None, full_name=None, institution_id=None,
@@ -1333,11 +1345,11 @@ LIMIT {limit}
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return author_id
-        else:
-            return None
 
     def insert_timeline (self, revision=None, firstOnline=None,
                          publisherPublication=None, publisherAcceptance=None,
+        return None
+
                          posted=None, submission=None):
         """Procedure to add a timeline to the state graph."""
 
@@ -1349,17 +1361,17 @@ LIMIT {limit}
         graph.add ((timeline_uri, rdf.COL["id"], Literal(timeline_id)))
 
         rdf.add (graph, timeline_uri, rdf.COL["revision"],             revision)
-        rdf.add (graph, timeline_uri, rdf.COL["firstOnline"],          firstOnline)
-        rdf.add (graph, timeline_uri, rdf.COL["publisherPublication"], publisherPublication)
-        rdf.add (graph, timeline_uri, rdf.COL["publisherAcceptance"],  publisherAcceptance)
+        rdf.add (graph, timeline_uri, rdf.COL["firstOnline"],          first_online)
+        rdf.add (graph, timeline_uri, rdf.COL["publisherPublication"], publisher_publication)
+        rdf.add (graph, timeline_uri, rdf.COL["publisherAcceptance"],  publisher_acceptance)
         rdf.add (graph, timeline_uri, rdf.COL["posted"],               posted)
         rdf.add (graph, timeline_uri, rdf.COL["submission"],           submission)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return timeline_id
-        else:
-            return None
+
+        return None
 
     def insert_category (self, category_id=None, title=None, parent_id=None,
                          source_id=None, taxonomy=None):
@@ -1375,16 +1387,16 @@ LIMIT {limit}
         graph.add ((category_uri, RDF.type,      rdf.SG["Category"]))
         graph.add ((category_uri, rdf.COL["id"], Literal(category_id)))
 
-        rdf.add (category_uri, rdf.COL["title"], title)
-        rdf.add (category_uri, rdf.COL["parent_id"], parent_id)
-        rdf.add (category_uri, rdf.COL["source_id"], source_id)
-        rdf.add (category_uri, rdf.COL["taxonomy"], taxonomy)
+        rdf.add (graph, category_uri, rdf.COL["title"], title)
+        rdf.add (graph, category_uri, rdf.COL["parent_id"], parent_id)
+        rdf.add (graph, category_uri, rdf.COL["source_id"], source_id)
+        rdf.add (graph, category_uri, rdf.COL["taxonomy"], taxonomy)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return category_id
-        else:
-            return None
+
+        return None
 
     def insert_article_category (self, article_id, category_id):
         """Procedure to add a link between an article and a category."""
@@ -1402,8 +1414,8 @@ LIMIT {limit}
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return link_id
-        else:
-            return None
+
+        return None
 
     def insert_article_author (self, article_id, author_id):
         """Procedure to add a link between an article and a author."""
@@ -1421,8 +1433,8 @@ LIMIT {limit}
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return link_id
-        else:
-            return None
+
+        return None
 
     def insert_article_file (self, article_id, file_id):
         """Procedure to add a link between an article and a file."""
@@ -1440,8 +1452,8 @@ LIMIT {limit}
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return link_id
-        else:
-            return None
+
+        return None
 
     def insert_tag (self, tag, item_id=None, item_type=None):
         """Procedure to add an tag to the state graph."""
@@ -1455,13 +1467,13 @@ LIMIT {limit}
         graph.add ((tag_uri, rdf.COL["id"],              Literal(tag_id)))
         graph.add ((tag_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
 
-        rdf.add (tag_uri, rdf.COL["tag"],                tag)
+        rdf.add (graph, tag_uri, rdf.COL["tag"],                tag)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return tag_id
-        else:
-            return None
+
+        return None
 
     def insert_reference (self, url, item_id=None, item_type=None):
         """Procedure to add an reference to the state graph."""
@@ -1479,8 +1491,8 @@ LIMIT {limit}
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return reference_id
-        else:
-            return None
+
+        return None
 
     def insert_funding (self, title=None, grant_code=None, funder_name=None,
                         is_user_defined=None, url=None, item_id=None,
@@ -1496,17 +1508,17 @@ LIMIT {limit}
         graph.add ((funding_uri, rdf.COL["id"],              Literal(funding_id)))
         graph.add ((funding_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
 
-        rdf.add (funding_uri, rdf.COL["title"],           title)
-        rdf.add (funding_uri, rdf.COL["grant_code"],      grant_code)
-        rdf.add (funding_uri, rdf.COL["funder_name"],     funder_name)
-        rdf.add (funding_uri, rdf.COL["is_user_defined"], is_user_defined)
-        rdf.add (funding_uri, rdf.COL["url"],             url)
+        rdf.add (graph, funding_uri, rdf.COL["title"],           title)
+        rdf.add (graph, funding_uri, rdf.COL["grant_code"],      grant_code)
+        rdf.add (graph, funding_uri, rdf.COL["funder_name"],     funder_name)
+        rdf.add (graph, funding_uri, rdf.COL["is_user_defined"], is_user_defined)
+        rdf.add (graph, funding_uri, rdf.COL["url"],             url)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return funding_id
-        else:
-            return None
+
+        return None
 
     def insert_file (self, file_id=None, name=None, size=None,
                      is_link_only=None, download_url=None, supplied_md5=None,
@@ -1521,23 +1533,23 @@ LIMIT {limit}
         graph.add ((file_uri, RDF.type,               rdf.SG["File"]))
         graph.add ((file_uri, rdf.COL["id"],          Literal(file_id)))
 
-        rdf.add (file_uri, rdf.COL["name"],          name)
-        rdf.add (file_uri, rdf.COL["size"],          size)
-        rdf.add (file_uri, rdf.COL["is_link_only"],  is_link_only)
-        rdf.add (file_uri, rdf.COL["download_url"],  download_url)
-        rdf.add (file_uri, rdf.COL["supplied_md5"],  supplied_md5)
-        rdf.add (file_uri, rdf.COL["computed_md5"],  computed_md5)
-        rdf.add (file_uri, rdf.COL["viewer_type"],   viewer_type)
-        rdf.add (file_uri, rdf.COL["preview_state"], preview_state)
-        rdf.add (file_uri, rdf.COL["status"],        status)
-        rdf.add (file_uri, rdf.COL["upload_url"],    upload_url)
-        rdf.add (file_uri, rdf.COL["upload_token"],  upload_token)
+        rdf.add (graph, file_uri, rdf.COL["name"],          name)
+        rdf.add (graph, file_uri, rdf.COL["size"],          size)
+        rdf.add (graph, file_uri, rdf.COL["is_link_only"],  is_link_only)
+        rdf.add (graph, file_uri, rdf.COL["download_url"],  download_url)
+        rdf.add (graph, file_uri, rdf.COL["supplied_md5"],  supplied_md5)
+        rdf.add (graph, file_uri, rdf.COL["computed_md5"],  computed_md5)
+        rdf.add (graph, file_uri, rdf.COL["viewer_type"],   viewer_type)
+        rdf.add (graph, file_uri, rdf.COL["preview_state"], preview_state)
+        rdf.add (graph, file_uri, rdf.COL["status"],        status)
+        rdf.add (graph, file_uri, rdf.COL["upload_url"],    upload_url)
+        rdf.add (graph, file_uri, rdf.COL["upload_token"],  upload_token)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return file_id
-        else:
-            return None
+
+        return None
 
     def insert_license (self, license_id, name=None, url=None):
         """Procedure to add an license to the state graph."""
@@ -1554,8 +1566,9 @@ LIMIT {limit}
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return license_id
-        else:
-            return None
+
+        return None
+
 
     def insert_embargo (self, embargo_id, article_id, embargo_type=None, ip_name=None):
         """Procedure to add an license to the state graph."""
@@ -1567,14 +1580,14 @@ LIMIT {limit}
         graph.add ((embargo_uri, rdf.COL["id"],          Literal(embargo_id)))
         graph.add ((embargo_uri, rdf.COL["article_id"],  Literal(article_id)))
 
-        rdf.add (embargo_uri, rdf.COL["type"],    embargo_type)
-        rdf.add (embargo_uri, rdf.COL["ip_name"], ip_name)
+        rdf.add (graph, embargo_uri, rdf.COL["type"],    embargo_type)
+        rdf.add (graph, embargo_uri, rdf.COL["ip_name"], ip_name)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return embargo_id
-        else:
-            return None
+
+        return None
 
     def insert_custom_field (self, name=None, value=None, default_value=None,
                              max_length=None, min_length=None, field_type=None,
@@ -1592,20 +1605,20 @@ LIMIT {limit}
         graph.add ((custom_field_uri, rdf.COL["id"],              Literal(custom_field_id)))
         graph.add ((custom_field_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
 
-        rdf.add (custom_field_uri, rdf.COL["name"],          name)
-        rdf.add (custom_field_uri, rdf.COL["default_value"], default_value)
-        rdf.add (custom_field_uri, rdf.COL["max_length"],    max_length)
-        rdf.add (custom_field_uri, rdf.COL["min_length"],    min_length)
-        rdf.add (custom_field_uri, rdf.COL["field_type"],    field_type)
-        rdf.add (custom_field_uri, rdf.COL["is_mandatory"],  is_mandatory)
-        rdf.add (custom_field_uri, rdf.COL["placeholder"],   placeholder)
-        rdf.add (custom_field_uri, rdf.COL["is_multiple"],   is_multiple)
+        rdf.add (graph, custom_field_uri, rdf.COL["name"],          name)
+        rdf.add (graph, custom_field_uri, rdf.COL["default_value"], default_value)
+        rdf.add (graph, custom_field_uri, rdf.COL["max_length"],    max_length)
+        rdf.add (graph, custom_field_uri, rdf.COL["min_length"],    min_length)
+        rdf.add (graph, custom_field_uri, rdf.COL["field_type"],    field_type)
+        rdf.add (graph, custom_field_uri, rdf.COL["is_mandatory"],  is_mandatory)
+        rdf.add (graph, custom_field_uri, rdf.COL["placeholder"],   placeholder)
+        rdf.add (graph, custom_field_uri, rdf.COL["is_multiple"],   is_multiple)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return custom_field_id
-        else:
-            return None
+
+        return None
 
     def delete_article (self, article_id, account_id):
         """Procedure to remove an article from the state graph."""

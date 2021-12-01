@@ -24,11 +24,13 @@ class IdGenerator:
         self.author_id           = Value('i', 0)
         self.account_id          = Value('i', 0)
         self.file_id             = Value('i', 0)
+        self.funding_id          = Value('i', 0)
         self.category_id         = Value('i', 0)
         self.project_id          = Value('i', 0)
         self.timeline_id         = Value('i', 0)
         self.institution_id      = Value('i', 0)
         self.tag_id              = Value('i', 0)
+        self.reference_id        = Value('i', 0)
         self.custom_field_id     = Value('i', 0)
 
     ## ------------------------------------------------------------------------
@@ -282,3 +284,39 @@ class IdGenerator:
     def current_custom_field_id (self):
         """Returns the current CUSTOM_FIELD_ID value."""
         return self.custom_field_id.value
+
+    ## ------------------------------------------------------------------------
+    ## FUNDINGS
+    ## ------------------------------------------------------------------------
+
+    def set_funding_id (self, funding_id):
+        """Procedure to set the current value of FUNDING_ID."""
+        self.funding_id.value = funding_id
+        return True
+
+    def next_funding_id (self):
+        """Returns the next FUNDING_ID value to assign to an funding."""
+        self.funding_id.value += 1
+        return self.funding_id.value
+
+    def current_funding_id (self):
+        """Returns the current FUNDING_ID value."""
+        return self.funding_id.value
+
+    ## ------------------------------------------------------------------------
+    ## REFERENCES
+    ## ------------------------------------------------------------------------
+
+    def set_reference_id (self, reference_id):
+        """Procedure to set the current value of REFERENCE_ID."""
+        self.reference_id.value = reference_id
+        return True
+
+    def next_reference_id (self):
+        """Returns the next REFERENCE_ID value to assign to an reference."""
+        self.reference_id.value += 1
+        return self.reference_id.value
+
+    def current_reference_id (self):
+        """Returns the current REFERENCE_ID value."""
+        return self.reference_id.value
