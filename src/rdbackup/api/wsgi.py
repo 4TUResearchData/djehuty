@@ -69,6 +69,7 @@ class ApiServer:
             Rule("/v2/collections",                           endpoint = "collections"),
             Rule("/v2/collections/search",                    endpoint = "collections_search"),
             Rule("/v2/collections/<collection_id>",           endpoint = "collection_details"),
+            Rule("/v2/collections/<collection_id>/articles",  endpoint = "collection_articles"),
 
             ## Private collections
             ## ----------------------------------------------------------------
@@ -910,4 +911,12 @@ class ApiServer:
         articles   = self.db.articles (collection_id = collection_id,
                                        account_id    = account_id)
 
+        return self.default_list_response (articles, formatter.format_article_record)
+
+    def api_collection_articles (self, request, collection_id):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        articles   = self.db.articles (collection_id = collection_id)
         return self.default_list_response (articles, formatter.format_article_record)
