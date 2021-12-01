@@ -115,6 +115,9 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                         record[item] = None
                     else:
                         record[item] = record[item]["value"]
+            elif record[item]["type"] == "literal":
+                logging.info(record[item]['value'])
+                return record[item]["value"]
             else:
                 logging.info("Not a typed-literal: %s", record[item]['type'])
         return record
