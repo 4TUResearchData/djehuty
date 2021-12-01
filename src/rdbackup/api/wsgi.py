@@ -465,37 +465,45 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        article    = self.db.articles (article_id=article_id, account_id=account_id)
-        if not article:
-            return self.response (json.dumps([]))
+        if request.method == 'GET':
+            article    = self.db.articles (article_id=article_id, account_id=account_id)
+            if not article:
+                return self.response (json.dumps([]))
 
-        try:
-            article         = article[0]
-            authors         = self.db.authors(item_id=article_id, item_type="article")
-            files           = self.db.article_files(article_id=article_id)
-            custom_fields   = self.db.custom_fields(item_id=article_id, item_type="article")
-            embargo_options = self.db.article_embargo_options(article_id=article_id)
-            tags            = self.db.tags(item_id=article_id, item_type="article")
-            categories      = self.db.categories(item_id=article_id, item_type="article")
-            funding         = self.db.fundings(item_id=article_id, item_type="article")
-            references      = self.db.references(item_id=article_id, item_type="article")
-            total           = formatter.format_article_details_record (article,
-                                                                       authors,
-                                                                       files,
-                                                                       custom_fields,
-                                                                       embargo_options,
-                                                                       tags,
-                                                                       categories,
-                                                                       funding,
-                                                                       references)
+            try:
+                article         = article[0]
+                authors         = self.db.authors(item_id=article_id, item_type="article")
+                files           = self.db.article_files(article_id=article_id)
+                custom_fields   = self.db.custom_fields(item_id=article_id, item_type="article")
+                embargo_options = self.db.article_embargo_options(article_id=article_id)
+                tags            = self.db.tags(item_id=article_id, item_type="article")
+                categories      = self.db.categories(item_id=article_id, item_type="article")
+                funding         = self.db.fundings(item_id=article_id, item_type="article")
+                references      = self.db.references(item_id=article_id, item_type="article")
+                total           = formatter.format_article_details_record (article,
+                                                                           authors,
+                                                                           files,
+                                                                           custom_fields,
+                                                                           embargo_options,
+                                                                           tags,
+                                                                           categories,
+                                                                           funding,
+                                                                           references)
 
-            return self.response (json.dumps(total))
-        except IndexError:
-            response = self.response (json.dumps({
-                "message": "This article cannot be found."
-            }))
-            response.status_code = 404
-            return response
+                return self.response (json.dumps(total))
+            except IndexError:
+                response = self.response (json.dumps({
+                    "message": "This article cannot be found."
+                }))
+                response.status_code = 404
+                return response
+        elif request.method == 'DELETE':
+            if self.db.delete_article (article_id):
+                return self.respond_204()
+            else:
+                return self.error_500 ()
+        else:
+            return self.error_405 (["GET", "DELETE"])
 
     def api_private_article_authors (self, request, article_id):
         if request.method != 'GET':
