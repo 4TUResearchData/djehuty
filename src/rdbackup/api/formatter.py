@@ -157,6 +157,16 @@ def format_article_embargo_option_record (record):
         "ip_name":           conv.value_or_none (record, "ip_name")
     }
 
+def format_article_embargo_record (article, embargo_options):
+    return {
+        "is_embargoed":      bool(conv.value_or_none(article, "is_embargoed")),
+        "embargo_date":      conv.value_or_none(article, "embargo_date"),
+        "embargo_type":      conv.value_or(article, "embargo_type", "file"),
+        "embargo_title":     conv.value_or(article, "embargo_title", ""),
+        "embargo_reason":    conv.value_or(article, "embargo_reason", ""),
+        "embargo_options":   list (map (format_article_embargo_option_record, embargo_options)),
+    }
+
 def format_article_version_record (record):
     return {
         "version":           conv.value_or_none(record, "version"),
