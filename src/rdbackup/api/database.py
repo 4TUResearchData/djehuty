@@ -9,6 +9,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib import Graph, Literal, RDF, XSD, URIRef, Namespace
 from rdbackup.utils import counters
 from rdbackup.utils import rdf
+from rdbackup.utils import convenience as conv
 
 class UnknownDatabaseState(Exception):
     """Raised when the database is not queryable."""
@@ -491,16 +492,6 @@ LIMIT {limit}
 """
 
         return self.__run_query(query)
-
-    def insert_article (self, title=None, description=None, tags=None,
-                        keywords=None, references=None, categories=None,
-                        authors=None, custom_fields=None, defined_type=None,
-                        funding=None, funding_list=None, license_id=None, doi=None,
-                        handle=None, resource_doi=None, resource_title=None,
-                        first_online=None, publisher_publication=None,
-                        publisher_acceptance=None, submission=None, posted=None,
-                        revision=None, group_id=None):
-        return False
 
     def article_files (self, name=None, size=None, is_link_only=None,
                        file_id=None, download_url=None, supplied_md5=None,
@@ -1067,4 +1058,597 @@ ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
 
+        return self.__run_query(query)
+
+    ## ------------------------------------------------------------------------
+    ## INSERT METHODS
+    ## ------------------------------------------------------------------------
+
+    def insert_article (self, title,
+                        article_id=None,
+                        description=None,
+                        keywords=None,
+                        defined_type=None,
+                        funding=None,
+                        license_id=None,
+                        doi=None,
+                        handle=None,
+                        resource_doi=None,
+                        resource_title=None,
+                        first_online=None,
+                        publisher_publication=None,
+                        publisher_acceptance=None,
+                        submission=None,
+                        posted=None,
+                        revision=None,
+                        group_id=None,
+                        funding_list=[],
+                        tags=[],
+                        references=[],
+                        categories=[],
+                        authors=[],
+                        custom_fields=[],
+                        private_links=[],
+                        files=[],
+                        embargo_options=[]):
+        """Procedure to insert an article to the state graph."""
+
+        graph = Graph()
+
+        if article_id is None:
+            article_id = self.ids.next_article_id()
+
+        article_uri = rdf.ROW[str(article_id)]
+
+        ## TIMELINE
+        ## --------------------------------------------------------------------
+        timeline_id = self.insert_timeline (
+            revision             = revision,
+            firstOnline          = first_online,
+            publisherPublication = publisher_publication,
+            publisherAcceptance  = publisher_acceptance,
+            posted               = posted,
+            submission           = submission
+        )
+
+        rdf.add (graph, article_uri, rdf.COL["timeline_id"], timeline_id)
+
+        ## REFERENCES
+        ## --------------------------------------------------------------------
+        for url in references:
+            self.insert_reference (url, item_id=article_id, item_type="article")
+
+        ## TAGS
+        ## --------------------------------------------------------------------
+        for tag in tags:
+            self.insert_tag (tag, item_id=article_id, item_type="article")
+
+        ## FUNDING
+        ## --------------------------------------------------------------------
+        for funding in funding_list:
+            self.insert_funding (
+                title           = conv.value_or_none (funding, "title"),
+                grant_code      = conv.value_or_none (funding, "grant_code"),
+                funder_name     = conv.value_or_none (funding, "funder_name"),
+                is_user_defined = conv.value_or_none (funding, "is_user_defined"),
+                url             = conv.value_or_none (funding, "url"),
+                item_id         = article_id,
+                item_type       = "article")
+
+        ## CATEGORIES
+        ## --------------------------------------------------------------------
+        for category in categories:
+            category_id = self.insert_category (title,
+                                                item_id   = article_id,
+                                                item_type = "article")
+            self.insert_article_category (article_id, category_id)
+
+        ## EMBARGOS
+        ## --------------------------------------------------------------------
+        for embargo in embargo_options:
+            self.insert_embargo (
+                embargo_id   = conv.value_or_none (embargo, "id"),
+                article_id   = article_id,
+                embargo_type = conv.value_or_none (embargo, "type"),
+                ip_name      = conv.value_or_none (embargo, "ip_name"))
+
+        ## LICENSE
+        ## --------------------------------------------------------------------
+        # Note: The license_id is also stored as a column in the article.
+        self.insert_license (
+            license_id = license_id,
+            name       = conv.value_or_none (license, "name"),
+            url        = conv.value_or_none (license, "url"))
+
+        ## AUTHORS
+        ## --------------------------------------------------------------------
+        for author in authors:
+            author_id = self.insert_author (
+                author_id      = conv.value_or_none (author, "id"),
+                is_active      = conv.value_or_none (author, "is_active"),
+                first_name     = conv.value_or_none (author, "first_name"),
+                last_name      = conv.value_or_none (author, "last_name"),
+                full_name      = conv.value_or_none (author, "full_name"),
+                institution_id = conv.value_or_none (author, "institution_id"),
+                job_title      = conv.value_or_none (author, "job_title"),
+                is_public      = conv.value_or_none (author, "is_public"),
+                url_name       = conv.value_or_none (author, "url_name"),
+                orcid_id       = conv.value_or_none (author, "orcid_id"))
+            self.insert_article_author (article_id, author_id)
+
+        ## FILES
+        ## --------------------------------------------------------------------
+        for file_data in files:
+            file_id = self.insert_file (
+                file_id       = conv.value_or_none (file_data, "id"),
+                name          = conv.value_or_none (file_data, "name"),
+                size          = conv.value_or_none (file_data, "size"),
+                is_link_only  = conv.value_or_none (file_data, "is_link_only"),
+                download_url  = conv.value_or_none (file_data, "download_url"),
+                supplied_md5  = conv.value_or_none (file_data, "supplied_md5"),
+                computed_md5  = conv.value_or_none (file_data, "computed_md5"),
+                viewer_type   = conv.value_or_none (file_data, "viewer_type"),
+                preview_state = conv.value_or_none (file_data, "preview_state"),
+                status        = conv.value_or_none (file_data, "status"),
+                upload_url    = conv.value_or_none (file_data, "upload_url"),
+                upload_token  = conv.value_or_none (file_data, "upload_token"))
+            self.insert_article_file (article_id, file_id)
+
+        ## CUSTOM FIELDS
+        ## --------------------------------------------------------------------
+        for field in custom_fields:
+            self.insert_custom_field (
+                name          = conv.value_or_none (field, "name"),
+                value         = conv.value_or_none (field, "value"),
+                default_value = conv.value_or_none (field, "default_value"),
+                max_length    = conv.value_or_none (field, "max_length"),
+                min_length    = conv.value_or_none (field, "min_length"),
+                field_type    = conv.value_or_none (field, "field_type"),
+                is_mandatory  = conv.value_or_none (field, "is_mandatory"),
+                placeholder   = conv.value_or_none (field, "placeholder"),
+                is_multiple   = conv.value_or_none (field, "is_multiple"),
+                item_id       = article_id,
+                item_type     = "article")
+
+        ## PRIVATE LINKS
+        ## --------------------------------------------------------------------
+        for link in private_links:
+            self.insert_private_link (
+                item_id          = article_id,
+                item_type        = "article",
+                private_link_id  = conv.value_or_none (link, "id"),
+                is_active        = conv.value_or_none (link, "is_active"),
+                expires_date     = conv.value_or_none (link, "expires_date"))
+
+        ## TOPLEVEL FIELDS
+        ## --------------------------------------------------------------------
+
+        graph.add ((article_uri, RDF.type,         rdf.SG["Article"]))
+        graph.add ((article_uri, rdf.COL["id"],    Literal(article_id)))
+        graph.add ((article_uri, rdf.COL["title"], Literal(title)))
+
+        rdf.add (graph, article_uri, rdf.COL["description"],    description)
+        rdf.add (graph, article_uri, rdf.COL["defined_type"],   defined_type)
+        rdf.add (graph, article_uri, rdf.COL["funding"],        funding)
+        rdf.add (graph, article_uri, rdf.COL["license_id"],     license_id)
+        rdf.add (graph, article_uri, rdf.COL["doi"],            doi)
+        rdf.add (graph, article_uri, rdf.COL["handle"],         handle)
+        rdf.add (graph, article_uri, rdf.COL["resource_doi"],   resource_doi)
+        rdf.add (graph, article_uri, rdf.COL["resource_title"], resource_title)
+        rdf.add (graph, article_uri, rdf.COL["group_id"],       group_id)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            logging.info ("Inserted article %d", article_id)
+            return article_id
+        else:
+            return None
+
+    def insert_account (self, account_id=None, active=None, email=None,
+                        first_name=None, last_name=None, institution_user_id=None,
+                        institution_id=None, pending_quota_request=None,
+                        used_quota_public=None, used_quota_private=None,
+                        used_quota=None, maximum_file_size=None, quota=None,
+                        modified_date=None, created_date=None):
+        """Procedure to add an account to the state graph."""
+
+        graph = Graph()
+
+        if account_id is None:
+            account_id = self.ids.next_account_id()
+
+        account_uri = rdf.ROW[str(account_id)]
+
+        graph.add ((account_uri, RDF.type,      rdf.SG["Account"]))
+        graph.add ((account_uri, rdf.COL["id"], Literal(account_id)))
+
+        rdf.add (graph, account_uri, rdf.COL["active"],                active)
+        rdf.add (graph, account_uri, rdf.COL["email"],                 email)
+        rdf.add (graph, account_uri, rdf.COL["first_name"],            first_name)
+        rdf.add (graph, account_uri, rdf.COL["last_name"],             last_name)
+        rdf.add (graph, account_uri, rdf.COL["institution_user_id"],   institution_user_id)
+        rdf.add (graph, account_uri, rdf.COL["institution_id"],        institution_id)
+        rdf.add (graph, account_uri, rdf.COL["pending_quota_request"], pending_quota_request)
+        rdf.add (graph, account_uri, rdf.COL["used_quota_public"],     used_quota_public)
+        rdf.add (graph, account_uri, rdf.COL["used_quota_private"],    used_quota_private)
+        rdf.add (graph, account_uri, rdf.COL["used_quota"],            used_quota)
+        rdf.add (graph, account_uri, rdf.COL["maximum_file_size"],     maximum_file_size)
+        rdf.add (graph, account_uri, rdf.COL["quota"],                 quota)
+        rdf.add (graph, account_uri, rdf.COL["modified_date"],         modified_date)
+        rdf.add (graph, account_uri, rdf.COL["created_date"],          created_date)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return account_id
+        else:
+            return None
+
+    def insert_institution (self, name, institution_id=None):
+        """Procedure to add an institution to the state graph."""
+
+        graph = Graph()
+
+        if institution_id is None:
+            institution_id = self.ids.next_institution_id()
+
+        institution_uri = rdf.ROW[str(institution_id)]
+
+        graph.add ((institution_uri, RDF.type,      rdf.SG["Institution"]))
+        graph.add ((institution_uri, rdf.COL["id"], Literal(institution_id)))
+
+        rdf.add (institution_uri, rdf.COL["name"], name)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return institution_id
+        else:
+            return None
+
+    def insert_author (self, author_id=None, is_active=None, first_name=None,
+                       last_name=None, full_name=None, institution_id=None,
+                       job_title=None, is_public=None, url_name=None,
+                       orcid_id=None):
+        """Procedure to add an author to the state graph."""
+
+        graph = Graph()
+
+        if author_id is None:
+            author_id = self.ids.next_author_id()
+
+        author_uri = rdf.ROW[str(author_id)]
+
+        graph.add ((author_uri, RDF.type,      rdf.SG["Author"]))
+        graph.add ((author_uri, rdf.COL["id"], Literal(author_id)))
+
+        rdf.add (graph, author_uri, rdf.COL["institution_id"], institution_id)
+        rdf.add (graph, author_uri, rdf.COL["is_active"],      is_active)
+        rdf.add (graph, author_uri, rdf.COL["is_public"],      is_public)
+        rdf.add (graph, author_uri, rdf.COL["first_name"],     first_name)
+        rdf.add (graph, author_uri, rdf.COL["last_name"],      last_name)
+        rdf.add (graph, author_uri, rdf.COL["full_name"],      full_name)
+        rdf.add (graph, author_uri, rdf.COL["job_title"],      job_title)
+        rdf.add (graph, author_uri, rdf.COL["url_name"],       url_name)
+        rdf.add (graph, author_uri, rdf.COL["orcid_id"],       orcid_id)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return author_id
+        else:
+            return None
+
+    def insert_timeline (self, revision=None, firstOnline=None,
+                         publisherPublication=None, publisherAcceptance=None,
+                         posted=None, submission=None):
+        """Procedure to add a timeline to the state graph."""
+
+        graph        = Graph()
+        timeline_id  = self.ids.next_timeline_id()
+        timeline_uri = rdf.ROW[str(timeline_id)]
+
+        graph.add ((timeline_uri, RDF.type,      rdf.SG["Timeline"]))
+        graph.add ((timeline_uri, rdf.COL["id"], Literal(timeline_id)))
+
+        rdf.add (graph, timeline_uri, rdf.COL["revision"],             revision)
+        rdf.add (graph, timeline_uri, rdf.COL["firstOnline"],          firstOnline)
+        rdf.add (graph, timeline_uri, rdf.COL["publisherPublication"], publisherPublication)
+        rdf.add (graph, timeline_uri, rdf.COL["publisherAcceptance"],  publisherAcceptance)
+        rdf.add (graph, timeline_uri, rdf.COL["posted"],               posted)
+        rdf.add (graph, timeline_uri, rdf.COL["submission"],           submission)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return timeline_id
+        else:
+            return None
+
+    def insert_category (self, category_id=None, title=None, parent_id=None,
+                         source_id=None, taxonomy=None):
+        """Procedure to add an category to the state graph."""
+
+        graph = Graph()
+
+        if category_id is None:
+            category_id = self.ids.next_category_id()
+
+        category_uri = rdf.ROW[str(category_id)]
+
+        graph.add ((category_uri, RDF.type,      rdf.SG["Category"]))
+        graph.add ((category_uri, rdf.COL["id"], Literal(category_id)))
+
+        rdf.add (category_uri, rdf.COL["title"], title)
+        rdf.add (category_uri, rdf.COL["parent_id"], parent_id)
+        rdf.add (category_uri, rdf.COL["source_id"], source_id)
+        rdf.add (category_uri, rdf.COL["taxonomy"], taxonomy)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return category_id
+        else:
+            return None
+
+    def insert_article_category (self, article_id, category_id):
+        """Procedure to add a link between an article and a category."""
+
+        graph = Graph()
+
+        link_id  = self.ids.next_article_category_id()
+        link_uri = rdf.ROW[str(category_id)]
+
+        graph.add ((link_uri, RDF.type,               rdf.SG["ArticleCategory"]))
+        graph.add ((link_uri, rdf.COL["id"],          Literal(link_id)))
+        graph.add ((link_uri, rdf.COL["category_id"], Literal(category_id)))
+        graph.add ((link_uri, rdf.COL["article_id"],  Literal(article_id)))
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return link_id
+        else:
+            return None
+
+    def insert_article_author (self, article_id, author_id):
+        """Procedure to add a link between an article and a author."""
+
+        graph = Graph()
+
+        link_id  = self.ids.next_article_author_id()
+        link_uri = rdf.ROW[str(author_id)]
+
+        graph.add ((link_uri, RDF.type,              rdf.SG["ArticleAuthor"]))
+        graph.add ((link_uri, rdf.COL["id"],         Literal(link_id)))
+        graph.add ((link_uri, rdf.COL["author_id"],  Literal(author_id)))
+        graph.add ((link_uri, rdf.COL["article_id"], Literal(article_id)))
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return link_id
+        else:
+            return None
+
+    def insert_article_file (self, article_id, file_id):
+        """Procedure to add a link between an article and a file."""
+
+        graph = Graph()
+
+        link_id  = self.ids.next_article_file_id()
+        link_uri = rdf.ROW[str(file_id)]
+
+        graph.add ((link_uri, RDF.type,              rdf.SG["ArticleFile"]))
+        graph.add ((link_uri, rdf.COL["id"],         Literal(link_id)))
+        graph.add ((link_uri, rdf.COL["file_id"],    Literal(file_id)))
+        graph.add ((link_uri, rdf.COL["article_id"], Literal(article_id)))
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return link_id
+        else:
+            return None
+
+    def insert_tag (self, tag, item_id=None, item_type=None):
+        """Procedure to add an tag to the state graph."""
+
+        prefix  = item_type.capitalize()
+        graph   = Graph()
+        tag_id  = self.ids.next_tag_id()
+        tag_uri = rdf.ROW[str(tag_id)]
+
+        graph.add ((tag_uri, RDF.type,                   rdf.SG[f"{prefix}Tag"]))
+        graph.add ((tag_uri, rdf.COL["id"],              Literal(tag_id)))
+        graph.add ((tag_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
+
+        rdf.add (tag_uri, rdf.COL["tag"],                tag)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return tag_id
+        else:
+            return None
+
+    def insert_reference (self, url, item_id=None, item_type=None):
+        """Procedure to add an reference to the state graph."""
+
+        prefix        = item_type.capitalize()
+        graph         = Graph()
+        reference_id  = self.ids.next_reference_id()
+        reference_uri = rdf.ROW[str(item_id)]
+
+        graph.add ((reference_uri, RDF.type,                   rdf.SG[f"{prefix}Reference"]))
+        graph.add ((reference_uri, rdf.COL["id"],              Literal(reference_id)))
+        graph.add ((reference_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
+        graph.add ((reference_uri, rdf.COL["url"],             Literal(url)))
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return reference_id
+        else:
+            return None
+
+    def insert_funding (self, title=None, grant_code=None, funder_name=None,
+                        is_user_defined=None, url=None, item_id=None,
+                        item_type=None):
+        """Procedure to add an funding to the state graph."""
+
+        prefix      = item_type.capitalize()
+        graph       = Graph()
+        funding_id  = self.ids.next_funding_id()
+        funding_uri = rdf.ROW[str(item_id)]
+
+        graph.add ((funding_uri, RDF.type,                   rdf.SG[f"{prefix}Funding"]))
+        graph.add ((funding_uri, rdf.COL["id"],              Literal(funding_id)))
+        graph.add ((funding_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
+
+        rdf.add (funding_uri, rdf.COL["title"],           title)
+        rdf.add (funding_uri, rdf.COL["grant_code"],      grant_code)
+        rdf.add (funding_uri, rdf.COL["funder_name"],     funder_name)
+        rdf.add (funding_uri, rdf.COL["is_user_defined"], is_user_defined)
+        rdf.add (funding_uri, rdf.COL["url"],             url)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return funding_id
+        else:
+            return None
+
+    def insert_file (self, file_id=None, name=None, size=None,
+                     is_link_only=None, download_url=None, supplied_md5=None,
+                     computed_md5=None, viewer_type=None, preview_state=None,
+                     status=None, upload_url=None, upload_token=None):
+        """Procedure to add an file to the state graph."""
+
+        graph    = Graph()
+        file_id  = self.ids.next_file_id()
+        file_uri = rdf.ROW[str(file_id)]
+
+        graph.add ((file_uri, RDF.type,               rdf.SG["File"]))
+        graph.add ((file_uri, rdf.COL["id"],          Literal(file_id)))
+
+        rdf.add (file_uri, rdf.COL["name"],          name)
+        rdf.add (file_uri, rdf.COL["size"],          size)
+        rdf.add (file_uri, rdf.COL["is_link_only"],  is_link_only)
+        rdf.add (file_uri, rdf.COL["download_url"],  download_url)
+        rdf.add (file_uri, rdf.COL["supplied_md5"],  supplied_md5)
+        rdf.add (file_uri, rdf.COL["computed_md5"],  computed_md5)
+        rdf.add (file_uri, rdf.COL["viewer_type"],   viewer_type)
+        rdf.add (file_uri, rdf.COL["preview_state"], preview_state)
+        rdf.add (file_uri, rdf.COL["status"],        status)
+        rdf.add (file_uri, rdf.COL["upload_url"],    upload_url)
+        rdf.add (file_uri, rdf.COL["upload_token"],  upload_token)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return file_id
+        else:
+            return None
+
+    def insert_license (self, license_id, name=None, url=None):
+        """Procedure to add an license to the state graph."""
+
+        graph    = Graph()
+        license_uri = rdf.ROW[str(license_id)]
+
+        graph.add ((license_uri, RDF.type,               rdf.SG["License"]))
+        graph.add ((license_uri, rdf.COL["id"],          Literal(license_id)))
+
+        rdf.add (graph, license_uri, rdf.COL["name"],  name)
+        rdf.add (graph, license_uri, rdf.COL["url"],   url)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return license_id
+        else:
+            return None
+
+    def insert_embargo (self, embargo_id, article_id, embargo_type=None, ip_name=None):
+        """Procedure to add an license to the state graph."""
+
+        graph    = Graph()
+        embargo_uri = rdf.ROW[str(embargo_id)]
+
+        graph.add ((embargo_uri, RDF.type,               rdf.SG["ArticleEmbargoOption"]))
+        graph.add ((embargo_uri, rdf.COL["id"],          Literal(embargo_id)))
+        graph.add ((embargo_uri, rdf.COL["article_id"],  Literal(article_id)))
+
+        rdf.add (embargo_uri, rdf.COL["type"],    embargo_type)
+        rdf.add (embargo_uri, rdf.COL["ip_name"], ip_name)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return embargo_id
+        else:
+            return None
+
+    def insert_custom_field (self, name=None, value=None, default_value=None,
+                             max_length=None, min_length=None, field_type=None,
+                             is_mandatory=None, placeholder=None,
+                             is_multiple=None, item_id=None,
+                             item_type="article"):
+        """Procedure to add a custom field to the state graph."""
+
+        prefix           = item_type.capitalize()
+        graph            = Graph()
+        custom_field_id  = self.ids.next_custom_field_id()
+        custom_field_uri = rdf.ROW[str(custom_field_id)]
+
+        graph.add ((custom_field_uri, RDF.type,                   rdf.SG[f"{prefix}CustomField"]))
+        graph.add ((custom_field_uri, rdf.COL["id"],              Literal(custom_field_id)))
+        graph.add ((custom_field_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
+
+        rdf.add (custom_field_uri, rdf.COL["name"],          name)
+        rdf.add (custom_field_uri, rdf.COL["default_value"], default_value)
+        rdf.add (custom_field_uri, rdf.COL["max_length"],    max_length)
+        rdf.add (custom_field_uri, rdf.COL["min_length"],    min_length)
+        rdf.add (custom_field_uri, rdf.COL["field_type"],    field_type)
+        rdf.add (custom_field_uri, rdf.COL["is_mandatory"],  is_mandatory)
+        rdf.add (custom_field_uri, rdf.COL["placeholder"],   placeholder)
+        rdf.add (custom_field_uri, rdf.COL["is_multiple"],   is_multiple)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return custom_field_id
+        else:
+            return None
+
+    def delete_article (self, article_id, account_id):
+        """Procedure to remove an article from the state graph."""
+
+        query = f"""\
+{self.default_prefixes}
+DELETE {{
+  GRAPH <{self.state_graph}> {{
+    ?article  ?predicate     ?object .
+  }}
+}}
+WHERE {{
+  GRAPH <{self.state_graph}> {{
+    ?article  rdf:type       sg:Article .
+    ?article  col:id         {article_id} .
+    ?article  col:account_id {account_id} .
+    ?article  ?predicate     ?object .
+  }}
+}}"""
+        return self.__run_query(query)
+
+    def update_article (self, article_id):
+        return False
+
+    def delete_article_embargo (self, article_id, account_id):
+        """Procedure to lift the embargo on an article."""
+
+        query = f"""\
+{self.default_prefixes}
+DELETE {{
+  GRAPH <{self.state_graph}> {{
+    ?embargo  ?predicate     ?object .
+  }}
+}}
+WHERE {{
+  GRAPH <{self.state_graph}> {{
+    ?article  rdf:type        sg:Article .
+    ?article  col:id          {article_id} .
+    ?article  col:account_id  {account_id} .
+
+    ?embargo  rdf:type        sg:ArticleEmbargoOption .
+    ?embargo  col:article_id  {article_id} .
+    ?embargo  ?predicate      ?object .
+  }}
+}}"""
         return self.__run_query(query)
