@@ -110,6 +110,10 @@ CREATE TABLE IF NOT EXISTS ArticleVersion(
 
 CREATE TABLE IF NOT EXISTS Article(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    -- There can be multiple versions of an article. They all have the same
+    -- article_id.
+    article_id            INT UNSIGNED,
     account_id            INT UNSIGNED,
     title                 VARCHAR(255),
     doi                   VARCHAR(255),
@@ -226,6 +230,7 @@ CREATE TABLE IF NOT EXISTS Category(
 
 CREATE TABLE IF NOT EXISTS Collection(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    collection_id         INT UNSIGNED,
     title                 VARCHAR(255),
     doi                   VARCHAR(255),
     handle                VARCHAR(255),

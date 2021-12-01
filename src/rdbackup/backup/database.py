@@ -304,7 +304,7 @@ class DatabaseInterface:
     def insert_collection (self, record, account_id):
         """Procedure to insert a collection record."""
 
-        template = ("INSERT IGNORE INTO Collection (url, title, id, "
+        template = ("INSERT IGNORE INTO Collection (url, title, collection_id, "
                     "modified_date, created_date, published_date, doi, "
                     "citation, group_id, institution_id, description, "
                     "timeline_id, account_id, version, resource_id, "
@@ -547,7 +547,7 @@ class DatabaseInterface:
     def insert_article (self, record):
         """Procedure to insert an article record."""
 
-        template = ("INSERT IGNORE INTO Article (id, account_id, title, doi, "
+        template = ("INSERT IGNORE INTO Article (article_id, account_id, title, doi, "
                     "handle, group_id, url, url_public_html, url_public_api, "
                     "url_private_html, url_private_api, published_date, thumb, "
                     "defined_type, defined_type_name, is_embargoed, citation, "
