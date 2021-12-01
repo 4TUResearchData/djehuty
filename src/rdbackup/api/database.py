@@ -33,41 +33,50 @@ PREFIX sg:  <https://sparqling-genomics.org/0.99.12/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         """
 
-        current_article_id     = 0
-        current_collection_id  = 0
-        current_author_id      = 0
-        current_account_id     = 0
-        current_file_id        = 0
-        current_category_id    = 0
-        current_project_id     = 0
-        current_timeline_id    = 0
-        current_institution_id = 0
-        current_tag_id         = 0
+        current_article_id          = 0
+        current_article_category_id = 0
+        current_article_author_id   = 0
+        current_article_file_id     = 0
+        current_collection_id       = 0
+        current_author_id           = 0
+        current_account_id          = 0
+        current_file_id             = 0
+        current_category_id         = 0
+        current_project_id          = 0
+        current_timeline_id         = 0
+        current_institution_id      = 0
+        current_tag_id              = 0
 
-        # Set the article_id and collection_id iterator to continue
-        # where we left off last time the program was run.
+        # Set the iterators to continue where we left off last time the
+        # program was run.
         try:
-            current_article_id     = self.__highest_id (item_type="article")
-            current_collection_id  = self.__highest_id (item_type="collection")
-            current_author_id      = self.__highest_id (item_type="author")
-            current_account_id     = self.__highest_id (item_type="account")
-            current_file_id        = self.__highest_id (item_type="file")
-            current_category_id    = self.__highest_id (item_type="category")
-            current_project_id     = self.__highest_id (item_type="project")
-            current_timeline_id    = self.__highest_id (item_type="timeline")
-            current_institution_id = self.__highest_id (item_type="institution")
-            current_tag_id         = self.__highest_id (item_type="tag")
+            current_article_id          = self.__highest_id (item_type="article")
+            current_article_category_id = self.__highest_id (item_type="article_category")
+            current_article_author_id   = self.__highest_id (item_type="article_author")
+            current_article_file_id     = self.__highest_id (item_type="article_file")
+            current_collection_id       = self.__highest_id (item_type="collection")
+            current_author_id           = self.__highest_id (item_type="author")
+            current_account_id          = self.__highest_id (item_type="account")
+            current_file_id             = self.__highest_id (item_type="file")
+            current_category_id         = self.__highest_id (item_type="category")
+            current_project_id          = self.__highest_id (item_type="project")
+            current_timeline_id         = self.__highest_id (item_type="timeline")
+            current_institution_id      = self.__highest_id (item_type="institution")
+            current_tag_id              = self.__highest_id (item_type="tag")
 
-            if (current_article_id     is None or
-                current_collection_id  is None or
-                current_author_id      is None or
-                current_account_id     is None or
-                current_file_id        is None or
-                current_category_id    is None or
-                current_project_id     is None or
-                current_timeline_id    is None or
-                current_institution_id is None or
-                current_tag_id         is None):
+            if (current_article_id          is None or
+                current_article_category_id is None or
+                current_article_author_id   is None or
+                current_article_file_id     is None or
+                current_collection_id       is None or
+                current_author_id           is None or
+                current_account_id          is None or
+                current_file_id             is None or
+                current_category_id         is None or
+                current_project_id          is None or
+                current_timeline_id         is None or
+                current_institution_id      is None or
+                current_tag_id              is None):
                 logging.error ("Cannot determine the database state.")
                 raise UnknownDatabaseState
 
@@ -75,6 +84,9 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             logging.warning ("It looks like the database is empty.")
 
         self.ids.set_article_id (current_article_id)
+        self.ids.set_article_category_id (current_article_category_id)
+        self.ids.set_article_author_id (current_article_author_id)
+        self.ids.set_article_file_id (current_article_file_id)
         self.ids.set_collection_id (current_collection_id)
         self.ids.set_author_id (current_author_id)
         self.ids.set_account_id (current_account_id)
@@ -86,6 +98,9 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         self.ids.set_tag_id (current_tag_id)
 
         logging.info ("Article enumerator set to %d", current_article_id)
+        logging.info ("ArticleCategory enumerator set to %d", current_article_category_id)
+        logging.info ("ArticleAuthor enumerator set to %d", current_article_author_id)
+        logging.info ("ArticleFile enumerator set to %d", current_article_file_id)
         logging.info ("Collection enumerator set to %d", current_collection_id)
         logging.info ("Author enumerator set to %d", current_author_id)
         logging.info ("Account enumerator set to %d", current_account_id)
