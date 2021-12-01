@@ -1569,6 +1569,26 @@ LIMIT {limit}
 
         return None
 
+    def insert_private_link (self, private_link_id=None, is_active=None,
+                                 expires_date=None, item_id=None,
+                                 item_type="article"):
+
+        prefix   = item_type.capitalize()
+        graph    = Graph()
+        link_uri = rdf.ROW[str(private_link_id)]
+
+        graph.add ((link_uri, RDF.type,      rdf.SG[f"{prefix}PrivateLink"]))
+        graph.add ((link_uri, rdf.COL["id"], Literal(private_link_id)))
+
+        rdf.add (graph, link_uri, rdf.COL["is_active"],       is_active)
+        rdf.add (graph, link_uri, rdf.COL["expires_date"],    expires_date)
+        rdf.add (graph, link_uri, rdf.COL[f"{item_type}_id"], item_id)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return private_link_id
+
+        return None
 
     def insert_embargo (self, embargo_id, article_id, embargo_type=None, ip_name=None):
         """Procedure to add an license to the state graph."""
