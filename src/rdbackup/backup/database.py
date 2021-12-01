@@ -470,7 +470,11 @@ class DatabaseInterface:
                     convenience.value_or_none (record, "type"),
                     convenience.value_or_none (record, "ip_name"))
 
-        return self.__execute_query (template, data)
+        embargo_option_id = self.__execute_query (template, data)
+        if not embargo_option_id:
+            logging.error("Inserting embargo option failed.")
+
+        return embargo_option_id
 
     def insert_license (self, record):
         """Procedure to insert a license record."""
