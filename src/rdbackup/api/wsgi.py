@@ -415,9 +415,6 @@ class ApiServer:
 
 
     def api_private_articles (self, request):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
-
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -427,27 +424,37 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        ## TODO: Setting "limit" to "TEST" crashes the app. Do type checking
-        ## and sanitization.
+        if request.method == 'GET':
 
-        ## Parameters
-        ## ----------------------------------------------------------------
-        page            = self.get_parameter (request, "page")
-        page_size       = self.get_parameter (request, "page_size")
-        limit           = self.get_parameter (request, "limit")
-        offset          = self.get_parameter (request, "offset")
+            ## TODO: Setting "limit" to "TEST" crashes the app. Do type checking
+            ## and sanitization.
 
-        records = self.db.articles(#page=page,
-                                   #page_size=page_size,
-                                   limit=limit,
-                                   offset=offset,
-                                   account_id=account_id)
+            ## Parameters
+            ## ----------------------------------------------------------------
+            page            = self.get_parameter (request, "page")
+            page_size       = self.get_parameter (request, "page_size")
+            limit           = self.get_parameter (request, "limit")
+            offset          = self.get_parameter (request, "offset")
 
-        return self.default_list_response (records, formatter.format_article_record)
+            records = self.db.articles(#page=page,
+                                       #page_size=page_size,
+                                       limit=limit,
+                                       offset=offset,
+                                       account_id=account_id)
+
+            return self.default_list_response (records, formatter.format_article_record)
+
+        elif request.method == 'POST':
+            parameters = request.get_json()
+            article_id = self.db.insert_article (title=convenience.value_or_none(parameters, "title"))
+            return self.response(json.dumps({
+                "location": f"http://{self.address}:{self.port}/v2/account/articles/{article_id}",
+                "warnings": []
+            }))
+        else:
+            return self.error_405 (["GET", "POST"])
 
     def api_private_article_details (self, request, article_id):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
