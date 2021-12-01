@@ -60,6 +60,7 @@ class ApiServer:
             Rule("/v2/account/articles/<article_id>",         endpoint = "private_article_details"),
             Rule("/v2/account/articles/<article_id>/authors", endpoint = "private_article_authors"),
             Rule("/v2/account/articles/<article_id>/categories", endpoint = "private_article_categories"),
+            Rule("/v2/account/articles/<article_id>/embargo", endpoint = "private_article_embargo"),
             Rule("/v2/account/articles/<article_id>/files",   endpoint = "private_article_files"),
             Rule("/v2/account/articles/<article_id>/files/<file_id>", endpoint = "private_article_file_details"),
 
@@ -542,6 +543,39 @@ class ApiServer:
                                            item_type  = "article")
 
         return self.default_list_response (categories, formatter.format_category_record)
+
+    def api_private_article_embargo (self, request, article_id):
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        if request.method == 'GET':
+            article    = self.db.articles (article_id=article_id, account_id=account_id)
+            if not article:
+                return self.response (json.dumps([]))
+
+            try:
+                article = article[0]
+                options = self.db.article_embargo_options(article_id = article_id)
+                return self.response (json.dumps (formatter.format_article_embargo_record (article, options)))
+            except IndexError:
+                response = self.response (json.dumps({
+                    "message": "No embargo options found."
+                }))
+                response.status_code = 404
+                return response
+        elif request.method == 'DELETE':
+            if self.db.delete_article_embargo (article_id=article_id, account_id=account_id):
+                return self.respond_204()
+            else:
+                return self.error_500 ()
+        else:
+            return self.error_405 (["GET", "DELETE"])
 
     def api_private_article_files (self, request, article_id):
         if request.method != 'GET':
