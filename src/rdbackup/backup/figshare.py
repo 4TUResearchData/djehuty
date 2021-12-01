@@ -8,6 +8,8 @@ import time
 import logging
 import requests
 
+from rdbackup.utils import convenience as conv
+
 class FigshareEndpoint:
     """
     This class provides the functionality to retrieve information using the
@@ -201,27 +203,34 @@ class FigshareEndpoint:
         parameters   = { "impersonate": account_id }
         record       = self.get(f"/account/articles/{article_id}", headers, parameters)
 
-        now          = datetime.now()
-        created_date = now
-        if "created_date" in record and not record["created_date"] is None:
-            created_date  = datetime.strptime(record["created_date"]
-                                              .replace("Z", "")
-                                              .replace("T", " "),
-                                              "%Y-%m-%d %H:%M:%S")
-
         authors = []
         for author in record["authors"]:
             details = self.get_author_details_by_id (author["id"], account_id)
             authors.append(details)
         record["authors"]       = authors
-
         record["private_links"] = self.get_article_private_links_by_account_by_id (account_id,
                                                                                    article_id)
-        record["account_id"] = account_id
-        record["statistics"] = self.get_statistics_for_article(
-            article_id,
-            datetime.strftime(created_date, "%Y-%m-%d"),
-            datetime.strftime(now, "%Y-%m-%d"))
+        record["account_id"]    = account_id
+
+        ## Other versions
+        ## --------------------------------------------------------------------
+        if conv.value_or (record, "is_public", False):
+            versions = self.get_article_versions (article_id)
+            record["versions"] = versions
+
+        ## Statistics
+        ## --------------------------------------------------------------------
+        # now          = datetime.now()
+        # created_date = now
+        # if "created_date" in record and not record["created_date"] is None:
+        #     created_date  = datetime.strptime(record["created_date"]
+        #                                       .replace("Z", "")
+        #                                       .replace("T", " "),
+        #                                       "%Y-%m-%d %H:%M:%S")
+        #record["statistics"] = self.get_statistics_for_article(
+        #    article_id,
+        #    datetime.strftime(created_date, "%Y-%m-%d"),
+        #    datetime.strftime(now, "%Y-%m-%d"))
 
         return record
 
@@ -307,6 +316,19 @@ class FigshareEndpoint:
         record["private_links"] = private_links
         record["articles"]      = articles
         record["account_id"]    = account_id
+
+        ## Other versions
+        ## --------------------------------------------------------------------
+        if conv.value_or (record, "is_public", False):
+            numbers = self.get_collection_versions (collection_id)
+            versions = []
+            for number in numbers:
+                if number != record["version"]:
+                    v = self.get_record(f"/collections/{collection_id}/versions/{number}")
+                    versions.append(v)
+
+            record["versions"] = versions
+
         return record
 
     def get_collections (self, published_since="1970-01-01"):
@@ -336,7 +358,21 @@ class FigshareEndpoint:
 
         for item in versions:
             version = item["version"]
-            record  = self.get (f"/articles/{article_id}/versions/{version}", headers, {})
+            record  = self.get_record (f"/articles/{article_id}/versions/{version}")
+            output.append (record)
+
+        return output
+
+    def get_collection_versions (self, collection_id):
+        """Procedure to get versioning information for a collection."""
+
+        headers  = self.__request_headers ()
+        versions = self.get (f"/collections/{collection_id}/versions", headers, {})
+        output   = []
+
+        for item in versions:
+            version = item["version"]
+            record  = self.get (f"/collections/{collection_id}/versions/{version}", headers, {})
             output.append (record)
 
         return output
