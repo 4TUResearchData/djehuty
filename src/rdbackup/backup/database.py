@@ -316,52 +316,45 @@ class DatabaseInterface:
 
         collection_id  = record["id"]
 
-        authors = convenience.value_or_none (record, "authors")
-        if authors:
-            for author in authors:
-                self.insert_author (author, collection_id, item_type="collection")
+        authors = convenience.value_or (record, "authors", [])
+        for author in authors:
+            self.insert_author (author, collection_id, item_type="collection")
 
-        categories = convenience.value_or_none (record, "categories")
-        if categories:
-            for category in categories:
-                self.insert_category (category, collection_id, "collection")
+        categories = convenience.value_or (record, "categories", [])
+        for category in categories:
+            self.insert_category (category, collection_id, "collection")
 
-        fundings = convenience.value_or_none (record, "funding")
-        if fundings:
-            for funding in fundings:
-                self.insert_funding (funding,
-                                     item_id   = collection_id,
-                                     item_type = "collection")
+        fundings = convenience.value_or (record, "funding", [])
+        for funding in fundings:
+            self.insert_funding (funding,
+                                 item_id   = collection_id,
+                                 item_type = "collection")
 
-        private_links = convenience.value_or_none (record, "private_links")
-        if private_links:
-            for link in private_links:
-                self.insert_private_links (link,
-                                           item_id   = collection_id,
-                                           item_type = "collection")
+        private_links = convenience.value_or (record, "private_links", [])
+        for link in private_links:
+            self.insert_private_links (link,
+                                       item_id   = collection_id,
+                                       item_type = "collection")
 
         timeline_id = None
         if "timeline" in record:
             timeline_id = self.insert_timeline (record["timeline"])
 
-        tags = record["tags"]
-        if tags:
-            for tag in tags:
-                self.insert_tag (tag, collection_id, item_type="collection")
+        tags = convenience.value_or (record, "tags", [])
+        for tag in tags:
+            self.insert_tag (tag, collection_id, item_type="collection")
 
-        references = record["references"]
+        references = convenience.value_or (record, "references", [])
         for url in references:
             self.insert_reference (url, collection_id, item_type="collection")
 
-        custom_fields = record["custom_fields"]
-        if custom_fields:
-            for field in custom_fields:
-                self.insert_custom_field (field, collection_id, item_type="collection")
+        custom_fields = convenience.value_or (record, "custom_fields", [])
+        for field in custom_fields:
+            self.insert_custom_field (field, collection_id, item_type="collection")
 
-        articles = record["articles"]
-        if articles:
-            for article in articles:
-                self.insert_collection_article (collection_id, article)
+        articles = convenience.value_or (record, "articles", [])
+        for article in articles:
+            self.insert_collection_article (collection_id, article)
 
         created_date = None
         if "created_date" in record and not record["created_date"] is None:
@@ -564,46 +557,44 @@ class DatabaseInterface:
         if "timeline" in record:
             timeline_id = self.insert_timeline (record["timeline"])
 
-        embargos = record["embargo_options"]
+        embargos = convenience.value_or (record, "embargo_options", [])
         for embargo in embargos:
             self.insert_embargo (embargo, article_id)
 
-        references = record["references"]
+        references = convenience.value_or (record, "references", [])
         for url in references:
             self.insert_reference (url, article_id, item_type="article")
 
-        categories = record["categories"]
+        categories = convenience.value_or (record, "categories", [])
         for category in categories:
             self.insert_category (category, article_id, "article")
 
         license_id = record["license"]["value"]
         self.insert_license (record["license"])
 
-        tags = record["tags"]
+        tags = convenience.value_or (record, "tags", [])
         for tag in tags:
             self.insert_tag (tag, article_id, item_type="article")
 
-        authors = record["authors"]
+        authors = convenience.value_or (record, "authors", [])
         for author in authors:
             self.insert_author (author, article_id, item_type="article")
 
-        files = record["files"]
+        files = convenience.value_or (record, "files", [])
         for file in files:
             self.insert_file (file, article_id)
 
-        funding_list = convenience.value_or_none (record, "funding_list")
-        if funding_list:
-            for funding in funding_list:
-                self.insert_funding (funding,
-                                     item_id   = article_id,
-                                     item_type = "article")
+        funding_list = convenience.value_or (record, "funding_list", [])
+        for funding in funding_list:
+            self.insert_funding (funding,
+                                 item_id   = article_id,
+                                 item_type = "article")
 
-        private_links = convenience.value_or_none (record, "private_links")
-        if private_links:
-            for link in private_links:
-                self.insert_private_links (link,
-                                           item_id   = article_id,
-                                           item_type = "article")
+        private_links = convenience.value_or (record, "private_links", [])
+        for link in private_links:
+            self.insert_private_links (link,
+                                       item_id   = article_id,
+                                       item_type = "article")
 
         if "statistics" in record:
             stats = record["statistics"]
