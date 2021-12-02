@@ -53,7 +53,7 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
 
             versions = conv.value_or (collection, "versions", [])
             for version in versions:
-                if not db.insert_collection (version):
+                if not db.insert_collection (version, account["id"]):
                     logging.error("Inserting a version of {collection['id']} failed.")
 
     logging.info("Succesfully processed %d articles.", articles_written)
