@@ -1308,6 +1308,7 @@ WHERE {{
         graph.add ((custom_field_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
 
         rdf.add (graph, custom_field_uri, rdf.COL["name"],          name)
+        rdf.add (graph, custom_field_uri, rdf.COL["value"],         value)
         rdf.add (graph, custom_field_uri, rdf.COL["default_value"], default_value)
         rdf.add (graph, custom_field_uri, rdf.COL["max_length"],    max_length)
         rdf.add (graph, custom_field_uri, rdf.COL["min_length"],    min_length)
