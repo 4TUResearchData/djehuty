@@ -214,8 +214,9 @@ class FigshareEndpoint:
 
         ## Other versions
         ## --------------------------------------------------------------------
+        current_version = conv.value_or_none (record, "version")
         if conv.value_or (record, "is_public", False):
-            versions = self.get_article_versions (article_id)
+            versions = self.get_article_versions (article_id, exclude=current_version)
             record["versions"] = versions
 
         ## Statistics
@@ -320,7 +321,8 @@ class FigshareEndpoint:
         ## Other versions
         ## --------------------------------------------------------------------
         if conv.value_or (record, "is_public", False):
-            numbers = self.get_collection_versions (collection_id)
+            current_version = conv.value_or_none (record, "version")
+            numbers = self.get_collection_versions (collection_id, exclude=current_version)
             versions = []
             for number in numbers:
                 if number != record["version"]:
@@ -349,7 +351,7 @@ class FigshareEndpoint:
 
         return output
 
-    def get_article_versions (self, article_id):
+    def get_article_versions (self, article_id, exclude=None):
         """Procedure to get versioning information for an article."""
 
         headers  = self.__request_headers ()
@@ -358,12 +360,13 @@ class FigshareEndpoint:
 
         for item in versions:
             version = item["version"]
-            record  = self.get_record (f"/articles/{article_id}/versions/{version}")
-            output.append (record)
+            if exclude is None or version != exclude:
+                record  = self.get_record (f"/articles/{article_id}/versions/{version}")
+                output.append (record)
 
         return output
 
-    def get_collection_versions (self, collection_id):
+    def get_collection_versions (self, collection_id, exclude=None):
         """Procedure to get versioning information for a collection."""
 
         headers  = self.__request_headers ()
@@ -372,8 +375,9 @@ class FigshareEndpoint:
 
         for item in versions:
             version = item["version"]
-            record  = self.get (f"/collections/{collection_id}/versions/{version}", headers, {})
-            output.append (record)
+            if exclude is None or version != exclude:
+                record = self.get (f"/collections/{collection_id}/versions/{version}", headers, {})
+                output.append (record)
 
         return output
 
