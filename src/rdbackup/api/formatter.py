@@ -240,3 +240,12 @@ def format_funding_record (record):
         "is_user_defined":   conv.value_or_none(record, "is_user_defined"),
         "url":               conv.value_or_none(record, "url")
     }
+
+def format_version_record (record):
+    version = conv.value_or_none (record, "version")
+    url     = conv.value_or_none (record, "url_public_api")
+
+    return {
+        "version": version,
+        "url": f"{url}/versions/{version}"
+    }
