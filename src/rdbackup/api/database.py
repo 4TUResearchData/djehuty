@@ -395,10 +395,7 @@ WHERE {{
             query += f"FILTER(CONTAINS(?description, \"{search_for}\"))\n"
             query += f"FILTER(CONTAINS(?citation, \"{search_for}\"))\n"
 
-        query += "}\n"
-
-        if order is not None:
-            query += f"""\
+        query += f"""}}
 ORDER BY {order_direction}({order})
 LIMIT {limit}
 """
