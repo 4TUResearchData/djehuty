@@ -205,10 +205,8 @@ LIMIT 1
                           order_direction=None):
         if not order_direction:
             order_direction = "DESC"
-        if order is None:
-            order="?id"
-        else:
-            order = f"?{order}"
+
+        order = "?id" if order is not None else f"?{order}"
 
         query = f"""\
 {self.default_prefixes}
@@ -239,10 +237,8 @@ LIMIT {limit}
             order_direction = "DESC"
         if limit is None:
             limit = 10
-        if order is None:
-            order="?id"
-        else:
-            order = f"?{order}"
+
+        order = "?id" if order is not None else f"?{order}"
 
         query = f"""\
 {self.default_prefixes}
