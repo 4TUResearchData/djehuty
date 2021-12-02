@@ -768,16 +768,26 @@ WHERE {{
                         posted=None,
                         revision=None,
                         group_id=None,
-                        funding_list=[],
-                        tags=[],
-                        references=[],
-                        categories=[],
-                        authors=[],
-                        custom_fields=[],
-                        private_links=[],
-                        files=[],
-                        embargo_options=[]):
+                        funding_list=None,
+                        tags=None,
+                        references=None,
+                        categories=None,
+                        authors=None,
+                        custom_fields=None,
+                        private_links=None,
+                        files=None,
+                        embargo_options=None):
         """Procedure to insert an article to the state graph."""
+
+        funding_list    = [] if funding_list    is None else funding_list
+        tags            = [] if tags            is None else tags
+        references      = [] if references      is None else references
+        categories      = [] if categories      is None else categories
+        authors         = [] if authors         is None else authors
+        custom_fields   = [] if custom_fields   is None else custom_fields
+        private_links   = [] if private_links   is None else private_links
+        files           = [] if files           is None else files
+        embargo_options = [] if embargo_options is None else embargo_options
 
         graph = Graph()
 
