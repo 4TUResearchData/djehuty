@@ -201,8 +201,8 @@ LIMIT 1
     ## GET METHODS
     ## ------------------------------------------------------------------------
 
-    def article_versions (self, limit=10, offset=0, order=None,
-                          order_direction=None):
+    def article_versions (self, limit=1000, offset=0, order=None,
+                          order_direction=None, article_id=None):
         if not order_direction:
             order_direction = "DESC"
 
@@ -210,12 +210,18 @@ LIMIT 1
 
         query = f"""\
 {self.default_prefixes}
-SELECT DISTINCT ?id ?version ?url
+SELECT DISTINCT ?id ?version ?url ?url_public_api
 WHERE {{
-    ?article rdf:type    sg:Article .
-    ?article col:id      ?id .
-    ?article col:version ?version .
-    ?article col:url     ?url .
+    ?article rdf:type           sg:Article .
+    ?article col:id             ?id .
+    ?article col:version        ?version .
+    ?article col:url            ?url .
+    ?article col:url_public_api ?url_public_api .
+"""
+        if article_id is not None:
+            query += f"FILTER (?id = {article_id})\n"
+
+        query += f"""
 }}
 ORDER BY {order_direction}({order})
 LIMIT {limit}
