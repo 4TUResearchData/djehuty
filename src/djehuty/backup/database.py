@@ -451,6 +451,8 @@ class DatabaseInterface:
                     convenience.value_or_none (record, "is_active"),
                     expires_date)
 
+        return self.__execute_query (template, data)
+
     def insert_embargo (self, record, article_id):
         """Procedure to insert an embargo record."""
 
