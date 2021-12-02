@@ -167,6 +167,12 @@ def format_article_embargo_record (article, embargo_options):
         "embargo_options":   list (map (format_article_embargo_option_record, embargo_options)),
     }
 
+def format_article_confidentiality_record (article):
+    return {
+        "is_confidential":   bool(conv.value_or_none(article, "is_confidential")),
+        "reason": conv.value_or(article, "confidential_reason", ""),
+    }
+
 def format_article_version_record (record):
     return {
         "version":           conv.value_or_none(record, "version"),
