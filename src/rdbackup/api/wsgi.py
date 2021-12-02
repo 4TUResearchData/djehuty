@@ -9,6 +9,7 @@ from werkzeug.routing import Map, Rule
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound
 from jinja2 import Environment, FileSystemLoader
+from rdbackup.api import validator
 from rdbackup.api import formatter
 from rdbackup.api import database
 from rdbackup.utils import convenience
@@ -135,6 +136,14 @@ class ApiServer:
 
     ## ERROR HANDLERS
     ## ------------------------------------------------------------------------
+
+    def error_400 (self, message, code):
+        response = self.response (json.dumps({
+            "message": message,
+            "code":    code
+        }))
+        response.status_code = 400
+        return response
 
     def error_404 (self, request):
         response = None
@@ -291,9 +300,6 @@ class ApiServer:
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
-        ## TODO: Setting "limit" to "TEST" crashes the app. Do type checking
-        ## and sanitization.
-
         ## Parameters
         ## ----------------------------------------------------------------
         page            = self.get_parameter (request, "page")
@@ -310,6 +316,15 @@ class ApiServer:
         item_type       = self.get_parameter (request, "item_type")
         doi             = self.get_parameter (request, "doi")
         handle          = self.get_parameter (request, "handle")
+
+        try:
+            validator.limit (limit)
+            validator.offset (offset)
+            validator.order_direction (order_direction)
+            validator.institution (institution)
+            validator.group (group)
+        except Exception as error:
+            return self.error_400 (error.message, error.code)
 
         records = self.db.articles(#page=page,
                                    #page_size=page_size,
