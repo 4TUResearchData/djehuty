@@ -528,15 +528,20 @@ class ApiServer:
 
         if request.method == 'GET':
 
-            ## TODO: Setting "limit" to "TEST" crashes the app. Do type checking
-            ## and sanitization.
-
             ## Parameters
             ## ----------------------------------------------------------------
             page            = self.get_parameter (request, "page")
             page_size       = self.get_parameter (request, "page_size")
             limit           = self.get_parameter (request, "limit")
             offset          = self.get_parameter (request, "offset")
+
+            try:
+                validator.page (page)
+                validator.page_size (page_size)
+                validator.limit (limit)
+                validator.offset (offset)
+            except Exception as error:
+                return self.error_400 (error.message, error.code)
 
             records = self.db.articles(#page=page,
                                        #page_size=page_size,
@@ -760,9 +765,6 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        ## TODO: Setting "limit" to "TEST" crashes the app. Do type checking
-        ## and sanitization.
-
         ## Parameters
         ## ----------------------------------------------------------------
         page            = self.get_parameter (request, "page")
@@ -778,6 +780,17 @@ class ApiServer:
         resource_doi    = self.get_parameter (request, "resource_doi")
         doi             = self.get_parameter (request, "doi")
         handle          = self.get_parameter (request, "handle")
+
+        try:
+            validator.page (page)
+            validator.page_size (page_size)
+            validator.limit (limit)
+            validator.offset (offset)
+            validator.order_direction (order_direction)
+            validator.institution (institution)
+            validator.group (group)
+        except Exception as error:
+            return self.error_400 (error.message, error.code)
 
         records = self.db.collections (#page=page,
                                        #page_size=page_size,

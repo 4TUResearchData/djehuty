@@ -70,3 +70,9 @@ def institution (value):
 
 def group (value):
     return integer_value (value, "group")
+
+def page (value):
+    return integer_value (value, "page")
+
+def page_size (value):
+    return integer_value (value, "page_size")
