@@ -8,6 +8,7 @@ class ValidationException(Exception):
     def __init__(self, message, code):
         self.message = message
         self.code    = code
+        super().__init__(message)
 
 class InvalidIntegerValue(ValidationException):
     """Exception thrown when the 'limit' parameter holds no valid value."""
@@ -15,6 +16,7 @@ class InvalidIntegerValue(ValidationException):
     def __init__(self, message, code):
         self.message = message
         self.code    = code
+        super().__init__(message, code)
 
 class InvalidOrderDirection(ValidationException):
     """Exception thrown when the 'order_direction' parameter holds no valid value."""
@@ -22,6 +24,7 @@ class InvalidOrderDirection(ValidationException):
     def __init__(self, message, code):
         self.message = message
         self.code    = code
+        super().__init__(message, code)
 
 def order_direction (value):
     if (value is not None and
@@ -41,10 +44,10 @@ def integer_value (value, field_name, minimum_value=None, maximum_value=None):
 
     try:
         value = int(value)
-    except:
+    except Exception as error:
         raise InvalidIntegerValue(
             message = f"The value for '{field_name}' must be an integer.",
-            code    = f"Invalid{prefix}Value")
+            code    = f"Invalid{prefix}Value") from error
 
     if maximum_value is not None and value > maximum_value:
         raise InvalidIntegerValue(
