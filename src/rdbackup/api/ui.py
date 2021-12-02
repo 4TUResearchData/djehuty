@@ -2,8 +2,8 @@
 
 import logging
 from werkzeug.serving import run_simple
-from rdbackup.api import database
-from rdbackup.api import wsgi
+from djehuty.api import database
+from djehuty.api import wsgi
 
 def main (address, port, state_graph, use_debugger=False, use_reloader=False):
     """The main entry point for the 'api' subcommand."""

@@ -8,7 +8,7 @@ import time
 import logging
 import requests
 
-from rdbackup.utils import convenience as conv
+from djehuty.utils import convenience as conv
 
 class FigshareEndpoint:
     """
@@ -35,7 +35,7 @@ class FigshareEndpoint:
             "Accept":        "application/json",
             "Authorization": "token " + self.token,
             "Content-Type":  "application/json",
-            "User-Agent":    "rdbackup"
+            "User-Agent":    "Djehuty"
         }
         if not additional_headers is None:
             return { **defaults, **additional_headers }

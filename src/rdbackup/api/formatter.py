@@ -1,9 +1,9 @@
 """
 This module contains procedures to format a record from
-rdbackup.database to be backward-compatible with Figshare.
+djehuty.database to be backward-compatible with Figshare.
 """
 
-from rdbackup.utils import convenience as conv
+from djehuty.utils import convenience as conv
 
 def format_article_record (record):
     return {

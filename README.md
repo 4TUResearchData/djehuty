@@ -1,4 +1,4 @@
-rdbackup
+djehuty
 =========
 
 This Python package provides functionality to extract metadata from Figshare
@@ -14,7 +14,7 @@ local API testing endpoint.
 To get an interactive development environment, use:
 ```python
 pip install --editable .
-rdbackup api -d -r
+djehuty api -d -r
 ```
 
 ## Deploy
@@ -23,12 +23,12 @@ Create a portable executable with:
 
 ```
 pip install pyinstaller
-pyinstaller -s -F --onefile --add-data "src/rdbackup/api/resources:rdbackup/api/resources" main.py -n rdbackup
+pyinstaller -s -F --onefile --add-data "src/djehuty/api/resources:djehuty/api/resources" main.py -n djehuty
 ```
 
 On Windows, use:
 
 ```
 pip install pyinstaller
-pyinstaller -F --onefile --add-data "src/rdbackup/api/resources;rdbackup/api/resources" main.py -n rdbackup
+pyinstaller -F --onefile --add-data "src/djehuty/api/resources;djehuty/api/resources" main.py -n djehuty
 ```

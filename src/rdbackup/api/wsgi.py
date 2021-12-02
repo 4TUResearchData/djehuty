@@ -9,10 +9,10 @@ from werkzeug.routing import Map, Rule
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound
 from jinja2 import Environment, FileSystemLoader
-from rdbackup.api import validator
-from rdbackup.api import formatter
-from rdbackup.api import database
-from rdbackup.utils import convenience
+from djehuty.api import validator
+from djehuty.api import formatter
+from djehuty.api import database
+from djehuty.utils import convenience
 
 class ApiServer:
     """This class implements the API server."""

@@ -3,9 +3,9 @@
 import base64
 import logging
 
-from rdbackup.backup import figshare
-from rdbackup.backup import database
-from rdbackup.utils import convenience as conv
+from djehuty.backup import figshare
+from djehuty.backup import database
+from djehuty.utils import convenience as conv
 
 def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password, db_name,
           since="1970-01-01"):

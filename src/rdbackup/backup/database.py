@@ -6,7 +6,7 @@ import logging
 from datetime import datetime
 import requests
 from mysql.connector import connect, Error
-from rdbackup.utils import convenience
+from djehuty.utils import convenience
 
 class DatabaseInterface:
     """

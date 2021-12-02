@@ -9,6 +9,6 @@ def add (graph, subject, predicate, value):
     if value is not None:
         graph.add((subject, predicate, Literal(value)))
 
-ROW = Namespace("origin://rdbackup#")
+ROW = Namespace("origin://djehuty#")
 SG  = Namespace("https://sparqling-genomics.org/0.99.12/")
 COL = Namespace("sg://0.99.12/table2rdf/Column/")

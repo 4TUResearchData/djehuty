@@ -7,9 +7,9 @@ import logging
 from urllib.error import URLError
 from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib import Graph, Literal, RDF
-from rdbackup.utils import counters
-from rdbackup.utils import rdf
-from rdbackup.utils import convenience as conv
+from djehuty.utils import counters
+from djehuty.utils import rdf
+from djehuty.utils import convenience as conv
 
 class UnknownDatabaseState(Exception):
     """Raised when the database is not queryable."""

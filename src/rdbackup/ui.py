@@ -6,19 +6,19 @@ import argparse
 import sys
 import logging
 
-import rdbackup.backup.ui as backup_ui
-import rdbackup.api.ui as api_ui
+import djehuty.backup.ui as backup_ui
+import djehuty.api.ui as api_ui
 
 def show_version ():
     """Show the program's version."""
 
-    print("This is rdbackup v0.0.1")
+    print("This is djehuty v0.0.1")
     sys.exit(0)
 
 def show_help ():
     """Show a GNU-style help message."""
 
-    print("""This is rdbackup.\n
+    print("""This is djehuty.\n
 Available subcommands and options:
 
   backup:
@@ -51,7 +51,7 @@ def main ():
     ## ------------------------------------------------------------------------
     parser = argparse.ArgumentParser(
         usage    = '\n  %(prog)s [backup|api] ...',
-        prog     = 'rdbackup',
+        prog     = 'djehuty',
         add_help = False)
 
     subparsers = parser.add_subparsers(dest='command', help='sub-command help')
