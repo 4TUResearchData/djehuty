@@ -485,11 +485,6 @@ WHERE {{
                                  order=None, order_direction=None,
                                  limit=10, article_id=None):
 
-        if order_direction is None:
-            order_direction = "DESC"
-        if order is None:
-            order="?id"
-
         query = f"""\
 {self.default_prefixes}
 SELECT DISTINCT ?id ?article_id ?type ?ip_name
