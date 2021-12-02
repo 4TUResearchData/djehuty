@@ -53,6 +53,7 @@ class ApiServer:
             Rule("/v2/articles/<article_id>",                 endpoint = "article_details"),
             Rule("/v2/articles/<article_id>/versions",        endpoint = "article_versions"),
             Rule("/v2/articles/<article_id>/versions/<version>", endpoint = "article_version_details"),
+            Rule("/v2/articles/<article_id>/versions/<version>/embargo", endpoint = "article_version_embargo"),
             Rule("/v2/articles/<article_id>/files",           endpoint = "article_files"),
             Rule("/v2/articles/<article_id>/files/<file_id>", endpoint = "article_file_details"),
 
@@ -441,6 +442,25 @@ class ApiServer:
                                                                      categories,
                                                                      fundings,
                                                                      references)
+            return self.response (json.dumps(total))
+        except IndexError:
+            response = self.response (json.dumps({
+                "message": "This article cannot be found."
+            }))
+            response.status_code = 404
+            return response
+
+    def api_article_version_embargo (self, request, article_id, version):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        try:
+            article         = self.db.articles (article_id=article_id, version=version)[0]
+            embargo_options = self.db.article_embargo_options (article_id=article_id)
+            total           = formatter.format_article_embargo_record (article, embargo_options)
             return self.response (json.dumps(total))
         except IndexError:
             response = self.response (json.dumps({
