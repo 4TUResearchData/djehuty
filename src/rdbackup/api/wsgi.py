@@ -51,6 +51,7 @@ class ApiServer:
             Rule("/v2/articles",                              endpoint = "articles"),
             Rule("/v2/articles/search",                       endpoint = "articles_search"),
             Rule("/v2/articles/<article_id>",                 endpoint = "article_details"),
+            Rule("/v2/articles/<article_id>/versions",        endpoint = "article_versions"),
             Rule("/v2/articles/<article_id>/files",           endpoint = "article_files"),
             Rule("/v2/articles/<article_id>/files/<file_id>", endpoint = "article_file_details"),
 
@@ -402,6 +403,16 @@ class ApiServer:
             }))
             response.status_code = 404
             return response
+
+    def api_article_versions (self, request, article_id):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        versions = self.db.article_versions(article_id=article_id)
+        return self.default_list_response (versions, formatter.format_version_record)
 
     def api_article_files (self, request, article_id):
         if request.method != 'GET':
