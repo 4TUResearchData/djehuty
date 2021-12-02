@@ -36,93 +36,19 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     def load_state (self):
         """Procedure to load the database state."""
 
-        current_article_id          = 0
-        current_article_category_id = 0
-        current_article_author_id   = 0
-        current_article_file_id     = 0
-        current_collection_id       = 0
-        current_author_id           = 0
-        current_account_id          = 0
-        current_file_id             = 0
-        current_funding_id          = 0
-        current_category_id         = 0
-        current_project_id          = 0
-        current_timeline_id         = 0
-        current_institution_id      = 0
-        current_tag_id              = 0
-        current_reference_id        = 0
-
         # Set the iterators to continue where we left off last time the
         # program was run.
         try:
-            current_article_id          = self.__highest_id (item_type="article")
-            current_article_category_id = self.__highest_id (item_type="article_category")
-            current_article_author_id   = self.__highest_id (item_type="article_author")
-            current_article_file_id     = self.__highest_id (item_type="article_file")
-            current_collection_id       = self.__highest_id (item_type="collection")
-            current_author_id           = self.__highest_id (item_type="author")
-            current_account_id          = self.__highest_id (item_type="account")
-            current_file_id             = self.__highest_id (item_type="file")
-            current_funding_id          = self.__highest_id (item_type="funding")
-            current_category_id         = self.__highest_id (item_type="category")
-            current_project_id          = self.__highest_id (item_type="project")
-            current_timeline_id         = self.__highest_id (item_type="timeline")
-            current_institution_id      = self.__highest_id (item_type="institution")
-            current_tag_id              = self.__highest_id (item_type="tag")
-            current_reference_id        = self.__highest_id (item_type="reference")
-
-            if (current_article_id          is None or
-                current_article_category_id is None or
-                current_article_author_id   is None or
-                current_article_file_id     is None or
-                current_collection_id       is None or
-                current_author_id           is None or
-                current_account_id          is None or
-                current_file_id             is None or
-                current_funding_id          is None or
-                current_category_id         is None or
-                current_project_id          is None or
-                current_timeline_id         is None or
-                current_institution_id      is None or
-                current_tag_id              is None or
-                current_reference_id        is None):
-                logging.error ("Cannot determine the database state.")
-                raise UnknownDatabaseState
+            for item in self.ids.keys():
+                self.ids.set_id (self.__highest_id (item_type=item), item)
+                if self.ids.current_id (item) is None:
+                    raise UnknownDatabaseState
 
         except EmptyDatabase:
             logging.warning ("It looks like the database is empty.")
 
-        self.ids.set_article_id (current_article_id)
-        self.ids.set_article_category_id (current_article_category_id)
-        self.ids.set_article_author_id (current_article_author_id)
-        self.ids.set_article_file_id (current_article_file_id)
-        self.ids.set_collection_id (current_collection_id)
-        self.ids.set_author_id (current_author_id)
-        self.ids.set_account_id (current_account_id)
-        self.ids.set_file_id (current_file_id)
-        self.ids.set_funding_id (current_funding_id)
-        self.ids.set_category_id (current_category_id)
-        self.ids.set_project_id (current_project_id)
-        self.ids.set_timeline_id (current_timeline_id)
-        self.ids.set_institution_id (current_institution_id)
-        self.ids.set_tag_id (current_tag_id)
-        self.ids.set_reference_id (current_reference_id)
-
-        logging.info ("Article enumerator set to %d", current_article_id)
-        logging.info ("ArticleCategory enumerator set to %d", current_article_category_id)
-        logging.info ("ArticleAuthor enumerator set to %d", current_article_author_id)
-        logging.info ("ArticleFile enumerator set to %d", current_article_file_id)
-        logging.info ("Collection enumerator set to %d", current_collection_id)
-        logging.info ("Author enumerator set to %d", current_author_id)
-        logging.info ("Account enumerator set to %d", current_account_id)
-        logging.info ("File enumerator set to %d", current_file_id)
-        logging.info ("Funding enumerator set to %d", current_funding_id)
-        logging.info ("Category enumerator set to %d", current_category_id)
-        logging.info ("Project enumerator set to %d", current_project_id)
-        logging.info ("Timeline enumerator set to %d", current_timeline_id)
-        logging.info ("Institution enumerator set to %d", current_institution_id)
-        logging.info ("Tag enumerator set to %d", current_tag_id)
-        logging.info ("Reference enumerator set to %d", current_reference_id)
+        for item in self.ids.keys():
+            logging.info ("%s enumerator set to %d", item, self.ids.current_id (item))
 
     ## ------------------------------------------------------------------------
     ## Private methods
@@ -1107,7 +1033,7 @@ LIMIT {limit}
         graph = Graph()
 
         if article_id is None:
-            article_id = self.ids.next_article_id()
+            article_id = self.ids.next_id("article")
 
         article_uri = rdf.ROW[str(article_id)]
 
@@ -1269,7 +1195,7 @@ LIMIT {limit}
         graph = Graph()
 
         if account_id is None:
-            account_id = self.ids.next_account_id()
+            account_id = self.ids.next_id("account")
 
         account_uri = rdf.ROW[str(account_id)]
 
@@ -1303,7 +1229,7 @@ LIMIT {limit}
         graph = Graph()
 
         if institution_id is None:
-            institution_id = self.ids.next_institution_id()
+            institution_id = self.ids.next_id("institution")
 
         institution_uri = rdf.ROW[str(institution_id)]
 
@@ -1327,7 +1253,7 @@ LIMIT {limit}
         graph = Graph()
 
         if author_id is None:
-            author_id = self.ids.next_author_id()
+            author_id = self.ids.next_id("author")
 
         author_uri = rdf.ROW[str(author_id)]
 
@@ -1356,7 +1282,7 @@ LIMIT {limit}
         """Procedure to add a timeline to the state graph."""
 
         graph        = Graph()
-        timeline_id  = self.ids.next_timeline_id()
+        timeline_id  = self.ids.next_id("timeline")
         timeline_uri = rdf.ROW[str(timeline_id)]
 
         graph.add ((timeline_uri, RDF.type,      rdf.SG["Timeline"]))
@@ -1382,7 +1308,7 @@ LIMIT {limit}
         graph = Graph()
 
         if category_id is None:
-            category_id = self.ids.next_category_id()
+            category_id = self.ids.next_id("category")
 
         category_uri = rdf.ROW[str(category_id)]
 
@@ -1405,7 +1331,7 @@ LIMIT {limit}
 
         graph = Graph()
 
-        link_id  = self.ids.next_article_category_id()
+        link_id  = self.ids.next_id("article_category")
         link_uri = rdf.ROW[str(category_id)]
 
         graph.add ((link_uri, RDF.type,               rdf.SG["ArticleCategory"]))
@@ -1424,7 +1350,7 @@ LIMIT {limit}
 
         graph = Graph()
 
-        link_id  = self.ids.next_article_author_id()
+        link_id  = self.ids.next_id("article_author")
         link_uri = rdf.ROW[str(author_id)]
 
         graph.add ((link_uri, RDF.type,              rdf.SG["ArticleAuthor"]))
@@ -1443,7 +1369,7 @@ LIMIT {limit}
 
         graph = Graph()
 
-        link_id  = self.ids.next_article_file_id()
+        link_id  = self.ids.next_id("article_file")
         link_uri = rdf.ROW[str(file_id)]
 
         graph.add ((link_uri, RDF.type,              rdf.SG["ArticleFile"]))
@@ -1462,7 +1388,7 @@ LIMIT {limit}
 
         prefix  = item_type.capitalize()
         graph   = Graph()
-        tag_id  = self.ids.next_tag_id()
+        tag_id  = self.ids.next_id("tag")
         tag_uri = rdf.ROW[str(tag_id)]
 
         graph.add ((tag_uri, RDF.type,                   rdf.SG[f"{prefix}Tag"]))
@@ -1482,7 +1408,7 @@ LIMIT {limit}
 
         prefix        = item_type.capitalize()
         graph         = Graph()
-        reference_id  = self.ids.next_reference_id()
+        reference_id  = self.ids.next_id("reference")
         reference_uri = rdf.ROW[str(item_id)]
 
         graph.add ((reference_uri, RDF.type,                   rdf.SG[f"{prefix}Reference"]))
@@ -1503,7 +1429,7 @@ LIMIT {limit}
 
         prefix      = item_type.capitalize()
         graph       = Graph()
-        funding_id  = self.ids.next_funding_id()
+        funding_id  = self.ids.next_id("funding")
         funding_uri = rdf.ROW[str(item_id)]
 
         graph.add ((funding_uri, RDF.type,                   rdf.SG[f"{prefix}Funding"]))
@@ -1529,7 +1455,7 @@ LIMIT {limit}
         """Procedure to add an file to the state graph."""
 
         graph    = Graph()
-        file_id  = self.ids.next_file_id()
+        file_id  = self.ids.next_id("file")
         file_uri = rdf.ROW[str(file_id)]
 
         graph.add ((file_uri, RDF.type,               rdf.SG["File"]))
@@ -1620,7 +1546,7 @@ LIMIT {limit}
 
         prefix           = item_type.capitalize()
         graph            = Graph()
-        custom_field_id  = self.ids.next_custom_field_id()
+        custom_field_id  = self.ids.next_id("custom_field")
         custom_field_uri = rdf.ROW[str(custom_field_id)]
 
         graph.add ((custom_field_uri, RDF.type,                   rdf.SG[f"{prefix}CustomField"]))
