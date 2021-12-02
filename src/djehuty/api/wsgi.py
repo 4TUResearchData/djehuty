@@ -551,15 +551,15 @@ class ApiServer:
 
             return self.default_list_response (records, formatter.format_article_record)
 
-        elif request.method == 'POST':
+        if request.method == 'POST':
             parameters = request.get_json()
             article_id = self.db.insert_article (title=convenience.value_or_none(parameters, "title"))
             return self.response(json.dumps({
                 "location": f"http://{self.address}:{self.port}/v2/account/articles/{article_id}",
                 "warnings": []
             }))
-        else:
-            return self.error_405 (["GET", "POST"])
+
+        return self.error_405 (["GET", "POST"])
 
     def api_private_article_details (self, request, article_id):
 
@@ -604,17 +604,15 @@ class ApiServer:
                 }))
                 response.status_code = 404
                 return response
-        elif request.method == 'DELETE':
-            if self.db.delete_article (article_id):
+
+        if request.method == 'DELETE':
+            if self.db.delete_article (article_id, account_id):
                 return self.respond_204()
-            else:
-                return self.error_500 ()
-        else:
-            return self.error_405 (["GET", "DELETE"])
+            return self.error_500 ()
+
+        return self.error_405 (["GET", "DELETE"])
 
     def api_private_article_authors (self, request, article_id):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -675,13 +673,13 @@ class ApiServer:
                 }))
                 response.status_code = 404
                 return response
-        elif request.method == 'DELETE':
+
+        if request.method == 'DELETE':
             if self.db.delete_article_embargo (article_id=article_id, account_id=account_id):
                 return self.respond_204()
-            else:
-                return self.error_500 ()
-        else:
-            return self.error_405 (["GET", "DELETE"])
+            return self.error_500 ()
+
+        return self.error_405 (["GET", "DELETE"])
 
     def api_private_article_files (self, request, article_id):
         if request.method != 'GET':
