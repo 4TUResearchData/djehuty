@@ -233,7 +233,7 @@ LIMIT {limit}
                   group=None, resource_doi=None, item_type=None,
                   doi=None, handle=None, account_id=None,
                   search_for=None, article_id=None,
-                  collection_id=None):
+                  collection_id=None, version=None):
 
         if order_direction is None:
             order_direction = "DESC"
@@ -378,6 +378,9 @@ WHERE {{
 
         if article_id is not None:
             query += f"FILTER (?id = {article_id})\n"
+
+        if version is not None:
+            query += f"FILTER (?version={version})\n"
 
         if account_id is None:
             query += "FILTER (?is_public = 1)\n"

@@ -52,6 +52,7 @@ class ApiServer:
             Rule("/v2/articles/search",                       endpoint = "articles_search"),
             Rule("/v2/articles/<article_id>",                 endpoint = "article_details"),
             Rule("/v2/articles/<article_id>/versions",        endpoint = "article_versions"),
+            Rule("/v2/articles/<article_id>/versions/<version>", endpoint = "article_version_details"),
             Rule("/v2/articles/<article_id>/files",           endpoint = "article_files"),
             Rule("/v2/articles/<article_id>/files/<file_id>", endpoint = "article_file_details"),
 
@@ -413,6 +414,40 @@ class ApiServer:
 
         versions = self.db.article_versions(article_id=article_id)
         return self.default_list_response (versions, formatter.format_version_record)
+
+    def api_article_version_details (self, request, article_id, version):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        try:
+            article       = self.db.articles(article_id=article_id, version=version)[0]
+            authors       = self.db.authors(item_id=article_id, item_type="article")
+            files         = self.db.article_files(article_id=article_id)
+            custom_fields = self.db.custom_fields(item_id=article_id, item_type="article")
+            embargo_options = self.db.article_embargo_options(article_id=article_id)
+            tags          = self.db.tags(item_id=article_id, item_type="article")
+            categories    = self.db.categories(item_id=article_id, item_type="article")
+            references    = self.db.references(item_id=article_id, item_type="article")
+            fundings      = self.db.fundings(item_id=article_id, item_type="article")
+            total         = formatter.format_article_details_record (article,
+                                                                     authors,
+                                                                     files,
+                                                                     custom_fields,
+                                                                     embargo_options,
+                                                                     tags,
+                                                                     categories,
+                                                                     fundings,
+                                                                     references)
+            return self.response (json.dumps(total))
+        except IndexError:
+            response = self.response (json.dumps({
+                "message": "This article cannot be found."
+            }))
+            response.status_code = 404
+            return response
 
     def api_article_files (self, request, article_id):
         if request.method != 'GET':
