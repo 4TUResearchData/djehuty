@@ -129,31 +129,24 @@ LIMIT 1
 
     def article_versions (self, limit=1000, offset=0, order=None,
                           order_direction=None, article_id=None):
-        if not order_direction:
-            order_direction = "DESC"
-
-        order = "?id" if order is not None else f"?{order}"
 
         query = f"""\
 {self.default_prefixes}
 SELECT DISTINCT ?id ?version ?url ?url_public_api
 WHERE {{
+  GRAPH <{self.state_graph}> {{
     ?article rdf:type           sg:Article .
     ?article col:id             ?id .
     ?article col:version        ?version .
     ?article col:url            ?url .
     ?article col:url_public_api ?url_public_api .
+  }}
 """
         if article_id is not None:
-            query += f"FILTER (?id = {article_id})\n"
+            query += rdf.sparql_filter ("id", article_id)
 
-        query += f"""
-}}
-ORDER BY {order_direction}({order})
-LIMIT {limit}
-"""
-        if offset is not None:
-            query += f"OFFSET {offset}"
+        query += "}\n"
+        query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
         return self.__run_query (query)
 
@@ -164,13 +157,6 @@ LIMIT {limit}
                   doi=None, handle=None, account_id=None,
                   search_for=None, article_id=None,
                   collection_id=None, version=None):
-
-        if order_direction is None:
-            order_direction = "DESC"
-        if limit is None:
-            limit = 10
-
-        order = "?id" if order is not None else f"?{order}"
 
         query = f"""\
 {self.default_prefixes}
@@ -276,8 +262,18 @@ WHERE {{
 }
 """
 
-        if institution is not None:
-            query += f"FILTER (?institution_id={institution})\n"
+        query += rdf.sparql_filter ("institution_id", institution)
+        query += rdf.sparql_filter ("group_id",       group)
+        query += rdf.sparql_filter ("defined_type",   item_type)
+        query += rdf.sparql_filter ("id",             article_id)
+        query += rdf.sparql_filter ("version",        version)
+        query += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
+        query += rdf.sparql_filter ("doi",            doi,          escape=True)
+        query += rdf.sparql_filter ("handle",         handle,       escape=True)
+        query += rdf.sparql_filter ("title",          search_for,   escape=True)
+        query += rdf.sparql_filter ("resource_title", search_for,   escape=True)
+        query += rdf.sparql_filter ("description",    search_for,   escape=True)
+        query += rdf.sparql_filter ("citation",       search_for,   escape=True)
 
         if published_since is not None:
             query += "FILTER (BOUND(?published_date))\n"
@@ -289,44 +285,13 @@ WHERE {{
             query += "FILTER (STR(?modified_date) != \"NULL\")\n"
             query += f"FILTER (STR(?modified_date) > \"{modified_since}\")\n"
 
-        if group is not None:
-            query += f"FILTER (?group_id = {group})\n"
-
-        if resource_doi is not None:
-            query += f"FILTER (STR(?resource_doi) = \"{resource_doi}\")\n"
-
-        if item_type is not None:
-            query += f"FILTER (?defined_type = {item_type})\n"
-
-        if doi is not None:
-            query += f"FILTER (STR(?doi) = \"{doi}\")\n"
-
-        if handle is not None:
-            query += f"FILTER (STR(?handle) = \"{handle}\")\n"
-
-        if article_id is not None:
-            query += f"FILTER (?id = {article_id})\n"
-
-        if version is not None:
-            query += f"FILTER (?version={version})\n"
-
         if account_id is None:
-            query += "FILTER (?is_public = 1)\n"
+            query += rdf.sparql_filter ("is_public", 1)
         else:
-            query += f"FILTER (?account_id = {account_id})\n"
+            query += rdf.sparql_filter ("account_id", account_id)
 
-        if search_for is not None:
-            query += f"FILTER(CONTAINS(?title, \"{search_for}\"))\n"
-            query += f"FILTER(CONTAINS(?resource_title, \"{search_for}\"))\n"
-            query += f"FILTER(CONTAINS(?description, \"{search_for}\"))\n"
-            query += f"FILTER(CONTAINS(?citation, \"{search_for}\"))\n"
-
-        query += f"""}}
-ORDER BY {order_direction}({order})
-LIMIT {limit}
-"""
-        if offset is not None:
-            query += f"OFFSET {offset}"
+        query += "}\n"
+        query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
         return self.__run_query (query)
 
@@ -338,17 +303,7 @@ LIMIT {limit}
                  account_id=None, item_type="article"):
 
         prefix = "Article" if item_type == "article" else "Collection"
-
-        if order_direction is None:
-            order_direction = "ASC"
-        if limit is None:
-            limit = 10
-        if order is None:
-            order="?full_name"
-        else:
-            order = f"?{order}"
-
-        query = f"""\
+        query  = f"""\
 {self.default_prefixes}
 SELECT DISTINCT ?first_name      ?full_name       ?group_id
                 ?id              ?institution_id  ?is_active
@@ -387,46 +342,23 @@ WHERE {{
   }
 """
 
-        if first_name is not None:
-            query += f"FILTER (STR(?first_name) = \"{first_name}\")\n"
-
-        if full_name is not None:
-            query += f"FILTER (STR(?full_name) = \"{full_name}\")\n"
-
-        if group_id is not None:
-            query += f"FILTER (?group_id = {group_id})\n"
-
-        if author_id is not None:
-            query += f"FILTER (?id = {author_id})\n"
-
-        if institution_id is not None:
-            query += f"FILTER (?institution_id = {institution_id})\n"
-
-        if is_active is not None:
-            query += f"FILTER (?is_active = {is_active})\n"
-
-        if is_public is not None:
-            query += f"FILTER (?is_public = {is_public})\n"
-
-        if job_title is not None:
-            query += f"FILTER (?job_title = \"{job_title}\")\n"
-
-        if last_name is not None:
-            query += f"FILTER (?last_name = \"{last_name}\")\n"
-
-        if orcid_id is not None:
-            query += f"FILTER (?orcid_id = \"{orcid_id}\")\n"
-
-        if url_name is not None:
-            query += f"FILTER (?url_name = \"{url_name}\")\n"
+        query += rdf.sparql_filter ("group_id",       group_id)
+        query += rdf.sparql_filter ("id",             author_id)
+        query += rdf.sparql_filter ("institution_id", institution_id)
+        query += rdf.sparql_filter ("is_active",      is_active)
+        query += rdf.sparql_filter ("is_public",      is_public)
+        query += rdf.sparql_filter ("job_title",      job_title,  escape=True)
+        query += rdf.sparql_filter ("first_name",     first_name, escape=True)
+        query += rdf.sparql_filter ("last_name",      last_name,  escape=True)
+        query += rdf.sparql_filter ("full_name",      full_name,  escape=True)
+        query += rdf.sparql_filter ("orcid_id",       orcid_id,   escape=True)
+        query += rdf.sparql_filter ("url_name",       url_name,   escape=True)
 
         query += "}\n"
-
-        if order is not None:
-            query += f"""\
-ORDER BY {order_direction}({order})
-LIMIT {limit}
-"""
+        query += rdf.sparql_suffix ("full_name" if order is None else order,
+                                    "asc" if order_direction is None else order_direction,
+                                    limit,
+                                    None)
 
         return self.__run_query(query)
 
@@ -434,17 +366,8 @@ LIMIT {limit}
                        file_id=None, download_url=None, supplied_md5=None,
                        computed_md5=None, viewer_type=None, preview_state=None,
                        status=None, upload_url=None, upload_token=None,
-                       order=None, order_direction=None, limit=None,
+                       order=None, order_direction=None, limit=10,
                        article_id=None, account_id=None):
-
-        if order_direction is None:
-            order_direction = "DESC"
-        if limit is None:
-            limit = 10
-        if order is None:
-            order="?id"
-        else:
-            order = f"?{order}"
 
         query = f"""\
 {self.default_prefixes}
@@ -467,9 +390,7 @@ WHERE {{
 """
 
         if (article_id is not None) and (account_id is not None):
-            query += """\
-    ?article           col:account_id           ?account_id .
-"""
+            query += "    ?article           col:account_id           ?account_id ."
 
         query += """\
     OPTIONAL { ?file  col:name                 ?name . }
@@ -485,49 +406,22 @@ WHERE {{
     OPTIONAL { ?file  col:upload_token         ?upload_token . }
   }
 """
-        if name is not None:
-            query += f"FILTER (STR(?name) = \"{name}\")\n"
 
-        if size is not None:
-            query += f"FILTER (?size = {size})\n"
-
-        if is_link_only is not None:
-            query += f"FILTER (?is_link_only = {is_link_only})\n"
-
-        if file_id is not None:
-            query += f"FILTER (?id = {file_id})\n"
-
-        if download_url is not None:
-            query += f"FILTER (STR(?download_url) = \"{download_url}\")\n"
-
-        if supplied_md5 is not None:
-            query += f"FILTER (STR(?supplied_md5) = \"{supplied_md5}\")\n"
-
-        if computed_md5 is not None:
-            query += f"FILTER (STR(?computed_md5) = \"{computed_md5}\")\n"
-
-        if viewer_type is not None:
-            query += f"FILTER (STR(?viewer_type) = \"{viewer_type}\")\n"
-
-        if preview_state is not None:
-            query += f"FILTER (STR(?preview_state) = \"{preview_state}\")\n"
-
-        if status is not None:
-            query += f"FILTER (STR(?status) = \"{status}\")\n"
-
-        if upload_url is not None:
-            query += f"FILTER (STR(?upload_url) = \"{upload_url}\")\n"
-
-        if upload_token is not None:
-            query += f"FILTER (STR(?upload_token) = \"{upload_token}\")\n"
+        query += rdf.sparql_filter ("size",          size)
+        query += rdf.sparql_filter ("is_link_only",  is_link_only)
+        query += rdf.sparql_filter ("id",            file_id)
+        query += rdf.sparql_filter ("name",          name,          escape=True)
+        query += rdf.sparql_filter ("download_url",  download_url,  escape=True)
+        query += rdf.sparql_filter ("supplied_md5",  supplied_md5,  escape=True)
+        query += rdf.sparql_filter ("computed_md5",  computed_md5,  escape=True)
+        query += rdf.sparql_filter ("viewer_type",   viewer_type,   escape=True)
+        query += rdf.sparql_filter ("preview_state", preview_state, escape=True)
+        query += rdf.sparql_filter ("status",        status,        escape=True)
+        query += rdf.sparql_filter ("upload_url",    upload_url,    escape=True)
+        query += rdf.sparql_filter ("upload_token",  upload_token,  escape=True)
 
         query += "}\n"
-
-        if order is not None:
-            query += f"""\
-ORDER BY {order_direction}({order})
-LIMIT {limit}
-"""
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
 
@@ -535,16 +429,9 @@ LIMIT {limit}
                        field_id=None, placeholder=None, max_length=None,
                        min_length=None, field_type=None, is_multiple=None,
                        is_mandatory=None, order=None, order_direction=None,
-                       limit=None, item_id=None, item_type="article"):
+                       limit=10, item_id=None, item_type="article"):
 
         prefix = "Article" if item_type == "article" else "Collection"
-
-        if order_direction is None:
-            order_direction = "DESC"
-        if order is None:
-            order="?name"
-        if limit is None:
-            limit = 10
 
         query = f"""\
 {self.default_prefixes}
@@ -575,55 +462,33 @@ WHERE {{
     OPTIONAL { ?field  col:is_mandatory         ?is_mandatory . }
   }
 """
-        if name is not None:
-            query += f"FILTER (STR(?name) = \"{name}\")\n"
-
-        if value is not None:
-            query += f"FILTER (STR(?value) = \"{value}\")\n"
-
-        if default_value is not None:
-            query += f"FILTER (STR(?default_value) = \"{default_value}\")\n"
-
-        if field_id is not None:
-            query += f"FILTER (?id = {field_id})\n"
-
-        if placeholder is not None:
-            query += f"FILTER (STR(?placeholder) = \"{placeholder}\")\n"
-
-        if max_length is not None:
-            query += f"FILTER (?max_length = {max_length})\n"
-
-        if min_length is not None:
-            query += f"FILTER (?min_length = {min_length})\n"
-
-        if field_type is not None:
-            query += f"FILTER (STR(?field_type) = \"{field_type}\")\n"
-
-        if is_multiple is not None:
-            query += f"FILTER (?is_multiple = {is_multiple})\n"
-
-        if is_mandatory is not None:
-            query += f"FILTER (?is_mandatory = {is_mandatory})\n"
+        query += rdf.sparql_filter ("id",            field_id)
+        query += rdf.sparql_filter ("max_length",    max_length)
+        query += rdf.sparql_filter ("min_length",    min_length)
+        query += rdf.sparql_filter ("is_multiple",   is_multiple)
+        query += rdf.sparql_filter ("is_mandatory",  is_mandatory)
+        query += rdf.sparql_filter ("name",          name,          escape=True)
+        query += rdf.sparql_filter ("value",         value,         escape=True)
+        query += rdf.sparql_filter ("default_value", default_value, escape=True)
+        query += rdf.sparql_filter ("placeholder",   placeholder,   escape=True)
+        query += rdf.sparql_filter ("field_type",    field_type,    escape=True)
 
         query += "}\n"
+        query += rdf.sparql_suffix ("name" if order is None else order,
+                                    order_direction,
+                                    limit,
+                                    None)
 
-        if order is not None:
-            query += f"""\
-ORDER BY {order_direction}({order})
-LIMIT {limit}
-"""
         return self.__run_query(query)
 
     def article_embargo_options (self, ip_name=None, embargo_type=None,
                                  order=None, order_direction=None,
-                                 limit=None, article_id=None):
+                                 limit=10, article_id=None):
 
         if order_direction is None:
             order_direction = "DESC"
         if order is None:
             order="?id"
-        if limit is None:
-            limit = 10
 
         query = f"""\
 {self.default_prefixes}
@@ -632,42 +497,24 @@ WHERE {{
   GRAPH <{self.state_graph}> {{
     ?field             rdf:type                 sg:ArticleEmbargoOption .
     ?field             col:id                   ?id .
+    ?field             col:article_id           ?article_id .
     OPTIONAL {{ ?field  col:type                 ?type . }}
     OPTIONAL {{ ?field  col:ip_name              ?ip_name . }}
+  }}
 """
-
-        if article_id is not None:
-            query += f"    ?field  col:article_id  {article_id} .\n"
-
-        query += "  }\n"
-
-        if ip_name is not None:
-            query += f"  FILTER (STR(?ip_name) = \"{ip_name}\")\n"
-
-        if embargo_type is not None:
-            query += f"  FILTER (STR(?type) = \"{embargo_type}\")\n"
+        query += rdf.sparql_filter ("article_id",   article_id)
+        query += rdf.sparql_filter ("ip_name",      ip_name,      escape=True)
+        query += rdf.sparql_filter ("embargo_type", embargo_type, escape=True)
 
         query += "}\n"
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
 
-        if order is not None:
-            query += f"""\
-ORDER BY {order_direction}({order})
-LIMIT {limit}
-"""
         return self.__run_query(query)
 
-    def tags (self, order=None, order_direction=None, limit=None, item_id=None, item_type="article"):
+    def tags (self, order=None, order_direction=None, limit=10, item_id=None, item_type="article"):
 
         prefix = "Article" if item_type == "article" else "Collection"
-
-        if order_direction is None:
-            order_direction = "DESC"
-        if order is None:
-            order="?id"
-        if limit is None:
-            limit = 10
-
-        query = f"""\
+        query  = f"""\
 {self.default_prefixes}
 SELECT DISTINCT ?id ?tag
 WHERE {{
@@ -675,36 +522,20 @@ WHERE {{
     ?row             rdf:type                 sg:{prefix}Tag .
     ?row             col:id                   ?id .
     ?row             col:tag                  ?tag .
+    ?row             col:{item_type}_id       ?item_id .
+  }}
 """
 
-        if item_id is not None:
-            query += f"""\
-    ?row             col:{item_type}_id       {item_id} .
-"""
-
-        query += """\
-  }
-}
-"""
-        if order is not None:
-            query += f"""\
-ORDER BY {order_direction}({order})
-LIMIT {limit}
-"""
+        query += rdf.sparql_filter (f"{item_id}_id", item_id)
+        query += "}\n"
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
 
     def categories (self, title=None, order=None, order_direction=None,
-                    limit=None, item_id=None, account_id=None,
+                    limit=10, item_id=None, account_id=None,
                     item_type="article"):
         prefix = "Article" if item_type == "article" else "Collection"
-
-        if order_direction is None:
-            order_direction = "DESC"
-        if order is None:
-            order="?id"
-        if limit is None:
-            limit = 10
 
         query = f"""\
 {self.default_prefixes}
@@ -727,22 +558,13 @@ WHERE {{
 """
 
         if (item_id is not None) and (account_id is not None):
-            query += """\
-    ?item            col:account_id           ?account_id .
-"""
+            query += "    ?item            col:account_id           ?account_id .\n"
 
         query += "  }\n"
 
-        if title is not None:
-            query += f"FILTER (STR(?title) = \"{title}\")\n"
-
+        query += rdf.sparql_filter ("title", title, escape=True)
         query += "}\n"
-
-        if order is not None:
-            query += f"""\
-ORDER BY {order_direction}({order})
-LIMIT {limit}
-"""
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
 
@@ -755,15 +577,6 @@ LIMIT {limit}
                      published_since=None, modified_since=None, group=None,
                      resource_doi=None, resource_id=None, doi=None, handle=None,
                      account_id=None, search_for=None, collection_id=None):
-
-        if order_direction is None:
-            order_direction = "DESC"
-        if limit is None:
-            limit = 10
-        if order is None:
-            order="?id"
-        else:
-            order = f"?{order}"
 
         query = f"""\
 {self.default_prefixes}
@@ -839,8 +652,17 @@ WHERE {{
   }}
 """
 
-        if institution is not None:
-            query += f"FILTER (?institution_id={institution})\n"
+        query += rdf.sparql_filter ("institution_id", institution)
+        query += rdf.sparql_filter ("group_id",       group)
+        query += rdf.sparql_filter ("id",             collection_id)
+        query += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
+        query += rdf.sparql_filter ("resource_id",    resource_id,  escape=True)
+        query += rdf.sparql_filter ("doi",            doi,          escape=True)
+        query += rdf.sparql_filter ("handle",         handle,       escape=True)
+        query += rdf.sparql_filter ("title",          search_for,   escape=True)
+        query += rdf.sparql_filter ("resource_title", search_for,   escape=True)
+        query += rdf.sparql_filter ("description",    search_for,   escape=True)
+        query += rdf.sparql_filter ("citation",       search_for,   escape=True)
 
         if published_since is not None:
             query += "FILTER (BOUND(?published_date))\n"
@@ -852,62 +674,22 @@ WHERE {{
             query += "FILTER (STR(?modified_date) != \"NULL\")\n"
             query += f"FILTER (STR(?modified_date) > \"{modified_since}\")\n"
 
-        if group is not None:
-            query += f"FILTER (?group_id = {group})\n"
-
-        if resource_doi is not None:
-            query += f"FILTER (STR(?resource_doi) = \"{resource_doi}\")\n"
-
-        if resource_id is not None:
-            query += f"FILTER (STR(?resource_id) = \"{resource_id}\")\n"
-
-        if doi is not None:
-            query += f"FILTER (STR(?doi) = \"{doi}\")\n"
-
-        if handle is not None:
-            query += f"FILTER (STR(?handle) = \"{handle}\")\n"
-
-        if collection_id is not None:
-            query += f"FILTER (?id = {collection_id})\n"
-
         if account_id is None:
-            query += "FILTER (?is_public = 1)\n"
+            query += rdf.sparql_filter ("is_public", 1)
         else:
-            query += f"FILTER (?account_id = {account_id})\n"
-
-        if search_for is not None:
-            query += f"FILTER(CONTAINS(?title, \"{search_for}\"))\n"
-            query += f"FILTER(CONTAINS(?resource_title, \"{search_for}\"))\n"
-            query += f"FILTER(CONTAINS(?description, \"{search_for}\"))\n"
-            query += f"FILTER(CONTAINS(?citation, \"{search_for}\"))\n"
+            query += rdf.sparql_filter ("account_id", account_id)
 
         query += "}\n"
-
-        if order is not None:
-            query += f"""\
-ORDER BY {order_direction}({order})
-LIMIT {limit}
-"""
-
-        if offset is not None:
-            query += f"OFFSET {offset}"
+        query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
         return self.__run_query(query)
 
     def fundings (self, title=None, order=None, order_direction=None,
-                  limit=None, item_id=None, account_id=None,
+                  limit=10, item_id=None, account_id=None,
                   item_type="article"):
 
         prefix = "Article" if item_type == "article" else "Collection"
-
-        if order_direction is None:
-            order_direction = "DESC"
-        if order is None:
-            order="?id"
-        if limit is None:
-            limit = 10
-
-        query = f"""\
+        query  = f"""\
 {self.default_prefixes}
 SELECT DISTINCT ?id ?title ?grant_code ?funder_name ?url
 WHERE {{
@@ -924,43 +706,25 @@ WHERE {{
         if item_id is not None:
             query += f"""\
     ?item           rdf:type                 sg:{prefix}FundingLink .
-    ?item           col:{item_type}_id        ?{item_type}_id .
+    ?item           col:{item_type}_id       ?{item_type}_id .
+    ?item           col:account_id           ?account_id .
+  }}
 """
 
-        if (item_id is not None) and (account_id is not None):
-            query += "    ?item  col:account_id  ?account_id .\n"
-
-        query += "  }\n"
-
-        if item_id is not None:
-            query += f"FILTER(?{item_type}_id = {item_id})\n"
-
-        if title is not None:
-            query += f"FILTER (STR(?title) = \"{title}\")\n"
+        query += rdf.sparql_filter ("account_id",      account_id)
+        query += rdf.sparql_filter (f"{item_type}_id", item_id)
+        query += rdf.sparql_filter ("title",           title,  escape=True)
 
         query += "}\n"
-
-        if order is not None:
-            query += f"""\
-ORDER BY {order_direction}({order})
-LIMIT {limit}
-"""
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
 
-    def references (self, order=None, order_direction=None, limit=None,
+    def references (self, order=None, order_direction=None, limit=10,
                     item_id=None, account_id=None, item_type="article"):
 
         prefix = "Article" if item_type == "article" else "Collection"
-
-        if order_direction is None:
-            order_direction = "DESC"
-        if order is None:
-            order="?id"
-        if limit is None:
-            limit = 10
-
-        query = f"""\
+        query  = f"""\
 {self.default_prefixes}
 SELECT DISTINCT ?id ?url
 WHERE {{
@@ -975,25 +739,15 @@ WHERE {{
             query += f"""\
     ?item            rdf:type                 sg:{prefix} .
     ?item            col:{item_type}_id       ?{item_type}_id .
-"""
-
-        if (item_id is not None) and (account_id is not None):
-            query += """\
     ?item            col:account_id           ?account_id .
+  }}
 """
 
-        query += "  }\n"
-
-        if item_id is not None:
-            query += f"FILTER(?{item_type}_id = {item_id})\n"
+        query += rdf.sparql_filter ("account_id",      account_id)
+        query += rdf.sparql_filter (f"{item_type}_id", item_id)
 
         query += "}\n"
-
-        if order is not None:
-            query += f"""\
-ORDER BY {order_direction}({order})
-LIMIT {limit}
-"""
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
 

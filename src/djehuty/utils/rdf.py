@@ -13,8 +13,10 @@ def add (graph, subject, predicate, value):
 def sparql_filter (name, value, escape=False):
     query   = ""
     literal = f"\"{value}\"" if escape else value
+    symbol  = f"STR(?{name})" if escape else f"?{name}"
+
     if value is not None:
-        query += f"FILTER (?{name}={literal})\n"
+        query += f"FILTER ({symbol}={literal})\n"
 
     return query
 
@@ -24,7 +26,7 @@ def sparql_suffix (order, order_direction, limit=None, offset=None):
     else:
         order_direction = order_direction.upper()
 
-    order = "?id" if order is not None else f"?{order}"
+    order = "?id" if order is None else f"?{order}"
 
     query = f"ORDER BY {order_direction}({order})"
 
