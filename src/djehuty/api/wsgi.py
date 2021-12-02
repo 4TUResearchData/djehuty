@@ -327,7 +327,7 @@ class ApiServer:
             validator.order_direction (order_direction)
             validator.institution (institution)
             validator.group (group)
-        except Exception as error:
+        except validator.ValidationException as error:
             return self.error_400 (error.message, error.code)
 
         records = self.db.articles(#page=page,
@@ -540,7 +540,7 @@ class ApiServer:
                 validator.page_size (page_size)
                 validator.limit (limit)
                 validator.offset (offset)
-            except Exception as error:
+            except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
 
             records = self.db.articles(#page=page,
@@ -789,7 +789,7 @@ class ApiServer:
             validator.order_direction (order_direction)
             validator.institution (institution)
             validator.group (group)
-        except Exception as error:
+        except validator.ValidationException as error:
             return self.error_400 (error.message, error.code)
 
         records = self.db.collections (#page=page,
