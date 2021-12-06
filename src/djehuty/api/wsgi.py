@@ -264,6 +264,10 @@ class ApiServer:
         output.headers["Server"] = "4TU.ResearchData API"
         return output
 
+    def respond_205 (self):
+        output = Response("", 205, {})
+        output.headers["Server"] = "4TU.ResearchData API"
+        return output
 
     ## API CALLS
     ## ------------------------------------------------------------------------
