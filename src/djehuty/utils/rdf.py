@@ -20,6 +20,9 @@ def sparql_filter (name, value, escape=False):
 
     return query
 
+def sparql_bound_filter (name):
+    return f"FILTER (BOUND(?{name}))\n"
+
 def sparql_suffix (order, order_direction, limit=None, offset=None):
     if order_direction is None:
         order_direction = "DESC"
