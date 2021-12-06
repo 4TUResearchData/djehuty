@@ -364,4 +364,5 @@ CREATE TABLE IF NOT EXISTS Session(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     token                 VARCHAR(65),
     account_id            INT UNSIGNED,
+    may_impersonate       BOOLEAN NOT NULL DEFAULT 0,
     created_at            DATETIME DEFAULT NOW()) ENGINE=InnoDB;
