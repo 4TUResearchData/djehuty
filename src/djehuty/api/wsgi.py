@@ -94,7 +94,7 @@ class ApiServer:
                                      "resources/html_templates")),
                                      autoescape = True)
 
-        self.wsgi    = SharedDataMiddleware(self.respond, {
+        self.wsgi    = SharedDataMiddleware(self.__respond, {
             "/static": os.path.join(os.path.dirname(__file__),
                                     "resources/static")
         })
@@ -110,12 +110,12 @@ class ApiServer:
     def __call__ (self, environ, start_response):
         return self.wsgi (environ, start_response)
 
-    def render_template (self, template_name, **context):
+    def __render_template (self, template_name, **context):
         template = self.jinja.get_template (template_name)
         return self.response (template.render(context),
                               mimetype='text/html; charset=utf-8')
 
-    def dispatch_request (self, request):
+    def __dispatch_request (self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoint, values = adapter.match()
@@ -126,9 +126,9 @@ class ApiServer:
             logging.error("Unknown error in dispatch_request: %s", error)
             return error
 
-    def respond (self, environ, start_response):
+    def __respond (self, environ, start_response):
         request  = Request(environ)
-        response = self.dispatch_request(request)
+        response = self.__dispatch_request(request)
         return response(environ, start_response)
 
     def start (self):
@@ -152,7 +152,7 @@ class ApiServer:
     def error_404 (self, request):
         response = None
         if self.accepts_html (request):
-            response = self.render_template ("404.html")
+            response = self.__render_template ("404.html")
         else:
             response = self.response (json.dumps({
                 "message": "This call does not exist."
@@ -270,7 +270,7 @@ class ApiServer:
 
     def api_home (self, request):
         if self.accepts_html (request):
-            return self.render_template ("home.html")
+            return self.__render_template ("home.html")
 
         return self.response (json.dumps({ "status": "OK" }))
 
