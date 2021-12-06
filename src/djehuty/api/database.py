@@ -108,7 +108,7 @@ class SparqlInterface:
 
     def __highest_id (self, item_type="article"):
         """Return the highest numeric ID for ITEM_TYPE."""
-        prefix = item_type.capitalize()
+        prefix = conv.to_camel(item_type)
         query = self.__query_from_template ("highest_id", {
             "state_graph": self.state_graph,
             "item_type":   prefix
@@ -118,7 +118,7 @@ class SparqlInterface:
             results = self.__run_query (query)
             return results[0]["id"]
         except IndexError as error:
-            raise EmptyDatabase from error
+            return 0
         except KeyError:
             return None
 
