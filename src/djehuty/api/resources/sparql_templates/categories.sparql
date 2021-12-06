@@ -1,0 +1,25 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?id ?parent_id ?title ?source_id ?taxonomy_id
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?row             rdf:type                 sg:Category .
+    ?row             col:id                   ?id .
+    ?row             col:title                ?title .
+    OPTIONAL { ?row         col:parent_id        ?parent_id . }
+    OPTIONAL { ?row         col:source_id        ?source_id . }
+    OPTIONAL { ?row         col:taxonomy_id      ?taxonomy_id . }
+    {% if item_id is not none %}
+    ?link            rdf:type                 sg:{{prefix}}CategoryLink .
+    ?link            col:{{item_type}}_id     ?item_id .
+    ?link            col:category_id          ?id .
+    {% if account_id is not none %}
+    ?item            rdf:type                 sg:{{prefix}} .
+    ?item            col:{{item_type}}_id     ?item_id .
+    ?item            col:account_id           {{account_id}} .
+    {% endif %}{% endif %}
+  }
+FILTER (?item_id = {{item_id}})
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}

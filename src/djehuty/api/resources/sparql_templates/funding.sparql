@@ -1,0 +1,24 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?id ?title ?grant_code ?funder_name ?url
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?row             rdf:type                 sg:{{prefix}}Funding .
+    ?row             col:id                   ?id .
+    ?row             col:{{item_type}}_id     ?{{item_type}}_id .
+    OPTIONAL { ?row  col:title                ?title . }
+    OPTIONAL { ?row  col:grant_code           ?grant_code . }
+    OPTIONAL { ?row  col:funder_name          ?funder_name . }
+    OPTIONAL { ?row  col:url                  ?url . }
+    {% if item_id is not none %}
+    ?item           rdf:type                 sg:{{prefix}}FundingLink .
+    ?item           col:{{item_type}}_id     ?{{item_type}}_id .
+    {% if account_id is not none %}
+    ?item           col:account_id           {{account_id}} .
+    {% endif %}
+    {% endif %}
+  }
+  FILTER (?{{item_type}}_id = {{item_id}})
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}

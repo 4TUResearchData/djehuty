@@ -1,0 +1,4 @@
+PREFIX col: <sg://0.99.12/table2rdf/Column/>
+PREFIX sg:  <https://sparqling-genomics.org/0.99.12/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+{% block query %}{% endblock %}

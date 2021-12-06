@@ -1,0 +1,33 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?first_name      ?full_name       ?group_id
+                ?id              ?institution_id  ?is_active
+                ?is_public       ?job_title       ?last_name
+                ?orcid_id        ?url_name
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?author            rdf:type                 sg:Author .
+    ?author            col:id                   ?id .
+    {% if item_id is not none %}
+    ?link              rdf:type                 sg:{{prefix}}AuthorLink .
+    ?link              col:{{item_type}}_id     {{item_id}} .
+    ?link              col:author_id            ?id .
+    {% endif %}
+    {% if account_id is not none %}
+    ?item              rdf:type                 sg:{{prefix}} .
+    ?item              col:account_id           ?account_id .
+    {% endif %}
+    OPTIONAL { ?author col:first_name           ?first_name . }
+    OPTIONAL { ?author col:full_name            ?full_name . }
+    OPTIONAL { ?author col:group_id             ?group_id . }
+    OPTIONAL { ?author col:institution_id       ?institution_id . }
+    OPTIONAL { ?author col:is_active            ?is_active . }
+    OPTIONAL { ?author col:is_public            ?is_public . }
+    OPTIONAL { ?author col:job_title            ?job_title . }
+    OPTIONAL { ?author col:last_name            ?last_name . }
+    OPTIONAL { ?author col:orcid_id             ?orcid_id . }
+    OPTIONAL { ?author col:url_name             ?url_name . }
+  }
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}

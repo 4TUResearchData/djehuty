@@ -1,0 +1,35 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?name          ?size          ?is_link_only
+                ?id            ?download_url  ?supplied_md5
+                ?computed_md5  ?viewer_type   ?preview_state
+                ?status        ?upload_url    ?upload_token
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?file              rdf:type                 sg:File .
+    ?file              col:id                   ?id .
+
+    {% if article_id is not none %}
+    ?link              rdf:type                 sg:ArticleFileLink .
+    ?link              col:article_id           {{article_id}} .
+    ?link              col:file_id              ?id .
+    {% endif %}
+    {% if account_id is not none %}
+    ?article           rdf:type                 sg:Article .
+    ?article           col:account_id           ?account_id .
+    {% endif %}
+    OPTIONAL { ?file  col:name                 ?name . }
+    OPTIONAL { ?file  col:size                 ?size . }
+    OPTIONAL { ?file  col:is_link_only         ?is_link_only . }
+    OPTIONAL { ?file  col:download_url         ?download_url . }
+    OPTIONAL { ?file  col:supplied_md5         ?supplied_md5 . }
+    OPTIONAL { ?file  col:computed_md5         ?computed_md5 . }
+    OPTIONAL { ?file  col:viewer_type          ?viewer_type . }
+    OPTIONAL { ?file  col:preview_state        ?preview_state . }
+    OPTIONAL { ?file  col:status               ?status . }
+    OPTIONAL { ?file  col:upload_url           ?upload_url . }
+    OPTIONAL { ?file  col:upload_token         ?upload_token . }
+  }
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}

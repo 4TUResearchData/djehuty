@@ -1,0 +1,12 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?id
+WHERE {
+  GRAPH <{{self.state_graph}}> {
+    ?item rdf:type    sg:{{item_type}} .
+    ?item col:id      ?id .
+  }
+}
+ORDER BY DESC(?id)
+LIMIT 1
+{% endblock %}

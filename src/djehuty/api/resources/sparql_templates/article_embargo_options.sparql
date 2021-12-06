@@ -1,0 +1,14 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?id ?article_id ?type ?ip_name
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?field             rdf:type                 sg:ArticleEmbargoOption .
+    ?field             col:id                   ?id .
+    ?field             col:article_id           ?article_id .
+    OPTIONAL { ?field  col:type                 ?type . }
+    OPTIONAL { ?field  col:ip_name              ?ip_name . }
+  }
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}

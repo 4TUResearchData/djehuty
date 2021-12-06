@@ -1,0 +1,13 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?id ?tag
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?row             rdf:type                 sg:{{prefix}}Tag .
+    ?row             col:id                   ?id .
+    ?row             col:tag                  ?tag .
+    ?row             col:{{item_type}}_id     ?item_id .
+  }
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}

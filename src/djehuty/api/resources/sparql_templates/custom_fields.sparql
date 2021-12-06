@@ -1,0 +1,27 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?name          ?value         ?default_value
+                ?id            ?placeholder   ?max_length
+                ?min_length    ?field_type    ?is_multiple
+                ?is_mandatory
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?field             rdf:type                 sg:{{prefix}}CustomField .
+    ?field             col:id                   ?id .
+
+    {% if item_id is not none %}
+    ?field             col:{{item_type}}_id        {{item_id}} .
+    {% endif %}
+    OPTIONAL { ?field  col:name                 ?name . }
+    OPTIONAL { ?field  col:value                ?value . }
+    OPTIONAL { ?field  col:default_value        ?default_value . }
+    OPTIONAL { ?field  col:placeholder          ?placeholder . }
+    OPTIONAL { ?field  col:max_length           ?max_length . }
+    OPTIONAL { ?field  col:min_length           ?min_length . }
+    OPTIONAL { ?field  col:field_type           ?field_type . }
+    OPTIONAL { ?field  col:is_multiple          ?is_multiple . }
+    OPTIONAL { ?field  col:is_mandatory         ?is_mandatory . }
+  }
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}

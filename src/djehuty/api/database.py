@@ -3,10 +3,12 @@ This module provides the communication with the SPARQL endpoint to provide
 data for the API server.
 """
 
+import os.path
 import logging
 from urllib.error import URLError
 from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
 from rdflib import Graph, Literal, RDF
+from jinja2 import Environment, FileSystemLoader
 from djehuty.utils import counters
 from djehuty.utils import rdf
 from djehuty.utils import convenience as conv
@@ -26,13 +28,16 @@ class SparqlInterface:
         self.storage     = None
         self.endpoint    = "http://127.0.0.1:8890/sparql"
         self.state_graph = "https://data.4tu.nl/portal/self-test"
+        self.jinja       = Environment(loader = FileSystemLoader(
+                            os.path.join(os.path.dirname(__file__),
+                                         "resources/sparql_templates")),
+                                       # Auto-escape is set to False because
+                                       # we put quotes around strings in
+                                       # filters.
+                                       autoescape=False)
+
         self.sparql      = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)
-        self.default_prefixes = """\
-PREFIX col: <sg://0.99.12/table2rdf/Column/>
-PREFIX sg:  <https://sparqling-genomics.org/0.99.12/>
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        """
 
     def load_state (self):
         """Procedure to load the database state."""
@@ -77,6 +82,10 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                 logging.info("Not a typed-literal: %s", record[item]['type'])
         return record
 
+    def __query_from_template (self, name, args):
+        template = self.jinja.get_template (f"{name}.sparql")
+        return template.render (args)
+
     def __run_query (self, query):
         self.sparql.method = 'POST'
         self.sparql.setQuery(query)
@@ -100,17 +109,11 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     def __highest_id (self, item_type="article"):
         """Return the highest numeric ID for ITEM_TYPE."""
         prefix = item_type.capitalize()
-        query  = f"""\
-{self.default_prefixes}
-SELECT ?id WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?item rdf:type    sg:{prefix} .
-    ?item col:id      ?id .
-  }}
-}}
-ORDER BY DESC(?id)
-LIMIT 1
-"""
+        query = self.__query_from_template ("highest_id", {
+            "state_graph": self.state_graph,
+            "item_type":   prefix
+        })
+
         try:
             results = self.__run_query (query)
             return results[0]["id"]
@@ -133,168 +136,67 @@ LIMIT 1
 
     def article_versions (self, limit=1000, offset=0, order=None,
                           order_direction=None, article_id=None):
-
-        query = f"""\
-{self.default_prefixes}
-SELECT DISTINCT ?id ?version ?url ?url_public_api
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?article rdf:type           sg:Article .
-    ?article col:id             ?id .
-    ?article col:version        ?version .
-    ?article col:url            ?url .
-    ?article col:url_public_api ?url_public_api .
-  }}
-"""
+        """Procedure to retrieve the versions of an article."""
+        filters = ""
         if article_id is not None:
-            query += rdf.sparql_filter ("id", article_id)
+            filters += rdf.sparql_filter ("id", article_id)
 
-        query += "}\n"
+        query = self.__query_from_template ("highest_id", {
+            "state_graph": self.state_graph,
+            "filters":     filters,
+        })
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
         return self.__run_query (query)
 
-    def articles (self, limit=10, offset=None, order=None,
+    def articles (self, limit=None, offset=None, order=None,
                   order_direction=None, institution=None,
                   published_since=None, modified_since=None,
                   group=None, resource_doi=None, item_type=None,
                   doi=None, handle=None, account_id=None,
                   search_for=None, article_id=None,
                   collection_id=None, version=None):
+        """Procedure to retrieve articles."""
 
-        query = f"""\
-{self.default_prefixes}
-SELECT DISTINCT ?account_id ?authors_id ?citation
-                ?confidential_reason ?created_date
-                ?custom_fields_id ?defined_type
-                ?defined_type_name ?description
-                ?doi ?embargo_date ?embargo_options_id
-                ?embargo_reason ?embargo_title
-                ?embargo_type ?figshare_url
-                ?funding ?funding_id ?group_id
-                ?has_linked_file ?id ?institution_id
-                ?is_active ?is_confidential ?is_embargoed
-                ?is_metadata_record ?is_public ?license_id
-                ?license_name ?license_url
-                ?metadata_reason ?modified_date
-                ?published_date
-                ?resource_doi ?resource_title ?size
-                ?status ?tags_id ?thumb ?timeline_posted
-                ?timeline_publisher_acceptance
-                ?timeline_publisher_publication
-                ?timeline_first_online ?timeline_revision
-                ?timeline_submission ?title ?url ?url_private_api
-                ?url_private_html ?url_public_api
-                ?url_public_html ?version
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?article            rdf:type                 sg:Article .
-    ?article            col:id                   ?id .
-    ?article            col:timeline_id          ?timeline_id .
-"""
-        if collection_id is not None:
-            query += f"""\
-    ?link               rdf:type                 sg:CollectionArticle .
-    ?link               col:article_id           ?id .
-    ?link               col:collection_id        {collection_id} .
- """
-
-        query += """\
-    OPTIONAL {
-        ?timeline           rdf:type                 sg:Timeline .
-        ?timeline           col:id                   ?timeline_id .
-
-        OPTIONAL { ?timeline col:firstonline          ?timeline_first_online . }
-        OPTIONAL { ?timeline col:publisheracceptance  ?timeline_publisher_acceptance . }
-        OPTIONAL { ?timeline col:publisherpublication ?timeline_publisher_publication . }
-        OPTIONAL { ?timeline col:submission           ?timeline_submission . }
-        OPTIONAL { ?timeline col:posted               ?timeline_posted . }
-        OPTIONAL { ?timeline col:revision             ?timeline_revision . }
-    }
-
-    OPTIONAL {
-        ?license            rdf:type                  sg:License .
-        ?license            col:id                    ?license_id .
-        ?license            col:name                  ?license_name .
-        ?license            col:url                   ?license_url .
-        ?article            col:license_id            ?license_id .
-    }
-
-    OPTIONAL { ?article col:account_id            ?account_id . }
-    OPTIONAL { ?article col:authors_id            ?authors_id . }
-    OPTIONAL { ?article col:citation              ?citation . }
-    OPTIONAL { ?article col:confidential_reason   ?confidential_reason . }
-    OPTIONAL { ?article col:created_date          ?created_date . }
-    OPTIONAL { ?article col:custom_fields_id      ?custom_fields_id . }
-    OPTIONAL { ?article col:defined_type          ?defined_type . }
-    OPTIONAL { ?article col:defined_type_name     ?defined_type_name . }
-    OPTIONAL { ?article col:description           ?description . }
-    OPTIONAL { ?article col:doi                   ?doi . }
-    OPTIONAL { ?article col:embargo_date          ?embargo_date . }
-    OPTIONAL { ?article col:embargo_options_id    ?embargo_options_id . }
-    OPTIONAL { ?article col:embargo_reason        ?embargo_reason . }
-    OPTIONAL { ?article col:embargo_title         ?embargo_title . }
-    OPTIONAL { ?article col:embargo_type          ?embargo_type . }
-    OPTIONAL { ?article col:figshare_url          ?figshare_url . }
-    OPTIONAL { ?article col:funding               ?funding . }
-    OPTIONAL { ?article col:funding_id            ?funding_id . }
-    OPTIONAL { ?article col:group_id              ?group_id . }
-    OPTIONAL { ?article col:handle                ?handle . }
-    OPTIONAL { ?article col:has_linked_file       ?has_linked_file . }
-    OPTIONAL { ?article col:institution_id        ?institution_id . }
-    OPTIONAL { ?article col:is_active             ?is_active . }
-    OPTIONAL { ?article col:is_confidential       ?is_confidential . }
-    OPTIONAL { ?article col:is_embargoed          ?is_embargoed . }
-    OPTIONAL { ?article col:is_metadata_record    ?is_metadata_record . }
-    OPTIONAL { ?article col:is_public             ?is_public . }
-    OPTIONAL { ?article col:metadata_reason       ?metadata_reason . }
-    OPTIONAL { ?article col:modified_date         ?modified_date . }
-    OPTIONAL { ?article col:published_date        ?published_date . }
-    OPTIONAL { ?article col:resource_doi          ?resource_doi . }
-    OPTIONAL { ?article col:resource_title        ?resource_title . }
-    OPTIONAL { ?article col:size                  ?size . }
-    OPTIONAL { ?article col:status                ?status . }
-    OPTIONAL { ?article col:tags_id               ?tags_id . }
-    OPTIONAL { ?article col:thumb                 ?thumb . }
-    OPTIONAL { ?article col:title                 ?title . }
-    OPTIONAL { ?article col:url                   ?url . }
-    OPTIONAL { ?article col:url_private_api       ?url_private_api . }
-    OPTIONAL { ?article col:url_private_html      ?url_private_html . }
-    OPTIONAL { ?article col:url_public_api        ?url_public_api . }
-    OPTIONAL { ?article col:url_public_html       ?url_public_html . }
-    OPTIONAL { ?article col:version               ?version . }
-}
-"""
-
-        query += rdf.sparql_filter ("institution_id", institution)
-        query += rdf.sparql_filter ("group_id",       group)
-        query += rdf.sparql_filter ("defined_type",   item_type)
-        query += rdf.sparql_filter ("id",             article_id)
-        query += rdf.sparql_filter ("version",        version)
-        query += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
-        query += rdf.sparql_filter ("doi",            doi,          escape=True)
-        query += rdf.sparql_filter ("handle",         handle,       escape=True)
-        query += rdf.sparql_filter ("title",          search_for,   escape=True)
-        query += rdf.sparql_filter ("resource_title", search_for,   escape=True)
-        query += rdf.sparql_filter ("description",    search_for,   escape=True)
-        query += rdf.sparql_filter ("citation",       search_for,   escape=True)
+        filters  = rdf.sparql_filter ("institution_id", institution)
+        filters += rdf.sparql_filter ("group_id",       group)
+        filters += rdf.sparql_filter ("defined_type",   item_type)
+        filters += rdf.sparql_filter ("id",             article_id)
+        filters += rdf.sparql_filter ("version",        version)
+        filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
+        filters += rdf.sparql_filter ("doi",            doi,          escape=True)
+        filters += rdf.sparql_filter ("handle",         handle,       escape=True)
+        filters += rdf.sparql_filter ("title",          search_for,   escape=True)
+        filters += rdf.sparql_filter ("resource_title", search_for,   escape=True)
+        filters += rdf.sparql_filter ("description",    search_for,   escape=True)
+        filters += rdf.sparql_filter ("citation",       search_for,   escape=True)
 
         if published_since is not None:
-            query += "FILTER (BOUND(?published_date))\n"
-            query += "FILTER (STR(?published_date) != \"NULL\")\n"
-            query += f"FILTER (STR(?published_date) > \"{published_since}\")\n"
+            filters += rdf.sparql_bound_filter ("published_date")
+            filters += "FILTER (STR(?published_date) != \"NULL\")\n"
+            filters += f"FILTER (STR(?published_date) > \"{published_since}\")\n"
 
         if modified_since is not None:
-            query += "FILTER (BOUND(?modified_date))\n"
-            query += "FILTER (STR(?modified_date) != \"NULL\")\n"
-            query += f"FILTER (STR(?modified_date) > \"{modified_since}\")\n"
+            filters += rdf.sparql_bound_filter ("modified_date")
+            filters += "FILTER (STR(?modified_date) != \"NULL\")\n"
+            filters += f"FILTER (STR(?modified_date) > \"{modified_since}\")\n"
 
         if account_id is None:
-            query += rdf.sparql_filter ("is_public", 1)
-        else:
-            query += rdf.sparql_filter ("account_id", account_id)
+            filters += rdf.sparql_filter ("is_public", 1)
 
-        query += "}\n"
+        query = self.__query_from_template ("articles", {
+            "state_graph":   self.state_graph,
+            "collection_id": collection_id,
+            "account_id":    account_id,
+            "filters":       filters
+        })
+
+        # Setting the default value for 'limit' to 10 makes passing
+        # parameters from HTTP requests cumbersome. Therefore, we
+        # set the default again here.
+        if limit is None:
+            limit = 10
+
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
         return self.__run_query (query)
@@ -302,67 +204,33 @@ WHERE {{
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
                  is_public=None, job_title=None, last_name=None,
-                 orcid_id=None, url_name=None, limit=10, order=None,
-                 order_direction=None, item_id=None,
+                 orcid_id=None, url_name=None, limit=10, order="full_name",
+                 order_direction="asc", item_id=None,
                  account_id=None, item_type="article"):
+        """Procedure to retrieve authors of an article."""
 
-        prefix = "Article" if item_type == "article" else "Collection"
-        query  = f"""\
-{self.default_prefixes}
-SELECT DISTINCT ?first_name      ?full_name       ?group_id
-                ?id              ?institution_id  ?is_active
-                ?is_public       ?job_title       ?last_name
-                ?orcid_id        ?url_name
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?author            rdf:type                 sg:Author .
-    ?author            col:id                   ?id .
-"""
+        prefix = item_type.capitalize()
 
-        if item_id is not None:
-            query += f"""\
-    ?item              rdf:type                 sg:{prefix} .
-    ?link              rdf:type                 sg:{prefix}AuthorLink .
-    ?link              col:{item_type}_id       {item_id} .
-    ?link              col:author_id            ?id .
-"""
+        filters  = rdf.sparql_filter ("group_id",       group_id)
+        filters += rdf.sparql_filter ("id",             author_id)
+        filters += rdf.sparql_filter ("institution_id", institution_id)
+        filters += rdf.sparql_filter ("is_active",      is_active)
+        filters += rdf.sparql_filter ("is_public",      is_public)
+        filters += rdf.sparql_filter ("job_title",      job_title,  escape=True)
+        filters += rdf.sparql_filter ("first_name",     first_name, escape=True)
+        filters += rdf.sparql_filter ("last_name",      last_name,  escape=True)
+        filters += rdf.sparql_filter ("full_name",      full_name,  escape=True)
+        filters += rdf.sparql_filter ("orcid_id",       orcid_id,   escape=True)
+        filters += rdf.sparql_filter ("url_name",       url_name,   escape=True)
 
-        if (item_id is not None) and (account_id is not None):
-            query += """\
-    ?item              col:account_id           ?account_id .
-"""
-
-        query += """\
-    OPTIONAL { ?author col:first_name            ?first_name . }
-    OPTIONAL { ?author col:full_name             ?full_name . }
-    OPTIONAL { ?author col:group_id              ?group_id . }
-    OPTIONAL { ?author col:institution_id        ?institution_id . }
-    OPTIONAL { ?author col:is_active             ?is_active . }
-    OPTIONAL { ?author col:is_public             ?is_public . }
-    OPTIONAL { ?author col:job_title             ?job_title . }
-    OPTIONAL { ?author col:last_name             ?last_name . }
-    OPTIONAL { ?author col:orcid_id              ?orcid_id . }
-    OPTIONAL { ?author col:url_name              ?url_name . }
-  }
-"""
-
-        query += rdf.sparql_filter ("group_id",       group_id)
-        query += rdf.sparql_filter ("id",             author_id)
-        query += rdf.sparql_filter ("institution_id", institution_id)
-        query += rdf.sparql_filter ("is_active",      is_active)
-        query += rdf.sparql_filter ("is_public",      is_public)
-        query += rdf.sparql_filter ("job_title",      job_title,  escape=True)
-        query += rdf.sparql_filter ("first_name",     first_name, escape=True)
-        query += rdf.sparql_filter ("last_name",      last_name,  escape=True)
-        query += rdf.sparql_filter ("full_name",      full_name,  escape=True)
-        query += rdf.sparql_filter ("orcid_id",       orcid_id,   escape=True)
-        query += rdf.sparql_filter ("url_name",       url_name,   escape=True)
-
-        query += "}\n"
-        query += rdf.sparql_suffix ("full_name" if order is None else order,
-                                    "asc" if order_direction is None else order_direction,
-                                    limit,
-                                    None)
+        query = self.__query_from_template ("authors", {
+            "state_graph": self.state_graph,
+            "item_type":   item_type,
+            "prefix":      prefix,
+            "item_id":     item_id,
+            "filters":     filters
+        })
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
 
@@ -372,59 +240,27 @@ WHERE {{
                        status=None, upload_url=None, upload_token=None,
                        order=None, order_direction=None, limit=10,
                        article_id=None, account_id=None):
+        """Procedure to retrieve files of an article."""
 
-        query = f"""\
-{self.default_prefixes}
-SELECT DISTINCT ?name          ?size          ?is_link_only
-                ?id            ?download_url  ?supplied_md5
-                ?computed_md5  ?viewer_type   ?preview_state
-                ?status        ?upload_url    ?upload_token
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?file              rdf:type                 sg:File .
-    ?file              col:id                   ?id .
-"""
+        filters  = rdf.sparql_filter ("size",          size)
+        filters += rdf.sparql_filter ("is_link_only",  is_link_only)
+        filters += rdf.sparql_filter ("id",            file_id)
+        filters += rdf.sparql_filter ("name",          name,          escape=True)
+        filters += rdf.sparql_filter ("download_url",  download_url,  escape=True)
+        filters += rdf.sparql_filter ("supplied_md5",  supplied_md5,  escape=True)
+        filters += rdf.sparql_filter ("computed_md5",  computed_md5,  escape=True)
+        filters += rdf.sparql_filter ("viewer_type",   viewer_type,   escape=True)
+        filters += rdf.sparql_filter ("preview_state", preview_state, escape=True)
+        filters += rdf.sparql_filter ("status",        status,        escape=True)
+        filters += rdf.sparql_filter ("upload_url",    upload_url,    escape=True)
+        filters += rdf.sparql_filter ("upload_token",  upload_token,  escape=True)
 
-        if article_id is not None:
-            query += f"""\
-    ?article           rdf:type                 sg:Article .
-    ?link              rdf:type                 sg:ArticleFileLink .
-    ?link              col:article_id           {article_id} .
-    ?link              col:file_id              ?id .
-"""
+        query = self.__query_from_template ("article_files", {
+            "state_graph": self.state_graph,
+            "article_id":  article_id,
+            "filters":     filters
+        })
 
-        if (article_id is not None) and (account_id is not None):
-            query += "    ?article           col:account_id           ?account_id ."
-
-        query += """\
-    OPTIONAL { ?file  col:name                 ?name . }
-    OPTIONAL { ?file  col:size                 ?size . }
-    OPTIONAL { ?file  col:is_link_only         ?is_link_only . }
-    OPTIONAL { ?file  col:download_url         ?download_url . }
-    OPTIONAL { ?file  col:supplied_md5         ?supplied_md5 . }
-    OPTIONAL { ?file  col:computed_md5         ?computed_md5 . }
-    OPTIONAL { ?file  col:viewer_type          ?viewer_type . }
-    OPTIONAL { ?file  col:preview_state        ?preview_state . }
-    OPTIONAL { ?file  col:status               ?status . }
-    OPTIONAL { ?file  col:upload_url           ?upload_url . }
-    OPTIONAL { ?file  col:upload_token         ?upload_token . }
-  }
-"""
-
-        query += rdf.sparql_filter ("size",          size)
-        query += rdf.sparql_filter ("is_link_only",  is_link_only)
-        query += rdf.sparql_filter ("id",            file_id)
-        query += rdf.sparql_filter ("name",          name,          escape=True)
-        query += rdf.sparql_filter ("download_url",  download_url,  escape=True)
-        query += rdf.sparql_filter ("supplied_md5",  supplied_md5,  escape=True)
-        query += rdf.sparql_filter ("computed_md5",  computed_md5,  escape=True)
-        query += rdf.sparql_filter ("viewer_type",   viewer_type,   escape=True)
-        query += rdf.sparql_filter ("preview_state", preview_state, escape=True)
-        query += rdf.sparql_filter ("status",        status,        escape=True)
-        query += rdf.sparql_filter ("upload_url",    upload_url,    escape=True)
-        query += rdf.sparql_filter ("upload_token",  upload_token,  escape=True)
-
-        query += "}\n"
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
@@ -432,101 +268,60 @@ WHERE {{
     def custom_fields (self, name=None, value=None, default_value=None,
                        field_id=None, placeholder=None, max_length=None,
                        min_length=None, field_type=None, is_multiple=None,
-                       is_mandatory=None, order=None, order_direction=None,
+                       is_mandatory=None, order="name", order_direction=None,
                        limit=10, item_id=None, item_type="article"):
 
-        prefix = "Article" if item_type == "article" else "Collection"
+        prefix = item_type.capitalize()
 
-        query = f"""\
-{self.default_prefixes}
-SELECT DISTINCT ?name          ?value         ?default_value
-                ?id            ?placeholder   ?max_length
-                ?min_length    ?field_type    ?is_multiple
-                ?is_mandatory
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?field             rdf:type                 sg:{prefix}CustomField .
-    ?field             col:id                   ?id .
-"""
+        filters = rdf.sparql_filter ("id",            field_id)
+        filters += rdf.sparql_filter ("max_length",    max_length)
+        filters += rdf.sparql_filter ("min_length",    min_length)
+        filters += rdf.sparql_filter ("is_multiple",   is_multiple)
+        filters += rdf.sparql_filter ("is_mandatory",  is_mandatory)
+        filters += rdf.sparql_filter ("name",          name,          escape=True)
+        filters += rdf.sparql_filter ("value",         value,         escape=True)
+        filters += rdf.sparql_filter ("default_value", default_value, escape=True)
+        filters += rdf.sparql_filter ("placeholder",   placeholder,   escape=True)
+        filters += rdf.sparql_filter ("field_type",    field_type,    escape=True)
 
-        if item_id is not None:
-            query += f"""\
-    ?field             col:{item_type}_id        {item_id} .
-"""
-
-        query += """\
-    OPTIONAL { ?field  col:name                 ?name . }
-    OPTIONAL { ?field  col:value                ?value . }
-    OPTIONAL { ?field  col:default_value        ?default_value . }
-    OPTIONAL { ?field  col:placeholder          ?placeholder . }
-    OPTIONAL { ?field  col:max_length           ?max_length . }
-    OPTIONAL { ?field  col:min_length           ?min_length . }
-    OPTIONAL { ?field  col:field_type           ?field_type . }
-    OPTIONAL { ?field  col:is_multiple          ?is_multiple . }
-    OPTIONAL { ?field  col:is_mandatory         ?is_mandatory . }
-  }
-"""
-        query += rdf.sparql_filter ("id",            field_id)
-        query += rdf.sparql_filter ("max_length",    max_length)
-        query += rdf.sparql_filter ("min_length",    min_length)
-        query += rdf.sparql_filter ("is_multiple",   is_multiple)
-        query += rdf.sparql_filter ("is_mandatory",  is_mandatory)
-        query += rdf.sparql_filter ("name",          name,          escape=True)
-        query += rdf.sparql_filter ("value",         value,         escape=True)
-        query += rdf.sparql_filter ("default_value", default_value, escape=True)
-        query += rdf.sparql_filter ("placeholder",   placeholder,   escape=True)
-        query += rdf.sparql_filter ("field_type",    field_type,    escape=True)
-
-        query += "}\n"
-        query += rdf.sparql_suffix ("name" if order is None else order,
-                                    order_direction,
-                                    limit,
-                                    None)
+        query = self.__query_from_template ("custom_fields", {
+            "state_graph": self.state_graph,
+            "item_id":     item_id,
+            "item_type":   item_type,
+            "prefix":      prefix,
+            "filters":     filters
+        })
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
 
     def article_embargo_options (self, ip_name=None, embargo_type=None,
                                  order=None, order_direction=None,
                                  limit=10, article_id=None):
+        """Procedure to retrieve embargo options of an article."""
 
-        query = f"""\
-{self.default_prefixes}
-SELECT DISTINCT ?id ?article_id ?type ?ip_name
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?field             rdf:type                 sg:ArticleEmbargoOption .
-    ?field             col:id                   ?id .
-    ?field             col:article_id           ?article_id .
-    OPTIONAL {{ ?field  col:type                 ?type . }}
-    OPTIONAL {{ ?field  col:ip_name              ?ip_name . }}
-  }}
-"""
-        query += rdf.sparql_filter ("article_id",   article_id)
-        query += rdf.sparql_filter ("ip_name",      ip_name,      escape=True)
-        query += rdf.sparql_filter ("embargo_type", embargo_type, escape=True)
+        filters  = rdf.sparql_filter ("article_id",   article_id)
+        filters += rdf.sparql_filter ("ip_name",      ip_name,      escape=True)
+        filters += rdf.sparql_filter ("embargo_type", embargo_type, escape=True)
 
-        query += "}\n"
+        query = self.__query_from_template ("article_embargo_options", {
+            "state_graph": self.state_graph,
+            "filters":     filters
+        })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
 
     def tags (self, order=None, order_direction=None, limit=10, item_id=None, item_type="article"):
 
-        prefix = "Article" if item_type == "article" else "Collection"
-        query  = f"""\
-{self.default_prefixes}
-SELECT DISTINCT ?id ?tag
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?row             rdf:type                 sg:{prefix}Tag .
-    ?row             col:id                   ?id .
-    ?row             col:tag                  ?tag .
-    ?row             col:{item_type}_id       ?item_id .
-  }}
-"""
-
-        query += rdf.sparql_filter (f"{item_id}_id", item_id)
-        query += "}\n"
+        prefix  = item_type.capitalize()
+        filters = rdf.sparql_filter (f"{item_id}_id", item_id)
+        query   = self.__query_from_template ("tags", {
+            "state_graph": self.state_graph,
+            "prefix":      prefix,
+            "item_type":   item_type,
+            "filters":     filters
+        })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
@@ -534,35 +329,18 @@ WHERE {{
     def categories (self, title=None, order=None, order_direction=None,
                     limit=10, item_id=None, account_id=None,
                     item_type="article"):
-        prefix = "Article" if item_type == "article" else "Collection"
+        """Procedure to retrieve categories of an article."""
 
-        query = f"""\
-{self.default_prefixes}
-SELECT DISTINCT ?id ?parent_id ?title ?source_id ?taxonomy_id
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?row             rdf:type                 sg:Category .
-    ?row             col:id                   ?id .
-    ?row             col:title                ?title .
-    OPTIONAL {{ ?row         col:parent_id        ?parent_id . }}
-    OPTIONAL {{ ?row         col:source_id        ?source_id . }}
-    OPTIONAL {{ ?row         col:taxonomy_id      ?taxonomy_id . }}
-"""
-
-        if item_id is not None:
-            query += f"""\
-    ?item            rdf:type                 sg:{prefix}CategoryLink .
-    ?item            col:{item_type}_id       {item_id} .
-    ?item            col:category_id          ?id .
-"""
-
-        if (item_id is not None) and (account_id is not None):
-            query += "    ?item            col:account_id           ?account_id .\n"
-
-        query += "  }\n"
-
-        query += rdf.sparql_filter ("title", title, escape=True)
-        query += "}\n"
+        prefix  = item_type.capitalize()
+        filters = rdf.sparql_filter ("title", title, escape=True)
+        query   = self.__query_from_template ("categories", {
+            "state_graph": self.state_graph,
+            "prefix":      prefix,
+            "item_type":   item_type,
+            "item_id":     item_id,
+            "account_id":  account_id,
+            "filters":     filters
+        })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
@@ -576,145 +354,56 @@ WHERE {{
                      published_since=None, modified_since=None, group=None,
                      resource_doi=None, resource_id=None, doi=None, handle=None,
                      account_id=None, search_for=None, collection_id=None):
+        """Procedure to retrieve collections."""
 
-        query = f"""\
-{self.default_prefixes}
-SELECT DISTINCT ?account_id
-                ?resource_id
-                ?resource_doi
-                ?resource_title
-                ?resource_link
-                ?resource_version
-                ?version
-                ?description
-                ?institution_id
-                ?group_id
-                ?articles_count
-                ?is_public
-                ?citation
-                ?group_resource_id
-                ?custom_fields_id
-                ?modified_date
-                ?created_date
-                ?timeline_posted
-                ?timeline_publisher_acceptance
-                ?timeline_publisher_publication
-                ?timeline_first_online
-                ?timeline_revision
-                ?timeline_submission
-                ?id
-                ?title
-                ?doi
-                ?handle
-                ?url
-                ?published_date
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?collection            rdf:type                 sg:Collection .
-    ?collection            col:id                   ?id .
-    ?collection            col:timeline_id          ?timeline_id .
-
-    OPTIONAL {{
-        ?timeline           rdf:type                 sg:Timeline .
-        ?timeline           col:id                   ?timeline_id .
-
-        OPTIONAL {{ ?timeline col:firstonline          ?timeline_first_online . }}
-        OPTIONAL {{ ?timeline col:publisheracceptance  ?timeline_publisher_acceptance . }}
-        OPTIONAL {{ ?timeline col:publisherpublication ?timeline_publisher_publication . }}
-        OPTIONAL {{ ?timeline col:submission           ?timeline_submission . }}
-        OPTIONAL {{ ?timeline col:posted               ?timeline_posted . }}
-        OPTIONAL {{ ?timeline col:revision             ?timeline_revision . }}
-    }}
-
-    OPTIONAL {{ ?collection col:account_id         ?account_id . }}
-    OPTIONAL {{ ?collection col:resource_id        ?resource_id . }}
-    OPTIONAL {{ ?collection col:resource_doi       ?resource_doi . }}
-    OPTIONAL {{ ?collection col:resource_title     ?resource_title . }}
-    OPTIONAL {{ ?collection col:resource_link      ?resource_link . }}
-    OPTIONAL {{ ?collection col:resource_version   ?resource_version . }}
-    OPTIONAL {{ ?collection col:version            ?version . }}
-    OPTIONAL {{ ?collection col:description        ?description . }}
-    OPTIONAL {{ ?collection col:institution_id     ?institution_id . }}
-    OPTIONAL {{ ?collection col:group_id           ?group_id . }}
-    OPTIONAL {{ ?collection col:articles_count     ?articles_count . }}
-    OPTIONAL {{ ?collection col:is_public          ?is_public . }}
-    OPTIONAL {{ ?collection col:citation           ?citation . }}
-    OPTIONAL {{ ?collection col:group_resource_id  ?group_resource_id . }}
-    OPTIONAL {{ ?collection col:custom_fields_id   ?custom_fields_id . }}
-    OPTIONAL {{ ?collection col:modified_date      ?modified_date . }}
-    OPTIONAL {{ ?collection col:created_date       ?created_date . }}
-    OPTIONAL {{ ?collection col:title              ?title . }}
-    OPTIONAL {{ ?collection col:doi                ?doi . }}
-    OPTIONAL {{ ?collection col:handle             ?handle . }}
-    OPTIONAL {{ ?collection col:url                ?url . }}
-    OPTIONAL {{ ?collection col:published_date     ?published_date . }}
-  }}
-"""
-
-        query += rdf.sparql_filter ("institution_id", institution)
-        query += rdf.sparql_filter ("group_id",       group)
-        query += rdf.sparql_filter ("id",             collection_id)
-        query += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
-        query += rdf.sparql_filter ("resource_id",    resource_id,  escape=True)
-        query += rdf.sparql_filter ("doi",            doi,          escape=True)
-        query += rdf.sparql_filter ("handle",         handle,       escape=True)
-        query += rdf.sparql_filter ("title",          search_for,   escape=True)
-        query += rdf.sparql_filter ("resource_title", search_for,   escape=True)
-        query += rdf.sparql_filter ("description",    search_for,   escape=True)
-        query += rdf.sparql_filter ("citation",       search_for,   escape=True)
+        filters  = rdf.sparql_filter ("institution_id", institution)
+        filters += rdf.sparql_filter ("group_id",       group)
+        filters += rdf.sparql_filter ("id",             collection_id)
+        filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
+        filters += rdf.sparql_filter ("resource_id",    resource_id,  escape=True)
+        filters += rdf.sparql_filter ("doi",            doi,          escape=True)
+        filters += rdf.sparql_filter ("handle",         handle,       escape=True)
+        filters += rdf.sparql_filter ("title",          search_for,   escape=True)
+        filters += rdf.sparql_filter ("resource_title", search_for,   escape=True)
+        filters += rdf.sparql_filter ("description",    search_for,   escape=True)
+        filters += rdf.sparql_filter ("citation",       search_for,   escape=True)
 
         if published_since is not None:
-            query += "FILTER (BOUND(?published_date))\n"
+            query += rdf.sparql_bound_filter ("published_date")
             query += "FILTER (STR(?published_date) != \"NULL\")\n"
             query += f"FILTER (STR(?published_date) > \"{published_since}\")\n"
 
         if modified_since is not None:
-            query += "FILTER (BOUND(?modified_date))\n"
+            query += rdf.sparql_bound_filter ("modified_date")
             query += "FILTER (STR(?modified_date) != \"NULL\")\n"
             query += f"FILTER (STR(?modified_date) > \"{modified_since}\")\n"
 
         if account_id is None:
-            query += rdf.sparql_filter ("is_public", 1)
+            filters += rdf.sparql_filter ("is_public", 1)
         else:
-            query += rdf.sparql_filter ("account_id", account_id)
+            filters += rdf.sparql_filter ("account_id", account_id)
 
-        query += "}\n"
+        query   = self.__query_from_template ("collections", {
+            "state_graph": self.state_graph,
+            "filters":     filters
+        })
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
         return self.__run_query(query)
 
     def fundings (self, title=None, order=None, order_direction=None,
-                  limit=10, item_id=None, account_id=None,
-                  item_type="article"):
+                  limit=10, item_id=None, account_id=None, item_type="article"):
+        """Procedure to retrieve funding information."""
 
-        prefix = "Article" if item_type == "article" else "Collection"
-        query  = f"""\
-{self.default_prefixes}
-SELECT DISTINCT ?id ?title ?grant_code ?funder_name ?url
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?row             rdf:type                 sg:{prefix}Funding .
-    ?row             col:id                   ?id .
-    ?row             col:{item_type}_id       ?{item_type}_id .
-    OPTIONAL {{ ?row             col:title                ?title . }}
-    OPTIONAL {{ ?row             col:grant_code           ?grant_code . }}
-    OPTIONAL {{ ?row             col:funder_name          ?funder_name . }}
-    OPTIONAL {{ ?row             col:url                  ?url . }}
-"""
-
-        if item_id is not None:
-            query += f"""\
-    ?item           rdf:type                 sg:{prefix}FundingLink .
-    ?item           col:{item_type}_id       ?{item_type}_id .
-    ?item           col:account_id           ?account_id .
-  }}
-"""
-
-        query += rdf.sparql_filter ("account_id",      account_id)
-        query += rdf.sparql_filter (f"{item_type}_id", item_id)
-        query += rdf.sparql_filter ("title",           title,  escape=True)
-
-        query += "}\n"
+        filters = rdf.sparql_filter ("title", title, escape=True)
+        query   = self.__query_from_template ("funding", {
+            "state_graph": self.state_graph,
+            "prefix":      item_type.capitalize(),
+            "item_type":   item_type,
+            "item_id":     item_id,
+            "account_id":  account_id,
+            "filters":     filters
+        })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
@@ -722,30 +411,16 @@ WHERE {{
     def references (self, order=None, order_direction=None, limit=10,
                     item_id=None, account_id=None, item_type="article"):
 
-        prefix = "Article" if item_type == "article" else "Collection"
-        query  = f"""\
-{self.default_prefixes}
-SELECT DISTINCT ?id ?url
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?row             rdf:type                 sg:{prefix}Reference .
-    ?row             col:id                   ?id .
-    ?row             col:{item_type}_id       ?{item_type}_id .
-    ?row             col:url                  ?url .
-"""
+        prefix = item_type.capitalize()
 
-        if item_id is not None:
-            query += f"""\
-    ?item            rdf:type                 sg:{prefix} .
-    ?item            col:{item_type}_id       ?{item_type}_id .
-    ?item            col:account_id           ?account_id .
-  }}
-"""
-
-        query += rdf.sparql_filter ("account_id",      account_id)
-        query += rdf.sparql_filter (f"{item_type}_id", item_id)
-
-        query += "}\n"
+        query   = self.__query_from_template ("references", {
+            "state_graph": self.state_graph,
+            "prefix":      item_type.capitalize(),
+            "item_type":   item_type,
+            "item_id":     item_id,
+            "account_id":  account_id,
+            "filters":     None
+        })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query(query)
