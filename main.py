@@ -1,3 +1,7 @@
+"""
+This file is the main entry point for PyInstaller.
+"""
+
 import djehuty
 from djehuty import ui
 
