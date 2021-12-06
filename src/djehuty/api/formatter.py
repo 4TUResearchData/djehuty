@@ -86,6 +86,9 @@ def format_category_record (record):
 def format_tag_record (record):
     return conv.value_or_none(record, "tag")
 
+def format_reference_record (record):
+    return conv.value_or_none(record, "url")
+
 def format_article_details_record (article, authors, files, custom_fields,
                                    embargo_options, tags, categories, funding,
                                    references):
@@ -114,7 +117,7 @@ def format_article_details_record (article, authors, files, custom_fields,
         },
         "tags":              list (map (format_tag_record, tags)),
         "categories":        list (map (format_category_record, categories)),
-        "references":        references,
+        "references":        list (map (format_reference_record, references)),
         "has_linked_file":   bool(conv.value_or_none(article, "has_linked_file")),
         "citation":          conv.value_or_none(article, "citation"),
 #        "is_active":         conv.value_or_none(article, "is_active"),
@@ -208,7 +211,7 @@ def format_collection_details_record (collection, funding, categories,
         "resource_version":  conv.value_or_none(collection, "resource_version"),
         "description":       conv.value_or_none(collection, "description"),
         "categories":        list (map (format_category_record, categories)),
-        "references":        references,
+        "references":        list (map (format_reference_record, references)),
         "tags":              list (map (format_tag_record, tags)),
         "authors":           list (map (format_author_record, authors)),
         "funding":           list (map (format_funding_record, funding)),
