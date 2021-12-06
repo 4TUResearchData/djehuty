@@ -22,10 +22,10 @@ class SparqlInterface:
 
     def __init__ (self):
 
-        self.ids = counters.IdGenerator()
-        self.endpoint = "http://127.0.0.1:8890/sparql"
-        self.state_graph = "https://data.4tu.nl/portal/2021-11-19"
-        self.sparql = SPARQLWrapper(self.endpoint)
+        self.ids         = counters.IdGenerator()
+        self.endpoint    = "http://127.0.0.1:8890/sparql"
+        self.state_graph = "https://data.4tu.nl/portal/self-test"
+        self.sparql      = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)
         self.default_prefixes = """\
 PREFIX col: <sg://0.99.12/table2rdf/Column/>
