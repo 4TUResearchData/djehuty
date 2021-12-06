@@ -91,7 +91,7 @@ class ApiServer:
 
         self.jinja   = Environment(loader = FileSystemLoader(
                         os.path.join(os.path.dirname(__file__),
-                                     "resources/templates")),
+                                     "resources/html_templates")),
                                      autoescape = True)
 
         self.wsgi    = SharedDataMiddleware(self.respond, {
