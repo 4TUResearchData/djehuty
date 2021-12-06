@@ -5,7 +5,7 @@ data for the API server.
 
 import logging
 from urllib.error import URLError
-from SPARQLWrapper import SPARQLWrapper, JSON
+from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
 from rdflib import Graph, Literal, RDF
 from djehuty.utils import counters
 from djehuty.utils import rdf
@@ -87,6 +87,9 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                                query_results["results"]["bindings"]))
         except URLError:
             logging.error("Connection to the SPARQL endpoint seems down.")
+        except SPARQLExceptions.QueryBadFormed as error:
+            logging.error("Badly formed SPARQL query:")
+            logging.error("Query:\n---\n%s\n---", query)
         except Exception as error:
             logging.error("SPARQL query failed.")
             logging.error("Exception: %s", error)
