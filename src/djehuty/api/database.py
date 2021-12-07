@@ -1053,3 +1053,16 @@ WHERE {{
   }}
 }}"""
         return self.__run_query(query)
+
+    def article_update_thumb (self, article_id, version, account_id, file_id):
+        """Procedure to update the thumbnail of an article."""
+
+        filters = rdf.sparql_filter ("file_id", file_id)
+        query   = self.__query_from_template ("update_article_thumb", {
+            "state_graph": self.state_graph,
+            "account_id":  account_id,
+            "version":     version,
+            "filters":     filters
+        })
+
+        return self.__run_query(query)
