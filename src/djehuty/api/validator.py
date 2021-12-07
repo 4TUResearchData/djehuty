@@ -82,7 +82,7 @@ def order_direction (value, required=False):
 
     return True
 
-def integer_value (value, field_name, minimum_value=None, maximum_value=None, required=False):
+def integer_field (value, field_name, minimum_value=None, maximum_value=None, required=False):
 
     prefix = field_name.capitalize()
     if value is None:
@@ -114,22 +114,22 @@ def integer_value (value, field_name, minimum_value=None, maximum_value=None, re
 
 
 def limit (value, required=False):
-    return integer_value (value, "limit", minimum_value=1, maximum_value=1000, required=required)
+    return integer_field (value, "limit", minimum_value=1, maximum_value=1000, required=required)
 
 def offset (value, required=False):
-    return integer_value (value, "offset", required=required)
+    return integer_field (value, "offset", required=required)
 
 def institution (value, required=False):
-    return integer_value (value, "institution", required=required)
+    return integer_field (value, "institution", required=required)
 
 def group (value, required=False):
-    return integer_value (value, "group", required=required)
+    return integer_field (value, "group", required=required)
 
 def page (value, required=False):
-    return integer_value (value, "page", required=required)
+    return integer_field (value, "page", required=required)
 
 def page_size (value, required=False):
-    return integer_value (value, "page_size", required=required)
+    return integer_field (value, "page_size", required=required)
 
 def index_exists (value, index):
     try:
