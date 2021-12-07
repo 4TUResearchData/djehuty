@@ -94,7 +94,7 @@ def integer_value (record, field_name, minimum_value=None, maximum_value=None, r
                 message = f"Missing required value for '{field_name}'.",
                 code    = "MissingRequiredField")
 
-        return True
+        return value
 
     try:
         value = int(value)
@@ -113,7 +113,7 @@ def integer_value (record, field_name, minimum_value=None, maximum_value=None, r
             message = f"The minimum value for '{field_name}' is {minimum_value}.",
             code    = f"{prefix}ValueTooLow")
 
-    return True
+    return value
 
 def limit (value, required=False):
     return integer_value (value, "limit", minimum_value=1, maximum_value=1000, required=required)
