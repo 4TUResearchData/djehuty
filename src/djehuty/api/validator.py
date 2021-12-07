@@ -169,11 +169,6 @@ def string_value (record, field_name, minimum_length=None, maximum_length=None, 
 
     return True
 
-defined_type_options = [ "figure", "online resource", "preprint", "book",
-                         "conference contribution", "media", "dataset",
-                         "poster", "journal contribution", "presentation",
-                         "thesis", "software" ]
-
 def options_value (record, field_name, options, required=False):
 
     value = conv.value_or_none (record, field_name)

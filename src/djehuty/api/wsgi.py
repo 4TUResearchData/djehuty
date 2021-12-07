@@ -33,6 +33,13 @@ class ApiServer:
             "60b2a1fbae694cb7c85105aeaa57a2d04644f078db32c23732b420c68abb0efe": 1000002
         }
 
+        self.defined_type_options = [
+            "figure", "online resource", "preprint", "book",
+            "conference contribution", "media", "dataset",
+            "poster", "journal contribution", "presentation",
+            "thesis", "software"
+        ]
+
         ## Routes to all API calls.
         ## --------------------------------------------------------------------
 
