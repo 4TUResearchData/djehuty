@@ -55,6 +55,7 @@ class ApiServer:
             Rule("/v2/articles/<article_id>/versions/<version>", endpoint = "article_version_details"),
             Rule("/v2/articles/<article_id>/versions/<version>/embargo", endpoint = "article_version_embargo"),
             Rule("/v2/articles/<article_id>/versions/<version>/confidentiality", endpoint = "article_version_confidentiality"),
+            Rule("/v2/articles/<article_id>/versions/<version>/update_thumb", endpoint = "article_version_update_thumb"),
             Rule("/v2/articles/<article_id>/files",           endpoint = "article_files"),
             Rule("/v2/articles/<article_id>/files/<file_id>", endpoint = "article_file_details"),
 
@@ -491,6 +492,21 @@ class ApiServer:
             }))
             response.status_code = 404
             return response
+
+    def api_article_version_update_thumb (self, request, article_id, version):
+        if request.method != 'PUT':
+            return self.error_405 ("PUT")
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        parameters = request.get_json()
+        file_id    = convenience.value_or_none (parameters, "file_id")
+        if not self.db.article_update_thumb (article_id, version, account_id, file_id):
+            return self.respond_205()
+
+        return self.error_500()
 
     def api_article_files (self, request, article_id):
         if request.method != 'GET':
