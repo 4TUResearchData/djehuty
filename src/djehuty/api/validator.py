@@ -163,6 +163,11 @@ def string_field (value, field_name, minimum_length=None, maximum_length=None, r
 
     return True
 
+defined_type_options = [ "figure", "online resource", "preprint", "book",
+                         "conference contribution", "media", "dataset",
+                         "poster", "journal contribution", "presentation",
+                         "thesis", "software" ]
+
 def options_field (value, field_name, options, required=False):
 
     if value is None:
