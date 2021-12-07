@@ -685,7 +685,7 @@ class SparqlInterface:
     def insert_author (self, author_id=None, is_active=None, first_name=None,
                        last_name=None, full_name=None, institution_id=None,
                        job_title=None, is_public=None, url_name=None,
-                       orcid_id=None):
+                       orcid_id=None, email=None):
         """Procedure to add an author to the state graph."""
 
         graph = Graph()
@@ -707,6 +707,7 @@ class SparqlInterface:
         rdf.add (graph, author_uri, rdf.COL["job_title"],      job_title)
         rdf.add (graph, author_uri, rdf.COL["url_name"],       url_name)
         rdf.add (graph, author_uri, rdf.COL["orcid_id"],       orcid_id)
+        rdf.add (graph, author_uri, rdf.COL["email"],          email)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
