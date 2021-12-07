@@ -149,7 +149,7 @@ def string_value (record, field_name, minimum_length=None, maximum_length=None, 
             raise MissingRequiredField(
                 message = f"Missing required value for '{field_name}'.",
                 code    = "MissingRequiredField")
-        return True
+        return value
 
     if not isinstance (value, str):
         raise InvalidValueType(
@@ -167,7 +167,7 @@ def string_value (record, field_name, minimum_length=None, maximum_length=None, 
             message = f"The value for '{field_name}' needs to be longer than {minimum_length}.",
             code    = "ValueTooShort")
 
-    return True
+    return value
 
 def options_value (record, field_name, options, required=False):
 
@@ -177,14 +177,14 @@ def options_value (record, field_name, options, required=False):
             raise MissingRequiredField(
                 message = f"Missing required value for '{field_name}'.",
                 code    = "MissingRequiredField")
-        return True
+        return value
 
     if value not in options:
         raise InvalidOptionsValue(
             message = f"Invalid value for '{field_name}'. It must be one of {options}",
             code    = "InvalidValue")
 
-    return True
+    return value
 
 def __typed_value (record, field_name, expected_type=None, type_name=None, required=False):
 
@@ -194,14 +194,14 @@ def __typed_value (record, field_name, expected_type=None, type_name=None, requi
             raise MissingRequiredField(
                 message = f"Missing required value for '{field_name}'.",
                 code    = "MissingRequiredField")
-        return True
+        return value
 
     if not isinstance (value, expected_type):
         raise InvalidValueType(
                 message = f"Expected {type_name} for '{field_name}'.",
                 code    = "WrongValueType")
 
-    return True
+    return value
 
 def array_value (value, field_name, required=False):
     return __typed_value (value, field_name, list, "array", required)
