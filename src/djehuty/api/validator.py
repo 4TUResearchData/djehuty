@@ -26,7 +26,21 @@ class InvalidOrderDirection(ValidationException):
         self.code    = code
         super().__init__(message, code)
 
-def order_direction (value):
+class MissingRequiredField(ValidationException):
+    """Exception thrown when a required parameter holds no value."""
+
+    def __init__(self, message, code):
+        self.message = message
+        self.code    = code
+        super().__init__(message, code)
+
+def order_direction (value, required=False):
+
+    if (value is None and required):
+        raise MissingRequiredField(
+            message = f"Missing required value for '{field_name}'.",
+            code    = "MissingRequiredField")
+
     if (value is not None and
         (not (value.lower() == "desc" or
               value.lower() == "asc"))):
@@ -36,10 +50,15 @@ def order_direction (value):
 
     return True
 
-def integer_value (value, field_name, minimum_value=None, maximum_value=None):
+def integer_value (value, field_name, minimum_value=None, maximum_value=None, required=False):
 
     prefix = field_name.capitalize()
     if value is None:
+        if required:
+            raise MissingRequiredField(
+                message = f"Missing required value for '{field_name}'.",
+                code    = "MissingRequiredField")
+
         return True
 
     try:
@@ -62,20 +81,21 @@ def integer_value (value, field_name, minimum_value=None, maximum_value=None):
     return True
 
 
-def limit (value):
-    return integer_value (value, "limit", minimum_value=1, maximum_value=1000)
+def limit (value, required=False):
+    return integer_value (value, "limit", minimum_value=1, maximum_value=1000, required=required)
 
-def offset (value):
-    return integer_value (value, "offset")
+def offset (value, required=False):
+    return integer_value (value, "offset", required=required)
 
-def institution (value):
-    return integer_value (value, "institution")
+def institution (value, required=False):
+    return integer_value (value, "institution", required=required)
 
-def group (value):
-    return integer_value (value, "group")
+def group (value, required=False):
+    return integer_value (value, "group", required=required)
 
-def page (value):
-    return integer_value (value, "page")
+def page (value, required=False):
+    return integer_value (value, "page", required=required)
 
-def page_size (value):
-    return integer_value (value, "page_size")
+def page_size (value, required=False):
+    return integer_value (value, "page_size", required=required)
+
