@@ -2,6 +2,8 @@
 This module contains procedures to validate user input.
 """
 
+from djehuty.utils import convenience as conv
+
 class ValidationException(Exception):
     """Base class for validation errors."""
 
@@ -82,8 +84,9 @@ def order_direction (value, required=False):
 
     return True
 
-def integer_field (value, field_name, minimum_value=None, maximum_value=None, required=False):
+def integer_value (record, field_name, minimum_value=None, maximum_value=None, required=False):
 
+    value = conv.value_or_none (record, field_name)
     prefix = field_name.capitalize()
     if value is None:
         if required:
@@ -112,24 +115,23 @@ def integer_field (value, field_name, minimum_value=None, maximum_value=None, re
 
     return True
 
-
 def limit (value, required=False):
-    return integer_field (value, "limit", minimum_value=1, maximum_value=1000, required=required)
+    return integer_value (value, "limit", minimum_value=1, maximum_value=1000, required=required)
 
 def offset (value, required=False):
-    return integer_field (value, "offset", required=required)
+    return integer_value (value, "offset", required=required)
 
 def institution (value, required=False):
-    return integer_field (value, "institution", required=required)
+    return integer_value (value, "institution", required=required)
 
 def group (value, required=False):
-    return integer_field (value, "group", required=required)
+    return integer_value (value, "group", required=required)
 
 def page (value, required=False):
-    return integer_field (value, "page", required=required)
+    return integer_value (value, "page", required=required)
 
 def page_size (value, required=False):
-    return integer_field (value, "page_size", required=required)
+    return integer_value (value, "page_size", required=required)
 
 def index_exists (value, index):
     try:
@@ -139,8 +141,9 @@ def index_exists (value, index):
 
     return True
 
-def string_field (value, field_name, minimum_length=None, maximum_length=None, required=False):
+def string_value (record, field_name, minimum_length=None, maximum_length=None, required=False):
 
+    value = conv.value_or_none (record, field_name)
     if value is None:
         if required:
             raise MissingRequiredField(
@@ -166,8 +169,9 @@ defined_type_options = [ "figure", "online resource", "preprint", "book",
                          "poster", "journal contribution", "presentation",
                          "thesis", "software" ]
 
-def options_field (value, field_name, options, required=False):
+def options_value (record, field_name, options, required=False):
 
+    value = conv.value_or_none (record, field_name)
     if value is None:
         if required:
             raise MissingRequiredField(
@@ -182,7 +186,9 @@ def options_field (value, field_name, options, required=False):
 
     return True
 
-def __typed_field (value, field_name, expected_type=None, type_name=None, required=False):
+def __typed_value (record, field_name, expected_type=None, type_name=None, required=False):
+
+    value = conv.value_or_none (record, field_name)
     if value is None:
         if required:
             raise MissingRequiredField(
@@ -197,8 +203,8 @@ def __typed_field (value, field_name, expected_type=None, type_name=None, requir
 
     return True
 
-def array_field (value, field_name, required=False):
-    return __typed_field (value, field_name, list, "array", required)
+def array_value (value, field_name, required=False):
+    return __typed_value (value, field_name, list, "array", required)
 
-def object_field (value, field_name, required=False):
-    return __typed_field (value, field_name, dict, "object", required)
+def object_value (value, field_name, required=False):
+    return __typed_value (value, field_name, dict, "object", required)
