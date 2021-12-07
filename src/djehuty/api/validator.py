@@ -151,6 +151,11 @@ def string_value (record, field_name, minimum_length=None, maximum_length=None, 
                 code    = "MissingRequiredField")
         return True
 
+    if not isinstance (value, str):
+        raise InvalidValueType(
+                message = f"Expected a string for '{field_name}'.",
+                code    = "WrongValueType")
+
     if index_exists (value, maximum_length):
         raise ValueTooLong(
             message = f"The value for '{field_name}' is longer than {maximum_length}.",
