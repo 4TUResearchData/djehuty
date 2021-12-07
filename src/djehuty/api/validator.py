@@ -98,22 +98,24 @@ def integer_value (record, field_name, minimum_value=None, maximum_value=None, r
 
     try:
         value = int(value)
+
+        if maximum_value is not None and value > maximum_value:
+            raise InvalidIntegerValue(
+                message = f"The maximum value for '{field_name}' is {maximum_value}.",
+                code    = f"{prefix}ValueTooHigh")
+
+        if minimum_value is not None and value < minimum_value:
+            raise InvalidIntegerValue(
+                message = f"The minimum value for '{field_name}' is {minimum_value}.",
+                code    = f"{prefix}ValueTooLow")
+
+        return value
+
     except Exception as error:
         raise InvalidIntegerValue(
             message = f"The value for '{field_name}' must be an integer.",
             code    = f"Invalid{prefix}Value") from error
 
-    if maximum_value is not None and value > maximum_value:
-        raise InvalidIntegerValue(
-            message = f"The maximum value for '{field_name}' is {maximum_value}.",
-            code    = f"{prefix}ValueTooHigh")
-
-    if minimum_value is not None and value < minimum_value:
-        raise InvalidIntegerValue(
-            message = f"The minimum value for '{field_name}' is {minimum_value}.",
-            code    = f"{prefix}ValueTooLow")
-
-    return value
 
 def limit (value, required=False):
     return integer_value (value, "limit", minimum_value=1, maximum_value=1000, required=required)
