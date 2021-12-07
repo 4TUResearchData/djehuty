@@ -11,7 +11,7 @@ WHERE {
     OPTIONAL { ?row  col:funder_name          ?funder_name . }
     OPTIONAL { ?row  col:url                  ?url . }
     {% if item_id is not none %}
-    ?item           rdf:type                 sg:{{prefix}}FundingLink .
+    ?item           rdf:type                 sg:{{prefix}}Funding .
     ?item           col:{{item_type}}_id     ?{{item_type}}_id .
     {% if account_id is not none %}
     ?item           col:account_id           {{account_id}} .

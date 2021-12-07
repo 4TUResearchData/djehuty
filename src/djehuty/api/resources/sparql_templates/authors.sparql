@@ -9,7 +9,7 @@ WHERE {
     ?author            rdf:type                 sg:Author .
     ?author            col:id                   ?id .
     {% if item_id is not none %}
-    ?link              rdf:type                 sg:{{prefix}}AuthorLink .
+    ?link              rdf:type                 sg:{{prefix}}Author .
     ?link              col:{{item_type}}_id     {{item_id}} .
     ?link              col:author_id            ?id .
     {% endif %}

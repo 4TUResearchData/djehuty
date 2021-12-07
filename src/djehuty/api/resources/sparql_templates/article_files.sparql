@@ -10,7 +10,7 @@ WHERE {
     ?file              col:id                   ?id .
 
     {% if article_id is not none %}
-    ?link              rdf:type                 sg:ArticleFileLink .
+    ?link              rdf:type                 sg:ArticleFile .
     ?link              col:article_id           {{article_id}} .
     ?link              col:file_id              ?id .
     {% endif %}
