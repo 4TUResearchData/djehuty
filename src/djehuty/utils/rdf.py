@@ -4,11 +4,10 @@ This module provides convenience functions for handling RDF.
 
 from rdflib import Literal, Namespace
 
-def add (graph, subject, predicate, value):
+def add (graph, subject, predicate, value, datatype=None):
     """Adds the triplet SUBJECT PREDICATE VALUE if VALUE is set."""
     if value is not None:
-        graph.add((subject, predicate, Literal(value)))
-
+        graph.add((subject, predicate, Literal(value, datatype=datatype)))
 
 def sparql_filter (name, value, escape=False):
     query   = ""
