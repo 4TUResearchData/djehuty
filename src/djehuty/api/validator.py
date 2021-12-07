@@ -34,6 +34,22 @@ class MissingRequiredField(ValidationException):
         self.code    = code
         super().__init__(message, code)
 
+class ValueTooLong(ValidationException):
+    """Exception thrown when a string parameter is too long."""
+
+    def __init__(self, message, code):
+        self.message = message
+        self.code    = code
+        super().__init__(message, code)
+
+class ValueTooShort(ValidationException):
+    """Exception thrown when a string parameter is too short."""
+
+    def __init__(self, message, code):
+        self.message = message
+        self.code    = code
+        super().__init__(message, code)
+
 def order_direction (value, required=False):
 
     if (value is None and required):
@@ -98,4 +114,36 @@ def page (value, required=False):
 
 def page_size (value, required=False):
     return integer_value (value, "page_size", required=required)
+
+def index_exists (value, index):
+    try:
+        char = value[index]
+    except IndexError as error:
+        return False
+
+    return True
+
+def string_field (value, field_name, minimum_length=None, maximum_length=None, required=False):
+
+    if value is None:
+        if required:
+            raise MissingRequiredField(
+                message = f"Missing required value for '{field_name}'.",
+                code    = "MissingRequiredField")
+        return True
+
+    if index_exists (value, maximum_length):
+        raise ValueTooLong(
+            message = f"The value for '{field_name}' is longer than {maximum_length}.",
+            code    = "ValueTooLong")
+
+    if minumum_length < 1:
+        minimum_length = 1
+
+    if not index_exists (value, minimum_length - 1):
+        raise ValueTooShort(
+            message = f"The value for '{field_name}' needs to be longer than {minimum_length}.",
+            code    = "ValueTooShort")
+
+    return True
 
