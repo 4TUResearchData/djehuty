@@ -579,12 +579,44 @@ class ApiServer:
             return self.default_list_response (records, formatter.format_article_record)
 
         if request.method == 'POST':
-            parameters = request.get_json()
-            article_id = self.db.insert_article (title=convenience.value_or_none(parameters, "title"))
-            return self.response(json.dumps({
-                "location": f"http://{self.address}:{self.port}/v2/account/articles/{article_id}",
-                "warnings": []
-            }))
+            record = request.get_json()
+
+            try:
+                timeline   = validator.object_value (record, "timeline", False)
+                article_id = self.db.insert_article (
+                    title          = validator.string_value  (record, "title",          3, 1000,                   True),
+                    account_id     = account_id,
+                    description    = validator.string_value  (record, "description",    0, 10000,                  False),
+                    tags           = validator.array_value   (record, "tags",                                      False),
+                    keywords       = validator.array_value   (record, "keywords",                                  False),
+                    references     = validator.array_value   (record, "references",                                False),
+                    categories     = validator.array_value   (record, "categories",                                False),
+                    authors        = validator.array_value   (record, "authors",                                   False),
+                    defined_type   = validator.options_value (record, "defined_type",   self.defined_type_options, False),
+                    funding        = validator.string_value  (record, "funding",        0, 255,                    False),
+                    funding_list   = validator.array_value   (record, "funding_list",                              False),
+                    license_id     = validator.integer_value (record, "license",        0, pow(2, 63),             False),
+                    doi            = validator.string_value  (record, "doi",            0, 255,                    False),
+                    handle         = validator.string_value  (record, "handle",         0, 255,                    False),
+                    resource_doi   = validator.string_value  (record, "resource_doi",   0, 255,                    False),
+                    resource_title = validator.string_value  (record, "resource_title", 0, 255,                    False),
+                    group_id       = validator.integer_value (record, "group_id",       0, pow(2, 63),             False),
+                    custom_fields  = validator.object_value  (record, "custom_fields",                             False),
+                    # Unpack the 'timeline' object.
+                    first_online          = validator.string_value (timeline, "firstOnline",                       False),
+                    publisher_publication = validator.string_value (timeline, "publisherPublication",              False),
+                    publisher_acceptance  = validator.string_value (timeline, "publisherAcceptance",               False),
+                    submission            = validator.string_value (timeline, "submission",                        False),
+                    posted                = validator.string_value (timeline, "posted",                            False),
+                    revision              = validator.string_value (timeline, "revision",                          False)
+                )
+
+                return self.response(json.dumps({
+                    "location": f"http://{self.address}:{self.port}/v2/account/articles/{article_id}",
+                    "warnings": []
+                }))
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
 
         return self.error_405 (["GET", "POST"])
 
