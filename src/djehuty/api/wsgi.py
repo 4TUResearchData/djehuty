@@ -682,15 +682,61 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        authors    = self.db.authors(item_id    = article_id,
-                                     account_id = account_id,
-                                     item_type  = "article")
+        if request.method == 'GET':
+            authors    = self.db.authors(item_id    = article_id,
+                                         account_id = account_id,
+                                         item_type  = "article")
 
-        return self.default_list_response (authors, formatter.format_author_record)
+            return self.default_list_response (authors, formatter.format_author_record)
+
+        if request.method == 'POST':
+            ## The 'parameters' will be a dictionary containing a key "authors",
+            ## which can contain multiple dictionaries of author records.
+            parameters = request.get_json()
+
+            try:
+                records = parameters["authors"]
+                for record in records:
+                    # The following fields are allowed:
+                    # id, name, first_name, last_name, email, orcid_id, job_title.
+                    #
+                    # We assume values for is_active and is_public.
+                    author_id = self.db.insert_author (
+                        author_id  = validator.integer_value (record, "id",         0, pow(2, 63), False),
+                        full_name  = validator.string_value  (record, "name",       0, 255,        False),
+                        first_name = validator.string_value  (record, "first_name", 0, 255,        False),
+                        last_name  = validator.string_value  (record, "last_name",  0, 255,        False),
+                        email      = validator.string_value  (record, "email",      0, 255,        False),
+                        orcid_id   = validator.string_value  (record, "orcid_id",   0, 255,        False),
+                        job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
+                        is_active  = False,
+                        is_public  = True)
+                    if author_id is None:
+                        logging.error("Adding a single author failed.")
+                        return self.error_500()
+
+                    if self.db.insert_article_author (int(article_id), author_id) is None:
+                        logging.error("Adding a single author failed.")
+                        return self.error_500()
+
+                return self.respond_205()
+
+            except KeyError:
+                self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+            except Exception as error:
+                logging.error("An error occurred when adding an author record:")
+                logging.error("Exception: %s", error)
+
+            return self.error_500()
+
+        if request.method == 'PUT':
+            return self.error_500()
+
+        return self.error_405 ("GET")
 
     def api_private_article_categories (self, request, article_id):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
