@@ -70,7 +70,7 @@ def order_direction (value, required=False):
 
     if (value is None and required):
         raise MissingRequiredField(
-            message = f"Missing required value for '{field_name}'.",
+            message = "Missing required value for 'order_direction'.",
             code    = "MissingRequiredField")
 
     if (value is not None and
@@ -134,7 +134,7 @@ def page_size (value, required=False):
 def index_exists (value, index):
     try:
         char = value[index]
-    except IndexError as error:
+    except IndexError:
         return False
 
     return True
@@ -153,9 +153,7 @@ def string_field (value, field_name, minimum_length=None, maximum_length=None, r
             message = f"The value for '{field_name}' is longer than {maximum_length}.",
             code    = "ValueTooLong")
 
-    if minumum_length < 1:
-        minimum_length = 1
-
+    minimum_length = max(minimum_length, 1)
     if not index_exists (value, minimum_length - 1):
         raise ValueTooShort(
             message = f"The value for '{field_name}' needs to be longer than {minimum_length}.",
