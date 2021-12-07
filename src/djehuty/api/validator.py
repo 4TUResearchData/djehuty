@@ -58,6 +58,14 @@ class InvalidValueType(ValidationException):
         self.code    = code
         super().__init__(message, code)
 
+class InvalidOptionsValue(ValidationException):
+    """Exception thrown when the wrong type of a value was given."""
+
+    def __init__(self, message, code):
+        self.message = message
+        self.code    = code
+        super().__init__(message, code)
+
 def order_direction (value, required=False):
 
     if (value is None and required):
@@ -152,6 +160,22 @@ def string_field (value, field_name, minimum_length=None, maximum_length=None, r
         raise ValueTooShort(
             message = f"The value for '{field_name}' needs to be longer than {minimum_length}.",
             code    = "ValueTooShort")
+
+    return True
+
+def options_field (value, field_name, options, required=False):
+
+    if value is None:
+        if required:
+            raise MissingRequiredField(
+                message = f"Missing required value for '{field_name}'.",
+                code    = "MissingRequiredField")
+        return True
+
+    if value not in options:
+        raise InvalidOptionsValue(
+            message = f"Invalid value for '{field_name}'. It must be one of {options}",
+            code    = "InvalidValue")
 
     return True
 
