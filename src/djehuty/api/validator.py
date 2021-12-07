@@ -50,6 +50,14 @@ class ValueTooShort(ValidationException):
         self.code    = code
         super().__init__(message, code)
 
+class InvalidValueType(ValidationException):
+    """Exception thrown when the wrong type of a value was given."""
+
+    def __init__(self, message, code):
+        self.message = message
+        self.code    = code
+        super().__init__(message, code)
+
 def order_direction (value, required=False):
 
     if (value is None and required):
@@ -147,3 +155,23 @@ def string_field (value, field_name, minimum_length=None, maximum_length=None, r
 
     return True
 
+def __typed_field (value, field_name, expected_type=None, type_name=None, required=False):
+    if value is None:
+        if required:
+            raise MissingRequiredField(
+                message = f"Missing required value for '{field_name}'.",
+                code    = "MissingRequiredField")
+        return True
+
+    if not isinstance (value, expected_type):
+        raise InvalidValueType(
+                message = f"Expected {type_name} for '{field_name}'.",
+                code    = "WrongValueType")
+
+    return True
+
+def array_field (value, field_name, required=False):
+    return __typed_field (value, field_name, list, "array", required)
+
+def object_field (value, field_name, required=False):
+    return __typed_field (value, field_name, dict, "object", required)
