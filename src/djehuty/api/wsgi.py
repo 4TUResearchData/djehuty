@@ -283,6 +283,11 @@ class ApiServer:
 
         return self.response (json.dumps(output))
 
+    def respond_201 (self, body):
+        output = self.response (json.dumps(body))
+        output.status_code = 201
+        return output
+
     def respond_204 (self):
         output = Response("", 204, {})
         output.headers["Server"] = "4TU.ResearchData API"
