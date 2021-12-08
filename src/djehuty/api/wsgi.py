@@ -822,11 +822,32 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        categories    = self.db.categories(item_id    = article_id,
-                                           account_id = account_id,
-                                           item_type  = "article")
+        if request.method == 'GET':
+            categories    = self.db.categories(item_id    = article_id,
+                                               account_id = account_id,
+                                               item_type  = "article")
 
-        return self.default_list_response (categories, formatter.format_category_record)
+            return self.default_list_response (categories, formatter.format_category_record)
+
+        if request.method == 'POST':
+            parameters = request.get_json()
+            try:
+                categories = parameters["categories"]
+                for category_id in categories:
+                    validator.integer_value (category_id, "category_id")
+                    self.db.insert_article_category (article_id, category_id)
+
+                return self.respond_205()
+
+            except KeyError:
+                self.error_400 ("Expected an array for 'categories'.", "NoCategoriesField")
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+            except Exception as error:
+                logging.error("An error occurred when adding a category record:")
+                logging.error("Exception: %s", error)
+
+        return self.error_405 (["GET", "POST"])
 
     def api_private_article_embargo (self, request, article_id):
         if not self.accepts_json(request):
