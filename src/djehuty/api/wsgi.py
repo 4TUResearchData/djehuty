@@ -883,8 +883,6 @@ class ApiServer:
         return self.error_405 (["GET", "DELETE"])
 
     def api_private_article_files (self, request, article_id):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -895,10 +893,35 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        files         = self.db.article_files (article_id = article_id,
-                                               account_id = account_id)
+        if request.method == 'GET':
+            files         = self.db.article_files (article_id = article_id,
+                                                   account_id = account_id)
 
-        return self.default_list_response (files, formatter.format_file_for_article_record)
+            return self.default_list_response (files, formatter.format_file_for_article_record)
+
+        if request.method == 'POST':
+            parameters = request.get_json()
+            try:
+                link = validator.string_value (parameters, "link", 0, 1000, False)
+                if link is not None:
+                    file_id = self.db.insert_file (is_link_only=True, download_url=link)
+                    return self.respond_201({ "location": link })
+
+                file_id = self.db.insert_file (
+                    is_link_only  = False,
+                    upload_token  = self.token_from_request (request),
+                    supplied_md5  = validator.string_value  (parameters, "md5",  32, 32,         False),
+                    name          = validator.string_value  (parameters, "name", 0,  255,        True),
+                    size          = validator.integer_value (parameters, "size", 0,  pow(2, 63), True))
+
+                return self.respond_201({
+                    "location": f"{self.base_url}/v2/account/articles/{article_id}/files/{file_id}"
+                })
+
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+
+        return self.error_405 (["GET", "POST"])
 
     def api_private_article_file_details (self, request, article_id, file_id):
         if request.method != 'GET':
