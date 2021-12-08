@@ -72,6 +72,7 @@ class ApiServer:
             Rule("/v2/account/articles/search",               endpoint = "private_articles_search"),
             Rule("/v2/account/articles/<article_id>",         endpoint = "private_article_details"),
             Rule("/v2/account/articles/<article_id>/authors", endpoint = "private_article_authors"),
+            Rule("/v2/account/articles/<article_id>/authors/<author_id>", endpoint = "private_article_author_delete"),
             Rule("/v2/account/articles/<article_id>/categories", endpoint = "private_article_categories"),
             Rule("/v2/account/articles/<article_id>/embargo", endpoint = "private_article_embargo"),
             Rule("/v2/account/articles/<article_id>/files",   endpoint = "private_article_files"),
@@ -756,6 +757,20 @@ class ApiServer:
             return self.error_500()
 
         return self.error_405 ("GET")
+
+    def api_private_article_author_delete (self, request, article_id, author_id):
+        if request.method != 'DELETE':
+            return self.error_405 ("DELETE")
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        result = self.db.delete_authors_for_article (article_id, account_id, author_id)
+        if result is not None:
+            return self.respond_204()
+
+        return self.error_403()
 
     def api_private_article_categories (self, request, article_id):
 

@@ -718,6 +718,18 @@ class SparqlInterface:
 
         return None
 
+    def delete_authors_for_article (self, article_id, account_id, author_id=None):
+        """Procedure to delete all authors related to an article."""
+
+        query = self.__query_from_template ("delete_authors_for_article", {
+            "state_graph": self.state_graph,
+            "article_id":  article_id,
+            "account_id":  account_id,
+            "author_id":   author_id
+        })
+
+        return self.__run_query(query)
+
     def insert_timeline (self, revision=None, first_online=None,
                          publisher_publication=None, publisher_acceptance=None,
                          posted=None, submission=None):
