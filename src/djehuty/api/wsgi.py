@@ -245,9 +245,8 @@ class ApiServer:
             return request.args.get(parameter)
 
 
-    def account_id_from_request (self, request):
+    def token_from_request (self, request):
         token_string = None
-        account_id = None
         token = ""
 
         ## Get the token from the "Authorization" HTTP header.
@@ -255,10 +254,16 @@ class ApiServer:
         try:
             token_string = request.environ["HTTP_AUTHORIZATION"]
         except KeyError:
-            return account_id
+            return None
 
         if token_string.startswith("token "):
             token = token_string[6:]
+
+        return token
+
+    def account_id_from_request (self, request):
+        account_id = None
+        token = self.token_from_request (request)
 
         ## Match the token to an account_id.  If the token does not
         ## exist, we cannot authenticate.
