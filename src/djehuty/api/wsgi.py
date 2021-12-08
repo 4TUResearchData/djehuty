@@ -694,6 +694,7 @@ class ApiServer:
         return self.error_405 (["GET", "DELETE"])
 
     def api_private_article_authors (self, request, article_id):
+        """Implements /v2/account/articles/<id>/authors."""
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -704,12 +705,52 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
+        article_id = int(article_id)
+
         if request.method == 'GET':
             authors    = self.db.authors(item_id    = article_id,
                                          account_id = account_id,
                                          item_type  = "article")
 
             return self.default_list_response (authors, formatter.format_author_record)
+
+        if request.method == 'PUT':
+            parameters = request.get_json()
+            try:
+                records = parameters["authors"]
+                author_ids = []
+                for record in records:
+                    author_id = self.db.insert_author (
+                        author_id  = validator.integer_value (record, "id",         0, pow(2, 63), False),
+                        full_name  = validator.string_value  (record, "name",       0, 255,        False),
+                        first_name = validator.string_value  (record, "first_name", 0, 255,        False),
+                        last_name  = validator.string_value  (record, "last_name",  0, 255,        False),
+                        email      = validator.string_value  (record, "email",      0, 255,        False),
+                        orcid_id   = validator.string_value  (record, "orcid_id",   0, 255,        False),
+                        job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
+                        is_active  = False,
+                        is_public  = True)
+                    if author_id is None:
+                        logging.error("Adding a single author failed.")
+                        return self.error_500()
+
+                    author_ids.append(author_id)
+
+                self.db.delete_authors_for_article (article_id, account_id)
+                for author_id in author_ids:
+                    if self.db.insert_article_author (article_id, author_id) is None:
+                        logging.error("Adding a single author failed.")
+                        return self.error_500()
+
+            except KeyError:
+                self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+            except Exception as error:
+                logging.error("An error occurred when adding an author record:")
+                logging.error("Exception: %s", error)
+
+            return self.error_500()
 
         if request.method == 'POST':
             ## The 'parameters' will be a dictionary containing a key "authors",
@@ -737,7 +778,7 @@ class ApiServer:
                         logging.error("Adding a single author failed.")
                         return self.error_500()
 
-                    if self.db.insert_article_author (int(article_id), author_id) is None:
+                    if self.db.insert_article_author (article_id, author_id) is None:
                         logging.error("Adding a single author failed.")
                         return self.error_500()
 
@@ -751,9 +792,6 @@ class ApiServer:
                 logging.error("An error occurred when adding an author record:")
                 logging.error("Exception: %s", error)
 
-            return self.error_500()
-
-        if request.method == 'PUT':
             return self.error_500()
 
         return self.error_405 ("GET")
