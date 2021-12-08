@@ -258,6 +258,7 @@ class SparqlInterface:
         query = self.__query_from_template ("article_files", {
             "state_graph": self.state_graph,
             "article_id":  article_id,
+            "account_id":  account_id,
             "filters":     filters
         })
 

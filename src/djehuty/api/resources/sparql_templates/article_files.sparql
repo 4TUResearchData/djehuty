@@ -6,17 +6,16 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?status        ?upload_url    ?upload_token
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?file              rdf:type                 sg:File .
-    ?file              col:id                   ?id .
-
+    ?file              rdf:type                sg:File .
+    ?file              col:id                  ?id .
     {% if article_id is not none %}
-    ?link              rdf:type                 sg:ArticleFile .
-    ?link              col:article_id           {{article_id}} .
-    ?link              col:file_id              ?id .
-    {% endif %}
-    {% if account_id is not none %}
-    ?article           rdf:type                 sg:Article .
-    ?article           col:account_id           ?account_id .
+    ?link              rdf:type                sg:ArticleFile .
+    ?link              col:article_id          ?article_id .
+    ?link              col:file_id             ?id .
+    {% endif %}{% if account_id is not none %}
+    ?article           rdf:type                sg:Article .
+    ?article           col:article_id          ?article_id .
+    ?article           col:account_id          {{account_id}} .
     {% endif %}
     OPTIONAL { ?file  col:name                 ?name . }
     OPTIONAL { ?file  col:size                 ?size . }
@@ -30,6 +29,7 @@ WHERE {
     OPTIONAL { ?file  col:upload_url           ?upload_url . }
     OPTIONAL { ?file  col:upload_token         ?upload_token . }
   }
+  FILTER (?article_id = {{article_id}})
 {% if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
