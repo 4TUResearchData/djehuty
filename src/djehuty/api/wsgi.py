@@ -939,8 +939,6 @@ class ApiServer:
         return self.error_405 (["GET", "POST"])
 
     def api_private_article_file_details (self, request, article_id, file_id):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -951,11 +949,23 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        files         = self.db.article_files (article_id = article_id,
-                                               account_id = account_id,
-                                               file_id    = file_id)
+        if request.method == 'GET':
+            files         = self.db.article_files (article_id = article_id,
+                                                   account_id = account_id,
+                                                   file_id    = file_id)
 
-        return self.default_list_response (files, formatter.format_file_details_record)
+            return self.default_list_response (files, formatter.format_file_details_record)
+
+        if request.method == 'DELETE':
+            result = self.db.delete_file_for_article (article_id = article_id,
+                                                      account_id = account_id,
+                                                      file_id    = file_id)
+            if result is not None:
+                return self.respond_204()
+
+            return self.error_500()
+
+        return self.error_405 (["GET", "DELETE"])
 
     def api_private_articles_search (self, request):
         if request.method != 'POST':
