@@ -5,10 +5,13 @@ from werkzeug.serving import run_simple
 from djehuty.api import database
 from djehuty.api import wsgi
 
-def main (address, port, state_graph, storage, use_debugger=False, use_reloader=False):
+def main (address, port, state_graph, storage, base_url, use_debugger=False, use_reloader=False):
     """The main entry point for the 'api' subcommand."""
     try:
-        server = wsgi.ApiServer ()
+        server = wsgi.ApiServer (address, port)
+
+        if base_url is not None:
+            server.base_url = base_url
 
         server.db.storage     = storage
         server.db.state_graph = state_graph

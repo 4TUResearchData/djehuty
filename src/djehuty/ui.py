@@ -35,6 +35,7 @@ Available subcommands and options:
     --address=ARG        -a The address to bind the server on.
     --state-graph        -s The state graph in the RDF store.
     --storage            -S The storage path backing the API.
+    --base-url=ARG       -b URL on which this instance is accessed by users.
     --debug              -d Enable debugging.
     --dev-reload         -r Enable active reloading.
 
@@ -75,6 +76,7 @@ def main ():
     api_parser.add_argument('--port',       '-p', type=int, default=8080)
     api_parser.add_argument('--state-graph','-s', type=str, default='https://data.4tu.nl/portal')
     api_parser.add_argument('--storage',    '-S', type=str, default=None)
+    api_parser.add_argument('--base-url',   '-b', type=str, default=None)
     api_parser.add_argument('--debug',      '-d', action='store_true')
     api_parser.add_argument('--dev-reload', '-r', action='store_true')
 
@@ -101,7 +103,7 @@ def main ():
 
     if args.command == "api":
         api_ui.main (args.address, args.port, args.state_graph, args.storage,
-                     args.debug, args.dev_reload)
+                     args.base_url, args.debug, args.dev_reload)
 
     elif len(sys.argv) == 1:
         print("Try --help for usage options.")

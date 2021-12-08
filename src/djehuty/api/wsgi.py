@@ -20,9 +20,10 @@ class ApiServer:
     ## INITIALISATION
     ## ------------------------------------------------------------------------
 
-    def __init__ (self):
-        self.address          = "127.0.0.1"
-        self.port             = 8080
+    def __init__ (self, address="127.0.0.1", port=8080):
+        self.address          = address
+        self.port             = port
+        self.base_url         = f"http://{self.address}:{self.port}"
         self.db               = database.SparqlInterface()
 
         ## This is a temporary predefined set of tokens to test the private
