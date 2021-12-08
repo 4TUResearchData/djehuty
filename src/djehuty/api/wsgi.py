@@ -157,6 +157,17 @@ class ApiServer:
         response.status_code = 400
         return response
 
+    def error_403 (self, request):
+        response = None
+        if self.accepts_html (request):
+            response = self.__render_template ("403.html")
+        else:
+            response = self.response (json.dumps({
+                "message": "Not allowed."
+            }))
+        response.status_code = 403
+        return response
+
     def error_404 (self, request):
         response = None
         if self.accepts_html (request):
