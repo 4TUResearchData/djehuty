@@ -838,6 +838,18 @@ class SparqlInterface:
 
         return None
 
+    def delete_file_for_article (self, article_id, account_id, file_id=None):
+        """Procedure to delete a file related to an article."""
+
+        query = self.__query_from_template ("delete_files_for_article", {
+            "state_graph": self.state_graph,
+            "article_id":  article_id,
+            "account_id":  account_id,
+            "file_id":     file_id
+        })
+
+        return self.__run_query(query)
+
     def insert_tag (self, tag, item_id=None, item_type=None):
         """Procedure to add an tag to the state graph."""
 
