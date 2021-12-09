@@ -1,0 +1,7 @@
+Jinja2>=3.0.3
+mysql-connector-python>=8.0.27
+rdflib>=5.0.0
+requests>=2.26.0
+SPARQLWrapper>=1.8.5
+urllib3>=1.26.7
+Werkzeug>=2.0.2
