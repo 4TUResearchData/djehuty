@@ -305,7 +305,7 @@ class ApiServer:
 
     def api_home (self, request):
         if self.accepts_html (request):
-            return self.__render_template ("home.html")
+            return self.__render_template ("home.html", base_url=self.base_url)
 
         return self.response (json.dumps({ "status": "OK" }))
 
