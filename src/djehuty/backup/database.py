@@ -438,7 +438,7 @@ class DatabaseInterface:
 
         prefix   = "Article" if item_type == "article" else "Collection"
         template = (f"INSERT IGNORE INTO {prefix}PrivateLink "
-                    "(id, {item_type}_id, is_active, expires_date) "
+                    f"(id, {item_type}_id, is_active, expires_date) "
                     "VALUES (%s, %s, %s, %s)")
 
         expires_date  = convenience.value_or_none (record, "expires_date")
