@@ -221,17 +221,17 @@ class FigshareEndpoint:
 
         ## Statistics
         ## --------------------------------------------------------------------
-        # now          = datetime.now()
-        # created_date = now
-        # if "created_date" in record and not record["created_date"] is None:
-        #     created_date  = datetime.strptime(record["created_date"]
-        #                                       .replace("Z", "")
-        #                                       .replace("T", " "),
-        #                                       "%Y-%m-%d %H:%M:%S")
-        #record["statistics"] = self.get_statistics_for_article(
-        #    article_id,
-        #    datetime.strftime(created_date, "%Y-%m-%d"),
-        #    datetime.strftime(now, "%Y-%m-%d"))
+        now          = datetime.now()
+        created_date = now
+        if "created_date" in record and not record["created_date"] is None:
+            created_date  = datetime.strptime(record["created_date"]
+                                              .replace("Z", "")
+                                              .replace("T", " "),
+                                              "%Y-%m-%d %H:%M:%S")
+        record["statistics"] = self.get_statistics_for_article(
+           article_id,
+           datetime.strftime(created_date, "%Y-%m-%d"),
+           datetime.strftime(now, "%Y-%m-%d"))
 
         return record
 
