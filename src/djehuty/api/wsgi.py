@@ -34,6 +34,12 @@ class ApiServer:
             "60b2a1fbae694cb7c85105aeaa57a2d04644f078db32c23732b420c68abb0efe": 1000002
         }
 
+        self.may_impersonate  = {
+            2391394: True,
+            2397553: True,
+            1000002: False
+        }
+
         self.defined_type_options = [
             "figure", "online resource", "preprint", "book",
             "conference contribution", "media", "dataset",
@@ -263,6 +269,24 @@ class ApiServer:
 
         return token
 
+    def impersonated_account_id (self, request, account_id):
+        try:
+            if self.may_impersonate[account_id]:
+                ## Handle the "impersonate" URL parameter.
+                impersonate = self.get_parameter (request, "impersonate")
+
+                ## "impersonate" can also be passed in the request body.
+                if impersonate is None:
+                    body  = request.get_json()
+                    impersonate = convenience.value_or_none (body, "impersonate")
+
+                if impersonate is not None:
+                    return impersonate
+        except KeyError:
+            return account_id
+
+        return account_id
+
     def account_id_from_request (self, request):
         account_id = None
         token = self.token_from_request (request)
@@ -270,7 +294,7 @@ class ApiServer:
         ## Match the token to an account_id.  If the token does not
         ## exist, we cannot authenticate.
         try:
-            account_id = self.tokens[token]
+            account_id = self.impersonated_account_id (request, self.tokens[token])
         except KeyError:
             logging.error("Attempt to authenticate with %s failed.", token)
 
