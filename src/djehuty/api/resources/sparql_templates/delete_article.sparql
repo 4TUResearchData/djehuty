@@ -1,0 +1,17 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+{self.default_prefixes}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?article  ?predicate     ?object .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?article  rdf:type       sg:Article .
+    ?article  col:article_id {{article_id}} .
+    ?article  col:account_id {{account_id}} .
+    ?article  ?predicate     ?object .
+  }
+}
+{% endblock %}

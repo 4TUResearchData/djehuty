@@ -1050,21 +1050,12 @@ class SparqlInterface:
     def delete_article (self, article_id, account_id):
         """Procedure to remove an article from the state graph."""
 
-        query = f"""\
-{self.default_prefixes}
-DELETE {{
-  GRAPH <{self.state_graph}> {{
-    ?article  ?predicate     ?object .
-  }}
-}}
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?article  rdf:type       sg:Article .
-    ?article  col:id         {article_id} .
-    ?article  col:account_id {account_id} .
-    ?article  ?predicate     ?object .
-  }}
-}}"""
+        query   = self.__query_from_template ("delete_article", {
+            "state_graph": self.state_graph,
+            "account_id":  account_id,
+            "article_id":  article_id
+        })
+
         return self.__run_query(query)
 
     def update_article (self, article_id):
@@ -1073,24 +1064,12 @@ WHERE {{
     def delete_article_embargo (self, article_id, account_id):
         """Procedure to lift the embargo on an article."""
 
-        query = f"""\
-{self.default_prefixes}
-DELETE {{
-  GRAPH <{self.state_graph}> {{
-    ?embargo  ?predicate     ?object .
-  }}
-}}
-WHERE {{
-  GRAPH <{self.state_graph}> {{
-    ?article  rdf:type        sg:Article .
-    ?article  col:id          {article_id} .
-    ?article  col:account_id  {account_id} .
+        query   = self.__query_from_template ("delete_article_embargo", {
+            "state_graph": self.state_graph,
+            "account_id":  account_id,
+            "article_id":  article_id
+        })
 
-    ?embargo  rdf:type        sg:ArticleEmbargoOption .
-    ?embargo  col:article_id  {article_id} .
-    ?embargo  ?predicate      ?object .
-  }}
-}}"""
         return self.__run_query(query)
 
     def article_update_thumb (self, article_id, version, account_id, file_id):

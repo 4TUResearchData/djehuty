@@ -1,0 +1,26 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?row     rdf:type        sg:ArticleCategory .
+    ?row     col:article_id  ?article_id .
+    ?row     col:category_id ?category_id .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?row     rdf:type       sg:ArticleCategory .
+    ?row     col:article_id  ?article_id .
+    ?row     col:category_id ?category_id .
+
+    ?article rdf:type       sg:Article .
+    ?article col:article_id ?article_id .
+    ?article col:account_id ?account_id .
+  }
+  FILTER (?article_id = {{article_id}})
+  FILTER (?account_id = {{account_id}})
+  {% if category_id is not none %}
+  FILTER (?category_id = {{category_id}})
+  {% endif %}
+}
+{% endblock %}
