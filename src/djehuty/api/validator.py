@@ -87,7 +87,7 @@ def order_direction (value, required=False):
 def integer_value (record, field_name, minimum_value=None, maximum_value=None, required=False):
 
     value = conv.value_or_none (record, field_name)
-    prefix = field_name.capitalize()
+    prefix = field_name.capitalize() if isinstance(field_name, str) else ""
     if value is None:
         if required:
             raise MissingRequiredField(
@@ -113,9 +113,8 @@ def integer_value (record, field_name, minimum_value=None, maximum_value=None, r
 
     except Exception as error:
         raise InvalidIntegerValue(
-            message = f"The value for '{field_name}' must be an integer.",
+            message = f"Unexpected value '{value}' is not an integer.",
             code    = f"Invalid{prefix}Value") from error
-
 
 def limit (value, required=False):
     return integer_value (value, "limit", minimum_value=1, maximum_value=1000, required=required)
