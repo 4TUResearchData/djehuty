@@ -81,6 +81,7 @@ class ApiServer:
             Rule("/v2/account/articles/<article_id>/authors", endpoint = "private_article_authors"),
             Rule("/v2/account/articles/<article_id>/authors/<author_id>", endpoint = "private_article_author_delete"),
             Rule("/v2/account/articles/<article_id>/categories", endpoint = "private_article_categories"),
+            Rule("/v2/account/articles/<article_id>/categories/<category_id>", endpoint = "private_delete_article_category"),
             Rule("/v2/account/articles/<article_id>/embargo", endpoint = "private_article_embargo"),
             Rule("/v2/account/articles/<article_id>/files",   endpoint = "private_article_files"),
             Rule("/v2/account/articles/<article_id>/files/<file_id>", endpoint = "private_article_file_details"),
@@ -853,13 +854,26 @@ class ApiServer:
 
             return self.default_list_response (categories, formatter.format_category_record)
 
-        if request.method == 'POST':
-            parameters = request.get_json()
+        if request.method == 'PUT' or request.method == 'POST':
             try:
+                parameters = request.get_json()
                 categories = parameters["categories"]
+
+                # First, validate all values passed by the user.
+                # This way, we can be as certain as we can be that performing
+                # a PUT will not end in having no categories associated with
+                # an article.
+                for index, category_id in enumerate(categories):
+                    validator.integer_value (categories, index)
+
+                # When we are dealing with a PUT request, we must clear the previous
+                # values first.
+                if request.method == 'PUT':
+                    self.db.delete_article_categories (article_id, account_id)
+
+                # Lastly, insert the validated values.
                 for category_id in categories:
-                    validator.integer_value (category_id, "category_id")
-                    self.db.insert_article_category (article_id, category_id)
+                    self.db.insert_article_category (int(article_id), int(category_id))
 
                 return self.respond_205()
 
@@ -871,7 +885,23 @@ class ApiServer:
                 logging.error("An error occurred when adding a category record:")
                 logging.error("Exception: %s", error)
 
-        return self.error_405 (["GET", "POST"])
+        return self.error_405 (["GET", "POST", "PUT"])
+
+    def api_private_delete_article_category (self, request, article_id, category_id):
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        if self.db.delete_article_categories (article_id, account_id, category_id):
+            return self.respond_204()
+
+        return self.error_500()
 
     def api_private_article_embargo (self, request, article_id):
         if not self.accepts_json(request):
