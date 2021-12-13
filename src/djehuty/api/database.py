@@ -228,6 +228,7 @@ class SparqlInterface:
             "item_type":   item_type,
             "prefix":      prefix,
             "item_id":     item_id,
+            "account_id":  account_id,
             "filters":     filters
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
@@ -316,7 +317,7 @@ class SparqlInterface:
     def tags (self, order=None, order_direction=None, limit=10, item_id=None, item_type="article"):
 
         prefix  = item_type.capitalize()
-        filters = rdf.sparql_filter (f"{item_id}_id", item_id)
+        filters = rdf.sparql_filter (f"{item_type}_id", item_id)
         query   = self.__query_from_template ("tags", {
             "state_graph": self.state_graph,
             "prefix":      prefix,
@@ -370,14 +371,14 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("citation",       search_for,   escape=True)
 
         if published_since is not None:
-            query += rdf.sparql_bound_filter ("published_date")
-            query += "FILTER (STR(?published_date) != \"NULL\")\n"
-            query += f"FILTER (STR(?published_date) > \"{published_since}\")\n"
+            filters += rdf.sparql_bound_filter ("published_date")
+            filters += "FILTER (STR(?published_date) != \"NULL\")\n"
+            filters += f"FILTER (STR(?published_date) > \"{published_since}\")\n"
 
         if modified_since is not None:
-            query += rdf.sparql_bound_filter ("modified_date")
-            query += "FILTER (STR(?modified_date) != \"NULL\")\n"
-            query += f"FILTER (STR(?modified_date) > \"{modified_since}\")\n"
+            filters += rdf.sparql_bound_filter ("modified_date")
+            filters += "FILTER (STR(?modified_date) != \"NULL\")\n"
+            filters += f"FILTER (STR(?modified_date) > \"{modified_since}\")\n"
 
         if account_id is None:
             filters += rdf.sparql_filter ("is_public", 1)
@@ -411,8 +412,6 @@ class SparqlInterface:
 
     def references (self, order=None, order_direction=None, limit=10,
                     item_id=None, account_id=None, item_type="article"):
-
-        prefix = item_type.capitalize()
 
         query   = self.__query_from_template ("references", {
             "state_graph": self.state_graph,
@@ -1089,6 +1088,7 @@ WHERE {{
         query   = self.__query_from_template ("update_article_thumb", {
             "state_graph": self.state_graph,
             "account_id":  account_id,
+            "article_id":  article_id,
             "version":     version,
             "filters":     filters
         })

@@ -15,7 +15,7 @@ WHERE {
     {% endif %}
     {% if account_id is not none %}
     ?item              rdf:type                 sg:{{prefix}} .
-    ?item              col:account_id           ?account_id .
+    ?item              col:account_id           {{account_id}} .
     {% endif %}
     OPTIONAL { ?author col:first_name           ?first_name . }
     OPTIONAL { ?author col:full_name            ?full_name . }
