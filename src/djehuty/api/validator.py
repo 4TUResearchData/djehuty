@@ -170,6 +170,22 @@ def string_value (record, field_name, minimum_length=None, maximum_length=None, 
 
     return value
 
+def boolean_value (record, field_name, required=False):
+    value = conv.value_or_none (record, field_name)
+    if value is None:
+        if required:
+            raise MissingRequiredField(
+                message = f"Missing required value for '{field_name}'.",
+                code    = "MissingRequiredField")
+        return value
+
+    if not isinstance (value, bool):
+        raise InvalidValueType(
+                message = f"Expected a boolean value for '{field_name}'.",
+                code    = "WrongValueType")
+
+    return value
+
 def options_value (record, field_name, options, required=False):
 
     value = conv.value_or_none (record, field_name)
