@@ -326,8 +326,8 @@ class FigshareEndpoint:
             versions = []
             for number in numbers:
                 if number != record["version"]:
-                    v = self.get_record(f"/collections/{collection_id}/versions/{number}")
-                    versions.append(v)
+                    version = self.get_record(f"/collections/{collection_id}/versions/{number}")
+                    versions.append(version)
 
             record["versions"] = versions
 
