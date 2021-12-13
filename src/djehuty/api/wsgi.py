@@ -3,6 +3,7 @@
 import os.path
 import logging
 import json
+from typing import NamedTuple
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 from werkzeug.routing import Map, Rule
@@ -13,6 +14,11 @@ from djehuty.api import validator
 from djehuty.api import formatter
 from djehuty.api import database
 from djehuty.utils import convenience
+
+class Account(NamedTuple):
+    """Named tuple to keep settings for an account."""
+    account_id: int
+    may_impersonate: bool
 
 class ApiServer:
     """This class implements the API server."""
@@ -29,15 +35,9 @@ class ApiServer:
         ## This is a temporary predefined set of tokens to test the private
         ## articles functionality.
         self.tokens           = {
-            "2bc2d4c4ea5e3c5f3da70e2aa697c51730d66adadc5c4503e0ff7b4541683b99": 2391394,
-            "e33bfd5e4b05a342f496f53939d4ab29d835d7bbe2d925b69d40a712908ccddc": 2397553,
-            "60b2a1fbae694cb7c85105aeaa57a2d04644f078db32c23732b420c68abb0efe": 1000002
-        }
-
-        self.may_impersonate  = {
-            2391394: True,
-            2397553: True,
-            1000002: False
+            "2bc2d4c4ea5e3c5f3da70e2aa697c51730d66adadc5c4503e0ff7b4541683b99": Account(2391394, True),
+            "e33bfd5e4b05a342f496f53939d4ab29d835d7bbe2d925b69d40a712908ccddc": Account(2397553, True),
+            "60b2a1fbae694cb7c85105aeaa57a2d04644f078db32c23732b420c68abb0efe": Account(1000002, False)
         }
 
         self.defined_type_options = [
@@ -269,9 +269,9 @@ class ApiServer:
 
         return token
 
-    def impersonated_account_id (self, request, account_id):
+    def impersonated_account_id (self, request, account):
         try:
-            if self.may_impersonate[account_id]:
+            if account.may_impersonate:
                 ## Handle the "impersonate" URL parameter.
                 impersonate = self.get_parameter (request, "impersonate")
 
@@ -283,9 +283,9 @@ class ApiServer:
                 if impersonate is not None:
                     return impersonate
         except KeyError:
-            return account_id
+            return account.account_id
 
-        return account_id
+        return account.account_id
 
     def account_id_from_request (self, request):
         account_id = None
