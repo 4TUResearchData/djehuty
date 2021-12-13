@@ -117,7 +117,7 @@ class SparqlInterface:
         try:
             results = self.__run_query (query)
             return results[0]["id"]
-        except IndexError as error:
+        except IndexError:
             return 0
         except KeyError:
             return None

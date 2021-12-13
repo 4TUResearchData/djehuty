@@ -137,7 +137,7 @@ def page_size (value, required=False):
 
 def index_exists (value, index):
     try:
-        char = value[index]
+        value[index]
     except IndexError:
         return False
 
