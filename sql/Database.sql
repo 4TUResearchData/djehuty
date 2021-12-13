@@ -32,12 +32,14 @@ CREATE TABLE IF NOT EXISTS CollectionTag(
 
 CREATE TABLE IF NOT EXISTS ArticlePrivateLink(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_string             VARCHAR(255),
     article_id            INT UNSIGNED,
     is_active             BOOLEAN NOT NULL DEFAULT 0,
     expires_date          DATETIME) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionPrivateLink(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_string             VARCHAR(255),
     collection_id         INT UNSIGNED,
     is_active             BOOLEAN NOT NULL DEFAULT 0,
     expires_date          DATETIME) ENGINE=InnoDB;
