@@ -77,7 +77,7 @@ class SparqlInterface:
                     else:
                         record[item] = record[item]["value"]
             elif record[item]["type"] == "literal":
-                logging.info(record[item]['value'])
+                logging.info("Literal: %s", record[item]['value'])
                 return record[item]["value"]
             else:
                 logging.info("Not a typed-literal: %s", record[item]['type'])
