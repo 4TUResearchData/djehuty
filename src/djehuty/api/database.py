@@ -142,9 +142,9 @@ class SparqlInterface:
         if article_id is not None:
             filters += rdf.sparql_filter ("id", article_id)
 
-        query = self.__query_from_template ("highest_id", {
+        query = self.__query_from_template ("article_versions", {
             "state_graph": self.state_graph,
-            "filters":     filters,
+            "filters":     filters
         })
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
