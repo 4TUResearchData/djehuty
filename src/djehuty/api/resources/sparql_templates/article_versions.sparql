@@ -2,9 +2,9 @@
 {% block query %}
 SELECT DISTINCT ?id ?version ?url ?url_public_api
 WHERE {
-  GRAPH <{self.state_graph}> {
+  GRAPH <{{state_graph}}> {
     ?article rdf:type           sg:Article .
-    ?article col:id             ?id .
+    ?article col:article_id     ?id .
     ?article col:version        ?version .
     ?article col:url            ?url .
     ?article col:url_public_api ?url_public_api .

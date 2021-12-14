@@ -367,16 +367,32 @@ class SparqlInterface:
     ## COLLECTIONS
     ## ------------------------------------------------------------------------
 
+    def collection_versions (self, limit=1000, offset=0, order=None,
+                             order_direction=None, collection_id=None):
+        """Procedure to retrieve the versions of an collection."""
+        filters = ""
+        if collection_id is not None:
+            filters += rdf.sparql_filter ("id", collection_id)
+
+        query = self.__query_from_template ("collection_versions", {
+            "state_graph": self.state_graph,
+            "filters":     filters
+        })
+        query += rdf.sparql_suffix (order, order_direction, limit, offset)
+        return self.__run_query (query)
+
     def collections (self, limit=10, offset=None, order=None,
                      order_direction=None, institution=None,
                      published_since=None, modified_since=None, group=None,
                      resource_doi=None, resource_id=None, doi=None, handle=None,
-                     account_id=None, search_for=None, collection_id=None):
+                     account_id=None, search_for=None, collection_id=None,
+                     version=None):
         """Procedure to retrieve collections."""
 
         filters  = rdf.sparql_filter ("institution_id", institution)
         filters += rdf.sparql_filter ("group_id",       group)
         filters += rdf.sparql_filter ("id",             collection_id)
+        filters += rdf.sparql_filter ("version",        version)
         filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
         filters += rdf.sparql_filter ("resource_id",    resource_id,  escape=True)
         filters += rdf.sparql_filter ("doi",            doi,          escape=True)

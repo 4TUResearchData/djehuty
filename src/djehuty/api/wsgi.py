@@ -93,6 +93,8 @@ class ApiServer:
             Rule("/v2/collections",                           endpoint = "collections"),
             Rule("/v2/collections/search",                    endpoint = "collections_search"),
             Rule("/v2/collections/<collection_id>",           endpoint = "collection_details"),
+            Rule("/v2/collections/<collection_id>/versions",  endpoint = "collection_versions"),
+            Rule("/v2/collections/<collection_id>/versions/<version>", endpoint = "collection_version_details"),
             Rule("/v2/collections/<collection_id>/articles",  endpoint = "collection_articles"),
 
             ## Private collections
@@ -1260,6 +1262,46 @@ class ApiServer:
                                                                         custom_fields)
             return self.response (json.dumps(total))
 
+        except IndexError:
+            response = self.response (json.dumps({
+                "message": "This collection cannot be found."
+            }))
+            response.status_code = 404
+            return response
+
+    def api_collection_versions (self, request, collection_id):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        versions = self.db.collection_versions(collection_id=collection_id)
+        return self.default_list_response (versions, formatter.format_version_record)
+
+    def api_collection_version_details (self, request, collection_id, version):
+        if request.method != 'GET':
+            return self.error_405 ("GET")
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        try:
+            collection    = self.db.collections(collection_id=collection_id, limit=1, version=version)[0]
+            fundings      = self.db.fundings(item_id=collection_id, item_type="collection")
+            categories    = self.db.categories(item_id=collection_id, item_type="collection")
+            references    = self.db.references(item_id=collection_id, item_type="collection")
+            custom_fields = self.db.custom_fields(item_id=collection_id, item_type="collection")
+            tags          = self.db.tags(item_id=collection_id, item_type="collection")
+            authors       = self.db.authors(item_id=collection_id, item_type="collection")
+            total         = formatter.format_collection_details_record (collection,
+                                                                        fundings,
+                                                                        categories,
+                                                                        references,
+                                                                        tags,
+                                                                        authors,
+                                                                        custom_fields)
+            return self.response (json.dumps(total))
         except IndexError:
             response = self.response (json.dumps({
                 "message": "This collection cannot be found."
