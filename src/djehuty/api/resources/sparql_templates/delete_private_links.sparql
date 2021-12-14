@@ -1,0 +1,25 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?row ?predicate ?object .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?row     rdf:type             sg:{{prefix}}PrivateLink .
+    ?row     col:{{item_type}}_id ?item_id .
+    ?row     col:id_string        ?id_string .
+    ?row     ?predicate           ?object .
+
+    ?item rdf:type                sg:{{prefix}} .
+    ?item col:{{item_type}}_id    ?item_id .
+    ?item col:account_id          ?account_id .
+  }
+  FILTER (?item_id    = {{item_id}})
+  FILTER (?account_id = {{account_id}})
+  {% if id_string is not none %}
+  FILTER (?id_string = "{{id_string}}"^^xsd:string)
+  {% endif %}
+}
+{% endblock %}

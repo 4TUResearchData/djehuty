@@ -1,0 +1,46 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    {% if is_active is not none %}
+    ?row     col:is_active        ?is_active .
+    {% endif %}{% if expires_date is not none %}
+    ?row     col:expires_date     ?expires_date .
+    {% endif %}{% if read_only is not none %}
+    ?row     col:read_only        ?read_only .
+    {% endif %}
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    {% if is_active is not none %}
+    ?row     col:is_active        {{is_active}} .
+    {% endif %}{% if expires_date is not none %}
+    ?row     col:expires_date     "{{expires_date}}"^^xsd:string .
+    {% endif %}{% if read_only is not none %}
+    ?row     col:read_only        {{read_only}} .
+    {% endif %}
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?row     rdf:type             sg:{{prefix}}PrivateLink .
+    ?row     col:id               ?row_id .
+    ?row     col:{{item_type}}_id ?item_id .
+    ?row     col:id_string        ?id_string .
+
+    OPTIONAL { ?row     col:is_active        ?is_active . }
+    OPTIONAL { ?row     col:expires_date     ?expires_date . }
+    OPTIONAL { ?row     col:read_only        ?read_only . }
+
+    ?item rdf:type                sg:{{prefix}} .
+    ?item col:{{item_type}}_id    ?item_id .
+    ?item col:account_id          ?account_id .
+  }
+  FILTER (?item_id    = {{item_id}})
+  FILTER (?account_id = {{account_id}})
+  {% if id_string is not none %}
+  FILTER (?id_string = "{{id_string}}"^^xsd:string)
+  {% endif %}
+}
+{% endblock %}

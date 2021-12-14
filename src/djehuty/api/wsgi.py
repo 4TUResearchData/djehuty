@@ -85,6 +85,8 @@ class ApiServer:
             Rule("/v2/account/articles/<article_id>/embargo", endpoint = "private_article_embargo"),
             Rule("/v2/account/articles/<article_id>/files",   endpoint = "private_article_files"),
             Rule("/v2/account/articles/<article_id>/files/<file_id>", endpoint = "private_article_file_details"),
+            Rule("/v2/account/articles/<article_id>/private_links", endpoint = "private_article_private_links"),
+            Rule("/v2/account/articles/<article_id>/private_links/<link_id>", endpoint = "private_article_private_links_details"),
 
             ## Public collections
             ## ----------------------------------------------------------------
@@ -1019,7 +1021,111 @@ class ApiServer:
 
             return self.error_500()
 
-        return self.error_405 (["GET", "DELETE"])
+        return self.error_405 (["GET", "POST", "DELETE"])
+
+    def api_private_article_private_links (self, request, article_id):
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        if request.method == 'GET':
+            links = self.db.private_links (
+                        item_id    = article_id,
+                        account_id = account_id,
+                        item_type  = "article")
+
+            return self.default_list_response (links, formatter.format_private_links_record)
+
+        if request.method == 'POST':
+            parameters = request.get_json()
+            try:
+                expires_date = validator.string_value (parameters, "expires_date", 0, 255, False)
+                read_only    = validator.boolean_value (parameters, "read_only", False)
+                id_string    = self.db.insert_private_link (
+                                   expires_date = expires_date,
+                                   read_only    = read_only,
+                                   is_active    = True,
+                                   item_id      = int(article_id),
+                                   item_type    = "article")
+
+                if id_string is None:
+                    return self.error_500()
+
+                return self.response(json.dumps({
+                    "location": f"{self.base_url}/articles/{id_string}"
+                }))
+
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+
+            return self.error_500 ()
+            # INSERT and return { "location": id_string }
+
+        return self.error_500 ()
+
+    def api_private_article_private_links_details (self, request, article_id, link_id):
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        if request.method == 'GET':
+            links = self.db.private_links (
+                        item_id    = article_id,
+                        id_string  = link_id,
+                        account_id = account_id,
+                        item_type  = "article")
+
+            return self.default_list_response (links, formatter.format_private_links_record)
+
+        if request.method == 'PUT':
+            parameters = request.get_json()
+            try:
+                expires_date = validator.string_value (parameters, "expires_date", 0, 255, False)
+                is_active    = validator.boolean_value (parameters, "is_active", False)
+
+                result = self.db.update_private_link (article_id,
+                                                      account_id,
+                                                      link_id,
+                                                      expires_date = expires_date,
+                                                      is_active    = is_active,
+                                                      item_type    = "article")
+
+                if result is None:
+                    return self.error_500()
+
+                return self.response(json.dumps({
+                    "location": f"{self.base_url}/articles/{link_id}"
+                }))
+
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+
+            return self.error_500 ()
+
+        if request.method == 'DELETE':
+            result = self.db.delete_private_links (article_id,
+                                                  account_id,
+                                                  link_id,
+                                                  item_type    = "article")
+
+            if result is None:
+                return self.error_500()
+
+            return self.respond_204()
+
+        return self.error_500 ()
 
     def api_private_articles_search (self, request):
         if request.method != 'POST':

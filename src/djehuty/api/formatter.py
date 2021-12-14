@@ -258,3 +258,10 @@ def format_version_record (record):
         "version": version,
         "url": f"{url}/versions/{version}"
     }
+
+def format_private_links_record (record):
+    return {
+        "id":           conv.value_or_none(record, "id_string"),
+        "is_active":    bool(conv.value_or_none(record, "is_active")),
+        "expires_date": conv.value_or_none(record, "expires_date")
+    }

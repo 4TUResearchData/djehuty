@@ -3,6 +3,7 @@ This module provides the communication with the SPARQL endpoint to provide
 data for the API server.
 """
 
+import secrets
 import os.path
 import logging
 from urllib.error import URLError
@@ -344,6 +345,21 @@ class SparqlInterface:
             "filters":     filters
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
+
+        return self.__run_query(query)
+
+    def private_links (self, item_id=None, item_type="article", account_id=None, id_string=None):
+
+        prefix  = item_type.capitalize()
+        filters = rdf.sparql_filter (f"{item_type}_id", item_id)
+        query   = self.__query_from_template ("private_links", {
+            "state_graph": self.state_graph,
+            "prefix":      prefix,
+            "id_string":   id_string,
+            "item_type":   item_type,
+            "item_id":     item_id,
+            "account_id":  account_id,
+        })
 
         return self.__run_query(query)
 
@@ -975,24 +991,32 @@ class SparqlInterface:
 
         return None
 
-    def insert_private_link (self, private_link_id=None, is_active=None,
-                                 expires_date=None, item_id=None,
-                                 item_type="article"):
+    def insert_private_link (self, private_link_id=None, read_only=True,
+                             id_string=None, is_active=True, expires_date=None,
+                             item_id=None, item_type="article"):
+
+        if id_string is None:
+            id_string = secrets.token_urlsafe()
+
+        if private_link_id is None:
+            private_link_id = self.ids.next_id("private_links")
 
         prefix   = item_type.capitalize()
         graph    = Graph()
-        link_uri = rdf.ROW[str(private_link_id)]
+        link_uri = rdf.ROW[str(id_string)]
 
         graph.add ((link_uri, RDF.type,      rdf.SG[f"{prefix}PrivateLink"]))
         graph.add ((link_uri, rdf.COL["id"], Literal(private_link_id)))
 
+        rdf.add (graph, link_uri, rdf.COL["id_string"],       id_string,    XSD.string)
+        rdf.add (graph, link_uri, rdf.COL["read_only"],       read_only)
         rdf.add (graph, link_uri, rdf.COL["is_active"],       is_active)
         rdf.add (graph, link_uri, rdf.COL["expires_date"],    expires_date, XSD.string)
         rdf.add (graph, link_uri, rdf.COL[f"{item_type}_id"], item_id)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            return private_link_id
+            return id_string
 
         return None
 
@@ -1068,6 +1092,41 @@ class SparqlInterface:
             "state_graph": self.state_graph,
             "account_id":  account_id,
             "article_id":  article_id
+        })
+
+        return self.__run_query(query)
+
+    def delete_private_links (self, item_id, account_id, link_id, item_type="article"):
+        """Procedure to remove private links to an article."""
+
+        prefix  = item_type.capitalize()
+        query   = self.__query_from_template ("delete_private_links", {
+            "state_graph": self.state_graph,
+            "account_id":  account_id,
+            "item_id":     item_id,
+            "item_type":   item_type,
+            "prefix":      prefix,
+            "id_string":   link_id
+        })
+
+        return self.__run_query(query)
+
+    def update_private_link (self, item_id, account_id, link_id,
+                             is_active=None, expires_date=None,
+                             read_only=None, item_type="article"):
+        """Procedure to update a private link to an article."""
+
+        prefix  = item_type.capitalize()
+        query   = self.__query_from_template ("update_private_link", {
+            "state_graph":  self.state_graph,
+            "account_id":   account_id,
+            "item_id":      item_id,
+            "item_type":    item_type,
+            "prefix":       prefix,
+            "id_string":    link_id,
+            "is_active":    is_active,
+            "expires_date": expires_date,
+            "read_only":    read_only
         })
 
         return self.__run_query(query)

@@ -32,7 +32,8 @@ class IdGenerator:
             "institution"      : Value('i', 0),
             "tag"              : Value('i', 0),
             "reference"        : Value('i', 0),
-            "custom_field"     : Value('i', 0)
+            "custom_field"     : Value('i', 0),
+            "private_links"    : Value('i', 0)
         }
 
     def set_id (self, item_id, item_type):
