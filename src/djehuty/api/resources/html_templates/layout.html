@@ -7,14 +7,83 @@
     <meta name="author" content="4TU.ResearchData">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
     <title>4TU.ResearchData API</title>
-    <link rel='shortcut icon' type='image/x-icon' href='/static/images/favicon.ico' />
+    <link rel='shortcut icon' type='image/x-icon' href='/static/images/favicon.ico'>
     <link rel="stylesheet" type="text/css" href="/static/css/main.css">
   </head>
   <body>
     <div id="wrapper">
       <div id="header">
-        <img id="logo" src="/static/images/logo.png" alt="4TU.ResearchData">
+        <div id="header-left"><img id="logo" src="/static/images/logo.png" alt="4TU.ResearchData"></div>
+        <div id="header-middle">
+          <form method="post" action="/search"><input id="search-box" name="search" type="text" placeholder="Search..." /></form>
+        </div>
+        <div id="header-right">
+          <div id="login-panel">
+					  <a href="#" class="header-search-link" data-balloon-pos="down" data-balloon="Search"><i class="bb-icon-search"></i></a>
+					  <span class="search-separator bb-separator"></span>
+			      <div class="bb-header-buttons">
+				      <a href="https://community.data.4tu.nl/wp-login.php" class="button small outline signin-button link">Sign in</a>
+						  <a href="https://community.data.4tu.nl/register/" class="button small singup">Sign up</a>
+					  </div>
+			    </div>
+        </div>
       </div>
+      <nav id="site-navigation" role="navigation">
+    	  <ul id="primary-menu" class="primary-menu">
+          <li class="menu-item menu-item-has-children"><a href="https://data.4tu.nl/info/en/about-your-data/getting-started">About your Data</a>
+            <ul class="submenu">
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-your-data/getting-started">Getting started</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-your-data/manage-share">Manage &amp; Share</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-your-data/publish-cite">Publish &amp; Cite</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/portal">Find &amp; Re-use</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-your-data/netcdf-and-opendap">NetCDF &amp; OPeNDAP</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-your-data/fair-data-fund">FAIR Data Fund</a></li>
+            </ul>
+          </li>
+          <li class="menu-item menu-item-has-children"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/organisation">About 4TU.ResearchData</a>
+            <ul class="submenu">
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/organisation">Organisation</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/highlights">Highlights</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/testimonials/">Testimonials</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/policies-guidelines">Policies &amp; Guidelines</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/core-trust-seal">CoreTrustSeal</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/collaboration">Collaboration</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/frequently-asked-questions">Frequently Asked Questions</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/contact">Contact</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/job-vacancies">Job vacancies</a></li>
+            </ul>
+          </li>
+          <li class="menu-item current-menu-item menu-item-has-children"><a href="https://community.data.4tu.nl/join-our-community/" aria-current="page">About our Community</a>
+            <ul class="submenu">
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/join-our-community/" aria-current="page">Join our community</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/members/">Community members</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/groups/">Community groups</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/category/researcher-stories/">Researcher stories</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/category/research-support-stories/">Research support stories</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/category/working-together/">Working together</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/category/data-funds/">FAIR Data Fund stories</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/games/">Games &amp; Activities</a></li>
+            </ul>
+          </li>
+          <li class="menu-item menu-item-has-children"><a href="https://community.data.4tu.nl/monthly-roundup/">News &amp; Events</a>
+            <ul class="submenu">
+	            <li class="menu-item"><a href="https://community.data.4tu.nl">Latest posts</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/category/training-events/">Training &amp; Events</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/category/events-highlights/">Event highlights</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/category/monthly-newsletters/">Monthly newsletters</a></li>
+	            <li class="menu-item"><a href="https://m7.mailplus.nl/wpmY6EeZdyiQ-1051-370649-test-1">Subscribe to our newsletter</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/news-events/news-archive">News archive</a></li>
+            </ul>
+          </li>
+          <li class="menu-item menu-item-has-children"><a href="https://data.4tu.nl/info/en/log-in-upload-data/about-log-in">Log in &amp; Upload Data</a>
+            <ul class="submenu">
+	            <li class="menu-item"><a href="https://data.4tu.nl/info/en/log-in-upload-data/about-log-in">About Log in / Sign up</a></li>
+	            <li class="menu-item"><a href="https://data.4tu.nl/account/home">Log in (Data Repository)</a></li>
+	            <li class="menu-item"><a href="https://community.data.4tu.nl/wp-login.php">Log in (Community)</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
       <div id="content">
         <div id="content-wrapper">
           {% block body %}{% endblock %}
@@ -22,8 +91,42 @@
       </div>
     </div>
     <div id="footer">
-      <p><a href="https://gitlab.tudelft.nl/4tu.researchdata/djehuty">Source code</a>
-      <p><a href="/documentation">Documentation</a>
+      <div id="footer-column">
+        <h2> About 4TU.ResearchData</h2>
+        <p>4TU.ResearchData is an international data repository for science,
+          engineering and design. We offer research dataset curation, sharing,
+          long-term access and preservation services to anyone, anywhere.</p>
+        <p>Our training and community engagement resources are available to
+          research and research-support professionals working to make their
+          research data findable, accessible, interoperable and reproducible
+          (FAIR).</p>
+        <p>We are a 4TU.Federation institute.</p>
+      </div>
+      <div id="footer-column">
+        <h2>4TU.ResearchData Newsletter</h2>
+        <p><a href="https://m7.mailplus.nl/wpmY6EeZdyiQ-1051-370649-test-1">Sign up for the 4TU.ResearchData newsletter</a></p>
+        <p>We typically send one monthly newsletter and occasional emails about upcoming events and opportunities.</p>
+        <p><a href="https://community.data.4tu.nl/feed">RSS news</a></p>
+      </div>
+      <div id="footer-column">
+        <div class="urls">
+          <a class="navbar-brand" href="https://data.4tu.nl/info"><img width="200px" src="/static/images/logo-gray.svg" alt="4TU.ResearchData" /></a> <br>
+					<p>
+            <span class="far fa-envelope" aria-hidden="true"></span> researchdata@4tu.nl<br>
+            <span class="fab fa-twitter" aria-hidden="true"></span> @4TU.ResearchData<br>
+            <span class="fab fa-linkedin-in" aria-hidden="true"></span> 4TU.ResearchData<br>
+          </p>
+					<p>
+            <span class="fas fa-map-marker-alt" aria-hidden="true"></span> 4TU.ResearchData<br>
+            <span class="fas fa-empty" aria-hidden="true"></span>TU Delft Library<br>
+            <span class="fas fa-empty" aria-hidden="true"></span>Prometheusplein 1<br>
+            <span class="fas fa-empty" aria-hidden="true"></span>2628 ZC Delft<br></p>
+          <p>
+            <span class="fas fa-phone" aria-hidden="true"></span>+31 (0)15 27 88 600<br>
+          </p>
+					<p><span class="fas fa-copyright" aria-hidden="true"></span> 2022</p>
+				</div>
+      </div>
     </div>
   </body>
 </html>

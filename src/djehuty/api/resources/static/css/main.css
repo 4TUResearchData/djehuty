@@ -1,18 +1,18 @@
 @font-face {
-    font-family: 'Roboto';
-    src: url('/static/fonts/Roboto-Light.ttf') format('truetype');
+    font-family: 'SourceSans';
+    src: url('/static/fonts/SourceSansPro-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
 @font-face {
-    font-family: 'Roboto-Italic';
-    src: url('/static/fonts/Roboto-LightItalic.ttf') format('truetype');
+    font-family: 'SourceSans-Italic';
+    src: url('/static/fonts/SourceSansPro-Italic.ttf') format('truetype');
     font-weight: normal;
     font-style: italic;
 }
 @font-face {
-    font-family: 'Roboto-Bold';
-    src: url('/static/fonts/Roboto-Bold.ttf') format('truetype');
+    font-family: 'SourceSans-Bold';
+    src: url('/static/fonts/SourceSansPro-Bold.ttf') format('truetype');
     font-weight: bold;
     font-style: normal;
 }
@@ -28,78 +28,177 @@
     font-weight: bold;
     font-style: normal;
 }
+@font-face {
+  font-family: 'FontAwesome';
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url("/static/fonts/fa-solid-900.eot");
+  src: url("/static/fonts/fa-solid-900.eot?#iefix") format("embedded-opentype"),
+       url("/static/fonts/fa-solid-900.woff2") format("woff2"),
+       url("/static/fonts/fa-solid-900.woff") format("woff"),
+       url("/static/fonts/fa-solid-900.ttf") format("truetype"),
+       url("/static/fonts/fa-solid-900.svg#fontawesome") format("svg");
+}
 body,html {
     width: 100%;
     height: 100%;
     padding: 0em;
     margin: 0em;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'SourceSans', sans-serif;
     color: #000000;
     background: #ffffff;
 }
 #wrapper {
     width: 100%;
+    min-width: 500pt;
     min-height: 100%;
     padding: 0em;
     margin: 0em auto auto auto;
-    margin-bottom: -20mm;
+    margin-bottom: -121mm;
     border: none;
 }
 #content {
     width: 90%;
-    max-width: 80em;
+    max-width: 100em;
     margin: 0 auto;
     padding: 5mm;
     color: #000000;
+    /*
     border: solid 1pt #cccccc;
     background: #f9f9f9;
     -webkit-border-radius: 5pt;
     -moz-border-radius: 5pt;
     border-radius: 5pt;
+   */
 }
 #header img {
-    padding: 5mm 0mm 5mm 0mm;
+    padding: 15px 0px 25px 15px;
     user-select: none;
     margin: 0em;
+    max-height: 100px;
 }
 #header {
-    height: auto;
-    text-align: center;
-    margin: 0em;
-    padding: 0em;
-}
-#footer {
-    column-count: 2;
-    column-gap: 5mm;
-    height: 20mm;
+    column-count: 3;
+    column-gap: 0pt;
+    height: 100px;
     width: auto;
     text-align: center;
     color: #333333;
-    border: none;
+    border-top: 1mm solid #f49120;
+    border-bottom: 1mm dotted #f49120;
+    height: 120px;
 }
-#footer p {
-    padding: 0.5em 0em 0em 0em;
-    margin: 0em;
+#header-left { display: block;  height: 100px; text-align: left; }
+#header-middle {display: block; height: 100px; text-align: center; }
+#header-right { display: block; height: 100px; text-align: right; }
+#logo { height: 80px; }
+#site-navigation {
+    border-bottom: solid 1px #dddddd;
+    background: #f9f9f9;
 }
-a {
+#site-navigation ul { display: inline-block; position: relative;  padding: 0pt; margin: 5pt 0pt 5pt 0pt; }
+#search-box {
+    width: 100%;
+    height: 50px;
+    border-radius: .5em;
+    border: solid 2pt #ddddcd;
+    font-size: 14pt;
+    margin: 35px auto auto auto;
+    padding: 0em 1em 0em 1em;
+    background: #ffffcf;
+}
+#search-box:focus { border: solid 2pt #999979; background: #ffff9f; outline: none; }
+#primary-menu .menu-item-has-children:not(.hideshow)::after {
+    content: '\f0d7';
+    font-family: "Font Awesome 5 Free";
+    font-weight: 510;
+    font-size: 12pt;
+    color: #808080;
+}
+#primary-menu li {
+    display: inline-block;
+    list-style-type: none;
+    text-decoration: none;
     color: #000000;
+    font-size: 12pt;
+    border-radius: 4pt;
+    background: none;
+    padding: 5px;
+    margin: 0pt 0pt 0pt 5pt;
+    user-select: none;
+    text-transform: uppercase;
 }
-a:hover {
-    color: #555555;
+#primary-menu .menu-item-has-children:hover > ul {
+    background: #ff0000;
+    display: block;
 }
+/*#primary-menu .menu-item-has-children:hover .submenu li { display: block; }*/
+#primary-menu li a { color: #808080; text-decoration: none; }
+#primary-menu li a:hover { color: #f39000; }
+.submenu {
+    display: block;
+    position: absolute;
+    background-color: #f1f1f1;
+    /*box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);*/
+    z-index: 1;
+}
+nav { display: block; }
+ul#primary-menu.primary-menu li.menu-item ul.submenu { display: none; }
+#primary-menu > li:nth-child(1) > ul:nth-child(2) { display: none; }
+.submenu { display: none; }
+.submenu li {
+    position: relative;
+    display: none;
+    list-style-type: none;
+    text-decoration: none;
+    font-size: 12pt;
+    font-weight: normal;
+    background: #cccccc;
+    border-radius: 4pt;
+    min-width: 200pt;
+    margin: 10pt;
+    padding: 2pt 4pt 2pt 4pt;
+    border: solid 2pt #0000ff;
+    user-select: none;
+}
+#footer {
+    width: 90%;
+    max-width: 100em;
+    column-count: 3;
+    column-gap: 0em;
+    height: 120mm;
+    width: auto;
+    margin: 0 auto;
+    padding: auto;
+    text-align: center;
+    color: #ffffff;
+    background: #808080;
+    border-bottom: 1mm solid #f49120;
+}
+#footer p { padding: 0.5em 0em 0em 0em; margin: 0em; }
+#footer a { color: #ffffff; }
+#footer a:hover { color: #cccccc; }
+a { color: #000000; }
+a:hover { color: #555555; }
 h1 {
+    margin: 5px;
+    color: #000000;
     padding: 0em;
     margin: 0em;
+    border-bottom: 4px dotted #f49120;
+    font-family: 'SourceSans', sans-serif;
+    font-weight: normal;
+    text-transform: uppercase;
 }
 a {
     color: #000000;
     text-decoration: underline;
-    font-weight: bold;
+    font-family: 'SourceSans', sans-serif;
 }
 a:hover {
     color: #666666;
     text-decoration: underline;
-    font-weight: bold;
 }
 pre {
     background: #eeeeee;
@@ -109,3 +208,31 @@ pre {
     -moz-border-radius: 5pt;
     border-radius: 5pt;    
 }
+#login-panel {
+    display: block;
+    position: relative;
+}
+
+#footer-column {
+    page-break-inside: avoid;
+    border: solid 1pt #808080;
+    height: 110mm;
+    margin: auto;
+    padding: 0em 1em 0em 1em;
+    text-align: left;
+}
+
+/* Font Awesome bits. */
+.fa, .fab, .far, .fas {
+    display: inline-block;
+    min-width: 1.5em;
+    font-family: "FontAwesome";
+    font-weight: 900;
+}
+.fa-envelope::before { content: "\f0e0"; }
+.fa-linkedin-in::before { content: "\f0e1"; }
+.fa-twitter::before { content: "\f099"; }
+.fa-map-marker-alt::before { content: "\f3c5"; }
+.fa-copyright::before { content: "\f1f9"; }
+.fa-phone::before { content: "\f095"; }
+.fa-empty::before {}
