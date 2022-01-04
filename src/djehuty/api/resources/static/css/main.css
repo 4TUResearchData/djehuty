@@ -148,6 +148,7 @@ body,html {
     background: #f1f1f1;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.25);
     border-radius: .5em;
+    margin-top: 0pt !important;
     padding: 0pt 10pt 0pt 10pt;
     overflow: hidden;
     z-index: 1;
