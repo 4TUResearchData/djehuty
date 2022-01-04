@@ -1,0 +1,13 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?id ?version ?url
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?collection rdf:type           sg:Collection .
+    ?collection col:collection_id  ?id .
+    ?collection col:version        ?version .
+    ?collection col:url            ?url .
+  }
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}
