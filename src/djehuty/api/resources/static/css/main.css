@@ -46,6 +46,7 @@ body,html {
     padding: 0em;
     margin: 0em;
     font-family: 'SourceSans', sans-serif;
+    font-size: 12pt;
     color: #000000;
     background: #ffffff;
 }
@@ -93,6 +94,7 @@ body,html {
     border-radius: 1.5em;
     text-transform: uppercase;
     background: #f39000;
+    color: #ffffff;
     font-size: 14pt;
 }
 #login-button:hover {
@@ -106,7 +108,6 @@ body,html {
     background: #f9f9f9;
 }
 #site-navigation ul {
-    display: inline-block;
     padding: 0pt;
     margin: 5pt 0pt 5pt 0pt;
     user-select: none;
@@ -128,45 +129,47 @@ body,html {
     text-decoration: none;
     color: #000000;
     font-size: 12pt;
-    border-radius: 4pt;
-    background: none;
     padding: 5px 5px 5px 0px;
     margin: 0pt 5pt 0pt 0pt;
     user-select: none;
     text-transform: uppercase;
 }
 #primary-menu .menu-item-has-children:hover > ul {
-    background: #ff0000;
+    background: #ffffff;
     display: block;
+    min-width: 120pt;
 }
-/*#primary-menu .menu-item-has-children:hover .submenu li { display: block; }*/
 #primary-menu li a { color: #808080; text-decoration: none; }
 #primary-menu li a:hover { color: #f39000; }
 .submenu {
-    display: block;
     position: absolute;
+    display: none;
+    max-width: 220pt;
     background: #f1f1f1;
-    /*box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);*/
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.25);
+    border-radius: .5em;
+    padding: 0pt 10pt 0pt 10pt;
+    overflow: hidden;
     z-index: 1;
 }
 nav { display: block; }
-ul#primary-menu.primary-menu li.menu-item ul.submenu { display: none; }
-#primary-menu > li:nth-child(1) > ul:nth-child(2) { display: none; }
-.submenu { display: none; }
 .submenu li {
-    position: relative;
+    position: block;
     display: none;
     list-style-type: none;
     text-decoration: none;
     font-size: 12pt;
     font-weight: normal;
-    background: #cccccc;
-    border-radius: 4pt;
-    min-width: 200pt;
-    margin: 10pt;
-    padding: 2pt 4pt 2pt 4pt;
-    border: solid 2pt #0000ff;
+    width: 100%;
+    min-width: 100pt;
+    margin: 0pt 10pt 10pt 10pt;
+    padding: 5pt 10pt 5pt 10pt !important;
     user-select: none;
+    text-transform: none !important;
+    z-index: 0;
+}
+.submenu li:nth-child(even) {
+    background: #fafafa !important;
 }
 #footer {
     height: 120mm;
@@ -205,6 +208,7 @@ a:hover {
 pre {
     background: #eeeeee;
     border: solid 1pt #cccccc;
+    font-size: 12pt;
     padding: 5pt;
     -webkit-border-radius: 5pt;
     -moz-border-radius: 5pt;
