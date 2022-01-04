@@ -51,7 +51,7 @@ body,html {
 }
 #wrapper {
     width: 100%;
-    min-width: 500pt;
+    min-width: 820pt;
     min-height: 100%;
     padding: 0em;
     margin: 0em auto auto auto;
@@ -61,16 +61,10 @@ body,html {
 #content {
     width: 90%;
     max-width: 100em;
+    min-height: 200mm;
     margin: 0 auto;
     padding: 5mm;
     color: #000000;
-    /*
-    border: solid 1pt #cccccc;
-    background: #f9f9f9;
-    -webkit-border-radius: 5pt;
-    -moz-border-radius: 5pt;
-    border-radius: 5pt;
-   */
 }
 #header img {
     padding: 15px 0px 25px 15px;
@@ -176,6 +170,7 @@ ul#primary-menu.primary-menu li.menu-item ul.submenu { display: none; }
 }
 #footer {
     height: 120mm;
+    min-width: 820pt;
     margin: 0em;
     padding: auto;
     text-align: center;
@@ -213,7 +208,7 @@ pre {
     padding: 5pt;
     -webkit-border-radius: 5pt;
     -moz-border-radius: 5pt;
-    border-radius: 5pt;    
+    border-radius: 5pt;
 }
 #login-panel {
     display: block;
@@ -292,23 +287,3 @@ pre {
 .fa-phone::before { content: "\f095"; }
 .fa-search::before { content: "\f002"; }
 .fa-empty::before {}
-
-.menu-item-has-children ul {
-  visibility: hidden;
-  opacity: 0;
-  position: absolute;
-  transition: all 0.5s ease;
-  margin-top: 1rem;
-  left: 0;
-  display: none;
-  border: solid 1pt #ff0000;
-}
-
-.menu-item-has-children:hover > ul,
-.menu-item-has-children ul:hover {
-  visibility: visible;
-  opacity: 1;
-  display: block;
-  border: solid 1pt #ff0000;
-}
-
