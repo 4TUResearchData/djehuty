@@ -227,7 +227,7 @@ pre {
     margin: 0 auto;
     padding: 0em;
 }
-#footer-column {
+.footer-column {
     page-break-inside: avoid;
     border: solid 1pt #808080;
     height: 110mm;
@@ -235,7 +235,8 @@ pre {
     padding: 0em 1em 0em 0em;
     text-align: left;
 }
-
+p.cts { text-align: right; }
+img.cts { width: 120px; }
 /* Font Awesome bits. */
 .fa, .fab, .far, .fas {
     display: inline-block;
