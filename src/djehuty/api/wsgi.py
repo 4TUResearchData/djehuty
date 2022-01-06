@@ -51,7 +51,15 @@ class ApiServer:
         ## --------------------------------------------------------------------
 
         self.url_map = Map([
+            ## ----------------------------------------------------------------
+            ## UI
+            ## ----------------------------------------------------------------
             Rule("/",                                         endpoint = "home"),
+            Rule("/portal",                                   endpoint = "portal"),
+
+            ## ----------------------------------------------------------------
+            ## API
+            ## ----------------------------------------------------------------
             Rule("/v2/account/applications/authorize",        endpoint = "authorize"),
             Rule("/v2/token",                                 endpoint = "token"),
             Rule("/v2/collections",                           endpoint = "collections"),
@@ -337,6 +345,14 @@ class ApiServer:
             return self.__render_template ("home.html", base_url=self.base_url)
 
         return self.response (json.dumps({ "status": "OK" }))
+
+    def api_portal (self, request):
+        if self.accepts_html (request):
+            return self.__render_template ("portal.html", base_url=self.base_url)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
 
     def api_authorize (self, request):
         return False

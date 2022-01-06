@@ -296,3 +296,51 @@ img.cts { width: 120px; }
 .fa-phone::before { content: "\f095"; }
 .fa-search::before { content: "\f002"; }
 .fa-empty::before {}
+
+/* Portal page */
+#tiles-wrapper { margin: auto; text-align: center; }
+#tiles { display: inline-block; list-style: none; margin: 0pt; padding: 0pt; }
+#tiles li table.tile { display: block; overflow: hidden; height: 160pt; }
+
+#tiles li {
+    display: inline-block;
+    margin: 20pt 20pt auto auto;
+    overflow: hidden;
+    border: none;
+    -webkit-border-radius: 4pt;
+    -moz-border-radius: 4pt;
+    border-radius: 4pt;
+    box-shadow: 0pt 0pt 10pt #cccccc;
+}
+
+#tiles li table.tile tbody tr td.image {
+    margin: 0pt;
+    padding: 0pt;
+    width: 160pt;
+    max-width: 160pt;
+}
+.tile-row-text {
+    display: block;
+    margin: auto;
+    padding: auto;
+    height: 50pt;
+    max-height: 50pt;
+    overflow: hidden;
+    border: none;
+    text-align: center;
+    vertical-align: middle;
+    text-weight: normal;
+}
+#tiles li table.tile tbody tr td.text {
+    display: inline;
+    margin: auto;
+    height: 50pt;
+    font-family: 'SourceSans', sans-serif;
+    font-size: 14pt;
+    text-align: center;
+    vertical-align: middle;
+}
+#tiles table { border-spacing: 0pt; padding: 0pt; border-collapse: collapse; }
+#tiles .tile:hover { opacity: 0.9; cursor: pointer; }
+#tiles table td { background-color: #ffffff; margin: 0pt; padding: 0pt; }
+#tiles table tr { background-color: #ffffff; }
