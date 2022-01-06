@@ -67,6 +67,9 @@ body,html {
     padding: 5mm;
     color: #000000;
 }
+#content-spacer {
+    min-height: 120mm;
+}
 #header img {
     padding: 15px 0px 25px 15px;
     user-select: none;
