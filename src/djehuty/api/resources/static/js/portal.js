@@ -1,15 +1,14 @@
 jQuery(document).ready(function() {
-    var jqxhr = jQuery.get( "https://api.figshare.com/v2/articles", {
+    var jqxhr = jQuery.get("https://api.figshare.com/v2/articles", {
         "limit":           20,
         "order_direction": "desc",
         "order":           "published_date",
-        "item_type":       5 // dataset
+        "institution":     898
     }, function() {
     })
         .done(function(data) {
             output = "<ul>";
             jQuery.each (data, function(index) {
-                console.log("Title: " + data[index].title);
                 output += '<li><a href="'+ data[index].url_public_html +'">';
                 output += data[index].title + '</a></li>';
             });

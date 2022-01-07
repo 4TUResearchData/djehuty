@@ -98,6 +98,7 @@ body,html {
     background: #f39000;
     color: #ffffff;
     font-size: 14pt;
+    user-select: none;
 }
 #login-button:hover {
     background: #d26000;
