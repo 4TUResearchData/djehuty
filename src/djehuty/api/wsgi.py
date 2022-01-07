@@ -4,6 +4,7 @@ import os.path
 import logging
 import json
 from typing import NamedTuple
+from werkzeug.utils import redirect
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 from werkzeug.routing import Map, Rule
@@ -347,7 +348,7 @@ class ApiServer:
 
     def api_home (self, request):
         if self.accepts_html (request):
-            return self.__render_template ("home.html", base_url=self.base_url)
+            return redirect ("/portal", code=301)
 
         return self.response (json.dumps({ "status": "OK" }))
 
