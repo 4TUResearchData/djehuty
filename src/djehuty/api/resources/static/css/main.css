@@ -142,7 +142,7 @@ body,html {
     display: block;
     min-width: 120pt;
 }
-#primary-menu li a { color: #808080; text-decoration: none; }
+#primary-menu li a { text-decoration: none; }
 #primary-menu li a:hover { color: #f39000; }
 .submenu {
     position: absolute;
@@ -175,6 +175,10 @@ nav { display: block; }
 .submenu li:nth-child(even) {
     background: #fafafa !important;
 }
+.menu-item a { color: #505050; }
+.menu-item a:hover { color: #303030; }
+.submenu-item a { color: #000000; }
+.submenu-item a:hover { color: #333333; }
 #footer {
     height: 120mm;
     min-width: 820pt;
