@@ -1326,9 +1326,9 @@ class ApiServer:
             return response
 
     def api_private_collections (self, request):
-        handler = self.default_error_handling (request, "GET")
-        if handler is not None:
-            return handler
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
 
         ## Authorization
         ## ----------------------------------------------------------------
@@ -1336,40 +1336,87 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        ## Parameters
-        ## ----------------------------------------------------------------
-        page            = self.get_parameter (request, "page")
-        page_size       = self.get_parameter (request, "page_size")
-        limit           = self.get_parameter (request, "limit")
-        offset          = self.get_parameter (request, "offset")
-        order           = self.get_parameter (request, "order")
-        order_direction = self.get_parameter (request, "order_direction")
+        if request.method == 'GET':
+            ## Parameters
+            ## ----------------------------------------------------------------
+            page            = self.get_parameter (request, "page")
+            page_size       = self.get_parameter (request, "page_size")
+            limit           = self.get_parameter (request, "limit")
+            offset          = self.get_parameter (request, "offset")
+            order           = self.get_parameter (request, "order")
+            order_direction = self.get_parameter (request, "order_direction")
 
-        ## These parameters aren't in the Figshare spec.
-        institution     = self.get_parameter (request, "institution")
-        published_since = self.get_parameter (request, "published_since")
-        modified_since  = self.get_parameter (request, "modified_since")
-        group           = self.get_parameter (request, "group")
-        resource_doi    = self.get_parameter (request, "resource_doi")
-        doi             = self.get_parameter (request, "doi")
-        handle          = self.get_parameter (request, "handle")
+            ## These parameters aren't in the Figshare spec.
+            institution     = self.get_parameter (request, "institution")
+            published_since = self.get_parameter (request, "published_since")
+            modified_since  = self.get_parameter (request, "modified_since")
+            group           = self.get_parameter (request, "group")
+            resource_doi    = self.get_parameter (request, "resource_doi")
+            doi             = self.get_parameter (request, "doi")
+            handle          = self.get_parameter (request, "handle")
 
-        records = self.db.collections (#page=page,
-                                       #page_size=page_size,
-                                       limit=limit,
-                                       offset=offset,
-                                       order=order,
-                                       order_direction=order_direction,
-                                       institution=institution,
-                                       published_since=published_since,
-                                       modified_since=modified_since,
-                                       group=group,
-                                       resource_doi=resource_doi,
-                                       doi=doi,
-                                       handle=handle,
-                                       account_id=account_id)
+            records = self.db.collections (#page=page,
+                                           #page_size=page_size,
+                                           limit=limit,
+                                           offset=offset,
+                                           order=order,
+                                           order_direction=order_direction,
+                                           institution=institution,
+                                           published_since=published_since,
+                                           modified_since=modified_since,
+                                           group=group,
+                                           resource_doi=resource_doi,
+                                           doi=doi,
+                                           handle=handle,
+                                           account_id=account_id)
 
-        return self.default_list_response (records, formatter.format_collection_record)
+            return self.default_list_response (records, formatter.format_collection_record)
+
+        if request.method == 'POST':
+            record = request.get_json()
+
+            try:
+                timeline   = validator.object_value (record, "timeline", False)
+                article_id = self.db.insert_collection (
+                    title                   = validator.string_value  (record, "title",            3, 1000,       True),
+                    account_id              = account_id,
+                    funding                 = validator.string_value  (record, "funding",          0, 255,        False),
+                    funding_list            = validator.array_value   (record, "funding_list",                    False),
+                    description             = validator.string_value  (record, "description",      0, 10000,      False),
+                    articles                = validator.array_value   (record, "articles",                        False),
+                    authors                 = validator.array_value   (record, "authors",                         False),
+                    categories              = validator.array_value   (record, "categories",                      False),
+                    categories_by_source_id = validator.array_value   (record, "categories_by_source_id",         False),
+                    tags                    = validator.array_value   (record, "tags",                            False),
+                    keywords                = validator.array_value   (record, "keywords",                        False),
+                    references              = validator.array_value   (record, "references",                      False),
+                    custom_fields           = validator.object_value  (record, "custom_fields",                   False),
+                    custom_fields_list      = validator.object_value  (record, "custom_fields_list",              False),
+                    doi                     = validator.string_value  (record, "doi",              0, 255,        False),
+                    handle                  = validator.string_value  (record, "handle",           0, 255,        False),
+                    resource_id             = validator.string_value  (record, "resource_id",      0, 255,        False),
+                    resource_doi            = validator.string_value  (record, "resource_doi",     0, 255,        False),
+                    resource_link           = validator.string_value  (record, "resource_link",    0, 255,        False),
+                    resource_title          = validator.string_value  (record, "resource_title",   0, 255,        False),
+                    resource_version        = validator.integer_value (record, "resource_version", 0, pow(2, 63), False),
+                    group_id                = validator.integer_value (record, "group_id",         0, pow(2, 63), False),
+                    # Unpack the 'timeline' object.
+                    first_online            = validator.string_value (timeline, "firstOnline",                    False),
+                    publisher_publication   = validator.string_value (timeline, "publisherPublication",           False),
+                    publisher_acceptance    = validator.string_value (timeline, "publisherAcceptance",            False),
+                    submission              = validator.string_value (timeline, "submission",                     False),
+                    posted                  = validator.string_value (timeline, "posted",                         False),
+                    revision                = validator.string_value (timeline, "revision",                       False))
+
+                return self.response(json.dumps({
+                    "location": f"http://{self.address}:{self.port}/v2/account/articles/{article_id}",
+                    "warnings": []
+                }))
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+
+        return self.error_405 (["GET", "POST"])
+
 
     def api_private_collection_details (self, request, collection_id):
         handler = self.default_error_handling (request, "GET")
