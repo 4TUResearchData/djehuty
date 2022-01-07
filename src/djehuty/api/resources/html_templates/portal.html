@@ -1,4 +1,8 @@
 {% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/portal.js"></script>
+{% endblock %}
 {% block body %}
 <h1>Subjects <span class="h1-suffix">[<a href="https://data.4tu.nl/category">All</a>]</span></h1>
 <div class="tiles-wrapper">
@@ -387,4 +391,5 @@
 </div>
 
 <h1>Latest datasets <span class="h1-suffix">[<a href="https://data.4tu.nl/search">All</a>]</span></h1>
+<div id="latest-datasets"></div>
 {% endblock %}
