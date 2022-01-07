@@ -302,11 +302,13 @@ img.cts { width: 120px; }
 .fa-empty::before {}
 
 /* Portal page */
-#tiles-wrapper { margin: auto; text-align: center; }
-#tiles { display: inline-block; list-style: none; margin: 0pt; padding: 0pt; }
-#tiles li table.tile { display: block; overflow: hidden; height: 160pt; }
+.tiles-wrapper { margin: auto auto 1em auto; max-width: 1010pt; text-align: center; user-select: none; }
+.tiles { display: inline-block; list-style: none; margin: 0pt; padding: 0pt; }
+.tiles li table.tile { display: block; overflow: hidden; height: 160pt; }
 
-#tiles li {
+.tiles li table.institute-tile { display: block; overflow: hidden; height: 100pt !important; }
+
+.tiles li {
     display: inline-block;
     margin: 20pt 20pt auto auto;
     overflow: hidden;
@@ -317,7 +319,7 @@ img.cts { width: 120px; }
     box-shadow: 0pt 0pt 10pt #cccccc;
 }
 
-#tiles li table.tile tbody tr td.image {
+.tiles li table.tile tbody tr td.image {
     margin: 0pt;
     padding: 0pt;
     width: 160pt;
@@ -335,7 +337,7 @@ img.cts { width: 120px; }
     vertical-align: middle;
     text-weight: normal;
 }
-#tiles li table.tile tbody tr td.text {
+.tiles li table.tile tbody tr td.text {
     display: inline;
     margin: auto;
     height: 50pt;
@@ -344,7 +346,12 @@ img.cts { width: 120px; }
     text-align: center;
     vertical-align: middle;
 }
-#tiles table { border-spacing: 0pt; padding: 0pt; border-collapse: collapse; }
-#tiles .tile:hover { opacity: 0.9; cursor: pointer; }
-#tiles table td { background-color: #ffffff; margin: 0pt; padding: 0pt; }
-#tiles table tr { background-color: #ffffff; }
+.tiles li table.tile tbody tr td.text a { text-decoration: none; }
+.tiles table { border-spacing: 0pt; padding: 0pt; border-collapse: collapse; }
+.tiles .tile:hover { opacity: 0.9; cursor: pointer; }
+.tiles table td { background-color: #ffffff; margin: 0pt; padding: 0pt; }
+.tiles table tr { background-color: #ffffff; }
+.tiles li table.institute-tile:hover { opacity: 0.5 !important; cursor: pointer; }
+.h1-suffix { font-size: 0.6em; }
+.h1-suffix a { text-transform: uppercase; text-decoration: none; color: #808080; }
+.h1-suffix a:hover { color: #505050; }
