@@ -1160,3 +1160,203 @@ class SparqlInterface:
         })
 
         return self.__run_query(query)
+
+    def insert_collection (self, title,
+                           account_id,
+                           collection_id=None,
+                           funding=None,
+                           funding_list=None,
+                           description=None,
+                           articles=None,
+                           authors=None,
+                           categories=None,
+                           categories_by_source_id=None,
+                           tags=None,
+                           keywords=None,
+                           references=None,
+                           custom_fields=None,
+                           custom_fields_list=None,
+                           doi=None,
+                           handle=None,
+                           resource_id=None,
+                           resource_doi=None,
+                           resource_link=None,
+                           resource_title=None,
+                           resource_version=None,
+                           group_id=None,
+                           first_online=None,
+                           publisher_publication=None,
+                           publisher_acceptance=None,
+                           submission=None,
+                           posted=None,
+                           revision=None,
+                           private_links=None):
+        """Procedure to insert an collection to the state graph."""
+
+        funding_list            = [] if funding_list            is None else funding_list
+        tags                    = [] if tags                    is None else tags
+        references              = [] if references              is None else references
+        categories              = [] if categories              is None else categories
+        categories_by_source_id = [] if categories_by_source_id is None else categories_by_source_id
+        authors                 = [] if authors                 is None else authors
+        custom_fields           = [] if custom_fields           is None else custom_fields
+        custom_fields_list      = [] if custom_fields_list      is None else custom_fields_list
+        private_links           = [] if private_links           is None else private_links
+        articles                = [] if articles                is None else articles
+        embargo_options         = [] if embargo_options         is None else embargo_options
+
+        graph = Graph()
+
+        if collection_id is None:
+            collection_id = self.ids.next_id("collection")
+
+        collection_uri = rdf.ROW[str(collection_id)]
+
+        ## TIMELINE
+        ## --------------------------------------------------------------------
+        timeline_id = self.insert_timeline (
+            revision              = revision,
+            first_online          = first_online,
+            publisher_publication = publisher_publication,
+            publisher_acceptance  = publisher_acceptance,
+            posted                = posted,
+            submission            = submission
+        )
+
+        rdf.add (graph, collection_uri, rdf.COL["timeline_id"], timeline_id)
+
+        ## REFERENCES
+        ## --------------------------------------------------------------------
+        for url in references:
+            self.insert_reference (url, item_id=collection_id, item_type="collection")
+
+        ## TAGS
+        ## --------------------------------------------------------------------
+        for tag in tags:
+            self.insert_tag (tag, item_id=collection_id, item_type="collection")
+
+        ## FUNDING
+        ## --------------------------------------------------------------------
+        for fund in funding_list:
+            self.insert_funding (
+                title           = conv.value_or_none (fund, "title"),
+                grant_code      = conv.value_or_none (fund, "grant_code"),
+                funder_name     = conv.value_or_none (fund, "funder_name"),
+                is_user_defined = conv.value_or_none (fund, "is_user_defined"),
+                url             = conv.value_or_none (fund, "url"),
+                item_id         = collection_id,
+                item_type       = "collection")
+
+        ## CATEGORIES
+        ## --------------------------------------------------------------------
+        for category in categories:
+            category_id = self.insert_category (
+                category_id = conv.value_or_none (category, "id"),
+                title       = conv.value_or_none (category, "title"),
+                parent_id   = conv.value_or_none (category, "parent_id"),
+                source_id   = conv.value_or_none (category, "source_id"),
+                taxonomy    = conv.value_or_none (category, "taxonomy"))
+            self.insert_collection_category (collection_id, category_id)
+
+        ## EMBARGOS
+        ## --------------------------------------------------------------------
+        for embargo in embargo_options:
+            self.insert_embargo (
+                embargo_id   = conv.value_or_none (embargo, "id"),
+                collection_id   = collection_id,
+                embargo_type = conv.value_or_none (embargo, "type"),
+                ip_name      = conv.value_or_none (embargo, "ip_name"))
+
+        ## LICENSE
+        ## --------------------------------------------------------------------
+        # Note: The license_id is also stored as a column in the collection.
+        self.insert_license (
+            license_id = license_id,
+            name       = conv.value_or_none (license, "name"),
+            url        = conv.value_or_none (license, "url"))
+
+        ## AUTHORS
+        ## --------------------------------------------------------------------
+        for author in authors:
+            author_id = self.insert_author (
+                author_id      = conv.value_or_none (author, "id"),
+                is_active      = conv.value_or_none (author, "is_active"),
+                first_name     = conv.value_or_none (author, "first_name"),
+                last_name      = conv.value_or_none (author, "last_name"),
+                full_name      = conv.value_or_none (author, "full_name"),
+                institution_id = conv.value_or_none (author, "institution_id"),
+                job_title      = conv.value_or_none (author, "job_title"),
+                is_public      = conv.value_or_none (author, "is_public"),
+                url_name       = conv.value_or_none (author, "url_name"),
+                orcid_id       = conv.value_or_none (author, "orcid_id"))
+            self.insert_collection_author (collection_id, author_id)
+
+        ## FILES
+        ## --------------------------------------------------------------------
+        for file_data in files:
+            file_id = self.insert_file (
+                file_id       = conv.value_or_none (file_data, "id"),
+                name          = conv.value_or_none (file_data, "name"),
+                size          = conv.value_or_none (file_data, "size"),
+                is_link_only  = conv.value_or_none (file_data, "is_link_only"),
+                download_url  = conv.value_or_none (file_data, "download_url"),
+                supplied_md5  = conv.value_or_none (file_data, "supplied_md5"),
+                computed_md5  = conv.value_or_none (file_data, "computed_md5"),
+                viewer_type   = conv.value_or_none (file_data, "viewer_type"),
+                preview_state = conv.value_or_none (file_data, "preview_state"),
+                status        = conv.value_or_none (file_data, "status"),
+                upload_url    = conv.value_or_none (file_data, "upload_url"),
+                upload_token  = conv.value_or_none (file_data, "upload_token"))
+            self.insert_collection_file (collection_id, file_id)
+
+        ## CUSTOM FIELDS
+        ## --------------------------------------------------------------------
+        for field in custom_fields:
+            self.insert_custom_field (
+                name          = conv.value_or_none (field, "name"),
+                value         = conv.value_or_none (field, "value"),
+                default_value = conv.value_or_none (field, "default_value"),
+                max_length    = conv.value_or_none (field, "max_length"),
+                min_length    = conv.value_or_none (field, "min_length"),
+                field_type    = conv.value_or_none (field, "field_type"),
+                is_mandatory  = conv.value_or_none (field, "is_mandatory"),
+                placeholder   = conv.value_or_none (field, "placeholder"),
+                is_multiple   = conv.value_or_none (field, "is_multiple"),
+                item_id       = collection_id,
+                item_type     = "collection")
+
+        ## PRIVATE LINKS
+        ## --------------------------------------------------------------------
+        for link in private_links:
+            self.insert_private_link (
+                item_id          = collection_id,
+                item_type        = "collection",
+                private_link_id  = conv.value_or_none (link, "id"),
+                is_active        = conv.value_or_none (link, "is_active"),
+                expires_date     = conv.value_or_none (link, "expires_date"))
+
+        ## TOPLEVEL FIELDS
+        ## --------------------------------------------------------------------
+
+        graph.add ((collection_uri, RDF.type,         rdf.SG["Collection"]))
+        graph.add ((collection_uri, rdf.COL["id"],    Literal(collection_id)))
+        graph.add ((collection_uri, rdf.COL["collection_id"], Literal(collection_id)))
+        graph.add ((collection_uri, rdf.COL["title"], Literal(title, datatype=XSD.string)))
+
+        rdf.add (graph, collection_uri, rdf.COL["account_id"],     account_id)
+        rdf.add (graph, collection_uri, rdf.COL["description"],    description,    XSD.string)
+        rdf.add (graph, collection_uri, rdf.COL["defined_type"],   defined_type,   XSD.string)
+        rdf.add (graph, collection_uri, rdf.COL["funding"],        funding,        XSD.string)
+        rdf.add (graph, collection_uri, rdf.COL["license_id"],     license_id)
+        rdf.add (graph, collection_uri, rdf.COL["doi"],            doi,            XSD.string)
+        rdf.add (graph, collection_uri, rdf.COL["handle"],         handle,         XSD.string)
+        rdf.add (graph, collection_uri, rdf.COL["resource_doi"],   resource_doi,   XSD.string)
+        rdf.add (graph, collection_uri, rdf.COL["resource_title"], resource_title, XSD.string)
+        rdf.add (graph, collection_uri, rdf.COL["group_id"],       group_id)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            logging.info ("Inserted collection %d", collection_id)
+            return collection_id
+
+        return None
