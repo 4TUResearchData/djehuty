@@ -33,7 +33,13 @@ class DatabaseInterface:
         """Returns the file size for an OPeNDAP catalog."""
         total_filesize = 0
         metadata_url   = url.replace(".html", ".xml")
-        metadata       = self.__get_from_url (metadata_url, {}, {})
+        metadata       = False
+
+        try:
+            metadata   = self.__get_from_url (metadata_url, {}, {})
+        except requests.exceptions.ConnectionError:
+            logging.error("Failed to connect to %s.", metadata_url)
+
         if not metadata:
             logging.info("Couldn't get metadata for %d.", article_id)
             return total_filesize
