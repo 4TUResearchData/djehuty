@@ -353,6 +353,7 @@ img.cts { width: 120px; }
 .tiles table td { background-color: #ffffff; margin: 0pt; padding: 0pt; }
 .tiles table tr { background-color: #ffffff; }
 .tiles li table.institute-tile:hover { opacity: 0.5 !important; cursor: pointer; }
+.tiles li table.institute-tile tbody tr td.image img { width: 150pt; }
 .h1-suffix { font-size: 0.6em; }
 .h1-suffix a { text-transform: uppercase; text-decoration: none; color: #808080; }
 .h1-suffix a:hover { color: #505050; }
