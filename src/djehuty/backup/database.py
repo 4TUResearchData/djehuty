@@ -51,7 +51,7 @@ class DatabaseInterface:
         ## Recursively handle directories.
         ## XXX: This may overflow the stack.
         if not references:
-            logging.info("Catalog %s does not contain subdirectories.", url)
+            logging.debug("Catalog %s does not contain subdirectories.", url)
         else:
             for reference in references:
                 suffix = reference.attrib["{http://www.w3.org/1999/xlink}href"]
