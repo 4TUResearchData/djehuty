@@ -404,17 +404,16 @@ class FigshareEndpoint:
         """Procedure to get statistics for an article."""
 
         if self.stats_auth is None:
-            return [{
-                "views":      0,
-                "downloads":  0,
-                "shares":     0,
-                "date":       datetime.strftime(datetime.now(), "%Y-%m-%d")
-            }]
+            return {
+                "views":     None,
+                "downloads": None,
+                "shares":    None
+            }
 
         headers    = self.__request_headers()
         headers["Authorization"] = f"Basic {self.stats_auth}"
 
-        output     = []
+        output     = None
         if start_date is None:
             start_date = datetime.strftime(datetime.now() - timedelta(days=365), "%Y-%m-%d")
 
@@ -425,30 +424,23 @@ class FigshareEndpoint:
             "start_date": start_date,
             "end_date":   end_date
         }
-        prefix     = "/4tu/timeline/day"
+        prefix     = "/4tu/breakdown/day"
         views      = self.get_statistics (f"{prefix}/views/article/{article_id}", headers, parameters)
         downloads  = self.get_statistics (f"{prefix}/downloads/article/{article_id}", headers, parameters)
         shares     = self.get_statistics (f"{prefix}/shares/article/{article_id}", headers, parameters)
 
-        if not views or views["timeline"] is None:
-            output.append({
-                "views":      0,
-                "downloads":  0,
-                "shares":     0,
-                "date":       datetime.strftime(datetime.now(), "%Y-%m-%d")
-            })
-        else:
-            dates = list(views["timeline"].keys())
-            for date in dates:
-                nviews     = views["timeline"][date]
-                ndownloads = downloads["timeline"][date] if downloads["timeline"] is not None and date in downloads["timeline"] else 0
-                nshares    = shares["timeline"][date]    if shares["timeline"] is not None and date in shares["timeline"] else 0
-
-                output.append({
-                    "views":      nviews,
-                    "downloads":  ndownloads,
-                    "shares":     nshares,
-                    "date":       date
-                })
+        try:
+            output = {
+                "views":     views["breakdown"],
+                "downloads": downloads["breakdown"],
+                "shares":    shares["breakdown"]
+            }
+        except KeyError:
+            logging.error (f"Failed to gather statistics for {article_id}.")
+            output = {
+                "views":      None,
+                "downloads":  None,
+                "shares":     None
+            }
 
         return output

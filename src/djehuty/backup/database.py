@@ -488,17 +488,31 @@ class DatabaseInterface:
 
         return True
 
-    def insert_statistics (self, record, article_id):
+    def insert_article_statistics (self, record, article_id, item_type="views"):
         """Procedure to insert statistics for an article."""
 
-        template = ("INSERT INTO ArticleStatistics (article_id, views, "
-                    "downloads, shares, date) VALUES (%s, %s, %s, %s, %s)")
+        if record is None:
+            return True
 
-        data = (article_id,
-                convenience.value_or_none (record, "views"),
-                convenience.value_or_none (record, "downloads"),
-                convenience.value_or_none (record, "shares"),
-                convenience.value_or_none (record, "date"))
+        suffix   = item_type.capitalize()
+        template = (f"INSERT INTO Article{suffix} (article_id, country, region, "
+                    f"{item_type}, date) VALUES (%s, %s, %s, %s, %s)")
+
+        for day in record:
+            for country in record[day]:
+                total     = record[day][country]["total"]
+                summed_up = 0
+                for region in record[day][country]:
+                    if region != "total":
+                        value = record[day][country][region]
+                        data  = (article_id, country, region, value, day)
+                        if self.__execute_query (template, data) is False:
+                            logging.error(f"Could not insert statistics for {article_id} on day {day}")
+                        else:
+                            summed_up += value
+
+                if summed_up != total:
+                    logging.error(f"Total number of {item_type} ({total}) differs from inserted ({summed_up}) for {country}.")
 
         return self.__execute_query (template, data)
 
@@ -605,9 +619,10 @@ class DatabaseInterface:
                                        item_type = "article")
 
         if "statistics" in record:
-            stats = record["statistics"]
-            for day in stats:
-                self.insert_statistics (day, article_id)
+            stats     = record["statistics"]
+            self.insert_article_statistics (stats["views"], article_id, item_type="views")
+            self.insert_article_statistics (stats["downloads"], article_id, item_type="downloads")
+            self.insert_article_statistics (stats["shares"], article_id, "shares")
 
         created_date = None
         if "created_date" in record and not record["created_date"] is None:
