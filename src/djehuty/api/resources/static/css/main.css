@@ -61,7 +61,7 @@ body,html {
 }
 #content {
     width: 90%;
-    max-width: 100em;
+    max-width: 900pt;
     min-height: 200mm;
     margin: 0 auto;
     padding: 5mm;
@@ -117,7 +117,7 @@ body,html {
 }
 #primary-menu-wrapper {
     width: 90%;
-    max-width: 100em;
+    max-width: 900pt;
     margin: 0 auto;
 }
 #primary-menu .menu-item-has-children:not(.hideshow)::after {
@@ -230,7 +230,7 @@ pre {
     column-count: 3;
     column-gap: 0em;
     width: 90%;
-    max-width: 100em;
+    max-width: 900pt;
     margin: 0 auto;
     padding: 0em;
 }
@@ -302,7 +302,7 @@ img.cts { width: 120px; }
 .fa-empty::before {}
 
 /* Portal page */
-.tiles-wrapper { margin: auto auto 1em auto; max-width: 1010pt; text-align: center; user-select: none; }
+.tiles-wrapper { margin: auto auto 1em auto; min-width: 890pt; text-align: center; user-select: none; }
 .tiles { display: inline-block; list-style: none; margin: 0pt; padding: 0pt; }
 .tiles li table.tile { display: block; overflow: hidden; height: 160pt; }
 
