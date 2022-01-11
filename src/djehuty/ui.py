@@ -48,7 +48,7 @@ def main ():
     """The main entry point of the program."""
 
     logging.basicConfig(format='[ %(levelname)s ] %(asctime)s: %(message)s',
-                        level=logging.DEBUG)
+                        level=logging.INFO)
 
     ## COMMAND-LINE ARGUMENTS
     ## ------------------------------------------------------------------------
