@@ -102,7 +102,8 @@ class DatabaseInterface:
                 host     = host,
                 user     = username,
                 password = password,
-                database = database)
+                database = database,
+                charset  = 'utf8')
             return self.connection.is_connected()
 
         except Error as error:
