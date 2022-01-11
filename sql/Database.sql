@@ -355,13 +355,6 @@ CREATE TABLE IF NOT EXISTS CollectionCustomFieldOption(
     collection_custom_field_id INT UNSIGNED,
     value                      VARCHAR(255)) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS ArticleStatistics(
-    article_id            INT UNSIGNED,
-    views                 INT UNSIGNED,
-    downloads             INT UNSIGNED,
-    shares                INT UNSIGNED,
-    date                  DATETIME) ENGINE=InnoDB;
-
 CREATE TABLE IF NOT EXISTS ArticleViews(
     article_id            INT UNSIGNED,
     country               VARCHAR(255),
