@@ -514,7 +514,7 @@ class DatabaseInterface:
                 if summed_up != total:
                     logging.error(f"Total number of {item_type} ({total}) differs from inserted ({summed_up}) for {country}.")
 
-        return self.__execute_query (template, data)
+        return True
 
     def insert_file (self, record, article_id):
         """Procedure to insert a file record."""
