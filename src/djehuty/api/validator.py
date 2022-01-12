@@ -142,7 +142,7 @@ def index_exists (value, index):
 
     return True
 
-def string_value (record, field_name, minimum_length=None, maximum_length=None, required=False):
+def string_value (record, field_name, minimum_length=0, maximum_length=None, required=False):
 
     value = conv.value_or_none (record, field_name)
     if value is None:
