@@ -114,6 +114,11 @@ class ApiServer:
             Rule("/v2/account/collections/<collection_id>/authors", endpoint = "private_collection_authors"),
             Rule("/v2/account/collections/<collection_id>/categories", endpoint = "private_collection_categories"),
             Rule("/v2/account/collections/<collection_id>/articles", endpoint = "private_collection_articles"),
+
+            ## ----------------------------------------------------------------
+            ## V3 API
+            ## ----------------------------------------------------------------
+            Rule("/v3/articles",                              endpoint = "v3_articles"),
           ])
 
         ## Static resources and HTML templates.
@@ -1551,3 +1556,71 @@ class ApiServer:
 
         articles   = self.db.articles (collection_id = collection_id)
         return self.default_list_response (articles, formatter.format_article_record)
+
+    ## ------------------------------------------------------------------------
+    ## V3 API
+    ## ------------------------------------------------------------------------
+
+    def api_v3_articles (self, request):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        record = {}
+        record["limit"]           = self.get_parameter (request, "limit")
+        record["offset"]          = self.get_parameter (request, "offset")
+        record["order"]           = self.get_parameter (request, "order")
+        record["order_direction"] = self.get_parameter (request, "order_direction")
+        record["institution"]     = self.get_parameter (request, "institution")
+        record["published_since"] = self.get_parameter (request, "published_since")
+        record["modified_since"]  = self.get_parameter (request, "modified_since")
+        record["group"]           = self.get_parameter (request, "group")
+        record["resource_doi"]    = self.get_parameter (request, "resource_doi")
+        record["item_type"]       = self.get_parameter (request, "item_type")
+        record["doi"]             = self.get_parameter (request, "doi")
+        record["handle"]          = self.get_parameter (request, "handle")
+        record["return_count"]    = self.get_parameter (request, "return_count")
+        record["categories"]      = self.get_parameter (request, "categories")
+
+        try:
+            validator.integer_value (record, "limit")
+            validator.integer_value (record, "offset")
+            validator.string_value  (record, "order",           maximum_length=32)
+            validator.order_direction (record["order_direction"])
+            validator.integer_value (record, "institution")
+            validator.string_value  (record, "published_since", maximum_length=32)
+            validator.string_value  (record, "modified_since",  maximum_length=32)
+            validator.integer_value (record, "group")
+            validator.string_value  (record, "resource_doi",    maximum_length=255)
+            validator.integer_value (record, "item_type")
+            validator.string_value  (record, "doi",             maximum_length=255)
+            validator.string_value  (record, "handle",          maximum_length=255)
+            validator.boolean_value (record, "return_count")
+
+            if record["categories"] is not None:
+                record["categories"] = record["categories"].split(",")
+                validator.array_value   (record, "categories")
+                for index, category_id in enumerate(record["categories"]):
+                    record["categories"][index] = validator.integer_value (record["categories"], index)
+
+        except validator.ValidationException as error:
+            return self.error_400 (error.message, error.code)
+
+        records = self.db.articles (limit           = record["limit"],
+                                    offset          = record["offset"],
+                                    order           = record["order"],
+                                    order_direction = record["order_direction"],
+                                    institution     = record["institution"],
+                                    published_since = record["published_since"],
+                                    modified_since  = record["modified_since"],
+                                    group           = record["group"],
+                                    resource_doi    = record["resource_doi"],
+                                    item_type       = record["item_type"],
+                                    doi             = record["doi"],
+                                    handle          = record["handle"],
+                                    category_ids    = record["categories"],
+                                    return_count    = record["return_count"])
+        if record["return_count"]:
+            return self.response (json.dumps(records[0]))
+
+        return self.default_list_response (records, formatter.format_article_record)

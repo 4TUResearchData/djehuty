@@ -1,5 +1,8 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
+{% if return_count %}
+SELECT COUNT(DISTINCT ?article) AS ?articles
+{% else %}
 SELECT DISTINCT ?account_id ?authors_id ?citation ?confidential_reason
                 ?created_date ?custom_fields_id ?defined_type ?defined_type_name
                 ?description ?doi ?embargo_date ?embargo_options_id 
@@ -14,6 +17,7 @@ SELECT DISTINCT ?account_id ?authors_id ?citation ?confidential_reason
                 ?timeline_revision ?timeline_submission ?title ?url
                 ?url_private_api ?url_private_html ?url_public_api
                 ?url_public_html ?version
+{%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article            rdf:type                 sg:Article .
@@ -25,6 +29,10 @@ WHERE {
     ?link               col:collection_id        {{collection_id}} .
     {% endif %}{% if account_id is not none: %}
     ?article            col:account_id           ?account_id .
+    {% endif %}{% if category_ids is not none: %}
+    ?category_link      rdf:type                 sg:ArticleCategory .
+    ?category_link      col:category_id          ?category_id .
+    ?category_link      col:article_id           ?id .
     {% endif %}
     OPTIONAL {
         ?timeline           rdf:type                 sg:Timeline .

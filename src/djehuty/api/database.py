@@ -156,7 +156,8 @@ class SparqlInterface:
                   group=None, resource_doi=None, item_type=None,
                   doi=None, handle=None, account_id=None,
                   search_for=None, article_id=None,
-                  collection_id=None, version=None):
+                  collection_id=None, version=None, category_ids=None,
+                  return_count=False):
         """Procedure to retrieve articles."""
 
         filters  = rdf.sparql_filter ("institution_id", institution)
@@ -171,6 +172,12 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("resource_title", search_for,   escape=True)
         filters += rdf.sparql_filter ("description",    search_for,   escape=True)
         filters += rdf.sparql_filter ("citation",       search_for,   escape=True)
+
+        if category_ids is not None:
+            filters += f"FILTER (?category_id={category_ids[0]}"
+            for category_id in category_ids[1:]:
+                filters += f" OR ?category_id={category_id}"
+            filters += ")\n"
 
         if published_since is not None:
             filters += rdf.sparql_bound_filter ("published_date")
@@ -188,8 +195,10 @@ class SparqlInterface:
         query = self.__query_from_template ("articles", {
             "state_graph":   self.state_graph,
             "collection_id": collection_id,
+            "category_ids":  category_ids,
             "account_id":    account_id,
-            "filters":       filters
+            "filters":       filters,
+            "return_count":  return_count
         })
 
         # Setting the default value for 'limit' to 10 makes passing
@@ -198,7 +207,8 @@ class SparqlInterface:
         if limit is None:
             limit = 10
 
-        query += rdf.sparql_suffix (order, order_direction, limit, offset)
+        if not return_count:
+            query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
         return self.__run_query (query)
 
