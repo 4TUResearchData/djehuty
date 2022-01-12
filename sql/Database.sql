@@ -1,3 +1,8 @@
+-- Note: Ensure the database uses UTF-8 multi-byte 4. Names can contain
+-- characters from any language in the world. For example, use the following
+-- statement to create the database:
+-- CREATE DATABASE example_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -------------------------------------------------------------------------------
 -- ARTICLES
 -------------------------------------------------------------------------------
