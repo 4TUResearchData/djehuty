@@ -41,7 +41,7 @@ class DatabaseInterface:
             logging.error("Failed to connect to %s.", metadata_url)
 
         if not metadata:
-            logging.info("Couldn't get metadata for %d.", article_id)
+            logging.error("Couldn't get file metadata for %d.", article_id)
             return total_filesize
 
         namespaces  = { "c": "http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0" }
@@ -624,6 +624,8 @@ class DatabaseInterface:
             self.insert_article_statistics (stats["views"], article_id, item_type="views")
             self.insert_article_statistics (stats["downloads"], article_id, item_type="downloads")
             self.insert_article_statistics (stats["shares"], article_id, "shares")
+        else:
+            logging.warning ("No statistics available for article %d.", article_id)
 
         created_date = None
         if "created_date" in record and not record["created_date"] is None:

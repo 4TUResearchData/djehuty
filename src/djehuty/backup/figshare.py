@@ -204,9 +204,14 @@ class FigshareEndpoint:
         record       = self.get(f"/account/articles/{article_id}", headers, parameters)
 
         authors = []
-        for author in record["authors"]:
-            details = self.get_author_details_by_id (author["id"], account_id)
-            authors.append(details)
+
+        try:
+            for author in record["authors"]:
+                details = self.get_author_details_by_id (author["id"], account_id)
+                authors.append(details)
+        except TypeError:
+            logging.error ("Failed to process authors for account %d", account_id)
+
         record["authors"]       = authors
         record["private_links"] = self.get_article_private_links_by_account_by_id (account_id,
                                                                                    article_id)
@@ -404,6 +409,7 @@ class FigshareEndpoint:
         """Procedure to get statistics for an article."""
 
         if self.stats_auth is None:
+            logging.info("Mission authentication for the statistics endpoint.")
             return {
                 "views":     None,
                 "downloads": None,
