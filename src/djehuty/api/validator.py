@@ -179,10 +179,16 @@ def boolean_value (record, field_name, required=False):
                 code    = "MissingRequiredField")
         return value
 
+    if isinstance(value, str):
+        if value.lower() == "true":
+            value = True
+        elif value.lower() == "false":
+            value = False
+
     if not isinstance (value, bool):
         raise InvalidValueType(
-                message = f"Expected a boolean value for '{field_name}'.",
-                code    = "WrongValueType")
+            message = f"Expected a boolean value for '{field_name}'.",
+            code    = "WrongValueType")
 
     return value
 
