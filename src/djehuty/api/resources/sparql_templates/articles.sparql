@@ -23,13 +23,17 @@ WHERE {
     ?article            rdf:type                 sg:Article .
     ?article            col:article_id           ?id .
     ?article            col:timeline_id          ?timeline_id .
+
+    ?article            col:account_id           ?account_id .
+    ?account            rdf:type                 sg:Account .
+    ?account            col:id                   ?account_id .
+
     {% if collection_id is not none %}
     ?link               rdf:type                 sg:CollectionArticle .
     ?link               col:article_id           ?id .
     ?link               col:collection_id        {{collection_id}} .
-    {% endif %}{% if account_id is not none: %}
-    ?article            col:account_id           ?account_id .
-    {% endif %}{% if category_ids is not none: %}
+    {% endif %}
+    {% if category_ids is not none: %}
     ?category_link      rdf:type                 sg:ArticleCategory .
     ?category_link      col:category_id          ?category_id .
     ?category_link      col:article_id           ?id .
@@ -74,7 +78,7 @@ WHERE {
     OPTIONAL { ?article col:group_id              ?group_id . }
     OPTIONAL { ?article col:handle                ?handle . }
     OPTIONAL { ?article col:has_linked_file       ?has_linked_file . }
-    OPTIONAL { ?article col:institution_id        ?institution_id . }
+    OPTIONAL { ?account col:institution_id        ?institution_id . }
     OPTIONAL { ?article col:is_active             ?is_active . }
     OPTIONAL { ?article col:is_confidential       ?is_confidential . }
     OPTIONAL { ?article col:is_embargoed          ?is_embargoed . }
