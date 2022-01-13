@@ -421,7 +421,7 @@ class FigshareEndpoint:
 
         output     = None
         if start_date is None:
-            start_date = datetime.strftime(datetime.now() - timedelta(days=365), "%Y-%m-%d")
+            start_date = "2020-07-01" # This is when 4TU went live on Figshare.
 
         if end_date is None:
             end_date    = datetime.strftime(datetime.now(), "%Y-%m-%d") ##  + timedelta(days=1)
