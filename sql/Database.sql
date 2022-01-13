@@ -381,6 +381,27 @@ CREATE TABLE IF NOT EXISTS ArticleShares(
     shares                INT UNSIGNED,
     date                  DATETIME) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS CollectionViews(
+    collection_id         INT UNSIGNED,
+    country               VARCHAR(255),
+    region                VARCHAR(255),
+    views                 INT UNSIGNED,
+    date                  DATETIME) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS CollectionDownloads(
+    collection_id         INT UNSIGNED,
+    country               VARCHAR(255),
+    region                VARCHAR(255),
+    downloads             INT UNSIGNED,
+    date                  DATETIME) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS CollectionShares(
+    collection_id         INT UNSIGNED,
+    country               VARCHAR(255),
+    region                VARCHAR(255),
+    shares                INT UNSIGNED,
+    date                  DATETIME) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS Session(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     token                 VARCHAR(65),

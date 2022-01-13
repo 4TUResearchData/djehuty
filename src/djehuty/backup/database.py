@@ -489,15 +489,20 @@ class DatabaseInterface:
 
         return True
 
-    def insert_article_statistics (self, record, article_id, item_type="views"):
-        """Procedure to insert statistics for an article."""
+    def insert_statistics (self,
+                           record,
+                           item_id,
+                           item_type = "article",
+                           statistics_type = "views"):
+        """Procedure to insert statistics for an article or collection."""
 
         if record is None:
             return True
 
-        suffix   = item_type.capitalize()
-        template = (f"INSERT INTO Article{suffix} (article_id, country, region, "
-                    f"{item_type}, date) VALUES (%s, %s, %s, %s, %s)")
+        prefix   = item_type.capitalize()
+        suffix   = statistics_type.capitalize()
+        template = (f"INSERT INTO {prefix}{suffix} ({item_type}_id, country, "
+                    f"region, {statistics_type}, date) VALUES (%s, %s, %s, %s, %s)")
 
         for day in record:
             for country in record[day]:
@@ -506,16 +511,34 @@ class DatabaseInterface:
                 for region in record[day][country]:
                     if region != "total":
                         value = record[day][country][region]
-                        data  = (article_id, country, region, value, day)
+                        data  = (item_id, country, region, value, day)
                         if self.__execute_query (template, data) is False:
-                            logging.error(f"Could not insert statistics for {article_id} on day {day}")
+                            logging.warning("Could not insert statistics for %s %d on day %s",
+                                            item_type, item_id, day)
                         else:
                             summed_up += value
 
                 if summed_up != total:
-                    logging.error(f"Total number of {item_type} ({total}) differs from inserted ({summed_up}) for {country}.")
+                    logging.warning("Total number of %s (%d) differs from inserted (%d) for %s.",
+                                    statistics_type, total, summed_up, country)
 
         return True
+
+    def insert_article_statistics (self, record, article_id, item_type="views"):
+        """Procedure to insert statistics for an article."""
+
+        return self.insert_statistics (record,
+                                       item_id=article_id,
+                                       item_type="article",
+                                       statistics_type=item_type)
+
+    def insert_collection_statistics (self, record, collection_id, item_type="views"):
+        """Procedure to insert statistics for a collection."""
+
+        return self.insert_statistics (record,
+                                       item_id=collection_id,
+                                       item_type="collection",
+                                       statistics_type=item_type)
 
     def insert_file (self, record, article_id):
         """Procedure to insert a file record."""

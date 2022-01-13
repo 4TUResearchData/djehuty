@@ -336,6 +336,13 @@ class FigshareEndpoint:
 
             record["versions"] = versions
 
+        ## Statistics
+        ## --------------------------------------------------------------------
+        record["statistics"] = self.get_statistics_for_collection(
+           collection_id,
+           None,
+           datetime.strftime(now, "%Y-%m-%d"))
+
         return record
 
     def get_collections (self, published_since="1970-01-01"):
@@ -402,11 +409,12 @@ class FigshareEndpoint:
         return self.get_record (f"/account/authors/{author_id}",
                                 impersonate=account_id)
 
-    def get_statistics_for_article (self,
-                                    article_id,
-                                    start_date = None,
-                                    end_date   = None):
-        """Procedure to get statistics for an article."""
+    def get_statistics_for_type (self,
+                                 item_id,
+                                 item_type,
+                                 start_date = None,
+                                 end_date   = None):
+        """Procedure to get statistics for an article or collection."""
 
         if self.stats_auth is None:
             logging.info("Missing authentication for the statistics endpoint.")
@@ -431,9 +439,9 @@ class FigshareEndpoint:
             "end_date":   end_date
         }
         prefix     = "/4tu/breakdown/day"
-        views      = self.get_statistics (f"{prefix}/views/article/{article_id}", headers, parameters)
-        downloads  = self.get_statistics (f"{prefix}/downloads/article/{article_id}", headers, parameters)
-        shares     = self.get_statistics (f"{prefix}/shares/article/{article_id}", headers, parameters)
+        views      = self.get_statistics (f"{prefix}/views/{item_type}/{item_id}", headers, parameters)
+        downloads  = self.get_statistics (f"{prefix}/downloads/{item_type}/{item_id}", headers, parameters)
+        shares     = self.get_statistics (f"{prefix}/shares/{item_type}/{item_id}", headers, parameters)
 
         try:
             output = {
@@ -442,7 +450,8 @@ class FigshareEndpoint:
                 "shares":    shares["breakdown"]
             }
         except KeyError:
-            logging.error (f"Failed to gather statistics for {article_id}.")
+            logging.error ("Failed to gather statistics for %s %d.",
+                           item_type, item_id)
             output = {
                 "views":      None,
                 "downloads":  None,
@@ -450,3 +459,21 @@ class FigshareEndpoint:
             }
 
         return output
+
+    def get_statistics_for_article (self,
+                                    article_id,
+                                    start_date = None,
+                                    end_date   = None):
+        return self.get_statistics_for_type (item_id    = article_id,
+                                             item_type  = "article",
+                                             start_date = start_date,
+                                             end_date   = end_date)
+
+    def get_statistics_for_collection (self,
+                                       collection_id,
+                                       start_date = None,
+                                       end_date   = None):
+        return self.get_statistics_for_type (item_id    = collection_id,
+                                             item_type  = "collection",
+                                             start_date = start_date,
+                                             end_date   = end_date)
