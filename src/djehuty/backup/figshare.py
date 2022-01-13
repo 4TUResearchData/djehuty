@@ -409,7 +409,7 @@ class FigshareEndpoint:
         """Procedure to get statistics for an article."""
 
         if self.stats_auth is None:
-            logging.info("Mission authentication for the statistics endpoint.")
+            logging.info("Missing authentication for the statistics endpoint.")
             return {
                 "views":     None,
                 "downloads": None,
