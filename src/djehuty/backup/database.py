@@ -520,7 +520,13 @@ class DatabaseInterface:
 
                 if summed_up != total:
                     logging.warning("Total number of %s (%d) differs from inserted (%d) for %s.",
-                                    statistics_type, total, summed_up, country)
+                                    statistics_type, total, summed_up, item_id)
+                    if summed_up < total:
+                        value = total - summed_up
+                        data  = (item_id, country, "Unaccounted", value, day)
+                        if self.__execute_query (template, data) is False:
+                            logging.warning("Could not insert unnaccounted difference in statistics for %s %d on day %s",
+                                            item_type, item_id, day)
 
         return True
 
