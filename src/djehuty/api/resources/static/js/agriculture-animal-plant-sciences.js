@@ -41,7 +41,7 @@ function latest_datasets () {
                     output += '<li class="datasets-stage datasets-stage-five">';
                 }
 
-                output += '<a href="'+ data[index].url_public_html +'">';
+                output += '<a target="_blank" href="'+ data[index].url_public_html +'">';
                 output += data[index].title + '</a></li>';
 
                 num_items += 1;
@@ -69,7 +69,7 @@ function top_downloaded () {
             output += '</thead><tbody>';
             jQuery.each (data, function(index) {
                 output += '<tr><td>';
-                output += '<a href="'+ data[index].figshare_url +'">';
+                output += '<a target="_blank" href="'+ data[index].figshare_url +'">';
                 output += data[index].title + '</a>';
                 output += '</td>';
                 output += '<td>' + data[index].downloads + '</td></tr>';
