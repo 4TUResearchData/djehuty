@@ -119,6 +119,7 @@ class ApiServer:
             ## V3 API
             ## ----------------------------------------------------------------
             Rule("/v3/articles",                              endpoint = "v3_articles"),
+            Rule("/v3/articles/top_downloaded",               endpoint = "v3_articles_top_downloaded"),
           ])
 
         ## Static resources and HTML templates.
@@ -1624,3 +1625,39 @@ class ApiServer:
             return self.response (json.dumps(records[0]))
 
         return self.default_list_response (records, formatter.format_article_record)
+
+    def api_v3_articles_top_downloaded (self, request):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        record = {}
+        record["limit"]           = self.get_parameter (request, "limit")
+        record["offset"]          = self.get_parameter (request, "offset")
+        record["order"]           = self.get_parameter (request, "order")
+        record["order_direction"] = self.get_parameter (request, "order_direction")
+        record["categories"]      = self.get_parameter (request, "categories")
+
+        try:
+            validator.integer_value (record, "limit")
+            validator.integer_value (record, "offset")
+            validator.string_value  (record, "order", maximum_length=32)
+            validator.order_direction (record["order_direction"])
+
+            if record["categories"] is not None:
+                record["categories"] = record["categories"].split(",")
+                validator.array_value   (record, "categories")
+                for index, category_id in enumerate(record["categories"]):
+                    record["categories"][index] = validator.integer_value (record["categories"], index)
+
+        except validator.ValidationException as error:
+            return self.error_400 (error.message, error.code)
+
+        records = self.db.article_statistics (
+            limit           = record["limit"],
+            offset          = record["offset"],
+            order           = record["order"],
+            order_direction = record["order_direction"],
+            category_ids    = record["categories"])
+
+        return self.response (json.dumps(records))

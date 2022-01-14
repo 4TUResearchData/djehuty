@@ -1,0 +1,22 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?article_id (SUM(?{{item_type}}) / COUNT(?version)) AS ?{{item_type}} ?title ?figshare_url
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?article        rdf:type            sg:Article .
+    ?article        col:title           ?title .
+    ?article        col:article_id      ?article_id .
+    ?article        col:version         ?version .
+    ?article        col:figshare_url    ?figshare_url .
+
+    ?category_link  rdf:type            sg:ArticleCategory .
+    ?category_link  col:category_id     ?category_id .
+    ?category_link  col:article_id      ?article_id .
+
+    ?stats          rdf:type            sg:ArticleTotals .
+    ?stats          col:article_id      ?article_id .
+    ?stats          col:{{item_type}}   ?{{item_type}} .
+  }
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}
