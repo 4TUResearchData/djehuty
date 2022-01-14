@@ -57,6 +57,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             Rule("/",                                         endpoint = "home"),
             Rule("/portal",                                   endpoint = "portal"),
+            Rule("/agriculture-animal-plant-sciences",        endpoint = "agriculture_animal_plant_sciences"),
 
             ## ----------------------------------------------------------------
             ## API
@@ -361,6 +362,14 @@ class ApiServer:
     def api_portal (self, request):
         if self.accepts_html (request):
             return self.__render_template ("portal.html", base_url=self.base_url)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_agriculture_animal_plant_sciences (self, request):
+        if self.accepts_html (request):
+            return self.__render_template ("agriculture-animal-plant-sciences.html", base_url=self.base_url)
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
