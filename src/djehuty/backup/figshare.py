@@ -421,7 +421,8 @@ class FigshareEndpoint:
             return {
                 "views":     None,
                 "downloads": None,
-                "shares":    None
+                "shares":    None,
+                "totals":    None,
             }
 
         headers    = self.__request_headers()
@@ -442,12 +443,14 @@ class FigshareEndpoint:
         views      = self.get_statistics (f"{prefix}/views/{item_type}/{item_id}", headers, parameters)
         downloads  = self.get_statistics (f"{prefix}/downloads/{item_type}/{item_id}", headers, parameters)
         shares     = self.get_statistics (f"{prefix}/shares/{item_type}/{item_id}", headers, parameters)
+        totals     = self.get_statistics (f"/total/{item_type}/{item_id}", headers, {})
 
         try:
             output = {
                 "views":     views["breakdown"],
                 "downloads": downloads["breakdown"],
-                "shares":    shares["breakdown"]
+                "shares":    shares["breakdown"],
+                "totals":    totals
             }
         except KeyError:
             logging.error ("Failed to gather statistics for %s %d.",
@@ -455,7 +458,8 @@ class FigshareEndpoint:
             output = {
                 "views":      None,
                 "downloads":  None,
-                "shares":     None
+                "shares":     None,
+                "totals":     None
             }
 
         return output

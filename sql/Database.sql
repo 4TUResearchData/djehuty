@@ -360,6 +360,14 @@ CREATE TABLE IF NOT EXISTS CollectionCustomFieldOption(
     collection_custom_field_id INT UNSIGNED,
     value                      VARCHAR(255)) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS ArticleTotals(
+    article_id            INT UNSIGNED,
+    views                 INT UNSIGNED,
+    downloads             INT UNSIGNED,
+    shares                INT UNSIGNED,
+    cites                 INT UNSIGNED,
+    created_at            DATETIME) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS ArticleViews(
     article_id            INT UNSIGNED,
     country               VARCHAR(255),
@@ -380,6 +388,14 @@ CREATE TABLE IF NOT EXISTS ArticleShares(
     region                VARCHAR(255),
     shares                INT UNSIGNED,
     date                  DATETIME) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS CollectionTotals(
+    collection_id         INT UNSIGNED,
+    views                 INT UNSIGNED,
+    downloads             INT UNSIGNED,
+    shares                INT UNSIGNED,
+    cites                 INT UNSIGNED,
+    created_at            DATETIME) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionViews(
     collection_id         INT UNSIGNED,

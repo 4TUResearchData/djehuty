@@ -489,6 +489,42 @@ class DatabaseInterface:
 
         return True
 
+    def insert_totals_statistics (self, record, item_id, item_type):
+        """Procedure to insert simplified totals for an article or collection."""
+
+        if record is None:
+            return True
+
+        prefix   = item_type.capitalize()
+        template = (f"INSERT INTO {prefix}Totals ({item_type}_id, views, "
+                    "downloads, shares, cites, created_at) VALUES (%s, %s, %s, %s, %s, %s)")
+        data     = (item_id,
+                    convenience.value_or_none (record, "views"),
+                    convenience.value_or_none (record, "downloads"),
+                    convenience.value_or_none (record, "shares"),
+                    convenience.value_or_none (record, "cites"),
+                    datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S"))
+
+        if self.__execute_query (template, data) is False:
+            logging.warning("Could not insert totals statistics for %s %d.",
+                            item_type, item_id)
+
+        return True
+
+    def insert_article_totals (self, record, article_id):
+        """Procedure to insert totals statistics for an article."""
+
+        return self.insert_totals_statistics (record,
+                                              item_id=article_id,
+                                              item_type="article")
+
+    def insert_collection_totals (self, record, collection_id):
+        """Procedure to insert totals statistics for a collection."""
+
+        return self.insert_totals_statistics (record,
+                                              item_id=collection_id,
+                                              item_type="collection")
+
     def insert_statistics (self,
                            record,
                            item_id,
