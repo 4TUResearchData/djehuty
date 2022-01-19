@@ -120,7 +120,7 @@ class ApiServer:
             ## V3 API
             ## ----------------------------------------------------------------
             Rule("/v3/articles",                              endpoint = "v3_articles"),
-            Rule("/v3/articles/top_downloaded",               endpoint = "v3_articles_top_downloaded"),
+            Rule("/v3/articles/top/<item_type>",              endpoint = "v3_articles_top"),
           ])
 
         ## Static resources and HTML templates.
@@ -1635,7 +1635,7 @@ class ApiServer:
 
         return self.default_list_response (records, formatter.format_article_record)
 
-    def api_v3_articles_top_downloaded (self, request):
+    def api_v3_articles_top (self, request, item_type):
         handler = self.default_error_handling (request, "GET")
         if handler is not None:
             return handler
@@ -1646,12 +1646,19 @@ class ApiServer:
         record["order"]           = self.get_parameter (request, "order")
         record["order_direction"] = self.get_parameter (request, "order_direction")
         record["categories"]      = self.get_parameter (request, "categories")
+        record["item_type"]       = item_type
 
         try:
             validator.integer_value (record, "limit")
             validator.integer_value (record, "offset")
             validator.string_value  (record, "order", maximum_length=32)
             validator.order_direction (record["order_direction"])
+            validator.string_value  (record, "item_type", maximum_length=32)
+
+            if item_type not in {"downloads", "views", "shares"}:
+                raise validator.InvalidValue(
+                    message = "The last URL parameter must be one of 'downloads', 'views' or 'shares'.",
+                    code    = "InvalidURLParameterValue")
 
             if record["categories"] is not None:
                 record["categories"] = record["categories"].split(",")
@@ -1667,6 +1674,7 @@ class ApiServer:
             offset          = record["offset"],
             order           = record["order"],
             order_direction = record["order_direction"],
-            category_ids    = record["categories"])
+            category_ids    = record["categories"],
+            item_type       = item_type)
 
         return self.response (json.dumps(records))

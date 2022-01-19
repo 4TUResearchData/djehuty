@@ -56,7 +56,7 @@ function latest_datasets () {
 }
 
 function top_downloaded () {
-    var jqxhr = jQuery.get("/v3/articles/top_downloaded", {
+    var jqxhr = jQuery.get("/v3/articles/top/downloads", {
         "limit":           31,
         "order_direction": "desc",
         "order":           "downloads",

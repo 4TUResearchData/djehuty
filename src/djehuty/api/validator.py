@@ -60,6 +60,14 @@ class InvalidValueType(ValidationException):
         self.code    = code
         super().__init__(message, code)
 
+class InvalidValue(ValidationException):
+    """Exception thrown when the wrong value was given."""
+
+    def __init__(self, message, code):
+        self.message = message
+        self.code    = code
+        super().__init__(message, code)
+
 class InvalidOptionsValue(ValidationException):
     """Exception thrown when the wrong type of a value was given."""
 
