@@ -55,28 +55,35 @@ function latest_datasets () {
         });
 }
 
-function top_downloaded () {
-    var jqxhr = jQuery.get("/v3/articles/top/downloads", {
+function capitalize(input) {
+    return input[0].toUpperCase() + input.substring(1);
+}
+
+function top_datasets (item_type) {
+    var jqxhr = jQuery.get("/v3/articles/top/" + item_type, {
         "limit":           31,
         "order_direction": "desc",
-        "order":           "downloads",
+        "order":           item_type,
         "categories":      categories
     }, function() {
     })
         .done(function(data) {
-            output = '<table id="top-downloaded"><thead>';
-            output += '<tr><th>Article</th><th># Downloads</th></tr>';
+            output = '<table id="top-datasets"><thead>';
+            output += '<tr><th>Article</th><th># '+ capitalize(item_type) +'</th></tr>';
             output += '</thead><tbody>';
             jQuery.each (data, function(index) {
                 output += '<tr><td>';
                 output += '<a target="_blank" href="'+ data[index].figshare_url +'">';
                 output += data[index].title + '</a>';
                 output += '</td>';
-                output += '<td>' + data[index].downloads + '</td></tr>';
+                output += '<td>' + data[index][item_type] + '</td></tr>';
             });
 
             output += "</tbody></table>";
-            jQuery("#top-downloaded").append(output);
+            jQuery("#top-datasets").remove()
+            jQuery("#top-datasets-wrapper").append(output);
+            jQuery(".active").removeClass("active")
+            jQuery(".top-" + item_type).addClass("active")
         })
         .fail(function() {
             jQuery("#top-downloaded").append("<p>Could not load the top downloaded datasets.</p>");
@@ -85,6 +92,6 @@ function top_downloaded () {
 
 jQuery(document).ready(function() {
     intro_text();
-    top_downloaded();
+    top_datasets("downloads");
     latest_datasets();
 });
