@@ -1655,9 +1655,9 @@ class ApiServer:
             validator.order_direction (record["order_direction"])
             validator.string_value  (record, "item_type", maximum_length=32)
 
-            if item_type not in {"downloads", "views", "shares"}:
+            if item_type not in {"downloads", "views", "shares", "cites"}:
                 raise validator.InvalidValue(
-                    message = "The last URL parameter must be one of 'downloads', 'views' or 'shares'.",
+                    message = "The last URL parameter must be one of 'downloads', 'views', 'shares' or 'cites'.",
                     code    = "InvalidURLParameterValue")
 
             if record["categories"] is not None:
