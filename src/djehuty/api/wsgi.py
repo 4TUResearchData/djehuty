@@ -121,6 +121,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             Rule("/v3/articles",                              endpoint = "v3_articles"),
             Rule("/v3/articles/top/<item_type>",              endpoint = "v3_articles_top"),
+            Rule("/v3/articles/timeline/<item_type>",         endpoint = "v3_articles_timeline"),
           ])
 
         ## Static resources and HTML templates.
@@ -1635,12 +1636,9 @@ class ApiServer:
 
         return self.default_list_response (records, formatter.format_article_record)
 
-    def api_v3_articles_top (self, request, item_type):
-        handler = self.default_error_handling (request, "GET")
-        if handler is not None:
-            return handler
-
+    def __api_v3_articles_parameters (self, request, item_type):
         record = {}
+        record["article_id"]      = self.get_parameter (request, "article_id")
         record["limit"]           = self.get_parameter (request, "limit")
         record["offset"]          = self.get_parameter (request, "offset")
         record["order"]           = self.get_parameter (request, "order")
@@ -1648,28 +1646,62 @@ class ApiServer:
         record["categories"]      = self.get_parameter (request, "categories")
         record["item_type"]       = item_type
 
+        validator.integer_value (record, "article_id")
+        validator.integer_value (record, "limit")
+        validator.integer_value (record, "offset")
+        validator.string_value  (record, "order", maximum_length=32)
+        validator.order_direction (record["order_direction"])
+        validator.string_value  (record, "item_type", maximum_length=32)
+
+        if item_type not in {"downloads", "views", "shares", "cites"}:
+            raise validator.InvalidValue(
+                message = "The last URL parameter must be one of 'downloads', 'views', 'shares' or 'cites'.",
+                code    = "InvalidURLParameterValue")
+
+        if record["categories"] is not None:
+            record["categories"] = record["categories"].split(",")
+            validator.array_value   (record, "categories")
+            for index, category_id in enumerate(record["categories"]):
+                record["categories"][index] = validator.integer_value (record["categories"], index)
+
+        return record
+
+    def api_v3_articles_top (self, request, item_type):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        record = {}
         try:
-            validator.integer_value (record, "limit")
-            validator.integer_value (record, "offset")
-            validator.string_value  (record, "order", maximum_length=32)
-            validator.order_direction (record["order_direction"])
-            validator.string_value  (record, "item_type", maximum_length=32)
-
-            if item_type not in {"downloads", "views", "shares", "cites"}:
-                raise validator.InvalidValue(
-                    message = "The last URL parameter must be one of 'downloads', 'views', 'shares' or 'cites'.",
-                    code    = "InvalidURLParameterValue")
-
-            if record["categories"] is not None:
-                record["categories"] = record["categories"].split(",")
-                validator.array_value   (record, "categories")
-                for index, category_id in enumerate(record["categories"]):
-                    record["categories"][index] = validator.integer_value (record["categories"], index)
+            record = self.__api_v3_articles_parameters (request, item_type)
 
         except validator.ValidationException as error:
             return self.error_400 (error.message, error.code)
 
         records = self.db.article_statistics (
+            limit           = record["limit"],
+            offset          = record["offset"],
+            order           = record["order"],
+            order_direction = record["order_direction"],
+            category_ids    = record["categories"],
+            item_type       = item_type)
+
+        return self.response (json.dumps(records))
+
+    def api_v3_articles_timeline (self, request, item_type):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        record = {}
+        try:
+            record = self.__api_v3_articles_parameters (request, item_type)
+
+        except validator.ValidationException as error:
+            return self.error_400 (error.message, error.code)
+
+        records = self.db.article_statistics_timeline (
+            article_id      = record["article_id"],
             limit           = record["limit"],
             offset          = record["offset"],
             order           = record["order"],
