@@ -225,18 +225,17 @@ class FigshareEndpoint:
 
         ## Statistics
         ## --------------------------------------------------------------------
-        now          = datetime.now()
-        created_date = now
-        if "created_date" in record and not record["created_date"] is None:
-            created_date  = datetime.strptime(record["created_date"]
-                                              .replace("Z", "")
-                                              .replace("T", " "),
-                                              "%Y-%m-%d %H:%M:%S")
-        record["statistics"] = self.get_statistics_for_article(
-           article_id,
-           datetime.strftime(created_date, "%Y-%m-%d"),
-           datetime.strftime(now, "%Y-%m-%d"))
+        now          = datetime.strftime(datetime.now(), "%Y-%m-%d")
+        created_date = "2020-07-01"
 
+        if "created_date" in record and not record["created_date"] is None:
+            date         = datetime.strptime(record["created_date"]
+                                             .replace("Z", "")
+                                             .replace("T", " "),
+                                             "%Y-%m-%d")
+            created_date = datetime.strftime(date, "%Y-%m-%d")
+
+        record["statistics"] = self.get_statistics_for_article(article_id, created_date, now)
         return record
 
     def get_article_private_links_by_account_by_id (self, account_id, article_id):
