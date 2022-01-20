@@ -1,0 +1,21 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?article_id ?date (SUM(?{{item_type}})  AS ?{{item_type}})
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?article        rdf:type            sg:Article .
+    ?article        col:article_id      ?article_id .
+
+    ?category_link  rdf:type            sg:ArticleCategory .
+    ?category_link  col:category_id     ?category_id .
+    ?category_link  col:article_id      ?article_id .
+
+    ?stats          rdf:type            sg:Article{{item_class}} .
+    ?stats          col:article_id      ?article_id .
+    ?stats          col:date            ?date .
+    ?stats          col:{{item_type}}   ?{{item_type}} .
+  }
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+GROUP BY ?article_id ?date
+{% endblock %}

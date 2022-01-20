@@ -240,6 +240,36 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query)
 
+    def article_statistics_timeline (self, item_type="downloads",
+                                     order="downloads",
+                                     order_direction="desc",
+                                     category_ids=None,
+                                     limit=10,
+                                     offset=0,
+                                     aggregation_type="day"):
+        """Procedure to retrieve article statistics per date."""
+
+        item_class  = item_type.capitalize()
+        filters = ""
+
+        if category_ids is not None:
+            filters += f"FILTER (?category_id={category_ids[0]}"
+            for category_id in category_ids[1:]:
+                filters += f" OR ?category_id={category_id}"
+            filters += ")\n"
+
+        query   = self.__query_from_template ("article_statistics_timeline", {
+            "state_graph":   self.state_graph,
+            "category_ids":  category_ids,
+            "item_type":     item_type,
+            "item_class":    item_class,
+            "filters":       filters
+        })
+
+        order = "article_id" if order is None else order
+        query += rdf.sparql_suffix (order, order_direction, limit, offset)
+        return self.__run_query (query)
+
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
                  is_public=None, job_title=None, last_name=None,
