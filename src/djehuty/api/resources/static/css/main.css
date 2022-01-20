@@ -382,6 +382,7 @@ table {
 }
 
 .d3-plot { overflow: hidden; }
+.tabs { display: none; }
 .tabs ul { margin: 0em; padding: 0em; }
 .tabs li {
     display: inline-block;

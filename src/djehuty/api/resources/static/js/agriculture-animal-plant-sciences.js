@@ -82,6 +82,7 @@ function top_datasets (item_type) {
             jQuery("#top-datasets-wrapper").append(output);
             jQuery("#top-buttons .active").removeClass("active")
             jQuery(".top-" + item_type).addClass("active")
+            jQuery("#top-buttons").show();
         })
         .fail(function() {
             jQuery("#top-downloaded").append("<p>Could not load the top downloaded datasets.</p>");
@@ -138,9 +139,10 @@ function timeline_graph (item_type) {
             wrapper.append(plot);
             jQuery("#timeline-buttons .active").removeClass("active")
             jQuery(".timeline-" + item_type).addClass("active")
+            jQuery("#timeline-buttons").show()
         })
         .fail(function() {
-            wrapper.append("<p>Could not load the top downloaded datasets.</p>");
+            wrapper.append("<p>Could not load the timeline graph.</p>");
         });
 }
 
