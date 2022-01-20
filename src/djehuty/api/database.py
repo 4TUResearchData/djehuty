@@ -240,7 +240,9 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query)
 
-    def article_statistics_timeline (self, item_type="downloads",
+    def article_statistics_timeline (self,
+                                     article_id=None,
+                                     item_type="downloads",
                                      order="downloads",
                                      order_direction="desc",
                                      category_ids=None,
@@ -251,6 +253,9 @@ class SparqlInterface:
 
         item_class  = item_type.capitalize()
         filters = ""
+
+        if article_id is not None:
+            filters += rdf.sparql_filter("article_id", article_id)
 
         if category_ids is not None:
             filters += f"FILTER (?category_id={category_ids[0]}"
