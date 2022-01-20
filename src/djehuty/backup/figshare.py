@@ -1,7 +1,6 @@
 """This module provides an interface to extract data from Figshare."""
 
 from datetime import datetime
-from datetime import timedelta
 import concurrent.futures
 import multiprocessing
 import time
@@ -341,7 +340,7 @@ class FigshareEndpoint:
         record["statistics"] = self.get_statistics_for_collection(
            collection_id,
            None,
-           datetime.strftime(now, "%Y-%m-%d"))
+           datetime.strftime(datetime.now(), "%Y-%m-%d"))
 
         return record
 
