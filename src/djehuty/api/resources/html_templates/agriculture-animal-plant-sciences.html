@@ -1,14 +1,25 @@
 {% extends "layout.html" %}
 {% block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/d3.v7.min.js"></script>
+<script src="/static/js/d3-extras.js"></script>
 <script src="/static/js/agriculture-animal-plant-sciences.js"></script>
 {% endblock %}
 {% block body %}
 <h1>Agriculture, animal and plant sciences</h1>
 <div id="intro-text"></div>
 
+<div id="timeline-buttons" class="tabs">
+  <ul>
+    <li class="timeline-downloads"><a href="#" onclick="timeline_graph('downloads'); return false">Downloads</a></li>
+    <li class="timeline-views"><a href="#" onclick="timeline_graph('views'); return false">Views</a></li>
+    <li class="timeline-shares"><a href="#" onclick="timeline_graph('shares'); return false">Shares</a></li>
+  </ul>
+</div>
+<div id="timeline-wrapper" class="d3-plot"></div>
+
 <h2>Top datasets</h2>
-<div id="top-buttons">
+<div id="top-buttons" class="tabs">
   <ul>
     <li class="top-downloads"><a href="#" onclick="top_datasets('downloads'); return false">Downloads</a></li>
     <li class="top-views"><a href="#" onclick="top_datasets('views'); return false">Views</a></li>

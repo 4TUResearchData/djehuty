@@ -1,4 +1,6 @@
-var categories = "13376,13377,13378,13379,13381,13382,13383,13384,13380";
+const categories    = "13376,13377,13378,13379,13381,13382,13383,13384,13380";
+const cumulativeSum = (sum => value => sum += value)(0); // https://stackoverflow.com/a/55261098
+const capitalize    = (i) => (i[0].toUpperCase() + i.substring(1));
 
 function intro_text () {
     var jqxhr = jQuery.get("/v3/articles", {
@@ -55,10 +57,6 @@ function latest_datasets () {
         });
 }
 
-function capitalize(input) {
-    return input[0].toUpperCase() + input.substring(1);
-}
-
 function top_datasets (item_type) {
     var jqxhr = jQuery.get("/v3/articles/top/" + item_type, {
         "limit":           31,
@@ -68,7 +66,7 @@ function top_datasets (item_type) {
     }, function() {
     })
         .done(function(data) {
-            output = '<table id="top-datasets"><thead>';
+            var output = '<table id="top-datasets"><thead>';
             output += '<tr><th>Article</th><th># '+ capitalize(item_type) +'</th></tr>';
             output += '</thead><tbody>';
             jQuery.each (data, function(index) {
@@ -82,7 +80,7 @@ function top_datasets (item_type) {
             output += "</tbody></table>";
             jQuery("#top-datasets").remove()
             jQuery("#top-datasets-wrapper").append(output);
-            jQuery(".active").removeClass("active")
+            jQuery("#top-buttons .active").removeClass("active")
             jQuery(".top-" + item_type).addClass("active")
         })
         .fail(function() {
@@ -90,8 +88,65 @@ function top_datasets (item_type) {
         });
 }
 
+function timeline_graph (item_type) {
+    var wrapper = document.getElementById("timeline-wrapper");
+    var width   = document.getElementById("content-wrapper").offsetWidth;
+    var height  = document.getElementById("content-wrapper").offsetHeight;
+    var jqxhr   = jQuery.get("/v3/articles/timeline/" + item_type, {
+        "order_direction": "asc",
+        "order":           "date",
+        "categories":      categories
+    }, function() {})
+        .done(function(data) {
+            // Convert date strings to JS timestamps.
+            data = data.map((record) => {
+                record["date"] = Date.parse(record["date"]);
+                return record;
+            });
+            // Sort by article ID, and then by date.
+            data.sort((a,b) => (a.article_id - (b.article_id) || a.date - b.date));
+            // Extract article ids.
+            const articles = data.map(record => record["article_id"]);
+            // Strip duplicates.
+            const ids      = [...new Set(articles)];
+            // Assign a color to each article id.
+            var colors = {}
+            for (index in ids) {
+                colors[ids[index]] = "#" + Math.floor(Math.random() * 0xFFFFFF).toString(16);
+            }
+            // Generate the plot.
+            var plot = LineChartMultiSeries(data, {
+                x:       d => d.date,
+                y:       d => d[item_type],
+                z:       d => d.article_id,
+                color:   id => colors[id],
+                yDomain: [0, 150],
+                yLabel:  "↑ " + capitalize(item_type),
+                width:   (width - 30),
+                height:  400,
+            });
+            // Apply wrapper styling.
+            wrapper.style.setProperty("border", "solid 2pt #f49120");
+            wrapper.style.setProperty("border-top", "solid .5em #f49120");
+            wrapper.style.setProperty("border-bottom", "solid .5em #f49120");
+            wrapper.style.setProperty("border-radius", "0em 0em .5em .5em");
+            wrapper.style.setProperty("margin", "0em");
+            wrapper.style.setProperty("width", "100%");
+            wrapper.style.setProperty("height", "400px");
+            // Add the SVG to the wrapper and update the tab bar.
+            jQuery("#timeline-wrapper svg").remove()
+            wrapper.append(plot);
+            jQuery("#timeline-buttons .active").removeClass("active")
+            jQuery(".timeline-" + item_type).addClass("active")
+        })
+        .fail(function() {
+            wrapper.append("<p>Could not load the top downloaded datasets.</p>");
+        });
+}
+
 jQuery(document).ready(function() {
     intro_text();
     top_datasets("downloads");
     latest_datasets();
+    timeline_graph("downloads");
 });

@@ -380,8 +380,10 @@ table {
     border-spacing: 0pt;
     border-collapse: collapse;
 }
-#top-buttons ul { margin: 0em; padding: 0em; }
-#top-buttons li {
+
+.d3-plot { overflow: hidden; }
+.tabs ul { margin: 0em; padding: 0em; }
+.tabs li {
     display: inline-block;
     list-style-type: none;
     text-decoration: none;
@@ -392,5 +394,5 @@ table {
     user-select: none;
     border-radius: .5em .5em 0em 0em;
 }
-#top-buttons li.active { background: #f49120; }
-#top-buttons li.active a { color: #ffffff; text-decoration: none; }
+.tabs li.active { background: #f49120; }
+.tabs li.active a { color: #ffffff; text-decoration: none; }
