@@ -362,9 +362,9 @@ ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; fo
 .datasets-stage a:hover { color: #000000; }
 
 #top-datasets th { text-align: left; white-space: nowrap; color: #ffffff; padding: .5em; }
-#top-datasets-wrapper table { max-width: 880pt; border: solid 2pt #f49120; }
+#top-datasets-wrapper table { width: 100%; max-width: 880pt; border: solid 2pt #f49120; }
 #top-datasets thead tr { background: #f49120; }
-#top-datasets tbody tr td { padding: .5em; }
+#top-datasets tbody tr td { padding: .5em; z-index: 50; }
 #top-datasets tbody tr:nth-child(odd) { background: #fafafa; }
 #top-datasets tbody tr td:last-child { text-align: right; width: 130pt; }
 #top-datasets thead tr th:last-child { text-align: right; }
@@ -382,7 +382,6 @@ table {
 }
 
 .d3-plot { overflow: hidden; z-index: 50; }
-.tabs { display: none; }
 .tabs ul { margin: 0em; padding: 0em; }
 .tabs li {
     display: inline-block;
@@ -400,9 +399,19 @@ table {
 .loader {
     display: block;
     width: 100%;
-    height: 100px;
+    min-height: 100px;
+    background-color: rgba(255, 255, 255, 0.5);
     background-image: url('/static/images/loader.svg');
     background-position: center;
     background-repeat: no-repeat;
     z-index: 100;
+}
+#timeline-wrapper {
+    border: solid 2pt #f49120;
+    border-top: solid .5em #f49120;
+    border-bottom: solid .5em #f49120;
+    border-radius: 0em 0em .5em .5em;
+    margin: 0em;
+    width: 100%;
+    height: 400px;
 }

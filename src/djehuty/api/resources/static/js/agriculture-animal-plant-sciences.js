@@ -61,6 +61,10 @@ function latest_datasets () {
 }
 
 function top_datasets (item_type) {
+    jQuery("#top-datasets-wrapper").addClass("loader");
+    jQuery("#top-datasets tbody tr").css('opacity', '0.15');
+    jQuery("#top-buttons .active").removeClass("active")
+    jQuery(".top-" + item_type).addClass("active")
     var jqxhr = jQuery.get("/v3/articles/top/" + item_type, {
         "limit":           31,
         "order_direction": "desc",
@@ -82,14 +86,10 @@ function top_datasets (item_type) {
 
             output += "</tbody></table>";
             jQuery("#top-datasets").remove()
-            jQuery("#top-datasets-loader").hide();
+            jQuery("#top-datasets-wrapper").removeClass("loader");
             jQuery("#top-datasets-wrapper").append(output);
-            jQuery("#top-buttons .active").removeClass("active")
-            jQuery(".top-" + item_type).addClass("active")
-            jQuery("#top-buttons").show();
         })
         .fail(function() {
-            jQuery("#top-datasets-loader").hide();
             jQuery("#top-datasets-wrapper").append("<p>Could not load the top datasets.</p>");
         });
 }
@@ -98,8 +98,10 @@ function timeline_graph (item_type) {
     var wrapper = document.getElementById("timeline-wrapper");
     var width   = document.getElementById("content-wrapper").offsetWidth;
     var height  = document.getElementById("content-wrapper").offsetHeight;
-    jQuery("#timeline-wrapper svg").css('opacity', '0.2');
-    jQuery("#timeline-loader").css('height', '400px').show()
+    jQuery("#timeline-wrapper").addClass('loader');
+    jQuery("#timeline-wrapper svg").css('opacity', '0.15');
+    jQuery("#timeline-buttons .active").removeClass("active")
+    jQuery(".timeline-" + item_type).addClass("active")
     var jqxhr   = jQuery.get("/v3/articles/timeline/" + item_type, {
         "order_direction": "asc",
         "order":           "date",
@@ -134,21 +136,17 @@ function timeline_graph (item_type) {
                 height:  400,
             });
             // Apply wrapper styling.
-            wrapper.style.setProperty("border", "solid 2pt #f49120");
-            wrapper.style.setProperty("border-top", "solid .5em #f49120");
-            wrapper.style.setProperty("border-bottom", "solid .5em #f49120");
-            wrapper.style.setProperty("border-radius", "0em 0em .5em .5em");
-            wrapper.style.setProperty("margin", "0em");
-            wrapper.style.setProperty("width", "100%");
-            wrapper.style.setProperty("height", "400px");
+            //wrapper.style.setProperty("border", "solid 2pt #f49120");
+            //wrapper.style.setProperty("border-top", "solid .5em #f49120");
+            //wrapper.style.setProperty("border-bottom", "solid .5em #f49120");
+            //wrapper.style.setProperty("border-radius", "0em 0em .5em .5em");
+            //wrapper.style.setProperty("margin", "0em");
+            //wrapper.style.setProperty("width", "100%");
+            //wrapper.style.setProperty("height", "400px");
             // Add the SVG to the wrapper and update the tab bar.
             jQuery("#timeline-wrapper svg").remove()
+            jQuery("#timeline-wrapper").removeClass('loader');
             wrapper.append(plot);
-            jQuery("#timeline-wrapper svg").css('opacity', '1.0');
-            jQuery("#timeline-loader").hide();
-            jQuery("#timeline-buttons .active").removeClass("active")
-            jQuery(".timeline-" + item_type).addClass("active")
-            jQuery("#timeline-buttons").show()
         })
         .fail(function() {
             wrapper.append("<p>Could not load the timeline graph.</p>");
