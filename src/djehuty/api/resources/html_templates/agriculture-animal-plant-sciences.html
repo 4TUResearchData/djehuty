@@ -7,6 +7,7 @@
 {% endblock %}
 {% block body %}
 <h1>Agriculture, animal and plant sciences</h1>
+<div id="intro-text-loader" class="loader"></div>
 <div id="intro-text"></div>
 
 <div id="timeline-buttons" class="tabs">
@@ -16,7 +17,9 @@
     <li class="timeline-shares"><a href="#" onclick="timeline_graph('shares'); return false">Shares</a></li>
   </ul>
 </div>
-<div id="timeline-wrapper" class="d3-plot"></div>
+<div id="timeline-wrapper" class="d3-plot">
+  <div id="timeline-loader" class="loader"></div>
+</div>
 
 <h2>Top datasets</h2>
 <div id="top-buttons" class="tabs">
@@ -27,9 +30,11 @@
     <li class="top-cites"><a href="#" onclick="top_datasets('cites'); return false">Citations</a></li>
   </ul>
 </div>
+<div id="top-datasets-loader" class="loader"></div>
 <div id="top-datasets-wrapper"></div>
 
 <h2>Latest datasets</h2>
+<div id="latest-datasets-loader" class="loader"></div>
 <div id="latest-datasets"></div>
 
 {% endblock %}

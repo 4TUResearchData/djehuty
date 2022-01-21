@@ -13,6 +13,7 @@ function intro_text () {
                 data["articles"]                                           +
                 ' datasets for the agriculture, animal and plant sciences.';
 
+            jQuery("#intro-text-loader").hide();
             jQuery("#intro-text").append(output);
         })
         .fail(function() {
@@ -50,9 +51,11 @@ function latest_datasets () {
             });
 
             output += "</ul>";
+            jQuery("#latest-datasets-loader").hide();
             jQuery("#latest-datasets").append(output);
         })
         .fail(function() {
+            jQuery("#latest-datasets-loader").hide();
             jQuery("#latest-datasets").append("<p>Could not load the latest datasets.</p>");
         });
 }
@@ -79,13 +82,15 @@ function top_datasets (item_type) {
 
             output += "</tbody></table>";
             jQuery("#top-datasets").remove()
+            jQuery("#top-datasets-loader").hide();
             jQuery("#top-datasets-wrapper").append(output);
             jQuery("#top-buttons .active").removeClass("active")
             jQuery(".top-" + item_type).addClass("active")
             jQuery("#top-buttons").show();
         })
         .fail(function() {
-            jQuery("#top-downloaded").append("<p>Could not load the top downloaded datasets.</p>");
+            jQuery("#top-datasets-loader").hide();
+            jQuery("#top-datasets-wrapper").append("<p>Could not load the top datasets.</p>");
         });
 }
 
@@ -93,6 +98,8 @@ function timeline_graph (item_type) {
     var wrapper = document.getElementById("timeline-wrapper");
     var width   = document.getElementById("content-wrapper").offsetWidth;
     var height  = document.getElementById("content-wrapper").offsetHeight;
+    jQuery("#timeline-wrapper svg").css('opacity', '0.2');
+    jQuery("#timeline-loader").css('height', '400px').show()
     var jqxhr   = jQuery.get("/v3/articles/timeline/" + item_type, {
         "order_direction": "asc",
         "order":           "date",
@@ -137,6 +144,8 @@ function timeline_graph (item_type) {
             // Add the SVG to the wrapper and update the tab bar.
             jQuery("#timeline-wrapper svg").remove()
             wrapper.append(plot);
+            jQuery("#timeline-wrapper svg").css('opacity', '1.0');
+            jQuery("#timeline-loader").hide();
             jQuery("#timeline-buttons .active").removeClass("active")
             jQuery(".timeline-" + item_type).addClass("active")
             jQuery("#timeline-buttons").show()

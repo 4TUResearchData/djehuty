@@ -381,7 +381,7 @@ table {
     border-collapse: collapse;
 }
 
-.d3-plot { overflow: hidden; }
+.d3-plot { overflow: hidden; z-index: 50; }
 .tabs { display: none; }
 .tabs ul { margin: 0em; padding: 0em; }
 .tabs li {
@@ -397,3 +397,12 @@ table {
 }
 .tabs li.active { background: #f49120; }
 .tabs li.active a { color: #ffffff; text-decoration: none; }
+.loader {
+    display: block;
+    width: 100%;
+    height: 100px;
+    background-image: url('/static/images/loader.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 100;
+}
