@@ -226,6 +226,29 @@ class SparqlInterface:
 
         return self.__run_query (query, query)
 
+    def repository_statistics (self):
+        """Procedure to retrieve repository-wide statistics."""
+
+        query = self.__query_from_template ("repository_statistics", {
+            "state_graph":   self.state_graph,
+        })
+
+        query2 = self.__query_from_template ("repository_statistics_files", {
+            "state_graph":   self.state_graph,
+        })
+
+        row = None
+        try:
+            results  = self.__run_query (query, query)
+            results2 = self.__run_query (query2, query2)
+            row = { **results[0], **results2[0] }
+        except IndexError:
+            return None
+        except KeyError:
+            return None
+
+        return row
+
     def article_statistics (self, item_type="downloads",
                                   order="downloads",
                                   order_direction="desc",

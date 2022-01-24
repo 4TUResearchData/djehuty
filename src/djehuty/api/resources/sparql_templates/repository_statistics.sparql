@@ -1,0 +1,15 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT (COUNT(DISTINCT ?article_id) AS ?articles)
+       (COUNT(DISTINCT ?collection_id) AS ?collections)
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?article        rdf:type            sg:Article .
+    ?article        col:article_id      ?article_id .
+
+    ?collection     rdf:type            sg:Collection .
+    ?collection     col:collection_id   ?collection_id .
+  }
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}
