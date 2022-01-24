@@ -13,8 +13,12 @@ def main (address, port, state_graph, storage, base_url, use_debugger=False, use
         if base_url is not None:
             server.base_url = base_url
 
-        server.db.storage     = storage
-        server.db.state_graph = state_graph
+        server.db.storage       = storage
+        server.db.cache.storage = f"{storage}/cache"
+        server.db.state_graph   = state_graph
+        if not server.db.cache.cache_is_ready():
+            logging.error("Failed to set up cache layer.")
+
         server.db.load_state()
 
         logging.info("State graph set to:  %s.", server.db.state_graph)

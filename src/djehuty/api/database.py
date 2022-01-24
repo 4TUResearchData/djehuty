@@ -10,6 +10,7 @@ from urllib.error import URLError
 from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
 from rdflib import Graph, Literal, RDF, XSD
 from jinja2 import Environment, FileSystemLoader
+from djehuty.api import cache
 from djehuty.utils import counters
 from djehuty.utils import rdf
 from djehuty.utils import convenience as conv
@@ -29,6 +30,7 @@ class SparqlInterface:
         self.storage     = None
         self.endpoint    = "http://127.0.0.1:8890/sparql"
         self.state_graph = "https://data.4tu.nl/portal/self-test"
+        self.cache       = cache.CacheLayer(None)
         self.jinja       = Environment(loader = FileSystemLoader(
                             os.path.join(os.path.dirname(__file__),
                                          "resources/sparql_templates")),
@@ -87,7 +89,15 @@ class SparqlInterface:
         template = self.jinja.get_template (f"{name}.sparql")
         return template.render (args)
 
-    def __run_query (self, query):
+    def __run_query (self, query, cache_key_string=None):
+
+        cache_key = None
+        if cache_key_string is not None:
+            cache_key = self.cache.make_key (cache_key_string)
+            cached    = self.cache.cached_value(cache_key)
+            if cached is not None:
+                return cached
+
         self.sparql.method = 'POST'
         self.sparql.setQuery(query)
         results = []
@@ -95,6 +105,10 @@ class SparqlInterface:
             query_results = self.sparql.query().convert()
             results = list(map(self.__normalize_binding,
                                query_results["results"]["bindings"]))
+
+            if cache_key_string is not None:
+                self.cache.cache_value (cache_key, results)
+
         except URLError:
             logging.error("Connection to the SPARQL endpoint seems down.")
         except SPARQLExceptions.QueryBadFormed as error:
@@ -195,7 +209,7 @@ class SparqlInterface:
         query = self.__query_from_template ("articles", {
             "state_graph":   self.state_graph,
             "collection_id": collection_id,
-            "category_ids":  category_ids,
+            "category_ids":  sorted(category_ids),
             "account_id":    account_id,
             "filters":       filters,
             "return_count":  return_count
@@ -210,7 +224,7 @@ class SparqlInterface:
         if not return_count:
             query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
-        return self.__run_query (query)
+        return self.__run_query (query, query)
 
     def article_statistics (self, item_type="downloads",
                                   order="downloads",
@@ -231,14 +245,14 @@ class SparqlInterface:
 
         query   = self.__query_from_template ("article_statistics", {
             "state_graph":   self.state_graph,
-            "category_ids":  category_ids,
+            "category_ids":  sorted(category_ids),
             "item_type":     item_type,
             "prefix":        prefix,
             "filters":       filters
         })
 
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
-        return self.__run_query (query)
+        return self.__run_query (query, query)
 
     def article_statistics_timeline (self,
                                      article_id=None,
@@ -265,7 +279,7 @@ class SparqlInterface:
 
         query   = self.__query_from_template ("article_statistics_timeline", {
             "state_graph":   self.state_graph,
-            "category_ids":  category_ids,
+            "category_ids":  sorted(category_ids),
             "item_type":     item_type,
             "item_class":    item_class,
             "filters":       filters
@@ -273,7 +287,7 @@ class SparqlInterface:
 
         order = "article_id" if order is None else order
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
-        return self.__run_query (query)
+        return self.__run_query (query, query)
 
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
