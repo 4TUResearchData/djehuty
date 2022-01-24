@@ -2,6 +2,69 @@
 {% block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/portal.js"></script>
+<style>
+#portal-summary { padding: .5em .5em .5em 0em; text-align: center; margin: 0 auto; }
+#portal-summary table { text-align: left; display: inline-block; }
+#portal-summary table tbody tr:hover { opacity: 0.5; }
+#portal-summary table tbody td:nth-child(1) {
+    text-align: right;
+    font-size: 2em;
+    font-family: 'FiraMono', monospace;
+    padding-right: .5em;
+}
+#portal-summary table tbody td:nth-child(2) { border-left: solid 2pt #ccc; padding-left: 1em; }
+#portal-summary table tbody td { width: 220pt; }
+.tiles-wrapper { margin: auto auto 1em auto; min-width: 850pt; text-align: center; user-select: none; }
+.tiles { display: inline-block; list-style: none; margin: 0pt; padding: 0pt; }
+.tiles li table.tile { display: block; overflow: hidden; height: 160pt; }
+
+.tiles li table.institute-tile { display: block; overflow: hidden; height: 100pt !important; }
+
+.tiles li {
+    display: inline-block;
+    margin: 10pt 10pt auto auto;
+    overflow: hidden;
+    border: none;
+    -webkit-border-radius: 4pt;
+    -moz-border-radius: 4pt;
+    border-radius: 4pt;
+    box-shadow: 0pt 0pt 10pt #cccccc;
+}
+
+.tiles li:nth-child(5n) { margin: 20pt 0pt auto auto; }
+.tiles li table.tile tbody tr td.image {
+    margin: 0pt;
+    padding: 0pt;
+    width: 160pt;
+    max-width: 160pt;
+}
+.tile-row-text {
+    display: block;
+    margin: auto;
+    height: 50pt;
+    max-height: 50pt;
+    overflow: hidden;
+    border: none;
+}
+.tiles li table.tile tbody tr td.text {
+    display: table-cell;
+    margin: auto;
+    height: 50pt;
+    width: 160pt;
+    font-family: 'SourceSans', sans-serif;
+    font-size: 14pt;
+}
+.tiles li table.tile tbody tr td.text a { text-decoration: none; font-size: 13pt; }
+.tiles table { border-spacing: 0pt; padding: 0pt; border-collapse: collapse; }
+.tiles .tile:hover { opacity: 0.9; cursor: pointer; }
+.tiles table td { background-color: #ffffff; padding: 0pt; }
+.tiles table tr { background-color: #ffffff; }
+.tiles li table.institute-tile:hover { opacity: 0.5 !important; cursor: pointer; }
+.tiles li table.institute-tile tbody tr td.image img { width: 150pt; }
+.h1-suffix { font-size: 0.6em; }
+.h1-suffix a { text-transform: uppercase; text-decoration: none; color: #808080; }
+.h1-suffix a:hover { color: #505050; }
+</style>
 {% endblock %}
 {% block body %}
 <h1>Subjects <span class="h1-suffix">[<a href="https://data.4tu.nl/category">All</a>]</span></h1>

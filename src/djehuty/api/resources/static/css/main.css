@@ -301,58 +301,6 @@ img.cts { width: 120px; }
 .fa-search::before { content: "\f002"; }
 .fa-empty::before {}
 
-/* Portal page */
-.tiles-wrapper { margin: auto auto 1em auto; min-width: 850pt; text-align: center; user-select: none; }
-.tiles { display: inline-block; list-style: none; margin: 0pt; padding: 0pt; }
-.tiles li table.tile { display: block; overflow: hidden; height: 160pt; }
-
-.tiles li table.institute-tile { display: block; overflow: hidden; height: 100pt !important; }
-
-.tiles li {
-    display: inline-block;
-    margin: 10pt 10pt auto auto;
-    overflow: hidden;
-    border: none;
-    -webkit-border-radius: 4pt;
-    -moz-border-radius: 4pt;
-    border-radius: 4pt;
-    box-shadow: 0pt 0pt 10pt #cccccc;
-}
-
-.tiles li:nth-child(5n) { margin: 20pt 0pt auto auto; }
-.tiles li table.tile tbody tr td.image {
-    margin: 0pt;
-    padding: 0pt;
-    width: 160pt;
-    max-width: 160pt;
-}
-.tile-row-text {
-    display: block;
-    margin: auto;
-    height: 50pt;
-    max-height: 50pt;
-    overflow: hidden;
-    border: none;
-}
-.tiles li table.tile tbody tr td.text {
-    display: table-cell;
-    margin: auto;
-    height: 50pt;
-    width: 160pt;
-    font-family: 'SourceSans', sans-serif;
-    font-size: 14pt;
-}
-.tiles li table.tile tbody tr td.text a { text-decoration: none; font-size: 13pt; }
-.tiles table { border-spacing: 0pt; padding: 0pt; border-collapse: collapse; }
-.tiles .tile:hover { opacity: 0.9; cursor: pointer; }
-.tiles table td { background-color: #ffffff; padding: 0pt; }
-.tiles table tr { background-color: #ffffff; }
-.tiles li table.institute-tile:hover { opacity: 0.5 !important; cursor: pointer; }
-.tiles li table.institute-tile tbody tr td.image img { width: 150pt; }
-.h1-suffix { font-size: 0.6em; }
-.h1-suffix a { text-transform: uppercase; text-decoration: none; color: #808080; }
-.h1-suffix a:hover { color: #505050; }
-
 ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; font-size: 13pt; }
 .datasets-stage-one, .datasets-stage-one a { color: rgba(208,104,0,1.0); }
 .datasets-stage-two, .datasets-stage-two a { color: rgba(178,104,30,0.967); }
@@ -361,57 +309,4 @@ ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; fo
 .datasets-stage-five, .datasets-stage-five a { color: rgba(0,104,208,0.6); }
 .datasets-stage a:hover { color: #000000; }
 
-#top-datasets th { text-align: left; white-space: nowrap; color: #ffffff; padding: .5em; }
-#top-datasets-wrapper table { width: 100%; max-width: 880pt; border: solid 2pt #f49120; }
-#top-datasets thead tr { background: #f49120; }
-#top-datasets tbody tr td { padding: .5em; z-index: 50; }
-#top-datasets tbody tr:nth-child(odd) { background: #fafafa; }
-#top-datasets tbody tr td:last-child { text-align: right; width: 130pt; }
-#top-datasets thead tr th:last-child { text-align: right; }
-#top-datasets tbody tr td:nth-child(1) {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    max-width: 750pt;
-}
-#top-datasets td { text-align: left; }
-table {
-    border:none;
-    border-spacing: 0pt;
-    border-collapse: collapse;
-}
-
-.d3-plot { overflow: hidden; z-index: 50; }
-.tabs ul { margin: 0em; padding: 0em; }
-.tabs li {
-    display: inline-block;
-    list-style-type: none;
-    text-decoration: none;
-    color: #000000;
-    font-size: 12pt;
-    padding: .5em 1em .5em 1em;
-    margin: 0pt 5pt 0pt 0pt;
-    user-select: none;
-    border-radius: .5em .5em 0em 0em;
-}
-.tabs li.active { background: #f49120; }
-.tabs li.active a { color: #ffffff; text-decoration: none; }
-.loader {
-    display: block;
-    width: 100%;
-    min-height: 100px;
-    background-color: rgba(255, 255, 255, 0.5);
-    background-image: url('/static/images/loader.svg');
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: 100;
-}
-#timeline-wrapper {
-    border: solid 2pt #f49120;
-    border-top: solid .5em #f49120;
-    border-bottom: solid .5em #f49120;
-    border-radius: 0em 0em .5em .5em;
-    margin: 0em;
-    width: 100%;
-    height: 400px;
-}
+table { border-collapse: collapse; }

@@ -4,6 +4,62 @@
 <script src="/static/js/d3.v7.min.js"></script>
 <script src="/static/js/d3-extras.js"></script>
 <script src="/static/js/agriculture-animal-plant-sciences.js"></script>
+<style>
+#top-datasets th { text-align: left; white-space: nowrap; color: #ffffff; padding: .5em; }
+#top-datasets-wrapper table { width: 100%; max-width: 880pt; border: solid 2pt #f49120; }
+#top-datasets thead tr { background: #f49120; }
+#top-datasets tbody tr td { padding: .5em; z-index: 50; }
+#top-datasets tbody tr:nth-child(odd) { background: #fafafa; }
+#top-datasets tbody tr td:last-child { text-align: right; width: 130pt; }
+#top-datasets thead tr th:last-child { text-align: right; }
+#top-datasets tbody tr td:nth-child(1) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 750pt;
+}
+#top-datasets td { text-align: left; }
+table {
+    border:none;
+    border-spacing: 0pt;
+    border-collapse: collapse;
+}
+
+.d3-plot { overflow: hidden; z-index: 50; }
+.tabs ul { margin: 0em; padding: 0em; }
+.tabs li {
+    display: inline-block;
+    list-style-type: none;
+    text-decoration: none;
+    color: #000000;
+    font-size: 12pt;
+    padding: .5em .75em .5em .75em;
+    margin: 0pt 5pt 0pt 0pt;
+    user-select: none;
+    border-radius: .5em .5em 0em 0em;
+}
+.tabs li.active { background: #f49120; }
+.tabs li.active a { color: #ffffff; text-decoration: none; }
+.loader {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+    background-color: rgba(255, 255, 255, 0.5);
+    background-image: url('/static/images/loader.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 100;
+}
+#timeline-wrapper {
+    border: solid 2pt #f49120;
+    border-top: solid .5em #f49120;
+    border-bottom: solid .5em #f49120;
+    border-radius: 0em 0em .5em .5em;
+    margin: 0em;
+    width: 100%;
+    height: 400px;
+}
+</style>
 {% endblock %}
 {% block body %}
 <h1>Agriculture, animal and plant sciences</h1>
