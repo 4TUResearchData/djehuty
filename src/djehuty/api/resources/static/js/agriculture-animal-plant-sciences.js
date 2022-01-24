@@ -135,14 +135,6 @@ function timeline_graph (item_type) {
                 width:   (width - 30),
                 height:  400,
             });
-            // Apply wrapper styling.
-            //wrapper.style.setProperty("border", "solid 2pt #f49120");
-            //wrapper.style.setProperty("border-top", "solid .5em #f49120");
-            //wrapper.style.setProperty("border-bottom", "solid .5em #f49120");
-            //wrapper.style.setProperty("border-radius", "0em 0em .5em .5em");
-            //wrapper.style.setProperty("margin", "0em");
-            //wrapper.style.setProperty("width", "100%");
-            //wrapper.style.setProperty("height", "400px");
             // Add the SVG to the wrapper and update the tab bar.
             jQuery("#timeline-wrapper svg").remove()
             jQuery("#timeline-wrapper").removeClass('loader');
