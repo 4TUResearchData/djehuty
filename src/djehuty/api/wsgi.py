@@ -362,7 +362,10 @@ class ApiServer:
 
     def api_portal (self, request):
         if self.accepts_html (request):
-            return self.__render_template ("portal.html", base_url=self.base_url)
+            summary_data = self.db.repository_statistics()
+            return self.__render_template ("portal.html",
+                                           base_url=self.base_url,
+                                           summary_data=summary_data)
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."

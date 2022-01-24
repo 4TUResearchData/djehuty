@@ -67,6 +67,17 @@
 </style>
 {% endblock %}
 {% block body %}
+<h1>Summary</h1>
+<div id="portal-summary">
+  <table>
+    <tbody>
+      <tr><td>{{summary_data["articles"]}}</td><td>articles</td></tr>
+      <tr><td>{{summary_data["collections"]}}</td><td>collections</td></tr>
+      <tr><td>{{summary_data["files"]}}</td><td>files</td></tr>
+      <tr><td>{{summary_data["bytes"]}}</td><td>bytes</td></tr>
+    </tbody>
+  </table>
+</div>
 <h1>Subjects <span class="h1-suffix">[<a href="https://data.4tu.nl/category">All</a>]</span></h1>
 <div class="tiles-wrapper">
   <ul class="tiles">
