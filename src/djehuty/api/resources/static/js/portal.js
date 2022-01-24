@@ -34,5 +34,4 @@ jQuery(document).ready(function() {
         .fail(function() {
             jQuery("#latest-datasets").append("<p>Could not load the latest datasets.</p>");
         });
-    jQuery("#latest-datasets").append("<ul>");
 });
