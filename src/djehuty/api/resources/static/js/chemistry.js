@@ -149,5 +149,5 @@ jQuery(document).ready(function() {
     intro_text();
     top_datasets("downloads");
     latest_datasets();
-    //timeline_graph("downloads");
+    timeline_graph("downloads");
 });
