@@ -209,7 +209,7 @@ class SparqlInterface:
         query = self.__query_from_template ("articles", {
             "state_graph":   self.state_graph,
             "collection_id": collection_id,
-            "category_ids":  sorted(category_ids),
+            "category_ids":  category_ids,
             "account_id":    account_id,
             "filters":       filters,
             "return_count":  return_count
@@ -268,7 +268,7 @@ class SparqlInterface:
 
         query   = self.__query_from_template ("article_statistics", {
             "state_graph":   self.state_graph,
-            "category_ids":  sorted(category_ids),
+            "category_ids":  category_ids,
             "item_type":     item_type,
             "prefix":        prefix,
             "filters":       filters
@@ -302,7 +302,7 @@ class SparqlInterface:
 
         query   = self.__query_from_template ("article_statistics_timeline", {
             "state_graph":   self.state_graph,
-            "category_ids":  sorted(category_ids),
+            "category_ids":  category_ids,
             "item_type":     item_type,
             "item_class":    item_class,
             "filters":       filters
