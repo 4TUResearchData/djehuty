@@ -1453,9 +1453,9 @@ class ApiServer:
 
 
     def api_private_collection_details (self, request, collection_id):
-        handler = self.default_error_handling (request, "GET")
-        if handler is not None:
-            return handler
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
 
         ## Authorization
         ## ----------------------------------------------------------------
@@ -1463,31 +1463,37 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        try:
-            collection    = self.db.collections(collection_id = collection_id,
-                                                account_id    = account_id,
-                                                limit         = 1)[0]
-            fundings      = self.db.fundings(item_id=collection_id, item_type="collection")
-            categories    = self.db.categories(item_id=collection_id, item_type="collection")
-            references    = self.db.references(item_id=collection_id, item_type="collection")
-            custom_fields = self.db.custom_fields(item_id=collection_id, item_type="collection")
-            tags          = self.db.tags(item_id=collection_id, item_type="collection")
-            authors       = self.db.authors(item_id=collection_id, item_type="collection")
-            total         = formatter.format_collection_details_record (collection,
-                                                                        fundings,
-                                                                        categories,
-                                                                        references,
-                                                                        tags,
-                                                                        authors,
-                                                                        custom_fields)
-            return self.response (json.dumps(total))
+        if request.method == 'GET':
+            try:
+                collection    = self.db.collections(collection_id = collection_id,
+                                                    account_id    = account_id,
+                                                    limit         = 1)[0]
+                fundings      = self.db.fundings(item_id=collection_id, item_type="collection")
+                categories    = self.db.categories(item_id=collection_id, item_type="collection")
+                references    = self.db.references(item_id=collection_id, item_type="collection")
+                custom_fields = self.db.custom_fields(item_id=collection_id, item_type="collection")
+                tags          = self.db.tags(item_id=collection_id, item_type="collection")
+                authors       = self.db.authors(item_id=collection_id, item_type="collection")
+                total         = formatter.format_collection_details_record (collection,
+                                                                            fundings,
+                                                                            categories,
+                                                                            references,
+                                                                            tags,
+                                                                            authors,
+                                                                            custom_fields)
+                return self.response (json.dumps(total))
 
-        except IndexError:
-            response = self.response (json.dumps({
-                "message": "This collection cannot be found."
-            }))
-            response.status_code = 404
-            return response
+            except IndexError:
+                response = self.response (json.dumps({
+                    "message": "This collection cannot be found."
+                }))
+                response.status_code = 404
+                return response
+
+        if request.method == 'DELETE':
+            if self.db.delete_collection (collection_id, account_id):
+                return self.respond_204()
+            return self.error_500 ()
 
     def api_private_collections_search (self, request):
         handler = self.default_error_handling (request, "POST")
