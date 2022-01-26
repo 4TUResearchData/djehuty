@@ -10,8 +10,7 @@ function intro_text () {
     })
         .done(function(data) {
             output = '<p>The 4TU.ResearchData repository contains '        +
-                data["articles"]                                           +
-                ' datasets for the agriculture, animal and plant sciences.';
+                data["articles"] + ' chemistry datasets.';
 
             jQuery("#intro-text-loader").hide();
             jQuery("#intro-text").append(output);
