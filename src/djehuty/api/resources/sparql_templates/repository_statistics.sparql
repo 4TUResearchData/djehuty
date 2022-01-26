@@ -6,9 +6,11 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?article        rdf:type            sg:Article .
     ?article        col:article_id      ?article_id .
+    ?article        col:is_public       1 .
 
     ?collection     rdf:type            sg:Collection .
     ?collection     col:collection_id   ?collection_id .
+    ?collection     col:is_public       1 .
   }
 {% if filters is not none %}{{ filters }}{% endif %}
 }
