@@ -1411,7 +1411,7 @@ class ApiServer:
 
             try:
                 timeline   = validator.object_value (record, "timeline", False)
-                article_id = self.db.insert_collection (
+                collection_id = self.db.insert_collection (
                     title                   = validator.string_value  (record, "title",            3, 1000,       True),
                     account_id              = account_id,
                     funding                 = validator.string_value  (record, "funding",          0, 255,        False),
@@ -1443,7 +1443,7 @@ class ApiServer:
                     revision                = validator.string_value (timeline, "revision",                       False))
 
                 return self.response(json.dumps({
-                    "location": f"http://{self.address}:{self.port}/v2/account/articles/{article_id}",
+                    "location": f"http://{self.address}:{self.port}/v2/account/collections/{collection_id}",
                     "warnings": []
                 }))
             except validator.ValidationException as error:
