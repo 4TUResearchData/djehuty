@@ -1442,6 +1442,9 @@ class ApiServer:
                     posted                  = validator.string_value (timeline, "posted",                         False),
                     revision                = validator.string_value (timeline, "revision",                       False))
 
+                if collection_id is None:
+                    return self.error_500 ()
+
                 return self.response(json.dumps({
                     "location": f"http://{self.address}:{self.port}/v2/account/collections/{collection_id}",
                     "warnings": []
