@@ -1406,14 +1406,6 @@ class SparqlInterface:
         for article_id in articles:
             self.insert_collection_article (collection_id, article_id)
 
-        ## LICENSE
-        ## --------------------------------------------------------------------
-        # Note: The license_id is also stored as a column in the collection.
-        self.insert_license (
-            license_id = license_id,
-            name       = conv.value_or_none (license, "name"),
-            url        = conv.value_or_none (license, "url"))
-
         ## AUTHORS
         ## --------------------------------------------------------------------
         for author in authors:
@@ -1429,24 +1421,6 @@ class SparqlInterface:
                 url_name       = conv.value_or_none (author, "url_name"),
                 orcid_id       = conv.value_or_none (author, "orcid_id"))
             self.insert_collection_author (collection_id, author_id)
-
-        ## FILES
-        ## --------------------------------------------------------------------
-        for file_data in files:
-            file_id = self.insert_file (
-                file_id       = conv.value_or_none (file_data, "id"),
-                name          = conv.value_or_none (file_data, "name"),
-                size          = conv.value_or_none (file_data, "size"),
-                is_link_only  = conv.value_or_none (file_data, "is_link_only"),
-                download_url  = conv.value_or_none (file_data, "download_url"),
-                supplied_md5  = conv.value_or_none (file_data, "supplied_md5"),
-                computed_md5  = conv.value_or_none (file_data, "computed_md5"),
-                viewer_type   = conv.value_or_none (file_data, "viewer_type"),
-                preview_state = conv.value_or_none (file_data, "preview_state"),
-                status        = conv.value_or_none (file_data, "status"),
-                upload_url    = conv.value_or_none (file_data, "upload_url"),
-                upload_token  = conv.value_or_none (file_data, "upload_token"))
-            self.insert_collection_file (collection_id, file_id)
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
@@ -1484,9 +1458,7 @@ class SparqlInterface:
 
         rdf.add (graph, collection_uri, rdf.COL["account_id"],     account_id)
         rdf.add (graph, collection_uri, rdf.COL["description"],    description,    XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["defined_type"],   defined_type,   XSD.string)
         rdf.add (graph, collection_uri, rdf.COL["funding"],        funding,        XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["license_id"],     license_id)
         rdf.add (graph, collection_uri, rdf.COL["doi"],            doi,            XSD.string)
         rdf.add (graph, collection_uri, rdf.COL["handle"],         handle,         XSD.string)
         rdf.add (graph, collection_uri, rdf.COL["resource_doi"],   resource_doi,   XSD.string)
