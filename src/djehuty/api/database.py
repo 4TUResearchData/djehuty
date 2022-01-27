@@ -616,7 +616,7 @@ class SparqlInterface:
         if article_id is None:
             article_id = self.ids.next_id("article")
 
-        article_uri = rdf.ROW[str(article_id)]
+        article_uri = rdf.ROW[f"article_{article_id}"]
 
         ## TIMELINE
         ## --------------------------------------------------------------------
@@ -780,7 +780,7 @@ class SparqlInterface:
         if account_id is None:
             account_id = self.ids.next_id("account")
 
-        account_uri = rdf.ROW[str(account_id)]
+        account_uri = rdf.ROW[f"account_{account_id}"]
 
         graph.add ((account_uri, RDF.type,      rdf.SG["Account"]))
         graph.add ((account_uri, rdf.COL["id"], Literal(account_id)))
@@ -814,7 +814,7 @@ class SparqlInterface:
         if institution_id is None:
             institution_id = self.ids.next_id("institution")
 
-        institution_uri = rdf.ROW[str(institution_id)]
+        institution_uri = rdf.ROW[f"institution_{institution_id}"]
 
         graph.add ((institution_uri, RDF.type,      rdf.SG["Institution"]))
         graph.add ((institution_uri, rdf.COL["id"], Literal(institution_id)))
@@ -838,7 +838,7 @@ class SparqlInterface:
         if author_id is None:
             author_id = self.ids.next_id("author")
 
-        author_uri = rdf.ROW[str(author_id)]
+        author_uri = rdf.ROW[f"author_{author_id}"]
 
         graph.add ((author_uri, RDF.type,      rdf.SG["Author"]))
         graph.add ((author_uri, rdf.COL["id"], Literal(author_id)))
@@ -879,7 +879,7 @@ class SparqlInterface:
 
         graph        = Graph()
         timeline_id  = self.ids.next_id("timeline")
-        timeline_uri = rdf.ROW[str(timeline_id)]
+        timeline_uri = rdf.ROW[f"timeline_{timeline_id}"]
 
         graph.add ((timeline_uri, RDF.type,      rdf.SG["Timeline"]))
         graph.add ((timeline_uri, rdf.COL["id"], Literal(timeline_id)))
@@ -906,7 +906,7 @@ class SparqlInterface:
         if category_id is None:
             category_id = self.ids.next_id("category")
 
-        category_uri = rdf.ROW[str(category_id)]
+        category_uri = rdf.ROW[f"category_{category_id}"]
 
         graph.add ((category_uri, RDF.type,      rdf.SG["Category"]))
         graph.add ((category_uri, rdf.COL["id"], Literal(category_id)))
@@ -928,7 +928,7 @@ class SparqlInterface:
         graph = Graph()
 
         link_id  = self.ids.next_id("article_category")
-        link_uri = rdf.ROW[str(category_id)]
+        link_uri = rdf.ROW[f"article_category_link_{link_id}"]
 
         graph.add ((link_uri, RDF.type,               rdf.SG["ArticleCategory"]))
         graph.add ((link_uri, rdf.COL["id"],          Literal(link_id)))
@@ -948,7 +948,7 @@ class SparqlInterface:
 
         prefix = item_type.capitalize()
         link_id  = self.ids.next_id(f"{item_type}_author")
-        link_uri = rdf.ROW[str(author_id)]
+        link_uri = rdf.ROW[f"{item_type}_author_link_{link_id}"]
 
         graph.add ((link_uri, RDF.type,                   rdf.SG[f"{prefix}Author"]))
         graph.add ((link_uri, rdf.COL["id"],              Literal(link_id)))
@@ -975,7 +975,7 @@ class SparqlInterface:
         graph = Graph()
 
         link_id  = self.ids.next_id("article_file")
-        link_uri = rdf.ROW[str(file_id)]
+        link_uri = rdf.ROW[f"article_file_link_{link_id}"]
 
         graph.add ((link_uri, RDF.type,              rdf.SG["ArticleFile"]))
         graph.add ((link_uri, rdf.COL["id"],         Literal(link_id)))
@@ -1018,7 +1018,7 @@ class SparqlInterface:
         prefix  = item_type.capitalize()
         graph   = Graph()
         tag_id  = self.ids.next_id("tag")
-        tag_uri = rdf.ROW[str(tag_id)]
+        tag_uri = rdf.ROW[f"tag_{tag_id}"]
 
         graph.add ((tag_uri, RDF.type,                   rdf.SG[f"{prefix}Tag"]))
         graph.add ((tag_uri, rdf.COL["id"],              Literal(tag_id)))
@@ -1038,7 +1038,7 @@ class SparqlInterface:
         prefix        = item_type.capitalize()
         graph         = Graph()
         reference_id  = self.ids.next_id("reference")
-        reference_uri = rdf.ROW[str(item_id)]
+        reference_uri = rdf.ROW[f"reference_{reference_id}"]
 
         graph.add ((reference_uri, RDF.type,                   rdf.SG[f"{prefix}Reference"]))
         graph.add ((reference_uri, rdf.COL["id"],              Literal(reference_id)))
@@ -1053,13 +1053,16 @@ class SparqlInterface:
 
     def insert_funding (self, title=None, grant_code=None, funder_name=None,
                         is_user_defined=None, url=None, item_id=None,
-                        item_type=None):
+                        item_type=None, funding_id=None):
         """Procedure to add an funding to the state graph."""
 
         prefix      = item_type.capitalize()
         graph       = Graph()
-        funding_id  = self.ids.next_id("funding")
-        funding_uri = rdf.ROW[str(item_id)]
+
+        if funding_id is None:
+            funding_id  = self.ids.next_id("funding")
+
+        funding_uri = rdf.ROW[f"funding_{funding_id}"]
 
         graph.add ((funding_uri, RDF.type,                   rdf.SG[f"{prefix}Funding"]))
         graph.add ((funding_uri, rdf.COL["id"],              Literal(funding_id)))
@@ -1085,7 +1088,7 @@ class SparqlInterface:
 
         graph    = Graph()
         file_id  = self.ids.next_id("file")
-        file_uri = rdf.ROW[str(file_id)]
+        file_uri = rdf.ROW[f"file_{file_id}"]
 
         graph.add ((file_uri, RDF.type,               rdf.SG["File"]))
         graph.add ((file_uri, rdf.COL["id"],          Literal(file_id)))
@@ -1112,7 +1115,7 @@ class SparqlInterface:
         """Procedure to add an license to the state graph."""
 
         graph    = Graph()
-        license_uri = rdf.ROW[str(license_id)]
+        license_uri = rdf.ROW[f"license_{license_id}"]
 
         graph.add ((license_uri, RDF.type,               rdf.SG["License"]))
         graph.add ((license_uri, rdf.COL["id"],          Literal(license_id)))
@@ -1138,7 +1141,7 @@ class SparqlInterface:
 
         prefix   = item_type.capitalize()
         graph    = Graph()
-        link_uri = rdf.ROW[str(id_string)]
+        link_uri = rdf.ROW[f"private_link_{id_string}"]
 
         graph.add ((link_uri, RDF.type,      rdf.SG[f"{prefix}PrivateLink"]))
         graph.add ((link_uri, rdf.COL["id"], Literal(private_link_id)))
@@ -1159,7 +1162,7 @@ class SparqlInterface:
         """Procedure to add an license to the state graph."""
 
         graph    = Graph()
-        embargo_uri = rdf.ROW[str(embargo_id)]
+        embargo_uri = rdf.ROW[f"embargo_{embargo_id}"]
 
         graph.add ((embargo_uri, RDF.type,               rdf.SG["ArticleEmbargoOption"]))
         graph.add ((embargo_uri, rdf.COL["id"],          Literal(embargo_id)))
@@ -1184,7 +1187,7 @@ class SparqlInterface:
         prefix           = item_type.capitalize()
         graph            = Graph()
         custom_field_id  = self.ids.next_id("custom_field")
-        custom_field_uri = rdf.ROW[str(custom_field_id)]
+        custom_field_uri = rdf.ROW[f"custom_field_{custom_field_id}"]
 
         graph.add ((custom_field_uri, RDF.type,                   rdf.SG[f"{prefix}CustomField"]))
         graph.add ((custom_field_uri, rdf.COL["id"],              Literal(custom_field_id)))
@@ -1329,7 +1332,7 @@ class SparqlInterface:
         if collection_id is None:
             collection_id = self.ids.next_id("collection")
 
-        collection_uri = rdf.ROW[str(collection_id)]
+        collection_uri = rdf.ROW[f"collection_{collection_id}"]
 
         ## TIMELINE
         ## --------------------------------------------------------------------
@@ -1358,6 +1361,7 @@ class SparqlInterface:
         ## --------------------------------------------------------------------
         for fund in funding_list:
             self.insert_funding (
+                funding_id      = conv.value_or_none (fund, "id"),
                 title           = conv.value_or_none (fund, "title"),
                 grant_code      = conv.value_or_none (fund, "grant_code"),
                 funder_name     = conv.value_or_none (fund, "funder_name"),
