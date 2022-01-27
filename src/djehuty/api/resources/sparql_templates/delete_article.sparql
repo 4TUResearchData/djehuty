@@ -1,6 +1,5 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-{self.default_prefixes}
 DELETE {
   GRAPH <{{state_graph}}> {
     ?article  ?predicate     ?object .
