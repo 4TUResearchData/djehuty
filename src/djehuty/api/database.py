@@ -1334,7 +1334,7 @@ class SparqlInterface:
                            posted=None,
                            revision=None,
                            private_links=None):
-        """Procedure to insert an collection to the state graph."""
+        """Procedure to insert a collection to the state graph."""
 
         funding_list            = [] if funding_list            is None else funding_list
         tags                    = [] if tags                    is None else tags
@@ -1346,7 +1346,6 @@ class SparqlInterface:
         custom_fields_list      = [] if custom_fields_list      is None else custom_fields_list
         private_links           = [] if private_links           is None else private_links
         articles                = [] if articles                is None else articles
-        embargo_options         = [] if embargo_options         is None else embargo_options
 
         graph = Graph()
 
@@ -1402,14 +1401,10 @@ class SparqlInterface:
                 taxonomy    = conv.value_or_none (category, "taxonomy"))
             self.insert_collection_category (collection_id, category_id)
 
-        ## EMBARGOS
+        ## ARTICLES
         ## --------------------------------------------------------------------
-        for embargo in embargo_options:
-            self.insert_embargo (
-                embargo_id   = conv.value_or_none (embargo, "id"),
-                collection_id   = collection_id,
-                embargo_type = conv.value_or_none (embargo, "type"),
-                ip_name      = conv.value_or_none (embargo, "ip_name"))
+        for article_id in articles:
+            self.insert_collection_article (collection_id, article_id)
 
         ## LICENSE
         ## --------------------------------------------------------------------
