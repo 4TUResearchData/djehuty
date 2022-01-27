@@ -1293,10 +1293,10 @@ class SparqlInterface:
         link_id  = self.ids.next_id("collection_article")
         link_uri = rdf.ROW[f"collection_article_{link_id}"]
 
-        graph.add ((funding_uri, RDF.type,                   rdf.SG[f"CollectionArticle"]))
-        graph.add ((funding_uri, rdf.COL["id"],              Literal(link_id)))
-        graph.add ((funding_uri, rdf.COL[f"collection_id"], Literal(collection_id)))
-        graph.add ((funding_uri, rdf.COL[f"article_id"], Literal(article_id)))
+        graph.add ((link_uri, RDF.type,                  rdf.SG[f"CollectionArticle"]))
+        graph.add ((link_uri, rdf.COL["id"],             Literal(link_id)))
+        graph.add ((link_uri, rdf.COL[f"collection_id"], Literal(collection_id)))
+        graph.add ((link_uri, rdf.COL[f"article_id"],    Literal(article_id)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
