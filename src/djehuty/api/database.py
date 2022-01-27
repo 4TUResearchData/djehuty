@@ -1343,6 +1343,7 @@ class SparqlInterface:
                            custom_fields_list=None,
                            doi=None,
                            handle=None,
+                           url=None,
                            resource_id=None,
                            resource_doi=None,
                            resource_link=None,
@@ -1483,6 +1484,7 @@ class SparqlInterface:
         rdf.add (graph, collection_uri, rdf.COL["funding"],        funding,        XSD.string)
         rdf.add (graph, collection_uri, rdf.COL["doi"],            doi,            XSD.string)
         rdf.add (graph, collection_uri, rdf.COL["handle"],         handle,         XSD.string)
+        rdf.add (graph, collection_uri, rdf.COL["url"],            url,            XSD.string)
         rdf.add (graph, collection_uri, rdf.COL["resource_doi"],   resource_doi,   XSD.string)
         rdf.add (graph, collection_uri, rdf.COL["resource_title"], resource_title, XSD.string)
         rdf.add (graph, collection_uri, rdf.COL["group_id"],       group_id)

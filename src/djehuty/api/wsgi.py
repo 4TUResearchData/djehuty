@@ -1428,6 +1428,7 @@ class ApiServer:
                     custom_fields_list      = validator.object_value  (record, "custom_fields_list",              False),
                     doi                     = validator.string_value  (record, "doi",              0, 255,        False),
                     handle                  = validator.string_value  (record, "handle",           0, 255,        False),
+                    url                     = validator.string_value  (record, "url",              0, 512,        False),
                     resource_id             = validator.string_value  (record, "resource_id",      0, 255,        False),
                     resource_doi            = validator.string_value  (record, "resource_doi",     0, 255,        False),
                     resource_link           = validator.string_value  (record, "resource_link",    0, 255,        False),
