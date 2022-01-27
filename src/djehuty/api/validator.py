@@ -165,7 +165,7 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None, req
                 message = f"Expected a string for '{field_name}'.",
                 code    = "WrongValueType")
 
-    if index_exists (value, maximum_length):
+    if maximum_length is not None and index_exists (value, maximum_length):
         raise ValueTooLong(
             message = f"The value for '{field_name}' is longer than {maximum_length}.",
             code    = "ValueTooLong")
