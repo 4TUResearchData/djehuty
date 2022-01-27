@@ -2,7 +2,7 @@
 {% block query %}
 SELECT DISTINCT ?account_id ?resource_id ?resource_doi ?resource_title
                 ?resource_link ?resource_version ?version ?description
-                ?institution_id ?group_id ?articles_count ?is_public
+                ?institution_id ?group_id ?is_public
                 ?citation ?group_resource_id ?custom_fields_id ?modified_date
                 ?created_date ?timeline_posted ?timeline_publisher_acceptance
                 ?timeline_publisher_publication ?timeline_first_online
@@ -36,7 +36,6 @@ WHERE {
     OPTIONAL { ?collection   col:description          ?description . }
     OPTIONAL { ?collection   col:institution_id       ?institution_id . }
     OPTIONAL { ?collection   col:group_id             ?group_id . }
-    OPTIONAL { ?collection   col:articles_count       ?articles_count . }
     OPTIONAL { ?collection   col:is_public            ?is_public . }
     OPTIONAL { ?collection   col:citation             ?citation . }
     OPTIONAL { ?collection   col:group_resource_id    ?group_resource_id . }

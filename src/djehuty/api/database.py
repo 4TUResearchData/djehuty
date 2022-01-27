@@ -491,6 +491,28 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query)
 
+    ## This procedure exists because the 'articles' procedure will only
+    ## count articles that are either public, or were published using the
+    ## same account_id as the collection.
+    ##
+    ## So to get the actual count, this separate procedure exists.
+    def collections_article_count (self, collection_id):
+        """Procedure to count the articles in a collection."""
+
+        if collection_id is None:
+            return 0
+
+        query = self.__query_from_template ("collection_articles_count", {
+            "state_graph":    self.state_graph,
+            "collection_id":  collection_id
+        })
+        results = self.__run_query (query)
+
+        try:
+            return results[0]["articles"]
+        except KeyError:
+            return 0
+
     def collections (self, limit=10, offset=None, order=None,
                      order_direction=None, institution=None,
                      published_since=None, modified_since=None, group=None,

@@ -201,7 +201,8 @@ def format_collection_record (record):
     }
 
 def format_collection_details_record (collection, funding, categories,
-                                      references, tags, authors, custom_fields):
+                                      references, tags, authors, custom_fields,
+                                      articles_count):
     return {
         "version":           conv.value_or_none(collection, "version"),
         "resource_id":       conv.value_or(collection, "resource_id", ""),
@@ -218,7 +219,7 @@ def format_collection_details_record (collection, funding, categories,
         "institution_id":    conv.value_or_none(collection, "institution_id"),
         "group_id":          conv.value_or_none(collection, "group_id"),
         "group_resource_id": conv.value_or_none(collection, "group_resource_id"),
-        "articles_count":    conv.value_or_none(collection, "articles_count"),
+        "articles_count":    0 if articles_count is None else articles_count,
         "public":            bool(conv.value_or_none(collection, "is_public")),
         "custom_fields":     list (map (format_custom_field_record, custom_fields)),
         "citation":          conv.value_or_none(collection, "citation"),
