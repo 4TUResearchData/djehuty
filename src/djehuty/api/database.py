@@ -461,7 +461,6 @@ class SparqlInterface:
     def private_links (self, item_id=None, item_type="article", account_id=None, id_string=None):
 
         prefix  = item_type.capitalize()
-        filters = rdf.sparql_filter (f"{item_type}_id", item_id)
         query   = self.__query_from_template ("private_links", {
             "state_graph": self.state_graph,
             "prefix":      prefix,
