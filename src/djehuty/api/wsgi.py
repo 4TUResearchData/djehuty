@@ -1503,7 +1503,8 @@ class ApiServer:
         if request.method == 'DELETE':
             if self.db.delete_collection (collection_id, account_id):
                 return self.respond_204()
-            return self.error_500 ()
+
+        return self.error_500 ()
 
     def api_private_collections_search (self, request):
         handler = self.default_error_handling (request, "POST")
