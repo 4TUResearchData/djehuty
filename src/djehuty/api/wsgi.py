@@ -1726,7 +1726,7 @@ class ApiServer:
             if record["categories"] is not None:
                 record["categories"] = record["categories"].split(",")
                 validator.array_value   (record, "categories")
-                for index, category_id in enumerate(record["categories"]):
+                for index, _ in enumerate(record["categories"]):
                     record["categories"][index] = validator.integer_value (record["categories"], index)
 
         except validator.ValidationException as error:
@@ -1776,7 +1776,7 @@ class ApiServer:
         if record["categories"] is not None:
             record["categories"] = record["categories"].split(",")
             validator.array_value   (record, "categories")
-            for index, category_id in enumerate(record["categories"]):
+            for index, _ in enumerate(record["categories"]):
                 record["categories"][index] = validator.integer_value (record["categories"], index)
 
         return record
