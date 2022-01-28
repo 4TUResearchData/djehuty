@@ -16,8 +16,8 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
     endpoint.stats_auth     = base64.b64encode(figshare_stats_auth.encode('ascii')).decode('ascii')
     endpoint.institution_id = 898
 
-    db = database.DatabaseInterface()
-    connected = db.connect(db_host, db_username, db_password, db_name)
+    relational_database = database.DatabaseInterface()
+    connected = relational_database.connect(db_host, db_username, db_password, db_name)
 
     if not connected:
         logging.error("Cannot establish a connection to the MySQL server.")
@@ -30,30 +30,30 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
     collections_written = 0
     collections_failed  = 0
     for account in accounts:
-        db.insert_account (account)
+        relational_database.insert_account (account)
 
         articles = endpoint.get_articles_by_account (account["id"])
         for article in articles:
-            if db.insert_article (article):
+            if relational_database.insert_article (article):
                 articles_written += 1
             else:
                 articles_failed  += 1
 
             versions = conv.value_or (article, "versions", [])
             for version in versions:
-                if not db.insert_article (version):
+                if not relational_database.insert_article (version):
                     logging.error("Inserting a version of {article['id']} failed.")
 
         collections = endpoint.get_collections_by_account (account["id"])
         for collection in collections:
-            if db.insert_collection (collection, account["id"]):
+            if relational_database.insert_collection (collection, account["id"]):
                 collections_written += 1
             else:
                 collections_failed += 1
 
             versions = conv.value_or (collection, "versions", [])
             for version in versions:
-                if not db.insert_collection (version, account["id"]):
+                if not relational_database.insert_collection (version, account["id"]):
                     logging.error("Inserting a version of {collection['id']} failed.")
 
     logging.info("Succesfully processed %d articles.", articles_written)
