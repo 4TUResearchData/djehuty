@@ -1409,8 +1409,8 @@ class SparqlInterface:
 
         ## REFERENCES
         ## --------------------------------------------------------------------
-        for url in references:
-            self.insert_reference (url, item_id=collection_id, item_type="collection")
+        for reference in references:
+            self.insert_reference (reference, item_id=collection_id, item_type="collection")
 
         ## TAGS
         ## --------------------------------------------------------------------
