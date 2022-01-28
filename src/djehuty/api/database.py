@@ -953,24 +953,32 @@ class SparqlInterface:
 
         return None
 
-    def insert_article_category (self, article_id, category_id):
-        """Procedure to add a link between an article and a category."""
+    def insert_item_category (self, item_id, category_id, item_type="article"):
+        """Procedure to add a link between an article or collection and a category."""
 
-        graph = Graph()
+        prefix   = item_type.capitalize()
+        graph    = Graph()
+        link_id  = self.ids.next_id(f"{item_type}_category")
+        link_uri = rdf.ROW[f"{item_type}_category_link_{link_id}"]
 
-        link_id  = self.ids.next_id("article_category")
-        link_uri = rdf.ROW[f"article_category_link_{link_id}"]
-
-        graph.add ((link_uri, RDF.type,               rdf.SG["ArticleCategory"]))
-        graph.add ((link_uri, rdf.COL["id"],          Literal(link_id)))
-        graph.add ((link_uri, rdf.COL["category_id"], Literal(category_id)))
-        graph.add ((link_uri, rdf.COL["article_id"],  Literal(article_id)))
+        graph.add ((link_uri, RDF.type,                   rdf.SG[f"{prefix}Category"]))
+        graph.add ((link_uri, rdf.COL["id"],              Literal(link_id)))
+        graph.add ((link_uri, rdf.COL["category_id"],     Literal(category_id)))
+        graph.add ((link_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return link_id
 
         return None
+
+    def insert_article_category (self, article_id, category_id):
+        """Procedure to add a link between an article and a category."""
+        return self.insert_item_category (article_id, category_id, "article")
+
+    def insert_collection_category (self, collection_id, category_id):
+        """Procedure to add a link between a collection and a category."""
+        return self.insert_item_category (collection_id, category_id, "collection")
 
     def insert_author_link (self, author_id, item_id, item_type="article"):
         """Procedure to add a link to an author."""
