@@ -1297,6 +1297,7 @@ class ApiServer:
 
         try:
             collection    = self.db.collections(collection_id=collection_id, limit=1)[0]
+            articles_count= self.db.collections_article_count(collection_id=collection_id)
             fundings      = self.db.fundings(item_id=collection_id, item_type="collection")
             categories    = self.db.categories(item_id=collection_id, item_type="collection")
             references    = self.db.references(item_id=collection_id, item_type="collection")
@@ -1309,7 +1310,8 @@ class ApiServer:
                                                                         references,
                                                                         tags,
                                                                         authors,
-                                                                        custom_fields)
+                                                                        custom_fields,
+                                                                        articles_count)
             return self.response (json.dumps(total))
 
         except IndexError:
@@ -1338,6 +1340,7 @@ class ApiServer:
 
         try:
             collection    = self.db.collections(collection_id=collection_id, limit=1, version=version)[0]
+            articles_count= self.db.collections_article_count(collection_id=collection_id)
             fundings      = self.db.fundings(item_id=collection_id, item_type="collection")
             categories    = self.db.categories(item_id=collection_id, item_type="collection")
             references    = self.db.references(item_id=collection_id, item_type="collection")
@@ -1350,7 +1353,8 @@ class ApiServer:
                                                                         references,
                                                                         tags,
                                                                         authors,
-                                                                        custom_fields)
+                                                                        custom_fields,
+                                                                        articles_count)
             return self.response (json.dumps(total))
         except IndexError:
             response = self.response (json.dumps({
