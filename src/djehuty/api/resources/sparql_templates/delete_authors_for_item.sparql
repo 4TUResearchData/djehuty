@@ -1,0 +1,28 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?row     rdf:type       sg:{{prefix}}Author .
+    ?row     col:id         ?row_id .
+    ?row     col:{{item_type}}_id ?item_id .
+    ?row     col:author_id  ?author_id .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?row     rdf:type             sg:{{prefix}}Author .
+    ?row     col:id               ?row_id .
+    ?row     col:{{item_type}}_id ?item_id .
+    ?row     col:author_id        ?author_id .
+
+    ?item    rdf:type             sg:{{prefix}} .
+    ?item    col:{{item_type}}_id ?item_id .
+    ?item    col:account_id       ?account_id .
+  }
+  FILTER (?item_id = {{item_id}})
+  FILTER (?account_id = {{account_id}})
+  {% if author_id is not none %}
+  FILTER (?author_id = {{author_id}})
+  {% endif %}
+}
+{% endblock %}
