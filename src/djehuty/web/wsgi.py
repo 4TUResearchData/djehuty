@@ -11,9 +11,9 @@ from werkzeug.routing import Map, Rule
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound
 from jinja2 import Environment, FileSystemLoader
-from djehuty.api import validator
-from djehuty.api import formatter
-from djehuty.api import database
+from djehuty.web import validator
+from djehuty.web import formatter
+from djehuty.web import database
 from djehuty.utils import convenience
 
 class Account(NamedTuple):

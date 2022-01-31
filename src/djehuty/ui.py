@@ -7,7 +7,7 @@ import sys
 import logging
 
 import djehuty.backup.ui as backup_ui
-import djehuty.api.ui as api_ui
+import djehuty.web.ui as web_ui
 
 def show_version ():
     """Show the program's version."""
@@ -29,9 +29,9 @@ Available subcommands and options:
     --db-username=ARG    -u The database username to use.
     --db-password=ARG    -p The database password to use.
 
-  api:
+  web:
     --help               -h Show a help message.
-    --port=ARG           -p The port to start the API server on.
+    --port=ARG           -p The port to start the web server on.
     --address=ARG        -a The address to bind the server on.
     --state-graph        -s The state graph in the RDF store.
     --storage            -S The storage path backing the API.
@@ -53,7 +53,7 @@ def main ():
     ## COMMAND-LINE ARGUMENTS
     ## ------------------------------------------------------------------------
     parser = argparse.ArgumentParser(
-        usage    = '\n  %(prog)s [backup|api] ...',
+        usage    = '\n  %(prog)s [backup|web] ...',
         prog     = 'djehuty',
         add_help = False)
 
@@ -69,16 +69,16 @@ def main ():
     backup_parser.add_argument('--db-username', '-u', type=str, default='')
     backup_parser.add_argument('--db-password', '-p', type=str, default='')
 
-    ### API SUBCOMMAND
+    ### WEB SUBCOMMAND
     ### -----------------------------------------------------------------------
-    api_parser = subparsers.add_parser('api', help="Options for the 'api' subcommand.")
-    api_parser.add_argument('--address',    '-a', type=str, default='127.0.0.1')
-    api_parser.add_argument('--port',       '-p', type=int, default=8080)
-    api_parser.add_argument('--state-graph','-s', type=str, default='https://data.4tu.nl/portal')
-    api_parser.add_argument('--storage',    '-S', type=str, default=None)
-    api_parser.add_argument('--base-url',   '-b', type=str, default=None)
-    api_parser.add_argument('--debug',      '-d', action='store_true')
-    api_parser.add_argument('--dev-reload', '-r', action='store_true')
+    web_parser = subparsers.add_parser('web', help="Options for the 'web' subcommand.")
+    web_parser.add_argument('--address',    '-a', type=str, default='127.0.0.1')
+    web_parser.add_argument('--port',       '-p', type=int, default=8080)
+    web_parser.add_argument('--state-graph','-s', type=str, default='https://data.4tu.nl/portal')
+    web_parser.add_argument('--storage',    '-S', type=str, default=None)
+    web_parser.add_argument('--base-url',   '-b', type=str, default=None)
+    web_parser.add_argument('--debug',      '-d', action='store_true')
+    web_parser.add_argument('--dev-reload', '-r', action='store_true')
 
     ### GLOBAL ARGUMENTS
     ### -----------------------------------------------------------------------
@@ -101,8 +101,8 @@ def main ():
             backup_ui.main (args.token, args.stats_auth, args.db_host,
                             args.db_username, args.db_password, args.db_name)
 
-    if args.command == "api":
-        api_ui.main (args.address, args.port, args.state_graph, args.storage,
+    if args.command == "web":
+        web_ui.main (args.address, args.port, args.state_graph, args.storage,
                      args.base_url, args.debug, args.dev_reload)
 
     elif len(sys.argv) == 1:

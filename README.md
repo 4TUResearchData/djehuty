@@ -20,7 +20,7 @@ pip install -r requirements.txt
 To get an interactive development environment, use:
 ```python
 pip install --editable .
-djehuty api -d -r
+djehuty web -d -r
 ```
 
 ## Deploy
@@ -29,12 +29,12 @@ Create a portable executable with:
 
 ```bash
 pip install pyinstaller
-pyinstaller -s -F --onefile --add-data "src/djehuty/api/resources:djehuty/api/resources" main.py -n djehuty
+pyinstaller -s -F --onefile --add-data "src/djehuty/web/resources:djehuty/web/resources" main.py -n djehuty
 ```
 
 On Windows, use:
 
 ```bash
 pip install pyinstaller
-pyinstaller -F --onefile --add-data "src/djehuty/api/resources;djehuty/api/resources" main.py -n djehuty
+pyinstaller -F --onefile --add-data "src/djehuty/web/resources;djehuty/web/resources" main.py -n djehuty
 ```

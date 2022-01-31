@@ -1,12 +1,12 @@
-"""This module contains the command-line interface for the 'api' subcommand."""
+"""This module contains the command-line interface for the 'web' subcommand."""
 
 import logging
 from werkzeug.serving import run_simple
-from djehuty.api import database
-from djehuty.api import wsgi
+from djehuty.web import database
+from djehuty.web import wsgi
 
 def main (address, port, state_graph, storage, base_url, use_debugger=False, use_reloader=False):
-    """The main entry point for the 'api' subcommand."""
+    """The main entry point for the 'web' subcommand."""
     try:
         server = wsgi.ApiServer (address, port)
 

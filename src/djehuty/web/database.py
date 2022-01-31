@@ -10,7 +10,7 @@ from urllib.error import URLError
 from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
 from rdflib import Graph, Literal, RDF, XSD
 from jinja2 import Environment, FileSystemLoader
-from djehuty.api import cache
+from djehuty.web import cache
 from djehuty.utils import counters
 from djehuty.utils import rdf
 from djehuty.utils import convenience as conv
