@@ -57,6 +57,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             Rule("/",                                         endpoint = "home"),
             Rule("/portal",                                   endpoint = "portal"),
+            Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/agriculture-animal-plant-sciences",        endpoint = "agriculture_animal_plant_sciences"),
             Rule("/chemistry",                                endpoint = "chemistry"),
 
@@ -367,6 +368,19 @@ class ApiServer:
             return self.__render_template ("portal.html",
                                            base_url=self.base_url,
                                            summary_data=summary_data)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_categories (self, request, category_id):
+        if self.accepts_html (request):
+            category = self.db.category_by_id (category_id)
+            articles = self.db.articles (category_ids=[category_id], limit=100)
+            return self.__render_template ("category.html",
+                                           base_url=self.base_url,
+                                           articles=articles,
+                                           category=category)
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."

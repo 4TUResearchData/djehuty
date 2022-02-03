@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/d3.v7.min.js"></script>
+<script src="/static/js/d3-extras.js"></script>
+<script src="/static/js/portal.js"></script>
+<style>
+.tile-item {
+    display: inline-block;
+    margin: 20pt 20pt 0pt 0pt;
+    padding: 10pt;
+    width: 160pt;
+    border-radius: 10pt;
+    cursor: pointer;
+    background: #f9f9f9;
+}
+.tile-item:hover {
+    background: #eeeeee;
+}
+.tile-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 150pt;
+    height: 4em;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+.tile-preview {
+    overflow: hidden;
+    width: 100%;
+    height: 130pt;
+    margin: 0 auto;
+    user-select: none;
+}
+.tile-title a:hover {
+    color: #df7e0e;
+}
+</style>
+{% endblock %}
+{% block body %}
+<h1>{{category.title}}</h1>
+{% for item in articles %}
+<div class="tile-item">
+  {% if item.thumb | length: %}
+  <img class="tile-preview" src="{{item.thumb}}" aria-hidden="true" alt="thumbnail icon" />
+  {% else: %}
+  <img class="tile-preview" src="/static/images/dataset-thumb.svg" aria-hidden="true" alt="thumbnail icon" />
+  {% endif %}
+  <div class="tile-title"><a href="{{item.url_public_html}}">{{item.title}}</a></div>
+  <div class="tile-date">Posted on {{item.timeline_posted}}</div>
+  <div class="tile-authors">
+  </div>
+</div>
+{% endfor %}
+{% endblock %}
