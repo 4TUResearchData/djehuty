@@ -188,9 +188,9 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("citation",       search_for,   escape=True)
 
         if category_ids is not None:
-            filters += f"FILTER (?category_id={category_ids[0]}"
+            filters += f"FILTER (?category_id={category_ids[0]} OR ?parent_category_id={category_ids[0]}"
             for category_id in category_ids[1:]:
-                filters += f" OR ?category_id={category_id}"
+                filters += f" OR ?category_id={category_id} OR ?parent_category_id={category_ids[0]}"
             filters += ")\n"
 
         if published_since is not None:

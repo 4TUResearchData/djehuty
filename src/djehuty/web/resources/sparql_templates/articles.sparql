@@ -37,6 +37,10 @@ WHERE {
     ?category_link      rdf:type                 sg:ArticleCategory .
     ?category_link      col:category_id          ?category_id .
     ?category_link      col:article_id           ?id .
+
+    ?category           rdf:type                 sg:Category .
+    ?category           col:id                   ?category_id .
+    ?category           col:parent_id            ?parent_category_id .
     {% endif %}
     OPTIONAL {
         ?timeline           rdf:type                 sg:Timeline .
