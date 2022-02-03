@@ -1523,3 +1523,17 @@ class SparqlInterface:
         })
 
         return self.__run_query(query)
+
+    def category_by_id (self, category_id):
+        """Procedure to return category information by its identifier."""
+
+        query = self.__query_from_template ("category_by_id", {
+            "state_graph": self.state_graph,
+            "category_id": category_id
+        })
+
+        try:
+            results = self.__run_query (query)
+            return results[0]
+        except IndexError:
+            return None
