@@ -1537,3 +1537,13 @@ class SparqlInterface:
             return results[0]
         except IndexError:
             return None
+
+    def subcategories_for_category (self, category_id):
+        """Procedure to return the subcategories for a category."""
+
+        query = self.__query_from_template ("subcategories_by_category", {
+            "state_graph": self.state_graph,
+            "category_id": category_id
+        })
+
+        return self.__run_query (query, query)
