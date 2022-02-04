@@ -1533,7 +1533,7 @@ class SparqlInterface:
         })
 
         try:
-            results = self.__run_query (query)
+            results = self.__run_query (query, query)
             return results[0]
         except IndexError:
             return None
