@@ -309,4 +309,8 @@ ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; fo
 .datasets-stage-five, .datasets-stage-five a { color: rgba(0,104,208,0.6); }
 .datasets-stage a:hover { color: #000000; }
 
-table { border-collapse: collapse; }
+table {
+    border:none;
+    border-spacing: 0pt;
+    border-collapse: collapse;
+}
