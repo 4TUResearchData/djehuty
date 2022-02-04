@@ -1547,3 +1547,14 @@ class SparqlInterface:
         })
 
         return self.__run_query (query, query)
+
+    def root_categories (self):
+        """Procedure to return the categories without a parent category."""
+
+        query = self.__query_from_template ("root_categories", {
+            "state_graph": self.state_graph
+        })
+
+        query += rdf.sparql_suffix ("title", "asc")
+        logging.info("Query:\n---\n%s\n---", query)
+        return self.__run_query (query, query)
