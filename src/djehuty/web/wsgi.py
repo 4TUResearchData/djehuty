@@ -375,13 +375,15 @@ class ApiServer:
 
     def api_categories (self, request, category_id):
         if self.accepts_html (request):
-            category = self.db.category_by_id (category_id)
-            articles = self.db.articles (category_ids=[category_id], limit=100)
+            category      = self.db.category_by_id (category_id)
+            subcategories = self.db.subcategories_for_category (category_id)
+            articles      = self.db.articles (category_ids=[category_id], limit=100)
+
             return self.__render_template ("categories.html",
                                            base_url=self.base_url,
                                            articles=articles,
-                                           category=category)
-
+                                           category=category,
+                                           subcategories=subcategories)
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
         }))
