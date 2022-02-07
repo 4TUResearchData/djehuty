@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block headers %}
 <script>
-var categories = [{{category.id}}{% for item in subcategories: %}, {{item.id}}{% endfor %}];
+var categories = "{% for item in subcategories: %}{{item.id}}{{ ',' if not loop.last else '' }}{% endfor %}";
 </script>
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/ranking.js"></script>
