@@ -86,6 +86,11 @@ def main ():
     parser.add_argument('--help',    '-h', action='store_true')
     parser.add_argument('--version', '-v', action='store_true')
 
+    # When using PyInstaller, argv[0] seems to get duplicated.
+    # This bit de-duplicates argv[0] in that case.
+    if sys.argv[0] == sys.argv[1]:
+        sys.argv = sys.argv[1:]
+
     args = parser.parse_args()
     if args.help:
         show_help()
