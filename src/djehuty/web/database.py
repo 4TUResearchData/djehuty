@@ -1556,5 +1556,4 @@ class SparqlInterface:
         })
 
         query += rdf.sparql_suffix ("title", "asc")
-        logging.info("Query:\n---\n%s\n---", query)
         return self.__run_query (query, query)
