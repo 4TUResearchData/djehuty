@@ -1573,3 +1573,52 @@ class SparqlInterface:
             return None
         except KeyError:
             return None
+
+    def account_by_session_token (self, session_token):
+        """Returns an account_id or None."""
+
+        query = self.__query_from_template ("account_by_session_token", {
+            "state_graph": self.state_graph,
+            "token":       session_token
+        })
+
+        try:
+            results = self.__run_query (query)
+            return results[0]
+        except IndexError:
+            return None
+
+    def insert_session (self, account_id, token=None):
+        """Procedure to add a session token for an account_id."""
+
+        if account_id is None:
+            return False
+
+        if token is None:
+            token = secrets.token_hex (64)
+
+        graph       = Graph()
+        link_id     = self.ids.next_id("session")
+        link_uri    = rdf.ROW[f"session_link_{link_id}"]
+        graph.add ((link_uri, RDF.type,              rdf.SG["Session"]))
+        graph.add ((link_uri, rdf.COL["account_id"], Literal(account_id)))
+        graph.add ((link_uri, rdf.COL["token"],      Literal(token, datatype=XSD.string)))
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return token
+
+        return None
+
+    def delete_session (self, token):
+        """Procedure to remove a session from the state graph."""
+
+        if token is None:
+            return True
+
+        query   = self.__query_from_template ("delete_session", {
+            "state_graph": self.state_graph,
+            "token":       token
+        })
+
+        return self.__run_query(query)

@@ -1,0 +1,17 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?session  ?predicate     ?object .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?session    rdf:type     sg:Session .
+    ?session    col:token    ?token .
+    ?session    ?predicate   ?object .
+
+    FILTER (?token = "{{token}}"^^xsd:string)
+  }
+}
+{% endblock %}
