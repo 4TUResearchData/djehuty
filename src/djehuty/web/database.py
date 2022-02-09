@@ -1602,6 +1602,7 @@ class SparqlInterface:
         link_uri    = rdf.ROW[f"session_link_{link_id}"]
         graph.add ((link_uri, RDF.type,              rdf.SG["Session"]))
         graph.add ((link_uri, rdf.COL["account_id"], Literal(account_id)))
+        graph.add ((link_uri, rdf.COL["id"],         Literal(link_id)))
         graph.add ((link_uri, rdf.COL["token"],      Literal(token, datatype=XSD.string)))
 
         query = self.__insert_query_for_graph (graph)
