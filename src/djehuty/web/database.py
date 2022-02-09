@@ -1567,7 +1567,7 @@ class SparqlInterface:
         })
 
         try:
-            results = self.__run_query (query, query)
+            results = self.__run_query (query)
             return results[0]["account_id"]
         except IndexError:
             return None
