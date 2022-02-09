@@ -1,0 +1,11 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?account_id
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?row             rdf:type                 sg:AccountOrcid .
+    ?row             col:account_id           ?account_id .
+    ?row             col:orcid_uri            <{{orcid}}> .
+  }
+}
+{% endblock %}

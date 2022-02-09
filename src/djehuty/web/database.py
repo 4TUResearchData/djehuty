@@ -1557,3 +1557,19 @@ class SparqlInterface:
 
         query += rdf.sparql_suffix ("title", "asc")
         return self.__run_query (query, query)
+
+    def account_id_by_orcid (self, orcid):
+        """Returns the account ID belonging to an ORCID."""
+
+        query = self.__query_from_template ("account_id_by_orcid", {
+            "state_graph": self.state_graph,
+            "orcid":       orcid
+        })
+
+        try:
+            results = self.__run_query (query, query)
+            return results[0]["account_id"]
+        except IndexError:
+            return None
+        except KeyError:
+            return None
