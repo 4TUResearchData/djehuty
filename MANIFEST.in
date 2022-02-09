@@ -1,1 +1,2 @@
 include sql/Database.sql
+include rpmbuild/SPECS/djehuty.spec

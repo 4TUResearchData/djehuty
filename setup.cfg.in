@@ -1,6 +1,6 @@
 [metadata]
 name = djehuty
-version = 0.0.1
+version = @VERSION@
 author = Roel Janssen
 author_email = r.r.e.janssen@tudelft.nl
 description =
