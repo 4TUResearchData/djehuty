@@ -15,7 +15,7 @@ cd /path/to/the/repository/checkout/root
 pip install -r requirements.txt
 ```
 
-### Working on the API server
+### Interactive development
 
 To get an interactive development environment, use:
 ```python
@@ -24,6 +24,8 @@ djehuty web -d -r
 ```
 
 ## Deploy
+
+### PyInstaller
 
 Create a portable executable with:
 
@@ -38,3 +40,15 @@ On Windows, use:
 pip install pyinstaller
 pyinstaller -F --onefile --add-data "src/djehuty/web/resources;djehuty/web/resources" main.py -n djehuty
 ```
+
+### Build RPMs
+
+Building RPMs can be done via the Autotools scripts:
+
+```bash
+autoreconf -vif
+./configure
+make dist-rpm
+```
+
+The RPMs will be available under `rpmbuild/RPMS/noarch`.
