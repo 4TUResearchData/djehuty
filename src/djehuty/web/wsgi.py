@@ -156,9 +156,12 @@ class ApiServer:
     def __call__ (self, environ, start_response):
         return self.wsgi (environ, start_response)
 
-    def __render_template (self, template_name, **context):
-        template = self.jinja.get_template (template_name)
-        return self.response (template.render(context),
+    def __render_template (self, request, template_name, **context):
+        template      = self.jinja.get_template (template_name)
+        parameters    = {
+            "base_url":        self.base_url,
+        }
+        return self.response (template.render({ **context, **parameters }),
                               mimetype='text/html; charset=utf-8')
 
     def __dispatch_request (self, request):
@@ -198,7 +201,7 @@ class ApiServer:
     def error_403 (self, request):
         response = None
         if self.accepts_html (request):
-            response = self.__render_template ("403.html")
+            response = self.__render_template (request, "403.html")
         else:
             response = self.response (json.dumps({
                 "message": "Not allowed."
@@ -209,7 +212,7 @@ class ApiServer:
     def error_404 (self, request):
         response = None
         if self.accepts_html (request):
-            response = self.__render_template ("404.html")
+            response = self.__render_template (request, "404.html")
         else:
             response = self.response (json.dumps({
                 "message": "This call does not exist."
@@ -406,8 +409,7 @@ class ApiServer:
     def api_portal (self, request):
         if self.accepts_html (request):
             summary_data = self.db.repository_statistics()
-            return self.__render_template ("portal.html",
-                                           base_url=self.base_url,
+            return self.__render_template (request, "portal.html",
                                            summary_data=summary_data)
 
         return self.response (json.dumps({
@@ -420,8 +422,7 @@ class ApiServer:
             subcategories = self.db.subcategories_for_category (category_id)
             articles      = self.db.articles (category_ids=[category_id], limit=100)
 
-            return self.__render_template ("categories.html",
-                                           base_url=self.base_url,
+            return self.__render_template (request, "categories.html",
                                            articles=articles,
                                            category=category,
                                            subcategories=subcategories)
@@ -437,8 +438,7 @@ class ApiServer:
                 category_id = category["id"]
                 category["articles"] = self.db.articles (category_ids=[category_id], limit=5)
 
-            return self.__render_template ("category.html",
-                                           base_url=self.base_url,
+            return self.__render_template (request, "category.html",
                                            categories=categories)
 
         return self.response (json.dumps({
@@ -447,7 +447,7 @@ class ApiServer:
 
     def api_agriculture_animal_plant_sciences (self, request):
         if self.accepts_html (request):
-            return self.__render_template ("agriculture-animal-plant-sciences.html", base_url=self.base_url)
+            return self.__render_template (request, "agriculture-animal-plant-sciences.html")
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
@@ -455,7 +455,7 @@ class ApiServer:
 
     def api_chemistry (self, request):
         if self.accepts_html (request):
-            return self.__render_template ("chemistry.html", base_url=self.base_url)
+            return self.__render_template (request, "chemistry.html")
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
