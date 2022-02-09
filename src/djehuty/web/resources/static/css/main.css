@@ -88,21 +88,23 @@ body,html {
 #header-left  {  display: block; height: 100px; text-align: left; }
 #header-middle { display: block; height: 100px; text-align: center; }
 #header-right {  display: block; height: 100px; text-align: right; }
-#login-button {
+.button {
     margin: 25px 25px auto auto;
     display: inline-block;
     padding: .5em 1em .5em 1em;
     border-radius: 1.5em;
     text-transform: uppercase;
-    background: #f39000;
-    color: #ffffff;
     font-size: 14pt;
-    user-select: none;
-}
-#login-button:hover {
-    background: #d26000;
-    cursor: pointer;
-}
+    user-select: none;}
+#login-button { background: #f39000; color: #ffffff; }
+#login-button:hover { background: #d26000; cursor: pointer; }
+#login-button a { color: #ffffff; text-decoration: none; }
+#dashboard-button { background: #111111; color: #ffffff; }
+#dashboard-button:hover { background: #333333; cursor: pointer; }
+#dashboard-button a { color: #ffffff; text-decoration: none; }
+#logout-button { margin: 25px auto auto auto; color: #cc0000; }
+#logout-button:hover { color: #ff0000; cursor: pointer; }
+
 #logo { height: 60px; }
 #site-navigation {
     border-bottom: solid 1px #dddddd;

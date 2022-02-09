@@ -33,6 +33,7 @@ class ApiServer:
         self.port             = port
         self.base_url         = f"http://{self.address}:{self.port}"
         self.db               = database.SparqlInterface()
+        self.cookie_key       = "djehuty_session"
 
         self.orcid_client_id     = None
         self.orcid_client_secret = None
@@ -61,6 +62,9 @@ class ApiServer:
             ## UI
             ## ----------------------------------------------------------------
             Rule("/",                                         endpoint = "home"),
+            Rule("/login",                                    endpoint = "login"),
+            Rule("/logout",                                   endpoint = "logout"),
+            Rule("/dashboard",                                endpoint = "dashboard"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
@@ -158,8 +162,11 @@ class ApiServer:
 
     def __render_template (self, request, template_name, **context):
         template      = self.jinja.get_template (template_name)
+        is_logged_in  = self.db.is_logged_in (self.token_from_cookie (request))
         parameters    = {
             "base_url":        self.base_url,
+            "orcid_client_id": self.orcid_client_id,
+            "is_logged_in":    is_logged_in
         }
         return self.response (template.render({ **context, **parameters }),
                               mimetype='text/html; charset=utf-8')
@@ -179,6 +186,12 @@ class ApiServer:
         request  = Request(environ)
         response = self.__dispatch_request(request)
         return response(environ, start_response)
+
+    def token_from_cookie (self, request):
+        try:
+            return request.cookies[self.cookie_key]
+        except KeyError:
+            return None
 
     def start (self):
         run_simple (self.address,
@@ -405,6 +418,52 @@ class ApiServer:
             return redirect ("/portal", code=301)
 
         return self.response (json.dumps({ "status": "OK" }))
+
+    def api_login (self, request):
+        orcid_record = self.authenticate_using_orcid (request)
+        if orcid_record is None:
+            return self.error_403 (request)
+
+        orcid_uri = f"https://orcid.org/{orcid_record['orcid']}"
+        if self.accepts_html (request):
+            response   = redirect ("/dashboard", code=302)
+            account_id = self.db.account_id_by_orcid (orcid_uri)
+
+            # XXX: We could create an account for an unknown ORCID.
+            #      Here we limit the system to known ORCID users.
+            if account_id is None:
+                return self.error_403 (request)
+
+            token = self.db.insert_session (account_id)
+            response.set_cookie (key=self.cookie_key, value=token)
+            return response
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_logout (self, request):
+        if self.accepts_html (request):
+            response   = redirect ("/", code=302)
+            self.db.delete_session (self.token_from_cookie (request))
+            response.delete_cookie (key=self.cookie_key)
+            return response
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_dashboard (self, request):
+        if self.accepts_html (request):
+            token = self.token_from_cookie (request)
+            if self.db.is_depositor (token):
+                return self.__render_template (request, "depositor/dashboard.html")
+            else:
+                return self.error_404 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
 
     def api_portal (self, request):
         if self.accepts_html (request):
