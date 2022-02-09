@@ -3,6 +3,7 @@
 import os.path
 import logging
 import json
+import requests
 from typing import NamedTuple
 from werkzeug.utils import redirect
 from werkzeug.wrappers import Request, Response
@@ -32,6 +33,10 @@ class ApiServer:
         self.port             = port
         self.base_url         = f"http://{self.address}:{self.port}"
         self.db               = database.SparqlInterface()
+
+        self.orcid_client_id     = None
+        self.orcid_client_secret = None
+        self.orcid_endpoint      = None
 
         ## This is a temporary predefined set of tokens to test the private
         ## articles functionality.
@@ -252,6 +257,41 @@ class ApiServer:
         output                   = Response(content, mimetype=mimetype)
         output.headers["Server"] = "4TU.ResearchData API"
         return output
+
+
+    ## AUTHENTICATION HANDLERS
+    ## ------------------------------------------------------------------------
+
+    def authenticate_using_orcid (self, request):
+        """Returns a record upon success, None upon failure."""
+
+        record = { "code": self.get_parameter (request, "code") }
+        try:
+            validator.string_value (record, "code", 0, 10, required=True)
+            url_parameters = {
+                "client_id":     self.orcid_client_id,
+                "client_secret": self.orcid_client_secret,
+                "grant_type":    "authorization_code",
+                "redirect_uri":  f"{self.base_url}/login",
+                "code":          record["code"]
+            }
+            headers = {
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+            response = requests.post(f"{self.orcid_endpoint}/token",
+                                     params  = url_parameters,
+                                     headers = headers)
+
+            if response.status_code == 200:
+                return response.json()
+
+            logging.error("ORCID response was %d", response.status_code)
+            return None
+
+        except validator.ValidationException as error:
+            logging.error("ORCID parameter validation error")
+            return None
 
     ## CONVENIENCE PROCEDURES
     ## ------------------------------------------------------------------------
