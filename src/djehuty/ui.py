@@ -72,11 +72,12 @@ def main ():
     ### WEB SUBCOMMAND
     ### -----------------------------------------------------------------------
     web_parser = subparsers.add_parser('web', help="Options for the 'web' subcommand.")
-    web_parser.add_argument('--address',    '-a', type=str, default='127.0.0.1')
-    web_parser.add_argument('--port',       '-p', type=int, default=8080)
-    web_parser.add_argument('--state-graph','-s', type=str, default='https://data.4tu.nl/portal')
+    web_parser.add_argument('--address',    '-a', type=str, default=None)
+    web_parser.add_argument('--port',       '-p', type=int, default=None)
+    web_parser.add_argument('--state-graph','-s', type=str, default=None)
     web_parser.add_argument('--storage',    '-S', type=str, default=None)
     web_parser.add_argument('--base-url',   '-b', type=str, default=None)
+    web_parser.add_argument('--config-file','-c', type=str, default=None)
     web_parser.add_argument('--debug',      '-d', action='store_true')
     web_parser.add_argument('--dev-reload', '-r', action='store_true')
 
@@ -103,7 +104,7 @@ def main ():
 
     if args.command == "web":
         web_ui.main (args.address, args.port, args.state_graph, args.storage,
-                     args.base_url, args.debug, args.dev_reload)
+                     args.base_url, args.config_file, args.debug, args.dev_reload)
 
     elif len(sys.argv) == 1:
         print("Try --help for usage options.")
