@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<djehuty>
+  <bind-address>127.0.0.1</bind-address>
+  <port>8080</port>
+  <base-url>http://localhost:8080</base-url>
+  <storage-root>/data</storage-root>
+  <live-reload>1</live-reload>
+  <debug-mode>1</debug-mode>
+  <rdf-store>
+    <sparql-uri>http://localhost:8890/sparql</sparql-uri>
+    <state-graph>djehuty://local</state-graph>
+  </rdf-store>
+  <authentication>
+    <orcid>
+      <client-id>APP-XXXXXXXXXXXXXXXX</client-id>
+      <client-secret>XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</client-secret>
+      <endpoint>https://orcid.org/oauth</endpoint>
+    </orcid>
+  </authentication>
+</djehuty>
