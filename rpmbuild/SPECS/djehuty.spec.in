@@ -33,6 +33,8 @@ This package provides the repository system for 4TU.ResearchData.
 
 %install
 %py3_install
+mkdir -p %{buildroot}%{_unitdir}
+cp etc/%{name}.service %{buildroot}%{_unitdir}/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -42,4 +44,5 @@ rm -rf $RPM_BUILD_ROOT
 %doc README.md
 %{python3_sitelib}/%{name}/
 %{python3_sitelib}/%{name}-@VERSION@*
+%{_unitdir}/%{name}.service
 /usr/bin/djehuty

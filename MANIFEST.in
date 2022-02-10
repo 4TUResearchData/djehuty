@@ -1,2 +1,3 @@
+include etc/djehuty.service
 include sql/Database.sql
 include rpmbuild/SPECS/djehuty.spec

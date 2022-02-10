@@ -1,0 +1,11 @@
+[Unit]
+Description=Djehuty repository system for 4TU.ResearchData.
+
+[Service]
+ExecStart=/usr/bin/djehuty --config-file=/etc/djehuty/djehuty.xml
+Environment=LC_ALL=en_US.utf8
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
