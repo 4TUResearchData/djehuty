@@ -30,6 +30,7 @@ class SparqlInterface:
         self.storage     = None
         self.endpoint    = "http://127.0.0.1:8890/sparql"
         self.state_graph = "https://data.4tu.nl/portal/self-test"
+        self.privileges  = {}
         self.cache       = cache.CacheLayer(None)
         self.jinja       = Environment(loader = FileSystemLoader(
                             os.path.join(os.path.dirname(__file__),
@@ -1610,7 +1611,10 @@ class SparqlInterface:
 
         try:
             results = self.__run_query (query)
-            return results[0]
+            account = results[0]
+            privileges = self.privileges[int(account["account_id"])]
+            account = { **account, **privileges }
+            return account
         except IndexError:
             return None
 

@@ -63,6 +63,20 @@ def main (address=None, port=None, state_graph=None, storage=None, base_url=None
                 server.orcid_client_secret = config_value (orcid, "client-secret")
                 server.orcid_endpoint      = config_value (orcid, "endpoint")
 
+            privileges = xml_root.find("privileges")
+            if privileges:
+                for account in privileges:
+                    try:
+                        account_id = int(account.attrib["id"])
+                        server.db.privileges[account_id] = {
+                            "may_impersonate": bool(int(config_value (account, "may-impersonate", None, False))),
+                            "may_review":      bool(int(config_value (account, "may-review", None, False)))
+                        }
+                    except KeyError as error:
+                        logging.error ("Missing %s attribute for a privilege configuration.", error)
+                    except ValueError as error:
+                        logging.error ("Privilege configuration error: %s", error)
+
         if not server.db.cache.cache_is_ready():
             logging.error("Failed to set up cache layer.")
 
