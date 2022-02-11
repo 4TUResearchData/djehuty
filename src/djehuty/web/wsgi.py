@@ -341,7 +341,9 @@ class ApiServer:
         ## Get the token from the "Authorization" HTTP header.
         ## If no such header is provided, we cannot authenticate.
         try:
-            token_string = request.environ["HTTP_AUTHORIZATION"]
+            token_string = self.token_from_cookie (request)
+            if token_string is None:
+                token_string = request.environ["HTTP_AUTHORIZATION"]
         except KeyError:
             return None
 
