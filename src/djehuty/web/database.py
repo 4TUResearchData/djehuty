@@ -1056,8 +1056,8 @@ class SparqlInterface:
 
         prefix  = item_type.capitalize()
         graph   = Graph()
-        tag_id  = self.ids.next_id("tag")
-        tag_uri = rdf.ROW[f"tag_{tag_id}"]
+        tag_id  = self.ids.next_id("{item_type}_tag")
+        tag_uri = rdf.ROW[f"{item_type}_tag_{tag_id}"]
 
         graph.add ((tag_uri, RDF.type,                   rdf.SG[f"{prefix}Tag"]))
         graph.add ((tag_uri, rdf.COL["id"],              Literal(tag_id)))
