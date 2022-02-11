@@ -336,7 +336,6 @@ class ApiServer:
 
     def token_from_request (self, request):
         token_string = None
-        token = ""
 
         ## Get the token from the "Authorization" HTTP header.
         ## If no such header is provided, we cannot authenticate.
@@ -348,9 +347,9 @@ class ApiServer:
             return None
 
         if token_string.startswith("token "):
-            token = token_string[6:]
+            token_string = token_string[6:]
 
-        return token
+        return token_string
 
     def impersonated_account_id (self, request, account):
         try:
