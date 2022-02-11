@@ -17,11 +17,6 @@ from djehuty.web import formatter
 from djehuty.web import database
 from djehuty.utils import convenience
 
-class Account(NamedTuple):
-    """Named tuple to keep settings for an account."""
-    account_id: int
-    may_impersonate: bool
-
 class ApiServer:
     """This class implements the API server."""
 
@@ -38,14 +33,6 @@ class ApiServer:
         self.orcid_client_id     = None
         self.orcid_client_secret = None
         self.orcid_endpoint      = None
-
-        ## This is a temporary predefined set of tokens to test the private
-        ## articles functionality.
-        self.tokens           = {
-            "2bc2d4c4ea5e3c5f3da70e2aa697c51730d66adadc5c4503e0ff7b4541683b99": Account(2391394, True),
-            "e33bfd5e4b05a342f496f53939d4ab29d835d7bbe2d925b69d40a712908ccddc": Account(2397553, True),
-            "60b2a1fbae694cb7c85105aeaa57a2d04644f078db32c23732b420c68abb0efe": Account(1000002, False)
-        }
 
         self.defined_type_options = [
             "figure", "online resource", "preprint", "book",
@@ -353,7 +340,7 @@ class ApiServer:
 
     def impersonated_account_id (self, request, account):
         try:
-            if account.may_impersonate:
+            if account["may_impersonate"]:
                 ## Handle the "impersonate" URL parameter.
                 impersonate = self.get_parameter (request, "impersonate")
 
@@ -363,11 +350,13 @@ class ApiServer:
                     impersonate = convenience.value_or_none (body, "impersonate")
 
                 if impersonate is not None:
-                    return impersonate
+                    return int(impersonate)
         except KeyError:
-            return account.account_id
+            return int(account["account_id"])
+        except TypeError:
+            return int(account["account_id"])
 
-        return account.account_id
+        return int(account["account_id"])
 
     def account_id_from_request (self, request):
         account_id = None
@@ -376,7 +365,9 @@ class ApiServer:
         ## Match the token to an account_id.  If the token does not
         ## exist, we cannot authenticate.
         try:
-            account_id = self.impersonated_account_id (request, self.tokens[token])
+            account    = self.db.account_by_session_token (token)
+            if account is not None:
+                account_id = self.impersonated_account_id (request, account)
         except KeyError:
             logging.error("Attempt to authenticate with %s failed.", token)
 
