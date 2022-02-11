@@ -1,0 +1,61 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    {% if download_url is not none %}
+    ?file              col:download_url        ?download_url .
+    {% endif%}{% if computed_md5 is not none %}
+    ?file              col:computed_md5        ?computed_md5 .
+    {% endif%}{% if viewer_type is not none %}
+    ?file              col:viewer_type         ?viewer_type .
+    {% endif%}{% if preview_state is not none %}
+    ?file              col:preview_state       ?preview_state .
+    {% endif%}{% if status is not none %}
+    ?file              col:status              ?status .
+    {% endif%}
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    {% if download_url is not none %}
+    ?file              col:download_url        "{{download_url}}"^^xsd:string .
+    {% endif%}{% if computed_md5 is not none %}
+    ?file              col:computed_md5        "{{computed_md5}}"^^xsd:string .
+    {% endif%}{% if viewer_type is not none %}
+    ?file              col:viewer_type         "{{viewer_type}}"^^xsd:string .
+    {% endif%}{% if preview_state is not none %}
+    ?file              col:preview_state       "{{preview_state}}"^^xsd:string .
+    {% endif%}{% if status is not none %}
+    ?file              col:status              "{{status}}"^^xsd:string .
+    {% endif%}
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?file              rdf:type                sg:File .
+    ?file              col:id                  ?id .
+
+    {# The ?link and ?article triplets ensure only the account_id
+     # associated with the ?file can modify its properties. #}
+    ?link              rdf:type                sg:ArticleFile .
+    ?link              col:article_id          ?article_id .
+    ?link              col:file_id             ?id .
+
+    ?article           rdf:type                sg:Article .
+    ?article           col:article_id          ?article_id .
+    ?article           col:account_id          {{account_id}} .
+
+    {% if download_url is not none %}
+    ?file              col:download_url        ?download_url .
+    {% endif%}{% if computed_md5 is not none %}
+    ?file              col:computed_md5        ?computed_md5 .
+    {% endif%}{% if viewer_type is not none %}
+    ?file              col:viewer_type         ?viewer_type .
+    {% endif%}{% if preview_state is not none %}
+    ?file              col:preview_state       ?preview_state .
+    {% endif%}{% if status is not none %}
+    ?file              col:status              ?status .
+    {% endif%}
+  }
+}
+{% endblock %}

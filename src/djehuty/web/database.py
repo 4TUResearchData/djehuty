@@ -1159,6 +1159,23 @@ class SparqlInterface:
 
         return None
 
+    def update_file (self, account_id, file_id, download_url=None,
+                     computed_md5=None, viewer_type=None, preview_state=None,
+                     status=None):
+        """Procedure to update file metadata."""
+
+        query   = self.__query_from_template ("update_file", {
+            "state_graph":   self.state_graph,
+            "account_id":    account_id,
+            "download_url":  download_url,
+            "computed_md5":  computed_md5,
+            "viewer_type":   viewer_type,
+            "preview_state": preview_state,
+            "status":        status
+        })
+
+        return self.__run_query(query)
+
     def insert_license (self, license_id, name=None, url=None):
         """Procedure to add an license to the state graph."""
 
