@@ -733,8 +733,8 @@ class SparqlInterface:
                 preview_state = conv.value_or_none (file_data, "preview_state"),
                 status        = conv.value_or_none (file_data, "status"),
                 upload_url    = conv.value_or_none (file_data, "upload_url"),
-                upload_token  = conv.value_or_none (file_data, "upload_token"))
-            self.insert_article_file (article_id, file_id)
+                upload_token  = conv.value_or_none (file_data, "upload_token"),
+                article_id    = article_id)
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
@@ -1122,11 +1122,15 @@ class SparqlInterface:
     def insert_file (self, file_id=None, name=None, size=None,
                      is_link_only=None, download_url=None, supplied_md5=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
-                     status=None, upload_url=None, upload_token=None):
+                     status=None, upload_url=None, upload_token=None,
+                     article_id=None):
         """Procedure to add an file to the state graph."""
 
         graph    = Graph()
-        file_id  = self.ids.next_id("file")
+
+        if file_id is None:
+            file_id  = self.ids.next_id("file")
+
         file_uri = rdf.ROW[f"file_{file_id}"]
 
         graph.add ((file_uri, RDF.type,               rdf.SG["File"]))
@@ -1146,7 +1150,12 @@ class SparqlInterface:
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            return file_id
+            if article_id is not None:
+                link_id = self.insert_article_file (article_id, file_id)
+                if link_id is not None:
+                    return file_id
+            else:
+                return file_id
 
         return None
 
