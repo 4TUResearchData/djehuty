@@ -45,17 +45,12 @@ WHERE {
     ?article           col:article_id          ?article_id .
     ?article           col:account_id          {{account_id}} .
 
-    {% if download_url is not none %}
-    ?file              col:download_url        ?download_url .
-    {% endif%}{% if computed_md5 is not none %}
-    ?file              col:computed_md5        ?computed_md5 .
-    {% endif%}{% if viewer_type is not none %}
-    ?file              col:viewer_type         ?viewer_type .
-    {% endif%}{% if preview_state is not none %}
-    ?file              col:preview_state       ?preview_state .
-    {% endif%}{% if status is not none %}
-    ?file              col:status              ?status .
-    {% endif%}
+    OPTIONAL { ?file   col:download_url        ?download_url . }
+    OPTIONAL { ?file   col:computed_md5        ?computed_md5 . }
+    OPTIONAL { ?file   col:viewer_type         ?viewer_type . }
+    OPTIONAL { ?file   col:preview_state       ?preview_state . }
+    OPTIONAL { ?file   col:status              ?status . }
   }
+  FILTER (?id = {{file_id}})
 }
 {% endblock %}

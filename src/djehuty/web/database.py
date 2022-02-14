@@ -1168,6 +1168,7 @@ class SparqlInterface:
         query   = self.__query_from_template ("update_file", {
             "state_graph":   self.state_graph,
             "account_id":    account_id,
+            "file_id":       file_id,
             "download_url":  download_url,
             "computed_md5":  computed_md5,
             "viewer_type":   viewer_type,
