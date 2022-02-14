@@ -33,7 +33,6 @@ def main (address=None, port=None, state_graph=None, storage=None, base_url=None
 
         ## Set configuration from a file.
         xml_root = None
-        config = {}
         if config_file is not None:
             tree = ET.parse(config_file)
             xml_root = tree.getroot()
@@ -52,7 +51,7 @@ def main (address=None, port=None, state_graph=None, storage=None, base_url=None
         use_debugger            = config_value (xml_root, "debug-mode", use_debugger)
 
         if use_reloader:
-            user_reloader = bool(int(use_reloader))
+            use_reloader = bool(int(use_reloader))
         if use_debugger:
             use_debugger = bool(int(use_debugger))
 

@@ -4,7 +4,6 @@ import os.path
 import logging
 import json
 import requests
-from typing import NamedTuple
 from werkzeug.utils import redirect
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
@@ -292,7 +291,7 @@ class ApiServer:
             logging.error("ORCID response was %d", response.status_code)
             return None
 
-        except validator.ValidationException as error:
+        except validator.ValidationException:
             logging.error("ORCID parameter validation error")
             return None
 
@@ -450,8 +449,8 @@ class ApiServer:
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
                 return self.__render_template (request, "depositor/dashboard.html")
-            else:
-                return self.error_404 (request)
+
+            return self.error_404 (request)
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
@@ -484,7 +483,6 @@ class ApiServer:
     def api_category (self, request):
         if self.accepts_html (request):
             categories    = self.db.root_categories ()
-            articles = {}
             for category in categories:
                 category_id = category["id"]
                 category["articles"] = self.db.articles (category_ids=[category_id], limit=5)
