@@ -85,6 +85,7 @@ def main (address=None, port=None, state_graph=None, storage=None, base_url=None
         logging.info("State graph set to:  %s.", server.db.state_graph)
         logging.info("Storage path set to: %s.", server.db.storage)
         run_simple (server.address, server.port, server,
+                    threaded=True,
                     use_debugger=use_debugger,
                     use_reloader=use_reloader)
 
