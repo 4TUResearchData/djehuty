@@ -49,6 +49,7 @@ def main (address=None, port=None, state_graph=None, storage=None, base_url=None
         server.db.state_graph   = config_value (xml_root, "rdf-store/state-graph", state_graph)
         use_reloader            = config_value (xml_root, "live-reload", use_reloader)
         use_debugger            = config_value (xml_root, "debug-mode", use_debugger)
+        maximum_workers         = int(config_value (xml_root, "maximum-workers", None, 1))
 
         if use_reloader:
             use_reloader = bool(int(use_reloader))
@@ -85,7 +86,8 @@ def main (address=None, port=None, state_graph=None, storage=None, base_url=None
         logging.info("State graph set to:  %s.", server.db.state_graph)
         logging.info("Storage path set to: %s.", server.db.storage)
         run_simple (server.address, server.port, server,
-                    threaded=True,
+                    threaded=(maximum_workers <= 1),
+                    processes=maximum_workers,
                     use_debugger=use_debugger,
                     use_reloader=use_reloader)
 
