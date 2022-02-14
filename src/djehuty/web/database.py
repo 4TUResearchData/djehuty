@@ -1019,8 +1019,8 @@ class SparqlInterface:
 
         graph.add ((link_uri, RDF.type,              rdf.SG["ArticleFile"]))
         graph.add ((link_uri, rdf.COL["id"],         Literal(link_id)))
-        graph.add ((link_uri, rdf.COL["file_id"],    Literal(file_id)))
-        graph.add ((link_uri, rdf.COL["article_id"], Literal(article_id)))
+        graph.add ((link_uri, rdf.COL["file_id"],    Literal(file_id, datatype=XSD.integer)))
+        graph.add ((link_uri, rdf.COL["article_id"], Literal(article_id, datatype=XSD.integer)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
