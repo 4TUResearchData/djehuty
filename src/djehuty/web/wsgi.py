@@ -238,8 +238,8 @@ class ApiServer:
 
     def error_authorization_failed (self):
         response = self.response (json.dumps({
-            "message": "Invalid or unknown OAuth token",
-            "code":    "OAuthInvalidToken"
+            "message": "Invalid or unknown session token",
+            "code":    "InvalidSessionToken"
         }))
         response.status_code = 403
         return response
