@@ -214,7 +214,7 @@ class ApiServer:
             response = self.__render_template (request, "404.html")
         else:
             response = self.response (json.dumps({
-                "message": "This call does not exist."
+                "message": "This resource does not exist."
             }))
         response.status_code = 404
         return response
