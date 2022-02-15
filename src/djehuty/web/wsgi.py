@@ -117,6 +117,7 @@ class ApiServer:
             Rule("/v3/articles",                              endpoint = "v3_articles"),
             Rule("/v3/articles/top/<item_type>",              endpoint = "v3_articles_top"),
             Rule("/v3/articles/timeline/<item_type>",         endpoint = "v3_articles_timeline"),
+            Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
           ])
 
         ## Static resources and HTML templates.
@@ -1938,3 +1939,23 @@ class ApiServer:
             item_type       = item_type)
 
         return self.response (json.dumps(records))
+
+    def api_v3_file (self, request, file_id):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        metadata = self.db.file_by_id (file_id, account_id)
+        if metadata is None:
+            return self.error_404 (request)
+
+        try:
+            return self.response (json.dumps (formatter.format_file_details_record (metadata[0])))
+        except KeyError:
+            return self.error_500()
+
+        return self.error_500()
