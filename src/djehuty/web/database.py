@@ -1177,7 +1177,7 @@ class SparqlInterface:
 
     def update_file (self, account_id, file_id, download_url=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
-                     status=None):
+                     file_size=None, status=None):
         """Procedure to update file metadata."""
 
         query   = self.__query_from_template ("update_file", {
@@ -1188,6 +1188,7 @@ class SparqlInterface:
             "computed_md5":  computed_md5,
             "viewer_type":   viewer_type,
             "preview_state": preview_state,
+            "file_size":     file_size,
             "status":        status
         })
 

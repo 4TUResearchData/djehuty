@@ -10,6 +10,8 @@ DELETE {
     ?file              col:viewer_type         ?viewer_type .
     {% endif%}{% if preview_state is not none %}
     ?file              col:preview_state       ?preview_state .
+    {% endif%}{% if file_size is not none %}
+    ?file              col:size                ?size .
     {% endif%}{% if status is not none %}
     ?file              col:status              ?status .
     {% endif%}
@@ -25,6 +27,8 @@ INSERT {
     ?file              col:viewer_type         "{{viewer_type}}"^^xsd:string .
     {% endif%}{% if preview_state is not none %}
     ?file              col:preview_state       "{{preview_state}}"^^xsd:string .
+    {% endif%}{% if file_size is not none %}
+    ?file              col:size                {{file_size}} .
     {% endif%}{% if status is not none %}
     ?file              col:status              "{{status}}"^^xsd:string .
     {% endif%}
@@ -49,6 +53,7 @@ WHERE {
     OPTIONAL { ?file   col:computed_md5        ?computed_md5 . }
     OPTIONAL { ?file   col:viewer_type         ?viewer_type . }
     OPTIONAL { ?file   col:preview_state       ?preview_state . }
+    OPTIONAL { ?file   col:size                ?size . }
     OPTIONAL { ?file   col:status              ?status . }
   }
   FILTER (?id = {{file_id}})
