@@ -1634,6 +1634,8 @@ class SparqlInterface:
             return account
         except IndexError:
             return None
+        except KeyError:
+            return account
 
     def insert_session (self, account_id, token=None):
         """Procedure to add a session token for an account_id."""
