@@ -316,3 +316,40 @@ table {
     border-spacing: 0pt;
     border-collapse: collapse;
 }
+#submenu-wrapper {
+    width: 880pt;
+    margin: 0 auto;
+    padding: 0em;
+}
+#submenu {
+    margin: 0em;
+    text-align: left;
+    padding: 0pt;
+    background: #ffffff;
+    border-bottom: solid 1px #dddddd;
+    background: #f9f9f9;
+}
+#submenu ul {
+    display: inline-block;
+    padding: 0mm 0mm 0mm 5mm;
+    margin: 0em;
+}
+#submenu li {
+    display: inline-block;
+    list-style-type: none;
+    text-decoration: none;
+    color: #483e37;
+    font-size: 14pt;
+    font-weight: normal;
+    background: none;
+    border-radius: 4pt;
+    margin: .5em 1em .5em 0em;
+    padding: 2pt 4pt 2pt 4pt;
+    background: #e3dedb;
+    border: solid 2pt #6c5d53;
+    user-select: none;
+}
+#submenu li:hover  { background: #c8beb7; border: solid 2pt #483e37; }
+#submenu li:active { background: #968f89; border: solid 2pt #483e37; }
+#submenu li.spacer { padding: 0pt; background: none; border: none; margin: 0pt; }
+#submenu li a { text-transform: uppercase; text-decoration: none; }

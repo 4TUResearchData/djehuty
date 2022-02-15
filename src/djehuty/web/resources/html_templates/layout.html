@@ -85,6 +85,7 @@
         </ul>
         </div>
       </nav>
+      {% if self.submenu() %}<div id="submenu"><div id="submenu-wrapper">{% block submenu %}{% endblock %}</div></div>{% endif %}
       <div id="content">
         <div id="content-wrapper">
           {% block body %}{% endblock %}
