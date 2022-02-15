@@ -1,12 +1,69 @@
 {% extends "layout.html" %}
 {% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/depositor-dashboard.js"></script>
+<style>
+.upload-wrapper { text-align: center; }
+.upload-container {
+    display: block;
+    width: 100%;
+    border: 2pt dashed #cccccc;
+    background: #f9f9f9;
+    border-radius: .5em;
+    margin: 1em auto 1em auto;
+    vertical-align: middle;
+    text-align: center;
+    color: #333333;
+}
+.upload-container:hover { cursor: pointer; }
+.upload-container p { font-size: 1.2em; }
+#file { display: none; }
+.thumbnail {
+    display: inline-block;
+    width: 80pt;
+    height: 80pt;
+    padding: 2pt;
+    margin: 5pt;
+    border: 2pt solid lightgray;
+    border-radius: .5em;
+}
+#files { display: none; }
+#files th { text-align: left; white-space: nowrap; color: #ffffff; padding: .5em; }
+#files-wrapper table { width: 100%; max-width: 880pt; border: solid 2pt #f49120; }
+#files thead tr { background: #f49120; }
+#files tbody tr td { padding: .5em; z-index: 50; }
+#files tbody tr:nth-child(odd) { background: #fafafa; }
+#files tbody tr td:last-child { text-align: right; width: 130pt; }
+#files thead tr th:last-child { text-align: right; }
+#files tbody tr td:nth-child(1) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 750pt;
+}
+#files td { text-align: left; }
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/account/home/my-data">My data</a></li>
+  <li><a href="/account/home/collections">Collections</a></li>
+  <li><a href="/account/home/activity">Activity</a></li>
+</ul>
 {% endblock %}
 {% block body %}
-<div class="tabbar">
-  <ul>
-    <li><a href="/account/home/my-data">My data</a></li>
-    <li><a href="/account/home/collections">Collections</a></li>
-    <li><a href="/account/home/activity">Activity</a></li>
-  </ul>
+<h1>Dashboard</h1>
+<div class="upload-wrapper" >
+  <input type="file" name="file" id="file">
+  <div class="upload-container" id="file-upload">
+    <h2>Drag files here</h2>
+    <p>Or click to open a file dialog.</p>
+  </div>
+  <div id="files-wrapper">
+    <table id="files">
+      <thead><tr><th>Filename</th><th>Checksum</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
