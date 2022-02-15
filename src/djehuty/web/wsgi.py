@@ -3,6 +3,7 @@
 import os.path
 import logging
 import json
+import hashlib
 import requests
 from werkzeug.utils import redirect
 from werkzeug.wrappers import Request, Response
@@ -117,6 +118,7 @@ class ApiServer:
             Rule("/v3/articles",                              endpoint = "v3_articles"),
             Rule("/v3/articles/top/<item_type>",              endpoint = "v3_articles_top"),
             Rule("/v3/articles/timeline/<item_type>",         endpoint = "v3_articles_timeline"),
+            Rule("/v3/articles/<article_id>/upload",          endpoint = "v3_article_upload_file"),
             Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
           ])
 
@@ -1939,6 +1941,49 @@ class ApiServer:
             item_type       = item_type)
 
         return self.response (json.dumps(records))
+
+    def api_v3_article_upload_file (self, request, article_id):
+        handler = self.default_error_handling (request, "POST")
+        if handler is not None:
+            return handler
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        file_data = request.files['file']
+        file_id = self.db.insert_file (
+            name          = file_data.filename,
+            size          = file_data.content_length,
+            is_link_only  = 0,
+            upload_url    = f"/article/{article_id}/upload",
+            upload_token  = self.token_from_request (request),
+            article_id    = article_id)
+
+        output_filename = f"{self.db.storage}/{article_id}_{file_id}"
+
+        file_data.save(output_filename)
+        file_data.close()
+
+        file_size = 0
+        try:
+            file_size = os.path.getsize (output_filename)
+        except OSError:
+            logging.error ("Writing %s to disk failed.", output_filename)
+            return self.error_500 ()
+
+        computed_md5 = None
+        md5 = hashlib.md5()
+        with open(output_filename, "rb") as stream:
+            for chunk in iter(lambda: stream.read(4096), b""):
+                md5.update(chunk)
+            computed_md5 = md5.hexdigest()
+
+        self.db.update_file (account_id, file_id,
+                             computed_md5 = computed_md5,
+                             file_size    = file_size)
+
+        return self.response (json.dumps({ "location": f"{self.base_url}/v3/file/{file_id}" }))
 
     def api_v3_file (self, request, file_id):
         handler = self.default_error_handling (request, "GET")
