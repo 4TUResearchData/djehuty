@@ -122,14 +122,15 @@ class ApiServer:
         ## Static resources and HTML templates.
         ## --------------------------------------------------------------------
 
+        resources_path = os.path.dirname(__file__)
         self.jinja   = Environment(loader = FileSystemLoader(
-                        os.path.join(os.path.dirname(__file__),
+                        os.path.join(resources_path,
                                      "resources/html_templates")),
                                      autoescape = True)
 
         self.wsgi    = SharedDataMiddleware(self.__respond, {
-            "/static": os.path.join(os.path.dirname(__file__),
-                                    "resources/static")
+            "/robots.txt": os.path.join(resources_path, "resources/robots.txt"),
+            "/static":     os.path.join(resources_path, "resources/static")
         })
 
         ## Disable werkzeug logging.
