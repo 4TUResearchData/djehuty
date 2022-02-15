@@ -52,3 +52,21 @@ make dist-rpm
 ```
 
 The RPMs will be available under `rpmbuild/RPMS/noarch`.
+
+## Run
+
+### Using the built-in web server
+
+```bash
+djehuty web --config-file=config.xml
+```
+
+Use the `maximum-workers` configuration option to use forking rather than threading.
+
+### Using `uwsgi`:
+
+On EL7, install `uwsgi` and `uwsgi-plugin-python36`.
+
+```bash
+uwsgi --plugins-dir /usr/lib64/uwsgi --need-plugin python36,http --http :8080 --wsgi-file src/djehuty/web/ui.py -H <path-to-your-virtualenv-root> --env DJEHUTY_CONFIG_FILE=config.xml --master --processes 4 --threads 2
+```
