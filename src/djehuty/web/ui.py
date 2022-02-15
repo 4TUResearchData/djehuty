@@ -45,10 +45,10 @@ def main (address=None, port=None, state_graph=None, storage=None,
             if xml_root.tag != "djehuty":
                 raise ConfigFileNotFound
 
-        server.address          = config_value (xml_root, "bind-address", address, "127.0.0.1")
-        server.port             = int(config_value (xml_root, "port", port, 8080))
+        address                 = config_value (xml_root, "bind-address", address, "127.0.0.1")
+        port                    = int(config_value (xml_root, "port", port, 8080))
         server.base_url         = config_value (xml_root, "base-url", base_url,
-                                                f"http://{server.address}:{server.port}")
+                                                f"http://{address}:{port}")
         server.db.storage       = config_value (xml_root, "storage-root", storage)
         server.db.cache.storage = f"{server.db.storage}/cache"
         server.db.endpoint      = config_value (xml_root, "rdf-store/sparql-uri")
@@ -94,7 +94,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
         logging.info("Running on %s", server.base_url)
         logging.info("State graph set to:  %s.", server.db.state_graph)
         logging.info("Storage path set to: %s.", server.db.storage)
-        run_simple (server.address, server.port, server,
+        run_simple (address, port, server,
                     threaded=(maximum_workers <= 1),
                     processes=maximum_workers,
                     use_debugger=use_debugger,

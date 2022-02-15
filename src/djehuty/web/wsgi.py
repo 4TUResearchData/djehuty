@@ -6,7 +6,6 @@ import json
 import requests
 from werkzeug.utils import redirect
 from werkzeug.wrappers import Request, Response
-from werkzeug.serving import run_simple
 from werkzeug.routing import Map, Rule
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound
@@ -23,9 +22,7 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def __init__ (self, address="127.0.0.1", port=8080):
-        self.address          = address
-        self.port             = port
-        self.base_url         = f"http://{self.address}:{self.port}"
+        self.base_url         = f"http://{address}:{port}"
         self.db               = database.SparqlInterface()
         self.cookie_key       = "djehuty_session"
 
@@ -178,13 +175,6 @@ class ApiServer:
             return request.cookies[self.cookie_key]
         except KeyError:
             return None
-
-    def start (self):
-        run_simple (self.address,
-                    self.port,
-                    self,
-                    use_debugger=True,
-                    use_reloader=False)
 
     ## ERROR HANDLERS
     ## ------------------------------------------------------------------------
@@ -836,7 +826,7 @@ class ApiServer:
                 )
 
                 return self.response(json.dumps({
-                    "location": f"http://{self.address}:{self.port}/v2/account/articles/{article_id}",
+                    "location": f"{self.base_url}/v2/account/articles/{article_id}",
                     "warnings": []
                 }))
             except validator.ValidationException as error:
@@ -1573,7 +1563,7 @@ class ApiServer:
                     return self.error_500 ()
 
                 return self.response(json.dumps({
-                    "location": f"http://{self.address}:{self.port}/v2/account/collections/{collection_id}",
+                    "location": f"{self.base_url}/v2/account/collections/{collection_id}",
                     "warnings": []
                 }))
             except validator.ValidationException as error:
