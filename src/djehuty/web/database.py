@@ -139,9 +139,10 @@ class SparqlInterface:
             return None
 
     def __insert_query_for_graph (self, graph):
+        body  = graph.serialize(format="ntriples")
         query = "INSERT { GRAPH <%s> { %s } }" % (
             self.state_graph,
-            graph.serialize(format="ntriples").decode('utf-8')
+            body.decode('utf-8') if isinstance(body, bytes) else body
         )
 
         return query
