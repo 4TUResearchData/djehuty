@@ -36,7 +36,7 @@ Available subcommands and options:
     --state-graph        -s The state graph in the RDF store.
     --storage            -S The storage path backing the API.
     --base-url=ARG       -b URL on which this instance is accessed by users.
-    --config-file        -c Load configuration from a file.
+    --config-file=ARG    -c Load configuration from a file.
     --debug              -d Enable debugging.
     --dev-reload         -r Enable active reloading.
 
