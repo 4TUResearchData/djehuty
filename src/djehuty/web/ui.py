@@ -115,6 +115,10 @@ def main (address=None, port=None, state_graph=None, storage=None,
 ## ----------------------------------------------------------------------------
 
 def application (env, start_response):
+
+    logging.basicConfig(format='[ %(levelname)s ] %(asctime)s: %(message)s',
+                        level=logging.INFO)
+
     config_file = os.getenv ("DJEHUTY_CONFIG_FILE")
 
     if config_file is None:
