@@ -6,6 +6,7 @@ import multiprocessing
 import time
 import logging
 import requests
+import json
 
 from djehuty.utils import convenience as conv
 
@@ -201,6 +202,11 @@ class FigshareEndpoint:
         headers      = self.__request_headers()
         parameters   = { "impersonate": account_id }
         record       = self.get(f"/account/articles/{article_id}", headers, parameters)
+
+        if isinstance(record, list):
+            logging.error ("Failed to get article %d for account %d.", article_id, account_id)
+            logging.error ("Received: %s", json.dumps(record))
+            return None
 
         authors = []
 
