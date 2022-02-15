@@ -1,6 +1,7 @@
 """This module contains the command-line interface for the 'web' subcommand."""
 
 import logging
+import os
 import xml.etree.ElementTree as ET
 from werkzeug.serving import run_simple
 from djehuty.web import database
@@ -25,8 +26,13 @@ def config_value (xml_root, path, command_line=None, fallback=None):
     ## Fall back to the fallback value.
     return fallback
 
-def main (address=None, port=None, state_graph=None, storage=None, base_url=None,
-          config_file=None, use_debugger=False, use_reloader=False):
+## ----------------------------------------------------------------------------
+## Starting point for the command-line program
+## ----------------------------------------------------------------------------
+
+def main (address=None, port=None, state_graph=None, storage=None,
+          base_url=None, config_file=None, use_debugger=False,
+          use_reloader=False, run_internal_server=True):
     """The main entry point for the 'web' subcommand."""
     try:
         server = wsgi.ApiServer ()
@@ -82,6 +88,9 @@ def main (address=None, port=None, state_graph=None, storage=None, base_url=None
 
         server.db.load_state()
 
+        if not run_internal_server:
+            return server
+
         logging.info("Running on %s", server.base_url)
         logging.info("State graph set to:  %s.", server.db.state_graph)
         logging.info("Storage path set to: %s.", server.db.storage)
@@ -98,3 +107,19 @@ def main (address=None, port=None, state_graph=None, storage=None, base_url=None
                        config_file)
     except ET.ParseError:
         logging.error ("%s does not contain valid XML.", config_file)
+
+    return None
+
+## ----------------------------------------------------------------------------
+## Starting point for uWSGI
+## ----------------------------------------------------------------------------
+
+def application (env, start_response):
+    config_file = os.getenv ("DJEHUTY_CONFIG_FILE")
+
+    if config_file is None:
+        start_response('200 OK', [('Content-Type','text/html')])
+        return [b"<p>Please set the <code>DJEHUTY_CONFIG_FILE</code> environment variable.</p>"]
+
+    server = main (config_file=config_file, run_internal_server=False)
+    return server (env, start_response)
