@@ -501,10 +501,10 @@ class ApiServer:
         }))
 
     def api_authorize (self, request):
-        return False
+        return self.error_404 (request)
 
     def api_token (self, request):
-        return False
+        return self.error_404 (request)
 
     def api_private_institution (self, request):
         handler = self.default_error_handling (request, "GET")
