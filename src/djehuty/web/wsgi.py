@@ -1180,6 +1180,9 @@ class ApiServer:
 
             return self.default_list_response (files, formatter.format_file_details_record)
 
+        if request.method == 'POST':
+            return self.error_500()
+
         if request.method == 'DELETE':
             result = self.db.delete_file_for_article (article_id = article_id,
                                                       account_id = account_id,
