@@ -692,13 +692,7 @@ class SparqlInterface:
 
         ## CATEGORIES
         ## --------------------------------------------------------------------
-        for category in categories:
-            category_id = self.insert_category (
-                category_id = conv.value_or_none (category, "id"),
-                title       = conv.value_or_none (category, "title"),
-                parent_id   = conv.value_or_none (category, "parent_id"),
-                source_id   = conv.value_or_none (category, "source_id"),
-                taxonomy    = conv.value_or_none (category, "taxonomy"))
+        for category_id in categories:
             self.insert_article_category (article_id, category_id)
 
         ## EMBARGOS
@@ -709,14 +703,6 @@ class SparqlInterface:
                 article_id   = article_id,
                 embargo_type = conv.value_or_none (embargo, "type"),
                 ip_name      = conv.value_or_none (embargo, "ip_name"))
-
-        ## LICENSE
-        ## --------------------------------------------------------------------
-        # Note: The license_id is also stored as a column in the article.
-        self.insert_license (
-            license_id = license_id,
-            name       = conv.value_or_none (license, "name"),
-            url        = conv.value_or_none (license, "url"))
 
         ## AUTHORS
         ## --------------------------------------------------------------------
