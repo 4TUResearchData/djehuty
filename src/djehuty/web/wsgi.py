@@ -49,6 +49,7 @@ class ApiServer:
             Rule("/login",                                    endpoint = "login"),
             Rule("/logout",                                   endpoint = "logout"),
             Rule("/dashboard",                                endpoint = "dashboard"),
+            Rule("/my-data",                                  endpoint = "my_data"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
@@ -443,6 +444,23 @@ class ApiServer:
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
                 return self.__render_template (request, "depositor/dashboard.html")
+
+            return self.error_404 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_my_data (self, request):
+        if self.accepts_html (request):
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            token = self.token_from_cookie (request)
+            if self.db.is_depositor (token):
+                articles = self.db.articles(account_id=account_id, is_public=0)
+                return self.__render_template (request, "depositor/my-data.html", articles=articles)
 
             return self.error_404 (request)
 

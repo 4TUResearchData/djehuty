@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/my-data.js"></script>
+<style>
+.upload-wrapper { text-align: center; }
+.upload-container {
+    display: block;
+    width: 100%;
+    border: 2pt dashed #cccccc;
+    background: #f9f9f9;
+    border-radius: .5em;
+    margin: auto auto 1em auto;
+    vertical-align: middle;
+    text-align: center;
+    color: #333333;
+}
+.upload-container:hover { cursor: pointer; }
+.upload-container p { font-size: 1.2em; }
+#file { display: none; }
+.thumbnail {
+    display: inline-block;
+    width: 80pt;
+    height: 80pt;
+    padding: 2pt;
+    margin: 5pt;
+    border: 2pt solid lightgray;
+    border-radius: .5em;
+}
+.branded-table { width: 100%; max-width: 880pt; border: solid 2pt #f49120; }
+.branded-table thead tr { background: #f49120; }
+.branded-table thead tr th { color: #ffffff; text-align: left; padding: .5em; z-index: 50; }
+.branded-table thead tr th:last-child { text-align: right; }
+.branded-table tbody tr td { padding: .5em; z-index: 50; }
+.branded-table tbody tr:nth-child(odd) { background: #fafafa; }
+.branded-table tbody tr td:last-child { text-align: right; width: 130pt; }
+.branded-table tbody tr td:nth-child(1) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 750pt;
+}
+.files td { text-align: left; }
+h3 { margin: 0em; padding: .5em; border-radius: .5em; }
+h3:nth-of-type(odd) { background: #fafafa; }
+.article-content {
+    margin: 0em;
+    padding: .5em;
+    display: none;
+    border-radius: 0em 0em .5em .5em;
+    border: solid 2pt #f49120;
+}
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/dashboard">Dashboard</a>
+  <li>My data
+  <li><a href="/account/home/collections">Collections</a>
+</ul>
+{% endblock %}
+{% block body %}
+<h1>My data</h1>
+<h2>Unpublished datasets</h2>
+{% for article in articles: %}
+<h3 id="h3_{{article.id}}" class="h3-article"><a href="#" onclick="javascript:toggle_article({{article.id}}); return false;">{{article.title}}</a></h3>
+<div id="article_{{article.id}}" class="article-content">
+</div>
+{% endfor %}
+{% endblock %}
