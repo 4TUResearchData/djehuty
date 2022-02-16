@@ -54,14 +54,14 @@
 {% block body %}
 <h1>Dashboard</h1>
 <div class="upload-wrapper" >
-  <input type="file" name="file" id="file">
+  <input type="file" name="file" id="file" aria-label="Upload file">
   <div class="upload-container" id="file-upload">
     <h2>Drag files here</h2>
     <p>Or click to open a file dialog.</p>
   </div>
   <div id="files-wrapper">
     <table id="files">
-      <thead><tr><th>Filename</th><th>Checksum</th><th></th></tr></thead>
+      <thead><tr><th>Filename</th><th>Checksum</th><th>Actions</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
