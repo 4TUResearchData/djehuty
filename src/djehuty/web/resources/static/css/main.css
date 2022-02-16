@@ -101,6 +101,7 @@ body,html {
 #login-button a { color: #ffffff; text-decoration: none; }
 #dashboard-button { background: #111111; color: #ffffff; }
 #dashboard-button:hover { background: #333333; cursor: pointer; }
+#dashboard-button:active { background: #555555; cursor: pointer; }
 #dashboard-button a { color: #ffffff; text-decoration: none; }
 #logout-button { margin: 25px auto auto auto; color: #cc0000; }
 #logout-button:hover { color: #ff0000; cursor: pointer; }
@@ -338,18 +339,16 @@ table {
     display: inline-block;
     list-style-type: none;
     text-decoration: none;
-    color: #483e37;
     font-size: 14pt;
     font-weight: normal;
     background: none;
     border-radius: 4pt;
+    line-height: 1.75em;
     margin: .5em 1em .5em 0em;
-    padding: 2pt 4pt 2pt 4pt;
-    background: #e3dedb;
-    border: solid 2pt #6c5d53;
+    background: #f29100;
     user-select: none;
 }
-#submenu li:hover  { background: #c8beb7; border: solid 2pt #483e37; }
-#submenu li:active { background: #968f89; border: solid 2pt #483e37; }
+#submenu li:hover { background: #d26000; cursor: pointer; }
+#submenu li:active { background: #aa4400; }
 #submenu li.spacer { padding: 0pt; background: none; border: none; margin: 0pt; }
-#submenu li a { text-transform: uppercase; text-decoration: none; }
+#submenu li a { color: #ffffff; padding: 16pt 8pt 12pt 8pt; text-transform: uppercase; text-decoration: none; }
