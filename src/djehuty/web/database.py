@@ -173,7 +173,7 @@ class SparqlInterface:
                   doi=None, handle=None, account_id=None,
                   search_for=None, article_id=None,
                   collection_id=None, version=None, category_ids=None,
-                  return_count=False):
+                  return_count=False, is_public=None):
         """Procedure to retrieve articles."""
 
         filters  = rdf.sparql_filter ("institution_id", institution)
@@ -207,6 +207,8 @@ class SparqlInterface:
 
         if account_id is None:
             filters += rdf.sparql_filter ("is_public", 1)
+        elif is_public is not None:
+            filters += rdf.sparql_filter ("is_public", int(is_public))
 
         query = self.__query_from_template ("articles", {
             "state_graph":   self.state_graph,
