@@ -342,13 +342,21 @@ table {
     font-size: 14pt;
     font-weight: normal;
     background: none;
-    border-radius: 4pt;
-    line-height: 1.75em;
     margin: .5em 1em .5em 0em;
-    background: #f29100;
     user-select: none;
+    text-transform: uppercase;
+    color: #000000;
 }
-#submenu li:hover { background: #d26000; cursor: pointer; }
-#submenu li:active { background: #aa4400; }
+#submenu li a:hover { background: #d26000; cursor: pointer; }
+#submenu li a:active { background: #aa4400; }
 #submenu li.spacer { padding: 0pt; background: none; border: none; margin: 0pt; }
-#submenu li a { color: #ffffff; padding: 16pt 8pt 12pt 8pt; text-transform: uppercase; text-decoration: none; }
+#submenu li a {
+    display: inline-block;
+    color: #ffffff;
+    background: #f29100;
+    padding: 2pt 6pt 2pt 6pt;
+    text-decoration: none;
+    line-height: 1.75em;
+    border-radius: 4pt;
+}
+img { user-select: none; }
