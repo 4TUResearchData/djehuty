@@ -92,16 +92,16 @@ body,html {
     margin: 25px 25px auto auto;
     display: inline-block;
     padding: .5em 1em .5em 1em;
-    border-radius: 1.5em;
+    border-radius: .5em;
     text-transform: uppercase;
     font-size: 14pt;
     user-select: none;}
 #login-button { background: #f39000; color: #ffffff; }
 #login-button:hover { background: #d26000; cursor: pointer; }
 #login-button a { color: #ffffff; text-decoration: none; }
-#dashboard-button { background: #111111; color: #ffffff; }
-#dashboard-button:hover { background: #333333; cursor: pointer; }
-#dashboard-button:active { background: #555555; cursor: pointer; }
+#dashboard-button { background: #505050; color: #ffffff; }
+#dashboard-button:hover { background: #303030; cursor: pointer; }
+#dashboard-button:active { background: #000000; cursor: pointer; }
 #dashboard-button a { color: #ffffff; text-decoration: none; }
 #logout-button { margin: 25px auto auto auto; color: #cc0000; }
 #logout-button:hover { color: #ff0000; cursor: pointer; }
@@ -347,13 +347,20 @@ table {
     text-transform: uppercase;
     color: #000000;
 }
-#submenu li a:hover { background: #d26000; cursor: pointer; }
-#submenu li a:active { background: #aa4400; }
+#submenu li.active {
+    display: inline;
+    color: #000000;
+    padding: 2pt 6pt .75em 6pt;
+    text-decoration: none;
+    border-bottom: solid .25em #f49120;
+}
+#submenu li a:hover { background: #303030; cursor: pointer; }
+#submenu li a:active { background: #000000; }
 #submenu li.spacer { padding: 0pt; background: none; border: none; margin: 0pt; }
 #submenu li a {
     display: inline-block;
     color: #ffffff;
-    background: #f29100;
+    background: #505050;
     padding: 2pt 6pt 2pt 6pt;
     text-decoration: none;
     line-height: 1.75em;
