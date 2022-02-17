@@ -56,8 +56,27 @@ def main (figshare_token, figshare_stats_auth, db_host, db_username, db_password
                 if not relational_database.insert_collection (version, account["id"]):
                     logging.error("Inserting a version of {collection['id']} failed.")
 
-    logging.info("Succesfully processed %d articles.", articles_written)
-    logging.info("Failed to process %d articles.", articles_failed)
-    logging.info("Succesfully processed %d collections.", collections_written)
-    logging.info("Failed to process %d collections.", collections_failed)
+    groups_written = 0
+    groups_failed  = 0
+    groups         = endpoint.get_institutional_groups()
+    for group in groups:
+        if relational_database.insert_institution_group (group):
+            groups_written += 1
+        else:
+            groups_failed += 1
+
+    if articles_written > 0:
+        logging.info("Succesfully processed %d articles.", articles_written)
+    if collections_written > 0:
+        logging.info("Succesfully processed %d collections.", collections_written)
+    if groups_written > 0:
+        logging.info("Succesfully processed %d groups.", groups_written)
+
+    if articles_failed > 0:
+        logging.info("Failed to process %d articles.", articles_failed)
+    if collections_failed > 0:
+        logging.info("Failed to process %d collections.", collections_failed)
+    if groups_failed > 0:
+        logging.info("Failed to process %d groups.", groups_failed)
+
     return True

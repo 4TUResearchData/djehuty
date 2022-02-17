@@ -235,7 +235,6 @@ class DatabaseInterface:
         data     = (category_id, item_id)
         return self.__execute_query (template, data)
 
-
     def insert_tag (self, tag, item_id, item_type = "article"):
         """Procedure to insert a tag record."""
 
@@ -745,6 +744,30 @@ class DatabaseInterface:
             return False
 
         return True
+
+    def insert_institution_group (self, record):
+        """Procedure to insert a institution group record."""
+
+        template    = ("INSERT IGNORE INTO InstitutionGroup (id, parent_id, "
+                       "resource_id, name, association_criteria) "
+                       "VALUES (%s, %s, %s, %s, %s)")
+
+        try:
+            data        = (record["id"],
+                           convenience.value_or_none (record, "parent_id"),
+                           convenience.value_or_none (record, "resource_id"),
+                           convenience.value_or_none (record, "name"),
+                           convenience.value_or_none (record, "association_criteria"))
+
+            if self.__execute_query (template, data) is False:
+                logging.info("Failed to insert InstitutionGroup record: %s", record)
+                return False
+
+            return True
+
+        except KeyError:
+            logging.error("Failed to insert an institution group.")
+            return False
 
     def disconnect(self):
         """Procedure disconnect from the currently connected database."""

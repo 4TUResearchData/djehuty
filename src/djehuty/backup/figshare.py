@@ -485,3 +485,7 @@ class FigshareEndpoint:
                                              item_type  = "collection",
                                              start_date = start_date,
                                              end_date   = end_date)
+
+    def get_institutional_groups (self):
+        """Procedure to get groups of an institution."""
+        return self.get_record (f"/account/institution/groups")

@@ -418,6 +418,13 @@ CREATE TABLE IF NOT EXISTS CollectionShares(
     shares                INT UNSIGNED,
     date                  DATETIME) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS InstitutionGroup(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    parent_id             INT UNSIGNED,
+    resource_id           VARCHAR(255),
+    name                  VARCHAR(255),
+    association_criteria  VARCHAR(255)) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS Session(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     token                 VARCHAR(65),
