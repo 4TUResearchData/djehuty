@@ -19,6 +19,8 @@ pip install -r requirements.txt
 
 To get an interactive development environment, use:
 ```python
+cp setup.cfg.in setup.cfg
+sed -i 's/@VERSION@/0.0.1/g' setup.cfg
 pip install --editable .
 djehuty web -d -r
 ```
