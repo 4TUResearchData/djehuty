@@ -303,6 +303,7 @@ img.cts { width: 120px; }
 .fa-copyright::before { content: "\f1f9"; }
 .fa-phone::before { content: "\f095"; }
 .fa-search::before { content: "\f002"; }
+.fa-trash-can::before { content: "\f2ed"; }
 .fa-empty::before {}
 
 ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; font-size: 13pt; }

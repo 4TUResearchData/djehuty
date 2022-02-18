@@ -74,6 +74,15 @@ function perform_upload (form_data, filename) {
     })
 }
 
+function remove_file (file_id, article_id) {
+    var jqxhr = jQuery.ajax({
+        url:         `/v2/account/articles/${article_id}/files/${file_id}`,
+        type:        "DELETE",
+        accept:      "application/json",
+    }).done(function (files) { render_files_for_article(article_id); })
+      .fail(function () { console.log (`Failed to remove ${file_id}`); });
+}
+
 function render_files_for_article (article_id) {
     var jqxhr = jQuery.ajax({
         url:         "/v2/account/articles/"+ article_id +"/files",
@@ -87,7 +96,7 @@ function render_files_for_article (article_id) {
             jQuery("#files tbody").append('<tr><td>'+ file.name +' ('+
                                           prettify_size(file["size"]) +
                                           ')</td><td>'+ file["computed_md5"] +
-                                          '</td><td></td></tr>');
+                                          '</td><td><a href="#" onclick="javascript:remove_file('+ file.id +', '+ article_id +'); return false;" class="fas fa-trash-can"></a></td></tr>');
         }
         jQuery("#files").show();
     }).fail(function () {
