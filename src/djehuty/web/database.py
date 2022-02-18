@@ -320,7 +320,7 @@ class SparqlInterface:
                  author_id=None, institution_id=None, is_active=None,
                  is_public=None, job_title=None, last_name=None,
                  orcid_id=None, url_name=None, limit=10, order="full_name",
-                 order_direction="asc", item_id=None,
+                 order_direction="asc", item_id=None, search_for=None,
                  account_id=None, item_type="article"):
         """Procedure to retrieve authors of an article."""
 
@@ -337,6 +337,12 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("full_name",      full_name,  escape=True)
         filters += rdf.sparql_filter ("orcid_id",       orcid_id,   escape=True)
         filters += rdf.sparql_filter ("url_name",       url_name,   escape=True)
+
+        if search_for is not None:
+            filters += (f"FILTER (CONTAINS(STR(?first_name), \"{search_for}\") OR\n"
+                        f"        CONTAINS(STR(?last_name),  \"{search_for}\") OR\n"
+                        f"        CONTAINS(STR(?full_name),  \"{search_for}\") OR\n"
+                        f"        CONTAINS(STR(?orcid_id),   \"{search_for}\"))")
 
         query = self.__query_from_template ("authors", {
             "state_graph": self.state_graph,

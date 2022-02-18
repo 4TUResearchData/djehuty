@@ -40,6 +40,21 @@ def format_author_record (record):
       "orcid_id":  conv.value_or(record, "orcid_id", "")
     }
 
+def format_author_details_record (record):
+    return {
+      "first_name":     conv.value_or_none(record, "first_name"),
+      "full_name":      conv.value_or_none(record, "full_name"),
+      "group_id":       conv.value_or_none(record, "group_id"),
+      "id":             conv.value_or_none(record, "id"),
+      "institution_id": conv.value_or_none(record, "institution_id"),
+      "is_active":      bool(conv.value_or_none(record, "is_active")),
+      "is_public":      bool(conv.value_or_none(record, "is_public")),
+      "job_title":      conv.value_or_none(record, "job_title"),
+      "last_name":      conv.value_or_none(record, "last_name"),
+      "orcid_id":       conv.value_or (record, "orcid_id", ""),
+      "url_name":       conv.value_or_none(record, "url_name")
+    }
+
 def format_file_for_article_record (record):
     return {
       "id":           conv.value_or_none(record, "id"),
