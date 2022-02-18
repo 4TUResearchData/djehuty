@@ -1136,10 +1136,16 @@ class ApiServer:
             return self.error_authorization_failed()
 
         if request.method == 'GET':
-            files         = self.db.article_files (article_id = article_id,
-                                                   account_id = account_id)
+            try:
+                files = self.db.article_files (
+                    article_id = article_id,
+                    account_id = account_id,
+                    limit      = validator.integer_value (request.args, "limit"))
 
-            return self.default_list_response (files, formatter.format_file_for_article_record)
+                return self.default_list_response (files, formatter.format_file_for_article_record)
+
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
 
         if request.method == 'POST':
             parameters = request.get_json()
