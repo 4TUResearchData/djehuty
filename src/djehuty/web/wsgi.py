@@ -124,6 +124,7 @@ class ApiServer:
             Rule("/v3/articles/timeline/<item_type>",         endpoint = "v3_articles_timeline"),
             Rule("/v3/articles/<article_id>/upload",          endpoint = "v3_article_upload_file"),
             Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
+            Rule("/v3/articles/<article_id>/references",      endpoint = "v3_article_references"),
           ])
 
         ## Static resources and HTML templates.
@@ -2059,3 +2060,66 @@ class ApiServer:
             return self.error_500()
 
         return self.error_500()
+
+    def api_v3_article_references (self, request, article_id):
+        """Implements /v3/articles/<id>/references."""
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        article_id = int(article_id)
+
+        if request.method == 'GET':
+            references    = self.db.references (item_id    = article_id,
+                                                account_id = account_id,
+                                                item_type  = "article")
+
+            return self.default_list_response (references, formatter.format_reference_record)
+
+        if request.method == 'POST':
+            ## The 'parameters' will be a dictionary containing a key "references",
+            ## which can contain multiple dictionaries of reference records.
+            parameters = request.get_json()
+
+            try:
+                records = parameters["references"]
+                for record in records:
+                    reference_id = self.db.insert_reference (
+                        url       = validator.string_value (record, "url", 0, 512, True),
+                        item_id   = article_id,
+                        item_type = "article")
+                    if reference_id is None:
+                        logging.error("Adding a single reference failed.")
+                        return self.error_500()
+
+                return self.respond_205()
+
+            except KeyError:
+                self.error_400 ("Expected an 'references' field.", "NoReferencesField")
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+            except Exception as error:
+                logging.error("An error occurred when adding an reference record:")
+                logging.error("Exception: %s", error)
+
+            return self.error_500()
+
+        if request.method == 'DELETE':
+
+            try:
+                url_encoded = validator.string_value (request.args, "url", 0, 1024, True)
+                url         = requests.utils.unquote(url_encoded)
+
+                if self.db.delete_article_reference (article_id, account_id, url) is not None:
+                    return self.respond_204()
+
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+
+        return self.error_405 (["GET", "POST", "DELETE"])

@@ -402,6 +402,38 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def article_references (self, reference_id=None, url=None, order=None,
+                            order_direction=None, limit=10,
+                            article_id=None, account_id=None):
+        """Procedure to retrieve article references."""
+
+        filters += rdf.sparql_filter ("id",            file_id)
+        filters += rdf.sparql_filter ("url",           url,  escape=True)
+
+        query = self.__query_from_template ("article_references", {
+            "state_graph": self.state_graph,
+            "article_id":  article_id,
+            "account_id":  account_id,
+            "filters":     filters
+        })
+
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
+
+        return self.__run_query(query)
+
+    def delete_article_reference (self, article_id, account_id, url=None):
+        """Procedure to delete an article reference."""
+
+        query = self.__query_from_template ("delete_article_reference", {
+            "state_graph": self.state_graph,
+            "account_id":  account_id,
+            "article_id":  article_id,
+            "url":         url.replace('"', '\\"')
+        })
+
+        logging.info("Query:\n---\n%s\n---", query);
+        return self.__run_query(query)
+
     def custom_fields (self, name=None, value=None, default_value=None,
                        field_id=None, placeholder=None, max_length=None,
                        min_length=None, field_type=None, is_multiple=None,

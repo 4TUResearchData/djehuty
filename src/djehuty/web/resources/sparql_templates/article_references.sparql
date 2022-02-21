@@ -1,0 +1,20 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?id ?article_id ?url
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?reference         rdf:type                sg:ArticleReference .
+    ?reference         col:id                  ?id .
+    {% if article_id is not none %}
+    ?reference         col:article_id          ?article_id .
+    {% endif %}{% if account_id is not none %}
+    ?article           rdf:type                sg:Article .
+    ?article           col:article_id          ?article_id .
+    ?article           col:account_id          {{account_id}} .
+    {% endif %}
+    OPTIONAL { ?reference  col:url             ?url . }
+  }
+  FILTER (?article_id = {{article_id}})
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}
