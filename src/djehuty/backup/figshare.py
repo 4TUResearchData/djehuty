@@ -5,8 +5,8 @@ import concurrent.futures
 import multiprocessing
 import time
 import logging
-import requests
 import json
+import requests
 
 from djehuty.utils import convenience as conv
 
@@ -488,4 +488,4 @@ class FigshareEndpoint:
 
     def get_institutional_groups (self):
         """Procedure to get groups of an institution."""
-        return self.get_record (f"/account/institution/groups")
+        return self.get_record ("/account/institution/groups")
