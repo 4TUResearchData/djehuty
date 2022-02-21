@@ -981,23 +981,24 @@ class ApiServer:
                     # id, name, first_name, last_name, email, orcid_id, job_title.
                     #
                     # We assume values for is_active and is_public.
-                    author_id = self.db.insert_author (
-                        author_id  = validator.integer_value (record, "id",         0, pow(2, 63), False),
-                        full_name  = validator.string_value  (record, "name",       0, 255,        False),
-                        first_name = validator.string_value  (record, "first_name", 0, 255,        False),
-                        last_name  = validator.string_value  (record, "last_name",  0, 255,        False),
-                        email      = validator.string_value  (record, "email",      0, 255,        False),
-                        orcid_id   = validator.string_value  (record, "orcid_id",   0, 255,        False),
-                        job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
-                        is_active  = False,
-                        is_public  = True)
+                    author_id  = validator.integer_value (record, "id", 0, pow(2, 63), False)
                     if author_id is None:
-                        logging.error("Adding a single author failed.")
-                        return self.error_500()
-
-                    if self.db.insert_article_author (article_id, author_id) is None:
-                        logging.error("Adding a single author failed.")
-                        return self.error_500()
+                        author_id = self.db.insert_author (
+                            full_name  = validator.string_value  (record, "name",       0, 255,        False),
+                            first_name = validator.string_value  (record, "first_name", 0, 255,        False),
+                            last_name  = validator.string_value  (record, "last_name",  0, 255,        False),
+                            email      = validator.string_value  (record, "email",      0, 255,        False),
+                            orcid_id   = validator.string_value  (record, "orcid_id",   0, 255,        False),
+                            job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
+                            is_active  = False,
+                            is_public  = True)
+                        if author_id is None:
+                            logging.error("Adding a single author failed.")
+                            return self.error_500()
+                    else:
+                        if self.db.insert_article_author (article_id, author_id) is None:
+                            logging.error("Adding a single author failed.")
+                            return self.error_500()
 
                 return self.respond_205()
 
