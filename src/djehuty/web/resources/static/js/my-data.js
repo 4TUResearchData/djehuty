@@ -11,7 +11,7 @@ function toggle_article (article_id) {
         current_article_id = article_id;
         jQuery("#files tbody").empty();
         jQuery(".article-content").empty().hide();
-        jQuery("#article_" + article_id).append('<div class="upload-wrapper"><input type="file" name="file" id="file" aria-label="Upload file"><div class="upload-container" id="file-upload"><h2>Drag files here</h2><p>Or click to open a file dialog.</p></div></div><div id="files-wrapper"><table class="branded-table" id="files"><thead><tr><th>Filename</th><th>Checksum</th><th>Actions</th></tr></thead><tbody></tbody></table></div>');
+        jQuery("#article_" + article_id).append('<div class="upload-wrapper"><input type="file" name="file" id="file" aria-label="Upload file"><div class="upload-container" id="file-upload"><h5>Drag files here</h5><p>Or click to open a file dialog.</p></div></div><div id="files-wrapper"><table class="branded-table" id="files"><thead><tr><th>Filename</th><th>Checksum</th><th>Actions</th></tr></thead><tbody></tbody></table></div>');
         jQuery(".h3-article")
             .css("background", "")
             .css("border-radius", ".5em .5em 0em 0em")
@@ -42,36 +42,43 @@ function create_article (title, on_success, on_failure) {
     }
 }
 
-function perform_upload (form_data, filename) {
-    create_article (filename, function (article_id) {
+function perform_upload (files, current_file) {
+    total_files = files.length;
+    create_article ("Untitled article", function (article_id) {
+        var index = current_file - 1;
+        var data  = new FormData();
+        data.append (`file`, files[index], files[index].name);
+
         jQuery.ajax({
             xhr: function () {
                 var xhr = new window.XMLHttpRequest();
                 xhr.upload.addEventListener("progress", function (evt) {
                     if (evt.lengthComputable) {
                         var completed = parseInt(evt.loaded / evt.total * 100);
-                        jQuery("#file-upload h2").text("Uploading at " + completed + "%");
+                        jQuery("#file-upload h5").text(`Uploading at ${completed}% (${current_file}/${total_files})`);
                         if (completed === 100) {
-                            jQuery("#file-upload h2").text("Computing MD5 ...");
+                            jQuery("#file-upload h5").text(`Computing MD5 ... (${current_file}/${total_files})`);
                         }
                     }
                 }, false);
                 return xhr;
             },
-            url:         "/v3/articles/"+ article_id +"/upload",
+            url:         `/v3/articles/${article_id}/upload`,
             type:        "POST",
-            data:        form_data,
+            data:        data,
             processData: false,
             contentType: false,
             success: function (data, textStatus, request) {
-                jQuery("#file-upload h2").text("Drag files here");
+                jQuery("#file-upload h5").text("Drag files here");
                 render_files_for_article (article_id);
-                //add_uploaded_file_record (data["location"]);
+                if (current_file < total_files) {
+                    return perform_upload (files, current_file + 1, total_files);
+                }
             }
         });
     }, function () {
         jQuery("#file-upload").css("background", "#990000");
-    })
+    });
 }
 
 function remove_file (file_id, article_id) {
@@ -85,18 +92,15 @@ function remove_file (file_id, article_id) {
 
 function render_files_for_article (article_id) {
     var jqxhr = jQuery.ajax({
-        url:         "/v2/account/articles/"+ article_id +"/files",
+        url:         `/v2/account/articles/${article_id}/files`,
+        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
     }).done(function (files) {
         jQuery("#files tbody").empty();
         for (index in files) {
             file = files[index];
-            console.log ("Processing: "+ JSON.stringify(file));
-            jQuery("#files tbody").append('<tr><td>'+ file.name +' ('+
-                                          prettify_size(file["size"]) +
-                                          ')</td><td>'+ file["computed_md5"] +
-                                          '</td><td><a href="#" onclick="javascript:remove_file('+ file.id +', '+ article_id +'); return false;" class="fas fa-trash-can"></a></td></tr>');
+            jQuery("#files tbody").append(`<tr><td>${file.name} (${prettify_size(file["size"])})</td><td>${file["computed_md5"]}</td><td><a href="#" onclick="javascript:remove_file(${file.id}, ${article_id}); return false;" class="fas fa-trash-can" title="Remove"></a></td></tr>`);
         }
         jQuery("#files").show();
     }).fail(function () {
@@ -117,7 +121,7 @@ function activate_drag_and_drop () {
         event.preventDefault();
         event.stopPropagation();
         jQuery(".upload-container").css("background", "#eeeeee")
-        jQuery("#file-upload h2").text("Drag here");
+        jQuery("#file-upload h5").text("Drag here");
     });
     jQuery("html").on("drop", function (event) {
         event.preventDefault();
@@ -128,27 +132,25 @@ function activate_drag_and_drop () {
     jQuery('#file-upload').on('dragenter', function (event) {
         event.stopPropagation();
         event.preventDefault();
-        jQuery("#file-upload h2").text("Drop here");
+        jQuery("#file-upload h5").text("Drop here");
     });
     jQuery('#file-upload').on('dragover', function (event) {
         event.stopPropagation();
         event.preventDefault();
-        jQuery("#file-upload h2").text("Drop here");
+        jQuery("#file-upload h5").text("Drop here");
     });
     jQuery('#file-upload').on('dragleave', function (event) {
         jQuery(".upload-container").css("background", "#f9f9f9");
-        jQuery("#file-upload h2").text("Drag files here");
+        jQuery("#file-upload h5").text("Drag files here");
     });
     jQuery('#file-upload').on('drop', function (event) {
         event.stopPropagation();
         event.preventDefault();
 
-        jQuery("#file-upload h2").text("Uploading ...");
+        jQuery("#file-upload h5").text("Uploading ...");
 
-        var file = event.originalEvent.dataTransfer.files;
-        var data = new FormData();
-        data.append('file', file[0], file[0].name);
-        perform_upload(data, file[0].name);
+        var files = event.originalEvent.dataTransfer.files;
+        perform_upload (files, 1);
     });
 
     // Open file selector on div click
@@ -158,9 +160,7 @@ function activate_drag_and_drop () {
 
     // file selected
     jQuery("#file").change(function () {
-        var file = jQuery('#file')[0].files;
-        var data = new FormData();
-        data.append('file', file[0], file[0].name);
-        perform_upload(data, file[0].name);
+        var files = jQuery('#file')[0].files;
+        perform_upload (files, 1);
     });
 }
