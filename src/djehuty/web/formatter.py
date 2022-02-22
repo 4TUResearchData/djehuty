@@ -104,6 +104,13 @@ def format_tag_record (record):
 def format_reference_record (record):
     return conv.value_or_none(record, "url")
 
+def format_license_record (record):
+    return {
+        "value":         conv.value_or_none(record, "id"),
+        "name":          conv.value_or_none(record, "name"),
+        "url":           conv.value_or_none(record, "url"),
+    }
+
 def format_article_details_record (article, authors, files, custom_fields,
                                    embargo_options, tags, categories, funding,
                                    references):

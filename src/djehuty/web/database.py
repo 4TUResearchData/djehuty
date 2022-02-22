@@ -527,6 +527,13 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def licenses (self):
+        query = self.__query_from_template ("licenses", {
+            "state_graph": self.state_graph
+        })
+
+        return self.__run_query(query)
+
     ## ------------------------------------------------------------------------
     ## COLLECTIONS
     ## ------------------------------------------------------------------------

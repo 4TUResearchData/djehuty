@@ -116,6 +116,10 @@ class ApiServer:
             ## Private authors
             Rule("/v2/account/authors/search",                endpoint = "private_authors_search"),
 
+            ## Other
+            ## ----------------------------------------------------------------
+            Rule("/v2/licenses",                              endpoint = "licenses"),
+
             ## ----------------------------------------------------------------
             ## V3 API
             ## ----------------------------------------------------------------
@@ -624,6 +628,14 @@ class ApiServer:
         )
 
         return self.default_list_response (records, formatter.format_article_record)
+
+    def api_licenses (self, request):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        records = self.db.licenses()
+        return self.default_list_response (records, formatter.format_license_record)
 
     def api_article_details (self, request, article_id):
         if request.method != 'GET':
