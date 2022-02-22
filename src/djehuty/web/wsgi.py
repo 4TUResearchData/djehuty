@@ -53,6 +53,7 @@ class ApiServer:
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
+            Rule("/institutions/<institution_name>",          endpoint = "institution"),
             Rule("/agriculture-animal-plant-sciences",        endpoint = "agriculture_animal_plant_sciences"),
             Rule("/chemistry",                                endpoint = "chemistry"),
 
@@ -496,6 +497,22 @@ class ApiServer:
                                            articles=articles,
                                            category=category,
                                            subcategories=subcategories)
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_institution (self, request, institution_name):
+        if self.accepts_html (request):
+            group_name    = institution_name.replace('_', ' ')
+            group         = self.db.group_by_name (group_name)
+            sub_groups    = self.db.group_by_name (group_name, start_with=True)
+            sub_group_ids = [item['group_id'] for item in sub_groups]
+            articles      = self.db.articles (group_ids=sub_group_ids, is_public=True, limit=100)
+
+            return self.__render_template (request, "institutions.html",
+                                           articles=articles,
+                                           group=group,
+                                           sub_groups=sub_groups)
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
         }))
@@ -1885,6 +1902,7 @@ class ApiServer:
         record["published_since"] = self.get_parameter (request, "published_since")
         record["modified_since"]  = self.get_parameter (request, "modified_since")
         record["group"]           = self.get_parameter (request, "group")
+        record["group_ids"]       = self.get_parameter (request, "group_ids")
         record["resource_doi"]    = self.get_parameter (request, "resource_doi")
         record["item_type"]       = self.get_parameter (request, "item_type")
         record["doi"]             = self.get_parameter (request, "doi")
@@ -1913,6 +1931,12 @@ class ApiServer:
                 for index, _ in enumerate(record["categories"]):
                     record["categories"][index] = validator.integer_value (record["categories"], index)
 
+            if record["group_ids"] is not None:
+                record["group_ids"] = record["group_ids"].split(",")
+                validator.array_value   (record, "group_ids")
+                for index, _ in enumerate(record["group_ids"]):
+                    record["group_ids"][index] = validator.integer_value (record["group_ids"], index)
+
         except validator.ValidationException as error:
             return self.error_400 (error.message, error.code)
 
@@ -1924,6 +1948,7 @@ class ApiServer:
                                     published_since = record["published_since"],
                                     modified_since  = record["modified_since"],
                                     group           = record["group"],
+                                    group_ids       = record["group_ids"],
                                     resource_doi    = record["resource_doi"],
                                     item_type       = record["item_type"],
                                     doi             = record["doi"],
@@ -1942,6 +1967,7 @@ class ApiServer:
         record["offset"]          = self.get_parameter (request, "offset")
         record["order"]           = self.get_parameter (request, "order")
         record["order_direction"] = self.get_parameter (request, "order_direction")
+        record["group_ids"]       = self.get_parameter(request, "group_ids")
         record["categories"]      = self.get_parameter (request, "categories")
         record["item_type"]       = item_type
 
@@ -1963,6 +1989,12 @@ class ApiServer:
             for index, _ in enumerate(record["categories"]):
                 record["categories"][index] = validator.integer_value (record["categories"], index)
 
+        if record["group_ids"] is not None:
+            record["group_ids"] = record["group_ids"].split(",")
+            validator.array_value(record, "group_ids")
+            for index, _ in enumerate(record["group_ids"]):
+                record["group_ids"][index] = validator.integer_value(record["group_ids"], index)
+
         return record
 
     def api_v3_articles_top (self, request, item_type):
@@ -1982,6 +2014,7 @@ class ApiServer:
             offset          = record["offset"],
             order           = record["order"],
             order_direction = record["order_direction"],
+            group_ids       = record["group_ids"],
             category_ids    = record["categories"],
             item_type       = item_type)
 
