@@ -18,3 +18,5 @@ Makefile.in
 setup.cfg
 missing
 install-sh
+.DS_Store
+.idea/
