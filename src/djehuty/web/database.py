@@ -407,7 +407,7 @@ class SparqlInterface:
                             article_id=None, account_id=None):
         """Procedure to retrieve article references."""
 
-        filters += rdf.sparql_filter ("id",            file_id)
+        filters  = rdf.sparql_filter ("id",            reference_id)
         filters += rdf.sparql_filter ("url",           url,  escape=True)
 
         query = self.__query_from_template ("article_references", {
@@ -431,7 +431,6 @@ class SparqlInterface:
             "url":         url.replace('"', '\\"')
         })
 
-        logging.info("Query:\n---\n%s\n---", query);
         return self.__run_query(query)
 
     def custom_fields (self, name=None, value=None, default_value=None,
@@ -763,7 +762,7 @@ class SparqlInterface:
         ## FILES
         ## --------------------------------------------------------------------
         for file_data in files:
-            file_id = self.insert_file (
+            self.insert_file (
                 file_id       = conv.value_or_none (file_data, "id"),
                 name          = conv.value_or_none (file_data, "name"),
                 size          = conv.value_or_none (file_data, "size"),
