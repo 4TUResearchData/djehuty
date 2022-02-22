@@ -81,6 +81,9 @@ var categories = "{% for item in subcategories: %}{{item.id}}{{ ',' if not loop.
 {% endblock %}
 {% block body %}
 <h1>{{category.title}}</h1>
+<noscript>
+  <p class="no-script">Sorry, the top datasets and latest datasets require JavaScript.</p>
+</noscript>
 <ul class="subcategories">{% for item in subcategories %}
   <li><button>{{item.title}}</button></li>
 {% endfor %}</ul>

@@ -379,3 +379,4 @@ img { user-select: none; }
     background-repeat: no-repeat;
     z-index: 100;
 }
+.no-script { background: #cc0000; color: #ffffff; padding: 1em; }
