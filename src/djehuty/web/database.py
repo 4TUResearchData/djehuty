@@ -169,7 +169,7 @@ class SparqlInterface:
     def articles (self, limit=None, offset=None, order=None,
                   order_direction=None, institution=None,
                   published_since=None, modified_since=None,
-                  group=None, resource_doi=None, item_type=None,
+                  group=None, group_ids=None, resource_doi=None, item_type=None,
                   doi=None, handle=None, account_id=None,
                   search_for=None, article_id=None,
                   collection_id=None, version=None, category_ids=None,
@@ -188,6 +188,9 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("resource_title", search_for,   escape=True)
         filters += rdf.sparql_filter ("description",    search_for,   escape=True)
         filters += rdf.sparql_filter ("citation",       search_for,   escape=True)
+
+        if group_ids is not None:
+            filters += f"FILTER ((?group_id) IN ({','.join(map(str, group_ids))}))\n"
 
         if category_ids is not None:
             filters += f"FILTER (?category_id={category_ids[0]} OR ?parent_category_id={category_ids[0]}"
@@ -256,6 +259,7 @@ class SparqlInterface:
     def article_statistics (self, item_type="downloads",
                                   order="downloads",
                                   order_direction="desc",
+                                  group_ids=None,
                                   category_ids=None,
                                   limit=10,
                                   offset=0):
@@ -269,6 +273,10 @@ class SparqlInterface:
             for category_id in category_ids[1:]:
                 filters += f" OR ?category_id={category_id}"
             filters += ")\n"
+
+        if group_ids is not None:
+            filters += f"FILTER ((?group_id) IN ({','.join(map(str, group_ids))}))\n"
+
 
         query   = self.__query_from_template ("article_statistics", {
             "state_graph":   self.state_graph,
@@ -1633,6 +1641,23 @@ class SparqlInterface:
 
         query += rdf.sparql_suffix ("title", "asc")
         return self.__run_query (query, query)
+
+    def group_by_name (self, group_name, startswith=False):
+        """Procedure to return group information by its name."""
+
+        query = self.__query_from_template ("group_by_name", {
+            "state_graph": self.state_graph,
+            "startswith": startswith,
+            "group_name": group_name
+        })
+
+        results = self.__run_query (query, query)
+        if startswith:
+            return results
+        try:
+            return results[0]
+        except IndexError:
+            return None
 
     def account_id_by_orcid (self, orcid):
         """Returns the account ID belonging to an ORCID."""

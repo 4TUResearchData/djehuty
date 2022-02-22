@@ -1,0 +1,16 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?group_id ?group_name
+WHERE {
+  GRAPH <https://data.4tu.nl/portal/2022-01-25> {
+    ?group           rdf:type                 sg:InstitutionGroup .
+    ?group           col:id                   ?group_id .
+    ?group           col:name                 ?group_name .
+  }
+{% if start_with %}
+FILTER (STRSTARTS(STR(?group_name), "{{ group_name }}"))
+{% else %}
+FILTER (STR(?group_name) = "{{ group_name }}")
+{% endif %}
+}
+{% endblock %}
