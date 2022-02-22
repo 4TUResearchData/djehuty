@@ -8,6 +8,7 @@ WHERE {
     ?article        col:article_id      ?article_id .
     ?article        col:version         ?version .
     ?article        col:figshare_url    ?figshare_url .
+    OPTIONAL { ?article        col:group_id        ?group_id . }
 
     ?category_link  rdf:type            sg:ArticleCategory .
     ?category_link  col:category_id     ?category_id .
