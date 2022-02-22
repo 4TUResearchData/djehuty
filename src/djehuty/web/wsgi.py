@@ -505,7 +505,7 @@ class ApiServer:
         if self.accepts_html (request):
             group_name    = institution_name.replace('_', ' ')
             group         = self.db.group_by_name (group_name)
-            sub_groups    = self.db.group_by_name (group_name, start_with=True)
+            sub_groups    = self.db.group_by_name (group_name, startswith=True)
             sub_group_ids = [item['group_id'] for item in sub_groups]
             articles      = self.db.articles (group_ids=sub_group_ids, is_public=True, limit=100)
 
