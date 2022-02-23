@@ -1697,6 +1697,33 @@ class SparqlInterface:
 
         return None
 
+    def opendap_to_doi(self, startswith=None, endswith=None):
+        """Procedure to return DOI corresponding to opendap catalog url"""
+
+        filters = ""
+
+        if startswith is not None:
+            if type(startswith) == type([]):
+                filters += f"FILTER ((STRSTARTS(STR(?download_url), \"{ startswith[0] }\"))"
+                for s in startswith[1:]:
+                    filters += f" OR (STRSTARTS(STR(?download_url), \"{ s }\"))"
+                filters += ")\n"
+            elif type(startswith) == type(""):
+                filters += f"FILTER (STRSTARTS(STR(?download_url), \"{ startswith }\"))\n"
+            else:
+                logging.error(f"startswith of type {type(startswith)} is not supported")
+
+        if endswith is not None:
+            filters += f"FILTER (STRENDS(STR(?download_url), \"{ endswith }\"))\n"
+
+        query = self.__query_from_template ("opendap_to_doi", {
+            "state_graph": self.state_graph,
+            "filters": filters
+        })
+
+        results = self.__run_query (query)
+        return results
+
     def account_id_by_orcid (self, orcid):
         """Returns the account ID belonging to an ORCID."""
 

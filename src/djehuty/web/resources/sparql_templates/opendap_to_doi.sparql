@@ -1,0 +1,21 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?download_url ?doi ?title
+WHERE {
+  GRAPH <{{ state_graph }}> {
+    ?article           rdf:type            sg:Article .
+    ?article           col:article_id      ?article_id .
+    ?article           col:doi             ?doi .
+    ?article           col:title           ?title .
+
+    ?link             rdf:type             sg:ArticleFile .
+    ?link             col:article_id       ?article_id .
+    ?link             col:file_id          ?file_id .
+
+    ?file             rdf:type             sg:File .
+    ?file             col:id               ?file_id .
+    ?file             col:download_url     ?download_url .
+  }
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}
