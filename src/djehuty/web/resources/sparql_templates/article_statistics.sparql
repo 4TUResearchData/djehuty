@@ -8,6 +8,7 @@ WHERE {
     ?article        col:article_id      ?article_id .
     ?article        col:version         ?version .
     ?article        col:figshare_url    ?figshare_url .
+    ?article        col:published_date  ?published_date .
     OPTIONAL { ?article        col:group_id        ?group_id . }
 
     ?category_link  rdf:type            sg:ArticleCategory .
@@ -18,6 +19,7 @@ WHERE {
     ?stats          col:article_id      ?article_id .
     ?stats          col:{{item_type}}   ?{{item_type}} .
   }
+FILTER (STR(?published_date) != "NULL")
 {% if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
