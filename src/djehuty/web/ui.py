@@ -107,6 +107,8 @@ def main (address=None, port=None, state_graph=None, storage=None,
                        config_file)
     except ET.ParseError:
         logging.error ("%s does not contain valid XML.", config_file)
+    except FileNotFoundError:
+        logging.error ("Could not open '%s'.", config_file)
 
     return None
 
