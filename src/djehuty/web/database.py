@@ -1678,6 +1678,25 @@ class SparqlInterface:
         except IndexError:
             return None
 
+    def account_storage_used (self, account_id):
+        """Returns the number of bytes used by an account."""
+
+        query = self.__query_from_template ("account_storage_used", {
+            "state_graph": self.state_graph,
+            "account_id":  account_id
+        })
+
+        results = self.__run_query (query)
+        try:
+            return results[0]["bytes"]
+        except IndexError:
+            logging.error ("Account %s looks to be empty.", account_id)
+            return 0
+        except KeyError:
+            logging.error ("Failed to retrieve used storage for account %s.", account_id)
+
+        return None
+
     def account_id_by_orcid (self, orcid):
         """Returns the account ID belonging to an ORCID."""
 
