@@ -1694,6 +1694,25 @@ class SparqlInterface:
         except KeyError:
             return account
 
+    def account_by_id (self, account_id):
+        """Returns an account_id or None."""
+
+        query = self.__query_from_template ("account_by_id", {
+            "state_graph": self.state_graph,
+            "account_id":  account_id
+        })
+
+        try:
+            results    = self.__run_query (query)
+            account    = results[0]
+            privileges = self.privileges[int(account["account_id"])]
+            account    = { **account, **privileges }
+            return account
+        except IndexError:
+            return None
+        except KeyError:
+            return account
+
     def insert_session (self, account_id, token=None):
         """Procedure to add a session token for an account_id."""
 

@@ -5,6 +5,17 @@ djehuty.database to be backward-compatible with Figshare.
 
 from djehuty.utils import convenience as conv
 
+def format_account_record (record):
+    return {
+        "id":             conv.value_or_none(record, "account_id"),
+        "first_name":     conv.value_or_none(record, "first_name"),
+        "last_name":      conv.value_or_none(record, "last_name"),
+        "is_active":      bool(conv.value_or_none(record, "active")),
+        "is_public":      bool(conv.value_or_none(record, "public")),
+        "job_title":      conv.value_or_none(record, "job_title"),
+        "orcid_id":       conv.value_or (record, "orcid_id", ""),
+    }
+
 def format_article_record (record):
     return {
         "id":                      conv.value_or_none(record, "id"),

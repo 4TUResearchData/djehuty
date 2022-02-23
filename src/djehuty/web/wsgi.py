@@ -67,6 +67,7 @@ class ApiServer:
             ## Private institutions
             ## ----------------------------------------------------------------
             Rule("/v2/account/institution",                   endpoint = "private_institution"),
+            Rule("/v2/account/institution/users/<account_id>",endpoint = "private_institution_account"),
 
             ## Public articles
             ## ----------------------------------------------------------------
@@ -569,6 +570,22 @@ class ApiServer:
             "id": 898,
             "name": "4TU.ResearchData"
         }))
+
+    def api_private_institution_account (self, request, account_id):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        account   = self.db.account_by_id (account_id)
+        formatted = formatter.format_account_record(account)
+
+        return self.response (json.dumps (formatted))
 
     def api_articles (self, request):
         if request.method != 'GET':
