@@ -56,6 +56,7 @@ class ApiServer:
             Rule("/institutions/<institution_name>",          endpoint = "institution"),
             Rule("/agriculture-animal-plant-sciences",        endpoint = "agriculture_animal_plant_sciences"),
             Rule("/chemistry",                                endpoint = "chemistry"),
+            Rule("/opendap_to_doi",                           endpoint = "opendap_to_doi"),
 
             ## ----------------------------------------------------------------
             ## API
@@ -543,6 +544,50 @@ class ApiServer:
     def api_chemistry (self, request):
         if self.accepts_html (request):
             return self.__render_template (request, "chemistry.html")
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_opendap_to_doi(self, request):
+        if self.accepts_html (request):
+            referrer = request.referrer
+            if referrer is None:
+                referrer = ""
+            else:
+                catalog = referrer.split('.nl/thredds/', 1)[-1].split('?')[0]
+                if catalog.startswith('catalog/data2/IDRA'):
+                    # as the IDRA dataset is available at two places on opendap, use the one that matches the database
+                    catalog = catalog.replace('catalog/data2/IDRA', 'catalog/IDRA')
+                logging.info(f"{ catalog }")
+
+            catalog_parts = catalog.split('/')
+            print(catalog_parts)
+            # start with this catalog and go broader until something found
+            for end_index in range(len(catalog_parts[:-1]), 0, -1):
+                # build temporary catalog url from the first x catalog_parts combined with the suffix "catalog.html"
+                catalog_end = '/'.join(catalog_parts[:end_index] + [catalog_parts[-1]])
+                dois = self.db.opendap_to_doi(endswith=catalog_end)
+                if len(dois) > 0:
+                    # leave this loop if at least one DOI is found
+                    break
+
+            if len(dois) == 0:
+                # search narrower catalogs (either opendap.4tu.nl or opendap.tudelft.nl)
+                catalog_start = [f"https://opendap.4tu.nl/thredds/{ '/'.join(catalog_parts[:-1]) }/",
+                                 f"https://opendap.tudelft.nl/thredds/{ '/'.join(catalog_parts[:-1]) }/"]
+                dois = self.db.opendap_to_doi(startswith=catalog_start)
+
+            if len(dois) == 1:
+                return redirect(f"https://doi.org/{ dois[0]['doi'] }")
+            # sort on title
+            dois.sort(key=lambda x: x["title"])
+            for item in dois:
+                print(item["title"], item["doi"])
+
+            return self.__render_template (request, "opendap_to_doi.html",
+                                           dois=dois,
+                                           referrer=referrer)
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."

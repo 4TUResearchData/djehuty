@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="description" content="4TU.ResearchData API">
+        <meta name="keywords" content="figshare, api, 4tu, 4tu.researchdata">
+        <meta name="author" content="4TU.ResearchData">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' api.figshare.com ndownloader.figshare.com s3-eu-west-1.amazonaws.com 'unsafe-inline'">
+        <title>4TU.ResearchData</title>
+        <link rel='shortcut icon' type='image/x-icon' href='/static/images/favicon.ico'>
+        <style>
+            body {font-family: 'Source Sans Pro',sans-serif}
+            img {width:200px}
+            div.main {margin:20px; border:4px dotted #f90; padding:20px}
+            a {color: #a2a2a2;outline: none;text-decoration: none;}
+            a:hover {color: #f49120;text-decoration:underline;}
+        </style>
+    </head>
+    <body>
+        <div id="header-left"><a href="/portal"><img id="logo" src="/static/images/logo.png" alt="4TU.ResearchData portal"></a></div>
+        <div class="main">
+            {% if referrer | length %}
+                {% if dois | length %}
+                    <p>Descriptions/metadata of this dataset or parts of it can be found in:</p>
+                    {% for item in dois %}
+                        <div><a href="https://doi.org/{{ item.doi }}">{{ item.title }}</a></div>
+                    {% endfor %}
+                {% else %}
+                    <p>Sorry, nothing found for {{ referrer }}</p>
+                {% endif %}
+            {% else %}
+                <p>This page needs to be referred to from another page to do something useful</p>
+            {% endif %}
+        </div>
+    </body>
+</html>
