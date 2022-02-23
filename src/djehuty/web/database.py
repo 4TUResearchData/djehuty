@@ -151,6 +151,25 @@ class SparqlInterface:
     ## GET METHODS
     ## ------------------------------------------------------------------------
 
+    def article_storage_used (self, article_id):
+        """Returns the number of bytes used by an article."""
+
+        query = self.__query_from_template ("article_storage_used", {
+            "state_graph": self.state_graph,
+            "article_id":  article_id
+        })
+
+        results = self.__run_query (query, query)
+        try:
+            return results[0]["bytes"]
+        except IndexError:
+            logging.error ("Article %s looks to be empty.", article_id)
+            return 0
+        except KeyError:
+            logging.error ("Failed to retrieve used storage for article %s", article_id)
+
+        return None
+
     def article_versions (self, limit=1000, offset=0, order=None,
                           order_direction=None, article_id=None):
         """Procedure to retrieve the versions of an article."""
