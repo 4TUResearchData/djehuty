@@ -5,6 +5,7 @@ serializable by means of 'json.dumps' and deseralizeable by means of
 'json.loads'.
 """
 
+import glob
 import os
 import logging
 import hashlib
@@ -29,10 +30,10 @@ class CacheLayer:
         os.makedirs(self.storage, mode=0o700, exist_ok=True)
         return os.path.isdir(self.storage)
 
-    def cached_value (self, key):
+    def cached_value (self, prefix, key):
         data = None
         try:
-            with open(f"{self.storage}/{key}", "r") as file:
+            with open(f"{self.storage}/{prefix}_{key}", "r") as file:
                 cached = file.read()
                 data = json.loads(cached)
                 logging.info("Cache hit for %s.", key)
@@ -41,9 +42,9 @@ class CacheLayer:
 
         return data
 
-    def cache_value (self, key, value):
+    def cache_value (self, prefix, key, value):
         try:
-            with open(f"{self.storage}/{key}", "w") as file:
+            with open(f"{self.storage}/{prefix}_{key}", "w") as file:
                 file.write(json.dumps(value))
         except OSError:
             logging.error("Failed to save cache for %s.", key)
@@ -51,5 +52,9 @@ class CacheLayer:
         return value
 
     def remove_cached_value (self, key):
-        os.remove(f"{self.storage}/{key}")
+        os.remove(f"{self.storage}/{prefix}_{key}")
         return True
+
+    def invalidate_by_prefix (self, prefix):
+        for file_path in glob.glob(f"{self.storage}/{prefix}_*"):
+            os.remove(file_path)

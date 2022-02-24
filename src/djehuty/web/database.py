@@ -91,12 +91,12 @@ class SparqlInterface:
         template = self.jinja.get_template (f"{name}.sparql")
         return template.render (args)
 
-    def __run_query (self, query, cache_key_string=None):
+    def __run_query (self, query, cache_key_string=None, prefix=None):
 
         cache_key = None
         if cache_key_string is not None:
             cache_key = self.cache.make_key (cache_key_string)
-            cached    = self.cache.cached_value(cache_key)
+            cached    = self.cache.cached_value(prefix, cache_key)
             if cached is not None:
                 return cached
 
@@ -109,7 +109,7 @@ class SparqlInterface:
                                query_results["results"]["bindings"]))
 
             if cache_key_string is not None:
-                self.cache.cache_value (cache_key, results)
+                self.cache.cache_value (prefix, cache_key, results)
 
         except URLError:
             logging.error("Connection to the SPARQL endpoint seems down.")
