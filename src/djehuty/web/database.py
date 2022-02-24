@@ -6,6 +6,7 @@ data for the API server.
 import secrets
 import os.path
 import logging
+from datetime import datetime
 from urllib.error import URLError
 from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
 from rdflib import Graph, Literal, RDF, XSD
@@ -855,6 +856,13 @@ class SparqlInterface:
         rdf.add (graph, article_uri, rdf.COL["resource_doi"],   resource_doi,   XSD.string)
         rdf.add (graph, article_uri, rdf.COL["resource_title"], resource_title, XSD.string)
         rdf.add (graph, article_uri, rdf.COL["group_id"],       group_id)
+
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
+        rdf.add (graph, article_uri, rdf.COL["created_date"],   current_time, XSD.string)
+        rdf.add (graph, article_uri, rdf.COL["modified_date"],  current_time, XSD.string)
+        rdf.add (graph, article_uri, rdf.COL["published_date"], "NULL", XSD.string)
+        rdf.add (graph, article_uri, rdf.COL["is_public"],      0)
+        rdf.add (graph, article_uri, rdf.COL["is_active"],      1)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
