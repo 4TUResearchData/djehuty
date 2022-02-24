@@ -107,7 +107,8 @@ WHERE {
   }
 {% if account_id is not none: %}
 FILTER (?account_id = {{account_id}})
-{% endif %}{% if filters is not none %}{{ filters }}{% endif %}
+{% else: %}
 FILTER (STR(?published_date) != "NULL")
+{% endif %}{% if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
