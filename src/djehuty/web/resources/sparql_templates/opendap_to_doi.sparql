@@ -2,32 +2,25 @@
 {% block query %}
 SELECT DISTINCT ?download_url ?doi ?title
 WHERE {
-  GRAPH <{{state_graph}}> {
+  GRAPH <https://data.4tu.nl/portal/2022-01-25> {
+    ?article        rdf:type         sg:Article ;
+                    col:article_id   ?article_id ;
+                    col:doi          ?doi ;
+                    col:title        ?title .
     {
-      ?article      rdf:type         sg:Article .
-      ?article      col:article_id   ?article_id .
-      ?article      col:doi          ?doi .
-      ?article      col:title        ?title .
-
-      ?link         rdf:type         sg:ArticleFile .
-      ?link         col:article_id   ?article_id .
-      ?link         col:file_id      ?file_id .
-
-      ?file         rdf:type         sg:File .
-      ?file         col:id           ?file_id .
-      ?file         col:download_url ?download_url .
+      ?link         rdf:type         sg:ArticleFile ;
+                    col:article_id   ?article_id ;
+                    col:file_id      ?file_id .
+      ?file         rdf:type         sg:File ;
+                    col:id           ?file_id ;
+                    col:download_url ?download_url .
     }
     UNION
     {
-      ?article      rdf:type         sg:Article .
-      ?article      col:article_id   ?article_id .
-      ?article      col:doi          ?doi .
-      ?article      col:title        ?title .
-
-      ?customField  rdf:type         sg:ArticleCustomField .
-      ?customField  col:article_id   ?article_id .
-      ?customField  col:name         "Data Link"^^xsd:string .
-      ?customField  col:value        ?download_url .
+      ?customField  rdf:type         sg:ArticleCustomField ;
+                    col:article_id   ?article_id ;
+                    col:name         "Data Link"^^xsd:string ;
+                    col:value        ?download_url .
     }
   }
 {% if filters is not none %}{{ filters }}{% endif %}
