@@ -1717,15 +1717,15 @@ class SparqlInterface:
         filters = ""
 
         if startswith is not None:
-            if type(startswith) == type([]):
+            if isinstance(startswith, list):
                 filters += f"FILTER ((STRSTARTS(STR(?download_url), \"{ startswith[0] }\"))"
-                for s in startswith[1:]:
-                    filters += f" OR (STRSTARTS(STR(?download_url), \"{ s }\"))"
+                for filter_item in startswith[1:]:
+                    filters += f" OR (STRSTARTS(STR(?download_url), \"{filter_item}\"))"
                 filters += ")\n"
-            elif type(startswith) == type(""):
+            elif isinstance(startswith, str):
                 filters += f"FILTER (STRSTARTS(STR(?download_url), \"{ startswith }\"))\n"
             else:
-                logging.error(f"startswith of type {type(startswith)} is not supported")
+                logging.error("startswith of type %s is not supported", type(startswith))
 
         if endswith is not None:
             filters += f"FILTER (STRENDS(STR(?download_url), \"{ endswith }\"))\n"
