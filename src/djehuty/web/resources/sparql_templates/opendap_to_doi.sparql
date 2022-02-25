@@ -2,7 +2,7 @@
 {% block query %}
 SELECT DISTINCT ?download_url ?doi ?title
 WHERE {
-  GRAPH <https://data.4tu.nl/portal/2022-01-25> {
+  GRAPH <{{state_graph}}> {
     {
       ?article      rdf:type         sg:Article .
       ?article      col:article_id   ?article_id .
