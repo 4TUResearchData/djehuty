@@ -1,3 +1,4 @@
 include etc/djehuty.service
 include sql/Database.sql
 include rpmbuild/SPECS/djehuty.spec
+recursive-include src/djehuty/web/resources *.txt *.html *.css *.eot *.svg *.ttf *.woff *.woff2 *.js *.sparql *.jpg *.png *.ico
