@@ -557,15 +557,16 @@ class ApiServer:
             else:
                 catalog = referrer.split('.nl/thredds/', 1)[-1].split('?')[0]
                 if catalog.startswith('catalog/data2/IDRA'):
-                    # as the IDRA dataset is available at two places on opendap, use the one that matches the database
+                    # as the IDRA dataset is available at two places on opendap,
+                    # use the one that matches the database
                     catalog = catalog.replace('catalog/data2/IDRA', 'catalog/IDRA')
-                logging.info(f"{ catalog }")
 
             catalog_parts = catalog.split('/')
             print(catalog_parts)
             # start with this catalog and go broader until something found
             for end_index in range(len(catalog_parts[:-1]), 0, -1):
-                # build temporary catalog url from the first x catalog_parts combined with the suffix "catalog.html"
+                # build temporary catalog url from the first x catalog_parts
+                # combined with the suffix "catalog.html"
                 catalog_end = '/'.join(catalog_parts[:end_index] + [catalog_parts[-1]])
                 dois = self.db.opendap_to_doi(endswith=catalog_end)
                 if len(dois) > 0:
