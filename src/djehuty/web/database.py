@@ -160,7 +160,7 @@ class SparqlInterface:
             "article_id":  article_id
         })
 
-        results = self.__run_query (query, query)
+        results = self.__run_query (query, query, f"{article_id}_article")
         try:
             return results[0]["bytes"]
         except IndexError:
@@ -251,7 +251,7 @@ class SparqlInterface:
         if not return_count:
             query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
-        return self.__run_query (query, query)
+        return self.__run_query (query, query, "article")
 
     def repository_statistics (self):
         """Procedure to retrieve repository-wide statistics."""
@@ -266,8 +266,8 @@ class SparqlInterface:
 
         row = None
         try:
-            results  = self.__run_query (query, query)
-            results2 = self.__run_query (query2, query2)
+            results  = self.__run_query (query, query, "statistics")
+            results2 = self.__run_query (query2, query2, "statistics")
             row = { **results[0], **results2[0] }
         except IndexError:
             return None
@@ -307,7 +307,7 @@ class SparqlInterface:
         })
 
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
-        return self.__run_query (query, query)
+        return self.__run_query (query, query, "statistics")
 
     def article_statistics_timeline (self,
                                      article_id=None,
@@ -342,7 +342,7 @@ class SparqlInterface:
 
         order = "article_id" if order is None else order
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
-        return self.__run_query (query, query)
+        return self.__run_query (query, query, "statistics")
 
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
@@ -867,6 +867,7 @@ class SparqlInterface:
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             logging.info ("Inserted article %d", article_id)
+            self.cache.invalidate_by_prefix ("article")
             return article_id
 
         return None
@@ -1132,6 +1133,7 @@ class SparqlInterface:
             "file_id":     file_id
         })
 
+        self.cache.invalidate_by_prefix (f"{article_id}_article")
         return self.__run_query(query)
 
     def insert_tag (self, tag, item_id=None, item_type=None):
@@ -1231,6 +1233,7 @@ class SparqlInterface:
         rdf.add (graph, file_uri, rdf.COL["upload_url"],    upload_url,    XSD.string)
         rdf.add (graph, file_uri, rdf.COL["upload_token"],  upload_token,  XSD.string)
 
+        self.cache.invalidate_by_prefix ("article")
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             if article_id is not None:
@@ -1368,7 +1371,10 @@ class SparqlInterface:
             "article_id":  article_id
         })
 
-        return self.__run_query(query)
+        result = self.__run_query(query)
+        self.cache.invalidate_by_prefix (f"{article_id}_article")
+        self.cache.invalidate_by_prefix ("article")
+        return result
 
     def update_article (self, article_id):
         return False
@@ -1644,7 +1650,7 @@ class SparqlInterface:
         })
 
         try:
-            results = self.__run_query (query, query)
+            results = self.__run_query (query, query, "category")
             return results[0]
         except IndexError:
             return None
@@ -1657,7 +1663,7 @@ class SparqlInterface:
             "category_id": category_id
         })
 
-        return self.__run_query (query, query)
+        return self.__run_query (query, query, "category")
 
     def root_categories (self):
         """Procedure to return the categories without a parent category."""
@@ -1667,7 +1673,7 @@ class SparqlInterface:
         })
 
         query += rdf.sparql_suffix ("title", "asc")
-        return self.__run_query (query, query)
+        return self.__run_query (query, query, "category")
 
     def group_by_name (self, group_name, startswith=False):
         """Procedure to return group information by its name."""
@@ -1678,7 +1684,7 @@ class SparqlInterface:
             "group_name": group_name
         })
 
-        results = self.__run_query (query, query)
+        results = self.__run_query (query, query, "group")
         if startswith:
             return results
         try:
@@ -1694,7 +1700,7 @@ class SparqlInterface:
             "account_id":  account_id
         })
 
-        results = self.__run_query (query)
+        results = self.__run_query (query, query, "storage")
         try:
             return results[0]["bytes"]
         except IndexError:
