@@ -51,7 +51,7 @@ class CacheLayer:
 
         return value
 
-    def remove_cached_value (self, key):
+    def remove_cached_value (self, prefix, key):
         os.remove(f"{self.storage}/{prefix}_{key}")
         return True
 
