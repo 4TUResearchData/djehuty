@@ -996,12 +996,46 @@ class ApiServer:
                 response.status_code = 404
                 return response
 
+        if request.method == 'PUT':
+            record = request.get_json()
+            try:
+                result = self.db.update_article (article_id, account_id,
+                    title           = validator.string_value  (record, "title",          3, 1000),
+                    description     = validator.string_value  (record, "description",    0, 10000),
+                    resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
+                    resource_title  = validator.string_value  (record, "resource_title", 0, 255),
+                    license_id      = validator.integer_value (record, "license_id",     0, pow(2, 63)),
+                    time_coverage   = validator.string_value  (record, "time_coverage",  0, 10000),
+                    publisher       = validator.string_value  (record, "publisher",      0, 10000),
+                    language        = validator.string_value  (record, "language",       0, 10000),
+                    contributors    = validator.string_value  (record, "contributors",   0, 10000),
+                    license_remarks = validator.string_value  (record, "license_remarks",0, 10000),
+                    geolocation     = validator.string_value  (record, "geolocation",    0, 255),
+                    longitude       = validator.string_value  (record, "longitude",      0, 64),
+                    latitude        = validator.string_value  (record, "latitude",       0, 64),
+                    format          = validator.string_value  (record, "format",         0, 255),
+                    data_link       = validator.string_value  (record, "data_link",      0, 255),
+                    derived_from    = validator.string_value  (record, "derived_from",   0, 255),
+                    same_as         = validator.string_value  (record, "same_as",        0, 255),
+                    organizations   = validator.string_value  (record, "organizations",  0, 512),
+                )
+                if result is None:
+                    return self.error_500()
+
+                return self.respond_205()
+
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+
+            return self.error_500 ()
+
+
         if request.method == 'DELETE':
             if self.db.delete_article (article_id, account_id):
                 return self.respond_204()
             return self.error_500 ()
 
-        return self.error_405 (["GET", "DELETE"])
+        return self.error_405 (["GET", "PUT", "DELETE"])
 
     def api_private_article_authors (self, request, article_id):
         """Implements /v2/account/articles/<id>/authors."""

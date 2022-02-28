@@ -1376,8 +1376,42 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix ("article")
         return result
 
-    def update_article (self, article_id):
-        return False
+    def update_article (self, article_id, account_id, title=None,
+                        description=None, resource_doi=None,
+                        resource_title=None, license_id=None,
+                        time_coverage=None, publisher=None, language=None,
+                        format=None, contributors=None, license_remarks=None,
+                        geolocation=None, longitude=None, latitude=None,
+                        data_link=None, derived_from=None,
+                        same_as=None, organizations=None):
+        query   = self.__query_from_template ("update_article", {
+            "account_id":      account_id,
+            "article_id":      article_id,
+            "contributors":    contributors,
+            "data_link":       data_link,
+            "derived_from":    derived_from,
+            "description":     description,
+            "format":          format,
+            "geolocation":     geolocation,
+            "language":        language,
+            "latitude":        latitude,
+            "license_id":      license_id,
+            "license_remarks": license_remarks,
+            "longitude":       longitude,
+            "modified_date":   datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S"),
+            "organizations":   organizations,
+            "publisher":       publisher,
+            "resource_doi":    resource_doi,
+            "resource_title":  resource_title,
+            "same_as":         same_as,
+            "state_graph":     self.state_graph,
+            "time_coverage":   time_coverage,
+            "title":           title
+        })
+
+        self.cache.invalidate_by_prefix ("article")
+        self.cache.invalidate_by_prefix (f"{article_id}_article")
+        return self.__run_query(query, query, f"{article_id}_article")
 
     def delete_article_embargo (self, article_id, account_id):
         """Procedure to lift the embargo on an article."""

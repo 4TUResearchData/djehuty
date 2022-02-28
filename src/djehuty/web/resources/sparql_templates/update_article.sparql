@@ -1,0 +1,183 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    {%- if title is not none %}
+    ?article           col:title                ?title .
+    {%- endif%}{% if description is not none %}
+    ?article           col:description          ?description .
+    {%- endif%}{% if resource_doi is not none %}
+    ?article           col:resource_doi         ?resource_doi .
+    {%- endif%}{% if resource_title is not none %}
+    ?article           col:resource_title       ?resource_title .
+    {%- endif%}{% if license_id is not none %}
+    ?article           col:license_id           ?license_id .
+    {%- endif%}{% if time_coverage is not none %}
+    ?article           col:time_coverage        ?time_coverage .
+    {%- endif%}{% if publisher is not none %}
+    ?article           col:publisher            ?publisher .
+    {%- endif%}{% if language is not none %}
+    ?article           col:language             ?language .
+    {%- endif%}{% if format is not none %}
+    ?article           col:format               ?format .
+    {%- endif%}{% if contributors is not none %}
+    ?article           col:contributors         ?contributors .
+    {%- endif%}{% if license_remarks is not none %}
+    ?article           col:license_remarks      ?license_remarks .
+    {%- endif%}{% if geolocation is not none %}
+    ?article           col:geolocation          ?geolocation .
+    {%- endif%}{% if longitude is not none %}
+    ?article           col:longitude            ?longitude .
+    {%- endif%}{% if latitude is not none %}
+    ?article           col:latitude             ?latitude .
+    {%- endif%}{% if data_link is not none %}
+    ?article           col:data_link            ?data_link .
+    {%- endif%}{% if derived_from is not none %}
+    ?article           col:derived_from         ?derived_from .
+    {%- endif%}{% if same_as is not none %}
+    ?article           col:same_as              ?same_as .
+    {%- endif%}{% if organizations is not none %}
+    ?article           col:organizations        ?organizations .
+    {%- endif%}
+    ?article           col:modified_date        ?modified_date .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    {%- if title is not none %}
+    ?article           col:title                "{{title}}"^^xsd:string .
+    {%- endif%}{% if description is not none %}
+    ?article           col:description          "{{description}}"^^xsd:string .
+    {%- endif%}{% if resource_doi is not none %}
+    ?article           col:resource_doi         "{{resource_doi}}"^^xsd:string .
+    {%- endif%}{% if resource_title is not none %}
+    ?article           col:resource_title       "{{resource_title}}"^^xsd:string .
+    {%- endif%}{% if license_id is not none %}
+    ?article           col:license_id           {{license_id}} .
+    {%- endif%}{% if time_coverage is not none %}
+    ?article           col:time_coverage        "{{time_coverage}}"^^xsd:string .
+    {%- endif%}{% if publisher is not none %}
+    ?article           col:publisher            "{{publisher}}"^^xsd:string .
+    {%- endif%}{% if language is not none %}
+    ?article           col:language             "{{language}}"^^xsd:string .
+    {%- endif%}{% if format is not none %}
+    ?article           col:format               "{{format}}"^^xsd:string .
+    {%- endif%}{% if contributors is not none %}
+    ?article           col:contributors         "{{contributors}}"^^xsd:string .
+    {%- endif%}{% if license_remarks is not none %}
+    ?article           col:license_remarks      "{{license_remarks}}"^^xsd:string .
+    {%- endif%}{% if geolocation is not none %}
+    ?article           col:geolocation          "{{geolocation}}"^^xsd:string .
+    {%- endif%}{% if longitude is not none %}
+    ?article           col:longitude            "{{longitude}}"^^xsd:string .
+    {%- endif%}{% if latitude is not none %}
+    ?article           col:latitude             "{{latitude}}"^^xsd:string .
+    {%- endif%}{% if data_link is not none %}
+    ?article           col:data_link            "{{data_link}}"^^xsd:string .
+    {%- endif%}{% if derived_from is not none %}
+    ?article           col:derived_from         "{{derived_from}}"^^xsd:string .
+    {%- endif%}{% if same_as is not none %}
+    ?article           col:same_as              "{{same_as}}"^^xsd:string .
+    {%- endif%}{% if organizations is not none %}
+    ?article           col:organizations        "{{organizations}}"^^xsd:string .
+    {%- endif%}
+    ?article           col:modified_date        "{{modified_date}}"^^xsd:string .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?article            rdf:type                 sg:Article .
+    ?article            col:article_id           ?article_id .
+    ?article            col:account_id           ?account_id .
+    ?article            col:title                ?title .
+
+    OPTIONAL { ?article col:description          ?description . }
+    OPTIONAL { ?article col:license_id           ?license_id . }
+    OPTIONAL { ?article col:resource_doi         ?resource_doi . }
+    OPTIONAL { ?article col:resource_title       ?resource_title . }
+    OPTIONAL { ?article col:modified_date        ?modified_date . }
+    OPTIONAL {
+        ?custom_field1  rdf_type                 sg:ArticleCustomField .
+        ?custom_field1  col:article_id           ?article_id .
+        ?custom_field1  col:name                 "Publisher"^^xsd:string .
+        ?custom_field1  col:value                ?publisher .
+    }
+    OPTIONAL {
+        ?custom_field2  rdf_type                 sg:ArticleCustomField .
+        ?custom_field2  col:article_id           ?article_id .
+        ?custom_field2  col:name                 "Language"^^xsd:string .
+        ?custom_field2  col:value                ?language .
+    }
+    OPTIONAL {
+        ?custom_field3  rdf_type                 sg:ArticleCustomField .
+        ?custom_field3  col:article_id           ?article_id .
+        ?custom_field3  col:name                 "Time coverage"^^xsd:string .
+        ?custom_field3  col:value                ?time_coverage .
+    }
+    OPTIONAL {
+        ?custom_field4  rdf_type                 sg:ArticleCustomField .
+        ?custom_field4  col:article_id           ?article_id .
+        ?custom_field4  col:name                 "Geolocation"^^xsd:string .
+        ?custom_field4  col:value                ?geolocation .
+    }
+    OPTIONAL {
+        ?custom_field5  rdf_type                 sg:ArticleCustomField .
+        ?custom_field5  col:article_id           ?article_id .
+        ?custom_field5  col:name                 "Geolocation Longitude"^^xsd:string .
+        ?custom_field5  col:value                ?longitude .
+    }
+    OPTIONAL {
+        ?custom_field6  rdf_type                 sg:ArticleCustomField .
+        ?custom_field6  col:article_id           ?article_id .
+        ?custom_field6  col:name                 "Geolocation Latitude"^^xsd:string .
+        ?custom_field6  col:value                ?latitude .
+    }
+    OPTIONAL {
+        ?custom_field7  rdf_type                 sg:ArticleCustomField .
+        ?custom_field7  col:article_id           ?article_id .
+        ?custom_field7  col:name                 "Format"^^xsd:string .
+        ?custom_field7  col:value                ?format .
+    }
+    OPTIONAL {
+        ?custom_field8  rdf_type                 sg:ArticleCustomField .
+        ?custom_field8  col:article_id           ?article_id .
+        ?custom_field8  col:name                 "Organizations"^^xsd:string .
+        ?custom_field8  col:value                ?organizations .
+    }
+    OPTIONAL {
+        ?custom_field9  rdf_type                 sg:ArticleCustomField .
+        ?custom_field9  col:article_id           ?article_id .
+        ?custom_field9  col:name                 "Data Link"^^xsd:string .
+        ?custom_field9  col:value                ?data_link .
+    }
+    OPTIONAL {
+        ?custom_field10 rdf_type                 sg:ArticleCustomField .
+        ?custom_field10 col:article_id           ?article_id .
+        ?custom_field10 col:name                 "Derived From"^^xsd:string .
+        ?custom_field10 col:value                ?derived_from .
+    }
+    OPTIONAL {
+        ?custom_field11 rdf_type                 sg:ArticleCustomField .
+        ?custom_field11 col:article_id           ?article_id .
+        ?custom_field11 col:name                 "Same As"^^xsd:string .
+        ?custom_field11 col:value                ?same_as .
+    }
+    OPTIONAL {
+        ?custom_field12 rdf_type                 sg:ArticleCustomField .
+        ?custom_field12 col:article_id           ?article_id .
+        ?custom_field12 col:name                 "Contributors"^^xsd:string .
+        ?custom_field12 col:value                ?contributors .
+    }
+    OPTIONAL {
+        ?custom_field13 rdf_type                 sg:ArticleCustomField .
+        ?custom_field13 col:article_id           ?article_id .
+        ?custom_field13 col:name                 "License remarks"^^xsd:string .
+        ?custom_field13 col:value                ?license_remarks .
+    }
+  }
+{%- if account_id is not none: %}
+  FILTER (?account_id = {{account_id}})
+{%- endif %}
+  FILTER (?article_id = {{article_id}})
+}
+{% endblock %}
