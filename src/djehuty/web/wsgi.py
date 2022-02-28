@@ -50,6 +50,7 @@ class ApiServer:
             Rule("/logout",                                   endpoint = "logout"),
             Rule("/dashboard",                                endpoint = "dashboard"),
             Rule("/my-data",                                  endpoint = "my_data"),
+            Rule("/my/datasets/<article_id>/delete",          endpoint = "delete_article"),
             Rule("/my/datasets/new",                          endpoint = "new_article"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
@@ -520,6 +521,20 @@ class ApiServer:
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
         }))
+
+    def api_delete_article (self, request, article_id):
+        if self.accepts_html (request):
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            token = self.token_from_cookie (request)
+            if self.db.is_depositor (token):
+                result = self.db.delete_article (article_id = article_id,
+                                                 account_id = account_id)
+
+                if result is not None:
+                    return redirect ("/my/datasets", code=303)
 
             return self.error_404 (request)
 
