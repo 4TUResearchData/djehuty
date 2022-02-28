@@ -2,12 +2,15 @@ const cumulativeSum = (sum => value => sum += value)(0); // https://stackoverflo
 const capitalize    = (i) => (i[0].toUpperCase() + i.substring(1));
 
 function latest_datasets () {
-    var jqxhr = jQuery.get("/v3/articles", {
-        "limit":           10,
-        "order_direction": "desc",
-        "order":           "published_date",
-        "categories":      categories
-    }, function() {
+    parameters = {
+        limit:           10,
+        order_direction: "desc",
+        order:           "published_date",
+    }
+
+    if (categories !== "") { jQuery.extend(parameters, { "categories": categories }) }
+
+    var jqxhr = jQuery.get("/v3/articles", parameters, function() {
     })
         .done(function(data) {
             output = '<ul class="latest-datasets">';

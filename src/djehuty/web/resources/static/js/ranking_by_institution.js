@@ -2,12 +2,15 @@ const cumulativeSum = (sum => value => sum += value)(0); // https://stackoverflo
 const capitalize    = (i) => (i[0].toUpperCase() + i.substring(1));
 
 function latest_datasets () {
-    var jqxhr = jQuery.get("/v3/articles", {
-        "limit":           10,
-        "order_direction": "desc",
-        "order":           "published_date",
-        "group_ids":      group_ids
-    }, function() {
+    var parameters = {
+        limit:           10,
+        order_direction: "desc",
+        order:           "published_date"
+    }
+
+    if (group_ids !== "") { jQuery.extend(parameters, { "group_ids": group_ids }) }
+
+    var jqxhr = jQuery.get("/v3/articles", parameters, function() {
     })
         .done(function(data) {
             output = '<ul class="latest-datasets">';
@@ -46,12 +49,15 @@ function top_datasets (item_type) {
     jQuery("#top-datasets tbody tr").css('opacity', '0.15');
     jQuery("#top-buttons .active").removeClass("active")
     jQuery(".top-" + item_type).addClass("active")
-    var jqxhr = jQuery.get("/v3/articles/top/" + item_type, {
-        "limit":           10,
-        "order_direction": "desc",
-        "order":           item_type,
-        "group_ids":      group_ids
-    }, function() {
+    parameters = {
+        limit:           10,
+        order_direction: "desc",
+        order:           item_type,
+    }
+
+    if (group_ids !== "") { jQuery.extend(parameters, { "group_ids": group_ids }) }
+
+    var jqxhr = jQuery.get("/v3/articles/top/" + item_type, parameters, function() {
     })
         .done(function(data) {
             var output = '<table id="top-datasets"><thead>';
