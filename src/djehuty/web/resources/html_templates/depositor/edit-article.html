@@ -1,0 +1,214 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/quill.min.js"></script>
+<script src="/static/js/edit-article.js"></script>
+<script>
+jQuery(document).ready(function (){
+    activate ({{article["id"]}});
+    jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
+});
+</script>
+<link href="/static/css/quill.4tu.css" rel="stylesheet">
+<style>
+.upload-wrapper { text-align: center; }
+.upload-container {
+    display: block;
+    width: auto;
+    border: 2pt dashed #ccc;
+    background: #f9f9f9;
+    border-radius: .5em;
+    margin: auto auto 1em auto;
+    vertical-align: middle;
+    text-align: center;
+    color: #333;
+}
+.upload-container:hover { cursor: pointer; }
+.upload-container p { font-size: 1.2em; }
+#file { display: none; }
+.branded-table {
+    width: 100%;
+    max-width: 880pt;
+    border: solid 2pt #ccc;
+    border-radius: .5em;
+}
+.branded-table thead tr { background: #ccc; border-radius: .5em .5em 0em 0em; }
+.branded-table thead tr th { color: #000; text-align: left; padding: .5em; z-index: 50; border-top: none; }
+.branded-table thead tr th:last-child { text-align: right; }
+.branded-table tbody tr td { padding: .5em; z-index: 50; }
+.branded-table tbody tr:nth-child(even) { background: #fafafa; }
+.branded-table tbody tr td:last-child { text-align: right; width: 130pt; }
+.branded-table tbody tr td:nth-child(1) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    max-width: 572pt;
+}
+.files td { text-align: left; }
+#content-wrapper h3:first-child { margin-top: 0em; }
+#content-wrapper h3 {
+    font-size: 1.75em;
+    padding: 0em;
+    margin: .75em 0em .75em 0em;
+    border-bottom: 4px dotted #f49120;
+}
+#content-wrapper input[type="text"], #content-wrapper textarea, .texteditor {
+    display: block;
+    padding: .7em;
+    border: solid 1pt #aaa;
+    border-radius: 0em .5em .5em .5em;
+    width: 832pt;
+    margin-top: 0em;
+    margin-bottom: 1em;
+    font-size: 13pt;
+}
+#content-wrapper select {
+    display: block;
+    padding: .7em;
+    border: solid 1pt #aaa;
+    background: #fff;
+    border-radius: 0em .5em .5em .5em;
+    width: 852pt;
+    margin-top: 0em;
+    margin-bottom: 1em;
+    font-size: 13pt;
+}
+.texteditor {
+    padding: 0em !important;
+    border-radius: 0em 0em .5em .5em !important;
+    resize: vertical;
+    font-size: 1.0em;
+    width: 852pt;
+}
+#content-wrapper label {
+    display: inline-block;
+    background: #ffeecc;
+    color: #000;
+    padding: .5em .5em .25em .5em;
+    border-radius: .5em .5em 0em 0em;
+    font-weight: bold;
+}
+#content-wrapper textarea:focus,
+#content-wrapper input:focus,
+#content-wrapper .texteditor:focus {
+    outline: none;
+    border: solid 1pt #111;
+    background: #fffaea;
+}
+#content-wrapper select:focus {
+    outline: none;
+    border: solid 1pt #111;
+    background: #fffaea;
+}
+#file-upload h4 { font-size: 1.5em; padding: 0em; margin: .75em 0em .75em 0em; }
+.autocomplete {
+    border-radius: 0em 0em .5em .5em;
+    border: solid 1pt #111;
+    width: 850pt;
+    margin: 0em 0em 1em 0em;
+    padding: 0em;
+}
+.autocomplete ul { margin: 0em; padding: 0em; }
+.autocomplete li { list-style-type: none; margin: 0em; padding: .5em; }
+.autocomplete li:nth-child(even) { background: #fafafa; }
+.autocomplete li:last-child { border-radius: 0em 0em .5em .5em; }
+.input-for-ac {
+    border-radius: 0em .5em 0em 0em !important;
+    margin-bottom: 0em !important;
+    border-bottom: #ddd !important;
+    width: 832pt;
+}
+.list-resource ul { margin: 0em; padding: 0em; }
+.list-resource li { list-style-type: none; margin: 0em; padding: .5em; }
+#authors-list { display: none; border: none; }
+#authors-list thead { display: none; }
+#references-list { display: none; border: none; }
+#references-list thead { display: none; }
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/my/datasets">&#8592; Go back</a>
+  <li class="active">Edit article
+  <li class="hide-for-javascript save-button"><a id="save" href="#">Save</a>
+  <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
+</ul>
+{% endblock %}
+{% block body %}
+<div class="article-content">
+<h1>Edit article</h1>
+<noscript>
+  <p class="no-script">Sorry, this page requires JavaScript to work correctly.</p>
+</noscript>
+<div class="hide-for-javascript">
+<h2>Article details</h2>
+<label for="title">Title</label>
+<input type="text" id="title" name="title" value="{{article["title"]}}" />
+<label>Description</label>
+<div id="description" class="texteditor">
+  {{article["description"] | default("", True) | replace("\\n", "<br>") | safe }}
+</div>
+<label for="license">License</label>
+<select id="license" name="license">
+  <option value="" disabled selected>Select a license</option>
+</select>
+<h3>Authors</h3>
+<label for="authors">Authors</label><input type="text" id="authors" name="authors" />
+<table class="branded-table" id="authors-list">
+  <thead>
+    <tr><th>Author</th><th>Actions</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+<h3>Linked resource &amp; references</h3>
+<p>If the dataset is published as part of a scientific paper, add its title and DOI here.</p>
+<label for="resource_title">Resource title</label>
+<input type="text" id="resource_title" name="resource_title" value="{{article["resource_title"] | default("", True)}}" />
+<label for="resource_doi">Resource DOI</label>
+<input type="text" id="resource_doi" name="resource_doi" value="{{article["resource_doi"] | default("", True)}}" />
+<p>Add any other relevant URLs or DOIs below.</p>
+<label for="references">References</label>
+<input type="text" id="references" name="references" value="" />
+<table class="branded-table" id="references-list">
+  <thead>
+    <tr><th>Reference</th><th>Actions</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+<h3>Findability</h3>
+<label for="geolocation">Geolocation</label>
+<input type="text" id="geolocation" name="geolocation" placeholder="Example: Dam Square, Amsterdam" value="{{article["geolocation"] | default("", True)}}" />
+<label for="longitude">Longitude</label>
+<input type="text" id="longitude" name="longitude" placeholder="Example: 4.893" value="{{article["longitude"] | default("", True)}}" />
+<label for="latitude">Latitude</label>
+<input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{article["latitude"] | default("", True)}}" />
+<label for="format">Format</label>
+<input type="text" id="format" name="format" placeholder="Example: image/jpeg" value="{{article["format"] | default("", True)}}" />
+<label for="data_link">Data Link</label>
+<input type="text" id="data_link" name="data_link" placeholder="Link to extra data related to the current item" value="{{article["data_link"] | default("", True)}}" />
+<label for="derived_from">Derived From</label>
+<input type="text" id="derived_from" name="derived_from" value="{{article["derived_from"] | default("", True)}}" />
+<label for="same_as">Same As</label>
+<input type="text" id="same_as" name="same_as" value="{{article["same_as"] | default("", True)}}" />
+<label for="organizations">Organizations</label>
+<textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology"></textarea>
+<h3>Files</h3>
+<div class="upload-wrapper">
+  <input type="file" name="file" id="file" aria-label="Upload file">
+  <div class="upload-container" id="file-upload">
+    <h4>Drag files here</h4>
+    <p>Or click to open a file dialog.</p>
+  </div>
+</div>
+<div id="files-wrapper">
+  <table class="branded-table" id="files">
+    <thead>
+      <tr><th>Filename</th><th>Checksum</th><th>Actions</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+</div>
+</div>
+{% endblock %}

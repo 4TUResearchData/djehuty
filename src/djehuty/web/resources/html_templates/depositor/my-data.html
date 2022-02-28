@@ -1,64 +1,109 @@
 {% extends "layout.html" %}
 {% block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
-<script src="/static/js/my-data.js"></script>
+<script src="/static/js/quill.min.js"></script>
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/quill.4tu.css" rel="stylesheet">
+<link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
 <style>
-.upload-wrapper { text-align: center; }
-.upload-container {
-    display: block;
-    width: auto;
-    border: 2pt dashed #cccccc;
-    background: #f9f9f9;
-    border-radius: .5em;
-    margin: auto auto 1em auto;
-    vertical-align: middle;
-    text-align: center;
-    color: #333333;
-}
-.upload-container:hover { cursor: pointer; }
-.upload-container p { font-size: 1.2em; }
-#file { display: none; }
+.branded-table {
+    width: 100%;
+    max-width: 880pt;
+    border: solid 2pt #f49120;
     border-radius: .5em;
 }
-.branded-table { width: 100%; max-width: 880pt; border: solid 2pt #f49120; }
-.branded-table thead tr { background: #f49120; }
-.branded-table thead tr th { color: #ffffff; text-align: left; padding: .5em; z-index: 50; }
+.branded-table thead tr { background: #f49120; border-radius: .5em .5em 0em 0em; }
+.branded-table thead tr th {
+    color: #000;
+    text-align: left;
+    padding: .5em;
+    z-index: 50;
+    border-top: none;
+}
 .branded-table thead tr th:last-child { text-align: right; }
 .branded-table tbody tr td { padding: .5em; z-index: 50; }
-.branded-table tbody tr:nth-child(odd) { background: #fafafa; }
+.branded-table tbody tr:nth-child(even) { background: #fafafa; }
 .branded-table tbody tr td:last-child { text-align: right; width: 130pt; }
 .branded-table tbody tr td:nth-child(1) {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    max-width: 750pt;
+    width: 100%;
+    max-width: 572pt;
 }
-.files td { text-align: left; }
-h3 { margin: 0em; padding: .5em; border-radius: .5em; }
-h3:nth-of-type(odd) { background: #fafafa; }
-.article-content {
-    margin: 0em;
-    padding: .5em;
-    display: none;
-    border-radius: 0em 0em .5em .5em;
-    border: solid 2pt #f49120;
-}
-#file-upload h5 { font-size: 1.5em; padding: 0em; margin: .75em 0em .75em 0em; }
+#table-unpublished { display: none; }
+#table-published { display: none; }
 </style>
+<script>
+jQuery(document).ready(function () {
+    jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
+    jQuery("#table-unpublished").DataTable({
+        columnDefs: [{ type: 'file-size', targets: 1 },
+                     { orderable: false,  targets: 3 }]
+    });
+    jQuery("#table-unpublished").show();
+    jQuery("#table-unpublished-loader").remove();
+
+    jQuery("#table-published").DataTable({
+        columnDefs: [{ type: 'file-size', targets: 1 }]
+    });
+    jQuery("#table-published").show();
+    jQuery("#table-published-loader").remove();
+});
+</script>
 {% endblock %}
 {% block submenu %}
 <ul>
-  <li><a href="/dashboard">Dashboard</a>
-  <li class="active">My data
-  <li><a href="/account/home/collections">Collections</a>
+  <li><a href="/my/dashboard">Dashboard</a>
+  <li class="active">Datasets
+  <li class="create-button"><a href="/my/datasets/new">New dataset</a>
+  <li><a href="/my/collections">Collections</a>
 </ul>
 {% endblock %}
 {% block body %}
-<h1>My data</h1>
-<h2>Unpublished datasets</h2>
-{% for article in articles: %}
-<h3 id="h3_{{article.id}}" class="h3-article"><a href="#" onclick="javascript:toggle_article({{article.id}}); return false;">{{article.title}}</a></h3>
-<div id="article_{{article.id}}" class="article-content">
+<noscript>
+  <p class="no-script">Sorry, this page requires JavaScript to function properly.</p>
+</noscript>
+<div class="hide-for-javascript">
+<h1>Datasets</h1>
+<h2>Unpublished</h2>
+<div id="table-unpublished-loader" class="loader"></div>
+<table id="table-unpublished" class="branded-table ">
+  <thead>
+    <tr>
+      <th>Dataset</th>
+      <th>Size</th>
+      <th>Created&nbsp;at</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>{% for article in unpublished_articles: %}
+    <tr>
+      <td><a href="/my/datasets/{{article.id}}/edit">{{article.title}}</a></td>
+      <td>{{article.storage_used}}</td>
+      <td>{{article.created_date | truncate(10,False,'')}}</td>
+      <td><a href="/my/datasets/{{article.id}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
+<h2>Published</h2>
+<div id="table-published-loader" class="loader"></div>
+<table id="table-published" class="branded-table">
+  <thead>
+    <tr>
+      <th>Dataset</th>
+      <th>Size</th>
+      <th>Created&nbsp;at</th>
+    </tr>
+  </thead>
+  <tbody>{% for article in published_articles: %}
+    <tr>
+      <td><a href="/my/datasets/{{article.id}}/edit">{{article.title}}</a></td>
+      <td>{{article.storage_used}}</td>
+      <td>{{article.created_date | truncate(10,False,'')}}</td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
 </div>
-{% endfor %}
+</div>
 {% endblock %}

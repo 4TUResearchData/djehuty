@@ -48,8 +48,9 @@ class ApiServer:
             Rule("/",                                         endpoint = "home"),
             Rule("/login",                                    endpoint = "login"),
             Rule("/logout",                                   endpoint = "logout"),
-            Rule("/dashboard",                                endpoint = "dashboard"),
-            Rule("/my-data",                                  endpoint = "my_data"),
+            Rule("/my/dashboard",                             endpoint = "dashboard"),
+            Rule("/my/datasets",                              endpoint = "my_data"),
+            Rule("/my/datasets/<article_id>/edit",            endpoint = "edit_article"),
             Rule("/my/datasets/<article_id>/delete",          endpoint = "delete_article"),
             Rule("/my/datasets/new",                          endpoint = "new_article"),
             Rule("/portal",                                   endpoint = "portal"),
@@ -166,6 +167,7 @@ class ApiServer:
         is_logged_in  = self.db.is_logged_in (self.token_from_cookie (request))
         parameters    = {
             "base_url":        self.base_url,
+            "path":            request.path,
             "orcid_client_id": self.orcid_client_id,
             "is_logged_in":    is_logged_in
         }
@@ -425,7 +427,7 @@ class ApiServer:
 
         orcid_uri = f"https://orcid.org/{orcid_record['orcid']}"
         if self.accepts_html (request):
-            response   = redirect ("/dashboard", code=302)
+            response   = redirect ("/my/dashboard", code=302)
             account_id = self.db.account_id_by_orcid (orcid_uri)
 
             # XXX: We could create an account for an unknown ORCID.
@@ -515,6 +517,28 @@ class ApiServer:
                 if article_id is not None:
                     return redirect (f"/my/datasets/{article_id}/edit", code=302)
                 return self.error_500()
+
+            return self.error_404 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_edit_article (self, request, article_id):
+        if self.accepts_html (request):
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            token = self.token_from_cookie (request)
+            if self.db.is_depositor (token):
+                try:
+                    article = self.db.articles(article_id = article_id,
+                                               account_id = account_id)[0]
+                    return self.__render_template (request, "depositor/edit-article.html",
+                                                   article = article)
+                except IndexError:
+                    return self.error_403 (request)
 
             return self.error_404 (request)
 
