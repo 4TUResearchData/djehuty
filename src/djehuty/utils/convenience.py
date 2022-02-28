@@ -23,3 +23,22 @@ def to_camel (name):
         output += part.capitalize()
 
     return output
+
+def pretty_print_size (num_bytes):
+    """Return pretty-printed file size."""
+
+    output = ""
+    if not isinstance(num_bytes, int):
+        output = "0B"
+    elif num_bytes < 1000:
+        output = f"{num_bytes}B"
+    elif num_bytes < 1000000:
+        output = f"{num_bytes/1000:.2f}KB"
+    elif num_bytes < 1000000000:
+        output = f"{num_bytes/1000000:.2f}MB"
+    elif num_bytes < 1000000000000:
+        output = f"{num_bytes/1000000000:.2f}GB"
+    else:
+        output = f"{num_bytes/1000000000000:.2f}TB"
+
+    return output
