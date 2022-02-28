@@ -454,7 +454,11 @@ class ApiServer:
         if self.accepts_html (request):
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
-                return self.__render_template (request, "depositor/dashboard.html")
+                account_id   = self.account_id_from_request (request)
+                storage_used = self.db.account_storage_used (account_id)
+                return self.__render_template (
+                    request, "depositor/dashboard.html",
+                    storage_used = convenience.pretty_print_size(storage_used))
 
             return self.error_404 (request)
 
