@@ -96,13 +96,13 @@ def integer_value (record, field_name, minimum_value=None, maximum_value=None, r
 
     value = conv.value_or_none (record, field_name)
     prefix = field_name.capitalize() if isinstance(field_name, str) else ""
-    if value is None:
+    if value is None or (isinstance(value, str) and value == ""):
         if required:
             raise MissingRequiredField(
                 message = f"Missing required value for '{field_name}'.",
                 code    = "MissingRequiredField")
 
-        return value
+        return None
 
     try:
         value = int(value)
