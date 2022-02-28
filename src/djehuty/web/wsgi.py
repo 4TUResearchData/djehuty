@@ -50,6 +50,7 @@ class ApiServer:
             Rule("/logout",                                   endpoint = "logout"),
             Rule("/dashboard",                                endpoint = "dashboard"),
             Rule("/my-data",                                  endpoint = "my_data"),
+            Rule("/my/datasets/new",                          endpoint = "new_article"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
@@ -493,6 +494,26 @@ class ApiServer:
                 return self.__render_template (request, "depositor/my-data.html",
                                                unpublished_articles = unpublished_articles,
                                                published_articles   = published_articles)
+
+            return self.error_404 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_new_article (self, request):
+        if self.accepts_html (request):
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            token = self.token_from_cookie (request)
+            if self.db.is_depositor (token):
+                article_id = self.db.insert_article(title = "Untitled item",
+                                                    account_id = account_id)
+                if article_id is not None:
+                    return redirect (f"/my/datasets/{article_id}/edit", code=302)
+                return self.error_500()
 
             return self.error_404 (request)
 
