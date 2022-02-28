@@ -1100,7 +1100,7 @@ class ApiServer:
                     geolocation     = validator.string_value  (record, "geolocation",    0, 255),
                     longitude       = validator.string_value  (record, "longitude",      0, 64),
                     latitude        = validator.string_value  (record, "latitude",       0, 64),
-                    format          = validator.string_value  (record, "format",         0, 255),
+                    mimetype        = validator.string_value  (record, "format",         0, 255),
                     data_link       = validator.string_value  (record, "data_link",      0, 255),
                     derived_from    = validator.string_value  (record, "derived_from",   0, 255),
                     same_as         = validator.string_value  (record, "same_as",        0, 255),

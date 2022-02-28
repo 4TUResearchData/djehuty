@@ -1380,7 +1380,7 @@ class SparqlInterface:
                         description=None, resource_doi=None,
                         resource_title=None, license_id=None,
                         time_coverage=None, publisher=None, language=None,
-                        format=None, contributors=None, license_remarks=None,
+                        mimetype=None, contributors=None, license_remarks=None,
                         geolocation=None, longitude=None, latitude=None,
                         data_link=None, derived_from=None,
                         same_as=None, organizations=None):
@@ -1391,7 +1391,7 @@ class SparqlInterface:
             "data_link":       data_link,
             "derived_from":    derived_from,
             "description":     description,
-            "format":          format,
+            "format":          mimetype,
             "geolocation":     geolocation,
             "language":        language,
             "latitude":        latitude,
