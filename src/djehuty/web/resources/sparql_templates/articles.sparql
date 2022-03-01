@@ -16,13 +16,17 @@ SELECT DISTINCT ?account_id ?authors_id ?citation ?confidential_reason
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?title ?url
                 ?url_private_api ?url_private_html ?url_public_api
-                ?url_public_html ?version
+                ?url_public_html ?version ?publisher ?language ?time_coverage
+                ?geolocation ?longitude ?latitude ?format ?organizations
+                ?data_link ?derived_from ?same_as ?contributors
+                ?license_remarks
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article            rdf:type                 sg:Article .
     ?article            col:article_id           ?id .
     ?article            col:timeline_id          ?timeline_id .
+    ?article            col:title                ?title .
 
     ?article            col:account_id           ?account_id .
     ?account            rdf:type                 sg:Account .
@@ -97,13 +101,26 @@ WHERE {
     OPTIONAL { ?article col:status                ?status . }
     OPTIONAL { ?article col:tags_id               ?tags_id . }
     OPTIONAL { ?article col:thumb                 ?thumb . }
-    OPTIONAL { ?article col:title                 ?title . }
     OPTIONAL { ?article col:url                   ?url . }
     OPTIONAL { ?article col:url_private_api       ?url_private_api . }
     OPTIONAL { ?article col:url_private_html      ?url_private_html . }
     OPTIONAL { ?article col:url_public_api        ?url_public_api . }
     OPTIONAL { ?article col:url_public_html       ?url_public_html . }
     OPTIONAL { ?article col:version               ?version . }
+    {#- Custom fields. #}
+    OPTIONAL { ?article col:publisher             ?publisher . }
+    OPTIONAL { ?article col:language              ?language . }
+    OPTIONAL { ?article col:time_coverage         ?time_coverage . }
+    OPTIONAL { ?article col:geolocation           ?geolocation . }
+    OPTIONAL { ?article col:longitude             ?longitude . }
+    OPTIONAL { ?article col:latitude              ?latitude . }
+    OPTIONAL { ?article col:format                ?format . }
+    OPTIONAL { ?article col:organizations         ?organizations . }
+    OPTIONAL { ?article col:data_link             ?data_link . }
+    OPTIONAL { ?article col:same_as               ?same_as . }
+    OPTIONAL { ?article col:derived_from          ?derived_from . }
+    OPTIONAL { ?article col:contributors          ?contributors . }
+    OPTIONAL { ?article col:license_remarks       ?license_remarks . }
   }
 {% if account_id is not none: %}
 FILTER (?account_id = {{account_id}})

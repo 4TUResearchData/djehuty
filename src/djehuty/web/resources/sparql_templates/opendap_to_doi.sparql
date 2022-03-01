@@ -17,10 +17,7 @@ WHERE {
     }
     UNION
     {
-      ?customField  rdf:type         sg:ArticleCustomField ;
-                    col:article_id   ?article_id ;
-                    col:name         "Data Link"^^xsd:string ;
-                    col:value        ?download_url .
+      ?article      col:data_link    ?download_url .
     }
   }
 {% if filters is not none %}{{ filters }}{% endif %}
