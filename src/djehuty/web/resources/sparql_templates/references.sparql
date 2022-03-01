@@ -7,15 +7,15 @@ WHERE {
     ?row             col:id                   ?id .
     ?row             col:{{item_type}}_id     ?{{item_type}}_id .
     ?row             col:url                  ?url .
-    {% if item_id is not none %}
+    {%- if item_id is not none %}
     ?item            rdf:type                 sg:{{prefix}} .
     ?item            col:{{item_type}}_id     ?{{item_type}}_id .
-    {% if account_id is not none %}
+    {%- if account_id is not none %}
     ?item           col:account_id           {{account_id}} .
-    {% endif %}
-    {% endif %}
+    {%- endif %}
+    {%- endif %}
   }
   FILTER (?{{item_type}}_id = {{item_id}})
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

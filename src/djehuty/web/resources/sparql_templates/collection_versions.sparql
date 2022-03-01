@@ -8,6 +8,6 @@ WHERE {
     ?collection col:version        ?version .
     ?collection col:url            ?url .
   }
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

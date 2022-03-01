@@ -8,15 +8,15 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?author            rdf:type                 sg:Author .
     ?author            col:id                   ?id .
-    {% if item_id is not none %}
+    {%- if item_id is not none %}
     ?link              rdf:type                 sg:{{prefix}}Author .
     ?link              col:{{item_type}}_id     {{item_id}} .
     ?link              col:author_id            ?id .
-    {% endif %}
-    {% if account_id is not none %}
+    {%- endif %}
+    {%- if account_id is not none %}
     ?item              rdf:type                 sg:{{prefix}} .
     ?item              col:account_id           {{account_id}} .
-    {% endif %}
+    {%- endif %}
     OPTIONAL { ?author col:first_name           ?first_name . }
     OPTIONAL { ?author col:full_name            ?full_name . }
     OPTIONAL { ?author col:group_id             ?group_id . }
@@ -28,6 +28,6 @@ WHERE {
     OPTIONAL { ?author col:orcid_id             ?orcid_id . }
     OPTIONAL { ?author col:url_name             ?url_name . }
   }
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

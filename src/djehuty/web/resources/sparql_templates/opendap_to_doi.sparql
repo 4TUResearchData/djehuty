@@ -20,6 +20,6 @@ WHERE {
       ?article      col:data_link    ?download_url .
     }
   }
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

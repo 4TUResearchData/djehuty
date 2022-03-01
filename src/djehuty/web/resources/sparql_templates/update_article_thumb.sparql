@@ -25,6 +25,6 @@ WHERE {
     ?link    col:article_id ?article_id .
     ?link    col:file_id    ?file_id .
   }
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

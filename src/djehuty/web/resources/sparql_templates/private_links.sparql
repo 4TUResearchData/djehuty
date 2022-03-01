@@ -8,14 +8,14 @@ WHERE {
     ?link              col:id_string            ?id_string .
     OPTIONAL { ?link   col:is_active            ?is_active . }
     OPTIONAL { ?link   col:expires_date         ?expires_date . }
-    {% if account_id is not none %}
+    {%- if account_id is not none %}
     ?item              rdf:type                 sg:{{prefix}} .
     ?item              col:{{item_type}}_id     {{item_id}} .
     ?item              col:account_id           {{account_id}} .
-    {% endif %}
+    {%- endif %}
   }
-  {% if id_string is not none %}
+  {%- if id_string is not none %}
   FILTER(?id_string = "{{id_string}}"^^xsd:string)
-  {% endif %}
+  {%- endif %}
 }
 {% endblock %}

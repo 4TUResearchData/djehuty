@@ -20,6 +20,6 @@ WHERE {
     ?stats          col:{{item_type}}   ?{{item_type}} .
   }
 FILTER (STR(?published_date) != "NULL")
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

@@ -4,13 +4,13 @@ SELECT ?id
 WHERE {
   GRAPH <{{state_graph}}> {
     ?item rdf:type    sg:{{item_type}} .
-    {% if 'Article' == item_type %}
+    {%- if 'Article' == item_type %}
     ?item col:article_id ?id .
-    {% elif 'Collection' == item_type %}
+    {%- elif 'Collection' == item_type %}
     ?item col:collection_id ?id .
-    {% else %}
+    {%- else %}
     ?item col:id      ?id .
-    {% endif %}
+    {%- endif %}
   }
 }
 ORDER BY DESC(?id)

@@ -21,8 +21,8 @@ WHERE {
   }
   FILTER (?article_id = {{article_id}})
   FILTER (?account_id = {{account_id}})
-  {% if file_id is not none %}
+  {%- if file_id is not none %}
   FILTER (?file_id = {{file_id}})
-  {% endif %}
+  {%- endif %}
 }
 {% endblock %}

@@ -9,6 +9,6 @@ WHERE {
     OPTIONAL { ?field  col:type                 ?type . }
     OPTIONAL { ?field  col:ip_name              ?ip_name . }
   }
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

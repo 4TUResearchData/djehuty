@@ -7,10 +7,10 @@ WHERE {
     ?group           col:id                   ?group_id .
     ?group           col:name                 ?group_name .
   }
-{% if startswith %}
+{%- if startswith %}
 FILTER (STRSTARTS(STR(?group_name), "{{ group_name }}"))
-{% else %}
+{%- else %}
 FILTER (STR(?group_name) = "{{ group_name }}")
-{% endif %}
+{%- endif %}
 }
 {% endblock %}

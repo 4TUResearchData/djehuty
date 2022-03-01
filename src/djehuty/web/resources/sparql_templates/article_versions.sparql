@@ -9,6 +9,6 @@ WHERE {
     ?article col:url            ?url .
     ?article col:url_public_api ?url_public_api .
   }
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

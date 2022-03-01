@@ -1,8 +1,8 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-{% if return_count %}
+{%- if return_count %}
 SELECT COUNT(DISTINCT ?article) AS ?articles
-{% else %}
+{%- else %}
 SELECT DISTINCT ?account_id ?authors_id ?citation ?confidential_reason
                 ?created_date ?custom_fields_id ?defined_type ?defined_type_name
                 ?description ?doi ?embargo_date ?embargo_options_id 
@@ -32,12 +32,12 @@ WHERE {
     ?account            rdf:type                 sg:Account .
     ?account            col:id                   ?account_id .
 
-    {% if collection_id is not none %}
+    {%- if collection_id is not none %}
     ?link               rdf:type                 sg:CollectionArticle .
     ?link               col:article_id           ?id .
     ?link               col:collection_id        {{collection_id}} .
-    {% endif %}
-    {% if category_ids is not none: %}
+    {%- endif %}
+    {%- if category_ids is not none: %}
     ?category_link      rdf:type                 sg:ArticleCategory .
     ?category_link      col:category_id          ?category_id .
     ?category_link      col:article_id           ?id .
@@ -45,7 +45,7 @@ WHERE {
     ?category           rdf:type                 sg:Category .
     ?category           col:id                   ?category_id .
     ?category           col:parent_id            ?parent_category_id .
-    {% endif %}
+    {%- endif %}
     OPTIONAL {
         ?timeline           rdf:type                 sg:Timeline .
         ?timeline           col:id                   ?timeline_id .
@@ -122,10 +122,10 @@ WHERE {
     OPTIONAL { ?article col:contributors          ?contributors . }
     OPTIONAL { ?article col:license_remarks       ?license_remarks . }
   }
-{% if account_id is not none: %}
+{%- if account_id is not none: %}
 FILTER (?account_id = {{account_id}})
-{% else: %}
+{%- else: %}
 FILTER (STR(?published_date) != "NULL")
-{% endif %}{% if filters is not none %}{{ filters }}{% endif %}
+{%- endif %}{% if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

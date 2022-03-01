@@ -2,24 +2,24 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    {% if is_active is not none %}
+    {%- if is_active is not none %}
     ?row     col:is_active        ?is_active .
-    {% endif %}{% if expires_date is not none %}
+    {%- endif %}{% if expires_date is not none %}
     ?row     col:expires_date     ?expires_date .
-    {% endif %}{% if read_only is not none %}
+    {%- endif %}{% if read_only is not none %}
     ?row     col:read_only        ?read_only .
-    {% endif %}
+    {%- endif %}
   }
 }
 INSERT {
   GRAPH <{{state_graph}}> {
-    {% if is_active is not none %}
+    {%- if is_active is not none %}
     ?row     col:is_active        {{is_active}} .
-    {% endif %}{% if expires_date is not none %}
+    {%- endif %}{% if expires_date is not none %}
     ?row     col:expires_date     "{{expires_date}}"^^xsd:string .
-    {% endif %}{% if read_only is not none %}
+    {%- endif %}{% if read_only is not none %}
     ?row     col:read_only        {{read_only}} .
-    {% endif %}
+    {%- endif %}
   }
 }
 WHERE {
@@ -39,8 +39,8 @@ WHERE {
   }
   FILTER (?item_id    = {{item_id}})
   FILTER (?account_id = {{account_id}})
-  {% if id_string is not none %}
+  {%- if id_string is not none %}
   FILTER (?id_string = "{{id_string}}"^^xsd:string)
-  {% endif %}
+  {%- endif %}
 }
 {% endblock %}

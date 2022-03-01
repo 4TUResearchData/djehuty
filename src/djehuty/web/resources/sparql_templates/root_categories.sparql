@@ -11,6 +11,6 @@ WHERE {
     OPTIONAL { ?row         col:taxonomy_id      ?taxonomy_id . }
   }
   FILTER (! BOUND(?parent_id) OR ?parent_id = 0)
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

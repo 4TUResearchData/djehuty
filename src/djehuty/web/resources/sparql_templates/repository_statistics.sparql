@@ -12,6 +12,6 @@ WHERE {
     ?collection     col:collection_id   ?collection_id .
     ?collection     col:is_public       1 .
   }
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

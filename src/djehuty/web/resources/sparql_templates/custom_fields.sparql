@@ -9,9 +9,9 @@ WHERE {
     ?field             rdf:type                 sg:{{prefix}}CustomField .
     ?field             col:id                   ?id .
 
-    {% if item_id is not none %}
+    {%- if item_id is not none %}
     ?field             col:{{item_type}}_id        {{item_id}} .
-    {% endif %}
+    {%- endif %}
     OPTIONAL { ?field  col:name                 ?name . }
     OPTIONAL { ?field  col:value                ?value . }
     OPTIONAL { ?field  col:default_value        ?default_value . }
@@ -22,6 +22,6 @@ WHERE {
     OPTIONAL { ?field  col:is_multiple          ?is_multiple . }
     OPTIONAL { ?field  col:is_mandatory         ?is_mandatory . }
   }
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

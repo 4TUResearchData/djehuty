@@ -8,15 +8,15 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                sg:File .
     ?file              col:id                  ?id .
-    {% if article_id is not none %}
+    {%- if article_id is not none %}
     ?link              rdf:type                sg:ArticleFile .
     ?link              col:article_id          ?article_id .
     ?link              col:file_id             ?id .
-    {% endif %}{% if account_id is not none %}
+    {%- endif %}{%- if account_id is not none %}
     ?article           rdf:type                sg:Article .
     ?article           col:article_id          ?article_id .
     ?article           col:account_id          {{account_id}} .
-    {% endif %}
+    {%- endif %}
     OPTIONAL { ?file  col:name                 ?name . }
     OPTIONAL { ?file  col:size                 ?size . }
     OPTIONAL { ?file  col:is_link_only         ?is_link_only . }

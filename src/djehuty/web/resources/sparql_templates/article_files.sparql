@@ -30,6 +30,6 @@ WHERE {
     OPTIONAL { ?file  col:upload_token         ?upload_token . }
   }
   FILTER (?article_id = {{article_id}})
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

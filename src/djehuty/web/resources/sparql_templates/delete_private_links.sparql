@@ -18,8 +18,8 @@ WHERE {
   }
   FILTER (?item_id    = {{item_id}})
   FILTER (?account_id = {{account_id}})
-  {% if id_string is not none %}
+  {%- if id_string is not none %}
   FILTER (?id_string = "{{id_string}}"^^xsd:string)
-  {% endif %}
+  {%- endif %}
 }
 {% endblock %}

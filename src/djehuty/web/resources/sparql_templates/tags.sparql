@@ -8,6 +8,6 @@ WHERE {
     ?row             col:tag                  ?tag .
     ?row             col:{{item_type}}_id     ?{{item_type}}_id .
   }
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

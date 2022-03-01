@@ -15,7 +15,7 @@ WHERE {
     ?stats          col:date            ?date .
     ?stats          col:{{item_type}}   ?{{item_type}} .
   }
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 GROUP BY ?article_id ?date
 {% endblock %}

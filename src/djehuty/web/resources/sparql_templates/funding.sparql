@@ -10,15 +10,15 @@ WHERE {
     OPTIONAL { ?row  col:grant_code           ?grant_code . }
     OPTIONAL { ?row  col:funder_name          ?funder_name . }
     OPTIONAL { ?row  col:url                  ?url . }
-    {% if item_id is not none %}
+    {%- if item_id is not none %}
     ?item           rdf:type                 sg:{{prefix}}Funding .
     ?item           col:{{item_type}}_id     ?{{item_type}}_id .
-    {% if account_id is not none %}
+    {%- if account_id is not none %}
     ?item           col:account_id           {{account_id}} .
-    {% endif %}
-    {% endif %}
+    {%- endif %}
+    {%- endif %}
   }
   FILTER (?{{item_type}}_id = {{item_id}})
-{% if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
