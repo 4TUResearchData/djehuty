@@ -53,6 +53,7 @@ class ApiServer:
             Rule("/my/datasets/<article_id>/edit",            endpoint = "edit_article"),
             Rule("/my/datasets/<article_id>/delete",          endpoint = "delete_article"),
             Rule("/my/datasets/new",                          endpoint = "new_article"),
+            Rule("/my/collections",                           endpoint = "my_collections"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
@@ -559,6 +560,30 @@ class ApiServer:
 
                 if result is not None:
                     return redirect ("/my/datasets", code=303)
+
+            return self.error_404 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_my_collections (self, request):
+        if self.accepts_html (request):
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            token = self.token_from_cookie (request)
+            if self.db.is_depositor (token):
+                collections = self.db.collections (account_id = account_id,
+                                                   limit      = 10000)
+
+                for index, _ in enumerate(collections):
+                    count = self.db.collections_article_count (collection_id = collections[index]["id"])
+                    collections[index]["number_of_articles"] = count
+
+                return self.__render_template (request, "depositor/my-collections.html",
+                                               collections = collections)
 
             return self.error_404 (request)
 
