@@ -1130,6 +1130,7 @@ class ApiServer:
                     derived_from    = validator.string_value  (record, "derived_from",   0, 255),
                     same_as         = validator.string_value  (record, "same_as",        0, 255),
                     organizations   = validator.string_value  (record, "organizations",  0, 512),
+                    categories      = validator.array_value   (record, "categories"),
                 )
                 if result is None:
                     return self.error_500()

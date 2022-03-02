@@ -1383,7 +1383,7 @@ class SparqlInterface:
                         mimetype=None, contributors=None, license_remarks=None,
                         geolocation=None, longitude=None, latitude=None,
                         data_link=None, derived_from=None,
-                        same_as=None, organizations=None):
+                        same_as=None, organizations=None, categories=None):
         query   = self.__query_from_template ("update_article", {
             "account_id":      account_id,
             "article_id":      article_id,
@@ -1411,7 +1411,13 @@ class SparqlInterface:
 
         self.cache.invalidate_by_prefix ("article")
         self.cache.invalidate_by_prefix (f"{article_id}_article")
-        return self.__run_query(query, query, f"{article_id}_article")
+        results = self.__run_query (query, query, f"{article_id}_article")
+        if results:
+            self.delete_article_categories (article_id, account_id)
+            for category in categories:
+                self.insert_article_category (article_id, category)
+
+        return results
 
     def delete_article_embargo (self, article_id, account_id):
         """Procedure to lift the embargo on an article."""
