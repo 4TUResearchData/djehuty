@@ -5,8 +5,22 @@
 <script src="/static/js/edit-article.js"></script>
 <script>
 jQuery(document).ready(function (){
-    activate ({{article["id"]}});
+    root_categories = []
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
+    jQuery(".subcategory-wrapper").hide();
+{%- for category in categories: %}
+    root_categories.push({{category.id}});
+    jQuery("#category_{{category.id}}").change(function () {
+        if (this.checked) {
+            jQuery("#category_{{category.id}}").prop("checked", true);
+            jQuery("#subcategories_{{category.id}}").slideDown(200);
+        } else {
+            jQuery("#subcategories_{{category.id}} input[name='categories']").prop("checked", false);
+            jQuery("#subcategories_{{category.id}}").slideUp(200);
+        }
+    });
+{%- endfor %}
+    activate ({{article["id"]}});
 });
 </script>
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
@@ -53,7 +67,10 @@ jQuery(document).ready(function (){
     margin: .75em 0em .75em 0em;
     border-bottom: 4px dotted #f49120;
 }
-#content-wrapper input[type="text"], #content-wrapper textarea, .texteditor {
+#content-wrapper input[type="text"],
+#content-wrapper textarea,
+.texteditor,
+.options-wrapper {
     display: block;
     padding: .7em;
     border: solid 1pt #aaa;
@@ -89,6 +106,13 @@ jQuery(document).ready(function (){
     border-radius: .5em .5em 0em 0em;
     font-weight: bold;
 }
+#content-wrapper label.no-head {
+    display: inline-block;
+    background: none;
+    padding: none;
+    border-radius: none;
+    font-weight: normal;
+}
 #content-wrapper textarea:focus,
 #content-wrapper input:focus,
 #content-wrapper .texteditor:focus {
@@ -121,6 +145,14 @@ jQuery(document).ready(function (){
 }
 .list-resource ul { margin: 0em; padding: 0em; }
 .list-resource li { list-style-type: none; margin: 0em; padding: .5em; }
+.subcategory-checkbox { margin-left: 3em; }
+.subcategory-label { cursor: pointer; user-select: none; }
+.category-label {
+    background: none !important;
+    border-radius: .5em !important;
+    cursor: pointer;
+    user-select: none;
+}
 #authors-list { display: none; border: none; }
 #authors-list thead { display: none; }
 #references-list { display: none; border: none; }
@@ -153,6 +185,19 @@ jQuery(document).ready(function (){
 <select id="license" name="license">
   <option value="" disabled selected>Select a license</option>
 </select>
+<label>Categories</label>
+<div id="categories-wrapper" class="options-wrapper">
+{%- for root in categories: %}
+<input type="checkbox" name="categories" value="{{root.id}}" id="category_{{root.id}}"><!--
+--><label class="category-label" for="category_{{root.id}}">{{root.title}}</label><br>
+<div id="subcategories_{{root.id}}" class="subcategory-wrapper">
+{%- for sub in root.subcategories: %}
+<input class="subcategory-checkbox" type="checkbox" name="categories" value="{{sub.id}}" id="category_{{sub.id}}"><!--
+--><label class="subcategory-label no-head" for="{{sub.id}}">{{sub.title}}</label><br>
+{%- endfor %}
+</div>
+{%- endfor %}
+</div>
 <h3>Authors</h3>
 <label for="authors">Authors</label><input type="text" id="authors" name="authors" />
 <table class="branded-table" id="authors-list">

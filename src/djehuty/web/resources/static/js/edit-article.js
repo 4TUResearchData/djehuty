@@ -21,6 +21,12 @@ function save_article (article_id) {
     event.preventDefault();
     event.stopPropagation();
 
+    categories   = jQuery("input[name='categories']:checked");
+    category_ids = []
+    for (category of categories) {
+        category_ids.push(jQuery(category).val());
+    }
+
     form_data = {
         "title":          or_null(jQuery("#title").val()),
         "description":    or_null(jQuery("#description .ql-editor").html()),
@@ -35,6 +41,7 @@ function save_article (article_id) {
         "derived_from":   or_null(jQuery("#derived_from").val()),
         "same_as":        or_null(jQuery("#same_as").val()),
         "organizations":  or_null(jQuery("#organizations").val()),
+        "categories":     category_ids
     }
     
     var jqxhr = jQuery.ajax({
@@ -73,6 +80,27 @@ function render_licenses (article) {
         }
     }).fail(function () {
         console.log("Failed to retrieve licenses.");
+    });
+}
+
+function render_categories_for_article (article_id) {
+    var jqxhr = jQuery.ajax({
+        url:         `/v2/account/articles/${article_id}/categories`,
+        data:        { "limit": 10000 },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (categories) {
+        for (category of categories) {
+            jQuery(`#category_${category["id"]}`).prop("checked", true);
+            jQuery(`#subcategories_${category["parent_id"]}`).show();
+        }
+        for (category_id of root_categories) {
+            if (jQuery(`#category_${category_id}`).prop("checked")) {
+                jQuery(`#subcategories_${category_id}`).show();
+            }
+        }
+    }).fail(function () {
+        console.log("Failed to retrieve article categories.");
     });
 }
 
@@ -218,6 +246,7 @@ function activate (article_id) {
     }).done(function (data) {
         render_authors_for_article (article_id);
         render_references_for_article (article_id);
+        render_categories_for_article (article_id);
         render_licenses (data);
         jQuery("#authors").on("input", function (event) {
             return autocomplete_author (event, article_id);

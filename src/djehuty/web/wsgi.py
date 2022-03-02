@@ -536,8 +536,16 @@ class ApiServer:
                 try:
                     article = self.db.articles(article_id = article_id,
                                                account_id = account_id)[0]
-                    return self.__render_template (request, "depositor/edit-article.html",
-                                                   article = article)
+                    categories = self.db.root_categories ()
+                    for index, _ in enumerate(categories):
+                        category      = categories[index]
+                        subcategories = self.db.subcategories_for_category (category["id"])
+                        categories[index]["subcategories"] = subcategories
+
+                    return self.__render_template (request,
+                                                   "depositor/edit-article.html",
+                                                   article    = article,
+                                                   categories = categories)
                 except IndexError:
                     return self.error_403 (request)
 
