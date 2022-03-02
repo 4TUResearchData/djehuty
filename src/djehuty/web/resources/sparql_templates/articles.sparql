@@ -126,6 +126,7 @@ WHERE {
 FILTER (?account_id = {{account_id}})
 {%- else: %}
 FILTER (STR(?published_date) != "NULL")
-{%- endif %}{% if filters is not none %}{{ filters }}{% endif %}
+{%- endif %}
+{% if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
