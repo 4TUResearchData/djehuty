@@ -1046,9 +1046,9 @@ class SparqlInterface:
         link_uri = rdf.ROW[f"{item_type}_category_link_{link_id}"]
 
         graph.add ((link_uri, RDF.type,                   rdf.SG[f"{prefix}Category"]))
-        graph.add ((link_uri, rdf.COL["id"],              Literal(link_id)))
-        graph.add ((link_uri, rdf.COL["category_id"],     Literal(category_id)))
-        graph.add ((link_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
+        graph.add ((link_uri, rdf.COL["id"],              Literal(link_id, datatype=XSD.integer)))
+        graph.add ((link_uri, rdf.COL["category_id"],     Literal(category_id, datatype=XSD.integer)))
+        graph.add ((link_uri, rdf.COL[f"{item_type}_id"], Literal(item_id, datatype=XSD.integer)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
