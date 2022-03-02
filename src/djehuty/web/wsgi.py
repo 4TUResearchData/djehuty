@@ -1294,8 +1294,8 @@ class ApiServer:
                 # This way, we can be as certain as we can be that performing
                 # a PUT will not end in having no categories associated with
                 # an article.
-                for index, category_id in enumerate(categories):
-                    validator.integer_value (categories, index)
+                for index, _ in enumerate(categories):
+                    categories[index] = validator.integer_value (categories, index)
 
                 # When we are dealing with a PUT request, we must clear the previous
                 # values first.
