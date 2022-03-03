@@ -49,6 +49,7 @@ function save_article (article_id) {
         "derived_from":   or_null(jQuery("#derived_from").val()),
         "same_as":        or_null(jQuery("#same_as").val()),
         "organizations":  or_null(jQuery("#organizations").val()),
+        "publisher":      or_null(jQuery("#publisher").val()),
         "defined_type_name": defined_type_name,
         "group_id":       group_id,
         "categories":     category_ids
