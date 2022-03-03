@@ -299,3 +299,11 @@ def format_private_links_record (record):
         "is_active":    bool(conv.value_or_none(record, "is_active")),
         "expires_date": conv.value_or_none(record, "expires_date")
     }
+
+def format_group_record (record):
+    return {
+      "id":            conv.value_or_none(record, "id"),
+      "parent_id":     conv.value_or_none(record, "parent_id"),
+      "name":          conv.value_or_none(record, "name"),
+      "association":   conv.value_or_none(record, "association"),
+    }

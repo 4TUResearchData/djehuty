@@ -136,6 +136,7 @@ class ApiServer:
             Rule("/v3/articles/<article_id>/upload",          endpoint = "v3_article_upload_file"),
             Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
             Rule("/v3/articles/<article_id>/references",      endpoint = "v3_article_references"),
+            Rule("/v3/groups",                                endpoint = "v3_groups"),
           ])
 
         ## Static resources and HTML templates.
@@ -2408,3 +2409,34 @@ class ApiServer:
                 return self.error_400 (error.message, error.code)
 
         return self.error_405 (["GET", "POST", "DELETE"])
+
+    def api_v3_groups (self, request):
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        try:
+            limit           = validator.integer_value (request.args, "limit")
+            offset          = validator.integer_value (request.args, "offset")
+            order           = validator.integer_value (request.args, "order")
+            order_direction = validator.string_value  (request.args, "order_direction", 0, 4)
+            group_id        = validator.integer_value (request.args, "id")
+            parent_id       = validator.integer_value (request.args, "parent_id")
+            name            = validator.string_value  (request.args, "name", 0, 255)
+            association     = validator.string_value  (request.args, "association", 0, 255)
+
+            records         = self.db.group (group_id        = group_id,
+                                             parent_id       = parent_id,
+                                             name            = name,
+                                             association     = association,
+                                             limit           = limit,
+                                             offset          = offset,
+                                             order           = order,
+                                             order_direction = order_direction)
+
+            return self.default_list_response (records, formatter.format_group_record)
+
+        except validator.ValidationException as error:
+            return self.error_400 (error.message, error.code)
+
+        return self.error_500 ()
