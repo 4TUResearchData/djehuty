@@ -1266,10 +1266,10 @@ class ApiServer:
                         if author_id is None:
                             logging.error("Adding a single author failed.")
                             return self.error_500()
-                    else:
-                        if self.db.insert_article_author (article_id, author_id) is None:
-                            logging.error("Adding a single author failed.")
-                            return self.error_500()
+
+                    if self.db.insert_article_author (article_id, author_id) is None:
+                        logging.error("Adding a single author failed.")
+                        return self.error_500()
 
                 return self.respond_205()
 
