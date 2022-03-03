@@ -1,0 +1,14 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?id ?parent_id ?name ?association
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?group           rdf:type                 sg:InstitutionGroup .
+    ?group           col:id                   ?id .
+    OPTIONAL { ?group           col:name                 ?name . }
+    OPTIONAL { ?group           col:parent_id            ?parent_id . }
+    OPTIONAL { ?group           col:association_criteria ?association . }
+  }
+{% if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}

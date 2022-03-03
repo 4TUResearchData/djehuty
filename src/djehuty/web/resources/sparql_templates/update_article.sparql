@@ -12,6 +12,8 @@ DELETE {
     ?article           col:resource_title       ?resource_title .
     {%- endif%}{% if license_id is not none %}
     ?article           col:license_id           ?license_id .
+    {%- endif%}{% if group_id is not none %}
+    ?article           col:group_id             ?group_id .
     {%- endif%}{% if time_coverage is not none %}
     ?article           col:time_coverage        ?time_coverage .
     {%- endif%}{% if publisher is not none %}
@@ -58,6 +60,8 @@ INSERT {
     ?article           col:resource_title       "{{resource_title}}"^^xsd:string .
     {%- endif%}{% if license_id is not none %}
     ?article           col:license_id           {{license_id}} .
+    {%- endif%}{% if group_id is not none %}
+    ?article           col:group_id             {{group_id}} .
     {%- endif%}{% if time_coverage is not none %}
     ?article           col:time_coverage        "{{time_coverage}}"^^xsd:string .
     {%- endif%}{% if publisher is not none %}
@@ -101,6 +105,7 @@ WHERE {
 
     OPTIONAL { ?article col:description          ?description . }
     OPTIONAL { ?article col:license_id           ?license_id . }
+    OPTIONAL { ?article col:group_id             ?group_id . }
     OPTIONAL { ?article col:resource_doi         ?resource_doi . }
     OPTIONAL { ?article col:resource_title       ?resource_title . }
     OPTIONAL { ?article col:modified_date        ?modified_date . }

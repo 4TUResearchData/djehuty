@@ -542,10 +542,21 @@ class ApiServer:
                         subcategories = self.db.subcategories_for_category (category["id"])
                         categories[index]["subcategories"] = subcategories
 
+                    # The parent_id was pre-determined by Figshare.
+                    groups = self.db.group (parent_id = 28585,
+                                            order_direction = "asc",
+                                            order = "id")
+
+                    for index, _ in enumerate(groups):
+                        groups[index]["subgroups"] = self.db.group (parent_id = groups[index]["id"],
+                                                                    order_direction = "asc",
+                                                                    order = "id")
+
                     return self.__render_template (request,
                                                    "depositor/edit-article.html",
                                                    article    = article,
-                                                   categories = categories)
+                                                   categories = categories,
+                                                   groups     = groups)
                 except IndexError:
                     return self.error_403 (request)
 
@@ -1133,6 +1144,7 @@ class ApiServer:
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
                     resource_title  = validator.string_value  (record, "resource_title", 0, 255),
                     license_id      = validator.integer_value (record, "license_id",     0, pow(2, 63)),
+                    group_id        = validator.integer_value (record, "group_id",       0, pow(2, 63)),
                     time_coverage   = validator.string_value  (record, "time_coverage",  0, 10000),
                     publisher       = validator.string_value  (record, "publisher",      0, 10000),
                     language        = validator.string_value  (record, "language",       0, 10000),

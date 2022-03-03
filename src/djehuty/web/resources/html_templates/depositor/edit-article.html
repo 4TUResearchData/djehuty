@@ -45,6 +45,7 @@ jQuery(document).ready(function (){
     max-width: 880pt;
     border: solid 2pt #ccc;
     border-radius: .5em;
+    margin-bottom: 1em;
 }
 .branded-table thead tr { background: #ccc; border-radius: .5em .5em 0em 0em; }
 .branded-table thead tr th { color: #000; text-align: left; padding: .5em; z-index: 50; border-top: none; }
@@ -145,9 +146,10 @@ jQuery(document).ready(function (){
 }
 .list-resource ul { margin: 0em; padding: 0em; }
 .list-resource li { list-style-type: none; margin: 0em; padding: .5em; }
-.subcategory-checkbox { margin-left: 3em; }
-.subcategory-label { cursor: pointer; user-select: none; }
-.category-label {
+#categories-wrapper .subitem-checkbox { margin-left: 3em; }
+.subitem-label { cursor: pointer; user-select: none; }
+.subitem-label:hover { cursor: pointer; user-select: none; }
+.item-label {
     background: none !important;
     border-radius: .5em !important;
     cursor: pointer;
@@ -159,8 +161,18 @@ jQuery(document).ready(function (){
 #references-list thead { display: none; }
 #type-wrapper input[type="radio"] { display: none; }
 #type-wrapper label { padding: .5em; border-radius: .5em; }
-#type-wrapper label:hover { cursor: pointer; background: #eeeeee; }
+#type-wrapper label:hover { cursor: pointer; background: #eee; }
 #type-wrapper input[type="radio"]:checked+label { background: #505050; color: #fff; border-radius: .5em; }
+#groups-wrapper h4 {
+    padding: .5em;
+    margin: .5em 0em 0em 0em;
+    font-weight: bold;
+    font-size: 1em;
+    background: #eee;
+    border-radius: .5em;
+    user-select: none;
+}
+#groups-wrapper h4:nth-child(1) { margin: 0em; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -200,11 +212,11 @@ jQuery(document).ready(function (){
 <div id="categories-wrapper" class="options-wrapper">
 {%- for root in categories: %}
 <input type="checkbox" name="categories" value="{{root.id}}" id="category_{{root.id}}"><!--
---><label class="category-label" for="category_{{root.id}}">{{root.title}}</label><br>
+--><label class="item-label" for="category_{{root.id}}">{{root.title}}</label><br>
 <div id="subcategories_{{root.id}}" class="subcategory-wrapper">
 {%- for sub in root.subcategories: %}
-<input class="subcategory-checkbox" type="checkbox" name="categories" value="{{sub.id}}" id="category_{{sub.id}}"><!--
---><label class="subcategory-label no-head" for="{{sub.id}}">{{sub.title}}</label><br>
+<input class="subitem-checkbox" type="checkbox" name="categories" value="{{sub.id}}" id="category_{{sub.id}}"><!--
+--><label class="subitem-label no-head" for="category_{{sub.id}}">{{sub.title}}</label><br>
 {%- endfor %}
 </div>
 {%- endfor %}
@@ -217,6 +229,20 @@ jQuery(document).ready(function (){
   </thead>
   <tbody></tbody>
 </table>
+<label>Group</label>
+<div id="groups-wrapper" class="options-wrapper">
+{%- for group in groups: %}
+<h4>{{group.name}}</h4>
+<div id="subgroups_{{group.id}}" class="subgroup-wrapper">
+<input class="subitem-checkbox" type="radio" name="groups" value="{{group.id}}" id="group_{{group.id}}"><!--
+--><label class="subitem-label no-head" for="group_{{group.id}}">{{group.name}}</label><br>
+{%- for sub in group.subgroups: %}
+<input class="subitem-checkbox" type="radio" name="groups" value="{{sub.id}}" id="group_{{sub.id}}"><!--
+--><label class="subitem-label no-head" for="group_{{sub.id}}">{{sub.name}}</label><br>
+{%- endfor %}
+</div>
+{%- endfor %}
+</div>
 <h3>Linked resource &amp; references</h3>
 <p>If the dataset is published as part of a scientific paper, add its title and DOI here.</p>
 <label for="resource_title">Resource title</label>

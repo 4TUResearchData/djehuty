@@ -31,6 +31,10 @@ function save_article (article_id) {
     if (defined_type_name !== undefined) { defined_type_name = defined_type_name["value"]; }
     else { defined_type_name = null; }
 
+    var group_id = jQuery("input[name='groups']:checked")[0]
+    if (group_id !== undefined) { group_id = group_id["value"]; }
+    else { group_id = null; }
+
     form_data = {
         "title":          or_null(jQuery("#title").val()),
         "description":    or_null(jQuery("#description .ql-editor").html()),
@@ -46,6 +50,7 @@ function save_article (article_id) {
         "same_as":        or_null(jQuery("#same_as").val()),
         "organizations":  or_null(jQuery("#organizations").val()),
         "defined_type_name": defined_type_name,
+        "group_id":       group_id,
         "categories":     category_ids
     }
     
@@ -264,6 +269,9 @@ function activate (article_id) {
         render_files_for_article (article_id);
         if (data["defined_type_name"] != null) {
             jQuery(`#type-${data["defined_type_name"]}`).prop("checked", true);
+        }
+        if (data["group_id"] != null) {
+            jQuery(`#group_${data["group_id"]}`).prop("checked", true);
         }
         jQuery(`#article_${article_id}`).removeClass("loader");
         jQuery(`#article_${article_id}`).show();

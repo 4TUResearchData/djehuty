@@ -1378,7 +1378,7 @@ class SparqlInterface:
 
     def update_article (self, article_id, account_id, title=None,
                         description=None, resource_doi=None,
-                        resource_title=None, license_id=None,
+                        resource_title=None, license_id=None, group_id=None,
                         time_coverage=None, publisher=None, language=None,
                         mimetype=None, contributors=None, license_remarks=None,
                         geolocation=None, longitude=None, latitude=None,
@@ -1399,6 +1399,7 @@ class SparqlInterface:
             "language":        language,
             "latitude":        latitude,
             "license_id":      license_id,
+            "group_id":        group_id,
             "license_remarks": license_remarks,
             "longitude":       longitude,
             "modified_date":   datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S"),
@@ -1717,6 +1718,36 @@ class SparqlInterface:
 
         query += rdf.sparql_suffix ("title", "asc")
         return self.__run_query (query, query, "category")
+
+    def group (self, group_id=None, parent_id=None, name=None,
+               association=None, limit=None, offset=None,
+               order=None, order_direction=None, starts_with=False):
+        """Procedure to return group information."""
+
+        filters = ""
+        if group_id is not None:
+            filters += rdf.sparql_filter ("id", group_id)
+
+        if parent_id is not None:
+            filters += rdf.sparql_filter ("parent_id", parent_id)
+
+        if name is not None:
+            if starts_with:
+                filters += f"FILTER (STRSTARTS(STR(?name), \"{name}\"))"
+            else:
+                filters += rdf.sparql_filter ("name", name, escape=True)
+
+        if association is not None:
+            filters += rdf.sparql_filter ("association", association, escape=True)
+
+        query = self.__query_from_template ("group", {
+            "state_graph": self.state_graph,
+            "filters":     filters
+        })
+
+        query += rdf.sparql_suffix (order, order_direction, limit, offset)
+
+        return self.__run_query (query, query, "group")
 
     def group_by_name (self, group_name, startswith=False):
         """Procedure to return group information by its name."""
