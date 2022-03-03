@@ -38,6 +38,10 @@ DELETE {
     ?article           col:same_as              ?same_as .
     {%- endif%}{% if organizations is not none %}
     ?article           col:organizations        ?organizations .
+    {%- endif%}{% if defined_type_name is not none %}
+    ?article           col:defined_type_name    ?defined_type_name .
+    {%- endif%}{% if defined_type is not none %}
+    ?article           col:defined_type         ?defined_type .
     {%- endif%}
     ?article           col:modified_date        ?modified_date .
   }
@@ -80,6 +84,10 @@ INSERT {
     ?article           col:same_as              "{{same_as}}"^^xsd:string .
     {%- endif%}{% if organizations is not none %}
     ?article           col:organizations        "{{organizations}}"^^xsd:string .
+    {%- endif%}{% if defined_type_name is not none %}
+    ?article           col:defined_type_name    "{{defined_type_name}}"^^xsd:string .
+    {%- endif%}{% if defined_type is not none %}
+    ?article           col:defined_type         {{defined_type}} .
     {%- endif%}
     ?article           col:modified_date        "{{modified_date}}"^^xsd:string .
   }
@@ -109,6 +117,8 @@ WHERE {
     OPTIONAL { ?article col:derived_from          ?derived_from . }
     OPTIONAL { ?article col:contributors          ?contributors . }
     OPTIONAL { ?article col:license_remarks       ?license_remarks . }
+    OPTIONAL { ?article col:defined_type_name     ?defined_type_name . }
+    OPTIONAL { ?article col:defined_type          ?defined_type . }
   }
 {%- if account_id is not none: %}
   FILTER (?account_id = {{account_id}})

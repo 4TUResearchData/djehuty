@@ -27,6 +27,10 @@ function save_article (article_id) {
         category_ids.push(jQuery(category).val());
     }
 
+    var defined_type_name = jQuery("input[name='type']:checked")[0]
+    if (defined_type_name !== undefined) { defined_type_name = defined_type_name["value"]; }
+    else { defined_type_name = null; }
+
     form_data = {
         "title":          or_null(jQuery("#title").val()),
         "description":    or_null(jQuery("#description .ql-editor").html()),
@@ -41,6 +45,7 @@ function save_article (article_id) {
         "derived_from":   or_null(jQuery("#derived_from").val()),
         "same_as":        or_null(jQuery("#same_as").val()),
         "organizations":  or_null(jQuery("#organizations").val()),
+        "defined_type_name": defined_type_name,
         "categories":     category_ids
     }
     
@@ -257,6 +262,9 @@ function activate (article_id) {
             }
         });
         render_files_for_article (article_id);
+        if (data["defined_type_name"] != null) {
+            jQuery(`#type-${data["defined_type_name"]}`).prop("checked", true);
+        }
         jQuery(`#article_${article_id}`).removeClass("loader");
         jQuery(`#article_${article_id}`).show();
         var quill = new Quill('#description', { theme: '4tu' });

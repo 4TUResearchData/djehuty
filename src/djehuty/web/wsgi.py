@@ -1119,6 +1119,14 @@ class ApiServer:
         if request.method == 'PUT':
             record = request.get_json()
             try:
+                defined_type_name = validator.string_value (record, "defined_type_name", 0, 512)
+                ## These magic numbers are pre-determined by Figshare.
+                defined_type = 0
+                if defined_type_name == "software":
+                    defined_type = 9
+                elif defined_type_name == "dataset":
+                    defined_type = 3
+
                 result = self.db.update_article (article_id, account_id,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000),
@@ -1138,6 +1146,8 @@ class ApiServer:
                     derived_from    = validator.string_value  (record, "derived_from",   0, 255),
                     same_as         = validator.string_value  (record, "same_as",        0, 255),
                     organizations   = validator.string_value  (record, "organizations",  0, 512),
+                    defined_type_name = defined_type_name,
+                    defined_type    = defined_type,
                     categories      = validator.array_value   (record, "categories"),
                 )
                 if result is None:

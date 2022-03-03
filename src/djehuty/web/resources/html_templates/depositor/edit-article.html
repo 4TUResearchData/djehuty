@@ -157,6 +157,10 @@ jQuery(document).ready(function (){
 #authors-list thead { display: none; }
 #references-list { display: none; border: none; }
 #references-list thead { display: none; }
+#type-wrapper input[type="radio"] { display: none; }
+#type-wrapper label { padding: .5em; border-radius: .5em; }
+#type-wrapper label:hover { cursor: pointer; background: #eeeeee; }
+#type-wrapper input[type="radio"]:checked+label { background: #505050; color: #fff; border-radius: .5em; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -185,6 +189,13 @@ jQuery(document).ready(function (){
 <select id="license" name="license">
   <option value="" disabled selected>Select a license</option>
 </select>
+<label>Type</label>
+<div id="type-wrapper" class="options-wrapper">
+  <input type="radio" id="type-software" name="type" value="software"><!--
+--><label class="no-head" for="type-software">Software</label>
+  <input type="radio" id="type-dataset" name="type" value="dataset"><!--
+--><label class="no-head" for="type-dataset">Dataset</label>
+</div>
 <label>Categories</label>
 <div id="categories-wrapper" class="options-wrapper">
 {%- for root in categories: %}

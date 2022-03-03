@@ -1383,12 +1383,15 @@ class SparqlInterface:
                         mimetype=None, contributors=None, license_remarks=None,
                         geolocation=None, longitude=None, latitude=None,
                         data_link=None, derived_from=None,
-                        same_as=None, organizations=None, categories=None):
+                        same_as=None, organizations=None, categories=None,
+                        defined_type=None, defined_type_name=None):
         query   = self.__query_from_template ("update_article", {
             "account_id":      account_id,
             "article_id":      article_id,
             "contributors":    contributors,
             "data_link":       data_link,
+            "defined_type":    defined_type,
+            "defined_type_name": defined_type_name,
             "derived_from":    derived_from,
             "description":     description,
             "format":          mimetype,
