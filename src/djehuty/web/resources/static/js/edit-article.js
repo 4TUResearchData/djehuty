@@ -214,6 +214,52 @@ function add_reference (article_id) {
     }
 }
 
+function submit_new_author (article_id) {
+    first_name = jQuery("#author_first_name").val();
+    last_name  = jQuery("#author_last_name").val();
+    email      = jQuery("#author_email").val();
+    orcid      = jQuery("#author_orcid").val();
+
+    jQuery.ajax({
+        url:         `/v2/account/articles/${article_id}/authors`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({
+            "authors": [{
+                "name":       `${first_name} ${last_name}`,
+                "first_name": first_name,
+                "last_name":  last_name,
+                "email":      email,
+                "orcid":      orcid
+            }]
+        }),
+    }).done(function () {
+        jQuery("#authors-ac").remove();
+        jQuery("#authors").removeClass("input-for-ac");
+        render_authors_for_article (article_id);
+    }).fail(function () { console.log (`Failed to add author.`); });
+}
+
+function new_author (article_id) {
+    var html = `<div id="new-author-form">`;
+    html += `<label for="author_first_name">First name</label>`;
+    html += `<input type="text" id="author_first_name" name="author_first_name">`;
+    html += `<label for="author_first_name">Last name</label>`;
+    html += `<input type="text" id="author_last_name" name="author_last_name">`;
+    html += `<label for="author_first_name">E-mail address</label>`;
+    html += `<input type="text" id="author_email" name="author_email">`;
+    html += `<label for="author_first_name">ORCID</label>`;
+    html += `<input type="text" id="author_orcid" name="author_orcid">`;
+    html += `<div id="new-author">`;
+    html += `<a href="#" onclick="javascript:submit_new_author(${article_id}); `;
+    html += `return false;">Add author</a></div>`;
+    html += `</div>`;
+    jQuery("#authors-ac ul").remove();
+    jQuery("#new-author").remove();
+    jQuery("#authors-ac").append(html);
+}
+
 function autocomplete_author (event, article_id) {
     current_text = jQuery.trim(jQuery("#authors").val());
     if (current_text == "") {
@@ -240,6 +286,10 @@ function autocomplete_author (event, article_id) {
                 html += "</a>";
             }
             html += "</ul>";
+
+            html += `<div id="new-author"><a href="#" `
+            html += `onclick="javascript:new_author(${article_id}); `
+            html += `return false;">Create new author record</a></div>`;
             jQuery("#authors")
                 .addClass("input-for-ac")
                 .after(`<div id="authors-ac" class="autocomplete">${html}</div>`);
