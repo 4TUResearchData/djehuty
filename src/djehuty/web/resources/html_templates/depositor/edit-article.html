@@ -248,7 +248,7 @@ jQuery(document).ready(function (){
 <label for="same_as">Same As</label>
 <input type="text" id="same_as" name="same_as" value="{{article["same_as"] | default("", True)}}" />
 <label for="organizations">Organizations</label>
-<textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology"></textarea>
+<textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{article["organizations"] | default("", True) }}</textarea>
 <h3>Files</h3>
 <div class="upload-wrapper">
   <input type="file" name="file" id="file" aria-label="Upload file">
