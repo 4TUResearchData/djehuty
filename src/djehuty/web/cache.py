@@ -33,7 +33,8 @@ class CacheLayer:
     def cached_value (self, prefix, key):
         data = None
         try:
-            with open(f"{self.storage}/{prefix}_{key}", "r") as file:
+            with open(f"{self.storage}/{prefix}_{key}", "r",
+                      encoding = "utf-8") as file:
                 cached = file.read()
                 data = json.loads(cached)
                 logging.info("Cache hit for %s.", key)
@@ -44,7 +45,8 @@ class CacheLayer:
 
     def cache_value (self, prefix, key, value):
         try:
-            with open(f"{self.storage}/{prefix}_{key}", "w") as file:
+            with open(f"{self.storage}/{prefix}_{key}", "w",
+                      encoding = "utf-8") as file:
                 file.write(json.dumps(value))
         except OSError:
             logging.error("Failed to save cache for %s.", key)
