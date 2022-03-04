@@ -810,7 +810,8 @@ class SparqlInterface:
                 status        = conv.value_or_none (file_data, "status"),
                 upload_url    = conv.value_or_none (file_data, "upload_url"),
                 upload_token  = conv.value_or_none (file_data, "upload_token"),
-                article_id    = article_id)
+                article_id    = article_id,
+                account_id    = account_id)
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
@@ -1208,7 +1209,7 @@ class SparqlInterface:
                      is_link_only=None, download_url=None, supplied_md5=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
                      status=None, upload_url=None, upload_token=None,
-                     article_id=None):
+                     article_id=None, account_id=None):
         """Procedure to add an file to the state graph."""
 
         graph    = Graph()
@@ -1237,6 +1238,11 @@ class SparqlInterface:
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             if article_id is not None:
+                if is_link_only:
+                    self.update_article (article_id = article_id,
+                                         account_id = account_id,
+                                         has_linked_file = True)
+
                 link_id = self.insert_article_file (article_id, file_id)
                 if link_id is not None:
                     return file_id

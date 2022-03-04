@@ -1425,14 +1425,14 @@ class ApiServer:
         if request.method == 'POST':
             parameters = request.get_json()
             try:
+                article_id = int(article_id)
                 link = validator.string_value (parameters, "link", 0, 1000, False)
                 if link is not None:
-                    file_id = self.db.insert_file (is_link_only=True, download_url=link)
+                    file_id = self.db.insert_file (article_id   = article_id,
+                                                   account_id   = account_id,
+                                                   is_link_only = True,
+                                                   download_url = link)
                     if file_id is None:
-                        return self.error_500()
-
-                    link_id = self.db.insert_article_file (int(article_id), file_id)
-                    if link_id is None:
                         return self.error_500()
 
                     return self.respond_201({
@@ -1440,16 +1440,14 @@ class ApiServer:
                     })
 
                 file_id = self.db.insert_file (
+                    article_id    = article_id,
+                    account_id    = account_id,
                     is_link_only  = False,
                     upload_token  = self.token_from_request (request),
                     supplied_md5  = validator.string_value  (parameters, "md5",  32, 32,         False),
                     name          = validator.string_value  (parameters, "name", 0,  255,        True),
                     size          = validator.integer_value (parameters, "size", 0,  pow(2, 63), True))
                 if file_id is None:
-                    return self.error_500()
-
-                link_id = self.db.insert_article_file (int(article_id), file_id)
-                if link_id is None:
                     return self.error_500()
 
                 return self.respond_201({
@@ -2300,7 +2298,8 @@ class ApiServer:
             is_link_only  = 0,
             upload_url    = f"/article/{article_id}/upload",
             upload_token  = self.token_from_request (request),
-            article_id    = article_id)
+            article_id    = article_id,
+            account_id    = account_id)
 
         output_filename = f"{self.db.storage}/{article_id}_{file_id}"
 
