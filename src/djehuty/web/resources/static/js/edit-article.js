@@ -170,16 +170,27 @@ function render_files_for_article (article_id) {
         accept:      "application/json",
     }).done(function (files) {
         jQuery("#files tbody").empty();
-        for (index in files) {
-            file = files[index];
-            html = `<tr><td><a href="${file.download_url}">${file.name}</a> (${prettify_size(file.size)})</td>`;
-            html += `<td>${render_in_form(file["computed_md5"])}</td>`;
-            html += `<td><a href="#" onclick="javascript:remove_file(${file.id},`;
-            html += ` ${article_id}); return false;" class="fas fa-trash-can" `;
-            html += `title="Remove"></a></td></tr>`;
-            jQuery("#files tbody").append(html);
+        if (files.length > 0) {
+            jQuery("input[name='record_type']").attr('disabled', true);
+
+            for (index in files) {
+                file = files[index];
+                if (file.name === null) {
+                    file.name = file.download_url;
+                }
+                html = `<tr><td><a href="${file.download_url}">${file.name}</a> (${prettify_size(file.size)})</td>`;
+                html += `<td>${render_in_form(file["computed_md5"])}</td>`;
+                html += `<td><a href="#" onclick="javascript:remove_file(${file.id},`;
+                html += ` ${article_id}); return false;" class="fas fa-trash-can" `;
+                html += `title="Remove"></a></td></tr>`;
+                jQuery("#files tbody").append(html);
+            }
+            jQuery("#files").show();
         }
-        jQuery("#files").show();
+        else {
+            jQuery("#files").hide();
+            jQuery("input[name='record_type']").attr('disabled', false);
+        }
     }).fail(function () {
         console.log("Failed to retrieve file details.");
     });
@@ -197,6 +208,25 @@ function add_author (author_id, article_id) {
         jQuery("#authors").val("");
         autocomplete_author(null, article_id);
     }).fail(function () { console.log (`Failed to add ${author_id}`); });
+}
+
+function submit_external_link (article_id) {
+    var url = jQuery("#external_url").val();
+    if (url == "") {
+        jQuery("#external_url").css("background", "#cc0000");
+        return false;
+    }
+    jQuery.ajax({
+        url:         `/v2/account/articles/${article_id}/files`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({ "link": url }),
+    }).done(function () {
+        jQuery("#external_url").val("");
+        jQuery("#external_link_field").hide();
+        render_files_for_article (article_id);
+    }).fail(function () { console.log (`Failed to add ${url}`); });
 }
 
 function add_reference (article_id) {
@@ -252,7 +282,7 @@ function new_author (article_id) {
     html += `<input type="text" id="author_email" name="author_email">`;
     html += `<label for="author_first_name">ORCID</label>`;
     html += `<input type="text" id="author_orcid" name="author_orcid">`;
-    html += `<div id="new-author">`;
+    html += `<div id="new-author" class="a-button">`;
     html += `<a href="#" onclick="javascript:submit_new_author(${article_id}); `;
     html += `return false;">Add author</a></div>`;
     html += `</div>`;
@@ -288,13 +318,29 @@ function autocomplete_author (event, article_id) {
             }
             html += "</ul>";
 
-            html += `<div id="new-author"><a href="#" `
+            html += `<div id="new-author" class="a-button"><a href="#" `
             html += `onclick="javascript:new_author(${article_id}); `
             html += `return false;">Create new author record</a></div>`;
             jQuery("#authors")
                 .addClass("input-for-ac")
                 .after(`<div id="authors-ac" class="autocomplete">${html}</div>`);
         });
+    }
+}
+
+function toggle_record_type (article_id) {
+    if (jQuery("#metadata_record_only").prop("checked")) {
+        jQuery("#metadata_reason_field").show();
+        jQuery("#external_link_field").hide();
+        jQuery("#file_upload_field").hide();
+    } else if (jQuery("#external_link").prop("checked")) {
+        jQuery("#metadata_reason_field").hide();
+        jQuery("#external_link_field").show();
+        jQuery("#file_upload_field").hide();
+    } else if (jQuery("#upload_files").prop("checked", true)) {
+        jQuery("#metadata_reason_field").hide();
+        jQuery("#external_link_field").hide();
+        jQuery("#file_upload_field").show();
     }
 }
 
@@ -328,6 +374,19 @@ function activate (article_id) {
         jQuery(`#article_${article_id}`).show();
         var quill = new Quill('#description', { theme: '4tu' });
         activate_drag_and_drop ();
+
+        jQuery("input[name='record_type']").change(function () {
+            toggle_record_type (article_id);
+        });
+
+        console.log(`External link: ${data["has_linked_file"]}`);
+        if (data["is_metadata_record"]) {
+            jQuery("#metadata_record_only").prop("checked", true);
+        } else if (data["has_linked_file"]) {
+            jQuery("#external_link").prop("checked", true);
+        } else {
+            jQuery("#upload_files").prop("checked", true);
+        }
 
         jQuery("#delete").on("click", function (event) { delete_article (article_id); });
         jQuery("#save").on("click", function (event)   { save_article (article_id); });
@@ -395,8 +454,12 @@ function remove_file (file_id, article_id) {
         url:         `/v2/account/articles/${article_id}/files/${file_id}`,
         type:        "DELETE",
         accept:      "application/json",
-    }).done(function (files) { render_files_for_article (article_id); })
-      .fail(function () { console.log (`Failed to remove ${file_id}`); });
+    }).done(function (files) {
+        render_files_for_article (article_id);
+        if (jQuery("#external_link").prop("checked")) {
+            jQuery("#external_link_field").show();
+        }
+    }).fail(function () { console.log (`Failed to remove ${file_id}`); });
 }
 
 function remove_author (author_id, article_id) {

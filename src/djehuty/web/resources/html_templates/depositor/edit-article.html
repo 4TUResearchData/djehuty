@@ -110,8 +110,6 @@ jQuery(document).ready(function (){
 #content-wrapper label.no-head {
     display: inline-block;
     background: none;
-    padding: none;
-    border-radius: none;
     font-weight: normal;
 }
 #content-wrapper textarea:focus,
@@ -158,25 +156,38 @@ jQuery(document).ready(function (){
 #authors-list { display: none; border: none; }
 #authors-list thead { display: none; }
 #new-author { text-align: center; line-height: 3.5em; height: 3.5em; }
-#new-author a {
+.a-button a {
     text-decoration: none;
     color: #fff;
     background: #139257;
     border-radius: .5em;
     padding: .5em;
-    margin: 1em;
+    margin: 1em 0em 1em 0em;
 }
+.a-button a:hover { background: #18b76d; }
+.a-button a:active { background: #107a48; }
 #new-author-form { padding: 1em; }
 #new-author-form label { background: #eee; }
 #new-author-form input[type="text"] { width: 800pt; }
-#new-author a:hover { background: #18b76d; }
-#new-author a:active { background: #107a48; }
 #references-list { display: none; border: none; }
 #references-list thead { display: none; }
-#type-wrapper input[type="radio"] { display: none; }
-#type-wrapper label { padding: .5em; border-radius: .5em; }
-#type-wrapper label:hover { cursor: pointer; background: #eee; }
-#type-wrapper input[type="radio"]:checked+label { background: #505050; color: #fff; border-radius: .5em; }
+#record-type-wrapper input[type="radio"],
+#type-wrapper input[type="radio"]{ display: none; }
+#record-type-wrapper label,
+#type-wrapper label{ padding: .5em; border-radius: .5em; user-select: none; }
+#record-type-wrapper label:hover,
+#type-wrapper label:hover{ cursor: pointer; background: #eee; }
+#record-type-wrapper input[type="radio"]:checked+label,
+#type-wrapper input[type="radio"]:checked+label {
+    background: #505050;
+    color: #fff;
+    border-radius: .5em;
+    opacity: 1.0 !important;
+}
+#record-type-wrapper input[type="radio"]:disabled+label {
+    opacity: 0.5;
+    cursor: auto;
+}
 #groups-wrapper h4 {
     padding: .5em;
     margin: .5em 0em 0em 0em;
@@ -187,6 +198,7 @@ jQuery(document).ready(function (){
     user-select: none;
 }
 #groups-wrapper h4:nth-child(1) { margin: 0em; }
+#metadata_reason_field, #external_link_field, #file_upload_field { display: none; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -292,7 +304,27 @@ jQuery(document).ready(function (){
 <label for="organizations">Organizations</label>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{article["organizations"] | default("", True) }}</textarea>
 <h3>Files</h3>
-<div class="upload-wrapper">
+<label>Type</label>
+<div id="record-type-wrapper" class="options-wrapper">
+<input type="radio" name="record_type" id="metadata_record_only" value="meta" /><!--
+--><label for="metadata_record_only" class="no-head">Metadata record</label><!--
+--><input type="radio" name="record_type" id="external_link" value="link" /><!--
+--><label for="external_link" class="no-head">External link</label><!--
+--><input type="radio" name="record_type" id="upload_files" value="files" /><!--
+--><label for="upload_files" class="no-head">File deposit</label>
+</div>
+<div id="metadata_reason_field">
+  <label for="metadata_only_reason">Reason</label>
+  <input type="text" name="metadata_only_reason" id="metadata_only_reason" value="{{article["metadata_reason"]}}"/>
+</div>
+<div id="external_link_field">
+  <label for="external_link">External URL</label>
+  <input type="text" name="external_url" id="external_url" value="{{article["url"]}}" />
+  <div class="a-button">
+    <a href="#" onclick="javascript:submit_external_link({{article["id"]}}); return false;">Save URL</a>
+  </div>
+</div>
+<div id="file_upload_field" class="upload-wrapper">
   <input type="file" name="file" id="file" aria-label="Upload file">
   <div class="upload-container" id="file-upload">
     <h4>Drag files here</h4>
