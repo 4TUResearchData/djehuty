@@ -1317,7 +1317,7 @@ class ApiServer:
 
             return self.default_list_response (categories, formatter.format_category_record)
 
-        if request.method == 'PUT' or request.method == 'POST':
+        if request.method in ('PUT', 'POST'):
             try:
                 parameters = request.get_json()
                 categories = parameters["categories"]
