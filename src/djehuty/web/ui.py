@@ -117,6 +117,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
 ## ----------------------------------------------------------------------------
 
 def application (env, start_response):
+    """The main entry point for the WSGI."""
 
     logging.basicConfig(format='[ %(levelname)s ] %(asctime)s: %(message)s',
                         level=logging.INFO)
