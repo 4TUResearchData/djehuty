@@ -113,7 +113,7 @@ class SparqlInterface:
 
         except URLError:
             logging.error("Connection to the SPARQL endpoint seems down.")
-        except SPARQLExceptions.QueryBadFormed as error:
+        except SPARQLExceptions.QueryBadFormed:
             logging.error("Badly formed SPARQL query:")
             logging.error("Query:\n---\n%s\n---", query)
         except Exception as error:
