@@ -44,6 +44,8 @@ DELETE {
     ?article           col:defined_type_name    ?defined_type_name .
     {%- endif%}{% if defined_type is not none %}
     ?article           col:defined_type         ?defined_type .
+    {%- endif%}{% if has_linked_file is not none %}
+    ?article           col:has_linked_file      ?has_linked_file .
     {%- endif%}
     ?article           col:modified_date        ?modified_date .
   }
@@ -92,6 +94,8 @@ INSERT {
     ?article           col:defined_type_name    "{{defined_type_name}}"^^xsd:string .
     {%- endif%}{% if defined_type is not none %}
     ?article           col:defined_type         {{defined_type}} .
+    {%- endif%}{% if has_linked_file is not none %}
+    ?article           col:has_linked_file      {{has_linked_file}} .
     {%- endif%}
     ?article           col:modified_date        "{{modified_date}}"^^xsd:string .
   }
@@ -124,6 +128,7 @@ WHERE {
     OPTIONAL { ?article col:license_remarks       ?license_remarks . }
     OPTIONAL { ?article col:defined_type_name     ?defined_type_name . }
     OPTIONAL { ?article col:defined_type          ?defined_type . }
+    OPTIONAL { ?article col:has_linked_file       ?has_linked_file . }
   }
 {%- if account_id is not none: %}
   FILTER (?account_id = {{account_id}})

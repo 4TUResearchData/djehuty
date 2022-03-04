@@ -1388,7 +1388,7 @@ class SparqlInterface:
                         time_coverage=None, publisher=None, language=None,
                         mimetype=None, contributors=None, license_remarks=None,
                         geolocation=None, longitude=None, latitude=None,
-                        data_link=None, derived_from=None,
+                        data_link=None, has_linked_file=None, derived_from=None,
                         same_as=None, organizations=None, categories=None,
                         defined_type=None, defined_type_name=None):
         query   = self.__query_from_template ("update_article", {
@@ -1402,6 +1402,7 @@ class SparqlInterface:
             "description":     description,
             "format":          mimetype,
             "geolocation":     geolocation,
+            "has_linked_file": has_linked_file,
             "language":        language,
             "latitude":        latitude,
             "license_id":      license_id,
@@ -1422,7 +1423,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix ("article")
         self.cache.invalidate_by_prefix (f"{article_id}_article")
         results = self.__run_query (query, query, f"{article_id}_article")
-        if results:
+        if results and categories:
             self.delete_article_categories (article_id, account_id)
             for category in categories:
                 self.insert_article_category (article_id, category)
