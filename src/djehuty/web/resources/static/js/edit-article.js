@@ -337,7 +337,7 @@ function toggle_record_type (article_id) {
         jQuery("#metadata_reason_field").hide();
         jQuery("#external_link_field").show();
         jQuery("#file_upload_field").hide();
-    } else if (jQuery("#upload_files").prop("checked", true)) {
+    } else if (jQuery("#upload_files").prop("checked")) {
         jQuery("#metadata_reason_field").hide();
         jQuery("#external_link_field").hide();
         jQuery("#file_upload_field").show();
@@ -379,7 +379,6 @@ function activate (article_id) {
             toggle_record_type (article_id);
         });
 
-        console.log(`External link: ${data["has_linked_file"]}`);
         if (data["is_metadata_record"]) {
             jQuery("#metadata_record_only").prop("checked", true);
         } else if (data["has_linked_file"]) {
