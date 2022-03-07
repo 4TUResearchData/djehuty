@@ -54,6 +54,7 @@ class ApiServer:
             Rule("/my/datasets/<article_id>/delete",          endpoint = "delete_article"),
             Rule("/my/datasets/new",                          endpoint = "new_article"),
             Rule("/my/collections",                           endpoint = "my_collections"),
+            Rule("/my/collections/<collection_id>/delete",    endpoint = "delete_collection"),
             Rule("/my/collections/new",                       endpoint = "new_collection"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
@@ -627,6 +628,26 @@ class ApiServer:
                 if collection_id is not None:
                     return redirect (f"/my/collections/{collection_id}/edit", code=302)
                 return self.error_500()
+
+            return self.error_404 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_delete_collection (self, request, collection_id):
+        if self.accepts_html (request):
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            token = self.token_from_cookie (request)
+            if self.db.is_depositor (token):
+                result = self.db.delete_collection (collection_id = collection_id,
+                                                    account_id = account_id)
+
+                if result is not None:
+                    return redirect ("/my/collections", code=303)
 
             return self.error_404 (request)
 
