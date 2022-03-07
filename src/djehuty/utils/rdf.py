@@ -10,6 +10,7 @@ def add (graph, subject, predicate, value, datatype=None):
         graph.add((subject, predicate, Literal(value, datatype=datatype)))
 
 def sparql_filter (name, value, escape=False):
+    """Returns a FILTER statement that can be added to a SPARQL query."""
     query   = ""
     literal = f"\"{value}\"" if escape else value
     symbol  = f"STR(?{name})" if escape else f"?{name}"
@@ -20,9 +21,12 @@ def sparql_filter (name, value, escape=False):
     return query
 
 def sparql_bound_filter (name):
+    """Returns a FILTER statement to test whether a variable is BOUND."""
     return f"FILTER (BOUND(?{name}))\n"
 
 def sparql_suffix (order, order_direction, limit=None, offset=None):
+    """Returns a query suffix including order, limit and offset."""
+
     if order_direction is None:
         order_direction = "DESC"
     else:
