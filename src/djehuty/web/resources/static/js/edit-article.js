@@ -387,6 +387,8 @@ function activate (article_id) {
             jQuery("#upload_files").prop("checked", true);
         }
 
+        toggle_record_type (article_id);
+
         jQuery("#delete").on("click", function (event) { delete_article (article_id); });
         jQuery("#save").on("click", function (event)   { save_article (article_id); });
     }).fail(function () { console.log(`Failed to retrieve article ${current_article_id}.`); });
