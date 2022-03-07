@@ -1674,6 +1674,12 @@ class SparqlInterface:
         rdf.add (graph, collection_uri, rdf.COL["resource_title"], resource_title, XSD.string)
         rdf.add (graph, collection_uri, rdf.COL["group_id"],       group_id)
 
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
+        rdf.add (graph, collection_uri, rdf.COL["created_date"],   current_time, XSD.string)
+        rdf.add (graph, collection_uri, rdf.COL["modified_date"],  current_time, XSD.string)
+        rdf.add (graph, collection_uri, rdf.COL["published_date"], "NULL", XSD.string)
+        rdf.add (graph, collection_uri, rdf.COL["is_public"],      0)
+
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             logging.info ("Inserted collection %d", collection_id)
