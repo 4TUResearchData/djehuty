@@ -54,6 +54,7 @@ class ApiServer:
             Rule("/my/datasets/<article_id>/delete",          endpoint = "delete_article"),
             Rule("/my/datasets/new",                          endpoint = "new_article"),
             Rule("/my/collections",                           endpoint = "my_collections"),
+            Rule("/my/collections/new",                       endpoint = "new_collection"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
@@ -604,6 +605,28 @@ class ApiServer:
 
                 return self.__render_template (request, "depositor/my-collections.html",
                                                collections = collections)
+
+            return self.error_404 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_new_collection (self, request):
+        if self.accepts_html (request):
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            token = self.token_from_cookie (request)
+            if self.db.is_depositor (token):
+                collection_id = self.db.insert_collection(
+                    title = "Untitled collection",
+                    account_id = account_id)
+
+                if collection_id is not None:
+                    return redirect (f"/my/collections/{collection_id}/edit", code=302)
+                return self.error_500()
 
             return self.error_404 (request)
 
