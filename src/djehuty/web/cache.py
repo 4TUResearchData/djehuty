@@ -18,12 +18,14 @@ class CacheLayer:
         self.storage     = storage_path
 
     def make_key (self, input_string):
+        """Procedure to turn 'input_string' into a short, unique identifier."""
         if input_string is None:
             return None
 
         return hashlib.md5(input_string.encode('utf-8')).hexdigest()
 
     def cache_is_ready(self):
+        """Procedure to set up and test the ability to cache."""
         if self.storage is None:
             return False
 
@@ -31,6 +33,7 @@ class CacheLayer:
         return os.path.isdir(self.storage)
 
     def cached_value (self, prefix, key):
+        """Returns the cached value or None."""
         data = None
         try:
             with open(f"{self.storage}/{prefix}_{key}", "r",
@@ -44,6 +47,7 @@ class CacheLayer:
         return data
 
     def cache_value (self, prefix, key, value):
+        """Procedure to store 'value' as a cache."""
         try:
             with open(f"{self.storage}/{prefix}_{key}", "w",
                       encoding = "utf-8") as file:
@@ -54,9 +58,11 @@ class CacheLayer:
         return value
 
     def remove_cached_value (self, prefix, key):
+        """Procedure to invalidate a uniquely identifiable cache item."""
         os.remove(f"{self.storage}/{prefix}_{key}")
         return True
 
     def invalidate_by_prefix (self, prefix):
+        """Procedure to remove all cache items belonging to 'prefix'."""
         for file_path in glob.glob(f"{self.storage}/{prefix}_*"):
             os.remove(file_path)
