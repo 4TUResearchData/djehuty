@@ -83,7 +83,7 @@ jQuery(document).ready(function () {
         </span>
       </td>
       <td>{{collection.created_date | truncate(10,False,'')}}</td>
-      <td><a href="/my/datasets/{{collection.id}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+      <td><a href="/my/collections/{{collection.id}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
     </tr>
   {% endfor %}</tbody>
 </table>
