@@ -74,7 +74,7 @@
       <tr><td>{{summary_data["articles"]}}</td><td>articles</td></tr>
       <tr><td>{{summary_data["collections"]}}</td><td>collections</td></tr>
       <tr><td>{{summary_data["files"]}}</td><td>files</td></tr>
-      <tr><td>{{summary_data["bytes"]}}</td><td>bytes</td></tr>
+      <tr><td>{{summary_data["bytes"] | default("0", True)}}</td><td>bytes</td></tr>
     </tbody>
   </table>
 </div>
