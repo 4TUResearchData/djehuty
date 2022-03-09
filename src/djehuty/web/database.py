@@ -1112,17 +1112,29 @@ class SparqlInterface:
 
         return None
 
-    def delete_article_categories (self, article_id, account_id, category_id=None):
-        """Procedure to delete the categories related to an article."""
+    def delete_item_categories (self, item_id, account_id, category_id=None,
+                                item_type="article"):
+        """Procedure to delete the categories of an article or collection."""
 
-        query = self.__query_from_template ("delete_article_categories", {
+        prefix = item_type.capitalize()
+        query = self.__query_from_template ("delete_item_categories", {
             "state_graph": self.state_graph,
-            "article_id":  article_id,
+            "item_id":     item_id,
+            "item_type":   item_type,
+            "prefix":      prefix,
             "account_id":  account_id,
             "category_id": category_id
         })
 
         return self.__run_query(query)
+
+    def delete_article_categories (self, article_id, account_id, category_id=None):
+        """Procedure to delete the categories related to an article."""
+        return self.delete_item_categories (article_id, account_id, category_id, "article")
+
+    def delete_collection_categories (self, collection_id, account_id, category_id=None):
+        """Procedure to delete the categories related to a collection."""
+        return self.delete_item_categories (collection_id, account_id, category_id, "collection")
 
     def delete_file_for_article (self, article_id, account_id, file_id=None):
         """Procedure to delete a file related to an article."""
