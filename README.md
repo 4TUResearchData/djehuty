@@ -43,6 +43,18 @@ pip install pyinstaller
 pyinstaller -F --onefile --add-data "src/djehuty/web/resources;djehuty/web/resources" main.py -n djehuty
 ```
 
+### Build an AppImage with Nuitka
+
+```bash
+pip install nuitka
+nuitka3 --standalone \
+        --include-package-data=djehuty \
+        --onefile \
+        --linux-onefile-icon="src/djehuty/web/resources/static/images/favicon.png" \
+        main.py \
+        -o djehuty.appimage
+```
+
 ### Build RPMs
 
 Building RPMs can be done via the Autotools scripts:
