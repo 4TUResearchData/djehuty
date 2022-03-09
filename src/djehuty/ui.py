@@ -5,6 +5,7 @@ This module contains the entry point for the program.
 import argparse
 import sys
 import logging
+import os
 
 import djehuty.backup.ui as backup_ui
 import djehuty.web.ui as web_ui
@@ -87,10 +88,11 @@ def main ():
     parser.add_argument('--help',    '-h', action='store_true')
     parser.add_argument('--version', '-v', action='store_true')
 
-    # When using PyInstaller, argv[0] seems to get duplicated.
-    # This bit de-duplicates argv[0] in that case.
+    # When using PyInstaller and Nuitka, argv[0] seems to get duplicated.
+    # In the case of Nuitka, relative paths are converted to absolute paths.
+    # This bit de-duplicates argv[0] in these cases.
     try:
-        if sys.argv[0] == sys.argv[1]:
+        if os.path.abspath(sys.argv[0]) == os.path.abspath(sys.argv[1]):
             sys.argv = sys.argv[1:]
     except IndexError:
         pass
