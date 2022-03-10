@@ -1722,7 +1722,7 @@ class SparqlInterface:
 
     def update_collection (self, collection_id, account_id, title=None,
                            description=None, resource_doi=None,
-                           resource_title=None, group_id=None,
+                           resource_title=None, group_id=None, articles=None,
                            time_coverage=None, publisher=None, language=None,
                            contributors=None, geolocation=None, longitude=None,
                            latitude=None, organizations=None, categories=None):
@@ -1754,6 +1754,11 @@ class SparqlInterface:
             self.delete_collection_categories (collection_id, account_id)
             for category in categories:
                 self.insert_collection_category (collection_id, category)
+
+        if results and articles:
+            self.delete_collection_articles (collection_id, account_id)
+            for article_id in articles:
+                self.insert_collection_article (collection_id, article_id)
 
         return results
 
