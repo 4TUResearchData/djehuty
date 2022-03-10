@@ -1,0 +1,23 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?row         rdf:type             sg:CollectionArticle .
+    ?row         col:collection_id    ?collection_id .
+    ?row         col:article_id       ?article_id .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?row         rdf:type             sg:CollectionArticle .
+    ?row         col:collection_id    ?collection_id .
+    ?row         col:article_id       ?article_id .
+
+    ?collection  rdf:type             sg:Collection .
+    ?collection  col:collection_id    ?collection_id .
+    ?collection  col:account_id       ?account_id .
+  }
+  FILTER (?collection_id = {{collection_id}})
+  FILTER (?account_id = {{account_id}})
+}
+{% endblock %}
