@@ -394,23 +394,6 @@ function activate (article_id) {
     }).fail(function () { console.log(`Failed to retrieve article ${current_article_id}.`); });
 }
 
-function create_article (title, on_success, on_failure) {
-    if (current_article_id != null) {
-        on_success (current_article_id);
-    } else {
-        var jqxhr = jQuery.ajax({
-            url:         "/v2/account/articles",
-            type:        "POST",
-            data:        JSON.stringify({ "title": title }),
-            contentType: "application/json",
-            dataType:    "json"
-        }).done(function (data) {
-            current_article_id = data.location.split("/").pop();
-            on_success (current_article_id);
-        }).fail(function ()     { on_failure(); });
-    }
-}
-
 function perform_upload (files, current_file) {
     total_files = files.length;
     create_article ("Untitled article", function (article_id) {
