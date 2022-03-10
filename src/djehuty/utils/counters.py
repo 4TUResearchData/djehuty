@@ -22,6 +22,7 @@ class IdGenerator:
             "article_author"   : Value('i', 0),
             "article_file"     : Value('i', 0),
             "collection"       : Value('i', 0),
+            "collection_category" : Value('i', 0),
             "collection_author" : Value('i', 0),
             "collection_article" : Value('i', 0),
             "author"           : Value('i', 0),
