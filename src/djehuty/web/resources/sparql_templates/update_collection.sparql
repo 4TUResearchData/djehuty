@@ -1,0 +1,93 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    {%- if title is not none %}
+    ?collection           col:title                ?title .
+    {%- endif%}{% if description is not none %}
+    ?collection           col:description          ?description .
+    {%- endif%}{% if resource_doi is not none %}
+    ?collection           col:resource_doi         ?resource_doi .
+    {%- endif%}{% if resource_title is not none %}
+    ?collection           col:resource_title       ?resource_title .
+    {%- endif%}{% if group_id is not none %}
+    ?collection           col:group_id             ?group_id .
+    {%- endif%}{% if time_coverage is not none %}
+    ?collection           col:time_coverage        ?time_coverage .
+    {%- endif%}{% if publisher is not none %}
+    ?collection           col:publisher            ?publisher .
+    {%- endif%}{% if language is not none %}
+    ?collection           col:language             ?language .
+    {%- endif%}{% if contributors is not none %}
+    ?collection           col:contributors         ?contributors .
+    {%- endif%}{% if geolocation is not none %}
+    ?collection           col:geolocation          ?geolocation .
+    {%- endif%}{% if longitude is not none %}
+    ?collection           col:longitude            ?longitude .
+    {%- endif%}{% if latitude is not none %}
+    ?collection           col:latitude             ?latitude .
+    {%- endif%}{% if organizations is not none %}
+    ?collection           col:organizations        ?organizations .
+    {%- endif%}
+    ?collection           col:modified_date        ?modified_date .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    {%- if title is not none %}
+    ?collection           col:title                "{{title}}"^^xsd:string .
+    {%- endif%}{% if description is not none %}
+    ?collection           col:description          "{{description}}"^^xsd:string .
+    {%- endif%}{% if resource_doi is not none %}
+    ?collection           col:resource_doi         "{{resource_doi}}"^^xsd:string .
+    {%- endif%}{% if resource_title is not none %}
+    ?collection           col:resource_title       "{{resource_title}}"^^xsd:string .
+    {%- endif%}{% if group_id is not none %}
+    ?collection           col:group_id             {{group_id}} .
+    {%- endif%}{% if time_coverage is not none %}
+    ?collection           col:time_coverage        "{{time_coverage}}"^^xsd:string .
+    {%- endif%}{% if publisher is not none %}
+    ?collection           col:publisher            "{{publisher}}"^^xsd:string .
+    {%- endif%}{% if language is not none %}
+    ?collection           col:language             "{{language}}"^^xsd:string .
+    {%- endif%}{% if contributors is not none %}
+    ?collection           col:contributors         "{{contributors}}"^^xsd:string .
+    {%- endif%}{% if geolocation is not none %}
+    ?collection           col:geolocation          "{{geolocation}}"^^xsd:string .
+    {%- endif%}{% if longitude is not none %}
+    ?collection           col:longitude            "{{longitude}}"^^xsd:string .
+    {%- endif%}{% if latitude is not none %}
+    ?collection           col:latitude             "{{latitude}}"^^xsd:string .
+    {%- endif%}{% if organizations is not none %}
+    ?collection           col:organizations        "{{organizations}}"^^xsd:string .
+    {%- endif%}
+    ?collection           col:modified_date        "{{modified_date}}"^^xsd:string .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?collection            rdf:type                 sg:Collection .
+    ?collection            col:collection_id        ?collection_id .
+    ?collection            col:account_id           ?account_id .
+    ?collection            col:title                ?title .
+
+    OPTIONAL { ?collection col:description          ?description . }
+    OPTIONAL { ?collection col:group_id             ?group_id . }
+    OPTIONAL { ?collection col:resource_doi         ?resource_doi . }
+    OPTIONAL { ?collection col:resource_title       ?resource_title . }
+    OPTIONAL { ?collection col:modified_date        ?modified_date . }
+    OPTIONAL { ?collection col:publisher            ?publisher . }
+    OPTIONAL { ?collection col:language             ?language . }
+    OPTIONAL { ?collection col:time_coverage        ?time_coverage . }
+    OPTIONAL { ?collection col:geolocation          ?geolocation . }
+    OPTIONAL { ?collection col:longitude            ?longitude . }
+    OPTIONAL { ?collection col:latitude             ?latitude . }
+    OPTIONAL { ?collection col:organizations        ?organizations . }
+    OPTIONAL { ?collection col:contributors         ?contributors . }
+  }
+{%- if account_id is not none: %}
+  FILTER (?account_id = {{account_id}})
+{%- endif %}
+  FILTER (?collection_id = {{collection_id}})
+}
+{% endblock %}

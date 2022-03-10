@@ -1710,6 +1710,43 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def update_collection (self, collection_id, account_id, title=None,
+                           description=None, resource_doi=None,
+                           resource_title=None, group_id=None,
+                           time_coverage=None, publisher=None, language=None,
+                           contributors=None, geolocation=None, longitude=None,
+                           latitude=None, organizations=None, categories=None):
+        query   = self.__query_from_template ("update_collection", {
+            "account_id":        account_id,
+            "collection_id":     collection_id,
+            "contributors":      contributors,
+            "description":       description,
+            "geolocation":       geolocation,
+            "language":          language,
+            "latitude":          latitude,
+            "group_id":          group_id,
+            "longitude":         longitude,
+            "modified_date":     datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S"),
+            "organizations":     organizations,
+            "publisher":         publisher,
+            "resource_doi":      resource_doi,
+            "resource_title":    resource_title,
+            "state_graph":       self.state_graph,
+            "time_coverage":     time_coverage,
+            "title":             title
+        })
+
+        self.cache.invalidate_by_prefix ("collection")
+        self.cache.invalidate_by_prefix (f"{collection_id}_collection")
+
+        results = self.__run_query (query, query, f"{collection_id}_collection")
+        if results and categories:
+            self.delete_collection_categories (collection_id, account_id)
+            for category in categories:
+                self.insert_collection_category (collection_id, category)
+
+        return results
+
     def category_by_id (self, category_id):
         """Procedure to return category information by its identifier."""
 
