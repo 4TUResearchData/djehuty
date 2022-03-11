@@ -487,7 +487,9 @@ class ApiServer:
                                                          limit      = 10000)
 
                 for index, _ in enumerate(unpublished_articles):
-                    used = self.db.article_storage_used (unpublished_articles[index]["id"])
+                    used = 0
+                    if not bool(unpublished_articles[index]["is_metadata_record"]):
+                        used = self.db.article_storage_used (unpublished_articles[index]["id"])
                     unpublished_articles[index]["storage_used"] = convenience.pretty_print_size(used)
 
                 published_articles = self.db.articles (account_id = account_id,
@@ -495,7 +497,9 @@ class ApiServer:
                                                        limit      = 10000)
 
                 for index, _ in enumerate(published_articles):
-                    used = self.db.article_storage_used (published_articles[index]["id"])
+                    used = 0
+                    if not bool(published_articles[index]["is_metadata_record"]):
+                        used = self.db.article_storage_used (published_articles[index]["id"])
                     published_articles[index]["storage_used"] = convenience.pretty_print_size(used)
 
                 return self.__render_template (request, "depositor/my-data.html",
