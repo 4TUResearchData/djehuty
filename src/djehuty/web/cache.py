@@ -40,9 +40,9 @@ class CacheLayer:
                       encoding = "utf-8") as file:
                 cached = file.read()
                 data = json.loads(cached)
-                logging.info("Cache hit for %s.", key)
+                logging.debug("Cache hit for %s.", key)
         except OSError:
-            logging.info("No cached response for %s.", key)
+            logging.debug("No cached response for %s.", key)
 
         return data
 
