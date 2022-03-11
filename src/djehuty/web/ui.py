@@ -91,9 +91,13 @@ def main (address=None, port=None, state_graph=None, storage=None,
         if not run_internal_server:
             return server
 
-        logging.info("Running on %s", server.base_url)
-        logging.info("State graph set to:  %s.", server.db.state_graph)
-        logging.info("Storage path set to: %s.", server.db.storage)
+        if os.environ.get('WERKZEUG_RUN_MAIN'):
+            logging.info("Reloaded.")
+        else:
+            logging.info("Running on %s", server.base_url)
+            logging.info("State graph set to:  %s.", server.db.state_graph)
+            logging.info("Storage path set to: %s.", server.db.storage)
+
         run_simple (address, port, server,
                     threaded=(maximum_workers <= 1),
                     processes=maximum_workers,
