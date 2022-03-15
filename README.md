@@ -9,7 +9,7 @@ local API testing endpoint.
 
 To create a development environment, use the following snippet:
 ```bash
-virtualenv --python python3.6 djehuty-env
+python -m venv djehuty-env
 . djehuty-env/bin/activate
 cd /path/to/the/repository/checkout/root
 pip install -r requirements.txt
