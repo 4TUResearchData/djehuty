@@ -488,7 +488,7 @@ class ApiServer:
 
                 for index, _ in enumerate(unpublished_articles):
                     used = 0
-                    if not bool(unpublished_articles[index]["is_metadata_record"]):
+                    if not bool(convenience.value_or_none (unpublished_articles[index], "is_metadata_record")):
                         used = self.db.article_storage_used (unpublished_articles[index]["id"])
                     unpublished_articles[index]["storage_used"] = convenience.pretty_print_size(used)
 
@@ -498,7 +498,7 @@ class ApiServer:
 
                 for index, _ in enumerate(published_articles):
                     used = 0
-                    if not bool(published_articles[index]["is_metadata_record"]):
+                    if not bool(convenience.value_or_none (published_articles[index], "is_metadata_record")):
                         used = self.db.article_storage_used (published_articles[index]["id"])
                     published_articles[index]["storage_used"] = convenience.pretty_print_size(used)
 
