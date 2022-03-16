@@ -15,6 +15,7 @@ from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import database
 from djehuty.utils import convenience
+from datetime import date
 
 class ApiServer:
     """This class implements the API server."""
@@ -660,10 +661,51 @@ class ApiServer:
         }))
 
     def api_portal (self, request):
+        #When Djehuty is completely in production, set fromFigshare to False.
         if self.accepts_html (request):
             summary_data = self.db.repository_statistics()
+
+            page_size = 30
+            rgb_shift = ((208,0), (104,104), (0,208)) #begin and end values of r,g,b
+            opa_min = 0.3                             #minimum opacity
+            rgb_opa_days = (7., 21.)                  #fading times (days) for color and opacity
+            fromFigshare = True                       #from Figshare API or from SPARQL query?
+
+            fig = self.get_parameter (request, "fig") #override fromFigshare
+            if fig in ('0', 'false'):
+                fromFigshare = False
+            if fig in ('1', 'true'):
+                fromFigshare = True
+
+            n = self.get_parameter (request, "n")     #override page_size
+            if n is not None:
+                page_size = int(n)
+
+            today = date.today()
+            latest = []
+            try:
+                if fromFigshare:
+                    base = 'https://api.figshare.com/v2/articles'
+                    headers = {'Content-Type': 'application/json'}
+                    data = json.dumps({'page_size': page_size, 'institution_id': 898, 'order': 'published_date', 'order_direction': 'desc'})
+                    records = requests.get(base, headers=headers, data=data).json()
+                else:
+                    records = self.db.latest_articles_portal(page_size)
+                for rec in records:
+                    pub_date = rec['published_date'][:10]
+                    days = (today - date(*[int(x) for x in pub_date.split('-')])).days
+                    #days = (today - date.fromisoformat(pub_date)).days  #newer Python versions
+                    ago = ('today','yesterday')[days] if days < 2 else f'{days} days ago'
+                    x, y = [min(1., days/d) for d in rgb_opa_days]
+                    rgba = [round(i[0] + x*(i[1]-i[0])) for i in rgb_shift] + [round(1 - y*(1-opa_min), 3)]
+                    str_rgba = ','.join([str(c) for c in rgba])
+                    latest.append((rec['url_public_html'], rec['title'], pub_date, ago, str_rgba))
+            except:
+                pass
+
             return self.__render_template (request, "portal.html",
-                                           summary_data=summary_data)
+                                           summary_data=summary_data,
+                                           latest = latest)
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."

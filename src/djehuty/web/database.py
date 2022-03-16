@@ -574,6 +574,14 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def latest_articles_portal (self, page_size=30):
+        query = self.__query_from_template ("latest_articles_portal", {
+            "state_graph": self.state_graph,
+            "page_size":   page_size
+        })
+
+        return self.__run_query(query)
+
     ## ------------------------------------------------------------------------
     ## COLLECTIONS
     ## ------------------------------------------------------------------------

@@ -1,0 +1,16 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?article_id ?url_public_html ?published_date ?title
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?article rdf:type sg:Article ;
+             col:article_id ?article_id ;
+             col:url_public_html ?url_public_html ;
+             col:published_date ?published_date ;
+             col:title ?title .
+  }   
+  FILTER (strStarts(?published_date, "2"))
+}
+ORDER BY DESC(?published_date)
+LIMIT {{page_size}}
+{% endblock %}
