@@ -82,7 +82,13 @@ class SparqlInterface:
                     else:
                         record[item] = record[item]["value"]
             elif record[item]["type"] == "literal":
-                logging.info("Literal: %s", record[item]['value'])
+                if (record[item]['value'].startswith("Modify ") or
+                    record[item]['value'].startswith("Insert into ") or
+                    record[item]['value'].startswith("Delete from ")):
+                    logging.info("RDF store: %s", record[item]['value'])
+                else:
+                    logging.info("Literal: %s", record[item]['value'])
+
                 return record[item]["value"]
             else:
                 logging.info("Not a typed-literal: %s", record[item]['type'])
