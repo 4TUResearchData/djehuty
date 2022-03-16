@@ -1674,6 +1674,7 @@ class ApiServer:
             published_since = convenience.value_or_none(parameters, "published_since"),
             modified_since  = convenience.value_or_none(parameters, "modified_since"),
             group           = convenience.value_or_none(parameters, "group"),
+            exclude_ids     = convenience.value_or_none(parameters, "exclude"),
             account_id      = account_id
         )
 

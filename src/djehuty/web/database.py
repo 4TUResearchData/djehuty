@@ -198,7 +198,7 @@ class SparqlInterface:
                   published_since=None, modified_since=None,
                   group=None, group_ids=None, resource_doi=None, item_type=None,
                   doi=None, handle=None, account_id=None,
-                  search_for=None, article_id=None,
+                  search_for=None, article_id=None, exclude_ids=None,
                   collection_id=None, version=None, category_ids=None,
                   return_count=False, is_public=None):
         """Procedure to retrieve articles."""
@@ -226,6 +226,9 @@ class SparqlInterface:
             for category_id in category_ids[1:]:
                 filters += f" OR ?category_id={category_id} OR ?parent_category_id={category_ids[0]}"
             filters += ")\n"
+
+        if exclude_ids is not None:
+            filters += f"FILTER (?id NOT IN ({','.join(map(str, exclude_ids))}))\n"
 
         if published_since is not None:
             filters += rdf.sparql_bound_filter ("published_date")
