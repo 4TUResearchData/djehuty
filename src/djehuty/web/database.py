@@ -211,10 +211,12 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
         filters += rdf.sparql_filter ("doi",            doi,          escape=True)
         filters += rdf.sparql_filter ("handle",         handle,       escape=True)
-        filters += rdf.sparql_filter ("title",          search_for,   escape=True)
-        filters += rdf.sparql_filter ("resource_title", search_for,   escape=True)
-        filters += rdf.sparql_filter ("description",    search_for,   escape=True)
-        filters += rdf.sparql_filter ("citation",       search_for,   escape=True)
+
+        if search_for is not None:
+            filters += (f"FILTER (CONTAINS(STR(?title),          \"{search_for}\") OR\n"
+                        f"        CONTAINS(STR(?resource_title), \"{search_for}\") OR\n"
+                        f"        CONTAINS(STR(?description),    \"{search_for}\") OR\n"
+                        f"        CONTAINS(STR(?citation),       \"{search_for}\"))")
 
         if group_ids is not None:
             filters += f"FILTER ((?group_id) IN ({','.join(map(str, group_ids))}))\n"
@@ -625,10 +627,12 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("resource_id",    resource_id,  escape=True)
         filters += rdf.sparql_filter ("doi",            doi,          escape=True)
         filters += rdf.sparql_filter ("handle",         handle,       escape=True)
-        filters += rdf.sparql_filter ("title",          search_for,   escape=True)
-        filters += rdf.sparql_filter ("resource_title", search_for,   escape=True)
-        filters += rdf.sparql_filter ("description",    search_for,   escape=True)
-        filters += rdf.sparql_filter ("citation",       search_for,   escape=True)
+
+        if search_for is not None:
+            filters += (f"FILTER (CONTAINS(STR(?title),          \"{search_for}\") OR\n"
+                        f"        CONTAINS(STR(?resource_title), \"{search_for}\") OR\n"
+                        f"        CONTAINS(STR(?description),    \"{search_for}\") OR\n"
+                        f"        CONTAINS(STR(?citation),       \"{search_for}\"))")
 
         if published_since is not None:
             filters += rdf.sparql_bound_filter ("published_date")
