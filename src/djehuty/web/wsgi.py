@@ -2154,20 +2154,51 @@ class ApiServer:
         return self.default_list_response (categories, formatter.format_category_record)
 
     def api_private_collection_articles (self, request, collection_id):
-        handler = self.default_error_handling (request, "GET")
-        if handler is not None:
-            return handler
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
 
-        ## Authorization
-        ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
             return self.error_authorization_failed()
 
-        articles   = self.db.articles (collection_id = collection_id,
-                                       account_id    = account_id)
+        if request.method == 'GET':
+            articles   = self.db.articles (collection_id = collection_id,
+                                           account_id    = account_id)
 
-        return self.default_list_response (articles, formatter.format_article_record)
+            return self.default_list_response (articles, formatter.format_article_record)
+
+        elif request.method in ('PUT', 'POST'):
+            try:
+                parameters = request.get_json()
+                articles = parameters["articles"]
+
+                # First, validate all values passed by the user.
+                # This way, we can be as certain as we can be that performing
+                # a PUT will not end in having no articles associated with
+                # an article.
+                for index, _ in enumerate(articles):
+                    articles[index] = validator.integer_value (articles, index)
+
+                # When we are dealing with a PUT request, we must clear the previous
+                # values first.
+                if request.method == 'PUT':
+                    self.db.delete_collection_articles (article_id, account_id)
+
+                # Lastly, insert the validated values.
+                for article_id in articles:
+                    self.db.insert_collection_article (int(collection_id), int(article_id))
+
+                return self.respond_205()
+
+            except KeyError:
+                self.error_400 ("Expected an array for 'articles'.", "NoArticlesField")
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+            except Exception as error:
+                logging.error("An error occurred when adding articles:")
+                logging.error("Exception: %s", error)
+
+        return self.error_405 (["GET", "POST", "PUT"])
 
     def api_collection_articles (self, request, collection_id):
         handler = self.default_error_handling (request, "GET")
