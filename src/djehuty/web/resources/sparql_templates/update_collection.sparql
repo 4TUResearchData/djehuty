@@ -69,8 +69,8 @@ WHERE {
     ?collection            rdf:type                 sg:Collection .
     ?collection            col:collection_id        ?collection_id .
     ?collection            col:account_id           ?account_id .
-    ?collection            col:title                ?title .
 
+    OPTIONAL { ?collection col:title                ?title . }
     OPTIONAL { ?collection col:description          ?description . }
     OPTIONAL { ?collection col:group_id             ?group_id . }
     OPTIONAL { ?collection col:resource_doi         ?resource_doi . }
