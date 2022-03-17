@@ -226,7 +226,7 @@ class FigshareEndpoint:
         ## --------------------------------------------------------------------
         current_version = conv.value_or_none (record, "version")
         if conv.value_or (record, "is_public", False):
-            versions = self.get_article_versions (article_id, exclude=current_version)
+            versions = self.get_article_versions (article_id, account_id, exclude=current_version)
             record["versions"] = versions
 
         ## Statistics
@@ -331,7 +331,7 @@ class FigshareEndpoint:
         ## --------------------------------------------------------------------
         if conv.value_or (record, "is_public", False):
             current_version = conv.value_or_none (record, "version")
-            numbers = self.get_collection_versions (collection_id, exclude=current_version)
+            numbers = self.get_collection_versions (collection_id, account_id, exclude=current_version)
             versions = []
             for number in numbers:
                 if number != record["version"]:
@@ -367,7 +367,7 @@ class FigshareEndpoint:
 
         return output
 
-    def get_article_versions (self, article_id, exclude=None):
+    def get_article_versions (self, article_id, account_id, exclude=None):
         """Procedure to get versioning information for an article."""
 
         headers  = self.__request_headers ()
@@ -378,11 +378,12 @@ class FigshareEndpoint:
             version = item["version"]
             if exclude is None or version != exclude:
                 record  = self.get_record (f"/articles/{article_id}/versions/{version}")
+                record["account_id"] = account_id
                 output.append (record)
 
         return output
 
-    def get_collection_versions (self, collection_id, exclude=None):
+    def get_collection_versions (self, collection_id, account_id, exclude=None):
         """Procedure to get versioning information for a collection."""
 
         headers  = self.__request_headers ()
@@ -393,6 +394,7 @@ class FigshareEndpoint:
             version = item["version"]
             if exclude is None or version != exclude:
                 record = self.get (f"/collections/{collection_id}/versions/{version}", headers, {})
+                record["account_id"] = account_id
                 output.append (record)
 
         return output
