@@ -120,6 +120,7 @@ class ApiServer:
             Rule("/v2/account/collections/search",            endpoint = "private_collections_search"),
             Rule("/v2/account/collections/<collection_id>",   endpoint = "private_collection_details"),
             Rule("/v2/account/collections/<collection_id>/authors", endpoint = "private_collection_authors"),
+            Rule("/v2/account/collections/<collection_id>/authors/<author_id>", endpoint = "private_collection_author_delete"),
             Rule("/v2/account/collections/<collection_id>/categories", endpoint = "private_collection_categories"),
             Rule("/v2/account/collections/<collection_id>/articles", endpoint = "private_collection_articles"),
 
@@ -1384,6 +1385,20 @@ class ApiServer:
             return self.error_authorization_failed()
 
         result = self.db.delete_authors_for_article (article_id, account_id, author_id)
+        if result is not None:
+            return self.respond_204()
+
+        return self.error_403 (request)
+
+    def api_private_collection_author_delete (self, request, collection_id, author_id):
+        if request.method != 'DELETE':
+            return self.error_405 ("DELETE")
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        result = self.db.delete_authors_for_collection (collection_id, account_id, author_id)
         if result is not None:
             return self.respond_204()
 
