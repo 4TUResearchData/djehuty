@@ -48,6 +48,6 @@ WHERE {
     OPTIONAL { ?collection   col:url                  ?url . }
     OPTIONAL { ?collection   col:published_date       ?published_date . }
   }
-{%- if filters is not none %}{{ filters }}{% endif %}
+{% if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
