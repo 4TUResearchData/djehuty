@@ -1566,6 +1566,7 @@ class SparqlInterface:
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
+            self.cache.invalidate_by_prefix ("article")
             return link_id
 
         return None
