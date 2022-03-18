@@ -22,6 +22,7 @@ class FigshareEndpoint:
         self.domain           = "api.figshare.com"
         self.base             = "https://api.figshare.com/v2"
         self.token            = None
+        self.stats_base      = "https://stats.figshare.com"
         self.stats_auth       = None
         self.institution_id   = 898 # Defaults to 4TU.ResearchData
         self.institution_name = "4tu"
@@ -44,7 +45,7 @@ class FigshareEndpoint:
 
     def get_statistics (self, path: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
-        response = requests.get("https://stats.figshare.com" + path,
+        response = requests.get(f"{self.stats_base}{path}",
                                 headers = headers,
                                 params  = parameters)
         if response.status_code == 200:
