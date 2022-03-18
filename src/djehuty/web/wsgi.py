@@ -62,8 +62,6 @@ class ApiServer:
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
             Rule("/institutions/<institution_name>",          endpoint = "institution"),
-            Rule("/agriculture-animal-plant-sciences",        endpoint = "agriculture_animal_plant_sciences"),
-            Rule("/chemistry",                                endpoint = "chemistry"),
             Rule("/opendap_to_doi",                           endpoint = "opendap_to_doi"),
 
             ## ----------------------------------------------------------------
@@ -799,22 +797,6 @@ class ApiServer:
 
             return self.__render_template (request, "category.html",
                                            categories=categories)
-
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
-
-    def api_agriculture_animal_plant_sciences (self, request):
-        if self.accepts_html (request):
-            return self.__render_template (request, "agriculture-animal-plant-sciences.html")
-
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
-
-    def api_chemistry (self, request):
-        if self.accepts_html (request):
-            return self.__render_template (request, "chemistry.html")
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
