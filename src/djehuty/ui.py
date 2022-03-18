@@ -104,9 +104,8 @@ def main ():
         show_version()
 
     if args.command == "backup":
-        if (args.token == ""       or args.stats_auth == "" or
-            args.db_host == ""     or args.db_name == ""    or
-            args.db_username == "" or args.db_password == ""):
+        if ("" in (args.token,   args.stats_auth,  args.db_host,
+                   args.db_name, args.db_username, args.db_password)):
             print ("The 'backup' command requires multiple arguments.")
             print ("Try --help for usage options.")
         else:
