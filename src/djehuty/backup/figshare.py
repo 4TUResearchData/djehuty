@@ -412,6 +412,8 @@ class FigshareEndpoint:
         return self.get_all ("/account/institution/accounts")
 
     def get_author_details_by_id (self, author_id, account_id):
+        """Procedure to get a detailed author record."""
+
         return self.get_record (f"/account/authors/{author_id}",
                                 impersonate=account_id)
 
@@ -474,6 +476,7 @@ class FigshareEndpoint:
                                     article_id,
                                     start_date = None,
                                     end_date   = None):
+        """Procedure to get statistics for an article."""
         return self.get_statistics_for_type (item_id    = article_id,
                                              item_type  = "article",
                                              start_date = start_date,
@@ -483,6 +486,7 @@ class FigshareEndpoint:
                                        collection_id,
                                        start_date = None,
                                        end_date   = None):
+        """Procedure to get statistics for a collection."""
         return self.get_statistics_for_type (item_id    = collection_id,
                                              item_type  = "collection",
                                              start_date = start_date,
