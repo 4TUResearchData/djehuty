@@ -1,5 +1,3 @@
-var current_article_id = null;
-
 function render_in_form (text) { return [text].join(''); }
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 
@@ -345,9 +343,8 @@ function toggle_record_type (article_id) {
 }
 
 function activate (article_id) {
-    current_article_id = article_id;
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${current_article_id}`,
+        url:         `/v2/account/articles/${article_id}`,
         type:        "GET",
         accept:      "application/json",
     }).done(function (data) {
@@ -373,7 +370,7 @@ function activate (article_id) {
         jQuery(`#article_${article_id}`).removeClass("loader");
         jQuery(`#article_${article_id}`).show();
         var quill = new Quill('#description', { theme: '4tu' });
-        activate_drag_and_drop ();
+        activate_drag_and_drop (article_id);
 
         jQuery("input[name='record_type']").change(function () {
             toggle_record_type (article_id);
@@ -391,45 +388,41 @@ function activate (article_id) {
 
         jQuery("#delete").on("click", function (event) { delete_article (article_id); });
         jQuery("#save").on("click", function (event)   { save_article (article_id); });
-    }).fail(function () { console.log(`Failed to retrieve article ${current_article_id}.`); });
+    }).fail(function () { console.log(`Failed to retrieve article ${article_id}.`); });
 }
 
-function perform_upload (files, current_file) {
+function perform_upload (files, current_file, article_id) {
     total_files = files.length;
-    create_article ("Untitled article", function (article_id) {
-        var index = current_file - 1;
-        var data  = new FormData();
-        data.append (`file`, files[index], files[index].name);
+    var index = current_file - 1;
+    var data  = new FormData();
+    data.append (`file`, files[index], files[index].name);
 
-        jQuery.ajax({
-            xhr: function () {
-                var xhr = new window.XMLHttpRequest();
-                xhr.upload.addEventListener("progress", function (evt) {
-                    if (evt.lengthComputable) {
-                        var completed = parseInt(evt.loaded / evt.total * 100);
-                        jQuery("#file-upload h4").text(`Uploading at ${completed}% (${current_file}/${total_files})`);
-                        if (completed === 100) {
-                            jQuery("#file-upload h4").text(`Computing MD5 ... (${current_file}/${total_files})`);
-                        }
+    jQuery.ajax({
+        xhr: function () {
+            var xhr = new window.XMLHttpRequest();
+            xhr.upload.addEventListener("progress", function (evt) {
+                if (evt.lengthComputable) {
+                    var completed = parseInt(evt.loaded / evt.total * 100);
+                    jQuery("#file-upload h4").text(`Uploading at ${completed}% (${current_file}/${total_files})`);
+                    if (completed === 100) {
+                        jQuery("#file-upload h4").text(`Computing MD5 ... (${current_file}/${total_files})`);
                     }
-                }, false);
-                return xhr;
-            },
-            url:         `/v3/articles/${article_id}/upload`,
-            type:        "POST",
-            data:        data,
-            processData: false,
-            contentType: false,
-            success: function (data, textStatus, request) {
-                jQuery("#file-upload h4").text("Drag files here");
-                render_files_for_article (article_id);
-                if (current_file < total_files) {
-                    return perform_upload (files, current_file + 1, total_files);
                 }
+            }, false);
+            return xhr;
+        },
+        url:         `/v3/articles/${article_id}/upload`,
+        type:        "POST",
+        data:        data,
+        processData: false,
+        contentType: false,
+        success: function (data, textStatus, request) {
+            jQuery("#file-upload h4").text("Drag files here");
+            render_files_for_article (article_id);
+            if (current_file < total_files) {
+                return perform_upload (files, current_file + 1, total_files, article_id);
             }
-        });
-    }, function () {
-        jQuery("#file-upload").css("background", "#990000");
+        }
     });
 }
 
@@ -471,7 +464,7 @@ function prettify_size (size) {
     return Math.round(size / Math.pow(1000, i), 2) + ' ' + sizes[i];
 }
 
-function activate_drag_and_drop () {
+function activate_drag_and_drop (article_id) {
     // Drag and drop handling for the entire window.
     jQuery("html").on("dragover", function (event) {
         event.preventDefault();
@@ -506,7 +499,7 @@ function activate_drag_and_drop () {
         jQuery("#file-upload h4").text("Uploading ...");
 
         var files = event.originalEvent.dataTransfer.files;
-        perform_upload (files, 1);
+        perform_upload (files, 1, article_id);
     });
 
     // Open file selector on div click
@@ -517,6 +510,6 @@ function activate_drag_and_drop () {
     // file selected
     jQuery("#file").change(function () {
         var files = jQuery('#file')[0].files;
-        perform_upload (files, 1);
+        perform_upload (files, 1, article_id);
     });
 }
