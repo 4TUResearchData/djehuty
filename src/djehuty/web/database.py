@@ -1010,6 +1010,21 @@ class SparqlInterface:
         """Procedure to delete all authors related to a collection."""
         return self.delete_authors_for_item (collection_id, account_id, author_id, "collection")
 
+    def delete_article_for_collection (self, collection_id, account_id, article_id=None):
+        """Procedure to delete articles associated with a collection."""
+
+        query = self.__query_from_template ("delete_article_for_collection", {
+            "state_graph":   self.state_graph,
+            "collection_id": collection_id,
+            "account_id":    account_id,
+            "article_id":    article_id
+        })
+
+        self.cache.invalidate_by_prefix ("article")
+        self.cache.invalidate_by_prefix (f"{collection_id}")
+
+        return self.__run_query(query)
+
     def insert_timeline (self, revision=None, first_online=None,
                          publisher_publication=None, publisher_acceptance=None,
                          posted=None, submission=None):
