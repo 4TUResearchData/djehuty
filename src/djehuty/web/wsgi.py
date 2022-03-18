@@ -1,5 +1,6 @@
 """This module implements the API server."""
 
+from datetime import date
 import os.path
 import logging
 import json
@@ -15,7 +16,6 @@ from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import database
 from djehuty.utils import convenience
-from datetime import date
 
 class ApiServer:
     """This class implements the API server."""
