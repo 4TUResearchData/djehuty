@@ -55,6 +55,7 @@ class ApiServer:
             Rule("/my/datasets/<article_id>/delete",          endpoint = "delete_article"),
             Rule("/my/datasets/new",                          endpoint = "new_article"),
             Rule("/my/collections",                           endpoint = "my_collections"),
+            Rule("/my/collections/<collection_id>/edit",      endpoint = "edit_collection"),
             Rule("/my/collections/<collection_id>/delete",    endpoint = "delete_collection"),
             Rule("/my/collections/new",                       endpoint = "new_collection"),
             Rule("/portal",                                   endpoint = "portal"),
@@ -613,6 +614,52 @@ class ApiServer:
 
                 return self.__render_template (request, "depositor/my-collections.html",
                                                collections = collections)
+
+            return self.error_404 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_edit_collection (self, request, collection_id):
+        if self.accepts_html (request):
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            token = self.token_from_cookie (request)
+            if self.db.is_depositor (token):
+                try:
+                    collection = self.db.collections(
+                        collection_id = collection_id,
+                        account_id = account_id)[0]
+
+                    categories = self.db.root_categories ()
+                    for index, _ in enumerate(categories):
+                        category      = categories[index]
+                        subcategories = self.db.subcategories_for_category (category["id"])
+                        categories[index]["subcategories"] = subcategories
+
+                    # The parent_id was pre-determined by Figshare.
+                    groups = self.db.group (parent_id = 28585,
+                                            order_direction = "asc",
+                                            order = "id")
+
+                    for index, _ in enumerate(groups):
+                        groups[index]["subgroups"] = self.db.group (
+                            parent_id = groups[index]["id"],
+                            order_direction = "asc",
+                            order = "id")
+
+                    return self.__render_template (
+                        request,
+                        "depositor/edit-collection.html",
+                        collection = collection,
+                        categories = categories,
+                        groups     = groups)
+
+                except IndexError:
+                    return self.error_403 (request)
 
             return self.error_404 (request)
 
