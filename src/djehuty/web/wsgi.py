@@ -2258,7 +2258,7 @@ class ApiServer:
                 # When we are dealing with a PUT request, we must clear the previous
                 # values first.
                 if request.method == 'PUT':
-                    self.db.delete_collection_articles (article_id, account_id)
+                    self.db.delete_collection_articles (collection_id, account_id)
 
                 # Lastly, insert the validated values.
                 for article_id in articles:
