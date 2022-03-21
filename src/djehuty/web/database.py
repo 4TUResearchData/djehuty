@@ -66,6 +66,9 @@ class SparqlInterface:
     ## Private methods
     ## ------------------------------------------------------------------------
 
+    def __log_query (self, query):
+        logging.info ("Query:\n---\n%s\n---", query)
+
     def __normalize_binding (self, record):
         for item in record:
             if record[item]["type"] == "typed-literal":
