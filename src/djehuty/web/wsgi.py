@@ -2272,7 +2272,7 @@ class ApiServer:
 
             return self.default_list_response (articles, formatter.format_article_record)
 
-        elif request.method in ('PUT', 'POST'):
+        if request.method in ('PUT', 'POST'):
             try:
                 parameters = request.get_json()
                 articles = parameters["articles"]
