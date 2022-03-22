@@ -59,10 +59,19 @@ class CacheLayer:
 
     def remove_cached_value (self, prefix, key):
         """Procedure to invalidate a uniquely identifiable cache item."""
-        os.remove(f"{self.storage}/{prefix}_{key}")
+        try:
+            os.remove(f"{self.storage}/{prefix}_{key}")
+        except FileNotFoundError:
+            logging.error ("Trying to remove %s multiple times.", file_path)
+
         return True
 
     def invalidate_by_prefix (self, prefix):
         """Procedure to remove all cache items belonging to 'prefix'."""
         for file_path in glob.glob(f"{self.storage}/{prefix}_*"):
-            os.remove(file_path)
+            try:
+                os.remove(file_path)
+            except FileNotFoundError:
+                logging.error ("Trying to remove %s multiple times.", file_path)
+
+        return True
