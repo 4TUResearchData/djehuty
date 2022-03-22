@@ -6,6 +6,8 @@ import logging
 import json
 import hashlib
 import requests
+import pygit2
+import subprocess
 from werkzeug.utils import redirect
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
@@ -141,6 +143,13 @@ class ApiServer:
             Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
             Rule("/v3/articles/<article_id>/references",      endpoint = "v3_article_references"),
             Rule("/v3/groups",                                endpoint = "v3_groups"),
+
+            ## ----------------------------------------------------------------
+            ## GIT HTTP API
+            ## ----------------------------------------------------------------
+            Rule("/v3/articles/<article_id>.git/info/refs",   endpoint = "v3_private_article_git_refs"),
+            Rule("/v3/articles/<article_id>.git/git-upload-pack", endpoint = "v3_private_article_git_upload_pack"),
+            Rule("/v3/articles/<article_id>.git/git-receive-pack", endpoint = "v3_private_article_git_receive_pack"),
           ])
 
         ## Static resources and HTML templates.
@@ -2653,3 +2662,92 @@ class ApiServer:
             return self.error_400 (error.message, error.code)
 
         return self.error_500 ()
+
+    def __parse_git_http_response (self, input_bytes):
+        """Procedure to parse HTTP responses sent from the Git http-backend."""
+
+        ## Only consider the HTTP headers
+        headers, separator, body = input_bytes.partition(b"\r\n\r\n")
+        lines        = headers.decode().split("\r\n")
+        output       = {}
+
+        for line in lines:
+            key, separator, value = line.partition(":")
+            output[key.strip()] = value.strip()
+
+        return output, body
+
+    def __git_passthrough (self, request, article_id):
+        """Procedure to proxy Git interaction to Git's http-backend."""
+
+        ## The wrapping in 'str' is deliberate: It copies the opaque content_type value.
+        content_type = str(request.content_type)
+        git_protocol = convenience.value_or (request.headers, "Git-Protocol", "version 2")
+
+        rpc_env = {
+            ## Include the regular run-time environment (PATH variable etc).
+            **os.environ,
+
+            ## Git's http-backend by default doesn't allow exposing a
+            ## repository unless the file "git-daemon-export-ok" exists
+            ## in the .git directory of the repository.  The following
+            ## environment variable overrides this behavior.
+            "GIT_HTTP_EXPORT_ALL": "1",
+
+            ## Passthrough some HTTP information.
+            "GIT_PROTOCOL":        git_protocol,
+            "CONTENT_TYPE":        content_type,
+            "REQUEST_METHOD":      request.method,
+            "QUERY_STRING":        request.query_string,
+
+            ## Rewrite as if the request matches the filesystem layout.
+            ## It assumes the first twelve characters are: "/v3/articles".
+            "PATH_TRANSLATED":     f"{self.db.storage}{request.path[12:]}",
+        }
+
+        rpc_command   = subprocess.run(['git', 'http-backend'],
+                                       stdout = subprocess.PIPE,
+                                       input  = bytes(request.stream.read()),
+                                       env    = rpc_env,
+                                       check  = True)
+
+        headers, body = self.__parse_git_http_response (rpc_command.stdout)
+        output        = self.response (body, mimetype=None)
+
+        ## Override response headers to use the ones Git's http-backend.
+        for key, value in headers.items():
+            output.headers[key] = value
+
+        return output
+
+    def api_v3_private_article_git_refs (self, request, article_id):
+        """Implements /v3/articles/<id>.git/<suffix>."""
+
+        service = validator.string_value (request.args, "service", 0, 255)
+
+        ## Used for clone and pull.
+        if service == "git-upload-pack":
+            git_directory = f"{self.db.storage}/{article_id}.git"
+            if not os.path.exists(git_directory):
+                initial_repository = pygit2.init_repository (git_directory, False)
+                if initial_repository:
+                    config_file = open(f"{git_directory}/.git/config", "a")
+                    config_file.write("\n[http]\n  receivepack = true\n")
+                    config_file.close()
+
+            return self.__git_passthrough (request, article_id)
+
+        ## Used for push.
+        if service == "git-receive-pack":
+            return self.__git_passthrough (request, article_id)
+
+        logging.error ("Unsupported Git service command: %s", service)
+        return self.error_500 ()
+
+    def api_v3_private_article_git_upload_pack (self, request, article_id):
+        """Implements /v2/articles/<id>.git/git-upload-pack."""
+        return self.__git_passthrough (request, article_id)
+
+    def api_v3_private_article_git_receive_pack (self, request, article_id):
+        """Implements /v2/articles/<id>.git/git-upload-pack."""
+        return self.__git_passthrough (request, article_id)
