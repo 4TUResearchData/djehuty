@@ -2705,20 +2705,26 @@ class ApiServer:
             "PATH_TRANSLATED":     f"{self.db.storage}{request.path[12:]}",
         }
 
-        rpc_command   = subprocess.run(['git', 'http-backend'],
-                                       stdout = subprocess.PIPE,
-                                       input  = bytes(request.stream.read()),
-                                       env    = rpc_env,
-                                       check  = True)
+        try:
+            rpc_command   = subprocess.run(['git', 'http-backend'],
+                                           stdout = subprocess.PIPE,
+                                           input  = bytes(request.stream.read()),
+                                           env    = rpc_env,
+                                           check  = True)
 
-        headers, body = self.__parse_git_http_response (rpc_command.stdout)
-        output        = self.response (body, mimetype=None)
+            headers, body = self.__parse_git_http_response (rpc_command.stdout)
+            output        = self.response (body, mimetype=None)
 
-        ## Override response headers to use the ones Git's http-backend.
-        for key, value in headers.items():
-            output.headers[key] = value
+            ## Override response headers to use the ones Git's http-backend.
+            for key, value in headers.items():
+                output.headers[key] = value
 
-        return output
+            return output
+
+        except subprocess.CalledProcessError as error:
+            logging.error ("Proxying to Git failed with exit code %d", error.returncode)
+            logging.error ("The command was:\n---\n%s\n---", error.cmd)
+            return self.error_500()
 
     def api_v3_private_article_git_refs (self, request, article_id):
         """Implements /v3/articles/<id>.git/<suffix>."""
