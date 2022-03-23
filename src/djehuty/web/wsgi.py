@@ -2663,6 +2663,21 @@ class ApiServer:
 
         return self.error_500 ()
 
+    def __git_create_repository (self, article_id):
+        git_directory = f"{self.db.storage}/{article_id}.git"
+        if not os.path.exists (git_directory):
+            initial_repository = pygit2.init_repository (git_directory, False)
+            if initial_repository:
+                try:
+                    config_file = open (f"{git_directory}/.git/config", "a")
+                    config_file.write ("\n[http]\n  receivepack = true\n")
+                    config_file.close ()
+                except FileNotFoundError:
+                    logging.error ("%s/.git/config does not exist.", git_directory)
+                    return False
+            else:
+                return False
+
     def __parse_git_http_response (self, input_bytes):
         """Procedure to parse HTTP responses sent from the Git http-backend."""
 
@@ -2733,14 +2748,7 @@ class ApiServer:
 
         ## Used for clone and pull.
         if service == "git-upload-pack":
-            git_directory = f"{self.db.storage}/{article_id}.git"
-            if not os.path.exists(git_directory):
-                initial_repository = pygit2.init_repository (git_directory, False)
-                if initial_repository:
-                    config_file = open(f"{git_directory}/.git/config", "a")
-                    config_file.write("\n[http]\n  receivepack = true\n")
-                    config_file.close()
-
+            self.__git_create_repository (article_id)
             return self.__git_passthrough (request, article_id)
 
         ## Used for push.
