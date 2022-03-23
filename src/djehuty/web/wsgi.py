@@ -2678,6 +2678,8 @@ class ApiServer:
             else:
                 return False
 
+        return True
+
     def __parse_git_http_response (self, input_bytes):
         """Procedure to parse HTTP responses sent from the Git http-backend."""
 
@@ -2745,10 +2747,10 @@ class ApiServer:
         """Implements /v3/articles/<id>.git/<suffix>."""
 
         service = validator.string_value (request.args, "service", 0, 255)
+        self.__git_create_repository (article_id)
 
         ## Used for clone and pull.
         if service == "git-upload-pack":
-            self.__git_create_repository (article_id)
             return self.__git_passthrough (request, article_id)
 
         ## Used for push.
