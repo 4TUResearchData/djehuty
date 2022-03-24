@@ -5,9 +5,9 @@ import os.path
 import logging
 import json
 import hashlib
+import subprocess
 import requests
 import pygit2
-import subprocess
 from werkzeug.utils import redirect
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
