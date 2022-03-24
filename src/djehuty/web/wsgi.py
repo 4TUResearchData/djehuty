@@ -2670,11 +2670,13 @@ class ApiServer:
             initial_repository = pygit2.init_repository (git_directory, False)
             if initial_repository:
                 try:
-                    config_file = open (f"{git_directory}/.git/config", "a")
-                    config_file.write ("\n[http]\n  receivepack = true\n")
-                    config_file.close ()
+                    with open (f"{git_directory}/.git/config", "a") as config:
+                        config.write ("\n[http]\n  receivepack = true\n")
                 except FileNotFoundError:
                     logging.error ("%s/.git/config does not exist.", git_directory)
+                    return False
+                except OsError:
+                    logging.error ("Could not open %s/.git/config", git_directory)
                     return False
             else:
                 return False
@@ -2685,7 +2687,7 @@ class ApiServer:
         """Procedure to parse HTTP responses sent from the Git http-backend."""
 
         ## Only consider the HTTP headers
-        headers, separator, body = input_bytes.partition(b"\r\n\r\n")
+        headers, _, body = input_bytes.partition(b"\r\n\r\n")
         lines        = headers.decode().split("\r\n")
         output       = {}
 
