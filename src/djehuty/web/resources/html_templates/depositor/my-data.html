@@ -36,14 +36,14 @@
 jQuery(document).ready(function () {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery("#table-unpublished").DataTable({
-        columnDefs: [{ type: 'file-size', targets: 1 },
-                     { orderable: false,  targets: 3 }]
+        columnDefs: [{ type: 'file-size', targets: 2 },
+                     { orderable: false,  targets: 4 }]
     });
     jQuery("#table-unpublished").show();
     jQuery("#table-unpublished-loader").remove();
 
     jQuery("#table-published").DataTable({
-        columnDefs: [{ type: 'file-size', targets: 1 }]
+        columnDefs: [{ type: 'file-size', targets: 2 }]
     });
     jQuery("#table-published").show();
     jQuery("#table-published-loader").remove();
@@ -70,6 +70,7 @@ jQuery(document).ready(function () {
   <thead>
     <tr>
       <th>Dataset</th>
+      <th>Type</th>
       <th>Size</th>
       <th>Created&nbsp;at</th>
       <th>Actions</th>
@@ -78,6 +79,7 @@ jQuery(document).ready(function () {
   <tbody>{% for article in unpublished_articles: %}
     <tr>
       <td><a href="/my/datasets/{{article.id}}/edit">{{article.title}}</a></td>
+      <td>{{article.defined_type_name | default("undefined", False)}}</td>
       <td>{{article.storage_used}}</td>
       <td>{{article.created_date | truncate(10,False,'')}}</td>
       <td><a href="/my/datasets/{{article.id}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
@@ -90,6 +92,7 @@ jQuery(document).ready(function () {
   <thead>
     <tr>
       <th>Dataset</th>
+      <th>Type</th>
       <th>Size</th>
       <th>Created&nbsp;at</th>
     </tr>
@@ -97,6 +100,7 @@ jQuery(document).ready(function () {
   <tbody>{% for article in published_articles: %}
     <tr>
       <td><a href="/my/datasets/{{article.id}}/edit">{{article.title}}</a></td>
+      <td>{{article.defined_type_name | default("undefined", False)}}</td>
       <td>{{article.storage_used}}</td>
       <td>{{article.created_date | truncate(10,False,'')}}</td>
     </tr>
