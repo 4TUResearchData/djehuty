@@ -17,7 +17,7 @@ from jinja2 import Environment, FileSystemLoader
 from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import database
-from djehuty.utils import convenience
+from djehuty.utils.convenience import value_or, value_or_none, pretty_print_size
 
 class ApiServer:
     """This class implements the API server."""
@@ -371,7 +371,7 @@ class ApiServer:
                 ## "impersonate" can also be passed in the request body.
                 if impersonate is None:
                     body  = request.get_json()
-                    impersonate = convenience.value_or_none (body, "impersonate")
+                    impersonate = value_or_none (body, "impersonate")
 
                 if impersonate is not None:
                     return int(impersonate)
@@ -477,7 +477,7 @@ class ApiServer:
                 storage_used = self.db.account_storage_used (account_id)
                 return self.__render_template (
                     request, "depositor/dashboard.html",
-                    storage_used = convenience.pretty_print_size(storage_used))
+                    storage_used = pretty_print_size (storage_used))
 
             return self.error_404 (request)
 
@@ -499,9 +499,9 @@ class ApiServer:
 
                 for index, _ in enumerate(unpublished_articles):
                     used = 0
-                    if not bool(convenience.value_or_none (unpublished_articles[index], "is_metadata_record")):
+                    if not bool(value_or_none (unpublished_articles[index], "is_metadata_record")):
                         used = self.db.article_storage_used (unpublished_articles[index]["id"])
-                    unpublished_articles[index]["storage_used"] = convenience.pretty_print_size(used)
+                    unpublished_articles[index]["storage_used"] = pretty_print_size (used)
 
                 published_articles = self.db.articles (account_id = account_id,
                                                        is_public  = 1,
@@ -509,9 +509,9 @@ class ApiServer:
 
                 for index, _ in enumerate(published_articles):
                     used = 0
-                    if not bool(convenience.value_or_none (published_articles[index], "is_metadata_record")):
+                    if not bool(value_or_none (published_articles[index], "is_metadata_record")):
                         used = self.db.article_storage_used (published_articles[index]["id"])
-                    published_articles[index]["storage_used"] = convenience.pretty_print_size(used)
+                    published_articles[index]["storage_used"] = pretty_print_size (used)
 
                 return self.__render_template (request, "depositor/my-data.html",
                                                unpublished_articles = unpublished_articles,
@@ -954,19 +954,19 @@ class ApiServer:
 
         parameters = request.get_json()
         records = self.db.articles(
-            limit           = convenience.value_or_none(parameters, "limit"),
-            offset          = convenience.value_or_none(parameters, "offset"),
-            order           = convenience.value_or_none(parameters, "order"),
-            order_direction = convenience.value_or_none(parameters, "order_direction"),
-            institution     = convenience.value_or_none(parameters, "institution"),
-            published_since = convenience.value_or_none(parameters, "published_since"),
-            modified_since  = convenience.value_or_none(parameters, "modified_since"),
-            group           = convenience.value_or_none(parameters, "group"),
-            resource_doi    = convenience.value_or_none(parameters, "resource_doi"),
-            item_type       = convenience.value_or_none(parameters, "item_type"),
-            doi             = convenience.value_or_none(parameters, "doi"),
-            handle          = convenience.value_or_none(parameters, "handle"),
-            search_for      = convenience.value_or_none(parameters, "search_for")
+            limit           = value_or_none (parameters, "limit"),
+            offset          = value_or_none (parameters, "offset"),
+            order           = value_or_none (parameters, "order"),
+            order_direction = value_or_none (parameters, "order_direction"),
+            institution     = value_or_none (parameters, "institution"),
+            published_since = value_or_none (parameters, "published_since"),
+            modified_since  = value_or_none (parameters, "modified_since"),
+            group           = value_or_none (parameters, "group"),
+            resource_doi    = value_or_none (parameters, "resource_doi"),
+            item_type       = value_or_none (parameters, "item_type"),
+            doi             = value_or_none (parameters, "doi"),
+            handle          = value_or_none (parameters, "handle"),
+            search_for      = value_or_none (parameters, "search_for")
         )
 
         return self.default_list_response (records, formatter.format_article_record)
@@ -1103,7 +1103,7 @@ class ApiServer:
             return self.error_authorization_failed()
 
         parameters = request.get_json()
-        file_id    = convenience.value_or_none (parameters, "file_id")
+        file_id    = value_or_none (parameters, "file_id")
         if not self.db.article_update_thumb (article_id, version, account_id, file_id):
             return self.respond_205()
 
@@ -1770,23 +1770,23 @@ class ApiServer:
 
         parameters = request.get_json()
         records = self.db.articles(
-            resource_doi    = convenience.value_or_none(parameters, "resource_doi"),
-            article_id      = convenience.value_or_none(parameters, "resource_id"),
-            item_type       = convenience.value_or_none(parameters, "item_type"),
-            doi             = convenience.value_or_none(parameters, "doi"),
-            handle          = convenience.value_or_none(parameters, "handle"),
-            order           = convenience.value_or_none(parameters, "order"),
-            search_for      = convenience.value_or_none(parameters, "search_for"),
-            #page            = convenience.value_or_none(parameters, "page"),
-            #page_size       = convenience.value_or_none(parameters, "page_size"),
-            limit           = convenience.value_or_none(parameters, "limit"),
-            offset          = convenience.value_or_none(parameters, "offset"),
-            order_direction = convenience.value_or_none(parameters, "order_direction"),
-            institution     = convenience.value_or_none(parameters, "institution"),
-            published_since = convenience.value_or_none(parameters, "published_since"),
-            modified_since  = convenience.value_or_none(parameters, "modified_since"),
-            group           = convenience.value_or_none(parameters, "group"),
-            exclude_ids     = convenience.value_or_none(parameters, "exclude"),
+            resource_doi    = value_or_none (parameters, "resource_doi"),
+            article_id      = value_or_none (parameters, "resource_id"),
+            item_type       = value_or_none (parameters, "item_type"),
+            doi             = value_or_none (parameters, "doi"),
+            handle          = value_or_none (parameters, "handle"),
+            order           = value_or_none (parameters, "order"),
+            search_for      = value_or_none (parameters, "search_for"),
+            #page            = value_or_none (parameters, "page"),
+            #page_size       = value_or_none (parameters, "page_size"),
+            limit           = value_or_none (parameters, "limit"),
+            offset          = value_or_none (parameters, "offset"),
+            order_direction = value_or_none (parameters, "order_direction"),
+            institution     = value_or_none (parameters, "institution"),
+            published_since = value_or_none (parameters, "published_since"),
+            modified_since  = value_or_none (parameters, "modified_since"),
+            group           = value_or_none (parameters, "group"),
+            exclude_ids     = value_or_none (parameters, "exclude"),
             account_id      = account_id
         )
 
@@ -1851,18 +1851,18 @@ class ApiServer:
 
         parameters = request.get_json()
         records    = self.db.collections(
-            limit           = convenience.value_or_none(parameters, "limit"),
-            offset          = convenience.value_or_none(parameters, "offset"),
-            order           = convenience.value_or_none(parameters, "order"),
-            order_direction = convenience.value_or_none(parameters, "order_direction"),
-            institution     = convenience.value_or_none(parameters, "institution"),
-            published_since = convenience.value_or_none(parameters, "published_since"),
-            modified_since  = convenience.value_or_none(parameters, "modified_since"),
-            group           = convenience.value_or_none(parameters, "group"),
-            resource_doi    = convenience.value_or_none(parameters, "resource_doi"),
-            doi             = convenience.value_or_none(parameters, "doi"),
-            handle          = convenience.value_or_none(parameters, "handle"),
-            search_for      = convenience.value_or_none(parameters, "search_for")
+            limit           = value_or_none (parameters, "limit"),
+            offset          = value_or_none (parameters, "offset"),
+            order           = value_or_none (parameters, "order"),
+            order_direction = value_or_none (parameters, "order_direction"),
+            institution     = value_or_none (parameters, "institution"),
+            published_since = value_or_none (parameters, "published_since"),
+            modified_since  = value_or_none (parameters, "modified_since"),
+            group           = value_or_none (parameters, "group"),
+            resource_doi    = value_or_none (parameters, "resource_doi"),
+            doi             = value_or_none (parameters, "doi"),
+            handle          = value_or_none (parameters, "handle"),
+            search_for      = value_or_none (parameters, "search_for")
         )
 
         return self.default_list_response (records, formatter.format_collection_record)
@@ -2125,21 +2125,21 @@ class ApiServer:
 
         parameters = request.get_json()
         records = self.db.collections(
-            resource_doi    = convenience.value_or_none(parameters, "resource_doi"),
-            resource_id     = convenience.value_or_none(parameters, "resource_id"),
-            doi             = convenience.value_or_none(parameters, "doi"),
-            handle          = convenience.value_or_none(parameters, "handle"),
-            order           = convenience.value_or_none(parameters, "order"),
-            search_for      = convenience.value_or_none(parameters, "search_for"),
-            #page            = convenience.value_or_none(parameters, "page"),
-            #page_size       = convenience.value_or_none(parameters, "page_size"),
-            limit           = convenience.value_or_none(parameters, "limit"),
-            offset          = convenience.value_or_none(parameters, "offset"),
-            order_direction = convenience.value_or_none(parameters, "order_direction"),
-            institution     = convenience.value_or_none(parameters, "institution"),
-            published_since = convenience.value_or_none(parameters, "published_since"),
-            modified_since  = convenience.value_or_none(parameters, "modified_since"),
-            group           = convenience.value_or_none(parameters, "group"),
+            resource_doi    = value_or_none (parameters, "resource_doi"),
+            resource_id     = value_or_none (parameters, "resource_id"),
+            doi             = value_or_none (parameters, "doi"),
+            handle          = value_or_none (parameters, "handle"),
+            order           = value_or_none (parameters, "order"),
+            search_for      = value_or_none (parameters, "search_for"),
+            #page            = value_or_none (parameters, "page"),
+            #page_size       = value_or_none (parameters, "page_size"),
+            limit           = value_or_none (parameters, "limit"),
+            offset          = value_or_none (parameters, "offset"),
+            order_direction = value_or_none (parameters, "order_direction"),
+            institution     = value_or_none (parameters, "institution"),
+            published_since = value_or_none (parameters, "published_since"),
+            modified_since  = value_or_none (parameters, "modified_since"),
+            group           = value_or_none (parameters, "group"),
             account_id      = account_id
         )
 
@@ -2699,7 +2699,7 @@ class ApiServer:
 
         ## The wrapping in 'str' is deliberate: It copies the opaque content_type value.
         content_type = str(request.content_type)
-        git_protocol = convenience.value_or (request.headers, "Git-Protocol", "version 2")
+        git_protocol = value_or (request.headers, "Git-Protocol", "version 2")
 
         rpc_env = {
             ## Include the regular run-time environment (PATH variable etc).
