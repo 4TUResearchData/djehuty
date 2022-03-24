@@ -6,6 +6,7 @@ djehuty.database to be backward-compatible with Figshare.
 from djehuty.utils import convenience as conv
 
 def format_account_record (record):
+    """Record formatter for accounts."""
     return {
         "id":             conv.value_or_none(record, "account_id"),
         "first_name":     conv.value_or_none(record, "first_name"),
@@ -17,6 +18,7 @@ def format_account_record (record):
     }
 
 def format_article_record (record):
+    """Record formatter for articles."""
     return {
         "id":                      conv.value_or_none(record, "id"),
         "title":                   conv.value_or_none(record, "title"),
@@ -43,6 +45,7 @@ def format_article_record (record):
     }
 
 def format_author_record (record):
+    """Record formatter for authors."""
     return {
       "id":        conv.value_or_none(record, "id"),
       "full_name": conv.value_or_none(record, "full_name"),
@@ -52,6 +55,7 @@ def format_author_record (record):
     }
 
 def format_author_details_record (record):
+    """Detailed record formatter for authors."""
     return {
       "first_name":     conv.value_or_none(record, "first_name"),
       "full_name":      conv.value_or_none(record, "full_name"),
@@ -67,6 +71,7 @@ def format_author_details_record (record):
     }
 
 def format_file_for_article_record (record):
+    """Record formatter for files."""
     return {
       "id":           conv.value_or_none(record, "id"),
       "name":         conv.value_or_none(record, "name"),
@@ -78,6 +83,7 @@ def format_file_for_article_record (record):
     }
 
 def format_file_details_record (record):
+    """Detailed record formatter for files."""
     return {
       "status":        conv.value_or_none(record, "status"),
       "viewer_type":   conv.value_or_none(record, "viewer_type"),
@@ -94,12 +100,14 @@ def format_file_details_record (record):
     }
 
 def format_custom_field_record (record):
+    """Record formatter for custom fields."""
     return {
       "name":         conv.value_or_none(record, "name"),
       "value":        conv.value_or_none(record, "value"),
     }
 
 def format_category_record (record):
+    """Record formatter for categories."""
     return {
         "id":          conv.value_or_none(record, "id"),
         "title":       conv.value_or_none(record, "title"),
@@ -110,12 +118,15 @@ def format_category_record (record):
     }
 
 def format_tag_record (record):
+    """Record formatter for tags."""
     return conv.value_or_none(record, "tag")
 
 def format_reference_record (record):
+    """Record formatter for references."""
     return conv.value_or_none(record, "url")
 
 def format_license_record (record):
+    """Record formatter for licenses."""
     return {
         "value":         conv.value_or_none(record, "id"),
         "name":          conv.value_or_none(record, "name"),
@@ -125,6 +136,7 @@ def format_license_record (record):
 def format_article_details_record (article, authors, files, custom_fields,
                                    embargo_options, tags, categories, funding,
                                    references):
+    """Detailed record formatter for articles."""
     return {
         "files":             list (map (format_file_for_article_record, files)),
         "custom_fields":     list (map (format_custom_field_record, custom_fields)),
@@ -187,6 +199,7 @@ def format_article_details_record (article, authors, files, custom_fields,
     }
 
 def format_article_embargo_option_record (record):
+    """Record formatter for embargo options."""
     return {
         "id":                conv.value_or_none (record, "id"),
         "type":              conv.value_or_none (record, "type"),
@@ -194,6 +207,7 @@ def format_article_embargo_option_record (record):
     }
 
 def format_article_embargo_record (article, embargo_options):
+    """Record formatter for embargos."""
     return {
         "is_embargoed":      bool(conv.value_or_none(article, "is_embargoed")),
         "embargo_date":      conv.value_or_none(article, "embargo_date"),
@@ -204,18 +218,21 @@ def format_article_embargo_record (article, embargo_options):
     }
 
 def format_article_confidentiality_record (article):
+    """Record formatter for confidentiality."""
     return {
         "is_confidential":   bool(conv.value_or_none(article, "is_confidential")),
         "reason": conv.value_or(article, "confidential_reason", ""),
     }
 
 def format_article_version_record (record):
+    """Record formatter for article versions."""
     return {
         "version":           conv.value_or_none(record, "version"),
         "url":               conv.value_or_none(record, "url")
     }
 
 def format_collection_record (record):
+    """Record formatter for collections."""
     return {
         "id":                conv.value_or_none(record, "id"),
         "title":             conv.value_or_none(record, "title"),
@@ -236,6 +253,7 @@ def format_collection_record (record):
 def format_collection_details_record (collection, funding, categories,
                                       references, tags, authors, custom_fields,
                                       articles_count):
+    """Detailed record formatter for collections."""
     return {
         "version":           conv.value_or_none(collection, "version"),
         "resource_id":       conv.value_or(collection, "resource_id", ""),
@@ -275,6 +293,7 @@ def format_collection_details_record (collection, funding, categories,
     }
 
 def format_funding_record (record):
+    """Record formatter for funding."""
     return {
         "id":                conv.value_or_none(record, "id"),
         "title":             conv.value_or_none(record, "title"),
@@ -285,6 +304,7 @@ def format_funding_record (record):
     }
 
 def format_version_record (record):
+    """Record formatter for versions."""
     version = conv.value_or_none (record, "version")
     url     = conv.value_or_none (record, "url_public_api")
 
@@ -294,6 +314,7 @@ def format_version_record (record):
     }
 
 def format_private_links_record (record):
+    """Record formatter for private links."""
     return {
         "id":           conv.value_or_none(record, "id_string"),
         "is_active":    bool(conv.value_or_none(record, "is_active")),
@@ -301,6 +322,7 @@ def format_private_links_record (record):
     }
 
 def format_group_record (record):
+    """Record formatter for groups."""
     return {
       "id":            conv.value_or_none(record, "id"),
       "parent_id":     conv.value_or_none(record, "parent_id"),
