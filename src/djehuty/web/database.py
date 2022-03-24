@@ -225,9 +225,11 @@ class SparqlInterface:
             filters += f"FILTER ((?group_id) IN ({','.join(map(str, group_ids))}))\n"
 
         if category_ids is not None:
-            filters += f"FILTER (?category_id={category_ids[0]} OR ?parent_category_id={category_ids[0]}"
+            filters += f"FILTER (?category_id={category_ids[0]}"
+            filters += f" OR ?parent_category_id={category_ids[0]}"
             for category_id in category_ids[1:]:
-                filters += f" OR ?category_id={category_id} OR ?parent_category_id={category_ids[0]}"
+                filters += f" OR ?category_id={category_id}"
+                filters += f" OR ?parent_category_id={category_ids[0]}"
             filters += ")\n"
 
         if exclude_ids is not None:
@@ -917,9 +919,9 @@ class SparqlInterface:
         graph.add ((account_uri, rdf.COL["id"], Literal(account_id)))
 
         rdf.add (graph, account_uri, rdf.COL["active"],                active)
-        rdf.add (graph, account_uri, rdf.COL["email"],                 email,                 XSD.string)
-        rdf.add (graph, account_uri, rdf.COL["first_name"],            first_name,            XSD.string)
-        rdf.add (graph, account_uri, rdf.COL["last_name"],             last_name,             XSD.string)
+        rdf.add (graph, account_uri, rdf.COL["email"],                 email,         XSD.string)
+        rdf.add (graph, account_uri, rdf.COL["first_name"],            first_name,    XSD.string)
+        rdf.add (graph, account_uri, rdf.COL["last_name"],             last_name,     XSD.string)
         rdf.add (graph, account_uri, rdf.COL["institution_user_id"],   institution_user_id)
         rdf.add (graph, account_uri, rdf.COL["institution_id"],        institution_id)
         rdf.add (graph, account_uri, rdf.COL["pending_quota_request"], pending_quota_request)
@@ -928,8 +930,8 @@ class SparqlInterface:
         rdf.add (graph, account_uri, rdf.COL["used_quota"],            used_quota)
         rdf.add (graph, account_uri, rdf.COL["maximum_file_size"],     maximum_file_size)
         rdf.add (graph, account_uri, rdf.COL["quota"],                 quota)
-        rdf.add (graph, account_uri, rdf.COL["modified_date"],         modified_date,         XSD.string)
-        rdf.add (graph, account_uri, rdf.COL["created_date"],          created_date,          XSD.string)
+        rdf.add (graph, account_uri, rdf.COL["modified_date"],         modified_date, XSD.string)
+        rdf.add (graph, account_uri, rdf.COL["created_date"],          created_date,  XSD.string)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):

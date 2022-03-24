@@ -2173,13 +2173,13 @@ class ApiServer:
                 author_ids = []
                 for record in records:
                     author_id = self.db.insert_author (
-                        author_id  = validator.integer_value (record, "id",         0, pow(2, 63), False),
-                        full_name  = validator.string_value  (record, "name",       0, 255,        False),
-                        first_name = validator.string_value  (record, "first_name", 0, 255,        False),
-                        last_name  = validator.string_value  (record, "last_name",  0, 255,        False),
-                        email      = validator.string_value  (record, "email",      0, 255,        False),
-                        orcid_id   = validator.string_value  (record, "orcid_id",   0, 255,        False),
-                        job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
+                        author_id  = validator.integer_value (record, "id",         0, pow(2, 63)),
+                        full_name  = validator.string_value  (record, "name",       0, 255),
+                        first_name = validator.string_value  (record, "first_name", 0, 255),
+                        last_name  = validator.string_value  (record, "last_name",  0, 255),
+                        email      = validator.string_value  (record, "email",      0, 255),
+                        orcid_id   = validator.string_value  (record, "orcid_id",   0, 255),
+                        job_title  = validator.string_value  (record, "job_title",  0, 255),
                         is_active  = False,
                         is_public  = True)
                     if author_id is None:
@@ -2219,12 +2219,12 @@ class ApiServer:
                     author_id  = validator.integer_value (record, "id", 0, pow(2, 63), False)
                     if author_id is None:
                         author_id = self.db.insert_author (
-                            full_name  = validator.string_value  (record, "name",       0, 255,        False),
-                            first_name = validator.string_value  (record, "first_name", 0, 255,        False),
-                            last_name  = validator.string_value  (record, "last_name",  0, 255,        False),
-                            email      = validator.string_value  (record, "email",      0, 255,        False),
-                            orcid_id   = validator.string_value  (record, "orcid_id",   0, 255,        False),
-                            job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
+                            full_name  = validator.string_value  (record, "name",       0, 255),
+                            first_name = validator.string_value  (record, "first_name", 0, 255),
+                            last_name  = validator.string_value  (record, "last_name",  0, 255),
+                            email      = validator.string_value  (record, "email",      0, 255),
+                            orcid_id   = validator.string_value  (record, "orcid_id",   0, 255),
+                            job_title  = validator.string_value  (record, "job_title",  0, 255),
                             is_active  = False,
                             is_public  = True)
 
@@ -2442,7 +2442,8 @@ class ApiServer:
 
         if item_type not in {"downloads", "views", "shares", "cites"}:
             raise validator.InvalidValue(
-                message = "The last URL parameter must be one of 'downloads', 'views', 'shares' or 'cites'.",
+                message = ("The last URL parameter must be one of "
+                           "'downloads', 'views', 'shares' or 'cites'."),
                 code    = "InvalidURLParameterValue")
 
         if record["categories"] is not None:
