@@ -22,3 +22,5 @@ install-sh
 .idea/
 djehuty.spec
 djehuty.xml
+*.bak
+*.BAK
