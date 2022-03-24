@@ -25,9 +25,12 @@ function save_article (article_id) {
         category_ids.push(jQuery(category).val());
     }
 
-    var defined_type_name = jQuery("input[name='type']:checked")[0]
-    if (defined_type_name !== undefined) { defined_type_name = defined_type_name["value"]; }
-    else { defined_type_name = null; }
+    var defined_type_name = null;
+    if (jQuery("#upload_software").prop("checked")) {
+        defined_type_name = "software";
+    } else {
+        defined_type_name = "dataset";
+    }
 
     var group_id = jQuery("input[name='groups']:checked")[0]
     if (group_id !== undefined) { group_id = group_id["value"]; }
@@ -328,17 +331,21 @@ function autocomplete_author (event, article_id) {
 
 function toggle_record_type (article_id) {
     if (jQuery("#metadata_record_only").prop("checked")) {
+        jQuery(".record-type-field").hide();
         jQuery("#metadata_reason_field").show();
-        jQuery("#external_link_field").hide();
-        jQuery("#file_upload_field").hide();
     } else if (jQuery("#external_link").prop("checked")) {
-        jQuery("#metadata_reason_field").hide();
+        jQuery(".record-type-field").hide();
         jQuery("#external_link_field").show();
-        jQuery("#file_upload_field").hide();
+        jQuery("#files-wrapper").show();
     } else if (jQuery("#upload_files").prop("checked")) {
-        jQuery("#metadata_reason_field").hide();
-        jQuery("#external_link_field").hide();
+        jQuery(".record-type-field").hide();
         jQuery("#file_upload_field").show();
+        jQuery("#files-wrapper").show();
+    } else if (jQuery("#upload_software").prop("checked")) {
+        jQuery(".record-type-field").hide();
+        jQuery("#software_upload_field").show();
+        jQuery("#file_upload_field").show();
+        jQuery("#files-wrapper").show();
     }
 }
 
@@ -380,6 +387,8 @@ function activate (article_id) {
             jQuery("#metadata_record_only").prop("checked", true);
         } else if (data["has_linked_file"]) {
             jQuery("#external_link").prop("checked", true);
+        } else if (data["defined_type_name"] == "software") {
+            jQuery("#upload_software").prop("checked", true);
         } else {
             jQuery("#upload_files").prop("checked", true);
         }

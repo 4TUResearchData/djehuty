@@ -68,6 +68,12 @@ jQuery(document).ready(function (){
     margin: .75em 0em .75em 0em;
     border-bottom: 4px dotted #f49120;
 }
+#software_upload_field h4 {
+    font-size: 1.25em;
+    margin: .75em 0em .25em 0em;
+    font-weight: bold;
+    border-bottom: 2px dotted #f49120;
+}
 #content-wrapper input[type="text"],
 #content-wrapper textarea,
 .texteditor,
@@ -227,13 +233,6 @@ jQuery(document).ready(function (){
 <select id="license" name="license">
   <option value="" disabled selected>Select a license</option>
 </select>
-<label>Type</label>
-<div id="type-wrapper" class="options-wrapper">
-  <input type="radio" id="type-software" name="type" value="software"><!--
---><label class="no-head" for="type-software">Software</label>
-  <input type="radio" id="type-dataset" name="type" value="dataset"><!--
---><label class="no-head" for="type-dataset">Dataset</label>
-</div>
 <label>Categories</label>
 <div id="categories-wrapper" class="options-wrapper">
 {%- for root in categories: %}
@@ -311,27 +310,44 @@ jQuery(document).ready(function (){
 --><input type="radio" name="record_type" id="external_link" value="link" /><!--
 --><label for="external_link" class="no-head">External link</label><!--
 --><input type="radio" name="record_type" id="upload_files" value="files" /><!--
---><label for="upload_files" class="no-head">File deposit</label>
+--><label for="upload_files" class="no-head">File deposit</label><!--
+--><input type="radio" name="record_type" id="upload_software" value="software" /><!--
+--><label for="upload_software" class="no-head">Software deposit</label>
 </div>
-<div id="metadata_reason_field">
+<div id="metadata_reason_field" class="record-type-field">
   <label for="metadata_only_reason">Reason</label>
   <input type="text" name="metadata_only_reason" id="metadata_only_reason" value="{{article["metadata_reason"]}}"/>
 </div>
-<div id="external_link_field">
+<div id="external_link_field" class="record-type-field">
   <label for="external_link">External URL</label>
   <input type="text" name="external_url" id="external_url" value="{{article["url"]}}" />
   <div class="a-button">
     <a href="#" onclick="javascript:submit_external_link({{article["id"]}}); return false;">Save URL</a>
   </div>
 </div>
-<div id="file_upload_field" class="upload-wrapper">
+<div id="software_upload_field" class="record-type-field">
+  <h4>Publish source code through Git</h4>
+  <p>To publish from a Git repository, push a branch to the <code>4tu</code> remote.</p>
+  <p>First, add the <code>4tu</code> remote:</p>
+  <pre>git remote add 4tu {{base_url}}/v3/articles/{{article["id"]}}.git</pre>
+  <p>Then, push the the repository to it:</p>
+  <pre>
+git push 4tu --all
+git push 4tu --tags</pre>
+  <h4>Distribution artefacts</h4>
+  <p>
+    Software packages oftentimes have separate distribution tarballs
+    produced by a build system. If applicable, upload them as files below.
+  </p>
+</div>
+<div id="file_upload_field" class="upload-wrapper record-type-field">
   <input type="file" name="file" id="file" aria-label="Upload file">
   <div class="upload-container" id="file-upload">
     <h4>Drag files here</h4>
     <p>Or click to open a file dialog.</p>
   </div>
 </div>
-<div id="files-wrapper">
+<div id="files-wrapper" class="record-type-field">
   <table class="branded-table" id="files">
     <thead>
       <tr><th>Filename</th><th>Checksum</th><th>Actions</th></tr>

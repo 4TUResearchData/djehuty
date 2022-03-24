@@ -219,10 +219,10 @@ a:hover {
     text-decoration: underline;
 }
 pre {
-    background: #eeeeee;
-    border: solid 1pt #cccccc;
+    border: 2pt dashed #ccc;
+    background: #f9f9f9;
     font-size: 12pt;
-    padding: 5pt;
+    padding: 1em;
     -webkit-border-radius: 5pt;
     -moz-border-radius: 5pt;
     border-radius: 5pt;
