@@ -589,6 +589,9 @@ class DatabaseInterface:
                     "preview_state, status, upload_url, upload_token) VALUES "
                     "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
+        if record["download_url"].startswith("https://opendap.tudelft.nl/thredds"):
+            record["download_url"] = record["download_url"].replace("opendap.tudelft.nl",
+                                                                    "opendap.4tu.nl")
 
         if (record["download_url"].startswith("https://opendap.4tu.nl/thredds") and
             record["size"] == 0):
