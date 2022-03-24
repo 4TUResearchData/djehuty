@@ -59,8 +59,9 @@ class CacheLayer:
 
     def remove_cached_value (self, prefix, key):
         """Procedure to invalidate a uniquely identifiable cache item."""
+        file_path = f"{self.storage}/{prefix}_{key}"
         try:
-            os.remove(f"{self.storage}/{prefix}_{key}")
+            os.remove(file_path)
         except FileNotFoundError:
             logging.error ("Trying to remove %s multiple times.", file_path)
 
