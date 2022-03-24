@@ -1,0 +1,14 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?downloads ?views ?shares ?cites
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?articleTotals rdf:type       sg:ArticleTotals ;
+                   col:article_id {{article_id}} .
+    OPTIONAL { ?articleTotals col:downloads ?downloads . }
+    OPTIONAL { ?articleTotals col:views     ?views .     }
+    OPTIONAL { ?articleTotals col:shares    ?shares .    }
+    OPTIONAL { ?articleTotals col:cites     ?cites .     }
+  }
+}
+{% endblock %}

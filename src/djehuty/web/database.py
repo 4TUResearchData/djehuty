@@ -181,7 +181,7 @@ class SparqlInterface:
 
         return None
 
-    def article_versions (self, limit=1000, offset=0, order=None,
+    def article_versions (self, limit=1000, offset=0, order="version",
                           order_direction=None, article_id=None):
         """Procedure to retrieve the versions of an article."""
         filters = ""
@@ -359,6 +359,15 @@ class SparqlInterface:
 
         order = "article_id" if order is None else order
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
+        return self.__run_query (query, query, "statistics")
+
+    def single_article_statistics_totals (self,
+                                          article_id):
+        query   = self.__query_from_template ("single_article_statistics_totals", {
+            "state_graph":  self.state_graph,
+            "article_id":   article_id
+        })
+
         return self.__run_query (query, query, "statistics")
 
     def authors (self, first_name=None, full_name=None, group_id=None,
@@ -583,6 +592,14 @@ class SparqlInterface:
         query = self.__query_from_template ("latest_articles_portal", {
             "state_graph": self.state_graph,
             "page_size":   page_size
+        })
+
+        return self.__run_query(query)
+
+    def collections_from_article (self, article_id):
+        query = self.__query_from_template ("collections_from_article", {
+            "state_graph": self.state_graph,
+            "article_id":  article_id
         })
 
         return self.__run_query(query)

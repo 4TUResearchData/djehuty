@@ -19,6 +19,7 @@ from djehuty.web import formatter
 from djehuty.web import database
 from djehuty.utils.convenience import value_or, value_or_none, pretty_print_size
 
+
 class ApiServer:
     """This class implements the API server."""
 
@@ -65,6 +66,8 @@ class ApiServer:
             Rule("/category",                                 endpoint = "category"),
             Rule("/institutions/<institution_name>",          endpoint = "institution"),
             Rule("/opendap_to_doi",                           endpoint = "opendap_to_doi"),
+            Rule("/articles/_/<article_id>",                  endpoint = "article_ui"),
+            Rule("/articles/_/<article_id>/<version>",        endpoint = "article_ui"),
 
             ## ----------------------------------------------------------------
             ## API
@@ -777,6 +780,73 @@ class ApiServer:
                                            articles=articles,
                                            category=category,
                                            subcategories=subcategories)
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_article_ui (self, request, article_id, version=None):
+        if self.accepts_html (request):
+            article       = self.db.articles(article_id=article_id, version=version)[0]
+            versions      = self.db.article_versions(article_id=article_id)
+            authors       = self.db.authors(item_id=article_id, item_type="article")
+            files         = self.db.article_files(article_id=article_id)
+            custom_fields = self.db.custom_fields(item_id=article_id, item_type="article")
+            embargo_options = self.db.article_embargo_options(article_id=article_id)
+            tags          = self.db.tags(item_id=article_id, item_type="article")
+            categories    = self.db.categories(item_id=article_id, item_type="article")
+            references    = self.db.references(item_id=article_id, item_type="article")
+            fundings      = self.db.fundings(item_id=article_id, item_type="article")
+            collections   = self.db.collections_from_article(article_id=article_id)
+            statistics    = self.db.single_article_statistics_totals(article_id=article_id)
+            tags = set([t['tag'] for t in tags if not t['tag'].startswith('Collection: ')])
+            date_types = ( ('submitted'   , 'timeline_submission'),
+                           ('first online', 'timeline_first_online'),
+                           ('published'   , 'published_date'),
+                           ('posted'      , 'timeline_posted'),
+                           ('revised'     , 'timeline_revision') )
+            dates = {}
+            for (label, dtype) in date_types:
+                date = article[dtype]
+                if date:
+                    date = date[:10]
+                    if not date in dates:
+                        dates[date] = []
+                    dates[date].append(label)
+            dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
+
+            lat, lon = None, None
+            if 'latitude' in article:
+                lat = article['latitude']['value']
+            if 'longitude' in article:
+                lon = article['longitude']['value']
+            lat_valid, lon_valid = convenience.decimal_coords(lat, lon)
+            coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
+
+            marked_files = [(f, f['download_url'].split('/')[2]=='opendap.4tu.nl') for f in files]
+            files = [f for (f, mark) in marked_files if not mark]
+            opendap = [f['download_url'] for (f, mark) in marked_files if mark]
+            if 'data_link' in article:
+                url = article['data_link']
+                if url.split('/')[2]=='opendap.4tu.nl':
+                    opendap.append(url)
+                    del article['data_link']
+            return self.__render_template (request, "article.html",
+                                           article=article,
+                                           version=version,
+                                           versions=versions,
+                                           authors=authors,
+                                           files=files,
+                                           custom_fields=custom_fields, #needed? Duplicated in article?
+                                           embargo_options=embargo_options,
+                                           tags=tags,
+                                           categories=categories,
+                                           fundings=fundings,
+                                           references=references,
+                                           collections=collections,
+                                           dates=dates,
+                                           coordinates=coordinates,
+                                           opendap=opendap,
+                                           statistics=statistics)
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
         }))

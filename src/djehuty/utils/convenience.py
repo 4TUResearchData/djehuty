@@ -43,3 +43,41 @@ def pretty_print_size (num_bytes):
         output = f"{num_bytes/1000000000000:.2f}TB"
 
     return output
+
+def decimal_coord(txt, axis, digits=4):
+    '''
+    Converts txt to string with decimal coordinates or None if invalid.
+    Accepts input like "42.597" or "5º 38’ 18.5’’ E".
+    axis is 'N' or 'E'
+    '''
+    pat = r"^(-?\d+)º\s*(\d+)[’']\s*((\d+)(\.\d?)?)[’']{2}\s*([NESW]?)$"
+    if txt is None:
+        return None
+    txt = txt.strip()
+    deg = None
+    ax = None
+    try:
+        deg = float(txt)
+        ax = ''
+    except:
+        match = re.search(pat, txt)
+        if match:
+            g = match.groups()
+            deg = int(g[0]) + int(g[1])/60 + float(g[2])/3600
+            ax = g[-1]
+            if ax:
+                if ax in 'SW':
+                    deg = - deg
+                    ax = 'N' if ax == 'S' else 'E'
+    if ax in (axis, ''):
+        arc_rel = deg/90 if axis == 'N' else deg/180
+        if abs(arc_rel) <= 1.:
+            return f'{deg:.{digits}f}'
+
+def decimal_coords(lat, lon, digits=4):
+    '''
+    Converts strings lat, lon to decimal coordinats or None if invalid.
+    '''
+    lat_validated = decimal_coord(lat, 'N', digits=digits)
+    lon_validated = decimal_coord(lon, 'E', digits=digits)
+    return (lat_validated, lon_validated)

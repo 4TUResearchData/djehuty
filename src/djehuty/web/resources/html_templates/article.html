@@ -1,0 +1,241 @@
+{% extends "layout.html" %}
+{% block headers %}
+
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<style>
+	a             { color: #f49120; text-decoration: none }
+	a:hover       { text-decoration: underline }
+	#doi          { text-align: right }
+	#type         { padding: 2px; width: 80px; text-align: center; border: 1px solid #000 }
+	#metadata #versions { margin-top: 0px }
+	#description  { margin-top: 10px; padding:10px; border: 1px solid #666 }
+	#authors img  { height: 15px }
+	.metric       { float: left; margin:5px; text-align: center }
+	.metric .number { font-size: 30px; font-weight: bold }
+	#categories   { padding-top: 10px; clear: left }
+	#tags         { margin-top: 10px }
+	#geo          { margin-top: 10px }
+	#time_coverage { margin-top: 10px }
+	#dates        { margin-top: 10px }
+	#collections  { margin-top: 10px }
+	#peer         { margin-top: 10px }
+	#references   { margin-top: 10px }
+	#files span   { margin-left: 20px; color: #999 }
+	#metadata #left_column  { width: 65%; margin-bottom:10px }
+	#metadata #right_column { float: right; width: 33%; margin-bottom:10px }
+	.warning      { background-color: #ff0 }
+	.label        { text-transform: uppercase }
+	ul            { list-style-type: none; padding:0; margin:0 }
+	#data         { clear: right; border-top: 1px solid #000 }
+	#data ul      { margin-left: 20px }
+	li.zip        { padding: 2px; width: 180px; text-align: center; border: 1px solid #000 } 	
+	#debug        { background-color: #eee; color: #666; margin-top: 20px; font-family: monospace; display: none }
+  #debug_button { height: 20px; text-align: right; margin-top: -20px }
+</style>
+{% endblock %}
+
+{% block body %}
+{% set doi = article.doi %}
+{% set pid = article.id %}
+
+<h2>{{article["title"]}}</h2>
+
+<div id="metadata">
+    <div id="doi">
+  	    persistent link: <a href="https://doi.org/{{doi}}">doi.org/{{doi}}</a>
+    </div>
+    <div id="type">
+        {{ article.defined_type_name|capitalize }}
+    </div>
+{% if versions|length > 1 %}
+    {% set thisversion = article.version %}
+    {% set old = thisversion < versions[0].version %}
+    <div id ="versions">
+    {% if old %}
+    	  <span class="warning">version {{thisversion}} (old)</span>
+    {% else %}
+    	  <span>version {{thisversion}}</span>
+    {% endif %}
+    	  - other versions:
+    {% for ver in versions %}
+        {% set v = ver.version %}
+        {% if v != thisversion %}
+        <a href="/articles/_/{{pid}}/{{v}}">{{v}}</a>
+        {% endif %}
+    {% endfor %}
+    </div>
+{% endif %}
+
+    <div id="right_column">
+{% if statistics %}
+    {% set usage = statistics[0] %}
+    	  <div id="usage">
+    	  	  <div class="label">usage stats</div>
+    {% for metric in usage %}
+            <div class="metric">
+            	  <div class="number">{{usage[metric]}}</div>
+            	  {{metric}}
+            </div>
+    {% endfor %}    	  	  	
+    	  </div>
+{% endif %}
+    	  <div id="categories">
+    	  	  <div class="label">categories</div>
+    	  	  <ul>
+{% for cat in categories %}
+                <li><a href="/categories/_/{{cat.id}}">{{cat.title}}</a></li>
+{% endfor %}
+            </ul>
+    	  </div>
+        <div id="tags">
+	          <div class="label">keywords</div>
+		            {# The href below will not work. First figure out what to do with search. #}
+{% for tag in tags|sort %}
+ 	        <a href="/keywords/{{tag|urlencode}}">{{tag}}</a>
+    {% if loop.revindex0 %}, {% endif %}
+{% endfor %}
+        </div>
+{% set geo = article.geolocation %}
+{% set lat = coordinates.lat %}
+{% set lon = coordinates.lon %}
+{% if geo or lat or lon %}
+    {% set lat_valid = coordinates.lat_valid %}
+    {% set lon_valid = coordinates.lon_valid %}
+        <div id="geo">
+        	  <div class="label">geolocation</div>
+    {% if geo %}
+            <div id = "geo_name">{{geo}}</div>
+    {% endif %}
+    {% if lat %}
+            <div id = "lat">lat (N): {{lat}}</div>
+    {% endif %}
+    {% if lon %}
+            <div id = "lon">lon (E): {{lon}}</div>
+    {% endif %}
+    {% if lat_valid and lon_valid %}
+            <a href="https://www.openstreetmap.org/#map=12/{{lat_valid}}/{{lon_valid}}"
+            	 target="blank" title="new window">view on openstreetmap</a>
+    {% endif %}
+        </div>
+{% endif %}
+{% if article.time_coverage %}
+        <div id="time_coverage">
+            <div class="label">time coverage</div>
+        	  {{article.time_coverage}}
+        </div>
+{% endif %}
+{% if collections %}
+        <div id="collections">
+            <div class="label">collection{% if collections[1:] %}s{% endif %}</div>
+            <ul>
+    {% for c in collections %}
+   	            <li><a href="/collections/_/{{c.collection_id}}">{{c.title}}</a></li>
+   	{% endfor %}
+            </ul>
+        </div>
+{% endif %}
+    </div>
+    
+    <div id="left_column">
+        <div id="authors">by
+{% for a in authors %}
+    {% set name = a.full_name %}
+    {% if a.is_active %}
+            <a href="/authors/_/{{a.id}}">{{name}}</a>
+    {% else %}
+            {{name}}
+    {% endif %}
+    {% if a.orcid_id %}
+            <a href="https://orcid.org/{{a.orcid_id}}" target="blank"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
+    {% endif %}
+    {% if loop.revindex0 %}, {% endif %}
+{% endfor %}
+        </div>
+        <div id="description">
+{% autoescape false %}
+	          {{ article.description.replace('\\n', '\n') }}
+{% endautoescape %}
+        </div>
+        <div id="dates">
+  	        <div class="label">history</div>
+{% for (date, dtype) in dates %}
+  	        <ul>
+	    	        <li>{{date}} {{dtype}}</li>
+  	        </ul>
+{% endfor %}
+        </div>
+{% if article.resource_doi %}
+        <div id="peer">
+            <div class="label">associated peer-reviewed publication</div>
+   	        <a href="https://doi.org/{{article.resource_doi}}">{{article.resource_title}}</a>
+   	    </div>
+{% endif %}
+{% if references %}
+        <div id="references">
+            <div class="label">references</div>
+            <ul>
+    {% for r in references %}
+   	            <li><a href="{{r.url}}">{{r.url}}</a></li>
+   	{% endfor %}
+            </ul>
+        </div>
+{% endif %}
+    </div>
+</div>
+
+<div id="data">
+	  <h3>DATA</h3>
+{% if opendap %}
+	  <div id="opendap">
+	  	  <div class="label">OPeNDAP data service</div>
+	  	  <ul>
+	  {% for url in opendap %}
+	  	      <li><a href="{{url}}">{{url}}</a></li>
+	  {% endfor %}
+	  	  </ul>
+	  </div>
+{% endif%}
+{% if files %}
+	  <div id="files">
+	  	  <div class="label">files</div>
+	  	  <ul>
+	  {% for file in files %}
+	  	      <li>
+	  	    	    <a href="{{file.download_url}}" title="md5: {{file.computed_md5}}">{{file.name}}</a>
+	  	    	    <span class="size">{{'{:,}'.format(file.size)}} bytes</span> 
+	  	      </li>
+	  {% endfor %}
+	  {% if files|length > 1 %}
+	    	    <li class="zip"><a href="ndownloader/articles/{{pid}}/versions/{{article.version}}">download all files (zip)</a></li>
+	  {% endif %}
+	  	  </ul>
+	  </div>
+{% endif %}
+</div>
+<div id="debug_button">
+    <button onclick="document.getElementById('debug').style.display = 'block'">debug</button>
+</div>
+<div id="debug">
+    COMPARE
+    <a href="/v2/articles/{{pid}}">json</a>,
+    Figshare 
+    <a href="https://data.4tu.nl/articles/_/{{pid}}">html</a>
+    <a href="https://api.figshare.com/v2/articles/{{pid}}">json</a>
+    <div style="text-align:center">RAW DATA</div>
+    <h3>article</h3>{{article}}
+    <h3>version</h3>{{version}}
+    <h3>versions</h3>{{versions}}
+    <h3>authors</h3>{{authors}}
+    <h3>files</h3>{{files}}
+    <h3>custom_fields</h3>{{custom_fields}}
+    <h3>embargo_options</h3>{{embargo_options}}
+    <h3>tags</h3>{{tags}}
+    <h3>categories</h3>{{categories}}
+    <h3>fundings</h3>{{fundings}}
+    <h3>references</h3>{{references}}
+    <h3>collections</h3>{{collections}}
+    <h3>dates</h3>{{dates}}
+    <h3>opendap</h3>{{opendap}}
+    <h3>statistics</h3>{{statistics}}
+</div>
+{% endblock %}
