@@ -17,7 +17,7 @@ from jinja2 import Environment, FileSystemLoader
 from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import database
-from djehuty.utils.convenience import value_or, value_or_none, pretty_print_size
+from djehuty.utils.convenience import value_or, value_or_none, pretty_print_size, decimal_coords
 
 
 class ApiServer:
@@ -819,7 +819,7 @@ class ApiServer:
                 lat = article['latitude']['value']
             if 'longitude' in article:
                 lon = article['longitude']['value']
-            lat_valid, lon_valid = convenience.decimal_coords(lat, lon)
+            lat_valid, lon_valid = decimal_coords(lat, lon)
             coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
 
             marked_files = [(f, f['download_url'].split('/')[2]=='opendap.4tu.nl') for f in files]
