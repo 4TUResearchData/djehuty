@@ -773,7 +773,7 @@ class DatabaseInterface:
             return False
 
     def disconnect(self):
-        """Procedure disconnect from the currently connected database."""
+        """Procedure to disconnect from the currently connected database."""
 
         self.connection.commit()
         cursor = self.connection.cursor()
