@@ -28,30 +28,30 @@ CREATE TABLE IF NOT EXISTS Institution(
 CREATE TABLE IF NOT EXISTS ArticleTag(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     tag                   VARCHAR(255),
-    article_id            INT UNSIGNED) ENGINE=InnoDB;
+    article_version_id    INT UNSIGNED) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionTag(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     tag                   VARCHAR(255),
-    collection_id         INT UNSIGNED) ENGINE=InnoDB;
+    collection_version_id INT UNSIGNED) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticlePrivateLink(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_string             VARCHAR(255),
-    article_id            INT UNSIGNED,
+    article_version_id    INT UNSIGNED,
     is_active             BOOLEAN NOT NULL DEFAULT 0,
     expires_date          DATETIME) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionPrivateLink(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_string             VARCHAR(255),
-    collection_id         INT UNSIGNED,
+    collection_version_id INT UNSIGNED,
     is_active             BOOLEAN NOT NULL DEFAULT 0,
     expires_date          DATETIME) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleFunding(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    article_id            INT UNSIGNED,
+    article_version_id    INT UNSIGNED,
     title                 VARCHAR(255),
     grant_code            VARCHAR(255),
     funder_name           VARCHAR(255),
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS ArticleFunding(
 
 CREATE TABLE IF NOT EXISTS CollectionFunding(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    collection_id         INT UNSIGNED,
+    collection_version_id INT UNSIGNED,
     title                 VARCHAR(255),
     grant_code            VARCHAR(255),
     funder_name           VARCHAR(255),
@@ -69,13 +69,13 @@ CREATE TABLE IF NOT EXISTS CollectionFunding(
 
 CREATE TABLE IF NOT EXISTS ArticleEmbargoOption(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    article_id            INT UNSIGNED,
+    article_version_id    INT UNSIGNED,
     type                  VARCHAR(32),
     ip_name               VARCHAR(255)) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionEmbargoOption(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    collection_id         INT UNSIGNED,
+    collection_version_id INT UNSIGNED,
     type                  VARCHAR(32),
     ip_name               VARCHAR(255)) ENGINE=InnoDB;
 
@@ -92,24 +92,24 @@ CREATE TABLE IF NOT EXISTS ArticleEmbargo(
 
 CREATE TABLE IF NOT EXISTS ArticleReference(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    article_id            INT UNSIGNED,
+    article_version_id    INT UNSIGNED,
     url                   VARCHAR(255)) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionReference(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    collection_id         INT UNSIGNED,
+    collection_version_id INT UNSIGNED,
     url                   VARCHAR(255)) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleCategory(
     category_id           INT UNSIGNED,
-    article_id            INT UNSIGNED) ENGINE=InnoDB;
+    article_version_id    INT UNSIGNED) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionCategory(
     category_id           INT UNSIGNED,
-    collection_id         INT UNSIGNED) ENGINE=InnoDB;
+    collection_version_id INT UNSIGNED) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS Article(
-    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    article_version_id    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
     -- There can be multiple versions of an article. They all have the same
     -- article_id.
@@ -166,10 +166,10 @@ CREATE TABLE IF NOT EXISTS Article(
 
 CREATE TABLE IF NOT EXISTS ArticleAuthor(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    article_id            INT UNSIGNED,
+    article_version_id    INT UNSIGNED,
     author_id             INT UNSIGNED
 
-    -- FOREIGN KEY (collection_id) REFERENCES Collection(id),
+    -- FOREIGN KEY (collection_version_id) REFERENCES Collection(id),
     -- FOREIGN KEY (author_id) REFERENCES Author(id),
     ) ENGINE=InnoDB;
 
@@ -189,10 +189,10 @@ CREATE TABLE IF NOT EXISTS File(
 
 CREATE TABLE IF NOT EXISTS ArticleFile(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    article_id            INT UNSIGNED,
+    article_version_id    INT UNSIGNED,
     file_id               INT UNSIGNED
 
-    -- FOREIGN KEY (article_id) REFERENCES ArticleComplete(id),
+    -- FOREIGN KEY (article_version_id) REFERENCES ArticleComplete(id),
     -- FOREIGN KEY (file_id) REFERENCES File(id),
     ) ENGINE=InnoDB;
 
@@ -229,7 +229,7 @@ CREATE TABLE IF NOT EXISTS Category(
 -------------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS Collection(
-    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    collection_version_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     collection_id         INT UNSIGNED,
     title                 VARCHAR(255),
     doi                   VARCHAR(255),
@@ -260,17 +260,17 @@ CREATE TABLE IF NOT EXISTS Collection(
 
 CREATE TABLE IF NOT EXISTS CollectionAuthor(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    collection_id         INT UNSIGNED,
+    collection_version_id INT UNSIGNED,
     author_id             INT UNSIGNED
 
-    -- FOREIGN KEY (collection_id) REFERENCES Collection(id),
+    -- FOREIGN KEY (collection_version_id) REFERENCES Collection(id),
     -- FOREIGN KEY (author_id) REFERENCES Author(id),
     ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionArticle(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    collection_id         INT UNSIGNED,
-    article_id            INT UNSIGNED) ENGINE=InnoDB;
+    collection_version_id INT UNSIGNED,
+    article_version_id    INT UNSIGNED) ENGINE=InnoDB;
 
 -------------------------------------------------------------------------------
 -- PROJECTS
@@ -319,7 +319,7 @@ CREATE TABLE IF NOT EXISTS Account(
 
 CREATE TABLE IF NOT EXISTS ArticleCustomField(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    article_id            INT UNSIGNED,
+    article_version_id    INT UNSIGNED,
     name                  VARCHAR(255),
     value                 TEXT,
     default_value         TEXT,
@@ -337,7 +337,7 @@ CREATE TABLE IF NOT EXISTS ArticleCustomFieldOption(
 
 CREATE TABLE IF NOT EXISTS CollectionCustomField(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    collection_id         INT UNSIGNED,
+    collection_version_id INT UNSIGNED,
     name                  VARCHAR(255),
     value                 TEXT,
     default_value         TEXT,

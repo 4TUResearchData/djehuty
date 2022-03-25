@@ -29,7 +29,7 @@ class DatabaseInterface:
         logging.error("Error message:\n---\n%s\n---", response.text)
         return False
 
-    def __get_file_size_for_catalog (self, url, article_id):
+    def __get_file_size_for_catalog (self, url, article_version_id):
         """Returns the file size for an OPeNDAP catalog."""
         total_filesize = 0
         metadata_url   = url.replace(".html", ".xml")
@@ -41,7 +41,7 @@ class DatabaseInterface:
             logging.error("Failed to connect to %s.", metadata_url)
 
         if not metadata:
-            logging.error("Couldn't get file metadata for %d.", article_id)
+            logging.error("Couldn't get file metadata for %d.", article_version_id)
             return total_filesize
 
         namespaces  = { "c": "http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0" }
@@ -56,7 +56,7 @@ class DatabaseInterface:
             for reference in references:
                 suffix = reference.attrib["{http://www.w3.org/1999/xlink}href"]
                 suburl = metadata_url.replace("catalog.xml", suffix)
-                total_filesize += self.__get_file_size_for_catalog (suburl, article_id)
+                total_filesize += self.__get_file_size_for_catalog (suburl, article_version_id)
 
         ## Handle regular files.
         files          = xml_root.findall(".//c:dataSize", namespaces)
@@ -188,8 +188,8 @@ class DatabaseInterface:
                     convenience.value_or_none (record, "orcid_id"))
 
         if self.__execute_query (template, data):
-            template = (f"INSERT IGNORE INTO {prefix}Author ({item_type}_id, "
-                        "author_id) VALUES (%s, %s)")
+            template = (f"INSERT IGNORE INTO {prefix}Author "
+                        f"({item_type}_version_id, author_id) VALUES (%s, %s)")
             data     = (item_id, record["id"])
 
             if self.__execute_query (template, data):
@@ -231,7 +231,7 @@ class DatabaseInterface:
         self.__execute_query (template, data)
 
         template = (f"INSERT IGNORE INTO {prefix}Category (category_id, "
-                    f"{item_type}_id) VALUES (%s, %s)")
+                    f"{item_type}_version_id) VALUES (%s, %s)")
         data     = (category_id, item_id)
         return self.__execute_query (template, data)
 
@@ -239,8 +239,8 @@ class DatabaseInterface:
         """Procedure to insert a tag record."""
 
         prefix   = "Article" if item_type == "article" else "Collection"
-        template = (f"INSERT IGNORE INTO {prefix}Tag (tag, {item_type}_id) "
-                    "VALUES (%s, %s)")
+        template = (f"INSERT IGNORE INTO {prefix}Tag "
+                    f"(tag, {item_type}_version_id) VALUES (%s, %s)")
         data     = (tag, item_id)
         return self.__execute_query (template, data)
 
@@ -250,8 +250,9 @@ class DatabaseInterface:
         prefix      = "Article" if item_type == "article" else "Collection"
         template    = (f"INSERT IGNORE INTO {prefix}CustomField (name, value, "
                        "default_value, max_length, min_length, field_type, "
-                       f"is_mandatory, placeholder, is_multiple, {item_type}_id) "
-                       "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                       "is_mandatory, placeholder, is_multiple, "
+                       f"{item_type}_version_id) VALUES (%s, %s, %s, %s, %s, "
+                       "%s, %s, %s, %s, %s)")
 
         settings    = {}
         validations = {}
@@ -322,45 +323,9 @@ class DatabaseInterface:
 
         collection_id  = record["id"]
 
-        authors = convenience.value_or (record, "authors", [])
-        for author in authors:
-            self.insert_author (author, collection_id, item_type="collection")
-
-        categories = convenience.value_or (record, "categories", [])
-        for category in categories:
-            self.insert_category (category, collection_id, "collection")
-
-        fundings = convenience.value_or (record, "funding", [])
-        for funding in fundings:
-            self.insert_funding (funding,
-                                 item_id   = collection_id,
-                                 item_type = "collection")
-
-        private_links = convenience.value_or (record, "private_links", [])
-        for link in private_links:
-            self.insert_private_links (link,
-                                       item_id   = collection_id,
-                                       item_type = "collection")
-
         timeline_id = None
         if "timeline" in record:
             timeline_id = self.insert_timeline (record["timeline"])
-
-        tags = convenience.value_or (record, "tags", [])
-        for tag in tags:
-            self.insert_tag (tag, collection_id, item_type="collection")
-
-        references = convenience.value_or (record, "references", [])
-        for url in references:
-            self.insert_reference (url, collection_id, item_type="collection")
-
-        custom_fields = convenience.value_or (record, "custom_fields", [])
-        for field in custom_fields:
-            self.insert_custom_field (field, collection_id, item_type="collection")
-
-        articles = convenience.value_or (record, "articles", [])
-        for article in articles:
-            self.insert_collection_article (collection_id, article)
 
         created_date = None
         if "created_date" in record and not record["created_date"] is None:
@@ -402,18 +367,56 @@ class DatabaseInterface:
             convenience.value_or_none(record, "articles_count"),
             convenience.value_or_none(record, "public"),
         )
-        if not self.__execute_query (template, data):
+
+        collection_version_id = self.__execute_query (template, data)
+        if not collection_version_id:
             logging.error("Inserting collection failed.")
             return False
 
+        authors = convenience.value_or (record, "authors", [])
+        for author in authors:
+            self.insert_author (author, collection_version_id, item_type="collection")
+
+        categories = convenience.value_or (record, "categories", [])
+        for category in categories:
+            self.insert_category (category, collection_version_id, "collection")
+
+        fundings = convenience.value_or (record, "funding", [])
+        for funding in fundings:
+            self.insert_funding (funding,
+                                 item_id   = collection_version_id,
+                                 item_type = "collection")
+
+        private_links = convenience.value_or (record, "private_links", [])
+        for link in private_links:
+            self.insert_private_links (link,
+                                       item_id   = collection_version_id,
+                                       item_type = "collection")
+
+        tags = convenience.value_or (record, "tags", [])
+        for tag in tags:
+            self.insert_tag (tag, collection_version_id, item_type="collection")
+
+        references = convenience.value_or (record, "references", [])
+        for url in references:
+            self.insert_reference (url, collection_version_id, item_type="collection")
+
+        custom_fields = convenience.value_or (record, "custom_fields", [])
+        for field in custom_fields:
+            self.insert_custom_field (field, collection_version_id, item_type="collection")
+
+        articles = convenience.value_or (record, "articles", [])
+        for article in articles:
+            self.insert_collection_article (collection_version_id, article)
+
         return True
 
-    def insert_collection_article (self, collection_id, article_id):
+    def insert_collection_article (self, collection_version_id, article_version_id):
         """Procedure to insert a collection-article relationship."""
 
         template = ("INSERT IGNORE INTO CollectionArticle "
-                    "(collection_id, article_id) VALUES (%s, %s)")
-        data     = (collection_id, article_id)
+                    "(collection_version_id, article_version_id) VALUES (%s, %s)")
+        data     = (collection_version_id, article_version_id)
 
         return self.__execute_query (template, data)
 
@@ -421,9 +424,10 @@ class DatabaseInterface:
         """Procedure to insert a funding record."""
 
         prefix   = "Article" if item_type == "article" else "Collection"
-        template = (f"INSERT IGNORE INTO {prefix}Funding (id, {item_type}_id, "
-                    "title, grant_code, funder_name, is_user_defined, url) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s)")
+        template = (f"INSERT IGNORE INTO {prefix}Funding "
+                    f"(id, {item_type}_version_id, title, grant_code, "
+                    "funder_name, is_user_defined, url) VALUES (%s, %s, "
+                    "%s, %s, %s, %s, %s)")
 
         data     = (convenience.value_or_none (record, "id"),
                     item_id,
@@ -444,7 +448,7 @@ class DatabaseInterface:
 
         prefix   = "Article" if item_type == "article" else "Collection"
         template = (f"INSERT IGNORE INTO {prefix}PrivateLink "
-                    f"(id, {item_type}_id, is_active, expires_date) "
+                    f"(id, {item_type}_version_id, is_active, expires_date) "
                     "VALUES (%s, %s, %s, %s)")
 
         expires_date  = convenience.value_or_none (record, "expires_date")
@@ -459,15 +463,15 @@ class DatabaseInterface:
 
         return self.__execute_query (template, data)
 
-    def insert_embargo (self, record, article_id):
+    def insert_embargo (self, record, article_version_id):
         """Procedure to insert an embargo record."""
 
         template = ("INSERT IGNORE INTO ArticleEmbargoOption "
-                    "(id, article_id, type, ip_name) "
+                    "(id, article_version_id, type, ip_name) "
                     "VALUES (%s, %s, %s, %s)")
 
         data     = (convenience.value_or_none (record, "id"),
-                    article_id,
+                    article_version_id,
                     convenience.value_or_none (record, "type"),
                     convenience.value_or_none (record, "ip_name"))
 
@@ -495,8 +499,9 @@ class DatabaseInterface:
             return True
 
         prefix   = item_type.capitalize()
-        template = (f"INSERT INTO {prefix}Totals ({item_type}_id, views, "
-                    "downloads, shares, cites, created_at) VALUES (%s, %s, %s, %s, %s, %s)")
+        template = (f"INSERT INTO {prefix}Totals ({item_type}_id, "
+                    "views, downloads, shares, cites, created_at) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)")
         data     = (item_id,
                     convenience.value_or_none (record, "views"),
                     convenience.value_or_none (record, "downloads"),
@@ -536,8 +541,9 @@ class DatabaseInterface:
 
         prefix   = item_type.capitalize()
         suffix   = statistics_type.capitalize()
-        template = (f"INSERT INTO {prefix}{suffix} ({item_type}_id, country, "
-                    f"region, {statistics_type}, date) VALUES (%s, %s, %s, %s, %s)")
+        template = (f"INSERT INTO {prefix}{suffix} ({item_type}_id, "
+                    f"country, region, {statistics_type}, date) "
+                    "VALUES (%s, %s, %s, %s, %s)")
 
         for day in record:
             for country in record[day]:
@@ -581,7 +587,7 @@ class DatabaseInterface:
                                        item_type="collection",
                                        statistics_type=item_type)
 
-    def insert_file (self, record, article_id):
+    def insert_file (self, record, article_version_id):
         """Procedure to insert a file record."""
 
         template = ("INSERT IGNORE INTO File (id, name, size, is_link_only, "
@@ -595,7 +601,8 @@ class DatabaseInterface:
 
         if (record["download_url"].startswith("https://opendap.4tu.nl/thredds") and
             record["size"] == 0):
-            record["size"] = self.__get_file_size_for_catalog (record["download_url"], article_id)
+            record["size"] = self.__get_file_size_for_catalog (record["download_url"],
+                                                               article_version_id)
 
         data = (convenience.value_or_none (record, "id"),
                 convenience.value_or_none (record, "name"),
@@ -611,8 +618,9 @@ class DatabaseInterface:
                 convenience.value_or_none (record, "upload_token"))
 
         if self.__execute_query (template, data):
-            template = "INSERT IGNORE INTO ArticleFile (article_id, file_id) VALUES (%s, %s)"
-            data     = (article_id, record["id"])
+            template = ("INSERT IGNORE INTO ArticleFile (article_version_id, "
+                        "file_id) VALUES (%s, %s)")
+            data     = (article_version_id, record["id"])
             if self.__execute_query (template, data):
                 return record["id"]
 
@@ -622,7 +630,8 @@ class DatabaseInterface:
         """Procedure to insert an article reference."""
 
         prefix   = "Article" if item_type == "article" else "Collection"
-        template = f"INSERT IGNORE INTO {prefix}Reference ({item_type}_id, url) VALUES (%s, %s)"
+        template = (f"INSERT IGNORE INTO {prefix}Reference "
+                    f"({item_type}_version_id, url) VALUES (%s, %s)")
         data     = (item_id, url)
 
         return self.__execute_query (template, data)
@@ -647,52 +656,8 @@ class DatabaseInterface:
         if "timeline" in record:
             timeline_id = self.insert_timeline (record["timeline"])
 
-        embargos = convenience.value_or (record, "embargo_options", [])
-        for embargo in embargos:
-            self.insert_embargo (embargo, article_id)
-
-        references = convenience.value_or (record, "references", [])
-        for url in references:
-            self.insert_reference (url, article_id, item_type="article")
-
-        categories = convenience.value_or (record, "categories", [])
-        for category in categories:
-            self.insert_category (category, article_id, "article")
-
         license_id = record["license"]["value"]
         self.insert_license (record["license"])
-
-        tags = convenience.value_or (record, "tags", [])
-        for tag in tags:
-            self.insert_tag (tag, article_id, item_type="article")
-
-        authors = convenience.value_or (record, "authors", [])
-        for author in authors:
-            self.insert_author (author, article_id, item_type="article")
-
-        files = convenience.value_or (record, "files", [])
-        for file in files:
-            self.insert_file (file, article_id)
-
-        funding_list = convenience.value_or (record, "funding_list", [])
-        for funding in funding_list:
-            self.insert_funding (funding,
-                                 item_id   = article_id,
-                                 item_type = "article")
-
-        private_links = convenience.value_or (record, "private_links", [])
-        for link in private_links:
-            self.insert_private_links (link,
-                                       item_id   = article_id,
-                                       item_type = "article")
-
-        if "statistics" in record:
-            stats     = record["statistics"]
-            self.insert_article_statistics (stats["views"], article_id, item_type="views")
-            self.insert_article_statistics (stats["downloads"], article_id, item_type="downloads")
-            self.insert_article_statistics (stats["shares"], article_id, "shares")
-        else:
-            logging.warning ("No statistics available for article %d.", article_id)
 
         created_date = None
         if "created_date" in record and not record["created_date"] is None:
@@ -701,10 +666,6 @@ class DatabaseInterface:
         modified_date = None
         if "modified_date" in record and not record["modified_date"] is None:
             modified_date = datetime.strptime(record["modified_date"], "%Y-%m-%dT%H:%M:%SZ")
-
-        custom_fields = record["custom_fields"]
-        for field in custom_fields:
-            self.insert_custom_field (field, article_id, item_type="article")
 
         data          = (article_id,
                          convenience.value_or_none (record, "account_id"),
@@ -742,9 +703,60 @@ class DatabaseInterface:
                          timeline_id,
                          license_id)
 
-        if not self.__execute_query (template, data):
+        article_version_id = self.__execute_query (template, data)
+        if not article_version_id:
             logging.error("Inserting article failed.")
             return False
+
+        embargos = convenience.value_or (record, "embargo_options", [])
+        for embargo in embargos:
+            self.insert_embargo (embargo, article_version_id)
+
+        references = convenience.value_or (record, "references", [])
+        for url in references:
+            self.insert_reference (url, article_version_id, item_type="article")
+
+        categories = convenience.value_or (record, "categories", [])
+        for category in categories:
+            self.insert_category (category, article_version_id, "article")
+
+        tags = convenience.value_or (record, "tags", [])
+        for tag in tags:
+            self.insert_tag (tag, article_version_id, item_type="article")
+
+        authors = convenience.value_or (record, "authors", [])
+        for author in authors:
+            self.insert_author (author, article_version_id, item_type="article")
+
+        files = convenience.value_or (record, "files", [])
+        for file in files:
+            self.insert_file (file, article_version_id)
+
+        funding_list = convenience.value_or (record, "funding_list", [])
+        for funding in funding_list:
+            self.insert_funding (funding,
+                                 item_id   = article_version_id,
+                                 item_type = "article")
+
+        private_links = convenience.value_or (record, "private_links", [])
+        for link in private_links:
+            self.insert_private_links (link,
+                                       item_id   = article_version_id,
+                                       item_type = "article")
+
+        ## Statistics are not version-specific for articles, therefore
+        ## we use article_id instead of article_version_id.
+        if "statistics" in record:
+            stats     = record["statistics"]
+            self.insert_article_statistics (stats["views"], article_id, item_type="views")
+            self.insert_article_statistics (stats["downloads"], article_id, item_type="downloads")
+            self.insert_article_statistics (stats["shares"], article_id, "shares")
+        else:
+            logging.warning ("No statistics available for article %d.", article_id)
+
+        custom_fields = record["custom_fields"]
+        for field in custom_fields:
+            self.insert_custom_field (field, article_version_id, item_type="article")
 
         return True
 
