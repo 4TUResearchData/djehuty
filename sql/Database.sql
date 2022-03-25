@@ -108,13 +108,6 @@ CREATE TABLE IF NOT EXISTS CollectionCategory(
     category_id           INT UNSIGNED,
     collection_id         INT UNSIGNED) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS ArticleVersion(
-    article_id            INT UNSIGNED,
-    version               INT UNSIGNED,
-
-    -- This field can be auto-generated.
-    url                   VARCHAR(255)) ENGINE=InnoDB;
-
 CREATE TABLE IF NOT EXISTS Article(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
