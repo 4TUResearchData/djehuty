@@ -165,7 +165,7 @@ class DatabaseInterface:
         data     = (record["institution_id"], record["name"])
         return self.__execute_query (template, data)
 
-    def insert_author (self, record, item_id, item_type = "article"):
+    def insert_author (self, record, item_id, order_index, item_type = "article"):
         """Procedure to insert an author record."""
 
         prefix   = "Article" if item_type == "article" else "Collection"
@@ -189,8 +189,9 @@ class DatabaseInterface:
 
         if self.__execute_query (template, data):
             template = (f"INSERT IGNORE INTO {prefix}Author "
-                        f"({item_type}_version_id, author_id) VALUES (%s, %s)")
-            data     = (item_id, record["id"])
+                        f"({item_type}_version_id, author_id, order_index) "
+                        "VALUES (%s, %s, %s)")
+            data     = (item_id, record["id"], order_index)
 
             if self.__execute_query (template, data):
                 return record["id"]
@@ -374,8 +375,8 @@ class DatabaseInterface:
             return False
 
         authors = convenience.value_or (record, "authors", [])
-        for author in authors:
-            self.insert_author (author, collection_version_id, item_type="collection")
+        for index, author in enumerate(authors):
+            self.insert_author (author, collection_version_id, index, item_type="collection")
 
         categories = convenience.value_or (record, "categories", [])
         for category in categories:
@@ -725,8 +726,8 @@ class DatabaseInterface:
             self.insert_tag (tag, article_version_id, item_type="article")
 
         authors = convenience.value_or (record, "authors", [])
-        for author in authors:
-            self.insert_author (author, article_version_id, item_type="article")
+        for index, author in enumerate(authors):
+            self.insert_author (author, article_version_id, index, item_type="article")
 
         files = convenience.value_or (record, "files", [])
         for file in files:

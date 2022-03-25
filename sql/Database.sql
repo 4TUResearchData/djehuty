@@ -167,7 +167,8 @@ CREATE TABLE IF NOT EXISTS Article(
 CREATE TABLE IF NOT EXISTS ArticleAuthor(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     article_version_id    INT UNSIGNED,
-    author_id             INT UNSIGNED
+    author_id             INT UNSIGNED,
+    order_index           INT UNSIGNED
 
     -- FOREIGN KEY (collection_version_id) REFERENCES Collection(id),
     -- FOREIGN KEY (author_id) REFERENCES Author(id),
@@ -261,7 +262,8 @@ CREATE TABLE IF NOT EXISTS Collection(
 CREATE TABLE IF NOT EXISTS CollectionAuthor(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     collection_version_id INT UNSIGNED,
-    author_id             INT UNSIGNED
+    author_id             INT UNSIGNED,
+    order_index           INT UNSIGNED
 
     -- FOREIGN KEY (collection_version_id) REFERENCES Collection(id),
     -- FOREIGN KEY (author_id) REFERENCES Author(id),
