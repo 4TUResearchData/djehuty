@@ -2762,7 +2762,7 @@ class ApiServer:
         output       = {}
 
         for line in lines:
-            key, separator, value = line.partition(":")
+            key, _, value = line.partition(":")
             output[key.strip()] = value.strip()
 
         return output, body
