@@ -3,6 +3,8 @@ This module provides convenience functions that can be used throughout
 the codebase.
 """
 
+import re
+
 def value_or (record, key, other):
     """Return the value of KEY or OTHER."""
     try:
