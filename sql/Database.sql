@@ -154,6 +154,7 @@ CREATE TABLE IF NOT EXISTS Article(
     license_id            INT UNSIGNED,
     embargo_title         VARCHAR(255),
     embargo_reason        VARCHAR(255),
+    is_latest             BOOLEAN NOT NULL DEFAULT 0,
 
     -- The following fields are inferred from the search interfaces
     -- rather than the data descriptions.  For example, an article
@@ -253,6 +254,7 @@ CREATE TABLE IF NOT EXISTS Collection(
     resource_version      INT UNSIGNED,
     articles_count        INT UNSIGNED,
     group_resource_id     INT UNSIGNED,
+    is_latest             BOOLEAN NOT NULL DEFAULT 0,
     is_public             BOOLEAN NOT NULL DEFAULT 0
 
     -- FOREIGN KEY (institution_id) REFERENCES Institution(id),

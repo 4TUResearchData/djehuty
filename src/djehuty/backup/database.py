@@ -318,9 +318,9 @@ class DatabaseInterface:
                     "timeline_id, account_id, version, resource_id, "
                     "resource_doi, resource_title, resource_link, "
                     "resource_version, handle, group_resource_id, "
-                    "articles_count, is_public) VALUES (%s, %s, %s, %s, %s, "
+                    "articles_count, is_public, is_latest) VALUES (%s, %s, "
                     "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                    "%s, %s, %s, %s)")
+                    "%s, %s, %s, %s, %s, %s, %s, %s)")
 
         collection_id  = record["id"]
 
@@ -367,6 +367,7 @@ class DatabaseInterface:
             convenience.value_or_none(record, "group_resource_id"),
             convenience.value_or_none(record, "articles_count"),
             convenience.value_or_none(record, "public"),
+            convenience.value_or (record, "is_latest", 0)
         )
 
         collection_version_id = self.__execute_query (template, data)
@@ -648,9 +649,10 @@ class DatabaseInterface:
                     "is_metadata_record, is_confidential, is_public, funding, "
                     "modified_date, created_date, size, status, version, "
                     "description, figshare_url, resource_doi, resource_title, "
-                    "timeline_id, license_id) VALUES (%s, %s, %s, %s, %s, %s, "
+                    "timeline_id, license_id, is_latest) VALUES (%s, %s, %s, "
                     "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
+                    "%s, %s, %s, %s, %s)")
 
         article_id  = record["id"]
         timeline_id = None
@@ -702,7 +704,8 @@ class DatabaseInterface:
                          convenience.value_or_none (record, "resource_doi"),
                          convenience.value_or_none (record, "resource_title"),
                          timeline_id,
-                         license_id)
+                         license_id,
+                         convenience.value_or (record, "is_latest", 0))
 
         article_version_id = self.__execute_query (template, data)
         if not article_version_id:

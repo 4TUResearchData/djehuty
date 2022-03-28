@@ -227,6 +227,7 @@ class FigshareEndpoint:
         ## --------------------------------------------------------------------
         current_version = conv.value_or_none (record, "version")
         if conv.value_or (record, "is_public", False):
+            record["is_latest"] = 1
             versions = self.get_article_versions (article_id, account_id, exclude=current_version)
             record["versions"] = versions
 
@@ -332,11 +333,13 @@ class FigshareEndpoint:
         ## --------------------------------------------------------------------
         if conv.value_or (record, "is_public", False):
             current_version = conv.value_or_none (record, "version")
+            record["is_latest"] = 1
             numbers = self.get_collection_versions (collection_id, account_id, exclude=current_version)
             versions = []
             for number in numbers:
                 if number != record["version"]:
                     version = self.get_record(f"/collections/{collection_id}/versions/{number}")
+                    version["is_latest"] = 0
                     versions.append(version)
 
             record["versions"] = versions
@@ -380,6 +383,7 @@ class FigshareEndpoint:
             if exclude is None or version != exclude:
                 record  = self.get_record (f"/articles/{article_id}/versions/{version}")
                 record["account_id"] = account_id
+                record["is_latest"]  = 0
                 output.append (record)
 
         return output
