@@ -2745,7 +2745,7 @@ class ApiServer:
                 except FileNotFoundError:
                     logging.error ("%s/.git/config does not exist.", git_directory)
                     return False
-                except OsError:
+                except OSError:
                     logging.error ("Could not open %s/.git/config", git_directory)
                     return False
             else:
