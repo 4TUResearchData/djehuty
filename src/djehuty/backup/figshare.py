@@ -222,12 +222,12 @@ class FigshareEndpoint:
         record["private_links"] = self.get_article_private_links_by_account_by_id (account_id,
                                                                                    article_id)
         record["account_id"]    = account_id
+        record["is_latest"]     = 1
 
         ## Other versions
         ## --------------------------------------------------------------------
         current_version = conv.value_or_none (record, "version")
         if conv.value_or (record, "is_public", False):
-            record["is_latest"] = 1
             versions = self.get_article_versions (article_id, account_id, exclude=current_version)
             record["versions"] = versions
 
@@ -328,12 +328,12 @@ class FigshareEndpoint:
         record["private_links"] = private_links
         record["articles"]      = articles
         record["account_id"]    = account_id
+        record["is_latest"]     = 1
 
         ## Other versions
         ## --------------------------------------------------------------------
         if conv.value_or (record, "is_public", False):
             current_version = conv.value_or_none (record, "version")
-            record["is_latest"] = 1
             numbers = self.get_collection_versions (collection_id, account_id, exclude=current_version)
             versions = []
             for number in numbers:
