@@ -2767,7 +2767,7 @@ class ApiServer:
 
         return output, body
 
-    def __git_passthrough (self, request, article_id):
+    def __git_passthrough (self, request):
         """Procedure to proxy Git interaction to Git's http-backend."""
 
         ## The wrapping in 'str' is deliberate: It copies the opaque content_type value.
@@ -2824,19 +2824,19 @@ class ApiServer:
 
         ## Used for clone and pull.
         if service == "git-upload-pack":
-            return self.__git_passthrough (request, article_id)
+            return self.__git_passthrough (request)
 
         ## Used for push.
         if service == "git-receive-pack":
-            return self.__git_passthrough (request, article_id)
+            return self.__git_passthrough (request)
 
         logging.error ("Unsupported Git service command: %s", service)
         return self.error_500 ()
 
     def api_v3_private_article_git_upload_pack (self, request, article_id):
         """Implements /v2/articles/<id>.git/git-upload-pack."""
-        return self.__git_passthrough (request, article_id)
+        return self.__git_passthrough (request)
 
     def api_v3_private_article_git_receive_pack (self, request, article_id):
         """Implements /v2/articles/<id>.git/git-upload-pack."""
-        return self.__git_passthrough (request, article_id)
+        return self.__git_passthrough (request)
