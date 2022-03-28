@@ -74,6 +74,8 @@ def decimal_coord(txt, axis, digits=4):
         if abs(arc_rel) <= 1.:
             return f'{deg:.{digits}f}'
 
+    return None
+
 def decimal_coords(lat, lon, digits=4):
     '''
     Converts strings lat, lon to decimal coordinats or None if invalid.
