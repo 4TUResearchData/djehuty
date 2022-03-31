@@ -3,19 +3,20 @@
 SELECT DISTINCT ?first_name      ?full_name       ?group_id
                 ?id              ?institution_id  ?is_active
                 ?is_public       ?job_title       ?last_name
-                ?orcid_id        ?url_name
+                ?orcid_id        ?url_name        ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?author            rdf:type                 sg:Author .
-    ?author            col:id                   ?id .
+    ?author            rdf:type                 sg:Author ;
+                       col:id                   ?id .
     {%- if item_id is not none %}
-    ?link              rdf:type                 sg:{{prefix}}Author .
-    ?link              col:{{item_type}}_version_id {{item_id}} .
-    ?link              col:author_id            ?id .
+    ?link              rdf:type                 sg:{{prefix}}Author ;
+                       col:{{item_type}}_version_id {{item_id}} ;
+                       col:author_id            ?id ;
+                       col:order_index          ?order_index .
     {%- endif %}
     {%- if account_id is not none %}
-    ?item              rdf:type                 sg:{{prefix}} .
-    ?item              col:account_id           {{account_id}} .
+    ?item              rdf:type                 sg:{{prefix}} ;
+                       col:account_id           {{account_id}} .
     {%- endif %}
     OPTIONAL { ?author col:first_name           ?first_name . }
     OPTIONAL { ?author col:full_name            ?full_name . }

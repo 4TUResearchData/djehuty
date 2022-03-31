@@ -188,7 +188,7 @@ class SparqlInterface:
         return 0
 
     def article_versions (self, limit=1000, offset=0, order="version",
-                          order_direction=None, article_id=None):
+                          order_direction="desc", article_id=None):
         """Procedure to retrieve the versions of an article."""
         filters = ""
         if article_id is not None:
@@ -384,7 +384,7 @@ class SparqlInterface:
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
                  is_public=None, job_title=None, last_name=None,
-                 orcid_id=None, url_name=None, limit=10, order="full_name",
+                 orcid_id=None, url_name=None, limit=10, order="order_index",
                  order_direction="asc", item_id=None, search_for=None,
                  account_id=None, item_type="article"):
         """Procedure to retrieve authors of an article."""
@@ -616,12 +616,12 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def collections_from_article (self, article_version_id):
+    def collections_from_article (self, article_id):
         """Procedure to get the collections an article is part of."""
 
         query = self.__query_from_template ("collections_from_article", {
             "state_graph": self.state_graph,
-            "article_version_id":  article_version_id
+            "article_version_id":  article_id #temp bug fix for state_graph
         })
 
         return self.__run_query(query)

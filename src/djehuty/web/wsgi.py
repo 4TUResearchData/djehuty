@@ -18,6 +18,8 @@ from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import database
 from djehuty.utils.convenience import value_or, value_or_none, pretty_print_size, decimal_coords
+from djehuty.utils.convenience import self_or_value, self_or_value_or_none, unversion_doi
+from djehuty.utils.constants import group_to_member, member_url_names
 
 
 class ApiServer:
@@ -894,9 +896,10 @@ class ApiServer:
 
     def api_article_ui (self, request, article_id, version=None):
         if self.accepts_html (request):
-            article       = self.db.articles(article_id=article_id, version=version)[0]
-            article_version_id = article["article_version_id"]
             versions      = self.db.article_versions(article_id=article_id)
+            current_version = version if version else versions[0]['version']
+            article       = self.db.articles(article_id=article_id, version=current_version)[0]
+            article_version_id = article["article_version_id"]
             authors       = self.db.authors(item_id=article_version_id, item_type="article")
             files         = self.db.article_files(article_version_id=article_version_id)
             custom_fields = self.db.custom_fields(item_id=article_version_id, item_type="article")
@@ -905,8 +908,10 @@ class ApiServer:
             categories    = self.db.categories(item_id=article_version_id, item_type="article")
             references    = self.db.references(item_id=article_version_id, item_type="article")
             fundings      = self.db.fundings(item_id=article_version_id, item_type="article")
-            collections   = self.db.collections_from_article(article_version_id=article_version_id)
+            collections   = self.db.collections_from_article(article_id=article_id) #N.B. Not article_version_id!
             statistics    = self.db.single_article_statistics_totals(article_id=article_id)
+            member = value_or(group_to_member, article["group_id"], 'other')
+            member_url_name = member_url_names[member]
             tags = set([t['tag'] for t in tags if not t['tag'].startswith('Collection: ')])
             date_types = ( ('submitted'   , 'timeline_submission'),
                            ('first online', 'timeline_first_online'),
@@ -923,11 +928,8 @@ class ApiServer:
                     dates[date].append(label)
             dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
 
-            lat, lon = None, None
-            if 'latitude' in article:
-                lat = article['latitude']['value']
-            if 'longitude' in article:
-                lon = article['longitude']['value']
+            lat = self_or_value_or_none(article, 'latitude')
+            lon = self_or_value_or_none(article, 'longitude')
             lat_valid, lon_valid = decimal_coords(lat, lon)
             coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
 
@@ -954,6 +956,8 @@ class ApiServer:
                                            collections=collections,
                                            dates=dates,
                                            coordinates=coordinates,
+                                           member=member,
+                                           member_url_name=member_url_name,
                                            opendap=opendap,
                                            statistics=statistics)
         return self.response (json.dumps({

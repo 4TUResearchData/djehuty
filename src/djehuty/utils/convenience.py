@@ -85,3 +85,29 @@ def decimal_coords(lat, lon, digits=4):
     lat_validated = decimal_coord(lat, 'N', digits=digits)
     lon_validated = decimal_coord(lon, 'E', digits=digits)
     return (lat_validated, lon_validated)
+
+def self_or_value(x):
+    '''
+    Return x['value'] or x.
+    Use: deal with triples where table2rdf transformed a string into a number.
+    '''
+    return value_or(x, 'value', x)
+
+def self_or_value_or_none(record, key):
+    '''
+    Return record[key]['value'] or record[key] or none.
+    Use: deal with triples where table2rdf transformed a string into a number.
+    '''
+    return self_or_value(record[key]) if key in record else None
+
+def unversion_doi(doi):
+    '''
+    return versionless doi
+    '''
+    try:
+        doi_parts = doi.split('.v')
+        versionless = '.v'.join(doi_parts[:-1])
+        version = int(doi_parts[-1])
+        return versionless
+    except:
+        return doi
