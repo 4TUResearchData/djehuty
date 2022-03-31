@@ -32,9 +32,11 @@ def sparql_suffix (order, order_direction, limit=None, offset=None):
     else:
         order_direction = order_direction.upper()
 
-    order = "?id" if order is None else f"?{order}"
-
-    query = f"ORDER BY {order_direction}({order})"
+    query = ""
+    if order and order_direction:
+        if order[0] != '?':
+            order = f"?{order}"
+        query += f"ORDER BY {order_direction}({order})"
 
     if limit is not None:
         query += f"\nLIMIT {limit}"
