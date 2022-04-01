@@ -1431,7 +1431,7 @@ class ApiServer:
                         return self.error_500()
 
             except KeyError:
-                self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+                return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
             except Exception as error:
@@ -1474,7 +1474,7 @@ class ApiServer:
                 return self.respond_205()
 
             except KeyError:
-                self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+                return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
             except Exception as error:
@@ -1571,7 +1571,7 @@ class ApiServer:
                 return self.respond_205()
 
             except KeyError:
-                self.error_400 ("Expected an array for 'categories'.", "NoCategoriesField")
+                return self.error_400 ("Expected an array for 'categories'.", "NoCategoriesField")
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
             except Exception as error:
@@ -2265,7 +2265,7 @@ class ApiServer:
                         return self.error_500()
 
             except KeyError:
-                self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+                return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
             except Exception as error:
@@ -2309,7 +2309,7 @@ class ApiServer:
                 return self.respond_205()
 
             except KeyError:
-                self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+                return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
             except Exception as error:
@@ -2375,7 +2375,7 @@ class ApiServer:
                 return self.respond_205()
 
             except KeyError:
-                self.error_400 ("Expected an array for 'articles'.", "NoArticlesField")
+                return self.error_400 ("Expected an array for 'articles'.", "NoArticlesField")
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
             except Exception as error:
@@ -2680,7 +2680,7 @@ class ApiServer:
                 return self.respond_205()
 
             except KeyError:
-                self.error_400 ("Expected an 'references' field.", "NoReferencesField")
+                return self.error_400 ("Expected an 'references' field.", "NoReferencesField")
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
             except Exception as error:
