@@ -174,12 +174,11 @@ class SparqlInterface:
         try:
             return results[0]["bytes"]
         except IndexError:
-            logging.error ("Article %s looks to be empty.", article_version_id)
-            return 0
+            pass
         except KeyError:
-            logging.error ("Failed to retrieve used storage for article %s", article_version_id)
+            pass
 
-        return None
+        return 0
 
     def article_versions (self, limit=1000, offset=0, order="version",
                           order_direction=None, article_id=None):
@@ -1937,12 +1936,11 @@ class SparqlInterface:
         try:
             return results[0]["bytes"]
         except IndexError:
-            logging.error ("Account %s looks to be empty.", account_id)
-            return 0
+            pass
         except KeyError:
-            logging.error ("Failed to retrieve used storage for account %s.", account_id)
+            pass
 
-        return None
+        return 0
 
     def opendap_to_doi(self, startswith=None, endswith=None):
         """Procedure to return DOI corresponding to opendap catalog url"""
