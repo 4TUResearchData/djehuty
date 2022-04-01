@@ -33,14 +33,22 @@ Create a portable executable with:
 
 ```bash
 pip install pyinstaller
-pyinstaller -s -F --onefile --add-data "src/djehuty/web/resources:djehuty/web/resources" main.py -n djehuty
+pyinstaller --onefile \
+            --hidden-import=_cffi_backend \
+            --add-data "src/djehuty/web/resources:djehuty/web/resources" \
+            --name djehuty \
+            main.py
 ```
 
 On Windows, use:
 
 ```bash
 pip install pyinstaller
-pyinstaller -F --onefile --add-data "src/djehuty/web/resources;djehuty/web/resources" main.py -n djehuty
+pyinstaller --onefile \
+            --hidden-import=_cffi_backend \
+            --add-data "src/djehuty/web/resources;djehuty/web/resources" \
+            --name djehuty \
+            main.py
 ```
 
 ### Build an AppImage with Nuitka
