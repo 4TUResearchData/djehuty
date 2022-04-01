@@ -26,7 +26,7 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?row     rdf:type             sg:{{prefix}}PrivateLink .
     ?row     col:id               ?row_id .
-    ?row     col:{{item_type}}_id ?item_id .
+    ?row     col:{{item_type}}_version_id ?item_id .
     ?row     col:id_string        ?id_string .
 
     OPTIONAL { ?row     col:is_active        ?is_active . }
@@ -34,7 +34,7 @@ WHERE {
     OPTIONAL { ?row     col:read_only        ?read_only . }
 
     ?item rdf:type                sg:{{prefix}} .
-    ?item col:{{item_type}}_id    ?item_id .
+    ?item col:{{item_type}}_version_id ?item_id .
     ?item col:account_id          ?account_id .
   }
   FILTER (?item_id    = {{item_id}})

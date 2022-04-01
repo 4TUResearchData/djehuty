@@ -20,7 +20,7 @@ def format_account_record (record):
 def format_article_record (record):
     """Record formatter for articles."""
     return {
-        "id":                      conv.value_or_none(record, "id"),
+        "id":                      conv.value_or_none(record, "article_id"),
         "title":                   conv.value_or_none(record, "title"),
         "doi":                     conv.value_or_none(record, "doi"),
         "handle":                  conv.value_or_none(record, "handle"),
@@ -172,7 +172,7 @@ def format_article_details_record (article, authors, files, custom_fields,
         "embargo_title":     conv.value_or(article, "embargo_title", ""),
         "embargo_reason":    conv.value_or(article, "embargo_reason", ""),
         "embargo_options":   list (map (format_article_embargo_option_record, embargo_options)),
-        "id":                conv.value_or_none(article, "id"),
+        "id":                conv.value_or_none(article, "article_id"),
         "title":             conv.value_or_none(article, "title"),
         "doi":               conv.value_or_none(article, "doi"),
         "handle":            conv.value_or(article, "handle", ""),

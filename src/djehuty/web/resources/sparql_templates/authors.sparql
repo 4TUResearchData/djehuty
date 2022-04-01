@@ -10,7 +10,7 @@ WHERE {
     ?author            col:id                   ?id .
     {%- if item_id is not none %}
     ?link              rdf:type                 sg:{{prefix}}Author .
-    ?link              col:{{item_type}}_id     {{item_id}} .
+    ?link              col:{{item_type}}_version_id {{item_id}} .
     ?link              col:author_id            ?id .
     {%- endif %}
     {%- if account_id is not none %}
@@ -28,6 +28,6 @@ WHERE {
     OPTIONAL { ?author col:orcid_id             ?orcid_id . }
     OPTIONAL { ?author col:url_name             ?url_name . }
   }
-{%- if filters is not none %}{{ filters }}{% endif %}
+{% if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

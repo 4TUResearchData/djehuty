@@ -103,7 +103,7 @@ INSERT {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article            rdf:type                 sg:Article .
-    ?article            col:article_id           ?article_id .
+    ?article            col:article_version_id   ?article_version_id .
     ?article            col:account_id           ?account_id .
     ?article            col:title                ?title .
 
@@ -133,6 +133,6 @@ WHERE {
 {%- if account_id is not none: %}
   FILTER (?account_id = {{account_id}})
 {%- endif %}
-  FILTER (?article_id = {{article_id}})
+  FILTER (?article_version_id = {{article_version_id}})
 }
 {% endblock %}

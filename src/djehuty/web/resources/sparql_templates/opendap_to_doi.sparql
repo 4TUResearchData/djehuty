@@ -4,12 +4,12 @@ SELECT DISTINCT ?download_url ?doi ?title
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article        rdf:type         sg:Article ;
-                    col:article_id   ?article_id ;
+                    col:article_version_id ?article_version_id ;
                     col:doi          ?doi ;
                     col:title        ?title .
     {
       ?link         rdf:type         sg:ArticleFile ;
-                    col:article_id   ?article_id ;
+                    col:article_version_id ?article_version_id ;
                     col:file_id      ?file_id .
       ?file         rdf:type         sg:File ;
                     col:id           ?file_id ;

@@ -503,7 +503,7 @@ class ApiServer:
                 for index, _ in enumerate(unpublished_articles):
                     used = 0
                     if not bool(value_or_none (unpublished_articles[index], "is_metadata_record")):
-                        used = self.db.article_storage_used (unpublished_articles[index]["id"])
+                        used = self.db.article_storage_used (unpublished_articles[index]["article_version_id"])
                     unpublished_articles[index]["storage_used"] = pretty_print_size (used)
 
                 published_articles = self.db.articles (account_id = account_id,
@@ -513,7 +513,7 @@ class ApiServer:
                 for index, _ in enumerate(published_articles):
                     used = 0
                     if not bool(value_or_none (published_articles[index], "is_metadata_record")):
-                        used = self.db.article_storage_used (published_articles[index]["id"])
+                        used = self.db.article_storage_used (published_articles[index]["article_version_id"])
                     published_articles[index]["storage_used"] = pretty_print_size (used)
 
                 return self.__render_template (request, "depositor/my-data.html",
@@ -595,13 +595,24 @@ class ApiServer:
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
-                result = self.db.delete_article (article_id = article_id,
-                                                 account_id = account_id)
+                try:
+                    article = self.db.articles(article_id=article_id, account_id=account_id)[0]
+                    article_version_id = article["article_version_id"]
 
-                if result is not None:
-                    return redirect ("/my/datasets", code=303)
+                    result = self.db.delete_article_version (
+                        article_version_id = article_version_id,
+                        account_id = account_id)
 
-            return self.error_404 (request)
+                    if result is not None:
+                        return redirect ("/my/datasets", code=303)
+
+                    return self.error_404 (request)
+                except IndexError:
+                    pass
+                except KeyError:
+                    pass
+
+                return self.error_500 ()
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
@@ -619,7 +630,9 @@ class ApiServer:
                                                    limit      = 10000)
 
                 for index, _ in enumerate(collections):
-                    count = self.db.collections_article_count (collection_id = collections[index]["id"])
+                    count = self.db.collections_article_count (
+                        collection_version_id = collections[index]["collection_version_id"])
+
                     collections[index]["number_of_articles"] = count
 
                 return self.__render_template (request, "depositor/my-collections.html",
@@ -707,11 +720,26 @@ class ApiServer:
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
-                result = self.db.delete_collection (collection_id = collection_id,
-                                                    account_id = account_id)
 
-                if result is not None:
-                    return redirect ("/my/collections", code=303)
+                try:
+                    collection = self.db.collections (
+                        collection_id = collection_id,
+                        account_id    = account_id)[0]
+
+                    collection_version_id = collection["collection_version_id"]
+                    result = self.db.delete_collection (
+                        collection_version_id = collection_version_id,
+                        account_id    = account_id)
+
+                    if result is not None:
+                        return redirect ("/my/collections", code=303)
+
+                except IndexError:
+                    pass
+                except KeyError:
+                    pass
+
+                return self.error_500 ()
 
             return self.error_404 (request)
 
@@ -787,16 +815,17 @@ class ApiServer:
     def api_article_ui (self, request, article_id, version=None):
         if self.accepts_html (request):
             article       = self.db.articles(article_id=article_id, version=version)[0]
+            article_version_id = article["article_version_id"]
             versions      = self.db.article_versions(article_id=article_id)
-            authors       = self.db.authors(item_id=article_id, item_type="article")
-            files         = self.db.article_files(article_id=article_id)
-            custom_fields = self.db.custom_fields(item_id=article_id, item_type="article")
-            embargo_options = self.db.article_embargo_options(article_id=article_id)
-            tags          = self.db.tags(item_id=article_id, item_type="article")
-            categories    = self.db.categories(item_id=article_id, item_type="article")
-            references    = self.db.references(item_id=article_id, item_type="article")
-            fundings      = self.db.fundings(item_id=article_id, item_type="article")
-            collections   = self.db.collections_from_article(article_id=article_id)
+            authors       = self.db.authors(item_id=article_version_id, item_type="article")
+            files         = self.db.article_files(article_version_id=article_version_id)
+            custom_fields = self.db.custom_fields(item_id=article_version_id, item_type="article")
+            embargo_options = self.db.article_embargo_options(article_version_id=article_version_id)
+            tags          = self.db.tags(item_id=article_version_id, item_type="article")
+            categories    = self.db.categories(item_id=article_version_id, item_type="article")
+            references    = self.db.references(item_id=article_version_id, item_type="article")
+            fundings      = self.db.fundings(item_id=article_version_id, item_type="article")
+            collections   = self.db.collections_from_article(article_version_id=article_version_id)
             statistics    = self.db.single_article_statistics_totals(article_id=article_id)
             tags = set([t['tag'] for t in tags if not t['tag'].startswith('Collection: ')])
             date_types = ( ('submitted'   , 'timeline_submission'),
@@ -1058,14 +1087,15 @@ class ApiServer:
 
         try:
             article       = self.db.articles(article_id=article_id)[0]
-            authors       = self.db.authors(item_id=article_id, item_type="article")
-            files         = self.db.article_files(article_id=article_id)
-            custom_fields = self.db.custom_fields(item_id=article_id, item_type="article")
-            embargo_options = self.db.article_embargo_options(article_id=article_id)
-            tags          = self.db.tags(item_id=article_id, item_type="article")
-            categories    = self.db.categories(item_id=article_id, item_type="article")
-            references    = self.db.references(item_id=article_id, item_type="article")
-            fundings      = self.db.fundings(item_id=article_id, item_type="article")
+            article_version_id = article["article_version_id"]
+            authors       = self.db.authors(item_id=article_version_id, item_type="article")
+            files         = self.db.article_files(article_version_id=article_version_id)
+            custom_fields = self.db.custom_fields(item_id=article_version_id, item_type="article")
+            embargo_options = self.db.article_embargo_options(article_version_id=article_version_id)
+            tags          = self.db.tags(item_id=article_version_id, item_type="article")
+            categories    = self.db.categories(item_id=article_version_id, item_type="article")
+            references    = self.db.references(item_id=article_version_id, item_type="article")
+            fundings      = self.db.fundings(item_id=article_version_id, item_type="article")
             total         = formatter.format_article_details_record (article,
                                                                      authors,
                                                                      files,
@@ -1102,14 +1132,15 @@ class ApiServer:
 
         try:
             article       = self.db.articles(article_id=article_id, version=version)[0]
-            authors       = self.db.authors(item_id=article_id, item_type="article")
-            files         = self.db.article_files(article_id=article_id)
-            custom_fields = self.db.custom_fields(item_id=article_id, item_type="article")
-            embargo_options = self.db.article_embargo_options(article_id=article_id)
-            tags          = self.db.tags(item_id=article_id, item_type="article")
-            categories    = self.db.categories(item_id=article_id, item_type="article")
-            references    = self.db.references(item_id=article_id, item_type="article")
-            fundings      = self.db.fundings(item_id=article_id, item_type="article")
+            article_version_id = article["article_version_id"]
+            authors       = self.db.authors(item_id=article_version_id, item_type="article")
+            files         = self.db.article_files(article_version_id=article_version_id)
+            custom_fields = self.db.custom_fields(item_id=article_version_id, item_type="article")
+            embargo_options = self.db.article_embargo_options(article_version_id=article_version_id)
+            tags          = self.db.tags(item_id=article_version_id, item_type="article")
+            categories    = self.db.categories(item_id=article_version_id, item_type="article")
+            references    = self.db.references(item_id=article_version_id, item_type="article")
+            fundings      = self.db.fundings(item_id=article_version_id, item_type="article")
             total         = formatter.format_article_details_record (article,
                                                                      authors,
                                                                      files,
@@ -1136,7 +1167,8 @@ class ApiServer:
 
         try:
             article         = self.db.articles (article_id=article_id, version=version)[0]
-            embargo_options = self.db.article_embargo_options (article_id=article_id)
+            article_version_id = article["article_version_id"]
+            embargo_options = self.db.article_embargo_options (article_version_id=article_version_id)
             total           = formatter.format_article_embargo_record (article, embargo_options)
             return self.response (json.dumps(total))
         except IndexError:
@@ -1186,7 +1218,10 @@ class ApiServer:
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
-        files = self.db.article_files(article_id=article_id)
+        article = self.db.articles (article_id=article_id)[0]
+        article_version_id = article["article_version_id"]
+        files   = self.db.article_files (article_version_id=article_version_id)
+
         return self.default_list_response (files, formatter.format_file_for_article_record)
 
     def api_article_file_details (self, request, article_id, file_id):
@@ -1196,8 +1231,13 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            files = self.db.article_files(file_id=file_id, article_id=article_id)[0]
-            results = formatter.format_file_for_article_record(files)
+            article = self.db.articles (article_id=article_id)[0]
+            article_version_id = article["article_version_id"]
+            files = self.db.article_files (
+                file_id = file_id,
+                article_version_id = article_version_id)[0]
+
+            results = formatter.format_file_for_article_record (files)
             return self.response (json.dumps(results))
         except IndexError:
             response = self.response (json.dumps({
@@ -1302,14 +1342,15 @@ class ApiServer:
 
             try:
                 article         = article[0]
-                authors         = self.db.authors(item_id=article_id, item_type="article")
-                files           = self.db.article_files(article_id=article_id)
-                custom_fields   = self.db.custom_fields(item_id=article_id, item_type="article")
-                embargo_options = self.db.article_embargo_options(article_id=article_id)
-                tags            = self.db.tags(item_id=article_id, item_type="article")
-                categories      = self.db.categories(item_id=article_id, item_type="article")
-                funding         = self.db.fundings(item_id=article_id, item_type="article")
-                references      = self.db.references(item_id=article_id, item_type="article")
+                article_version_id = article["article_version_id"]
+                authors         = self.db.authors (item_id=article_version_id, item_type="article")
+                files           = self.db.article_files (article_version_id=article_version_id)
+                custom_fields   = self.db.custom_fields (item_id=article_version_id, item_type="article")
+                embargo_options = self.db.article_embargo_options (article_version_id=article_version_id)
+                tags            = self.db.tags (item_id=article_version_id, item_type="article")
+                categories      = self.db.categories (item_id=article_version_id, item_type="article")
+                funding         = self.db.fundings (item_id=article_version_id, item_type="article")
+                references      = self.db.references (item_id=article_version_id, item_type="article")
                 total           = formatter.format_article_details_record (article,
                                                                            authors,
                                                                            files,
@@ -1339,7 +1380,10 @@ class ApiServer:
                 elif defined_type_name == "dataset":
                     defined_type = 3
 
-                result = self.db.update_article (article_id, account_id,
+                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
+
+                result = self.db.update_article (article_version_id, account_id,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
@@ -1370,13 +1414,25 @@ class ApiServer:
 
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
+            except IndexError:
+                pass
+            except KeyError:
+                pass
 
             return self.error_500 ()
 
-
         if request.method == 'DELETE':
-            if self.db.delete_article (article_id, account_id):
-                return self.respond_204()
+            try:
+                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
+
+                if self.db.delete_article_version (article_version_id, account_id):
+                    return self.respond_204()
+            except IndexError:
+                pass
+            except KeyError:
+                pass
+
             return self.error_500 ()
 
         return self.error_405 (["GET", "PUT", "DELETE"])
@@ -1396,11 +1452,21 @@ class ApiServer:
         article_id = int(article_id)
 
         if request.method == 'GET':
-            authors    = self.db.authors(item_id    = article_id,
-                                         account_id = account_id,
-                                         item_type  = "article")
+            try:
+                article = self.db.articles(article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
 
-            return self.default_list_response (authors, formatter.format_author_record)
+                authors    = self.db.authors(item_id    = article_version_id,
+                                             account_id = account_id,
+                                             item_type  = "article")
+
+                return self.default_list_response (authors, formatter.format_author_record)
+            except IndexError:
+                pass
+            except KeyError:
+                pass
+
+            return self.error_500 ()
 
         if request.method == 'PUT':
             parameters = request.get_json()
@@ -1424,14 +1490,18 @@ class ApiServer:
 
                     author_ids.append(author_id)
 
-                self.db.delete_authors_for_article (article_id, account_id)
+                article = self.db.articles(article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
+                self.db.delete_authors_for_article (article_version_id, account_id)
                 for author_id in author_ids:
-                    if self.db.insert_article_author (article_id, author_id) is None:
+                    if self.db.insert_article_author (article_version_id, author_id) is None:
                         logging.error("Adding a single author failed.")
                         return self.error_500()
 
             except KeyError:
                 return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+            except IndexError:
+                return self.error_500 ()
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
             except Exception as error:
@@ -1467,7 +1537,10 @@ class ApiServer:
                             logging.error("Adding a single author failed.")
                             return self.error_500()
 
-                    if self.db.insert_article_author (article_id, author_id) is None:
+                    article = self.db.articles(article_id=article_id, account_id=account_id)[0]
+                    article_version_id = article["article_version_id"]
+
+                    if self.db.insert_article_author (article_version_id, author_id) is None:
                         logging.error("Adding a single author failed.")
                         return self.error_500()
 
@@ -1475,6 +1548,8 @@ class ApiServer:
 
             except KeyError:
                 return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+            except IndexError:
+                return self.error_500 ()
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
             except Exception as error:
@@ -1493,9 +1568,18 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        result = self.db.delete_authors_for_article (article_id, account_id, author_id)
-        if result is not None:
-            return self.respond_204()
+        try:
+            article   = self.db.articles (article_id=article_id, account_id=account_id)[0]
+            article_version_id = article["article_version_id"]
+
+            result = self.db.delete_authors_for_article (article_version_id, account_id, author_id)
+            if result is not None:
+                return self.respond_204()
+
+        except IndexError:
+            return self.error_500 ()
+        except KeyError:
+            return self.error_500 ()
 
         return self.error_403 (request)
 
@@ -1507,9 +1591,18 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        result = self.db.delete_authors_for_collection (collection_id, account_id, author_id)
-        if result is not None:
-            return self.respond_204()
+        try:
+            collection   = self.db.collections (collection_id=collection_id, account_id=account_id)[0]
+            collection_version_id = collection["collection_version_id"]
+
+            result = self.db.delete_authors_for_collection (collection_version_id, account_id, author_id)
+            if result is not None:
+                return self.respond_204()
+
+        except IndexError:
+            return self.error_500 ()
+        except KeyError:
+            return self.error_500 ()
 
         return self.error_403 (request)
 
@@ -1521,11 +1614,22 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        result = self.db.delete_article_for_collection (collection_id,
-                                                        account_id,
-                                                        article_id)
-        if result is not None:
-            return self.respond_204()
+        try:
+            collection = self.db.collections(collection_id=collection_id, account_id=account_id, limit=1)[0]
+            collection_version_id = collection["collection_version_id"]
+
+            article    = self.db.articles(article_id=article_id, account_id=account_id, limit=1)[0]
+            article_version_id = article["article_version_id"]
+
+            result     = self.db.delete_article_for_collection (collection_version_id,
+                                                                account_id,
+                                                                article_version_id)
+            if result is not None:
+                return self.respond_204()
+        except IndexError:
+            return self.error_500 ()
+        except KeyError:
+            return self.error_500 ()
 
         return self.error_403 (request)
 
@@ -1541,16 +1645,30 @@ class ApiServer:
             return self.error_authorization_failed()
 
         if request.method == 'GET':
-            categories    = self.db.categories(item_id    = article_id,
-                                               account_id = account_id,
-                                               item_type  = "article")
+            try:
+                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
 
-            return self.default_list_response (categories, formatter.format_category_record)
+                categories    = self.db.categories (item_id    = article_version_id,
+                                                    account_id = account_id,
+                                                    item_type  = "article")
+
+                return self.default_list_response (categories, formatter.format_category_record)
+
+            except IndexError:
+                pass
+            except KeyError:
+                pass
+
+            return self.error_500 ()
 
         if request.method in ('PUT', 'POST'):
             try:
                 parameters = request.get_json()
                 categories = parameters["categories"]
+
+                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
 
                 # First, validate all values passed by the user.
                 # This way, we can be as certain as we can be that performing
@@ -1562,14 +1680,16 @@ class ApiServer:
                 # When we are dealing with a PUT request, we must clear the previous
                 # values first.
                 if request.method == 'PUT':
-                    self.db.delete_article_categories (article_id, account_id)
+                    self.db.delete_article_categories (article_version_id, account_id)
 
                 # Lastly, insert the validated values.
                 for category_id in categories:
-                    self.db.insert_article_category (int(article_id), int(category_id))
+                    self.db.insert_article_category (int(article_version_id), int(category_id))
 
                 return self.respond_205()
 
+            except IndexError:
+                return self.error_500 ()
             except KeyError:
                 return self.error_400 ("Expected an array for 'categories'.", "NoCategoriesField")
             except validator.ValidationException as error:
@@ -1612,8 +1732,9 @@ class ApiServer:
                 return self.response (json.dumps([]))
 
             try:
-                article = article[0]
-                options = self.db.article_embargo_options(article_id = article_id)
+                article    = article[0]
+                version_id = article["article_version_id"]
+                options    = self.db.article_embargo_options (article_version_id = version_id)
                 return self.response (json.dumps (formatter.format_article_embargo_record (article, options)))
             except IndexError:
                 response = self.response (json.dumps({
@@ -1623,8 +1744,19 @@ class ApiServer:
                 return response
 
         if request.method == 'DELETE':
-            if self.db.delete_article_embargo (article_id=article_id, account_id=account_id):
-                return self.respond_204()
+            try:
+                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
+
+                if self.db.delete_article_embargo (
+                        article_version_id = article_version_id,
+                        account_id = account_id):
+                    return self.respond_204()
+            except IndexError:
+                pass
+            except KeyError:
+                pass
+
             return self.error_500 ()
 
         return self.error_405 (["GET", "DELETE"])
@@ -1642,8 +1774,11 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
+                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
+
                 files = self.db.article_files (
-                    article_id = article_id,
+                    article_version_id = article_version_id,
                     account_id = account_id,
                     limit      = validator.integer_value (request.args, "limit"))
 
@@ -1651,17 +1786,29 @@ class ApiServer:
 
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
+            except IndexError:
+                pass
+            except KeyError:
+                pass
+
+            return self.error_500 ()
 
         if request.method == 'POST':
             parameters = request.get_json()
             try:
                 article_id = int(article_id)
                 link = validator.string_value (parameters, "link", 0, 1000, False)
+
+                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
+
                 if link is not None:
-                    file_id = self.db.insert_file (article_id   = article_id,
-                                                   account_id   = account_id,
-                                                   is_link_only = True,
-                                                   download_url = link)
+                    file_id = self.db.insert_file (
+                        article_version_id = article_version_id,
+                        account_id         = account_id,
+                        is_link_only       = True,
+                        download_url       = link)
+
                     if file_id is None:
                         return self.error_500()
 
@@ -1670,13 +1817,14 @@ class ApiServer:
                     })
 
                 file_id = self.db.insert_file (
-                    article_id    = article_id,
+                    article_version_id = article_version_id,
                     account_id    = account_id,
                     is_link_only  = False,
                     upload_token  = self.token_from_request (request),
-                    supplied_md5  = validator.string_value  (parameters, "md5",  32, 32,         False),
+                    supplied_md5  = validator.string_value  (parameters, "md5",  32, 32),
                     name          = validator.string_value  (parameters, "name", 0,  255,        True),
                     size          = validator.integer_value (parameters, "size", 0,  pow(2, 63), True))
+
                 if file_id is None:
                     return self.error_500()
 
@@ -1686,6 +1834,12 @@ class ApiServer:
 
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
+            except IndexError:
+                pass
+            except KeyError:
+                pass
+
+            return self.error_500 ()
 
         return self.error_405 (["GET", "POST"])
 
@@ -1701,21 +1855,43 @@ class ApiServer:
             return self.error_authorization_failed()
 
         if request.method == 'GET':
-            files         = self.db.article_files (article_id = article_id,
-                                                   account_id = account_id,
-                                                   file_id    = file_id)
+            try:
+                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
 
-            return self.default_list_response (files, formatter.format_file_details_record)
+                files   = self.db.article_files (
+                    article_version_id = article_version_id,
+                    account_id         = account_id,
+                    file_id            = file_id)
+
+                return self.default_list_response (files, formatter.format_file_details_record)
+            except IndexError:
+                pass
+            except KeyError:
+                pass
+
+            return self.error_500 ()
 
         if request.method == 'POST':
             return self.error_500()
 
         if request.method == 'DELETE':
-            result = self.db.delete_file_for_article (article_id = article_id,
-                                                      account_id = account_id,
-                                                      file_id    = file_id)
-            if result is not None:
-                return self.respond_204()
+            try:
+                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
+
+                result = self.db.delete_file_for_article (
+                    article_version_id = article_version_id,
+                    account_id = account_id,
+                    file_id    = file_id)
+
+                if result is not None:
+                    return self.respond_204()
+
+            except IndexError:
+                pass
+            except KeyError:
+                pass
 
             return self.error_500()
 
@@ -1944,13 +2120,15 @@ class ApiServer:
 
         try:
             collection    = self.db.collections(collection_id=collection_id, limit=1)[0]
-            articles_count= self.db.collections_article_count(collection_id=collection_id)
-            fundings      = self.db.fundings(item_id=collection_id, item_type="collection")
-            categories    = self.db.categories(item_id=collection_id, item_type="collection")
-            references    = self.db.references(item_id=collection_id, item_type="collection")
-            custom_fields = self.db.custom_fields(item_id=collection_id, item_type="collection")
-            tags          = self.db.tags(item_id=collection_id, item_type="collection")
-            authors       = self.db.authors(item_id=collection_id, item_type="collection")
+            collection_version_id = collection["collection_version_id"]
+
+            articles_count= self.db.collections_article_count(collection_version_id=collection_version_id)
+            fundings      = self.db.fundings(item_id=collection_version_id, item_type="collection")
+            categories    = self.db.categories(item_id=collection_version_id, item_type="collection")
+            references    = self.db.references(item_id=collection_version_id, item_type="collection")
+            custom_fields = self.db.custom_fields(item_id=collection_version_id, item_type="collection")
+            tags          = self.db.tags(item_id=collection_version_id, item_type="collection")
+            authors       = self.db.authors(item_id=collection_version_id, item_type="collection")
             total         = formatter.format_collection_details_record (collection,
                                                                         fundings,
                                                                         categories,
@@ -1987,13 +2165,15 @@ class ApiServer:
 
         try:
             collection    = self.db.collections(collection_id=collection_id, limit=1, version=version)[0]
-            articles_count= self.db.collections_article_count(collection_id=collection_id)
-            fundings      = self.db.fundings(item_id=collection_id, item_type="collection")
-            categories    = self.db.categories(item_id=collection_id, item_type="collection")
-            references    = self.db.references(item_id=collection_id, item_type="collection")
-            custom_fields = self.db.custom_fields(item_id=collection_id, item_type="collection")
-            tags          = self.db.tags(item_id=collection_id, item_type="collection")
-            authors       = self.db.authors(item_id=collection_id, item_type="collection")
+            collection_version_id = collection["collection_version_id"]
+
+            articles_count= self.db.collections_article_count(collection_version_id=collection_version_id)
+            fundings      = self.db.fundings(item_id=collection_version_id, item_type="collection")
+            categories    = self.db.categories(item_id=collection_version_id, item_type="collection")
+            references    = self.db.references(item_id=collection_version_id, item_type="collection")
+            custom_fields = self.db.custom_fields(item_id=collection_version_id, item_type="collection")
+            tags          = self.db.tags(item_id=collection_version_id, item_type="collection")
+            authors       = self.db.authors(item_id=collection_version_id, item_type="collection")
             total         = formatter.format_collection_details_record (collection,
                                                                         fundings,
                                                                         categories,
@@ -2123,13 +2303,15 @@ class ApiServer:
                 collection    = self.db.collections(collection_id = collection_id,
                                                     account_id    = account_id,
                                                     limit         = 1)[0]
-                articles_count= self.db.collections_article_count(collection_id=collection_id)
-                fundings      = self.db.fundings(item_id=collection_id, item_type="collection")
-                categories    = self.db.categories(item_id=collection_id, item_type="collection")
-                references    = self.db.references(item_id=collection_id, item_type="collection")
-                custom_fields = self.db.custom_fields(item_id=collection_id, item_type="collection")
-                tags          = self.db.tags(item_id=collection_id, item_type="collection")
-                authors       = self.db.authors(item_id=collection_id, item_type="collection")
+                collection_version_id = collection["collection_version_id"]
+
+                articles_count= self.db.collections_article_count(collection_version_id=collection_version_id)
+                fundings      = self.db.fundings(item_id=collection_version_id, item_type="collection")
+                categories    = self.db.categories(item_id=collection_version_id, item_type="collection")
+                references    = self.db.references(item_id=collection_version_id, item_type="collection")
+                custom_fields = self.db.custom_fields(item_id=collection_version_id, item_type="collection")
+                tags          = self.db.tags(item_id=collection_version_id, item_type="collection")
+                authors       = self.db.authors(item_id=collection_version_id, item_type="collection")
                 total         = formatter.format_collection_details_record (collection,
                                                                             fundings,
                                                                             categories,
@@ -2150,7 +2332,12 @@ class ApiServer:
         if request.method == 'PUT':
             record = request.get_json()
             try:
-                result = self.db.update_collection (collection_id, account_id,
+                collection    = self.db.collections(collection_id = collection_id,
+                                                    account_id    = account_id,
+                                                    limit         = 1)[0]
+                collection_version_id = collection["collection_version_id"]
+
+                result = self.db.update_collection (collection_version_id, account_id,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
@@ -2171,14 +2358,28 @@ class ApiServer:
 
                 return self.respond_205()
 
+            except IndexError:
+                pass
+            except KeyError:
+                pass
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
 
             return self.error_500 ()
 
         if request.method == 'DELETE':
-            if self.db.delete_collection (collection_id, account_id):
-                return self.respond_204()
+            try:
+                collection    = self.db.collections(collection_id = collection_id,
+                                                    account_id    = account_id,
+                                                    limit         = 1)[0]
+                collection_version_id = collection["collection_version_id"]
+
+                if self.db.delete_collection (collection_version_id, account_id):
+                    return self.respond_204()
+            except IndexError:
+                pass
+            except KeyError:
+                pass
 
         return self.error_500 ()
 
@@ -2230,11 +2431,23 @@ class ApiServer:
         collection_id = int(collection_id)
 
         if request.method == 'GET':
-            authors    = self.db.authors(item_id    = collection_id,
-                                         account_id = account_id,
-                                         item_type  = "collection")
+            try:
+                collection = self.db.collections(collection_id = collection_id,
+                                                 account_id    = account_id,
+                                                 limit         = 1)[0]
+                collection_version_id = collection["collection_version_id"]
+                authors    = self.db.authors(item_id    = collection_version_id,
+                                             account_id = account_id,
+                                             item_type  = "collection")
 
-            return self.default_list_response (authors, formatter.format_author_record)
+                return self.default_list_response (authors, formatter.format_author_record)
+
+            except IndexError:
+                pass
+            except KeyError:
+                pass
+
+            return self.error_500 ()
 
         if request.method == 'PUT':
             parameters = request.get_json()
@@ -2258,12 +2471,17 @@ class ApiServer:
 
                     author_ids.append(author_id)
 
-                self.db.delete_authors_for_collection (collection_id, account_id)
+                collection = self.db.collections (collection_id=collection_id, account_id=account_id)[0]
+                collection_version_id = collection["collection_version_id"]
+
+                self.db.delete_authors_for_collection (collection_version_id, account_id)
                 for author_id in author_ids:
-                    if self.db.insert_collection_author (collection_id, author_id) is None:
+                    if self.db.insert_collection_author (collection_version_id, author_id) is None:
                         logging.error("Adding a single author failed.")
                         return self.error_500()
 
+            except IndexError:
+                return self.error_500 ()
             except KeyError:
                 return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
             except validator.ValidationException as error:
@@ -2302,12 +2520,17 @@ class ApiServer:
                             logging.error("Adding a single author failed.")
                             return self.error_500()
 
-                    if self.db.insert_collection_author (collection_id, author_id) is None:
+                    collection = self.db.collections (collection_id=collection_id, account_id=account_id)[0]
+                    collection_version_id = collection["collection_version_id"]
+
+                    if self.db.insert_collection_author (collection_version_id, author_id) is None:
                         logging.error("Adding a single author failed.")
                         return self.error_500()
 
                 return self.respond_205()
 
+            except IndexError:
+                return self.error_500 ()
             except KeyError:
                 return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
             except validator.ValidationException as error:
@@ -2331,11 +2554,22 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        categories    = self.db.categories(item_id    = collection_id,
-                                           account_id = account_id,
-                                           item_type  = "collection")
+        try:
+            collection = self.db.collections (collection_id = collection_id, account_id = account_id)[0]
+            collection_version_id = collection["collection_version_id"]
 
-        return self.default_list_response (categories, formatter.format_category_record)
+            categories    = self.db.categories(item_id    = collection_id,
+                                               account_id = account_id,
+                                               item_type  = "collection")
+
+            return self.default_list_response (categories, formatter.format_category_record)
+
+        except IndexError:
+            pass
+        except KeyError:
+            pass
+
+        return self.error_500 ()
 
     def api_private_collection_articles (self, request, collection_id):
         if not self.accepts_json(request):
@@ -2346,15 +2580,28 @@ class ApiServer:
             return self.error_authorization_failed()
 
         if request.method == 'GET':
-            articles   = self.db.articles (collection_id = collection_id,
-                                           account_id    = account_id)
+            try:
+                collection = self.db.collections (collection_id = collection_id, account_id = account_id)[0]
+                collection_version_id = collection["collection_version_id"]
 
-            return self.default_list_response (articles, formatter.format_article_record)
+                articles   = self.db.articles (collection_version_id = collection_version_id,
+                                               account_id            = account_id)
+
+                return self.default_list_response (articles, formatter.format_article_record)
+            except IndexError:
+                pass
+            except KeyError:
+                pass
+
+            return self.error_500 ()
 
         if request.method in ('PUT', 'POST'):
             try:
                 parameters = request.get_json()
                 articles = parameters["articles"]
+
+                collection = self.db.collections (collection_id = collection_id, account_id = account_id)[0]
+                collection_version_id = collection["collection_version_id"]
 
                 # First, validate all values passed by the user.
                 # This way, we can be as certain as we can be that performing
@@ -2366,14 +2613,18 @@ class ApiServer:
                 # When we are dealing with a PUT request, we must clear the previous
                 # values first.
                 if request.method == 'PUT':
-                    self.db.delete_collection_articles (collection_id, account_id)
+                    self.db.delete_collection_articles (collection_version_id, account_id)
 
                 # Lastly, insert the validated values.
                 for article_id in articles:
-                    self.db.insert_collection_article (int(collection_id), int(article_id))
+                    article = self.db.articles (article_id = article_id, account_id = account_id)[0]
+                    article_version_id = article["article_version_id"]
+                    self.db.insert_collection_article (int(collection_version_id), int(article_version_id))
 
                 return self.respond_205()
 
+            except IndexError:
+                return self.error_500 ()
             except KeyError:
                 return self.error_400 ("Expected an array for 'articles'.", "NoArticlesField")
             except validator.ValidationException as error:
@@ -2389,8 +2640,18 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        articles   = self.db.articles (collection_id = collection_id)
-        return self.default_list_response (articles, formatter.format_article_record)
+        try:
+            collection = self.db.collections (collection_id = collection_id)[0]
+            collection_version_id = collection["collection_version_id"]
+
+            articles   = self.db.articles (collection_version_id = collection_version_id)
+            return self.default_list_response (articles, formatter.format_article_record)
+        except IndexError:
+            pass
+        except KeyError:
+            pass
+
+        return self.error_500 ()
 
     ## ------------------------------------------------------------------------
     ## AUTHORS
@@ -2494,7 +2755,7 @@ class ApiServer:
 
     def __api_v3_articles_parameters (self, request, item_type):
         record = {}
-        record["article_id"]      = self.get_parameter (request, "article_id")
+        record["article_id"]      = self.get_parameter (request, "id")
         record["limit"]           = self.get_parameter (request, "limit")
         record["offset"]          = self.get_parameter (request, "offset")
         record["order"]           = self.get_parameter (request, "order")
@@ -2503,7 +2764,7 @@ class ApiServer:
         record["categories"]      = self.get_parameter (request, "categories")
         record["item_type"]       = item_type
 
-        validator.integer_value (record, "article_id")
+        validator.integer_value (record, "id")
         validator.integer_value (record, "limit")
         validator.integer_value (record, "offset")
         validator.string_value  (record, "order", maximum_length=32)
@@ -2585,40 +2846,49 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        file_data = request.files['file']
-        file_id = self.db.insert_file (
-            name          = file_data.filename,
-            size          = file_data.content_length,
-            is_link_only  = 0,
-            upload_url    = f"/article/{article_id}/upload",
-            upload_token  = self.token_from_request (request),
-            article_id    = article_id,
-            account_id    = account_id)
-
-        output_filename = f"{self.db.storage}/{article_id}_{file_id}"
-
-        file_data.save(output_filename)
-        file_data.close()
-
-        file_size = 0
         try:
+            article   = self.db.articles (article_id=article_id, account_id=account_id)[0]
+            article_version_id = article["article_version_id"]
+            file_data = request.files['file']
+            file_id   = self.db.insert_file (
+                name          = file_data.filename,
+                size          = file_data.content_length,
+                is_link_only  = 0,
+                upload_url    = f"/article/{article_version_id}/upload",
+                upload_token  = self.token_from_request (request),
+                article_version_id = article_version_id,
+                account_id    = account_id)
+
+            output_filename = f"{self.db.storage}/{article_version_id}_{file_id}"
+
+            file_data.save (output_filename)
+            file_data.close()
+
+            file_size = 0
             file_size = os.path.getsize (output_filename)
+
+            computed_md5 = None
+            md5 = hashlib.md5()
+            with open(output_filename, "rb") as stream:
+                for chunk in iter(lambda: stream.read(4096), b""):
+                    md5.update(chunk)
+                    computed_md5 = md5.hexdigest()
+
+            self.db.update_file (account_id, file_id,
+                                 computed_md5 = computed_md5,
+                                 file_size    = file_size)
+
+            return self.response (json.dumps({ "location": f"{self.base_url}/v3/file/{file_id}" }))
+
         except OSError:
             logging.error ("Writing %s to disk failed.", output_filename)
             return self.error_500 ()
+        except IndexError:
+            pass
+        except KeyError:
+            pass
 
-        computed_md5 = None
-        md5 = hashlib.md5()
-        with open(output_filename, "rb") as stream:
-            for chunk in iter(lambda: stream.read(4096), b""):
-                md5.update(chunk)
-            computed_md5 = md5.hexdigest()
-
-        self.db.update_file (account_id, file_id,
-                             computed_md5 = computed_md5,
-                             file_size    = file_size)
-
-        return self.response (json.dumps({ "location": f"{self.base_url}/v3/file/{file_id}" }))
+        return self.error_500 ()
 
     def api_v3_file (self, request, file_id):
         handler = self.default_error_handling (request, "GET")
@@ -2695,9 +2965,16 @@ class ApiServer:
                 url_encoded = validator.string_value (request.args, "url", 0, 1024, True)
                 url         = requests.utils.unquote(url_encoded)
 
-                if self.db.delete_article_reference (article_id, account_id, url) is not None:
+                article   = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article_version_id = article["article_version_id"]
+
+                if self.db.delete_article_reference (article_version_id, account_id, url) is not None:
                     return self.respond_204()
 
+            except IndexError:
+                return self.error_500 ()
+            except KeyError:
+                return self.error_500 ()
             except validator.ValidationException as error:
                 return self.error_400 (error.message, error.code)
 

@@ -20,7 +20,7 @@ jQuery(document).ready(function (){
         }
     });
 {%- endfor %}
-    activate ({{article["id"]}});
+    activate ({{article["article_id"]}});
 });
 </script>
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
@@ -322,14 +322,14 @@ jQuery(document).ready(function (){
   <label for="external_link">External URL</label>
   <input type="text" name="external_url" id="external_url" value="{{article["url"]}}" />
   <div class="a-button">
-    <a href="#" onclick="javascript:submit_external_link({{article["id"]}}); return false;">Save URL</a>
+    <a href="#" onclick="javascript:submit_external_link({{article["article_id"]}}); return false;">Save URL</a>
   </div>
 </div>
 <div id="software_upload_field" class="record-type-field">
   <h4>Publish source code through Git</h4>
   <p>To publish from a Git repository, push a branch to the <code>4tu</code> remote.</p>
   <p>First, add the <code>4tu</code> remote:</p>
-  <pre>git remote add 4tu {{base_url}}/v3/articles/{{article["id"]}}.git</pre>
+  <pre>git remote add 4tu {{base_url}}/v3/articles/{{article["article_id"]}}.git</pre>
   <p>Then, push the the repository to it:</p>
   <pre>
 git push 4tu --all

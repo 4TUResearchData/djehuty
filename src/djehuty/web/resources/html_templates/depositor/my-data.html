@@ -78,11 +78,11 @@ jQuery(document).ready(function () {
   </thead>
   <tbody>{% for article in unpublished_articles: %}
     <tr>
-      <td><a href="/my/datasets/{{article.id}}/edit">{{article.title}}</a></td>
+      <td><a href="/my/datasets/{{article.article_id}}/edit">{{article.title}}</a></td>
       <td>{{article.defined_type_name | default("undefined", False)}}</td>
       <td>{{article.storage_used}}</td>
       <td>{{article.created_date | truncate(10,False,'')}}</td>
-      <td><a href="/my/datasets/{{article.id}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+      <td><a href="/my/datasets/{{article.article_id}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
     </tr>
   {% endfor %}</tbody>
 </table>
@@ -99,7 +99,7 @@ jQuery(document).ready(function () {
   </thead>
   <tbody>{% for article in published_articles: %}
     <tr>
-      <td><a href="/my/datasets/{{article.id}}/edit">{{article.title}}</a></td>
+      <td><a href="/my/datasets/{{article.article_id}}/edit">{{article.title}}</a></td>
       <td>{{article.defined_type_name | default("undefined", False)}}</td>
       <td>{{article.storage_used}}</td>
       <td>{{article.created_date | truncate(10,False,'')}}</td>

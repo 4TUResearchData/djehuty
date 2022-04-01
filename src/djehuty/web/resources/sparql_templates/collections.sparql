@@ -6,12 +6,13 @@ SELECT DISTINCT ?account_id ?resource_id ?resource_doi ?resource_title
                 ?citation ?group_resource_id ?custom_fields_id ?modified_date
                 ?created_date ?timeline_posted ?timeline_publisher_acceptance
                 ?timeline_publisher_publication ?timeline_first_online
-                ?timeline_revision ?timeline_submission ?id ?title ?doi ?handle
-                ?url ?published_date
+                ?timeline_revision ?timeline_submission ?collection_id ?title
+                ?doi ?handle ?url ?published_date ?collection_version_id
 WHERE {
   GRAPH <{{state_graph}}> {
     ?collection            rdf:type                   sg:Collection .
-    ?collection            col:collection_id          ?id .
+    ?collection            col:collection_id          ?collection_id .
+    ?collection            col:collection_version_id  ?collection_version_id .
     ?collection            col:timeline_id            ?timeline_id .
 
     OPTIONAL {

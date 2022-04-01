@@ -13,7 +13,7 @@ INSERT {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article rdf:type       sg:Article .
-    ?article col:article_id ?article_id .
+    ?article col:article_version_id ?article_version_id .
     ?article col:account_id {{account_id}} .
     ?article col:version    {{version}}.
     OPTIONAL { ?article col:thumb      ?thumb . }
@@ -22,7 +22,7 @@ WHERE {
     ?file    col:id         ?file_id .
 
     ?link    rdf:type       sg:ArticleFile .
-    ?link    col:article_id ?article_id .
+    ?link    col:article_version_id ?article_version_id .
     ?link    col:file_id    ?file_id .
   }
 {%- if filters is not none %}{{ filters }}{% endif %}

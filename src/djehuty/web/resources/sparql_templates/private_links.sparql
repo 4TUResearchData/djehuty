@@ -4,13 +4,13 @@ SELECT DISTINCT ?id_string ?is_active ?expires_date
 WHERE {
   GRAPH <{{state_graph}}> {
     ?link              rdf:type                 sg:{{prefix}}PrivateLink .
-    ?link              col:{{item_type}}_id     {{item_id}} .
+    ?link              col:{{item_type}}_version_id {{item_id}} .
     ?link              col:id_string            ?id_string .
     OPTIONAL { ?link   col:is_active            ?is_active . }
     OPTIONAL { ?link   col:expires_date         ?expires_date . }
     {%- if account_id is not none %}
     ?item              rdf:type                 sg:{{prefix}} .
-    ?item              col:{{item_type}}_id     {{item_id}} .
+    ?item              col:{{item_type}}_version_id {{item_id}} .
     ?item              col:account_id           {{account_id}} .
     {%- endif %}
   }

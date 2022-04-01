@@ -1,10 +1,10 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?id ?version ?url ?url_public_api
+SELECT DISTINCT ?article_id ?version ?url ?url_public_api
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article rdf:type           sg:Article .
-    ?article col:article_id     ?id .
+    ?article col:article_id     ?article_id .
     ?article col:version        ?version .
     ?article col:url            ?url .
     ?article col:url_public_api ?url_public_api .

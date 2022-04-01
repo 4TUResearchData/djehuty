@@ -162,22 +162,22 @@ class SparqlInterface:
     ## GET METHODS
     ## ------------------------------------------------------------------------
 
-    def article_storage_used (self, article_id):
+    def article_storage_used (self, article_version_id):
         """Returns the number of bytes used by an article."""
 
         query = self.__query_from_template ("article_storage_used", {
             "state_graph": self.state_graph,
-            "article_id":  article_id
+            "article_version_id":  article_version_id
         })
 
-        results = self.__run_query (query, query, f"{article_id}_article")
+        results = self.__run_query (query, query, f"{article_version_id}_article")
         try:
             return results[0]["bytes"]
         except IndexError:
-            logging.error ("Article %s looks to be empty.", article_id)
+            logging.error ("Article %s looks to be empty.", article_version_id)
             return 0
         except KeyError:
-            logging.error ("Failed to retrieve used storage for article %s", article_id)
+            logging.error ("Failed to retrieve used storage for article %s", article_version_id)
 
         return None
 
@@ -186,7 +186,7 @@ class SparqlInterface:
         """Procedure to retrieve the versions of an article."""
         filters = ""
         if article_id is not None:
-            filters += rdf.sparql_filter ("id", article_id)
+            filters += rdf.sparql_filter ("article_id", article_id)
 
         query = self.__query_from_template ("article_versions", {
             "state_graph": self.state_graph,
@@ -202,14 +202,15 @@ class SparqlInterface:
                   group=None, group_ids=None, resource_doi=None, item_type=None,
                   doi=None, handle=None, account_id=None,
                   search_for=None, article_id=None, exclude_ids=None,
-                  collection_id=None, version=None, category_ids=None,
-                  return_count=False, is_public=None):
+                  collection_version_id=None, version=None, category_ids=None,
+                  return_count=False, is_public=None, article_version_id=None):
         """Procedure to retrieve articles."""
 
         filters  = rdf.sparql_filter ("institution_id", institution)
         filters += rdf.sparql_filter ("group_id",       group)
         filters += rdf.sparql_filter ("defined_type",   item_type)
-        filters += rdf.sparql_filter ("id",             article_id)
+        filters += rdf.sparql_filter ("article_id",     article_id)
+        filters += rdf.sparql_filter ("article_version_id", article_version_id)
         filters += rdf.sparql_filter ("version",        version)
         filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
         filters += rdf.sparql_filter ("doi",            doi,          escape=True)
@@ -248,7 +249,7 @@ class SparqlInterface:
 
         query = self.__query_from_template ("articles", {
             "state_graph":   self.state_graph,
-            "collection_id": collection_id,
+            "collection_version_id": collection_version_id,
             "category_ids":  category_ids,
             "account_id":    account_id,
             "filters":       filters,
@@ -425,7 +426,7 @@ class SparqlInterface:
                        computed_md5=None, viewer_type=None, preview_state=None,
                        status=None, upload_url=None, upload_token=None,
                        order=None, order_direction=None, limit=10,
-                       article_id=None, account_id=None):
+                       article_version_id=None, account_id=None):
         """Procedure to retrieve files of an article."""
 
         filters  = rdf.sparql_filter ("size",          size)
@@ -442,10 +443,10 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("upload_token",  upload_token,  escape=True)
 
         query = self.__query_from_template ("article_files", {
-            "state_graph": self.state_graph,
-            "article_id":  article_id,
-            "account_id":  account_id,
-            "filters":     filters
+            "state_graph":         self.state_graph,
+            "article_version_id":  article_version_id,
+            "account_id":          account_id,
+            "filters":             filters
         })
 
         query += rdf.sparql_suffix (order, order_direction, limit, None)
@@ -454,7 +455,7 @@ class SparqlInterface:
 
     def article_references (self, reference_id=None, url=None, order=None,
                             order_direction=None, limit=10,
-                            article_id=None, account_id=None):
+                            article_version_id=None, account_id=None):
         """Procedure to retrieve article references."""
 
         filters  = rdf.sparql_filter ("id",            reference_id)
@@ -462,7 +463,7 @@ class SparqlInterface:
 
         query = self.__query_from_template ("article_references", {
             "state_graph": self.state_graph,
-            "article_id":  article_id,
+            "article_version_id":  article_version_id,
             "account_id":  account_id,
             "filters":     filters
         })
@@ -471,13 +472,13 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def delete_article_reference (self, article_id, account_id, url=None):
+    def delete_article_reference (self, article_version_id, account_id, url=None):
         """Procedure to delete an article reference."""
 
         query = self.__query_from_template ("delete_article_reference", {
             "state_graph": self.state_graph,
             "account_id":  account_id,
-            "article_id":  article_id,
+            "article_version_id": article_version_id,
             "url":         url.replace('"', '\\"')
         })
 
@@ -515,10 +516,10 @@ class SparqlInterface:
 
     def article_embargo_options (self, ip_name=None, embargo_type=None,
                                  order=None, order_direction=None,
-                                 limit=10, article_id=None):
+                                 limit=10, article_version_id=None):
         """Procedure to retrieve embargo options of an article."""
 
-        filters  = rdf.sparql_filter ("article_id",   article_id)
+        filters  = rdf.sparql_filter ("article_version_id", article_version_id)
         filters += rdf.sparql_filter ("ip_name",      ip_name,      escape=True)
         filters += rdf.sparql_filter ("embargo_type", embargo_type, escape=True)
 
@@ -533,7 +534,7 @@ class SparqlInterface:
     def tags (self, order=None, order_direction=None, limit=10, item_id=None, item_type="article"):
 
         prefix  = item_type.capitalize()
-        filters = rdf.sparql_filter (f"{item_type}_id", item_id)
+        filters = rdf.sparql_filter (f"{item_type}_version_id", item_id)
         query   = self.__query_from_template ("tags", {
             "state_graph": self.state_graph,
             "prefix":      prefix,
@@ -592,10 +593,10 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def collections_from_article (self, article_id):
+    def collections_from_article (self, article_version_id):
         query = self.__query_from_template ("collections_from_article", {
             "state_graph": self.state_graph,
-            "article_id":  article_id
+            "article_version_id":  article_version_id
         })
 
         return self.__run_query(query)
@@ -609,7 +610,7 @@ class SparqlInterface:
         """Procedure to retrieve the versions of an collection."""
         filters = ""
         if collection_id is not None:
-            filters += rdf.sparql_filter ("id", collection_id)
+            filters += rdf.sparql_filter ("collection_id", collection_id)
 
         query = self.__query_from_template ("collection_versions", {
             "state_graph": self.state_graph,
@@ -623,15 +624,15 @@ class SparqlInterface:
     ## same account_id as the collection.
     ##
     ## So to get the actual count, this separate procedure exists.
-    def collections_article_count (self, collection_id):
+    def collections_article_count (self, collection_version_id):
         """Procedure to count the articles in a collection."""
 
-        if collection_id is None:
+        if collection_version_id is None:
             return 0
 
         query = self.__query_from_template ("collection_articles_count", {
             "state_graph":    self.state_graph,
-            "collection_id":  collection_id
+            "collection_version_id":  collection_version_id
         })
         results = self.__run_query (query)
 
@@ -645,12 +646,13 @@ class SparqlInterface:
                      published_since=None, modified_since=None, group=None,
                      resource_doi=None, resource_id=None, doi=None, handle=None,
                      account_id=None, search_for=None, collection_id=None,
-                     version=None):
+                     collection_version_id=None, version=None):
         """Procedure to retrieve collections."""
 
         filters  = rdf.sparql_filter ("institution_id", institution)
         filters += rdf.sparql_filter ("group_id",       group)
-        filters += rdf.sparql_filter ("id",             collection_id)
+        filters += rdf.sparql_filter ("collection_id",  collection_id)
+        filters += rdf.sparql_filter ("collection_version_id",  collection_version_id)
         filters += rdf.sparql_filter ("version",        version)
         filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
         filters += rdf.sparql_filter ("resource_id",    resource_id,  escape=True)
@@ -725,6 +727,7 @@ class SparqlInterface:
     def insert_article (self, title,
                         account_id,
                         article_id=None,
+                        article_version_id=None,
                         description=None,
                         keywords=None,
                         defined_type=None,
@@ -764,10 +767,13 @@ class SparqlInterface:
 
         graph = Graph()
 
-        if article_id is None:
-            article_id = self.ids.next_id("article")
+        if article_version_id is None:
+            article_version_id = self.ids.next_id("article")
 
-        article_uri = rdf.ROW[f"article_{article_id}"]
+        if article_id is None:
+            article_id = article_version_id
+
+        article_uri = rdf.ROW[f"article_{article_version_id}"]
 
         ## TIMELINE
         ## --------------------------------------------------------------------
@@ -785,12 +791,12 @@ class SparqlInterface:
         ## REFERENCES
         ## --------------------------------------------------------------------
         for url in references:
-            self.insert_reference (url, item_id=article_id, item_type="article")
+            self.insert_reference (url, item_id=article_version_id, item_type="article")
 
         ## TAGS
         ## --------------------------------------------------------------------
         for tag in tags:
-            self.insert_tag (tag, item_id=article_id, item_type="article")
+            self.insert_tag (tag, item_id=article_version_id, item_type="article")
 
         ## FUNDING
         ## --------------------------------------------------------------------
@@ -801,22 +807,22 @@ class SparqlInterface:
                 funder_name     = conv.value_or_none (fund, "funder_name"),
                 is_user_defined = conv.value_or_none (fund, "is_user_defined"),
                 url             = conv.value_or_none (fund, "url"),
-                item_id         = article_id,
+                item_id         = article_version_id,
                 item_type       = "article")
 
         ## CATEGORIES
         ## --------------------------------------------------------------------
         for category_id in categories:
-            self.insert_article_category (article_id, category_id)
+            self.insert_article_category (article_version_id, category_id)
 
         ## EMBARGOS
         ## --------------------------------------------------------------------
         for embargo in embargo_options:
             self.insert_embargo (
-                embargo_id   = conv.value_or_none (embargo, "id"),
-                article_id   = article_id,
-                embargo_type = conv.value_or_none (embargo, "type"),
-                ip_name      = conv.value_or_none (embargo, "ip_name"))
+                embargo_id         = conv.value_or_none (embargo, "id"),
+                article_version_id = article_version_id,
+                embargo_type       = conv.value_or_none (embargo, "type"),
+                ip_name            = conv.value_or_none (embargo, "ip_name"))
 
         ## AUTHORS
         ## --------------------------------------------------------------------
@@ -832,7 +838,7 @@ class SparqlInterface:
                 is_public      = conv.value_or_none (author, "is_public"),
                 url_name       = conv.value_or_none (author, "url_name"),
                 orcid_id       = conv.value_or_none (author, "orcid_id"))
-            self.insert_article_author (article_id, author_id)
+            self.insert_article_author (article_version_id, author_id)
 
         ## FILES
         ## --------------------------------------------------------------------
@@ -850,7 +856,7 @@ class SparqlInterface:
                 status        = conv.value_or_none (file_data, "status"),
                 upload_url    = conv.value_or_none (file_data, "upload_url"),
                 upload_token  = conv.value_or_none (file_data, "upload_token"),
-                article_id    = article_id,
+                article_version_id = article_version_id,
                 account_id    = account_id)
 
         ## CUSTOM FIELDS
@@ -873,7 +879,7 @@ class SparqlInterface:
         ## --------------------------------------------------------------------
         for link in private_links:
             self.insert_private_link (
-                item_id          = article_id,
+                item_id          = article_version_id,
                 item_type        = "article",
                 private_link_id  = conv.value_or_none (link, "id"),
                 is_active        = conv.value_or_none (link, "is_active"),
@@ -883,7 +889,7 @@ class SparqlInterface:
         ## --------------------------------------------------------------------
 
         graph.add ((article_uri, RDF.type,         rdf.SG["Article"]))
-        graph.add ((article_uri, rdf.COL["id"],    Literal(article_id)))
+        graph.add ((article_uri, rdf.COL["article_version_id"], Literal(article_version_id)))
         graph.add ((article_uri, rdf.COL["article_id"], Literal(article_id)))
         graph.add ((article_uri, rdf.COL["title"], Literal(title, datatype=XSD.string)))
 
@@ -1020,26 +1026,26 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def delete_authors_for_article (self, article_id, account_id, author_id=None):
+    def delete_authors_for_article (self, article_version_id, account_id, author_id=None):
         """Procedure to delete all authors related to an article."""
-        return self.delete_authors_for_item (article_id, account_id, author_id, "article")
+        return self.delete_authors_for_item (article_version_id, account_id, author_id, "article")
 
-    def delete_authors_for_collection (self, collection_id, account_id, author_id=None):
+    def delete_authors_for_collection (self, collection_version_id, account_id, author_id=None):
         """Procedure to delete all authors related to a collection."""
-        return self.delete_authors_for_item (collection_id, account_id, author_id, "collection")
+        return self.delete_authors_for_item (collection_version_id, account_id, author_id, "collection")
 
-    def delete_article_for_collection (self, collection_id, account_id, article_id=None):
+    def delete_article_for_collection (self, collection_version_id, account_id, article_version_id=None):
         """Procedure to delete articles associated with a collection."""
 
         query = self.__query_from_template ("delete_article_for_collection", {
             "state_graph":   self.state_graph,
-            "collection_id": collection_id,
+            "collection_version_id": collection_version_id,
             "account_id":    account_id,
-            "article_id":    article_id
+            "article_version_id": article_version_id
         })
 
         self.cache.invalidate_by_prefix ("article")
-        self.cache.invalidate_by_prefix (f"{collection_id}")
+        self.cache.invalidate_by_prefix (f"{collection_version_id}")
 
         return self.__run_query(query)
 
@@ -1104,7 +1110,7 @@ class SparqlInterface:
         graph.add ((link_uri, RDF.type,                   rdf.SG[f"{prefix}Category"]))
         graph.add ((link_uri, rdf.COL["id"],              Literal(link_id, datatype=XSD.integer)))
         graph.add ((link_uri, rdf.COL["category_id"],     Literal(category_id, datatype=XSD.integer)))
-        graph.add ((link_uri, rdf.COL[f"{item_type}_id"], Literal(item_id, datatype=XSD.integer)))
+        graph.add ((link_uri, rdf.COL[f"{item_type}_version_id"], Literal(item_id, datatype=XSD.integer)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1116,9 +1122,9 @@ class SparqlInterface:
         """Procedure to add a link between an article and a category."""
         return self.insert_item_category (article_id, category_id, "article")
 
-    def insert_collection_category (self, collection_id, category_id):
+    def insert_collection_category (self, collection_version_id, category_id):
         """Procedure to add a link between a collection and a category."""
-        return self.insert_item_category (collection_id, category_id, "collection")
+        return self.insert_item_category (collection_version_id, category_id, "collection")
 
     def insert_author_link (self, author_id, item_id, item_type="article"):
         """Procedure to add a link to an author."""
@@ -1132,7 +1138,7 @@ class SparqlInterface:
         graph.add ((link_uri, RDF.type,                   rdf.SG[f"{prefix}Author"]))
         graph.add ((link_uri, rdf.COL["id"],              Literal(link_id)))
         graph.add ((link_uri, rdf.COL["author_id"],       Literal(author_id)))
-        graph.add ((link_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
+        graph.add ((link_uri, rdf.COL[f"{item_type}_version_id"], Literal(item_id)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1144,11 +1150,11 @@ class SparqlInterface:
         """Procedure to add a link between an article and an author."""
         return self.insert_author_link (author_id, article_id, item_type="article")
 
-    def insert_collection_author (self, collection_id, author_id):
+    def insert_collection_author (self, collection_version_id, author_id):
         """Procedure to add a link between a collection and a author."""
-        return self.insert_author_link (author_id, collection_id, item_type="collection")
+        return self.insert_author_link (author_id, collection_version_id, item_type="collection")
 
-    def insert_article_file (self, article_id, file_id):
+    def insert_article_file (self, article_version_id, file_id):
         """Procedure to add a link between an article and a file."""
 
         graph = Graph()
@@ -1159,7 +1165,7 @@ class SparqlInterface:
         graph.add ((link_uri, RDF.type,              rdf.SG["ArticleFile"]))
         graph.add ((link_uri, rdf.COL["id"],         Literal(link_id)))
         graph.add ((link_uri, rdf.COL["file_id"],    Literal(file_id, datatype=XSD.integer)))
-        graph.add ((link_uri, rdf.COL["article_id"], Literal(article_id, datatype=XSD.integer)))
+        graph.add ((link_uri, rdf.COL["article_version_id"], Literal(article_version_id, datatype=XSD.integer)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1187,31 +1193,31 @@ class SparqlInterface:
         """Procedure to delete the categories related to an article."""
         return self.delete_item_categories (article_id, account_id, category_id, "article")
 
-    def delete_collection_categories (self, collection_id, account_id, category_id=None):
+    def delete_collection_categories (self, collection_version_id, account_id, category_id=None):
         """Procedure to delete the categories related to a collection."""
-        return self.delete_item_categories (collection_id, account_id, category_id, "collection")
+        return self.delete_item_categories (collection_version_id, account_id, category_id, "collection")
 
-    def delete_collection_articles (self, collection_id, account_id):
+    def delete_collection_articles (self, collection_version_id, account_id):
         """Procedure to disassociate articles with a collection."""
         query = self.__query_from_template ("delete_collection_articles", {
             "state_graph":   self.state_graph,
-            "collection_id": collection_id,
+            "collection_version_id": collection_version_id,
             "account_id":    account_id
         })
 
         return self.__run_query(query)
 
-    def delete_file_for_article (self, article_id, account_id, file_id=None):
+    def delete_file_for_article (self, article_version_id, account_id, file_id=None):
         """Procedure to delete a file related to an article."""
 
         query = self.__query_from_template ("delete_files_for_article", {
             "state_graph": self.state_graph,
-            "article_id":  article_id,
+            "article_version_id": article_version_id,
             "account_id":  account_id,
             "file_id":     file_id
         })
 
-        self.cache.invalidate_by_prefix (f"{article_id}_article")
+        self.cache.invalidate_by_prefix (f"{article_version_id}_article")
         return self.__run_query(query)
 
     def insert_tag (self, tag, item_id=None, item_type=None):
@@ -1224,7 +1230,7 @@ class SparqlInterface:
 
         graph.add ((tag_uri, RDF.type,                   rdf.SG[f"{prefix}Tag"]))
         graph.add ((tag_uri, rdf.COL["id"],              Literal(tag_id)))
-        graph.add ((tag_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
+        graph.add ((tag_uri, rdf.COL[f"{item_type}_version_id"], Literal(item_id)))
 
         rdf.add (graph, tag_uri, rdf.COL["tag"], tag, XSD.string)
 
@@ -1244,7 +1250,7 @@ class SparqlInterface:
 
         graph.add ((reference_uri, RDF.type,                   rdf.SG[f"{prefix}Reference"]))
         graph.add ((reference_uri, rdf.COL["id"],              Literal(reference_id)))
-        graph.add ((reference_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
+        graph.add ((reference_uri, rdf.COL[f"{item_type}_version_id"], Literal(item_id)))
         graph.add ((reference_uri, rdf.COL["url"],             Literal(url, datatype=XSD.string)))
 
         query = self.__insert_query_for_graph (graph)
@@ -1268,7 +1274,7 @@ class SparqlInterface:
 
         graph.add ((funding_uri, RDF.type,                   rdf.SG[f"{prefix}Funding"]))
         graph.add ((funding_uri, rdf.COL["id"],              Literal(funding_id)))
-        graph.add ((funding_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
+        graph.add ((funding_uri, rdf.COL[f"{item_type}_version_id"], Literal(item_id)))
 
         rdf.add (graph, funding_uri, rdf.COL["title"],           title,           XSD.string)
         rdf.add (graph, funding_uri, rdf.COL["grant_code"],      grant_code,      XSD.string)
@@ -1286,7 +1292,7 @@ class SparqlInterface:
                      is_link_only=None, download_url=None, supplied_md5=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
                      status=None, upload_url=None, upload_token=None,
-                     article_id=None, account_id=None):
+                     article_version_id=None, account_id=None):
         """Procedure to add an file to the state graph."""
 
         graph    = Graph()
@@ -1314,13 +1320,13 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix ("article")
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            if article_id is not None:
+            if article_version_id is not None:
                 if is_link_only:
-                    self.update_article (article_id = article_id,
+                    self.update_article (article_version_id = article_version_id,
                                          account_id = account_id,
                                          has_linked_file = True)
 
-                link_id = self.insert_article_file (article_id, file_id)
+                link_id = self.insert_article_file (article_version_id, file_id)
                 if link_id is not None:
                     return file_id
             else:
@@ -1386,7 +1392,7 @@ class SparqlInterface:
         rdf.add (graph, link_uri, rdf.COL["read_only"],       read_only)
         rdf.add (graph, link_uri, rdf.COL["is_active"],       is_active)
         rdf.add (graph, link_uri, rdf.COL["expires_date"],    expires_date, XSD.string)
-        rdf.add (graph, link_uri, rdf.COL[f"{item_type}_id"], item_id)
+        rdf.add (graph, link_uri, rdf.COL[f"{item_type}_version_id"], item_id)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1394,7 +1400,7 @@ class SparqlInterface:
 
         return None
 
-    def insert_embargo (self, embargo_id, article_id, embargo_type=None, ip_name=None):
+    def insert_embargo (self, embargo_id, article_version_id, embargo_type=None, ip_name=None):
         """Procedure to add an license to the state graph."""
 
         graph    = Graph()
@@ -1402,7 +1408,7 @@ class SparqlInterface:
 
         graph.add ((embargo_uri, RDF.type,               rdf.SG["ArticleEmbargoOption"]))
         graph.add ((embargo_uri, rdf.COL["id"],          Literal(embargo_id)))
-        graph.add ((embargo_uri, rdf.COL["article_id"],  Literal(article_id)))
+        graph.add ((embargo_uri, rdf.COL["article_version_id"], Literal(article_version_id)))
 
         rdf.add (graph, embargo_uri, rdf.COL["type"],    embargo_type, XSD.string)
         rdf.add (graph, embargo_uri, rdf.COL["ip_name"], ip_name,      XSD.string)
@@ -1427,7 +1433,7 @@ class SparqlInterface:
 
         graph.add ((custom_field_uri, RDF.type,                   rdf.SG[f"{prefix}CustomField"]))
         graph.add ((custom_field_uri, rdf.COL["id"],              Literal(custom_field_id)))
-        graph.add ((custom_field_uri, rdf.COL[f"{item_type}_id"], Literal(item_id)))
+        graph.add ((custom_field_uri, rdf.COL[f"{item_type}_version_id"], Literal(item_id)))
 
         rdf.add (graph, custom_field_uri, rdf.COL["name"],          name,          XSD.string)
         rdf.add (graph, custom_field_uri, rdf.COL["value"],         value)
@@ -1457,9 +1463,25 @@ class SparqlInterface:
         result = self.__run_query(query)
         self.cache.invalidate_by_prefix (f"{article_id}_article")
         self.cache.invalidate_by_prefix ("article")
+
         return result
 
-    def update_article (self, article_id, account_id, title=None,
+    def delete_article_version (self, article_version_id, account_id):
+        """Procedure to remove an article from the state graph."""
+
+        query   = self.__query_from_template ("delete_article_version", {
+            "state_graph":         self.state_graph,
+            "account_id":          account_id,
+            "article_version_id":  article_version_id
+        })
+
+        result = self.__run_query (query)
+        self.cache.invalidate_by_prefix (f"{article_version_id}_article")
+        self.cache.invalidate_by_prefix ("article")
+
+        return result
+
+    def update_article (self, article_version_id, account_id, title=None,
                         description=None, resource_doi=None,
                         resource_title=None, license_id=None, group_id=None,
                         time_coverage=None, publisher=None, language=None,
@@ -1470,7 +1492,7 @@ class SparqlInterface:
                         defined_type=None, defined_type_name=None):
         query   = self.__query_from_template ("update_article", {
             "account_id":      account_id,
-            "article_id":      article_id,
+            "article_version_id": article_version_id,
             "contributors":    contributors,
             "data_link":       data_link,
             "defined_type":    defined_type,
@@ -1498,22 +1520,22 @@ class SparqlInterface:
         })
 
         self.cache.invalidate_by_prefix ("article")
-        self.cache.invalidate_by_prefix (f"{article_id}_article")
-        results = self.__run_query (query, query, f"{article_id}_article")
+        self.cache.invalidate_by_prefix (f"{article_version_id}_article")
+        results = self.__run_query (query, query, f"{article_version_id}_article")
         if results and categories:
-            self.delete_article_categories (article_id, account_id)
+            self.delete_article_categories (article_version_id, account_id)
             for category in categories:
-                self.insert_article_category (article_id, category)
+                self.insert_article_category (article_version_id, category)
 
         return results
 
-    def delete_article_embargo (self, article_id, account_id):
+    def delete_article_embargo (self, article_version_id, account_id):
         """Procedure to lift the embargo on an article."""
 
         query   = self.__query_from_template ("delete_article_embargo", {
             "state_graph": self.state_graph,
             "account_id":  account_id,
-            "article_id":  article_id
+            "article_version_id":  article_version_id
         })
 
         return self.__run_query(query)
@@ -1567,10 +1589,10 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def insert_collection_article (self, collection_id, article_id):
+    def insert_collection_article (self, collection_version_id, article_version_id):
         """Procedure to add an article to a collection."""
 
-        if collection_id is None or article_id is None:
+        if collection_version_id is None or article_version_id is None:
             return False
 
         graph       = Graph()
@@ -1579,8 +1601,8 @@ class SparqlInterface:
 
         graph.add ((link_uri, RDF.type,                  rdf.SG["CollectionArticle"]))
         graph.add ((link_uri, rdf.COL["id"],             Literal(link_id)))
-        graph.add ((link_uri, rdf.COL["collection_id"],  Literal(collection_id)))
-        graph.add ((link_uri, rdf.COL["article_id"],     Literal(article_id)))
+        graph.add ((link_uri, rdf.COL["collection_version_id"],  Literal(collection_version_id)))
+        graph.add ((link_uri, rdf.COL["article_version_id"],     Literal(article_version_id)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1592,6 +1614,7 @@ class SparqlInterface:
     def insert_collection (self, title,
                            account_id,
                            collection_id=None,
+                           collection_version_id=None,
                            funding=None,
                            funding_list=None,
                            description=None,
@@ -1635,10 +1658,13 @@ class SparqlInterface:
 
         graph = Graph()
 
-        if collection_id is None:
-            collection_id = self.ids.next_id("collection")
+        if collection_version_id is None:
+            collection_version_id = self.ids.next_id("article")
 
-        collection_uri = rdf.ROW[f"collection_{collection_id}"]
+        if collection_id is None:
+            collection_id = collection_version_id
+
+        collection_uri = rdf.ROW[f"collection_{collection_version_id}"]
 
         ## TIMELINE
         ## --------------------------------------------------------------------
@@ -1656,12 +1682,12 @@ class SparqlInterface:
         ## REFERENCES
         ## --------------------------------------------------------------------
         for reference in references:
-            self.insert_reference (reference, item_id=collection_id, item_type="collection")
+            self.insert_reference (reference, item_id=collection_version_id, item_type="collection")
 
         ## TAGS
         ## --------------------------------------------------------------------
         for tag in tags:
-            self.insert_tag (tag, item_id=collection_id, item_type="collection")
+            self.insert_tag (tag, item_id=collection_version_id, item_type="collection")
 
         ## FUNDING
         ## --------------------------------------------------------------------
@@ -1673,7 +1699,7 @@ class SparqlInterface:
                 funder_name     = conv.value_or_none (fund, "funder_name"),
                 is_user_defined = conv.value_or_none (fund, "is_user_defined"),
                 url             = conv.value_or_none (fund, "url"),
-                item_id         = collection_id,
+                item_id         = collection_version_id,
                 item_type       = "collection")
 
         ## CATEGORIES
@@ -1685,12 +1711,12 @@ class SparqlInterface:
                 parent_id   = conv.value_or_none (category, "parent_id"),
                 source_id   = conv.value_or_none (category, "source_id"),
                 taxonomy    = conv.value_or_none (category, "taxonomy"))
-            self.insert_collection_category (collection_id, category_id)
+            self.insert_collection_category (collection_version_id, category_id)
 
         ## ARTICLES
         ## --------------------------------------------------------------------
         for article_id in articles:
-            self.insert_collection_article (collection_id, article_id)
+            self.insert_collection_article (collection_version_id, article_id)
 
         ## AUTHORS
         ## --------------------------------------------------------------------
@@ -1706,7 +1732,7 @@ class SparqlInterface:
                 is_public      = conv.value_or_none (author, "is_public"),
                 url_name       = conv.value_or_none (author, "url_name"),
                 orcid_id       = conv.value_or_none (author, "orcid_id"))
-            self.insert_collection_author (collection_id, author_id)
+            self.insert_collection_author (collection_version_id, author_id)
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
@@ -1721,14 +1747,14 @@ class SparqlInterface:
                 is_mandatory  = conv.value_or_none (field, "is_mandatory"),
                 placeholder   = conv.value_or_none (field, "placeholder"),
                 is_multiple   = conv.value_or_none (field, "is_multiple"),
-                item_id       = collection_id,
+                item_id       = collection_version_id,
                 item_type     = "collection")
 
         ## PRIVATE LINKS
         ## --------------------------------------------------------------------
         for link in private_links:
             self.insert_private_link (
-                item_id          = collection_id,
+                item_id          = collection_version_id,
                 item_type        = "collection",
                 private_link_id  = conv.value_or_none (link, "id"),
                 is_active        = conv.value_or_none (link, "is_active"),
@@ -1738,8 +1764,8 @@ class SparqlInterface:
         ## --------------------------------------------------------------------
 
         graph.add ((collection_uri, RDF.type,         rdf.SG["Collection"]))
-        graph.add ((collection_uri, rdf.COL["id"],    Literal(collection_id)))
-        graph.add ((collection_uri, rdf.COL["collection_id"], Literal(collection_id)))
+        graph.add ((collection_uri, rdf.COL["collection_id"],    Literal(collection_id)))
+        graph.add ((collection_uri, rdf.COL["collection_version_id"], Literal(collection_version_id)))
         graph.add ((collection_uri, rdf.COL["title"], Literal(title, datatype=XSD.string)))
 
         rdf.add (graph, collection_uri, rdf.COL["account_id"],     account_id)
@@ -1765,18 +1791,18 @@ class SparqlInterface:
 
         return None
 
-    def delete_collection (self, collection_id, account_id):
+    def delete_collection (self, collection_version_id, account_id):
         """Procedure to remove a collection from the state graph."""
 
         query   = self.__query_from_template ("delete_collection", {
             "state_graph":   self.state_graph,
             "account_id":    account_id,
-            "collection_id": collection_id
+            "collection_version_id": collection_version_id
         })
 
         return self.__run_query(query)
 
-    def update_collection (self, collection_id, account_id, title=None,
+    def update_collection (self, collection_version_id, account_id, title=None,
                            description=None, resource_doi=None,
                            resource_title=None, group_id=None, articles=None,
                            time_coverage=None, publisher=None, language=None,
@@ -1784,7 +1810,7 @@ class SparqlInterface:
                            latitude=None, organizations=None, categories=None):
         query   = self.__query_from_template ("update_collection", {
             "account_id":        account_id,
-            "collection_id":     collection_id,
+            "collection_version_id": collection_version_id,
             "contributors":      contributors,
             "description":       description,
             "geolocation":       geolocation,
@@ -1803,18 +1829,18 @@ class SparqlInterface:
         })
 
         self.cache.invalidate_by_prefix ("collection")
-        self.cache.invalidate_by_prefix (f"{collection_id}_collection")
+        self.cache.invalidate_by_prefix (f"{collection_version_id}_collection")
 
-        results = self.__run_query (query, query, f"{collection_id}_collection")
+        results = self.__run_query (query, query, f"{collection_version_id}_collection")
         if results and categories:
-            self.delete_collection_categories (collection_id, account_id)
+            self.delete_collection_categories (collection_version_id, account_id)
             for category in categories:
-                self.insert_collection_category (collection_id, category)
+                self.insert_collection_category (collection_version_id, category)
 
         if results and articles:
-            self.delete_collection_articles (collection_id, account_id)
+            self.delete_collection_articles (collection_version_id, account_id)
             for article_id in articles:
-                self.insert_collection_article (collection_id, article_id)
+                self.insert_collection_article (collection_version_id, article_id)
 
         return results
 

@@ -3,11 +3,11 @@
 {%- if return_count %}
 SELECT COUNT(DISTINCT ?article) AS ?articles
 {%- else %}
-SELECT DISTINCT ?account_id ?authors_id ?citation ?confidential_reason
+SELECT DISTINCT ?account_id ?citation ?confidential_reason
                 ?created_date ?custom_fields_id ?defined_type ?defined_type_name
                 ?description ?doi ?embargo_date ?embargo_options_id 
                 ?embargo_reason ?embargo_title ?embargo_type ?figshare_url
-                ?funding ?funding_id ?group_id ?has_linked_file ?id
+                ?funding ?funding_id ?group_id ?has_linked_file ?article_id
                 ?institution_id ?is_active ?is_confidential ?is_embargoed
                 ?is_metadata_record ?is_public ?license_id ?license_name
                 ?license_url ?metadata_reason ?modified_date ?published_date
@@ -19,12 +19,13 @@ SELECT DISTINCT ?account_id ?authors_id ?citation ?confidential_reason
                 ?url_public_html ?version ?publisher ?language ?time_coverage
                 ?geolocation ?longitude ?latitude ?format ?organizations
                 ?data_link ?derived_from ?same_as ?contributors
-                ?license_remarks
+                ?license_remarks ?article_version_id
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article            rdf:type                 sg:Article .
-    ?article            col:article_id           ?id .
+    ?article            col:article_id           ?article_id .
+    ?article            col:article_version_id   ?article_version_id .
     ?article            col:timeline_id          ?timeline_id .
     ?article            col:title                ?title .
 
@@ -32,15 +33,15 @@ WHERE {
     ?account            rdf:type                 sg:Account .
     ?account            col:id                   ?account_id .
 
-    {%- if collection_id is not none %}
+    {%- if collection_version_id is not none %}
     ?link               rdf:type                 sg:CollectionArticle .
-    ?link               col:article_id           ?id .
-    ?link               col:collection_id        {{collection_id}} .
+    ?link               col:article_version_id   ?article_version_id .
+    ?link               col:collection_version_id {{collection_version_id}} .
     {%- endif %}
     {%- if category_ids is not none: %}
     ?category_link      rdf:type                 sg:ArticleCategory .
     ?category_link      col:category_id          ?category_id .
-    ?category_link      col:article_id           ?id .
+    ?category_link      col:article_version_id   ?article_version_id .
 
     ?category           rdf:type                 sg:Category .
     ?category           col:id                   ?category_id .
@@ -66,7 +67,6 @@ WHERE {
         ?article            col:license_id            ?license_id .
     }
 
-    OPTIONAL { ?article col:authors_id            ?authors_id . }
     OPTIONAL { ?article col:citation              ?citation . }
     OPTIONAL { ?article col:confidential_reason   ?confidential_reason . }
     OPTIONAL { ?article col:created_date          ?created_date . }

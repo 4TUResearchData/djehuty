@@ -1,15 +1,15 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT ?collection_id ?title
+SELECT ?collection_version_id ?title
 WHERE {
   GRAPH <{{state_graph}}> {
     ?collection rdf:type          sg:Collection ;
-                col:collection_id ?collection_id ;
+                col:collection_version_id ?collection_version_id ;
                 col:title         ?title ; 
                 col:is_public     1 .
     ?link       rdf:type          sg:CollectionArticle ;
-                col:article_id    {{article_id}} ;
-                col:collection_id ?collection_id .
+                col:article_version_id    {{article_version_id}} ;
+                col:collection_version_id ?collection_version_id .
   }   
 }
 {% endblock %}

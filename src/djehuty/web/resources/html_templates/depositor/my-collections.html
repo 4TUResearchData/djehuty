@@ -75,7 +75,7 @@ jQuery(document).ready(function () {
   <tbody>{% for collection in collections: %}
     <tr>
       <td>
-        <a href="/my/collections/{{collection.id}}/edit">{{collection.title}}</a>
+        <a href="/my/collections/{{collection.collection_id}}/edit">{{collection.title}}</a>
         <span class="number-of-articles">({{collection.number_of_articles}})</span></td>
       <td class="center">
         <span class="fas {% if collection.is_public == 1: %}fa-users{% else: %}fa-lock{% endif %}">
@@ -83,7 +83,7 @@ jQuery(document).ready(function () {
         </span>
       </td>
       <td>{{collection.created_date | truncate(10,False,'')}}</td>
-      <td><a href="/my/collections/{{collection.id}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+      <td><a href="/my/collections/{{collection.collection_id}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
     </tr>
   {% endfor %}</tbody>
 </table>

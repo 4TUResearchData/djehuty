@@ -3,21 +3,21 @@
 DELETE {
   GRAPH <{{state_graph}}> {
     ?row         rdf:type             sg:CollectionArticle .
-    ?row         col:collection_id    ?collection_id .
-    ?row         col:article_id       ?article_id .
+    ?row         col:collection_version_id ?collection_version_id .
+    ?row         col:article_version_id ?article_version_id .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
     ?row         rdf:type             sg:CollectionArticle .
-    ?row         col:collection_id    ?collection_id .
-    ?row         col:article_id       ?article_id .
+    ?row         col:collection_version_id ?collection_version_id .
+    ?row         col:article_version_id ?article_version_id .
 
     ?collection  rdf:type             sg:Collection .
-    ?collection  col:collection_id    ?collection_id .
+    ?collection  col:collection_version_id ?collection_version_id .
     ?collection  col:account_id       ?account_id .
   }
-  FILTER (?collection_id = {{collection_id}})
+  FILTER (?collection_version_id = {{collection_version_id}})
   FILTER (?account_id = {{account_id}})
 }
 {% endblock %}

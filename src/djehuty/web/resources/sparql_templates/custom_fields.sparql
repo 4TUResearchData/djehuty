@@ -10,7 +10,7 @@ WHERE {
     ?field             col:id                   ?id .
 
     {%- if item_id is not none %}
-    ?field             col:{{item_type}}_id        {{item_id}} .
+    ?field             col:{{item_type}}_version_id {{item_id}} .
     {%- endif %}
     OPTIONAL { ?field  col:name                 ?name . }
     OPTIONAL { ?field  col:value                ?value . }

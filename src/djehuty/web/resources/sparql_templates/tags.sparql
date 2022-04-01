@@ -6,7 +6,7 @@ WHERE {
     ?row             rdf:type                 sg:{{prefix}}Tag .
     ?row             col:id                   ?id .
     ?row             col:tag                  ?tag .
-    ?row             col:{{item_type}}_id     ?{{item_type}}_id .
+    ?row             col:{{item_type}}_version_id ?{{item_type}}_version_id .
   }
 {%- if filters is not none %}{{ filters }}{% endif %}
 }

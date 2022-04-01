@@ -5,20 +5,18 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?row             rdf:type                 sg:{{prefix}}Funding .
     ?row             col:id                   ?id .
-    ?row             col:{{item_type}}_id     ?{{item_type}}_id .
+    ?row             col:{{item_type}}_version_id ?{{item_type}}_version_id .
     OPTIONAL { ?row  col:title                ?title . }
     OPTIONAL { ?row  col:grant_code           ?grant_code . }
     OPTIONAL { ?row  col:funder_name          ?funder_name . }
     OPTIONAL { ?row  col:url                  ?url . }
-    {%- if item_id is not none %}
-    ?item           rdf:type                 sg:{{prefix}}Funding .
-    ?item           col:{{item_type}}_id     ?{{item_type}}_id .
     {%- if account_id is not none %}
-    ?item           col:account_id           {{account_id}} .
-    {%- endif %}
+    ?row           col:account_id           {{account_id}} .
     {%- endif %}
   }
-  FILTER (?{{item_type}}_id = {{item_id}})
+  {%- if item_id is not none %}
+  FILTER (?{{item_type}}_version_id = {{item_id}})
+  {%- endif %}
 {%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

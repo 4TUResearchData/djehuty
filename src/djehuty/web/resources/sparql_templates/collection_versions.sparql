@@ -4,7 +4,7 @@ SELECT DISTINCT ?id ?version ?url
 WHERE {
   GRAPH <{{state_graph}}> {
     ?collection rdf:type           sg:Collection .
-    ?collection col:collection_id  ?id .
+    ?collection col:collection_id  ?collection_id .
     ?collection col:version        ?version .
     ?collection col:url            ?url .
   }

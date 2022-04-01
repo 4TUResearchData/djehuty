@@ -11,11 +11,11 @@ WHERE {
     OPTIONAL { ?row         col:taxonomy_id      ?taxonomy_id . }
     {%- if item_id is not none %}
     ?link            rdf:type                 sg:{{prefix}}Category .
-    ?link            col:{{item_type}}_id     ?item_id .
+    ?link            col:{{item_type}}_version_id ?item_id .
     ?link            col:category_id          ?id .
     {%- if account_id is not none %}
     ?item            rdf:type                 sg:{{prefix}} .
-    ?item            col:{{item_type}}_id     ?item_id .
+    ?item            col:{{item_type}}_version_id ?item_id .
     ?item            col:account_id           {{account_id}} .
     {%- endif %}{% endif %}
   }
