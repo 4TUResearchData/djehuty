@@ -28,6 +28,7 @@ WHERE {
     ?article            col:article_version_id   ?article_version_id .
     ?article            col:timeline_id          ?timeline_id .
     ?article            col:title                ?title .
+    ?article            col:is_latest            ?is_latest .
 
     ?article            col:account_id           ?account_id .
     ?account            rdf:type                 sg:Account .

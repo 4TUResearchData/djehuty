@@ -215,6 +215,13 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("doi",            doi,          escape=True)
         filters += rdf.sparql_filter ("handle",         handle,       escape=True)
 
+
+        ## Article identifiers aren't version-specific. For consistency, when
+        ## requesting a specific article without a version, make sure to return
+        ## the latest version of the article.
+        if article_id and not version:
+            filters += rdf.sparql_filter ("is_latest", 1)
+
         if search_for is not None:
             filters += (f"FILTER (CONTAINS(STR(?title),          \"{search_for}\") OR\n"
                         f"        CONTAINS(STR(?resource_title), \"{search_for}\") OR\n"
