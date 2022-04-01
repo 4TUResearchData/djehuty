@@ -2098,7 +2098,6 @@ class SparqlInterface:
             "session_id":  session_id
         })
 
-        self.__log_query (query)
         return self.__run_query (query)
 
     def is_depositor (self, session_token):
