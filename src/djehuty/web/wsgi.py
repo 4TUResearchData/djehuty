@@ -62,6 +62,9 @@ class ApiServer:
             Rule("/my/collections/<collection_id>/edit",      endpoint = "edit_collection"),
             Rule("/my/collections/<collection_id>/delete",    endpoint = "delete_collection"),
             Rule("/my/collections/new",                       endpoint = "new_collection"),
+            Rule("/my/sessions/<session_id>/edit",            endpoint = "edit_session"),
+            Rule("/my/sessions/<session_id>/delete",          endpoint = "delete_session"),
+            Rule("/my/sessions/new",                          endpoint = "new_session"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
@@ -480,9 +483,11 @@ class ApiServer:
             if self.db.is_depositor (token):
                 account_id   = self.account_id_from_request (request)
                 storage_used = self.db.account_storage_used (account_id)
+                sessions     = self.db.sessions (account_id)
                 return self.__render_template (
                     request, "depositor/dashboard.html",
-                    storage_used = pretty_print_size (storage_used))
+                    storage_used = pretty_print_size (storage_used),
+                    sessions     = sessions)
 
             return self.error_404 (request)
 
@@ -744,6 +749,70 @@ class ApiServer:
                 return self.error_500 ()
 
             return self.error_404 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_edit_session (self, request, session_id):
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        if request.method == 'GET':
+            if self.accepts_html (request):
+                session = self.db.sessions (account_id, session_id=session_id)[0]
+                return self.__render_template (
+                    request,
+                    "depositor/edit-session.html",
+                    session = session)
+
+            return self.response (json.dumps({
+                "message": "This page is meant for humans only."
+            }))
+
+        if request.method == 'PUT':
+            try:
+                parameters = request.get_json()
+                name = validator.string_value (parameters, "name", 0, 255)
+                if self.db.update_session (account_id, session_id, name):
+                    return redirect (f"/my/dashboard", code=302)
+
+                return self.error_500 ()
+
+            except validator.ValidationException as error:
+                return self.error_400 (error.message, error.code)
+
+        return self.error_405 (["GET", "PUT"])
+
+    def api_new_session (self, request):
+        if self.accepts_html (request):
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            _, session_id = self.db.insert_session (account_id,
+                                                    name     = "Untitled",
+                                                    editable = True)
+            if session_id is not None:
+                return redirect (f"/my/sessions/{session_id}/edit", code=302)
+
+            return self.error_500()
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_delete_session (self, request, session_id):
+        if self.accepts_html (request):
+            account_id = self.account_id_from_request (request)
+            if account_id is None:
+                return self.error_authorization_failed()
+
+            response   = redirect (request.referrer, code=302)
+            self.db.delete_session_by_id (account_id, session_id)
+            return response
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."

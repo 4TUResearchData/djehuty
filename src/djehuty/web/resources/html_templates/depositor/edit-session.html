@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script>
+function save_session (session_id) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    form_data  = { "name": jQuery("#name").val() }
+    var jqxhr  = jQuery.ajax({
+        url:         `/my/sessions/${session_id}/edit`,
+        type:        "PUT",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify(form_data)
+    }).done(function () {
+        window.location.href = "/my/dashboard";
+    }).fail(function () {
+        jQuery("#message")
+            .addClass("failure")
+            .append("<p>Please provide a token name</p>")
+            .fadeIn(250);
+    });
+}
+
+jQuery(document).ready(function (){
+    jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
+    jQuery("#save").on("click", function (event) { save_session ({{session.id}}); });
+});
+</script>
+<style>
+pre {
+    font-size: 1.25em;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+}
+#content-wrapper input[type="text"] {
+    display: block;
+    padding: .7em;
+    border: solid 1pt #aaa;
+    border-radius: 0em .5em .5em .5em;
+    width: 832pt;
+    margin-top: 0em;
+    margin-bottom: 1em;
+    font-size: 13pt;
+}
+#content-wrapper label {
+    display: inline-block;
+    background: #ffeecc;
+    color: #000;
+    padding: .5em .5em .25em .5em;
+    border-radius: .5em .5em 0em 0em;
+    font-weight: bold;
+}
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/my/dashboard">&#8592; Go back</a>
+  <li class="active">Create session
+  <li class="hide-for-javascript save-button"><a id="save" href="#">Save</a>
+
+</ul>
+{% endblock %}
+{% block body %}
+<noscript>
+  <p class="no-script">Sorry, this page requires JavaScript to work correctly.</p>
+</noscript>
+<h1>API token information</h1>
+<div class="hide-for-javascript">
+<h2>Important information</h2>
+<p>Please store the token below, because it isn't recoverable after closing this page.</p>
+<pre>{{session.token}}</pre>
+<label for="title">Name</label>
+<input type="text" id="name" name="name" value="" placeholder="Example: Token for my local scripts." />
+</div>
+</div>
+{% endblock %}

@@ -2053,6 +2053,28 @@ class SparqlInterface:
 
         return None, None
 
+    def update_session (self, account_id, session_id, name):
+        """Procedure to edit a session."""
+
+        query = self.__query_from_template ("update_session", {
+            "state_graph":   self.state_graph,
+            "account_id":    account_id,
+            "session_id":    session_id,
+            "name":          name
+        })
+
+        return self.__run_query (query)
+
+    def delete_session_by_id (self, account_id, session_id):
+        """Procedure to remove a session from the state graph."""
+
+        query   = self.__query_from_template ("delete_session_by_id", {
+            "state_graph": self.state_graph,
+            "session_id":  session_id,
+            "account_id":  account_id
+        })
+
+        return self.__run_query (query)
 
     def delete_session (self, token):
         """Procedure to remove a session from the state graph."""
@@ -2066,6 +2088,18 @@ class SparqlInterface:
         })
 
         return self.__run_query(query)
+
+    def sessions (self, account_id, session_id=None):
+        """Returns the sessions for an account."""
+
+        query = self.__query_from_template ("account_sessions", {
+            "state_graph": self.state_graph,
+            "account_id":  account_id,
+            "session_id":  session_id
+        })
+
+        self.__log_query (query)
+        return self.__run_query (query)
 
     def is_depositor (self, session_token):
         """Returns True when the account linked to the session is a depositor, False otherwise"""

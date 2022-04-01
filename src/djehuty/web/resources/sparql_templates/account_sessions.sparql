@@ -1,0 +1,19 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?account_id ?id ?token ?name ?created_date ?editable
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?session             rdf:type                  sg:Session .
+    ?session             col:account_id            ?account_id .
+    ?session             col:id                    ?id .
+    ?session             col:token                 ?token .
+    OPTIONAL { ?session  col:name                  ?name . }
+    OPTIONAL { ?session  col:created_date          ?created_date . }
+    OPTIONAL { ?session  col:editable              ?editable . }
+  }
+  FILTER (?account_id = {{account_id}})
+  {%- if session_id is not none: %}
+  FILTER (?id = {{session_id}})
+  {%- endif %}
+}
+{% endblock %}
