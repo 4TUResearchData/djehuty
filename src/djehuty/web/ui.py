@@ -49,6 +49,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
         port                    = int(config_value (xml_root, "port", port, 8080))
         server.base_url         = config_value (xml_root, "base-url", base_url,
                                                 f"http://{address}:{port}")
+        server.in_production    = bool(int(config_value (xml_root, "production", None, 0)))
         server.db.storage       = config_value (xml_root, "storage-root", storage)
         server.db.cache.storage = f"{server.db.storage}/cache"
         server.db.endpoint      = config_value (xml_root, "rdf-store/sparql-uri")
@@ -87,6 +88,11 @@ def main (address=None, port=None, state_graph=None, storage=None,
             logging.error("Failed to set up cache layer.")
 
         server.db.load_state()
+
+        if not server.in_production:
+            logging.warning ("Assuming to run in a non-production environment.")
+            logging.warning (("Set <production> to 1 in your configuration "
+                              "file for hardened security settings."))
 
         if not run_internal_server:
             return server

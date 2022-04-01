@@ -30,6 +30,7 @@ class ApiServer:
         self.base_url         = f"http://{address}:{port}"
         self.db               = database.SparqlInterface()
         self.cookie_key       = "djehuty_session"
+        self.in_production    = False
 
         self.orcid_client_id     = None
         self.orcid_client_secret = None
@@ -454,7 +455,8 @@ class ApiServer:
                 return self.error_403 (request)
 
             token = self.db.insert_session (account_id)
-            response.set_cookie (key=self.cookie_key, value=token)
+            response.set_cookie (key=self.cookie_key, value=token,
+                                 secure=self.in_production)
             return response
 
         return self.response (json.dumps({
