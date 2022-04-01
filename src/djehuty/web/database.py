@@ -2025,14 +2025,16 @@ class SparqlInterface:
         except KeyError:
             return account
 
-    def insert_session (self, account_id, token=None):
+    def insert_session (self, account_id, name=None, token=None, editable=False):
         """Procedure to add a session token for an account_id."""
 
         if account_id is None:
-            return False
+            return None, None
 
         if token is None:
             token = secrets.token_hex (64)
+
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
 
         graph       = Graph()
         link_id     = self.ids.next_id("session")
@@ -2040,13 +2042,17 @@ class SparqlInterface:
         graph.add ((link_uri, RDF.type,              rdf.SG["Session"]))
         graph.add ((link_uri, rdf.COL["account_id"], Literal(account_id)))
         graph.add ((link_uri, rdf.COL["id"],         Literal(link_id)))
+        graph.add ((link_uri, rdf.COL["created_date"], Literal(current_time, datatype=XSD.string)))
+        graph.add ((link_uri, rdf.COL["name"],       Literal(name, datatype=XSD.string)))
         graph.add ((link_uri, rdf.COL["token"],      Literal(token, datatype=XSD.string)))
+        graph.add ((link_uri, rdf.COL["editable"],   Literal(editable, datatype=XSD.boolean)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            return token
+            return token, link_id
 
-        return None
+        return None, None
+
 
     def delete_session (self, token):
         """Procedure to remove a session from the state graph."""

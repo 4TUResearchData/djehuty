@@ -454,7 +454,7 @@ class ApiServer:
             if account_id is None:
                 return self.error_403 (request)
 
-            token = self.db.insert_session (account_id)
+            token, _ = self.db.insert_session (account_id, name="Website login")
             response.set_cookie (key=self.cookie_key, value=token,
                                  secure=self.in_production)
             return response
