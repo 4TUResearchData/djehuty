@@ -936,6 +936,7 @@ class SparqlInterface:
         rdf.add (graph, article_uri, rdf.COL["published_date"], "NULL", XSD.string)
         rdf.add (graph, article_uri, rdf.COL["is_public"],      0)
         rdf.add (graph, article_uri, rdf.COL["is_active"],      1)
+        rdf.add (graph, article_uri, rdf.COL["is_latest"],      1)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
