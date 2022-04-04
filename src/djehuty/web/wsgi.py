@@ -1083,10 +1083,6 @@ class ApiServer:
 
         ## Parameters
         ## ----------------------------------------------------------------
-        page            = self.get_parameter (request, "page")
-        page_size       = self.get_parameter (request, "page_size")
-        limit           = self.get_parameter (request, "limit")
-        offset          = self.get_parameter (request, "offset")
         order           = self.get_parameter (request, "order")
         order_direction = self.get_parameter (request, "order_direction")
         institution     = self.get_parameter (request, "institution")
@@ -1099,30 +1095,33 @@ class ApiServer:
         handle          = self.get_parameter (request, "handle")
 
         try:
-            validator.limit (limit)
-            validator.offset (offset)
+            offset, limit = validator.paging_to_offset_and_limit ({
+                "page":      self.get_parameter (request, "page"),
+                "page_size": self.get_parameter (request, "page_size"),
+                "limit":     self.get_parameter (request, "limit"),
+                "offset":    self.get_parameter (request, "offset")
+            })
             validator.order_direction (order_direction)
             validator.institution (institution)
             validator.group (group)
+
+            records = self.db.articles (limit=limit,
+                                        offset=offset,
+                                        order=order,
+                                        order_direction=order_direction,
+                                        institution=institution,
+                                        published_since=published_since,
+                                        modified_since=modified_since,
+                                        group=group,
+                                        resource_doi=resource_doi,
+                                        item_type=item_type,
+                                        doi=doi,
+                                        handle=handle)
+
+            return self.default_list_response (records, formatter.format_article_record)
+
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
-
-        records = self.db.articles(#page=page,
-                                   #page_size=page_size,
-                                   limit=limit,
-                                   offset=offset,
-                                   order=order,
-                                   order_direction=order_direction,
-                                   institution=institution,
-                                   published_since=published_since,
-                                   modified_since=modified_since,
-                                   group=group,
-                                   resource_doi=resource_doi,
-                                   item_type=item_type,
-                                   doi=doi,
-                                   handle=handle)
-
-        return self.default_list_response (records, formatter.format_article_record)
 
     def api_articles_search (self, request):
         if request.method != 'POST':
@@ -1338,29 +1337,22 @@ class ApiServer:
             return self.error_authorization_failed()
 
         if request.method == 'GET':
-
-            ## Parameters
-            ## ----------------------------------------------------------------
-            page            = self.get_parameter (request, "page")
-            page_size       = self.get_parameter (request, "page_size")
-            limit           = self.get_parameter (request, "limit")
-            offset          = self.get_parameter (request, "offset")
-
             try:
-                validator.page (page)
-                validator.page_size (page_size)
-                validator.limit (limit)
-                validator.offset (offset)
+                offset, limit = validator.paging_to_offset_and_limit ({
+                    "page":      self.get_parameter (request, "page"),
+                    "page_size": self.get_parameter (request, "page_size"),
+                    "limit":     self.get_parameter (request, "limit"),
+                    "offset":    self.get_parameter (request, "offset")
+                })
+
+                records = self.db.articles (limit=limit,
+                                            offset=offset,
+                                            account_id=account_id)
+
+                return self.default_list_response (records, formatter.format_article_record)
+
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
-
-            records = self.db.articles(#page=page,
-                                       #page_size=page_size,
-                                       limit=limit,
-                                       offset=offset,
-                                       account_id=account_id)
-
-            return self.default_list_response (records, formatter.format_article_record)
 
         if request.method == 'POST':
             record = request.get_json()
@@ -2129,10 +2121,6 @@ class ApiServer:
 
         ## Parameters
         ## ----------------------------------------------------------------
-        page            = self.get_parameter (request, "page")
-        page_size       = self.get_parameter (request, "page_size")
-        limit           = self.get_parameter (request, "limit")
-        offset          = self.get_parameter (request, "offset")
         order           = self.get_parameter (request, "order")
         order_direction = self.get_parameter (request, "order_direction")
         institution     = self.get_parameter (request, "institution")
@@ -2144,31 +2132,33 @@ class ApiServer:
         handle          = self.get_parameter (request, "handle")
 
         try:
-            validator.page (page)
-            validator.page_size (page_size)
-            validator.limit (limit)
-            validator.offset (offset)
+            offset, limit = validator.paging_to_offset_and_limit ({
+                "page":      self.get_parameter (request, "page"),
+                "page_size": self.get_parameter (request, "page_size"),
+                "limit":     self.get_parameter (request, "limit"),
+                "offset":    self.get_parameter (request, "offset")
+            })
+
             validator.order_direction (order_direction)
             validator.institution (institution)
             validator.group (group)
+
+            records = self.db.collections (limit=limit,
+                                           offset=offset,
+                                           order=order,
+                                           order_direction=order_direction,
+                                           institution=institution,
+                                           published_since=published_since,
+                                           modified_since=modified_since,
+                                           group=group,
+                                           resource_doi=resource_doi,
+                                           doi=doi,
+                                           handle=handle)
+
+            return self.default_list_response (records, formatter.format_collection_record)
+
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
-
-        records = self.db.collections (#page=page,
-                                       #page_size=page_size,
-                                       limit=limit,
-                                       offset=offset,
-                                       order=order,
-                                       order_direction=order_direction,
-                                       institution=institution,
-                                       published_since=published_since,
-                                       modified_since=modified_since,
-                                       group=group,
-                                       resource_doi=resource_doi,
-                                       doi=doi,
-                                       handle=handle)
-
-        return self.default_list_response (records, formatter.format_collection_record)
 
     def api_collections_search (self, request):
         handler = self.default_error_handling (request, "POST")
