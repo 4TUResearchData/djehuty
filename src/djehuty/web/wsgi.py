@@ -777,7 +777,7 @@ class ApiServer:
                 parameters = request.get_json()
                 name = validator.string_value (parameters, "name", 0, 255)
                 if self.db.update_session (account_id, session_id, name):
-                    return redirect (f"/my/dashboard", code=302)
+                    return redirect ("/my/dashboard", code=302)
 
                 return self.error_500 ()
 
