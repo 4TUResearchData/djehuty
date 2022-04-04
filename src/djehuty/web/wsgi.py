@@ -2629,7 +2629,7 @@ class ApiServer:
             collection = self.db.collections (collection_id = collection_id, account_id = account_id)[0]
             collection_version_id = collection["collection_version_id"]
 
-            categories    = self.db.categories(item_id    = collection_id,
+            categories    = self.db.categories(item_id    = collection_version_id,
                                                account_id = account_id,
                                                item_type  = "collection")
 
