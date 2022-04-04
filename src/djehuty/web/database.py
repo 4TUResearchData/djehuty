@@ -364,8 +364,9 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query, query, "statistics")
 
-    def single_article_statistics_totals (self,
-                                          article_id):
+    def single_article_statistics_totals (self, article_id):
+        """Procedure to get shallow statistics of an article."""
+
         query   = self.__query_from_template ("single_article_statistics_totals", {
             "state_graph":  self.state_graph,
             "article_id":   article_id
@@ -495,6 +496,7 @@ class SparqlInterface:
                        min_length=None, field_type=None, is_multiple=None,
                        is_mandatory=None, order="name", order_direction=None,
                        limit=10, item_id=None, item_type="article"):
+        """Procedure to get custom metadata of an article or a collection."""
 
         prefix = item_type.capitalize()
 
@@ -537,7 +539,9 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def tags (self, order=None, order_direction=None, limit=10, item_id=None, item_type="article"):
+    def tags (self, order=None, order_direction=None, limit=10,
+              item_id=None, item_type="article"):
+        """Procedure to get tags for an article or a collection."""
 
         prefix  = item_type.capitalize()
         filters = rdf.sparql_filter (f"{item_type}_version_id", item_id)
@@ -570,7 +574,9 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def private_links (self, item_id=None, item_type="article", account_id=None, id_string=None):
+    def private_links (self, item_id=None, item_type="article",
+                       account_id=None, id_string=None):
+        """Procedure to get private links to an article or a collection."""
 
         prefix  = item_type.capitalize()
         query   = self.__query_from_template ("private_links", {
@@ -585,6 +591,8 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def licenses (self):
+        """Procedure to get a list of allowed licenses."""
+
         query = self.__query_from_template ("licenses", {
             "state_graph": self.state_graph
         })
@@ -592,6 +600,8 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def latest_articles_portal (self, page_size=30):
+        """Procedure to get the latest articles."""
+
         query = self.__query_from_template ("latest_articles_portal", {
             "state_graph": self.state_graph,
             "page_size":   page_size
@@ -600,6 +610,8 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def collections_from_article (self, article_version_id):
+        """Procedure to get the collections an article is part of."""
+
         query = self.__query_from_template ("collections_from_article", {
             "state_graph": self.state_graph,
             "article_version_id":  article_version_id
@@ -713,6 +725,7 @@ class SparqlInterface:
 
     def references (self, order=None, order_direction=None, limit=10,
                     item_id=None, account_id=None, item_type="article"):
+        """Procedure to retrieve references."""
 
         query   = self.__query_from_template ("references", {
             "state_graph": self.state_graph,
@@ -1380,6 +1393,7 @@ class SparqlInterface:
     def insert_private_link (self, private_link_id=None, read_only=True,
                              id_string=None, is_active=True, expires_date=None,
                              item_id=None, item_type="article"):
+        """Procedure to add a private link to the state graph."""
 
         if id_string is None:
             id_string = secrets.token_urlsafe()
@@ -1496,6 +1510,8 @@ class SparqlInterface:
                         data_link=None, has_linked_file=None, derived_from=None,
                         same_as=None, organizations=None, categories=None,
                         defined_type=None, defined_type_name=None):
+        """Procedure to overwrite parts of an article."""
+
         query   = self.__query_from_template ("update_article", {
             "account_id":      account_id,
             "article_version_id": article_version_id,
@@ -1814,6 +1830,8 @@ class SparqlInterface:
                            time_coverage=None, publisher=None, language=None,
                            contributors=None, geolocation=None, longitude=None,
                            latitude=None, organizations=None, categories=None):
+        """Procedure to overwrite parts of a collection."""
+
         query   = self.__query_from_template ("update_collection", {
             "account_id":        account_id,
             "collection_version_id": collection_version_id,
