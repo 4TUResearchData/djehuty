@@ -3097,7 +3097,8 @@ class ApiServer:
             initial_repository = pygit2.init_repository (git_directory, False)
             if initial_repository:
                 try:
-                    with open (f"{git_directory}/.git/config", "a") as config:
+                    with open (f"{git_directory}/.git/config", "a",
+                               encoding = "utf-8") as config:
                         config.write ("\n[http]\n  receivepack = true\n")
                 except FileNotFoundError:
                     logging.error ("%s/.git/config does not exist.", git_directory)
