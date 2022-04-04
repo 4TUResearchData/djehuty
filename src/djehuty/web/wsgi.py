@@ -384,8 +384,10 @@ class ApiServer:
 
                 ## "impersonate" can also be passed in the request body.
                 if impersonate is None:
-                    body  = request.get_json()
-                    impersonate = value_or_none (body, "impersonate")
+                    content_type = value_or (request.headers, "Content-Type", "")
+                    if "application/json" in content_type:
+                        body  = request.get_json()
+                        impersonate = value_or_none (body, "impersonate")
 
                 if impersonate is not None:
                     return int(impersonate)
