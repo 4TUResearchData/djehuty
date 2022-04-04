@@ -43,6 +43,7 @@ class SparqlInterface:
 
         self.sparql      = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)
+        self.sparql_is_up = True
 
     def load_state (self):
         """Procedure to load the database state."""
@@ -121,8 +122,14 @@ class SparqlInterface:
             if cache_key_string is not None:
                 self.cache.cache_value (prefix, cache_key, results)
 
+            if not self.sparql_is_up:
+                logging.info("Connection to the SPARQL endpoint seems up again.")
+                self.sparql_is_up = True
+
         except URLError:
-            logging.error("Connection to the SPARQL endpoint seems down.")
+            if self.sparql_is_up:
+                logging.error("Connection to the SPARQL endpoint seems down.")
+                self.sparql_is_up = False
         except SPARQLExceptions.QueryBadFormed:
             logging.error("Badly formed SPARQL query:")
             self.__log_query (query)
