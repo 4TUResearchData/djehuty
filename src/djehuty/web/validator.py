@@ -77,6 +77,7 @@ class InvalidOptionsValue(ValidationException):
         super().__init__(message, code)
 
 def order_direction (value, required=False):
+    """Validation procedure for the order direction field."""
 
     if (value is None and required):
         raise MissingRequiredField(
@@ -93,6 +94,7 @@ def order_direction (value, required=False):
     return True
 
 def integer_value (record, field_name, minimum_value=None, maximum_value=None, required=False):
+    """Validation procedure for integer values."""
 
     value = conv.value_or_none (record, field_name)
     prefix = field_name.capitalize() if isinstance(field_name, str) else ""
@@ -125,24 +127,32 @@ def integer_value (record, field_name, minimum_value=None, maximum_value=None, r
             code    = f"Invalid{prefix}Value") from error
 
 def limit (value, required=False):
+    """Validation procedure for the limit parameter."""
     return integer_value (value, "limit", minimum_value=1, maximum_value=1000, required=required)
 
 def offset (value, required=False):
+    """Validation procedure for the offset parameter."""
     return integer_value (value, "offset", required=required)
 
 def institution (value, required=False):
+    """Validation procedure for the institution parameter."""
     return integer_value (value, "institution", required=required)
 
 def group (value, required=False):
+    """Validation procedure for the group parameter."""
     return integer_value (value, "group", required=required)
 
 def page (value, required=False):
+    """Validation procedure for the page parameter."""
     return integer_value (value, "page", required=required)
 
 def page_size (value, required=False):
+    """Validation procedure for the page_size parameter."""
     return integer_value (value, "page_size", required=required)
 
 def index_exists (value, index):
+    """Procedure to test whether a list or string has a certain length."""
+
     try:
         value[index]
     except IndexError:
@@ -151,6 +161,7 @@ def index_exists (value, index):
     return True
 
 def string_value (record, field_name, minimum_length=0, maximum_length=None, required=False):
+    """Validation procedure for string values."""
 
     value = conv.value_or_none (record, field_name)
     if value is None:
@@ -179,6 +190,8 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None, req
     return value
 
 def boolean_value (record, field_name, required=False):
+    """Validation procedure for boolean values."""
+
     value = conv.value_or_none (record, field_name)
     if value is None:
         if required:
@@ -201,6 +214,7 @@ def boolean_value (record, field_name, required=False):
     return value
 
 def options_value (record, field_name, options, required=False):
+    """Validation procedure for pre-defined options fields."""
 
     value = conv.value_or_none (record, field_name)
     if value is None:
@@ -218,6 +232,7 @@ def options_value (record, field_name, options, required=False):
     return value
 
 def __typed_value (record, field_name, expected_type=None, type_name=None, required=False):
+    """Procedure to validate multiple-values fields."""
 
     value = conv.value_or_none (record, field_name)
     if value is None:
@@ -235,7 +250,9 @@ def __typed_value (record, field_name, expected_type=None, type_name=None, requi
     return value
 
 def array_value (value, field_name, required=False):
+    """Validation procedure for array values."""
     return __typed_value (value, field_name, list, "array", required)
 
 def object_value (value, field_name, required=False):
+    """Validation procedure for object values."""
     return __typed_value (value, field_name, dict, "object", required)
