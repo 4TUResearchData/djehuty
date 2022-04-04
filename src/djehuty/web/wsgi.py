@@ -12,7 +12,7 @@ from werkzeug.utils import redirect
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 from werkzeug.middleware.shared_data import SharedDataMiddleware
-from werkzeug.exceptions import HTTPException, NotFound
+from werkzeug.exceptions import HTTPException, NotFound, BadRequest
 from jinja2 import Environment, FileSystemLoader
 from djehuty.web import validator
 from djehuty.web import formatter
@@ -203,6 +203,9 @@ class ApiServer:
             return getattr(self, f"api_{endpoint}")(request, **values)
         except NotFound:
             return self.error_404 (request)
+        except BadRequest as error:
+            logging.error("Received bad request: %s", error)
+            return self.error_400 (request, error.description, 400)
         except HTTPException as error:
             logging.error("Unknown error in dispatch_request: %s", error)
             return error
@@ -221,11 +224,15 @@ class ApiServer:
     ## ERROR HANDLERS
     ## ------------------------------------------------------------------------
 
-    def error_400 (self, message, code):
-        response = self.response (json.dumps({
-            "message": message,
-            "code":    code
-        }))
+    def error_400 (self, request, message, code):
+        response = None
+        if self.accepts_html (request):
+            response = self.__render_template (request, "400.html", message=message)
+        else:
+            response = self.response (json.dumps({
+                "message": message,
+                "code":    code
+            }))
         response.status_code = 400
         return response
 
@@ -782,7 +789,7 @@ class ApiServer:
                 return self.error_500 ()
 
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["GET", "PUT"])
 
@@ -1096,7 +1103,7 @@ class ApiServer:
             validator.institution (institution)
             validator.group (group)
         except validator.ValidationException as error:
-            return self.error_400 (error.message, error.code)
+            return self.error_400 (request, error.message, error.code)
 
         records = self.db.articles(#page=page,
                                    #page_size=page_size,
@@ -1343,7 +1350,7 @@ class ApiServer:
                 validator.limit (limit)
                 validator.offset (offset)
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
 
             records = self.db.articles(#page=page,
                                        #page_size=page_size,
@@ -1391,7 +1398,7 @@ class ApiServer:
                     "warnings": []
                 }))
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["GET", "POST"])
 
@@ -1484,7 +1491,7 @@ class ApiServer:
                 return self.respond_205()
 
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
             except IndexError:
                 pass
             except KeyError:
@@ -1570,11 +1577,11 @@ class ApiServer:
                         return self.error_500()
 
             except KeyError:
-                return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+                return self.error_400 (request, "Expected an 'authors' field.", "NoAuthorsField")
             except IndexError:
                 return self.error_500 ()
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
             except Exception as error:
                 logging.error("An error occurred when adding an author record:")
                 logging.error("Exception: %s", error)
@@ -1618,11 +1625,11 @@ class ApiServer:
                 return self.respond_205()
 
             except KeyError:
-                return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+                return self.error_400 (request, "Expected an 'authors' field.", "NoAuthorsField")
             except IndexError:
                 return self.error_500 ()
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
             except Exception as error:
                 logging.error("An error occurred when adding an author record:")
                 logging.error("Exception: %s", error)
@@ -1762,9 +1769,9 @@ class ApiServer:
             except IndexError:
                 return self.error_500 ()
             except KeyError:
-                return self.error_400 ("Expected an array for 'categories'.", "NoCategoriesField")
+                return self.error_400 (request, "Expected an array for 'categories'.", "NoCategoriesField")
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
             except Exception as error:
                 logging.error("An error occurred when adding a category record:")
                 logging.error("Exception: %s", error)
@@ -1856,7 +1863,7 @@ class ApiServer:
                 return self.default_list_response (files, formatter.format_file_for_article_record)
 
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
             except IndexError:
                 pass
             except KeyError:
@@ -1904,7 +1911,7 @@ class ApiServer:
                 })
 
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
             except IndexError:
                 pass
             except KeyError:
@@ -2007,7 +2014,7 @@ class ApiServer:
                 }))
 
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
 
             return self.error_500 ()
             # INSERT and return { "location": id_string }
@@ -2055,7 +2062,7 @@ class ApiServer:
                 }))
 
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
 
             return self.error_500 ()
 
@@ -2143,7 +2150,7 @@ class ApiServer:
             validator.institution (institution)
             validator.group (group)
         except validator.ValidationException as error:
-            return self.error_400 (error.message, error.code)
+            return self.error_400 (request, error.message, error.code)
 
         records = self.db.collections (#page=page,
                                        #page_size=page_size,
@@ -2353,7 +2360,7 @@ class ApiServer:
                     "warnings": []
                 }))
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["GET", "POST"])
 
@@ -2434,7 +2441,7 @@ class ApiServer:
             except KeyError:
                 pass
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
 
             return self.error_500 ()
 
@@ -2554,9 +2561,9 @@ class ApiServer:
             except IndexError:
                 return self.error_500 ()
             except KeyError:
-                return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+                return self.error_400 (request, "Expected an 'authors' field.", "NoAuthorsField")
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
             except Exception as error:
                 logging.error("An error occurred when adding an author record:")
                 logging.error("Exception: %s", error)
@@ -2603,9 +2610,9 @@ class ApiServer:
             except IndexError:
                 return self.error_500 ()
             except KeyError:
-                return self.error_400 ("Expected an 'authors' field.", "NoAuthorsField")
+                return self.error_400 (request, "Expected an 'authors' field.", "NoAuthorsField")
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
             except Exception as error:
                 logging.error("An error occurred when adding an author record:")
                 logging.error("Exception: %s", error)
@@ -2697,9 +2704,9 @@ class ApiServer:
             except IndexError:
                 return self.error_500 ()
             except KeyError:
-                return self.error_400 ("Expected an array for 'articles'.", "NoArticlesField")
+                return self.error_400 (request, "Expected an array for 'articles'.", "NoArticlesField")
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
             except Exception as error:
                 logging.error("An error occurred when adding articles:")
                 logging.error("Exception: %s", error)
@@ -2746,7 +2753,7 @@ class ApiServer:
             return self.default_list_response (records, formatter.format_author_details_record)
 
         except validator.ValidationException as error:
-            return self.error_400 (error.message, error.code)
+            return self.error_400 (request, error.message, error.code)
 
     ## ------------------------------------------------------------------------
     ## V3 API
@@ -2802,7 +2809,7 @@ class ApiServer:
                     record["group_ids"][index] = validator.integer_value (record["group_ids"], index)
 
         except validator.ValidationException as error:
-            return self.error_400 (error.message, error.code)
+            return self.error_400 (request, error.message, error.code)
 
         records = self.db.articles (limit           = record["limit"],
                                     offset          = record["offset"],
@@ -2872,7 +2879,7 @@ class ApiServer:
             record = self.__api_v3_articles_parameters (request, item_type)
 
         except validator.ValidationException as error:
-            return self.error_400 (error.message, error.code)
+            return self.error_400 (request, error.message, error.code)
 
         records = self.db.article_statistics (
             limit           = record["limit"],
@@ -2895,7 +2902,7 @@ class ApiServer:
             record = self.__api_v3_articles_parameters (request, item_type)
 
         except validator.ValidationException as error:
-            return self.error_400 (error.message, error.code)
+            return self.error_400 (request, error.message, error.code)
 
         records = self.db.article_statistics_timeline (
             article_id      = record["article_id"],
@@ -3021,9 +3028,9 @@ class ApiServer:
                 return self.respond_205()
 
             except KeyError:
-                return self.error_400 ("Expected an 'references' field.", "NoReferencesField")
+                return self.error_400 (request, "Expected an 'references' field.", "NoReferencesField")
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
             except Exception as error:
                 logging.error("An error occurred when adding an reference record:")
                 logging.error("Exception: %s", error)
@@ -3047,7 +3054,7 @@ class ApiServer:
             except KeyError:
                 return self.error_500 ()
             except validator.ValidationException as error:
-                return self.error_400 (error.message, error.code)
+                return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["GET", "POST", "DELETE"])
 
@@ -3078,7 +3085,7 @@ class ApiServer:
             return self.default_list_response (records, formatter.format_group_record)
 
         except validator.ValidationException as error:
-            return self.error_400 (error.message, error.code)
+            return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
 
