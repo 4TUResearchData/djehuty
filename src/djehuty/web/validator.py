@@ -76,6 +76,14 @@ class InvalidOptionsValue(ValidationException):
         self.code    = code
         super().__init__(message, code)
 
+class InvalidPagingOptions(ValidationException):
+    """Exception thrown when paging is mixed with limit/offset."""
+
+    def __init__(self, message, code):
+        self.message = message
+        self.code    = code
+        super().__init__(message, code)
+
 def order_direction (value, required=False):
     """Validation procedure for the order direction field."""
 
@@ -125,6 +133,31 @@ def integer_value (record, field_name, minimum_value=None, maximum_value=None, r
         raise InvalidIntegerValue(
             message = f"Unexpected value '{value}' is not an integer.",
             code    = f"Invalid{prefix}Value") from error
+
+
+def paging_to_offset_and_limit (record):
+    """Procedure returns two values: offset and limit."""
+
+    # Type and range-check the parameters.
+    page      = integer_value (record, "page",      1)
+    page_size = integer_value (record, "page_size", 1, 1000)
+    offset    = integer_value (record, "offset",    0)
+    limit     = integer_value (record, "limit",     1)
+
+    # Check whether the parameters are mixed.
+    if ((page is not None or page_size is not None) and
+        (offset is not None or limit is not None)):
+        raise InvalidPagingOptions(
+            message = ("Either use page/page-size or offset/limit. "
+                       "Mixing is not supported."),
+            code    = "InvalidPagingOptions")
+
+    # Translate page/page_size to offset/limit.
+    if page is not None and page_size is not None:
+        offset = page_size * (page - 1)
+        limit  = page_size
+
+    return offset, limit
 
 def limit (value, required=False):
     """Validation procedure for the limit parameter."""
