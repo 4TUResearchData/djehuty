@@ -266,6 +266,12 @@ class ApiServer:
         response.status_code = 405
         return response
 
+    def error_415 (self, allowed_types):
+        response = self.response (f"Supported Content-Types: {allowed_types}",
+                                  mimetype="text/plain")
+        response.status_code = 415
+        return response
+
     def error_406 (self, allowed_formats):
         response = self.response (f"Acceptable formats: {allowed_formats}",
                                   mimetype="text/plain")
