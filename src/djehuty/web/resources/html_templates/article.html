@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block headers %}
-
+<!-- TODO: funding, licence -->
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <style>
 	a             { color: #f49120; text-decoration: none }
@@ -14,7 +14,7 @@
 	.metric .number { font-size: 24px; font-weight: bold }
 	#categories   { padding-top: 10px; clear: left }
 	#tags, #geo, #time_coverage, #dates, #collections, #peer, #references, #publisher, #format, #organizations,
-	#contributors, #funding, #usage
+	#contributors, #funding, #usage, #derived_from, #same_as, #language, #licence
 	              { margin-top: 10px }
 	#files span   { margin-left: 20px; color: #999 }
 	#metadata #left_column  { width: 65%; margin-bottom:10px }
@@ -37,15 +37,15 @@
 <h2>{{article["title"]}}</h2>
 
 <div id="metadata">
-<!-- ERROR old doi 10.4121/uuid:21220b23-ff36-4ca9-a08f-ccd53782e834 in versions 3+ of 12763700 -->
+<!-- ERROR old doi 10.4121/uuid:21220b23-ff36-4ca9-a08f-ccd53782e834 in latest versions of 12763700 -->
     <div id="doi">
-  	    persistent link: <a href="https://doi.org/{{doi}}">doi.org/{{doi}}</a>
+  	    persistent link: <a href="https://doi.org/{{doi}}" target="blank" title="opens in new window">doi.org/{{doi}}</a>
     </div>
     <div id="type">
         {{ article.defined_type_name|capitalize }}
     </div>
-{% if versions|length > 1 %}
-<!-- TEST 12763700 -->
+{% if versions[1:2] %}
+<!--12763700-->
     {% set thisversion = article.version %}
     {% set old = thisversion < versions[0].version %}
     <div id ="versions">
@@ -71,7 +71,7 @@
     	</div>
 {% endif %}
 {% if statistics %}
-<!-- TEST 12763700 -->
+<!--12763700-->
     {% set usage = statistics[0] %}
     	  <div id="usage">
     	  	  <div class="label">usage stats</div>
@@ -103,7 +103,7 @@
 {% set lat = coordinates.lat %}
 {% set lon = coordinates.lon %}
 {% if geo or lat or lon %}
-<!-- TEST 12683045 -->
+<!--12683045-->
     {% set vlat = coordinates.lat_valid %}
     {% set vlon = coordinates.lon_valid %}
         <div id="geo">
@@ -119,7 +119,7 @@
     {% endif %}
     {% if vlat and vlon %}
             <a href="https://www.openstreetmap.org/?mlat={{vlat}}&mlon={{vlon}}#map=12/{{vlat}}/{{vlon}}"
-            	 target="blank" title="new window">view on openstreetmap</a>
+            	 target="blank" title="opens in new window">view on openstreetmap</a>
     {% endif %}
         </div>
 {% endif %}
@@ -130,7 +130,7 @@
         </div>
 {% endif %}
 {% if collections %}
-<!-- TEST 17122553 -->
+<!--17122553-->
         <div id="collections">
             <div class="label">collection{% if collections[1:] %}s{% endif %}</div>
             <ul>
@@ -152,7 +152,7 @@
             {{name}}
     {%- endif %}
     {%- if a.orcid_id %}
-            <a href="https://orcid.org/{{a.orcid_id}}" target="blank"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
+            <a href="https://orcid.org/{{a.orcid_id}}" target="blank" title="opens in new window"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
     {%- endif %}
     {%- if loop.revindex0 %}, {% endif %}
 {% endfor %}
@@ -185,7 +185,7 @@
 {% if article.resource_doi %}
         <div id="peer">
             <div class="label">associated peer-reviewed publication</div>
-   	        <a href="https://doi.org/{{article.resource_doi}}">{{article.resource_title}}</a>
+   	        <a href="https://doi.org/{{article.resource_doi}}" target="blank" title="opens in new window">{{article.resource_title}}</a>
    	    </div>
 {% endif %}
 {% if references %}
@@ -193,11 +193,35 @@
             <div class="label">references</div>
             <ul>
     {% for r in references %}
-   	            <li><a href="{{r.url}}">{{r.url}}</a></li>
+   	            <li><a href="{{r.url}}" target="blank" title="opens in new window">{{r.url}}</a></li>
    	{% endfor %}
             </ul>
         </div>
 {% endif %}
+{% if article.derived_from %}
+<!--18865385-->
+        <div id="derived_from">
+            <div class="label">derived from</div>
+   	        <a href="{{article.derived_from}}" target="blank" title="opens in new window">{{article.derived_from}}</a>
+   	    </div>
+{% endif %}
+{% if article.same_as %}
+<!--18865355-->
+        <div id="same_as">
+            <div class="label">same as</div>
+   	        <a href="{{article.same_as}}" target="blank" title="opens in new window">{{article.same_as}}</a>
+   	    </div>
+{% endif %}
+{% if article.language != 'en' %}
+<1--17081387-->
+        <div id="language">
+            <div class="label">language</div>
+   	        {{article.language}}
+   	    </div>
+{% endif %}
+
+
+
 {% if article.funding %}
 <!--19114712-->
         <div id="funding">
@@ -229,7 +253,7 @@
 	  	  <div class="label">OPeNDAP data service</div>
 	  	  <ul>
 	  {% for url in opendap %}
-	  	      <li><a href="{{url}}">{{url}}</a></li>
+	  	      <li><a href="{{url}} target="blank" title="opens in new window"">{{url}}</a></li>
 	  {% endfor %}
 	  	  </ul>
 	  </div>
