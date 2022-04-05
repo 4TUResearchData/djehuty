@@ -223,12 +223,16 @@ class FigshareEndpoint:
                                                                                    article_id)
         record["account_id"]    = account_id
         record["is_latest"]     = 1
+        record["is_editable"]   = 1
+
+        # In the private version, the version is reset to None here.
+        record["version"]       = None
 
         ## Other versions
         ## --------------------------------------------------------------------
         current_version = conv.value_or_none (record, "version")
         if conv.value_or (record, "is_public", False):
-            versions = self.get_article_versions (article_id, account_id, exclude=current_version)
+            versions = self.get_article_versions (article_id, account_id)
             record["versions"] = versions
 
         ## Statistics
@@ -329,17 +333,20 @@ class FigshareEndpoint:
         record["articles"]      = articles
         record["account_id"]    = account_id
         record["is_latest"]     = 1
+        record["is_editable"]   = 1
+        record["version"]       = None
 
         ## Other versions
         ## --------------------------------------------------------------------
         if conv.value_or (record, "is_public", False):
             current_version = conv.value_or_none (record, "version")
-            numbers = self.get_collection_versions (collection_id, account_id, exclude=current_version)
+            numbers = self.get_collection_versions (collection_id, account_id)
             versions = []
             for number in numbers:
                 if number != record["version"]:
                     version = self.get_record(f"/collections/{collection_id}/versions/{number}")
                     version["is_latest"] = 0
+                    version["is_editable"] = 0
                     versions.append(version)
 
             record["versions"] = versions
@@ -384,6 +391,7 @@ class FigshareEndpoint:
                 record  = self.get_record (f"/articles/{article_id}/versions/{version}")
                 record["account_id"] = account_id
                 record["is_latest"]  = 0
+                record["is_editable"]= 0
                 output.append (record)
 
         return output
