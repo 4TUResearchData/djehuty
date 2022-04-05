@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block headers %}
-<!-- TODO: funding, licence -->
+<!-- TODO: funding, licence, embargo, metadata-only -->
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <style>
 	a             { color: #f49120; text-decoration: none }
@@ -212,12 +212,14 @@
    	        <a href="{{article.same_as}}" target="blank" title="opens in new window">{{article.same_as}}</a>
    	    </div>
 {% endif %}
-{% if article.language != 'en' %}
-<1--17081387-->
+{% if article.language %}
+<!--17081387-->
+    {% if article.language != 'en' %}
         <div id="language">
             <div class="label">language</div>
    	        {{article.language}}
    	    </div>
+    {% endif %}
 {% endif %}
 
 
