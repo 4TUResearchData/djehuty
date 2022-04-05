@@ -1,9 +1,7 @@
 djehuty
 =========
 
-This Python package provides functionality to extract metadata from Figshare
-to gather statistical insights.  Its further goal is to function as a
-local API testing endpoint.
+This Python package provides the repository system for 4TU.ResearchData.
 
 ## Development setup
 
