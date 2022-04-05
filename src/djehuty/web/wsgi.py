@@ -914,7 +914,7 @@ class ApiServer:
             article       = self.db.articles(article_id=article_id, version=current_version)[0]
             article_version_id = article["article_version_id"]
             authors       = self.db.authors(item_id=article_version_id, item_type="article")
-            files         = self.db.article_files(article_version_id=article_version_id)
+            files         = self.db.article_files(article_version_id=article_version_id, limit=None)
             custom_fields = self.db.custom_fields(item_id=article_version_id, item_type="article")
             embargo_options = self.db.article_embargo_options(article_version_id=article_version_id)
             tags          = self.db.tags(item_id=article_version_id, item_type="article")
