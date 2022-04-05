@@ -276,7 +276,7 @@ CREATE TABLE IF NOT EXISTS CollectionAuthor(
 CREATE TABLE IF NOT EXISTS CollectionArticle(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     collection_version_id INT UNSIGNED,
-    article_version_id    INT UNSIGNED) ENGINE=InnoDB;
+    article_id            INT UNSIGNED) ENGINE=InnoDB;
 
 -------------------------------------------------------------------------------
 -- PROJECTS

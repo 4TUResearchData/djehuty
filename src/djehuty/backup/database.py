@@ -414,12 +414,12 @@ class DatabaseInterface:
 
         return True
 
-    def insert_collection_article (self, collection_version_id, article_version_id):
+    def insert_collection_article (self, collection_version_id, article_id):
         """Procedure to insert a collection-article relationship."""
 
         template = ("INSERT IGNORE INTO CollectionArticle "
-                    "(collection_version_id, article_version_id) VALUES (%s, %s)")
-        data     = (collection_version_id, article_version_id)
+                    "(collection_version_id, article_id) VALUES (%s, %s)")
+        data     = (collection_version_id, article_id)
 
         return self.__execute_query (template, data)
 
