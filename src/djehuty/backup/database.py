@@ -571,8 +571,8 @@ class DatabaseInterface:
                         if self.__execute_query (template, data) is False:
                             logging.warning(("Could not insert unnaccounted "
                                              "difference in statistics for "
-                                             f"%s %d on day %s"),
-                                            item_type, item_id, day)
+                                             "%s %d on day %s"),
+                                             item_type, item_id, day)
 
         return True
 
