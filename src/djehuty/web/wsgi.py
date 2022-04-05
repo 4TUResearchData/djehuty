@@ -2103,29 +2103,36 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed()
 
-        parameters = request.get_json()
-        records = self.db.articles(
-            resource_doi    = value_or_none (parameters, "resource_doi"),
-            article_id      = value_or_none (parameters, "resource_id"),
-            item_type       = value_or_none (parameters, "item_type"),
-            doi             = value_or_none (parameters, "doi"),
-            handle          = value_or_none (parameters, "handle"),
-            order           = value_or_none (parameters, "order"),
-            search_for      = value_or_none (parameters, "search_for"),
-            #page            = value_or_none (parameters, "page"),
-            #page_size       = value_or_none (parameters, "page_size"),
-            limit           = value_or_none (parameters, "limit"),
-            offset          = value_or_none (parameters, "offset"),
-            order_direction = value_or_none (parameters, "order_direction"),
-            institution     = value_or_none (parameters, "institution"),
-            published_since = value_or_none (parameters, "published_since"),
-            modified_since  = value_or_none (parameters, "modified_since"),
-            group           = value_or_none (parameters, "group"),
-            exclude_ids     = value_or_none (parameters, "exclude"),
-            account_id      = account_id
-        )
+        try:
+            if not self.contains_json (request):
+                return self.error_415 ("application/json")
 
-        return self.default_list_response (records, formatter.format_article_record)
+            parameters = request.get_json()
+            offset, limit = validator.paging_to_offset_and_limit (parameters)
+            records = self.db.articles(
+                resource_doi    = validator.string_value (parameters, "resource_doi", 0, 512),
+                # "resource_id" here is not a typo for "article_id".
+                article_id      = validator.integer_value (parameters, "resource_id"),
+                item_type       = validator.integer_value (parameters, "item_type"),
+                doi             = validator.string_value (parameters, "doi", 0, 255),
+                handle          = validator.string_value (parameters, "handle", 0, 255),
+                order           = validator.string_value (parameters, "order", 0, 255),
+                search_for      = validator.string_value (parameters, "search_for", 0, 512),
+                limit           = limit,
+                offset          = offset,
+                order_direction = validator.options_value (parameters, "order_direction", ["asc", "desc"]),
+                institution     = validator.integer_value (parameters, "institution"),
+                published_since = validator.string_value (parameters, "published_since", 0, 255),
+                modified_since  = validator.string_value (parameters, "modified_since", 0, 255),
+                group           = validator.integer_value (parameters, "group"),
+                exclude_ids     = validator.string_value (parameters, "exclude", 0, 255),
+                account_id      = account_id
+            )
+
+            return self.default_list_response (records, formatter.format_article_record)
+
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
 
     ## ------------------------------------------------------------------------
     ## COLLECTIONS
