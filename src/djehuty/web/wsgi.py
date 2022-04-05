@@ -360,6 +360,13 @@ class ApiServer:
         return (("application/json" in acceptable) or
                 ("*/*" in acceptable))
 
+    def contains_json (self, request):
+        contains = request.headers['Content-Type']
+        if not contains:
+            return False
+
+        return ("application/json" in contains)
+
     def get_parameter (self, request, parameter):
         try:
             return request.form[parameter]
