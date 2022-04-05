@@ -621,7 +621,7 @@ class SparqlInterface:
 
         query = self.__query_from_template ("collections_from_article", {
             "state_graph": self.state_graph,
-            "article_version_id":  article_id #temp bug fix for state_graph
+            "article_id":  article_id
         })
 
         return self.__run_query(query)
