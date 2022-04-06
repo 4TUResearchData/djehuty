@@ -2045,7 +2045,7 @@ class SparqlInterface:
             "account_id":  account_id
         })
 
-        return self.__run_query (query)
+        return self.__run_query (query, query, "accounts")
 
     def account_by_id (self, account_id):
         """Returns an account_id or None."""
