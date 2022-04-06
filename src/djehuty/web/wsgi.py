@@ -67,6 +67,7 @@ class ApiServer:
             Rule("/my/sessions/<session_id>/edit",            endpoint = "edit_session"),
             Rule("/my/sessions/<session_id>/delete",          endpoint = "delete_session"),
             Rule("/my/sessions/new",                          endpoint = "new_session"),
+            Rule("/admin/dashboard",                          endpoint = "admin_dashboard"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
@@ -188,12 +189,15 @@ class ApiServer:
 
     def __render_template (self, request, template_name, **context):
         template      = self.jinja.get_template (template_name)
-        is_logged_in  = self.db.is_logged_in (self.token_from_cookie (request))
+        token         = self.token_from_cookie (request)
+        is_logged_in  = self.db.is_logged_in (token)
+        may_administer = self.db.may_administer (token)
         parameters    = {
             "base_url":        self.base_url,
             "path":            request.path,
             "orcid_client_id": self.orcid_client_id,
-            "is_logged_in":    is_logged_in
+            "is_logged_in":    is_logged_in,
+            "may_administer":  may_administer
         }
         return self.response (template.render({ **context, **parameters }),
                               mimetype='text/html; charset=utf-8')
@@ -837,6 +841,24 @@ class ApiServer:
             response   = redirect (request.referrer, code=302)
             self.db.delete_session_by_id (account_id, session_id)
             return response
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_admin_dashboard (self, request):
+        if self.accepts_html (request):
+            token = self.token_from_cookie (request)
+            if self.db.may_administer (token):
+                account_id   = self.account_id_from_request (request)
+                storage_used = self.db.account_storage_used (account_id)
+                sessions     = self.db.sessions (account_id)
+                return self.__render_template (
+                    request, "admin/dashboard.html",
+                    storage_used = pretty_print_size (storage_used),
+                    sessions     = sessions)
+
+            return self.error_403 (request)
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."

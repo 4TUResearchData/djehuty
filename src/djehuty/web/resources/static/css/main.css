@@ -306,6 +306,7 @@ img.cts { width: 120px; }
 .fa-search::before { content: "\f002"; }
 .fa-trash-can::before { content: "\f2ed"; }
 .fa-lock::before { content: "\f023"; }
+.fa-gear::before { content: "\f013"; }
 .fa-users::before { content: "\f0c0"; }
 .fa-empty::before {}
 
@@ -397,3 +398,5 @@ img { user-select: none; }
 #message p { padding: 1em; }
 .success { background: #009900; padding: 0em; margin: 0em; }
 .failure { background: #990000; padding: 0em; margin: 0em; }
+.hidden { font-size: 0; user-select: none; }
+.center { text-align: center; }
