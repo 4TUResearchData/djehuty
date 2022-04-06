@@ -2131,15 +2131,23 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
-    def may_administer (self, session_token):
-        """Returns True when the account linked to the session is a full admin."""
+    def __may_execute_role (self, session_token, task):
+        """Returns True when the sessions' account may perform 'task'."""
         account = self.account_by_session_token (session_token)
         try:
-            return account["may_administer"]
+            return account[f"may_{task}"]
         except KeyError:
             pass
 
         return False
+
+    def may_administer (self, session_token):
+        """Returns True when the session's account is an administrator."""
+        return self.__may_execute_role (session_token, "administer")
+
+    def may_impersonate (self, session_token):
+        """Returns True when the session's account may impersonate other accounts."""
+        return self.__may_execute_role (session_token, "impersonate")
 
     def is_depositor (self, session_token):
         """Returns True when the account linked to the session is a depositor, False otherwise"""

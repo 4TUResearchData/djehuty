@@ -192,12 +192,14 @@ class ApiServer:
         token         = self.token_from_cookie (request)
         is_logged_in  = self.db.is_logged_in (token)
         may_administer = self.db.may_administer (token)
+        may_impersonate = self.db.may_impersonate (token)
         parameters    = {
             "base_url":        self.base_url,
             "path":            request.path,
             "orcid_client_id": self.orcid_client_id,
             "is_logged_in":    is_logged_in,
-            "may_administer":  may_administer
+            "may_administer":  may_administer,
+            "may_impersonate":  may_impersonate
         }
         return self.response (template.render({ **context, **parameters }),
                               mimetype='text/html; charset=utf-8')
