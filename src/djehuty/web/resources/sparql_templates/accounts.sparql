@@ -1,0 +1,31 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?active ?created_date ?email ?first_name ?group_id
+                ?account_id ?institution_id ?institution_user_id ?last_name
+                ?maximum_file_size ?modified_date ?pending_quota_request ?quota
+                ?used_quota ?used_quota_private ?used_quota_public
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?account             rdf:type                  sg:Account .
+    ?account             col:id                    ?account_id .
+    OPTIONAL { ?account  col:active                ?active . }
+    OPTIONAL { ?account  col:created_date          ?created_date . }
+    OPTIONAL { ?account  col:email                 ?email . }
+    OPTIONAL { ?account  col:first_name            ?first_name . }
+    OPTIONAL { ?account  col:group_id              ?group_id . }
+    OPTIONAL { ?account  col:institution_id        ?institution_id . }
+    OPTIONAL { ?account  col:institution_user_id   ?institution_user_id . }
+    OPTIONAL { ?account  col:last_name             ?last_name . }
+    OPTIONAL { ?account  col:maximum_file_size     ?maximum_file_size . }
+    OPTIONAL { ?account  col:modified_date         ?modified_date . }
+    OPTIONAL { ?account  col:pending_quota_request ?pending_quota_request . }
+    OPTIONAL { ?account  col:quota                 ?quota . }
+    OPTIONAL { ?account  col:used_quota            ?used_quota . }
+    OPTIONAL { ?account  col:used_quota_private    ?used_quota_private . }
+    OPTIONAL { ?account  col:used_quota_public     ?used_quota_public . }
+  }
+  {%- if account_id is not none %}
+  FILTER (?account_id = {{account_id}})
+  {%- endif %}
+}
+{% endblock %}

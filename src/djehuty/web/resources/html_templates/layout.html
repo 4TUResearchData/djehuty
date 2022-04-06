@@ -28,7 +28,7 @@
           <a href="https://orcid.org/oauth/authorize?client_id={{orcid_client_id}}&response_type=code&scope=/authenticate&redirect_uri={{base_url}}/login"><div class="button" id="login-button">Log in</div></a>
           {%- else %}
           {%- if may_administer %}
-          <a href="/admin/dashboard"><span class="fas fa-gear"><span class="hidden">Administration dashboard</span></span></a>
+          <a href="/admin/dashboard" class="fas fa-gear" title="Administrator dashboard"><span class="hidden">Administration dashboard</span></a>
           {%- endif %}
           <a href="/logout"><div class="button" id="logout-button">Log out</div></a>
           {%- if not path.startswith("/my") %}<a href="/my/dashboard"><div class="button" id="dashboard-button">Dashboard</div></a>{% endif %}

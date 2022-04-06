@@ -308,8 +308,10 @@ img.cts { width: 120px; }
 .fa-lock::before { content: "\f023"; }
 .fa-gear::before { content: "\f013"; }
 .fa-users::before { content: "\f0c0"; }
+.fa-user-secret::before { content: "\f21b"; }
 .fa-empty::before {}
 
+a.fas { text-decoration: none; }
 ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; font-size: 13pt; }
 .datasets-stage-one, .datasets-stage-one a { color: rgba(208,104,0,1.0); }
 .datasets-stage-two, .datasets-stage-two a { color: rgba(178,104,30,0.967); }

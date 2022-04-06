@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
+<style>
+.branded-table {
+    width: 100%;
+    max-width: 880pt;
+    border: solid 2pt #f49120;
+    border-radius: .5em;
+}
+.branded-table thead tr { background: #f49120; border-radius: .5em .5em 0em 0em; }
+.branded-table thead tr th {
+    color: #000;
+    text-align: left;
+    padding: .5em;
+    z-index: 50;
+    border-top: none;
+    white-space: nowrap;
+}
+.branded-table thead tr th:last-child { text-align: right; }
+.branded-table tbody tr td { padding: .5em; z-index: 50; }
+.branded-table tbody tr:nth-child(even) { background: #fafafa; }
+.branded-table tbody tr td:last-child { text-align: right; width: 130pt; }
+.branded-table tbody tr td:nth-child(1) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    max-width: 572pt;
+}
+#users-table .fa-user-secret { color: #000; }
+#users-table .fa-user-secret:hover { color: #666; }
+#users-table .fa-user-secret:active { color: #999; }
+#users-table { display: none; }
+#users-table_wrapper { margin-top: 1em; }
+</style>
+<script>
+jQuery(document).ready(function () {
+    jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
+    jQuery("#users-table").DataTable({
+        columnDefs: [{ orderable: false,  targets: 3 }],
+        pageLength: 25
+    });
+    jQuery("#users-table").show();
+});
+</script>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li ><a href="/admin/dashboard">Dashboard</a>
+  <li class="active">Users
+  <li><a href="/admin/maintenance">Maintenance</a>
+</ul>
+{% endblock %}
+{% block body %}
+<noscript>
+  <p class="no-script">Sorry, this page requires JavaScript to function properly.</p>
+</noscript>
+<div class="hide-for-javascript">
+<h1>Manage users</h1>
+<table id="users-table" class="branded-table">
+  <thead><tr><th>Name</th><th>E-mail</th><th>Group</th><th>Actions</th></tr></thead>
+  <tbody>
+    {%- for account in accounts: %}
+    <tr>
+      <td>{{account.first_name | default("", False)}} {{account.last_name | default("", False)}}</td>
+      <td>{{account.email | default("-", False)}}</td>
+      <td>{{account.group_id | default("-", False)}}</td>
+      <td>{% if may_impersonate %}<a href="/admin/impersonate/{{account.account_id}}" class="fas fa-user-secret" title="Impersonate"><span class="hidden">Impersonate</span></a>{% endif %}</td>
+    </tr>
+    {%- endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

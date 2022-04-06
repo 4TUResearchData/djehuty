@@ -2037,6 +2037,16 @@ class SparqlInterface:
         except KeyError:
             return account
 
+    def accounts (self, account_id=None):
+        """Returns accounts."""
+
+        query = self.__query_from_template ("accounts", {
+            "state_graph": self.state_graph,
+            "account_id":  account_id
+        })
+
+        return self.__run_query (query)
+
     def account_by_id (self, account_id):
         """Returns an account_id or None."""
 
@@ -2137,6 +2147,8 @@ class SparqlInterface:
         try:
             return account[f"may_{task}"]
         except KeyError:
+            pass
+        except TypeError:
             pass
 
         return False

@@ -68,6 +68,8 @@ class ApiServer:
             Rule("/my/sessions/<session_id>/delete",          endpoint = "delete_session"),
             Rule("/my/sessions/new",                          endpoint = "new_session"),
             Rule("/admin/dashboard",                          endpoint = "admin_dashboard"),
+            Rule("/admin/users",                              endpoint = "admin_users"),
+            Rule("/admin/impersonate/<account_id>",           endpoint = "admin_impersonate"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
@@ -223,9 +225,11 @@ class ApiServer:
         response = self.__dispatch_request(request)
         return response(environ, start_response)
 
-    def token_from_cookie (self, request):
+    def token_from_cookie (self, request, cookie_key=None):
         try:
-            return request.cookies[self.cookie_key]
+            if cookie_key is None:
+                cookie_key = self.cookie_key
+            return request.cookies[cookie_key]
         except KeyError:
             return None
 
@@ -498,10 +502,48 @@ class ApiServer:
 
     def api_logout (self, request):
         if self.accepts_html (request):
-            response   = redirect ("/", code=302)
-            self.db.delete_session (self.token_from_cookie (request))
-            response.delete_cookie (key=self.cookie_key)
-            return response
+            # When impersonating, find the admin's token,
+            # and set it as the new session token.
+            other_cookie_key    = f"impersonator_{self.cookie_key}"
+            other_session_token = self.token_from_cookie (request, other_cookie_key)
+            if other_session_token:
+                response = redirect ("/admin/users", code=302)
+                response.set_cookie (key    = self.cookie_key,
+                                     value  = other_session_token,
+                                     secure = self.in_production)
+                response.delete_cookie (key = other_cookie_key)
+
+                return response
+            else:
+                response = redirect ("/", code=302)
+                self.db.delete_session (self.token_from_cookie (request))
+                response.delete_cookie (key=self.cookie_key)
+
+                return response
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_admin_impersonate (self, request, account_id):
+        if self.accepts_html (request):
+            token = self.token_from_cookie (request)
+            if self.db.may_impersonate (token):
+                # Add a secundary cookie to go back to at one point.
+                response = redirect ("/my/dashboard", code=302)
+                other_cookie_key = f"impersonator_{self.cookie_key}"
+                response.set_cookie (key    = other_cookie_key,
+                                     value  = token,
+                                     secure = self.in_production)
+
+                # Create a new session for the user to be impersonated as.
+                new_token, _ = self.db.insert_session (int(account_id), name="Impersonation")
+                response.set_cookie (key    = self.cookie_key,
+                                     value  = new_token,
+                                     secure = self.in_production)
+                return response
+
+            return self.error_403 (request)
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
@@ -852,13 +894,22 @@ class ApiServer:
         if self.accepts_html (request):
             token = self.token_from_cookie (request)
             if self.db.may_administer (token):
-                account_id   = self.account_id_from_request (request)
-                storage_used = self.db.account_storage_used (account_id)
-                sessions     = self.db.sessions (account_id)
+                return self.__render_template (request, "admin/dashboard.html")
+
+            return self.error_403 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_admin_users (self, request):
+        if self.accepts_html (request):
+            token = self.token_from_cookie (request)
+            if self.db.may_administer (token):
+                accounts = self.db.accounts()
                 return self.__render_template (
-                    request, "admin/dashboard.html",
-                    storage_used = pretty_print_size (storage_used),
-                    sessions     = sessions)
+                    request, "admin/users.html",
+                    accounts = accounts)
 
             return self.error_403 (request)
 
