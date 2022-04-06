@@ -37,6 +37,8 @@ This package provides the repository system for 4TU.ResearchData.
 %py3_install
 mkdir -p %{buildroot}%{_unitdir}
 cp etc/%{name}.service %{buildroot}%{_unitdir}/
+mkdir -p %{buildroot}/etc/%{name}
+cp etc/%{name}/djehuty-example-config.xml %{buildroot}/etc/%{name}/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -47,4 +49,5 @@ rm -rf $RPM_BUILD_ROOT
 %{python3_sitelib}/%{name}/
 %{python3_sitelib}/%{name}-@VERSION@*
 %{_unitdir}/%{name}.service
+/etc/%{name}/djehuty-example-config.xml
 /usr/bin/djehuty
