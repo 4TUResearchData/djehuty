@@ -1024,6 +1024,9 @@ class ApiServer:
                     dates[date].append(label)
             dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
 
+            id_v = f'{article_id}/{version}' if version else f'{article_id}'
+            export_base = f'/datasets/{id_v}/exports/'
+
             lat = self_or_value_or_none(article, 'latitude')
             lon = self_or_value_or_none(article, 'longitude')
             lat_valid, lon_valid = decimal_coords(lat, lon)
@@ -1054,6 +1057,7 @@ class ApiServer:
                                            coordinates=coordinates,
                                            member=member,
                                            member_url_name=member_url_name,
+                                           export_base = export_base,
                                            opendap=opendap,
                                            statistics=statistics)
         return self.response (json.dumps({

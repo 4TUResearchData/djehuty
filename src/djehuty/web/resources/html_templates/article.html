@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block headers %}
-<!-- TODO: funding, licence, embargo, metadata-only, citation, export formats (links) -->
+<!-- TODO: licence, embargo, metadata-only, citation, export formats (links) -->
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <style>
 	a             { color: #f49120; text-decoration: none }
@@ -14,7 +14,7 @@
 	.metric .number { font-size: 24px; font-weight: bold }
 	#categories   { padding-top: 10px; clear: left }
 	#tags, #geo, #time_coverage, #dates, #collections, #peer, #references, #publisher, #format, #organizations,
-	#contributors, #funding, #usage, #derived_from, #same_as, #language, #licence
+	#contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export
 	              { margin-top: 10px }
 	#funding ul   { list-style-type: square; margin-left: 20px }
 	#funding .funder_name { display: block; color: #999 }
@@ -131,8 +131,13 @@
         	  {{article.time_coverage}}
         </div>
 {% endif %}
+        <div id="licence">
+        	  <div class="label">licence</div>
+        	  to do...
+        </div>
 {% if collections %}
 <!--17122553-->
+        </div>
         <div id="collections">
             <div class="label">collection{% if collections[1:] %}s{% endif %}</div>
             <ul>
@@ -142,6 +147,16 @@
             </ul>
         </div>
 {% endif %}
+        <div id="export">
+        	  <div class="label">export as...</div>
+        	  <a href="{{export_base}}refworks">RefWorks</a>,
+        	  <a href="{{export_base}}bibtex">BibTeX</a>,
+        	  <a href="{{export_base}}refman">Reference Manager</a>,
+        	  <a href="{{export_base}}endnote">Endnote</a>,
+        	  <a href="{{export_base}}datacite">DataCite</a>,
+        	  <a href="{{export_base}}nlm">NLM</a>,
+        	  <a href="{{export_base}}dc">DC</a>
+        </div>
     </div>
     
     <div id="left_column">
@@ -185,6 +200,7 @@
    	    </div>
 {% endif %}
 {% if article.resource_doi %}
+<!--16825843-->
         <div id="peer">
             <div class="label">associated peer-reviewed publication</div>
    	        <a href="https://doi.org/{{article.resource_doi}}" target="blank" title="opens in new window">{{article.resource_title}}</a>
@@ -319,7 +335,8 @@
     <h3>collections</h3>{{collections}}
     <h3>dates</h3>{{dates}}
     <h3>coordinates</h3>{{coordinates}}
-    <h3>opendap</h3>{{opendap}}
+    <h3>export_base</h3>{{opendap}}
+    <h3>opendap</h3>{{export_base}}
     <h3>statistics</h3>{{statistics}}
 </div>
 {% endblock %}
