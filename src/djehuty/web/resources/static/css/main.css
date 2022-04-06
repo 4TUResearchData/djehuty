@@ -402,3 +402,16 @@ img { user-select: none; }
 .failure { background: #990000; padding: 0em; margin: 0em; }
 .hidden { font-size: 0; user-select: none; }
 .center { text-align: center; }
+
+#pre-header {
+    display: block;
+    width: 100%;
+    background: #aa3333;
+    height: 3.75em;
+    color: #fff;
+    text-align: center;
+}
+#pre-header p { padding: .5em; line-height: 2em; font-size: 1.25em; }
+#pre-header a { color: #fff; }
+#pre-header a:hover { color: #ccc; }
+#pre-header a:active { color: #999; }

@@ -189,19 +189,27 @@ class ApiServer:
     def __call__ (self, environ, start_response):
         return self.wsgi (environ, start_response)
 
+    def __impersonating_account (self, request):
+        other_cookie_key = f"impersonator_{self.cookie_key}"
+        admin_token = self.token_from_cookie (request, other_cookie_key)
+        if admin_token:
+            user_token = self.token_from_cookie (request)
+            account = self.db.account_by_session_token (user_token)
+            return account
+
+        return None
+
     def __render_template (self, request, template_name, **context):
         template      = self.jinja.get_template (template_name)
         token         = self.token_from_cookie (request)
-        is_logged_in  = self.db.is_logged_in (token)
-        may_administer = self.db.may_administer (token)
-        may_impersonate = self.db.may_impersonate (token)
         parameters    = {
             "base_url":        self.base_url,
             "path":            request.path,
             "orcid_client_id": self.orcid_client_id,
-            "is_logged_in":    is_logged_in,
-            "may_administer":  may_administer,
-            "may_impersonate":  may_impersonate
+            "is_logged_in":    self.db.is_logged_in (token),
+            "may_administer":  self.db.may_administer (token),
+            "may_impersonate":  self.db.may_impersonate (token),
+            "impersonating_account": self.__impersonating_account (request)
         }
         return self.response (template.render({ **context, **parameters }),
                               mimetype='text/html; charset=utf-8')
