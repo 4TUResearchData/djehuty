@@ -97,7 +97,7 @@
 	          <div class="label">keywords</div>
 		            {# The href below will not work. First figure out what to do with search. #}
 {% for tag in tags|sort %}
- 	        <a href="/keywords/{{tag|urlencode}}">{{tag}}</a>
+ 	          <a href="/keywords/{{tag|urlencode}}">{{tag}}</a>
     {%- if loop.revindex0 %}, {% endif %}
 {% endfor %}
         </div>
@@ -131,9 +131,21 @@
         	  {{article.time_coverage}}
         </div>
 {% endif %}
+{% set lic_imgs = {'CC0'            : 'cc-0.png',
+                   'CC BY 4.0'      : 'cc-by.png',
+                   'CC BY-SA 4.0'   : 'cc-by-sa.png',
+                   'CC BY-ND 4.0'   : 'cc-by-nd.png',
+                   'CC BY-NC 4.0'   : 'cc-by-nc.png',
+                   'CC BY-NC-SA 3.0': 'cc-by-nc-sa.png',
+                   'CC BY-NC-SA 4.0': 'cc-by-nc-sa.png',
+                   'CC BY-NC-ND 4.0': 'cc-by-nc-nd.png',
+                   'GPL-3.0'        : 'gnu-gpl-v3.png'  } %}
+{% set lic_img = lic_imgs[article.license_name] %}
         <div id="licence">
-        	  <div class="label">licence</div>
-        	  to do...
+        	  <div class="label">license</div>
+        	  <a href="{{article.license_url}}" target="blank" title="opens in new window">
+        	  	{%- if lic_img %}<img src="/static/images/licenses/{{lic_img}}" alt="{{lic_img}} logo"/>{% endif %}
+        	  	{{article.license_name}}</a>
         </div>
 {% if collections %}
 <!--17122553-->
