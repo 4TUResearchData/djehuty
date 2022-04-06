@@ -2131,6 +2131,16 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
+    def may_administer (self, session_token):
+        """Returns True when the account linked to the session is a full admin."""
+        account = self.account_by_session_token (session_token)
+        try:
+            return account["may_administer"]
+        except KeyError:
+            pass
+
+        return False
+
     def is_depositor (self, session_token):
         """Returns True when the account linked to the session is a depositor, False otherwise"""
         account = self.account_by_session_token (session_token)
