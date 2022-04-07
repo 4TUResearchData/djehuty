@@ -1,6 +1,13 @@
 {% extends "layout.html" %}
 {% block headers %}
-<!-- TODO: embargo, metadata-only, citation -->
+<!-- TODO:
+    embargo
+    metadata-only
+    non-opendap external data
+    multivalued derived_from
+    citation (?)
+    versioned and unversioned doi on latest version, explained
+-->
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <style>
 	a             { color: #f49120; text-decoration: none }
@@ -14,7 +21,7 @@
 	.metric .number { font-size: 24px; font-weight: bold }
 	#categories   { padding-top: 10px; clear: left }
 	#tags, #geo, #time_coverage, #dates, #collections, #peer, #references, #publisher, #format, #organizations,
-	#contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export
+	#contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export, #data_link
 	              { margin-top: 10px }
 	#funding ul   { list-style-type: square; margin-left: 20px }
 	#funding .funder_name { display: block; color: #999 }
@@ -242,6 +249,16 @@
    	        <a href="{{article.same_as}}" target="blank" title="opens in new window">{{article.same_as}}</a>
    	    </div>
 {% endif %}
+{% if article.data_link %}
+<!--14377295-->
+    {% set data_link = article.data_link %}
+    {% if not '//opendap.' in data_link %}
+        <div id="data_link">
+            <div class="label">data link</div>
+   	        <a href="{{data_link}}" target="blank" title="opens in new window">{{data_link}}</a>
+   	    </div>
+    {% endif %}
+{% endif %}
 {% if article.language %}
 <!--17081387-->
     {% if article.language != 'en' %}
@@ -347,8 +364,8 @@
     <h3>collections</h3>{{collections}}
     <h3>dates</h3>{{dates}}
     <h3>coordinates</h3>{{coordinates}}
-    <h3>export_base</h3>{{opendap}}
-    <h3>opendap</h3>{{export_base}}
+    <h3>export_base</h3>{{export_base}}
+    <h3>opendap</h3>{{opendap}}
     <h3>statistics</h3>{{statistics}}
 </div>
 {% endblock %}
