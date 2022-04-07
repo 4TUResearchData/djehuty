@@ -994,6 +994,7 @@ class ApiServer:
     def api_article_ui (self, request, article_id, version=None):
         if self.accepts_html (request):
             versions      = self.db.article_versions(article_id=article_id)
+            versions      = [v for v in versions if v['version']] # exclude version None
             current_version = version if version else versions[0]['version']
             article       = self.db.articles(article_id=article_id, version=current_version)[0]
             article_version_id = article["article_version_id"]

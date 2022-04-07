@@ -39,7 +39,6 @@
 <h2>{{article["title"]}}</h2>
 
 <div id="metadata">
-<!-- ERROR old doi 10.4121/uuid:21220b23-ff36-4ca9-a08f-ccd53782e834 in latest versions of 12763700 -->
     <div id="doi">
   	    persistent link: <a href="https://doi.org/{{doi}}" target="blank" title="opens in new window">doi.org/{{doi}}</a>
     </div>
@@ -49,7 +48,8 @@
 {% if versions[1:2] %}
 <!--12763700-->
     {% set thisversion = article.version %}
-    {% set old = thisversion < versions[0].version %}
+    {% set latest = versions[0].version %}
+    {% set old = thisversion < latest %}
     <div id ="versions">
     {% if old %}
     	  <span class="warning">version {{thisversion}} (old)</span>
@@ -60,7 +60,8 @@
     {% for ver in versions %}
         {% set v = ver.version %}
         {% if v != thisversion %}
-        <a href="/articles/_/{{pid}}/{{v}}">{{v}}</a>
+        <a href="/articles/_/{{pid}}/{{v}}">{{v}}
+        	  {%- if v==latest %} (latest){% endif %}</a>
         {% endif %}
     {% endfor %}
     </div>
