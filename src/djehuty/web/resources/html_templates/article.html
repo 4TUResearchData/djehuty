@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block headers %}
-<!-- TODO: licence, embargo, metadata-only, citation, export formats (links) -->
+<!-- TODO: embargo, metadata-only, citation -->
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <style>
 	a             { color: #f49120; text-decoration: none }
@@ -149,7 +149,6 @@
         </div>
 {% if collections %}
 <!--17122553-->
-        </div>
         <div id="collections">
             <div class="label">collection{% if collections[1:] %}s{% endif %}</div>
             <ul>
