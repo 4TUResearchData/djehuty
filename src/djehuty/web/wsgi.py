@@ -516,6 +516,7 @@ class ApiServer:
             other_session_token = self.token_from_cookie (request, other_cookie_key)
             if other_session_token:
                 response = redirect ("/admin/users", code=302)
+                self.db.delete_session (self.token_from_cookie (request))
                 response.set_cookie (key    = self.cookie_key,
                                      value  = other_session_token,
                                      secure = self.in_production)
