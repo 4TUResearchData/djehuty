@@ -8,7 +8,7 @@ WHERE {
                 col:title                 ?title ; 
                 col:is_latest             1 .              #We don't want to find the collection when the dataset was thrown out later.
     ?link       rdf:type                  sg:CollectionArticle ;
-                col:article_version_id    {{article_id}} ; #The predicate should be col:article_id in corrected state_graph
+                col:article_id            {{article_id}} ;
                 col:collection_version_id ?collection_version_id .
   }   
 }
