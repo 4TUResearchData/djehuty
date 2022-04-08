@@ -46,15 +46,17 @@ def pretty_print_size (num_bytes):
 
     return output
 
-def decimal_coord(txt, axis, digits=4):
+def decimal_coord(txt, axis, digits=5):
     '''
     Converts txt to string with decimal coordinates or None if invalid.
     Accepts input like "42.597" or "5º 38’ 18.5’’ E".
     axis is 'N' or 'E'
+    5 digits is accuracy (RMS) of 40 cm.
     '''
     pat = r"^(-?\d+)º\s*(\d+)[’']\s*((\d+)(\.\d?)?)[’']{2}\s*([NESW]?)$"
     if txt is None:
         return None
+    txt = str(txt) #fix for cases where txt is already numerical (bug)
     txt = txt.strip()
     deg = None
     ax = None
