@@ -222,7 +222,7 @@ class FigshareEndpoint:
         record["private_links"] = self.get_article_private_links_by_account_by_id (account_id,
                                                                                    article_id)
         record["account_id"]    = account_id
-        record["is_latest"]     = 1
+        record["is_latest"]     = 0
         record["is_editable"]   = 1
 
         # In the private version, the version is reset to None here.
@@ -232,7 +232,8 @@ class FigshareEndpoint:
         ## --------------------------------------------------------------------
         current_version = conv.value_or_none (record, "version")
         if conv.value_or (record, "is_public", False):
-            versions = self.get_article_versions (article_id, account_id)
+            versions = self.get_article_versions (article_id, account_id,
+                                                  latest=current_version)
             record["versions"] = versions
 
         ## Statistics
@@ -332,7 +333,7 @@ class FigshareEndpoint:
         record["private_links"] = private_links
         record["articles"]      = articles
         record["account_id"]    = account_id
-        record["is_latest"]     = 1
+        record["is_latest"]     = 0
         record["is_editable"]   = 1
         record["version"]       = None
 
@@ -343,11 +344,14 @@ class FigshareEndpoint:
             numbers = self.get_collection_versions (collection_id, account_id)
             versions = []
             for number in numbers:
-                if number != record["version"]:
-                    version = self.get_record(f"/collections/{collection_id}/versions/{number}")
-                    version["is_latest"] = 0
-                    version["is_editable"] = 0
-                    versions.append(version)
+                version = self.get_record(f"/collections/{collection_id}/versions/{number}")
+                version["is_latest"]   = 0
+                version["is_editable"] = 0
+
+                if current_version is not None and version == current_version:
+                    record["is_latest"] = 1
+
+                versions.append(version)
 
             record["versions"] = versions
 
@@ -378,7 +382,8 @@ class FigshareEndpoint:
 
         return output
 
-    def get_article_versions (self, article_id, account_id, exclude=None):
+    def get_article_versions (self, article_id, account_id, exclude=None,
+                              latest=None):
         """Procedure to get versioning information for an article."""
 
         headers  = self.__request_headers ()
@@ -392,6 +397,10 @@ class FigshareEndpoint:
                 record["account_id"] = account_id
                 record["is_latest"]  = 0
                 record["is_editable"]= 0
+
+                if  latest is not None and version == latest:
+                    record["is_latest"] = 1
+
                 output.append (record)
 
         return output
