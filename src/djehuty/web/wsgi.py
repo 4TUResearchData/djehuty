@@ -14,6 +14,7 @@ from werkzeug.routing import Map, Rule
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound, BadRequest
 from jinja2 import Environment, FileSystemLoader
+from jinja2.exceptions import TemplateNotFound
 from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import database
@@ -44,6 +45,8 @@ class ApiServer:
             "poster", "journal contribution", "presentation",
             "thesis", "software"
         ]
+
+        self.static_pages = {}
 
         ## Routes to all API calls.
         ## --------------------------------------------------------------------
@@ -169,9 +172,12 @@ class ApiServer:
 
         resources_path = os.path.dirname(__file__)
         self.jinja   = Environment(loader = FileSystemLoader(
-                        os.path.join(resources_path,
-                                     "resources/html_templates")),
-                                     autoescape = True)
+            [
+                # For internal templates.
+                os.path.join(resources_path, "resources", "html_templates"),
+                # For static pages.
+                "/"
+            ]), autoescape = True)
 
         self.wsgi    = SharedDataMiddleware(self.__respond, {
             "/robots.txt": os.path.join(resources_path, "resources/robots.txt"),
@@ -220,6 +226,16 @@ class ApiServer:
             endpoint, values = adapter.match()
             return getattr(self, f"api_{endpoint}")(request, **values)
         except NotFound:
+            # Handle static pages.
+            try:
+                logging.debug ("Attempting to render static page.")
+                page = self.static_pages[request.path]
+                return self.__render_template (request, page)
+            except TemplateNotFound:
+                logging.debug ("Couldn't find template '%s'.", request.path)
+            except KeyError:
+                logging.debug ("No static page entry for '%s'.", request.path)
+
             return self.error_404 (request)
         except BadRequest as error:
             logging.error("Received bad request: %s", error)
