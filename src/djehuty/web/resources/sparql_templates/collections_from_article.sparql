@@ -1,11 +1,13 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT ?collection_version_id ?title
+SELECT ?collection_id ?title
 WHERE {
   GRAPH <{{state_graph}}> {
     ?collection rdf:type                  sg:Collection ;
+                col:collection_id         ?collection_id ;
                 col:collection_version_id ?collection_version_id ;
-                col:title                 ?title ; 
+                col:title                 ?title ;
+                col:is_public             1 ; 
                 col:is_latest             1 .              #We don't want to find the collection when the dataset was thrown out later.
     ?link       rdf:type                  sg:CollectionArticle ;
                 col:article_id            {{article_id}} ;
