@@ -291,15 +291,25 @@ class SparqlInterface:
             "state_graph":   self.state_graph,
         })
 
-        row = None
+        row = { "articles": 0, "collections": 0, "files": 0, "bytes": 0 }
         try:
-            results  = self.__run_query (query, query, "statistics")
-            results2 = self.__run_query (query2, query2, "statistics")
-            row = { **results[0], **results2[0] }
+            results = self.__run_query (query, query, "statistics")
+            files   = self.__run_query (query2, query2, "statistics")
+            number_of_files = 0
+            number_of_bytes = 0
+            for entry in files:
+                number_of_files += 1
+                number_of_bytes += int(entry["bytes"])
+
+            results2 = {
+                "files": number_of_files,
+                "bytes": number_of_bytes
+            }
+            row = { **results[0], **results2 }
         except IndexError:
-            return None
+            pass
         except KeyError:
-            return None
+            pass
 
         return row
 

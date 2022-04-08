@@ -1,10 +1,10 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT (COUNT(DISTINCT ?file) AS ?files)
-       (SUM(?bytes) AS ?bytes)
+SELECT DISTINCT ?computed_md5 ?bytes
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file           rdf:type            sg:File .
+    ?file           col:computed_md5    ?computed_md5 .
     ?file           col:size            ?bytes .
   }
 {%- if filters is not none %}{{ filters }}{% endif %}
