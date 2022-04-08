@@ -602,6 +602,7 @@ class ApiServer:
             if self.db.is_depositor (token):
                 unpublished_articles = self.db.articles (account_id = account_id,
                                                          is_public  = 0,
+                                                         is_editable= 1,
                                                          limit      = 10000)
 
                 for index, _ in enumerate(unpublished_articles):
@@ -612,6 +613,7 @@ class ApiServer:
 
                 published_articles = self.db.articles (account_id = account_id,
                                                        is_public  = 1,
+                                                       is_latest  = 1,
                                                        limit      = 10000)
 
                 for index, _ in enumerate(published_articles):

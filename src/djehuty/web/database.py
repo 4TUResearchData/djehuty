@@ -203,7 +203,7 @@ class SparqlInterface:
         return self.__run_query (query)
 
     def articles (self, limit=None, offset=None, order=None,
-                  order_direction=None, institution=None,
+                  order_direction=None, institution=None, is_latest=None,
                   published_since=None, modified_since=None,
                   group=None, group_ids=None, resource_doi=None, item_type=None,
                   doi=None, handle=None, account_id=None, is_editable=None,
@@ -262,6 +262,9 @@ class SparqlInterface:
 
         if is_editable is not None:
             filters += rdf.sparql_filter ("is_editable", is_editable)
+
+        if is_latest is not None:
+            filters += rdf.sparql_filter ("is_latest", is_latest)
 
         query = self.__query_from_template ("articles", {
             "state_graph":   self.state_graph,
