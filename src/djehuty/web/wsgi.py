@@ -660,7 +660,8 @@ class ApiServer:
             if self.db.is_depositor (token):
                 try:
                     article = self.db.articles(article_id = article_id,
-                                               account_id = account_id)[0]
+                                               account_id = account_id,
+                                               is_editable=1)[0]
                     categories = self.db.root_categories ()
                     for index, _ in enumerate(categories):
                         category      = categories[index]

@@ -206,7 +206,7 @@ class SparqlInterface:
                   order_direction=None, institution=None,
                   published_since=None, modified_since=None,
                   group=None, group_ids=None, resource_doi=None, item_type=None,
-                  doi=None, handle=None, account_id=None,
+                  doi=None, handle=None, account_id=None, is_editable=None,
                   search_for=None, article_id=None, exclude_ids=None,
                   collection_version_id=None, version=None, category_ids=None,
                   return_count=False, is_public=None, article_version_id=None):
@@ -226,7 +226,7 @@ class SparqlInterface:
         ## Article identifiers aren't version-specific. For consistency, when
         ## requesting a specific article without a version, make sure to return
         ## the latest version of the article.
-        if article_id and not version:
+        if article_id and not version and not is_editable:
             filters += rdf.sparql_filter ("is_latest", 1)
 
         if search_for is not None:
@@ -259,6 +259,9 @@ class SparqlInterface:
             filters += rdf.sparql_filter ("is_public", 1)
         elif is_public is not None:
             filters += rdf.sparql_filter ("is_public", int(is_public))
+
+        if is_editable is not None:
+            filters += rdf.sparql_filter ("is_editable", is_editable)
 
         query = self.__query_from_template ("articles", {
             "state_graph":   self.state_graph,
@@ -943,7 +946,8 @@ class SparqlInterface:
         rdf.add (graph, article_uri, rdf.COL["published_date"], "NULL", XSD.string)
         rdf.add (graph, article_uri, rdf.COL["is_public"],      0)
         rdf.add (graph, article_uri, rdf.COL["is_active"],      1)
-        rdf.add (graph, article_uri, rdf.COL["is_latest"],      1)
+        rdf.add (graph, article_uri, rdf.COL["is_latest"],      0)
+        rdf.add (graph, article_uri, rdf.COL["is_editable"],    1)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
