@@ -248,7 +248,10 @@ class FigshareEndpoint:
                                              "%Y-%m-%d %H:%M:%S")
             created_date = datetime.strftime(date, "%Y-%m-%d")
 
-        record["statistics"] = self.get_statistics_for_article(article_id, created_date, now)
+        if conv.value_or (record, "is_public", False):
+            record["statistics"] = self.get_statistics_for_article(article_id,
+                                                                   created_date,
+                                                                   now)
         return record
 
     def get_article_private_links_by_account_by_id (self, account_id, article_id):
