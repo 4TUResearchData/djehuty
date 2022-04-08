@@ -326,10 +326,7 @@ class SparqlInterface:
         filters = ""
 
         if category_ids is not None:
-            filters += f"FILTER (?category_id={category_ids[0]}"
-            for category_id in category_ids[1:]:
-                filters += f" OR ?category_id={category_id}"
-            filters += ")\n"
+            filters += f"FILTER ((?category_id) IN ({','.join(map(str, category_ids))}))\n"
 
         if group_ids is not None:
             filters += f"FILTER ((?group_id) IN ({','.join(map(str, group_ids))}))\n"

@@ -6,6 +6,7 @@ WHERE {
     ?article        rdf:type            sg:Article .
     ?article        col:title           ?title .
     ?article        col:article_id      ?article_id .
+    ?article        col:article_version_id ?article_version_id .
     ?article        col:version         ?version .
     ?article        col:figshare_url    ?figshare_url .
     ?article        col:published_date  ?published_date .
@@ -13,13 +14,13 @@ WHERE {
 
     ?category_link  rdf:type            sg:ArticleCategory .
     ?category_link  col:category_id     ?category_id .
-    ?category_link  col:article_id      ?article_id .
+    ?category_link  col:article_version_id ?article_version_id .
 
     ?stats          rdf:type            sg:ArticleTotals .
     ?stats          col:article_id      ?article_id .
     ?stats          col:{{item_type}}   ?{{item_type}} .
   }
 FILTER (STR(?published_date) != "NULL")
-{%- if filters is not none %}{{ filters }}{% endif %}
+{% if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
