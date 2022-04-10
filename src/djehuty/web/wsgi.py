@@ -1063,11 +1063,20 @@ class ApiServer:
                 if url.split('/')[2]=='opendap.4tu.nl':
                     opendap.append(url)
                     del article['data_link']
+
+            contributors = []
+            if 'contributors' in article:
+                contr = article['contributors'].split(';\\n')
+                contr_parts = [ c.split(' [orcid:') for c in contr ]
+                contributors = contr_parts
+                contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
+
             return self.__render_template (request, "article.html",
                                            article=article,
                                            version=version,
                                            versions=versions,
                                            authors=authors,
+                                           contributors = contributors,
                                            files=files,
                                            services=services,
                                            custom_fields=custom_fields, #needed? Duplicated in article?

@@ -16,7 +16,7 @@
 	#type         { padding: 2px; width: 80px; text-align: center; border: 1px solid #000 }
 	#metadata #versions { margin-top: 0px }
 	#description  { margin-top: 10px; padding:10px; border: 1px solid #666 }
-	#authors img  { height: 15px }
+	#authors img, #contributors img  { height: 15px }
 	.metric       { float: left; margin:5px; text-align: center }
 	.metric .number { font-size: 24px; font-weight: bold }
 	#categories   { padding-top: 10px; clear: left }
@@ -296,10 +296,19 @@
    	        {{ article.organizations.replace('\\n', '<br />') }}
    	    </div>
     {% endif %}
-    {% if article.contributors %}
+    {% if contributors %}
         <div id="contributors">
             <div class="label">contributors</div>
-   	        {{ article.contributors.replace(';\\n', '<br />') }}
+            <ul>
+        {% for c in contributors %}
+                <li>
+                    {{c.name}} 
+            {% if c.orcid %}
+                    <a href="https://orcid.org/{{c.orcid}}" target="blank" title="opens in new window"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
+            {% endif %}
+                </li>
+        {% endfor %}
+            </ul>
    	    </div>
     {% endif %}
 {% endautoescape %}
@@ -363,6 +372,7 @@
     <h3>version</h3>{{version}}
     <h3>versions</h3>{{versions}}
     <h3>authors</h3>{{authors}}
+    <h3>contributors</h3>{{contributors}}
     <h3>files</h3>{{files}}
     <h3>services</h3>{{services}}
     <h3>custom_fields</h3>{{custom_fields}}
