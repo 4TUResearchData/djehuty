@@ -1053,9 +1053,11 @@ class ApiServer:
             lat_valid, lon_valid = decimal_coords(lat, lon)
             coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
 
-            marked_files = [(f, f['download_url'].split('/')[2]=='opendap.4tu.nl') for f in files]
-            files = [f for (f, mark) in marked_files if not mark]
-            opendap = [f['download_url'] for (f, mark) in marked_files if mark]
+            odap_files = [(f, f['download_url'].split('/')[2]=='opendap.4tu.nl') for f in files]
+            opendap = [f['download_url'] for (f, odap) in odap_files if odap]
+            files_services = [(f, f['is_link_only']) for (f, odap) in odap_files if not odap]
+            services = [f['download_url'] for (f, link) in files_services if link]
+            files = [f for (f, link) in files_services if not link]
             if 'data_link' in article:
                 url = article['data_link']
                 if url.split('/')[2]=='opendap.4tu.nl':
@@ -1067,6 +1069,7 @@ class ApiServer:
                                            versions=versions,
                                            authors=authors,
                                            files=files,
+                                           services=services,
                                            custom_fields=custom_fields, #needed? Duplicated in article?
                                            embargo_options=embargo_options,
                                            tags=tags,

@@ -251,13 +251,10 @@
 {% endif %}
 {% if article.data_link %}
 <!--14377295-->
-    {% set data_link = article.data_link %}
-    {% if not '//opendap.' in data_link %}
         <div id="data_link">
             <div class="label">data link</div>
-   	        <a href="{{data_link}}" target="blank" title="opens in new window">{{data_link}}</a>
+   	        <a href="{{article.data_link}}" target="blank" title="opens in new window">{{article.data_link}}</a>
    	    </div>
-    {% endif %}
 {% endif %}
 {% if article.language %}
 <!--17081387-->
@@ -311,6 +308,17 @@
 
 <div id="data">
 	  <h3>DATA</h3>
+{% if services %}
+<!--12717890-->
+	  <div id="services">
+	  	  <div class="label">data service</div>
+	  	  <ul>
+	  {% for url in services %}
+	  	      <li><a href="{{url}}" target="blank" title="opens in new window">{{url}}</a></li>
+	  {% endfor %}
+	  	  </ul>
+	  </div>
+{% endif%}
 {% if opendap %}
 <!--17122553-->
 	  <div id="opendap">
@@ -344,6 +352,7 @@
     <button onclick="document.getElementById('debug').style.display = 'block'">debug</button>
 </div>
 <div id="debug">
+    <button onclick="document.getElementById('debug').style.display = 'none'">undebug</button>
     COMPARE
     <a href="/v2/articles/{{pid}}{% if version %}/versions/{{version}}{% endif %}" target="blank">json</a>,
     Figshare 
@@ -355,6 +364,7 @@
     <h3>versions</h3>{{versions}}
     <h3>authors</h3>{{authors}}
     <h3>files</h3>{{files}}
+    <h3>services</h3>{{services}}
     <h3>custom_fields</h3>{{custom_fields}}
     <h3>embargo_options</h3>{{embargo_options}}
     <h3>tags</h3>{{tags}}
