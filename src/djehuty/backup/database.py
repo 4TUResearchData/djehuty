@@ -441,7 +441,7 @@ class DatabaseInterface:
                     convenience.value_or_none (record, "url"))
 
         if not self.__execute_query (template, data):
-            logging.error("Inserting funding for collection failed.")
+            logging.error("Inserting funding for %s failed.", item_type)
             return False
 
         return True
@@ -713,7 +713,7 @@ class DatabaseInterface:
 
         article_version_id = self.__execute_query (template, data)
         if not article_version_id:
-            logging.error("Inserting article failed.")
+            logging.error("Inserting article %d failed.", article_id)
             return False
 
         embargos = convenience.value_or (record, "embargo_options", [])
