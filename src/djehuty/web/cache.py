@@ -76,3 +76,13 @@ class CacheLayer:
                 logging.error ("Trying to remove %s multiple times.", file_path)
 
         return True
+
+    def invalidate_all (self):
+        """Procedure to remove all cache items."""
+        for file_path in glob.glob(f"{self.storage}/*"):
+            try:
+                os.remove(file_path)
+            except FileNotFoundError:
+                logging.error ("Trying to remove %s multiple times.", file_path)
+
+        return True

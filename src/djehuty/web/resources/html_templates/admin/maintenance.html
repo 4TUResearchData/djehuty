@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<style>
+.branded-table {
+    width: 100%;
+    max-width: 880pt;
+    border: solid 2pt #f49120;
+    border-radius: .5em;
+}
+.branded-table thead tr { background: #f49120; border-radius: .5em .5em 0em 0em; }
+.branded-table thead tr th {
+    color: #000;
+    text-align: left;
+    padding: .5em;
+    z-index: 50;
+    border-top: none;
+    white-space: nowrap;
+}
+.branded-table thead tr th:last-child { text-align: right; }
+.branded-table tbody tr td { padding: .5em; z-index: 50; }
+.branded-table tbody tr:nth-child(even) { background: #fafafa; }
+.branded-table tbody tr td:last-child { text-align: right; width: 130pt; }
+.branded-table tbody tr td:nth-child(1) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    max-width: 572pt;
+}
+#users-table .fa-user-secret { color: #000; }
+#users-table .fa-user-secret:hover { color: #666; }
+#users-table .fa-user-secret:active { color: #999; }
+#users-table { display: none; }
+#users-table_wrapper { margin-top: 1em; }
+</style>
+<script>
+jQuery(document).ready(function () {
+    jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
+    jQuery("#users-table").show();
+    jQuery("#clear-cache").on("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log("Button clicked.");
+        jQuery.ajax({
+            url:         `/admin/maintenance/clear-cache`,
+            type:        "GET",
+        }).done(function () {
+            jQuery("#message")
+                .addClass("success")
+                .append("<p>Cache has been cleared.</p>")
+                .fadeIn(250);
+            setTimeout(function() {
+                jQuery("#message").fadeOut(500, function() {
+                    jQuery("#message").removeClass("success").empty();
+                });
+            }, 5000);
+        }).fail(function () {
+            jQuery("#message")
+                .addClass("failure")
+                .append("<p>Could not clear the cache.</p>")
+                .fadeIn(250);
+            setTimeout(function() {
+                jQuery("#message").fadeOut(500, function() {
+                    jQuery("#message").removeClass("failure").empty();
+                });
+            }, 5000);
+        });
+    });
+});
+</script>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/admin/dashboard">Dashboard</a>
+  <li><a href="/admin/users">Users</a>
+  <li class="active">Maintenance
+</ul>
+{% endblock %}
+{% block body %}
+<noscript>
+  <p class="no-script">Sorry, this page requires JavaScript to function properly.</p>
+</noscript>
+<div class="hide-for-javascript">
+<h1>Maintenance</h1>
+<div class="center">
+  <a id="clear-cache" href="/admin/maintenance/clear-cache" class="button neutral-button">Clear cache</a>
+</span>
+</div>
+{% endblock %}

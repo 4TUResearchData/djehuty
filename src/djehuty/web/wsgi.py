@@ -73,6 +73,8 @@ class ApiServer:
             Rule("/admin/dashboard",                          endpoint = "admin_dashboard"),
             Rule("/admin/users",                              endpoint = "admin_users"),
             Rule("/admin/impersonate/<account_id>",           endpoint = "admin_impersonate"),
+            Rule("/admin/maintenance",                        endpoint = "admin_maintenance"),
+            Rule("/admin/maintenance/clear-cache",            endpoint = "admin_clear_cache"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
@@ -938,6 +940,31 @@ class ApiServer:
                 return self.__render_template (
                     request, "admin/users.html",
                     accounts = accounts)
+
+            return self.error_403 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_admin_maintenance (self, request):
+        if self.accepts_html (request):
+            token = self.token_from_cookie (request)
+            if self.db.may_administer (token):
+                return self.__render_template (request, "admin/maintenance.html")
+
+            return self.error_403 (request)
+
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_admin_clear_cache (self, request):
+        if self.accepts_html (request):
+            token = self.token_from_cookie (request)
+            if self.db.may_administer (token):
+                self.db.cache.invalidate_all ()
+                return redirect ("/admin/dashboard", code=302)
 
             return self.error_403 (request)
 
