@@ -478,16 +478,16 @@ class FigshareEndpoint:
             "end_date":   end_date
         }
         prefix     = "/4tu/breakdown/day"
-        views      = self.get_statistics (f"{prefix}/views/{item_type}/{item_id}", headers, parameters)
-        downloads  = self.get_statistics (f"{prefix}/downloads/{item_type}/{item_id}", headers, parameters)
-        shares     = self.get_statistics (f"{prefix}/shares/{item_type}/{item_id}", headers, parameters)
+        #views      = self.get_statistics (f"{prefix}/views/{item_type}/{item_id}", headers, parameters)
+        #downloads  = self.get_statistics (f"{prefix}/downloads/{item_type}/{item_id}", headers, parameters)
+        #shares     = self.get_statistics (f"{prefix}/shares/{item_type}/{item_id}", headers, parameters)
         totals     = self.get_statistics (f"/total/{item_type}/{item_id}", headers, {})
 
         try:
             output = {
-                "views":     views["breakdown"],
-                "downloads": downloads["breakdown"],
-                "shares":    shares["breakdown"],
+                "views":     None, #views["breakdown"],
+                "downloads": None, #downloads["breakdown"],
+                "shares":    None, #shares["breakdown"],
                 "totals":    totals
             }
         except KeyError:
