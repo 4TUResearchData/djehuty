@@ -47,8 +47,8 @@ function latest_datasets () {
 function top_datasets (item_type) {
     jQuery("#top-datasets-wrapper").addClass("loader");
     jQuery("#top-datasets tbody tr").css('opacity', '0.15');
-    jQuery("#top-buttons .active").removeClass("active")
-    jQuery(".top-" + item_type).addClass("active")
+    jQuery("#top-buttons .active").removeClass("active");
+    jQuery(".top-" + item_type).addClass("active");
     var jqxhr = jQuery.get("/v3/articles/top/" + item_type, {
         "limit":           10,
         "order_direction": "desc",
