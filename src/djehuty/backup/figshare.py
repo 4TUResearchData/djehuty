@@ -225,12 +225,15 @@ class FigshareEndpoint:
         record["is_latest"]     = 0
         record["is_editable"]   = 1
 
-        # In the private version, the version is reset to None here.
-        record["version"]       = None
 
         ## Other versions
         ## --------------------------------------------------------------------
-        current_version = conv.value_or_none (record, "version")
+        current_version         = conv.value_or_none (record, "version")
+
+        # In the private version, the version is reset to None to avoid
+        # confusing it with the public/published version.
+        record["version"]       = None
+
         if conv.value_or (record, "is_public", False):
             versions = self.get_article_versions (article_id, account_id,
                                                   latest=current_version)
@@ -338,12 +341,14 @@ class FigshareEndpoint:
         record["account_id"]    = account_id
         record["is_latest"]     = 0
         record["is_editable"]   = 1
-        record["version"]       = None
+
 
         ## Other versions
         ## --------------------------------------------------------------------
+        current_version         = conv.value_or_none (record, "version")
+        record["version"]       = None
+
         if conv.value_or (record, "is_public", False):
-            current_version = conv.value_or_none (record, "version")
             numbers = self.get_collection_versions (collection_id, account_id)
             versions = []
             for number in numbers:
