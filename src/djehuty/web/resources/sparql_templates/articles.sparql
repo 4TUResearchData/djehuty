@@ -19,7 +19,7 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason
                 ?url_public_html ?version ?publisher ?language ?time_coverage
                 ?geolocation ?longitude ?latitude ?format ?organizations
                 ?data_link ?derived_from ?same_as ?contributors
-                ?license_remarks ?article_version_id
+                ?license_remarks ?article_version_id ?is_editable
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -29,6 +29,7 @@ WHERE {
     ?article            col:timeline_id          ?timeline_id .
     ?article            col:title                ?title .
     ?article            col:is_latest            ?is_latest .
+    ?article            col:is_editable          ?is_editable .
 
     ?article            col:account_id           ?account_id .
     ?account            rdf:type                 sg:Account .

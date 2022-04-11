@@ -262,6 +262,8 @@ class SparqlInterface:
 
         if is_editable is not None:
             filters += rdf.sparql_filter ("is_editable", is_editable)
+        else:
+            filters += rdf.sparql_filter ("is_editable", 0)
 
         if is_latest is not None:
             filters += rdf.sparql_filter ("is_latest", is_latest)
