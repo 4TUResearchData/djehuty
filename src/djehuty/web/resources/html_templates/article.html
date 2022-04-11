@@ -2,8 +2,6 @@
 {% block headers %}
 <!-- TODO:
     embargo
-    metadata-only
-    non-opendap external data
     multivalued derived_from
     citation (?)
     versioned and unversioned doi on latest version, explained
@@ -289,34 +287,44 @@
    	      </ul>
    	    </div>
 {% endif %}
-{% autoescape false %}
-    {% if article.organizations %}
+{% if article.organizations %}
+    {% autoescape false %}
         <div id="organizations">
             <div class="label">organizations</div>
    	        {{ article.organizations.replace('\\n', '<br />') }}
    	    </div>
-    {% endif %}
-    {% if contributors %}
+    {% endautoescape %}
+{% endif %}
+{% if contributors %}
         <div id="contributors">
             <div class="label">contributors</div>
             <ul>
-        {% for c in contributors %}
+    {% for c in contributors %}
                 <li>
                     {{c.name}} 
-            {% if c.orcid %}
+        {% if c.orcid %}
                     <a href="https://orcid.org/{{c.orcid}}" target="blank" title="opens in new window"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
-            {% endif %}
+        {% endif %}
                 </li>
-        {% endfor %}
+    {% endfor %}
             </ul>
    	    </div>
-    {% endif %}
-{% endautoescape %}
+{% endif %}
     </div>
 </div>
 
 <div id="data">
 	  <h3>DATA</h3>
+{% if article.is_metadata_record %}
+<!--12999575-->
+        <div id="metadata_only">
+    {% if article.confidential_reason %}
+            {{article.confidential_reason}}
+    {% else %}
+            Data is confidential.
+    {% endif %}
+        </div>
+{% endif %}
 {% if services %}
 <!--12717890-->
 	  <div id="services">
