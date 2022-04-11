@@ -357,7 +357,7 @@ class FigshareEndpoint:
                 version["is_editable"] = 0
 
                 if current_version is not None and version == current_version:
-                    record["is_latest"] = 1
+                    version["is_latest"] = 1
 
                 versions.append(version)
 
