@@ -94,7 +94,8 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
                     if uri_path is not None and filesystem_path is not None:
                         server.static_pages[uri_path] = filesystem_path
-                        logging.info ("Added static page: %s", uri_path)
+                        if not os.environ.get('WERKZEUG_RUN_MAIN'):
+                            logging.info ("Added static page: %s", uri_path)
 
         if not server.db.cache.cache_is_ready():
             logging.error("Failed to set up cache layer.")
