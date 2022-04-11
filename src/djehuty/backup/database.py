@@ -756,9 +756,10 @@ class DatabaseInterface:
         ## we use article_id instead of article_version_id.
         if "statistics" in record:
             stats     = record["statistics"]
-            self.insert_article_statistics (stats["views"], article_id, item_type="views")
-            self.insert_article_statistics (stats["downloads"], article_id, item_type="downloads")
-            self.insert_article_statistics (stats["shares"], article_id, "shares")
+            #self.insert_article_statistics (stats["views"], article_id, item_type="views")
+            #self.insert_article_statistics (stats["downloads"], article_id, item_type="downloads")
+            #self.insert_article_statistics (stats["shares"], article_id, "shares")
+            self.insert_article_totals (stats["totals"], article_id)
         else:
             logging.warning ("No statistics available for article %d.", article_id)
 
