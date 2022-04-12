@@ -10,7 +10,7 @@
 CREATE TABLE IF NOT EXISTS License(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name                  VARCHAR(128),
-    url                   VARCHAR(255)) ENGINE=InnoDB;
+    url                   TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS Timeline(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -23,28 +23,28 @@ CREATE TABLE IF NOT EXISTS Timeline(
 
 CREATE TABLE IF NOT EXISTS Institution(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name                  VARCHAR(255)) ENGINE=InnoDB;
+    name                  TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleTag(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    tag                   VARCHAR(255),
+    tag                   TEXT,
     article_version_id    INT UNSIGNED) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionTag(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    tag                   VARCHAR(255),
+    tag                   TEXT,
     collection_version_id INT UNSIGNED) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticlePrivateLink(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    id_string             VARCHAR(255),
+    id_string             TEXT,
     article_version_id    INT UNSIGNED,
     is_active             BOOLEAN NOT NULL DEFAULT 0,
     expires_date          DATETIME) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionPrivateLink(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    id_string             VARCHAR(255),
+    id_string             TEXT,
     collection_version_id INT UNSIGNED,
     is_active             BOOLEAN NOT NULL DEFAULT 0,
     expires_date          DATETIME) ENGINE=InnoDB;
@@ -52,53 +52,53 @@ CREATE TABLE IF NOT EXISTS CollectionPrivateLink(
 CREATE TABLE IF NOT EXISTS ArticleFunding(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     article_version_id    INT UNSIGNED,
-    title                 VARCHAR(255),
-    grant_code            VARCHAR(255),
-    funder_name           VARCHAR(255),
+    title                 TEXT,
+    grant_code            TEXT,
+    funder_name           TEXT,
     is_user_defined       BOOLEAN NOT NULL DEFAULT 0,
-    url                   VARCHAR(255)) ENGINE=InnoDB;
+    url                   TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionFunding(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     collection_version_id INT UNSIGNED,
-    title                 VARCHAR(255),
-    grant_code            VARCHAR(255),
-    funder_name           VARCHAR(255),
+    title                 TEXT,
+    grant_code            TEXT,
+    funder_name           TEXT,
     is_user_defined       BOOLEAN NOT NULL DEFAULT 0,
-    url                   VARCHAR(255)) ENGINE=InnoDB;
+    url                   TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleEmbargoOption(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     article_version_id    INT UNSIGNED,
     type                  VARCHAR(32),
-    ip_name               VARCHAR(255)) ENGINE=InnoDB;
+    ip_name               TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionEmbargoOption(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     collection_version_id INT UNSIGNED,
     type                  VARCHAR(32),
-    ip_name               VARCHAR(255)) ENGINE=InnoDB;
+    ip_name               TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleType(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name                  VARCHAR(255)
+    name                  TEXT
     ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleEmbargo(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     date                  datetime,
-    title                 VARCHAR(255),
-    reason                VARCHAR(255)) ENGINE=InnoDB;
+    title                 TEXT,
+    reason                TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleReference(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     article_version_id    INT UNSIGNED,
-    url                   VARCHAR(255)) ENGINE=InnoDB;
+    url                   TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionReference(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     collection_version_id INT UNSIGNED,
-    url                   VARCHAR(255)) ENGINE=InnoDB;
+    url                   TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleCategory(
     category_id           INT UNSIGNED,
@@ -115,35 +115,35 @@ CREATE TABLE IF NOT EXISTS Article(
     -- article_id.
     article_id            INT UNSIGNED,
     account_id            INT UNSIGNED,
-    title                 VARCHAR(255),
-    doi                   VARCHAR(255),
-    handle                VARCHAR(255),
+    title                 TEXT,
+    doi                   TEXT,
+    handle                TEXT,
     group_id              INT DEFAULT NULL,
-    url                   VARCHAR(255),
-    url_public_html       VARCHAR(255),
-    url_public_api        VARCHAR(255),
-    url_private_html      VARCHAR(255),
-    url_private_api       VARCHAR(255),
+    url                   TEXT,
+    url_public_html       TEXT,
+    url_public_api        TEXT,
+    url_private_html      TEXT,
+    url_private_api       TEXT,
     published_date        VARCHAR(32),
     timeline_id           INT UNSIGNED,
-    thumb                 VARCHAR(255),
+    thumb                 TEXT,
     defined_type          INT,
-    defined_type_name     VARCHAR(255),
-    figshare_url          VARCHAR(255),
-    resource_title        VARCHAR(255),
-    resource_doi          VARCHAR(255),
+    defined_type_name     TEXT,
+    figshare_url          TEXT,
+    resource_title        TEXT,
+    resource_doi          TEXT,
     embargo_options_id    INT UNSIGNED,
     citation              TEXT,
-    confidential_reason   VARCHAR(255),
-    embargo_type          VARCHAR(255),
+    confidential_reason   TEXT,
+    embargo_type          TEXT,
     is_confidential       BOOLEAN NOT NULL DEFAULT 0,
     size                  BIGINT UNSIGNED,
-    funding               VARCHAR(255),
+    funding               TEXT,
     version               INT UNSIGNED,
     is_active             BOOLEAN NOT NULL DEFAULT 1,
     is_metadata_record    BOOLEAN NOT NULL DEFAULT 0,
-    metadata_reason       VARCHAR(255),
-    status                VARCHAR(255),
+    metadata_reason       TEXT,
+    status                TEXT,
     description           TEXT,
     is_embargoed          BOOLEAN NOT NULL DEFAULT 0,
     embargo_date          DATETIME,
@@ -152,8 +152,8 @@ CREATE TABLE IF NOT EXISTS Article(
     created_date          DATETIME,
     has_linked_file       BOOLEAN NOT NULL DEFAULT 0,
     license_id            INT UNSIGNED,
-    embargo_title         VARCHAR(255),
-    embargo_reason        VARCHAR(255),
+    embargo_title         TEXT,
+    embargo_reason        TEXT,
     is_latest             BOOLEAN NOT NULL DEFAULT 0,
     is_editable           BOOLEAN NOT NULL DEFAULT 0,
 
@@ -178,17 +178,17 @@ CREATE TABLE IF NOT EXISTS ArticleAuthor(
 
 CREATE TABLE IF NOT EXISTS File(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name                  VARCHAR(255),
+    name                  TEXT,
     size                  BIGINT UNSIGNED,
     is_link_only          BOOLEAN NOT NULL DEFAULT 0,
-    download_url          VARCHAR(255),
+    download_url          TEXT,
     supplied_md5          VARCHAR(64),
     computed_md5          VARCHAR(64),
     viewer_type           VARCHAR(64),
     preview_state         VARCHAR(64),
     status                VARCHAR(64),
-    upload_url            VARCHAR(255),
-    upload_token          VARCHAR(255)) ENGINE=InnoDB;
+    upload_url            TEXT,
+    upload_token          TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleFile(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -203,26 +203,26 @@ CREATE TABLE IF NOT EXISTS Author(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     institution_id        INT UNSIGNED,
     group_id              INT UNSIGNED,
-    first_name            VARCHAR(255),
-    last_name             VARCHAR(255),
+    first_name            TEXT,
+    last_name             TEXT,
     is_public             BOOLEAN NOT NULL DEFAULT 1,
-    job_title             VARCHAR(255),
+    job_title             TEXT,
 
     -- Can this be inferred from first_name and last_name?
-    full_name             VARCHAR(255),
+    full_name             TEXT,
 
     is_active             BOOLEAN NOT NULL DEFAULT 1,
-    url_name              VARCHAR(255),
-    orcid_id              VARCHAR(255)) ENGINE=InnoDB;
+    url_name              TEXT,
+    orcid_id              TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS GroupEmbargoOptions(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     type                  ENUM('logged_in', 'ip_range', 'administrator'),
-    ip_name               VARCHAR(255)) ENGINE=InnoDB;
+    ip_name               TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS Category(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    title                 VARCHAR(255),
+    title                 TEXT,
     parent_id             INT UNSIGNED,
     source_id             INT UNSIGNED,
     taxonomy_id           INT UNSIGNED) ENGINE=InnoDB;
@@ -234,10 +234,10 @@ CREATE TABLE IF NOT EXISTS Category(
 CREATE TABLE IF NOT EXISTS Collection(
     collection_version_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     collection_id         INT UNSIGNED,
-    title                 VARCHAR(255),
-    doi                   VARCHAR(255),
-    handle                VARCHAR(255),
-    url                   VARCHAR(255),
+    title                 TEXT,
+    doi                   TEXT,
+    handle                TEXT,
+    url                   TEXT,
     citation              TEXT,
     description           TEXT,
     group_id              INT UNSIGNED,
@@ -249,9 +249,9 @@ CREATE TABLE IF NOT EXISTS Collection(
     created_date          DATETIME,
     version               INT UNSIGNED,
     resource_id           INT UNSIGNED,
-    resource_doi          VARCHAR(255),
-    resource_title        VARCHAR(255),
-    resource_link         VARCHAR(255),
+    resource_doi          TEXT,
+    resource_title        TEXT,
+    resource_link         TEXT,
     resource_version      INT UNSIGNED,
     articles_count        INT UNSIGNED,
     group_resource_id     INT UNSIGNED,
@@ -285,8 +285,8 @@ CREATE TABLE IF NOT EXISTS CollectionArticle(
 CREATE TABLE IF NOT EXISTS Project(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     account_id            INT UNSIGNED,
-    title                 VARCHAR(255),
-    url                   VARCHAR(255),
+    title                 TEXT,
+    url                   TEXT,
     published_date        DATETIME) ENGINE=InnoDB;
 
 -------------------------------------------------------------------------------
@@ -309,12 +309,12 @@ CREATE TABLE IF NOT EXISTS Account(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     active                INT,
     created_date          DATETIME,
-    email                 VARCHAR(255),
-    first_name            VARCHAR(255),
+    email                 TEXT,
+    first_name            TEXT,
     group_id              INT,
     institution_id        INT,
-    institution_user_id   VARCHAR(255),
-    last_name             VARCHAR(255),
+    institution_user_id   TEXT,
+    last_name             TEXT,
     maximum_file_size     INT,
     modified_date         DATETIME,
     pending_quota_request BOOLEAN NOT NULL DEFAULT 0,
@@ -326,7 +326,7 @@ CREATE TABLE IF NOT EXISTS Account(
 CREATE TABLE IF NOT EXISTS ArticleCustomField(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     article_version_id    INT UNSIGNED,
-    name                  VARCHAR(255),
+    name                  TEXT,
     value                 TEXT,
     default_value         TEXT,
     placeholder           TEXT,
@@ -339,12 +339,12 @@ CREATE TABLE IF NOT EXISTS ArticleCustomField(
 CREATE TABLE IF NOT EXISTS ArticleCustomFieldOption(
     id                      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     article_custom_field_id INT UNSIGNED,
-    value                   VARCHAR(255)) ENGINE=InnoDB;
+    value                   TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionCustomField(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     collection_version_id INT UNSIGNED,
-    name                  VARCHAR(255),
+    name                  TEXT,
     value                 TEXT,
     default_value         TEXT,
     placeholder           TEXT,
@@ -357,7 +357,7 @@ CREATE TABLE IF NOT EXISTS CollectionCustomField(
 CREATE TABLE IF NOT EXISTS CollectionCustomFieldOption(
     id                         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     collection_custom_field_id INT UNSIGNED,
-    value                      VARCHAR(255)) ENGINE=InnoDB;
+    value                      TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleTotals(
     article_id            INT UNSIGNED,
@@ -369,22 +369,22 @@ CREATE TABLE IF NOT EXISTS ArticleTotals(
 
 CREATE TABLE IF NOT EXISTS ArticleViews(
     article_id            INT UNSIGNED,
-    country               VARCHAR(255),
-    region                VARCHAR(255),
+    country               TEXT,
+    region                TEXT,
     views                 INT UNSIGNED,
     date                  DATETIME) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleDownloads(
     article_id            INT UNSIGNED,
-    country               VARCHAR(255),
-    region                VARCHAR(255),
+    country               TEXT,
+    region                TEXT,
     downloads             INT UNSIGNED,
     date                  DATETIME) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleShares(
     article_id            INT UNSIGNED,
-    country               VARCHAR(255),
-    region                VARCHAR(255),
+    country               TEXT,
+    region                TEXT,
     shares                INT UNSIGNED,
     date                  DATETIME) ENGINE=InnoDB;
 
@@ -398,31 +398,31 @@ CREATE TABLE IF NOT EXISTS CollectionTotals(
 
 CREATE TABLE IF NOT EXISTS CollectionViews(
     collection_id         INT UNSIGNED,
-    country               VARCHAR(255),
-    region                VARCHAR(255),
+    country               TEXT,
+    region                TEXT,
     views                 INT UNSIGNED,
     date                  DATETIME) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionDownloads(
     collection_id         INT UNSIGNED,
-    country               VARCHAR(255),
-    region                VARCHAR(255),
+    country               TEXT,
+    region                TEXT,
     downloads             INT UNSIGNED,
     date                  DATETIME) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS CollectionShares(
     collection_id         INT UNSIGNED,
-    country               VARCHAR(255),
-    region                VARCHAR(255),
+    country               TEXT,
+    region                TEXT,
     shares                INT UNSIGNED,
     date                  DATETIME) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS InstitutionGroup(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     parent_id             INT UNSIGNED,
-    resource_id           VARCHAR(255),
-    name                  VARCHAR(255),
-    association_criteria  VARCHAR(255)) ENGINE=InnoDB;
+    resource_id           TEXT,
+    name                  TEXT,
+    association_criteria  TEXT) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS Session(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
