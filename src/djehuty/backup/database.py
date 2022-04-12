@@ -764,7 +764,8 @@ class DatabaseInterface:
             #self.insert_article_statistics (stats["shares"], article_id, "shares")
             self.insert_article_totals (stats["totals"], article_id)
         else:
-            logging.warning ("No statistics available for article %d.", article_id)
+            if convenience.value_or (record, "is_public", False):
+                logging.warning ("No statistics available for article %d.", article_id)
 
         custom_fields = record["custom_fields"]
         for field in custom_fields:
