@@ -237,7 +237,11 @@
 <!--18865385-->
         <div id="derived_from">
             <div class="label">derived from</div>
-   	        <a href="{{article.derived_from}}" target="blank" title="opens in new window">{{article.derived_from}}</a>
+            <ul>
+    {% for d in derived_from %}
+                <li><a href="{{article.derived_from}}" target="blank" title="opens in new window">{{article.derived_from}}</a></li>
+   	{% endfor %}
+   	        </ul>
    	    </div>
 {% endif %}
 {% if article.same_as %}
@@ -288,6 +292,7 @@
    	    </div>
 {% endif %}
 {% if article.organizations %}
+<!--12705164-->
     {% autoescape false %}
         <div id="organizations">
             <div class="label">organizations</div>
@@ -389,6 +394,7 @@
     <h3>categories</h3>{{categories}}
     <h3>fundings</h3>{{fundings}}
     <h3>references</h3>{{references}}
+    <h3>derived_from</h3>{{derived_from}}
     <h3>collections</h3>{{collections}}
     <h3>dates</h3>{{dates}}
     <h3>coordinates</h3>{{coordinates}}

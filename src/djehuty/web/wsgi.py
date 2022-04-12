@@ -1049,6 +1049,8 @@ class ApiServer:
             tags          = self.db.tags(item_id=article_version_id, item_type="article")
             categories    = self.db.categories(item_id=article_version_id, item_type="article")
             references    = self.db.references(item_id=article_version_id, item_type="article")
+            derived_from  = self.db.article_derived_from(article_version_id=article_version_id)
+            derived_from  = [d['derived_from'] for d in derived_from]
             fundings      = self.db.fundings(item_id=article_version_id, item_type="article")
             collections   = self.db.collections_from_article(article_id=article_id) #N.B. Not article_version_id!
             statistics    = self.db.single_article_statistics_totals(article_id=article_id)
@@ -1110,6 +1112,7 @@ class ApiServer:
                                            categories=categories,
                                            fundings=fundings,
                                            references=references,
+                                           derived_from=derived_from,
                                            collections=collections,
                                            dates=dates,
                                            coordinates=coordinates,

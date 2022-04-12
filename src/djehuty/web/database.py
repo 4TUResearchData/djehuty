@@ -501,6 +501,19 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def article_derived_from (self, article_version_id, order=None,
+                              order_direction=None, limit=10):
+        """Procedure to retrieve derived_from links"""
+        
+        query = self.__query_from_template ("article_derived_from", {
+            "state_graph": self.state_graph,
+            "article_version_id":  article_version_id,
+        })
+
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
+
+        return self.__run_query(query)
+
     def delete_article_reference (self, article_version_id, account_id, url=None):
         """Procedure to delete an article reference."""
 

@@ -1,0 +1,11 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?derived_from
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?article    rdf:type                  sg:Article ;
+                col:article_version_id    {{article_version_id}} ;
+                col:derived_from          ?derived_from .
+  }   
+}
+{% endblock %}
