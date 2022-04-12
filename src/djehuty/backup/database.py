@@ -426,14 +426,12 @@ class DatabaseInterface:
     def insert_funding (self, record, item_id, item_type="article"):
         """Procedure to insert a funding record."""
 
-        prefix   = "Article" if item_type == "article" else "Collection"
-        template = (f"INSERT IGNORE INTO {prefix}Funding "
-                    f"(id, {item_type}_version_id, title, grant_code, "
+        prefix   = item_type.capitalize()
+        template = ("INSERT IGNORE INTO Funding (id, title, grant_code, "
                     "funder_name, is_user_defined, url) VALUES (%s, %s, "
-                    "%s, %s, %s, %s, %s)")
+                    "%s, %s, %s, %s)")
 
         data     = (convenience.value_or_none (record, "id"),
-                    item_id,
                     convenience.value_or_none (record, "title"),
                     convenience.value_or_none (record, "grant_code"),
                     convenience.value_or_none (record, "funder_name"),
@@ -444,7 +442,12 @@ class DatabaseInterface:
             logging.error("Inserting funding for %s failed.", item_type)
             return False
 
-        return True
+        template = (f"INSERT IGNORE INTO {prefix}Funding "
+                    f"({item_type}_version_id, funding_id) VALUES (%s, %s)")
+        data     = (item_id, record["id"])
+
+        retval = self.__execute_query (template, data)
+        return bool(retval)
 
     def insert_private_links (self, record, item_id, item_type="article"):
         """Procedure to insert a private link to an article or a collection."""

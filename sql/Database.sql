@@ -49,23 +49,23 @@ CREATE TABLE IF NOT EXISTS CollectionPrivateLink(
     is_active             BOOLEAN NOT NULL DEFAULT 0,
     expires_date          DATETIME) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS ArticleFunding(
+CREATE TABLE IF NOT EXISTS Funding(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    article_version_id    INT UNSIGNED,
     title                 TEXT,
     grant_code            TEXT,
     funder_name           TEXT,
     is_user_defined       BOOLEAN NOT NULL DEFAULT 0,
     url                   TEXT) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS ArticleFunding(
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    funding_id            INT UNSIGNED,
+    article_version_id    INT UNSIGNED) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS CollectionFunding(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    collection_version_id INT UNSIGNED,
-    title                 TEXT,
-    grant_code            TEXT,
-    funder_name           TEXT,
-    is_user_defined       BOOLEAN NOT NULL DEFAULT 0,
-    url                   TEXT) ENGINE=InnoDB;
+    funding_id            INT UNSIGNED,
+    collection_version_id INT UNSIGNED) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ArticleEmbargoOption(
     id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
