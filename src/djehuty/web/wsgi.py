@@ -539,14 +539,12 @@ class ApiServer:
                                      value  = other_session_token,
                                      secure = self.in_production)
                 response.delete_cookie (key = other_cookie_key)
-
                 return response
-            else:
-                response = redirect ("/", code=302)
-                self.db.delete_session (self.token_from_cookie (request))
-                response.delete_cookie (key=self.cookie_key)
 
-                return response
+            response = redirect ("/", code=302)
+            self.db.delete_session (self.token_from_cookie (request))
+            response.delete_cookie (key=self.cookie_key)
+            return response
 
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
