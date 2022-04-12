@@ -6,15 +6,14 @@ function save_session (session_id) {
     event.preventDefault();
     event.stopPropagation();
 
-    form_data  = { "name": jQuery("#name").val() }
     var jqxhr  = jQuery.ajax({
         url:         `/my/sessions/${session_id}/edit`,
         type:        "PUT",
         contentType: "application/json",
         accept:      "application/json",
-        data:        JSON.stringify(form_data)
+        data:        JSON.stringify({ "name": jQuery("#name").val() })
     }).done(function () {
-        window.location.href = "/my/dashboard";
+        window.location.replace("/my/dashboard");
     }).fail(function () {
         jQuery("#message")
             .addClass("failure")
