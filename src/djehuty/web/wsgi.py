@@ -1049,10 +1049,9 @@ class ApiServer:
             tags          = self.db.tags(item_id=article_version_id, item_type="article")
             categories    = self.db.categories(item_id=article_version_id, item_type="article")
             references    = self.db.references(item_id=article_version_id, item_type="article")
-            derived_from  = self.db.article_derived_from(article_version_id=article_version_id)
-            derived_from  = [d['derived_from'] for d in derived_from]
+            derived_from  = self.db.derived_from(item_id=article_version_id, item_type="article")
             fundings      = self.db.fundings(item_id=article_version_id, item_type="article")
-            collections   = self.db.collections_from_article(article_id=article_id) #N.B. Not article_version_id!
+            collections   = self.db.collections_from_article(article_id=article_id)
             statistics    = self.db.single_article_statistics_totals(article_id=article_id)
             member = value_or(group_to_member, article["group_id"], 'other')
             member_url_name = member_url_names[member]
@@ -1349,6 +1348,12 @@ class ApiServer:
                                                                      categories,
                                                                      fundings,
                                                                      references)
+            # ugly fix for custom field Derived From
+            custom = total['custom_fields']
+            custom = [c for c in custom if c['name'] != 'Derived From']
+            custom.append( {"name": "Derived From",
+                            "value": self.db.derived_from(item_id=article_version_id)} )
+            total['custom_fields'] = custom
             return self.response (json.dumps(total))
         except IndexError:
             response = self.response (json.dumps({
