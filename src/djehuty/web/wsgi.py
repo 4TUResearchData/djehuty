@@ -2445,10 +2445,12 @@ class ApiServer:
         if request.method == 'GET':
             ## Parameters
             ## ----------------------------------------------------------------
-            page            = self.get_parameter (request, "page")
-            page_size       = self.get_parameter (request, "page_size")
-            limit           = self.get_parameter (request, "limit")
-            offset          = self.get_parameter (request, "offset")
+            offset, limit = validator.paging_to_offset_and_limit ({
+                "page":      self.get_parameter (request, "page"),
+                "page_size": self.get_parameter (request, "page_size"),
+                "limit":     self.get_parameter (request, "limit"),
+                "offset":    self.get_parameter (request, "offset")
+            })
             order           = self.get_parameter (request, "order")
             order_direction = self.get_parameter (request, "order_direction")
 
@@ -2461,9 +2463,7 @@ class ApiServer:
             doi             = self.get_parameter (request, "doi")
             handle          = self.get_parameter (request, "handle")
 
-            records = self.db.collections (#page=page,
-                                           #page_size=page_size,
-                                           limit=limit,
+            records = self.db.collections (limit=limit,
                                            offset=offset,
                                            order=order,
                                            order_direction=order_direction,
