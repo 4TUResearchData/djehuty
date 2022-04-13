@@ -664,11 +664,7 @@ class ApiServer:
                     article = self.db.articles(article_id = article_id,
                                                account_id = account_id,
                                                is_editable=1)[0]
-                    categories = self.db.root_categories ()
-                    for index, _ in enumerate(categories):
-                        category      = categories[index]
-                        subcategories = self.db.subcategories_for_category (category["id"])
-                        categories[index]["subcategories"] = subcategories
+                    categories = self.db.categories_tree ()
 
                     # The parent_id was pre-determined by Figshare.
                     groups = self.db.group (parent_id = 28585,
@@ -764,11 +760,7 @@ class ApiServer:
                         collection_id = collection_id,
                         account_id = account_id)[0]
 
-                    categories = self.db.root_categories ()
-                    for index, _ in enumerate(categories):
-                        category      = categories[index]
-                        subcategories = self.db.subcategories_for_category (category["id"])
-                        categories[index]["subcategories"] = subcategories
+                    categories = self.db.categories_tree ()
 
                     # The parent_id was pre-determined by Figshare.
                     groups = self.db.group (parent_id = 28585,

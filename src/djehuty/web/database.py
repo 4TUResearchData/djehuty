@@ -1940,6 +1940,17 @@ class SparqlInterface:
         query += rdf.sparql_suffix ("title", "asc")
         return self.__run_query (query, query, "category")
 
+    def categories_tree (self):
+        """Procedure to return a tree of categories."""
+
+        categories = self.root_categories ()
+        for index, _ in enumerate(categories):
+            category      = categories[index]
+            subcategories = self.subcategories_for_category (category["id"])
+            categories[index]["subcategories"] = subcategories
+
+        return categories
+
     def group (self, group_id=None, parent_id=None, name=None,
                association=None, limit=None, offset=None,
                order=None, order_direction=None, starts_with=False):
