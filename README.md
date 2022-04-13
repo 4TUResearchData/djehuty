@@ -54,6 +54,7 @@ pyinstaller --onefile \
 ```bash
 pip install nuitka
 nuitka3 --standalone \
+        --include-module=rdflib.plugins \
         --include-module=_cffi_backend \
         --include-package-data=djehuty \
         --onefile \
