@@ -661,9 +661,10 @@ class ApiServer:
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
                 try:
-                    article = self.db.articles(article_id = article_id,
-                                               account_id = account_id,
-                                               is_editable=1)[0]
+                    article = self.db.articles (article_id  = article_id,
+                                                account_id  = account_id,
+                                                is_editable = 1,
+                                                is_public   = 0)[0]
                     categories = self.db.categories_tree ()
 
                     # The parent_id was pre-determined by Figshare.
@@ -699,7 +700,10 @@ class ApiServer:
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
                 try:
-                    article = self.db.articles(article_id=article_id, account_id=account_id)[0]
+                    article = self.db.articles (article_id  = article_id,
+                                                account_id  = account_id,
+                                                is_editable = 1,
+                                                is_public   = 0)[0]
                     article_version_id = article["article_version_id"]
 
                     result = self.db.delete_article_version (
@@ -1032,7 +1036,10 @@ class ApiServer:
             versions      = self.db.article_versions(article_id=article_id)
             versions      = [v for v in versions if v['version']] # exclude version None
             current_version = version if version else versions[0]['version']
-            article       = self.db.articles(article_id=article_id, version=current_version)[0]
+            article       = self.db.articles (article_id  = article_id,
+                                              version     = current_version,
+                                              is_editable = 0,
+                                              is_public   = 1)[0]
             article_version_id = article["article_version_id"]
             authors       = self.db.authors(item_id=article_version_id, item_type="article")
             files         = self.db.article_files(article_version_id=article_version_id, limit=None)
@@ -1272,7 +1279,9 @@ class ApiServer:
                                         resource_doi=resource_doi,
                                         item_type=item_type,
                                         doi=doi,
-                                        handle=handle)
+                                        handle=handle,
+                                        is_latest = 1,
+                                        is_editable = 0)
 
             return self.default_list_response (records, formatter.format_article_record)
 
@@ -1321,7 +1330,7 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article       = self.db.articles(article_id=article_id)[0]
+            article       = self.db.articles(article_id=article_id, is_editable=0, is_public=1)[0]
             article_version_id = article["article_version_id"]
             authors       = self.db.authors(item_id=article_version_id, item_type="article")
             files         = self.db.article_files(article_version_id=article_version_id)
@@ -1372,7 +1381,10 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article       = self.db.articles(article_id=article_id, version=version)[0]
+            article       = self.db.articles (article_id  = article_id,
+                                              version     = version,
+                                              is_editable = 0,
+                                              is_public   = 1)[0]
             article_version_id = article["article_version_id"]
             authors       = self.db.authors(item_id=article_version_id, item_type="article")
             files         = self.db.article_files(article_version_id=article_version_id)
@@ -1407,7 +1419,10 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article         = self.db.articles (article_id=article_id, version=version)[0]
+            article       = self.db.articles (article_id  = article_id,
+                                              version     = version,
+                                              is_editable = 0,
+                                              is_public   = 1)[0]
             article_version_id = article["article_version_id"]
             embargo_options = self.db.article_embargo_options (article_version_id=article_version_id)
             total           = formatter.format_article_embargo_record (article, embargo_options)
@@ -1427,7 +1442,10 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article         = self.db.articles (article_id=article_id, version=version)[0]
+            article       = self.db.articles (article_id  = article_id,
+                                              version     = version,
+                                              is_editable = 0,
+                                              is_public   = 1)[0]
             total           = formatter.format_article_confidentiality_record (article)
             return self.response (json.dumps(total))
         except IndexError:
@@ -1459,7 +1477,7 @@ class ApiServer:
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
-        article = self.db.articles (article_id=article_id)[0]
+        article = self.db.articles (article_id=article_id, is_editable=0, is_public=1)[0]
         article_version_id = article["article_version_id"]
         files   = self.db.article_files (article_version_id=article_version_id)
 
@@ -1472,7 +1490,7 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article = self.db.articles (article_id=article_id)[0]
+            article = self.db.articles (article_id=article_id, is_editable=0, is_public=1)[0]
             article_version_id = article["article_version_id"]
             files = self.db.article_files (
                 file_id = file_id,
@@ -1570,7 +1588,10 @@ class ApiServer:
             return self.error_authorization_failed()
 
         if request.method == 'GET':
-            article    = self.db.articles (article_id=article_id, account_id=account_id)
+            article    = self.db.articles (article_id  = article_id,
+                                           account_id  = account_id,
+                                           is_editable = 1,
+                                           is_public   = 0)
             if not article:
                 return self.response (json.dumps([]))
 
@@ -1614,7 +1635,10 @@ class ApiServer:
                 elif defined_type_name == "dataset":
                     defined_type = 3
 
-                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article = self.db.articles (article_id  = article_id,
+                                            account_id  = account_id,
+                                            is_editable = 1,
+                                            is_public   = 0)[0]
                 article_version_id = article["article_version_id"]
 
                 result = self.db.update_article (article_version_id, account_id,
@@ -1657,7 +1681,10 @@ class ApiServer:
 
         if request.method == 'DELETE':
             try:
-                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article = self.db.articles (article_id  = article_id,
+                                            account_id  = account_id,
+                                            is_editable = 1,
+                                            is_public   = 0)[0]
                 article_version_id = article["article_version_id"]
 
                 if self.db.delete_article_version (article_version_id, account_id):
@@ -1687,7 +1714,10 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                article = self.db.articles(article_id=article_id, account_id=account_id)[0]
+                article = self.db.articles (article_id  = article_id,
+                                            account_id  = account_id,
+                                            is_editable = 1,
+                                            is_public   = 0)[0]
                 article_version_id = article["article_version_id"]
 
                 authors    = self.db.authors(item_id    = article_version_id,
@@ -1724,7 +1754,10 @@ class ApiServer:
 
                     author_ids.append(author_id)
 
-                article = self.db.articles(article_id=article_id, account_id=account_id)[0]
+                article = self.db.articles(article_id  = article_id,
+                                           account_id  = account_id,
+                                           is_editable = 1,
+                                           is_public   = 0)[0]
                 article_version_id = article["article_version_id"]
                 self.db.delete_authors_for_article (article_version_id, account_id)
                 for author_id in author_ids:
@@ -1771,7 +1804,10 @@ class ApiServer:
                             logging.error("Adding a single author failed.")
                             return self.error_500()
 
-                    article = self.db.articles(article_id=article_id, account_id=account_id)[0]
+                    article = self.db.articles(article_id  = article_id,
+                                               account_id  = account_id,
+                                               is_editable = 1,
+                                               is_public   = 0)[0]
                     article_version_id = article["article_version_id"]
 
                     if self.db.insert_article_author (article_version_id, author_id) is None:
@@ -1803,7 +1839,10 @@ class ApiServer:
             return self.error_authorization_failed()
 
         try:
-            article   = self.db.articles (article_id=article_id, account_id=account_id)[0]
+            article   = self.db.articles (article_id  = article_id,
+                                          account_id  = account_id,
+                                          is_editable = 1,
+                                          is_public   = 0)[0]
             article_version_id = article["article_version_id"]
 
             result = self.db.delete_authors_for_article (article_version_id, account_id, author_id)
@@ -1880,7 +1919,10 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article = self.db.articles (article_id  = article_id,
+                                            account_id  = account_id,
+                                            is_editable = 1,
+                                            is_public   = 0)[0]
                 article_version_id = article["article_version_id"]
 
                 categories    = self.db.categories (item_id    = article_version_id,
@@ -1961,7 +2003,10 @@ class ApiServer:
             return self.error_authorization_failed()
 
         if request.method == 'GET':
-            article    = self.db.articles (article_id=article_id, account_id=account_id)
+            article    = self.db.articles (article_id  = article_id,
+                                           account_id  = account_id,
+                                           is_editable = 1,
+                                           is_public   = 0)
             if not article:
                 return self.response (json.dumps([]))
 
@@ -2008,7 +2053,10 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article = self.db.articles (article_id  = article_id,
+                                            account_id  = account_id,
+                                            is_editable = 1,
+                                            is_public   = 0)[0]
                 article_version_id = article["article_version_id"]
 
                 files = self.db.article_files (
@@ -2033,7 +2081,10 @@ class ApiServer:
                 article_id = int(article_id)
                 link = validator.string_value (parameters, "link", 0, 1000, False)
 
-                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article = self.db.articles (article_id  = article_id,
+                                            account_id  = account_id,
+                                            is_editable = 1,
+                                            is_public   = 0)[0]
                 article_version_id = article["article_version_id"]
 
                 if link is not None:
@@ -2090,7 +2141,10 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article = self.db.articles (article_id  = article_id,
+                                            account_id  = account_id,
+                                            is_editable = 1,
+                                            is_public   = 0)[0]
                 article_version_id = article["article_version_id"]
 
                 files   = self.db.article_files (
@@ -2111,7 +2165,10 @@ class ApiServer:
 
         if request.method == 'DELETE':
             try:
-                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article = self.db.articles (article_id  = article_id,
+                                            account_id  = account_id,
+                                            is_editable = 1,
+                                            is_public   = 0)[0]
                 article_version_id = article["article_version_id"]
 
                 result = self.db.delete_file_for_article (
@@ -3086,7 +3143,10 @@ class ApiServer:
             return self.error_authorization_failed()
 
         try:
-            article   = self.db.articles (article_id=article_id, account_id=account_id)[0]
+            article = self.db.articles (article_id  = article_id,
+                                        account_id  = account_id,
+                                        is_editable = 1,
+                                        is_public   = 0)[0]
             article_version_id = article["article_version_id"]
             file_data = request.files['file']
             file_id   = self.db.insert_file (
@@ -3204,7 +3264,10 @@ class ApiServer:
                 url_encoded = validator.string_value (request.args, "url", 0, 1024, True)
                 url         = requests.utils.unquote(url_encoded)
 
-                article   = self.db.articles (article_id=article_id, account_id=account_id)[0]
+                article = self.db.articles (article_id  = article_id,
+                                            account_id  = account_id,
+                                            is_editable = 1,
+                                            is_public   = 0)[0]
                 article_version_id = article["article_version_id"]
 
                 if self.db.delete_article_reference (article_version_id, account_id, url) is not None:
