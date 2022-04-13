@@ -54,6 +54,7 @@ pyinstaller --onefile \
 ```bash
 pip install nuitka
 nuitka3 --standalone \
+        --include-module=_cffi_backend \
         --include-package-data=djehuty \
         --onefile \
         --linux-onefile-icon="src/djehuty/web/resources/static/images/favicon.png" \
