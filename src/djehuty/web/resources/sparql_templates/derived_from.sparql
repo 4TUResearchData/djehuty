@@ -6,6 +6,6 @@ WHERE {
     ?article    rdf:type                      sg:{{item_type|capitalize}} ;
                 col:{{item_type}}_version_id  {{item_id}} ;
                 col:derived_from              ?derived_from .
-  }   
+  }
 }
 {% endblock %}

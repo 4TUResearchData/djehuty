@@ -504,7 +504,7 @@ class SparqlInterface:
     def derived_from (self, item_id, item_type='article',
                       order=None, order_direction=None, limit=10):
         """Procedure to retrieve derived_from links"""
-        
+
         query = self.__query_from_template ("derived_from", {
             "item_type": item_type,
             "state_graph": self.state_graph,
