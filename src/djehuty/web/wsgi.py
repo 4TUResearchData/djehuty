@@ -18,8 +18,8 @@ from jinja2.exceptions import TemplateNotFound
 from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import database
-from djehuty.utils.convenience import value_or, value_or_none, pretty_print_size, decimal_coords
-from djehuty.utils.convenience import self_or_value, self_or_value_or_none, unversion_doi
+from djehuty.utils.convenience import pretty_print_size, decimal_coords
+from djehuty.utils.convenience import value_or, value_or_none, self_or_value_or_none
 from djehuty.utils.constants import group_to_member, member_url_names
 
 
@@ -401,7 +401,7 @@ class ApiServer:
         if not contains:
             return False
 
-        return ("application/json" in contains)
+        return "application/json" in contains
 
     def get_parameter (self, request, parameter):
         try:
