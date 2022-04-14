@@ -46,43 +46,40 @@ def pretty_print_size (num_bytes):
 
     return output
 
-def decimal_coord(txt, axis, digits=5):
+def decimal_coord(raw_input, axis, digits=5):
     '''
     Converts txt to string with decimal coordinates or None if invalid.
     Accepts input like "42.597" or "5º 38’ 18.5’’ E".
     axis is 'N' or 'E'
     5 digits is accuracy (RMS) of 40 cm.
     '''
-    pat = r"^(-?\d+)º\s*(\d+)[’']\s*((\d+)(\.\d?)?)[’']{2}\s*([NESW]?)$"
-    if txt is None:
-        return None
-    txt = str(txt) #fix for cases where txt is already numerical (bug)
-    txt = txt.strip()
-    deg = None
-    ax = None
-    try:
-        deg = float(txt)
-        ax = ''
-    except:
-        match = re.search(pat, txt)
-        if match:
-            g = match.groups()
-            deg = int(g[0]) + int(g[1])/60 + float(g[2])/3600
-            ax = g[-1]
-            if ax:
-                if ax in 'SW':
-                    deg = - deg
-                    ax = 'N' if ax == 'S' else 'E'
-    if ax in (axis, ''):
+    pattern = r"""^(-?\d+)º\s*(\d+)[’']\s*((\d+)(\.\d?)?)((’’)|('')|")\s*([NESW]?)$"""
+    if raw_input is not None:
+        raw_input = str(raw_input) #fix for cases where raw_input is already numerical (bug)
+        raw_input = raw_input.strip()
+        try:
+            deg = float(raw_input)
+        except:
+            match = re.search(pattern, raw_input)
+            if match:
+                g = match.groups()
+                deg = int(g[0]) + int(g[1])/60 + float(g[2])/3600
+                direction = g[-1] #direction may be N,E,S,W, axis N,E.
+                if (direction == 'S' and axis == 'N') or (direction == 'W' and axis == 'E'):
+                    deg = -deg
+                elif direction != axis:
+                    return None #something is wrong, probably mixed up lat and lon
+            else:
+                return None #something is wrong, undecipherable gibberish
         arc_rel = deg/90 if axis == 'N' else deg/180
         if abs(arc_rel) <= 1.:
             return f'{deg:.{digits}f}'
 
     return None
 
-def decimal_coords(lat, lon, digits=4):
+def decimal_coords(lat, lon, digits=5):
     '''
-    Converts strings lat, lon to decimal coordinats or None if invalid.
+    Converts raw input lat, lon to decimal coordinats or None if invalid.
     '''
     lat_validated = decimal_coord(lat, 'N', digits=digits)
     lon_validated = decimal_coord(lon, 'E', digits=digits)
