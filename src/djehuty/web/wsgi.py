@@ -830,6 +830,9 @@ class ApiServer:
                         account_id    = account_id)[0]
 
                     collection_version_id = collection["collection_version_id"]
+                    if collection["is_public"] != 0:
+                        return self.error_403 (request)
+
                     result = self.db.delete_collection (
                         collection_version_id = collection_version_id,
                         account_id    = account_id)

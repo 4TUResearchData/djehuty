@@ -81,7 +81,7 @@ jQuery(document).ready(function () {
         </span>
       </td>
       <td>{{collection.created_date | truncate(10,False,'')}}</td>
-      <td><a href="/my/collections/{{collection.collection_id}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+      <td>{% if not collection.is_public %}<a href="/my/collections/{{collection.collection_id}}/delete" class="fas fa-trash-can" title="Remove"></a>{% endif %}</td>
     </tr>
   {% endfor %}</tbody>
 </table>

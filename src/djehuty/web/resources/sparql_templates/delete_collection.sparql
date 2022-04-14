@@ -11,6 +11,7 @@ WHERE {
     ?collection  rdf:type          sg:Collection .
     ?collection  col:collection_version_id ?collection_version_id .
     ?collection  col:account_id    {{account_id}} .
+    ?collection  col:is_public     0 .
     ?collection  ?predicate        ?object .
 
     OPTIONAL {
