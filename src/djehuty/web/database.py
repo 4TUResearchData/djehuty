@@ -1015,6 +1015,37 @@ class SparqlInterface:
 
         return None
 
+    def update_account (self, account_id, active=None, email=None,
+                        first_name=None, last_name=None, institution_user_id=None,
+                        institution_id=None, pending_quota_request=None,
+                        used_quota_public=None, used_quota_private=None,
+                        used_quota=None, maximum_file_size=None, quota=None,
+                        modified_date=None, created_date=None, group_id=None):
+        """Procedure to update account settings."""
+
+        query   = self.__query_from_template ("update_account", {
+            "state_graph":           self.state_graph,
+            "account_id":            account_id,
+            "is_active":             active,
+            "email":                 email,
+            "first_name":            first_name,
+            "last_name":             last_name,
+            "institution_user_id":   institution_user_id,
+            "institution_id":        institution_id,
+            "pending_quota_request": pending_quota_request,
+            "used_quota_public":     used_quota_public,
+            "used_quota_private":    used_quota_private,
+            "used_quota":            used_quota,
+            "maximum_file_size":     maximum_file_size,
+            "quota":                 quota,
+            "modified_date":         modified_date,
+            "created_date":          created_date,
+            "group_id":              group_id
+        })
+
+        self.cache.invalidate_by_prefix ("accounts")
+        return self.__run_query (query)
+
     def insert_institution (self, name, institution_id=None):
         """Procedure to add an institution to the state graph."""
 
