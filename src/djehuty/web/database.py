@@ -59,7 +59,7 @@ class SparqlInterface:
         except EmptyDatabase:
             logging.warning ("It looks like the database is empty.")
 
-        if not os.environ.get('WERKZEUG_RUN_MAIN'):
+        if not os.environ.get('WERKZEUG_RUN_MAIN') and self.sparql_is_up:
             for item in self.ids.keys():
                 logging.info ("%s enumerator set to %d", item, self.ids.current_id (item))
 
