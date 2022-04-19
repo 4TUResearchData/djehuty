@@ -981,7 +981,7 @@ class SparqlInterface:
                         institution_id=None, pending_quota_request=None,
                         used_quota_public=None, used_quota_private=None,
                         used_quota=None, maximum_file_size=None, quota=None,
-                        modified_date=None, created_date=None):
+                        modified_date=None, created_date=None, group_id=None):
         """Procedure to add an account to the state graph."""
 
         graph = Graph()
@@ -1000,6 +1000,7 @@ class SparqlInterface:
         rdf.add (graph, account_uri, rdf.COL["last_name"],             last_name,     XSD.string)
         rdf.add (graph, account_uri, rdf.COL["institution_user_id"],   institution_user_id)
         rdf.add (graph, account_uri, rdf.COL["institution_id"],        institution_id)
+        rdf.add (graph, account_uri, rdf.COL["group_id"],              group_id)
         rdf.add (graph, account_uri, rdf.COL["pending_quota_request"], pending_quota_request)
         rdf.add (graph, account_uri, rdf.COL["used_quota_public"],     used_quota_public)
         rdf.add (graph, account_uri, rdf.COL["used_quota_private"],    used_quota_private)
