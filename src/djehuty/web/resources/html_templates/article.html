@@ -1,9 +1,12 @@
 {% extends "layout.html" %}
 {% block headers %}
 <!-- TODO:
+    file previews (for which file types?)
     embargo
-    multivalued derived_from
+    reengineer multivalued derived_from
     citation (?)
+    order of files
+    order of fundings (?)
     versioned and unversioned doi on latest version, explained
 -->
 <script src="/static/js/jquery-3.6.0.min.js"></script>
@@ -148,10 +151,14 @@
                    'GPL-3.0'        : 'gnu-gpl-v3.png'  } %}
 {% set lic_img = lic_imgs[article.license_name] %}
         <div id="licence">
-        	  <div class="label">license</div>
+            <div class="label">licence</div>
         	  <a href="{{article.license_url}}" target="blank" title="opens in new window">
         	  	{%- if lic_img %}<img src="/static/images/licenses/{{lic_img}}" alt="{{lic_img}} logo"/>{% endif %}
         	  	{{article.license_name}}</a>
+{% if article.license_remarks %}
+<!--12776162-->
+            <div>{{article.license_remarks}}</div>
+{% endif %}
         </div>
 {% if collections %}
 <!--17122553-->
@@ -347,7 +354,10 @@
 	  	  <div class="label">OPeNDAP data service</div>
 	  	  <ul>
 	  {% for url in opendap %}
-	  	      <li><a href="{{url}}" target="blank" title="opens in new window">{{url}}</a></li>
+	  	      <li>
+	  	      	  <a href="{{url}}" target="blank" title="opens in new window">{{url}}</a>
+	  	      	  [<a href="{{url|replace('.html','.xml')}}" target="blank">xml</a>]
+	  	      </li>
 	  {% endfor %}
 	  	  </ul>
 	  </div>
