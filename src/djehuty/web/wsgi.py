@@ -3417,9 +3417,9 @@ class ApiServer:
         return self.error_500 ()
 
     def api_v3_private_article_git_upload_pack (self, request, article_id):
-        """Implements /v2/articles/<id>.git/git-upload-pack."""
+        """Implements /v3/articles/<id>.git/git-upload-pack."""
         return self.__git_passthrough (request)
 
     def api_v3_private_article_git_receive_pack (self, request, article_id):
-        """Implements /v2/articles/<id>.git/git-upload-pack."""
+        """Implements /v3/articles/<id>.git/git-receive-pack."""
         return self.__git_passthrough (request)
