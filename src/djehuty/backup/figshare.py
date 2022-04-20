@@ -467,27 +467,13 @@ class FigshareEndpoint:
         headers["Authorization"] = f"Basic {self.stats_auth}"
 
         output     = None
-        if start_date is None:
-            start_date = "2020-07-01" # This is when 4TU went live on Figshare.
-
-        if end_date is None:
-            end_date    = datetime.strftime(datetime.now(), "%Y-%m-%d") ##  + timedelta(days=1)
-
-        parameters = {
-            "start_date": start_date,
-            "end_date":   end_date
-        }
-        prefix     = "/4tu/breakdown/day"
-        #views      = self.get_statistics (f"{prefix}/views/{item_type}/{item_id}", headers, parameters)
-        #downloads  = self.get_statistics (f"{prefix}/downloads/{item_type}/{item_id}", headers, parameters)
-        #shares     = self.get_statistics (f"{prefix}/shares/{item_type}/{item_id}", headers, parameters)
         totals     = self.get_statistics (f"/total/{item_type}/{item_id}", headers, {})
 
         try:
             output = {
-                "views":     None, #views["breakdown"],
-                "downloads": None, #downloads["breakdown"],
-                "shares":    None, #shares["breakdown"],
+                "views":     None,
+                "downloads": None,
+                "shares":    None,
                 "totals":    totals
             }
         except KeyError:
