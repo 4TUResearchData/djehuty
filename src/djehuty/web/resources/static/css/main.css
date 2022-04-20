@@ -29,7 +29,7 @@
     font-style: normal;
 }
 @font-face {
-  font-family: 'FontAwesome';
+  font-family: 'Font Awesome 5';
   font-style: normal;
   font-weight: 900;
   font-display: block;
@@ -39,6 +39,18 @@
        url("/static/fonts/fa-solid-900.woff") format("woff"),
        url("/static/fonts/fa-solid-900.ttf") format("truetype"),
        url("/static/fonts/fa-solid-900.svg#fontawesome") format("svg");
+}
+@font-face {
+  font-family: 'Font Awesome 5 Brands';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/static/fonts/fa-brands-400.eot");
+  src: url("/static/fonts/fa-brands-400.eot?#iefix") format("embedded-opentype"),
+       url("/static/fonts/fa-brands-400.woff2") format("woff2"),
+       url("/static/fonts/fa-brands-400.woff") format("woff"),
+       url("/static/fonts/fa-brands-400.ttf") format("truetype"),
+       url("/static/fonts/fa-brands-400.svg#fontawesome") format("svg");
 }
 body,html {
     width: 100%;
@@ -143,7 +155,7 @@ body,html {
 }
 #primary-menu .menu-item-has-children:not(.hideshow)::after {
     content: '\f0d7';
-    font-family: "FontAwesome";
+    font-family: "Font Awesome 5";
     font-weight: 900;
     color: #808080;
 }
@@ -268,10 +280,16 @@ p.cts { text-align: right; }
 img.cts { width: 120px; }
 
 /* Font Awesome bits. */
-.fa, .fab, .far, .fas {
+.fab {
     display: inline-block;
     min-width: 1.5em;
-    font-family: "FontAwesome";
+    font-family: "Font Awesome 5 Brands";
+    font-weight: 900;
+}
+.fa, .far, .fas {
+    display: inline-block;
+    min-width: 1.5em;
+    font-family: "Font Awesome 5";
     font-weight: 900;
 }
 #search-box-wrapper {
@@ -287,7 +305,7 @@ img.cts { width: 120px; }
     border-radius: 0em .5em .5em 0em;
     border: solid 2pt #eeeeee;
     display: inline-block;
-    font-family: "FontAwesome";
+    font-family: "Font Awesome 5";
     font-size: 14pt;
     font-weight: 900;
     height: 33pt;
