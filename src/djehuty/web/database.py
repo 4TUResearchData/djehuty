@@ -610,6 +610,20 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def account_categories (self, account_id, title=None, order=None,
+                            order_direction=None, limit=10):
+        """Procedure to retrieve categories of an article."""
+
+        filters = rdf.sparql_filter ("title", title, escape=True)
+        query   = self.__query_from_template ("account_categories", {
+            "state_graph": self.state_graph,
+            "account_id":  account_id,
+            "filters":     filters
+        })
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
+
+        return self.__run_query (query)
+
     def private_links (self, item_id=None, item_type="article",
                        account_id=None, id_string=None):
         """Procedure to get private links to an article or a collection."""
@@ -1016,21 +1030,28 @@ class SparqlInterface:
 
         return None
 
-    def update_account (self, account_id, active=None, email=None,
+    def update_account (self, account_id, active=None, email=None, job_title=None,
                         first_name=None, last_name=None, institution_user_id=None,
                         institution_id=None, pending_quota_request=None,
                         used_quota_public=None, used_quota_private=None,
                         used_quota=None, maximum_file_size=None, quota=None,
-                        modified_date=None, created_date=None, group_id=None):
+                        modified_date=None, created_date=None, group_id=None,
+                        location=None, biography=None, categories=None):
         """Procedure to update account settings."""
 
-        query   = self.__query_from_template ("update_account", {
+        if modified_date is None:
+            modified_date = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
+
+        query        = self.__query_from_template ("update_account", {
             "state_graph":           self.state_graph,
             "account_id":            account_id,
             "is_active":             active,
+            "job_title":             job_title,
             "email":                 email,
             "first_name":            first_name,
             "last_name":             last_name,
+            "location":              location,
+            "biography":             biography,
             "institution_user_id":   institution_user_id,
             "institution_id":        institution_id,
             "pending_quota_request": pending_quota_request,
@@ -1044,8 +1065,14 @@ class SparqlInterface:
             "group_id":              group_id
         })
 
-        self.cache.invalidate_by_prefix ("accounts")
-        return self.__run_query (query)
+        results = self.__run_query (query)
+        if results and categories:
+            self.cache.invalidate_by_prefix ("accounts")
+            self.delete_account_categories (account_id)
+            for category in categories:
+                self.insert_account_category (account_id, category)
+
+        return results
 
     def insert_institution (self, name, institution_id=None):
         """Procedure to add an institution to the state graph."""
@@ -1215,6 +1242,24 @@ class SparqlInterface:
         """Procedure to add a link between a collection and a category."""
         return self.insert_item_category (collection_version_id, category_id, "collection")
 
+    def insert_account_category (self, account_id, category_id):
+        """Procedure to add a link between an account and a category."""
+
+        graph    = Graph()
+        link_id  = self.ids.next_id(f"account_category")
+        link_uri = rdf.ROW[f"account_category_link_{link_id}"]
+
+        graph.add ((link_uri, RDF.type,               rdf.SG["AccountCategory"]))
+        graph.add ((link_uri, rdf.COL["id"],          Literal(link_id, datatype=XSD.integer)))
+        graph.add ((link_uri, rdf.COL["category_id"], Literal(category_id, datatype=XSD.integer)))
+        graph.add ((link_uri, rdf.COL["account_id"],  Literal(account_id, datatype=XSD.integer)))
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            return link_id
+
+        return None
+
     def insert_author_link (self, author_id, item_id, item_type="article"):
         """Procedure to add a link to an author."""
 
@@ -1285,6 +1330,17 @@ class SparqlInterface:
     def delete_collection_categories (self, collection_version_id, account_id, category_id=None):
         """Procedure to delete the categories related to a collection."""
         return self.delete_item_categories (collection_version_id, account_id, category_id, "collection")
+
+    def delete_account_categories (self, account_id, category_id=None):
+        """Procedure to delete the categories related to an account."""
+
+        query = self.__query_from_template ("delete_account_categories", {
+            "state_graph": self.state_graph,
+            "account_id":  account_id,
+            "category_id": category_id
+        })
+
+        return self.__run_query (query)
 
     def delete_collection_articles (self, collection_version_id, account_id):
         """Procedure to disassociate articles with a collection."""

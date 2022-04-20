@@ -1,14 +1,18 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?active ?created_date ?email ?first_name ?group_id
+SELECT DISTINCT ?active ?created_date ?email ?first_name ?group_id ?biography
                 ?account_id ?institution_id ?institution_user_id ?last_name
                 ?maximum_file_size ?modified_date ?pending_quota_request ?quota
-                ?used_quota ?used_quota_private ?used_quota_public
+                ?used_quota ?used_quota_private ?used_quota_public ?job_title
+                ?location
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account             rdf:type                  sg:Account .
     ?account             col:id                    ?account_id .
     OPTIONAL { ?account  col:active                ?active . }
+    OPTIONAL { ?account  col:job_title             ?job_title . }
+    OPTIONAL { ?account  col:location              ?location . }
+    OPTIONAL { ?account  col:biography             ?biography . }
     OPTIONAL { ?account  col:created_date          ?created_date . }
     OPTIONAL { ?account  col:email                 ?email . }
     OPTIONAL { ?account  col:first_name            ?first_name . }

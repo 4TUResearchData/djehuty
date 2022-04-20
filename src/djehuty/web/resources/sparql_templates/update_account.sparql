@@ -6,10 +6,16 @@ DELETE {
     ?account          col:is_active             ?is_active .
     {%- endif%}{% if email is not none %}
     ?account          col:email                 ?email .
+    {%- endif%}{% if job_title is not none %}
+    ?account          col:job_title             ?job_title .
     {%- endif%}{% if first_name is not none %}
     ?account          col:first_name            ?first_name .
     {%- endif%}{% if last_name is not none %}
     ?account          col:last_name             ?last_name .
+    {%- endif%}{% if location is not none %}
+    ?account          col:location              ?location .
+    {%- endif%}{% if biography is not none %}
+    ?account          col:biography             ?biography .
     {%- endif%}{% if institution_user_id is not none %}
     ?account          col:institution_user_id   ?institution_user_id .
     {%- endif%}{% if institution_id is not none %}
@@ -37,10 +43,16 @@ INSERT {
     ?account          col:is_active           {{is_active}} .
     {%- endif%}{% if email is not none %}
     ?account          col:email               "{{email}}"^^xsd:string .
+    {%- endif%}{% if job_title is not none %}
+    ?account          col:job_title           "{{job_title}}"^^xsd:string .
     {%- endif%}{% if first_name is not none %}
     ?account          col:first_name          "{{first_name}}"^^xsd:string .
     {%- endif%}{% if last_name is not none %}
     ?account          col:last_name           "{{last_name}}"^^xsd:string .
+    {%- endif%}{% if location is not none %}
+    ?account          col:location            "{{location}}"^^xsd:string .
+    {%- endif%}{% if biography is not none %}
+    ?account          col:biography           "{{biography}}"^^xsd:string .
     {%- endif%}{% if institution_user_id is not none %}
     ?account          col:institution_user_id {{institution_user_id}} .
     {%- endif%}{% if institution_id is not none %}
@@ -48,17 +60,17 @@ INSERT {
     {%- endif%}{% if pending_quota_request is not none %}
     ?account          col:pending_quota_request {{pending_quota_request}} .
     {%- endif%}{% if used_quota_public is not none %}
-    ?account          col:used_quota_public     {{used_quota_public}} .
+    ?account          col:used_quota_public   {{used_quota_public}} .
     {%- endif%}{% if used_quota_private is not none %}
-    ?account          col:used_quota_private    {{used_quota_private}} .
+    ?account          col:used_quota_private  {{used_quota_private}} .
     {%- endif%}{% if maximum_file_size is not none %}
-    ?account          col:maximum_file_size     {{maximum_file_size}} .
+    ?account          col:maximum_file_size   {{maximum_file_size}} .
     {%- endif%}{% if quota is not none %}
-    ?account          col:quota                 {{quota}} .
+    ?account          col:quota               {{quota}} .
     {%- endif%}{% if modified_date is not none %}
-    ?account          col:modified_date         "{{modified_date}}"^^xsd:string .
+    ?account          col:modified_date       "{{modified_date}}"^^xsd:string .
     {%- endif%}{% if group_id is not none %}
-    ?account          col:group_id              {{group_id}} .
+    ?account          col:group_id            {{group_id}} .
     {%- endif%}
   }
 }
@@ -69,8 +81,11 @@ WHERE {
 
     OPTIONAL { ?account   col:is_active             ?is_active . }
     OPTIONAL { ?account   col:email                 ?email . }
+    OPTIONAL { ?account   col:job_title             ?job_title . }
     OPTIONAL { ?account   col:first_name            ?first_name . }
     OPTIONAL { ?account   col:last_name             ?last_name . }
+    OPTIONAL { ?account   col:location              ?location . }
+    OPTIONAL { ?account   col:biography             ?biography . }
     OPTIONAL { ?account   col:institution_user_id   ?institution_user_id . }
     OPTIONAL { ?account   col:institution_id        ?institution_id . }
     OPTIONAL { ?account   col:pending_quota_request ?pending_quota_request . }

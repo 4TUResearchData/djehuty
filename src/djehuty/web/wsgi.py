@@ -70,6 +70,7 @@ class ApiServer:
             Rule("/my/sessions/<session_id>/edit",            endpoint = "edit_session"),
             Rule("/my/sessions/<session_id>/delete",          endpoint = "delete_session"),
             Rule("/my/sessions/new",                          endpoint = "new_session"),
+            Rule("/my/profile",                               endpoint = "profile"),
             Rule("/admin/dashboard",                          endpoint = "admin_dashboard"),
             Rule("/admin/users",                              endpoint = "admin_users"),
             Rule("/admin/impersonate/<account_id>",           endpoint = "admin_impersonate"),
@@ -160,6 +161,8 @@ class ApiServer:
             Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
             Rule("/v3/articles/<article_id>/references",      endpoint = "v3_article_references"),
             Rule("/v3/groups",                                endpoint = "v3_groups"),
+            Rule("/v3/profile",                               endpoint = "v3_profile"),
+            Rule("/v3/profile/categories",                    endpoint = "v3_profile_categories"),
 
             ## ----------------------------------------------------------------
             ## GIT HTTP API
@@ -916,6 +919,28 @@ class ApiServer:
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
         }))
+
+    def api_profile (self, request):
+        if not self.accepts_html (request):
+            return self.response (json.dumps({
+                "message": "This page is meant for humans only."
+            }))
+
+        if request.method == 'GET':
+            token = self.token_from_cookie (request)
+            if self.db.is_depositor (token):
+                try:
+                    account_id = self.account_id_from_request (request)
+                    return self.__render_template (
+                        request, "depositor/profile.html",
+                        account = self.db.accounts (account_id=account_id)[0],
+                        categories = self.db.categories_tree ())
+                except IndexError:
+                    return self.error_404 (request)
+
+            return self.error_403 (request)
+
+        return self.error_405 ("GET")
 
     def api_admin_dashboard (self, request):
         if self.accepts_html (request):
@@ -3423,3 +3448,63 @@ class ApiServer:
     def api_v3_private_article_git_receive_pack (self, request, article_id):
         """Implements /v3/articles/<id>.git/git-receive-pack."""
         return self.__git_passthrough (request)
+
+    def api_v3_profile (self, request):
+        """Implements /v3/profile."""
+
+        if not self.accepts_json (request):
+            return self.error_406 ("application/json")
+
+        if request.method != 'PUT':
+            return self.error_405 ("PUT")
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        try:
+            record = request.get_json()
+            categories = validator.array_value (record, "categories")
+            if categories is not None:
+                for index, _ in enumerate(categories):
+                    categories[index] = validator.integer_value (categories, index)
+
+            if self.db.update_account (account_id,
+                    active                = validator.integer_value (record, "active", 0, 1),
+                    job_title             = validator.string_value  (record, "job_title", 0, 255),
+                    email                 = validator.string_value  (record, "email", 0, 255),
+                    first_name            = validator.string_value  (record, "first_name", 0, 255),
+                    last_name             = validator.string_value  (record, "last_name", 0, 255),
+                    location              = validator.string_value  (record, "location", 0, 255),
+                    biography             = validator.string_value  (record, "biography", 0, 32768),
+                    institution_user_id   = validator.integer_value (record, "institution_user_id"),
+                    institution_id        = validator.integer_value (record, "institution_id"),
+                    pending_quota_request = validator.integer_value (record, "pending_quota_request"),
+                    used_quota_public     = validator.integer_value (record, "used_quota_public"),
+                    used_quota_private    = validator.integer_value (record, "used_quota_private"),
+                    used_quota            = validator.integer_value (record, "used_quota"),
+                    maximum_file_size     = validator.integer_value (record, "maximum_file_size"),
+                    quota                 = validator.integer_value (record, "quota"),
+                    modified_date         = validator.string_value  (record, "modified_date", 0, 32),
+                    group_id              = validator.integer_value (record, "group_id"),
+                    categories            = categories):
+                return self.respond_204 ()
+
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+        return self.error_500 ()
+
+    def api_v3_profile_categories (self, request):
+        """Implements /v3/profile/categories."""
+
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed()
+
+        categories = self.db.account_categories (account_id)
+        return self.default_list_response (categories, formatter.format_category_record)
