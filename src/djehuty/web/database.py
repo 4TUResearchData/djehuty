@@ -714,7 +714,8 @@ class SparqlInterface:
                      published_since=None, modified_since=None, group=None,
                      resource_doi=None, resource_id=None, doi=None, handle=None,
                      account_id=None, search_for=None, collection_id=None,
-                     collection_version_id=None, version=None):
+                     collection_version_id=None, version=None,
+                     is_editable=None, is_latest=None):
         """Procedure to retrieve collections."""
 
         filters  = rdf.sparql_filter ("institution_id", institution)
@@ -747,6 +748,12 @@ class SparqlInterface:
             filters += rdf.sparql_filter ("is_public", 1)
         else:
             filters += rdf.sparql_filter ("account_id", account_id)
+
+        if is_editable is not None:
+            filters += rdf.sparql_filter ("is_editable", is_editable)
+
+        if is_latest is not None:
+            filters += rdf.sparql_filter ("is_latest", is_latest)
 
         query   = self.__query_from_template ("collections", {
             "state_graph": self.state_graph,

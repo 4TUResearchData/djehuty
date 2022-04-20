@@ -2758,7 +2758,8 @@ class ApiServer:
             try:
                 collection = self.db.collections(collection_id = collection_id,
                                                  account_id    = account_id,
-                                                 limit         = 1)[0]
+                                                 limit         = 1,
+                                                 is_editable   = 1)[0]
                 collection_version_id = collection["collection_version_id"]
                 authors    = self.db.authors(item_id    = collection_version_id,
                                              account_id = account_id,
@@ -2844,7 +2845,9 @@ class ApiServer:
                             logging.error("Adding a single author failed.")
                             return self.error_500()
 
-                    collection = self.db.collections (collection_id=collection_id, account_id=account_id)[0]
+                    collection = self.db.collections (collection_id = collection_id,
+                                                      account_id    = account_id,
+                                                      is_editable   = 1)[0]
                     collection_version_id = collection["collection_version_id"]
 
                     if self.db.insert_collection_author (collection_version_id, author_id) is None:
