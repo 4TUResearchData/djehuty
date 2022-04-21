@@ -1253,7 +1253,7 @@ class SparqlInterface:
         """Procedure to add a link between an account and a category."""
 
         graph    = Graph()
-        link_id  = self.ids.next_id(f"account_category")
+        link_id  = self.ids.next_id("account_category")
         link_uri = rdf.ROW[f"account_category_link_{link_id}"]
 
         graph.add ((link_uri, RDF.type,               rdf.SG["AccountCategory"]))
