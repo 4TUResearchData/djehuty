@@ -176,6 +176,10 @@ class ApiServer:
         ## --------------------------------------------------------------------
 
         resources_path = os.path.dirname(__file__)
+        self.static_roots = {
+            "/robots.txt": os.path.join(resources_path, "resources/robots.txt"),
+            "/static":     os.path.join(resources_path, "resources/static")
+        }
         self.jinja   = Environment(loader = FileSystemLoader(
             [
                 # For internal templates.
@@ -184,10 +188,7 @@ class ApiServer:
                 "/"
             ]), autoescape = True)
 
-        self.wsgi    = SharedDataMiddleware(self.__respond, {
-            "/robots.txt": os.path.join(resources_path, "resources/robots.txt"),
-            "/static":     os.path.join(resources_path, "resources/static")
-        })
+        self.wsgi    = SharedDataMiddleware(self.__respond, self.static_roots)
 
         ## Disable werkzeug logging.
         ## --------------------------------------------------------------------
@@ -196,6 +197,15 @@ class ApiServer:
 
     ## WSGI AND WERKZEUG SETUP.
     ## ------------------------------------------------------------------------
+
+    def add_static_root (self, uri, path):
+        if uri is not None and path is not None:
+            self.static_roots = { **self.static_roots, **{ uri: path } }
+            self.wsgi = SharedDataMiddleware(self.__respond, self.static_roots)
+
+            return True
+
+        return False
 
     def __call__ (self, environ, start_response):
         return self.wsgi (environ, start_response)

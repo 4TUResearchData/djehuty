@@ -88,6 +88,11 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
             static_pages = xml_root.find("static-pages")
             if static_pages:
+                resources_root = config_value (static_pages, "resources-root", None, None)
+                if (server.add_static_root ("/s", resources_root) and
+                    not os.environ.get('WERKZEUG_RUN_MAIN')):
+                    logging.info ("Added static root: %s", resources_root)
+
                 for page in static_pages:
                     uri_path        = config_value (page, "uri-path")
                     filesystem_path = config_value (page, "filesystem-path")
