@@ -82,9 +82,9 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         include = config_value (xml_root, "include", None, None)
         config_dir = os.path.dirname(config_file)
-        if not os.path.isabs(include):
-            include = os.path.join(config_dir, include)
         if include is not None:
+            if not os.path.isabs(include):
+                include = os.path.join(config_dir, include)
             new_config = read_configuration_file (server,
                                                   include,
                                                   config["address"],
