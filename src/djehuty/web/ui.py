@@ -102,11 +102,8 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             if not os.path.isabs(resources_root):
                 # take resources_root relative to config_dir and turn into absolute path
                 resources_root = os.path.abspath(os.path.join(config_dir, resources_root))
-            if os.path.exists(resources_root) and (server.add_static_root ("/s", resources_root) and
-                                                   not os.environ.get('WERKZEUG_RUN_MAIN')):
+            if (server.add_static_root ("/s", resources_root) and not os.environ.get('WERKZEUG_RUN_MAIN')):
                 logging.info ("Added static root: %s", resources_root)
-            else:
-                logging.error ("Static root could NOT be ADDED: %s", resources_root)
 
             for page in static_pages:
                 uri_path        = config_value (page, "uri-path")
@@ -117,14 +114,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                         # take filesystem_path relative to config_dir and turn into absolute path
                         filesystem_path = os.path.abspath(os.path.join(config_dir, filesystem_path))
 
-                    if os.path.exists(filesystem_path):
-                        server.static_pages[uri_path] = filesystem_path
-                        if not os.environ.get('WERKZEUG_RUN_MAIN'):
-                            logging.info ("Added static page: %s", uri_path)
-                            logging.info ("Related filesystem path: %s", filesystem_path)
-                    else:
-                        logging.error ("Static page could NOT be ADDED: %s", uri_path)
-                        logging.error ("Related filesystem path NOT FOUND: %s", filesystem_path)
+                    server.static_pages[uri_path] = filesystem_path
+                    if not os.environ.get('WERKZEUG_RUN_MAIN'):
+                        logging.info ("Added static page: %s", uri_path)
+                        logging.info ("Related filesystem path: %s", filesystem_path)
 
     return config
 
