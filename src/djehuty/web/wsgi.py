@@ -247,7 +247,7 @@ class ApiServer:
                 page = self.static_pages[request.path]
                 return self.__render_template (request, page)
             except TemplateNotFound:
-                logging.debug ("Couldn't find template '%s'.", request.path)
+                logging.error ("Couldn't find template '%s'.", page)
             except KeyError:
                 logging.debug ("No static page entry for '%s'.", request.path)
 
