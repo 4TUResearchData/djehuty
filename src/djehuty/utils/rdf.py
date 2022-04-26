@@ -71,3 +71,8 @@ def blank_node ():
     identifier = str(uuid.uuid4())
     return BLANK[identifier]
 
+def unique_node (prefix):
+    """Return a unique node using PREFIX."""
+    prefix_namespace = Namespace(f"{prefix}://")
+    identifier       = str(uuid.uuid4())
+    return prefix_namespace[identifier]
