@@ -52,3 +52,14 @@ def sparql_suffix (order, order_direction, limit=None, offset=None):
 ROW = Namespace("origin://djehuty#")
 SG  = Namespace("https://sparqling-genomics.org/0.99.12/")
 COL = Namespace("sg://0.99.12/table2rdf/Column/")
+def insert_query (state_graph, rdflib_graph):
+    """Procedure to generate a SPARQL query to insert triplets."""
+
+    body  = rdflib_graph.serialize(format="ntriples")
+    if isinstance(body, bytes):
+        body = body.decode('utf-8')
+
+    query = f"INSERT {{ GRAPH <{state_graph}> {{ {body} }} }}"
+
+    return query
+

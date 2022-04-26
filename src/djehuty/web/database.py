@@ -157,13 +157,7 @@ class SparqlInterface:
             return None
 
     def __insert_query_for_graph (self, graph):
-        body  = graph.serialize(format="ntriples")
-        if isinstance(body, bytes):
-            body = body.decode('utf-8')
-
-        query = f"INSERT {{ GRAPH <{self.state_graph}> {{ {body} }} }}"
-
-        return query
+        return rdf.insert_query (self.state_graph, graph)
 
     ## ------------------------------------------------------------------------
     ## GET METHODS
