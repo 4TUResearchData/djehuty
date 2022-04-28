@@ -12,15 +12,11 @@
 }
 #portal-summary table tbody td:nth-child(2) { border-left: solid 2pt #ccc; padding-left: 1em; }
 #portal-summary table tbody td { width: 220pt; }
-.tiles-wrapper { margin: auto auto 1em auto; min-width: 850pt; text-align: center; user-select: none; }
-.tiles { display: inline-block; list-style: none; margin: 0pt; padding: 0pt; }
-.tiles li table.tile { display: block; overflow: hidden; height: 160pt; }
-
-.tiles li table.institute-tile { display: block; overflow: hidden; height: 100pt !important; }
-
+.tiles-wrapper { margin: auto auto 1em auto; text-align: center; user-select: none; }
+.tiles { display: flex; flex-wrap: wrap; justify-content: center; list-style: none; margin: 0pt; padding: 0pt; }
 .tiles li {
     display: inline-block;
-    margin: 10pt 10pt auto auto;
+    margin: 1em 5pt 1em 5pt;
     overflow: hidden;
     border: none;
     -webkit-border-radius: 4pt;
@@ -28,37 +24,30 @@
     border-radius: 4pt;
     box-shadow: 0pt 0pt 10pt #cccccc;
 }
-
-.tiles li:nth-child(5n) { margin: 20pt 0pt auto auto; }
-.tiles li table.tile tbody tr td.image {
+.tiles li .tile { display: block; overflow: hidden; height: 160pt; }
+.tiles li .institute-tile { display: block; overflow: hidden; height: 100pt !important; }
+.tile-row-image {
     margin: 0pt;
     padding: 0pt;
     width: 160pt;
     max-width: 160pt;
 }
+.tile-row-text a { text-decoration: none; font-size: 13pt }
 .tile-row-text {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin: auto;
     height: 50pt;
     max-height: 50pt;
-    overflow: hidden;
-    border: none;
-}
-.tiles li table.tile tbody tr td.text {
-    display: table-cell;
-    margin: auto;
-    height: 50pt;
     width: 160pt;
-    font-family: 'SourceSans', sans-serif;
-    font-size: 14pt;
+    max-width: 160pt;
+    text-align: center;
 }
-.tiles li table.tile tbody tr td.text a { text-decoration: none; font-size: 13pt; }
-.tiles table { border-spacing: 0pt; padding: 0pt; border-collapse: collapse; }
 .tiles .tile:hover { opacity: 0.9; cursor: pointer; }
-.tiles table td { background-color: #ffffff; padding: 0pt; }
-.tiles table tr { background-color: #ffffff; }
-.tiles li table.institute-tile:hover { opacity: 0.5 !important; cursor: pointer; }
-.tiles li table.institute-tile tbody tr td.image img { width: 150pt; }
+.institute-tile:first { margin-left: 0pt; }
+.institute-tile:hover { opacity: 0.5 !important; cursor: pointer; }
+.institute-tile img { width: 145pt; }
 .h1-suffix { font-size: 0.6em; }
 .h1-suffix a { text-transform: uppercase; text-decoration: none; color: #808080; }
 .h1-suffix a:hover { color: #505050; }
@@ -82,384 +71,282 @@
 <div class="tiles-wrapper">
   <ul class="tiles">
     <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13431">
-                <img src="/static/images/portal/mathematics.jpg" alt="Image for Mathematics">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13431">Mathematics</a></td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="tile">
+        <div class="tile-row-image">
+          <a href="/categories/_/13431">
+            <img src="/static/images/portal/mathematics.jpg" alt="Image for Mathematics">
+          </a>
+        </div>
+        <div class="tile-row-text"><a href="/categories/_/13431">Mathematics</a></div>
+      </div>
     </li>
     <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13603">
-                <img src="/static/images/portal/physics.jpg" alt="Image for Physics">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13603">Physics</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13594">
-                <img src="/static/images/portal/chemistry.jpg" alt="Image for Chemistry">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13594">Chemistry</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13551">
-                <img src="/static/images/portal/earth-sciences.jpg" alt="Image for Earth Sciences">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13551">Earth Sciences</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13551?categories=13552">
-                <img src="/static/images/portal/atmospheric-sciences.jpg" alt="Image for Atmospheric Sciences">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13551?categories=13552">Atmospheric Sciences</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13551?categories=13557">
-                <img src="/static/images/portal/physical-geography-and-environmental-geoscience.jpg" alt="Image for Physical Geography and Environmental Geoscience">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13551?categories=13557">Physical Geography And Environmental Geoscience</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13630?categories=13639">
-                <img src="/static/images/portal/geomatic-engineering.jpg" alt="Image for Geomatic Engineering">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13630?categories=13639">Geomatic Engineering</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13410">
-                <img src="/static/images/portal/environmental-sciences.jpg" alt="Image for Environmental Sciences">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13410">Environmental Sciences</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13578">
-                <img src="/static/images/portal/biology.jpg" alt="Image for Biology">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13578">Biology</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13376">
-                <img src="/static/images/portal/agricultural-and-veterinary-sciences.jpg" alt="Image for Agricultural and Veterinary Sciences">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13376">Agricultural And Veterinary Sciences</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13611">
-                <img src="/static/images/portal/information-and-computing-sciences.jpg" alt="Image for Information and Computing Sciences">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13611">Information And Computing Sciences</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13652?categories=13659">
-                <img src="/static/images/portal/nanotechnology.jpg" alt="Image for Nanotechnology">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13652?categories=13659">Nanotechnology</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13630?categories=13631">
-                <img src="/static/images/portal/aerospace-engineering.jpg" alt="Image for Aerospace Engineering">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13630?categories=13631">Aerospace Engineering</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13630?categories=13635">
-                <img src="/static/images/portal/civil-engineering.jpg" alt="Image for Civil Engineering">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13630?categories=13635">Civil Engineering</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13630?categories=13636">
-                <img src="/static/images/portal/electrical-and-electronic-engineering.jpg" alt="Image for Electrical and Electronic Engineering">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13630?categories=13636">Electrical And Electronic Engineering</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13362">
-                <img src="/static/images/portal/built-environment-and-design.jpg" alt="Image for Built Environment and Design">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13362">Built Environment And Design</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13630?categories=13642">
-                <img src="/static/images/portal/materials-engineering.jpg" alt="Image for Materials Engineering">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13630?categories=13642">Materials Engineering</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13630?categories=13643">
-                <img src="/static/images/portal/mechanical-engineering.jpg" alt="Image for Mechanical Engineering">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13630?categories=13643">Mechanical Engineering</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13474">
-                <img src="/static/images/portal/medical-and-health-sciences.jpg" alt="Image for Medical and Health Sciences">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13474">Medical And Health Sciences</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    <li>
-      <table class="tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/categories/_/13500?categories=13503">
-                <img src="/static/images/portal/business-and-management.jpg" alt="Image for Business and Management">
-              </a>
-            </td>
-          </tr>
-          <tr class="tile-row-text">
-            <td class="text"><a href="/categories/_/13500?categories=13503">Business And Management</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-  </ul>
+      <div class="tile">
+        <div class="tile-row-image">
+          <a href="/categories/_/13603">
+            <img src="/static/images/portal/physics.jpg" alt="Image for Physics">
+          </a>
+        </div>
+        <div class="tile-row-text">
+          <a href="/categories/_/13603">Physics</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13594">
+        <img src="/static/images/portal/chemistry.jpg" alt="Image for Chemistry">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13594">Chemistry</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13551">
+        <img src="/static/images/portal/earth-sciences.jpg" alt="Image for Earth Sciences">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13551">Earth Sciences</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13551?categories=13552">
+        <img src="/static/images/portal/atmospheric-sciences.jpg" alt="Image for Atmospheric Sciences">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13551?categories=13552">Atmospheric Sciences</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13551?categories=13557">
+        <img src="/static/images/portal/physical-geography-and-environmental-geoscience.jpg" alt="Image for Physical Geography and Environmental Geoscience">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13551?categories=13557">Physical Geography And Environmental Geoscience</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13630?categories=13639">
+        <img src="/static/images/portal/geomatic-engineering.jpg" alt="Image for Geomatic Engineering">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13630?categories=13639">Geomatic Engineering</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13410">
+        <img src="/static/images/portal/environmental-sciences.jpg" alt="Image for Environmental Sciences">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13410">Environmental Sciences</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13578">
+        <img src="/static/images/portal/biology.jpg" alt="Image for Biology">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13578">Biology</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13376">
+        <img src="/static/images/portal/agricultural-and-veterinary-sciences.jpg" alt="Image for Agricultural and Veterinary Sciences">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13376">Agricultural And Veterinary Sciences</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13611">
+        <img src="/static/images/portal/information-and-computing-sciences.jpg" alt="Image for Information and Computing Sciences">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13611">Information And Computing Sciences</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13652?categories=13659">
+        <img src="/static/images/portal/nanotechnology.jpg" alt="Image for Nanotechnology">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13652?categories=13659">Nanotechnology</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13630?categories=13631">
+        <img src="/static/images/portal/aerospace-engineering.jpg" alt="Image for Aerospace Engineering">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13630?categories=13631">Aerospace Engineering</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13630?categories=13635">
+        <img src="/static/images/portal/civil-engineering.jpg" alt="Image for Civil Engineering">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13630?categories=13635">Civil Engineering</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13630?categories=13636">
+        <img src="/static/images/portal/electrical-and-electronic-engineering.jpg" alt="Image for Electrical and Electronic Engineering">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13630?categories=13636">Electrical And Electronic Engineering</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13362">
+        <img src="/static/images/portal/built-environment-and-design.jpg" alt="Image for Built Environment and Design">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13362">Built Environment And Design</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13630?categories=13642">
+        <img src="/static/images/portal/materials-engineering.jpg" alt="Image for Materials Engineering">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13630?categories=13642">Materials Engineering</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13630?categories=13643">
+        <img src="/static/images/portal/mechanical-engineering.jpg" alt="Image for Mechanical Engineering">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13630?categories=13643">Mechanical Engineering</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13474">
+        <img src="/static/images/portal/medical-and-health-sciences.jpg" alt="Image for Medical and Health Sciences">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13474">Medical And Health Sciences</a></td>
+</div>
+</div>
+</li>
+<li>
+  <div class="tile">
+    <div class="tile-row-image">
+      <a href="/categories/_/13500?categories=13503">
+        <img src="/static/images/portal/business-and-management.jpg" alt="Image for Business and Management">
+      </a>
+    </div>
+    <div class="tile-row-text">
+      <a href="/categories/_/13500?categories=13503">Business And Management</a></td>
+</div>
+</div>
+</li>
+</ul>
 </div>
 <h1>Institutions</h1>
 <div class="tiles-wrapper">
   <ul class="tiles">
     <li>
-      <table class="tile institute-tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/institutions/Delft_University_of_Technology"><img src="/static/images/portal/tudelft.jpg" alt="TU Delft"></a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="tile institute-tile">
+        <div class="tile-row-image">
+          <a href="/institutions/Delft_University_of_Technology"><img src="/static/images/portal/tudelft.jpg" alt="TU Delft"></a>
+        </div>
+      </div>
     </li>
     <li>
-      <table class="tile institute-tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/institutions/University_of_Twente"><img src="/static/images/portal/utwente.jpg" alt="UTwente"></a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="tile institute-tile">
+        <div class="tile-row-image">
+          <a href="/institutions/University_of_Twente"><img src="/static/images/portal/utwente.jpg" alt="UTwente"></a>
+        </div>
+      </div>
     </li>
     <li>
-      <table class="tile institute-tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/institutions/Eindhoven_University_of_Technology"><img src="/static/images/portal/tueindhoven.jpg" alt="TU Eindhoven"></a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="tile institute-tile">
+        <div class="tile-row-image">
+          <a href="/institutions/Eindhoven_University_of_Technology"><img src="/static/images/portal/tueindhoven.jpg" alt="TU Eindhoven"></a>
+        </div>
+      </div>
     </li>
     <li>
-      <table class="tile institute-tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/institutions/Wageningen_University_and_Research"><img src="/static/images/portal/wageningen.jpg" alt="Wageningen"></a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="tile institute-tile">
+        <div class="tile-row-image">
+          <a href="/institutions/Wageningen_University_and_Research"><img src="/static/images/portal/wageningen.jpg" alt="Wageningen"></a>
+        </div>
+      </div>
     </li>
     <li>
-      <table class="tile institute-tile">
-        <tbody>
-          <tr class="tile-row-image">
-            <td class="image">
-              <a href="/institutions/Other_institutions"><img src="/static/images/portal/other-institutions.jpg" alt="Other institutions"></a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="tile institute-tile">
+        <div class="tile-row-image">
+          <a href="/institutions/Other_institutions"><img src="/static/images/portal/other-institutions.jpg" alt="Other institutions"></a>
+        </div>
+      </div>
     </li>
   </ul>
 </div>
