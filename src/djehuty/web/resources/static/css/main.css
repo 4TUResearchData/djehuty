@@ -64,7 +64,6 @@ body,html {
 }
 #wrapper {
     width: 100%;
-    min-width: 880pt;
     min-height: 100%;
     padding: 0em;
     margin: 0em auto auto auto;
@@ -72,7 +71,7 @@ body,html {
     border: none;
 }
 #content {
-    width: 880pt;
+    max-width: 880pt;
     min-height: 200mm;
     margin: 0 auto;
     padding: 0;
@@ -216,7 +215,6 @@ nav { display: block; }
 #footer {
     height: 120mm;
     width: 100%;
-    min-width: 880pt;
     margin: 0em;
     padding: auto;
     text-align: center;
@@ -264,7 +262,7 @@ pre {
 #footer-wrapper {
     column-count: 3;
     column-gap: 0em;
-    width: 880pt;
+    max-width: 880pt;
     margin: 0 auto;
     padding: 0;
 }
