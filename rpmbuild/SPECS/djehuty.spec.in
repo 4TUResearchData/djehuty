@@ -15,7 +15,6 @@ BuildRequires: python3dist(setuptools)
 Requires: git
 Requires: python3dist(requests)
 requires: python3dist(jinja2)
-Requires: python3dist(mysql-connector-python)
 Requires: python3dist(rdflib)
 Requires: python3dist(pygit2)
 Requires: python3dist(sparqlwrapper)

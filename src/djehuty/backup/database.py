@@ -1,21 +1,23 @@
-"""This module provides a MySQL interface to store data fetched by the 'figshare' module."""
+"""This module provides an interface to store data fetched by the 'figshare' module."""
 
 import xml.etree.ElementTree as ET
 import ast
 import logging
 from datetime import datetime
+from secrets import token_urlsafe
+from rdflib import Graph, Literal, RDF, XSD, URIRef
 import requests
-from mysql.connector import connect, Error
-from djehuty.utils import convenience
+from djehuty.utils.convenience import value_or, value_or_none
+from djehuty.utils import rdf
 
 class DatabaseInterface:
     """
-    A class that handles all interaction between a MySQL database and the
-    output produced by the 'figshare' module.
+    A class that serializes the output produced by the 'figshare'
+    module as RDF.
     """
 
     def __init__(self):
-        self.connection = None
+        self.store = Graph()
 
     def __get_from_url (self, url: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
@@ -29,7 +31,7 @@ class DatabaseInterface:
         logging.error("Error message:\n---\n%s\n---", response.text)
         return False
 
-    def __get_file_size_for_catalog (self, url, article_version_id):
+    def __get_file_size_for_catalog (self, url):
         """Returns the file size for an OPeNDAP catalog."""
         total_filesize = 0
         metadata_url   = url.replace(".html", ".xml")
@@ -41,7 +43,7 @@ class DatabaseInterface:
             logging.error("Failed to connect to %s.", metadata_url)
 
         if not metadata:
-            logging.error("Couldn't get file metadata for %d.", article_version_id)
+            logging.error("Couldn't get file metadata for %s.", url)
             return total_filesize
 
         namespaces  = { "c": "http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0" }
@@ -49,20 +51,19 @@ class DatabaseInterface:
         references  = xml_root.findall(".//c:catalogRef", namespaces)
 
         ## Recursively handle directories.
-        ## XXX: This may overflow the stack.
         if not references:
             logging.debug("Catalog %s does not contain subdirectories.", url)
         else:
             for reference in references:
                 suffix = reference.attrib["{http://www.w3.org/1999/xlink}href"]
                 suburl = metadata_url.replace("catalog.xml", suffix)
-                total_filesize += self.__get_file_size_for_catalog (suburl, article_version_id)
+                total_filesize += self.__get_file_size_for_catalog (suburl)
 
         ## Handle regular files.
         files          = xml_root.findall(".//c:dataSize", namespaces)
         if not files:
             if total_filesize == 0:
-                logging.info("There are no files in %s.", url)
+                logging.debug ("There are no files in %s.", url)
             return total_filesize
 
         for file in files:
@@ -81,180 +82,240 @@ class DatabaseInterface:
 
         return total_filesize
 
-    def __execute_query (self, template, data):
-        """Procedure to execute a SQL query."""
+    def record_uri (self, record_type, identifier_name, identifier):
+        if identifier is None:
+            return None
+
+        if isinstance(identifier, str):
+            identifier = f"\"{identifier}\"^^<{str(XSD.string)}>"
+
         try:
-            cursor = self.connection.cursor()
-            cursor.execute(template, data)
-            self.connection.commit()
-            cursor.execute("SELECT LAST_INSERT_ID()")
-            row = cursor.fetchone()
-            return row[0]
-        except Error as error:
-            logging.error("Executing query failed. Reason:")
-            logging.error(error)
-            return False
+            query    = (
+                "SELECT ?uri WHERE { "
+                f"?uri <{str(RDF.type)}> <{str(rdf.SG[record_type])}> ; "
+                f"<{str(rdf.COL[identifier_name])}> {identifier} . }}"
+            )
 
-    def connect (self, host, username, password, database):
-        """Procedure to establish a database connection."""
-        try:
-            self.connection = connect(
-                host     = host,
-                user     = username,
-                password = password,
-                database = database,
-                charset  = 'utf8')
-            return self.connection.is_connected()
+            results = self.store.query (query)
+            return results.bindings[0]["uri"]
+        except KeyError:
+            pass
+        except IndexError:
+            pass
 
-        except Error as error:
-            logging.error("Could not establish connection to database. Reason:")
-            logging.error(error)
-            return False
+        return None
 
-    def is_connected (self):
-        """Returns True when this instance is connected to a database."""
-        return self.connection.is_connected()
+    def serialize (self):
+        """Output the triplets in the graph  to stdout."""
+        body = self.store.serialize(format="ntriples")
+        if isinstance(body, bytes):
+            body = body.decode('utf-8')
+
+        print(body)
 
     def insert_account (self, record):
-        """Procedure to insert an account record."""
+        """Procedure to add an account record to GRAPH."""
 
-        template      = ("INSERT IGNORE INTO Account "
-                         "(id, active, email, first_name, last_name, "
-                         "institution_user_id, institution_id, group_id, "
-                         "pending_quota_request, used_quota_public, "
-                         "used_quota_private, used_quota, maximum_file_size, "
-                         "quota, modified_date, created_date) "
-                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                         "%s, %s, %s, %s, %s)")
+        uri = rdf.unique_node ("account")
+        self.store.add ((uri, RDF.type, rdf.SG["Account"]))
 
-        created_date  = convenience.value_or_none (record, "created_date")
-        if created_date is not None:
-            created_date  = datetime.strptime(record["created_date"], "%Y-%m-%dT%H:%M:%SZ")
-            created_date  = datetime.strftime (created_date, "%Y-%m-%d %H:%M:%S")
+        rdf.add (self.store, uri, rdf.COL["id"],                    value_or (record, "id", None),           XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["active"],                value_or (record, "active", False),      XSD.boolean)
+        rdf.add (self.store, uri, rdf.COL["email"],                 value_or (record, "email", None),        XSD.string)
+        rdf.add (self.store, uri, rdf.COL["first_name"],            value_or (record, "first_name", None),   XSD.string)
+        rdf.add (self.store, uri, rdf.COL["last_name"],             value_or (record, "last_name", None),    XSD.string)
+        rdf.add (self.store, uri, rdf.COL["institution_user_id"],   value_or (record, "institution_user_id", None), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["institution_id"],        value_or (record, "institution_id", None))
+        rdf.add (self.store, uri, rdf.COL["group_id"],              value_or (record, "group_id", None))
+        rdf.add (self.store, uri, rdf.COL["pending_quota_request"], value_or (record, "pending_quota_request", None))
+        rdf.add (self.store, uri, rdf.COL["used_quota_public"],     value_or (record, "used_quota_public", None))
+        rdf.add (self.store, uri, rdf.COL["used_quota_private"],    value_or (record, "used_quota_private", None))
+        rdf.add (self.store, uri, rdf.COL["used_quota"],            value_or (record, "used_quota", None))
+        rdf.add (self.store, uri, rdf.COL["maximum_file_size"],     value_or (record, "maximum_file_size", None))
+        rdf.add (self.store, uri, rdf.COL["quota"],                 value_or (record, "quota", None))
+        rdf.add (self.store, uri, rdf.COL["modified_date"],         value_or_none (record, "modified_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["created_date"],          value_or_none (record, "created_date"),  XSD.dateTime)
 
-        modified_date = convenience.value_or_none (record, "modified_date")
-        if modified_date is not None:
-            modified_date = datetime.strptime(record["modified_date"], "%Y-%m-%dT%H:%M:%SZ")
-            modified_date = datetime.strftime (modified_date, "%Y-%m-%d %H:%M:%S")
-
-        data          = (
-            record["id"],
-            record["active"],
-            convenience.value_or_none (record, "email"),
-            convenience.value_or_none (record, "first_name"),
-            convenience.value_or_none (record, "last_name"),
-            convenience.value_or_none (record, "institution_user_id"),
-            convenience.value_or_none (record, "institution_id"),
-            convenience.value_or_none (record, "group_id"),
-            convenience.value_or_none (record, "pending_quota_request"),
-            convenience.value_or_none (record, "used_quota_public"),
-            convenience.value_or_none (record, "used_quota_private"),
-            convenience.value_or_none (record, "used_quota"),
-            convenience.value_or_none (record, "maximum_file_size"),
-            convenience.value_or_none (record, "quota"),
-            modified_date,
-            created_date
-        )
-
-        return self.__execute_query (template, data)
+        return True
 
     def insert_institution (self, record):
         """Procedure to insert an institution record."""
 
-        template = "INSERT IGNORE INTO Institution (id, name) VALUES (%s, %s)"
-        data     = (record["institution_id"], record["name"])
-        return self.__execute_query (template, data)
+        try:
+            institution_id = record["institution_id"]
+            uri            = rdf.ROW[f"institution_{institution_id}"]
 
-    def insert_author (self, record, item_id, order_index, item_type = "article"):
-        """Procedure to insert an author record."""
+            self.store.add ((uri, RDF.type,        rdf.SG["Institution"]))
+            self.store.add ((uri, rdf.COL["id"],   Literal(institution_id, datatype=XSD.integer)))
+            self.store.add ((uri, rdf.COL["name"], Literal(record["name"], datatype=XSD.string)))
 
-        prefix   = "Article" if item_type == "article" else "Collection"
-        template = ("INSERT IGNORE INTO Author "
-                    "(id, institution_id, group_id, first_name, last_name, "
-                    "full_name, job_title, is_active, is_public, url_name, "
-                    "orcid_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                    "%s)")
+            return True
 
-        data     = (convenience.value_or_none (record, "id"),
-                    convenience.value_or_none (record, "institution_id"),
-                    convenience.value_or_none (record, "group_id"),
-                    convenience.value_or_none (record, "first_name"),
-                    convenience.value_or_none (record, "last_name"),
-                    convenience.value_or_none (record, "full_name"),
-                    convenience.value_or_none (record, "job_title"),
-                    "is_active" in record and record["is_active"],
-                    "is_public" in record and record["is_public"],
-                    convenience.value_or_none (record, "url_name"),
-                    convenience.value_or_none (record, "orcid_id"))
+        except KeyError:
+            pass
 
-        if self.__execute_query (template, data):
-            template = (f"INSERT IGNORE INTO {prefix}Author "
-                        f"({item_type}_version_id, author_id, order_index) "
-                        "VALUES (%s, %s, %s)")
-            data     = (item_id, record["id"], order_index)
-
-            if self.__execute_query (template, data):
-                return record["id"]
-
+        logging.error ("Failed to insert Institution record: %s", record)
         return False
 
-    def insert_timeline (self, record):
+    def insert_author (self, record):
+        """Procedure to insert an author record."""
+
+        author_id = value_or_none (record, "id")
+        uri = self.record_uri ("Author", "id", author_id)
+        if uri is not None:
+            return uri
+
+        uri       = rdf.unique_node ("author")
+        is_active = "is_active" in record and record["is_active"]
+        is_public = "is_public" in record and record["is_public"]
+
+        self.store.add ((uri, RDF.type, rdf.SG["Author"]))
+
+        rdf.add (self.store, uri, rdf.COL["id"],             author_id,                                 XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["institution_id"], value_or (record, "institution_id", None), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["group_id"],       value_or (record, "group_id",       None), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["first_name"],     value_or (record, "first_name",     None), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["last_name"],      value_or (record, "last_name",      None), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["full_name"],      value_or (record, "full_name",      None), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["job_title"],      value_or (record, "job_title",      None), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["url_name"],       value_or (record, "url_name",       None), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["orcid_id"],       value_or (record, "orcid_id",       None), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["is_active"],      is_active,                                 XSD.boolean)
+        rdf.add (self.store, uri, rdf.COL["is_public"],      is_public,                                 XSD.boolean)
+
+        return uri
+
+    def insert_timeline (self, uri, record):
         """Procedure to insert a timeline record."""
 
-        template = ("INSERT IGNORE INTO Timeline "
-                    "(revision, firstOnline, publisherPublication, "
-                    "publisherAcceptance, posted, submission) "
-                    "VALUES (%s, %s, %s, %s, %s, %s)")
+        if not record:
+            return False
 
-        data     = (convenience.value_or_none (record, "revision"),
-                    convenience.value_or_none (record, "firstOnline"),
-                    convenience.value_or_none (record, "publisherPublication"),
-                    convenience.value_or_none (record, "publisherAcceptance"),
-                    convenience.value_or_none (record, "posted"),
-                    convenience.value_or_none (record, "submission"))
+        rdf.add (self.store, uri, rdf.COL["revision_date"],     value_or_none (record, "revision"),             XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["first_online_date"], value_or_none (record, "firstOnline"),          XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["publisher_publication_date"], value_or_none (record, "publisherPublication"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["publisher_acceptance_date"], value_or_none (record, "publisherAcceptance"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["posted_date"],       value_or_none (record, "posted"),               XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["submission_date"],   value_or_none (record, "submission"),           XSD.dateTime)
 
-        return self.__execute_query (template, data)
+        return True
 
-    def insert_category (self, record, item_id, item_type = "article"):
+    def insert_category (self, record):
         """Procedure to insert a category record."""
 
-        prefix      = "Article" if item_type == "article" else "Collection"
-        template    = ("INSERT IGNORE INTO Category (id, title, "
-                       "parent_id, source_id, taxonomy_id) "
-                       "VALUES (%s, %s, %s, %s, %s)")
-        category_id = convenience.value_or_none (record, "id")
-        data        = (category_id,
-                       convenience.value_or_none (record, "title"),
-                       convenience.value_or_none (record, "parent_id"),
-                       convenience.value_or_none (record, "source_id"),
-                       convenience.value_or_none (record, "taxonomy_id"))
+        category_id = value_or_none (record, "id")
+        uri = self.record_uri ("Category", "id", category_id)
+        if uri is not None:
+            return uri
 
-        self.__execute_query (template, data)
+        uri = rdf.unique_node ("category")
+        self.store.add ((uri, RDF.type,      rdf.SG["Category"]))
+        self.store.add ((uri, rdf.COL["id"], Literal(category_id)))
 
-        template = (f"INSERT IGNORE INTO {prefix}Category (category_id, "
-                    f"{item_type}_version_id) VALUES (%s, %s)")
-        data     = (category_id, item_id)
-        return self.__execute_query (template, data)
+        rdf.add (self.store, uri, rdf.COL["title"],       value_or (record, "title", None),       XSD.string)
+        rdf.add (self.store, uri, rdf.COL["parent_id"],   value_or (record, "parent_id", None),   XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["source_id"],   value_or (record, "source_id", None),   XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["taxonomy_id"], value_or (record, "taxonomy_id", None), XSD.integer)
 
-    def insert_tag (self, tag, item_id, item_type = "article"):
-        """Procedure to insert a tag record."""
+        return uri
 
-        prefix   = "Article" if item_type == "article" else "Collection"
-        template = (f"INSERT IGNORE INTO {prefix}Tag "
-                    f"(tag, {item_type}_version_id) VALUES (%s, %s)")
-        data     = (tag, item_id)
-        return self.__execute_query (template, data)
+    def insert_record_list (self, uri, records, name, insert_procedure):
+        """
+        Adds an RDF list with indexes for RECORDS to the graph using
+        INSERT_PROCEDURE.  The INSERT_PROCEDURE must take  a single item
+        from RECORDS, and it must return the URI used as subject to describe
+        the record.
+        """
+        if records:
+            blank_node = rdf.blank_node ()
+            self.store.add ((uri, rdf.COL[name], blank_node))
 
-    def insert_custom_field (self, field, item_id, item_type="article"):
+            previous_blank_node = None
+            for index, item in enumerate(records):
+                record_uri = insert_procedure (item)
+                self.store.add ((blank_node, rdf.COL["index"], Literal (index, datatype=XSD.integer)))
+                self.store.add ((blank_node, RDF.first,        record_uri))
+
+                if previous_blank_node is not None:
+                    self.store.add ((previous_blank_node, RDF.rest, blank_node))
+                    self.store.add ((previous_blank_node, RDF.type, RDF.List))
+
+                previous_blank_node = blank_node
+                blank_node = rdf.blank_node ()
+
+            del blank_node
+            self.store.add ((previous_blank_node, RDF.rest, RDF.nil))
+            self.store.add ((previous_blank_node, RDF.type, RDF.List))
+
+    def insert_category_list (self, uri, categories):
+        """Adds an RDF list with indexes for CATEGORIES to GRAPH."""
+        self.insert_record_list (uri, categories, "categories", self.insert_category)
+
+    def insert_author_list (self, uri, authors):
+        """Adds an RDF list with indexes for AUTHORS to GRAPH."""
+        self.insert_record_list (uri, authors, "authors", self.insert_author)
+
+    def insert_file_list (self, uri, files):
+        """Adds an RDF list with indexes for FILES to GRAPH."""
+        self.insert_record_list (uri, files, "files", self.insert_file)
+
+    def insert_funding_list (self, uri, records):
+        """Adds an RDF list with indexes for FUNDINGS to GRAPH."""
+        self.insert_record_list (uri, records, "funding_list", self.insert_funding)
+
+    def insert_private_links_list (self, uri, records):
+        """Adds an RDF list with indexes for PRIVATE_LINKS to GRAPH."""
+        self.insert_record_list (uri, records, "private_links", self.insert_private_link)
+
+    def insert_embargo_list (self, uri, records):
+        """Adds an RDF list with indexes for EMBARGOS to GRAPH."""
+        self.insert_record_list (uri, records, "embargos", self.insert_embargo)
+
+    def insert_item_list (self, uri, items, items_name):
+        """Adds an RDF list with indexes for ITEMS to GRAPH."""
+
+        if items:
+            blank_node = rdf.blank_node ()
+            self.store.add ((uri, rdf.COL[items_name], blank_node))
+
+            previous_blank_node = None
+            for index, item in enumerate(items):
+                self.store.add ((blank_node, rdf.COL["index"], Literal (index, datatype=XSD.integer)))
+                self.store.add ((blank_node, RDF.first,        Literal (item,  datatype=XSD.string)))
+
+                if previous_blank_node is not None:
+                    self.store.add ((previous_blank_node, RDF.rest, blank_node))
+                    self.store.add ((previous_blank_node, RDF.type, RDF.List))
+
+                previous_blank_node = blank_node
+                blank_node = rdf.blank_node ()
+
+            del blank_node
+            self.store.add ((previous_blank_node, RDF.rest, RDF.nil))
+            self.store.add ((previous_blank_node, RDF.type, RDF.List))
+
+    def insert_custom_field_value (self, uri, name, value, field_type):
+        """Insert a single NAME-VALUE pair for URI into GRAPH."""
+
+        # Custom fields can be either text or URLs.
+        # URLs should be converted to URIRefs, while all other
+        # cases should be considered text strings.
+        if field_type != "url":
+            field_type = XSD.string
+
+        if isinstance (value, list):
+            for item in value:
+                if isinstance (item, str) and item == "":
+                    continue
+                rdf.add (self.store, uri, rdf.COL[name], item, field_type)
+
+        elif not (isinstance (value, str) and value == ""):
+            rdf.add (self.store, uri, rdf.COL[name], value, field_type)
+
+    def insert_custom_field (self, uri, field):
         """Procedure to insert a custom_field record."""
 
-        prefix      = "Article" if item_type == "article" else "Collection"
-        template    = (f"INSERT IGNORE INTO {prefix}CustomField (name, value, "
-                       "default_value, max_length, min_length, field_type, "
-                       "is_mandatory, placeholder, is_multiple, "
-                       f"{item_type}_version_id) VALUES (%s, %s, %s, %s, %s, "
-                       "%s, %s, %s, %s, %s)")
-
+        name        = field["name"].lower().replace(" ", "_")
         settings    = {}
         validations = {}
         if "settings" in field:
@@ -266,258 +327,180 @@ class DatabaseInterface:
         if "default_value" in settings:
             default_value = settings["default_value"]
 
+        ## Avoid inserting the custom field's properties multiple times.
+        subjects = self.store.subjects ((None, RDF.type, rdf.SG["CustomField"]),
+                                        (None, rdf.COL["name"], Literal(name, datatype=XSD.string)))
+        field_uri = next (subjects, None)
+        if field_uri is None:
+            field_uri = rdf.ROW[f"custom_field_{name}"]
+            rdf.add (self.store, field_uri, rdf.COL["name"],         name,                                        XSD.string)
+            rdf.add (self.store, field_uri, rdf.COL["max_length"],   value_or_none (validations, "max_length"))
+            rdf.add (self.store, field_uri, rdf.COL["min_length"],   value_or_none (validations, "min_length"))
+            rdf.add (self.store, field_uri, rdf.COL["is_mandatory"], value_or_none (validations, "is_mandatory"), XSD.boolean)
+            rdf.add (self.store, field_uri, rdf.COL["placeholder"],  value_or_none (validations, "placeholder"),  XSD.string)
+            rdf.add (self.store, field_uri, rdf.COL["is_multiple"],  value_or_none (validations, "is_multiple"),  XSD.boolean)
+
         if isinstance(field["value"], list):
-            retval = 0
-
-            field_type = convenience.value_or_none (field, "field_type")
             for value in field["value"]:
-                data = (field["name"],
-                        default_value if value is None else value,
-                        default_value,
-                        convenience.value_or_none (validations, "max_length"),
-                        convenience.value_or_none (validations, "min_length"),
-                        field_type,
-                        convenience.value_or_none (field, "is_mandatory"),
-                        convenience.value_or_none (settings, "placeholder"),
-                        convenience.value_or_none (settings, "is_multiple"),
-                        item_id
-                )
+                value      = value_or (field, "value", default_value)
+                field_type = value_or_none (field, "field_type")
+                self.insert_custom_field_value (uri, name, value, field_type)
 
-                retval = self.__execute_query (template, data)
-                if field_type == "dropdown":
-                    temp = (f"INSERT IGNORE INTO {prefix}CustomFieldOption "
-                            f"({item_type}_custom_field_id, value)"
-                            "VALUES (%s, %s)")
-                    for option in settings["options"]:
-                        data = (retval, option)
-                        self.__execute_query (temp, data)
-
-            return retval
-
-        data    = (
-            field["name"],
-            default_value if field["value"] is None else field["value"],
-            default_value,
-            convenience.value_or_none (validations, "max_length"),
-            convenience.value_or_none (validations, "min_length"),
-            convenience.value_or_none (field, "field_type"),
-            convenience.value_or_none (field, "is_mandatory"),
-            convenience.value_or_none (settings, "placeholder"),
-            convenience.value_or_none (settings, "is_multiple"),
-            item_id
-        )
-
-        return self.__execute_query (template, data)
+                ## Drop-down lists have predefined items to choose from.
+                ## We must add those predefined items once to the RDF store.
+                if field_type == "dropdown" and value_or (settings, "options", False):
+                    options_uri = self.record_uri ("CustomFieldOption", "name", name)
+                    if options_uri is None:
+                        options_uri = rdf.ROW[f"custom_field_options_{name}"]
+                        options     = value_or_none (settings, "options")
+                        rdf.add (self.store, options_uri, rdf.COL["name"], name, XSD.string)
+                        self.insert_item_list (options_uri, options, "values")
+        else:
+            value      = value_or (field, "value", default_value)
+            field_type = value_or_none (field, "field_type")
+            self.insert_custom_field_value (uri, name, value, field_type)
 
     def insert_collection (self, record, account_id):
         """Procedure to insert a collection record."""
 
-        template = ("INSERT IGNORE INTO Collection (url, title, collection_id, "
-                    "modified_date, created_date, published_date, doi, "
-                    "citation, group_id, institution_id, description, "
-                    "timeline_id, account_id, version, resource_id, "
-                    "resource_doi, resource_title, resource_link, "
-                    "resource_version, handle, group_resource_id, "
-                    "articles_count, is_public, is_latest, is_editable) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-
         collection_id  = record["id"]
+        uri            = rdf.ROW[f"collection_{collection_id}"]
 
-        timeline_id = None
-        if "timeline" in record:
-            timeline_id = self.insert_timeline (record["timeline"])
+        is_public          = bool (value_or (record, "is_public", False))
+        is_latest          = bool (value_or (record, "is_latest", False))
+        is_editable        = bool (value_or (record, "is_editable", False))
 
-        created_date = None
-        if "created_date" in record and not record["created_date"] is None:
-            created_date  = datetime.strptime(record["created_date"], "%Y-%m-%dT%H:%M:%SZ")
-            created_date  = datetime.strftime (created_date, "%Y-%m-%d %H:%M:%S")
+        self.store.add ((uri, RDF.type,                 rdf.SG["Collection"]))
+        self.store.add ((uri, rdf.COL["collection_id"], Literal(collection_id, datatype=XSD.integer)))
 
-        modified_date = None
-        if "modified_date" in record and not record["modified_date"] is None:
-            modified_date = datetime.strptime(record["modified_date"], "%Y-%m-%dT%H:%M:%SZ")
-            modified_date = datetime.strftime (modified_date, "%Y-%m-%d %H:%M:%S")
+        rdf.add (self.store, uri, rdf.COL["url"],                 value_or_none (record, "url"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["title"],               value_or_none (record, "title"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["published_date"],      value_or_none (record, "published_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["created_date"],        value_or_none (record, "created_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["modified_date"],       value_or_none (record, "modified_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["doi"],                 value_or_none (record, "doi"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["citation"],            value_or_none (record, "citation"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["account_id"],          account_id, XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["group_id"],            value_or_none (record, "group_id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["group_resource_id"],   value_or_none (record, "group_resource_id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["institution_id"],      value_or_none (record, "institution_id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["description"],         value_or_none (record, "description"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["version"],             value_or_none (record, "version"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["resource_id"],         value_or_none (record, "resource_id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["resource_version"],    value_or_none (record, "resource_version"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["resource_link"],       value_or_none (record, "resource_link"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["handle"],              value_or_none (record, "handle"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["is_public"],           is_public, XSD.boolean)
+        rdf.add (self.store, uri, rdf.COL["is_latest"],           is_latest, XSD.boolean)
+        rdf.add (self.store, uri, rdf.COL["is_editable"],         is_editable, XSD.boolean)
 
-        published_date = None
-        if "published_date" in record and not record["published_date"] is None:
-            published_date = datetime.strptime(record["published_date"], "%Y-%m-%dT%H:%M:%SZ")
-            published_date = datetime.strftime (published_date, "%Y-%m-%d %H:%M:%S")
+        self.insert_timeline (uri, value_or_none (record, "timeline"))
+        self.insert_author_list (uri, value_or (record, "authors", []))
+        self.insert_category_list (uri, value_or (record, "categories", []))
+        self.insert_funding_list (uri, value_or (record, "funding_list", []))
+        self.insert_private_links_list (uri, value_or (record, "private_links", []))
+        self.insert_item_list (uri, value_or (record, "tags", []), "tags")
+        self.insert_item_list (uri, value_or (record, "references", []), "references")
 
-        data     = (
-            convenience.value_or_none(record, "url"),
-            convenience.value_or_none(record, "title"),
-            collection_id,
-            modified_date,
-            created_date,
-            published_date,
-            convenience.value_or_none(record, "doi"),
-            convenience.value_or_none(record, "citation"),
-            convenience.value_or_none(record, "group_id"),
-            convenience.value_or_none(record, "institution_id"),
-            convenience.value_or_none(record, "description"),
-            timeline_id,
-            account_id,
-            convenience.value_or_none(record, "version"),
-            convenience.value_or_none(record, "resource_id"),
-            convenience.value_or_none(record, "resource_doi"),
-            convenience.value_or_none(record, "resource_title"),
-            convenience.value_or_none(record, "resource_link"),
-            convenience.value_or_none(record, "resource_version"),
-            convenience.value_or_none(record, "handle"),
-            convenience.value_or_none(record, "group_resource_id"),
-            convenience.value_or_none(record, "articles_count"),
-            convenience.value_or_none(record, "public"),
-            convenience.value_or (record, "is_latest", 0),
-            convenience.value_or (record, "is_editable", 0)
-        )
+        if "statistics" in record:
+            stats     = record["statistics"]
+            self.insert_collection_totals (stats["totals"], collection_id)
+        elif is_public and is_latest:
+            logging.warning ("No statistics available for collection %d.", collection_id)
 
-        collection_version_id = self.__execute_query (template, data)
-        if not collection_version_id:
-            logging.error("Inserting collection failed.")
-            return False
+        for field in value_or (record, "custom_fields", []):
+            self.insert_custom_field (uri, field)
 
-        authors = convenience.value_or (record, "authors", [])
-        for index, author in enumerate(authors):
-            self.insert_author (author, collection_version_id, index, item_type="collection")
-
-        categories = convenience.value_or (record, "categories", [])
-        for category in categories:
-            self.insert_category (category, collection_version_id, "collection")
-
-        fundings = convenience.value_or (record, "funding", [])
-        for funding in fundings:
-            self.insert_funding (funding,
-                                 item_id   = collection_version_id,
-                                 item_type = "collection")
-
-        private_links = convenience.value_or (record, "private_links", [])
-        for link in private_links:
-            self.insert_private_links (link,
-                                       item_id   = collection_version_id,
-                                       item_type = "collection")
-
-        tags = convenience.value_or (record, "tags", [])
-        for tag in tags:
-            self.insert_tag (tag, collection_version_id, item_type="collection")
-
-        references = convenience.value_or (record, "references", [])
-        for url in references:
-            self.insert_reference (url, collection_version_id, item_type="collection")
-
-        custom_fields = convenience.value_or (record, "custom_fields", [])
-        for field in custom_fields:
-            self.insert_custom_field (field, collection_version_id, item_type="collection")
-
-        articles = convenience.value_or (record, "articles", [])
-        for article in articles:
-            self.insert_collection_article (collection_version_id, article)
+        self.insert_item_list (uri, value_or (record, "articles", []), "articles")
 
         return True
 
-    def insert_collection_article (self, collection_version_id, article_id):
-        """Procedure to insert a collection-article relationship."""
-
-        template = ("INSERT IGNORE INTO CollectionArticle "
-                    "(collection_version_id, article_id) VALUES (%s, %s)")
-        data     = (collection_version_id, article_id)
-
-        return self.__execute_query (template, data)
-
-    def insert_funding (self, record, item_id, item_type="article"):
+    def insert_funding (self, record):
         """Procedure to insert a funding record."""
 
-        prefix   = item_type.capitalize()
-        template = ("INSERT IGNORE INTO Funding (id, title, grant_code, "
-                    "funder_name, is_user_defined, url) VALUES (%s, %s, "
-                    "%s, %s, %s, %s)")
+        funding_id = value_or_none (record, "id")
+        uri = self.record_uri ("Funding", "id", funding_id)
+        if uri is not None:
+            return uri
 
-        data     = (convenience.value_or_none (record, "id"),
-                    convenience.value_or_none (record, "title"),
-                    convenience.value_or_none (record, "grant_code"),
-                    convenience.value_or_none (record, "funder_name"),
-                    convenience.value_or_none (record, "is_user_defined"),
-                    convenience.value_or_none (record, "url"))
+        is_user_defined = value_or (record, "is_user_defined", False)
 
-        if not self.__execute_query (template, data):
-            logging.error("Inserting funding for %s failed.", item_type)
-            return False
+        uri = rdf.unique_node ("funding")
+        self.store.add ((uri, RDF.type, rdf.SG["Funding"]))
+        rdf.add (self.store, uri, rdf.COL["id"],              funding_id, XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["title"],           value_or_none (record, "title"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["grant_code"],      value_or_none (record, "grant_code"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["funder_name"],     value_or_none (record, "funder_name"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["url"],             value_or_none (record, "url"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["is_user_defined"], is_user_defined, XSD.boolean)
 
-        template = (f"INSERT IGNORE INTO {prefix}Funding "
-                    f"({item_type}_version_id, funding_id) VALUES (%s, %s)")
-        data     = (item_id, record["id"])
+        return uri
 
-        retval = self.__execute_query (template, data)
-        return bool(retval)
-
-    def insert_private_links (self, record, item_id, item_type="article"):
+    def insert_private_link (self, record):
         """Procedure to insert a private link to an article or a collection."""
 
-        prefix   = "Article" if item_type == "article" else "Collection"
-        template = (f"INSERT IGNORE INTO {prefix}PrivateLink "
-                    f"(id, {item_type}_version_id, is_active, expires_date) "
-                    "VALUES (%s, %s, %s, %s)")
+        is_active = value_or (record, "is_active", False)
+        suffix    = token_urlsafe (64)
+        uri       = rdf.unique_node ("private_link")
 
-        expires_date  = convenience.value_or_none (record, "expires_date")
-        if expires_date is not None:
-            expires_date  = datetime.strptime(record["expires_date"], "%Y-%m-%dT%H:%M:%SZ")
-            expires_date  = datetime.strftime (expires_date, "%Y-%m-%d %H:%M:%S")
+        self.store.add ((uri, RDF.type, rdf.SG["PrivateLink"]))
+        rdf.add (self.store, uri, rdf.COL["id"],           value_or_none (record, "id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["suffix"],       suffix, XSD.string)
+        rdf.add (self.store, uri, rdf.COL["expires_date"], value_or_none (record, "expires_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["is_active"],    is_active, XSD.boolean)
 
-        data     = (convenience.value_or_none (record, "id"),
-                    item_id,
-                    convenience.value_or_none (record, "is_active"),
-                    expires_date)
+        return uri
 
-        return self.__execute_query (template, data)
-
-    def insert_embargo (self, record, article_version_id):
+    def insert_embargo (self, record):
         """Procedure to insert an embargo record."""
 
-        template = ("INSERT IGNORE INTO ArticleEmbargoOption "
-                    "(id, article_version_id, type, ip_name) "
-                    "VALUES (%s, %s, %s, %s)")
+        uri = rdf.unique_node ("embargo")
+        self.store.add ((uri, RDF.type, rdf.SG["Embargo"]))
+        rdf.add (self.store, uri, rdf.COL["id"],      value_or_none (record, "id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["type"],    value_or_none (record, "type"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["ip_name"], value_or_none (record, "ip_name"), XSD.string)
 
-        data     = (convenience.value_or_none (record, "id"),
-                    article_version_id,
-                    convenience.value_or_none (record, "type"),
-                    convenience.value_or_none (record, "ip_name"))
+        return uri
 
-        embargo_option_id = self.__execute_query (template, data)
-        if not embargo_option_id:
-            logging.error("Inserting embargo option failed.")
-
-        return embargo_option_id
-
-    def insert_license (self, record):
+    def insert_license (self, uri, record):
         """Procedure to insert a license record."""
 
-        template = "INSERT IGNORE INTO License (id, name, url) VALUES (%s, %s, %s)"
-
-        if not self.__execute_query (template, (record["value"], record["name"], record["url"])):
-            logging.error("Inserting license failed.")
+        if not (record and value_or (record, "url", False)):
             return False
+
+        license_uri  = URIRef (record["url"])
+
+        ## Insert the license if it isn't in the graph.
+        if (license_uri, RDF.type, rdf.SG["License"]) not in self.store:
+            license_name = value_or_none (record,"name")
+            self.store.add ((license_uri, RDF.type, rdf.SG["License"]))
+            self.store.add ((license_uri, rdf.COL["name"],
+                             Literal(license_name, datatype=XSD.string)))
+
+        ## Insert the link between URI and the license.
+        self.store.add ((uri, rdf.COL["license"], license_uri))
 
         return True
 
-    def insert_totals_statistics (self, record, item_id, item_type):
+    def insert_totals_statistics (self, record, item_id, item_type="article"):
         """Procedure to insert simplified totals for an article or collection."""
 
         if record is None:
-            return True
+            return None
 
-        prefix   = item_type.capitalize()
-        template = (f"INSERT INTO {prefix}Totals ({item_type}_id, "
-                    "views, downloads, shares, cites, created_at) "
-                    "VALUES (%s, %s, %s, %s, %s, %s)")
-        data     = (item_id,
-                    convenience.value_or_none (record, "views"),
-                    convenience.value_or_none (record, "downloads"),
-                    convenience.value_or_none (record, "shares"),
-                    convenience.value_or_none (record, "cites"),
-                    datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S"))
+        prefix = item_type.capitalize()
+        uri    = rdf.unique_node ("statistics")
+        now    = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
 
-        if self.__execute_query (template, data) is False:
-            logging.warning("Could not insert totals statistics for %s %d.",
-                            item_type, item_id)
+        self.store.add ((uri, RDF.type, rdf.SG[f"{prefix}Totals"]))
+        rdf.add (self.store, uri, rdf.COL[f"{item_type}_id"], item_id, XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["views"],      value_or_none (record, "views"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["downloads"],  value_or_none (record, "downloads"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["shares"],     value_or_none (record, "shares"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["cites"],      value_or_none (record, "cites"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["created_at"], now, XSD.dateTime)
 
         return True
 
@@ -535,73 +518,13 @@ class DatabaseInterface:
                                               item_id=collection_id,
                                               item_type="collection")
 
-    def insert_statistics (self,
-                           record,
-                           item_id,
-                           item_type = "article",
-                           statistics_type = "views"):
-        """Procedure to insert statistics for an article or collection."""
-
-        if record is None:
-            return True
-
-        prefix   = item_type.capitalize()
-        suffix   = statistics_type.capitalize()
-        template = (f"INSERT INTO {prefix}{suffix} ({item_type}_id, "
-                    f"country, region, {statistics_type}, date) "
-                    "VALUES (%s, %s, %s, %s, %s)")
-
-        for day in record:
-            for country in record[day]:
-                total     = record[day][country]["total"]
-                summed_up = 0
-                for region in record[day][country]:
-                    if region != "total":
-                        value = record[day][country][region]
-                        data  = (item_id, country, region, value, day)
-                        if self.__execute_query (template, data) is False:
-                            logging.warning("Could not insert statistics for %s %d on day %s",
-                                            item_type, item_id, day)
-                        else:
-                            summed_up += value
-
-                if summed_up != total:
-                    logging.warning("Total number of %s (%d) differs from inserted (%d) for %s.",
-                                    statistics_type, total, summed_up, item_id)
-                    if summed_up < total:
-                        value = total - summed_up
-                        data  = (item_id, country, "Unaccounted", value, day)
-                        if self.__execute_query (template, data) is False:
-                            logging.warning(("Could not insert unnaccounted "
-                                             "difference in statistics for "
-                                             "%s %d on day %s"),
-                                             item_type, item_id, day)
-
-        return True
-
-    def insert_article_statistics (self, record, article_id, item_type="views"):
-        """Procedure to insert statistics for an article."""
-
-        return self.insert_statistics (record,
-                                       item_id=article_id,
-                                       item_type="article",
-                                       statistics_type=item_type)
-
-    def insert_collection_statistics (self, record, collection_id, item_type="views"):
-        """Procedure to insert statistics for a collection."""
-
-        return self.insert_statistics (record,
-                                       item_id=collection_id,
-                                       item_type="collection",
-                                       statistics_type=item_type)
-
-    def insert_file (self, record, article_version_id):
+    def insert_file (self, record):
         """Procedure to insert a file record."""
 
-        template = ("INSERT IGNORE INTO File (id, name, size, is_link_only, "
-                    "download_url, supplied_md5, computed_md5, viewer_type, "
-                    "preview_state, status, upload_url, upload_token) VALUES "
-                    "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+        file_id = value_or_none (record, "id")
+        uri = self.record_uri ("File", "id", file_id)
+        if uri is not None:
+            return uri
 
         if record["download_url"].startswith("https://opendap.tudelft.nl/thredds"):
             record["download_url"] = record["download_url"].replace("opendap.tudelft.nl",
@@ -609,199 +532,117 @@ class DatabaseInterface:
 
         if (record["download_url"].startswith("https://opendap.4tu.nl/thredds") and
             record["size"] == 0):
-            record["size"] = self.__get_file_size_for_catalog (record["download_url"],
-                                                               article_version_id)
+            record["size"] = self.__get_file_size_for_catalog (record["download_url"])
 
-        data = (convenience.value_or_none (record, "id"),
-                convenience.value_or_none (record, "name"),
-                convenience.value_or_none (record, "size"),
-                convenience.value_or_none (record, "is_link_only"),
-                convenience.value_or_none (record, "download_url"),
-                convenience.value_or_none (record, "supplied_md5"),
-                convenience.value_or_none (record, "computed_md5"),
-                convenience.value_or_none (record, "viewer_type"),
-                convenience.value_or_none (record, "preview_state"),
-                convenience.value_or_none (record, "status"),
-                convenience.value_or_none (record, "upload_url"),
-                convenience.value_or_none (record, "upload_token"))
+        is_link_only = bool (value_or (record, "is_link_only", False))
 
-        if self.__execute_query (template, data):
-            template = ("INSERT IGNORE INTO ArticleFile (article_version_id, "
-                        "file_id) VALUES (%s, %s)")
-            data     = (article_version_id, record["id"])
-            if self.__execute_query (template, data):
-                return record["id"]
+        uri = rdf.unique_node ("file")
+        self.store.add ((uri, RDF.type, rdf.SG["File"]))
 
-        return False
+        rdf.add (self.store, uri, rdf.COL["id"],            file_id, XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["name"],          value_or_none (record, "name"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["size"],          value_or_none (record, "size"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["download_url"],  value_or_none (record, "download_url"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["supplied_md5"],  value_or_none (record, "supplied_md5"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["computed_md5"],  value_or_none (record, "computed_md5"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["viewer_type"],   value_or_none (record, "viewer_type"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["preview_state"], value_or_none (record, "preview_state"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["status"],        value_or_none (record, "status"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["upload_url"],    value_or_none (record, "upload_url"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["upload_token"],  value_or_none (record, "upload_token"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["is_link_only"],  is_link_only, XSD.boolean)
 
-    def insert_reference (self, url, item_id, item_type="article"):
-        """Procedure to insert an article reference."""
-
-        prefix   = "Article" if item_type == "article" else "Collection"
-        template = (f"INSERT IGNORE INTO {prefix}Reference "
-                    f"({item_type}_version_id, url) VALUES (%s, %s)")
-        data     = (item_id, url)
-
-        return self.__execute_query (template, data)
+        return uri
 
     def insert_article (self, record):
         """Procedure to insert an article record."""
 
-        template = ("INSERT IGNORE INTO Article (article_id, account_id, title, doi, "
-                    "handle, group_id, url, url_public_html, url_public_api, "
-                    "url_private_html, url_private_api, published_date, thumb, "
-                    "defined_type, defined_type_name, is_embargoed, citation, "
-                    "has_linked_file, metadata_reason, confidential_reason, "
-                    "is_metadata_record, is_confidential, is_public, funding, "
-                    "modified_date, created_date, size, status, version, "
-                    "description, figshare_url, resource_doi, resource_title, "
-                    "timeline_id, license_id, is_latest, is_editable) VALUES "
-                    "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                    "%s, %s, %s, %s, %s, %s, %s, %s, %s)")
-
-        article_id  = record["id"]
-        timeline_id = None
-        if "timeline" in record:
-            timeline_id = self.insert_timeline (record["timeline"])
-
-        license_id = record["license"]["value"]
-        self.insert_license (record["license"])
-
-        created_date = None
-        if "created_date" in record and not record["created_date"] is None:
-            created_date  = datetime.strptime(record["created_date"], "%Y-%m-%dT%H:%M:%SZ")
-
-        modified_date = None
-        if "modified_date" in record and not record["modified_date"] is None:
-            modified_date = datetime.strptime(record["modified_date"], "%Y-%m-%dT%H:%M:%SZ")
-
-        data          = (article_id,
-                         convenience.value_or_none (record, "account_id"),
-                         convenience.value_or_none (record, "title"),
-                         convenience.value_or_none (record, "doi"),
-                         convenience.value_or_none (record, "handle"),
-                         convenience.value_or_none (record, "group_id"),
-                         convenience.value_or_none (record, "url"),
-                         convenience.value_or_none (record, "url_public_html"),
-                         convenience.value_or_none (record, "url_public_api"),
-                         convenience.value_or_none (record, "url_private_html"),
-                         convenience.value_or_none (record, "url_private_api"),
-                         convenience.value_or_none (record, "published_date"),
-                         convenience.value_or_none (record, "thumb"),
-                         convenience.value_or_none (record, "defined_type"),
-                         convenience.value_or_none (record, "defined_type_name"),
-                         "is_embargoed" in record and record["is_embargoed"],
-                         convenience.value_or_none (record, "citation"),
-                         "has_linked_file" in record and record["has_linked_file"],
-                         convenience.value_or_none (record, "metadata_reason"),
-                         convenience.value_or_none (record, "confidential_reason"),
-                         convenience.value_or_none (record, "is_metadata_record"),
-                         convenience.value_or_none (record, "is_confidential"),
-                         convenience.value_or_none (record, "is_public"),
-                         convenience.value_or_none (record, "funding"),
-                         modified_date,
-                         created_date,
-                         convenience.value_or_none (record, "size"),
-                         convenience.value_or_none (record, "status"),
-                         convenience.value_or_none (record, "version"),
-                         convenience.value_or_none (record, "description"),
-                         convenience.value_or_none (record, "figshare_url"),
-                         convenience.value_or_none (record, "resource_doi"),
-                         convenience.value_or_none (record, "resource_title"),
-                         timeline_id,
-                         license_id,
-                         convenience.value_or (record, "is_latest", 0),
-                         convenience.value_or (record, "is_editable", 0))
-
-        article_version_id = self.__execute_query (template, data)
-        if not article_version_id:
-            logging.error("Inserting article %d failed.", article_id)
+        article_id = value_or_none (record, "id")
+        if article_id is None:
             return False
 
-        embargos = convenience.value_or (record, "embargo_options", [])
-        for embargo in embargos:
-            self.insert_embargo (embargo, article_version_id)
+        account_id = value_or_none (record, "account_id")
+        uri        = rdf.unique_node ("article")
 
-        references = convenience.value_or (record, "references", [])
-        for url in references:
-            self.insert_reference (url, article_version_id, item_type="article")
+        self.store.add ((uri, RDF.type,              rdf.SG["Article"]))
+        self.store.add ((uri, rdf.COL["article_id"], Literal(article_id, datatype=XSD.integer)))
 
-        categories = convenience.value_or (record, "categories", [])
-        for category in categories:
-            self.insert_category (category, article_version_id, "article")
+        self.insert_timeline (uri, value_or_none (record, "timeline"))
+        self.insert_license (uri, value_or_none (record, "license"))
 
-        tags = convenience.value_or (record, "tags", [])
-        for tag in tags:
-            self.insert_tag (tag, article_version_id, item_type="article")
+        is_embargoed       = bool (value_or (record, "is_embargoed", False))
+        is_public          = bool (value_or (record, "is_public", False))
+        is_latest          = bool (value_or (record, "is_latest", False))
+        is_editable        = bool (value_or (record, "is_editable", False))
+        is_confidential    = bool (value_or (record, "is_confidential", False))
+        is_metadata_record = bool (value_or (record, "is_metadata_record", False))
+        has_linked_file    = bool (value_or (record, "has_linked_file", False))
 
-        authors = convenience.value_or (record, "authors", [])
-        for index, author in enumerate(authors):
-            self.insert_author (author, article_version_id, index, item_type="article")
+        rdf.add (self.store, uri, rdf.COL["account_id"],          account_id, XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["title"],               value_or_none (record, "title"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["doi"],                 value_or_none (record, "doi"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["handle"],              value_or_none (record, "handle"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["group_id"],            value_or_none (record, "group_id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["url"],                 value_or_none (record, "url"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["url_public_html"],     value_or_none (record, "url_public_html"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["url_public_api"],      value_or_none (record, "url_public_api"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["url_private_html"],    value_or_none (record, "url_private_html"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["url_private_api"],     value_or_none (record, "url_private_api"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["published_date"],      value_or_none (record, "published_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["created_date"],        value_or_none (record, "created_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["modified_date"],       value_or_none (record, "modified_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.COL["thumb"],               value_or_none (record, "thumb"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["defined_type"],        value_or_none (record, "defined_type"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["defined_type_name"],   value_or_none (record, "defined_type_name"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["citation"],            value_or_none (record, "citation"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["metadata_reason"],     value_or_none (record, "metadata_reason"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["confidential_reason"], value_or_none (record, "confidential_reason"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["funding"],             value_or_none (record, "funding"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["size"],                value_or_none (record, "size"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["status"],              value_or_none (record, "status"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["version"],             value_or_none (record, "version"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["description"],         value_or_none (record, "description"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["figshare_url"],        value_or_none (record, "figshare_url"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["has_linked_file"],     has_linked_file, XSD.boolean)
+        rdf.add (self.store, uri, rdf.COL["is_embargoed"],        is_embargoed, XSD.boolean)
+        rdf.add (self.store, uri, rdf.COL["is_metadata_record"],  is_metadata_record, XSD.boolean)
+        rdf.add (self.store, uri, rdf.COL["is_confidential"],     is_confidential, XSD.boolean)
+        rdf.add (self.store, uri, rdf.COL["is_public"],           is_public, XSD.boolean)
+        rdf.add (self.store, uri, rdf.COL["is_latest"],           is_latest, XSD.boolean)
+        rdf.add (self.store, uri, rdf.COL["is_editable"],         is_editable, XSD.boolean)
 
-        files = convenience.value_or (record, "files", [])
-        for file in files:
-            self.insert_file (file, article_version_id)
+        self.insert_item_list (uri, value_or (record, "references", []), "references")
+        self.insert_item_list (uri, value_or (record, "tags", []), "tags")
+        self.insert_category_list (uri, value_or (record, "categories", []))
+        self.insert_author_list (uri, value_or (record, "authors", []))
+        self.insert_file_list (uri, value_or (record, "files", []))
+        self.insert_funding_list (uri, value_or (record, "funding_list", []))
+        self.insert_private_links_list (uri, value_or (record, "private_links", []))
+        self.insert_embargo_list (uri, value_or (record, "embargo_options", []))
 
-        funding_list = convenience.value_or (record, "funding_list", [])
-        for funding in funding_list:
-            self.insert_funding (funding,
-                                 item_id   = article_version_id,
-                                 item_type = "article")
-
-        private_links = convenience.value_or (record, "private_links", [])
-        for link in private_links:
-            self.insert_private_links (link,
-                                       item_id   = article_version_id,
-                                       item_type = "article")
-
-        ## Statistics are not version-specific for articles, therefore
-        ## we use article_id instead of article_version_id.
         if "statistics" in record:
-            stats     = record["statistics"]
-            #self.insert_article_statistics (stats["views"], article_id, item_type="views")
-            #self.insert_article_statistics (stats["downloads"], article_id, item_type="downloads")
-            #self.insert_article_statistics (stats["shares"], article_id, "shares")
+            stats = record["statistics"]
             self.insert_article_totals (stats["totals"], article_id)
-        else:
-            if convenience.value_or (record, "is_public", False):
-                logging.warning ("No statistics available for article %d.", article_id)
+        elif is_latest:
+            logging.warning ("No statistics available for article %d.", article_id)
 
-        custom_fields = record["custom_fields"]
-        for field in custom_fields:
-            self.insert_custom_field (field, article_version_id, item_type="article")
+        for field in value_or (record, "custom_fields", []):
+            self.insert_custom_field (uri, field)
 
         return True
 
     def insert_institution_group (self, record):
         """Procedure to insert a institution group record."""
 
-        template    = ("INSERT IGNORE INTO InstitutionGroup (id, parent_id, "
-                       "resource_id, name, association_criteria) "
-                       "VALUES (%s, %s, %s, %s, %s)")
+        uri        = rdf.unique_node ("institution_group")
+        self.store.add ((uri, RDF.type, rdf.SG["InstitutionGroup"]))
 
-        try:
-            data        = (record["id"],
-                           convenience.value_or_none (record, "parent_id"),
-                           convenience.value_or_none (record, "resource_id"),
-                           convenience.value_or_none (record, "name"),
-                           convenience.value_or_none (record, "association_criteria"))
+        rdf.add (self.store, uri, rdf.COL["id"],                   value_or_none (record, "id"), datatype=XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["parent_id"],            value_or_none (record, "parent_id"), datatype=XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["resource_id"],          value_or_none (record, "resource_id"), datatype=XSD.string)
+        rdf.add (self.store, uri, rdf.COL["name"],                 value_or_none (record, "name"), datatype=XSD.string)
+        rdf.add (self.store, uri, rdf.COL["association_criteria"], value_or_none (record, "association_criteria"), datatype=XSD.string)
 
-            if self.__execute_query (template, data) is False:
-                logging.info("Failed to insert InstitutionGroup record: %s", record)
-                return False
-
-            return True
-
-        except KeyError:
-            logging.error("Failed to insert an institution group.")
-            return False
-
-    def disconnect(self):
-        """Procedure to disconnect from the currently connected database."""
-
-        self.connection.commit()
-        cursor = self.connection.cursor()
-        cursor.close()
-        self.connection.close()
         return True

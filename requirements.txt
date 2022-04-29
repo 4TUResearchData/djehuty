@@ -1,5 +1,4 @@
 Jinja2>=3.0.3
-mysql-connector-python>=8.0.27
 pygit2>=1.6.1
 rdflib>=5.0.0
 requests>=2.26.0

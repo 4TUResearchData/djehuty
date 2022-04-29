@@ -22,10 +22,11 @@ class FigshareEndpoint:
         self.domain           = "api.figshare.com"
         self.base             = "https://api.figshare.com/v2"
         self.token            = None
-        self.stats_base      = "https://stats.figshare.com"
+        self.stats_base       = "https://stats.figshare.com"
         self.stats_auth       = None
         self.institution_id   = 898 # Defaults to 4TU.ResearchData
         self.institution_name = "4tu"
+        self.rdf_store        = None
 
     # REQUEST HANDLING PROCEDURES
     # -----------------------------------------------------------------------------
@@ -185,7 +186,7 @@ class FigshareEndpoint:
 
         end_time   = time.perf_counter()
         total_fetched = len(total)
-        logging.info("Fetched %d items in %.2f seconds", total_fetched, end_time - start_time)
+        logging.debug ("Fetched %d items in %.2f seconds", total_fetched, end_time - start_time)
         return total
 
     def get_articles (self,
@@ -213,8 +214,12 @@ class FigshareEndpoint:
 
         try:
             for author in record["authors"]:
-                details = self.get_author_details_by_id (author["id"], account_id)
-                authors.append(details)
+                author_id = conv.value_or_none (author, "id")
+                if self.rdf_store.record_uri ("Author", "id", author_id) is None:
+                    details = self.get_author_details_by_id (author["id"], account_id)
+                    authors.append(details)
+                else:
+                    authors.append(author)
         except TypeError:
             logging.error ("Failed to process authors for account %d", account_id)
 
@@ -224,7 +229,6 @@ class FigshareEndpoint:
         record["account_id"]    = account_id
         record["is_latest"]     = 0
         record["is_editable"]   = 1
-
 
         ## Other versions
         ## --------------------------------------------------------------------
@@ -255,6 +259,7 @@ class FigshareEndpoint:
             record["statistics"] = self.get_statistics_for_article(article_id,
                                                                    created_date,
                                                                    now)
+
         return record
 
     def get_article_private_links_by_account_by_id (self, account_id, article_id):
@@ -294,8 +299,8 @@ class FigshareEndpoint:
             results = list(map(lambda item : item.result(), articles))
             end_time   = time.perf_counter()
             total_fetched = len(results)
-            logging.info("Fetched %d full articles in %.2f seconds",
-                         total_fetched, end_time - start_time)
+            logging.debug ("Fetched %d full articles in %.2f seconds",
+                           total_fetched, end_time - start_time)
             return results
 
     def get_collections_by_account (self, account_id):
@@ -314,7 +319,7 @@ class FigshareEndpoint:
             results     = list(map(lambda item : item.result(), collections))
             end_time   = time.perf_counter()
             total_fetched = len(results)
-            logging.info("Fetched %d full collections in %.2f seconds",
+            logging.debug ("Fetched %d full collections in %.2f seconds",
                          total_fetched, end_time - start_time)
             return results
 
@@ -352,14 +357,14 @@ class FigshareEndpoint:
             numbers = self.get_collection_versions (collection_id, account_id)
             versions = []
             for number in numbers:
-                version = self.get_record(f"/collections/{collection_id}/versions/{number}")
-                version["is_latest"]   = 0
-                version["is_editable"] = 0
-
+                versioned_record = self.get_record(f"/collections/{collection_id}/versions/{number}")
+                versioned_record["is_latest"]   = 0
+                versioned_record["is_editable"] = 0
+                version = value_or_none (versioned_record, "version")
                 if current_version is not None and version == current_version:
-                    version["is_latest"] = 1
+                    versioned_record["is_latest"] = 1
 
-                versions.append(version)
+                versions.append(versioned_record)
 
             record["versions"] = versions
 
@@ -435,11 +440,18 @@ class FigshareEndpoint:
         logging.info("Getting projects.")
         return self.get_all ("/projects")
 
-    def get_institutional_accounts (self):
+    def get_institutional_accounts (self, account_id=None):
         """Procedure to get institutional accounts."""
 
         logging.info("Getting institutional accounts.")
-        return self.get_all ("/account/institution/accounts")
+        if account_id is None:
+            return self.get_all ("/account/institution/accounts")
+
+        return self.get ("/account/institution/accounts",
+                         self.__request_headers (), {
+                             "id_lte": account_id,
+                             "id_gte": account_id
+                         })
 
     def get_author_details_by_id (self, author_id, account_id):
         """Procedure to get a detailed author record."""

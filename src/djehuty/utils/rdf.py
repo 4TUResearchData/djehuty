@@ -6,7 +6,7 @@ import uuid
 from rdflib import Literal, Namespace, URIRef
 
 BLANK = Namespace("blank://")
-ROW   = Namespace("origin://djehuty#")
+ROW   = Namespace("djehuty://")
 SG    = Namespace("https://sparqling-genomics.org/0.99.12/")
 COL   = Namespace("sg://0.99.12/table2rdf/Column/")
 
