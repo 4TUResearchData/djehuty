@@ -80,6 +80,9 @@ class SparqlInterface:
                     record[item] = int(record[item]["value"])
                 elif datatype == "http://www.w3.org/2001/XMLSchema#boolean":
                     record[item] = bool(int(record[item]["value"]))
+                elif datatype == "http://www.w3.org/2001/XMLSchema#dateTime":
+                    timestamp = datetime.strptime(record[item]["value"], "%Y-%m-%dT%H:%M:%SZ")
+                    record[item] = datetime.strftime (timestamp, "%Y-%m-%d %H:%M:%S")
                 elif datatype == "http://www.w3.org/2001/XMLSchema#string":
                     if record[item]["value"] == "NULL":
                         record[item] = None
