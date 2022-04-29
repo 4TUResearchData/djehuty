@@ -210,19 +210,19 @@ jQuery(document).ready(function (){
 {% block submenu %}
 <ul>
   <li><a href="/my/datasets">&#8592; Go back</a>
-  <li class="active">Edit article
+  <li class="active">Edit dataset
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save</a>
   <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
 </ul>
 {% endblock %}
 {% block body %}
 <div class="article-content">
-<h1>Edit article</h1>
+<h1>Edit dataset</h1>
 <noscript>
   <p class="no-script">Sorry, this page requires JavaScript to work correctly.</p>
 </noscript>
 <div class="hide-for-javascript">
-<h2>Article details</h2>
+<h2>Dataset details</h2>
 <label for="title">Title</label>
 <input type="text" id="title" name="title" value="{{article["title"]}}" />
 <label>Description</label>
