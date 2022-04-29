@@ -1,6 +1,5 @@
 include etc/djehuty.service
 include etc/djehuty/djehuty-example-config.xml
-include sql/Database.sql
 include rpmbuild/SPECS/djehuty.spec
 recursive-include src *.py
 recursive-include src/djehuty/web/resources *.txt *.html *.css *.eot *.svg *.ttf *.woff *.woff2 *.js *.sparql *.jpg *.png *.ico
