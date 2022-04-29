@@ -2213,7 +2213,7 @@ class SparqlInterface:
         if token is None:
             token = secrets.token_hex (64)
 
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
 
         graph       = Graph()
         link_id     = self.ids.next_id("session")
@@ -2221,7 +2221,7 @@ class SparqlInterface:
         graph.add ((link_uri, RDF.type,              rdf.SG["Session"]))
         graph.add ((link_uri, rdf.COL["account_id"], Literal(account_id)))
         graph.add ((link_uri, rdf.COL["id"],         Literal(link_id)))
-        graph.add ((link_uri, rdf.COL["created_date"], Literal(current_time, datatype=XSD.string)))
+        graph.add ((link_uri, rdf.COL["created_date"], Literal(current_time, datatype=XSD.dateTime)))
         graph.add ((link_uri, rdf.COL["name"],       Literal(name, datatype=XSD.string)))
         graph.add ((link_uri, rdf.COL["token"],      Literal(token, datatype=XSD.string)))
         graph.add ((link_uri, rdf.COL["editable"],   Literal(editable, datatype=XSD.boolean)))
