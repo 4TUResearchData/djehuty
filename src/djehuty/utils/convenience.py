@@ -106,7 +106,6 @@ def unversion_doi(doi):
     try:
         doi_parts = doi.split('.v')
         versionless = '.v'.join(doi_parts[:-1])
-        version = int(doi_parts[-1])
         return versionless
     except:
         return doi
