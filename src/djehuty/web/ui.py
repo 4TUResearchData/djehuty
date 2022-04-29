@@ -29,7 +29,7 @@ def config_value (xml_root, path, command_line=None, fallback=None):
 
 def read_configuration_file (server, config_file, address, port, state_graph,
                              storage, base_url, use_debugger, use_reloader):
-
+    """Procedure to parse a configuration file."""
     config   = {}
     xml_root = None
     if config_file is not None:
