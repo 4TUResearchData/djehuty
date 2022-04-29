@@ -2100,9 +2100,12 @@ class SparqlInterface:
             "account_id":  account_id
         })
 
-        results = self.__run_query (query, query, "storage")
+        files = self.__run_query (query, query, "storage")
         try:
-            return results[0]["bytes"]
+            number_of_bytes = 0
+            for entry in files:
+                number_of_bytes += int(float(entry["bytes"]))
+            return number_of_bytes
         except IndexError:
             pass
         except KeyError:

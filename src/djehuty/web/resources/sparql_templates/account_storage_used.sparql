@@ -1,19 +1,14 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT (SUM(?bytes) AS ?bytes)
+SELECT DISTINCT ?file ?bytes
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?file           rdf:type            sg:File .
-    ?file           col:id              ?file_id .
-    ?file           col:size            ?bytes .
+    ?article        rdf:type                      sg:Article .
+    ?article        col:account_id                ?account_id .
+    ?article        col:files/rdf:rest*/rdf:first ?file .
 
-    ?link           rdf:type            sg:ArticleFile .
-    ?link           col:article_version_id ?article_version_id .
-    ?link           col:file_id         ?file_id .
-
-    ?article        rdf:type            sg:Article .
-    ?article        col:article_version_id ?article_version_id .
-    ?article        col:account_id      ?account_id .
+    ?file           rdf:type                      sg:File .
+    ?file           col:size                      ?bytes .
   }
   FILTER (?account_id = {{account_id}})
 }
