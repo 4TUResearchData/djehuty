@@ -290,29 +290,29 @@ class SparqlInterface:
     def repository_statistics (self):
         """Procedure to retrieve repository-wide statistics."""
 
-        query = self.__query_from_template ("repository_statistics", {
-            "state_graph":   self.state_graph,
-        })
+        parameters        = { "state_graph":   self.state_graph }
+        articles_query    = self.__query_from_template ("statistics_datasets", parameters)
+        collections_query = self.__query_from_template ("statistics_collections", parameters)
+        authors_query     = self.__query_from_template ("statistics_authors", parameters)
+        files_query       = self.__query_from_template ("statistics_files", parameters)
 
-        query2 = self.__query_from_template ("repository_statistics_files", {
-            "state_graph":   self.state_graph,
-        })
-
-        row = { "articles": 0, "collections": 0, "files": 0, "bytes": 0 }
+        row = { "articles": 0, "authors": 0, "collections": 0, "files": 0, "bytes": 0 }
         try:
-            results = self.__run_query (query, query, "statistics")
-            files   = self.__run_query (query2, query2, "statistics")
+            articles    = self.__run_query (articles_query, articles_query, "statistics")
+            authors     = self.__run_query (authors_query, authors_query, "statistics")
+            collections = self.__run_query (collections_query, collections_query, "statistics")
+            files       = self.__run_query (files_query, files_query, "statistics")
             number_of_files = 0
             number_of_bytes = 0
             for entry in files:
                 number_of_files += 1
-                number_of_bytes += int(entry["bytes"])
+                number_of_bytes += int(float(entry["bytes"]))
 
-            results2 = {
+            files_results = {
                 "files": number_of_files,
                 "bytes": number_of_bytes
             }
-            row = { **results[0], **results2 }
+            row = { **articles[0], **authors[0], **collections[0], **files_results }
         except IndexError:
             pass
         except KeyError:

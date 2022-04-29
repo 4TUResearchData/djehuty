@@ -1,0 +1,12 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT (COUNT(DISTINCT ?author_id) AS ?authors)
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?author         rdf:type            sg:Author .
+    ?author         col:id              ?author_id .
+    ?author         col:is_public       "true"^^xsd:boolean .
+  }
+{%- if filters is not none %}{{ filters }}{% endif %}
+}
+{% endblock %}
