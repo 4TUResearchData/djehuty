@@ -75,9 +75,9 @@ class SparqlInterface:
             if record[item]["type"] == "typed-literal":
                 datatype = record[item]["datatype"]
                 if datatype == "http://www.w3.org/2001/XMLSchema#integer":
-                    record[item] = int(record[item]["value"])
+                    record[item] = int(float(record[item]["value"]))
                 elif datatype == "http://www.w3.org/2001/XMLSchema#decimal":
-                    record[item] = int(record[item]["value"])
+                    record[item] = int(float(record[item]["value"]))
                 elif datatype == "http://www.w3.org/2001/XMLSchema#boolean":
                     record[item] = bool(int(record[item]["value"]))
                 elif datatype == "http://www.w3.org/2001/XMLSchema#dateTime":
