@@ -281,7 +281,10 @@ class DatabaseInterface:
             previous_blank_node = None
             for index, item in enumerate(items):
                 self.store.add ((blank_node, rdf.COL["index"], Literal (index, datatype=XSD.integer)))
-                self.store.add ((blank_node, RDF.first,        Literal (item,  datatype=XSD.string)))
+                if isinstance (item, URIRef):
+                    self.store.add ((blank_node, RDF.first,        item))
+                else:
+                    self.store.add ((blank_node, RDF.first,        Literal (item,  datatype=XSD.string)))
 
                 if previous_blank_node is not None:
                     self.store.add ((previous_blank_node, RDF.rest, blank_node))
