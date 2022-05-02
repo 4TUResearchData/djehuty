@@ -367,7 +367,7 @@ class DatabaseInterface:
         """Procedure to insert a collection record."""
 
         collection_id  = record["id"]
-        uri            = rdf.ROW[f"collection_{collection_id}"]
+        uri            = rdf.unique_node ("collection")
 
         is_public          = bool (value_or (record, "is_public", False))
         is_latest          = bool (value_or (record, "is_latest", False))
