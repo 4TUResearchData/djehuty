@@ -419,7 +419,17 @@ class DatabaseInterface:
         for field in value_or (record, "custom_fields", []):
             self.insert_custom_field (uri, field)
 
-        self.insert_item_list (uri, value_or (record, "articles", []), "articles")
+        articles = value_or (record, "articles", [])
+        if articles:
+            for index, article_id in enumerate (articles):
+                article_uri = self.record_uri ("ArticleContainer", "article_id", article_id)
+                if article_uri is None:
+                    logging.error ("Could not find article container for %d", article_id)
+                articles[index] = URIRef (article_uri)
+
+            self.insert_item_list (uri, articles, "articles")
+        else:
+            logging.warning ("Collection %d seems to be empty.", collection_id)
 
         return True
 

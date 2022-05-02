@@ -55,6 +55,10 @@ def main (figshare_token, figshare_stats_auth, account_id):
 
         del articles
 
+    ## We translate the article IDs associated to collections to their
+    ## container URIs.  So we have to insert all articles before we can
+    ## translate the article IDs for the collections.
+    for account_index, account in enumerate (accounts):
         collections = endpoint.get_collections_by_account (account["id"])
         number_of_collections = len(collections)
         for collection_index, collection in enumerate (collections):
