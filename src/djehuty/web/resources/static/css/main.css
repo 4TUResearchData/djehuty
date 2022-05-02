@@ -294,6 +294,7 @@ img.cts { width: 120px; }
     display: block;
     page-break-inside: avoid;
     height: 110px;
+    min-width: 400px;
     margin: 0 auto;
     padding: 0 auto;
     user-select: none;
