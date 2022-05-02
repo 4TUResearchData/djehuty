@@ -1,6 +1,7 @@
 """This module provides an interface to extract data from Figshare."""
 
 from datetime import datetime
+from threading import Lock
 import concurrent.futures
 import multiprocessing
 import time
@@ -27,6 +28,8 @@ class FigshareEndpoint:
         self.institution_id   = 898 # Defaults to 4TU.ResearchData
         self.institution_name = "4tu"
         self.rdf_store        = None
+        self.author_ids       = {}
+        self.author_ids_lock  = Lock()
 
     # REQUEST HANDLING PROCEDURES
     # -----------------------------------------------------------------------------
@@ -213,13 +216,15 @@ class FigshareEndpoint:
         authors = []
 
         try:
-            for author in record["authors"]:
-                author_id = conv.value_or_none (author, "id")
-                if self.rdf_store.record_uri ("Author", "id", author_id) is None:
-                    details = self.get_author_details_by_id (author["id"], account_id)
-                    authors.append(details)
-                else:
-                    authors.append(author)
+            with self.author_ids_lock:
+                for author in record["authors"]:
+                    author_id = conv.value_or_none (author, "id")
+                    if author_id in self.author_ids:
+                        authors.append (self.author_ids[author_id])
+                    else:
+                        details = self.get_author_details_by_id (author_id, account_id)
+                        self.author_ids[author_id] = details
+                        authors.append (details)
         except TypeError:
             logging.error ("Failed to process authors for account %d", account_id)
 
