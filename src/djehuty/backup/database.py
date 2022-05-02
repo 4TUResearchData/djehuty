@@ -161,6 +161,9 @@ class DatabaseInterface:
         """Procedure to insert an author record."""
 
         author_id = value_or_none (record, "id")
+        if author_id is None:
+            logging.error ("Invalid author record: %s", record)
+            return None
         uri = self.record_uri ("Author", "id", author_id)
         if uri is not None:
             return uri
