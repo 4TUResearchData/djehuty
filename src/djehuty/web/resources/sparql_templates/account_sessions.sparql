@@ -16,4 +16,5 @@ WHERE {
   FILTER (?id = {{session_id}})
   {%- endif %}
 }
+ORDER BY DESC(?created_date)
 {% endblock %}
