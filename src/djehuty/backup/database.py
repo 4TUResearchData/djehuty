@@ -560,6 +560,27 @@ class DatabaseInterface:
 
         return uri
 
+    def last_list_node (self, parent_uri, predicate_name):
+        """Returns the URI of the last blank node for PARENT_URI or None."""
+
+        try:
+            predicate = str(rdf.COL[predicate_name])
+            query     = (
+                "SELECT ?uri WHERE { "
+                f"<{str(parent_uri)}> <{predicate}>/<{str(RDF.rest)}>* ?uri . "
+                f"?uri <{str(RDF.rest)}> <{str(RDF.nil)}> . }}"
+            )
+
+            results  = self.store.query (query)
+            return results.bindings[0]["uri"]
+
+        except KeyError:
+            pass
+        except IndexError:
+            pass
+
+        return None
+
     def insert_article (self, record):
         """Procedure to insert an article record."""
 
