@@ -581,6 +581,17 @@ class DatabaseInterface:
 
         return None
 
+    def article_container_uri (self, article_id):
+        """Returns the URI of the article container belonging to article_id."""
+
+        uri = self.record_uri ("ArticleContainer", "article_id", article_id)
+        if uri is None:
+            uri = rdf.unique_node ("container")
+            self.store.add ((uri, RDF.type,              rdf.SG["ArticleContainer"]))
+            self.store.add ((uri, rdf.COL["article_id"], Literal(article_id, datatype=XSD.integer)))
+
+        return uri
+
     def insert_article (self, record):
         """Procedure to insert an article record."""
 
