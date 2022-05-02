@@ -669,6 +669,23 @@ class DatabaseInterface:
         for field in value_or (record, "custom_fields", []):
             self.insert_custom_field (uri, field)
 
+        ## Assign the article to the container
+        container = self.article_container_uri (article_id)
+        if is_editable:
+            self.store.add ((container, rdf.COL["draft"], uri))
+        else:
+            new_blank_node = rdf.blank_node ()
+            self.store.add ((new_blank_node, RDF.type, RDF.List))
+            self.store.add ((new_blank_node, RDF.first, uri))
+            self.store.add ((new_blank_node, RDF.rest, RDF.nil))
+
+            blank_node = self.last_list_node (container, "published_versions")
+            if blank_node is None:
+                self.store.add    ((container, rdf.COL["published_versions"], new_blank_node))
+            else:
+                self.store.remove ((blank_node, RDF.rest, RDF.nil))
+                self.store.add    ((blank_node, RDF.rest, new_blank_node))
+
         return True
 
     def insert_institution_group (self, record):
