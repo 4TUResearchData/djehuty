@@ -425,6 +425,8 @@ class DatabaseInterface:
                 article_uri = self.record_uri ("ArticleContainer", "article_id", article_id)
                 if article_uri is None:
                     logging.error ("Could not find article container for %d", article_id)
+                    continue
+
                 articles[index] = URIRef (article_uri)
 
             self.insert_item_list (uri, articles, "articles")
