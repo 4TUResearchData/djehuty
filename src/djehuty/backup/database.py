@@ -754,5 +754,5 @@ class DatabaseInterface:
             { "id": 13385, "title": "Environment", "parent_id": 0, "source_id": 85 },
             { "id": 13438, "title": "Expanding Knowledge", "parent_id": 0, "source_id": 85 }]
 
-        status = list(map(lambda category : self.insert_category(category), categories))
+        status = list(map(self.insert_category, categories))
         return all (status)
