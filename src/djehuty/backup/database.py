@@ -593,14 +593,16 @@ class DatabaseInterface:
 
         return None
 
-    def article_container_uri (self, article_id):
+    def container_uri (self, item_id, item_type):
         """Returns the URI of the article container belonging to article_id."""
 
-        uri = self.record_uri ("ArticleContainer", "article_id", article_id)
+        prefix     = item_type.capitalize()
+        item_class = f"{prefix}Container"
+        uri        = self.record_uri (item_class, f"{item_type}_id", item_id)
         if uri is None:
             uri = rdf.unique_node ("container")
-            self.store.add ((uri, RDF.type,              rdf.SG["ArticleContainer"]))
-            self.store.add ((uri, rdf.COL["article_id"], Literal(article_id, datatype=XSD.integer)))
+            self.store.add ((uri, RDF.type,              rdf.SG[item_class]))
+            self.store.add ((uri, rdf.COL[f"{item_type}_id"], Literal(item_id, datatype=XSD.integer)))
 
         return uri
 
@@ -682,7 +684,7 @@ class DatabaseInterface:
             self.insert_custom_field (uri, field)
 
         ## Assign the article to the container
-        container = self.article_container_uri (article_id)
+        container = self.container_uri (article_id, "article")
         if is_editable:
             self.store.add ((container, rdf.COL["draft"], uri))
         else:
