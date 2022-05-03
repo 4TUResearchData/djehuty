@@ -700,6 +700,9 @@ class DatabaseInterface:
                 self.store.remove ((blank_node, RDF.rest, RDF.nil))
                 self.store.add    ((blank_node, RDF.rest, new_blank_node))
 
+        if is_latest:
+            self.store.add ((container, rdf.COL["latest_published_version"], uri))
+
         return True
 
     def insert_institution_group (self, record):
