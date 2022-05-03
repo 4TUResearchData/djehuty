@@ -433,6 +433,26 @@ class DatabaseInterface:
         else:
             logging.warning ("Collection %d seems to be empty.", collection_id)
 
+        ## Assign the collection to the container
+        container = self.container_uri (collection_id, "collection")
+        if is_editable:
+            self.store.add ((container, rdf.COL["draft"], uri))
+        else:
+            new_blank_node = rdf.blank_node ()
+            self.store.add ((new_blank_node, RDF.type, RDF.List))
+            self.store.add ((new_blank_node, RDF.first, uri))
+            self.store.add ((new_blank_node, RDF.rest, RDF.nil))
+
+            blank_node = self.last_list_node (container, "published_versions")
+            if blank_node is None:
+                self.store.add    ((container, rdf.COL["published_versions"], new_blank_node))
+            else:
+                self.store.remove ((blank_node, RDF.rest, RDF.nil))
+                self.store.add    ((blank_node, RDF.rest, new_blank_node))
+
+        if is_latest:
+            self.store.add ((container, rdf.COL["latest_published_version"], uri))
+
         return True
 
     def insert_funding (self, record):
