@@ -23,6 +23,7 @@ def main (figshare_token, figshare_stats_auth, account_id):
     collections_failed      = 0
     groups_written          = 0
     groups_failed           = 0
+    start_time              = time.perf_counter()
 
     accounts                = endpoint.get_institutional_accounts (account_id)
     number_of_accounts      = len(accounts)
@@ -111,5 +112,8 @@ def main (figshare_token, figshare_stats_auth, account_id):
         logging.info("Failed to process %d collections.", collections_failed)
     if groups_failed > 0:
         logging.info("Failed to process %d groups.", groups_failed)
+
+    end_time      = time.perf_counter()
+    logging.info ("This run took %.2f seconds", end_time - start_time)
 
     return True
