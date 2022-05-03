@@ -410,12 +410,6 @@ class DatabaseInterface:
         self.insert_item_list (uri, value_or (record, "tags", []), "tags")
         self.insert_item_list (uri, value_or (record, "references", []), "references")
 
-        if "statistics" in record:
-            stats     = record["statistics"]
-            self.insert_collection_totals (stats["totals"], collection_id)
-        elif is_public and is_latest:
-            logging.warning ("No statistics available for collection %d.", collection_id)
-
         for field in value_or (record, "custom_fields", []):
             self.insert_custom_field (uri, field)
 
@@ -435,6 +429,13 @@ class DatabaseInterface:
 
         ## Assign the collection to the container
         container = self.container_uri (collection_id, "collection")
+
+        if "statistics" in record:
+            stats = record["statistics"]
+            self.insert_totals_statistics (stats["totals"], container)
+        elif is_public and is_latest:
+            logging.warning ("No statistics available for collection %d.", collection_id)
+
         if is_editable:
             self.store.add ((container, rdf.COL["draft"], uri))
         else:
@@ -522,39 +523,20 @@ class DatabaseInterface:
 
         return True
 
-    def insert_totals_statistics (self, record, item_id, item_type="article"):
+    def insert_totals_statistics (self, record, uri):
         """Procedure to insert simplified totals for an article or collection."""
 
         if record is None:
             return None
 
-        prefix = item_type.capitalize()
-        uri    = rdf.unique_node ("statistics")
-        now    = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
-
-        self.store.add ((uri, RDF.type, rdf.SG[f"{prefix}Totals"]))
-        rdf.add (self.store, uri, rdf.COL[f"{item_type}_id"], item_id, XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["views"],      value_or_none (record, "views"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["downloads"],  value_or_none (record, "downloads"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["shares"],     value_or_none (record, "shares"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["cites"],      value_or_none (record, "cites"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["created_at"], now, XSD.dateTime)
+        now = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        rdf.add (self.store, uri, rdf.COL["total_views"],     value_or_none (record, "views"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["total_downloads"], value_or_none (record, "downloads"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["total_shares"],    value_or_none (record, "shares"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["total_cites"],     value_or_none (record, "cites"), XSD.integer)
+        rdf.add (self.store, uri, rdf.COL["totals_created_at"], now, XSD.dateTime)
 
         return True
-
-    def insert_article_totals (self, record, article_id):
-        """Procedure to insert totals statistics for an article."""
-
-        return self.insert_totals_statistics (record,
-                                              item_id=article_id,
-                                              item_type="article")
-
-    def insert_collection_totals (self, record, collection_id):
-        """Procedure to insert totals statistics for a collection."""
-
-        return self.insert_totals_statistics (record,
-                                              item_id=collection_id,
-                                              item_type="collection")
 
     def insert_file (self, record):
         """Procedure to insert a file record."""
@@ -694,17 +676,18 @@ class DatabaseInterface:
         self.insert_private_links_list (uri, value_or (record, "private_links", []))
         self.insert_embargo_list (uri, value_or (record, "embargo_options", []))
 
-        if "statistics" in record:
-            stats = record["statistics"]
-            self.insert_article_totals (stats["totals"], article_id)
-        elif is_latest:
-            logging.warning ("No statistics available for article %d.", article_id)
-
         for field in value_or (record, "custom_fields", []):
             self.insert_custom_field (uri, field)
 
         ## Assign the article to the container
         container = self.container_uri (article_id, "article")
+
+        if "statistics" in record:
+            stats = record["statistics"]
+            self.insert_totals_statistics (stats["totals"], container)
+        elif is_public and is_latest:
+            logging.warning ("No statistics available for article %d.", article_id)
+
         if is_editable:
             self.store.add ((container, rdf.COL["draft"], uri))
         else:
