@@ -2,6 +2,7 @@
 
 import base64
 import logging
+import time
 
 from djehuty.backup import figshare
 from djehuty.backup import database
