@@ -358,10 +358,11 @@ class FigshareEndpoint:
         current_version         = conv.value_or_none (record, "version")
         record["version"]       = None
 
-        if conv.value_or (record, "is_public", False):
+        if conv.value_or (record, "public", False):
             numbers = self.get_collection_versions (collection_id, account_id)
             versions = []
-            for number in numbers:
+            for number_record in numbers:
+                number = number_record['version']
                 versioned_record = self.get_record(f"/collections/{collection_id}/versions/{number}")
                 versioned_record["is_latest"]   = 0
                 versioned_record["is_editable"] = 0
