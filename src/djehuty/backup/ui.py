@@ -87,6 +87,10 @@ def main (figshare_token, figshare_stats_auth, account_id):
             groups_failed += 1
 
     del groups
+
+    if not self.rdf_store.insert_root_categories ():
+        logging.error ("Failed to insert root categories")
+
     logging.info ("Serializing the RDF triplets...")
     endpoint.rdf_store.serialize ()
 

@@ -711,3 +711,48 @@ class DatabaseInterface:
         rdf.add (self.store, uri, rdf.COL["association_criteria"], value_or_none (record, "association_criteria"), datatype=XSD.string)
 
         return True
+
+    def insert_root_categories (self):
+        categories = [
+            { "id": 13431, "title": "Mathematical Sciences", "parent_id": 0, "source_id": 85 },
+            { "id": 13603, "title": "Physical Sciences", "parent_id": 0, "source_id": 85 },
+            { "id": 13594, "title": "Chemical Sciences", "parent_id": 0, "source_id": 85 },
+            { "id": 13551, "title": "Earth Sciences", "parent_id": 0, "source_id": 85 },
+            { "id": 13410, "title": "Environmental Sciences", "parent_id": 0, "source_id": 85 },
+            { "id": 13578, "title": "Biological Sciences", "parent_id": 0, "source_id": 85 },
+            { "id": 13376, "title": "Agricultural and Veterinary Sciences", "parent_id": 0, "source_id": 85 },
+            { "id": 13611, "title": "Information and Computing Sciences", "parent_id": 0, "source_id": 85 },
+            { "id": 13630, "title": "Engineering", "parent_id": 0, "source_id": 85 },
+            { "id": 13652, "title": "Technology", "parent_id": 0, "source_id": 85 },
+            { "id": 13474, "title": "Medical and Health Sciences", "parent_id": 0, "source_id": 85 },
+            { "id": 13362, "title": "Built Environment and Design", "parent_id": 0, "source_id": 85 },
+            { "id": 13647, "title": "Education", "parent_id": 0, "source_id": 85 },
+            { "id": 13566, "title": "Economics", "parent_id": 0, "source_id": 85 },
+            { "id": 13500, "title": "Commerce, Management, Tourism and Services", "parent_id": 0, "source_id": 85 },
+            { "id": 13464, "title": "Studies in Human Society", "parent_id": 0, "source_id": 85 },
+            { "id": 13453, "title": "Psychology and Cognitive Sciences", "parent_id": 0, "source_id": 85 },
+            { "id": 13427, "title": "Law and Legal Studies", "parent_id": 0, "source_id": 85 },
+            { "id": 13559, "title": "Studies in Creative Arts and Writing", "parent_id": 0, "source_id": 85 },
+            { "id": 13517, "title": "Language, Communication and Culture", "parent_id": 0, "source_id": 85 },
+            { "id": 13448, "title": "History and Archaeology", "parent_id": 0, "source_id": 85 },
+            { "id": 13588, "title": "Philosophy and Religious Studies", "parent_id": 0, "source_id": 85 },
+            { "id": 13360, "title": "Defence", "parent_id": 0, "source_id": 85 },
+            { "id": 13401, "title": "Plant Production and Plant Primary Products", "parent_id": 0, "source_id": 85 },
+            { "id": 13440, "title": "Animal Production and Animal Primary Products", "parent_id": 0, "source_id": 85 },
+            { "id": 13421, "title": "Mineral Resources (excl. Energy Resources)", "parent_id": 0, "source_id": 85 },
+            { "id": 13620, "title": "Energy", "parent_id": 0, "source_id": 85 },
+            { "id": 13524, "title": "Manufacturing", "parent_id": 0, "source_id": 85 },
+            { "id": 13509, "title": "Construction", "parent_id": 0, "source_id": 85 },
+            { "id": 13661, "title": "Transport", "parent_id": 0, "source_id": 85 },
+            { "id": 13544, "title": "Information and Communication Services", "parent_id": 0, "source_id": 85 },
+            { "id": 13457, "title": "Commercial Services and Tourism", "parent_id": 0, "source_id": 85 },
+            { "id": 13667, "title": "Economic Framework", "parent_id": 0, "source_id": 85 },
+            { "id": 13415, "title": "Health", "parent_id": 0, "source_id": 85 },
+            { "id": 13571, "title": "Education and Training", "parent_id": 0, "source_id": 85 },
+            { "id": 13369, "title": "Law, Politics and Community Services", "parent_id": 0, "source_id": 85 },
+            { "id": 13493, "title": "Cultural Understanding", "parent_id": 0, "source_id": 85 },
+            { "id": 13385, "title": "Environment", "parent_id": 0, "source_id": 85 },
+            { "id": 13438, "title": "Expanding Knowledge", "parent_id": 0, "source_id": 85 }]
+
+        status = list(map(lambda category : self.insert_category(category), categories))
+        return all (status)
