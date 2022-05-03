@@ -365,7 +365,7 @@ class FigshareEndpoint:
                 versioned_record = self.get_record(f"/collections/{collection_id}/versions/{number}")
                 versioned_record["is_latest"]   = 0
                 versioned_record["is_editable"] = 0
-                version = value_or_none (versioned_record, "version")
+                version = conv.value_or_none (versioned_record, "version")
                 if current_version is not None and version == current_version:
                     versioned_record["is_latest"] = 1
 
