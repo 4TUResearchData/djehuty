@@ -107,7 +107,7 @@ class DatabaseInterface:
 
     def serialize (self):
         """Output the triplets in the graph  to stdout."""
-        body = self.store.serialize(format="ntriples")
+        body = self.store.serialize(format="turtle")
         if isinstance(body, bytes):
             body = body.decode('utf-8')
 
