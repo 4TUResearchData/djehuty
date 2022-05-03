@@ -5,8 +5,8 @@ This module provides convenience functions for handling RDF.
 import uuid
 from rdflib import Literal, Namespace, URIRef
 
-BLANK = Namespace("blank://")
-ROW   = Namespace("djehuty://")
+BLANK = Namespace("blank:")
+ROW   = Namespace("djehuty:")
 SG    = Namespace("https://sparqling-genomics.org/0.99.12/")
 COL   = Namespace("sg://0.99.12/table2rdf/Column/")
 
@@ -73,6 +73,6 @@ def blank_node ():
 
 def unique_node (prefix):
     """Return a unique node using PREFIX."""
-    prefix_namespace = Namespace(f"{prefix}://")
+    prefix_namespace = Namespace(f"{prefix}:")
     identifier       = str(uuid.uuid4())
     return prefix_namespace[identifier]
