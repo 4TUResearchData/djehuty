@@ -390,7 +390,6 @@ class DatabaseInterface:
         rdf.add (self.store, uri, rdf.COL["modified_date"],       value_or_none (record, "modified_date"), XSD.dateTime)
         rdf.add (self.store, uri, rdf.COL["doi"],                 value_or_none (record, "doi"), XSD.string)
         rdf.add (self.store, uri, rdf.COL["citation"],            value_or_none (record, "citation"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["account_id"],          account_id, XSD.integer)
         rdf.add (self.store, uri, rdf.COL["group_id"],            value_or_none (record, "group_id"), XSD.integer)
         rdf.add (self.store, uri, rdf.COL["group_resource_id"],   value_or_none (record, "group_resource_id"), XSD.integer)
         rdf.add (self.store, uri, rdf.COL["institution_id"],      value_or_none (record, "institution_id"), XSD.integer)
@@ -432,7 +431,7 @@ class DatabaseInterface:
             logging.warning ("Collection %d seems to be empty.", collection_id)
 
         ## Assign the collection to the container
-        container = self.container_uri (collection_id, "collection")
+        container = self.container_uri (collection_id, "collection", account_id)
 
         if "statistics" in record:
             stats = record["statistics"]
@@ -599,7 +598,7 @@ class DatabaseInterface:
 
         return None
 
-    def container_uri (self, item_id, item_type):
+    def container_uri (self, item_id, item_type, account_id):
         """Returns the URI of the article container belonging to article_id."""
 
         prefix     = item_type.capitalize()
@@ -607,8 +606,9 @@ class DatabaseInterface:
         uri        = self.record_uri (item_class, f"{item_type}_id", item_id)
         if uri is None:
             uri = rdf.unique_node ("container")
-            self.store.add ((uri, RDF.type,              rdf.SG[item_class]))
+            self.store.add ((uri, RDF.type,                   rdf.SG[item_class]))
             self.store.add ((uri, rdf.COL[f"{item_type}_id"], Literal(item_id, datatype=XSD.integer)))
+            self.store.add ((uri, rdf.COL["account_id"],      Literal(account_id, datatype=XSD.integer)))
 
         return uri
 
@@ -636,7 +636,6 @@ class DatabaseInterface:
         is_metadata_record = bool (value_or (record, "is_metadata_record", False))
         has_linked_file    = bool (value_or (record, "has_linked_file", False))
 
-        rdf.add (self.store, uri, rdf.COL["account_id"],          account_id, XSD.integer)
         rdf.add (self.store, uri, rdf.COL["title"],               value_or_none (record, "title"), XSD.string)
         rdf.add (self.store, uri, rdf.COL["doi"],                 value_or_none (record, "doi"), XSD.string)
         rdf.add (self.store, uri, rdf.COL["handle"],              value_or_none (record, "handle"), XSD.string)
@@ -684,7 +683,7 @@ class DatabaseInterface:
             self.insert_custom_field (uri, field)
 
         ## Assign the article to the container
-        container = self.container_uri (article_id, "article")
+        container = self.container_uri (article_id, "article", account_id)
 
         if "statistics" in record:
             stats = record["statistics"]
