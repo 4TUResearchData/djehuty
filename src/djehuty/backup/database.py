@@ -376,7 +376,7 @@ class DatabaseInterface:
         collection_id  = record["id"]
         uri            = rdf.unique_node ("collection")
 
-        is_public          = bool (value_or (record, "is_public", False))
+        is_public          = bool (value_or (record, "public", False))
         is_latest          = bool (value_or (record, "is_latest", False))
         is_editable        = bool (value_or (record, "is_editable", False))
 
