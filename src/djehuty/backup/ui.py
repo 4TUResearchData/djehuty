@@ -1,6 +1,9 @@
-"""This module contains the command-line interface for the 'backup' subcommand."""
+"""
+This module contains the command-line interface for the 'backup' subcommand.
+"""
 
 import base64
+import gc
 import logging
 import time
 
@@ -57,6 +60,8 @@ def main (figshare_token, figshare_stats_auth, account_id):
 
         del articles
 
+    gc.collect()
+
     ## We translate the article IDs associated to collections to their
     ## container URIs.  So we have to insert all articles before we can
     ## translate the article IDs for the collections.
@@ -92,6 +97,12 @@ def main (figshare_token, figshare_stats_auth, account_id):
 
     if not endpoint.rdf_store.insert_root_categories ():
         logging.error ("Failed to insert root categories")
+
+    ## Serializing seems to take ~300 megabytes of memory.  Before doing
+    ## so, it's a great moment to reduce the memory footprint by
+    ## deallocating what we no longer need.
+    del endpoint.author_ids
+    gc.collect()
 
     logging.info ("Serializing the RDF triplets...")
     endpoint.rdf_store.serialize ()
