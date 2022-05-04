@@ -391,11 +391,13 @@ class DatabaseInterface:
         rdf.add (self.store, uri, rdf.COL["doi"],                 value_or_none (record, "doi"), XSD.string)
         rdf.add (self.store, uri, rdf.COL["citation"],            value_or_none (record, "citation"), XSD.string)
         rdf.add (self.store, uri, rdf.COL["group_id"],            value_or_none (record, "group_id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["group_resource_id"],   value_or_none (record, "group_resource_id"), XSD.integer)
+        ## group_resource_id is always empty/NULL.
+        #rdf.add (self.store, uri, rdf.COL["group_resource_id"],   value_or_none (record, "group_resource_id"), XSD.integer)
         rdf.add (self.store, uri, rdf.COL["institution_id"],      value_or_none (record, "institution_id"), XSD.integer)
         rdf.add (self.store, uri, rdf.COL["description"],         value_or_none (record, "description"), XSD.string)
         rdf.add (self.store, uri, rdf.COL["version"],             value_or_none (record, "version"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["resource_id"],         value_or_none (record, "resource_id"), XSD.integer)
+        ## resource_id is always empty/NULL.
+        #rdf.add (self.store, uri, rdf.COL["resource_id"],         value_or_none (record, "resource_id"), XSD.integer)
         rdf.add (self.store, uri, rdf.COL["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
         rdf.add (self.store, uri, rdf.COL["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
         rdf.add (self.store, uri, rdf.COL["resource_version"],    value_or_none (record, "resource_version"), XSD.string)
@@ -719,7 +721,8 @@ class DatabaseInterface:
 
         rdf.add (self.store, uri, rdf.COL["id"],                   value_or_none (record, "id"), datatype=XSD.integer)
         rdf.add (self.store, uri, rdf.COL["parent_id"],            value_or_none (record, "parent_id"), datatype=XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["resource_id"],          value_or_none (record, "resource_id"), datatype=XSD.string)
+        ## resource_id is always empty.
+        #rdf.add (self.store, uri, rdf.COL["resource_id"],          value_or_none (record, "resource_id"), datatype=XSD.string)
         rdf.add (self.store, uri, rdf.COL["name"],                 value_or_none (record, "name"), datatype=XSD.string)
         rdf.add (self.store, uri, rdf.COL["association_criteria"], value_or_none (record, "association_criteria"), datatype=XSD.string)
 
