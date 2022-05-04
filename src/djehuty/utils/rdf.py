@@ -29,6 +29,19 @@ def sparql_filter (name, value, escape=False):
 
     return query
 
+def escape_string_value (value):
+    return f"\"{value}\""
+
+def sparql_in_filter (name, values, escape=False):
+    """Returns a FILTER statement for a list of values."""
+    query   = ""
+    symbol  = f"STR(?{name})" if escape else f"?{name}"
+    escape_function = escape_string_value if escape else str
+    if values is not None:
+        query += f"FILTER (({symbol}) IN ({','.join(map(escape_function, values))}))\n"
+
+    return query
+
 def sparql_bound_filter (name):
     """Returns a FILTER statement to test whether a variable is BOUND."""
     return f"FILTER (BOUND(?{name}))\n"
