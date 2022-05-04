@@ -83,6 +83,10 @@ class DatabaseInterface:
         return total_filesize
 
     def record_uri (self, record_type, identifier_name, identifier):
+        """
+        Returns the URI for a record identified with IDENTIFIER_NAME and by
+        IDENTIFIER or None if no such URI can be found.
+        """
         if identifier is None:
             return None
 
@@ -723,6 +727,8 @@ class DatabaseInterface:
         return True
 
     def insert_root_categories (self):
+        """Procedure to insert root categories."""
+
         categories = [
             { "id": 13431, "title": "Mathematical Sciences", "parent_id": 0, "source_id": 85 },
             { "id": 13603, "title": "Physical Sciences", "parent_id": 0, "source_id": 85 },
