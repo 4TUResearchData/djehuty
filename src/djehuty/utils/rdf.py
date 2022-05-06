@@ -106,3 +106,17 @@ def unique_node (prefix):
     prefix_namespace = Namespace(f"{prefix}:")
     identifier       = str(uuid.uuid4())
     return prefix_namespace[identifier]
+
+def uri_to_uuid (uri):
+    """Returns the UUID of a URI created by 'unique_node' or 'blank_node'."""
+    if uri is None:
+        return None
+
+    return uri[uri.find(":") + 1:]
+
+def uuid_to_uri (uuid_value, datatype):
+    """Returns a string of the full uri for UUID of type DATATYPE."""
+    if uuid_value is None:
+        return None
+
+    return f"{datatype}:{uuid_value}"
