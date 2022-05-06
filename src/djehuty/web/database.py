@@ -171,15 +171,15 @@ class SparqlInterface:
     ## GET METHODS
     ## ------------------------------------------------------------------------
 
-    def article_storage_used (self, article_version_id):
+    def dataset_storage_used (self, container_uri):
         """Returns the number of bytes used by an article."""
 
-        query = self.__query_from_template ("article_storage_used", {
-            "state_graph": self.state_graph,
-            "article_version_id":  article_version_id
+        query = self.__query_from_template ("dataset_storage_used", {
+            "state_graph":   self.state_graph,
+            "container_uri": container_uri
         })
 
-        results = self.__run_query (query, query, f"{article_version_id}_article")
+        results = self.__run_query (query, query, f"{container_uri}_dataset")
         try:
             return results[0]["bytes"]
         except IndexError:

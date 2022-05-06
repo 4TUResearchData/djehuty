@@ -1,0 +1,18 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT (SUM(?bytes) AS ?bytes)
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container_uri  rdf:type                      sg:ArticleContainer .
+    ?container_uri  col:draft                     ?draft .
+    ?container_uri  col:published_versions        ?published .
+    {
+      ?published    col:files/rdf:rest*/rdf:first ?file .
+    } UNION {
+      ?draft        col:files/rdf:rest*/rdf:first ?file .
+    }
+    ?file           col:size                      ?bytes .
+    FILTER (?container_uri = <{{container_uri}}>)
+  }
+}
+{% endblock %}
