@@ -18,26 +18,43 @@ def add (graph, subject, predicate, value, datatype=None):
         else:
             graph.add((subject, predicate, Literal(value, datatype=datatype)))
 
-def sparql_filter (name, value, escape=False):
+def urify_value (value):
+    """Returns a string including smaller-than and greater-than brackets."""
+    if isinstance(value, str) and value.startswith ("<"):
+        return value
+
+    return f"<{value}>"
+
+def sparql_filter (name, value, escape=False, is_uri=False):
     """Returns a FILTER statement that can be added to a SPARQL query."""
     query   = ""
-    literal = f"\"{value}\"" if escape else value
-    symbol  = f"STR(?{name})" if escape else f"?{name}"
+    if value is None:
+        return query
 
-    if value is not None:
-        query += f"FILTER ({symbol}={literal})\n"
+    if is_uri:
+        query  += f"FILTER (?{name} = {urify_value(value)})\n"
+    else:
+        literal = f"\"{value}\"" if escape else value
+        symbol  = f"STR(?{name})" if escape else f"?{name}"
+        query  += f"FILTER ({symbol}={literal})\n"
 
     return query
 
 def escape_string_value (value):
+    """Returns VALUE wrapped in double quotes."""
     return f"\"{value}\""
 
-def sparql_in_filter (name, values, escape=False):
+def sparql_in_filter (name, values, escape=False, is_uri=False):
     """Returns a FILTER statement for a list of values."""
     query   = ""
-    symbol  = f"STR(?{name})" if escape else f"?{name}"
-    escape_function = escape_string_value if escape else str
-    if values is not None:
+    if values is None:
+        return query
+
+    if is_uri:
+        query += f"FILTER (?{name} IN ({','.join(map(urify_value, values))}))\n"
+    else:
+        symbol = f"STR(?{name})" if escape else f"?{name}"
+        escape_function = escape_string_value if escape else str
         query += f"FILTER (({symbol}) IN ({','.join(map(escape_function, values))}))\n"
 
     return query
