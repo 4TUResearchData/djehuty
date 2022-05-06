@@ -199,7 +199,6 @@ class DatabaseInterface:
             return False
 
         rdf.add (self.store, uri, rdf.COL["revision_date"],     value_or_none (record, "revision"),             XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["first_online_date"], value_or_none (record, "firstOnline"),          XSD.dateTime)
         rdf.add (self.store, uri, rdf.COL["publisher_publication_date"], value_or_none (record, "publisherPublication"), XSD.dateTime)
         rdf.add (self.store, uri, rdf.COL["publisher_acceptance_date"], value_or_none (record, "publisherAcceptance"), XSD.dateTime)
         rdf.add (self.store, uri, rdf.COL["posted_date"],       value_or_none (record, "posted"),               XSD.dateTime)
@@ -458,6 +457,9 @@ class DatabaseInterface:
 
         if is_latest:
             self.store.add ((container, rdf.COL["latest_published_version"], uri))
+            timeline = value_or_none (record, "timeline")
+            rdf.add (self.store, container, rdf.COL["first_online_date"],
+                     value_or_none (timeline, "firstOnline"), XSD.dateTime)
 
         return True
 
@@ -710,6 +712,9 @@ class DatabaseInterface:
 
         if is_latest:
             self.store.add ((container, rdf.COL["latest_published_version"], uri))
+            timeline = value_or_none (record, "timeline")
+            rdf.add (self.store, container, rdf.COL["first_online_date"],
+                     value_or_none (timeline, "firstOnline"), XSD.dateTime)
 
         return True
 
