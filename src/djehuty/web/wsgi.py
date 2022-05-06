@@ -19,8 +19,10 @@ from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import database
 from djehuty.utils.convenience import pretty_print_size, decimal_coords
-from djehuty.utils.convenience import value_or, value_or_none, self_or_value_or_none
+from djehuty.utils.convenience import value_or, value_or_none
+from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
 from djehuty.utils.constants import group_to_member, member_url_names
+from djehuty.utils.rdf import uuid_to_uri
 
 
 class ApiServer:
@@ -1408,7 +1410,13 @@ class ApiServer:
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
-        versions = self.db.article_versions(article_id=article_id)
+        versions = []
+        if parses_to_int (article_id):
+            versions = self.db.dataset_versions (article_id=article_id)
+        elif isinstance (article_id, str):
+            uri      = uuid_to_uri (article_id, "container")
+            versions = self.db.dataset_versions (container_uri = uri)
+
         return self.default_list_response (versions, formatter.format_version_record)
 
     def api_article_version_details (self, request, article_id, version):
