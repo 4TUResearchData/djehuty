@@ -189,14 +189,14 @@ class SparqlInterface:
 
         return 0
 
-    def article_versions (self, limit=1000, offset=0, order="version",
-                          order_direction="desc", article_id=None):
+    def dataset_versions (self, limit=1000, offset=0, order="version",
+                          order_direction="desc", article_id=None,
+                          container_uri=None):
         """Procedure to retrieve the versions of an article."""
-        filters = ""
-        if article_id is not None:
-            filters += rdf.sparql_filter ("article_id", article_id)
+        filters  = rdf.sparql_filter ("article_id", article_id)
+        filters += rdf.sparql_filter ("container_uri", container_uri, is_uri=True)
 
-        query = self.__query_from_template ("article_versions", {
+        query = self.__query_from_template ("dataset_versions", {
             "state_graph": self.state_graph,
             "filters":     filters
         })
