@@ -109,3 +109,14 @@ def unversion_doi(doi):
         return versionless
     except:
         return doi
+
+def parses_to_int (input_string):
+    """Return True when wrapping in int() would succeed, False otherwise."""
+    try:
+        int(input_string)
+    except ValueError:
+        return False
+    except TypeError:
+        return False
+
+    return True
