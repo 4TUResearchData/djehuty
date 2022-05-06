@@ -423,7 +423,8 @@ class ApiServer:
             return request.form[parameter]
         except KeyError:
             return request.args.get(parameter)
-
+        except AttributeError:
+            return value_or_none (request, parameter)
 
     def token_from_request (self, request):
         token_string = None
