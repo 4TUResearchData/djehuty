@@ -44,18 +44,19 @@ def escape_string_value (value):
     """Returns VALUE wrapped in double quotes."""
     return f"\"{value}\""
 
-def sparql_in_filter (name, values, escape=False, is_uri=False):
+def sparql_in_filter (name, values, escape=False, is_uri=False, negate=False):
     """Returns a FILTER statement for a list of values."""
     query   = ""
     if values is None:
         return query
 
+    compare = "NOT IN" if negate else "IN"
     if is_uri:
-        query += f"FILTER (?{name} IN ({','.join(map(urify_value, values))}))\n"
+        query += f"FILTER (?{name} {compare} ({','.join(map(urify_value, values))}))\n"
     else:
         symbol = f"STR(?{name})" if escape else f"?{name}"
         escape_function = escape_string_value if escape else str
-        query += f"FILTER (({symbol}) IN ({','.join(map(escape_function, values))}))\n"
+        query += f"FILTER (({symbol}) {compare} ({','.join(map(escape_function, values))}))\n"
 
     return query
 
