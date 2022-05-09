@@ -368,7 +368,11 @@ class FigshareEndpoint:
                 versioned_record["is_editable"] = 0
                 version = conv.value_or_none (versioned_record, "version")
                 if current_version is not None and version == current_version:
+                    articles = self.get_articles_for_collection (account_id,
+                                                                 collection_id,
+                                                                 is_public = True)
                     versioned_record["is_latest"] = 1
+                    versioned_record["articles"]  = articles
 
                 versions.append(versioned_record)
 
@@ -389,12 +393,14 @@ class FigshareEndpoint:
         logging.info("Getting collections.")
         return self.get_all ("/collections", published_since=published_since)
 
-    def get_articles_for_collection (self, account_id, collection_id):
+    def get_articles_for_collection (self, account_id, collection_id, is_public=False):
         """Procedure to retrieve the articles for a given collection."""
 
-        articles = self.get_all (f"/account/collections/{collection_id}/articles",
-                                 impersonate=account_id)
-        output   = []
+        prefix      = "" if is_public else "/account"
+        uri_path    = f"{prefix}/collections/{collection_id}/articles"
+        impersonate = None if is_public else account_id
+        articles    = self.get_all (uri_path, impersonate=impersonate)
+        output      = []
 
         for item in articles:
             output.append (item["id"])
