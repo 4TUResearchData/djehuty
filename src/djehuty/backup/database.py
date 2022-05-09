@@ -342,7 +342,9 @@ class DatabaseInterface:
         field_uri = next (subjects, None)
         if field_uri is None:
             field_uri = rdf.ROW[f"custom_field_{name}"]
+            rdf.add (self.store, field_uri, RDF.type,                rdf.SG["CustomField"])
             rdf.add (self.store, field_uri, rdf.COL["name"],         name,                                        XSD.string)
+            rdf.add (self.store, field_uri, rdf.COL["original_name"], field["name"],                              XSD.string)
             rdf.add (self.store, field_uri, rdf.COL["max_length"],   value_or_none (validations, "max_length"))
             rdf.add (self.store, field_uri, rdf.COL["min_length"],   value_or_none (validations, "min_length"))
             rdf.add (self.store, field_uri, rdf.COL["is_mandatory"], value_or_none (validations, "is_mandatory"), XSD.boolean)
