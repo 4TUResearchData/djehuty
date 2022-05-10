@@ -3,11 +3,14 @@
 SELECT DISTINCT ?id ?tag
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?row             rdf:type                 sg:{{prefix}}Tag .
-    ?row             col:id                   ?id .
-    ?row             col:tag                  ?tag .
-    ?row             col:{{item_type}}_version_id ?{{item_type}}_version_id .
+    ?item_uri        rdf:type                 sg:{{prefix}} .
+    ?item_uri        col:tags/rdf:rest*       ?rest .
+    ?rest            col:index                ?id .
+    ?rest            col:first                ?tag .
   }
+{%- if item_uri is not none %}
+  FILTER (?item_uri = <{{item_uri}}>)
+{%- endif %}
 {%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

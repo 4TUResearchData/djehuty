@@ -680,16 +680,15 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def tags (self, order=None, order_direction=None, limit=10,
-              item_id=None, item_type="article"):
+              item_uri=None, item_type="article"):
         """Procedure to get tags for an article or a collection."""
 
         prefix  = item_type.capitalize()
-        filters = rdf.sparql_filter (f"{item_type}_version_id", item_id)
         query   = self.__query_from_template ("tags", {
             "state_graph": self.state_graph,
             "prefix":      prefix,
             "item_type":   item_type,
-            "filters":     filters
+            "item_uri":    item_uri,
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 
