@@ -264,6 +264,48 @@ class SparqlInterface:
 
         return self.__run_query (query, query, "published_datasets")
 
+    def draft_datasets (self, dataset_id=None, account_id=None, limit=None,
+                        offset=None, order=None, order_direction=None,
+                        institution=None, collection_uri=None, item_type=None,
+                        groups=None, resource_doi=None,
+                        doi=None, handle=None, categories=None,
+                        return_count=False):
+        """Procedure to retrieve the draft versions of datasets."""
+
+        filters  = rdf.sparql_filter ("institution_id", institution)
+        filters += rdf.sparql_filter ("defined_type",   item_type)
+        filters += rdf.sparql_filter ("article_id",     dataset_id)
+        filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
+        filters += rdf.sparql_filter ("doi",            doi,          escape=True)
+        filters += rdf.sparql_filter ("handle",         handle,       escape=True)
+        filters += rdf.sparql_in_filter ("group_id",    groups)
+
+        if categories is not None:
+            filters += (
+                f"FILTER ((?category_id IN ({','.join(map(str, categories))})) OR "
+                f"(?parent_category_id IN ({','.join(map(str, categories))})))\n"
+            )
+
+        query = self.__query_from_template ("draft_datasets", {
+            "state_graph":    self.state_graph,
+            "categories":     categories,
+            "collection_uri": collection_uri,
+            "account_id":     account_id,
+            "filters":        filters,
+            "return_count":   return_count
+        })
+
+        # Setting the default value for 'limit' to 10 makes passing
+        # parameters from HTTP requests cumbersome. Therefore, we
+        # set the default again here.
+        if limit is None:
+            limit = 10
+
+        if not return_count:
+            query += rdf.sparql_suffix (order, order_direction, limit, offset)
+
+        return self.__run_query (query, query, "draft_datasets")
+
     def articles (self, limit=None, offset=None, order=None,
                   order_direction=None, institution=None, is_latest=None,
                   published_since=None, modified_since=None,
