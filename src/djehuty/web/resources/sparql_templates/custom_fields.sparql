@@ -6,14 +6,14 @@ SELECT DISTINCT ?name          ?value         ?default_value
                 ?is_mandatory
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?field             rdf:type                 sg:{{prefix}}CustomField .
-    ?field             col:id                   ?id .
+    ?field             rdf:type                 sg:CustomField .
+    ?field             col:original_name        ?name .
+    ?field             col:predicate            ?predicate .
 
-    {%- if item_id is not none %}
-    ?field             col:{{item_type}}_version_id {{item_id}} .
+    {%- if item_uri is not none %}
+    ?item_uri          rdf:type                 sg:{{prefix}} ;
+                       ?predicate               ?value .
     {%- endif %}
-    OPTIONAL { ?field  col:name                 ?name . }
-    OPTIONAL { ?field  col:value                ?value . }
     OPTIONAL { ?field  col:default_value        ?default_value . }
     OPTIONAL { ?field  col:placeholder          ?placeholder . }
     OPTIONAL { ?field  col:max_length           ?max_length . }
@@ -22,6 +22,9 @@ WHERE {
     OPTIONAL { ?field  col:is_multiple          ?is_multiple . }
     OPTIONAL { ?field  col:is_mandatory         ?is_mandatory . }
   }
+{%- if item_uri is not none %}
+  FILTER (?item_uri = <{{item_uri}}>)
+{%- endif %}
 {%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

@@ -635,7 +635,7 @@ class SparqlInterface:
                        field_id=None, placeholder=None, max_length=None,
                        min_length=None, field_type=None, is_multiple=None,
                        is_mandatory=None, order="name", order_direction=None,
-                       limit=10, item_id=None, item_type="article"):
+                       limit=10, item_uri=None, item_type="article"):
         """Procedure to get custom metadata of an article or a collection."""
 
         prefix = item_type.capitalize()
@@ -653,7 +653,7 @@ class SparqlInterface:
 
         query = self.__query_from_template ("custom_fields", {
             "state_graph": self.state_graph,
-            "item_id":     item_id,
+            "item_uri":    item_uri,
             "item_type":   item_type,
             "prefix":      prefix,
             "filters":     filters
