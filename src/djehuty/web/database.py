@@ -695,19 +695,20 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def categories (self, title=None, order=None, order_direction=None,
-                    limit=10, item_id=None, account_id=None,
-                    item_type="article"):
+                    limit=10, item_uri=None, account_id=None,
+                    item_type="article", is_published=True):
         """Procedure to retrieve categories of an article."""
 
         prefix  = item_type.capitalize()
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("categories", {
-            "state_graph": self.state_graph,
-            "prefix":      prefix,
-            "item_type":   item_type,
-            "item_id":     item_id,
-            "account_id":  account_id,
-            "filters":     filters
+            "state_graph":  self.state_graph,
+            "prefix":       prefix,
+            "item_type":    item_type,
+            "item_uri":     item_uri,
+            "account_id":   account_id,
+            "is_published": is_published,
+            "filters":      filters
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 

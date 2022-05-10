@@ -3,23 +3,29 @@
 SELECT DISTINCT ?id ?parent_id ?title ?source_id ?taxonomy_id
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?row             rdf:type                 sg:Category .
-    ?row             col:id                   ?id .
-    ?row             col:title                ?title .
-    OPTIONAL { ?row         col:parent_id        ?parent_id . }
-    OPTIONAL { ?row         col:source_id        ?source_id . }
-    OPTIONAL { ?row         col:taxonomy_id      ?taxonomy_id . }
-    {%- if item_id is not none %}
-    ?link            rdf:type                 sg:{{prefix}}Category .
-    ?link            col:{{item_type}}_version_id ?item_id .
-    ?link            col:category_id          ?id .
+    ?category         rdf:type                          sg:Category .
+    ?category         col:id                            ?id .
+    ?category         col:title                         ?title .
+    OPTIONAL { ?category  col:parent_id                 ?parent_id . }
+    OPTIONAL { ?category  col:source_id                 ?source_id . }
+    OPTIONAL { ?category  col:taxonomy_id               ?taxonomy_id . }
+    {%- if item_uri is not none %}
+    ?item_uri        rdf:type                           sg:{{prefix}} .
+    ?item_uri        col:categories/rdf:rest*/rdf:first ?category .
     {%- if account_id is not none %}
-    ?item            rdf:type                 sg:{{prefix}} .
-    ?item            col:{{item_type}}_version_id ?item_id .
-    ?item            col:account_id           {{account_id}} .
-    {%- endif %}{% endif %}
+    ?container         rdf:type                         sg:{{prefix}}Container .
+    ?container         col:account_id                   {{account_id}} .
+    {%- if is_published %}
+    ?container         col:published_versions/rdf:rest*/rdf:first ?item_uri .
+    {%- else %}
+    ?container         col:draft                        ?item_uri .
+    {%- endif %}
+    {%- endif %}
+    {%- endif %}
   }
-FILTER (?item_id = {{item_id}})
+{%- if item_uri is not none %}
+  FILTER (?item_uri = <{{item_uri}}>)
+{%- endif %}
 {%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
