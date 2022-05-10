@@ -1,17 +1,14 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT ?collection_id ?title
+SELECT DISTINCT ?collection_id ?title
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?collection rdf:type                  sg:Collection ;
-                col:collection_id         ?collection_id ;
-                col:collection_version_id ?collection_version_id ;
-                col:title                 ?title ;
-                col:is_public             1 ; 
-                col:is_latest             1 .              #We don't want to find the collection when the dataset was thrown out later.
-    ?link       rdf:type                  sg:CollectionArticle ;
-                col:article_id            {{article_id}} ;
-                col:collection_version_id ?collection_version_id .
+    ?collection_container rdf:type                                         sg:CollectionContainer ;
+                          col:collection_id                                ?collection_id ;
+                          col:latest_published_version                     ?collection .
+    ?collection           rdf:type                                         sg:Collection ;
+                          col:title                                        ?title ;
+                          col:articles/rdf:rest*/rdf:first/col:article_id  {{article_id}} .
   }   
 }
 {% endblock %}
