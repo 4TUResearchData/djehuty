@@ -204,6 +204,66 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
+    def published_datasets (self, account_id=None, categories=None, collection_uri=None,
+                            container_uuid=None, dataset_id=None, dataset_uuid=None, doi=None,
+                            exclude_ids=None, groups=None, handle=None, institution=None,
+                            is_latest=False, item_type=None, limit=None, modified_since=None,
+                            offset=None, order=None, order_direction=None, published_since=None,
+                            resource_doi=None, return_count=False, search_for=None,
+                            version=None):
+        """Procedure to retrieve the published version(s) of datasets."""
+
+        filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
+        filters  = rdf.sparql_filter ("article",        rdf.uuid_to_uri (dataset_uuid, "article"), is_uri=True)
+        filters  = rdf.sparql_filter ("institution_id", institution)
+        filters += rdf.sparql_filter ("defined_type",   item_type)
+        filters += rdf.sparql_filter ("article_id",     dataset_id)
+        filters += rdf.sparql_filter ("version",        version)
+        filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
+        filters += rdf.sparql_filter ("doi",            doi,          escape=True)
+        filters += rdf.sparql_filter ("handle",         handle,       escape=True)
+        filters += rdf.sparql_in_filter ("group_id",    groups)
+        filters += rdf.sparql_in_filter ("article_id", exclude_ids, negate=True)
+
+        if categories is not None:
+            filters += f"FILTER ((?category_id IN ({','.join(map(str, categories))})) OR "
+            filters += f"(?parent_category_id IN ({','.join(map(str, categories))})))\n"
+
+        if search_for is not None:
+            filters += f"FILTER (CONTAINS(STR(?title),          \"{search_for}\") OR\n"
+            filters += f"        CONTAINS(STR(?resource_title), \"{search_for}\") OR\n"
+            filters += f"        CONTAINS(STR(?description),    \"{search_for}\") OR\n"
+            filters += f"        CONTAINS(STR(?citation),       \"{search_for}\"))"
+
+        if published_since is not None:
+            filters += rdf.sparql_bound_filter ("published_date")
+            filters += f"FILTER (?published_date > \"{published_since}\"^^xsd:dateTime)\n"
+
+        if modified_since is not None:
+            filters += rdf.sparql_bound_filter ("modified_date")
+            filters += f"FILTER (?modified_date > \"{modified_since}\"^^xsd:dateTime)\n"
+
+        query = self.__query_from_template ("published_datasets", {
+            "state_graph":    self.state_graph,
+            "categories":     categories,
+            "collection_uri": collection_uri,
+            "account_id":     account_id,
+            "is_latest":      is_latest,
+            "filters":        filters,
+            "return_count":   return_count
+        })
+
+        # Setting the default value for 'limit' to 10 makes passing
+        # parameters from HTTP requests cumbersome. Therefore, we
+        # set the default again here.
+        if limit is None:
+            limit = 10
+
+        if not return_count:
+            query += rdf.sparql_suffix (order, order_direction, limit, offset)
+
+        return self.__run_query (query, query, "published_datasets")
+
     def articles (self, limit=None, offset=None, order=None,
                   order_direction=None, institution=None, is_latest=None,
                   published_since=None, modified_since=None,
