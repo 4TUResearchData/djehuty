@@ -8,14 +8,16 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?author            rdf:type                 sg:Author ;
                        col:id                   ?id .
-    {%- if item_id is not none %}
-    ?link              rdf:type                 sg:{{prefix}}Author ;
-                       col:{{item_type}}_version_id {{item_id}} ;
-                       col:author_id            ?id ;
-                       col:order_index          ?order_index .
+    {%- if item_uri is not none %}
+    ?item_uri          rdf:type                 sg:{{prefix}} ;
+                       col:authors              ?authors .
+    ?authors           rdf:rest*                ?rest .
+    ?rest              rdf:first                ?author ;
+                       col:index                ?order_index .
     {%- endif %}
     {%- if account_id is not none %}
-    ?item              rdf:type                 sg:{{prefix}} ;
+    ?container         rdf:type                 sg:{{prefix}}Container ;
+                       col:published_versions/rdf:rest*/rdf:first ?item_uri ;
                        col:account_id           {{account_id}} .
     {%- endif %}
     OPTIONAL { ?author col:first_name           ?first_name . }
@@ -29,6 +31,9 @@ WHERE {
     OPTIONAL { ?author col:orcid_id             ?orcid_id . }
     OPTIONAL { ?author col:url_name             ?url_name . }
   }
+{%- if item_uri is not none %}
+  FILTER (?item_uri = <{{item_uri}}>)
+{% endif %}
 {% if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

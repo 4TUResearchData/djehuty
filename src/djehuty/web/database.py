@@ -504,7 +504,7 @@ class SparqlInterface:
                  author_id=None, institution_id=None, is_active=None,
                  is_public=None, job_title=None, last_name=None,
                  orcid_id=None, url_name=None, limit=10, order="order_index",
-                 order_direction="asc", item_id=None, search_for=None,
+                 order_direction="asc", item_uri=None, search_for=None,
                  account_id=None, item_type="article"):
         """Procedure to retrieve authors of an article."""
 
@@ -532,7 +532,7 @@ class SparqlInterface:
             "state_graph": self.state_graph,
             "item_type":   item_type,
             "prefix":      prefix,
-            "item_id":     item_id,
+            "item_uri":    item_uri,
             "account_id":  account_id,
             "filters":     filters
         })
