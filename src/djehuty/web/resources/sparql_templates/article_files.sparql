@@ -4,18 +4,21 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?id            ?download_url  ?supplied_md5
                 ?computed_md5  ?viewer_type   ?preview_state
                 ?status        ?upload_url    ?upload_token
+                ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                sg:File .
     ?file              col:id                  ?id .
-    {% if article_version_id is not none %}
-    ?link              rdf:type                sg:ArticleFile .
-    ?link              col:article_version_id  ?article_version_id .
-    ?link              col:file_id             ?id .
+    {% if article_uri is not none %}
+    ?article_uri       rdf:type                sg:Article ;
+                       col:files               ?files .
+    ?files             rdf:rest*               ?rest .
+    ?rest              rdf:first               ?file ;
+                       col:index               ?order_index .
     {% endif %}{% if account_id is not none %}
-    ?article           rdf:type                sg:Article .
-    ?article           col:article_version_id  ?article_version_id .
-    ?article           col:account_id          {{account_id}} .
+    ?container         rdf:type                 sg:{{prefix}}Container ;
+                       col:published_versions/rdf:rest*/rdf:first ?article_uri ;
+                       col:account_id           {{account_id}} .
     {% endif %}
     OPTIONAL { ?file  col:name                 ?name . }
     OPTIONAL { ?file  col:size                 ?size . }
@@ -29,7 +32,9 @@ WHERE {
     OPTIONAL { ?file  col:upload_url           ?upload_url . }
     OPTIONAL { ?file  col:upload_token         ?upload_token . }
   }
-  FILTER (?article_version_id = {{article_version_id}})
+{%- if article_uri is not none %}
+  FILTER (?article_uri = <{{article_uri}}>)
+{%- endif %}
 {%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
