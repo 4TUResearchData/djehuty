@@ -885,16 +885,17 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def references (self, order=None, order_direction=None, limit=10,
-                    item_id=None, account_id=None, item_type="article"):
+                    item_uri=None, account_id=None, item_type="article",
+                    is_published=True):
         """Procedure to retrieve references."""
 
         query   = self.__query_from_template ("references", {
-            "state_graph": self.state_graph,
-            "prefix":      item_type.capitalize(),
-            "item_type":   item_type,
-            "item_id":     item_id,
-            "account_id":  account_id,
-            "filters":     None
+            "state_graph":  self.state_graph,
+            "prefix":       item_type.capitalize(),
+            "item_uri":     item_uri,
+            "is_published": is_published,
+            "account_id":   account_id,
+            "filters":      None
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 

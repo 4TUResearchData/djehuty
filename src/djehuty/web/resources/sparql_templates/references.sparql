@@ -3,19 +3,21 @@
 SELECT DISTINCT ?id ?url
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?row             rdf:type                 sg:{{prefix}}Reference .
-    ?row             col:id                   ?id .
-    ?row             col:{{item_type}}_version_id ?{{item_type}}_version_id .
-    ?row             col:url                  ?url .
-    {%- if item_id is not none %}
-    ?item            rdf:type                 sg:{{prefix}} .
-    ?item            col:{{item_type}}_version_id ?{{item_type}}_version_id .
+    ?item_uri       rdf:type                 sg:{{prefix}} .
+    ?item_uri       col:references/rdf:rest* ?rest .
+    ?rest           col:index                ?id .
+    ?rest           rdf:first                ?url .
     {%- if account_id is not none %}
-    ?item           col:account_id           {{account_id}} .
+    ?container      rdf:type                 sg:{{prefix}}Container .
+    ?container      col:account_id           {{account_id}} .
+    {%- if is_published %}
+    ?container      col:published_versions/rdf:rest*/rdf:first ?item_uri .
+    {%- else %}
+    ?container      col:draft                ?item_uri .
     {%- endif %}
     {%- endif %}
   }
-  FILTER (?{{item_type}}_version_id = {{item_id}})
+  FILTER (?item_uri = <{{item_uri}}>)
 {%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
