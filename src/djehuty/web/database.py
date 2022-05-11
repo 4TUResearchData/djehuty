@@ -605,14 +605,14 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def derived_from (self, item_id, item_type='article',
+    def derived_from (self, item_uri, item_type='article',
                       order=None, order_direction=None, limit=10):
         """Procedure to retrieve derived_from links"""
 
         query = self.__query_from_template ("derived_from", {
-            "item_type": item_type,
+            "prefix":      item_type.capitalize(),
             "state_graph": self.state_graph,
-            "item_id": item_id,
+            "item_uri":    item_uri
         })
 
         query += rdf.sparql_suffix (order, order_direction, limit, None)
