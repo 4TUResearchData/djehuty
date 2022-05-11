@@ -1016,7 +1016,7 @@ class ApiServer:
             rgb_shift = ((208,0), (104,104), (0,208)) #begin and end values of r,g,b
             opa_min = 0.3                             #minimum opacity
             rgb_opa_days = (7., 21.)                  #fading times (days) for color and opacity
-            fromFigshare = True                       #from Figshare API or from SPARQL query?
+            fromFigshare = False                      #from Figshare API or from SPARQL query?
 
             fig = self.get_parameter (request, "fig") #override fromFigshare
             if fig in ('0', 'false'):
