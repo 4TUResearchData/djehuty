@@ -868,15 +868,15 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def fundings (self, title=None, order=None, order_direction=None,
-                  limit=10, item_id=None, account_id=None, item_type="article"):
+                  limit=10, item_uri=None, account_id=None,
+                  item_type="article", is_published=True):
         """Procedure to retrieve funding information."""
 
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("funding", {
             "state_graph": self.state_graph,
             "prefix":      item_type.capitalize(),
-            "item_type":   item_type,
-            "item_id":     item_id,
+            "item_uri":    item_uri,
             "account_id":  account_id,
             "filters":     filters
         })
