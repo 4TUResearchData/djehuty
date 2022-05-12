@@ -564,7 +564,6 @@ class SparqlInterface:
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("categories", {
             "prefix":       prefix,
-            "item_type":    item_type,
             "item_uri":     item_uri,
             "account_id":   account_id,
             "is_published": is_published,
