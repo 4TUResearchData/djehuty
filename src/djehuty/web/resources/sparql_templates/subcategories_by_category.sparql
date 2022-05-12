@@ -1,12 +1,12 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?id ?title ?parent_id ?source_id ?taxonomy_id
+SELECT DISTINCT ?id ?title ?source_id ?taxonomy_id
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?category            rdf:type         sg:Category .
-    ?category            col:id           ?id .
-    ?category            col:title        ?title .
-    ?category            col:parent_id    {{category_id}} .
+    ?category            rdf:type         sg:Category ;
+                         col:id           ?id ;
+                         col:title        ?title ;
+                         col:parent_id    {{category_id}} .
     OPTIONAL { ?category col:source_id    ?source_id . }
     OPTIONAL { ?category col:taxonomy_id  ?taxonomy_id . }
   }
