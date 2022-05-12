@@ -106,9 +106,13 @@ class SparqlInterface:
                 logging.info("Not a typed-literal: %s", record[item]['type'])
         return record
 
-    def __query_from_template (self, name, args):
-        template = self.jinja.get_template (f"{name}.sparql")
-        return template.render (args)
+    def __query_from_template (self, name, args=None):
+        template   = self.jinja.get_template (f"{name}.sparql")
+        parameters = { "state_graph": self.state_graph }
+        if args is None:
+            args = {}
+
+        return template.render ({ **args, **parameters })
 
     def __run_query (self, query, cache_key_string=None, prefix=None):
 
@@ -152,7 +156,6 @@ class SparqlInterface:
         """Return the highest numeric ID for ITEM_TYPE."""
         prefix = conv.to_camel(item_type)
         query = self.__query_from_template ("highest_id", {
-            "state_graph": self.state_graph,
             "item_type":   prefix
         })
 
@@ -175,7 +178,6 @@ class SparqlInterface:
         """Returns the number of bytes used by an article."""
 
         query = self.__query_from_template ("dataset_storage_used", {
-            "state_graph":   self.state_graph,
             "container_uri": container_uri
         })
 
@@ -197,7 +199,6 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("container_uri", container_uri, is_uri=True)
 
         query = self.__query_from_template ("dataset_versions", {
-            "state_graph": self.state_graph,
             "filters":     filters
         })
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
@@ -243,7 +244,6 @@ class SparqlInterface:
             filters += rdf.sparql_bound_filter ("modified_date")
             filters += f"FILTER (?modified_date > \"{modified_since}\"^^xsd:dateTime)\n"
 
-            "state_graph":    self.state_graph,
         query = self.__query_from_template ("datasets", {
             "categories":     categories,
             "collection_uri": collection_uri,
@@ -318,7 +318,6 @@ class SparqlInterface:
 
 
         query   = self.__query_from_template ("article_statistics", {
-            "state_graph":   self.state_graph,
             "category_ids":  category_ids,
             "item_type":     item_type,
             "prefix":        prefix,
@@ -352,7 +351,6 @@ class SparqlInterface:
             filters += ")\n"
 
         query   = self.__query_from_template ("article_statistics_timeline", {
-            "state_graph":   self.state_graph,
             "category_ids":  category_ids,
             "item_type":     item_type,
             "item_class":    item_class,
@@ -367,7 +365,6 @@ class SparqlInterface:
         """Procedure to get shallow statistics of an article."""
 
         query   = self.__query_from_template ("single_article_statistics_totals", {
-            "state_graph":  self.state_graph,
             "article_id":   article_id
         })
 
@@ -402,7 +399,6 @@ class SparqlInterface:
                         f"        CONTAINS(STR(?orcid_id),   \"{search_for}\"))")
 
         query = self.__query_from_template ("authors", {
-            "state_graph": self.state_graph,
             "item_type":   item_type,
             "prefix":      prefix,
             "item_uri":    item_uri,
@@ -420,7 +416,6 @@ class SparqlInterface:
             return None
 
         query = self.__query_from_template ("file", {
-            "state_graph": self.state_graph,
             "account_id":  account_id,
             "file_id":     file_id
         })
@@ -449,7 +444,6 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("upload_token",  upload_token,  escape=True)
 
         query = self.__query_from_template ("article_files", {
-            "state_graph":         self.state_graph,
             "article_uri":         article_uri,
             "account_id":          account_id,
             "filters":             filters
@@ -468,7 +462,6 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("url",           url,  escape=True)
 
         query = self.__query_from_template ("article_references", {
-            "state_graph": self.state_graph,
             "article_version_id":  article_version_id,
             "account_id":  account_id,
             "filters":     filters
@@ -484,7 +477,6 @@ class SparqlInterface:
 
         query = self.__query_from_template ("derived_from", {
             "prefix":      item_type.capitalize(),
-            "state_graph": self.state_graph,
             "item_uri":    item_uri
         })
 
@@ -496,7 +488,6 @@ class SparqlInterface:
         """Procedure to delete an article reference."""
 
         query = self.__query_from_template ("delete_article_reference", {
-            "state_graph": self.state_graph,
             "account_id":  account_id,
             "article_version_id": article_version_id,
             "url":         url.replace('"', '\\"')
@@ -525,7 +516,6 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("field_type",    field_type,    escape=True)
 
         query = self.__query_from_template ("custom_fields", {
-            "state_graph": self.state_graph,
             "item_uri":    item_uri,
             "item_type":   item_type,
             "prefix":      prefix,
@@ -545,7 +535,6 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("embargo_type", embargo_type, escape=True)
 
         query = self.__query_from_template ("article_embargo_options", {
-            "state_graph": self.state_graph,
             "filters":     filters
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
@@ -558,10 +547,9 @@ class SparqlInterface:
 
         prefix  = item_type.capitalize()
         query   = self.__query_from_template ("tags", {
-            "state_graph": self.state_graph,
             "prefix":      prefix,
             "item_type":   item_type,
-            "item_uri":    item_uri,
+            "item_uri":    item_uri
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 
@@ -575,7 +563,6 @@ class SparqlInterface:
         prefix  = item_type.capitalize()
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("categories", {
-            "state_graph":  self.state_graph,
             "prefix":       prefix,
             "item_type":    item_type,
             "item_uri":     item_uri,
@@ -593,7 +580,6 @@ class SparqlInterface:
 
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("account_categories", {
-            "state_graph": self.state_graph,
             "account_id":  account_id,
             "filters":     filters
         })
@@ -607,7 +593,6 @@ class SparqlInterface:
 
         prefix  = item_type.capitalize()
         query   = self.__query_from_template ("private_links", {
-            "state_graph": self.state_graph,
             "prefix":      prefix,
             "id_string":   id_string,
             "item_type":   item_type,
@@ -620,9 +605,7 @@ class SparqlInterface:
     def licenses (self):
         """Procedure to get a list of allowed licenses."""
 
-        query = self.__query_from_template ("licenses", {
-            "state_graph": self.state_graph
-        })
+        query = self.__query_from_template ("licenses")
 
         return self.__run_query(query)
 
@@ -630,7 +613,6 @@ class SparqlInterface:
         """Procedure to get the latest articles."""
 
         query = self.__query_from_template ("latest_articles_portal", {
-            "state_graph": self.state_graph,
             "page_size":   page_size
         })
 
@@ -640,7 +622,6 @@ class SparqlInterface:
         """Procedure to get the collections an article is part of."""
 
         query = self.__query_from_template ("collections_from_article", {
-            "state_graph": self.state_graph,
             "article_id":  article_id
         })
 
@@ -658,7 +639,6 @@ class SparqlInterface:
             filters += rdf.sparql_filter ("collection_id", collection_id)
 
         query = self.__query_from_template ("collection_versions", {
-            "state_graph": self.state_graph,
             "filters":     filters
         })
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
@@ -676,7 +656,6 @@ class SparqlInterface:
             return 0
 
         query = self.__query_from_template ("collection_articles_count", {
-            "state_graph":    self.state_graph,
             "collection_version_id":  collection_version_id
         })
         results = self.__run_query (query)
@@ -733,7 +712,6 @@ class SparqlInterface:
             filters += rdf.sparql_filter ("is_latest", is_latest)
 
         query   = self.__query_from_template ("collections", {
-            "state_graph": self.state_graph,
             "filters":     filters
         })
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
@@ -747,7 +725,6 @@ class SparqlInterface:
 
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("funding", {
-            "state_graph": self.state_graph,
             "prefix":      item_type.capitalize(),
             "item_uri":    item_uri,
             "account_id":  account_id,
@@ -763,7 +740,6 @@ class SparqlInterface:
         """Procedure to retrieve references."""
 
         query   = self.__query_from_template ("references", {
-            "state_graph":  self.state_graph,
             "prefix":       item_type.capitalize(),
             "item_uri":     item_uri,
             "is_published": is_published,
@@ -1028,7 +1004,6 @@ class SparqlInterface:
             modified_date = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
 
         query        = self.__query_from_template ("update_account", {
-            "state_graph":           self.state_graph,
             "account_id":            account_id,
             "is_active":             active,
             "job_title":             job_title,
@@ -1117,7 +1092,6 @@ class SparqlInterface:
         """Procedure to delete all authors related to an article or collection."""
 
         query = self.__query_from_template ("delete_authors_for_item", {
-            "state_graph": self.state_graph,
             "item_id":     item_id,
             "item_type":   item_type,
             "prefix":      item_type.capitalize(),
@@ -1139,7 +1113,6 @@ class SparqlInterface:
         """Procedure to delete articles associated with a collection."""
 
         query = self.__query_from_template ("delete_article_for_collection", {
-            "state_graph":   self.state_graph,
             "collection_version_id": collection_version_id,
             "account_id":    account_id,
             "article_version_id": article_version_id
@@ -1298,7 +1271,6 @@ class SparqlInterface:
 
         prefix = item_type.capitalize()
         query = self.__query_from_template ("delete_item_categories", {
-            "state_graph": self.state_graph,
             "item_id":     item_id,
             "item_type":   item_type,
             "prefix":      prefix,
@@ -1320,7 +1292,6 @@ class SparqlInterface:
         """Procedure to delete the categories related to an account."""
 
         query = self.__query_from_template ("delete_account_categories", {
-            "state_graph": self.state_graph,
             "account_id":  account_id,
             "category_id": category_id
         })
@@ -1330,7 +1301,6 @@ class SparqlInterface:
     def delete_collection_articles (self, collection_version_id, account_id):
         """Procedure to disassociate articles with a collection."""
         query = self.__query_from_template ("delete_collection_articles", {
-            "state_graph":   self.state_graph,
             "collection_version_id": collection_version_id,
             "account_id":    account_id
         })
@@ -1341,7 +1311,6 @@ class SparqlInterface:
         """Procedure to delete a file related to an article."""
 
         query = self.__query_from_template ("delete_files_for_article", {
-            "state_graph": self.state_graph,
             "article_version_id": article_version_id,
             "account_id":  account_id,
             "file_id":     file_id
@@ -1470,7 +1439,6 @@ class SparqlInterface:
         """Procedure to update file metadata."""
 
         query   = self.__query_from_template ("update_file", {
-            "state_graph":   self.state_graph,
             "account_id":    account_id,
             "file_id":       file_id,
             "download_url":  download_url,
@@ -1586,7 +1554,6 @@ class SparqlInterface:
         """Procedure to remove an article from the state graph."""
 
         query   = self.__query_from_template ("delete_article", {
-            "state_graph": self.state_graph,
             "account_id":  account_id,
             "article_id":  article_id
         })
@@ -1601,7 +1568,6 @@ class SparqlInterface:
         """Procedure to remove an article from the state graph."""
 
         query   = self.__query_from_template ("delete_article_version", {
-            "state_graph":         self.state_graph,
             "account_id":          account_id,
             "article_version_id":  article_version_id
         })
@@ -1647,7 +1613,6 @@ class SparqlInterface:
             "resource_doi":    resource_doi,
             "resource_title":  resource_title,
             "same_as":         same_as,
-            "state_graph":     self.state_graph,
             "time_coverage":   time_coverage,
             "title":           title
         })
@@ -1666,7 +1631,6 @@ class SparqlInterface:
         """Procedure to lift the embargo on an article."""
 
         query   = self.__query_from_template ("delete_article_embargo", {
-            "state_graph": self.state_graph,
             "account_id":  account_id,
             "article_version_id":  article_version_id
         })
@@ -1678,7 +1642,6 @@ class SparqlInterface:
 
         prefix  = item_type.capitalize()
         query   = self.__query_from_template ("delete_private_links", {
-            "state_graph": self.state_graph,
             "account_id":  account_id,
             "item_id":     item_id,
             "item_type":   item_type,
@@ -1695,7 +1658,6 @@ class SparqlInterface:
 
         prefix  = item_type.capitalize()
         query   = self.__query_from_template ("update_private_link", {
-            "state_graph":  self.state_graph,
             "account_id":   account_id,
             "item_id":      item_id,
             "item_type":    item_type,
@@ -1713,7 +1675,6 @@ class SparqlInterface:
 
         filters = rdf.sparql_filter ("file_id", file_id)
         query   = self.__query_from_template ("update_article_thumb", {
-            "state_graph": self.state_graph,
             "account_id":  account_id,
             "article_id":  article_id,
             "version":     version,
@@ -1928,7 +1889,6 @@ class SparqlInterface:
         """Procedure to remove a collection from the state graph."""
 
         query   = self.__query_from_template ("delete_collection", {
-            "state_graph":   self.state_graph,
             "account_id":    account_id,
             "collection_version_id": collection_version_id
         })
@@ -1958,7 +1918,6 @@ class SparqlInterface:
             "publisher":         publisher,
             "resource_doi":      resource_doi,
             "resource_title":    resource_title,
-            "state_graph":       self.state_graph,
             "time_coverage":     time_coverage,
             "title":             title
         })
@@ -1983,7 +1942,6 @@ class SparqlInterface:
         """Procedure to return category information by its identifier."""
 
         query = self.__query_from_template ("category_by_id", {
-            "state_graph": self.state_graph,
             "category_id": category_id
         })
 
@@ -1997,7 +1955,6 @@ class SparqlInterface:
         """Procedure to return the subcategories for a category."""
 
         query = self.__query_from_template ("subcategories_by_category", {
-            "state_graph": self.state_graph,
             "category_id": category_id
         })
 
@@ -2046,7 +2003,6 @@ class SparqlInterface:
             filters += rdf.sparql_filter ("association", association, escape=True)
 
         query = self.__query_from_template ("group", {
-            "state_graph": self.state_graph,
             "filters":     filters
         })
 
@@ -2058,7 +2014,6 @@ class SparqlInterface:
         """Procedure to return group information by its name."""
 
         query = self.__query_from_template ("group_by_name", {
-            "state_graph": self.state_graph,
             "startswith": startswith,
             "group_name": group_name
         })
@@ -2075,7 +2030,6 @@ class SparqlInterface:
         """Returns the number of bytes used by an account."""
 
         query = self.__query_from_template ("account_storage_used", {
-            "state_graph": self.state_graph,
             "account_id":  account_id
         })
 
@@ -2112,7 +2066,6 @@ class SparqlInterface:
             filters += f"FILTER (STRENDS(STR(?download_url), \"{ endswith }\"))\n"
 
         query = self.__query_from_template ("opendap_to_doi", {
-            "state_graph": self.state_graph,
             "filters": filters
         })
 
@@ -2123,7 +2076,6 @@ class SparqlInterface:
         """Returns the account ID belonging to an ORCID."""
 
         query = self.__query_from_template ("account_id_by_orcid", {
-            "state_graph": self.state_graph,
             "orcid":       orcid
         })
 
@@ -2139,7 +2091,6 @@ class SparqlInterface:
         """Returns an account_id or None."""
 
         query = self.__query_from_template ("account_by_session_token", {
-            "state_graph": self.state_graph,
             "token":       session_token
         })
 
@@ -2158,7 +2109,6 @@ class SparqlInterface:
         """Returns accounts."""
 
         query = self.__query_from_template ("accounts", {
-            "state_graph": self.state_graph,
             "account_id":  account_id
         })
 
@@ -2168,7 +2118,6 @@ class SparqlInterface:
         """Returns an account_id or None."""
 
         query = self.__query_from_template ("account_by_id", {
-            "state_graph": self.state_graph,
             "account_id":  account_id
         })
 
@@ -2215,7 +2164,6 @@ class SparqlInterface:
         """Procedure to edit a session."""
 
         query = self.__query_from_template ("update_session", {
-            "state_graph":   self.state_graph,
             "account_id":    account_id,
             "session_id":    session_id,
             "name":          name
@@ -2227,7 +2175,6 @@ class SparqlInterface:
         """Procedure to remove a session from the state graph."""
 
         query   = self.__query_from_template ("delete_session_by_id", {
-            "state_graph": self.state_graph,
             "session_id":  session_id,
             "account_id":  account_id
         })
@@ -2241,7 +2188,6 @@ class SparqlInterface:
             return True
 
         query   = self.__query_from_template ("delete_session", {
-            "state_graph": self.state_graph,
             "token":       token
         })
 
@@ -2251,7 +2197,6 @@ class SparqlInterface:
         """Returns the sessions for an account."""
 
         query = self.__query_from_template ("account_sessions", {
-            "state_graph": self.state_graph,
             "account_id":  account_id,
             "session_id":  session_id
         })
