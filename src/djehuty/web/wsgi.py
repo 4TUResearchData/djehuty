@@ -358,6 +358,28 @@ class ApiServer:
         output.headers["Server"] = "4TU.ResearchData API"
         return output
 
+    ## GENERAL HELPERS
+    ## ----------------------------------------------------------------------------
+
+    def __dataset_by_id_or_uri (self, identifier, account_id=None,
+                                is_published=True, is_latest=False):
+        try:
+            dataset = None
+            if parses_to_int (identifier):
+                dataset = self.db.datasets (dataset_id   = int(identifier),
+                                            is_published = is_published,
+                                            is_latest    = is_latest,
+                                            account_id   = account_id)[0]
+            else:
+                dataset = self.db.datasets (container_uuid = identifier,
+                                            is_published   = is_published,
+                                            is_latest      = is_latest,
+                                            account_id     = account_id)[0]
+
+            return dataset
+
+        except IndexError:
+            return None
 
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
