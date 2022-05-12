@@ -26,14 +26,19 @@ WHERE {
     ?container_uri      rdf:type                 sg:ArticleContainer .
     ?container_uri      col:account_id           ?account_id .
     ?container_uri      col:article_id           ?article_id .
+
+    {%- if is_published %}
     {%- if is_latest %}
     ?container_uri      col:latest_published_version ?article .
     {%- else %}
     ?container_uri      col:published_versions/rdf:rest*/rdf:first ?article .
     {%- endif %}
+    {%- else %}
+    ?container_uri      col:draft                    ?article .
+    {%- endif %}
 
     ?article            col:title                ?title .
-    ?article            col:version              ?version .
+    OPTIONAL { ?article      col:version         ?version . }
 
     OPTIONAL {
       ?account          rdf:type                 sg:Account .

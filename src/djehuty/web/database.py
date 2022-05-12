@@ -204,14 +204,14 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
-    def published_datasets (self, account_id=None, categories=None, collection_uri=None,
-                            container_uuid=None, dataset_id=None, dataset_uuid=None, doi=None,
-                            exclude_ids=None, groups=None, handle=None, institution=None,
-                            is_latest=False, item_type=None, limit=None, modified_since=None,
-                            offset=None, order=None, order_direction=None, published_since=None,
-                            resource_doi=None, return_count=False, search_for=None,
-                            version=None):
-        """Procedure to retrieve the published version(s) of datasets."""
+    def datasets (self, account_id=None, categories=None, collection_uri=None,
+                  container_uuid=None, dataset_id=None, dataset_uuid=None, doi=None,
+                  exclude_ids=None, groups=None, handle=None, institution=None,
+                  is_latest=False, item_type=None, limit=None, modified_since=None,
+                  offset=None, order=None, order_direction=None, published_since=None,
+                  resource_doi=None, return_count=False, search_for=None,
+                  version=None, is_published=True):
+        """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
         filters  = rdf.sparql_filter ("article",        rdf.uuid_to_uri (dataset_uuid, "article"), is_uri=True)
@@ -243,12 +243,13 @@ class SparqlInterface:
             filters += rdf.sparql_bound_filter ("modified_date")
             filters += f"FILTER (?modified_date > \"{modified_since}\"^^xsd:dateTime)\n"
 
-        query = self.__query_from_template ("published_datasets", {
             "state_graph":    self.state_graph,
+        query = self.__query_from_template ("datasets", {
             "categories":     categories,
             "collection_uri": collection_uri,
             "account_id":     account_id,
             "is_latest":      is_latest,
+            "is_published":   is_published,
             "filters":        filters,
             "return_count":   return_count
         })
@@ -262,135 +263,7 @@ class SparqlInterface:
         if not return_count:
             query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
-        return self.__run_query (query, query, "published_datasets")
-
-    def draft_datasets (self, dataset_id=None, account_id=None, limit=None,
-                        offset=None, order=None, order_direction=None,
-                        institution=None, collection_uri=None, item_type=None,
-                        groups=None, resource_doi=None,
-                        doi=None, handle=None, categories=None,
-                        return_count=False):
-        """Procedure to retrieve the draft versions of datasets."""
-
-        filters  = rdf.sparql_filter ("institution_id", institution)
-        filters += rdf.sparql_filter ("defined_type",   item_type)
-        filters += rdf.sparql_filter ("article_id",     dataset_id)
-        filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
-        filters += rdf.sparql_filter ("doi",            doi,          escape=True)
-        filters += rdf.sparql_filter ("handle",         handle,       escape=True)
-        filters += rdf.sparql_in_filter ("group_id",    groups)
-
-        if categories is not None:
-            filters += (
-                f"FILTER ((?category_id IN ({','.join(map(str, categories))})) OR "
-                f"(?parent_category_id IN ({','.join(map(str, categories))})))\n"
-            )
-
-        query = self.__query_from_template ("draft_datasets", {
-            "state_graph":    self.state_graph,
-            "categories":     categories,
-            "collection_uri": collection_uri,
-            "account_id":     account_id,
-            "filters":        filters,
-            "return_count":   return_count
-        })
-
-        # Setting the default value for 'limit' to 10 makes passing
-        # parameters from HTTP requests cumbersome. Therefore, we
-        # set the default again here.
-        if limit is None:
-            limit = 10
-
-        if not return_count:
-            query += rdf.sparql_suffix (order, order_direction, limit, offset)
-
-        return self.__run_query (query, query, "draft_datasets")
-
-    def articles (self, limit=None, offset=None, order=None,
-                  order_direction=None, institution=None, is_latest=None,
-                  published_since=None, modified_since=None,
-                  group=None, group_ids=None, resource_doi=None, item_type=None,
-                  doi=None, handle=None, account_id=None, is_editable=None,
-                  search_for=None, article_id=None, exclude_ids=None,
-                  collection_version_id=None, version=None, category_ids=None,
-                  return_count=False, is_public=None, article_version_id=None):
-        """Procedure to retrieve articles."""
-
-        filters  = rdf.sparql_filter ("institution_id", institution)
-        filters += rdf.sparql_filter ("group_id",       group)
-        filters += rdf.sparql_filter ("defined_type",   item_type)
-        filters += rdf.sparql_filter ("article_id",     article_id)
-        filters += rdf.sparql_filter ("article_version_id", article_version_id)
-        filters += rdf.sparql_filter ("version",        version)
-        filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
-        filters += rdf.sparql_filter ("doi",            doi,          escape=True)
-        filters += rdf.sparql_filter ("handle",         handle,       escape=True)
-
-
-        ## Article identifiers aren't version-specific. For consistency, when
-        ## requesting a specific article without a version, make sure to return
-        ## the latest version of the article.
-        if article_id and not version and not is_editable:
-            filters += rdf.sparql_filter ("is_latest", 1)
-
-        if search_for is not None:
-            filters += (f"FILTER (CONTAINS(STR(?title),          \"{search_for}\") OR\n"
-                        f"        CONTAINS(STR(?resource_title), \"{search_for}\") OR\n"
-                        f"        CONTAINS(STR(?description),    \"{search_for}\") OR\n"
-                        f"        CONTAINS(STR(?citation),       \"{search_for}\"))")
-
-        if group_ids is not None:
-            filters += f"FILTER ((?group_id) IN ({','.join(map(str, group_ids))}))\n"
-
-        if category_ids is not None:
-            filters += (f"FILTER ((?category_id IN ({','.join(map(str, category_ids))})) OR "
-                        f"(?parent_category_id IN ({','.join(map(str, category_ids))})))\n")
-
-        if exclude_ids is not None:
-            filters += f"FILTER (?id NOT IN ({','.join(map(str, exclude_ids))}))\n"
-
-        if published_since is not None:
-            filters += rdf.sparql_bound_filter ("published_date")
-            filters += "FILTER (STR(?published_date) != \"NULL\")\n"
-            filters += f"FILTER (STR(?published_date) > \"{published_since}\")\n"
-
-        if modified_since is not None:
-            filters += rdf.sparql_bound_filter ("modified_date")
-            filters += "FILTER (STR(?modified_date) != \"NULL\")\n"
-            filters += f"FILTER (STR(?modified_date) > \"{modified_since}\")\n"
-
-        if account_id is None:
-            filters += rdf.sparql_filter ("is_public", 1)
-        elif is_public is not None:
-            filters += rdf.sparql_filter ("is_public", int(is_public))
-
-        if is_editable is not None:
-            filters += rdf.sparql_filter ("is_editable", is_editable)
-        else:
-            filters += rdf.sparql_filter ("is_editable", 0)
-
-        if is_latest is not None:
-            filters += rdf.sparql_filter ("is_latest", is_latest)
-
-        query = self.__query_from_template ("articles", {
-            "state_graph":   self.state_graph,
-            "collection_version_id": collection_version_id,
-            "category_ids":  category_ids,
-            "account_id":    account_id,
-            "filters":       filters,
-            "return_count":  return_count
-        })
-
-        # Setting the default value for 'limit' to 10 makes passing
-        # parameters from HTTP requests cumbersome. Therefore, we
-        # set the default again here.
-        if limit is None:
-            limit = 10
-
-        if not return_count:
-            query += rdf.sparql_suffix (order, order_direction, limit, offset)
-
-        return self.__run_query (query, query, "article")
+        return self.__run_query (query, query, "datasets")
 
     def repository_statistics (self):
         """Procedure to retrieve repository-wide statistics."""
