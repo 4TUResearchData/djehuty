@@ -616,31 +616,29 @@ class ApiServer:
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
-                unpublished_articles = self.db.articles (account_id = account_id,
-                                                         is_public  = 0,
-                                                         is_editable= 1,
-                                                         limit      = 10000)
+                draft_datasets = self.db.datasets (account_id   = account_id,
+                                                   limit        = 10000,
+                                                   is_published = False)
 
-                for index, _ in enumerate(unpublished_articles):
+                for index, _ in enumerate(draft_datasets):
                     used = 0
-                    if not bool(value_or_none (unpublished_articles[index], "is_metadata_record")):
-                        used = self.db.article_storage_used (unpublished_articles[index]["article_version_id"])
-                    unpublished_articles[index]["storage_used"] = pretty_print_size (used)
+                    if not bool(value_or_none (draft_datasets[index], "is_metadata_record")):
+                        used = self.db.dataset_storage_used (draft_datasets[index]["container_uri"])
+                    draft_datasets[index]["storage_used"] = pretty_print_size (used)
 
-                published_articles = self.db.articles (account_id = account_id,
-                                                       is_public  = 1,
-                                                       is_latest  = 1,
+                published_datasets = self.db.datasets (account_id = account_id,
+                                                       is_latest  = True,
                                                        limit      = 10000)
 
-                for index, _ in enumerate(published_articles):
+                for index, _ in enumerate(published_datasets):
                     used = 0
-                    if not bool(value_or_none (published_articles[index], "is_metadata_record")):
-                        used = self.db.article_storage_used (published_articles[index]["article_version_id"])
-                    published_articles[index]["storage_used"] = pretty_print_size (used)
+                    if not bool(value_or_none (published_datasets[index], "is_metadata_record")):
+                        used = self.db.dataset_storage_used (published_datasets[index]["container_uri"])
+                    published_datasets[index]["storage_used"] = pretty_print_size (used)
 
                 return self.__render_template (request, "depositor/my-data.html",
-                                               unpublished_articles = unpublished_articles,
-                                               published_articles   = published_articles)
+                                               draft_datasets     = draft_datasets,
+                                               published_datasets = published_datasets)
 
             return self.error_404 (request)
 

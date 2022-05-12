@@ -65,7 +65,7 @@ jQuery(document).ready(function () {
 </noscript>
 <div class="hide-for-javascript">
 <h1>Datasets</h1>
-<h2>Unpublished</h2>
+<h2>Drafts</h2>
 <div id="table-unpublished-loader" class="loader"></div>
 <table id="table-unpublished" class="branded-table ">
   <thead>
@@ -77,7 +77,7 @@ jQuery(document).ready(function () {
       <th>Actions</th>
     </tr>
   </thead>
-  <tbody>{% for article in unpublished_articles: %}
+  <tbody>{% for article in draft_datasets: %}
     <tr>
       <td><a href="/my/datasets/{{article.article_id}}/edit">{{article.title}}</a></td>
       <td>{{article.defined_type_name | default("undefined", False)}}</td>
@@ -98,7 +98,7 @@ jQuery(document).ready(function () {
       <th>Created&nbsp;at</th>
     </tr>
   </thead>
-  <tbody>{% for article in published_articles: %}
+  <tbody>{% for article in published_datasets: %}
     <tr>
       <td><a href="/my/datasets/{{article.article_id}}/edit">{{article.title}}</a></td>
       <td>{{article.defined_type_name | default("undefined", False)}}</td>
