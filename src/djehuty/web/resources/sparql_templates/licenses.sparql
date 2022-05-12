@@ -1,13 +1,11 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?id ?name ?url
+SELECT DISTINCT ?name ?url
 WHERE {
   GRAPH <{{state_graph}}> {
     ?row             rdf:type                 sg:License .
-    ?row             col:id                   ?id .
     ?row             col:name                 ?name .
     OPTIONAL { ?row  col:url                  ?url . }
   }
-  FILTER (STR(?name) != "NULL")
 }
 {% endblock %}
