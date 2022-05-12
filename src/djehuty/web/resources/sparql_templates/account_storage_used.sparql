@@ -3,8 +3,17 @@
 SELECT DISTINCT ?file ?bytes
 WHERE {
   GRAPH <{{state_graph}}> {
+
+    ?container      rdf:type                      sg:ArticleContainer .
+    ?container      col:account_id                ?account_id .
+
+    {
+      ?container    col:draft                     ?article .
+    } UNION {
+      ?container    col:published_versions/rdf:rest*/rdf:first ?article .
+    }
+
     ?article        rdf:type                      sg:Article .
-    ?article        col:account_id                ?account_id .
     ?article        col:files/rdf:rest*/rdf:first ?file .
 
     ?file           rdf:type                      sg:File .
