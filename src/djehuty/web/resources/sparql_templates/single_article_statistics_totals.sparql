@@ -3,12 +3,12 @@
 SELECT ?downloads ?views ?shares ?cites
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?articleTotals rdf:type       sg:ArticleTotals ;
-                   col:article_id {{article_id}} .
-    OPTIONAL { ?articleTotals col:downloads ?downloads . }
-    OPTIONAL { ?articleTotals col:views     ?views .     }
-    OPTIONAL { ?articleTotals col:shares    ?shares .    }
-    OPTIONAL { ?articleTotals col:cites     ?cites .     }
+    ?container            a                    sg:ArticleContainer ;
+                          col:article_id       {{article_id}} .
+    OPTIONAL { ?container col:total_downloads  ?downloads . }
+    OPTIONAL { ?container col:total_views      ?views .     }
+    OPTIONAL { ?container col:total_shares     ?shares .    }
+    OPTIONAL { ?container col:total_cites      ?cites .     }
   }
 }
 {% endblock %}

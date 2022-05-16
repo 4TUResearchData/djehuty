@@ -2,12 +2,8 @@
 <h2>{{article.title}}</h2>
 
 <div id="metadata">
-    <div id="doi">
-        persistent link: <a href="https://doi.org/{{doi}}" target="_blank" title="opens in new window">doi.org/{{doi}}</a>
-    </div>
-    <div id="type">
-        {{ article.defined_type_name|capitalize }}
-    </div>
+    <div id="doi">persistent link: <a href="https://doi.org/{{doi}}" target="_blank" title="opens in new window">doi.org/{{doi}}</a></div>
+    <div id="type">{{ article.defined_type_name|capitalize }}</div>
 {% if versions[1:2] %}
 <!--12763700-->
     {% set thisversion = article.version %}
@@ -15,16 +11,15 @@
     {% set old = thisversion < latest %}
     <div id ="versions">
     {% if old %}
-    	  <span class="warning">version {{thisversion}} (old)</span>
+        <span class="warning">version {{thisversion}} (old)</span>
     {% else %}
-    	  <span>version {{thisversion}}</span>
+        <span>version {{thisversion}}</span>
     {% endif %}
-    	  - other versions:
+        - other versions:
     {% for ver in versions %}
         {% set v = ver.version %}
         {% if v != thisversion %}
-        <a href="/articles/_/{{pid}}/{{v}}">{{v}}
-        	  {%- if v==latest %} (latest){% endif %}</a>
+        <a href="/articles/_/{{pid}}/{{v}}">{{v}}{% if v==latest %} (latest){% endif %}</a>
         {% endif %}
     {% endfor %}
     </div>
@@ -32,36 +27,35 @@
 
     <div id="right_column">
 {% if member != "other" %}
-  	  <div id="member">
-    	    <a href="/institutions/{{member_url_name}}"><img src="/static/images/logo-{{member}}.png" alt="{{member_url_name.replace('_',' ')}} logo" /></a>
-    	</div>
+        <div id="member">
+            <a href="/institutions/{{member_url_name}}"><img src="/static/images/logo-{{member}}.png" alt="{{member_url_name.replace('_',' ')}} logo" /></a>
+        </div>
 {% endif %}
 {% if statistics %}
 <!--12763700-->
-    {% set usage = statistics[0] %}
-    	  <div id="usage">
-    	  	  <div class="label">usage stats</div>
-    {% for metric in usage %}
+        <div id="usage">
+            <div class="label">usage stats</div>
+    {% for metric in statistics %}
             <div class="metric">
-            	  <div class="number">{{usage[metric]}}</div>
-            	  {{metric}}
+                <div class="number">{{statistics[metric]}}</div>
+                {{metric}}
             </div>
-    {% endfor %}    	  	  	
-    	  </div>
+    {% endfor %}
+        </div>
 {% endif %}
-   	  <div id="categories">
-    	  	  <div class="label">categories</div>
-    	  	  <ul>
+        <div id="categories">
+            <div class="label">categories</div>
+            <ul>
 {% for cat in categories %}
                 <li><a href="/categories/_/{{cat.id}}">{{cat.title}}</a></li>
 {% endfor %}
             </ul>
-    	  </div>
+        </div>
         <div id="tags">
-	          <div class="label">keywords</div>
-		            {# The href below will not work. First figure out what to do with search. #}
+            <div class="label">keywords</div>
+                {# The href below will not work. First figure out what to do with search. #}
 {% for tag in tags|sort %}
- 	          <a href="/keywords/{{tag|urlencode}}">{{tag}}</a>
+            <a href="/keywords/{{tag|urlencode}}">{{tag}}</a>
     {%- if loop.revindex0 %}, {% endif %}
 {% endfor %}
         </div>
@@ -73,7 +67,7 @@
     {% set vlat = coordinates.lat_valid %}
     {% set vlon = coordinates.lon_valid %}
         <div id="geo">
-        	  <div class="label">geolocation</div>
+            <div class="label">geolocation</div>
     {% if geo %}
             <div id = "geo_name">{{geo}}</div>
     {% endif %}
@@ -92,7 +86,7 @@
 {% if article.time_coverage %}
         <div id="time_coverage">
             <div class="label">time coverage</div>
-        	  {{article.time_coverage}}
+            {{article.time_coverage}}
         </div>
 {% endif %}
 {% set lic_imgs = {'CC0'            : 'cc-0.png',
@@ -108,8 +102,8 @@
         <div id="licence">
             <div class="label">licence</div>
             <a href="{{article.license_url}}" target="_blank" title="opens in new window">
-        	  	{%- if lic_img %}<img src="/static/images/licenses/{{lic_img}}" alt="{{lic_img}} logo"/>{% endif %}
-        	  	{{article.license_name}}</a>
+                {%- if lic_img %}<img src="/static/images/licenses/{{lic_img}}" alt="{{lic_img}} logo"/>{% endif %}
+                {{article.license_name}}</a>
 {% if article.license_remarks %}
 <!--12776162-->
             <div>{{article.license_remarks}}</div>
@@ -121,20 +115,20 @@
             <div class="label">collection{% if collections[1:] %}s{% endif %}</div>
             <ul>
     {% for c in collections %}
-   	            <li><a href="/collections/_/{{c.collection_id}}">{{c.title}}</a></li>
-   	{% endfor %}
+                <li><a href="/collections/_/{{c.collection_id}}">{{c.title}}</a></li>
+    {% endfor %}
             </ul>
         </div>
 {% endif %}
         <div id="export">
-        	  <div class="label">export as...</div>
-        	  <a href="{{export_base}}refworks">RefWorks</a>,
-        	  <a href="{{export_base}}bibtex">BibTeX</a>,
-        	  <a href="{{export_base}}refman">Reference Manager</a>,
-        	  <a href="{{export_base}}endnote">Endnote</a>,
-        	  <a href="{{export_base}}datacite">DataCite</a>,
-        	  <a href="{{export_base}}nlm">NLM</a>,
-        	  <a href="{{export_base}}dc">DC</a>
+            <div class="label">export as...</div>
+            <a href="{{export_base}}refworks">RefWorks</a>,
+            <a href="{{export_base}}bibtex">BibTeX</a>,
+            <a href="{{export_base}}refman">Reference Manager</a>,
+            <a href="{{export_base}}endnote">Endnote</a>,
+            <a href="{{export_base}}datacite">DataCite</a>,
+            <a href="{{export_base}}nlm">NLM</a>,
+            <a href="{{export_base}}dc">DC</a>
         </div>
     </div>
     
@@ -155,43 +149,43 @@
         </div>
         <div id="description">
 {% autoescape false %}
-	          {{ article.description.replace('\\n', '\n') }}
+            {{ article.description.replace('\\n', '\n') }}
 {% endautoescape %}
         </div>
         <div id="dates">
-  	        <div class="label">history</div>
+            <div class="label">history</div>
 {% for (date, dtype) in dates %}
-  	        <ul>
-	    	        <li>{{date}} {{dtype}}</li>
-  	        </ul>
+            <ul>
+                  <li>{{date}} {{dtype}}</li>
+            </ul>
 {% endfor %}
         </div>
 {% if article.publisher %}
         <div id="publisher">
             <div class="label">publisher</div>
-   	        {{article.publisher}}
-   	    </div>
+            {{article.publisher}}
+        </div>
 {% endif %}
 {% if article.format %}
         <div id="format">
             <div class="label">format</div>
-   	        {{ article.format.replace('\\n', '\n') }}
-   	    </div>
+            {{ article.format.replace('\\n', '\n') }}
+        </div>
 {% endif %}
 {% if article.resource_doi %}
 <!--16825843-->
         <div id="peer">
             <div class="label">associated peer-reviewed publication</div>
             <a href="https://doi.org/{{article.resource_doi}}" target="_blank" title="opens in new window">{{article.resource_title}}</a>
-   	    </div>
+        </div>
 {% endif %}
 {% if references %}
         <div id="references">
             <div class="label">references</div>
             <ul>
     {% for r in references %}
-   	            <li><a href="{{r.url}}" target="_blank" title="opens in new window">{{r.url}}</a></li>
-   	{% endfor %}
+                <li><a href="{{r.url}}" target="_blank" title="opens in new window">{{r.url}}</a></li>
+    {% endfor %}
             </ul>
         </div>
 {% endif %}
@@ -202,31 +196,31 @@
             <ul>
     {% for d in derived_from %}
                 <li><a href="{{d}}" target="_blank" title="opens in new window">{{d}}</a></li>
-   	{% endfor %}
-   	        </ul>
-   	    </div>
+    {% endfor %}
+            </ul>
+        </div>
 {% endif %}
 {% if article.same_as %}
 <!--18865355-->
         <div id="same_as">
             <div class="label">same as</div>
-   	        <a href="{{article.same_as}}" target="_blank" title="opens in new window">{{article.same_as}}</a>
-   	    </div>
+            <a href="{{article.same_as}}" target="_blank" title="opens in new window">{{article.same_as}}</a>
+        </div>
 {% endif %}
 {% if article.data_link %}
 <!--14377295-->
         <div id="data_link">
             <div class="label">data link</div>
-   	        <a href="{{article.data_link}}" target="_blank" title="opens in new window">{{article.data_link}}</a>
-   	    </div>
+            <a href="{{article.data_link}}" target="_blank" title="opens in new window">{{article.data_link}}</a>
+        </div>
 {% endif %}
 {% if article.language %}
 <!--17081387-->
     {% if article.language != 'en' %}
         <div id="language">
             <div class="label">language</div>
-   	        {{article.language}}
-   	    </div>
+            {{article.language}}
+        </div>
     {% endif %}
 {% endif %}
 {% if fundings %}
@@ -234,32 +228,32 @@
         <div id="funding">
             <div class="label">funding</div>
             <ul>
-   	{% for funding in fundings %}        
-   	            <li>
-   	    {% if funding.title %}
-   	                <span class="funding_title">{{funding.title}}</span>
-   	    {% endif %}
-   	    {% if funding.grant_code %}
-   	                <span class="grant_code">(grant code {{funding.grant_code}})</span>
-   	    {% endif %}
-   	    {% if funding.url %}
-   	                [<a href="{{funding.url}}" target="_blank" title="opens in new window">more info...</a>]
-   	    {% endif %}
-   	    {% if funding.funder_name %}
-   	            	  <span class="funder_name">{{funding.funder_name}}</span>
-   	    {% endif %}   	
-   	            </li>        
-   	{% endfor %}
-   	      </ul>
-   	    </div>
+    {% for funding in fundings %}
+                <li>
+        {% if funding.title %}
+                    <span class="funding_title">{{funding.title}}</span>
+        {% endif %}
+        {% if funding.grant_code %}
+                    <span class="grant_code">(grant code {{funding.grant_code}})</span>
+        {% endif %}
+        {% if funding.url %}
+                    [<a href="{{funding.url}}" target="_blank" title="opens in new window">more info...</a>]
+        {% endif %}
+        {% if funding.funder_name %}
+                    <span class="funder_name">{{funding.funder_name}}</span>
+        {% endif %}
+                </li>
+    {% endfor %}
+          </ul>
+        </div>
 {% endif %}
 {% if article.organizations %}
 <!--12705164-->
     {% autoescape false %}
         <div id="organizations">
             <div class="label">organizations</div>
-   	        {{ article.organizations.replace('\\n', '<br />') }}
-   	    </div>
+            {{ article.organizations.replace('\\n', '<br />') }}
+        </div>
     {% endautoescape %}
 {% endif %}
 {% if contributors %}
@@ -275,7 +269,7 @@
                 </li>
     {% endfor %}
             </ul>
-   	    </div>
+        </div>
 {% endif %}
     </div>
 </div>

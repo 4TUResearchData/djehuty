@@ -361,7 +361,7 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query, query, "statistics")
 
-    def single_article_statistics_totals (self, article_id):
+    def single_article_statistics_totals (self, article_id): #obsolete? (see article_container)
         """Procedure to get shallow statistics of an article."""
 
         query   = self.__query_from_template ("single_article_statistics_totals", {
@@ -369,6 +369,15 @@ class SparqlInterface:
         })
 
         return self.__run_query (query, query, "statistics")
+
+    def article_container (self, article_id):
+        """Procedure to get article container properties (incl shallow statistics)."""
+
+        query   = self.__query_from_template ("article_container", {
+            "article_id":   article_id
+        })
+
+        return self.__run_query (query, query, "article_container")
 
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,

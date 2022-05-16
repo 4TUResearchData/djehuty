@@ -11,31 +11,31 @@
 -->
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <style>
-	a             { color: #f49120; text-decoration: none }
-	a:hover       { text-decoration: underline }
-	#doi          { text-align: right }
-	#type         { padding: 2px; width: 80px; text-align: center; border: 1px solid #000 }
-	#metadata #versions { margin-top: 0px }
-	#description  { margin-top: 10px; padding:10px; border: 1px solid #666 }
-	#authors img, #contributors img  { height: 15px }
-	.metric       { float: left; margin:5px; text-align: center }
-	.metric .number { font-size: 24px; font-weight: bold }
-	#categories   { padding-top: 10px; clear: left }
-	#tags, #geo, #time_coverage, #dates, #collections, #peer, #references, #publisher, #format, #organizations,
-	#contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export, #data_link
-	              { margin-top: 10px }
-	#funding ul   { list-style-type: square; margin-left: 20px }
-	#funding .funder_name { display: block; color: #999 }
-	#files .size   { display: inline-block; width:120px; font-size:12px; color: #999; text-align:right; margin-right:5px }
-	#metadata #left_column  { width: 65%; margin-bottom:10px }
-	#metadata #right_column { float: right; width: 33%; margin-bottom:10px }
-	.warning      { background-color: #ff0 }
-	.label        { text-transform: uppercase }
-	ul            { list-style-type: none; padding:0; margin:0 }
-	#data         { clear: right; border-top: 1px solid #000; margin-bottom: 10px }
-	#data ul      { margin-left: 20px }
-	li.zip        { padding: 2px; width: 180px; text-align: center; border: 1px solid #000 } 	
-	#debug        { background-color: #eee; color: #666; margin-top: 20px; font-family: monospace; display: none }
+    a             { color: #f49120; text-decoration: none }
+    a:hover       { text-decoration: underline }
+    #doi          { text-align: right }
+    #type         { padding: 2px; width: 80px; text-align: center; border: 1px solid #000 }
+    #metadata #versions { margin-top: 0px }
+    #description  { margin-top: 10px; padding:10px; border: 1px solid #666 }
+    #authors img, #contributors img  { height: 15px }
+    .metric       { float: left; margin:5px; text-align: center }
+    .metric .number { font-size: 24px; font-weight: bold }
+    #categories   { padding-top: 10px; clear: left }
+    #tags, #geo, #time_coverage, #dates, #collections, #peer, #references, #publisher, #format, #organizations,
+    #contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export, #data_link
+                  { margin-top: 10px }
+    #funding ul   { list-style-type: square; margin-left: 20px }
+    #funding .funder_name { display: block; color: #999 }
+    #files .size   { display: inline-block; width:120px; font-size:12px; color: #999; text-align:right; margin-right:5px }
+    #metadata #left_column  { width: 65%; margin-bottom:10px }
+    #metadata #right_column { float: right; width: 33%; margin-bottom:10px }
+    .warning      { background-color: #ff0 }
+    .label        { text-transform: uppercase }
+    ul            { list-style-type: none; padding:0; margin:0 }
+    #data         { clear: right; border-top: 1px solid #000; margin-bottom: 10px }
+    #data ul      { margin-left: 20px }
+    li.zip        { padding: 2px; width: 180px; text-align: center; border: 1px solid #000 }
+    #debug        { background-color: #eee; color: #666; margin-top: 20px; font-family: monospace; display: none }
   #debug_button { height: 20px; text-align: right; margin-top: -20px }
 </style>
 {% endblock %}
@@ -47,7 +47,7 @@
 {% include 'public_metadata.html' %}
 
 <div id="data">
-	  <h3>DATA</h3>
+    <h3>DATA</h3>
 {% if article.is_metadata_record %}
 <!--12999575-->
         <div id="metadata_only">
@@ -60,45 +60,45 @@
 {% endif %}
 {% if services %}
 <!--12717890-->
-	  <div id="services">
-	  	  <div class="label">data service</div>
-	  	  <ul>
-	  {% for url in services %}
-	          <li><a href="{{url}}" target="_blank" title="opens in new window">{{url}}</a></li>
-	  {% endfor %}
-	  	  </ul>
-	  </div>
+    <div id="services">
+        <div class="label">data service</div>
+        <ul>
+    {% for url in services %}
+            <li><a href="{{url}}" target="_blank" title="opens in new window">{{url}}</a></li>
+    {% endfor %}
+        </ul>
+    </div>
 {% endif%}
 {% if opendap %}
 <!--17122553-->
-	  <div id="opendap">
-	  	  <div class="label">OPeNDAP data service</div>
-	  	  <ul>
-	  {% for url in opendap %}
-	  	      <li>
-	  	          <a href="{{url}}" target="_blank" title="opens in new window">{{url}}</a>
-	  	          [<a href="{{url|replace('.html','.xml')}}" target="_blank">xml</a>]
-	  	      </li>
-	  {% endfor %}
-	  	  </ul>
-	  </div>
+    <div id="opendap">
+        <div class="label">OPeNDAP data service</div>
+        <ul>
+    {% for url in opendap %}
+            <li>
+                <a href="{{url}}" target="_blank" title="opens in new window">{{url}}</a>
+                [<a href="{{url|replace('.html','.xml')}}" target="_blank">xml</a>]
+            </li>
+    {% endfor %}
+        </ul>
+    </div>
 {% endif%}
 {% if files %}
 <!--16545714-->
-	  <div id="files">
-	  	  <div class="label">files</div>
-	  	  <ul>
-	  {% for file in files %}
-	  	      <li>
-	  	    	    <span class="size">{{'{:,}'.format(file.size)}} bytes</span> 
-	  	    	    <a href="{{file.download_url}}" title="md5: {{file.computed_md5}}">{{file.name}}</a>
-	  	      </li>
-	  {% endfor %}
-	  {% if files|length > 1 %}
-	    	    <li class="zip"><a href="ndownloader/articles/{{pid}}/versions/{{article.version}}">download all files (zip)</a></li>
-	  {% endif %}
-	  	  </ul>
-	  </div>
+    <div id="files">
+        <div class="label">files</div>
+        <ul>
+    {% for file in files %}
+            <li>
+                <span class="size">{{'{:,}'.format(file.size)}} bytes</span>
+                <a href="{{file.download_url}}" title="md5: {{file.computed_md5}}">{{file.name}}</a>
+            </li>
+    {% endfor %}
+    {% if files|length > 1 %}
+            <li class="zip"><a href="ndownloader/articles/{{pid}}/versions/{{article.version}}">download all files (zip)</a></li>
+    {% endif %}
+        </ul>
+    </div>
 {% endif %}
 </div>
 <div id="debug_button">

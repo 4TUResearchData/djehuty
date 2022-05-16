@@ -1094,28 +1094,33 @@ class ApiServer:
 
     def api_article_ui (self, request, article_id, version=None):
         if self.accepts_html (request):
-            versions      = self.db.article_versions(article_id=article_id)
+            container     = self.db.article_container(article_id=article_id)[0]
+            versions      = self.db.dataset_versions(article_id=article_id)
             versions      = [v for v in versions if v['version']] # exclude version None
             current_version = version if version else versions[0]['version']
-            article       = self.db.articles (article_id  = article_id,
-                                              version     = current_version,
-                                              is_editable = 0,
-                                              is_public   = 1)[0]
-            article_version_id = article["article_version_id"]
-            authors       = self.db.authors(item_id=article_version_id, item_type="article")
-            files         = self.db.article_files(article_version_id=article_version_id, limit=None)
-            custom_fields = self.db.custom_fields(item_id=article_version_id, item_type="article")
-            embargo_options = self.db.article_embargo_options(article_version_id=article_version_id)
-            tags          = self.db.tags(item_id=article_version_id, item_type="article")
-            categories    = self.db.categories(item_id=article_version_id, item_type="article")
-            references    = self.db.references(item_id=article_version_id, item_type="article")
-            derived_from  = self.db.derived_from(item_id=article_version_id, item_type="article")
-            fundings      = self.db.fundings(item_id=article_version_id, item_type="article")
+            article       = self.db.datasets (dataset_id    = article_id,
+                                              version       = current_version,
+                                              is_published  = True)[0]
+            article_uri   = article['uri']
+            authors       = self.db.authors(item_uri=article_uri)
+            files         = self.db.article_files(article_uri=article_uri, limit=None)
+            custom_fields = self.db.custom_fields(item_uri=article_uri)
+            embargo_options = None #TODO
+            tags          = self.db.tags(item_uri=article_uri)
+            categories    = self.db.categories(item_uri=article_uri)
+            references    = self.db.references(item_uri=article_uri)
+            derived_from  = self.db.derived_from(item_uri=article_uri)
+            fundings      = self.db.fundings(item_uri=article_uri)
             collections   = self.db.collections_from_article(article_id=article_id)
-            statistics    = self.db.single_article_statistics_totals(article_id=article_id)
+            statistics    = {'downloads': value_or(container, 'total_downloads', 0),
+                             'views'    : value_or(container, 'total_views'    , 0),
+                             'shares'   : value_or(container, 'total_shares'   , 0),
+                             'cites'    : value_or(container, 'total_cites'    , 0)}
+            statistics    = {key:val for (key,val) in statistics.items() if val > 0}
             member = value_or(group_to_member, article["group_id"], 'other')
             member_url_name = member_url_names[member]
             tags = set([t['tag'] for t in tags if not t['tag'].startswith('Collection: ')])
+            article['timeline_first_online'] = container['first_online_date']
             date_types = ( ('submitted'   , 'timeline_submission'),
                            ('first online', 'timeline_first_online'),
                            ('published'   , 'published_date'),
@@ -1123,12 +1128,13 @@ class ApiServer:
                            ('revised'     , 'timeline_revision') )
             dates = {}
             for (label, dtype) in date_types:
-                date = article[dtype]
-                if date:
-                    date = date[:10]
-                    if not date in dates:
-                        dates[date] = []
-                    dates[date].append(label)
+                if dtype in article:
+                    date = article[dtype]
+                    if date:
+                        date = date[:10]
+                        if not date in dates:
+                            dates[date] = []
+                        dates[date].append(label)
             dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
 
             id_v = f'{article_id}/{version}' if version else f'{article_id}'
