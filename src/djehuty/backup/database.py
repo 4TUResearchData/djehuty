@@ -782,3 +782,11 @@ class DatabaseInterface:
 
         status = list(map(self.insert_category, categories))
         return all (status)
+
+    def insert_static_triplets (self):
+        """Procedure to insert triplets to augment the state graph."""
+
+        self.store.add ((rdf.SG["ArticleContainer"],    RDF.type, rdf.SG["Container"]))
+        self.store.add ((rdf.SG["CollectionContainer"], RDF.type, rdf.SG["Container"]))
+
+        return True
