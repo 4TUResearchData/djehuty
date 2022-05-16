@@ -1217,6 +1217,9 @@ class ApiServer:
     def api_opendap_to_doi(self, request):
         if self.accepts_html (request):
             referrer = request.referrer
+            #referrer = "https://opendap.tudelft.nl/thredds/catalog/data2/uuid/catalog.html" #TEST
+            catalog = ""
+            dois = []
             if referrer is None:
                 referrer = ""
             else:
@@ -1225,9 +1228,7 @@ class ApiServer:
                     # as the IDRA dataset is available at two places on opendap,
                     # use the one that matches the database
                     catalog = catalog.replace('catalog/data2/IDRA', 'catalog/IDRA')
-
             catalog_parts = catalog.split('/')
-            print(catalog_parts)
             # start with this catalog and go broader until something found
             for end_index in range(len(catalog_parts[:-1]), 0, -1):
                 # build temporary catalog url from the first x catalog_parts
@@ -1248,8 +1249,6 @@ class ApiServer:
                 return redirect(f"https://doi.org/{ dois[0]['doi'] }")
             # sort on title
             dois.sort(key=lambda x: x["title"])
-            for item in dois:
-                print(item["title"], item["doi"])
 
             return self.__render_template (request, "opendap_to_doi.html",
                                            dois=dois,

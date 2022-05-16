@@ -2052,17 +2052,17 @@ class SparqlInterface:
 
         if startswith is not None:
             if isinstance(startswith, list):
-                filters += f"FILTER ((STRSTARTS(STR(?download_url), \"{ startswith[0] }\"))"
+                filters += f"FILTER ((STRSTARTS(STR(?data_url), \"{ startswith[0] }\"))"
                 for filter_item in startswith[1:]:
-                    filters += f" OR (STRSTARTS(STR(?download_url), \"{filter_item}\"))"
+                    filters += f" OR (STRSTARTS(STR(?data_url), \"{filter_item}\"))"
                 filters += ")\n"
             elif isinstance(startswith, str):
-                filters += f"FILTER (STRSTARTS(STR(?download_url), \"{ startswith }\"))\n"
+                filters += f"FILTER (STRSTARTS(STR(?data_url), \"{ startswith }\"))\n"
             else:
                 logging.error("startswith of type %s is not supported", type(startswith))
 
         if endswith is not None:
-            filters += f"FILTER (STRENDS(STR(?download_url), \"{ endswith }\"))\n"
+            filters += f"FILTER (STRENDS(STR(?data_url), \"{ endswith }\"))\n"
 
         query = self.__query_from_template ("opendap_to_doi", {
             "filters": filters

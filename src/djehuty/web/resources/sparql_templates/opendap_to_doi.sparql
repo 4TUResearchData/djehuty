@@ -1,25 +1,33 @@
+{# Find the latest version of each article for which one of the conditions in
+   the UNION clause holds and return some properties of these article versions.
+   Filters restrict the values of ?data_url. #}
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?download_url ?doi ?title
+SELECT DISTINCT ?doi ?title
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article        rdf:type         sg:Article ;
-                    col:article_version_id ?article_version_id ;
-                    col:doi          ?doi ;
-                    col:title        ?title .
+    ?article  a               sg:Article ;
+              col:article_id  ?article_id ;
+              col:version     ?version ;
+              col:title       ?title ;
+              col:doi         ?doi .
     {
-      ?link         rdf:type         sg:ArticleFile ;
-                    col:article_version_id ?article_version_id ;
-                    col:file_id      ?file_id .
-      ?file         rdf:type         sg:File ;
-                    col:id           ?file_id ;
-                    col:download_url ?download_url .
-    }
-    UNION
-    {
-      ?article      col:data_link    ?download_url .
+      SELECT ?article_id (MAX(?i_version) AS ?version)
+      WHERE {
+        GRAPH <{{state_graph}}> {
+          ?i_article  a               sg:Article ;
+                      col:article_id  ?article_id ;
+                      col:version     ?i_version .
+          { ?i_article  col:files/rdf:rest*/rdf:first  ?file .
+            ?file       a                              sg:File ;
+                        col:is_link_only               true ;
+                        col:download_url               ?data_url . } UNION
+          { ?i_article  col:data_link                  ?data_url . }
+        }
+        {{ filters }}
+      }
+      GROUP BY ?article_id
     }
   }
-{%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
