@@ -132,7 +132,7 @@ class SparqlInterface:
                                query_results["results"]["bindings"]))
 
             if cache_key_string is not None:
-                self.cache.cache_value (prefix, cache_key, results)
+                self.cache.cache_value (prefix, cache_key, results, query)
 
             if not self.sparql_is_up:
                 logging.info("Connection to the SPARQL endpoint seems up again.")

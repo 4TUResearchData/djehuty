@@ -46,12 +46,17 @@ class CacheLayer:
 
         return data
 
-    def cache_value (self, prefix, key, value):
+    def cache_value (self, prefix, key, value, query=None):
         """Procedure to store 'value' as a cache."""
         try:
             with open(f"{self.storage}/{prefix}_{key}", "w",
                       encoding = "utf-8") as file:
                 file.write(json.dumps(value))
+
+            if query is not None:
+                with open(f"{self.storage}/{prefix}_{key}.sparql", "w",
+                          encoding = "utf-8") as file:
+                    file.write(query)
         except OSError:
             logging.error("Failed to save cache for %s.", key)
 
