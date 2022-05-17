@@ -436,6 +436,7 @@ class DatabaseInterface:
 
         ## Assign the collection to the container
         container = self.container_uri (collection_id, "collection", account_id)
+        rdf.add (self.store, uri, rdf.COL["container"], container, datatype="uri")
 
         if "statistics" in record:
             stats = record["statistics"]
@@ -694,6 +695,7 @@ class DatabaseInterface:
 
         ## Assign the article to the container
         container = self.container_uri (article_id, "article", account_id)
+        rdf.add (self.store, uri, rdf.COL["container"], container, datatype="uri")
 
         if "statistics" in record:
             stats = record["statistics"]
