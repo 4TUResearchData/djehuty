@@ -524,9 +524,12 @@ class DatabaseInterface:
         ## Insert the license if it isn't in the graph.
         if (license_uri, RDF.type, rdf.SG["License"]) not in self.store:
             license_name = value_or_none (record,"name")
+            license_id   = value_or_none (record,"value")
             self.store.add ((license_uri, RDF.type, rdf.SG["License"]))
             self.store.add ((license_uri, rdf.COL["name"],
                              Literal(license_name, datatype=XSD.string)))
+            self.store.add ((license_uri, rdf.COL["id"],
+                             Literal(license_id, datatype=XSD.integer)))
 
         ## Insert the link between URI and the license.
         self.store.add ((uri, rdf.COL["license"], license_uri))
