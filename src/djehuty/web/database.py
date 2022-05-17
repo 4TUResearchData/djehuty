@@ -96,10 +96,11 @@ class SparqlInterface:
                     record[item]['value'].startswith("Insert into ") or
                     record[item]['value'].startswith("Delete from ")):
                     logging.info("RDF store: %s", record[item]['value'])
-                else:
-                    logging.info("Literal: %s", record[item]['value'])
 
-                return record[item]["value"]
+                    return record[item]["value"]
+                else:
+                    record[item] = record[item]["value"]
+
             elif record[item]["type"] == "uri":
                 record[item] = str(record[item]["value"])
             else:
