@@ -1221,9 +1221,12 @@ class ApiServer:
         }))
 
     def api_opendap_to_doi(self, request):
+        """
+            Establish back-links from opendap by matching http referrer with triple store
+            and list datasets in repository, or redirect if there is exactly one.
+        """
         if self.accepts_html (request):
             referrer = request.referrer
-            #referrer = "https://opendap.tudelft.nl/thredds/catalog/data2/uuid/catalog.html" #TEST
             catalog = ""
             dois = []
             if referrer is None:
@@ -1231,29 +1234,23 @@ class ApiServer:
             else:
                 catalog = referrer.split('.nl/thredds/', 1)[-1].split('?')[0]
                 if catalog.startswith('catalog/data2/IDRA'):
-                    # as the IDRA dataset is available at two places on opendap,
-                    # use the one that matches the database
+                    # IDRA is available at two places. Use the one in the triple store.
                     catalog = catalog.replace('catalog/data2/IDRA', 'catalog/IDRA')
             catalog_parts = catalog.split('/')
             # start with this catalog and go broader until something found
             for end_index in range(len(catalog_parts[:-1]), 0, -1):
-                # build temporary catalog url from the first x catalog_parts
-                # combined with the suffix "catalog.html"
                 catalog_end = '/'.join(catalog_parts[:end_index] + [catalog_parts[-1]])
                 dois = self.db.opendap_to_doi(endswith=catalog_end)
-                if len(dois) > 0:
-                    # leave this loop if at least one DOI is found
+                if dois:
                     break
-
-            if len(dois) == 0:
+            if not dois:
                 # search narrower catalogs (either opendap.4tu.nl or opendap.tudelft.nl)
                 catalog_start = [f"https://opendap.4tu.nl/thredds/{ '/'.join(catalog_parts[:-1]) }/",
                                  f"https://opendap.tudelft.nl/thredds/{ '/'.join(catalog_parts[:-1]) }/"]
                 dois = self.db.opendap_to_doi(startswith=catalog_start)
-
             if len(dois) == 1:
                 return redirect(f"https://doi.org/{ dois[0]['doi'] }")
-            # sort on title
+
             dois.sort(key=lambda x: x["title"])
 
             return self.__render_template (request, "opendap_to_doi.html",

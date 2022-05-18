@@ -7,16 +7,16 @@ SELECT DISTINCT ?doi ?title
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article  a               sg:Article ;
-              col:article_id  ?article_id ;
+              col:container   ?container ;
               col:version     ?version ;
               col:title       ?title ;
               col:doi         ?doi .
     {
-      SELECT ?article_id (MAX(?i_version) AS ?version)
+      SELECT ?container (MAX(?i_version) AS ?version)
       WHERE {
         GRAPH <{{state_graph}}> {
           ?i_article  a               sg:Article ;
-                      col:article_id  ?article_id ;
+                      col:container   ?container ;
                       col:version     ?i_version .
           { ?i_article  col:files/rdf:rest*/rdf:first  ?file .
             ?file       a                              sg:File ;
@@ -26,7 +26,7 @@ WHERE {
         }
         {{ filters }}
       }
-      GROUP BY ?article_id
+      GROUP BY ?container
     }
   }
 }
