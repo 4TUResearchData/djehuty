@@ -2101,11 +2101,11 @@ class SparqlInterface:
         except IndexError:
             return None
 
-    def subcategories_for_category (self, category_id):
+    def subcategories_for_category (self, category_uuid):
         """Procedure to return the subcategories for a category."""
 
         query = self.__query_from_template ("subcategories_by_category", {
-            "category_id": category_id
+            "category_uri": rdf.uuid_to_uri (category_uuid, "category")
         })
 
         return self.__run_query (query, query, "category")
@@ -2126,7 +2126,7 @@ class SparqlInterface:
         categories = self.root_categories ()
         for index, _ in enumerate(categories):
             category      = categories[index]
-            subcategories = self.subcategories_for_category (category["id"])
+            subcategories = self.subcategories_for_category (category["uuid"])
             categories[index]["subcategories"] = subcategories
 
         return categories
