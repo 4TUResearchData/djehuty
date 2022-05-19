@@ -1,13 +1,14 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
 SELECT DISTINCT ?first_name      ?full_name       ?group_id
-                ?id              ?institution_id  ?is_active
+                ?uuid ?id        ?institution_id  ?is_active
                 ?is_public       ?job_title       ?last_name
                 ?orcid_id        ?url_name        ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?author            rdf:type                 sg:Author ;
-                       col:id                   ?id .
+    ?author            rdf:type                 sg:Author .
+    OPTIONAL { ?author col:id                   ?id . }
+
     {%- if item_uri is not none %}
     ?item_uri          rdf:type                 sg:{{prefix}} ;
                        col:authors              ?authors .
@@ -34,6 +35,8 @@ WHERE {
     OPTIONAL { ?author col:last_name            ?last_name . }
     OPTIONAL { ?author col:orcid_id             ?orcid_id . }
     OPTIONAL { ?author col:url_name             ?url_name . }
+
+    BIND(STRAFTER(STR(?author), "author:") AS ?uuid)
   }
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)
