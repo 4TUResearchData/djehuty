@@ -1284,6 +1284,17 @@ class SparqlInterface:
 
         return None
 
+    def delete_associations (self, container_uuid, account_id, predicate):
+        """Procedure to delete the list of PREDICATE of an article or collection."""
+
+        query = self.__query_from_template ("delete_associations", {
+            "container_uri": rdf.uuid_to_uri (container_uuid, "container"),
+            "predicate":     predicate,
+            "account_id":    account_id,
+        })
+
+        return self.__run_query(query)
+
     def delete_item_categories (self, item_id, account_id, category_id=None,
                                 item_type="article"):
         """Procedure to delete the categories of an article or collection."""
