@@ -1,0 +1,27 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?article  ?predicate            ?object .
+    ?list     col:index             ?list_index .
+    ?list     ?any                  ?list_item .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container rdf:type             sg:ArticleContainer ;
+               col:account_id       {{account_id}} ;
+               col:draft            ?article .
+
+    ?article   ?predicate           ?object ;
+               ?list_predicate      ?list .
+    OPTIONAL {
+      ?list      rdf:type             rdf:List ;
+                 col:index            ?list_index ;
+                 rdf:rest*/rdf:first  ?list_item .
+    }
+  }
+
+  FILTER (?container = <{{container_uri}}>)
+}
+{% endblock %}

@@ -1714,12 +1714,12 @@ class SparqlInterface:
 
         return result
 
-    def delete_article_version (self, article_version_id, account_id):
-        """Procedure to remove an article from the state graph."""
+    def delete_dataset_draft (self, container_uuid, account_id):
+        """Remove the draft article from a container in the state graph."""
 
-        query   = self.__query_from_template ("delete_article_version", {
+        query   = self.__query_from_template ("delete_dataset_draft", {
             "account_id":          account_id,
-            "article_version_id":  article_version_id
+            "container_uri":       rdf.uuid_to_uri (container_uuid, "container")
         })
 
         result = self.__run_query (query)
