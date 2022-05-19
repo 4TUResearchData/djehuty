@@ -1,12 +1,17 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?id ?parent_id ?title ?source_id ?taxonomy_id
+SELECT DISTINCT ?id ?uuid ?parent_id ?parent_uuid ?title ?source_id ?taxonomy_id
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?category         rdf:type                          sg:Category .
-    ?category         col:id                            ?id .
-    ?category         col:title                         ?title .
-    OPTIONAL { ?category  col:parent_id                 ?parent_id . }
+    ?category         rdf:type                          sg:Category ;
+                      col:id                            ?id ;
+                      col:title                         ?title .
+    OPTIONAL {
+      ?category  col:parent_id                 ?parent_id .
+      ?parent_category col:id                  ?parent_id .
+
+      BIND(STRAFTER(STR(?parent_category), "category:") AS ?parent_uuid)
+    }
     OPTIONAL { ?category  col:source_id                 ?source_id . }
     OPTIONAL { ?category  col:taxonomy_id               ?taxonomy_id . }
     {%- if item_uri is not none %}
@@ -22,6 +27,8 @@ WHERE {
     {%- endif %}
     {%- endif %}
     {%- endif %}
+
+    BIND(STRAFTER(STR(?category), "category:") AS ?uuid)
   }
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)
