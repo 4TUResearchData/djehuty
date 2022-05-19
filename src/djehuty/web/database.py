@@ -1216,7 +1216,7 @@ class SparqlInterface:
         if author_id is None:
             author_id = self.ids.next_id("author")
 
-        author_uri = rdf.ROW[f"author_{author_id}"]
+        author_uri = rdf.unique_node ("author")
 
         graph.add ((author_uri, RDF.type,      rdf.SG["Author"]))
         graph.add ((author_uri, rdf.COL["id"], Literal(author_id)))
@@ -1234,7 +1234,7 @@ class SparqlInterface:
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            return author_id
+            return rdf.uri_to_uuid (author_uri)
 
         return None
 
