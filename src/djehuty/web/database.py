@@ -1758,7 +1758,7 @@ class SparqlInterface:
             "group_id":        group_id,
             "license_remarks": license_remarks,
             "longitude":       longitude,
-            "modified_date":   datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S"),
+            "modified_date":   datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ"),
             "organizations":   organizations,
             "publisher":       publisher,
             "resource_doi":    resource_doi,
