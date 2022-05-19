@@ -225,8 +225,8 @@ class SparqlInterface:
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
-        filters  = rdf.sparql_filter ("article",        rdf.uuid_to_uri (dataset_uuid, "article"), is_uri=True)
-        filters  = rdf.sparql_filter ("institution_id", institution)
+        filters += rdf.sparql_filter ("article",        rdf.uuid_to_uri (dataset_uuid, "article"), is_uri=True)
+        filters += rdf.sparql_filter ("institution_id", institution)
         filters += rdf.sparql_filter ("defined_type",   item_type)
         filters += rdf.sparql_filter ("article_id",     dataset_id)
         filters += rdf.sparql_filter ("version",        version)
