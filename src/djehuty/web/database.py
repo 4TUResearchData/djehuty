@@ -1273,28 +1273,18 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def insert_timeline (self, revision=None, first_online=None,
+    def insert_timeline (self, graph, container_uri=None, item_uri=None,
+                         revision=None, first_online=None,
                          publisher_publication=None, publisher_acceptance=None,
                          posted=None, submission=None):
         """Procedure to add a timeline to the state graph."""
 
-        graph        = Graph()
-        timeline_id  = self.ids.next_id("timeline")
-        timeline_uri = rdf.ROW[f"timeline_{timeline_id}"]
-
-        graph.add ((timeline_uri, RDF.type,      rdf.SG["Timeline"]))
-        graph.add ((timeline_uri, rdf.COL["id"], Literal(timeline_id)))
-
-        rdf.add (graph, timeline_uri, rdf.COL["revision"],             revision,              XSD.string)
-        rdf.add (graph, timeline_uri, rdf.COL["firstOnline"],          first_online,          XSD.string)
-        rdf.add (graph, timeline_uri, rdf.COL["publisherPublication"], publisher_publication, XSD.string)
-        rdf.add (graph, timeline_uri, rdf.COL["publisherAcceptance"],  publisher_acceptance,  XSD.string)
-        rdf.add (graph, timeline_uri, rdf.COL["posted"],               posted,                XSD.string)
-        rdf.add (graph, timeline_uri, rdf.COL["submission"],           submission,            XSD.string)
-
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
-            return timeline_id
+        rdf.add (graph, item_uri, rdf.COL["revision"],             revision,     XSD.string)
+        rdf.add (graph, container_uri, rdf.COL["firstOnline"],     first_online, XSD.string)
+        rdf.add (graph, item_uri, rdf.COL["publisherPublication"], publisher_publication, XSD.string)
+        rdf.add (graph, item_uri, rdf.COL["publisherAcceptance"],  publisher_acceptance,  XSD.string)
+        rdf.add (graph, item_uri, rdf.COL["posted"],               posted,       XSD.string)
+        rdf.add (graph, item_uri, rdf.COL["submission"],           submission,   XSD.string)
 
         return None
 
