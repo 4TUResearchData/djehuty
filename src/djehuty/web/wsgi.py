@@ -638,7 +638,7 @@ class ApiServer:
         if self.accepts_html (request):
             account_id = self.account_id_from_request (request)
             if account_id is None:
-                return self.error_authorization_failed()
+                return self.error_authorization_failed(request)
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
@@ -676,7 +676,7 @@ class ApiServer:
         if self.accepts_html (request):
             account_id = self.account_id_from_request (request)
             if account_id is None:
-                return self.error_authorization_failed()
+                return self.error_authorization_failed(request)
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
@@ -696,7 +696,7 @@ class ApiServer:
         if self.accepts_html (request):
             account_id = self.account_id_from_request (request)
             if account_id is None:
-                return self.error_authorization_failed()
+                return self.error_authorization_failed(request)
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
@@ -735,7 +735,7 @@ class ApiServer:
         if self.accepts_html (request):
             account_id = self.account_id_from_request (request)
             if account_id is None:
-                return self.error_authorization_failed()
+                return self.error_authorization_failed(request)
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
@@ -769,7 +769,7 @@ class ApiServer:
         if self.accepts_html (request):
             account_id = self.account_id_from_request (request)
             if account_id is None:
-                return self.error_authorization_failed()
+                return self.error_authorization_failed(request)
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
@@ -795,7 +795,7 @@ class ApiServer:
         if self.accepts_html (request):
             account_id = self.account_id_from_request (request)
             if account_id is None:
-                return self.error_authorization_failed()
+                return self.error_authorization_failed(request)
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
@@ -837,7 +837,7 @@ class ApiServer:
         if self.accepts_html (request):
             account_id = self.account_id_from_request (request)
             if account_id is None:
-                return self.error_authorization_failed()
+                return self.error_authorization_failed(request)
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
@@ -859,7 +859,7 @@ class ApiServer:
         if self.accepts_html (request):
             account_id = self.account_id_from_request (request)
             if account_id is None:
-                return self.error_authorization_failed()
+                return self.error_authorization_failed(request)
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
@@ -897,7 +897,7 @@ class ApiServer:
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             if self.accepts_html (request):
@@ -929,7 +929,7 @@ class ApiServer:
         if self.accepts_html (request):
             account_id = self.account_id_from_request (request)
             if account_id is None:
-                return self.error_authorization_failed()
+                return self.error_authorization_failed(request)
 
             _, session_id = self.db.insert_session (account_id,
                                                     name     = "Untitled",
@@ -947,7 +947,7 @@ class ApiServer:
         if self.accepts_html (request):
             account_id = self.account_id_from_request (request)
             if account_id is None:
-                return self.error_authorization_failed()
+                return self.error_authorization_failed(request)
 
             response   = redirect (request.referrer, code=302)
             self.db.delete_session_by_id (account_id, session_id)
@@ -1280,7 +1280,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         ## Our API only contains data from 4TU.ResearchData.
         return self.response (json.dumps({
@@ -1297,7 +1297,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         account   = self.db.account_by_id (account_id)
         formatted = formatter.format_account_record(account)
@@ -1534,7 +1534,7 @@ class ApiServer:
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         parameters = request.get_json()
         file_id    = value_or_none (parameters, "file_id")
@@ -1587,7 +1587,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
@@ -1658,7 +1658,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             article    = self.db.articles (article_id  = article_id,
@@ -1781,9 +1781,9 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
 
         article_id = int(article_id)
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
@@ -1909,7 +1909,7 @@ class ApiServer:
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         try:
             article   = self.db.articles (article_id  = article_id,
@@ -1935,7 +1935,7 @@ class ApiServer:
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         try:
             collection   = self.db.collections (collection_id=collection_id, account_id=account_id)[0]
@@ -1958,7 +1958,7 @@ class ApiServer:
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         try:
             collection = self.db.collections(collection_id=collection_id, account_id=account_id, limit=1)[0]
@@ -1988,7 +1988,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
@@ -2058,7 +2058,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if self.db.delete_article_categories (article_id, account_id, category_id):
             return self.respond_204()
@@ -2073,7 +2073,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             article    = self.db.articles (article_id  = article_id,
@@ -2122,7 +2122,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
@@ -2210,7 +2210,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
@@ -2270,7 +2270,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             links = self.db.private_links (
@@ -2316,7 +2316,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             links = self.db.private_links (
@@ -2376,7 +2376,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         try:
             if not self.contains_json (request):
@@ -2568,7 +2568,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             ## Parameters
@@ -2665,7 +2665,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
@@ -2761,7 +2761,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         parameters = request.get_json()
         records = self.db.collections(
@@ -2795,7 +2795,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         collection_id = int(collection_id)
 
@@ -2924,7 +2924,7 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         try:
             collection = self.db.collections (collection_id = collection_id, account_id = account_id)[0]
@@ -2949,7 +2949,7 @@ class ApiServer:
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
@@ -3036,7 +3036,7 @@ class ApiServer:
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         try:
             parameters = request.get_json()
@@ -3216,7 +3216,7 @@ class ApiServer:
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         try:
             article = self.db.articles (article_id  = article_id,
@@ -3272,7 +3272,7 @@ class ApiServer:
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         metadata = self.db.file_by_id (file_id, account_id)
         if metadata is None:
@@ -3295,9 +3295,9 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
 
         article_id = int(article_id)
+            return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             references    = self.db.references (item_id    = article_id,
@@ -3508,7 +3508,7 @@ class ApiServer:
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         try:
             record = request.get_json()
@@ -3552,7 +3552,7 @@ class ApiServer:
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
-            return self.error_authorization_failed()
+            return self.error_authorization_failed(request)
 
         categories = self.db.account_categories (account_id)
         return self.default_list_response (categories, formatter.format_category_record)
