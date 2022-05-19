@@ -9,7 +9,7 @@ import logging
 from datetime import datetime
 from urllib.error import URLError, HTTPError
 from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
-from rdflib import Graph, Literal, RDF, XSD
+from rdflib import Graph, Literal, RDF, XSD, URIRef
 from jinja2 import Environment, FileSystemLoader
 from djehuty.web import cache
 from djehuty.utils import counters
@@ -819,6 +819,64 @@ class SparqlInterface:
             rdf.add (graph, uri, rdf.COL[f"{item_type}_id"], item_id, datatype=XSD.integer)
 
         return uri
+
+    def insert_record_list (self, graph, uri, records, name, insert_procedure):
+        """
+        Adds an RDF list with indexes for RECORDS to the graph using
+        INSERT_PROCEDURE.  The INSERT_PROCEDURE must take  a single item
+        from RECORDS, and it must return the URI used as subject to describe
+        the record.
+        """
+        if records:
+            blank_node = rdf.blank_node ()
+            graph.add ((uri, rdf.COL[name], blank_node))
+
+            previous_blank_node = None
+            for index, item in enumerate(records):
+                record_uri = insert_procedure (item)
+                graph.add ((blank_node, rdf.COL["index"], Literal (index, datatype=XSD.integer)))
+                graph.add ((blank_node, RDF.first,        record_uri))
+
+                if previous_blank_node is not None:
+                    graph.add ((previous_blank_node, RDF.rest, blank_node))
+                    graph.add ((previous_blank_node, RDF.type, RDF.List))
+
+                previous_blank_node = blank_node
+                blank_node = rdf.blank_node ()
+
+            del blank_node
+            graph.add ((previous_blank_node, RDF.rest, RDF.nil))
+            graph.add ((previous_blank_node, RDF.type, RDF.List))
+
+        return True
+
+    def insert_item_list (self, graph, uri, items, items_name):
+        """Adds an RDF list with indexes for ITEMS to GRAPH."""
+
+        if items:
+            blank_node = rdf.blank_node ()
+            graph.add ((uri, rdf.COL[items_name], blank_node))
+
+            previous_blank_node = None
+            for index, item in enumerate(items):
+                graph.add ((blank_node, rdf.COL["index"], Literal (index, datatype=XSD.integer)))
+                if isinstance (item, URIRef):
+                    graph.add ((blank_node, RDF.first,    item))
+                else:
+                    graph.add ((blank_node, RDF.first,    Literal (item, datatype=XSD.string)))
+
+                if previous_blank_node is not None:
+                    graph.add ((previous_blank_node, RDF.rest, blank_node))
+                    graph.add ((previous_blank_node, RDF.type, RDF.List))
+
+                previous_blank_node = blank_node
+                blank_node = rdf.blank_node ()
+
+            del blank_node
+            graph.add ((previous_blank_node, RDF.rest, RDF.nil))
+            graph.add ((previous_blank_node, RDF.type, RDF.List))
+
+        return True
 
     def insert_article (self, title,
                         account_id,
