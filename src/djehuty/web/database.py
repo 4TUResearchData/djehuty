@@ -394,7 +394,7 @@ class SparqlInterface:
                  is_public=None, job_title=None, last_name=None,
                  orcid_id=None, url_name=None, limit=10, order="order_index",
                  order_direction="asc", item_uri=None, search_for=None,
-                 account_id=None, item_type="article"):
+                 account_id=None, item_type="article", is_published=True):
         """Procedure to retrieve authors of an article."""
 
         prefix = item_type.capitalize()
@@ -420,6 +420,7 @@ class SparqlInterface:
         query = self.__query_from_template ("authors", {
             "item_type":   item_type,
             "prefix":      prefix,
+            "is_published": is_published,
             "item_uri":    item_uri,
             "account_id":  account_id,
             "filters":     filters
