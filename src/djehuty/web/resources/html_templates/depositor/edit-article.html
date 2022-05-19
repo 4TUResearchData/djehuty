@@ -217,7 +217,11 @@ jQuery(document).ready(function (){
 {% endblock %}
 {% block body %}
 <div class="article-content">
+{%- if article.title == "Untitled item" %}
+<h1>Create new dataset</h1>
+{%- else %}
 <h1>Edit dataset</h1>
+{%- endif %}
 <noscript>
   <p class="no-script">Sorry, this page requires JavaScript to work correctly.</p>
 </noscript>
