@@ -3,7 +3,7 @@
 {%- if return_count %}
 SELECT COUNT(DISTINCT ?article) AS ?articles
 {%- else %}
-SELECT DISTINCT ?account_id ?citation ?confidential_reason
+SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
                 ?created_date ?custom_fields_id ?defined_type ?defined_type_name
                 ?description ?doi ?embargo_date ?embargo_options_id
                 ?embargo_reason ?embargo_title ?embargo_type ?figshare_url
@@ -118,6 +118,8 @@ WHERE {
     OPTIONAL { ?article col:derived_from          ?derived_from . }
     OPTIONAL { ?article col:contributors          ?contributors . }
     OPTIONAL { ?article col:license_remarks       ?license_remarks . }
+
+    BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
   }
 {%- if collection_uri is not none %}
 FILTER (?collection = <{{collection_uri}}>)
