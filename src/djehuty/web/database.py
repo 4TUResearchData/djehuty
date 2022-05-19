@@ -1179,6 +1179,32 @@ class SparqlInterface:
 
         return None
 
+    def update_author_list (self, container_uuid, account_id, authors):
+        try:
+            graph   = Graph()
+            dataset = self.datasets (container_uuid = container_uuid,
+                                     is_published   = False,
+                                     account_id     = account_id)[0]
+
+            self.delete_associations (container_uuid, account_id, "authors")
+            if authors:
+                self.insert_item_list (graph,
+                                       URIRef(dataset["uri"]),
+                                       list(map (lambda author: URIRef(rdf.uuid_to_uri (author["uuid"], "author")),
+                                                 authors)),
+                                       "authors")
+
+                query = self.__insert_query_for_graph (graph)
+                if not self.__run_query (query):
+                    logging.error ("Category insert query failed for %s", container_uuid)
+
+            return True
+
+        except IndexError:
+            logging.error ("Could not insert article categories for %s", container_uuid)
+
+        return False
+
     def insert_author (self, author_id=None, is_active=None, first_name=None,
                        last_name=None, full_name=None, institution_id=None,
                        job_title=None, is_public=None, url_name=None,
