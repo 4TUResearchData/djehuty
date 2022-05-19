@@ -334,11 +334,15 @@ class ApiServer:
         response.status_code = 500
         return response
 
-    def error_authorization_failed (self):
-        response = self.response (json.dumps({
-            "message": "Invalid or unknown session token",
-            "code":    "InvalidSessionToken"
-        }))
+    def error_authorization_failed (self, request):
+        if self.accepts_html (request):
+            response = self.__render_template (request, "403.html")
+        else:
+            response = self.response (json.dumps({
+                "message": "Invalid or unknown session token",
+                "code":    "InvalidSessionToken"
+            }))
+
         response.status_code = 403
         return response
 
