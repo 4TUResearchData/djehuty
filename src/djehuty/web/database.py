@@ -773,6 +773,53 @@ class SparqlInterface:
     ## INSERT METHODS
     ## ------------------------------------------------------------------------
 
+    def record_uri (self, record_type, identifier_name, identifier):
+        """
+        Returns the URI for a record identified with IDENTIFIER_NAME and by
+        IDENTIFIER or None if no such URI can be found.
+        """
+        if identifier is None:
+            return None
+
+        if isinstance(identifier, str):
+            identifier = f"\"{identifier}\"^^xsd:string"
+
+        try:
+            query    = self.__query_from_template ("record_uri.sparql", {
+                "record_type": record_type,
+                "identifier_name": identifier_name,
+                "identifier": identifier
+            })
+            results = self.__run_query (query)
+            return results[0]["uri"]
+        except KeyError:
+            pass
+        except IndexError:
+            pass
+
+        return None
+
+    def container_uri (self, graph, item_id, item_type, account_id):
+        """Returns the URI of the container belonging to item with item_id."""
+
+        prefix     = item_type.capitalize()
+        item_class = f"{prefix}Container"
+        uri        = None
+        if conv.parses_to_int (item_id):
+            uri = self.record_uri (item_class, f"{item_type}_id", item_id)
+        else:
+            uri = item_id
+
+        if uri is None:
+            uri = rdf.unique_node ("container")
+            graph.add ((uri, RDF.type,                   rdf.SG[item_class]))
+            graph.add ((uri, rdf.COL["account_id"],      Literal(account_id, datatype=XSD.integer)))
+
+            ## The item_id is a left-over from the Figshare days.
+            rdf.add (graph, uri, rdf.COL[f"{item_type}_id"], item_id, datatype=XSD.integer)
+
+        return uri
+
     def insert_article (self, title,
                         account_id,
                         article_id=None,
