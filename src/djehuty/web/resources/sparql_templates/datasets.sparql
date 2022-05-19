@@ -9,7 +9,7 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
                 ?embargo_reason ?embargo_title ?embargo_type ?figshare_url
                 ?funding ?group_id ?has_linked_file ?article_id
                 ?institution_id ?is_active ?is_confidential ?is_embargoed
-                ?is_metadata_record ?license_name ?license_url
+                ?is_metadata_record ?license_id ?license_name ?license_url
                 ?metadata_reason ?modified_date ?published_date
                 ?resource_doi ?resource_title ?size ?status ?thumb
                 ?timeline_posted ?timeline_publisher_acceptance
@@ -66,6 +66,7 @@ WHERE {
     OPTIONAL {
       ?article              col:license          ?license_url .
       ?license_url          rdf:type             sg:License .
+      ?license_url          col:id               ?license_id .
       ?license_url          col:name             ?license_name .
     }
 
