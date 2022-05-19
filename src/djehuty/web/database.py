@@ -625,8 +625,7 @@ class SparqlInterface:
         """Procedure to get a list of allowed licenses."""
 
         query = self.__query_from_template ("licenses")
-
-        return self.__run_query(query)
+        return self.__run_query (query, query, "licenses")
 
     def latest_articles_portal (self, page_size=30):
         """Procedure to get the latest articles."""
