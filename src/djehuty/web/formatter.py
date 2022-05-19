@@ -48,6 +48,7 @@ def format_author_record (record):
     """Record formatter for authors."""
     return {
       "id":        conv.value_or_none(record, "id"),
+      "uuid":      conv.value_or_none(record, "uuid"),
       "full_name": conv.value_or_none(record, "full_name"),
       "is_active": bool(conv.value_or_none(record, "is_active")),
       "url_name":  conv.value_or_none(record, "url_name"),
@@ -61,6 +62,7 @@ def format_author_details_record (record):
       "full_name":      conv.value_or_none(record, "full_name"),
       "group_id":       conv.value_or_none(record, "group_id"),
       "id":             conv.value_or_none(record, "id"),
+      "uuid":           conv.value_or_none(record, "uuid"),
       "institution_id": conv.value_or_none(record, "institution_id"),
       "is_active":      bool(conv.value_or_none(record, "is_active")),
       "is_public":      bool(conv.value_or_none(record, "is_public")),
@@ -110,8 +112,10 @@ def format_category_record (record):
     """Record formatter for categories."""
     return {
         "id":          conv.value_or_none(record, "id"),
+        "uuid":        conv.value_or_none(record, "uuid"),
         "title":       conv.value_or_none(record, "title"),
         "parent_id":   conv.value_or_none(record, "parent_id"),
+        "parent_uuid": conv.value_or_none(record, "parent_uuid"),
         "path":        conv.value_or(record, "path", ""),
         "source_id":   conv.value_or_none(record, "source_id"),
         "taxonomy_id": conv.value_or_none(record, "taxonomy_id"),
