@@ -4,6 +4,7 @@ This module describes the API calls to create an article.
 
 import unittest
 import requests
+import os
 import json
 from djehuty.utils import convenience as conv
 
