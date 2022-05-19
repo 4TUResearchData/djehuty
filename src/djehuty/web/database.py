@@ -7,7 +7,7 @@ import secrets
 import os.path
 import logging
 from datetime import datetime
-from urllib.error import URLError
+from urllib.error import URLError, HTTPError
 from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
 from rdflib import Graph, Literal, RDF, XSD
 from jinja2 import Environment, FileSystemLoader
@@ -143,13 +143,22 @@ class SparqlInterface:
             if self.sparql_is_up:
                 logging.error("Connection to the SPARQL endpoint seems down.")
                 self.sparql_is_up = False
+                return []
+        except HTTPError as error:
+            logging.error("SPARQL endpoint returned %d:\n---\n%s\n---",
+                          error.code, error.message)
+            return []
         except SPARQLExceptions.QueryBadFormed:
             logging.error("Badly formed SPARQL query:")
             self.__log_query (query)
+        except SPARQLExceptions.EndPointInternalError as error:
+            logging.error("SPARQL internal error: %s", error)
+            return []
         except Exception as error:
             logging.error("SPARQL query failed.")
             logging.error("Exception: %s", error)
             self.__log_query (query)
+            return []
 
         return results
 
