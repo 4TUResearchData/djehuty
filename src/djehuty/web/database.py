@@ -875,10 +875,10 @@ class SparqlInterface:
 
         return True
 
-    def insert_article (self, title,
+    def insert_dataset (self,
+                        title,
                         account_id,
-                        article_id=None,
-                        article_version_id=None,
+                        container_uuid=None,
                         description=None,
                         keywords=None,
                         defined_type=None,
@@ -916,19 +916,16 @@ class SparqlInterface:
         files           = [] if files           is None else files
         embargo_options = [] if embargo_options is None else embargo_options
 
-        graph = Graph()
-
-        if article_version_id is None:
-            article_version_id = self.ids.next_id("article")
-
-        if article_id is None:
-            article_id = article_version_id
-
-        article_uri = rdf.ROW[f"article_{article_version_id}"]
+        graph           = Graph()
+        uri             = rdf.unique_node ("article")
+        container       = self.container_uri (graph, None, "article", account_id)
 
         ## TIMELINE
         ## --------------------------------------------------------------------
-        timeline_id = self.insert_timeline (
+        self.insert_timeline (
+            graph                 = graph,
+            container_uri         = container,
+            item_uri              = uri,
             revision              = revision,
             first_online          = first_online,
             publisher_publication = publisher_publication,
@@ -937,34 +934,17 @@ class SparqlInterface:
             submission            = submission
         )
 
-        rdf.add (graph, article_uri, rdf.COL["timeline_id"], timeline_id)
+        self.insert_item_list   (graph, uri, references, "references")
+        self.insert_item_list   (graph, uri, tags, "tags")
+        self.insert_record_list (graph, uri, categories, "categories", self.insert_category)
+        self.insert_record_list (graph, uri, authors, "authors", self.insert_author)
+        self.insert_record_list (graph, uri, files, "files", self.insert_file)
+        self.insert_record_list (graph, uri, funding_list, "funding_list", self.insert_funding)
+        self.insert_record_list (graph, uri, private_links, "private_links", self.insert_private_link)
+        self.insert_record_list (graph, uri, embargo_options, "embargos", self.insert_embargo)
 
-        ## REFERENCES
-        ## --------------------------------------------------------------------
-        for url in references:
-            self.insert_reference (url, item_id=article_version_id, item_type="article")
-
-        ## TAGS
-        ## --------------------------------------------------------------------
-        for tag in tags:
-            self.insert_tag (tag, item_id=article_version_id, item_type="article")
-
-        ## FUNDING
-        ## --------------------------------------------------------------------
-        for fund in funding_list:
-            self.insert_funding (
-                title           = conv.value_or_none (fund, "title"),
-                grant_code      = conv.value_or_none (fund, "grant_code"),
-                funder_name     = conv.value_or_none (fund, "funder_name"),
-                is_user_defined = conv.value_or_none (fund, "is_user_defined"),
-                url             = conv.value_or_none (fund, "url"),
-                item_id         = article_version_id,
-                item_type       = "article")
-
-        ## CATEGORIES
-        ## --------------------------------------------------------------------
-        for category_id in categories:
-            self.insert_article_category (article_version_id, category_id)
+        for field in custom_fields:
+            self.insert_custom_field (uri, field)
 
         ## EMBARGOS
         ## --------------------------------------------------------------------
@@ -974,41 +954,6 @@ class SparqlInterface:
                 article_version_id = article_version_id,
                 embargo_type       = conv.value_or_none (embargo, "type"),
                 ip_name            = conv.value_or_none (embargo, "ip_name"))
-
-        ## AUTHORS
-        ## --------------------------------------------------------------------
-        for author in authors:
-            author_id = self.insert_author (
-                author_id      = conv.value_or_none (author, "id"),
-                is_active      = conv.value_or_none (author, "is_active"),
-                first_name     = conv.value_or_none (author, "first_name"),
-                last_name      = conv.value_or_none (author, "last_name"),
-                full_name      = conv.value_or_none (author, "full_name"),
-                institution_id = conv.value_or_none (author, "institution_id"),
-                job_title      = conv.value_or_none (author, "job_title"),
-                is_public      = conv.value_or_none (author, "is_public"),
-                url_name       = conv.value_or_none (author, "url_name"),
-                orcid_id       = conv.value_or_none (author, "orcid_id"))
-            self.insert_article_author (article_version_id, author_id)
-
-        ## FILES
-        ## --------------------------------------------------------------------
-        for file_data in files:
-            self.insert_file (
-                file_id       = conv.value_or_none (file_data, "id"),
-                name          = conv.value_or_none (file_data, "name"),
-                size          = conv.value_or_none (file_data, "size"),
-                is_link_only  = conv.value_or_none (file_data, "is_link_only"),
-                download_url  = conv.value_or_none (file_data, "download_url"),
-                supplied_md5  = conv.value_or_none (file_data, "supplied_md5"),
-                computed_md5  = conv.value_or_none (file_data, "computed_md5"),
-                viewer_type   = conv.value_or_none (file_data, "viewer_type"),
-                preview_state = conv.value_or_none (file_data, "preview_state"),
-                status        = conv.value_or_none (file_data, "status"),
-                upload_url    = conv.value_or_none (file_data, "upload_url"),
-                upload_token  = conv.value_or_none (file_data, "upload_token"),
-                article_version_id = article_version_id,
-                account_id    = account_id)
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
@@ -1026,49 +971,41 @@ class SparqlInterface:
                 item_id       = article_id,
                 item_type     = "article")
 
-        ## PRIVATE LINKS
-        ## --------------------------------------------------------------------
-        for link in private_links:
-            self.insert_private_link (
-                item_id          = article_version_id,
-                item_type        = "article",
-                private_link_id  = conv.value_or_none (link, "id"),
-                is_active        = conv.value_or_none (link, "is_active"),
-                expires_date     = conv.value_or_none (link, "expires_date"))
-
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
 
-        graph.add ((article_uri, RDF.type,         rdf.SG["Article"]))
-        graph.add ((article_uri, rdf.COL["article_version_id"], Literal(article_version_id)))
-        graph.add ((article_uri, rdf.COL["article_id"], Literal(article_id)))
-        graph.add ((article_uri, rdf.COL["title"], Literal(title, datatype=XSD.string)))
+        graph.add ((uri, RDF.type,                      rdf.SG["Article"]))
+        graph.add ((uri, rdf.COL["title"],              Literal(title, datatype=XSD.string)))
 
-        rdf.add (graph, article_uri, rdf.COL["account_id"],     account_id)
-        rdf.add (graph, article_uri, rdf.COL["description"],    description,    XSD.string)
-        rdf.add (graph, article_uri, rdf.COL["defined_type"],   defined_type,   XSD.string)
-        rdf.add (graph, article_uri, rdf.COL["funding"],        funding,        XSD.string)
-        rdf.add (graph, article_uri, rdf.COL["license_id"],     license_id)
-        rdf.add (graph, article_uri, rdf.COL["doi"],            doi,            XSD.string)
-        rdf.add (graph, article_uri, rdf.COL["handle"],         handle,         XSD.string)
-        rdf.add (graph, article_uri, rdf.COL["resource_doi"],   resource_doi,   XSD.string)
-        rdf.add (graph, article_uri, rdf.COL["resource_title"], resource_title, XSD.string)
-        rdf.add (graph, article_uri, rdf.COL["group_id"],       group_id)
+        rdf.add (graph, uri, rdf.COL["description"],    description,    XSD.string)
+        rdf.add (graph, uri, rdf.COL["defined_type"],   defined_type,   XSD.string)
+        rdf.add (graph, uri, rdf.COL["funding"],        funding,        XSD.string)
+        rdf.add (graph, uri, rdf.COL["license_id"],     license_id)
+        rdf.add (graph, uri, rdf.COL["doi"],            doi,            XSD.string)
+        rdf.add (graph, uri, rdf.COL["handle"],         handle,         XSD.string)
+        rdf.add (graph, uri, rdf.COL["resource_doi"],   resource_doi,   XSD.string)
+        rdf.add (graph, uri, rdf.COL["resource_title"], resource_title, XSD.string)
+        rdf.add (graph, uri, rdf.COL["group_id"],       group_id)
 
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
-        rdf.add (graph, article_uri, rdf.COL["created_date"],   current_time, XSD.string)
-        rdf.add (graph, article_uri, rdf.COL["modified_date"],  current_time, XSD.string)
-        rdf.add (graph, article_uri, rdf.COL["published_date"], "NULL", XSD.string)
-        rdf.add (graph, article_uri, rdf.COL["is_public"],      0)
-        rdf.add (graph, article_uri, rdf.COL["is_active"],      1)
-        rdf.add (graph, article_uri, rdf.COL["is_latest"],      0)
-        rdf.add (graph, article_uri, rdf.COL["is_editable"],    1)
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        rdf.add (graph, uri, rdf.COL["created_date"],   current_time, XSD.dateTime)
+        rdf.add (graph, uri, rdf.COL["modified_date"],  current_time, XSD.dateTime)
+        rdf.add (graph, uri, rdf.COL["published_date"], "NULL", XSD.string)
+        rdf.add (graph, uri, rdf.COL["is_public"],      0)
+        rdf.add (graph, uri, rdf.COL["is_active"],      1)
+        rdf.add (graph, uri, rdf.COL["is_latest"],      0)
+        rdf.add (graph, uri, rdf.COL["is_editable"],    1)
+
+        # Add the dataset to its container.
+        graph.add ((container, rdf.COL["draft"],       uri))
+        graph.add ((container, rdf.COL["account_id"],  Literal(account_id, datatype=XSD.integer)))
 
         query = self.__insert_query_for_graph (graph)
+        container_uuid = rdf.uri_to_uuid (container)
         if self.__run_query(query):
-            logging.info ("Inserted article %d", article_id)
-            self.cache.invalidate_by_prefix ("article")
-            return article_id
+            logging.info ("Inserted article %s", container_uuid)
+            self.cache.invalidate_by_prefix (f"datasets_{account_id}")
+            return container_uuid
 
         return None
 
