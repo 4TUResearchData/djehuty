@@ -1235,7 +1235,7 @@ class ApiServer:
             group         = self.db.group_by_name (group_name)
             sub_groups    = self.db.group_by_name (group_name, startswith=True)
             sub_group_ids = [item['group_id'] for item in sub_groups]
-            articles      = self.db.articles (group_ids=sub_group_ids, is_public=True, limit=100)
+            articles      = self.db.datasets (groups=sub_group_ids, is_published=True, limit=100)
 
             return self.__render_template (request, "institutions.html",
                                            articles=articles,
