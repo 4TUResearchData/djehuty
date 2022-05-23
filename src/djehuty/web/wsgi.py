@@ -1911,16 +1911,28 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         try:
-            article   = self.db.articles (article_id  = article_id,
-                                          account_id  = account_id,
-                                          is_editable = 1,
-                                          is_public   = 0)[0]
-            article_version_id = article["article_version_id"]
+            article   = self.__dataset_by_id_or_uri (article_id,
+                                                     account_id   = account_id,
+                                                     is_published = False)
 
-            result = self.db.delete_authors_for_article (article_version_id, account_id, author_id)
-            if result is not None:
+            authors = self.db.authors (item_uri     = article["uri"],
+                                       account_id   = account_id,
+                                       is_published = False,
+                                       item_type    = "article",
+                                       limit        = 10000)
+
+            if parses_to_int (author_id):
+                authors.remove (next (filter (lambda item: item['id'] == author_id, authors)))
+            else:
+                authors.remove (next (filter (lambda item: item['uuid'] == author_id, authors)))
+
+            if self.db.update_item_list (uri_to_uuid (article["container_uri"]),
+                                         account_id,
+                                         authors,
+                                         "authors"):
                 return self.respond_204()
-
+            else:
+                return self.error_500()
         except IndexError:
             return self.error_500 ()
         except KeyError:
