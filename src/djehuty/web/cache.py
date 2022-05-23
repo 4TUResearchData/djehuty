@@ -84,7 +84,9 @@ class CacheLayer:
 
     def invalidate_all (self):
         """Procedure to remove all cache items."""
-        for file_path in glob.glob(f"{self.storage}/*"):
+        files = glob.glob(f"{self.storage}/*[!.sparql]")
+        logging.info("Removing %d files.", len(files))
+        for file_path in files:
             try:
                 os.remove(file_path)
             except FileNotFoundError:
