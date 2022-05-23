@@ -385,6 +385,49 @@ class ApiServer:
         except IndexError:
             return None
 
+    def __default_dataset_api_parameters (self, request):
+
+        record = {}
+        record["order"]           = self.get_parameter (request, "order")
+        record["order_direction"] = self.get_parameter (request, "order_direction")
+        record["institution"]     = self.get_parameter (request, "institution")
+        record["published_since"] = self.get_parameter (request, "published_since")
+        record["modified_since"]  = self.get_parameter (request, "modified_since")
+        record["group"]           = self.get_parameter (request, "group")
+        record["resource_doi"]    = self.get_parameter (request, "resource_doi")
+        record["item_type"]       = self.get_parameter (request, "item_type")
+        record["doi"]             = self.get_parameter (request, "doi")
+        record["handle"]          = self.get_parameter (request, "handle")
+        record["search_for"]      = self.get_parameter (request, "search_for")
+
+        offset, limit = validator.paging_to_offset_and_limit ({
+                "page":      self.get_parameter (request, "page"),
+                "page_size": self.get_parameter (request, "page_size"),
+                "limit":     self.get_parameter (request, "limit"),
+                "offset":    self.get_parameter (request, "offset")
+            })
+
+        record["offset"] = offset
+        record["limit"]  = limit
+
+        validator.string_value  (record, "order", 0, 32)
+        validator.order_direction (record["order_direction"])
+        validator.integer_value (record, "institution")
+        validator.string_value  (record, "published_since", maximum_length=32)
+        validator.string_value  (record, "modified_since",  maximum_length=32)
+        validator.integer_value (record, "group")
+        validator.string_value  (record, "resource_doi",    maximum_length=255)
+        validator.integer_value (record, "item_type")
+        validator.string_value  (record, "doi",             maximum_length=255)
+        validator.string_value  (record, "handle",          maximum_length=255)
+        validator.string_value  (record, "search_for",      maximum_length=1024)
+
+        # Rewrite the group parameter to match the database's plural form.
+        record["groups"]  = [record["group"]] if record["group"] is not None else None
+        del record["group"]
+
+        return record
+
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
 
@@ -1309,43 +1352,9 @@ class ApiServer:
 
         ## Parameters
         ## ----------------------------------------------------------------
-        order           = self.get_parameter (request, "order")
-        order_direction = self.get_parameter (request, "order_direction")
-        institution     = self.get_parameter (request, "institution")
-        published_since = self.get_parameter (request, "published_since")
-        modified_since  = self.get_parameter (request, "modified_since")
-        group           = self.get_parameter (request, "group")
-        resource_doi    = self.get_parameter (request, "resource_doi")
-        item_type       = self.get_parameter (request, "item_type")
-        doi             = self.get_parameter (request, "doi")
-        handle          = self.get_parameter (request, "handle")
-
         try:
-            offset, limit = validator.paging_to_offset_and_limit ({
-                "page":      self.get_parameter (request, "page"),
-                "page_size": self.get_parameter (request, "page_size"),
-                "limit":     self.get_parameter (request, "limit"),
-                "offset":    self.get_parameter (request, "offset")
-            })
-            validator.order_direction (order_direction)
-            validator.institution (institution)
-            validator.group (group)
-
-            records = self.db.articles (limit=limit,
-                                        offset=offset,
-                                        order=order,
-                                        order_direction=order_direction,
-                                        institution=institution,
-                                        published_since=published_since,
-                                        modified_since=modified_since,
-                                        group=group,
-                                        resource_doi=resource_doi,
-                                        item_type=item_type,
-                                        doi=doi,
-                                        handle=handle,
-                                        is_latest = 1,
-                                        is_editable = 0)
-
+            record  = self.__default_dataset_api_parameters (request)
+            records = self.db.datasets (**record, is_latest = 1)
             return self.default_list_response (records, formatter.format_article_record)
 
         except validator.ValidationException as error:
@@ -1358,24 +1367,12 @@ class ApiServer:
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
-        parameters = request.get_json()
-        records = self.db.articles(
-            limit           = value_or_none (parameters, "limit"),
-            offset          = value_or_none (parameters, "offset"),
-            order           = value_or_none (parameters, "order"),
-            order_direction = value_or_none (parameters, "order_direction"),
-            institution     = value_or_none (parameters, "institution"),
-            published_since = value_or_none (parameters, "published_since"),
-            modified_since  = value_or_none (parameters, "modified_since"),
-            group           = value_or_none (parameters, "group"),
-            resource_doi    = value_or_none (parameters, "resource_doi"),
-            item_type       = value_or_none (parameters, "item_type"),
-            doi             = value_or_none (parameters, "doi"),
-            handle          = value_or_none (parameters, "handle"),
-            search_for      = value_or_none (parameters, "search_for")
-        )
-
-        return self.default_list_response (records, formatter.format_article_record)
+        try:
+            record  = self.__default_dataset_api_parameters (request.get_json())
+            records = self.db.datasets (**record)
+            return self.default_list_response (records, formatter.format_article_record)
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
 
     def api_licenses (self, request):
         handler = self.default_error_handling (request, "GET")
