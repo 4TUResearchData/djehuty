@@ -2003,14 +2003,13 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                article = self.db.articles (article_id  = article_id,
-                                            account_id  = account_id,
-                                            is_editable = 1,
-                                            is_public   = 0)[0]
-                article_version_id = article["article_version_id"]
+                article       = self.__dataset_by_id_or_uri (article_id,
+                                                             account_id=account_id,
+                                                             is_published=False)
 
-                categories    = self.db.categories (item_id    = article_version_id,
+                categories    = self.db.categories (item_uri   = article["uri"],
                                                     account_id = account_id,
+                                                    is_published = False,
                                                     item_type  = "article")
 
                 return self.default_list_response (categories, formatter.format_category_record)
