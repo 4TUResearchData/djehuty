@@ -3,22 +3,16 @@
 SELECT DISTINCT ?article_id (SUM(?{{item_type}}) / COUNT(?version)) AS ?{{item_type}} ?title ?figshare_url
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article        rdf:type            sg:Article .
-    ?article        col:title           ?title .
-    ?article        col:article_id      ?article_id .
-    ?article        col:article_version_id ?article_version_id .
-    ?article        col:version         ?version .
-    ?article        col:figshare_url    ?figshare_url .
-    ?article        col:published_date  ?published_date .
-    OPTIONAL { ?article        col:group_id        ?group_id . }
+    ?container      rdf:type                     sg:ArticleContainer .
+    ?container      col:article_id               ?article_id .
+    ?container      col:total_{{item_type}}      ?{{item_type}} .
+    ?container      col:latest_published_version ?article .
 
-    ?category_link  rdf:type            sg:ArticleCategory .
-    ?category_link  col:category_id     ?category_id .
-    ?category_link  col:article_version_id ?article_version_id .
-
-    ?stats          rdf:type            sg:ArticleTotals .
-    ?stats          col:article_id      ?article_id .
-    ?stats          col:{{item_type}}   ?{{item_type}} .
+    ?article        col:title                    ?title .
+    ?article        col:version                  ?version .
+    ?article        col:figshare_url             ?figshare_url .
+    ?article        col:published_date           ?published_date .
+    OPTIONAL { ?article      col:group_id        ?group_id . }
   }
 FILTER (STR(?published_date) != "NULL")
 {% if filters is not none %}{{ filters }}{% endif %}
