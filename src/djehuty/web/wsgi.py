@@ -22,7 +22,7 @@ from djehuty.utils.convenience import pretty_print_size, decimal_coords
 from djehuty.utils.convenience import value_or, value_or_none
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
 from djehuty.utils.constants import group_to_member, member_url_names
-from djehuty.utils.rdf import uuid_to_uri
+from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid
 
 
 class ApiServer:
@@ -784,17 +784,12 @@ class ApiServer:
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
                 try:
-                    article = self.db.articles (article_id  = article_id,
-                                                account_id  = account_id,
-                                                is_editable = 1,
-                                                is_public   = 0)[0]
-                    article_version_id = article["article_version_id"]
+                    dataset     = self.__dataset_by_id_or_uri (article_id,
+                                                               account_id=account_id,
+                                                               is_published=False)
 
-                    result = self.db.delete_article_version (
-                        article_version_id = article_version_id,
-                        account_id = account_id)
-
-                    if result is not None:
+                    container_uuid = uri_to_uuid (dataset["container_uri"])
+                    if self.db.delete_dataset_draft (container_uuid, account_id):
                         return redirect ("/my/datasets", code=303)
 
                     return self.error_404 (request)
