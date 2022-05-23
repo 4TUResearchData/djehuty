@@ -723,7 +723,7 @@ class ApiServer:
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
-                article_id = self.db.insert_article(title = "Untitled item",
+                article_id = self.db.insert_dataset(title = "Untitled item",
                                                     account_id = account_id)
                 if article_id is not None:
                     return redirect (f"/my/datasets/{article_id}/edit", code=302)
