@@ -1772,26 +1772,26 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-
-        article_id = int(article_id)
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
-                article = self.db.articles (article_id  = article_id,
-                                            account_id  = account_id,
-                                            is_editable = 1,
-                                            is_public   = 0)[0]
-                article_version_id = article["article_version_id"]
+                article = self.__dataset_by_id_or_uri (article_id,
+                                                       account_id=account_id,
+                                                       is_published=False)
 
-                authors    = self.db.authors(item_id    = article_version_id,
-                                             account_id = account_id,
-                                             item_type  = "article")
+                authors = self.db.authors (item_uri   = article["uri"],
+                                           account_id = account_id,
+                                           is_published = False,
+                                           item_type  = "article",
+                                           limit      = 10000)
 
                 return self.default_list_response (authors, formatter.format_author_record)
             except IndexError:
                 pass
             except KeyError:
+                pass
+            except TypeError:
                 pass
 
             return self.error_500 ()
@@ -1802,7 +1802,7 @@ class ApiServer:
                 records = parameters["authors"]
                 author_ids = []
                 for record in records:
-                    author_id = self.db.insert_author (
+                    author_uuid = self.db.insert_author (
                         author_id  = validator.integer_value (record, "id",         0, pow(2, 63), False),
                         full_name  = validator.string_value  (record, "name",       0, 255,        False),
                         first_name = validator.string_value  (record, "first_name", 0, 255,        False),
@@ -1812,11 +1812,11 @@ class ApiServer:
                         job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
                         is_active  = False,
                         is_public  = True)
-                    if author_id is None:
+                    if author_uuid is None:
                         logging.error("Adding a single author failed.")
                         return self.error_500()
 
-                    author_ids.append(author_id)
+                    author_ids.append(author_uuid)
 
                 article = self.db.articles(article_id  = article_id,
                                            account_id  = account_id,
@@ -1853,9 +1853,9 @@ class ApiServer:
                     # id, name, first_name, last_name, email, orcid_id, job_title.
                     #
                     # We assume values for is_active and is_public.
-                    author_id  = validator.integer_value (record, "id", 0, pow(2, 63), False)
-                    if author_id is None:
-                        author_id = self.db.insert_author (
+                    author_uuid  = validator.string_value (record, "uuid", 0, 36, False)
+                    if author_uuid is None:
+                        author_uuid = self.db.insert_author (
                             full_name  = validator.string_value  (record, "name",       0, 255,        False),
                             first_name = validator.string_value  (record, "first_name", 0, 255,        False),
                             last_name  = validator.string_value  (record, "last_name",  0, 255,        False),
@@ -1864,17 +1864,25 @@ class ApiServer:
                             job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
                             is_active  = False,
                             is_public  = True)
-                        if author_id is None:
+                        if author_uuid is None:
                             logging.error("Adding a single author failed.")
                             return self.error_500()
 
-                    article = self.db.articles(article_id  = article_id,
-                                               account_id  = account_id,
-                                               is_editable = 1,
-                                               is_public   = 0)[0]
-                    article_version_id = article["article_version_id"]
+                    article = self.__dataset_by_id_or_uri (article_id,
+                                                           account_id=account_id,
+                                                           is_published=False)
 
-                    if self.db.insert_article_author (article_version_id, author_id) is None:
+                    authors = self.db.authors (item_uri     = article["uri"],
+                                               account_id   = account_id,
+                                               item_type    = "article",
+                                               is_published = False,
+                                               limit        = 10000)
+
+                    authors.append ({ "uuid": author_uuid })
+                    if not self.db.update_item_list (uri_to_uuid (article["container_uri"]),
+                                                     account_id,
+                                                     authors,
+                                                     "authors"):
                         logging.error("Adding a single author failed.")
                         return self.error_500()
 
