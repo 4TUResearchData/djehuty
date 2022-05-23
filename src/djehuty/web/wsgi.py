@@ -744,10 +744,10 @@ class ApiServer:
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
                 try:
-                    article = self.db.articles (article_id  = article_id,
-                                                account_id  = account_id,
-                                                is_editable = 1,
-                                                is_public   = 0)[0]
+                    article = self.__dataset_by_id_or_uri (article_id,
+                                                           is_published = False,
+                                                           account_id   = account_id)
+
                     categories = self.db.categories_tree ()
 
                     # The parent_id was pre-determined by Figshare.
@@ -762,6 +762,7 @@ class ApiServer:
 
                     return self.__render_template (request,
                                                    "depositor/edit-article.html",
+                                                   container_uuid = uri_to_uuid (article["container_uri"]),
                                                    article    = article,
                                                    categories = categories,
                                                    groups     = groups)

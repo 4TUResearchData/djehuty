@@ -1,21 +1,21 @@
 function render_in_form (text) { return [text].join(''); }
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 
-function delete_article (article_id) {
+function delete_article (article_uuid) {
     event.preventDefault();
     event.stopPropagation();
     if (confirm("Deleting this draft article is unrecoverable. "+
                 "Do you want to continue?"))
     {
         var jqxhr = jQuery.ajax({
-            url:         `/v2/account/articles/${article_id}`,
+            url:         `/v2/account/articles/${article_uuid}`,
             type:        "DELETE",
         }).done(function () { window.location.pathname = '/my/datasets' })
           .fail(function () { console.log("Failed to retrieve licenses."); });
     }
 }
 
-function save_article (article_id) {
+function save_article (article_uuid) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -57,7 +57,7 @@ function save_article (article_id) {
     }
     
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_id}`,
+        url:         `/v2/account/articles/${article_uuid}`,
         type:        "PUT",
         contentType: "application/json",
         accept:      "application/json",
@@ -78,7 +78,10 @@ function save_article (article_id) {
 }
 
 function render_licenses (article) {
-    chosen_license = article.license.value;
+    chosen_license = null;
+    try { chosen_license = article.license.value; }
+    catch (TypeError) {}
+
     var jqxhr = jQuery.ajax({
         url:         "/v2/licenses",
         type:        "GET",
@@ -95,30 +98,26 @@ function render_licenses (article) {
     });
 }
 
-function render_categories_for_article (article_id) {
+function render_categories_for_article (article_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_id}/categories`,
+        url:         `/v2/account/articles/${article_uuid}/categories`,
         data:        { "limit": 10000 },
         type:        "GET",
         accept:      "application/json",
     }).done(function (categories) {
         for (category of categories) {
-            jQuery(`#category_${category["id"]}`).prop("checked", true);
-            jQuery(`#subcategories_${category["parent_id"]}`).show();
-        }
-        for (category_id of root_categories) {
-            if (jQuery(`#category_${category_id}`).prop("checked")) {
-                jQuery(`#subcategories_${category_id}`).show();
-            }
+            jQuery(`#category_${category["uuid"]}`).prop("checked", true);
+            jQuery(`#category_${category["parent_uuid"]}`).prop("checked", true);
+            jQuery(`#subcategories_${category["parent_uuid"]}`).show();
         }
     }).fail(function () {
         console.log("Failed to retrieve article categories.");
     });
 }
 
-function render_references_for_article (article_id) {
+function render_references_for_article (article_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v3/articles/${article_id}/references`,
+        url:         `/v3/articles/${article_uuid}/references`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
@@ -128,7 +127,7 @@ function render_references_for_article (article_id) {
             row = `<tr><td><a target="_blank" href="${encodeURI(url)}">`;
             row += `${url}</a></td><td><a href="#" `;
             row += `onclick="javascript:remove_reference('${encodeURI(url)}', `;
-            row += `${article_id}); return false;" class="fas fa-trash-can" `;
+            row += `'${article_uuid}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
             jQuery("#references-list tbody").append(row);
         }
@@ -138,9 +137,9 @@ function render_references_for_article (article_id) {
     });
 }
 
-function render_authors_for_article (article_id) {
+function render_authors_for_article (article_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_id}/authors`,
+        url:         `/v2/account/articles/${article_uuid}/authors`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
@@ -152,8 +151,8 @@ function render_authors_for_article (article_id) {
                 row += ` (${author.orcid_id})`;
             }
             row += `</a></td><td><a href="#" `;
-            row += `onclick="javascript:remove_author(${author.id}, `;
-            row += `${article_id}); return false;" class="fas fa-trash-can" `;
+            row += `onclick="javascript:remove_author('${author.uuid}', `;
+            row += `'${article_uuid}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
             jQuery("#authors-list tbody").append(row);
         }
@@ -163,9 +162,9 @@ function render_authors_for_article (article_id) {
     });
 }
 
-function render_files_for_article (article_id) {
+function render_files_for_article (article_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_id}/files`,
+        url:         `/v2/account/articles/${article_uuid}/files`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
@@ -182,7 +181,7 @@ function render_files_for_article (article_id) {
                 html = `<tr><td><a href="${file.download_url}">${file.name}</a> (${prettify_size(file.size)})</td>`;
                 html += `<td>${render_in_form(file["computed_md5"])}</td>`;
                 html += `<td><a href="#" onclick="javascript:remove_file(${file.id},`;
-                html += ` ${article_id}); return false;" class="fas fa-trash-can" `;
+                html += ` '${article_uuid}'); return false;" class="fas fa-trash-can" `;
                 html += `title="Remove"></a></td></tr>`;
                 jQuery("#files tbody").append(html);
             }
@@ -197,28 +196,28 @@ function render_files_for_article (article_id) {
     });
 }
 
-function add_author (author_id, article_id) {
+function add_author (author_uuid, article_uuid) {
     jQuery.ajax({
-        url:         `/v2/account/articles/${article_id}/authors`,
+        url:         `/v2/account/articles/${article_uuid}/authors`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
-        data:        JSON.stringify({ "authors": [{ "id": author_id }] }),
+        data:        JSON.stringify({ "authors": [{ "uuid": author_uuid }] }),
     }).done(function () {
-        render_authors_for_article (article_id);
+        render_authors_for_article (article_uuid);
         jQuery("#authors").val("");
-        autocomplete_author(null, article_id);
-    }).fail(function () { console.log (`Failed to add ${author_id}`); });
+        autocomplete_author(null, article_uuid);
+    }).fail(function () { console.log (`Failed to add ${author_uuid}`); });
 }
 
-function submit_external_link (article_id) {
+function submit_external_link (article_uuid) {
     var url = jQuery("#external_url").val();
     if (url == "") {
         jQuery("#external_url").css("background", "#cc0000");
         return false;
     }
     jQuery.ajax({
-        url:         `/v2/account/articles/${article_id}/files`,
+        url:         `/v2/account/articles/${article_uuid}/files`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
@@ -226,34 +225,34 @@ function submit_external_link (article_id) {
     }).done(function () {
         jQuery("#external_url").val("");
         jQuery("#external_link_field").hide();
-        render_files_for_article (article_id);
+        render_files_for_article (article_uuid);
     }).fail(function () { console.log (`Failed to add ${url}`); });
 }
 
-function add_reference (article_id) {
+function add_reference (article_uuid) {
     url = jQuery.trim(jQuery("#references").val());
     if (url != "") {
         jQuery.ajax({
-            url:         `/v3/articles/${article_id}/references`,
+            url:         `/v3/articles/${article_uuid}/references`,
             type:        "POST",
             contentType: "application/json",
             accept:      "application/json",
             data:        JSON.stringify({ "references": [{ "url": url }] }),
         }).done(function () {
-            render_references_for_article (article_id);
+            render_references_for_article (article_uuid);
             jQuery("#references").val("");
         }).fail(function () { console.log (`Failed to add ${url}`); });
     }
 }
 
-function submit_new_author (article_id) {
+function submit_new_author (article_uuid) {
     first_name = jQuery("#author_first_name").val();
     last_name  = jQuery("#author_last_name").val();
     email      = jQuery("#author_email").val();
     orcid      = jQuery("#author_orcid").val();
 
     jQuery.ajax({
-        url:         `/v2/account/articles/${article_id}/authors`,
+        url:         `/v2/account/articles/${article_uuid}/authors`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
@@ -269,11 +268,11 @@ function submit_new_author (article_id) {
     }).done(function () {
         jQuery("#authors-ac").remove();
         jQuery("#authors").removeClass("input-for-ac");
-        render_authors_for_article (article_id);
+        render_authors_for_article (article_uuid);
     }).fail(function () { console.log (`Failed to add author.`); });
 }
 
-function new_author (article_id) {
+function new_author (article_uuid) {
     var html = `<div id="new-author-form">`;
     html += `<label for="author_first_name">First name</label>`;
     html += `<input type="text" id="author_first_name" name="author_first_name">`;
@@ -284,7 +283,7 @@ function new_author (article_id) {
     html += `<label for="author_first_name">ORCID</label>`;
     html += `<input type="text" id="author_orcid" name="author_orcid">`;
     html += `<div id="new-author" class="a-button">`;
-    html += `<a href="#" onclick="javascript:submit_new_author(${article_id}); `;
+    html += `<a href="#" onclick="javascript:submit_new_author('${article_uuid}'); `;
     html += `return false;">Add author</a></div>`;
     html += `</div>`;
     jQuery("#authors-ac ul").remove();
@@ -292,7 +291,7 @@ function new_author (article_id) {
     jQuery("#authors-ac").append(html);
 }
 
-function autocomplete_author (event, article_id) {
+function autocomplete_author (event, article_uuid) {
     current_text = jQuery.trim(jQuery("#authors").val());
     if (current_text == "") {
         jQuery("#authors-ac").remove();
@@ -309,9 +308,10 @@ function autocomplete_author (event, article_id) {
             jQuery("#authors-ac").remove();
             html = "<ul>";
             for (item of data) {
+                console.log(`Offering ${JSON.stringify(item)} as auto-completion`);
                 html += `<li><a href="#" `;
-                html += `onclick="javascript:add_author(${item["id"]}, `;
-                html += `${article_id}); return false;">${item["full_name"]}`;
+                html += `onclick="javascript:add_author('${item["uuid"]}', `;
+                html += `'${article_uuid}'); return false;">${item["full_name"]}`;
                 if (item["orcid_id"] != null && item["orcid_id"] != "") {
                     html += ` (${item["orcid_id"]})`;
                 }
@@ -320,7 +320,7 @@ function autocomplete_author (event, article_id) {
             html += "</ul>";
 
             html += `<div id="new-author" class="a-button"><a href="#" `
-            html += `onclick="javascript:new_author(${article_id}); `
+            html += `onclick="javascript:new_author('${article_uuid}'); `
             html += `return false;">Create new author record</a></div>`;
             jQuery("#authors")
                 .addClass("input-for-ac")
@@ -329,7 +329,7 @@ function autocomplete_author (event, article_id) {
     }
 }
 
-function toggle_record_type (article_id) {
+function toggle_record_type (article_uuid) {
     if (jQuery("#metadata_record_only").prop("checked")) {
         jQuery(".record-type-field").hide();
         jQuery("#metadata_reason_field").show();
@@ -349,38 +349,38 @@ function toggle_record_type (article_id) {
     }
 }
 
-function activate (article_id) {
+function activate (article_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_id}`,
+        url:         `/v2/account/articles/${article_uuid}`,
         type:        "GET",
         accept:      "application/json",
     }).done(function (data) {
-        render_authors_for_article (article_id);
-        render_references_for_article (article_id);
-        render_categories_for_article (article_id);
+        render_authors_for_article (article_uuid);
+        render_references_for_article (article_uuid);
+        render_categories_for_article (article_uuid);
         render_licenses (data);
         jQuery("#authors").on("input", function (event) {
-            return autocomplete_author (event, article_id);
+            return autocomplete_author (event, article_uuid);
         });
         jQuery("#references").on("keypress", function(e){
             if(e.which == 13){
-                add_reference(article_id);
+                add_reference(article_uuid);
             }
         });
-        render_files_for_article (article_id);
+        render_files_for_article (article_uuid);
         if (data["defined_type_name"] != null) {
             jQuery(`#type-${data["defined_type_name"]}`).prop("checked", true);
         }
         if (data["group_id"] != null) {
             jQuery(`#group_${data["group_id"]}`).prop("checked", true);
         }
-        jQuery(`#article_${article_id}`).removeClass("loader");
-        jQuery(`#article_${article_id}`).show();
+        jQuery(`#article_${article_uuid}`).removeClass("loader");
+        jQuery(`#article_${article_uuid}`).show();
         var quill = new Quill('#description', { theme: '4tu' });
-        activate_drag_and_drop (article_id);
+        activate_drag_and_drop (article_uuid);
 
         jQuery("input[name='record_type']").change(function () {
-            toggle_record_type (article_id);
+            toggle_record_type (article_uuid);
         });
 
         if (data["is_metadata_record"]) {
@@ -393,14 +393,14 @@ function activate (article_id) {
             jQuery("#upload_files").prop("checked", true);
         }
 
-        toggle_record_type (article_id);
+        toggle_record_type (article_uuid);
 
-        jQuery("#delete").on("click", function (event) { delete_article (article_id); });
-        jQuery("#save").on("click", function (event)   { save_article (article_id); });
-    }).fail(function () { console.log(`Failed to retrieve article ${article_id}.`); });
+        jQuery("#delete").on("click", function (event) { delete_article (article_uuid); });
+        jQuery("#save").on("click", function (event)   { save_article (article_uuid); });
+    }).fail(function () { console.log(`Failed to retrieve article ${article_uuid}.`); });
 }
 
-function perform_upload (files, current_file, article_id) {
+function perform_upload (files, current_file, article_uuid) {
     total_files = files.length;
     var index = current_file - 1;
     var data  = new FormData();
@@ -420,49 +420,49 @@ function perform_upload (files, current_file, article_id) {
             }, false);
             return xhr;
         },
-        url:         `/v3/articles/${article_id}/upload`,
+        url:         `/v3/articles/${article_uuid}/upload`,
         type:        "POST",
         data:        data,
         processData: false,
         contentType: false,
         success: function (data, textStatus, request) {
             jQuery("#file-upload h4").text("Drag files here");
-            render_files_for_article (article_id);
+            render_files_for_article (article_uuid);
             if (current_file < total_files) {
-                return perform_upload (files, current_file + 1, total_files, article_id);
+                return perform_upload (files, current_file + 1, total_files, article_uuid);
             }
         }
     });
 }
 
-function remove_file (file_id, article_id) {
+function remove_file (file_id, article_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_id}/files/${file_id}`,
+        url:         `/v2/account/articles/${article_uuid}/files/${file_id}`,
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (files) {
-        render_files_for_article (article_id);
+        render_files_for_article (article_uuid);
         if (jQuery("#external_link").prop("checked")) {
             jQuery("#external_link_field").show();
         }
     }).fail(function () { console.log (`Failed to remove ${file_id}`); });
 }
 
-function remove_author (author_id, article_id) {
+function remove_author (author_id, article_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_id}/authors/${author_id}`,
+        url:         `/v2/account/articles/${article_uuid}/authors/${author_id}`,
         type:        "DELETE",
         accept:      "application/json",
-    }).done(function (authors) { render_authors_for_article (article_id); })
+    }).done(function (authors) { render_authors_for_article (article_uuid); })
       .fail(function () { console.log (`Failed to remove ${author_id}`); });
 }
 
-function remove_reference (url, article_id) {
+function remove_reference (url, article_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v3/articles/${article_id}/references?url=${url}`,
+        url:         `/v3/articles/${article_uuid}/references?url=${url}`,
         type:        "DELETE",
         accept:      "application/json",
-    }).done(function (authors) { render_references_for_article (article_id); })
+    }).done(function (authors) { render_references_for_article (article_uuid); })
       .fail(function () { console.log (`Failed to remove ${url}`); });
 }
 
@@ -473,7 +473,7 @@ function prettify_size (size) {
     return Math.round(size / Math.pow(1000, i), 2) + ' ' + sizes[i];
 }
 
-function activate_drag_and_drop (article_id) {
+function activate_drag_and_drop (article_uuid) {
     // Drag and drop handling for the entire window.
     jQuery("html").on("dragover", function (event) {
         event.preventDefault();
@@ -508,7 +508,7 @@ function activate_drag_and_drop (article_id) {
         jQuery("#file-upload h4").text("Uploading ...");
 
         var files = event.originalEvent.dataTransfer.files;
-        perform_upload (files, 1, article_id);
+        perform_upload (files, 1, article_uuid);
     });
 
     // Open file selector on div click
@@ -519,6 +519,6 @@ function activate_drag_and_drop (article_id) {
     // file selected
     jQuery("#file").change(function () {
         var files = jQuery('#file')[0].files;
-        perform_upload (files, 1, article_id);
+        perform_upload (files, 1, article_uuid);
     });
 }
