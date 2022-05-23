@@ -1086,7 +1086,7 @@ class ApiServer:
         if self.accepts_html (request):
             category      = self.db.category_by_id (category_id)
             subcategories = self.db.subcategories_for_category (category_id)
-            articles      = self.db.articles (category_ids=[category_id], limit=100)
+            articles      = self.db.datasets (categories=[category_id], limit=100)
 
             return self.__render_template (request, "categories.html",
                                            articles=articles,
