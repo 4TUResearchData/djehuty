@@ -7,9 +7,62 @@ import gc
 import logging
 import time
 
+import concurrent.futures
 from djehuty.backup import figshare
 from djehuty.backup import database
 from djehuty.utils.convenience import value_or
+
+def process_articles_for_account (endpoint, account):
+    """Processes the datasets for ACCOUNT."""
+
+    articles_written = 0
+    articles_failed  = 0
+
+    if not endpoint.rdf_store.insert_account (account):
+        # When processing the account fails, don't attempt to
+        # process collections and articles from this account.
+        return False
+
+    articles            = endpoint.get_articles_by_account (account["id"])
+    number_of_articles  = len(articles)
+    for article_index, article in enumerate (articles):
+        logging.info ("Processing article %d of %d.",
+                      article_index + 1, number_of_articles)
+        if endpoint.rdf_store.insert_article (article):
+            articles_written += 1
+        else:
+            articles_failed  += 1
+
+        versions = value_or (article, "versions", [])
+        for version in versions:
+            if not endpoint.rdf_store.insert_article (version):
+                logging.error("Inserting a version of %s failed.", article['id'])
+
+    del articles
+    return { "written": articles_written, "failed": articles_failed }
+
+def process_collections_for_account (endpoint, account):
+    """Processes the collections for ACCOUNT."""
+
+    collections_written     = 0
+    collections_failed      = 0
+    collections             = endpoint.get_collections_by_account (account["id"])
+    number_of_collections   = len(collections)
+    for collection_index, collection in enumerate (collections):
+        logging.info ("Processing collection %d of %d.",
+                      collection_index + 1, number_of_collections)
+        if endpoint.rdf_store.insert_collection (collection, account["id"]):
+            collections_written += 1
+        else:
+            collections_failed += 1
+
+        versions = value_or (collection, "versions", [])
+        for version in versions:
+            if not endpoint.rdf_store.insert_collection (version, account["id"]):
+                logging.error("Inserting a version of %s failed.", collection['id'])
+
+    del collections
+    return { "written": collections_written, "failed": collections_failed }
 
 def main (figshare_token, figshare_stats_auth, account_id):
     """The main entry point for the 'backup' subcommand."""
@@ -32,58 +85,30 @@ def main (figshare_token, figshare_stats_auth, account_id):
     accounts                = endpoint.get_institutional_accounts (account_id)
     number_of_accounts      = len(accounts)
     logging.info("Found %d institutional accounts.", number_of_accounts)
-    for account_index, account in enumerate (accounts):
-        logging.info("Processing %d of %d accounts.",
-                     account_index + 1, number_of_accounts)
-        if endpoint.rdf_store.insert_account (account):
-            accounts_written += 1
-        else:
-            accounts_failed  += 1
-            # When processing the account fails, don't attempt to
-            # process collections and articles from this account.
-            continue
-
-        articles            = endpoint.get_articles_by_account (account["id"])
-        number_of_articles  = len(articles)
-        for article_index, article in enumerate (articles):
-            logging.info ("Processing article %d of %d.",
-                          article_index + 1, number_of_articles)
-            if endpoint.rdf_store.insert_article (article):
-                articles_written += 1
-            else:
-                articles_failed  += 1
-
-            versions = value_or (article, "versions", [])
-            for version in versions:
-                if not endpoint.rdf_store.insert_article (version):
-                    logging.error("Inserting a version of %s failed.", article['id'])
-
-        del articles
+    with concurrent.futures.ThreadPoolExecutor() as runner:
+        results = [runner.submit(process_articles_for_account, endpoint, account)
+                   for account in accounts]
+        for response in results:
+            result = response.result()
+            articles_failed  += result["failed"]
+            articles_written += result["written"]
 
     gc.collect()
 
     ## We translate the article IDs associated to collections to their
     ## container URIs.  So we have to insert all articles before we can
     ## translate the article IDs for the collections.
-    for account_index, account in enumerate (accounts):
-        collections = endpoint.get_collections_by_account (account["id"])
-        number_of_collections = len(collections)
-        for collection_index, collection in enumerate (collections):
-            logging.info ("Processing collection %d of %d.",
-                          collection_index + 1, number_of_collections)
-            if endpoint.rdf_store.insert_collection (collection, account["id"]):
-                collections_written += 1
-            else:
-                collections_failed += 1
-
-            versions = value_or (collection, "versions", [])
-            for version in versions:
-                if not endpoint.rdf_store.insert_collection (version, account["id"]):
-                    logging.error("Inserting a version of %s failed.", collection['id'])
-
-        del collections
+    with concurrent.futures.ThreadPoolExecutor() as runner:
+        results = [runner.submit(process_collections_for_account, endpoint, account)
+                   for account in accounts]
+        for response in results:
+            result = response.result()
+            collections_failed  += result["failed"]
+            collections_written += result["written"]
 
     del accounts
+    gc.collect()
+
     groups           = endpoint.get_institutional_groups()
     number_of_groups = len(groups)
     for group_index, group in enumerate (groups):

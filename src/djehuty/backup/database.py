@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import ast
 import logging
 from datetime import datetime
+from threading import Lock
 from secrets import token_urlsafe
 from rdflib import Graph, Literal, RDF, XSD, URIRef
 import requests
@@ -17,7 +18,8 @@ class DatabaseInterface:
     """
 
     def __init__(self):
-        self.store = Graph()
+        self.store            = Graph()
+        self.lock_for_inserts = Lock()
 
     def __get_from_url (self, url: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
@@ -121,6 +123,7 @@ class DatabaseInterface:
         """Procedure to add an account record to GRAPH."""
 
         uri = rdf.unique_node ("account")
+        self.lock_for_inserts.acquire()
         self.store.add ((uri, RDF.type, rdf.SG["Account"]))
 
         rdf.add (self.store, uri, rdf.COL["id"],                    value_or (record, "id", None),           XSD.integer)
@@ -140,6 +143,7 @@ class DatabaseInterface:
         rdf.add (self.store, uri, rdf.COL["modified_date"],         value_or_none (record, "modified_date"), XSD.dateTime)
         rdf.add (self.store, uri, rdf.COL["created_date"],          value_or_none (record, "created_date"),  XSD.dateTime)
 
+        self.lock_for_inserts.release()
         return True
 
     def insert_institution (self, record):
@@ -382,6 +386,7 @@ class DatabaseInterface:
         is_latest          = bool (value_or (record, "is_latest", False))
         is_editable        = bool (value_or (record, "is_editable", False))
 
+        self.lock_for_inserts.acquire()
         self.store.add ((uri, RDF.type,                 rdf.SG["Collection"]))
         self.store.add ((uri, rdf.COL["collection_id"], Literal(collection_id, datatype=XSD.integer)))
 
@@ -465,6 +470,7 @@ class DatabaseInterface:
             rdf.add (self.store, container, rdf.COL["first_online_date"],
                      value_or_none (timeline, "firstOnline"), XSD.dateTime)
 
+        self.lock_for_inserts.release()
         return True
 
     def insert_funding (self, record):
@@ -633,12 +639,6 @@ class DatabaseInterface:
         account_id = value_or_none (record, "account_id")
         uri        = rdf.unique_node ("article")
 
-        self.store.add ((uri, RDF.type,              rdf.SG["Article"]))
-        self.store.add ((uri, rdf.COL["article_id"], Literal(article_id, datatype=XSD.integer)))
-
-        self.insert_timeline (uri, value_or_none (record, "timeline"))
-        self.insert_license (uri, value_or_none (record, "license"))
-
         is_embargoed       = bool (value_or (record, "is_embargoed", False))
         is_public          = bool (value_or (record, "is_public", False))
         is_latest          = bool (value_or (record, "is_latest", False))
@@ -646,6 +646,14 @@ class DatabaseInterface:
         is_confidential    = bool (value_or (record, "is_confidential", False))
         is_metadata_record = bool (value_or (record, "is_metadata_record", False))
         has_linked_file    = bool (value_or (record, "has_linked_file", False))
+
+        self.lock_for_inserts.acquire()
+
+        self.store.add ((uri, RDF.type,              rdf.SG["Article"]))
+        self.store.add ((uri, rdf.COL["article_id"], Literal(article_id, datatype=XSD.integer)))
+
+        self.insert_timeline (uri, value_or_none (record, "timeline"))
+        self.insert_license (uri, value_or_none (record, "license"))
 
         rdf.add (self.store, uri, rdf.COL["title"],               value_or_none (record, "title"), XSD.string)
         rdf.add (self.store, uri, rdf.COL["doi"],                 value_or_none (record, "doi"), XSD.string)
@@ -724,6 +732,7 @@ class DatabaseInterface:
             rdf.add (self.store, container, rdf.COL["first_online_date"],
                      value_or_none (timeline, "firstOnline"), XSD.dateTime)
 
+        self.lock_for_inserts.release()
         return True
 
     def insert_institution_group (self, record):

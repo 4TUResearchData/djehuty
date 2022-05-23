@@ -3,7 +3,7 @@
 from datetime import datetime
 from threading import Lock
 import concurrent.futures
-import multiprocessing
+import os
 import time
 import logging
 import json
@@ -148,7 +148,7 @@ class FigshareEndpoint:
         ## will be fetched in a separate thread.
 
         total = []
-        number_of_pages = multiprocessing.cpu_count()
+        number_of_pages = os.cpu_count()
 
         ## We fetch pages concurrently in a loop because we cannot predict
         ## when we have fetched all items.  We can test whether there are
