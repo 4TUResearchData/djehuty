@@ -1019,17 +1019,13 @@ class ApiServer:
         }))
 
     def api_admin_clear_cache (self, request):
-        if self.accepts_html (request):
-            token = self.token_from_cookie (request)
-            if self.db.may_administer (token):
-                self.db.cache.invalidate_all ()
-                return redirect ("/admin/dashboard", code=302)
+        token = self.token_from_cookie (request)
+        if self.db.may_administer (token):
+            logging.info("Invalidating caches.")
+            self.db.cache.invalidate_all ()
+            return redirect ("/admin/dashboard", code=302)
 
-            return self.error_403 (request)
-
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        return self.error_403 (request)
 
     def api_portal (self, request):
         #When Djehuty is completely in production, set fromFigshare to False.
