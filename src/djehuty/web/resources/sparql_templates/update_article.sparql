@@ -11,7 +11,7 @@ DELETE {
     {%- endif%}{% if resource_title is not none %}
     ?article           col:resource_title       ?resource_title .
     {%- endif%}{% if license_id is not none %}
-    ?article           col:license_id           ?license_id .
+    ?article           col:license              ?license .
     {%- endif%}{% if group_id is not none %}
     ?article           col:group_id             ?group_id .
     {%- endif%}{% if time_coverage is not none %}
@@ -61,7 +61,7 @@ INSERT {
     {%- endif%}{% if resource_title is not none %}
     ?article           col:resource_title       "{{resource_title}}"^^xsd:string .
     {%- endif%}{% if license_id is not none %}
-    ?article           col:license_id           {{license_id}} .
+    ?article           col:license              ?new_license .
     {%- endif%}{% if group_id is not none %}
     ?article           col:group_id             {{group_id}} .
     {%- endif%}{% if time_coverage is not none %}
@@ -97,18 +97,25 @@ INSERT {
     {%- endif%}{% if has_linked_file is not none %}
     ?article           col:has_linked_file      {{has_linked_file}} .
     {%- endif%}
-    ?article           col:modified_date        "{{modified_date}}"^^xsd:string .
+    ?article           col:modified_date        "{{modified_date}}"^^xsd:dateTime .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
+    ?container          rdf:type                 sg:ArticleContainer .
+    ?container          col:account_id           ?account_id .
+    ?container          col:draft                ?article .
+
     ?article            rdf:type                 sg:Article .
-    ?article            col:article_version_id   ?article_version_id .
-    ?article            col:account_id           ?account_id .
     ?article            col:title                ?title .
 
+    {%- if license_id is not none %}
+    ?new_license        rdf:type                 sg:License ;
+                        col:id                   {{license_id}} .
+    {%- endif%}
+
+    OPTIONAL { ?article col:license              ?license . }
     OPTIONAL { ?article col:description          ?description . }
-    OPTIONAL { ?article col:license_id           ?license_id . }
     OPTIONAL { ?article col:group_id             ?group_id . }
     OPTIONAL { ?article col:resource_doi         ?resource_doi . }
     OPTIONAL { ?article col:resource_title       ?resource_title . }
@@ -133,6 +140,6 @@ WHERE {
 {%- if account_id is not none: %}
   FILTER (?account_id = {{account_id}})
 {%- endif %}
-  FILTER (?article_version_id = {{article_version_id}})
+  FILTER (?container = <{{container_uri}}>)
 }
 {% endblock %}

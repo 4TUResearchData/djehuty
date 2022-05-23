@@ -1726,7 +1726,7 @@ class SparqlInterface:
 
         return result
 
-    def update_article (self, article_version_id, account_id, title=None,
+    def update_article (self, container_uuid, account_id, title=None,
                         description=None, resource_doi=None,
                         resource_title=None, license_id=None, group_id=None,
                         time_coverage=None, publisher=None, language=None,
@@ -1739,7 +1739,7 @@ class SparqlInterface:
 
         query   = self.__query_from_template ("update_article", {
             "account_id":      account_id,
-            "article_version_id": article_version_id,
+            "container_uri":   rdf.uuid_to_uri (container_uuid, "container"),
             "contributors":    contributors,
             "data_link":       data_link,
             "defined_type":    defined_type,
@@ -1765,15 +1765,32 @@ class SparqlInterface:
             "title":           title
         })
 
-        self.cache.invalidate_by_prefix ("article")
-        self.cache.invalidate_by_prefix (f"{article_version_id}_article")
-        results = self.__run_query (query, query, f"{article_version_id}_article")
-        if results and categories:
-            self.delete_article_categories (article_version_id, account_id)
-            for category in categories:
-                self.insert_article_category (article_version_id, category)
+        self.cache.invalidate_by_prefix (f"datasets_{account_id}")
+        self.cache.invalidate_by_prefix (f"dataset_{container_uuid}")
+        results = self.__run_query (query)
+        if results:
+            if categories:
+                self.delete_associations (container_uuid, account_id, "categories")
+                try:
+                    graph   = Graph()
+                    dataset = self.datasets (container_uuid = container_uuid,
+                                             is_published   = False,
+                                             account_id     = account_id)[0]
+                    self.insert_item_list (graph,
+                                           URIRef(dataset["uri"]),
+                                           list(map (lambda category: URIRef(rdf.uuid_to_uri (category, "category")),
+                                                     categories)),
+                                           "categories")
+                    query = self.__insert_query_for_graph (graph)
+                    if not self.__run_query (query):
+                        logging.error ("Category insert query failed for %s", container_uuid)
 
-        return results
+                except IndexError:
+                    logging.error ("Could not insert article categories for %s", container_uuid)
+        else:
+            return False
+
+        return True
 
     def delete_article_embargo (self, article_version_id, account_id):
         """Procedure to lift the embargo on an article."""
