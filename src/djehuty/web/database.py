@@ -1113,20 +1113,19 @@ class SparqlInterface:
 
         return None
 
-    def update_author_list (self, container_uuid, account_id, authors):
+    def update_item_list (self, container_uuid, account_id, items, predicate):
         try:
             graph   = Graph()
             dataset = self.datasets (container_uuid = container_uuid,
                                      is_published   = False,
                                      account_id     = account_id)[0]
 
-            self.delete_associations (container_uuid, account_id, "authors")
-            if authors:
+            self.delete_associations (container_uuid, account_id, predicate)
+            if items:
                 self.insert_item_list (graph,
                                        URIRef(dataset["uri"]),
-                                       list(map (lambda author: URIRef(rdf.uuid_to_uri (author["uuid"], "author")),
-                                                 authors)),
-                                       "authors")
+                                       items,
+                                       predicate)
 
                 query = self.__insert_query_for_graph (graph)
                 if not self.__run_query (query):
