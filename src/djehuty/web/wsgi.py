@@ -1650,34 +1650,38 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
-            article    = self.db.articles (article_id  = article_id,
-                                           account_id  = account_id,
-                                           is_editable = 1,
-                                           is_public   = 0)
-            if not article:
-                return self.response (json.dumps([]))
-
             try:
-                article         = article[0]
-                article_version_id = article["article_version_id"]
-                authors         = self.db.authors (item_id=article_version_id, item_type="article")
-                files           = self.db.article_files (article_version_id=article_version_id)
-                custom_fields   = self.db.custom_fields (item_id=article_version_id, item_type="article")
-                embargo_options = self.db.article_embargo_options (article_version_id=article_version_id)
-                tags            = self.db.tags (item_id=article_version_id, item_type="article")
-                categories      = self.db.categories (item_id=article_version_id, item_type="article")
-                funding         = self.db.fundings (item_id=article_version_id, item_type="article")
-                references      = self.db.references (item_id=article_version_id, item_type="article")
-                total           = formatter.format_article_details_record (article,
-                                                                           authors,
-                                                                           files,
-                                                                           custom_fields,
-                                                                           embargo_options,
-                                                                           tags,
-                                                                           categories,
-                                                                           funding,
-                                                                           references)
+                article     = self.__dataset_by_id_or_uri (article_id,
+                                                           account_id=account_id,
+                                                           is_published=False)
 
+                if not article:
+                    return self.response (json.dumps([]))
+
+                article_uri     = article["uri"]
+                authors         = self.db.authors(item_uri=article_uri, item_type="article")
+                files           = self.db.article_files(article_uri=article_uri)
+                custom_fields   = self.db.custom_fields(item_uri=article_uri, item_type="article")
+                embargo_options = [] # This needs to be looked at.
+                tags            = self.db.tags(item_uri=article_uri, item_type="article")
+                categories      = self.db.categories(item_uri=article_uri, item_type="article")
+                references      = self.db.references(item_uri=article_uri)
+                funding_list    = self.db.fundings(item_uri=article_uri, item_type="article")
+                total         = formatter.format_article_details_record (article,
+                                                                         authors,
+                                                                         files,
+                                                                         custom_fields,
+                                                                         embargo_options,
+                                                                         tags,
+                                                                         categories,
+                                                                         funding_list,
+                                                                         references)
+                # ugly fix for custom field Derived From
+                custom = total['custom_fields']
+                custom = [c for c in custom if c['name'] != 'Derived From']
+                custom.append( {"name": "Derived From",
+                                "value": self.db.derived_from(item_uri=article_uri)} )
+                total['custom_fields'] = custom
                 return self.response (json.dumps(total))
             except IndexError:
                 response = self.response (json.dumps({
@@ -1697,13 +1701,12 @@ class ApiServer:
                 elif defined_type_name == "dataset":
                     defined_type = 3
 
-                article = self.db.articles (article_id  = article_id,
-                                            account_id  = account_id,
-                                            is_editable = 1,
-                                            is_public   = 0)[0]
-                article_version_id = article["article_version_id"]
+                article = self.__dataset_by_id_or_uri (article_id,
+                                                       account_id = account_id,
+                                                       is_published = False)
 
-                result = self.db.update_article (article_version_id, account_id,
+                result = self.db.update_article (uri_to_uuid (uri_to_uuid (article["container_uri"])),
+                    account_id,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
@@ -1727,7 +1730,7 @@ class ApiServer:
                     defined_type    = defined_type,
                     categories      = validator.array_value   (record, "categories"),
                 )
-                if result is None:
+                if not result:
                     return self.error_500()
 
                 return self.respond_205()
@@ -1743,13 +1746,12 @@ class ApiServer:
 
         if request.method == 'DELETE':
             try:
-                article = self.db.articles (article_id  = article_id,
-                                            account_id  = account_id,
-                                            is_editable = 1,
-                                            is_public   = 0)[0]
-                article_version_id = article["article_version_id"]
+                dataset     = self.__dataset_by_id_or_uri (article_id,
+                                                           account_id=account_id,
+                                                           is_published=False)
 
-                if self.db.delete_article_version (article_version_id, account_id):
+                container_uuid = uri_to_uuid (dataset["container_uri"])
+                if self.db.delete_dataset_draft (container_uuid, account_id):
                     return self.respond_204()
             except IndexError:
                 pass
