@@ -1608,7 +1608,7 @@ class ApiServer:
 
             try:
                 timeline   = validator.object_value (record, "timeline", False)
-                article_id = self.db.insert_article (
+                dataset_uuid = self.db.insert_dataset (
                     title          = validator.string_value  (record, "title",          3, 1000,                   True),
                     account_id     = account_id,
                     description    = validator.string_value  (record, "description",    0, 10000,                  False),
@@ -1637,7 +1637,7 @@ class ApiServer:
                 )
 
                 return self.response(json.dumps({
-                    "location": f"{self.base_url}/v2/account/articles/{article_id}",
+                    "location": f"{self.base_url}/v2/account/articles/{dataset_uuid}",
                     "warnings": []
                 }))
             except validator.ValidationException as error:
