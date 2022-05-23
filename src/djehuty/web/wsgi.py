@@ -3112,20 +3112,20 @@ class ApiServer:
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
-        records = self.db.articles (limit           = record["limit"],
+        records = self.db.datasets (limit           = record["limit"],
                                     offset          = record["offset"],
                                     order           = record["order"],
                                     order_direction = record["order_direction"],
                                     institution     = record["institution"],
                                     published_since = record["published_since"],
                                     modified_since  = record["modified_since"],
-                                    group           = record["group"],
-                                    group_ids       = record["group_ids"],
+                                    #group           = record["group"],
+                                    groups          = record["group_ids"],
                                     resource_doi    = record["resource_doi"],
                                     item_type       = record["item_type"],
                                     doi             = record["doi"],
                                     handle          = record["handle"],
-                                    category_ids    = record["categories"],
+                                    categories      = record["categories"],
                                     return_count    = record["return_count"])
         if record["return_count"]:
             return self.response (json.dumps(records[0]))
