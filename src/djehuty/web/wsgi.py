@@ -3175,11 +3175,31 @@ class ApiServer:
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
+        offset, limit = validator.paging_to_offset_and_limit ({
+                "page":      self.get_parameter (request, "page"),
+                "page_size": self.get_parameter (request, "page_size"),
+                "limit":     self.get_parameter (request, "limit"),
+                "offset":    self.get_parameter (request, "offset")
+            })
+
+        if "group_ids" in record and record["group_ids"] is not None:
+            record["group_ids"] = record["group_ids"]
+            validator.array_value (record, "group_ids")
+            for index, _ in enumerate(record["group_ids"]):
+                record["group_ids"][index] = validator.integer_value (record["group_ids"], index)
+
+        if "categories" in record and record["categories"] is not None:
+            validator.array_value (record, "categories")
+            for index, _ in enumerate(record["categories"]):
+                record["categories"][index] = validator.integer_value (record["categories"], index)
+            else:
+                record["categories"] = None
+
         records = self.db.article_statistics (
-            limit           = record["limit"],
-            offset          = record["offset"],
-            order           = record["order"],
-            order_direction = record["order_direction"],
+            limit           = limit,
+            offset          = offset,
+            order           = validator.string_value (request.args, "order", 0, 255),
+            order_direction = validator.options_value (request.args, "order_direction", ["asc", "desc"]),
             group_ids       = record["group_ids"],
             category_ids    = record["categories"],
             item_type       = item_type)
