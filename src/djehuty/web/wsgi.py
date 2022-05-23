@@ -3322,14 +3322,15 @@ class ApiServer:
         ## ----------------------------------------------------------------
         account_id = self.account_id_from_request (request)
         if account_id is None:
-
-        article_id = int(article_id)
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
-            references    = self.db.references (item_id    = article_id,
-                                                account_id = account_id,
-                                                item_type  = "article")
+            article       = self.__dataset_by_id_or_uri (article_id,
+                                                         account_id=account_id,
+                                                         is_published=False)
+
+            references    = self.db.references (item_uri   = article["uri"],
+                                                account_id = account_id)
 
             return self.default_list_response (references, formatter.format_reference_record)
 
