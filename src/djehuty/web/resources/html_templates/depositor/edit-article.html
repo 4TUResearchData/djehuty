@@ -9,18 +9,18 @@ jQuery(document).ready(function (){
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery(".subcategory-wrapper").hide();
 {%- for category in categories: %}
-    root_categories.push({{category.id}});
-    jQuery("#category_{{category.id}}").change(function () {
+    root_categories.push("{{category.uuid}}");
+    jQuery("#category_{{category.uuid}}").change(function () {
         if (this.checked) {
-            jQuery("#category_{{category.id}}").prop("checked", true);
-            jQuery("#subcategories_{{category.id}}").slideDown(200);
+            jQuery("#category_{{category.uuid}}").prop("checked", true);
+            jQuery("#subcategories_{{category.uuid}}").slideDown(200);
         } else {
-            jQuery("#subcategories_{{category.id}} input[name='categories']").prop("checked", false);
-            jQuery("#subcategories_{{category.id}}").slideUp(200);
+            jQuery("#subcategories_{{category.uuid}} input[name='categories']").prop("checked", false);
+            jQuery("#subcategories_{{category.uuid}}").slideUp(200);
         }
     });
 {%- endfor %}
-    activate ({{article["article_id"]}});
+    activate ("{{container_uuid}}");
 });
 </script>
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
