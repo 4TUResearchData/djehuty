@@ -1707,23 +1707,9 @@ class SparqlInterface:
         results = self.__run_query (query)
         if results:
             if categories:
-                self.delete_associations (container_uuid, account_id, "categories")
-                try:
-                    graph   = Graph()
-                    dataset = self.datasets (container_uuid = container_uuid,
-                                             is_published   = False,
-                                             account_id     = account_id)[0]
-                    self.insert_item_list (graph,
-                                           URIRef(dataset["uri"]),
-                                           list(map (lambda category: URIRef(rdf.uuid_to_uri (category, "category")),
-                                                     categories)),
-                                           "categories")
-                    query = self.__insert_query_for_graph (graph)
-                    if not self.__run_query (query):
-                        logging.error ("Category insert query failed for %s", container_uuid)
-
-                except IndexError:
-                    logging.error ("Could not insert article categories for %s", container_uuid)
+                items = list(map (lambda category: URIRef(rdf.uuid_to_uri (category, "category")),
+                                  categories))
+                self.update_item_list (container_uuid, account_id, items, "categories")
         else:
             return False
 
