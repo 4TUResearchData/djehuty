@@ -329,6 +329,9 @@ class DatabaseInterface:
         """Procedure to insert a custom_field record."""
 
         name        = field["name"].lower().replace(" ", "_")
+        if name == "licence_remarks":
+            name = "license_remarks"
+
         settings    = {}
         validations = {}
         if "settings" in field:
