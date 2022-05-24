@@ -44,9 +44,19 @@ On Windows, use:
 pip install pyinstaller
 pyinstaller --onefile \
             --hidden-import=_cffi_backend \
-            --add-data "src/djehuty/web/resources;djehuty/web/resources" \
-            --name djehuty \
+            --add-data="src/djehuty/web/resources;djehuty/web/resources" \
+            --icon="src/djehuty/web/resources/static/images/favicon.ico" \
+            --name=djehuty \
             main.py
+```
+
+#### Tricks when building using WINE
+
+While no support can be provided for this, the following notes may help.
+Alledgedly, using Python 3.8.6 works well.  Activating the virtual
+environment works best from a `cmd.exe`, which can be started using:
+```bash
+wine cmd
 ```
 
 ### Build an AppImage with Nuitka
