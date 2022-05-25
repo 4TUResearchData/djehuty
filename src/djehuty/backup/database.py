@@ -711,7 +711,7 @@ class DatabaseInterface:
         if "statistics" in record:
             stats = record["statistics"]
             self.insert_totals_statistics (stats["totals"], container)
-        elif is_public and is_latest:
+        elif is_public and is_editable:
             logging.warning ("No statistics available for article %d.", article_id)
 
         if is_editable:
