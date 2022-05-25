@@ -654,22 +654,20 @@ class ApiServer:
         return response
 
     def api_dashboard (self, request):
-        if self.accepts_html (request):
-            token = self.token_from_cookie (request)
-            if self.db.is_depositor (token):
-                account_id   = self.account_id_from_request (request)
-                storage_used = self.db.account_storage_used (account_id)
-                sessions     = self.db.sessions (account_id)
-                return self.__render_template (
-                    request, "depositor/dashboard.html",
-                    storage_used = pretty_print_size (storage_used),
-                    sessions     = sessions)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
+        token = self.token_from_cookie (request)
+        if not self.db.is_depositor (token):
             return self.error_404 (request)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        account_id   = self.account_id_from_request (request)
+        storage_used = self.db.account_storage_used (account_id)
+        sessions     = self.db.sessions (account_id)
+        return self.__render_template (
+            request, "depositor/dashboard.html",
+            storage_used = pretty_print_size (storage_used),
+            sessions     = sessions)
 
     def api_my_data (self, request):
         if self.accepts_html (request):
