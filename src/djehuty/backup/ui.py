@@ -6,6 +6,7 @@ import base64
 import gc
 import logging
 import time
+import os
 
 import concurrent.futures
 from djehuty.backup import figshare
@@ -67,7 +68,10 @@ def process_collections_for_account (endpoint, account):
 def main (figshare_token, figshare_stats_auth, account_id):
     """The main entry point for the 'backup' subcommand."""
 
-    endpoint                = figshare.FigshareEndpoint()
+    workers                 = os.cpu_count() * 4
+    logging.info("Using a maximum of %d simultaneous connections.", workers)
+
+    endpoint                = figshare.FigshareEndpoint(workers)
     endpoint.token          = figshare_token
     endpoint.stats_auth     = base64.b64encode(figshare_stats_auth.encode('ascii')).decode('ascii')
     endpoint.institution_id = 898
@@ -85,7 +89,7 @@ def main (figshare_token, figshare_stats_auth, account_id):
     accounts                = endpoint.get_institutional_accounts (account_id)
     number_of_accounts      = len(accounts)
     logging.info("Found %d institutional accounts.", number_of_accounts)
-    with concurrent.futures.ThreadPoolExecutor() as runner:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as runner:
         results = [runner.submit(process_articles_for_account, endpoint, account)
                    for account in accounts]
         for response in results:
@@ -98,7 +102,7 @@ def main (figshare_token, figshare_stats_auth, account_id):
     ## We translate the article IDs associated to collections to their
     ## container URIs.  So we have to insert all articles before we can
     ## translate the article IDs for the collections.
-    with concurrent.futures.ThreadPoolExecutor() as runner:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as runner:
         results = [runner.submit(process_collections_for_account, endpoint, account)
                    for account in accounts]
         for response in results:
@@ -130,6 +134,7 @@ def main (figshare_token, figshare_stats_auth, account_id):
     ## so, it's a great moment to reduce the memory footprint by
     ## deallocating what we no longer need.
     del endpoint.author_ids
+    del endpoint.rdf_store.container_uris
     gc.collect()
 
     logging.info ("Serializing the RDF triplets...")

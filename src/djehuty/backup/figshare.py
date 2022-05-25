@@ -18,7 +18,7 @@ class FigshareEndpoint:
     4TU.ResearchData.
     """
 
-    def __init__ (self):
+    def __init__ (self, maximum_simultaneous_connections=None):
         self.api_location     = "/v2"
         self.domain           = "api.figshare.com"
         self.base             = "https://api.figshare.com/v2"
@@ -30,6 +30,17 @@ class FigshareEndpoint:
         self.rdf_store        = None
         self.author_ids       = {}
         self.author_ids_lock  = Lock()
+        self.requests         = requests.Session()
+
+        if maximum_simultaneous_connections is None:
+            maximum_simultaneous_connections = os.cpu_count()
+
+        # Modify connection pooling settings.
+        adapter = requests.adapters.HTTPAdapter(
+            pool_connections = 2,
+            pool_maxsize     = maximum_simultaneous_connections,
+            pool_block       = False)
+        self.requests.mount('https://', adapter)
 
     # REQUEST HANDLING PROCEDURES
     # -----------------------------------------------------------------------------
@@ -49,9 +60,9 @@ class FigshareEndpoint:
 
     def get_statistics (self, path: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
-        response = requests.get(f"{self.stats_base}{path}",
-                                headers = headers,
-                                params  = parameters)
+        response = self.requests.get(f"{self.stats_base}{path}",
+                                     headers = headers,
+                                     params  = parameters)
         if response.status_code == 200:
             return response.json()
 
@@ -60,20 +71,24 @@ class FigshareEndpoint:
 
     def get (self, path: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
-        response = requests.get(self.base + path,
-                                headers = headers,
-                                params  = parameters)
-        if response.status_code == 200:
-            return response.json()
+        try:
+            response = self.requests.get(self.base + path,
+                                         headers = headers,
+                                         params  = parameters)
+            if response.status_code == 200:
+                return response.json()
 
-        logging.error("%s returned %d.", path, response.status_code)
-        logging.error("Parameters:\n---\n%s\n---", parameters)
-        logging.error("Error message:\n---\n%s\n---", response.text)
+            logging.error("%s returned %d.", path, response.status_code)
+            logging.error("Parameters:\n---\n%s\n---", parameters)
+            logging.error("Error message:\n---\n%s\n---", response.text)
+        except requests.exceptions.SSLError as error:
+            logging.error ("SSLError: %s", error)
+
         return []
 
     def post (self, path: str, parameters):
         """Procedure to perform a POST request to a Figshare-compatible endpoint."""
-        return requests.post (self.base + path, parameters)
+        return self.requests.post (self.base + path, parameters)
 
     # API SPECIFICS
     # -----------------------------------------------------------------------------
