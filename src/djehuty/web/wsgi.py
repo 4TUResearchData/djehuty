@@ -670,42 +670,40 @@ class ApiServer:
             sessions     = sessions)
 
     def api_my_data (self, request):
-        if self.accepts_html (request):
-            account_id = self.account_id_from_request (request)
-            if account_id is None:
-                return self.error_authorization_failed(request)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            token = self.token_from_cookie (request)
-            if self.db.is_depositor (token):
-                draft_datasets = self.db.datasets (account_id   = account_id,
-                                                   limit        = 10000,
-                                                   is_published = False)
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
 
-                for index, _ in enumerate(draft_datasets):
-                    used = 0
-                    if not bool(value_or_none (draft_datasets[index], "is_metadata_record")):
-                        used = self.db.dataset_storage_used (draft_datasets[index]["container_uri"])
-                    draft_datasets[index]["storage_used"] = pretty_print_size (used)
-
-                published_datasets = self.db.datasets (account_id = account_id,
-                                                       is_latest  = True,
-                                                       limit      = 10000)
-
-                for index, _ in enumerate(published_datasets):
-                    used = 0
-                    if not bool(value_or_none (published_datasets[index], "is_metadata_record")):
-                        used = self.db.dataset_storage_used (published_datasets[index]["container_uri"])
-                    published_datasets[index]["storage_used"] = pretty_print_size (used)
-
-                return self.__render_template (request, "depositor/my-data.html",
-                                               draft_datasets     = draft_datasets,
-                                               published_datasets = published_datasets)
-
+        token = self.token_from_cookie (request)
+        if not self.db.is_depositor (token):
             return self.error_404 (request)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        draft_datasets = self.db.datasets (account_id   = account_id,
+                                           limit        = 10000,
+                                           is_published = False)
+
+        for index, _ in enumerate(draft_datasets):
+            used = 0
+            if not value_or (draft_datasets[index], "is_metadata_record", False):
+                used = self.db.dataset_storage_used (draft_datasets[index]["container_uri"])
+            draft_datasets[index]["storage_used"] = pretty_print_size (used)
+
+        published_datasets = self.db.datasets (account_id = account_id,
+                                               is_latest  = True,
+                                               limit      = 10000)
+
+        for index, _ in enumerate(published_datasets):
+            used = 0
+            if not value_or (published_datasets[index], "is_metadata_record", False):
+                used = self.db.dataset_storage_used (published_datasets[index]["container_uri"])
+            published_datasets[index]["storage_used"] = pretty_print_size (used)
+
+        return self.__render_template (request, "depositor/my-data.html",
+                                       draft_datasets     = draft_datasets,
+                                       published_datasets = published_datasets)
 
     def api_new_article (self, request):
         if self.accepts_html (request):
