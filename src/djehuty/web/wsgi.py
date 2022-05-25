@@ -632,28 +632,26 @@ class ApiServer:
         return response
 
     def api_admin_impersonate (self, request, account_id):
-        if self.accepts_html (request):
-            token = self.token_from_cookie (request)
-            if self.db.may_impersonate (token):
-                # Add a secundary cookie to go back to at one point.
-                response = redirect ("/my/dashboard", code=302)
-                other_cookie_key = f"impersonator_{self.cookie_key}"
-                response.set_cookie (key    = other_cookie_key,
-                                     value  = token,
-                                     secure = self.in_production)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-                # Create a new session for the user to be impersonated as.
-                new_token, _ = self.db.insert_session (int(account_id), name="Impersonation")
-                response.set_cookie (key    = self.cookie_key,
-                                     value  = new_token,
-                                     secure = self.in_production)
-                return response
-
+        token = self.token_from_cookie (request)
+        if not self.db.may_impersonate (token):
             return self.error_403 (request)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        # Add a secundary cookie to go back to at one point.
+        response = redirect ("/my/dashboard", code=302)
+        other_cookie_key = f"impersonator_{self.cookie_key}"
+        response.set_cookie (key    = other_cookie_key,
+                             value  = token,
+                             secure = self.in_production)
+
+        # Create a new session for the user to be impersonated as.
+        new_token, _ = self.db.insert_session (int(account_id), name="Impersonation")
+        response.set_cookie (key    = self.cookie_key,
+                             value  = new_token,
+                             secure = self.in_production)
+        return response
 
     def api_dashboard (self, request):
         if self.accepts_html (request):
