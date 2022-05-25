@@ -593,23 +593,21 @@ class ApiServer:
             return self.error_403 (request)
 
         orcid_uri = f"https://orcid.org/{orcid_record['orcid']}"
-        if self.accepts_html (request):
-            response   = redirect ("/my/dashboard", code=302)
-            account_id = self.db.account_id_by_orcid (orcid_uri)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            # XXX: We could create an account for an unknown ORCID.
-            #      Here we limit the system to known ORCID users.
-            if account_id is None:
-                return self.error_403 (request)
+        response   = redirect ("/my/dashboard", code=302)
+        account_id = self.db.account_id_by_orcid (orcid_uri)
 
-            token, _ = self.db.insert_session (account_id, name="Website login")
-            response.set_cookie (key=self.cookie_key, value=token,
-                                 secure=self.in_production)
-            return response
+        # XXX: We could create an account for an unknown ORCID.
+        #      Here we limit the system to known ORCID users.
+        if account_id is None:
+            return self.error_403 (request)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        token, _ = self.db.insert_session (account_id, name="Website login")
+        response.set_cookie (key=self.cookie_key, value=token,
+                             secure=self.in_production)
+        return response
 
     def api_logout (self, request):
         if self.accepts_html (request):
