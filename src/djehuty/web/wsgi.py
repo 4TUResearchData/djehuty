@@ -610,28 +610,26 @@ class ApiServer:
         return response
 
     def api_logout (self, request):
-        if self.accepts_html (request):
-            # When impersonating, find the admin's token,
-            # and set it as the new session token.
-            other_cookie_key    = f"impersonator_{self.cookie_key}"
-            other_session_token = self.token_from_cookie (request, other_cookie_key)
-            if other_session_token:
-                response = redirect ("/admin/users", code=302)
-                self.db.delete_session (self.token_from_cookie (request))
-                response.set_cookie (key    = self.cookie_key,
-                                     value  = other_session_token,
-                                     secure = self.in_production)
-                response.delete_cookie (key = other_cookie_key)
-                return response
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            response = redirect ("/", code=302)
+        # When impersonating, find the admin's token,
+        # and set it as the new session token.
+        other_cookie_key    = f"impersonator_{self.cookie_key}"
+        other_session_token = self.token_from_cookie (request, other_cookie_key)
+        if other_session_token:
+            response = redirect ("/admin/users", code=302)
             self.db.delete_session (self.token_from_cookie (request))
-            response.delete_cookie (key=self.cookie_key)
+            response.set_cookie (key    = self.cookie_key,
+                                 value  = other_session_token,
+                                 secure = self.in_production)
+            response.delete_cookie (key = other_cookie_key)
             return response
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        response = redirect ("/", code=302)
+        self.db.delete_session (self.token_from_cookie (request))
+        response.delete_cookie (key=self.cookie_key)
+        return response
 
     def api_admin_impersonate (self, request, account_id):
         if self.accepts_html (request):
