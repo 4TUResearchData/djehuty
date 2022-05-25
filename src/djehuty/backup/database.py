@@ -20,6 +20,8 @@ class DatabaseInterface:
     def __init__(self):
         self.store            = Graph()
         self.lock_for_inserts = Lock()
+        self.container_uris_lock = Lock()
+        self.container_uris   = {}
 
     def __get_from_url (self, url: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
@@ -623,12 +625,23 @@ class DatabaseInterface:
 
         prefix     = item_type.capitalize()
         item_class = f"{prefix}Container"
-        uri        = self.record_uri (item_class, f"{item_type}_id", item_id)
+        key        = f"{item_type}:{item_id}"
+        uri = None
+        with self.container_uris_lock:
+            try:
+                uri = self.container_uris[key]
+            except KeyError:
+                uri = self.record_uri (item_class, f"{item_type}_id", item_id)
+                self.container_uris[key] = uri
+
         if uri is None:
             uri = rdf.unique_node ("container")
             self.store.add ((uri, RDF.type,                   rdf.SG[item_class]))
             self.store.add ((uri, rdf.COL[f"{item_type}_id"], Literal(item_id, datatype=XSD.integer)))
             self.store.add ((uri, rdf.COL["account_id"],      Literal(account_id, datatype=XSD.integer)))
+
+            with self.container_uris_lock:
+                self.container_uris[key] = uri
 
         return uri
 
