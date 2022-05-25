@@ -250,17 +250,17 @@ class FigshareEndpoint:
 
         ## Statistics
         ## --------------------------------------------------------------------
-        now          = datetime.strftime(datetime.now(), "%Y-%m-%d")
-        created_date = "2020-07-01"
-
-        if "created_date" in record and not record["created_date"] is None:
-            date         = datetime.strptime(record["created_date"]
-                                             .replace("Z", "")
-                                             .replace("T", " "),
-                                             "%Y-%m-%d %H:%M:%S")
-            created_date = datetime.strftime(date, "%Y-%m-%d")
-
         if conv.value_or (record, "is_public", False):
+            now          = datetime.strftime(datetime.now(), "%Y-%m-%d")
+            created_date = "2020-07-01"
+
+            if "created_date" in record and not record["created_date"] is None:
+                date         = datetime.strptime(record["created_date"]
+                                                 .replace("Z", "")
+                                                 .replace("T", " "),
+                                                 "%Y-%m-%d %H:%M:%S")
+                created_date = datetime.strftime(date, "%Y-%m-%d")
+
             record["statistics"] = self.get_statistics_for_article(article_id,
                                                                    created_date,
                                                                    now)
