@@ -706,24 +706,23 @@ class ApiServer:
                                        published_datasets = published_datasets)
 
     def api_new_article (self, request):
-        if self.accepts_html (request):
-            account_id = self.account_id_from_request (request)
-            if account_id is None:
-                return self.error_authorization_failed(request)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            token = self.token_from_cookie (request)
-            if self.db.is_depositor (token):
-                article_id = self.db.insert_dataset(title = "Untitled item",
-                                                    account_id = account_id)
-                if article_id is not None:
-                    return redirect (f"/my/datasets/{article_id}/edit", code=302)
-                return self.error_500()
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
 
+        token = self.token_from_cookie (request)
+        if not self.db.is_depositor (token):
             return self.error_404 (request)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        article_id = self.db.insert_dataset(title = "Untitled item",
+                                            account_id = account_id)
+        if article_id is not None:
+            return redirect (f"/my/datasets/{article_id}/edit", code=302)
+
+        return self.error_500()
 
     def api_edit_article (self, request, article_id):
         if self.accepts_html (request):
