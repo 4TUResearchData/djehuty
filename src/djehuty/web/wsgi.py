@@ -13,6 +13,7 @@ from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound, BadRequest
+from rdflib import URIRef
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
 from djehuty.web import validator
@@ -1798,58 +1799,14 @@ class ApiServer:
 
             return self.error_500 ()
 
-        if request.method == 'PUT':
-            parameters = request.get_json()
-            try:
-                records = parameters["authors"]
-                author_ids = []
-                for record in records:
-                    author_uuid = self.db.insert_author (
-                        author_id  = validator.integer_value (record, "id",         0, pow(2, 63), False),
-                        full_name  = validator.string_value  (record, "name",       0, 255,        False),
-                        first_name = validator.string_value  (record, "first_name", 0, 255,        False),
-                        last_name  = validator.string_value  (record, "last_name",  0, 255,        False),
-                        email      = validator.string_value  (record, "email",      0, 255,        False),
-                        orcid_id   = validator.string_value  (record, "orcid_id",   0, 255,        False),
-                        job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
-                        is_active  = False,
-                        is_public  = True)
-                    if author_uuid is None:
-                        logging.error("Adding a single author failed.")
-                        return self.error_500()
-
-                    author_ids.append(author_uuid)
-
-                article = self.db.articles(article_id  = article_id,
-                                           account_id  = account_id,
-                                           is_editable = 1,
-                                           is_public   = 0)[0]
-                article_version_id = article["article_version_id"]
-                self.db.delete_authors_for_article (article_version_id, account_id)
-                for author_id in author_ids:
-                    if self.db.insert_article_author (article_version_id, author_id) is None:
-                        logging.error("Adding a single author failed.")
-                        return self.error_500()
-
-            except KeyError:
-                return self.error_400 (request, "Expected an 'authors' field.", "NoAuthorsField")
-            except IndexError:
-                return self.error_500 ()
-            except validator.ValidationException as error:
-                return self.error_400 (request, error.message, error.code)
-            except Exception as error:
-                logging.error("An error occurred when adding an author record:")
-                logging.error("Exception: %s", error)
-
-            return self.error_500()
-
-        if request.method == 'POST':
+        if request.method in ['POST', 'PUT']:
             ## The 'parameters' will be a dictionary containing a key "authors",
             ## which can contain multiple dictionaries of author records.
             parameters = request.get_json()
 
             try:
-                records = parameters["authors"]
+                new_authors = []
+                records     = parameters["authors"]
                 for record in records:
                     # The following fields are allowed:
                     # id, name, first_name, last_name, email, orcid_id, job_title.
@@ -1869,24 +1826,34 @@ class ApiServer:
                         if author_uuid is None:
                             logging.error("Adding a single author failed.")
                             return self.error_500()
+                    new_authors.append(URIRef(uuid_to_uri (author_uuid, "author")))
 
-                    article = self.__dataset_by_id_or_uri (article_id,
-                                                           account_id=account_id,
-                                                           is_published=False)
+                article = self.__dataset_by_id_or_uri (article_id,
+                                                       account_id=account_id,
+                                                       is_published=False)
 
-                    authors = self.db.authors (item_uri     = article["uri"],
-                                               account_id   = account_id,
-                                               item_type    = "article",
-                                               is_published = False,
-                                               limit        = 10000)
+                # The PUT method overwrites the existing authors, so we can
+                # keep an empty starting list. For POST we must retrieve the
+                # existing authors to preserve them.
+                existing_authors = []
+                if request.method == 'POST':
+                    existing_authors = self.db.authors (
+                        item_uri     = article["uri"],
+                        account_id   = account_id,
+                        item_type    = "article",
+                        is_published = False,
+                        limit        = 10000)
 
-                    authors.append ({ "uuid": author_uuid })
-                    if not self.db.update_item_list (uri_to_uuid (article["container_uri"]),
-                                                     account_id,
-                                                     authors,
-                                                     "authors"):
-                        logging.error("Adding a single author failed.")
-                        return self.error_500()
+                    existing_authors = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "author")),
+                                                 existing_authors))
+
+                authors = existing_authors + new_authors
+                if not self.db.update_item_list (uri_to_uuid (article["container_uri"]),
+                                                 account_id,
+                                                 authors,
+                                                 "authors"):
+                    logging.error("Adding a single author failed.")
+                    return self.error_500()
 
                 return self.respond_205()
 
@@ -1928,6 +1895,7 @@ class ApiServer:
             else:
                 authors.remove (next (filter (lambda item: item['uuid'] == author_id, authors)))
 
+            authors = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "author")), authors))
             if self.db.update_item_list (uri_to_uuid (article["container_uri"]),
                                          account_id,
                                          authors,
