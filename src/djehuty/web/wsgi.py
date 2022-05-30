@@ -78,6 +78,7 @@ class ApiServer:
             Rule("/admin/impersonate/<account_id>",           endpoint = "admin_impersonate"),
             Rule("/admin/maintenance",                        endpoint = "admin_maintenance"),
             Rule("/admin/maintenance/clear-cache",            endpoint = "admin_clear_cache"),
+            Rule("/admin/maintenance/clear-sessions",         endpoint = "admin_clear_sessions"),
             Rule("/portal",                                   endpoint = "portal"),
             Rule("/categories/_/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
@@ -1055,6 +1056,15 @@ class ApiServer:
             logging.info("Invalidating caches.")
             self.db.cache.invalidate_all ()
             return redirect ("/admin/dashboard", code=302)
+
+        return self.error_403 (request)
+
+    def api_admin_clear_sessions (self, request):
+        token = self.token_from_cookie (request)
+        if self.db.may_administer (token):
+            logging.info("Invalidating sessions.")
+            self.db.delete_all_sessions ()
+            return redirect ("/", code=302)
 
         return self.error_403 (request)
 

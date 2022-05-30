@@ -1,0 +1,14 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?session  ?predicate     ?object .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?session    rdf:type       sg:Session .
+    ?session    ?predicate     ?object .
+  }
+}
+{% endblock %}

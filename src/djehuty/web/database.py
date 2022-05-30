@@ -2257,6 +2257,12 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
+    def delete_all_sessions (self):
+        """Procedure to delete all sessions."""
+
+        query = self.__query_from_template ("delete_sessions")
+        return self.__run_query (query)
+
     def delete_session_by_uuid (self, account_id, session_uuid):
         """Procedure to remove a session from the state graph."""
 
