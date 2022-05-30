@@ -33,7 +33,9 @@ def read_configuration_file (server, config_file, address, port, state_graph,
     config   = {}
     xml_root = None
     if config_file is not None:
-        logging.info ("Reading config file: %s", config_file)
+        if not os.environ.get('WERKZEUG_RUN_MAIN'):
+            logging.info ("Reading config file: %s", config_file)
+
         tree = ET.parse(config_file)
         xml_root = tree.getroot()
         if xml_root.tag != "djehuty":
