@@ -69,8 +69,8 @@ class ApiServer:
             Rule("/my/collections/<collection_id>/edit",      endpoint = "edit_collection"),
             Rule("/my/collections/<collection_id>/delete",    endpoint = "delete_collection"),
             Rule("/my/collections/new",                       endpoint = "new_collection"),
-            Rule("/my/sessions/<session_id>/edit",            endpoint = "edit_session"),
-            Rule("/my/sessions/<session_id>/delete",          endpoint = "delete_session"),
+            Rule("/my/sessions/<session_uuid>/edit",          endpoint = "edit_session"),
+            Rule("/my/sessions/<session_uuid>/delete",        endpoint = "delete_session"),
             Rule("/my/sessions/new",                          endpoint = "new_session"),
             Rule("/my/profile",                               endpoint = "profile"),
             Rule("/admin/dashboard",                          endpoint = "admin_dashboard"),
@@ -921,7 +921,7 @@ class ApiServer:
             "message": "This page is meant for humans only."
         }))
 
-    def api_edit_session (self, request, session_id):
+    def api_edit_session (self, request, session_uuid):
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
@@ -929,7 +929,10 @@ class ApiServer:
 
         if request.method == 'GET':
             if self.accepts_html (request):
-                session = self.db.sessions (account_id, session_id=session_id)[0]
+                session = self.db.sessions (account_id, session_uuid=session_uuid)[0]
+                if not session["editable"]:
+                    return self.error_403 (request)
+
                 return self.__render_template (
                     request,
                     "depositor/edit-session.html",
@@ -943,8 +946,8 @@ class ApiServer:
             try:
                 parameters = request.get_json()
                 name = validator.string_value (parameters, "name", 0, 255)
-                if self.db.update_session (account_id, session_id, name):
-                    return redirect ("/my/dashboard", code=302)
+                if self.db.update_session (account_id, session_uuid, name):
+                    return self.respond_205 ()
 
                 return self.error_500 ()
 
@@ -959,11 +962,11 @@ class ApiServer:
             if account_id is None:
                 return self.error_authorization_failed(request)
 
-            _, session_id = self.db.insert_session (account_id,
-                                                    name     = "Untitled",
-                                                    editable = True)
-            if session_id is not None:
-                return redirect (f"/my/sessions/{session_id}/edit", code=302)
+            _, session_uuid = self.db.insert_session (account_id,
+                                                      name     = "Untitled",
+                                                      editable = True)
+            if session_uuid is not None:
+                return redirect (f"/my/sessions/{session_uuid}/edit", code=302)
 
             return self.error_500()
 
@@ -971,14 +974,14 @@ class ApiServer:
             "message": "This page is meant for humans only."
         }))
 
-    def api_delete_session (self, request, session_id):
+    def api_delete_session (self, request, session_uuid):
         if self.accepts_html (request):
             account_id = self.account_id_from_request (request)
             if account_id is None:
                 return self.error_authorization_failed(request)
 
             response   = redirect (request.referrer, code=302)
-            self.db.delete_session_by_id (account_id, session_id)
+            self.db.delete_session_by_uuid (account_id, session_uuid)
             return response
 
         return self.response (json.dumps({

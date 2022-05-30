@@ -4,13 +4,11 @@ DELETE {
   GRAPH <{{state_graph}}> {
     ?session col:editable   ?editable .
     ?session col:name       ?name .
-    ?session col:editable   1 .
   }
 }
 INSERT {
   GRAPH <{{state_graph}}> {
     ?session col:name       "{{name}}"^^xsd:string .
-    ?session col:editable   0 .
   }
 }
 WHERE {
@@ -18,10 +16,9 @@ WHERE {
     ?session  rdf:type                  sg:Session .
     ?session  col:account_id            ?account_id .
     ?session  col:name                  ?name .
-    ?session  col:id                    ?id .
     ?session  col:editable              1 .
   }
   FILTER (?account_id = {{account_id}})
-  FILTER (?id = {{session_id}})
+  FILTER (?session = <session:{{session_uuid}}>)
 }
 {% endblock %}

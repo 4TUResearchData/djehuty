@@ -24,7 +24,7 @@ function save_session (session_id) {
 
 jQuery(document).ready(function (){
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
-    jQuery("#save").on("click", function (event) { save_session ({{session.id}}); });
+    jQuery("#save").on("click", function (event) { save_session ("{{session.uuid}}"); });
 });
 </script>
 <style>
@@ -56,7 +56,7 @@ pre {
 {% block submenu %}
 <ul>
   <li><a href="/my/dashboard">&#8592; Go back</a>
-  <li class="active">Create session
+  <li class="active">{% if session.name == "Untitled" %}Create session{% else %}Edit session{% endif %}
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save</a>
 
 </ul>
@@ -67,11 +67,15 @@ pre {
 </noscript>
 <h1>API token information</h1>
 <div class="hide-for-javascript">
+{% if session.name == "Untitled" %}
 <h2>Important information</h2>
 <p>Please store the token below, because it isn't recoverable after closing this page.</p>
 <pre>{{session.token}}</pre>
+{% else %}
+<p></p>
+{% endif %}
 <label for="title">Name</label>
-<input type="text" id="name" name="name" value="" placeholder="Example: Token for my local scripts." />
+<input type="text" id="name" name="name" value="{{session.name}}" placeholder="Example: Token for my local scripts." />
 </div>
 </div>
 {% endblock %}

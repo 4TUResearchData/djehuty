@@ -9,10 +9,9 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?session    rdf:type       sg:Session .
     ?session    col:account_id ?account_id .
-    ?session    col:id         ?id .
     ?session    ?predicate     ?object .
 
-    FILTER (?id = {{session_id}})
+    FILTER (?session = <session:{{session_uuid}}>)
     FILTER (?account_id = {{account_id}})
   }
 }

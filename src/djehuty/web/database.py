@@ -2232,11 +2232,9 @@ class SparqlInterface:
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
 
         graph       = Graph()
-        link_id     = self.ids.next_id("session")
-        link_uri    = rdf.ROW[f"session_link_{link_id}"]
+        link_uri    = rdf.unique_node ("session")
         graph.add ((link_uri, RDF.type,              rdf.SG["Session"]))
         graph.add ((link_uri, rdf.COL["account_id"], Literal(account_id)))
-        graph.add ((link_uri, rdf.COL["id"],         Literal(link_id)))
         graph.add ((link_uri, rdf.COL["created_date"], Literal(current_time, datatype=XSD.dateTime)))
         graph.add ((link_uri, rdf.COL["name"],       Literal(name, datatype=XSD.string)))
         graph.add ((link_uri, rdf.COL["token"],      Literal(token, datatype=XSD.string)))
@@ -2244,26 +2242,26 @@ class SparqlInterface:
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            return token, link_id
+            return token, rdf.uri_to_uuid (link_uri)
 
         return None, None
 
-    def update_session (self, account_id, session_id, name):
+    def update_session (self, account_id, session_uuid, name):
         """Procedure to edit a session."""
 
         query = self.__query_from_template ("update_session", {
             "account_id":    account_id,
-            "session_id":    session_id,
+            "session_uuid":  session_uuid,
             "name":          name
         })
 
         return self.__run_query (query)
 
-    def delete_session_by_id (self, account_id, session_id):
+    def delete_session_by_uuid (self, account_id, session_uuid):
         """Procedure to remove a session from the state graph."""
 
-        query   = self.__query_from_template ("delete_session_by_id", {
-            "session_id":  session_id,
+        query   = self.__query_from_template ("delete_session_by_uuid", {
+            "session_uuid":  session_uuid,
             "account_id":  account_id
         })
 
@@ -2281,12 +2279,12 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def sessions (self, account_id, session_id=None):
+    def sessions (self, account_id, session_uuid=None):
         """Returns the sessions for an account."""
 
         query = self.__query_from_template ("account_sessions", {
             "account_id":  account_id,
-            "session_id":  session_id
+            "session_uuid":  session_uuid
         })
 
         return self.__run_query (query)

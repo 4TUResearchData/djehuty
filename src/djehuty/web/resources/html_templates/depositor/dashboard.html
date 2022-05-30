@@ -51,9 +51,14 @@
   <tbody>
     {%- for session in sessions: %}
     <tr>
-      <td>{{session.name | default("Unnamed", False)}}</td>
+      <td>{% if session.editable %}
+        <a href="/my/sessions/{{session.uuid}}/edit">{{session.name | default("Unnamed", False)}}</a>
+        {% else %}
+        {{session.name | default("Unnamed", False)}}
+        {% endif %}
+      </td>
       <td>{{session.created_date | default("Unknown", False)}}</td>
-      <td><a href="/my/sessions/{{session.id}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+      <td><a href="/my/sessions/{{session.uuid}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
     </tr>
     {%- endfor %}
   </tbody>
