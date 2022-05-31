@@ -474,24 +474,6 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def article_references (self, reference_id=None, url=None, order=None,
-                            order_direction=None, limit=10,
-                            article_version_id=None, account_id=None):
-        """Procedure to retrieve article references."""
-
-        filters  = rdf.sparql_filter ("id",            reference_id)
-        filters += rdf.sparql_filter ("url",           url,  escape=True)
-
-        query = self.__query_from_template ("article_references", {
-            "article_version_id":  article_version_id,
-            "account_id":  account_id,
-            "filters":     filters
-        })
-
-        query += rdf.sparql_suffix (order, order_direction, limit, None)
-
-        return self.__run_query(query)
-
     def derived_from (self, item_uri, item_type='article',
                       order=None, order_direction=None, limit=10):
         """Procedure to retrieve derived_from links"""
