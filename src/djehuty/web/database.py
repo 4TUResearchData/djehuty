@@ -1146,16 +1146,12 @@ class SparqlInterface:
                        orcid_id=None, email=None):
         """Procedure to add an author to the state graph."""
 
-        graph = Graph()
-
-        if author_id is None:
-            author_id = self.ids.next_id("author")
-
+        graph      = Graph()
         author_uri = rdf.unique_node ("author")
 
         graph.add ((author_uri, RDF.type,      rdf.SG["Author"]))
-        graph.add ((author_uri, rdf.COL["id"], Literal(author_id)))
 
+        rdf.add (graph, author_uri, rdf.COL["id"],             author_id)
         rdf.add (graph, author_uri, rdf.COL["institution_id"], institution_id)
         rdf.add (graph, author_uri, rdf.COL["is_active"],      is_active)
         rdf.add (graph, author_uri, rdf.COL["is_public"],      is_public)
