@@ -1445,18 +1445,12 @@ class SparqlInterface:
                         item_type=None, funding_id=None):
         """Procedure to add an funding to the state graph."""
 
-        prefix      = item_type.capitalize()
         graph       = Graph()
+        funding_uri = rdf.unique_node ("funding")
 
-        if funding_id is None:
-            funding_id  = self.ids.next_id("funding")
+        graph.add ((funding_uri, RDF.type,                   rdf.SG[f"Funding"]))
 
-        funding_uri = rdf.ROW[f"funding_{funding_id}"]
-
-        graph.add ((funding_uri, RDF.type,                   rdf.SG[f"{prefix}Funding"]))
-        graph.add ((funding_uri, rdf.COL["id"],              Literal(funding_id)))
-        graph.add ((funding_uri, rdf.COL[f"{item_type}_version_id"], Literal(item_id)))
-
+        rdf.add (graph, funding_uri, rdf.COL["id"],              funding_id)
         rdf.add (graph, funding_uri, rdf.COL["title"],           title,           XSD.string)
         rdf.add (graph, funding_uri, rdf.COL["grant_code"],      grant_code,      XSD.string)
         rdf.add (graph, funding_uri, rdf.COL["funder_name"],     funder_name,     XSD.string)
@@ -1465,7 +1459,7 @@ class SparqlInterface:
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            return funding_id
+            return rdf.uri_to_uuid (funding_uri)
 
         return None
 
