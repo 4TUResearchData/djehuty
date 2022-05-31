@@ -3,6 +3,7 @@
 import logging
 import os
 import xml.etree.ElementTree as ET
+import shutil
 from werkzeug.serving import run_simple
 from djehuty.web import database
 from djehuty.web import wsgi
@@ -153,6 +154,9 @@ def main (address=None, port=None, state_graph=None, storage=None,
         if os.environ.get('WERKZEUG_RUN_MAIN'):
             logging.info("Reloaded.")
         else:
+            if shutil.which ("git") is None:
+                logging.error("Cannot find the 'git' executable.  Please install it.")
+
             logging.info("Running on %s", server.base_url)
             logging.info("State graph set to:  %s.", server.db.state_graph)
             logging.info("Storage path set to: %s.", server.db.storage)
