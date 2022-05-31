@@ -3294,67 +3294,68 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed(request)
 
-        if request.method == 'GET':
-            article       = self.__dataset_by_id_or_uri (article_id,
-                                                         account_id=account_id,
-                                                         is_published=False)
+        if request.method not in ['GET', 'POST', 'DELETE']:
+            return self.error_405 (["GET", "POST", "DELETE"])
 
-            references    = self.db.references (item_uri   = article["uri"],
-                                                account_id = account_id)
+        try:
+            article        = self.__dataset_by_id_or_uri (article_id,
+                                                          account_id=account_id,
+                                                          is_published=False)
 
-            return self.default_list_response (references, formatter.format_reference_record)
+            references     = self.db.references (item_uri   = article["uri"],
+                                                 account_id = account_id)
 
-        if request.method == 'POST':
-            ## The 'parameters' will be a dictionary containing a key "references",
-            ## which can contain multiple dictionaries of reference records.
-            parameters = request.get_json()
+            if request.method == 'GET':
+                return self.default_list_response (references, formatter.format_reference_record)
 
-            try:
-                records = parameters["references"]
-                for record in records:
-                    reference_id = self.db.insert_reference (
-                        url       = validator.string_value (record, "url", 0, 512, True),
-                        item_id   = article_id,
-                        item_type = "article")
-                    if reference_id is None:
-                        logging.error("Adding a single reference failed.")
-                        return self.error_500()
+            references     = list(map(lambda reference: reference["url"], references))
 
-                return self.respond_205()
-
-            except KeyError:
-                return self.error_400 (request, "Expected an 'references' field.", "NoReferencesField")
-            except validator.ValidationException as error:
-                return self.error_400 (request, error.message, error.code)
-            except Exception as error:
-                logging.error("An error occurred when adding an reference record:")
-                logging.error("Exception: %s", error)
-
-            return self.error_500()
-
-        if request.method == 'DELETE':
-
-            try:
+            if request.method == 'DELETE':
                 url_encoded = validator.string_value (request.args, "url", 0, 1024, True)
                 url         = requests.utils.unquote(url_encoded)
+                references.remove (next (filter (lambda item: item == url, references)))
+                if not self.db.update_item_list (uri_to_uuid (article["container_uri"]),
+                                                 account_id,
+                                                 references,
+                                                 "references"):
+                    logging.error("Deleting a reference failed.")
+                    return self.error_500()
 
-                article = self.db.articles (article_id  = article_id,
-                                            account_id  = account_id,
-                                            is_editable = 1,
-                                            is_public   = 0)[0]
-                article_version_id = article["article_version_id"]
+                return self.respond_204()
 
-                if self.db.delete_article_reference (article_version_id, account_id, url) is not None:
-                    return self.respond_204()
+            ## For POST and PUT requests, the 'parameters' will be a dictionary
+            ## containing a key "references", which can contain multiple
+            ## dictionaries of reference records.
+            parameters     = request.get_json()
+            records        = parameters["references"]
+            new_references = []
+            for record in records:
+                new_references.append(validator.string_value (record, "url", 0, 512, True))
 
-            except IndexError:
-                return self.error_500 ()
-            except KeyError:
-                return self.error_500 ()
-            except validator.ValidationException as error:
-                return self.error_400 (request, error.message, error.code)
+            if request.method == 'POST':
+                references = references + new_references
 
-        return self.error_405 (["GET", "POST", "DELETE"])
+            if not self.db.update_item_list (uri_to_uuid (article["container_uri"]),
+                                             account_id,
+                                             references,
+                                             "references"):
+                logging.error("Updating references failed.")
+                return self.error_500()
+
+            return self.respond_205()
+
+        except IndexError:
+            return self.error_500 ()
+        except KeyError as error:
+            logging.error ("KeyError: %s", error)
+            return self.error_400 (request, "Expected a 'references' field.", "NoReferencesField")
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+        except Exception as error:
+            logging.error("An error occurred when adding a reference record:")
+            logging.error("Exception: %s", error)
+
+        return self.error_500 ()
 
     def api_v3_groups (self, request):
         handler = self.default_error_handling (request, "GET")
