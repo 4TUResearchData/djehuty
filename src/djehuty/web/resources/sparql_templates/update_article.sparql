@@ -53,45 +53,45 @@ DELETE {
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if title is not none %}
-    ?article           col:title                "{{title}}"^^xsd:string .
+    ?article           col:title                {{title}} .
     {%- endif%}{% if description is not none %}
-    ?article           col:description          "{{description}}"^^xsd:string .
+    ?article           col:description          {{description}} .
     {%- endif%}{% if resource_doi is not none %}
-    ?article           col:resource_doi         "{{resource_doi}}"^^xsd:string .
+    ?article           col:resource_doi         {{resource_doi}} .
     {%- endif%}{% if resource_title is not none %}
-    ?article           col:resource_title       "{{resource_title}}"^^xsd:string .
+    ?article           col:resource_title       {{resource_title}} .
     {%- endif%}{% if license_id is not none %}
     ?article           col:license              ?new_license .
     {%- endif%}{% if group_id is not none %}
     ?article           col:group_id             {{group_id}} .
     {%- endif%}{% if time_coverage is not none %}
-    ?article           col:time_coverage        "{{time_coverage}}"^^xsd:string .
+    ?article           col:time_coverage        {{time_coverage}} .
     {%- endif%}{% if publisher is not none %}
-    ?article           col:publisher            "{{publisher}}"^^xsd:string .
+    ?article           col:publisher            {{publisher}} .
     {%- endif%}{% if language is not none %}
-    ?article           col:language             "{{language}}"^^xsd:string .
+    ?article           col:language             {{language}} .
     {%- endif%}{% if format is not none %}
-    ?article           col:format               "{{format}}"^^xsd:string .
+    ?article           col:format               {{format}} .
     {%- endif%}{% if contributors is not none %}
-    ?article           col:contributors         "{{contributors}}"^^xsd:string .
+    ?article           col:contributors         {{contributors}} .
     {%- endif%}{% if license_remarks is not none %}
-    ?article           col:license_remarks      "{{license_remarks}}"^^xsd:string .
+    ?article           col:license_remarks      {{license_remarks}} .
     {%- endif%}{% if geolocation is not none %}
-    ?article           col:geolocation          "{{geolocation}}"^^xsd:string .
+    ?article           col:geolocation          {{geolocation}} .
     {%- endif%}{% if longitude is not none %}
-    ?article           col:longitude            "{{longitude}}"^^xsd:string .
+    ?article           col:longitude            {{longitude}} .
     {%- endif%}{% if latitude is not none %}
-    ?article           col:latitude             "{{latitude}}"^^xsd:string .
+    ?article           col:latitude             {{latitude}} .
     {%- endif%}{% if data_link is not none %}
-    ?article           col:data_link            "{{data_link}}"^^xsd:string .
+    ?article           col:data_link            {{data_link}} .
     {%- endif%}{% if derived_from is not none %}
-    ?article           col:derived_from         "{{derived_from}}"^^xsd:string .
+    ?article           col:derived_from         {{derived_from}} .
     {%- endif%}{% if same_as is not none %}
-    ?article           col:same_as              "{{same_as}}"^^xsd:string .
+    ?article           col:same_as              {{same_as}} .
     {%- endif%}{% if organizations is not none %}
-    ?article           col:organizations        "{{organizations}}"^^xsd:string .
+    ?article           col:organizations        {{organizations}} .
     {%- endif%}{% if defined_type_name is not none %}
-    ?article           col:defined_type_name    "{{defined_type_name}}"^^xsd:string .
+    ?article           col:defined_type_name    {{defined_type_name}} .
     {%- endif%}{% if defined_type is not none %}
     ?article           col:defined_type         {{defined_type}} .
     {%- endif%}{% if has_linked_file is not none %}
