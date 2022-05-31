@@ -3,7 +3,7 @@ This module provides convenience functions for handling RDF.
 """
 
 import uuid
-from rdflib import Literal, Namespace, URIRef
+from rdflib import Literal, Namespace, URIRef, XSD
 
 BLANK = Namespace("blank:")
 ROW   = Namespace("djehuty:")
@@ -42,7 +42,10 @@ def sparql_filter (name, value, escape=False, is_uri=False):
 
 def escape_string_value (value):
     """Returns VALUE wrapped in double quotes."""
-    return f"\"{value}\""
+    if value is None:
+        return None
+
+    return Literal(value, datatype=XSD.string).n3()
 
 def sparql_in_filter (name, values, escape=False, is_uri=False, negate=False):
     """Returns a FILTER statement for a list of values."""
