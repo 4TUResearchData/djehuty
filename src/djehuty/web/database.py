@@ -980,46 +980,6 @@ class SparqlInterface:
 
         return None
 
-    def insert_account (self, account_id=None, active=None, email=None,
-                        first_name=None, last_name=None, institution_user_id=None,
-                        institution_id=None, pending_quota_request=None,
-                        used_quota_public=None, used_quota_private=None,
-                        used_quota=None, maximum_file_size=None, quota=None,
-                        modified_date=None, created_date=None, group_id=None):
-        """Procedure to add an account to the state graph."""
-
-        graph = Graph()
-
-        if account_id is None:
-            account_id = self.ids.next_id("account")
-
-        account_uri = rdf.ROW[f"account_{account_id}"]
-
-        graph.add ((account_uri, RDF.type,      rdf.SG["Account"]))
-        graph.add ((account_uri, rdf.COL["id"], Literal(account_id)))
-
-        rdf.add (graph, account_uri, rdf.COL["active"],                active)
-        rdf.add (graph, account_uri, rdf.COL["email"],                 email,         XSD.string)
-        rdf.add (graph, account_uri, rdf.COL["first_name"],            first_name,    XSD.string)
-        rdf.add (graph, account_uri, rdf.COL["last_name"],             last_name,     XSD.string)
-        rdf.add (graph, account_uri, rdf.COL["institution_user_id"],   institution_user_id)
-        rdf.add (graph, account_uri, rdf.COL["institution_id"],        institution_id)
-        rdf.add (graph, account_uri, rdf.COL["group_id"],              group_id)
-        rdf.add (graph, account_uri, rdf.COL["pending_quota_request"], pending_quota_request)
-        rdf.add (graph, account_uri, rdf.COL["used_quota_public"],     used_quota_public)
-        rdf.add (graph, account_uri, rdf.COL["used_quota_private"],    used_quota_private)
-        rdf.add (graph, account_uri, rdf.COL["used_quota"],            used_quota)
-        rdf.add (graph, account_uri, rdf.COL["maximum_file_size"],     maximum_file_size)
-        rdf.add (graph, account_uri, rdf.COL["quota"],                 quota)
-        rdf.add (graph, account_uri, rdf.COL["modified_date"],         modified_date, XSD.string)
-        rdf.add (graph, account_uri, rdf.COL["created_date"],          created_date,  XSD.string)
-
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
-            return account_id
-
-        return None
-
     def update_account (self, account_id, active=None, email=None, job_title=None,
                         first_name=None, last_name=None, institution_user_id=None,
                         institution_id=None, pending_quota_request=None,
