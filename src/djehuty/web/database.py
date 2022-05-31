@@ -487,17 +487,6 @@ class SparqlInterface:
 
         return [d['derived_from'] for d in self.__run_query(query)]
 
-    def delete_article_reference (self, article_version_id, account_id, url=None):
-        """Procedure to delete an article reference."""
-
-        query = self.__query_from_template ("delete_article_reference", {
-            "account_id":  account_id,
-            "article_version_id": article_version_id,
-            "url":         url.replace('"', '\\"')
-        })
-
-        return self.__run_query(query)
-
     def custom_fields (self, name=None, value=None, default_value=None,
                        field_id=None, placeholder=None, max_length=None,
                        min_length=None, field_type=None, is_multiple=None,
