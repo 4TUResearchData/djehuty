@@ -6,17 +6,14 @@ WHERE {
     ?container      rdf:type/rdf:type        sg:Container .
     {%- if account_id is not none %}
     ?container      col:account_id           {{account_id}} .
-    {%- if is_published %}
-    ?container      col:published_versions/rdf:rest*/rdf:first ?item_uri .
-    {%- else %}
-    ?container      col:draft                ?item_uri .
-    {%- endif %}
     {%- endif %}
 
+    ?item_uri       col:container            ?container .
     ?item_uri       col:references/rdf:rest* ?rest .
     ?rest           col:index                ?id .
     ?rest           rdf:first                ?url .
   }
   FILTER (?item_uri = <{{item_uri}}>)
 }
+ORDER BY ASC(?id)
 {% endblock %}
