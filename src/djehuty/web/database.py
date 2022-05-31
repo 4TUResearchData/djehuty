@@ -977,6 +977,7 @@ class SparqlInterface:
 
         graph.add ((uri, RDF.type,                      rdf.SG["Article"]))
         graph.add ((uri, rdf.COL["title"],              Literal(title, datatype=XSD.string)))
+        graph.add ((uri, rdf.COL["container"],          container))
 
         rdf.add (graph, uri, rdf.COL["description"],    description,    XSD.string)
         rdf.add (graph, uri, rdf.COL["defined_type"],   defined_type,   XSD.string)
