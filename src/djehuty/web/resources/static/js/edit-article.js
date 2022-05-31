@@ -124,9 +124,9 @@ function render_references_for_article (article_uuid) {
     }).done(function (references) {
         jQuery("#references-list tbody").empty();
         for (url of references) {
-            row = `<tr><td><a target="_blank" href="${encodeURI(url)}">`;
+            row = `<tr><td><a target="_blank" href="${encodeURIComponent(url)}">`;
             row += `${url}</a></td><td><a href="#" `;
-            row += `onclick="javascript:remove_reference('${encodeURI(url)}', `;
+            row += `onclick="javascript:remove_reference('${encodeURIComponent(url)}', `;
             row += `'${article_uuid}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
             jQuery("#references-list tbody").append(row);
@@ -308,7 +308,6 @@ function autocomplete_author (event, article_uuid) {
             jQuery("#authors-ac").remove();
             html = "<ul>";
             for (item of data) {
-                console.log(`Offering ${JSON.stringify(item)} as auto-completion`);
                 html += `<li><a href="#" `;
                 html += `onclick="javascript:add_author('${item["uuid"]}', `;
                 html += `'${article_uuid}'); return false;">${item["full_name"]}`;
