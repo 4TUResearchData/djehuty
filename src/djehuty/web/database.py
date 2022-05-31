@@ -1129,12 +1129,14 @@ class SparqlInterface:
 
                 query = self.__insert_query_for_graph (graph)
                 if not self.__run_query (query):
-                    logging.error ("Category insert query failed for %s", container_uuid)
+                    logging.error ("%s insert query failed for %s",
+                                   predicate, container_uuid)
 
             return True
 
         except IndexError:
-            logging.error ("Could not insert article categories for %s", container_uuid)
+            logging.error ("Could not insert %s items for %s",
+                           predicate, container_uuid)
 
         return False
 
