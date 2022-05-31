@@ -1421,25 +1421,6 @@ class SparqlInterface:
 
         return None
 
-    def insert_reference (self, url, item_id=None, item_type=None):
-        """Procedure to add an reference to the state graph."""
-
-        prefix        = item_type.capitalize()
-        graph         = Graph()
-        reference_id  = self.ids.next_id("reference")
-        reference_uri = rdf.ROW[f"reference_{reference_id}"]
-
-        graph.add ((reference_uri, RDF.type,                   rdf.SG[f"{prefix}Reference"]))
-        graph.add ((reference_uri, rdf.COL["id"],              Literal(reference_id)))
-        graph.add ((reference_uri, rdf.COL[f"{item_type}_version_id"], Literal(item_id)))
-        graph.add ((reference_uri, rdf.COL["url"],             Literal(url, datatype=XSD.string)))
-
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
-            return reference_id
-
-        return None
-
     def insert_funding (self, title=None, grant_code=None, funder_name=None,
                         is_user_defined=None, url=None, item_id=None,
                         item_type=None, funding_id=None):
