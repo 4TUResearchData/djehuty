@@ -1,12 +1,12 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?id ?tag
+SELECT DISTINCT ?index ?tag
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?item_uri        rdf:type                 sg:{{prefix}} .
-    ?item_uri        col:tags/rdf:rest*       ?rest .
-    ?rest            col:index                ?id .
-    ?rest            col:first                ?tag .
+    ?item_uri        rdf:type            sg:{{prefix}} ;
+                     col:tags/rdf:rest*  ?tag_node .
+    ?tag_node        rdf:first           ?tag ;
+                     col:index           ?index .
   }
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)
@@ -14,3 +14,4 @@ WHERE {
 {%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
+

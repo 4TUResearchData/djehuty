@@ -1,15 +1,15 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?article_id ?version ?url ?url_public_api
+SELECT DISTINCT ?dataset_uri ?article_id ?version ?url ?url_public_api
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container_uri  rdf:type               sg:ArticleContainer .
-    ?container_uri  col:published_versions ?published .
-    ?container_uri  col:article_id         ?article_id .
-    ?published      rdf:rest*/rdf:first    ?dataset .
-    ?dataset        col:version            ?version .
-    ?dataset        col:url                ?url .
-    ?dataset        col:url_public_api     ?url_public_api .
+    ?container_uri rdf:type            sg:ArticleContainer ;
+                   col:article_id      ?article_id .
+    ?dataset_uri   rdf:type            sg:Article ;
+                   col:container       ?container_uri ;
+                   col:version         ?version ;
+                   col:url             ?url ;
+                   col:url_public_api  ?url_public_api .
   }
 {% if filters is not none %}{{ filters }}{% endif %}
 }
