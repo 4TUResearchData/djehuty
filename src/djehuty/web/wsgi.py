@@ -162,7 +162,6 @@ class ApiServer:
             Rule("/v3/articles/top/<item_type>",              endpoint = "v3_articles_top"),
             Rule("/v3/articles/timeline/<item_type>",         endpoint = "v3_articles_timeline"),
             Rule("/v3/articles/<article_id>/upload",          endpoint = "v3_article_upload_file"),
-            Rule("/v3/articles/<article_id>.git/files",       endpoint = "v3_article_git_files"),
             Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
             Rule("/v3/articles/<article_id>/references",      endpoint = "v3_article_references"),
             Rule("/v3/groups",                                endpoint = "v3_groups"),
@@ -1109,7 +1108,8 @@ class ApiServer:
                     x, y = [min(1., days/d) for d in rgb_opa_days]
                     rgba = [round(i[0] + x*(i[1]-i[0])) for i in rgb_shift] + [round(1 - y*(1-opa_min), 3)]
                     str_rgba = ','.join([str(c) for c in rgba])
-                    latest.append((rec['url_public_html'], rec['title'], pub_date, ago, str_rgba))
+                    url = rec['url_public_html'] if fromFigshare else f'/articles/_/{rec["article_id"]}'
+                    latest.append((url, rec['title'], pub_date, ago, str_rgba))
             except:
                 pass
 
@@ -1139,7 +1139,7 @@ class ApiServer:
         if self.accepts_html (request):
             container     = self.db.article_container(article_id=article_id)[0]
             versions      = self.db.dataset_versions(article_id=article_id)
-            versions      = [v for v in versions if v['version']] # exclude version None
+            versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
             current_version = version if version else versions[0]['version']
             article       = self.db.datasets (dataset_id    = article_id,
                                               version       = current_version,
