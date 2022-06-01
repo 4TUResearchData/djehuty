@@ -331,8 +331,14 @@ class DatabaseInterface:
         """Procedure to insert a custom_field record."""
 
         name        = field["name"].lower().replace(" ", "_")
+
+        ## Exceptions to the custom field names.
         if name == "licence_remarks":
             name = "license_remarks"
+        if name == "geolocation_latitude":
+            name = "latitude"
+        if name == "geolocation_longitude":
+            name = "longitude"
 
         settings    = {}
         validations = {}
