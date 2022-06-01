@@ -1,7 +1,7 @@
 function render_in_form (text) { return [text].join(''); }
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 
-function delete_article (article_uuid) {
+function delete_article (article_uuid, event) {
     event.preventDefault();
     event.stopPropagation();
     if (confirm("Deleting this draft article is unrecoverable. "+
@@ -15,7 +15,7 @@ function delete_article (article_uuid) {
     }
 }
 
-function save_article (article_uuid) {
+function save_article (article_uuid, event) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -162,6 +162,25 @@ function render_authors_for_article (article_uuid) {
     });
 }
 
+function render_git_files_for_article (article_uuid, event) {
+    if (event !== null) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    var jqxhr = jQuery.ajax({
+        url:         `/v3/articles/${article_uuid}.git/files`,
+        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (files) {
+        jQuery("#git-files").empty();
+        for (index in files) {
+            jQuery("#git-files").append(`<li>${files[index]}</li>`);
+        }
+    }).fail(function () {
+        console.log("Failed to retrieve Git file details.");
+    });
+}
 function render_files_for_article (article_uuid) {
     var jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${article_uuid}/files`,
@@ -388,14 +407,18 @@ function activate (article_uuid) {
             jQuery("#external_link").prop("checked", true);
         } else if (data["defined_type_name"] == "software") {
             jQuery("#upload_software").prop("checked", true);
+            render_git_files_for_article (article_uuid, null);
         } else {
             jQuery("#upload_files").prop("checked", true);
         }
 
         toggle_record_type (article_uuid);
 
-        jQuery("#delete").on("click", function (event) { delete_article (article_uuid); });
-        jQuery("#save").on("click", function (event)   { save_article (article_uuid); });
+        jQuery("#delete").on("click", function (event) { delete_article (article_uuid, event); });
+        jQuery("#save").on("click", function (event)   { save_article (article_uuid, event); });
+        jQuery("#refresh-git-files").on("click", function (event) {
+            render_git_files_for_article (article_uuid, event);
+        });
     }).fail(function () { console.log(`Failed to retrieve article ${article_uuid}.`); });
 }
 

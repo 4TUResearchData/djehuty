@@ -205,6 +205,9 @@ jQuery(document).ready(function (){
 }
 #groups-wrapper h4:nth-child(1) { margin: 0em; }
 #metadata_reason_field, #external_link_field, #file_upload_field { display: none; }
+#git-files { margin: 0em; padding: 0em; }
+#git-files li { list-style-type: none; margin: 0em; padding: .5em; }
+#git-files li:nth-child(even) { background: #fafafa; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -333,11 +336,16 @@ jQuery(document).ready(function (){
   <h4>Publish source code through Git</h4>
   <p>To publish from a Git repository, push a branch to the <code>4tu</code> remote.</p>
   <p>First, add the <code>4tu</code> remote:</p>
-  <pre>git remote add 4tu {{base_url}}/v3/articles/{{article["article_id"]}}.git</pre>
+  <pre>git remote add 4tu {{base_url}}/v3/articles/{{container_uuid}}.git</pre>
   <p>Then, push the repository to it:</p>
   <pre>
 git push 4tu --all
 git push 4tu --tags</pre>
+  <h4>Repository file tree</h4>
+  <ul id="git-files"></ul>
+  <div class="center">
+    <a id="refresh-git-files" href="#" class="button neutral-button">Refresh repository file list</a>
+  </div>
   <h4>Distribution artefacts</h4>
   <p>
     Software packages oftentimes have separate distribution tarballs

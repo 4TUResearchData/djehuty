@@ -162,6 +162,7 @@ class ApiServer:
             Rule("/v3/articles/top/<item_type>",              endpoint = "v3_articles_top"),
             Rule("/v3/articles/timeline/<item_type>",         endpoint = "v3_articles_timeline"),
             Rule("/v3/articles/<article_id>/upload",          endpoint = "v3_article_upload_file"),
+            Rule("/v3/articles/<article_id>.git/files",       endpoint = "v3_article_git_files"),
             Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
             Rule("/v3/articles/<article_id>/references",      endpoint = "v3_article_references"),
             Rule("/v3/groups",                                endpoint = "v3_groups"),
@@ -3202,6 +3203,26 @@ class ApiServer:
             item_type       = item_type)
 
         return self.response (json.dumps(records))
+
+    def api_v3_article_git_files (self, request, article_id):
+        git_directory  = f"{self.db.storage}/{article_id}.git"
+        if not os.path.exists (git_directory):
+            return self.response ("[]")
+
+        git_repository = pygit2.Repository(git_directory)
+        branches       = list(git_repository.branches.local)
+        files          = []
+        if branches:
+            branch_name = branches[0]
+            if "master" in branches:
+                branch_name = "master"
+            elif "main" in branches:
+                branch_name = "main"
+
+            files = git_repository.revparse_single(branch_name).tree
+            files = [e.name for e in files]
+
+        return self.response (json.dumps(files))
 
     def api_v3_article_upload_file (self, request, article_id):
         handler = self.default_error_handling (request, "POST")
