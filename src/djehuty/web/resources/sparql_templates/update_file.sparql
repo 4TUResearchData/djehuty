@@ -37,18 +37,13 @@ INSERT {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                sg:File .
-    ?file              col:id                  ?id .
 
-    {#- The ?link and ?article triplets ensure only the account_id
-     #- associated with the ?file can modify its properties. #}
-    ?link              rdf:type                sg:ArticleFile .
-    ?link              col:article_version_id  ?article_version_id .
-    ?link              col:file_id             ?id .
+    {#- Ensure that the account_id associated with the ?file can modify its
+     #- properties. #}
+    ?article           col:files/rdf:rest*/rdf:first ?file ;
+                       col:container/col:account_id  {{account_id}} .
 
-    ?article           rdf:type                sg:Article .
-    ?article           col:article_version_id  ?article_version_id .
-    ?article           col:account_id          {{account_id}} .
-
+    OPTIONAL { ?file   col:id                  ?id . }
     OPTIONAL { ?file   col:download_url        ?download_url . }
     OPTIONAL { ?file   col:computed_md5        ?computed_md5 . }
     OPTIONAL { ?file   col:viewer_type         ?viewer_type . }
@@ -56,6 +51,6 @@ WHERE {
     OPTIONAL { ?file   col:size                ?size . }
     OPTIONAL { ?file   col:status              ?status . }
   }
-  FILTER (?id = {{file_id}})
+  FILTER (?file = <file:{{file_uuid}}>)
 }
 {% endblock %}

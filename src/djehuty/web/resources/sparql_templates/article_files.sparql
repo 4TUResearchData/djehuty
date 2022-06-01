@@ -4,11 +4,10 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?id            ?download_url  ?supplied_md5
                 ?computed_md5  ?viewer_type   ?preview_state
                 ?status        ?upload_url    ?upload_token
-                ?order_index
+                ?order_index   ?uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                sg:File .
-    ?file              col:id                  ?id .
     {% if article_uri is not none %}
     ?article_uri       rdf:type                sg:Article ;
                        col:files               ?files .
@@ -20,6 +19,7 @@ WHERE {
     ?container         rdf:type/rdf:type       sg:Container ;
                        col:account_id          {{account_id}} .
     {% endif %}
+    OPTIONAL { ?file  col:id                   ?id . }
     OPTIONAL { ?file  col:name                 ?name . }
     OPTIONAL { ?file  col:size                 ?size . }
     OPTIONAL { ?file  col:is_link_only         ?is_link_only . }
@@ -31,6 +31,8 @@ WHERE {
     OPTIONAL { ?file  col:status               ?status . }
     OPTIONAL { ?file  col:upload_url           ?upload_url . }
     OPTIONAL { ?file  col:upload_token         ?upload_token . }
+
+    BIND(STRAFTER(STR(?file), "file:") AS ?uuid)
   }
 {%- if article_uri is not none %}
   FILTER (?article_uri = <{{article_uri}}>)

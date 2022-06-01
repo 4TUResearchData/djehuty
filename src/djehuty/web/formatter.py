@@ -76,6 +76,7 @@ def format_file_for_article_record (record):
     """Record formatter for files."""
     return {
       "id":           conv.value_or_none(record, "id"),
+      "uuid":         conv.value_or_none(record, "uuid"),
       "name":         conv.value_or_none(record, "name"),
       "size":         conv.value_or_none(record, "size"),
       "is_link_only": bool(conv.value_or_none(record, "is_link_only")),
@@ -92,6 +93,7 @@ def format_file_details_record (record):
       "preview_state": conv.value_or_none(record, "preview_state"),
       "upload_url":    conv.value_or_none(record, "upload_url"),
       "upload_token":  conv.value_or_none(record, "upload_token"),
+      "uuid":          conv.value_or_none(record, "uuid"),
       "id":            conv.value_or_none(record, "id"),
       "name":          conv.value_or_none(record, "name"),
       "size":          conv.value_or_none(record, "size"),

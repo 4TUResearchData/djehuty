@@ -2128,18 +2128,14 @@ class ApiServer:
         if request.method == 'POST':
             parameters = request.get_json()
             try:
-                article_id = int(article_id)
                 link = validator.string_value (parameters, "link", 0, 1000, False)
-
-                article = self.db.articles (article_id  = article_id,
-                                            account_id  = account_id,
-                                            is_editable = 1,
-                                            is_public   = 0)[0]
-                article_version_id = article["article_version_id"]
+                article = self.__dataset_by_id_or_uri (article_id,
+                                                       account_id=account_id,
+                                                       is_published=False)
 
                 if link is not None:
                     file_id = self.db.insert_file (
-                        article_version_id = article_version_id,
+                        article_uri        = article["uri"],
                         account_id         = account_id,
                         is_link_only       = True,
                         download_url       = link)
@@ -2152,7 +2148,7 @@ class ApiServer:
                     })
 
                 file_id = self.db.insert_file (
-                    article_version_id = article_version_id,
+                    article_uri   = article["uri"],
                     account_id    = account_id,
                     is_link_only  = False,
                     upload_token  = self.token_from_request (request),
@@ -2215,18 +2211,19 @@ class ApiServer:
 
         if request.method == 'DELETE':
             try:
-                article = self.db.articles (article_id  = article_id,
-                                            account_id  = account_id,
-                                            is_editable = 1,
-                                            is_public   = 0)[0]
-                article_version_id = article["article_version_id"]
+                article = self.__dataset_by_id_or_uri (article_id,
+                                                       account_id=account_id,
+                                                       is_published=False)
 
-                result = self.db.delete_file_for_article (
-                    article_version_id = article_version_id,
-                    account_id = account_id,
-                    file_id    = file_id)
+                files = self.db.article_files (article_uri=article["uri"])
+                files.remove (next (filter (lambda item: item["uuid"] == file_id, files)))
+                files = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "file")),
+                                           files))
 
-                if result is not None:
+                if self.db.update_item_list (article["container_uuid"],
+                                             account_id,
+                                             files,
+                                             "files"):
                     return self.respond_204()
 
             except IndexError:
@@ -3216,22 +3213,20 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         try:
-            article = self.db.articles (article_id  = article_id,
-                                        account_id  = account_id,
-                                        is_editable = 1,
-                                        is_public   = 0)[0]
-            article_version_id = article["article_version_id"]
+            article   = self.__dataset_by_id_or_uri (article_id,
+                                                     account_id=account_id,
+                                                     is_published=False)
             file_data = request.files['file']
-            file_id   = self.db.insert_file (
+            file_uuid = self.db.insert_file (
                 name          = file_data.filename,
                 size          = file_data.content_length,
                 is_link_only  = 0,
-                upload_url    = f"/article/{article_version_id}/upload",
+                upload_url    = f"/article/{article_id}/upload",
                 upload_token  = self.token_from_request (request),
-                article_version_id = article_version_id,
+                article_uri   = article["uri"],
                 account_id    = account_id)
 
-            output_filename = f"{self.db.storage}/{article_version_id}_{file_id}"
+            output_filename = f"{self.db.storage}/{article_id}_{file_uuid}"
 
             file_data.save (output_filename)
             file_data.close()
@@ -3246,11 +3241,11 @@ class ApiServer:
                     md5.update(chunk)
                     computed_md5 = md5.hexdigest()
 
-            self.db.update_file (account_id, file_id,
+            self.db.update_file (account_id, file_uuid,
                                  computed_md5 = computed_md5,
                                  file_size    = file_size)
 
-            return self.response (json.dumps({ "location": f"{self.base_url}/v3/file/{file_id}" }))
+            return self.response (json.dumps({ "location": f"{self.base_url}/v3/file/{file_uuid}" }))
 
         except OSError:
             logging.error ("Writing %s to disk failed.", output_filename)

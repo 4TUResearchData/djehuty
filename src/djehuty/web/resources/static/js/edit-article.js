@@ -180,7 +180,7 @@ function render_files_for_article (article_uuid) {
                 }
                 html = `<tr><td><a href="${file.download_url}">${file.name}</a> (${prettify_size(file.size)})</td>`;
                 html += `<td>${render_in_form(file["computed_md5"])}</td>`;
-                html += `<td><a href="#" onclick="javascript:remove_file(${file.id},`;
+                html += `<td><a href="#" onclick="javascript:remove_file('${file.uuid}',`;
                 html += ` '${article_uuid}'); return false;" class="fas fa-trash-can" `;
                 html += `title="Remove"></a></td></tr>`;
                 jQuery("#files tbody").append(html);

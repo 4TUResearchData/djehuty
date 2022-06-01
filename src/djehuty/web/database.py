@@ -1379,19 +1379,15 @@ class SparqlInterface:
                      is_link_only=None, download_url=None, supplied_md5=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
                      status=None, upload_url=None, upload_token=None,
-                     article_version_id=None, account_id=None):
+                     article_uri=None, account_id=None):
         """Procedure to add an file to the state graph."""
 
         graph    = Graph()
-
-        if file_id is None:
-            file_id  = self.ids.next_id("file")
-
-        file_uri = rdf.ROW[f"file_{file_id}"]
+        file_uri = rdf.unique_node ("file")
 
         graph.add ((file_uri, RDF.type,               rdf.SG["File"]))
-        graph.add ((file_uri, rdf.COL["id"],          Literal(file_id)))
 
+        rdf.add (graph, file_uri, rdf.COL["id"],            file_id)
         rdf.add (graph, file_uri, rdf.COL["name"],          name,          XSD.string)
         rdf.add (graph, file_uri, rdf.COL["size"],          size)
         rdf.add (graph, file_uri, rdf.COL["is_link_only"],  is_link_only)
@@ -1404,31 +1400,36 @@ class SparqlInterface:
         rdf.add (graph, file_uri, rdf.COL["upload_url"],    upload_url,    XSD.string)
         rdf.add (graph, file_uri, rdf.COL["upload_token"],  upload_token,  XSD.string)
 
-        self.cache.invalidate_by_prefix ("article")
+        self.cache.invalidate_by_prefix ("dataset")
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            if article_version_id is not None:
-                if is_link_only:
-                    self.update_article (article_version_id = article_version_id,
-                                         account_id = account_id,
-                                         has_linked_file = True)
+            existing_files = self.article_files (article_uri=article_uri)
+            existing_files = list(map (lambda item: URIRef(rdf.uuid_to_uri(item["uuid"], "file")),
+                                         existing_files))
 
-                link_id = self.insert_article_file (article_version_id, file_id)
-                if link_id is not None:
-                    return file_id
-            else:
-                return file_id
+            new_files    = existing_files + [URIRef(file_uri)]
+            dataset_uuid = rdf.uri_to_uuid (article_uri)
+            dataset      = self.datasets (dataset_uuid = dataset_uuid,
+                                        account_id     = account_id,
+                                          is_published = False,
+                                          limit        = 1)[0]
+
+            if self.update_item_list (dataset["container_uuid"],
+                                      account_id,
+                                      new_files,
+                                      "files"):
+                return rdf.uri_to_uuid (file_uri)
 
         return None
 
-    def update_file (self, account_id, file_id, download_url=None,
+    def update_file (self, account_id, file_uuid, download_url=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
                      file_size=None, status=None):
         """Procedure to update file metadata."""
 
         query   = self.__query_from_template ("update_file", {
             "account_id":    account_id,
-            "file_id":       file_id,
+            "file_uuid":     file_uuid,
             "download_url":  download_url,
             "computed_md5":  computed_md5,
             "viewer_type":   viewer_type,
