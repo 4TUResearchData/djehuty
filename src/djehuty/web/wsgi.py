@@ -8,7 +8,7 @@ import hashlib
 import subprocess
 import requests
 import pygit2
-from werkzeug.utils import redirect
+from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 from werkzeug.middleware.shared_data import SharedDataMiddleware
@@ -87,6 +87,7 @@ class ApiServer:
             Rule("/opendap_to_doi",                           endpoint = "opendap_to_doi"),
             Rule("/articles/_/<article_id>",                  endpoint = "article_ui"),
             Rule("/articles/_/<article_id>/<version>",        endpoint = "article_ui"),
+            Rule("/file/<article_id>/<file_id>",              endpoint = "download_file"),
 
             ## ----------------------------------------------------------------
             ## API
@@ -1325,6 +1326,47 @@ class ApiServer:
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
         }))
+
+    def api_download_file (self, request, article_id, file_id):
+        try:
+            article  = self.__dataset_by_id_or_uri (article_id)
+
+            ## When downloading a file from an article that isn't published,
+            ## we need to authorize it first.
+            if article is None:
+                account_id = self.account_id_from_request (request)
+                if account_id is not None:
+                    article = self.__dataset_by_id_or_uri (article_id,
+                                                           account_id   = account_id,
+                                                           is_published = False)
+
+            ## Check again whether a private article has been found.
+            if article is None:
+                return self.error_404 ()
+
+            metadata = self.__file_by_id_or_uri (file_id,
+                                                 article_uri = article["uri"])
+
+            file_path = metadata["filesystem_location"]
+            if file_path is None:
+                logging.error ("File download failed due to missing metadata.")
+                return self.error_500 ()
+
+            return send_file (file_path,
+                              request.environ,
+                              "application/octet-stream",
+                              as_attachment=True,
+                              download_name=metadata["name"])
+
+        except IndexError:
+            return self.error_404 (request)
+        except TypeError as error:
+            logging.error("File download failed due to: %s", error)
+            return self.error_404 (request)
+        except FileNotFoundError:
+            logging.error ("File download failed due to missing file.")
+
+        return self.error_500 ()
 
     def api_authorize (self, request):
         return self.error_404 (request)
