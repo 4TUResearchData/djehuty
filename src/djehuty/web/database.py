@@ -444,11 +444,11 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def article_files (self, name=None, size=None, is_link_only=None,
-                       file_id=None, download_url=None, supplied_md5=None,
+                       file_uuid=None, download_url=None, supplied_md5=None,
                        computed_md5=None, viewer_type=None, preview_state=None,
                        status=None, upload_url=None, upload_token=None,
                        order="order_index", order_direction="asc", limit=10,
-                       article_uri=None, account_id=None):
+                       article_uri=None, account_id=None, file_id=None):
         """Procedure to retrieve files of an article."""
 
         filters  = rdf.sparql_filter ("size",          size)
@@ -467,6 +467,7 @@ class SparqlInterface:
         query = self.__query_from_template ("article_files", {
             "article_uri":         article_uri,
             "account_id":          account_id,
+            "file_uuid":           file_uuid,
             "filters":             filters
         })
 

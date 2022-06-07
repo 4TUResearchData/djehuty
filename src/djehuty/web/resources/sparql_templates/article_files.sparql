@@ -37,6 +37,9 @@ WHERE {
 {%- if article_uri is not none %}
   FILTER (?article_uri = <{{article_uri}}>)
 {%- endif %}
+{%- if file_uuid is not none %}
+  FILTER (?file = <file:{{file_uuid}}>)
+{%- endif %}
 {%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
