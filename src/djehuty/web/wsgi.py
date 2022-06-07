@@ -1607,9 +1607,8 @@ class ApiServer:
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
-        article = self.db.articles (article_id=article_id, is_editable=0, is_public=1)[0]
-        article_version_id = article["article_version_id"]
-        files   = self.db.article_files (article_version_id=article_version_id)
+        article = self.__dataset_by_id_or_uri (article_id, is_published=True)
+        files   = self.db.article_files (article_uri=article["uri"])
 
         return self.default_list_response (files, formatter.format_file_for_article_record)
 
