@@ -4,7 +4,7 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?id            ?download_url  ?supplied_md5
                 ?computed_md5  ?viewer_type   ?preview_state
                 ?status        ?upload_url    ?upload_token
-                ?order_index   ?uuid
+                ?order_index   ?uuid          ?filesystem_location
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                sg:File .
@@ -21,6 +21,7 @@ WHERE {
     {% endif %}
     OPTIONAL { ?file  col:id                   ?id . }
     OPTIONAL { ?file  col:name                 ?name . }
+    OPTIONAL { ?file  col:filesystem_location  ?filesystem_location . }
     OPTIONAL { ?file  col:size                 ?size . }
     OPTIONAL { ?file  col:is_link_only         ?is_link_only . }
     OPTIONAL { ?file  col:download_url         ?download_url . }

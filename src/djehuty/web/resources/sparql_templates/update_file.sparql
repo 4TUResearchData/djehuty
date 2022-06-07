@@ -14,6 +14,8 @@ DELETE {
     ?file              col:size                ?size .
     {%- endif%}{% if status is not none %}
     ?file              col:status              ?status .
+    {%- endif%}{% if filesystem_location is not none %}
+    ?file              col:filesystem_location ?filesystem_location .
     {%- endif%}
   }
 }
@@ -31,6 +33,8 @@ INSERT {
     ?file              col:size                {{file_size}} .
     {%- endif%}{% if status is not none %}
     ?file              col:status              "{{status}}"^^xsd:string .
+    {%- endif%}{% if filesystem_location is not none %}
+    ?file              col:filesystem_location "{{filesystem_location}}"^^xsd:string .
     {%- endif%}
   }
 }
@@ -44,6 +48,7 @@ WHERE {
                        col:container/col:account_id  {{account_id}} .
 
     OPTIONAL { ?file   col:id                  ?id . }
+    OPTIONAL { ?file   col:filesystem_location ?filesystem_location . }
     OPTIONAL { ?file   col:download_url        ?download_url . }
     OPTIONAL { ?file   col:computed_md5        ?computed_md5 . }
     OPTIONAL { ?file   col:viewer_type         ?viewer_type . }

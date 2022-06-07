@@ -3262,8 +3262,11 @@ class ApiServer:
                     md5.update(chunk)
                     computed_md5 = md5.hexdigest()
 
+            download_url = f"{self.base_url}/file/{article_id}/{file_uuid}"
             self.db.update_file (account_id, file_uuid,
                                  computed_md5 = computed_md5,
+                                 download_url = download_url,
+                                 filesystem_location = output_filename,
                                  file_size    = file_size)
 
             return self.response (json.dumps({ "location": f"{self.base_url}/v3/file/{file_uuid}" }))
