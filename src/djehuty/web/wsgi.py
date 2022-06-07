@@ -1619,11 +1619,9 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article = self.db.articles (article_id=article_id, is_editable=0, is_public=1)[0]
-            article_version_id = article["article_version_id"]
-            files = self.db.article_files (
-                file_id = file_id,
-                article_version_id = article_version_id)[0]
+            article = self.__dataset_by_id_or_uri (article_id, is_published=True)
+            files   = self.__file_by_id_or_uri (file_id,
+                                                article_uri = article["uri"])
 
             results = formatter.format_file_for_article_record (files)
             return self.response (json.dumps(results))
