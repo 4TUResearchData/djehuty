@@ -540,10 +540,8 @@ class SparqlInterface:
                     item_type="article", is_published=True):
         """Procedure to retrieve categories of an article."""
 
-        prefix  = item_type.capitalize()
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("categories", {
-            "prefix":       prefix,
             "item_uri":     item_uri,
             "account_id":   account_id,
             "is_published": is_published,
