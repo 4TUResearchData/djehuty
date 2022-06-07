@@ -19,7 +19,7 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
                 ?url_public_html ?version ?publisher ?language ?time_coverage
                 ?geolocation ?longitude ?latitude ?format ?organizations
                 ?data_link ?derived_from ?same_as ?contributors
-                ?license_remarks ?container_uri ?article AS ?uri
+                ?license_remarks ?container_uri ?article AS ?uri ?uuid
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -121,6 +121,7 @@ WHERE {
     OPTIONAL { ?article col:license_remarks       ?license_remarks . }
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
+    BIND(STRAFTER(STR(?article), "article:")         AS ?uuid)
   }
 {%- if collection_uri is not none %}
 FILTER (?collection = <{{collection_uri}}>)
