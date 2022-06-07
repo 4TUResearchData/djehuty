@@ -1009,27 +1009,6 @@ class SparqlInterface:
 
         return results
 
-    def insert_institution (self, name, institution_id=None):
-        """Procedure to add an institution to the state graph."""
-
-        graph = Graph()
-
-        if institution_id is None:
-            institution_id = self.ids.next_id("institution")
-
-        institution_uri = rdf.ROW[f"institution_{institution_id}"]
-
-        graph.add ((institution_uri, RDF.type,      rdf.SG["Institution"]))
-        graph.add ((institution_uri, rdf.COL["id"], Literal(institution_id)))
-
-        rdf.add (graph, institution_uri, rdf.COL["name"], name, XSD.string)
-
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
-            return institution_id
-
-        return None
-
     def update_item_list (self, container_uuid, account_id, items, predicate):
         try:
             graph   = Graph()
