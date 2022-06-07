@@ -892,7 +892,8 @@ class SparqlInterface:
 
         self.insert_item_list   (graph, uri, references, "references")
         self.insert_item_list   (graph, uri, tags, "tags")
-        self.insert_record_list (graph, uri, categories, "categories", self.insert_category)
+        categories = rdf.uris_from_records (categories, "category")
+        self.insert_item_list (graph, uri, categories, "categories")
         self.insert_record_list (graph, uri, authors, "authors", self.insert_author)
         self.insert_record_list (graph, uri, files, "files", self.insert_file)
         self.insert_record_list (graph, uri, funding_list, "funding_list", self.insert_funding)
@@ -1112,31 +1113,6 @@ class SparqlInterface:
         rdf.add (graph, item_uri, rdf.COL["publisherAcceptance"],  publisher_acceptance,  XSD.string)
         rdf.add (graph, item_uri, rdf.COL["posted"],               posted,       XSD.string)
         rdf.add (graph, item_uri, rdf.COL["submission"],           submission,   XSD.string)
-
-        return None
-
-    def insert_category (self, category_id=None, title=None, parent_id=None,
-                         source_id=None, taxonomy=None):
-        """Procedure to add an category to the state graph."""
-
-        graph = Graph()
-
-        if category_id is None:
-            category_id = self.ids.next_id("category")
-
-        category_uri = rdf.ROW[f"category_{category_id}"]
-
-        graph.add ((category_uri, RDF.type,      rdf.SG["Category"]))
-        graph.add ((category_uri, rdf.COL["id"], Literal(category_id)))
-
-        rdf.add (graph, category_uri, rdf.COL["title"], title,         XSD.string)
-        rdf.add (graph, category_uri, rdf.COL["parent_id"], parent_id)
-        rdf.add (graph, category_uri, rdf.COL["source_id"], source_id)
-        rdf.add (graph, category_uri, rdf.COL["taxonomy"], taxonomy)
-
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
-            return category_id
 
         return None
 
