@@ -3607,7 +3607,7 @@ class ApiServer:
             categories = validator.array_value (record, "categories")
             if categories is not None:
                 for index, _ in enumerate(categories):
-                    categories[index] = validator.integer_value (categories, index)
+                    categories[index] = validator.string_value (categories, index, 36, 36)
 
             if self.db.update_account (account_id,
                     active                = validator.integer_value (record, "active", 0, 1),
