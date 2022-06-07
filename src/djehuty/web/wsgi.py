@@ -2249,16 +2249,13 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                article = self.db.articles (article_id  = article_id,
-                                            account_id  = account_id,
-                                            is_editable = 1,
-                                            is_public   = 0)[0]
-                article_version_id = article["article_version_id"]
+                article = self.__dataset_by_id_or_uri (article_id,
+                                                       account_id = account_id,
+                                                       is_published = False)
 
-                files   = self.db.article_files (
-                    article_version_id = article_version_id,
-                    account_id         = account_id,
-                    file_id            = file_id)
+                files   = self.__file_by_id_or_uri (file_id,
+                                                    account_id  = account_id,
+                                                    article_uri = article["uri"])
 
                 return self.default_list_response (files, formatter.format_file_details_record)
             except IndexError:
