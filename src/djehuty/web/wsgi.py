@@ -23,7 +23,7 @@ from djehuty.utils.convenience import pretty_print_size, decimal_coords
 from djehuty.utils.convenience import value_or, value_or_none
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
 from djehuty.utils.constants import group_to_member, member_url_names
-from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid
+from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 
 
 class ApiServer:
@@ -2057,27 +2057,43 @@ class ApiServer:
             try:
                 parameters = request.get_json()
                 categories = parameters["categories"]
+                if categories is None:
+                    return self.error_400 (request,
+                                           "Missing 'categories' parameter.",
+                                           "MissingRequiredField")
 
-                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
-                article_version_id = article["article_version_id"]
+                article = self.__dataset_by_id_or_uri (article_id,
+                                                       account_id = account_id,
+                                                       is_published = False)
 
                 # First, validate all values passed by the user.
                 # This way, we can be as certain as we can be that performing
                 # a PUT will not end in having no categories associated with
                 # an article.
                 for index, _ in enumerate(categories):
-                    categories[index] = validator.integer_value (categories, index)
+                    categories[index] = validator.string_value (categories, index, 0, 36)
 
-                # When we are dealing with a PUT request, we must clear the previous
-                # values first.
-                if request.method == 'PUT':
-                    self.db.delete_article_categories (article_version_id, account_id)
+                ## Append when using POST, otherwise overwrite.
+                if request.method == 'POST':
+                    existing_categories = self.db.categories (item_uri     = article["uri"],
+                                                              item_type    = "article",
+                                                              account_id   = account_id,
+                                                              is_published = False,
+                                                              limit        = 10000)
 
-                # Lastly, insert the validated values.
-                for category_id in categories:
-                    self.db.insert_article_category (int(article_version_id), int(category_id))
+                    existing_categories = list(map(lambda category: category["uuid"], existing_categories))
 
-                return self.respond_205()
+                    # Merge and remove duplicates
+                    categories = list(dict.fromkeys(existing_categories + categories))
+
+                categories = uris_from_records (categories, "category")
+                if self.db.update_item_list (article["container_uuid"],
+                                             account_id,
+                                             categories,
+                                             "categories"):
+                    return self.respond_205()
+
+                return self.error_500()
 
             except IndexError:
                 return self.error_500 ()
