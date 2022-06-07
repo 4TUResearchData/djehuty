@@ -124,3 +124,16 @@ def uuid_to_uri (uuid_value, datatype):
         return None
 
     return f"{datatype}:{uuid_value}"
+
+def uris_from_records (records, prefix, uuid_index=None):
+    """Returns URIRefs for a list of RECORDS of type PREFIX."""
+
+    ## The UUID is sometimes a property of record, as in record["uuid"],
+    ## while at other times the UUID is the record itself.
+
+    if uuid_index is not None:
+        return list(map (lambda record: URIRef(uuid_to_uri (
+            record[uuid_index], prefix)), records))
+
+    return list(map (lambda record: URIRef(
+        uuid_to_uri (record, prefix)), records))

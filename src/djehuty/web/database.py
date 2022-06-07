@@ -1598,8 +1598,7 @@ class SparqlInterface:
         results = self.__run_query (query)
         if results:
             if categories:
-                items = list(map (lambda category: URIRef(rdf.uuid_to_uri (category, "category")),
-                                  categories))
+                items = rdf.uris_from_records (categories, "category")
                 self.update_item_list (container_uuid, account_id, items, "categories")
         else:
             return False
