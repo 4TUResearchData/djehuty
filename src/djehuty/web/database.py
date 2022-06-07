@@ -1135,10 +1135,6 @@ class SparqlInterface:
 
         return None
 
-    def insert_article_category (self, article_id, category_id):
-        """Procedure to add a link between an article and a category."""
-        return self.insert_item_category (article_id, category_id, "article")
-
     def insert_collection_category (self, collection_version_id, category_id):
         """Procedure to add a link between a collection and a category."""
         return self.insert_item_category (collection_version_id, category_id, "collection")
