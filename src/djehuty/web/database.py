@@ -430,19 +430,6 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def file_by_id (self, file_id, account_id):
-        """Procedure to get a file by its identifier."""
-
-        if file_id is None or account_id is None:
-            return None
-
-        query = self.__query_from_template ("file", {
-            "account_id":  account_id,
-            "file_id":     file_id
-        })
-
-        return self.__run_query(query)
-
     def article_files (self, name=None, size=None, is_link_only=None,
                        file_uuid=None, download_url=None, supplied_md5=None,
                        computed_md5=None, viewer_type=None, preview_state=None,
