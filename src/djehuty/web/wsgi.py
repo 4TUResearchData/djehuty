@@ -1511,19 +1511,19 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article       = self.db.articles (article_id  = article_id,
-                                              version     = version,
-                                              is_editable = 0,
-                                              is_public   = 1)[0]
-            article_version_id = article["article_version_id"]
-            authors       = self.db.authors(item_id=article_version_id, item_type="article")
-            files         = self.db.article_files(article_version_id=article_version_id)
-            custom_fields = self.db.custom_fields(item_id=article_version_id, item_type="article")
+            article       = self.__dataset_by_id_or_uri (article_id,
+                                                         is_published = True,
+                                                         version = version)
+
+            article_uri   = article["uri"]
+            authors       = self.db.authors(item_uri=article_uri, item_type="article")
+            files         = self.db.article_files(article_uri=article_uri)
+            custom_fields = self.db.custom_fields(item_uri=article_uri, item_type="article")
             embargo_options = self.db.article_embargo_options(article_version_id=article_version_id)
-            tags          = self.db.tags(item_id=article_version_id, item_type="article")
-            categories    = self.db.categories(item_id=article_version_id, item_type="article")
-            references    = self.db.references(item_id=article_version_id, item_type="article")
-            fundings      = self.db.fundings(item_id=article_version_id, item_type="article")
+            tags          = self.db.tags(item_uri=article_uri, item_type="article")
+            categories    = self.db.categories(item_uri=article_uri, item_type="article")
+            references    = self.db.references(item_uri=article_uri, item_type="article")
+            fundings      = self.db.fundings(item_uri=article_uri, item_type="article")
             total         = formatter.format_article_details_record (article,
                                                                      authors,
                                                                      files,
