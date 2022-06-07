@@ -390,6 +390,25 @@ class ApiServer:
         except IndexError:
             return None
 
+    def __file_by_id_or_uri (self, identifier,
+                             account_id=None,
+                             article_uri=None):
+        try:
+            file = None
+            if parses_to_int (identifier):
+                file = self.db.article_files (file_id     = int(identifier),
+                                              article_uri = article_uri,
+                                              account_id  = account_id)[0]
+            else:
+                file = self.db.article_files (file_uuid   = identifier,
+                                              article_uri = article_uri,
+                                              account_id  = account_id)[0]
+
+            return file
+
+        except IndexError:
+            return None
+
     def __default_dataset_api_parameters (self, request):
 
         record = {}
