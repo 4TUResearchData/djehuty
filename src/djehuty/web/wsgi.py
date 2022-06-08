@@ -163,6 +163,7 @@ class ApiServer:
             Rule("/v3/articles/top/<item_type>",              endpoint = "v3_articles_top"),
             Rule("/v3/articles/timeline/<item_type>",         endpoint = "v3_articles_timeline"),
             Rule("/v3/articles/<article_id>/upload",          endpoint = "v3_article_upload_file"),
+            Rule("/v3/articles/<article_id>.git/files",       endpoint = "v3_article_git_files"),
             Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
             Rule("/v3/articles/<article_id>/references",      endpoint = "v3_article_references"),
             Rule("/v3/groups",                                endpoint = "v3_groups"),
