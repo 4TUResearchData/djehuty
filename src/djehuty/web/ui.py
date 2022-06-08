@@ -47,6 +47,9 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         log_file = config_value (xml_root, "log-file", None, None)
         if log_file is not None:
+            if not os.environ.get('WERKZEUG_RUN_MAIN'):
+                logging.info ("Writing further messages to '%s'.", log_file)
+
             file_handler = logging.FileHandler (log_file, 'a')
             formatter    = logging.Formatter('[ %(levelname)s ] %(asctime)s: %(message)s')
             file_handler.setFormatter(formatter)
