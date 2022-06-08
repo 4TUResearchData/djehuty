@@ -1460,7 +1460,6 @@ class ApiServer:
             authors         = self.db.authors(item_uri=article_uri, item_type="article")
             files           = self.db.article_files(article_uri=article_uri)
             custom_fields   = self.db.custom_fields(item_uri=article_uri, item_type="article")
-            embargo_options = [] # This needs to be looked at.
             tags            = self.db.tags(item_uri=article_uri, item_type="article")
             categories      = self.db.categories(item_uri=article_uri, item_type="article")
             references      = self.db.references(item_uri=article_uri)
@@ -1469,7 +1468,6 @@ class ApiServer:
                                                                      authors,
                                                                      files,
                                                                      custom_fields,
-                                                                     embargo_options,
                                                                      tags,
                                                                      categories,
                                                                      funding_list,
@@ -1520,7 +1518,6 @@ class ApiServer:
             authors       = self.db.authors(item_uri=article_uri, item_type="article")
             files         = self.db.article_files(article_uri=article_uri)
             custom_fields = self.db.custom_fields(item_uri=article_uri, item_type="article")
-            embargo_options = self.db.article_embargo_options(article_version_id=article_version_id)
             tags          = self.db.tags(item_uri=article_uri, item_type="article")
             categories    = self.db.categories(item_uri=article_uri, item_type="article")
             references    = self.db.references(item_uri=article_uri, item_type="article")
@@ -1529,7 +1526,6 @@ class ApiServer:
                                                                      authors,
                                                                      files,
                                                                      custom_fields,
-                                                                     embargo_options,
                                                                      tags,
                                                                      categories,
                                                                      fundings,
@@ -1550,13 +1546,10 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article       = self.db.articles (article_id  = article_id,
-                                              version     = version,
-                                              is_editable = 0,
-                                              is_public   = 1)[0]
-            article_version_id = article["article_version_id"]
-            embargo_options = self.db.article_embargo_options (article_version_id=article_version_id)
-            total           = formatter.format_article_embargo_record (article, embargo_options)
+            article = self.__dataset_by_id_or_uri (article_id,
+                                                   version      = version,
+                                                   is_published = True)
+            total   = formatter.format_article_embargo_record (article)
             return self.response (json.dumps(total))
         except IndexError:
             response = self.response (json.dumps({
@@ -1728,20 +1721,18 @@ class ApiServer:
                 authors         = self.db.authors(item_uri=article_uri, item_type="article")
                 files           = self.db.article_files(article_uri=article_uri)
                 custom_fields   = self.db.custom_fields(item_uri=article_uri, item_type="article")
-                embargo_options = [] # This needs to be looked at.
                 tags            = self.db.tags(item_uri=article_uri, item_type="article")
                 categories      = self.db.categories(item_uri=article_uri, item_type="article")
                 references      = self.db.references(item_uri=article_uri)
                 funding_list    = self.db.fundings(item_uri=article_uri, item_type="article")
-                total         = formatter.format_article_details_record (article,
-                                                                         authors,
-                                                                         files,
-                                                                         custom_fields,
-                                                                         embargo_options,
-                                                                         tags,
-                                                                         categories,
-                                                                         funding_list,
-                                                                         references)
+                total           = formatter.format_article_details_record (article,
+                                                                           authors,
+                                                                           files,
+                                                                           custom_fields,
+                                                                           tags,
+                                                                           categories,
+                                                                           funding_list,
+                                                                           references)
                 # ugly fix for custom field Derived From
                 custom = total['custom_fields']
                 custom = [c for c in custom if c['name'] != 'Derived From']
@@ -2141,33 +2132,22 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
-            article    = self.db.articles (article_id  = article_id,
-                                           account_id  = account_id,
-                                           is_editable = 1,
-                                           is_public   = 0)
+            article = self.__dataset_by_id_or_uri (article_id,
+                                                   account_id = account_id,
+                                                   is_published = False)
             if not article:
                 return self.response (json.dumps([]))
 
-            try:
-                article    = article[0]
-                version_id = article["article_version_id"]
-                options    = self.db.article_embargo_options (article_version_id = version_id)
-                return self.response (json.dumps (formatter.format_article_embargo_record (article, options)))
-            except IndexError:
-                response = self.response (json.dumps({
-                    "message": "No embargo options found."
-                }))
-                response.status_code = 404
-                return response
+            return self.response (json.dumps (formatter.format_article_embargo_record (article)))
 
         if request.method == 'DELETE':
             try:
-                article = self.db.articles (article_id=article_id, account_id=account_id)[0]
-                article_version_id = article["article_version_id"]
+                article = self.__dataset_by_id_or_uri (article_id,
+                                                       account_id = account_id,
+                                                       is_published = False)
 
-                if self.db.delete_article_embargo (
-                        article_version_id = article_version_id,
-                        account_id = account_id):
+                if self.db.delete_article_embargo (article_uri = article["uri"],
+                                                   account_id  = account_id):
                     return self.respond_204()
             except IndexError:
                 pass

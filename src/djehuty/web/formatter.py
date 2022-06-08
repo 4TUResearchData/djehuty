@@ -140,8 +140,7 @@ def format_license_record (record):
     }
 
 def format_article_details_record (article, authors, files, custom_fields,
-                                   embargo_options, tags, categories, funding,
-                                   references):
+                                   tags, categories, funding, references):
     """Detailed record formatter for articles."""
     return {
         "files":             list (map (format_file_for_article_record, files)),
@@ -173,11 +172,11 @@ def format_article_details_record (article, authors, files, custom_fields,
         "citation":          conv.value_or_none(article, "citation"),
 #        "is_active":         conv.value_or_none(article, "is_active"),
         "is_embargoed":      bool(conv.value_or_none(article, "is_embargoed")),
-        "embargo_date":      conv.value_or_none(article, "embargo_date"),
+        "embargo_date":      conv.value_or_none(article, "embargo_until_date"),
         "embargo_type":      conv.value_or(article, "embargo_type", "file"),
         "embargo_title":     conv.value_or(article, "embargo_title", ""),
         "embargo_reason":    conv.value_or(article, "embargo_reason", ""),
-        "embargo_options":   list (map (format_article_embargo_option_record, embargo_options)),
+        "embargo_options":   [],
         "id":                conv.value_or_none(article, "article_id"),
         "title":             conv.value_or_none(article, "title"),
         "doi":               conv.value_or_none(article, "doi"),
@@ -212,15 +211,17 @@ def format_article_embargo_option_record (record):
         "ip_name":           conv.value_or_none (record, "ip_name")
     }
 
-def format_article_embargo_record (article, embargo_options):
+def format_article_embargo_record (article):
     """Record formatter for embargos."""
     return {
         "is_embargoed":      bool(conv.value_or_none(article, "is_embargoed")),
-        "embargo_date":      conv.value_or_none(article, "embargo_date"),
+        "embargo_date":      conv.value_or_none(article, "embargo_until"),
         "embargo_type":      conv.value_or(article, "embargo_type", "file"),
         "embargo_title":     conv.value_or(article, "embargo_title", ""),
         "embargo_reason":    conv.value_or(article, "embargo_reason", ""),
-        "embargo_options":   list (map (format_article_embargo_option_record, embargo_options)),
+
+        # Embargo options are irrelevant outside of Figshare.
+        "embargo_options":   [],
     }
 
 def format_article_confidentiality_record (article):
