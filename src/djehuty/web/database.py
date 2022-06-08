@@ -1153,24 +1153,6 @@ class SparqlInterface:
         """Procedure to add a link between a collection and a category."""
         return self.insert_item_category (collection_version_id, category_id, "collection")
 
-    def insert_account_category (self, account_id, category_id):
-        """Procedure to add a link between an account and a category."""
-
-        graph    = Graph()
-        link_id  = self.ids.next_id("account_category")
-        link_uri = rdf.ROW[f"account_category_link_{link_id}"]
-
-        graph.add ((link_uri, RDF.type,               rdf.SG["AccountCategory"]))
-        graph.add ((link_uri, rdf.COL["id"],          Literal(link_id, datatype=XSD.integer)))
-        graph.add ((link_uri, rdf.COL["category_id"], Literal(category_id, datatype=XSD.integer)))
-        graph.add ((link_uri, rdf.COL["account_id"],  Literal(account_id, datatype=XSD.integer)))
-
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
-            return link_id
-
-        return None
-
     def insert_author_link (self, author_id, item_id, item_type="article"):
         """Procedure to add a link to an author."""
 
