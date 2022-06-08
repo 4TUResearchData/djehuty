@@ -1562,12 +1562,12 @@ class SparqlInterface:
 
         return True
 
-    def delete_article_embargo (self, article_version_id, account_id):
+    def delete_article_embargo (self, article_uri, account_id):
         """Procedure to lift the embargo on an article."""
 
         query   = self.__query_from_template ("delete_article_embargo", {
             "account_id":  account_id,
-            "article_version_id":  article_version_id
+            "article_uri":  article_uri
         })
 
         return self.__run_query(query)

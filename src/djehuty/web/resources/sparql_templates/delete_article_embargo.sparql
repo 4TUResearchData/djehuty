@@ -3,18 +3,27 @@
 {self.default_prefixes}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?embargo  ?predicate     ?object .
+    ?article  col:is_embargoed       ?is_embargoed .
+    ?article  col:embargo_type       ?embargo_type .
+    ?article  col:embargo_title      ?embargo_title .
+    ?article  col:embargo_reason     ?embargo_reason .
+    ?article  col:embargo_until_date ?embargo_until_date .
   }
+}
+INSERT {
+    ?article  col:is_embargoed   "0"^^xsd:boolean .
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article  rdf:type        sg:Article .
-    ?article  col:article_version_id  {{article_version_id}} .
-    ?article  col:account_id  {{account_id}} .
+    ?article  rdf:type               sg:Article ;
+    ?article  col:account_id         {{account_id}} .
+    ?article  col:is_embargoed       ?is_embargoed .
 
-    ?embargo  rdf:type        sg:ArticleEmbargoOption .
-    ?embargo  col:article_version_id  {{article_version_id}} .
-    ?embargo  ?predicate      ?object .
+    OPTIONAL { ?article  col:embargo_type       ?embargo_type . }
+    OPTIONAL { ?article  col:embargo_title      ?embargo_title . }
+    OPTIONAL { ?article  col:embargo_reason     ?embargo_reason . }
+    OPTIONAL { ?article  col:embargo_until_date ?embargo_until_date . }
   }
+  FILTER (?article = <{{article_uri}}>)
 }
 {% endblock %}
