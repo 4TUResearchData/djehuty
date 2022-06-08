@@ -1214,7 +1214,7 @@ class SparqlInterface:
     def delete_account_list (self, account_id, predicate):
         """Procedure to delete the list of PREDICATE of an account."""
 
-        query = self.__query_from_template ("delete_associations", {
+        query = self.__query_from_template ("delete_account_list", {
             "predicate":     predicate,
             "account_id":    account_id,
         })
