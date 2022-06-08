@@ -36,6 +36,8 @@ function save_article (article_uuid, event) {
     if (group_id !== undefined) { group_id = group_id["value"]; }
     else { group_id = null; }
 
+    var is_embargoed = jQuery("#embargo_options").is(":visible");
+
     form_data = {
         "title":          or_null(jQuery("#title").val()),
         "description":    or_null(jQuery("#description .ql-editor").html()),
@@ -52,10 +54,27 @@ function save_article (article_uuid, event) {
         "organizations":  or_null(jQuery("#organizations").val()),
         "publisher":      or_null(jQuery("#publisher").val()),
         "defined_type_name": defined_type_name,
+        "is_embargoed":   is_embargoed,
         "group_id":       group_id,
         "categories":     category_ids
     }
-    
+
+    if (is_embargoed) {
+        var embargo_indefinitely = jQuery("#embargo_options").prop("checked");
+        if (! embargo_indefinitely) {
+            form_data["embargo_until_date"] = or_null(jQuery("#embargo_until_date").val());
+        }
+        form_data["embargo_title"]  = or_null(jQuery("#embargo_title").val());
+        form_data["embargo_reason"] = or_null(jQuery("#embargo_reason .ql-editor").html());
+        form_data["embargo_allow_access_requests"] = jQuery("#allow_embargo_access_requests").prop("checked");
+
+        if (jQuery("#files_only_embargo").prop("checked")) {
+            form_data["embargo_type"] = "file";
+        } else if (jQuery("#content_embargo").prop("checked")) {
+            form_data["embargo_type"] = "content";
+        }
+    }
+
     var jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${article_uuid}`,
         type:        "PUT",
@@ -394,7 +413,8 @@ function activate (article_uuid) {
         }
         jQuery(`#article_${article_uuid}`).removeClass("loader");
         jQuery(`#article_${article_uuid}`).show();
-        var quill = new Quill('#description', { theme: '4tu' });
+        var quill1 = new Quill('#embargo_reason', { theme: '4tu' });
+        var quill2 = new Quill('#description', { theme: '4tu' });
         activate_drag_and_drop (article_uuid);
 
         jQuery("input[name='record_type']").change(function () {
@@ -419,7 +439,31 @@ function activate (article_uuid) {
         jQuery("#refresh-git-files").on("click", function (event) {
             render_git_files_for_article (article_uuid, event);
         });
+        jQuery("#configure_embargo").on("click", toggle_embargo_options);
+        jQuery("#embargo_until_forever").on("change", toggle_embargo_until);
+        jQuery("#cancel_embargo").on("click", toggle_embargo_options);
     }).fail(function () { console.log(`Failed to retrieve article ${article_uuid}.`); });
+}
+
+function toggle_embargo_options (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (jQuery("#embargo_options").is(":hidden")) {
+        jQuery("#embargo_options").show();
+        jQuery("#configure_embargo").hide();
+    } else {
+        jQuery("#embargo_options").hide();
+        jQuery("#configure_embargo").show();
+    }
+}
+
+function toggle_embargo_until (event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    jQuery("#embargo_until_date")
+        .prop("disabled",
+              jQuery("#embargo_until_forever").prop("checked"));
 }
 
 function perform_upload (files, current_file, article_uuid) {

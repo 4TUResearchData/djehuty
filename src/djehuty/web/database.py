@@ -1519,7 +1519,10 @@ class SparqlInterface:
                         geolocation=None, longitude=None, latitude=None,
                         data_link=None, has_linked_file=None, derived_from=None,
                         same_as=None, organizations=None, categories=None,
-                        defined_type=None, defined_type_name=None):
+                        defined_type=None, defined_type_name=None,
+                        embargo_until_date=None, embargo_type=None,
+                        embargo_title=None, embargo_reason=None,
+                        embargo_allow_access_requests=None, is_embargoed=False):
         """Procedure to overwrite parts of an article."""
 
         query   = self.__query_from_template ("update_article", {

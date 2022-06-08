@@ -126,6 +126,24 @@ body,html {
     font-weight: bold;
     text-decoration: none;
 }
+.cancel-button { background: #990000; color: #fff; }
+.cancel-button:hover {
+    background: #660000;
+    cursor: pointer;
+    color: #fff;
+    text-decoration: none;
+}
+.cancel-button:active {
+    background: #330000;
+    cursor: pointer;
+    color: #fff;
+    text-decoration: none;
+}
+.cancel-button {
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+}
 #login-button { background: #f39000; color: #ffffff; }
 #login-button:hover { background: #d26000; cursor: pointer; }
 #login-button:active { background: #9d4800; cursor: pointer; }

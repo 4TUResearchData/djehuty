@@ -75,6 +75,7 @@ jQuery(document).ready(function (){
     border-bottom: 2px dotted #f49120;
 }
 #content-wrapper input[type="text"],
+#content-wrapper input[type="datetime-local"],
 #content-wrapper textarea,
 .texteditor,
 .options-wrapper {
@@ -117,6 +118,7 @@ jQuery(document).ready(function (){
     display: inline-block;
     background: none;
     font-weight: normal;
+    cursor: pointer;
 }
 #content-wrapper textarea:focus,
 #content-wrapper input:focus,
@@ -208,6 +210,7 @@ jQuery(document).ready(function (){
 #git-files { margin: 0em; padding: 0em; }
 #git-files li { list-style-type: none; margin: 0em; padding: .5em; }
 #git-files li:nth-child(even) { background: #fafafa; }
+#embargo_options { display: none; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -309,6 +312,34 @@ jQuery(document).ready(function (){
 <input type="text" id="same_as" name="same_as" value="{{article["same_as"] | default("", True)}}" />
 <label for="organizations">Organizations</label>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{article["organizations"] | default("", True) }}</textarea>
+<div class="center">
+  <a id="configure_embargo" class="button neutral-button">Configure embargo</a>
+</div>
+<div id="embargo_options">
+  <h3>Embargo</h3>
+  <label for="embargo_until_date">Until date</label>
+  <input id="embargo_until_date" type="datetime-local" name="embargo_until_date" />
+  <input id="embargo_until_forever" type="checkbox" /><!--
+--><label for="embargo_until_forever" class="no-head">Embargo indefinitely</label>
+  <p></p>
+  <label>Embargo type</label>
+  <div id="record-type-wrapper" class="options-wrapper">
+    <input type="radio" name="embargo_type" id="files_only_embargo" value="file" /><!--
+--><label for="files_only_embargo" class="no-head">Files-only embargo</label>
+    <input type="radio" name="embargo_type" id="content_embargo" value="content" /><!--
+--><label for="content_embargo" class="no-head">Full content embargo</label></div>
+  <label for="title">Title</label>
+  <input type="text" id="title" name="title" value="{{article["embargo_title"]}}" />
+  <label>Reason</label>
+  <div id="embargo_reason" class="texteditor">
+    {{article["embargo_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
+  </div>
+  <input id="allow_embargo_access_requests" type="checkbox" /><!--
+--><label for="allow_embargo_access_requests" class="no-head">Allow requesting access while under embargo</label>
+<div class="center">
+  <a id="cancel_embargo" class="button cancel-button">Cancel embargo</a>
+</div>
+</div>
 <h3>Files</h3>
 <label>Type</label>
 <div id="record-type-wrapper" class="options-wrapper">
