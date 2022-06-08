@@ -45,6 +45,17 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if xml_root.tag != "djehuty":
             raise ConfigFileNotFound
 
+        log_file = config_value (xml_root, "log-file", None, None)
+        if log_file is not None:
+            file_handler = logging.FileHandler (log_file, 'a')
+            formatter    = logging.Formatter('[ %(levelname)s ] %(asctime)s: %(message)s')
+            file_handler.setFormatter(formatter)
+            file_handler.setLevel(logging.INFO)
+            logger       = logging.getLogger()
+            for handler in logger.handlers[:]:
+                logger.removeHandler(handler)
+            logger.addHandler(file_handler)
+
         config["address"]       = config_value (xml_root, "bind-address", address, "127.0.0.1")
         config["port"]          = int(config_value (xml_root, "port", port, 8080))
         server.base_url         = config_value (xml_root, "base-url", base_url,

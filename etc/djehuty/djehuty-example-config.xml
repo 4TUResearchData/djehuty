@@ -5,6 +5,7 @@
   <base-url>http://localhost:8080</base-url>
   <storage-root>/data</storage-root>
   <live-reload>1</live-reload>
+  <!-- <log-file>/var/log/djehuty.log</log-file> -->
   <debug-mode>1</debug-mode>
   <production>0</production>
   <!-- <maximum-workers>4</maximum-workers> -->
