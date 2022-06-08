@@ -8,18 +8,18 @@ jQuery(document).ready(function () {
     root_categories = []
     jQuery(".subcategory-wrapper").hide();
 {%- for category in categories: %}
-    root_categories.push({{category.id}});
-    jQuery("#category_{{category.id}}").change(function () {
+    root_categories.push("{{category.uuid}}");
+    jQuery("#category_{{category.uuid}}").change(function () {
         if (this.checked) {
-            jQuery("#category_{{category.id}}").prop("checked", true);
-            jQuery("#subcategories_{{category.id}}").slideDown(200);
+            jQuery("#category_{{category.uuid}}").prop("checked", true);
+            jQuery("#subcategories_{{category.uuid}}").slideDown(200);
         } else {
-            jQuery("#subcategories_{{category.id}} input[name='categories']").prop("checked", false);
-            jQuery("#subcategories_{{category.id}}").slideUp(200);
+            jQuery("#subcategories_{{category.uuid}} input[name='categories']").prop("checked", false);
+            jQuery("#subcategories_{{category.uuid}}").slideUp(200);
         }
     });
 {%- endfor %}
-    activate ({{collection["collection_id"]}});
+    activate ("{{collection.container_uuid}}");
 });
 </script>
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
@@ -212,12 +212,12 @@ jQuery(document).ready(function () {
 <label>Categories</label>
 <div id="categories-wrapper" class="options-wrapper">
 {%- for root in categories: %}
-<input type="checkbox" name="categories" value="{{root.id}}" id="category_{{root.id}}"><!--
---><label class="item-label" for="category_{{root.id}}">{{root.title}}</label><br>
-<div id="subcategories_{{root.id}}" class="subcategory-wrapper">
+<input type="checkbox" name="categories" value="{{root.uuid}}" id="category_{{root.uuid}}"><!--
+--><label class="item-label" for="category_{{root.uuid}}">{{root.title}}</label><br>
+<div id="subcategories_{{root.uuid}}" class="subcategory-wrapper">
 {%- for sub in root.subcategories: %}
-<input class="subitem-checkbox" type="checkbox" name="categories" value="{{sub.id}}" id="category_{{sub.id}}"><!--
---><label class="subitem-label no-head" for="category_{{sub.id}}">{{sub.title}}</label><br>
+<input class="subitem-checkbox" type="checkbox" name="categories" value="{{sub.uuid}}" id="category_{{sub.uuid}}"><!--
+--><label class="subitem-label no-head" for="category_{{sub.uuid}}">{{sub.title}}</label><br>
 {%- endfor %}
 </div>
 {%- endfor %}
