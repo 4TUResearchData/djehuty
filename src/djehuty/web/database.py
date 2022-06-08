@@ -1006,7 +1006,6 @@ class SparqlInterface:
                                        "categories")
 
                 query = self.__insert_query_for_graph (graph)
-                self.__log_query (query)
                 if not self.__run_query (query):
                     logging.error("Updating categories for account %d failed.",
                                   account_id)
@@ -1343,7 +1342,7 @@ class SparqlInterface:
             new_files    = existing_files + [URIRef(file_uri)]
             dataset_uuid = rdf.uri_to_uuid (article_uri)
             dataset      = self.datasets (dataset_uuid = dataset_uuid,
-                                        account_id     = account_id,
+                                          account_id     = account_id,
                                           is_published = False,
                                           limit        = 1)[0]
 
