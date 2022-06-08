@@ -46,6 +46,18 @@ DELETE {
     ?article           col:defined_type         ?defined_type .
     {%- endif%}{% if has_linked_file is not none %}
     ?article           col:has_linked_file      ?has_linked_file .
+    {%- endif%}{% if is_embargoed is not none %}
+    ?article           col:is_embargoed         ?is_embargoed .
+    {%- endif%}{% if embargo_until_date is not none %}
+    ?article           col:embargo_until_date   ?embargo_until_date .
+    {%- endif%}{% if embargo_type is not none %}
+    ?article           col:embargo_type         ?embargo_type .
+    {%- endif%}{% if embargo_title is not none %}
+    ?article           col:embargo_title        ?embargo_title .
+    {%- endif%}{% if embargo_reason is not none %}
+    ?article           col:embargo_reason       ?embargo_reason .
+    {%- endif%}{% if embargo_allow_access_requests is not none %}
+    ?article  col:embargo_allow_access_requests ?embargo_allow_access_requests .
     {%- endif%}
     ?article           col:modified_date        ?modified_date .
   }
@@ -96,6 +108,18 @@ INSERT {
     ?article           col:defined_type         {{defined_type}} .
     {%- endif%}{% if has_linked_file is not none %}
     ?article           col:has_linked_file      {{has_linked_file}} .
+    {%- endif%}{% if is_embargoed is not none %}
+    ?article           col:is_embargoed         "{{is_embargoed}}"^^xsd:boolean .
+    {%- endif%}{% if embargo_until_date is not none %}
+    ?article           col:embargo_until_date   {{embargo_until_date}} .
+    {%- endif%}{% if embargo_type is not none %}
+    ?article           col:embargo_type         {{embargo_type}} .
+    {%- endif%}{% if embargo_title is not none %}
+    ?article           col:embargo_title        {{embargo_title}} .
+    {%- endif%}{% if embargo_reason is not none %}
+    ?article           col:embargo_reason       {{embargo_reason}} .
+    {%- endif%}{% if embargo_allow_access_requests is not none %}
+    ?article  col:embargo_allow_access_requests {{embargo_allow_access_requests}} .
     {%- endif%}
     ?article           col:modified_date        "{{modified_date}}"^^xsd:dateTime .
   }
@@ -136,6 +160,12 @@ WHERE {
     OPTIONAL { ?article col:defined_type_name     ?defined_type_name . }
     OPTIONAL { ?article col:defined_type          ?defined_type . }
     OPTIONAL { ?article col:has_linked_file       ?has_linked_file . }
+    OPTIONAL { ?article col:is_embargoed          ?is_embargoed . }
+    OPTIONAL { ?article col:embargo_until_date    ?embargo_until_date . }
+    OPTIONAL { ?article col:embargo_type          ?embargo_type . }
+    OPTIONAL { ?article col:embargo_title         ?embargo_title . }
+    OPTIONAL { ?article col:embargo_reason        ?embargo_reason . }
+    OPTIONAL { ?article col:embargo_allow_access_requests ?embargo_allow_access_requests . }
   }
 {%- if account_id is not none: %}
   FILTER (?account_id = {{account_id}})

@@ -1547,7 +1547,14 @@ class SparqlInterface:
             "resource_title":  rdf.escape_string_value (resource_title),
             "same_as":         rdf.escape_string_value (same_as),
             "time_coverage":   rdf.escape_string_value (time_coverage),
-            "title":           rdf.escape_string_value (title)
+            "title":           rdf.escape_string_value (title),
+            "is_embargoed":    int(is_embargoed),
+            "embargo_until_date": rdf.escape_string_value (embargo_until_date),
+            "embargo_type":    rdf.escape_string_value (embargo_type),
+            "embargo_title":   rdf.escape_string_value (embargo_title),
+            "embargo_reason":  rdf.escape_string_value (embargo_reason),
+            "embargo_allow_access_requests":
+                               rdf.escape_string_value (embargo_allow_access_requests)
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{account_id}")
