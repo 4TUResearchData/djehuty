@@ -646,14 +646,14 @@ class SparqlInterface:
                      published_since=None, modified_since=None, group=None,
                      resource_doi=None, resource_id=None, doi=None, handle=None,
                      account_id=None, search_for=None, collection_id=None,
-                     collection_version_id=None, version=None,
-                     is_editable=None, is_latest=None):
+                     collection_uri=None, version=None, container_uuid=None,
+                     is_latest=False, is_published=True):
         """Procedure to retrieve collections."""
 
-        filters  = rdf.sparql_filter ("institution_id", institution)
+        filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
+        filters += rdf.sparql_filter ("institution_id", institution)
         filters += rdf.sparql_filter ("group_id",       group)
         filters += rdf.sparql_filter ("collection_id",  collection_id)
-        filters += rdf.sparql_filter ("collection_version_id",  collection_version_id)
         filters += rdf.sparql_filter ("version",        version)
         filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
         filters += rdf.sparql_filter ("resource_id",    resource_id,  escape=True)
@@ -668,27 +668,17 @@ class SparqlInterface:
 
         if published_since is not None:
             filters += rdf.sparql_bound_filter ("published_date")
-            filters += "FILTER (STR(?published_date) != \"NULL\")\n"
-            filters += f"FILTER (STR(?published_date) > \"{published_since}\")\n"
+            filters += f"FILTER (?published_date > \"{published_since}\"^^xsd:dateTime)\n"
 
         if modified_since is not None:
             filters += rdf.sparql_bound_filter ("modified_date")
-            filters += "FILTER (STR(?modified_date) != \"NULL\")\n"
-            filters += f"FILTER (STR(?modified_date) > \"{modified_since}\")\n"
-
-        if account_id is None:
-            filters += rdf.sparql_filter ("is_public", 1)
-        else:
-            filters += rdf.sparql_filter ("account_id", account_id)
-
-        if is_editable is not None:
-            filters += rdf.sparql_filter ("is_editable", is_editable)
-
-        if is_latest is not None:
-            filters += rdf.sparql_filter ("is_latest", is_latest)
+            filters += f"FILTER (?modified_date > \"{modified_since}\"^^xsd:dateTime)\n"
 
         query   = self.__query_from_template ("collections", {
-            "filters":     filters
+            "account_id":   account_id,
+            "filters":      filters,
+            "is_latest":    is_latest,
+            "is_published": is_published
         })
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
 

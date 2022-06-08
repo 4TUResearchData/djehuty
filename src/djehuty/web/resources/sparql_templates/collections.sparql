@@ -3,31 +3,43 @@
 SELECT DISTINCT ?account_id ?resource_id ?resource_doi ?resource_title
                 ?resource_link ?resource_version ?version ?description
                 ?institution_id ?group_id ?is_public
-                ?citation ?group_resource_id ?custom_fields_id ?modified_date
+                ?citation ?custom_fields_id ?modified_date
                 ?created_date ?timeline_posted ?timeline_publisher_acceptance
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?collection_id ?title
-                ?doi ?handle ?url ?published_date ?collection_version_id
+                ?doi ?handle ?url ?published_date ?container_uri
+                ?container_uuid ?collection AS ?uri
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?collection            rdf:type                   sg:Collection .
-    ?collection            col:collection_id          ?collection_id .
-    ?collection            col:collection_version_id  ?collection_version_id .
-    ?collection            col:timeline_id            ?timeline_id .
+    ?container_uri      rdf:type                 sg:CollectionContainer .
+    ?container_uri      col:account_id           ?account_id .
+    OPTIONAL { ?container_uri col:collection_id     ?collection_id . }
+
+    {%- if is_published %}
+    {%- if is_latest %}
+    ?container_uri      col:latest_published_version ?collection .
+    {%- else %}
+    ?container_uri      col:published_versions/rdf:rest*/rdf:first ?collection .
+    {%- endif %}
+    {%- else %}
+    ?container_uri      col:draft                    ?collection .
+    {%- endif %}
 
     OPTIONAL {
-        ?timeline           rdf:type                  sg:Timeline .
-        ?timeline           col:id                    ?timeline_id .
-
-        OPTIONAL { ?timeline col:firstonline          ?timeline_first_online . }
-        OPTIONAL { ?timeline col:publisheracceptance  ?timeline_publisher_acceptance . }
-        OPTIONAL { ?timeline col:publisherpublication ?timeline_publisher_publication . }
-        OPTIONAL { ?timeline col:submission           ?timeline_submission . }
-        OPTIONAL { ?timeline col:posted               ?timeline_posted . }
-        OPTIONAL { ?timeline col:revision             ?timeline_revision . }
+      ?account          rdf:type                 sg:Account .
+      ?account          col:id                   ?account_id .
+      ?account          col:institution_id       ?institution_id .
     }
 
-    OPTIONAL { ?collection   col:account_id           ?account_id . }
+    ?collection            rdf:type                   sg:Collection .
+
+    OPTIONAL { ?container_uri col:first_online_date    ?timeline_first_online . }
+    OPTIONAL { ?collection    col:publisher_acceptance_date ?timeline_publisher_acceptance . }
+    OPTIONAL { ?collection    col:publisher_publication_date ?timeline_publisher_publication . }
+    OPTIONAL { ?collection    col:submission_date      ?timeline_submission . }
+    OPTIONAL { ?collection    col:posted_date          ?timeline_posted . }
+    OPTIONAL { ?collection    col:revision_date        ?timeline_revision . }
+
     OPTIONAL { ?collection   col:resource_id          ?resource_id . }
     OPTIONAL { ?collection   col:resource_doi         ?resource_doi . }
     OPTIONAL { ?collection   col:resource_title       ?resource_title . }
@@ -35,11 +47,9 @@ WHERE {
     OPTIONAL { ?collection   col:resource_version     ?resource_version . }
     OPTIONAL { ?collection   col:version              ?version . }
     OPTIONAL { ?collection   col:description          ?description . }
-    OPTIONAL { ?collection   col:institution_id       ?institution_id . }
     OPTIONAL { ?collection   col:group_id             ?group_id . }
     OPTIONAL { ?collection   col:is_public            ?is_public . }
     OPTIONAL { ?collection   col:citation             ?citation . }
-    OPTIONAL { ?collection   col:group_resource_id    ?group_resource_id . }
     OPTIONAL { ?collection   col:custom_fields_id     ?custom_fields_id . }
     OPTIONAL { ?collection   col:modified_date        ?modified_date . }
     OPTIONAL { ?collection   col:created_date         ?created_date . }
@@ -48,7 +58,12 @@ WHERE {
     OPTIONAL { ?collection   col:handle               ?handle . }
     OPTIONAL { ?collection   col:url                  ?url . }
     OPTIONAL { ?collection   col:published_date       ?published_date . }
+
+    BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
   }
+{%- if account_id is not none: %}
+FILTER (?account_id = {{account_id}})
+{%- endif %}
 {% if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}
