@@ -625,14 +625,14 @@ class SparqlInterface:
     ## same account_id as the collection.
     ##
     ## So to get the actual count, this separate procedure exists.
-    def collections_article_count (self, collection_version_id):
+    def collections_article_count (self, collection_uri):
         """Procedure to count the articles in a collection."""
 
-        if collection_version_id is None:
+        if collection_uri is None:
             return 0
 
         query = self.__query_from_template ("collection_articles_count", {
-            "collection_version_id":  collection_version_id
+            "collection_uri":  collection_uri
         })
         results = self.__run_query (query)
 

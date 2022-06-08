@@ -4,17 +4,12 @@ PREFIX col: <sg://0.99.12/table2rdf/Column/>
 PREFIX sg:  <https://sparqling-genomics.org/0.99.12/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT COUNT(DISTINCT ?link) AS ?articles
+SELECT COUNT(DISTINCT ?articles) AS ?articles
 
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article            rdf:type                 sg:Article .
-    ?article            col:article_version_id   ?id .
-    ?article            col:timeline_id          ?timeline_id .
-
-    ?link               rdf:type                 sg:CollectionArticle .
-    ?link               col:article_version_id   ?id .
-    ?link               col:collection_version_id {{collection_version_id}} .
+    <{{collection_uri}}> rdf:type                         sg:Collection ;
+                         col:articles/rdf:rest*/rdf:first ?articles .
   }
 }
 {% endblock %}
