@@ -1004,9 +1004,23 @@ class SparqlInterface:
         results = self.__run_query (query)
         if results and categories:
             self.cache.invalidate_by_prefix ("accounts")
-            self.delete_account_categories (account_id)
-            for category in categories:
-                self.insert_account_category (account_id, category)
+
+            if categories:
+                graph = Graph()
+                items = rdf.uris_from_records (categories, "category")
+                account = self.account_by_id (account_id)
+                self.delete_account_list (account_id, "categories")
+                self.insert_item_list (graph,
+                                       URIRef(rdf.uuid_to_uri (account["uuid"], "account")),
+                                       items,
+                                       "categories")
+
+                query = self.__insert_query_for_graph (graph)
+                self.__log_query (query)
+                if not self.__run_query (query):
+                    logging.error("Updating categories for account %d failed.",
+                                  account_id)
+                    return None
 
         return results
 
@@ -1209,6 +1223,16 @@ class SparqlInterface:
 
         query = self.__query_from_template ("delete_associations", {
             "container_uri": rdf.uuid_to_uri (container_uuid, "container"),
+            "predicate":     predicate,
+            "account_id":    account_id,
+        })
+
+        return self.__run_query(query)
+
+    def delete_account_list (self, account_id, predicate):
+        """Procedure to delete the list of PREDICATE of an account."""
+
+        query = self.__query_from_template ("delete_associations", {
             "predicate":     predicate,
             "account_id":    account_id,
         })

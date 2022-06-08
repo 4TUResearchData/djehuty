@@ -48,16 +48,12 @@ function render_categories_for_profile (account_id) {
         accept:      "application/json",
     }).done(function (categories) {
         for (category of categories) {
-            jQuery(`#category_${category["id"]}`).prop("checked", true);
-            jQuery(`#subcategories_${category["parent_id"]}`).show();
-        }
-        for (category_id of root_categories) {
-            if (jQuery(`#category_${category_id}`).prop("checked")) {
-                jQuery(`#subcategories_${category_id}`).show();
-            }
+            jQuery(`#category_${category["uuid"]}`).prop("checked", true);
+            jQuery(`#category_${category["parent_uuid"]}`).prop("checked", true);
+            jQuery(`#subcategories_${category["parent_uuid"]}`).show();
         }
     }).fail(function () {
-        console.log("Failed to retrieve article categories.");
+        console.log("Failed to retrieve categories.");
     });
 }
 
