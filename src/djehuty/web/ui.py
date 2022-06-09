@@ -62,7 +62,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         config["address"]       = config_value (xml_root, "bind-address", address, "127.0.0.1")
         config["port"]          = int(config_value (xml_root, "port", port, 8080))
         server.base_url         = config_value (xml_root, "base-url", base_url,
-                                                f"http://{address}:{port}")
+                                                f"http://{config['address']}:{config['port']}")
         server.in_production    = bool(int(config_value (xml_root, "production", None,
                                                          server.in_production)))
         server.db.storage       = config_value (xml_root, "storage-root", storage)
