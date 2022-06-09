@@ -37,7 +37,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         config   = {}
         xml_root = None
         if config_file is not None:
-            if not os.environ.get('WERKZEUG_RUN_MAIN'):
+            if not inside_reload:
                 logging.info ("Reading config file: %s", config_file)
 
         tree = ET.parse(config_file)
@@ -47,7 +47,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         log_file = config_value (xml_root, "log-file", None, None)
         if log_file is not None:
-            if not os.environ.get('WERKZEUG_RUN_MAIN'):
+            if not inside_reload:
                 logging.info ("Writing further messages to '%s'.", log_file)
 
             file_handler = logging.FileHandler (log_file, 'a')
@@ -123,7 +123,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                 if not os.path.isabs(resources_root):
                     # take resources_root relative to config_dir and turn into absolute path
                     resources_root = os.path.abspath(os.path.join(config_dir, resources_root))
-                if (server.add_static_root ("/s", resources_root) and not os.environ.get('WERKZEUG_RUN_MAIN')):
+                if (server.add_static_root ("/s", resources_root) and not inside_reload):
                     logging.info ("Added static root: %s", resources_root)
 
                 for page in static_pages:
@@ -136,7 +136,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                             filesystem_path = os.path.abspath(os.path.join(config_dir, filesystem_path))
 
                         server.static_pages[uri_path] = filesystem_path
-                        if not os.environ.get('WERKZEUG_RUN_MAIN'):
+                        if not inside_reload:
                             logging.info ("Added static page: %s", uri_path)
                             logging.info ("Related filesystem path: %s", filesystem_path)
 
