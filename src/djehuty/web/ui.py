@@ -47,17 +47,31 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         log_file = config_value (xml_root, "log-file", None, None)
         if log_file is not None:
-            if not inside_reload:
-                logging.info ("Writing further messages to '%s'.", log_file)
+            is_writeable = False
+            try:
+                file_test = open (log_file, "w")
+                file_test.close()
+                is_writeable = True
+            except PermissionError:
+                pass
+            except FileNotFoundError:
+                pass
 
-            file_handler = logging.FileHandler (log_file, 'a')
-            formatter    = logging.Formatter('[ %(levelname)s ] %(asctime)s: %(message)s')
-            file_handler.setFormatter(formatter)
-            file_handler.setLevel(logging.INFO)
-            logger       = logging.getLogger()
-            for handler in logger.handlers[:]:
-                logger.removeHandler(handler)
-            logger.addHandler(file_handler)
+            if not is_writeable:
+                if not inside_reload:
+                    logging.warning ("Cannot write to '%s'.", log_file)
+            else:
+                file_handler = logging.FileHandler (log_file, 'a')
+                if not inside_reload:
+                    logging.info ("Writing further messages to '%s'.", log_file)
+
+                formatter    = logging.Formatter('[ %(levelname)s ] %(asctime)s: %(message)s')
+                file_handler.setFormatter(formatter)
+                file_handler.setLevel(logging.INFO)
+                logger       = logging.getLogger()
+                for handler in logger.handlers[:]:
+                    logger.removeHandler(handler)
+                logger.addHandler(file_handler)
 
         config["address"]       = config_value (xml_root, "bind-address", address, "127.0.0.1")
         config["port"]          = int(config_value (xml_root, "port", port, 8080))
