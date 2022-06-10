@@ -802,7 +802,7 @@ class ApiServer:
 
                     return self.__render_template (request,
                                                    "depositor/edit-article.html",
-                                                   container_uuid = uri_to_uuid (article["container_uri"]),
+                                                   container_uuid = article["container_uuid"],
                                                    article    = article,
                                                    categories = categories,
                                                    groups     = groups)
