@@ -2572,13 +2572,17 @@ class ApiServer:
         return self.response (json.dumps(total))
 
     def api_collection_versions (self, request, collection_id):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
 
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        versions = []
+        if parses_to_int (collection_id):
+            versions = self.db.collection_versions (collection_id=collection_id)
+        elif isinstance (collection_id, str):
+            uri      = uuid_to_uri (collection_id, "container")
+            versions = self.db.collection_versions (container_uri = uri)
 
-        versions = self.db.collection_versions(collection_id=collection_id)
         return self.default_list_response (versions, formatter.format_version_record)
 
     def api_collection_version_details (self, request, collection_id, version):
