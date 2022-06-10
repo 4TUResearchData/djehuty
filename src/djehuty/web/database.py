@@ -537,7 +537,7 @@ class SparqlInterface:
 
     def categories (self, title=None, order=None, order_direction=None,
                     limit=10, item_uri=None, account_id=None,
-                    item_type="article", is_published=True):
+                    is_published=True):
         """Procedure to retrieve categories of an article."""
 
         filters = rdf.sparql_filter ("title", title, escape=True)

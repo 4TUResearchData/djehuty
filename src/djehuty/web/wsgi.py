@@ -1481,7 +1481,7 @@ class ApiServer:
             files           = self.db.article_files(article_uri=article_uri)
             custom_fields   = self.db.custom_fields(item_uri=article_uri, item_type="article")
             tags            = self.db.tags(item_uri=article_uri, item_type="article")
-            categories      = self.db.categories(item_uri=article_uri, item_type="article")
+            categories      = self.db.categories(item_uri=article_uri)
             references      = self.db.references(item_uri=article_uri)
             funding_list    = self.db.fundings(item_uri=article_uri, item_type="article")
             total         = formatter.format_article_details_record (article,
@@ -1539,7 +1539,7 @@ class ApiServer:
             files         = self.db.article_files(article_uri=article_uri)
             custom_fields = self.db.custom_fields(item_uri=article_uri, item_type="article")
             tags          = self.db.tags(item_uri=article_uri, item_type="article")
-            categories    = self.db.categories(item_uri=article_uri, item_type="article")
+            categories    = self.db.categories(item_uri=article_uri)
             references    = self.db.references(item_uri=article_uri, item_type="article")
             fundings      = self.db.fundings(item_uri=article_uri, item_type="article")
             total         = formatter.format_article_details_record (article,
@@ -1742,7 +1742,7 @@ class ApiServer:
                 files           = self.db.article_files(article_uri=article_uri)
                 custom_fields   = self.db.custom_fields(item_uri=article_uri, item_type="article")
                 tags            = self.db.tags(item_uri=article_uri, item_type="article")
-                categories      = self.db.categories(item_uri=article_uri, item_type="article")
+                categories      = self.db.categories(item_uri=article_uri)
                 references      = self.db.references(item_uri=article_uri)
                 funding_list    = self.db.fundings(item_uri=article_uri, item_type="article")
                 total           = formatter.format_article_details_record (article,
@@ -2094,7 +2094,6 @@ class ApiServer:
                 ## Append when using POST, otherwise overwrite.
                 if request.method == 'POST':
                     existing_categories = self.db.categories (item_uri     = article["uri"],
-                                                              item_type    = "article",
                                                               account_id   = account_id,
                                                               is_published = False,
                                                               limit        = 10000)
