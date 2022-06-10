@@ -2586,38 +2586,32 @@ class ApiServer:
         return self.default_list_response (versions, formatter.format_version_record)
 
     def api_collection_version_details (self, request, collection_id, version):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
 
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        collection     = self.__collection_by_id_or_uri (collection_id, version=version)
+        if collection is None:
+            return self.error_404 (request)
 
-        try:
-            collection    = self.db.collections(collection_id=collection_id, limit=1, version=version)[0]
-            collection_version_id = collection["collection_version_id"]
+        collection_uri = collection["uri"]
+        articles_count = self.db.collections_article_count(collection_uri = collection_uri)
+        fundings       = self.db.fundings(item_uri = collection_uri, item_type="collection")
+        categories     = self.db.categories(item_uri = collection_uri)
+        references     = self.db.references(item_uri = collection_uri)
+        custom_fields  = self.db.custom_fields(item_uri = collection_uri, item_type="collection")
+        tags           = self.db.tags(item_uri = collection_uri, item_type="collection")
+        authors        = self.db.authors(item_uri = collection_uri, item_type="collection")
+        total          = formatter.format_collection_details_record (collection,
+                                                                     fundings,
+                                                                     categories,
+                                                                     references,
+                                                                     tags,
+                                                                     authors,
+                                                                     custom_fields,
+                                                                     articles_count)
 
-            articles_count= self.db.collections_article_count(collection_version_id=collection_version_id)
-            fundings      = self.db.fundings(item_id=collection_version_id, item_type="collection")
-            categories    = self.db.categories(item_id=collection_version_id, item_type="collection")
-            references    = self.db.references(item_id=collection_version_id, item_type="collection")
-            custom_fields = self.db.custom_fields(item_id=collection_version_id, item_type="collection")
-            tags          = self.db.tags(item_id=collection_version_id, item_type="collection")
-            authors       = self.db.authors(item_id=collection_version_id, item_type="collection")
-            total         = formatter.format_collection_details_record (collection,
-                                                                        fundings,
-                                                                        categories,
-                                                                        references,
-                                                                        tags,
-                                                                        authors,
-                                                                        custom_fields,
-                                                                        articles_count)
-            return self.response (json.dumps(total))
-        except IndexError:
-            response = self.response (json.dumps({
-                "message": "This collection cannot be found."
-            }))
-            response.status_code = 404
-            return response
+        return self.response (json.dumps(total))
 
     def api_private_collections (self, request):
 
