@@ -1512,11 +1512,9 @@ class ApiServer:
             return response
 
     def api_article_versions (self, request, article_id):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
-
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
 
         versions = []
         if parses_to_int (article_id):
