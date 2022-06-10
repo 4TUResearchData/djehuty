@@ -879,9 +879,10 @@ class ApiServer:
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
                 try:
-                    collection = self.db.collections(
-                        collection_id = collection_id,
-                        account_id = account_id)[0]
+                    collection = self.__collection_by_id_or_uri(
+                        collection_id,
+                        account_id   = account_id,
+                        is_published = False)
 
                     categories = self.db.categories_tree ()
 
