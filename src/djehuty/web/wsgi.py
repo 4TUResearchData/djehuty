@@ -393,19 +393,24 @@ class ApiServer:
             return None
 
     def __collection_by_id_or_uri (self, identifier, account_id=None,
-                                   is_published=True, is_latest=False):
+                                   is_published=True, is_latest=False,
+                                   version = None):
         try:
             collection = None
             if parses_to_int (identifier):
                 collection = self.db.collections (collection_id = int(identifier),
                                                   is_published  = is_published,
                                                   is_latest     = is_latest,
-                                                  account_id    = account_id)[0]
+                                                  version       = version,
+                                                  account_id    = account_id,
+                                                  limit         = 1)[0]
             else:
                 collection = self.db.collections (container_uuid = identifier,
                                                   is_published   = is_published,
                                                   is_latest      = is_latest,
-                                                  account_id     = account_id)[0]
+                                                  version        = version,
+                                                  account_id     = account_id,
+                                                  limit          = 1)[0]
 
             return collection
 
