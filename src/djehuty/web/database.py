@@ -1473,20 +1473,6 @@ class SparqlInterface:
 
         return None
 
-    def delete_article (self, article_id, account_id):
-        """Procedure to remove an article from the state graph."""
-
-        query   = self.__query_from_template ("delete_article", {
-            "account_id":  account_id,
-            "article_id":  article_id
-        })
-
-        result = self.__run_query(query)
-        self.cache.invalidate_by_prefix (f"{article_id}_article")
-        self.cache.invalidate_by_prefix ("article")
-
-        return result
-
     def delete_dataset_draft (self, container_uuid, account_id):
         """Remove the draft article from a container in the state graph."""
 
