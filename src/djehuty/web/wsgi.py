@@ -857,7 +857,7 @@ class ApiServer:
 
                 for index, _ in enumerate(collections):
                     count = self.db.collections_article_count (
-                        collection_version_id = collections[index]["collection_version_id"])
+                        collection_uri = collections[index]["uri"])
 
                     collections[index]["number_of_articles"] = count
 
