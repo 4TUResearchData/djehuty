@@ -2064,8 +2064,7 @@ class ApiServer:
 
                 categories    = self.db.categories (item_uri   = article["uri"],
                                                     account_id = account_id,
-                                                    is_published = False,
-                                                    item_type  = "article")
+                                                    is_published = False)
 
                 return self.default_list_response (categories, formatter.format_category_record)
 
