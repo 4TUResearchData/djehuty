@@ -608,11 +608,12 @@ class SparqlInterface:
     ## ------------------------------------------------------------------------
 
     def collection_versions (self, limit=1000, offset=0, order=None,
-                             order_direction=None, collection_id=None):
+                             order_direction=None, collection_id=None,
+                             container_uri=None):
         """Procedure to retrieve the versions of an collection."""
-        filters = ""
-        if collection_id is not None:
-            filters += rdf.sparql_filter ("collection_id", collection_id)
+
+        filters  = rdf.sparql_filter ("collection_id", collection_id)
+        filters += rdf.sparql_filter ("container_uri", container_uri, is_uri=True)
 
         query = self.__query_from_template ("collection_versions", {
             "filters":     filters

@@ -1,12 +1,16 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?id ?version ?url
+SELECT DISTINCT ?collection_uri ?collection_id ?version ?url ?url_public_api
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?collection rdf:type           sg:Collection .
-    ?collection col:collection_id  ?collection_id .
-    ?collection col:version        ?version .
-    ?collection col:url            ?url .
+    ?container_uri  rdf:type            sg:CollectionContainer ;
+                    col:collection_id   ?collection_id .
+
+    ?collection_uri rdf:type           sg:Collection ;
+                    col:container      ?container_uri ;
+                    col:version        ?version ;
+                    col:url            ?url ;
+                    col:url_public_api ?url_public_api .
   }
 {%- if filters is not none %}{{ filters }}{% endif %}
 }
