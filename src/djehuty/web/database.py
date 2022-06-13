@@ -1085,27 +1085,6 @@ class SparqlInterface:
 
         return None
 
-    def delete_authors_for_item (self, item_id, account_id, author_id=None, item_type="article"):
-        """Procedure to delete all authors related to an article or collection."""
-
-        query = self.__query_from_template ("delete_authors_for_item", {
-            "item_id":     item_id,
-            "item_type":   item_type,
-            "prefix":      item_type.capitalize(),
-            "account_id":  account_id,
-            "author_id":   author_id
-        })
-
-        return self.__run_query(query)
-
-    def delete_authors_for_article (self, article_version_id, account_id, author_id=None):
-        """Procedure to delete all authors related to an article."""
-        return self.delete_authors_for_item (article_version_id, account_id, author_id, "article")
-
-    def delete_authors_for_collection (self, collection_version_id, account_id, author_id=None):
-        """Procedure to delete all authors related to a collection."""
-        return self.delete_authors_for_item (collection_version_id, account_id, author_id, "collection")
-
     def delete_article_for_collection (self, collection_version_id, account_id, article_version_id=None):
         """Procedure to delete articles associated with a collection."""
 
