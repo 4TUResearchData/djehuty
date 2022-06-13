@@ -2443,7 +2443,7 @@ class ApiServer:
 
             parameters = request.get_json()
             offset, limit = validator.paging_to_offset_and_limit (parameters)
-            records = self.db.articles(
+            records = self.db.datasets(
                 resource_doi    = validator.string_value (parameters, "resource_doi", 0, 512),
                 # "resource_id" here is not a typo for "article_id".
                 article_id      = validator.integer_value (parameters, "resource_id"),
@@ -2460,7 +2460,8 @@ class ApiServer:
                 modified_since  = validator.string_value (parameters, "modified_since", 0, 255),
                 group           = validator.integer_value (parameters, "group"),
                 exclude_ids     = validator.string_value (parameters, "exclude", 0, 255),
-                account_id      = account_id
+                account_id      = account_id,
+                is_published    = False
             )
 
             return self.default_list_response (records, formatter.format_article_record)
