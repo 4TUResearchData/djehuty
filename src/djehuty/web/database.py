@@ -1135,25 +1135,6 @@ class SparqlInterface:
 
         return None
 
-    def insert_article_file (self, article_version_id, file_id):
-        """Procedure to add a link between an article and a file."""
-
-        graph = Graph()
-
-        link_id  = self.ids.next_id("article_file")
-        link_uri = rdf.ROW[f"article_file_link_{link_id}"]
-
-        graph.add ((link_uri, RDF.type,              rdf.SG["ArticleFile"]))
-        graph.add ((link_uri, rdf.COL["id"],         Literal(link_id)))
-        graph.add ((link_uri, rdf.COL["file_id"],    Literal(file_id, datatype=XSD.integer)))
-        graph.add ((link_uri, rdf.COL["article_version_id"], Literal(article_version_id, datatype=XSD.integer)))
-
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
-            return link_id
-
-        return None
-
     def delete_associations (self, container_uuid, account_id, predicate):
         """Procedure to delete the list of PREDICATE of an article or collection."""
 
