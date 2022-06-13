@@ -243,6 +243,7 @@ def format_collection_record (record):
     """Record formatter for collections."""
     return {
         "id":                conv.value_or_none(record, "id"),
+        "uuid":              conv.value_or_none(record, "container_uuid"),
         "title":             conv.value_or_none(record, "title"),
         "doi":               conv.value_or_none(record, "doi"),
         "handle":            conv.value_or(record, "handle", ""),
@@ -285,6 +286,7 @@ def format_collection_details_record (collection, funding, categories,
         "created_date":      conv.value_or_none(collection, "created_date"),
         "modified_date":     conv.value_or_none(collection, "modified_date"),
         "id":                conv.value_or_none(collection, "id"),
+        "uuid":              conv.value_or_none(collection, "container_uuid"),
         "title":             conv.value_or_none(collection, "title"),
         "doi":               conv.value_or_none(collection, "doi"),
         "handle":            conv.value_or(collection, "handle", ""),
