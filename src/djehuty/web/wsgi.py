@@ -2007,12 +2007,28 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         try:
-            collection   = self.db.collections (collection_id=collection_id, account_id=account_id)[0]
-            collection_version_id = collection["collection_version_id"]
+            collection = self.__collection_by_id_or_uri (collection_id,
+                                                         account_id  = account_id,
+                                                         is_publised = False)
 
-            result = self.db.delete_authors_for_collection (collection_version_id, account_id, author_id)
-            if result is not None:
+            authors    = self.db.authors (item_uri     = article["uri"],
+                                          account_id   = account_id,
+                                          is_published = False,
+                                          item_type    = "collection",
+                                          limit        = 10000)
+
+            if parses_to_int (author_id):
+                authors.remove (next (filter (lambda item: item['id'] == author_id, authors)))
+            else:
+                authors.remove (next (filter (lambda item: item['uuid'] == author_id, authors)))
+
+            if self.db.update_item_list (uri_to_uuid (article["container_uri"]),
+                                         account_id,
+                                         authors,
+                                         "authors"):
                 return self.respond_204()
+            else:
+                return self.error_500()
 
         except IndexError:
             return self.error_500 ()
