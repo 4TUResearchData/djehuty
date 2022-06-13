@@ -2983,11 +2983,15 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                collection = self.db.collections (collection_id = collection_id, account_id = account_id)[0]
-                collection_version_id = collection["collection_version_id"]
+                collection = self.__collection_by_id_or_uri (collection_id,
+                                                             is_published = False,
+                                                             account_id = account_id)
 
-                articles   = self.db.articles (collection_version_id = collection_version_id,
-                                               account_id            = account_id)
+                if collection is None:
+                    return self.error_404 (request)
+
+                articles   = self.db.datasets (collection_uri = collection["uri"],
+                                               account_id     = account_id)
 
                 return self.default_list_response (articles, formatter.format_article_record)
             except IndexError:
