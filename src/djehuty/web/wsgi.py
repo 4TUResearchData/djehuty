@@ -2856,17 +2856,17 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                collection = self.db.collections(collection_id = collection_id,
-                                                 account_id    = account_id,
-                                                 limit         = 1,
-                                                 is_editable   = 1)[0]
-                collection_version_id = collection["collection_version_id"]
-                authors    = self.db.authors(item_id    = collection_version_id,
-                                             account_id = account_id,
-                                             item_type  = "collection")
+                collection = self.__collection_by_id_or_uri (collection_id,
+                                                             account_id   = account_id,
+                                                             is_published = False)
+
+                authors    = self.db.authors (item_uri     = collection["uri"],
+                                              is_published = False,
+                                              account_id   = account_id,
+                                              item_type    = "collection",
+                                              limit        = 10000)
 
                 return self.default_list_response (authors, formatter.format_author_record)
-
             except IndexError:
                 pass
             except KeyError:
@@ -2874,85 +2874,61 @@ class ApiServer:
 
             return self.error_500 ()
 
-        if request.method == 'PUT':
-            parameters = request.get_json()
-            try:
-                records = parameters["authors"]
-                author_ids = []
-                for record in records:
-                    author_id = self.db.insert_author (
-                        author_id  = validator.integer_value (record, "id",         0, pow(2, 63)),
-                        full_name  = validator.string_value  (record, "name",       0, 255),
-                        first_name = validator.string_value  (record, "first_name", 0, 255),
-                        last_name  = validator.string_value  (record, "last_name",  0, 255),
-                        email      = validator.string_value  (record, "email",      0, 255),
-                        orcid_id   = validator.string_value  (record, "orcid_id",   0, 255),
-                        job_title  = validator.string_value  (record, "job_title",  0, 255),
-                        is_active  = False,
-                        is_public  = True)
-                    if author_id is None:
-                        logging.error("Adding a single author failed.")
-                        return self.error_500()
-
-                    author_ids.append(author_id)
-
-                collection = self.db.collections (collection_id=collection_id, account_id=account_id)[0]
-                collection_version_id = collection["collection_version_id"]
-
-                self.db.delete_authors_for_collection (collection_version_id, account_id)
-                for author_id in author_ids:
-                    if self.db.insert_collection_author (collection_version_id, author_id) is None:
-                        logging.error("Adding a single author failed.")
-                        return self.error_500()
-
-            except IndexError:
-                return self.error_500 ()
-            except KeyError:
-                return self.error_400 (request, "Expected an 'authors' field.", "NoAuthorsField")
-            except validator.ValidationException as error:
-                return self.error_400 (request, error.message, error.code)
-            except Exception as error:
-                logging.error("An error occurred when adding an author record:")
-                logging.error("Exception: %s", error)
-
-            return self.error_500()
-
-        if request.method == 'POST':
+        if request.method in ['POST', 'PUT']:
             ## The 'parameters' will be a dictionary containing a key "authors",
             ## which can contain multiple dictionaries of author records.
             parameters = request.get_json()
 
             try:
-                records = parameters["authors"]
+                new_authors = []
+                records     = parameters["authors"]
                 for record in records:
                     # The following fields are allowed:
                     # id, name, first_name, last_name, email, orcid_id, job_title.
                     #
                     # We assume values for is_active and is_public.
-                    author_id  = validator.integer_value (record, "id", 0, pow(2, 63), False)
-                    if author_id is None:
-                        author_id = self.db.insert_author (
-                            full_name  = validator.string_value  (record, "name",       0, 255),
-                            first_name = validator.string_value  (record, "first_name", 0, 255),
-                            last_name  = validator.string_value  (record, "last_name",  0, 255),
-                            email      = validator.string_value  (record, "email",      0, 255),
-                            orcid_id   = validator.string_value  (record, "orcid_id",   0, 255),
-                            job_title  = validator.string_value  (record, "job_title",  0, 255),
+                    author_uuid  = validator.string_value (record, "uuid", 0, 36, False)
+                    if author_uuid is None:
+                        author_uuid = self.db.insert_author (
+                            full_name  = validator.string_value  (record, "name",       0, 255,        False),
+                            first_name = validator.string_value  (record, "first_name", 0, 255,        False),
+                            last_name  = validator.string_value  (record, "last_name",  0, 255,        False),
+                            email      = validator.string_value  (record, "email",      0, 255,        False),
+                            orcid_id   = validator.string_value  (record, "orcid_id",   0, 255,        False),
+                            job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
                             is_active  = False,
                             is_public  = True)
-
-                        if author_id is None:
+                        if author_uuid is None:
                             logging.error("Adding a single author failed.")
                             return self.error_500()
+                    new_authors.append(URIRef(uuid_to_uri (author_uuid, "author")))
 
-                    collection = self.db.collections (collection_id = collection_id,
-                                                      account_id    = account_id,
-                                                      is_editable   = 1)[0]
-                    collection_version_id = collection["collection_version_id"]
+                collection = self.__collection_by_id_or_uri (collection_id,
+                                                             account_id   = account_id,
+                                                             is_published = False)
 
-                    if self.db.insert_collection_author (collection_version_id, author_id) is None:
-                        logging.error("Adding a single author failed.")
-                        return self.error_500()
+                # The PUT method overwrites the existing authors, so we can
+                # keep an empty starting list. For POST we must retrieve the
+                # existing authors to preserve them.
+                existing_authors = []
+                if request.method == 'POST':
+                    existing_authors = self.db.authors (
+                        item_uri     = collection["uri"],
+                        account_id   = account_id,
+                        item_type    = "collection",
+                        is_published = False,
+                        limit        = 10000)
+
+                    existing_authors = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "author")),
+                                                 existing_authors))
+
+                authors = existing_authors + new_authors
+                if not self.db.update_item_list (uri_to_uuid (collection["container_uri"]),
+                                                 account_id,
+                                                 authors,
+                                                 "authors"):
+                    logging.error("Adding a single author failed.")
+                    return self.error_500()
 
                 return self.respond_205()
 
