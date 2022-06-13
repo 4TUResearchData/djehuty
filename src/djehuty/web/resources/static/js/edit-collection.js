@@ -45,8 +45,8 @@ function render_articles_for_collection (collection_id) {
                 row += ` (${article.doi})`;
             }
             row += `</a></td><td><a href="#" `;
-            row += `onclick="javascript:remove_article(${article.id}, `;
-            row += `${collection_id}); return false;" class="fas fa-trash-can" `;
+            row += `onclick="javascript:remove_article('${article.uuid}', `;
+            row += `'${collection_id}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
             jQuery("#articles-list tbody").append(row);
         }
@@ -220,8 +220,8 @@ function autocomplete_article (event, collection_id) {
             html = "<ul>";
             for (item of data) {
                 html += `<li><a href="#" `;
-                html += `onclick="javascript:add_article(${item["id"]}, `;
-                html += `${collection_id}); return false;">${item["title"]}`;
+                html += `onclick="javascript:add_article('${item["uuid"]}', `;
+                html += `'${collection_id}'); return false;">${item["title"]}`;
                 if (item["doi"] != null && item["doi"] != "") {
                     html += ` (${item["doi"]})`;
                 }
@@ -253,8 +253,8 @@ function autocomplete_author (event, collection_id) {
             html = "<ul>";
             for (item of data) {
                 html += `<li><a href="#" `;
-                html += `onclick="javascript:add_author(${item["id"]}, `;
-                html += `${collection_id}); return false;">${item["full_name"]}`;
+                html += `onclick="javascript:add_author('${item["uuid"]}', `;
+                html += `'${collection_id}'); return false;">${item["full_name"]}`;
                 if (item["orcid_id"] != null && item["orcid_id"] != "") {
                     html += ` (${item["orcid_id"]})`;
                 }
@@ -263,7 +263,7 @@ function autocomplete_author (event, collection_id) {
             html += "</ul>";
 
             html += `<div id="new-author" class="a-button"><a href="#" `
-            html += `onclick="javascript:new_author(${collection_id}); `
+            html += `onclick="javascript:new_author('${collection_id}'); `
             html += `return false;">Create new author record</a></div>`;
             jQuery("#authors")
                 .addClass("input-for-ac")
@@ -283,7 +283,7 @@ function new_author (collection_id) {
     html += `<label for="author_first_name">ORCID</label>`;
     html += `<input type="text" id="author_orcid" name="author_orcid">`;
     html += `<div id="new-author" class="a-button">`;
-    html += `<a href="#" onclick="javascript:submit_new_author(${collection_id}); `;
+    html += `<a href="#" onclick="javascript:submit_new_author('${collection_id}'); `;
     html += `return false;">Add author</a></div>`;
     html += `</div>`;
     jQuery("#authors-ac ul").remove();
