@@ -1120,29 +1120,6 @@ class SparqlInterface:
 
         return None
 
-    def insert_item_category (self, item_id, category_id, item_type="article"):
-        """Procedure to add a link between an article or collection and a category."""
-
-        prefix   = item_type.capitalize()
-        graph    = Graph()
-        link_id  = self.ids.next_id(f"{item_type}_category")
-        link_uri = rdf.ROW[f"{item_type}_category_link_{link_id}"]
-
-        graph.add ((link_uri, RDF.type,                   rdf.SG[f"{prefix}Category"]))
-        graph.add ((link_uri, rdf.COL["id"],              Literal(link_id, datatype=XSD.integer)))
-        graph.add ((link_uri, rdf.COL["category_id"],     Literal(category_id, datatype=XSD.integer)))
-        graph.add ((link_uri, rdf.COL[f"{item_type}_version_id"], Literal(item_id, datatype=XSD.integer)))
-
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
-            return link_id
-
-        return None
-
-    def insert_collection_category (self, collection_version_id, category_id):
-        """Procedure to add a link between a collection and a category."""
-        return self.insert_item_category (collection_version_id, category_id, "collection")
-
     def insert_article_file (self, article_version_id, file_id):
         """Procedure to add a link between an article and a file."""
 
@@ -1820,9 +1797,8 @@ class SparqlInterface:
 
         results = self.__run_query (query, query, f"{collection_version_id}_collection")
         if results and categories:
-            self.delete_collection_categories (collection_version_id, account_id)
-            for category in categories:
-                self.insert_collection_category (collection_version_id, category)
+            items = rdf.uris_from_records (categories, "category")
+            self.update_item_list (container_uuid, account_id, items, "categories")
 
         if results and articles:
             self.delete_collection_articles (collection_version_id, account_id)
