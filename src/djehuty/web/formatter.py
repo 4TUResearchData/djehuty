@@ -21,6 +21,7 @@ def format_article_record (record):
     """Record formatter for articles."""
     return {
         "id":                      conv.value_or_none(record, "article_id"),
+        "uuid":                    conv.value_or_none(record, "container_uuid"),
         "title":                   conv.value_or_none(record, "title"),
         "doi":                     conv.value_or_none(record, "doi"),
         "handle":                  conv.value_or_none(record, "handle"),
