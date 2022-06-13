@@ -1,33 +1,11 @@
 function render_in_form (text) { return [text].join(''); }
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 
-function render_categories_for_collection (collection_id, categories = null) {
-
-    function draw_categories_for_collection (collection_id, categories) {
-        for (category of categories) {
-            jQuery(`#category_${category["id"]}`).prop("checked", true);
-            jQuery(`#subcategories_${category["parent_id"]}`).show();
-        }
-        for (category_id of root_categories) {
-            if (jQuery(`#category_${category_id}`).prop("checked")) {
-                jQuery(`#subcategories_${category_id}`).show();
-            }
-        }
-    }
-
-    if (categories === null) {
-        jQuery.ajax({
-            url:         `/v2/account/collections/${collection_id}/categories`,
-            data:        { "limit": 10000 },
-            type:        "GET",
-            accept:      "application/json",
-        }).done(function (categories) {
-            draw_categories_for_collection (collection_id, categories);
-        }).fail(function () {
-            console.log("Failed to retrieve collection categories.");
-        });
-    } else {
-        draw_categories_for_collection (collection_id, categories);
+function render_categories_for_collection (article_uuid, categories) {
+    for (category of categories) {
+        jQuery(`#category_${category["uuid"]}`).prop("checked", true);
+        jQuery(`#category_${category["parent_uuid"]}`).prop("checked", true);
+        jQuery(`#subcategories_${category["parent_uuid"]}`).show();
     }
 }
 
