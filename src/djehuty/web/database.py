@@ -1210,26 +1210,6 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"{article_version_id}_article")
         return self.__run_query(query)
 
-    def insert_tag (self, tag, item_id=None, item_type=None):
-        """Procedure to add an tag to the state graph."""
-
-        prefix  = item_type.capitalize()
-        graph   = Graph()
-        tag_id  = self.ids.next_id("{item_type}_tag")
-        tag_uri = rdf.ROW[f"{item_type}_tag_{tag_id}"]
-
-        graph.add ((tag_uri, RDF.type,                   rdf.SG[f"{prefix}Tag"]))
-        graph.add ((tag_uri, rdf.COL["id"],              Literal(tag_id)))
-        graph.add ((tag_uri, rdf.COL[f"{item_type}_version_id"], Literal(item_id)))
-
-        rdf.add (graph, tag_uri, rdf.COL["tag"], tag, XSD.string)
-
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
-            return tag_id
-
-        return None
-
     def insert_funding (self, title=None, grant_code=None, funder_name=None,
                         is_user_defined=None, url=None, item_id=None,
                         item_type=None, funding_id=None):
