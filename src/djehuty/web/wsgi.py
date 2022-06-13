@@ -2811,12 +2811,17 @@ class ApiServer:
 
         if request.method == 'DELETE':
             try:
-                collection    = self.db.collections(collection_id = collection_id,
-                                                    account_id    = account_id,
-                                                    limit         = 1)[0]
-                collection_version_id = collection["collection_version_id"]
+                collection = self.__collection_by_id_or_uri(
+                    collection_id,
+                    account_id   = account_id,
+                    is_published = False)
 
-                if self.db.delete_collection (collection_version_id, account_id):
+                if collection is None:
+                    return self.error_404 (request)
+
+                if self.db.delete_collection (
+                        container_uuid = collection["container_uuid"],
+                        account_id     = account_id):
                     return self.respond_204()
             except IndexError:
                 pass
