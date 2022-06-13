@@ -2981,15 +2981,16 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         try:
-            collection = self.db.collections (collection_id = collection_id, account_id = account_id)[0]
-            collection_version_id = collection["collection_version_id"]
+            collection = self.__collection_by_id_or_uri (collection_id,
+                                                         account_id=account_id)
 
-            categories    = self.db.categories(item_id    = collection_version_id,
-                                               account_id = account_id,
-                                               item_type  = "collection")
+            if collection is None:
+                return self.error_404 (request)
+
+            categories = self.db.categories(item_uri   = collection["uri"],
+                                            account_id = account_id)
 
             return self.default_list_response (categories, formatter.format_category_record)
-
         except IndexError:
             pass
         except KeyError:
