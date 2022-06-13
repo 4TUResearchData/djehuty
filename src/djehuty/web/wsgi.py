@@ -852,8 +852,9 @@ class ApiServer:
 
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
-                collections = self.db.collections (account_id = account_id,
-                                                   limit      = 10000)
+                collections = self.db.collections (account_id   = account_id,
+                                                   is_published = False,
+                                                   limit        = 10000)
 
                 for index, _ in enumerate(collections):
                     count = self.db.collections_article_count (
