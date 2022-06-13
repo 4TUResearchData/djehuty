@@ -49,7 +49,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if log_file is not None:
             is_writeable = False
             try:
-                file_test = open (log_file, "w")
+                file_test = open (log_file, "a")
                 file_test.close()
                 is_writeable = True
             except PermissionError:
