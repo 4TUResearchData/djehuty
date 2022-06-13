@@ -1765,7 +1765,7 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def update_collection (self, collection_version_id, account_id, title=None,
+    def update_collection (self, container_uuid, account_id, title=None,
                            description=None, resource_doi=None,
                            resource_title=None, group_id=None, articles=None,
                            time_coverage=None, publisher=None, language=None,
@@ -1775,7 +1775,7 @@ class SparqlInterface:
 
         query   = self.__query_from_template ("update_collection", {
             "account_id":        account_id,
-            "collection_version_id": collection_version_id,
+            "container_uri":     rdf.uuid_to_uri (container_uuid, "container"),
             "contributors":      contributors,
             "description":       description,
             "geolocation":       geolocation,
@@ -1793,9 +1793,9 @@ class SparqlInterface:
         })
 
         self.cache.invalidate_by_prefix ("collection")
-        self.cache.invalidate_by_prefix (f"{collection_version_id}_collection")
+        self.cache.invalidate_by_prefix (f"{container_uuid}_collection")
 
-        results = self.__run_query (query, query, f"{collection_version_id}_collection")
+        results = self.__run_query (query, query, f"{container_uuid}_collection")
         if results and categories:
             items = rdf.uris_from_records (categories, "category")
             self.update_item_list (container_uuid, account_id, items, "categories")

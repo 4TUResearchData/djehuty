@@ -66,9 +66,11 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?collection            rdf:type                 sg:Collection .
-    ?collection            col:collection_version_id ?collection_version_id .
-    ?collection            col:account_id           ?account_id .
+    ?container          rdf:type                 sg:CollectionContainer .
+    ?container          col:account_id           ?account_id .
+    ?container          col:draft                ?collection .
+
+    ?collection         rdf:type                 sg:Collection .
 
     OPTIONAL { ?collection col:title                ?title . }
     OPTIONAL { ?collection col:description          ?description . }
@@ -88,6 +90,6 @@ WHERE {
 {%- if account_id is not none: %}
   FILTER (?account_id = {{account_id}})
 {%- endif %}
-  FILTER (?collection_version_id = {{collection_version_id}})
+  FILTER (?container = <{{container_uri}}>)
 }
 {% endblock %}
