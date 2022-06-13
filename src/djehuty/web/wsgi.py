@@ -2724,18 +2724,18 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                collection    = self.db.collections(collection_id = collection_id,
-                                                    account_id    = account_id,
-                                                    limit         = 1)[0]
-                collection_version_id = collection["collection_version_id"]
+                collection    = self.__collection_by_id_or_uri (collection_id,
+                                                                account_id = account_id,
+                                                                is_published = False)
 
-                articles_count= self.db.collections_article_count(collection_version_id=collection_version_id)
-                fundings      = self.db.fundings(item_id=collection_version_id, item_type="collection")
-                categories    = self.db.categories(item_id=collection_version_id, item_type="collection")
-                references    = self.db.references(item_id=collection_version_id, item_type="collection")
-                custom_fields = self.db.custom_fields(item_id=collection_version_id, item_type="collection")
-                tags          = self.db.tags(item_id=collection_version_id, item_type="collection")
-                authors       = self.db.authors(item_id=collection_version_id, item_type="collection")
+                collection_uri = collection["uri"]
+                articles_count= self.db.collections_article_count(collection_uri=collection_uri)
+                fundings      = self.db.fundings(item_uri=collection_uri, item_type="collection")
+                categories    = self.db.categories(item_uri=collection_uri)
+                references    = self.db.references(item_uri=collection_uri)
+                custom_fields = self.db.custom_fields(item_uri=collection_uri, item_type="collection")
+                tags          = self.db.tags(item_uri=collection_uri, item_type="collection")
+                authors       = self.db.authors(item_uri=collection_uri, item_type="collection")
                 total         = formatter.format_collection_details_record (collection,
                                                                             fundings,
                                                                             categories,
@@ -2756,12 +2756,11 @@ class ApiServer:
         if request.method == 'PUT':
             record = request.get_json()
             try:
-                collection    = self.db.collections(collection_id = collection_id,
-                                                    account_id    = account_id,
-                                                    limit         = 1)[0]
-                collection_version_id = collection["collection_version_id"]
-
-                result = self.db.update_collection (collection_version_id, account_id,
+                collection     = self.__collection_by_id_or_uri (collection_id,
+                                                                 account_id = account_id,
+                                                                 is_published = False)
+                container_uuid = collection["container_uuid"]
+                result = self.db.update_collection (container_uuid, account_id,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
