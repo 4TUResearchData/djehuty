@@ -946,17 +946,19 @@ class ApiServer:
             if self.db.is_depositor (token):
 
                 try:
-                    collection = self.db.collections (
-                        collection_id = collection_id,
-                        account_id    = account_id)[0]
+                    collection = self.__collection_by_id_or_uri(
+                        collection_id,
+                        account_id   = account_id,
+                        is_published = False)
 
-                    collection_version_id = collection["collection_version_id"]
-                    if collection["is_public"] != 0:
-                        return self.error_403 (request)
+                    # Either accessing another account's collection or
+                    # trying to remove a published collection.
+                    if collection is None:
+                        self.error_403 (request)
 
                     result = self.db.delete_collection (
-                        collection_version_id = collection_version_id,
-                        account_id    = account_id)
+                        container_uuid = collection["container_uuid"],
+                        account_id     = account_id)
 
                     if result is not None:
                         return redirect ("/my/collections", code=303)
