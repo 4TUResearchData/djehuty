@@ -1670,8 +1670,9 @@ class ApiServer:
                     "offset":    self.get_parameter (request, "offset")
                 })
 
-                records = self.db.articles (limit=limit,
+                records = self.db.datasets (limit=limit,
                                             offset=offset,
+                                            is_published = False,
                                             account_id=account_id)
 
                 return self.default_list_response (records, formatter.format_article_record)
