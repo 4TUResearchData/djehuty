@@ -215,6 +215,21 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
+    def container_items (self, account_id=None, container_uuid=None,
+                         item_uuid=None, item_type="article", is_published=True,
+                         is_latest=False):
+
+        query = self.__query_from_template ("container_items", {
+            "account_id":     account_id,
+            "container_uri":  rdf.uuid_to_uri (container_uuid, "container"),
+            "item_uri":       rdf.uuid_to_uri (item_uuid, item_type),
+            "item_type":      item_type,
+            "is_latest":      is_latest,
+            "is_published":   is_published
+        })
+
+        return self.__run_query (query)
+
     def datasets (self, account_id=None, categories=None, collection_uri=None,
                   container_uuid=None, dataset_id=None, dataset_uuid=None, doi=None,
                   exclude_ids=None, groups=None, handle=None, institution=None,
@@ -1017,9 +1032,9 @@ class SparqlInterface:
     def update_item_list (self, container_uuid, account_id, items, predicate):
         try:
             graph   = Graph()
-            dataset = self.datasets (container_uuid = container_uuid,
-                                     is_published   = False,
-                                     account_id     = account_id)[0]
+            dataset = self.container_items (container_uuid = container_uuid,
+                                            is_published   = False,
+                                            account_id     = account_id)[0]
 
             self.delete_associations (container_uuid, account_id, predicate)
             if items:

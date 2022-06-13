@@ -1,0 +1,31 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?account_id ?container_uuid ?version ?container_uri
+                ?item_uri AS ?uri ?uuid
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container_uri       rdf:type/rdf:type        sg:Container .
+    ?container_uri       col:account_id           ?account_id .
+
+    {%- if is_published %}
+    {%- if is_latest %}
+    ?container_uri       col:latest_published_version ?item_uri .
+    {%- else %}
+    ?container_uri       col:published_versions/rdf:rest*/rdf:first ?item_uri .
+    {%- endif %}
+    {%- else %}
+    ?container_uri       col:draft                ?item_uri .
+    {%- endif %}
+
+    OPTIONAL { ?item_uri col:version              ?version . }
+    BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
+    BIND(STRAFTER(STR(?article), ":")                AS ?uuid)
+  }
+{%- if account_id is not none: %}
+FILTER (?account_id = {{account_id}})
+{%- endif %}
+{%- if container_uri is not none: %}
+FILTER (?container_uri = <{{container_uri}}>)
+{%- endif %}
+}
+{% endblock %}
