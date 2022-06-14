@@ -2049,16 +2049,24 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         try:
-            collection = self.db.collections(collection_id=collection_id, account_id=account_id, limit=1)[0]
-            collection_version_id = collection["collection_version_id"]
+            collection = self.__collection_by_id_or_uri (collection_id, account_id=account_id)
+            article    = self.__dataset_by_id_or_uri (article_id, account_id=account_id)
+            if collection is None or article is None:
+                return self.error_404 (request)
 
-            article    = self.db.articles(article_id=article_id, account_id=account_id, limit=1)[0]
-            article_version_id = article["article_version_id"]
+            articles = self.db.datasets(collection_uri=collection["uri"])
+            articles.remove (next
+                             (filter
+                              (lambda item: item["uuid"] == article["uuid"],
+                               articles)))
 
-            result     = self.db.delete_article_for_collection (collection_version_id,
-                                                                account_id,
-                                                                article_version_id)
-            if result is not None:
+            articles = list(map(lambda item: URIRef(uuid_to_uri(item["uuid"], "article")),
+                                articles))
+
+            if self.db.update_item_list (collection["container_uuid"],
+                                         account_id,
+                                         articles,
+                                         "articles"):
                 return self.respond_204()
         except IndexError:
             return self.error_500 ()
