@@ -1422,7 +1422,6 @@ class SparqlInterface:
     def insert_collection (self, title,
                            account_id,
                            collection_id=None,
-                           collection_version_id=None,
                            funding=None,
                            funding_list=None,
                            description=None,
@@ -1464,19 +1463,16 @@ class SparqlInterface:
         private_links           = [] if private_links           is None else private_links
         articles                = [] if articles                is None else articles
 
-        graph = Graph()
-
-        if collection_version_id is None:
-            collection_version_id = self.ids.next_id("article")
-
-        if collection_id is None:
-            collection_id = collection_version_id
-
-        collection_uri = rdf.ROW[f"collection_{collection_version_id}"]
+        graph                   = Graph()
+        uri                     = rdf.unique_node ("collection")
+        container               = self.container_uri (graph, None, "collection", account_id)
 
         ## TIMELINE
         ## --------------------------------------------------------------------
-        timeline_id = self.insert_timeline (
+        self.insert_timeline (
+            graph                 = graph,
+            container_uri         = container,
+            item_uri              = uri,
             revision              = revision,
             first_online          = first_online,
             publisher_publication = publisher_publication,
@@ -1485,62 +1481,18 @@ class SparqlInterface:
             submission            = submission
         )
 
-        rdf.add (graph, collection_uri, rdf.COL["timeline_id"], timeline_id)
+        self.insert_item_list   (graph, uri, references, "references")
+        self.insert_item_list   (graph, uri, tags, "tags")
 
-        ## REFERENCES
-        ## --------------------------------------------------------------------
-        for reference in references:
-            self.insert_reference (reference, item_id=collection_version_id, item_type="collection")
-
-        ## TAGS
-        ## --------------------------------------------------------------------
-        for tag in tags:
-            self.insert_tag (tag, item_id=collection_version_id, item_type="collection")
-
-        ## FUNDING
-        ## --------------------------------------------------------------------
-        for fund in funding_list:
-            self.insert_funding (
-                funding_id      = conv.value_or_none (fund, "id"),
-                title           = conv.value_or_none (fund, "title"),
-                grant_code      = conv.value_or_none (fund, "grant_code"),
-                funder_name     = conv.value_or_none (fund, "funder_name"),
-                is_user_defined = conv.value_or_none (fund, "is_user_defined"),
-                url             = conv.value_or_none (fund, "url"),
-                item_id         = collection_version_id,
-                item_type       = "collection")
-
-        ## CATEGORIES
-        ## --------------------------------------------------------------------
-        for category in categories:
-            category_id = self.insert_category (
-                category_id = conv.value_or_none (category, "id"),
-                title       = conv.value_or_none (category, "title"),
-                parent_id   = conv.value_or_none (category, "parent_id"),
-                source_id   = conv.value_or_none (category, "source_id"),
-                taxonomy    = conv.value_or_none (category, "taxonomy"))
-            self.insert_collection_category (collection_version_id, category_id)
+        categories = rdf.uris_from_records (categories, "category")
+        self.insert_item_list (graph, uri, categories, "categories")
+        self.insert_record_list (graph, uri, authors, "authors", self.insert_author)
+        self.insert_record_list (graph, uri, funding_list, "funding_list", self.insert_funding)
+        self.insert_record_list (graph, uri, private_links, "private_links", self.insert_private_link)
 
         ## ARTICLES
         ## --------------------------------------------------------------------
-        for article_id in articles:
-            self.insert_collection_article (collection_version_id, article_id)
-
-        ## AUTHORS
-        ## --------------------------------------------------------------------
-        for author in authors:
-            author_id = self.insert_author (
-                author_id      = conv.value_or_none (author, "id"),
-                is_active      = conv.value_or_none (author, "is_active"),
-                first_name     = conv.value_or_none (author, "first_name"),
-                last_name      = conv.value_or_none (author, "last_name"),
-                full_name      = conv.value_or_none (author, "full_name"),
-                institution_id = conv.value_or_none (author, "institution_id"),
-                job_title      = conv.value_or_none (author, "job_title"),
-                is_public      = conv.value_or_none (author, "is_public"),
-                url_name       = conv.value_or_none (author, "url_name"),
-                orcid_id       = conv.value_or_none (author, "orcid_id"))
-            self.insert_collection_author (collection_version_id, author_id)
+        # ...
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
@@ -1555,47 +1507,42 @@ class SparqlInterface:
                 is_mandatory  = conv.value_or_none (field, "is_mandatory"),
                 placeholder   = conv.value_or_none (field, "placeholder"),
                 is_multiple   = conv.value_or_none (field, "is_multiple"),
-                item_id       = collection_version_id,
+                item_id       = collection_id,
                 item_type     = "collection")
-
-        ## PRIVATE LINKS
-        ## --------------------------------------------------------------------
-        for link in private_links:
-            self.insert_private_link (
-                item_id          = collection_version_id,
-                item_type        = "collection",
-                private_link_id  = conv.value_or_none (link, "id"),
-                is_active        = conv.value_or_none (link, "is_active"),
-                expires_date     = conv.value_or_none (link, "expires_date"))
 
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
 
-        graph.add ((collection_uri, RDF.type,         rdf.SG["Collection"]))
-        graph.add ((collection_uri, rdf.COL["collection_id"],    Literal(collection_id)))
-        graph.add ((collection_uri, rdf.COL["collection_version_id"], Literal(collection_version_id)))
-        graph.add ((collection_uri, rdf.COL["title"], Literal(title, datatype=XSD.string)))
+        graph.add ((uri, RDF.type,         rdf.SG["Collection"]))
+        graph.add ((uri, rdf.COL["title"], Literal(title, datatype=XSD.string)))
+        graph.add ((uri, rdf.COL["container"], container))
 
-        rdf.add (graph, collection_uri, rdf.COL["account_id"],     account_id)
-        rdf.add (graph, collection_uri, rdf.COL["description"],    description,    XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["funding"],        funding,        XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["doi"],            doi,            XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["handle"],         handle,         XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["url"],            url,            XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["resource_doi"],   resource_doi,   XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["resource_title"], resource_title, XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["group_id"],       group_id)
+        rdf.add (graph, uri, rdf.COL["collection_id"],  collection_id)
+        rdf.add (graph, uri, rdf.COL["account_id"],     account_id)
+        rdf.add (graph, uri, rdf.COL["description"],    description,    XSD.string)
+        rdf.add (graph, uri, rdf.COL["funding"],        funding,        XSD.string)
+        rdf.add (graph, uri, rdf.COL["doi"],            doi,            XSD.string)
+        rdf.add (graph, uri, rdf.COL["handle"],         handle,         XSD.string)
+        rdf.add (graph, uri, rdf.COL["url"],            url,            XSD.string)
+        rdf.add (graph, uri, rdf.COL["resource_doi"],   resource_doi,   XSD.string)
+        rdf.add (graph, uri, rdf.COL["resource_title"], resource_title, XSD.string)
+        rdf.add (graph, uri, rdf.COL["group_id"],       group_id)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
-        rdf.add (graph, collection_uri, rdf.COL["created_date"],   current_time, XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["modified_date"],  current_time, XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["published_date"], "NULL", XSD.string)
-        rdf.add (graph, collection_uri, rdf.COL["is_public"],      0)
+        rdf.add (graph, uri, rdf.COL["created_date"],   current_time, XSD.string)
+        rdf.add (graph, uri, rdf.COL["modified_date"],  current_time, XSD.string)
+        rdf.add (graph, uri, rdf.COL["published_date"], "NULL", XSD.string)
+        rdf.add (graph, uri, rdf.COL["is_public"],      0)
+
+        # Add the collection to its container.
+        graph.add ((container, rdf.COL["draft"],       uri))
+        graph.add ((container, rdf.COL["account_id"],  Literal(account_id, datatype=XSD.integer)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            logging.info ("Inserted collection %d", collection_id)
-            return collection_id
+            container_uuid = rdf.uri_to_uuid (container)
+            logging.info ("Inserted collection %s", container_uuid)
+            return container_uuid
 
         return None
 
