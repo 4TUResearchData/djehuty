@@ -2009,9 +2009,9 @@ class ApiServer:
         try:
             collection = self.__collection_by_id_or_uri (collection_id,
                                                          account_id  = account_id,
-                                                         is_publised = False)
+                                                         is_published = False)
 
-            authors    = self.db.authors (item_uri     = article["uri"],
+            authors    = self.db.authors (item_uri     = collection["uri"],
                                           account_id   = account_id,
                                           is_published = False,
                                           item_type    = "collection",
@@ -2022,7 +2022,10 @@ class ApiServer:
             else:
                 authors.remove (next (filter (lambda item: item['uuid'] == author_id, authors)))
 
-            if self.db.update_item_list (uri_to_uuid (article["container_uri"]),
+            authors = list(map(lambda item: URIRef(uuid_to_uri(item["uuid"], "author")),
+                                authors))
+
+            if self.db.update_item_list (uri_to_uuid (collection["container_uri"]),
                                          account_id,
                                          authors,
                                          "authors"):
