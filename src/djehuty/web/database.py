@@ -1419,28 +1419,6 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def insert_collection_article (self, collection_version_id, article_version_id):
-        """Procedure to add an article to a collection."""
-
-        if collection_version_id is None or article_version_id is None:
-            return False
-
-        graph       = Graph()
-        link_id  = self.ids.next_id("collection_article")
-        link_uri = rdf.ROW[f"collection_article_{link_id}"]
-
-        graph.add ((link_uri, RDF.type,                  rdf.SG["CollectionArticle"]))
-        graph.add ((link_uri, rdf.COL["id"],             Literal(link_id)))
-        graph.add ((link_uri, rdf.COL["collection_version_id"],  Literal(collection_version_id)))
-        graph.add ((link_uri, rdf.COL["article_version_id"],     Literal(article_version_id)))
-
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
-            self.cache.invalidate_by_prefix ("article")
-            return link_id
-
-        return None
-
     def insert_collection (self, title,
                            account_id,
                            collection_id=None,
