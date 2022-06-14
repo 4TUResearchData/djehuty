@@ -2413,12 +2413,18 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed(request)
 
+        dataset = self.__dataset_by_id_or_uri (article_id,
+                                               account_id = account_id,
+                                               is_published = False)
+
+        if dataset is None:
+            return self.error_404 (request)
+
         if request.method == 'GET':
             links = self.db.private_links (
-                        item_id    = article_id,
+                        item_uri   = dataset["uri"],
                         id_string  = link_id,
-                        account_id = account_id,
-                        item_type  = "article")
+                        account_id = account_id)
 
             return self.default_list_response (links, formatter.format_private_links_record)
 
@@ -2428,12 +2434,11 @@ class ApiServer:
                 expires_date = validator.string_value (parameters, "expires_date", 0, 255, False)
                 is_active    = validator.boolean_value (parameters, "is_active", False)
 
-                result = self.db.update_private_link (article_id,
+                result = self.db.update_private_link (dataset["uri"],
                                                       account_id,
                                                       link_id,
                                                       expires_date = expires_date,
-                                                      is_active    = is_active,
-                                                      item_type    = "article")
+                                                      is_active    = is_active)
 
                 if result is None:
                     return self.error_500()
@@ -2448,10 +2453,9 @@ class ApiServer:
             return self.error_500 ()
 
         if request.method == 'DELETE':
-            result = self.db.delete_private_links (article_id,
-                                                  account_id,
-                                                  link_id,
-                                                  item_type    = "article")
+            result = self.db.delete_private_links (dataset["uri"],
+                                                   account_id,
+                                                   link_id)
 
             if result is None:
                 return self.error_500()

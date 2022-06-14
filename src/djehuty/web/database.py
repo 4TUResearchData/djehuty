@@ -1473,17 +1473,14 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def update_private_link (self, item_id, account_id, link_id,
+    def update_private_link (self, item_uri, account_id, link_id,
                              is_active=None, expires_date=None,
-                             read_only=None, item_type="article"):
+                             read_only=None):
         """Procedure to update a private link to an article."""
 
-        prefix  = item_type.capitalize()
         query   = self.__query_from_template ("update_private_link", {
             "account_id":   account_id,
-            "item_id":      item_id,
-            "item_type":    item_type,
-            "prefix":       prefix,
+            "item_uri":     item_uri,
             "id_string":    link_id,
             "is_active":    is_active,
             "expires_date": expires_date,
