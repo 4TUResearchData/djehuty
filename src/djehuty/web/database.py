@@ -1115,10 +1115,6 @@ class SparqlInterface:
         """Procedure to delete the categories related to an article."""
         return self.delete_item_categories (article_id, account_id, category_id, "article")
 
-    def delete_collection_categories (self, collection_version_id, account_id, category_id=None):
-        """Procedure to delete the categories related to a collection."""
-        return self.delete_item_categories (collection_version_id, account_id, category_id, "collection")
-
     def delete_account_categories (self, account_id, category_id=None):
         """Procedure to delete the categories related to an account."""
 
