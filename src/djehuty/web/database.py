@@ -12,7 +12,6 @@ from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
 from rdflib import Graph, Literal, RDF, XSD, URIRef
 from jinja2 import Environment, FileSystemLoader
 from djehuty.web import cache
-from djehuty.utils import counters
 from djehuty.utils import rdf
 from djehuty.utils import convenience as conv
 
@@ -27,7 +26,6 @@ class SparqlInterface:
 
     def __init__ (self):
 
-        self.ids         = counters.IdGenerator()
         self.storage     = None
         self.endpoint    = "http://127.0.0.1:8890/sparql"
         self.state_graph = "https://data.4tu.nl/portal/self-test"
@@ -44,24 +42,6 @@ class SparqlInterface:
         self.sparql      = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)
         self.sparql_is_up = True
-
-    def load_state (self):
-        """Procedure to load the database state."""
-
-        # Set the iterators to continue where we left off last time the
-        # program was run.
-        try:
-            for item in self.ids.keys():
-                self.ids.set_id (self.__highest_id (item_type=item), item)
-                if self.ids.current_id (item) is None:
-                    raise UnknownDatabaseState
-
-        except EmptyDatabase:
-            logging.warning ("It looks like the database is empty.")
-
-        if not os.environ.get('WERKZEUG_RUN_MAIN') and self.sparql_is_up:
-            for item in self.ids.keys():
-                logging.info ("%s enumerator set to %d", item, self.ids.current_id (item))
 
     ## ------------------------------------------------------------------------
     ## Private methods

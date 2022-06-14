@@ -186,8 +186,6 @@ def main (address=None, port=None, state_graph=None, storage=None,
         if not server.db.cache.cache_is_ready():
             logging.error("Failed to set up cache layer.")
 
-        server.db.load_state()
-
         if not server.in_production:
             logging.warning ("Assuming to run in a non-production environment.")
             logging.warning (("Set <production> to 1 in your configuration "
