@@ -1592,9 +1592,8 @@ class SparqlInterface:
             self.update_item_list (container_uuid, account_id, items, "categories")
 
         if results and articles:
-            self.delete_collection_articles (collection_version_id, account_id)
-            for article_id in articles:
-                self.insert_collection_article (collection_version_id, article_id)
+            items = rdf.uris_from_records (categories, "article")
+            self.update_item_list (container_uuid, account_id, items, "articles")
 
         return results
 
