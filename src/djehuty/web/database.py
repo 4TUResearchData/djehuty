@@ -1338,18 +1338,13 @@ class SparqlInterface:
     def insert_custom_field (self, name=None, value=None, default_value=None,
                              max_length=None, min_length=None, field_type=None,
                              is_mandatory=None, placeholder=None,
-                             is_multiple=None, item_id=None,
-                             item_type="article"):
+                             is_multiple=None, item_id=None):
         """Procedure to add a custom field to the state graph."""
 
-        prefix           = item_type.capitalize()
         graph            = Graph()
-        custom_field_id  = self.ids.next_id("custom_field")
-        custom_field_uri = rdf.ROW[f"custom_field_{custom_field_id}"]
+        custom_field_uri = rdf.unique_node ("custom_field")
 
-        graph.add ((custom_field_uri, RDF.type,                   rdf.SG[f"{prefix}CustomField"]))
-        graph.add ((custom_field_uri, rdf.COL["id"],              Literal(custom_field_id)))
-        graph.add ((custom_field_uri, rdf.COL[f"{item_type}_version_id"], Literal(item_id)))
+        graph.add ((custom_field_uri, RDF.type,                   rdf.SG[f"CustomField"]))
 
         rdf.add (graph, custom_field_uri, rdf.COL["name"],          name,          XSD.string)
         rdf.add (graph, custom_field_uri, rdf.COL["value"],         value)
@@ -1363,7 +1358,7 @@ class SparqlInterface:
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            return custom_field_id
+            return custom_field_uri
 
         return None
 
