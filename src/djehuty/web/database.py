@@ -1115,15 +1115,6 @@ class SparqlInterface:
         """Procedure to delete the categories related to an article."""
         return self.delete_item_categories (article_id, account_id, category_id, "article")
 
-    def delete_collection_articles (self, collection_version_id, account_id):
-        """Procedure to disassociate articles with a collection."""
-        query = self.__query_from_template ("delete_collection_articles", {
-            "collection_version_id": collection_version_id,
-            "account_id":    account_id
-        })
-
-        return self.__run_query(query)
-
     def delete_file_for_article (self, article_version_id, account_id, file_id=None):
         """Procedure to delete a file related to an article."""
 
