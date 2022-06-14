@@ -1115,18 +1115,6 @@ class SparqlInterface:
         """Procedure to delete the categories related to an article."""
         return self.delete_item_categories (article_id, account_id, category_id, "article")
 
-    def delete_file_for_article (self, article_version_id, account_id, file_id=None):
-        """Procedure to delete a file related to an article."""
-
-        query = self.__query_from_template ("delete_files_for_article", {
-            "article_version_id": article_version_id,
-            "account_id":  account_id,
-            "file_id":     file_id
-        })
-
-        self.cache.invalidate_by_prefix (f"{article_version_id}_article")
-        return self.__run_query(query)
-
     def insert_funding (self, title=None, grant_code=None, funder_name=None,
                         is_user_defined=None, url=None, item_id=None,
                         item_type=None, funding_id=None):
