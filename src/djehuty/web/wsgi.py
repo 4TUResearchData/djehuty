@@ -2465,7 +2465,7 @@ class ApiServer:
             records = self.db.datasets(
                 resource_doi    = validator.string_value (parameters, "resource_doi", 0, 512),
                 # "resource_id" here is not a typo for "article_id".
-                article_id      = validator.integer_value (parameters, "resource_id"),
+                dataset_id      = validator.integer_value (parameters, "resource_id"),
                 item_type       = validator.integer_value (parameters, "item_type"),
                 doi             = validator.string_value (parameters, "doi", 0, 255),
                 handle          = validator.string_value (parameters, "handle", 0, 255),
@@ -2477,7 +2477,7 @@ class ApiServer:
                 institution     = validator.integer_value (parameters, "institution"),
                 published_since = validator.string_value (parameters, "published_since", 0, 255),
                 modified_since  = validator.string_value (parameters, "modified_since", 0, 255),
-                group           = validator.integer_value (parameters, "group"),
+                groups          = [validator.integer_value (parameters, "group")],
                 exclude_ids     = validator.string_value (parameters, "exclude", 0, 255),
                 account_id      = account_id,
                 is_published    = False
