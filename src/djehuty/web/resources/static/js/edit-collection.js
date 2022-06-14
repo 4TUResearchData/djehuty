@@ -44,8 +44,8 @@ function render_authors_for_collection (collection_id, authors = null) {
                 row += ` (${author.orcid_id})`;
             }
             row += `</a></td><td><a href="#" `;
-            row += `onclick="javascript:remove_author(${author.id}, `;
-            row += `${collection_id}); return false;" class="fas fa-trash-can" `;
+            row += `onclick="javascript:remove_author('${author.uuid}', `;
+            row += `'${collection_id}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
             jQuery("#authors-list tbody").append(row);
         }
@@ -74,7 +74,7 @@ function add_author (author_id, collection_id) {
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
-        data:        JSON.stringify({ "authors": [{ "id": author_id }] }),
+        data:        JSON.stringify({ "authors": [{ "uuid": author_id }] }),
     }).done(function () {
         render_authors_for_collection (collection_id);
         jQuery("#authors").val("");
