@@ -1,6 +1,7 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
 SELECT DISTINCT ?id_string ?is_active ?expires_date ?suffix
+                 ?uuid ?link as ?uri
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container         rdf:type/rdf:type        sg:Container ;
@@ -21,5 +22,7 @@ WHERE {
   {%- if item_uri is not none %}
   FILTER(?item_uri = <{{item_uri}}>)
   {%- endif %}
+
+  BIND(STRAFTER(STR(?link), "private_link:") AS ?uuid)
 }
 {% endblock %}

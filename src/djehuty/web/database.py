@@ -1293,33 +1293,26 @@ class SparqlInterface:
 
         return None
 
-    def insert_private_link (self, private_link_id=None, read_only=True,
-                             id_string=None, is_active=True, expires_date=None,
-                             item_id=None, item_type="article"):
+    def insert_private_link (self, read_only=True, id_string=None,
+                             is_active=True, expires_date=None):
         """Procedure to add a private link to the state graph."""
 
         if id_string is None:
             id_string = secrets.token_urlsafe()
 
-        if private_link_id is None:
-            private_link_id = self.ids.next_id("private_links")
-
-        prefix   = item_type.capitalize()
         graph    = Graph()
-        link_uri = rdf.ROW[f"private_link_{id_string}"]
+        link_uri = rdf.unique_node ("private_link")
 
-        graph.add ((link_uri, RDF.type,      rdf.SG[f"{prefix}PrivateLink"]))
-        graph.add ((link_uri, rdf.COL["id"], Literal(private_link_id)))
+        graph.add ((link_uri, RDF.type,      rdf.SG[f"PrivateLink"]))
 
-        rdf.add (graph, link_uri, rdf.COL["id_string"],       id_string,    XSD.string)
-        rdf.add (graph, link_uri, rdf.COL["read_only"],       read_only)
-        rdf.add (graph, link_uri, rdf.COL["is_active"],       is_active)
-        rdf.add (graph, link_uri, rdf.COL["expires_date"],    expires_date, XSD.string)
-        rdf.add (graph, link_uri, rdf.COL[f"{item_type}_version_id"], item_id)
+        rdf.add (graph, link_uri, rdf.COL["id"],           id_string,    XSD.string)
+        rdf.add (graph, link_uri, rdf.COL["read_only"],    read_only)
+        rdf.add (graph, link_uri, rdf.COL["is_active"],    is_active)
+        rdf.add (graph, link_uri, rdf.COL["expires_date"], expires_date, XSD.string)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            return id_string
+            return link_uri
 
         return None
 

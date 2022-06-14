@@ -2378,16 +2378,37 @@ class ApiServer:
         if request.method == 'POST':
             parameters = request.get_json()
             try:
+                dataset      = self.__dataset_by_id_or_uri (article_id,
+                                                            account_id = account_id)
+                if dataset is None:
+                    return self.error_404 (request)
+
                 expires_date = validator.string_value (parameters, "expires_date", 0, 255, False)
                 read_only    = validator.boolean_value (parameters, "read_only", False)
-                id_string    = self.db.insert_private_link (
+                id_string    = secrets.token_urlsafe()
+                link_uri     = self.db.insert_private_link (
                                    expires_date = expires_date,
                                    read_only    = read_only,
-                                   is_active    = True,
-                                   item_id      = int(article_id),
-                                   item_type    = "article")
+                                   id_string    = id_string,
+                                   is_active    = True)
 
-                if id_string is None:
+                if link_uri is None:
+                    logging.error ("Creating a private link failed for %s",
+                                   dataset["uuid"])
+                    return self.error_500()
+
+                links    = self.db.private_links (item_uri   = dataset["uri"],
+                                                  account_id = account_id)
+                links    = list(map (lambda item: URIRef(item["uri"]), links))
+                links    = links + [ URIRef(link_uri) ]
+
+                if self.db.update_item_list (dataset["container_uuid"],
+                                             account_id,
+                                             links,
+                                             "private_links"):
+                    logging.error("Updating private links failed for %s.",
+                                  dataset["uuid"])
+
                     return self.error_500()
 
                 return self.response(json.dumps({
@@ -2396,9 +2417,6 @@ class ApiServer:
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
-
-            return self.error_500 ()
-            # INSERT and return { "location": id_string }
 
         return self.error_500 ()
 
