@@ -1546,12 +1546,12 @@ class SparqlInterface:
 
         return None
 
-    def delete_collection (self, collection_version_id, account_id):
+    def delete_collection (self, container_uuid, account_id):
         """Procedure to remove a collection from the state graph."""
 
-        query   = self.__query_from_template ("delete_collection", {
-            "account_id":    account_id,
-            "collection_version_id": collection_version_id
+        query   = self.__query_from_template ("delete_collection_draft", {
+            "account_id":     account_id,
+            "container_uri":  rdf.uuid_to_uri (container_uuid, "container")
         })
 
         return self.__run_query(query)
