@@ -2362,10 +2362,16 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
-            links = self.db.private_links (
-                        item_id    = article_id,
-                        account_id = account_id,
-                        item_type  = "article")
+
+            dataset = self.__dataset_by_id_or_uri (article_id,
+                                                   account_id = account_id,
+                                                   is_published = False)
+
+            if dataset is None:
+                return self.error_404 (request)
+
+            links = self.db.private_links (item_uri   = dataset["uri"],
+                                           account_id = account_id)
 
             return self.default_list_response (links, formatter.format_private_links_record)
 

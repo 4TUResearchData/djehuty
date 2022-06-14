@@ -1,21 +1,25 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?id_string ?is_active ?expires_date
+SELECT DISTINCT ?id_string ?is_active ?expires_date ?suffix
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?link              rdf:type                 sg:{{prefix}}PrivateLink .
-    ?link              col:{{item_type}}_version_id {{item_id}} .
-    ?link              col:id_string            ?id_string .
+    ?container         rdf:type/rdf:type        sg:Container ;
+                       col:draft                ?item_uri .
+    ?item_uri          col:private_links/rdf:rest*/rdf:first ?link .
+    ?link              rdf:type                 sg:PrivateLink ;
+                       col:id                   ?id_string ;
+                       col:suffix               ?suffix .
     OPTIONAL { ?link   col:is_active            ?is_active . }
     OPTIONAL { ?link   col:expires_date         ?expires_date . }
     {%- if account_id is not none %}
-    ?item              rdf:type                 sg:{{prefix}} .
-    ?item              col:{{item_type}}_version_id {{item_id}} .
-    ?item              col:account_id           {{account_id}} .
+    ?container         col:account_id           {{account_id}} .
     {%- endif %}
   }
   {%- if id_string is not none %}
   FILTER(?id_string = "{{id_string}}"^^xsd:string)
+  {%- endif %}
+  {%- if item_uri is not none %}
+  FILTER(?item_uri = <{{item_uri}}>)
   {%- endif %}
 }
 {% endblock %}
