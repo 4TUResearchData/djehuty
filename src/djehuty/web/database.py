@@ -500,22 +500,6 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def article_embargo_options (self, ip_name=None, embargo_type=None,
-                                 order=None, order_direction=None,
-                                 limit=10, article_version_id=None):
-        """Procedure to retrieve embargo options of an article."""
-
-        filters  = rdf.sparql_filter ("article_version_id", article_version_id)
-        filters += rdf.sparql_filter ("ip_name",      ip_name,      escape=True)
-        filters += rdf.sparql_filter ("embargo_type", embargo_type, escape=True)
-
-        query = self.__query_from_template ("article_embargo_options", {
-            "filters":     filters
-        })
-        query += rdf.sparql_suffix (order, order_direction, limit, None)
-
-        return self.__run_query(query)
-
     def tags (self, order=None, order_direction=None, limit=10,
               item_uri=None, item_type="article"):
         """Procedure to get tags for an article or a collection."""
