@@ -2886,8 +2886,6 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed(request)
 
-        collection_id = int(collection_id)
-
         if request.method == 'GET':
             try:
                 collection = self.__collection_by_id_or_uri (collection_id,
@@ -3042,29 +3040,30 @@ class ApiServer:
                 parameters = request.get_json()
                 articles = parameters["articles"]
 
-                collection = self.db.collections (collection_id = collection_id, account_id = account_id)[0]
-                collection_version_id = collection["collection_version_id"]
+                collection = self.__collection_by_id_or_uri (collection_id, account_id=account_id)
+                if collection is None:
+                    return self.error_404 (request)
 
                 # First, validate all values passed by the user.
                 # This way, we can be as certain as we can be that performing
                 # a PUT will not end in having no articles associated with
                 # an article.
                 for index, _ in enumerate(articles):
-                    articles[index] = validator.integer_value (articles, index)
+                    if parses_to_int (articles[index]):
+                        article = validator.integer_value (articles, index)
+                    else:
+                        article = validator.string_value (articles, index, 36, 36)
 
-                # When we are dealing with a PUT request, we must clear the previous
-                # values first.
-                if request.method == 'PUT':
-                    self.db.delete_collection_articles (collection_version_id, account_id)
+                    article = self.__dataset_by_id_or_uri (article)
+                    articles[index] = URIRef(article["container_uri"])
 
-                # Lastly, insert the validated values.
-                for article_id in articles:
-                    article = self.db.articles (article_id = article_id, account_id = account_id)[0]
-                    article_version_id = article["article_version_id"]
-                    self.db.insert_collection_article (int(collection_version_id), int(article_version_id))
+                if self.db.update_item_list (collection["uuid"],
+                                             account_id,
+                                             articles,
+                                             "articles"):
+                    return self.respond_205()
 
-                return self.respond_205()
-
+                return self.error_500 ()
             except IndexError:
                 return self.error_500 ()
             except KeyError:
