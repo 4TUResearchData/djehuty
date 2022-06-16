@@ -142,21 +142,6 @@ class SparqlInterface:
 
         return results
 
-    def __highest_id (self, item_type="article"):
-        """Return the highest numeric ID for ITEM_TYPE."""
-        prefix = conv.to_camel(item_type)
-        query = self.__query_from_template ("highest_id", {
-            "item_type":   prefix
-        })
-
-        try:
-            results = self.__run_query (query)
-            return results[0]["id"]
-        except IndexError:
-            return 0
-        except KeyError:
-            return None
-
     def __insert_query_for_graph (self, graph):
         return rdf.insert_query (self.state_graph, graph)
 
