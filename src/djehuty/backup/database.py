@@ -429,7 +429,7 @@ class DatabaseInterface:
         is_editable        = bool (value_or (record, "is_editable", False))
 
         version = value_or_none(record, "version")
-        self.fix_doi (record, item_id, version, 'collection')
+        self.fix_doi (record, collection_id, version, 'collection')
 
         self.lock_for_inserts.acquire()
         self.store.add ((uri, RDF.type,                 rdf.SG["Collection"]))
