@@ -10,6 +10,8 @@ from rdflib import Graph, Literal, RDF, XSD, URIRef
 import requests
 from djehuty.utils.convenience import value_or, value_or_none
 from djehuty.utils import rdf
+import json
+import os
 
 class DatabaseInterface:
     """
@@ -22,6 +24,13 @@ class DatabaseInterface:
         self.lock_for_inserts = Lock()
         self.container_uris_lock = Lock()
         self.container_uris   = {}
+        script_path = os.path.dirname(os.path.abspath(__file__))
+        with open(f'{script_path}/resources/dois.json', 'r') as f:
+            self.extra_dois = json.load(f)
+        with open(f'{script_path}/resources/contributors_organizations.json', 'r') as f:
+            extra = json.load(f)
+        self.extra_contributors_organizations = {item_type: {pid: dict(versions) for pid,versions in extra[item_type]}
+                                                 for item_type in extra}
 
     def __get_from_url (self, url: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
@@ -387,6 +396,28 @@ class DatabaseInterface:
             field_type = value_or_none (field, "field_type")
             self.insert_custom_field_value (uri, name, value, field_type)
 
+    def fix_doi (self, record, item_id, version, item_type):
+        '''Fix doi if needed'''
+        extra_dois = [extra['doi'] for extra in self.extra_dois[item_type] if extra['id']==item_id and extra['version']==version]
+        if extra_dois:
+            record['doi'] = extra_dois[0]
+
+    def handle_custom_fields (self, record, uri, item_id, version, item_type):
+        '''Handle custom fields and fix contributors/organizations if needed'''
+        for field in value_or (record, "custom_fields", []):
+            if field['name'] == 'Contributors':
+                try:
+                    #replace contributors by organizations and (optional) contributors
+                    extra = self.extra_contributors_organizations[item_type][item_id][version]
+                    contributors  = extra['contributors']
+                    if contributors:
+                        field['value'] = contributors
+                        self.insert_custom_field (uri, field)
+                    field = {'name': 'Organizations', 'value': extra['organizations']}
+                except:
+                    pass
+            self.insert_custom_field (uri, field)
+
     def insert_collection (self, record, account_id):
         """Procedure to insert a collection record."""
 
@@ -396,6 +427,9 @@ class DatabaseInterface:
         is_public          = bool (value_or (record, "public", False))
         is_latest          = bool (value_or (record, "is_latest", False))
         is_editable        = bool (value_or (record, "is_editable", False))
+
+        version = value_or_none(record, "version")
+        self.fix_doi (record, item_id, version, 'collection')
 
         self.lock_for_inserts.acquire()
         self.store.add ((uri, RDF.type,                 rdf.SG["Collection"]))
@@ -433,8 +467,7 @@ class DatabaseInterface:
         self.insert_item_list (uri, value_or (record, "tags", []), "tags")
         self.insert_item_list (uri, value_or (record, "references", []), "references")
 
-        for field in value_or (record, "custom_fields", []):
-            self.insert_custom_field (uri, field)
+        self.handle_custom_fields (record, uri, collection_id, version, 'collections')
 
         articles = value_or (record, "articles", [])
         if articles:
@@ -657,6 +690,8 @@ class DatabaseInterface:
         article_id = value_or_none (record, "id")
         if article_id is None:
             return False
+        version = value_or_none(record, "version")
+        self.fix_doi (record, article_id, version, 'article')
 
         account_id = value_or_none (record, "account_id")
         uri        = rdf.unique_node ("article")
@@ -720,8 +755,7 @@ class DatabaseInterface:
         self.insert_private_links_list (uri, value_or (record, "private_links", []))
         self.insert_embargo_list (uri, value_or (record, "embargo_options", []))
 
-        for field in value_or (record, "custom_fields", []):
-            self.insert_custom_field (uri, field)
+        self.handle_custom_fields (record, uri, article_id, version, 'articles')
 
         ## Assign the article to the container
         container = self.container_uri (article_id, "article", account_id)
