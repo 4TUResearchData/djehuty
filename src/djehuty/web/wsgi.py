@@ -736,21 +736,21 @@ class ApiServer:
                                            limit        = 10000,
                                            is_published = False)
 
-        for index, _ in enumerate(draft_datasets):
+        for draft_dataset in draft_datasets:
             used = 0
-            if not value_or (draft_datasets[index], "is_metadata_record", False):
-                used = self.db.dataset_storage_used (draft_datasets[index]["container_uri"])
-            draft_datasets[index]["storage_used"] = pretty_print_size (used)
+            if not value_or (draft_dataset, "is_metadata_record", False):
+                used = self.db.dataset_storage_used (draft_dataset["container_uri"])
+            draft_dataset["storage_used"] = pretty_print_size (used)
 
         published_datasets = self.db.datasets (account_id = account_id,
                                                is_latest  = True,
                                                limit      = 10000)
 
-        for index, _ in enumerate(published_datasets):
+        for published_dataset in published_datasets:
             used = 0
-            if not value_or (published_datasets[index], "is_metadata_record", False):
-                used = self.db.dataset_storage_used (published_datasets[index]["container_uri"])
-            published_datasets[index]["storage_used"] = pretty_print_size (used)
+            if not value_or (published_dataset, "is_metadata_record", False):
+                used = self.db.dataset_storage_used (published_dataset["container_uri"])
+            published_dataset["storage_used"] = pretty_print_size (used)
 
         return self.__render_template (request, "depositor/my-data.html",
                                        draft_datasets     = draft_datasets,
@@ -856,11 +856,9 @@ class ApiServer:
                                                    is_published = False,
                                                    limit        = 10000)
 
-                for index, _ in enumerate(collections):
-                    count = self.db.collections_article_count (
-                        collection_uri = collections[index]["uri"])
-
-                    collections[index]["number_of_articles"] = count
+                for collection in collections:
+                    count = self.db.collections_article_count(collection["uri"])
+                    collection["number_of_articles"] = count
 
                 return self.__render_template (request, "depositor/my-collections.html",
                                                collections = collections)
