@@ -531,7 +531,6 @@ class SparqlInterface:
     def private_links (self, item_uri=None, account_id=None, id_string=None):
         """Procedure to get private links to an article or a collection."""
 
-        prefix  = item_type.capitalize()
         query   = self.__query_from_template ("private_links", {
             "id_string":   id_string,
             "item_uri":    item_uri,
