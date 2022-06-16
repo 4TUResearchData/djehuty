@@ -892,8 +892,7 @@ class SparqlInterface:
                 is_mandatory  = conv.value_or_none (field, "is_mandatory"),
                 placeholder   = conv.value_or_none (field, "placeholder"),
                 is_multiple   = conv.value_or_none (field, "is_multiple"),
-                item_id       = article_id,
-                item_type     = "article")
+                item_id       = article_id)
 
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
@@ -1507,8 +1506,7 @@ class SparqlInterface:
                 is_mandatory  = conv.value_or_none (field, "is_mandatory"),
                 placeholder   = conv.value_or_none (field, "placeholder"),
                 is_multiple   = conv.value_or_none (field, "is_multiple"),
-                item_id       = collection_id,
-                item_type     = "collection")
+                item_id       = collection_id)
 
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------

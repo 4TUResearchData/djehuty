@@ -1305,7 +1305,7 @@ class ApiServer:
             categories    = self.db.root_categories ()
             for category in categories:
                 category_id = category["id"]
-                category["articles"] = self.db.articles (category_ids=[category_id], limit=5)
+                category["articles"] = self.db.datasets (categories=[category_id], limit=5)
 
             return self.__render_template (request, "category.html",
                                            categories=categories)
@@ -1370,7 +1370,7 @@ class ApiServer:
 
             ## Check again whether a private article has been found.
             if article is None:
-                return self.error_404 ()
+                return self.error_404 (request)
 
             metadata = self.__file_by_id_or_uri (file_id,
                                                  article_uri = article["uri"])
@@ -1545,7 +1545,7 @@ class ApiServer:
             custom_fields = self.db.custom_fields(item_uri=article_uri, item_type="article")
             tags          = self.db.tags(item_uri=article_uri, item_type="article")
             categories    = self.db.categories(item_uri=article_uri)
-            references    = self.db.references(item_uri=article_uri, item_type="article")
+            references    = self.db.references(item_uri=article_uri)
             fundings      = self.db.fundings(item_uri=article_uri, item_type="article")
             total         = formatter.format_article_details_record (article,
                                                                      authors,
