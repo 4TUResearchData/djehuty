@@ -1987,8 +1987,8 @@ class ApiServer:
                                          authors,
                                          "authors"):
                 return self.respond_204()
-            else:
-                return self.error_500()
+
+            return self.error_500()
         except IndexError:
             return self.error_500 ()
         except KeyError:
@@ -2028,9 +2028,8 @@ class ApiServer:
                                          authors,
                                          "authors"):
                 return self.respond_204()
-            else:
-                return self.error_500()
 
+            return self.error_500()
         except IndexError:
             return self.error_500 ()
         except KeyError:
@@ -3289,8 +3288,8 @@ class ApiServer:
             validator.array_value (record, "categories")
             for index, _ in enumerate(record["categories"]):
                 record["categories"][index] = validator.integer_value (record["categories"], index)
-            else:
-                record["categories"] = None
+        else:
+            record["categories"] = None
 
         records = self.db.article_statistics (
             limit           = limit,
@@ -3327,6 +3326,10 @@ class ApiServer:
         return self.response (json.dumps(records))
 
     def api_v3_article_git_files (self, request, article_id):
+
+        if request.method != "GET":
+            return self.error_405 ("GET")
+
         git_directory  = f"{self.db.storage}/{article_id}.git"
         if not os.path.exists (git_directory):
             return self.response ("[]")
