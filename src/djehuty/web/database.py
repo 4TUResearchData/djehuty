@@ -1860,6 +1860,10 @@ class SparqlInterface:
 
         return False
 
+    def may_review (self, session_token):
+        """Returns True when the session's account is a reviewer."""
+        return self.__may_execute_role (session_token, "review")
+
     def may_administer (self, session_token):
         """Returns True when the session's account is an administrator."""
         return self.__may_execute_role (session_token, "administer")

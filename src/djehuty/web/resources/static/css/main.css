@@ -99,6 +99,12 @@ body,html {
 #header-left  {  display: block; height: 100px; text-align: left; }
 #header-middle { display: block; height: 100px; text-align: center; }
 #header-right {  display: block; height: 100px; text-align: right; }
+#header-right .fas {
+    padding: .5em;
+    background: #fce3bf;
+    border-radius: .5em;
+    text-align: center;
+}
 .button {
     margin: 25px 25px auto auto;
     display: inline-block;
@@ -362,6 +368,7 @@ img.cts { width: 120px; }
 .fa-gear::before { content: "\f013"; }
 .fa-users::before { content: "\f0c0"; }
 .fa-user-secret::before { content: "\f21b"; }
+.fa-clipboard-check::before { content: "\f46c"; }
 .fa-empty::before {}
 
 a.fas { text-decoration: none; }

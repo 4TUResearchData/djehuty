@@ -234,6 +234,7 @@ class ApiServer:
             "path":            request.path,
             "orcid_client_id": self.orcid_client_id,
             "is_logged_in":    self.db.is_logged_in (token),
+            "may_review":      self.db.may_review (token),
             "may_administer":  self.db.may_administer (token),
             "may_impersonate":  self.db.may_impersonate (token),
             "impersonating_account": self.__impersonating_account (request)
