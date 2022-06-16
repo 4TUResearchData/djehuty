@@ -3415,12 +3415,12 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed(request)
 
-        metadata = self.db.file_by_id (file_id, account_id)
+        metadata = self.__file_by_id_or_uri (file_id, account_id = account_id)
         if metadata is None:
             return self.error_404 (request)
 
         try:
-            return self.response (json.dumps (formatter.format_file_details_record (metadata[0])))
+            return self.response (json.dumps (formatter.format_file_details_record (metadata)))
         except KeyError:
             return self.error_500()
 
