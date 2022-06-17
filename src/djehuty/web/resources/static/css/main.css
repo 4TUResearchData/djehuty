@@ -23,12 +23,6 @@
     font-style: normal;
 }
 @font-face {
-    font-family: 'FiraMono';
-    src: url('/static/fonts/FiraMono-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-}
-@font-face {
   font-family: 'Font Awesome 5';
   font-style: normal;
   font-weight: 900;
@@ -37,8 +31,7 @@
   src: url("/static/fonts/fa-solid-900.eot?#iefix") format("embedded-opentype"),
        url("/static/fonts/fa-solid-900.woff2") format("woff2"),
        url("/static/fonts/fa-solid-900.woff") format("woff"),
-       url("/static/fonts/fa-solid-900.ttf") format("truetype"),
-       url("/static/fonts/fa-solid-900.svg#fontawesome") format("svg");
+       url("/static/fonts/fa-solid-900.ttf") format("truetype");
 }
 @font-face {
   font-family: 'Font Awesome 5 Brands';
@@ -49,8 +42,7 @@
   src: url("/static/fonts/fa-brands-400.eot?#iefix") format("embedded-opentype"),
        url("/static/fonts/fa-brands-400.woff2") format("woff2"),
        url("/static/fonts/fa-brands-400.woff") format("woff"),
-       url("/static/fonts/fa-brands-400.ttf") format("truetype"),
-       url("/static/fonts/fa-brands-400.svg#fontawesome") format("svg");
+       url("/static/fonts/fa-brands-400.ttf") format("truetype");
 }
 body,html {
     width: 100%;
