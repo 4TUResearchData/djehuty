@@ -14,7 +14,6 @@ WHERE {
     ?article        col:published_date           ?published_date .
     OPTIONAL { ?article      col:group_id        ?group_id . }
   }
-FILTER (STR(?published_date) != "NULL")
 {% if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

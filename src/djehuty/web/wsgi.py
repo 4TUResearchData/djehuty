@@ -3247,10 +3247,15 @@ class ApiServer:
                 code    = "InvalidURLParameterValue")
 
         if record["categories"] is not None:
-            record["categories"] = record["categories"].split(",")
-            validator.array_value   (record, "categories")
-            for index, _ in enumerate(record["categories"]):
-                record["categories"][index] = validator.integer_value (record["categories"], index)
+            categories = categories
+            if categories == "":
+                categories = None
+            else:
+                categories = categories.split(",")
+                validator.array_value   (record, "categories")
+                for index, _ in enumerate(categories):
+                    category_id = validator.integer_value (categories, index)
+                    categories[index] = category_id
 
         if record["group_ids"] is not None:
             record["group_ids"] = record["group_ids"].split(",")
