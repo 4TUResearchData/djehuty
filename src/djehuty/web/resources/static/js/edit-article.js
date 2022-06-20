@@ -15,7 +15,7 @@ function delete_article (article_uuid, event) {
     }
 }
 
-function save_article (article_uuid, event) {
+function save_article (article_uuid, event, notify=true) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -82,16 +82,17 @@ function save_article (article_uuid, event) {
         accept:      "application/json",
         data:        JSON.stringify(form_data),
     }).done(function () {
-        jQuery("#message")
-            .addClass("success")
-            .append("<p>Saved changed.</p>")
-            .fadeIn(250);
-        setTimeout(function() {
-            jQuery("#message").fadeOut(500, function() {
-                jQuery("#message").removeClass("success").empty();
-            });
-        }, 5000);
-        console.log("Form was saved.");
+        if (notify) {
+            jQuery("#message")
+                .addClass("success")
+                .append("<p>Saved changed.</p>")
+                .fadeIn(250);
+            setTimeout(function() {
+                jQuery("#message").fadeOut(500, function() {
+                    jQuery("#message").removeClass("success").empty();
+                });
+            }, 5000);
+        }
     })
       .fail(function () { console.log("Failed to save form."); });
 }
@@ -436,6 +437,7 @@ function activate (article_uuid) {
 
         jQuery("#delete").on("click", function (event) { delete_article (article_uuid, event); });
         jQuery("#save").on("click", function (event)   { save_article (article_uuid, event); });
+        jQuery("#submit").on("click", function (event) { submit_article (article_uuid, event); });
         jQuery("#refresh-git-files").on("click", function (event) {
             render_git_files_for_article (article_uuid, event);
         });
@@ -537,6 +539,33 @@ function prettify_size (size) {
     if (size == 0 || size == null) return '0 Byte';
     var i = parseInt(Math.floor(Math.log(size) / Math.log(1000)));
     return Math.round(size / Math.pow(1000, i), 2) + ' ' + sizes[i];
+}
+
+function submit_article (article_uuid, event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    save_article (article_uuid, event, notify=false);
+
+    var jqxhr = jQuery.ajax({
+        url:         `/v3/articles/${article_uuid}/submit-for-review`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify(form_data),
+    }).done(function () {
+        window.location.replace("/my/datasets");
+    }).fail(function () {
+        jQuery("#message")
+            .addClass("failure")
+            .append("<p>Oops! Submitting for review failed.</p>")
+            .fadeIn(250);
+        setTimeout(function() {
+            jQuery("#message").fadeOut(500, function() {
+                jQuery("#message").removeClass("failure").empty();
+            });
+        }, 5000);
+    });
 }
 
 function activate_drag_and_drop (article_uuid) {

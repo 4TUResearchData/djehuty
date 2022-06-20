@@ -218,6 +218,9 @@ jQuery(document).ready(function (){
   <li><a href="/my/datasets">&#8592; Go back</a>
   <li class="active">Edit dataset
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save</a>
+  {%- if not article.is_under_review %}
+  <li class="hide-for-javascript submit-button"><a id="submit" href="#">Submit for review</a>
+  {%- endif %}
   <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
 </ul>
 {% endblock %}

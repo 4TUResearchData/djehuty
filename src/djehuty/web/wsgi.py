@@ -162,6 +162,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             Rule("/v3/articles",                              endpoint = "v3_articles"),
             Rule("/v3/articles/top/<item_type>",              endpoint = "v3_articles_top"),
+            Rule("/v3/articles/<article_id>/submit-for-review", endpoint = "v3_article_submit"),
             Rule("/v3/articles/timeline/<item_type>",         endpoint = "v3_articles_timeline"),
             Rule("/v3/articles/<article_id>/upload",          endpoint = "v3_article_upload_file"),
             Rule("/v3/articles/<article_id>.git/files",       endpoint = "v3_article_git_files"),
@@ -3405,6 +3406,27 @@ class ApiServer:
             files = [e.name for e in files]
 
         return self.response (json.dumps(files))
+
+    def api_v3_article_submit (self, request, article_id):
+        handler = self.default_error_handling (request, "POST")
+        if handler is not None:
+            return handler
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
+
+        dataset = self.__dataset_by_id_or_uri (article_id,
+                                               account_id   = account_id,
+                                               is_published = False)
+
+        if dataset is None:
+            return self.error_404 (request)
+
+        if self.db.insert_review (dataset["uri"]) is not None:
+            return self.respond_204 ()
+
+        return self.error_500 ()
 
     def api_v3_article_upload_file (self, request, article_id):
         handler = self.default_error_handling (request, "POST")

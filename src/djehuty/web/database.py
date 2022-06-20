@@ -1714,6 +1714,34 @@ class SparqlInterface:
         results = self.__run_query (query)
         return results
 
+    def insert_review (self, dataset_uri, request_date=None, assigned_to=None,
+                       status=None, reminder_date=None):
+        """Procedure to insert a review for a dataset."""
+
+        graph           = Graph()
+        uri             = rdf.unique_node ("review")
+
+        if request_date is None:
+            request_date = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+
+        if not isinstance (dataset_uri, URIRef):
+            dataset_uri = URIRef(dataset_uri)
+
+        graph.add ((uri, RDF.type,                      rdf.SG["Review"]))
+        graph.add ((uri, rdf.COL["dataset"],            dataset_uri))
+
+        rdf.add (graph, uri, rdf.COL["request_date"],   request_date,  XSD.dateTime)
+        rdf.add (graph, uri, rdf.COL["reminder_date"],  reminder_date, XSD.dateTime)
+        rdf.add (graph, uri, rdf.COL["assigned_to"],    assigned_to,   XSD.integer)
+        rdf.add (graph, uri, rdf.COL["status"],         status,        XSD.string)
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query(query):
+            logging.info ("Inserted review for article %s", dataset_uri)
+            return uri
+
+        return None
+
     def account_id_by_orcid (self, orcid):
         """Returns the account ID belonging to an ORCID."""
 
