@@ -20,6 +20,7 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
                 ?geolocation ?longitude ?latitude ?format ?organizations
                 ?data_link ?derived_from ?same_as ?contributors
                 ?license_remarks ?container_uri ?article AS ?uri ?uuid
+                ?is_under_review
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -126,6 +127,7 @@ WHERE {
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?article), "article:")         AS ?uuid)
+    BIND(BOUND(?review)                              AS ?is_under_review)
   }
 {%- if is_under_review is not none %}
 {%- if is_under_review %}
