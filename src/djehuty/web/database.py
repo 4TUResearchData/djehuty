@@ -201,7 +201,7 @@ class SparqlInterface:
                   is_latest=False, item_type=None, limit=None, modified_since=None,
                   offset=None, order=None, order_direction=None, published_since=None,
                   resource_doi=None, return_count=False, search_for=None,
-                  version=None, is_published=True):
+                  version=None, is_published=True, is_under_review=None):
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -240,6 +240,7 @@ class SparqlInterface:
             "account_id":     account_id,
             "is_latest":      is_latest,
             "is_published":   is_published,
+            "is_under_review": is_under_review,
             "filters":        filters,
             "return_count":   return_count
         })

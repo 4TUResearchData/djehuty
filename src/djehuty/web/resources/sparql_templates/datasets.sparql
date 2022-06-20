@@ -34,11 +34,15 @@ WHERE {
     ?container_uri      col:published_versions/rdf:rest*/rdf:first ?article .
     {%- endif %}
     {%- else %}
-    ?container_uri      col:draft                    ?article .
+    ?container_uri      col:draft                ?article .
+    OPTIONAL {
+      ?review           rdf:type                 sg:Review ;
+                        col:dataset              ?article .
+    }
     {%- endif %}
 
     ?article            col:title                ?title .
-    OPTIONAL { ?article      col:version         ?version . }
+    OPTIONAL { ?article col:version              ?version . }
 
     OPTIONAL {
       ?account          rdf:type                 sg:Account .
@@ -64,10 +68,10 @@ WHERE {
     OPTIONAL { ?article col:revision_date        ?timeline_revision . }
 
     OPTIONAL {
-      ?article              col:license          ?license_url .
-      ?license_url          rdf:type             sg:License .
-      ?license_url          col:id               ?license_id .
-      ?license_url          col:name             ?license_name .
+      ?article          col:license               ?license_url .
+      ?license_url      rdf:type                  sg:License .
+      ?license_url      col:id                    ?license_id .
+      ?license_url      col:name                  ?license_name .
     }
 
     OPTIONAL { ?article col:citation              ?citation . }
@@ -123,6 +127,13 @@ WHERE {
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?article), "article:")         AS ?uuid)
   }
+{%- if is_under_review is not none %}
+{%- if is_under_review %}
+FILTER (BOUND(?review))
+{%- else %}
+FILTER (! BOUND(?review))
+{%- endif %}
+{%- endif %}
 {%- if collection_uri is not none %}
 FILTER (?collection = <{{collection_uri}}>)
 {%- endif %}
