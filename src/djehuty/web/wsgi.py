@@ -74,6 +74,7 @@ class ApiServer:
             Rule("/my/sessions/<session_uuid>/delete",        endpoint = "delete_session"),
             Rule("/my/sessions/new",                          endpoint = "new_session"),
             Rule("/my/profile",                               endpoint = "profile"),
+            Rule("/review/goto-dataset/<article_id>",         endpoint = "review_impersonate_to_dataset"),
             Rule("/admin/dashboard",                          endpoint = "admin_dashboard"),
             Rule("/admin/users",                              endpoint = "admin_users"),
             Rule("/admin/impersonate/<account_id>",           endpoint = "admin_impersonate"),
@@ -687,6 +688,45 @@ class ApiServer:
         response = redirect ("/", code=302)
         self.db.delete_session (self.token_from_cookie (request))
         response.delete_cookie (key=self.cookie_key)
+        return response
+
+    def api_review_impersonate_to_dataset (self, request, article_id):
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_impersonate (token):
+            return self.error_403 (request)
+
+        dataset = None
+        try:
+            dataset = self.db.datasets (dataset_uuid    = article_id,
+                                        is_published    = False,
+                                        is_under_review = True)[0]
+        except IndexError:
+            pass
+        except TypeError:
+            pass
+
+        if dataset is None:
+            return response.error_403 (request)
+
+        # Add a secundary cookie to go back to at one point.
+        response = redirect (f"/my/datasets/{dataset['container_uuid']}/edit", code=302)
+        other_cookie_key = f"impersonator_{self.cookie_key}"
+        response.set_cookie (key    = other_cookie_key,
+                             value  = token,
+                             secure = self.in_production)
+        response.set_cookie (key    = "redirect_to",
+                             value  = "/review/dashboard",
+                             secure = self.in_production)
+
+        # Create a new session for the user to be impersonated as.
+        new_token, _ = self.db.insert_session (dataset["account_id"],
+                                               name="Reviewer")
+        response.set_cookie (key    = self.cookie_key,
+                             value  = new_token,
+                             secure = self.in_production)
         return response
 
     def api_admin_impersonate (self, request, account_id):
