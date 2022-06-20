@@ -1720,7 +1720,7 @@ class SparqlInterface:
 
     def reviews (self, assigned_to=None, dataset_uri=None, status=None,
                  account_id=None, limit=10, order=None, order_direction=None,
-                 offset=None, is_assigned=False, review_uuid=None):
+                 offset=None, is_assigned=None, review_uuid=None):
         """Returns reviews within the scope of the procedure's parameters."""
 
         filters  = rdf.sparql_filter ("assigned_to", account_id)

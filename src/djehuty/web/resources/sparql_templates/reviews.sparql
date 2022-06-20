@@ -28,11 +28,15 @@ WHERE {
     BIND(STRAFTER(STR(?dataset), "article:")  AS ?dataset_uuid)
     BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)
   }
+{%- if is_assigned is not none %}
 {%- if not is_assigned: %}
   FILTER (! BOUND(?assigned_to))
+{%- else %}
+  FILTER (BOUND(?assigned_to))
 {%- endif %}
 {%- if review_uuid is not none: %}
   FILTER (?review = <review:{{review_uuid}}>)
+{%- endif %}
 {%- endif %}
 }
 {% endblock %}
