@@ -28,6 +28,7 @@
     max-width: 572pt;
 }
 #session-table tbody tr td:nth-child(2) { white-space: nowrap; }
+#create-new-dataset { margin: auto; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -41,6 +42,8 @@
 {% endblock %}
 {% block body %}
 <h1>Dashboard</h1>
+<h2>Quick actions</h2>
+<div class="center"><a id="create-new-dataset" href="/my/datasets/new" class="button neutral-button">Create new dataset</a></div>
 <h2>Account statistics</h2>
 <p>Using {{storage_used}}.</p>
 
