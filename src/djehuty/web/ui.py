@@ -48,6 +48,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         log_file = config_value (xml_root, "log-file", None, None)
         if log_file is not None:
             is_writeable = False
+            log_file     = os.path.abspath (log_file)
             try:
                 file_test = open (log_file, "a")
                 file_test.close()
