@@ -1,8 +1,8 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
 SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to ?status
-                ?account_id ?dataset_uuid ?dataset_title
-                ?submitter_first_name ?submitter_last_name
+                ?account_id ?dataset_uuid ?dataset_title ?group_name
+                ?submitter_first_name ?submitter_last_name ?submitter_email
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review             rdf:type                 sg:Review ;
@@ -13,12 +13,19 @@ WHERE {
     OPTIONAL { ?review  col:assigned_to          ?assigned_to . }
     OPTIONAL { ?review  col:status               ?status . }
 
-    ?dataset            col:container            ?container_uri .
-    ?container_uri      col:account_id           ?account_id .
+    ?dataset            col:container            ?container_uri ;
+                        col:title                ?dataset_title .
 
-    ?dataset            col:title                ?dataset_title .
-    ?account            rdf:type                 sg:Account .
-    ?account            col:id                   ?account_id .
+    ?container_uri      col:account_id           ?account_id .
+    ?account            rdf:type                 sg:Account ;
+                        col:id                   ?account_id .
+
+    OPTIONAL {
+      ?group            rdf:type                 sg:InstitutionGroup ;
+                        col:id                   ?group_id ;
+                        col:name                 ?group_name .
+      ?dataset          col:group_id             ?group_id .
+    }
 
     OPTIONAL { ?account col:email                ?submitter_email . }
     OPTIONAL { ?account col:first_name           ?submitter_first_name . }
