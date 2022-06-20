@@ -29,6 +29,7 @@
 }
 #session-table tbody tr td:nth-child(2) { white-space: nowrap; }
 #create-new-dataset { margin: auto; }
+#create-new-collection { margin: auto; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -43,7 +44,10 @@
 {% block body %}
 <h1>Dashboard</h1>
 <h2>Quick actions</h2>
-<div class="center"><a id="create-new-dataset" href="/my/datasets/new" class="button neutral-button">Create new dataset</a></div>
+<div class="center">
+  <a id="create-new-dataset" href="/my/datasets/new" class="button neutral-button">Create new dataset</a>
+  <a id="create-new-collection" href="/my/collections/new" class="button neutral-button">Create new collection</a>
+</div>
 <h2>Account statistics</h2>
 <p>Using {{storage_used}}.</p>
 
