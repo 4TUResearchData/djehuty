@@ -3405,7 +3405,7 @@ class ApiServer:
                 code    = "InvalidURLParameterValue")
 
         if record["categories"] is not None:
-            categories = categories
+            categories = record["categories"]
             if categories == "":
                 categories = None
             else:
