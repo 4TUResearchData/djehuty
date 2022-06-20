@@ -1751,11 +1751,10 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article       = self.db.articles (article_id  = article_id,
-                                              version     = version,
-                                              is_editable = 0,
-                                              is_public   = 1)[0]
-            total           = formatter.format_article_confidentiality_record (article)
+            dataset       = self.__dataset_by_id_or_uri (article_id,
+                                                         version = version,
+                                                         is_published = True)
+            total           = formatter.format_article_confidentiality_record (dataset)
             return self.response (json.dumps(total))
         except IndexError:
             response = self.response (json.dumps({
