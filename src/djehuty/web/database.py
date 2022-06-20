@@ -1758,6 +1758,7 @@ class SparqlInterface:
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
+            self.cache.invalidate_by_prefix ("reviews")
             logging.info ("Inserted review for article %s", dataset_uri)
             return uri
 
