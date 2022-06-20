@@ -715,7 +715,7 @@ class ApiServer:
             pass
 
         if dataset is None:
-            return response.error_403 (request)
+            return self.error_403 (request)
 
         # Add a secundary cookie to go back to at one point.
         response = redirect (f"/my/datasets/{dataset['container_uuid']}/edit", code=302)
