@@ -74,7 +74,10 @@ class ApiServer:
             Rule("/my/sessions/<session_uuid>/delete",        endpoint = "delete_session"),
             Rule("/my/sessions/new",                          endpoint = "new_session"),
             Rule("/my/profile",                               endpoint = "profile"),
+            Rule("/review/dashboard",                         endpoint = "review_dashboard"),
             Rule("/review/goto-dataset/<article_id>",         endpoint = "review_impersonate_to_dataset"),
+            Rule("/review/assign-to-me/<article_id>",         endpoint = "review_assign_to_me"),
+            Rule("/review/unassign/<article_id>",             endpoint = "review_unassign"),
             Rule("/admin/dashboard",                          endpoint = "admin_dashboard"),
             Rule("/admin/users",                              endpoint = "admin_users"),
             Rule("/admin/impersonate/<account_id>",           endpoint = "admin_impersonate"),
@@ -1129,6 +1132,83 @@ class ApiServer:
             return self.error_403 (request)
 
         return self.error_405 ("GET")
+
+    def api_review_dashboard (self, request):
+        if not self.accepts_html (request):
+            return self.response (json.dumps({
+                "message": "This page is meant for humans only."
+            }))
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_review (token):
+            return self.error_403 (request)
+
+        account_id = self.account_id_from_request (request)
+        unassigned = self.db.reviews (limit = 10000, is_assigned = False)
+        assigned   = self.db.reviews (assigned_to = account_id,
+                                      limit       = 10000,
+                                      is_assigned = True)
+
+        return self.__render_template (request, "review/dashboard.html",
+                                       assigned_reviews   = assigned,
+                                       unassigned_reviews = unassigned)
+
+
+    def api_review_assign_to_me (self, request, article_id):
+
+        account_id = self.account_id_from_request (request)
+        token = self.token_from_cookie (request)
+        if not self.db.may_review (token):
+            logging.error ("Account %d attempted a reviewer action.", account_id)
+            return self.error_403 (request)
+
+        dataset    = None
+        try:
+            dataset = self.db.datasets (dataset_uuid    = article_id,
+                                        is_published    = False,
+                                        is_under_review = True)[0]
+        except IndexError:
+            pass
+        except TypeError:
+            pass
+
+        if dataset is None:
+            return self.error_403 (request)
+
+        if self.db.update_review (dataset["review_uri"],
+                                  assigned_to = account_id,
+                                  status      = "assigned"):
+            return redirect ("/review/dashboard", code=302)
+
+        return self.error_500()
+
+    def api_review_unassign (self, request, article_id):
+
+        account_id = self.account_id_from_request (request)
+        token = self.token_from_cookie (request)
+        if not self.db.may_review (token):
+            logging.error ("Account %d attempted a reviewer action.", account_id)
+            return self.error_403 (request)
+
+        dataset = None
+        try:
+            dataset = self.db.datasets (dataset_uuid    = article_id,
+                                        is_published    = False,
+                                        is_under_review = True)[0]
+        except IndexError:
+            pass
+        except TypeError:
+            pass
+
+        if dataset is None:
+            return self.error_403 (request)
+
+        if self.db.update_review (dataset["review_uri"],
+                                  assigned_to = None,
+                                  status      = "unassigned"):
+            return redirect ("/review/dashboard", code=302)
+
+        return self.error_500()
 
     def api_admin_dashboard (self, request):
         if self.accepts_html (request):
