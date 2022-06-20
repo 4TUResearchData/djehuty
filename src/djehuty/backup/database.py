@@ -137,12 +137,18 @@ class DatabaseInterface:
         self.lock_for_inserts.acquire()
         self.store.add ((uri, RDF.type, rdf.SG["Account"]))
 
+        institution_user_id = value_or (record, "institution_user_id", None)
+        domain              = None
+        if institution_user_id is not None:
+            domain = institution_user_id.partition("@")[2]
+
         rdf.add (self.store, uri, rdf.COL["id"],                    value_or (record, "id", None),           XSD.integer)
         rdf.add (self.store, uri, rdf.COL["active"],                value_or (record, "active", False),      XSD.boolean)
+        rdf.add (self.store, uri, rdf.COL["domain"],                domain,                                  XSD.string)
         rdf.add (self.store, uri, rdf.COL["email"],                 value_or (record, "email", None),        XSD.string)
         rdf.add (self.store, uri, rdf.COL["first_name"],            value_or (record, "first_name", None),   XSD.string)
         rdf.add (self.store, uri, rdf.COL["last_name"],             value_or (record, "last_name", None),    XSD.string)
-        rdf.add (self.store, uri, rdf.COL["institution_user_id"],   value_or (record, "institution_user_id", None), XSD.string)
+        rdf.add (self.store, uri, rdf.COL["institution_user_id"],   institution_user_id,                     XSD.string)
         rdf.add (self.store, uri, rdf.COL["institution_id"],        value_or (record, "institution_id", None))
         rdf.add (self.store, uri, rdf.COL["group_id"],              value_or (record, "group_id", None))
         rdf.add (self.store, uri, rdf.COL["pending_quota_request"], value_or (record, "pending_quota_request", None))
