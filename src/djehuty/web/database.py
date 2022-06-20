@@ -1763,6 +1763,20 @@ class SparqlInterface:
 
         return None
 
+    def update_review (self, review_uri, dataset_uri=None, assigned_to=None,
+                       status=None, reminder_date=None):
+        """Procedure to update a review."""
+
+        query        = self.__query_from_template ("update_review", {
+            "review_uri":            review_uri,
+            "assigned_to":           assigned_to,
+            "status":                status,
+            "reminder_date":         reminder_date
+        })
+
+        self.cache.invalidate_by_prefix ("reviews")
+        return self.__run_query (query)
+
     def account_id_by_orcid (self, orcid):
         """Returns the account ID belonging to an ORCID."""
 
