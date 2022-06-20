@@ -361,6 +361,8 @@ img.cts { width: 120px; }
 .fa-users::before { content: "\f0c0"; }
 .fa-user-secret::before { content: "\f21b"; }
 .fa-clipboard-check::before { content: "\f46c"; }
+.fa-angle-double-up::before { content: "\f102"; }
+.fa-angle-double-down::before { content: "\f103"; }
 .fa-empty::before {}
 
 a.fas { text-decoration: none; }
