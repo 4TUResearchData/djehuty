@@ -1030,20 +1030,6 @@ class SparqlInterface:
 
         return None
 
-    def delete_article_for_collection (self, collection_version_id, account_id, article_version_id=None):
-        """Procedure to delete articles associated with a collection."""
-
-        query = self.__query_from_template ("delete_article_for_collection", {
-            "collection_version_id": collection_version_id,
-            "account_id":    account_id,
-            "article_version_id": article_version_id
-        })
-
-        self.cache.invalidate_by_prefix ("article")
-        self.cache.invalidate_by_prefix (f"{collection_version_id}")
-
-        return self.__run_query(query)
-
     def insert_timeline (self, graph, container_uri=None, item_uri=None,
                          revision=None, first_online=None,
                          publisher_publication=None, publisher_acceptance=None,
