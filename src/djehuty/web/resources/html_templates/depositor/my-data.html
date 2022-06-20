@@ -31,6 +31,8 @@
 }
 #table-unpublished { display: none; }
 #table-published { display: none; }
+#table-review { display: none; }
+#create-new-dataset { margin: auto; }
 </style>
 <script>
 jQuery(document).ready(function () {
@@ -47,6 +49,12 @@ jQuery(document).ready(function () {
     });
     jQuery("#table-published").show();
     jQuery("#table-published-loader").remove();
+
+    jQuery("#table-review").DataTable({
+        columnDefs: [{ type: 'file-size', targets: 2 }]
+    });
+    jQuery("#table-review").show();
+    jQuery("#table-review-loader").remove();
 });
 </script>
 {% endblock %}
@@ -66,8 +74,9 @@ jQuery(document).ready(function () {
 <div class="hide-for-javascript">
 <h1>Datasets</h1>
 <h2>Drafts</h2>
+{%- if draft_datasets: %}
 <div id="table-unpublished-loader" class="loader"></div>
-<table id="table-unpublished" class="branded-table ">
+<table id="table-unpublished" class="branded-table">
   <thead>
     <tr>
       <th>Dataset</th>
@@ -87,6 +96,35 @@ jQuery(document).ready(function () {
     </tr>
   {% endfor %}</tbody>
 </table>
+{%- else %}
+<p>You don&apos;t have draft datasets (yet).</p>
+<div class="center"><a id="create-new-dataset" href="/my/datasets/new" class="button neutral-button">Create new dataset</a></div>
+{%- endif %}
+{%- if review_datasets: %}
+<h2>Under review</h2>
+<div id="table-review-loader" class="loader"></div>
+<table id="table-review" class="branded-table">
+  <thead>
+    <tr>
+      <th>Dataset</th>
+      <th>Type</th>
+      <th>Size</th>
+      <th>Submitted&nbsp;at</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>{% for article in review_datasets: %}
+    <tr>
+      <td><a href="/my/datasets/{{article.container_uuid}}/edit">{{article.title}}</a></td>
+      <td>{{article.defined_type_name | default("undefined", False)}}</td>
+      <td>{{article.storage_used}}</td>
+      <td>{{article.review_submit_date | truncate(10,False,'')}}</td>
+      <td></td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
+{%- endif %}
+{%- if published_datasets: %}
 <h2>Published</h2>
 <div id="table-published-loader" class="loader"></div>
 <table id="table-published" class="branded-table">
@@ -107,6 +145,7 @@ jQuery(document).ready(function () {
     </tr>
   {% endfor %}</tbody>
 </table>
+{%- endif %}
 </div>
 </div>
 {% endblock %}
