@@ -20,7 +20,7 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
                 ?geolocation ?longitude ?latitude ?format ?organizations
                 ?data_link ?derived_from ?same_as ?contributors
                 ?license_remarks ?container_uri ?article AS ?uri ?uuid
-                ?is_under_review
+                ?is_under_review ?review AS ?review_uri ?review_submit_date
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -39,6 +39,9 @@ WHERE {
     OPTIONAL {
       ?review           rdf:type                 sg:Review ;
                         col:dataset              ?article .
+      {%- if is_under_review %}
+      ?review           col:request_date         ?review_submit_date .
+      {%- endif %}
     }
     {%- endif %}
 
