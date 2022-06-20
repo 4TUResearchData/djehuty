@@ -4,6 +4,7 @@ SELECT DISTINCT ?role ?active ?created_date ?email ?first_name ?group_id
                 ?account_id ?institution_id ?institution_user_id ?last_name
                 ?maximum_file_size ?modified_date ?pending_quota_request ?quota
                 ?used_quota ?used_quota_private ?used_quota_public ?uuid
+                ?group_parent_id
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account             rdf:type                  sg:Account .
@@ -12,7 +13,6 @@ WHERE {
     OPTIONAL { ?account  col:created_date          ?created_date . }
     OPTIONAL { ?account  col:email                 ?email . }
     OPTIONAL { ?account  col:first_name            ?first_name . }
-    OPTIONAL { ?account  col:group_id              ?group_id . }
     OPTIONAL { ?account  col:institution_id        ?institution_id . }
     OPTIONAL { ?account  col:institution_user_id   ?institution_user_id . }
     OPTIONAL { ?account  col:last_name             ?last_name . }
@@ -25,6 +25,13 @@ WHERE {
     OPTIONAL { ?account  col:used_quota_public     ?used_quota_public . }
     OPTIONAL { ?account  col:role                  ?role . }
 
+    OPTIONAL {
+      ?group             rdf:type                  sg:InstitutionGroup ;
+                         col:association_criteria  ?domain ;
+                         col:id                    ?group_id ;
+                         col:parent_id             ?group_parent_id .
+      ?account           col:domain                ?domain .
+    }
     ?session             rdf:type                  sg:Session .
     ?session             col:account_id            ?account_id .
     ?session             col:token                 ?token .

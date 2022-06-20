@@ -235,7 +235,7 @@ jQuery(document).ready(function () {
 {%- for group in groups: %}
 <h4>{{group.name}}</h4>
 <div id="subgroups_{{group.id}}" class="subgroup-wrapper">
-<input class="subitem-checkbox" type="radio" name="groups" value="{{group.id}}" id="group_{{group.id}}"><!--
+<input class="subitem-checkbox" type="radio" name="groups" value="{{group.id}}" id="group_{{group.id}}" {% if account.group_id == group.id: %}checked="checked"{% endif %}><!--
 --><label class="subitem-label no-head" for="group_{{group.id}}">{{group.name}}</label><br>
 {%- for sub in group.subgroups: %}
 <input class="subitem-checkbox" type="radio" name="groups" value="{{sub.id}}" id="group_{{sub.id}}"><!--

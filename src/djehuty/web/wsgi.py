@@ -860,20 +860,27 @@ class ApiServer:
 
                     categories = self.db.categories_tree ()
 
-                    # The parent_id was pre-determined by Figshare.
-                    groups = self.db.group (parent_id = 28585,
-                                            order_direction = "asc",
-                                            order = "id")
+                    account   = self.db.account_by_id (account_id)
+                    groups = None
+                    if "group_id" in account:
+                        groups = self.db.group (group_id = account["group_id"])
+                    else:
+                        # The parent_id was pre-determined by Figshare.
+                        groups = self.db.group (parent_id = 28585,
+                                                order_direction = "asc",
+                                                order = "id")
 
-                    for index, _ in enumerate(groups):
-                        groups[index]["subgroups"] = self.db.group (parent_id = groups[index]["id"],
-                                                                    order_direction = "asc",
-                                                                    order = "id")
+                        for index, _ in enumerate(groups):
+                            groups[index]["subgroups"] = self.db.group (
+                                parent_id = groups[index]["id"],
+                                order_direction = "asc",
+                                order = "id")
 
                     return self.__render_template (request,
                                                    "depositor/edit-article.html",
                                                    container_uuid = article["container_uuid"],
                                                    article    = article,
+                                                   account    = account,
                                                    categories = categories,
                                                    groups     = groups)
                 except IndexError:
@@ -955,21 +962,27 @@ class ApiServer:
 
                     categories = self.db.categories_tree ()
 
-                    # The parent_id was pre-determined by Figshare.
-                    groups = self.db.group (parent_id = 28585,
-                                            order_direction = "asc",
-                                            order = "id")
+                    account = self.db.account_by_id (account_id)
+                    groups = None
+                    if "group_id" in account:
+                        groups = self.db.group (group_id = account["group_id"])
+                    else:
+                        # The parent_id was pre-determined by Figshare.
+                        groups = self.db.group (parent_id = 28585,
+                                                order_direction = "asc",
+                                                order = "id")
 
-                    for index, _ in enumerate(groups):
-                        groups[index]["subgroups"] = self.db.group (
-                            parent_id = groups[index]["id"],
-                            order_direction = "asc",
-                            order = "id")
+                        for index, _ in enumerate(groups):
+                            groups[index]["subgroups"] = self.db.group (
+                                parent_id = groups[index]["id"],
+                                order_direction = "asc",
+                                order = "id")
 
                     return self.__render_template (
                         request,
                         "depositor/edit-collection.html",
                         collection = collection,
+                        account    = account,
                         categories = categories,
                         groups     = groups)
 
