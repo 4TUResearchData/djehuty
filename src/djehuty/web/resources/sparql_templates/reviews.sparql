@@ -1,0 +1,38 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to ?status
+                ?account_id ?dataset_uuid ?dataset_title
+                ?submitter_first_name ?submitter_last_name
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?review             rdf:type                 sg:Review ;
+                        col:dataset              ?dataset .
+
+    OPTIONAL { ?review  col:request_date         ?request_date . }
+    OPTIONAL { ?review  col:reminder_date        ?reminder_date . }
+    OPTIONAL { ?review  col:assigned_to          ?assigned_to . }
+    OPTIONAL { ?review  col:status               ?status . }
+
+    ?dataset            col:container            ?container_uri .
+    ?container_uri      col:account_id           ?account_id .
+
+    ?dataset            col:title                ?dataset_title .
+    ?account            rdf:type                 sg:Account .
+    ?account            col:id                   ?account_id .
+
+    OPTIONAL { ?account col:email                ?submitter_email . }
+    OPTIONAL { ?account col:first_name           ?submitter_first_name . }
+    OPTIONAL { ?account col:last_name            ?submitter_last_name . }
+    OPTIONAL { ?account col:institution_id       ?institution_id . }
+
+    BIND(STRAFTER(STR(?dataset), "article:")  AS ?dataset_uuid)
+    BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)
+  }
+{%- if not is_assigned: %}
+  FILTER (! BOUND(?assigned_to))
+{%- endif %}
+{%- if review_uuid is not none: %}
+  FILTER (?review = <review:{{review_uuid}}>)
+{%- endif %}
+}
+{% endblock %}

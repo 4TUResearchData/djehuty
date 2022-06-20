@@ -1714,6 +1714,27 @@ class SparqlInterface:
         results = self.__run_query (query)
         return results
 
+    ## ------------------------------------------------------------------------
+    ## REVIEWS
+    ## ------------------------------------------------------------------------
+
+    def reviews (self, assigned_to=None, dataset_uri=None, status=None,
+                 account_id=None, limit=10, order=None, order_direction=None,
+                 offset=None, is_assigned=False, review_uuid=None):
+        """Returns reviews within the scope of the procedure's parameters."""
+
+        filters  = rdf.sparql_filter ("assigned_to", account_id)
+        filters += rdf.sparql_filter ("dataset", dataset_uri, is_uri=True)
+
+        query = self.__query_from_template ("reviews", {
+            "is_assigned":    is_assigned,
+            "review_uuid":    review_uuid,
+            "filters":        filters,
+        })
+
+        query += rdf.sparql_suffix (order, order_direction, limit, offset)
+        return self.__run_query (query, query, "reviews")
+
     def insert_review (self, dataset_uri, request_date=None, assigned_to=None,
                        status=None, reminder_date=None):
         """Procedure to insert a review for a dataset."""
