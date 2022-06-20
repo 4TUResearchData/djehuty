@@ -78,8 +78,8 @@ class SparqlInterface:
                     logging.info("RDF store: %s", record[item]['value'])
 
                     return record[item]["value"]
-                else:
-                    record[item] = record[item]["value"]
+
+                record[item] = record[item]["value"]
 
             elif record[item]["type"] == "uri":
                 record[item] = str(record[item]["value"])
@@ -1093,7 +1093,7 @@ class SparqlInterface:
         graph       = Graph()
         funding_uri = rdf.unique_node ("funding")
 
-        graph.add ((funding_uri, RDF.type,                   rdf.SG[f"Funding"]))
+        graph.add ((funding_uri, RDF.type,                   rdf.SG["Funding"]))
 
         rdf.add (graph, funding_uri, rdf.COL["id"],              funding_id)
         rdf.add (graph, funding_uri, rdf.COL["title"],           title,           XSD.string)
@@ -1202,7 +1202,7 @@ class SparqlInterface:
         graph    = Graph()
         link_uri = rdf.unique_node ("private_link")
 
-        graph.add ((link_uri, RDF.type,      rdf.SG[f"PrivateLink"]))
+        graph.add ((link_uri, RDF.type,      rdf.SG["PrivateLink"]))
 
         rdf.add (graph, link_uri, rdf.COL["id"],           id_string,    XSD.string)
         rdf.add (graph, link_uri, rdf.COL["read_only"],    read_only)
@@ -1243,7 +1243,7 @@ class SparqlInterface:
         graph            = Graph()
         custom_field_uri = rdf.unique_node ("custom_field")
 
-        graph.add ((custom_field_uri, RDF.type,                   rdf.SG[f"CustomField"]))
+        graph.add ((custom_field_uri, RDF.type,                   rdf.SG["CustomField"]))
 
         rdf.add (graph, custom_field_uri, rdf.COL["name"],          name,          XSD.string)
         rdf.add (graph, custom_field_uri, rdf.COL["value"],         value)
