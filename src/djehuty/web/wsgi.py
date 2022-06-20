@@ -669,8 +669,14 @@ class ApiServer:
         # and set it as the new session token.
         other_cookie_key    = f"impersonator_{self.cookie_key}"
         other_session_token = self.token_from_cookie (request, other_cookie_key)
+        redirect_to         = self.token_from_cookie (request, "redirect_to")
         if other_session_token:
-            response = redirect ("/admin/users", code=302)
+            response = None
+            if redirect_to:
+                response = redirect (redirect_to, code=302)
+            else:
+                response = redirect ("/admin/users", code=302)
+
             self.db.delete_session (self.token_from_cookie (request))
             response.set_cookie (key    = self.cookie_key,
                                  value  = other_session_token,
@@ -696,6 +702,9 @@ class ApiServer:
         other_cookie_key = f"impersonator_{self.cookie_key}"
         response.set_cookie (key    = other_cookie_key,
                              value  = token,
+                             secure = self.in_production)
+        response.set_cookie (key    = "redirect_to",
+                             value  = "/admin/users",
                              secure = self.in_production)
 
         # Create a new session for the user to be impersonated as.
