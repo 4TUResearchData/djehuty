@@ -1282,7 +1282,7 @@ class ApiServer:
         return self.error_403 (request)
 
     def api_portal (self, request):
-        #When Djehuty is completely in production, set fromFigshare to False.
+        #When Djehuty is completely in production, set from_figshare to False.
         if self.accepts_html (request):
             summary_data = self.db.repository_statistics()
 
@@ -1290,13 +1290,13 @@ class ApiServer:
             rgb_shift = ((208,0), (104,104), (0,208)) #begin and end values of r,g,b
             opa_min = 0.3                             #minimum opacity
             rgb_opa_days = (7., 21.)                  #fading times (days) for color and opacity
-            fromFigshare = False                      #from Figshare API or from SPARQL query?
+            from_figshare = False                      #from Figshare API or from SPARQL query?
 
-            fig = self.get_parameter (request, "fig") #override fromFigshare
+            fig = self.get_parameter (request, "fig") #override from_figshare
             if fig in ('0', 'false'):
-                fromFigshare = False
+                from_figshare = False
             if fig in ('1', 'true'):
-                fromFigshare = True
+                from_figshare = True
 
             n = self.get_parameter (request, "n")     #override page_size
             if n is not None:
@@ -1305,7 +1305,7 @@ class ApiServer:
             today = date.today()
             latest = []
             try:
-                if fromFigshare:
+                if from_figshare:
                     base = 'https://api.figshare.com/v2/articles'
                     headers = {'Content-Type': 'application/json'}
                     data = json.dumps({'page_size': page_size, 'institution_id': 898, 'order': 'published_date', 'order_direction': 'desc'})
@@ -1320,7 +1320,7 @@ class ApiServer:
                     x, y = [min(1., days/d) for d in rgb_opa_days]
                     rgba = [round(i[0] + x*(i[1]-i[0])) for i in rgb_shift] + [round(1 - y*(1-opa_min), 3)]
                     str_rgba = ','.join([str(c) for c in rgba])
-                    url = rec['url_public_html'] if fromFigshare else f'/articles/_/{rec["article_id"]}'
+                    url = rec['url_public_html'] if from_figshare else f'/articles/_/{rec["article_id"]}'
                     latest.append((url, rec['title'], pub_date, ago, str_rgba))
             except:
                 pass
