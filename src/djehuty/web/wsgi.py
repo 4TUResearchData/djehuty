@@ -896,33 +896,33 @@ class ApiServer:
         return self.error_404 (request)
 
     def api_delete_article (self, request, article_id):
-        if self.accepts_html (request):
-            account_id = self.account_id_from_request (request)
-            if account_id is None:
-                return self.error_authorization_failed(request)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            token = self.token_from_cookie (request)
-            if self.db.is_depositor (token):
-                try:
-                    dataset     = self.__dataset_by_id_or_uri (article_id,
-                                                               account_id=account_id,
-                                                               is_published=False)
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
 
-                    container_uuid = uri_to_uuid (dataset["container_uri"])
-                    if self.db.delete_dataset_draft (container_uuid, account_id):
-                        return redirect ("/my/datasets", code=303)
+        token = self.token_from_cookie (request)
+        if not self.db.is_depositor (token):
+            return self.error_404 (request)
 
-                    return self.error_404 (request)
-                except IndexError:
-                    pass
-                except KeyError:
-                    pass
+        try:
+            dataset = self.__dataset_by_id_or_uri (article_id,
+                                                   account_id=account_id,
+                                                   is_published=False)
 
-                return self.error_500 ()
+            container_uuid = uri_to_uuid (dataset["container_uri"])
+            if self.db.delete_dataset_draft (container_uuid, account_id):
+                return redirect ("/my/datasets", code=303)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+            return self.error_404 (request)
+        except IndexError:
+            pass
+        except KeyError:
+            pass
+
+        return self.error_500 ()
 
     def api_my_collections (self, request):
         if self.accepts_html (request):
