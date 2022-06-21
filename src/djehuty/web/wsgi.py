@@ -1428,20 +1428,21 @@ class ApiServer:
         }))
 
     def api_institution (self, request, institution_name):
-        if self.accepts_html (request):
-            group_name    = institution_name.replace('_', ' ')
-            group         = self.db.group_by_name (group_name)
-            sub_groups    = self.db.group_by_name (group_name, startswith=True)
-            sub_group_ids = [item['group_id'] for item in sub_groups]
-            articles      = self.db.datasets (groups=sub_group_ids, is_published=True, limit=100)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            return self.__render_template (request, "institutions.html",
-                                           articles=articles,
-                                           group=group,
-                                           sub_groups=sub_groups)
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        group_name    = institution_name.replace('_', ' ')
+        group         = self.db.group_by_name (group_name)
+        sub_groups    = self.db.group_by_name (group_name, startswith=True)
+        sub_group_ids = [item['group_id'] for item in sub_groups]
+        articles      = self.db.datasets (groups=sub_group_ids,
+                                          is_published=True,
+                                          limit=100)
+
+        return self.__render_template (request, "institutions.html",
+                                       articles=articles,
+                                       group=group,
+                                       sub_groups=sub_groups)
 
     def api_category (self, request):
         if self.accepts_html (request):
