@@ -1090,22 +1090,20 @@ class ApiServer:
         return self.error_405 (["GET", "PUT"])
 
     def api_new_session (self, request):
-        if self.accepts_html (request):
-            account_id = self.account_id_from_request (request)
-            if account_id is None:
-                return self.error_authorization_failed(request)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            _, session_uuid = self.db.insert_session (account_id,
-                                                      name     = "Untitled",
-                                                      editable = True)
-            if session_uuid is not None:
-                return redirect (f"/my/sessions/{session_uuid}/edit", code=302)
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
 
-            return self.error_500()
+        _, session_uuid = self.db.insert_session (account_id,
+                                                  name     = "Untitled",
+                                                  editable = True)
+        if session_uuid is not None:
+            return redirect (f"/my/sessions/{session_uuid}/edit", code=302)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        return self.error_500()
 
     def api_delete_session (self, request, session_uuid):
         if self.accepts_html (request):
