@@ -1319,18 +1319,17 @@ class ApiServer:
         }))
 
     def api_categories (self, request, category_id):
-        if self.accepts_html (request):
-            category      = self.db.category_by_id (category_id)
-            subcategories = self.db.subcategories_for_category (category_id)
-            articles      = self.db.datasets (categories=[category_id], limit=100)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            return self.__render_template (request, "categories.html",
-                                           articles=articles,
-                                           category=category,
-                                           subcategories=subcategories)
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        category      = self.db.category_by_id (category_id)
+        subcategories = self.db.subcategories_for_category (category_id)
+        articles      = self.db.datasets (categories=[category_id], limit=100)
+
+        return self.__render_template (request, "categories.html",
+                                       articles=articles,
+                                       category=category,
+                                       subcategories=subcategories)
 
     def api_article_ui (self, request, article_id, version=None):
         if self.accepts_html (request):
