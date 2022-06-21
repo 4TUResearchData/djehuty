@@ -1445,18 +1445,17 @@ class ApiServer:
                                        sub_groups=sub_groups)
 
     def api_category (self, request):
-        if self.accepts_html (request):
-            categories    = self.db.root_categories ()
-            for category in categories:
-                category_id = category["id"]
-                category["articles"] = self.db.datasets (categories=[category_id], limit=5)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            return self.__render_template (request, "category.html",
-                                           categories=categories)
+        categories    = self.db.root_categories ()
+        for category in categories:
+            category_id = category["id"]
+            category["articles"] = self.db.datasets (categories=[category_id],
+                                                     limit=5)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        return self.__render_template (request, "category.html",
+                                       categories=categories)
 
     def api_opendap_to_doi(self, request):
         """
