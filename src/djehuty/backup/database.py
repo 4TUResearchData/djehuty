@@ -1,17 +1,17 @@
 """This module provides an interface to store data fetched by the 'figshare' module."""
 
+import os
 import xml.etree.ElementTree as ET
 import ast
 import logging
 from datetime import datetime
 from threading import Lock
 from secrets import token_urlsafe
+import json
 from rdflib import Graph, Literal, RDF, XSD, URIRef
 import requests
 from djehuty.utils.convenience import value_or, value_or_none
 from djehuty.utils import rdf
-import json
-import os
 
 class DatabaseInterface:
     """
