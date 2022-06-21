@@ -1359,7 +1359,6 @@ class ApiServer:
             article_uri   = article['uri']
             authors       = self.db.authors(item_uri=article_uri)
             files         = self.db.article_files(article_uri=article_uri, limit=None)
-            custom_fields = self.db.custom_fields(item_uri=article_uri)
             embargo_options = None #TODO
             tags          = self.db.tags(item_uri=article_uri)
             categories    = self.db.categories(item_uri=article_uri)
@@ -1426,7 +1425,6 @@ class ApiServer:
                                            contributors = contributors,
                                            files=files,
                                            services=services,
-                                           custom_fields=custom_fields, #needed? Duplicated in article?
                                            embargo_options=embargo_options,
                                            tags=tags,
                                            categories=categories,

@@ -1,0 +1,16 @@
+{% block debug %}
+<div id="debug_button" style="height: 20px; text-align: right; margin-top: -20px">
+    <button onclick="document.getElementById('debug').style.display = 'block'">debug</button>
+</div>
+<div id="debug" style="background-color: #eee; color: #666; margin-top: 20px; font-family: monospace; display: none">
+    <button onclick="document.getElementById('debug').style.display = 'none'">undebug</button>
+    COMPARE
+    <a href="{{djehuty_API}}">json</a>,
+    Figshare 
+    <a href="{{figshare_html}}" target="_blank">html</a>
+    <a href="{{figshare_API}}" target="_blank">json</a>
+    <div style="text-align:center">RAW DATA</div>
+{% for key,val in debug_vars.items() %}
+    <h3>{{key}}</h3>{{val}}
+{% endfor %}
+{% endblock %}

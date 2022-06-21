@@ -1,14 +1,9 @@
 {% extends "layout.html" %}
 {% block headers %}
-<!-- TODO:
-    file previews (for which file types?)
-    embargo
-    reengineer multivalued derived_from
-    citation (?)
-    order of files
-    order of fundings (?)
-    versioned and unversioned doi on latest version, explained
--->
+{# TODO:
+   file previews (for which file types?)
+   embargo
+   versioned and unversioned doi on latest version, explained #}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <style>
     a             { color: #f49120; text-decoration: none }
@@ -35,8 +30,6 @@
     #data         { clear: right; border-top: 1px solid #000; margin-bottom: 10px }
     #data ul      { margin-left: 20px }
     li.zip        { padding: 2px; width: 180px; text-align: center; border: 1px solid #000 }
-    #debug        { background-color: #eee; color: #666; margin-top: 20px; font-family: monospace; display: none }
-  #debug_button { height: 20px; text-align: right; margin-top: -20px }
 </style>
 {% endblock %}
 
@@ -49,7 +42,7 @@
 <div id="data">
     <h3>DATA</h3>
 {% if article.is_metadata_record %}
-<!--12999575-->
+{# test 12999575 #}
         <div id="metadata_only">
     {% if article.confidential_reason %}
             {{article.confidential_reason}}
@@ -59,7 +52,7 @@
         </div>
 {% endif %}
 {% if services %}
-<!--12717890-->
+{# test 12717890 #}
     <div id="services">
         <div class="label">data service</div>
         <ul>
@@ -70,7 +63,7 @@
     </div>
 {% endif%}
 {% if opendap %}
-<!--17122553-->
+{# test 17122553 #}
     <div id="opendap">
         <div class="label">OPeNDAP data service</div>
         <ul>
@@ -84,7 +77,7 @@
     </div>
 {% endif%}
 {% if files %}
-<!--16545714-->
+{# test 16545714 #}
     <div id="files">
         <div class="label">files</div>
         <ul>
@@ -101,36 +94,18 @@
     </div>
 {% endif %}
 </div>
-<div id="debug_button">
-    <button onclick="document.getElementById('debug').style.display = 'block'">debug</button>
-</div>
-<div id="debug">
-    <button onclick="document.getElementById('debug').style.display = 'none'">undebug</button>
-    COMPARE
-    <a href="/v2/articles/{{pid}}{% if version %}/versions/{{version}}{% endif %}" target="_blank">json</a>,
-    Figshare 
-    <a href="https://data.4tu.nl/articles/_/{{pid}}{% if version %}/{{version}}{% endif %}" target="_blank">html</a>
-    <a href="https://api.figshare.com/v2/articles/{{pid}}{% if version %}/versions/{{version}}{% endif %}" target="_blank">json</a>
-    <div style="text-align:center">RAW DATA</div>
-    <h3>article</h3>{{article}}
-    <h3>version</h3>{{version}}
-    <h3>versions</h3>{{versions}}
-    <h3>authors</h3>{{authors}}
-    <h3>contributors</h3>{{contributors}}
-    <h3>files</h3>{{files}}
-    <h3>services</h3>{{services}}
-    <h3>custom_fields</h3>{{custom_fields}}
-    <h3>embargo_options</h3>{{embargo_options}}
-    <h3>tags</h3>{{tags}}
-    <h3>categories</h3>{{categories}}
-    <h3>fundings</h3>{{fundings}}
-    <h3>references</h3>{{references}}
-    <h3>derived_from</h3>{{derived_from}}
-    <h3>collections</h3>{{collections}}
-    <h3>dates</h3>{{dates}}
-    <h3>coordinates</h3>{{coordinates}}
-    <h3>export_base</h3>{{export_base}}
-    <h3>opendap</h3>{{opendap}}
-    <h3>statistics</h3>{{statistics}}
+{% set debug_vars = {"article":article, "version":version, "versions":versions, "authors":authors, "contributors":contributors,
+                     "files":files, "services":services, "embargo_options":embargo_options, "tags":tags, "categories":categories,
+                     "fundings":fundings, "references": references, "derived_from":derived_from, "collections":collections,
+                     "dates":dates, "coordinates":coordinates, "export_base":export_base, "opendap":opendap, "statistics":statistics} %}
+{% set djehuty_API   = "/v2/articles/"~pid %}
+{% set figshare_html = "https://data.4tu.nl/articles/_/"~pid %}
+{% set figshare_API = "https://api.figshare.com/v2/articles/"~pid %}
+{% if version %}
+    {% set djehuty_API   = djehuty_API~"/versions/"~version %}
+    {% set figshare_html = figshare_html~"/"~version %}
+    {% set figshare_API  = figshare_API~"/versions/"~version %}
+{% endif %}
+{% include 'debug.html' %}
 </div>
 {% endblock %}
