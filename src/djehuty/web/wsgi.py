@@ -1018,44 +1018,41 @@ class ApiServer:
         return self.error_500()
 
     def api_delete_collection (self, request, collection_id):
-        if self.accepts_html (request):
-            account_id = self.account_id_from_request (request)
-            if account_id is None:
-                return self.error_authorization_failed(request)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            token = self.token_from_cookie (request)
-            if self.db.is_depositor (token):
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
 
-                try:
-                    collection = self.__collection_by_id_or_uri(
-                        collection_id,
-                        account_id   = account_id,
-                        is_published = False)
-
-                    # Either accessing another account's collection or
-                    # trying to remove a published collection.
-                    if collection is None:
-                        self.error_403 (request)
-
-                    result = self.db.delete_collection (
-                        container_uuid = collection["container_uuid"],
-                        account_id     = account_id)
-
-                    if result is not None:
-                        return redirect ("/my/collections", code=303)
-
-                except IndexError:
-                    pass
-                except KeyError:
-                    pass
-
-                return self.error_500 ()
-
+        token = self.token_from_cookie (request)
+        if not self.db.is_depositor (token):
             return self.error_404 (request)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        try:
+            collection = self.__collection_by_id_or_uri(
+                collection_id,
+                account_id   = account_id,
+                is_published = False)
+
+            # Either accessing another account's collection or
+            # trying to remove a published collection.
+            if collection is None:
+                self.error_403 (request)
+
+            result = self.db.delete_collection (
+                container_uuid = collection["container_uuid"],
+                account_id     = account_id)
+
+            if result is not None:
+                return redirect ("/my/collections", code=303)
+
+        except IndexError:
+            pass
+        except KeyError:
+            pass
+
+        return self.error_500 ()
 
     def api_edit_session (self, request, session_uuid):
 
