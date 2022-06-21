@@ -1106,18 +1106,16 @@ class ApiServer:
         return self.error_500()
 
     def api_delete_session (self, request, session_uuid):
-        if self.accepts_html (request):
-            account_id = self.account_id_from_request (request)
-            if account_id is None:
-                return self.error_authorization_failed(request)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            response   = redirect (request.referrer, code=302)
-            self.db.delete_session_by_uuid (account_id, session_uuid)
-            return response
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        response   = redirect (request.referrer, code=302)
+        self.db.delete_session_by_uuid (account_id, session_uuid)
+        return response
 
     def api_profile (self, request):
         if not self.accepts_html (request):
