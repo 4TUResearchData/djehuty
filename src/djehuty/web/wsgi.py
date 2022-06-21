@@ -1239,16 +1239,14 @@ class ApiServer:
                                        accounts = accounts)
 
     def api_admin_maintenance (self, request):
-        if self.accepts_html (request):
-            token = self.token_from_cookie (request)
-            if self.db.may_administer (token):
-                return self.__render_template (request, "admin/maintenance.html")
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
             return self.error_403 (request)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        return self.__render_template (request, "admin/maintenance.html")
 
     def api_admin_clear_cache (self, request):
         token = self.token_from_cookie (request)
