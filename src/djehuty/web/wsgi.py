@@ -997,26 +997,25 @@ class ApiServer:
         return self.error_500 ()
 
     def api_new_collection (self, request):
-        if self.accepts_html (request):
-            account_id = self.account_id_from_request (request)
-            if account_id is None:
-                return self.error_authorization_failed(request)
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            token = self.token_from_cookie (request)
-            if self.db.is_depositor (token):
-                collection_id = self.db.insert_collection(
-                    title = "Untitled collection",
-                    account_id = account_id)
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
 
-                if collection_id is not None:
-                    return redirect (f"/my/collections/{collection_id}/edit", code=302)
-                return self.error_500()
-
+        token = self.token_from_cookie (request)
+        if not self.db.is_depositor (token):
             return self.error_404 (request)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        collection_id = self.db.insert_collection(
+            title = "Untitled collection",
+            account_id = account_id)
+
+        if collection_id is not None:
+            return redirect (f"/my/collections/{collection_id}/edit", code=302)
+
+        return self.error_500()
 
     def api_delete_collection (self, request, collection_id):
         if self.accepts_html (request):
