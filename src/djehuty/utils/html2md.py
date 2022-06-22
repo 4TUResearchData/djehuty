@@ -9,18 +9,20 @@ The markdown code uses __ for strong/bold and * for em/italic.
 import re
 
 def is_html(text):
+    """Returns True when TEXT is HTML-formatted, otherwise returns False."""
     #Check if text is html or just plain text
     endtags = ('</p>', '</strong>', '</em>', '</del>', '</sub>', '</sup>',
                '</h2>', '</h3>', '</h4>', '</ul>', '</ol>', '</a>')
-    is_html = False
+    text_is_html = False
     for endtag in endtags:
         if endtag in text:
-            is_html = True
+            text_is_html = True
             break
-    return is_html
+    return text_is_html
 
 def handle_basic_tags(html):
-    markdown = re.sub('\s+', ' ', html).strip()
+    """Returns the Markdown transformation of the input HTML."""
+    markdown = re.sub(r'\s+', ' ', html).strip()
     replacements = ((' <p><br></p>', '\n'), ('<p><br></p>', '\n'),
                     (' <p>', ''), ('<p>', ''), ('</p>', '\n'),
                     ('<strong>', '__'), ('</strong>', '__'),
@@ -31,11 +33,12 @@ def handle_basic_tags(html):
                     ('<h2>', '\n##'), ('</h2>', '\n'),
                     ('<h3>', '\n###'), ('</h3>', '\n'),
                     ('<h4>', '\n####'), ('</h4>', '\n'))
-    for ht, md in replacements:
-        markdown = markdown.replace(ht, md)
+    for html_input, markdown_output in replacements:
+        markdown = markdown.replace(html_input, markdown_output)
     return markdown
 
 def handle_lists(html, list_type=None):
+    """Returns the Markdown-equivalent of the input list HTML."""
     if list_type:
         tag = f'<{list_type}>'
         endtag = f'</{list_type}>'
@@ -55,6 +58,7 @@ def handle_lists(html, list_type=None):
     return markdown
 
 def handle_list_items(html):
+    """Helper procedure for 'handle_lists'."""
     tag = '<li>'
     endtag = '</li>'
     items=[]
@@ -65,6 +69,7 @@ def handle_list_items(html):
     return items
 
 def handle_links(html):
+    """Returns the Markdown-equivalent of the input HTML for a-tags."""
     tag = '<a href="'
     endtag = '</a>'
     split_on_tag = html.split(tag)
@@ -81,9 +86,11 @@ def handle_links(html):
     return markdown
 
 def html_to_markdown(html):
+    """Returns the complete HTML-to-Markdown transformation of the input."""
     #convert html to markdown
     return handle_links(handle_lists(handle_basic_tags(html)))
 
 def text_to_markdown(text):
+    """Returns plain text or Markdown, depending on the input text."""
     #convert to markdown if input is html, or leave unchanged otherwise.
     return html_to_markdown(text) if is_html(text) else text
