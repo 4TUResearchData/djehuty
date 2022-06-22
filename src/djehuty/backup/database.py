@@ -25,12 +25,16 @@ class DatabaseInterface:
         self.container_uris_lock = Lock()
         self.container_uris   = {}
         script_path = os.path.dirname(os.path.abspath(__file__))
-        with open(f'{script_path}/resources/dois.json', 'r') as f:
-            self.extra_dois = json.load(f)
-        with open(f'{script_path}/resources/contributors_organizations.json', 'r') as f:
-            extra = json.load(f)
-        self.extra_contributors_organizations = {item_type: {pid: dict(versions) for pid,versions in extra[item_type]}
-                                                 for item_type in extra}
+        with open(f'{script_path}/resources/dois.json', 'r',
+                  encoding = 'utf-8') as dois_file:
+            self.extra_dois = json.load(dois_file)
+        with open(f'{script_path}/resources/contributors_organizations.json',
+                  'r', encoding = 'utf-8') as contributors_file:
+            extra = json.load(contributors_file)
+        self.extra_contributors_organizations = {
+            item_type: { pid: dict(versions) for pid, versions in extra[item_type] }
+            for item_type in extra
+        }
 
     def __get_from_url (self, url: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
@@ -420,8 +424,9 @@ class DatabaseInterface:
                         field['value'] = contributors
                         self.insert_custom_field (uri, field)
                     field = {'name': 'Organizations', 'value': extra['organizations']}
-                except:
+                except KeyError:
                     pass
+
             self.insert_custom_field (uri, field)
 
     def insert_collection (self, record, account_id):
