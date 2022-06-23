@@ -3415,6 +3415,15 @@ class ApiServer:
         try:
             record = self.__api_v3_articles_parameters (request, item_type)
 
+            if ("categories" in record
+                and record["categories"] is not None
+                and record["categories"] != ""):
+                validator.array_value (record, "categories")
+                for index, _ in enumerate(record["categories"]):
+                    record["categories"][index] = validator.integer_value (record["categories"], index)
+            else:
+                record["categories"] = None
+
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
@@ -3425,18 +3434,13 @@ class ApiServer:
                 "offset":    self.get_parameter (request, "offset")
             })
 
-        if "group_ids" in record and record["group_ids"] is not None:
+        if ("group_ids" in record
+            and record["group_ids"] is not None
+            and record["group_ids"] != ""):
             record["group_ids"] = record["group_ids"]
             validator.array_value (record, "group_ids")
             for index, _ in enumerate(record["group_ids"]):
                 record["group_ids"][index] = validator.integer_value (record["group_ids"], index)
-
-        if "categories" in record and record["categories"] is not None:
-            validator.array_value (record, "categories")
-            for index, _ in enumerate(record["categories"]):
-                record["categories"][index] = validator.integer_value (record["categories"], index)
-        else:
-            record["categories"] = None
 
         records = self.db.article_statistics (
             limit           = limit,
