@@ -93,6 +93,8 @@ class ApiServer:
             Rule("/articles/_/<article_id>",                  endpoint = "article_ui"),
             Rule("/articles/_/<article_id>/<version>",        endpoint = "article_ui"),
             Rule("/file/<article_id>/<file_id>",              endpoint = "download_file"),
+            Rule("/collections/_/<collection_id>",            endpoint = "collection_ui"),
+            Rule("/collections/_/<collection_id>/<version>",  endpoint = "collection_ui"),
 
             ## ----------------------------------------------------------------
             ## API
@@ -1402,7 +1404,7 @@ class ApiServer:
                 contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
 
             return self.__render_template (request, "article.html",
-                                           article=article,
+                                           item=article,
                                            version=version,
                                            versions=versions,
                                            authors=authors,
@@ -1422,6 +1424,84 @@ class ApiServer:
                                            member_url_name=member_url_name,
                                            export_base = export_base,
                                            opendap=opendap,
+                                           statistics=statistics)
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
+
+    def api_collection_ui (self, request, collection_id, version=None):
+        #This function is copied from api_article_ui and slightly adapted as a start. It will not yet work properly.
+        if self.accepts_html (request):
+            container     = self.db.collection_container(collection_id=collection_id)[0]
+            versions      = self.db.collection_versions(collection_id=collection_id)
+            versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
+            current_version = version if version else versions[0]['version']
+            collection    = self.db.collections (collection_id    = collection_id,
+                                                 version       = current_version,
+                                                 is_published  = True)[0]
+            collection_uri = collection['uri']
+            authors       = self.db.authors(item_uri=collection_uri)
+            tags          = self.db.tags(item_uri=collection_uri)
+            categories    = self.db.categories(item_uri=collection_uri)
+            references    = self.db.references(item_uri=collection_uri)
+            fundings      = self.db.fundings(item_uri=article_uri)
+            statistics    = {'downloads': value_or(container, 'total_downloads', 0),
+                             'views'    : value_or(container, 'total_views'    , 0),
+                             'shares'   : value_or(container, 'total_shares'   , 0),
+                             'cites'    : value_or(container, 'total_cites'    , 0)}
+            statistics    = {key:val for (key,val) in statistics.items() if val > 0}
+            member = value_or(group_to_member, collection["group_id"], 'other')
+            member_url_name = member_url_names[member]
+            tags = set([t['tag'] for t in tags if not t['tag'].startswith('Collection: ')])
+            collection['timeline_first_online'] = container['first_online_date']
+            date_types = ( ('submitted'   , 'timeline_submission'),
+                           ('first online', 'timeline_first_online'),
+                           ('published'   , 'published_date'),
+                           ('posted'      , 'timeline_posted'),
+                           ('revised'     , 'timeline_revision') )
+            dates = {}
+            for (label, dtype) in date_types:
+                if dtype in article:
+                    date = article[dtype]
+                    if date:
+                        date = date[:10]
+                        if not date in dates:
+                            dates[date] = []
+                        dates[date].append(label)
+            dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
+
+            id_v = f'{collection_id}/{version}' if version else f'{collection_id}'
+
+            lat = self_or_value_or_none(article, 'latitude')
+            lon = self_or_value_or_none(article, 'longitude')
+            lat_valid, lon_valid = decimal_coords(lat, lon)
+            coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
+
+            contributors = []
+            if 'contributors' in article:
+                contr = article['contributors'].split(';\\n')
+                contr_parts = [ c.split(' [orcid:') for c in contr ]
+                contributors = contr_parts
+                contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
+
+            articles = [] #TODO
+
+            return self.__render_template (request, "collection.html",
+                                           item=collection,
+                                           version=version,
+                                           versions=versions,
+                                           authors=authors,
+                                           contributors = contributors,
+                                           tags=tags,
+                                           categories=categories,
+                                           fundings=fundings,
+                                           references=references,
+                                           collections=collections,
+                                           dates=dates,
+                                           coordinates=coordinates,
+                                           member=member,
+                                           member_url_name=member_url_name,
+                                           articles=articles,
                                            statistics=statistics)
         return self.response (json.dumps({
             "message": "This page is meant for humans only."

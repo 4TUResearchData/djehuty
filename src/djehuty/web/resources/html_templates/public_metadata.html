@@ -1,12 +1,12 @@
 {% block public_metadata  %}
-<h2>{{article.title}}</h2>
+<h2>{{item.title}}</h2>
 
 <div id="metadata">
     <div id="doi">persistent link: <a href="https://doi.org/{{doi}}" target="_blank" title="opens in new window">doi.org/{{doi}}</a></div>
-    <div id="type">{{ article.defined_type_name|capitalize }}</div>
+    <div id="type">{{ item.defined_type_name|capitalize }}</div>
 {% if versions[1:2] %}
 {# test 12763700 #}
-    {% set thisversion = article.version %}
+    {% set thisversion = item.version %}
     {% set latest = versions[0].version %}
     {% set old = thisversion < latest %}
     <div id ="versions">
@@ -19,7 +19,7 @@
     {% for ver in versions %}
         {% set v = ver.version %}
         {% if v != thisversion %}
-        <a href="/articles/_/{{pid}}/{{v}}">{{v}}{% if v==latest %} (latest){% endif %}</a>
+        <a href="/{{item_type}}/_/{{pid}}/{{v}}">{{v}}{% if v==latest %} (latest){% endif %}</a>
         {% endif %}
     {% endfor %}
     </div>
@@ -59,7 +59,7 @@
     {%- if loop.revindex0 %}, {% endif %}
 {% endfor %}
         </div>
-{% set geo = article.geolocation %}
+{% set geo = item.geolocation %}
 {% set lat = coordinates.lat %}
 {% set lon = coordinates.lon %}
 {% if geo or lat or lon %}
@@ -83,42 +83,43 @@
     {% endif %}
         </div>
 {% endif %}
-{% if article.time_coverage %}
+{% if item.time_coverage %}
         <div id="time_coverage">
             <div class="label">time coverage</div>
-            {{article.time_coverage}}
+            {{item.time_coverage}}
         </div>
 {% endif %}
-{% set lic_imgs = {'CC0'            : 'cc-0.png',
-                   'CC BY 4.0'      : 'cc-by.png',
-                   'CC BY-SA 4.0'   : 'cc-by-sa.png',
-                   'CC BY-ND 4.0'   : 'cc-by-nd.png',
-                   'CC BY-NC 4.0'   : 'cc-by-nc.png',
-                   'CC BY-NC-SA 3.0': 'cc-by-nc-sa.png',
-                   'CC BY-NC-SA 4.0': 'cc-by-nc-sa.png',
-                   'CC BY-NC-ND 4.0': 'cc-by-nc-nd.png',
-                   'GPL-3.0'        : 'gnu-gpl-v3.png'  } %}
-{% set lic_img = lic_imgs[article.license_name] %}
+{% if item_type == "article" %}
+    {% set lic_imgs = {'CC0'            : 'cc-0.png',
+                       'CC BY 4.0'      : 'cc-by.png',
+                       'CC BY-SA 4.0'   : 'cc-by-sa.png',
+                       'CC BY-ND 4.0'   : 'cc-by-nd.png',
+                       'CC BY-NC 4.0'   : 'cc-by-nc.png',
+                       'CC BY-NC-SA 3.0': 'cc-by-nc-sa.png',
+                       'CC BY-NC-SA 4.0': 'cc-by-nc-sa.png',
+                       'CC BY-NC-ND 4.0': 'cc-by-nc-nd.png',
+                       'GPL-3.0'        : 'gnu-gpl-v3.png'  } %}
+    {% set lic_img = lic_imgs[item.license_name] %}
         <div id="licence">
             <div class="label">licence</div>
-            <a href="{{article.license_url}}" target="_blank" title="opens in new window">
+            <a href="{{item.license_url}}" target="_blank" title="opens in new window">
                 {%- if lic_img %}<img src="/static/images/licenses/{{lic_img}}" alt="{{lic_img}} logo"/>{% endif %}
-                {{article.license_name}}</a>
-{% if article.license_remarks %}
-{# test 12776162 #}
-            <div>{{article.license_remarks}}</div>
-{% endif %}
+                {{item.license_name}}</a>
+    {% if item.license_remarks %}
+    {# test 12776162 #}
+            <div>{{item.license_remarks}}</div>
+    {% endif %}
         </div>
-{% if collections %}
+    {% if collections %}
         <div id="collections">
             <div class="label">collection{% if collections[1:] %}s{% endif %}</div>
             <ul>
-    {% for c in collections %}
+        {% for c in collections %}
                 <li><a href="/collections/_/{{c.collection_id}}">{{c.title}}</a></li>
-    {% endfor %}
+        {% endfor %}
             </ul>
         </div>
-{% endif %}
+    {% endif %}
         <div id="export">
             <div class="label">export as...</div>
             <a href="{{export_base}}refworks">RefWorks</a>,
@@ -129,6 +130,7 @@
             <a href="{{export_base}}nlm">NLM</a>,
             <a href="{{export_base}}dc">DC</a>
         </div>
+{% endif %}
     </div>
     
     <div id="left_column">
@@ -148,7 +150,7 @@
         </div>
         <div id="description">
 {% autoescape false %}
-            {{ article.description.replace('\\n', '\n') }}
+            {{ item.description.replace('\\n', '\n') }}
 {% endautoescape %}
         </div>
         <div id="dates">
@@ -159,23 +161,23 @@
             </ul>
 {% endfor %}
         </div>
-{% if article.publisher %}
+{% if item.publisher %}
         <div id="publisher">
             <div class="label">publisher</div>
-            {{article.publisher}}
+            {{item.publisher}}
         </div>
 {% endif %}
-{% if article.format %}
+{% if item.format %}
         <div id="format">
             <div class="label">format</div>
-            {{ article.format.replace('\\n', '\n') }}
+            {{ item.format.replace('\\n', '\n') }}
         </div>
 {% endif %}
-{% if article.resource_doi %}
+{% if item.resource_doi %}
 {# test 16825843 #}
         <div id="peer">
             <div class="label">associated peer-reviewed publication</div>
-            <a href="https://doi.org/{{article.resource_doi}}" target="_blank" title="opens in new window">{{article.resource_title}}</a>
+            <a href="https://doi.org/{{item.resource_doi}}" target="_blank" title="opens in new window">{{item.resource_title}}</a>
         </div>
 {% endif %}
 {% if references %}
@@ -188,7 +190,7 @@
             </ul>
         </div>
 {% endif %}
-{% if article.derived_from %}
+{% if item.derived_from %}
 {# test 12716117 #}
         <div id="derived_from">
             <div class="label">derived from</div>
@@ -199,26 +201,26 @@
             </ul>
         </div>
 {% endif %}
-{% if article.same_as %}
+{% if item.same_as %}
 {# test 18865355 #}
         <div id="same_as">
             <div class="label">same as</div>
-            <a href="{{article.same_as}}" target="_blank" title="opens in new window">{{article.same_as}}</a>
+            <a href="{{item.same_as}}" target="_blank" title="opens in new window">{{item.same_as}}</a>
         </div>
 {% endif %}
-{% if article.data_link %}
+{% if item.data_link %}
 {# test 14377295 #}
         <div id="data_link">
             <div class="label">data link</div>
-            <a href="{{article.data_link}}" target="_blank" title="opens in new window">{{article.data_link}}</a>
+            <a href="{{item.data_link}}" target="_blank" title="opens in new window">{{item.data_link}}</a>
         </div>
 {% endif %}
-{% if article.language %}
+{% if item.language %}
 {# test 17081387 #}
-    {% if article.language != 'en' %}
+    {% if item.language != 'en' %}
         <div id="language">
             <div class="label">language</div>
-            {{article.language}}
+            {{item.language}}
         </div>
     {% endif %}
 {% endif %}
@@ -246,12 +248,12 @@
           </ul>
         </div>
 {% endif %}
-{% if article.organizations %}
+{% if item.organizations %}
 {# test 12705164 #}
     {% autoescape false %}
         <div id="organizations">
             <div class="label">organizations</div>
-            {{ article.organizations.replace('\\n', '<br />') }}
+            {{ item.organizations.replace('\\n', '<br />') }}
         </div>
     {% endautoescape %}
 {% endif %}
