@@ -36,10 +36,11 @@ def read_configuration_file (server, config_file, address, port, state_graph,
     try:
         config   = {}
         xml_root = None
+        tree = ET.parse(config_file)
+
         if config_file is not None and not inside_reload:
             logging.info ("Reading config file: %s", config_file)
 
-        tree = ET.parse(config_file)
         xml_root = tree.getroot()
         if xml_root.tag != "djehuty":
             raise ConfigFileNotFound
@@ -166,9 +167,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
     except ET.ParseError:
         if not inside_reload:
             logging.error ("%s does not contain valid XML.", config_file)
-    except FileNotFoundError:
+    except FileNotFoundError as error:
         if not inside_reload:
             logging.error ("Could not open '%s'.", config_file)
+        raise error
 
     return {}
 
@@ -213,6 +215,8 @@ def main (address=None, port=None, state_graph=None, storage=None,
                     use_debugger=config["use_debugger"],
                     use_reloader=config["use_reloader"])
 
+    except FileNotFoundError:
+        pass
     except database.UnknownDatabaseState:
         logging.error ("Please make sure the database is up and running.")
 
