@@ -240,6 +240,7 @@ class ApiServer:
         parameters    = {
             "base_url":        self.base_url,
             "path":            request.path,
+            "in_production":   self.in_production,
             "orcid_client_id": self.orcid_client_id,
             "is_logged_in":    self.db.is_logged_in (token),
             "may_review":      self.db.may_review (token),

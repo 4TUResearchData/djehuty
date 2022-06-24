@@ -95,6 +95,7 @@
     </div>
 {% endif %}
 </div>
+{%- if not in_production: %}
 {% set debug_vars = {"item":item, "version":version, "versions":versions, "authors":authors, "contributors":contributors,
                      "files":files, "services":services, "embargo_options":embargo_options, "tags":tags, "categories":categories,
                      "fundings":fundings, "references": references, "derived_from":derived_from, "collections":collections,
@@ -108,5 +109,6 @@
     {% set figshare_API  = figshare_API~"/versions/"~version %}
 {% endif %}
 {% include 'debug.html' %}
+{%- endif %}
 </div>
 {% endblock %}
