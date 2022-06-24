@@ -86,15 +86,15 @@ class ApiServer:
             Rule("/admin/maintenance/clear-cache",            endpoint = "admin_clear_cache"),
             Rule("/admin/maintenance/clear-sessions",         endpoint = "admin_clear_sessions"),
             Rule("/portal",                                   endpoint = "portal"),
-            Rule("/categories/_/<category_id>",               endpoint = "categories"),
+            Rule("/categories/<category_id>",               endpoint = "categories"),
             Rule("/category",                                 endpoint = "category"),
             Rule("/institutions/<institution_name>",          endpoint = "institution"),
             Rule("/opendap_to_doi",                           endpoint = "opendap_to_doi"),
-            Rule("/articles/_/<article_id>",                  endpoint = "article_ui"),
-            Rule("/articles/_/<article_id>/<version>",        endpoint = "article_ui"),
+            Rule("/articles/<article_id>",                  endpoint = "article_ui"),
+            Rule("/articles/<article_id>/<version>",        endpoint = "article_ui"),
             Rule("/file/<article_id>/<file_id>",              endpoint = "download_file"),
-            Rule("/collections/_/<collection_id>",            endpoint = "collection_ui"),
-            Rule("/collections/_/<collection_id>/<version>",  endpoint = "collection_ui"),
+            Rule("/collections/<collection_id>",            endpoint = "collection_ui"),
+            Rule("/collections/<collection_id>/<version>",  endpoint = "collection_ui"),
 
             ## ----------------------------------------------------------------
             ## API
@@ -1307,7 +1307,7 @@ class ApiServer:
                     x, y = [min(1., days/d) for d in rgb_opa_days]
                     rgba = [round(i[0] + x*(i[1]-i[0])) for i in rgb_shift] + [round(1 - y*(1-opa_min), 3)]
                     str_rgba = ','.join([str(c) for c in rgba])
-                    url = rec['url_public_html'] if from_figshare else f'/articles/_/{rec["article_id"]}'
+                    url = rec['url_public_html'] if from_figshare else f'/articles/{rec["article_id"]}'
                     latest.append((url, rec['title'], pub_date, ago, str_rgba))
             except:
                 pass

@@ -19,7 +19,7 @@
     {% for ver in versions %}
         {% set v = ver.version %}
         {% if v != thisversion %}
-        <a href="/{{item_type}}/_/{{pid}}/{{v}}">{{v}}{% if v==latest %} (latest){% endif %}</a>
+        <a href="/{{item_type}}/{{pid}}/{{v}}">{{v}}{% if v==latest %} (latest){% endif %}</a>
         {% endif %}
     {% endfor %}
     </div>
@@ -47,7 +47,7 @@
             <div class="label">categories</div>
             <ul>
 {% for cat in categories %}
-                <li><a href="/categories/_/{{cat.id}}">{{cat.title}}</a></li>
+                <li><a href="/categories/{{cat.id}}">{{cat.title}}</a></li>
 {% endfor %}
             </ul>
         </div>
@@ -115,7 +115,7 @@
             <div class="label">collection{% if collections[1:] %}s{% endif %}</div>
             <ul>
         {% for c in collections %}
-                <li><a href="/collections/_/{{c.collection_id}}">{{c.title}}</a></li>
+                <li><a href="/collections/{{c.collection_id}}">{{c.title}}</a></li>
         {% endfor %}
             </ul>
         </div>
@@ -138,7 +138,7 @@
 {% for a in authors %}
     {%- set name = a.full_name %}
     {%- if a.is_active %}
-            <a href="/authors/_/{{a.id}}">{{name}}</a>
+            <a href="/authors/{{a.id}}">{{name}}</a>
     {%- else %}
             {{name}}
     {%- endif %}
