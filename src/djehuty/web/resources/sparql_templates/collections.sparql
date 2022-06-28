@@ -9,6 +9,7 @@ SELECT DISTINCT ?account_id ?resource_id ?resource_doi ?resource_title
                 ?timeline_revision ?timeline_submission ?collection_id ?title
                 ?doi ?handle ?url ?published_date ?container_uri
                 ?container_uuid ?collection AS ?uri ?uuid
+                ?geolocation ?latitude ?longitude
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri      rdf:type                 sg:CollectionContainer .
@@ -57,6 +58,9 @@ WHERE {
     OPTIONAL { ?collection   col:doi                  ?doi . }
     OPTIONAL { ?collection   col:handle               ?handle . }
     OPTIONAL { ?collection   col:url                  ?url . }
+    OPTIONAL { ?collection   col:geolocation          ?geolocation . }
+    OPTIONAL { ?collection   col:latitude             ?latitude . }
+    OPTIONAL { ?collection   col:longitude            ?longitude . }
     OPTIONAL { ?collection   col:published_date       ?published_date . }
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
