@@ -259,14 +259,22 @@ class ApiServer:
             endpoint, values = adapter.match()
             return getattr(self, f"api_{endpoint}")(request, **values)
         except NotFound:
-            # Handle static pages.
-            try:
-                logging.debug ("Attempting to render static page.")
+            if request.path in self.static_pages:
                 page = self.static_pages[request.path]
-                return self.__render_template (request, page)
-            except TemplateNotFound:
-                logging.error ("Couldn't find template '%s'.", page)
-            except KeyError:
+                if "filesystem-path" in page:
+                    # Handle static pages.
+                    try:
+                        logging.debug("Attempting to render static page.")
+                        return self.__render_template(request, page["filesystem-path"])
+                    except TemplateNotFound:
+                        logging.error("Couldn't find template '%s'.", page["filesystem-path"])
+                elif "redirect-to" in page:
+                    # Handle redirect
+                    logging.debug("Attempting to redirect.")
+                    return redirect(location=page["redirect-to"], code=page["code"])
+                else:
+                    logging.debug("Static page nor redirect found in entry.")
+            else:
                 logging.debug ("No static page entry for '%s'.", request.path)
 
             return self.error_404 (request)

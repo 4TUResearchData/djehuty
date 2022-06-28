@@ -148,15 +148,26 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         for page in static_pages:
             uri_path        = config_value (page, "uri-path")
             filesystem_path = config_value (page, "filesystem-path")
+            redirect_to     = page.find("redirect-to")
 
             if uri_path is not None and filesystem_path is not None:
                 if not os.path.isabs(filesystem_path):
                     # take filesystem_path relative to config_dir and turn into absolute path
                     filesystem_path = os.path.abspath(os.path.join(config_dir, filesystem_path))
 
-                server.static_pages[uri_path] = filesystem_path
+                server.static_pages[uri_path] = {"filesystem-path": filesystem_path}
                 if not inside_reload:
                     logging.info ("Added static page: %s -> %s", uri_path, filesystem_path)
+                    logging.info("Related filesystem path: %s", filesystem_path)
+
+            if uri_path is not None and redirect_to is not None:
+                code = 302
+                if "code" in redirect_to.attrib:
+                    code = int(redirect_to.attrib["code"])
+                server.static_pages[uri_path] = {"redirect-to": redirect_to.text, "code": code}
+                if not inside_reload:
+                    logging.info ("Added static page: %s", uri_path)
+                    logging.info ("Related redirect-to (%i) page: %s ", code, redirect_to.text)
 
         return config
 
