@@ -1,0 +1,68 @@
+﻿{% extends "layout.html" %}
+{% block headers %}
+{# TODO:
+   file previews (for which file types?)
+   embargo
+   versioned and unversioned doi on latest version, explained #}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<style>
+    a             { color: #f49120; text-decoration: none }
+    a:hover       { text-decoration: underline }
+    #doi          { text-align: right }
+    #type         { padding: 2px; width: 80px; text-align: center; border: 1px solid #000 }
+    #metadata #versions { margin-top: 0px }
+    #description  { margin-top: 10px; padding:10px; border: 1px solid #666 }
+    #authors img, #contributors img  { height: 15px }
+    .metric       { float: left; margin:5px; text-align: center }
+    .metric .number { font-size: 24px; font-weight: bold }
+    #categories   { padding-top: 10px; clear: left }
+    #tags, #geo, #time_coverage, #dates, #collections, #peer, #references, #publisher, #format, #organizations,
+    #contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export, #data_link
+                  { margin-top: 10px }
+    #funding ul   { list-style-type: square; margin-left: 20px }
+    #funding .funder_name { display: block; color: #999 }
+    #files .size   { display: inline-block; width:120px; font-size:12px; color: #999; text-align:right; margin-right:5px }
+    #metadata #left_column  { width: 65%; margin-bottom:10px }
+    #metadata #right_column { float: right; width: 33%; margin-bottom:10px }
+    .warning      { background-color: #ff0 }
+    .label        { text-transform: uppercase }
+    ul            { list-style-type: none; padding:0; margin:0 }
+    #data         { clear: right; border-top: 1px solid #000; margin-bottom: 10px }
+    #data ul      { margin-left: 20px }
+    li.zip        { padding: 2px; width: 180px; text-align: center; border: 1px solid #000 }
+</style>
+{% endblock %}
+
+{% block body %}
+{% set doi = item.doi %}
+{% set pid = item.collection_id %}
+{% set item_type = "collection" %}
+
+{% include 'public_metadata.html' %}
+
+<div id="data">
+    <h3>DATASETS</h3>
+    <ul>
+{% for article in articles %}
+        <li>
+            [{{article.type}}] <a href="/articles/{{article.article_id}}" title="first online {{article.date[:10]}}">{{article.title}}</a>
+        </li>
+{% endfor %}
+    </ul>
+</div>
+{%- if not in_production: %}
+{% set debug_vars = {"item":item, "version":version, "versions":versions, "authors":authors, "contributors":contributors,
+                     "tags":tags, "categories":categories, "fundings":fundings, "references": references,
+                     "dates":dates, "coordinates":coordinates, "statistics":statistics, "articles":articles} %}
+{% set djehuty_API   = "/v2/collections/"~pid %}
+{% set figshare_html = "https://data.4tu.nl/collections/_/"~pid %}
+{% set figshare_API = "https://api.figshare.com/v2/collections/"~pid %}
+{% if version %}
+    {% set djehuty_API   = djehuty_API~"/versions/"~version %}
+    {% set figshare_html = figshare_html~"/"~version %}
+    {% set figshare_API  = figshare_API~"/versions/"~version %}
+{% endif %}
+{% include 'debug.html' %}
+{%- endif %}
+</div>
+{% endblock %}

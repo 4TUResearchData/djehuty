@@ -3,7 +3,11 @@
 
 <div id="metadata">
     <div id="doi">persistent link: <a href="https://doi.org/{{doi}}" target="_blank" title="opens in new window">doi.org/{{doi}}</a></div>
+{% if item_type == "article" %}
     <div id="type">{{ item.defined_type_name|capitalize }}</div>
+{% else %}
+    <div id="type">Collection</div>
+{% endif %}
 {% if versions[1:2] %}
 {# test 12763700 #}
     {% set thisversion = item.version %}

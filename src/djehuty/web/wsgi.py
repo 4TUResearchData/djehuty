@@ -1437,15 +1437,15 @@ class ApiServer:
             versions      = self.db.collection_versions(collection_id=collection_id)
             versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
             current_version = version if version else versions[0]['version']
-            collection    = self.db.collections (collection_id    = collection_id,
+            collection    = self.db.collections (collection_id = collection_id,
                                                  version       = current_version,
                                                  is_published  = True)[0]
             collection_uri = collection['uri']
-            authors       = self.db.authors(item_uri=collection_uri)
-            tags          = self.db.tags(item_uri=collection_uri)
+            authors       = self.db.authors(item_uri=collection_uri, item_type='collection')
+            tags          = self.db.tags(item_uri=collection_uri, item_type='collection')
             categories    = self.db.categories(item_uri=collection_uri)
             references    = self.db.references(item_uri=collection_uri)
-            fundings      = self.db.fundings(item_uri=article_uri)
+            fundings      = self.db.fundings(item_uri=collection_uri)
             statistics    = {'downloads': value_or(container, 'total_downloads', 0),
                              'views'    : value_or(container, 'total_views'    , 0),
                              'shares'   : value_or(container, 'total_shares'   , 0),
@@ -1462,8 +1462,8 @@ class ApiServer:
                            ('revised'     , 'timeline_revision') )
             dates = {}
             for (label, dtype) in date_types:
-                if dtype in article:
-                    date = article[dtype]
+                if dtype in collection:
+                    date = collection[dtype]
                     if date:
                         date = date[:10]
                         if not date in dates:
@@ -1473,19 +1473,19 @@ class ApiServer:
 
             id_v = f'{collection_id}/{version}' if version else f'{collection_id}'
 
-            lat = self_or_value_or_none(article, 'latitude')
-            lon = self_or_value_or_none(article, 'longitude')
+            lat = self_or_value_or_none(collection, 'latitude')
+            lon = self_or_value_or_none(collection, 'longitude')
             lat_valid, lon_valid = decimal_coords(lat, lon)
             coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
 
             contributors = []
-            if 'contributors' in article:
-                contr = article['contributors'].split(';\\n')
+            if 'contributors' in collection:
+                contr = collection['contributors'].split(';\\n')
                 contr_parts = [ c.split(' [orcid:') for c in contr ]
                 contributors = contr_parts
                 contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
 
-            articles = [] #TODO
+            articles = self.db.collection_articles(collection_uri)
 
             return self.__render_template (request, "collection.html",
                                            item=collection,
@@ -1497,7 +1497,6 @@ class ApiServer:
                                            categories=categories,
                                            fundings=fundings,
                                            references=references,
-                                           collections=collections,
                                            dates=dates,
                                            coordinates=coordinates,
                                            member=member,

@@ -589,7 +589,7 @@ class SparqlInterface:
     ## COLLECTIONS
     ## ------------------------------------------------------------------------
 
-    def collection_versions (self, limit=1000, offset=0, order=None,
+    def collection_versions (self, limit=1000, offset=0, order="version",
                              order_direction=None, collection_id=None,
                              container_uri=None):
         """Procedure to retrieve the versions of an collection."""
