@@ -1,0 +1,20 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?account_id ?draft ?latest_published_version ?first_online_date
+       ?totals_created_at ?total_downloads ?total_views ?total_shares ?total_cites
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container            rdf:type                     sg:CollectionContainer ;
+                          col:collection_id            {{collection_id}} .
+    OPTIONAL { ?container col:account_id               ?account_id .        }
+    OPTIONAL { ?container col:draft                    ?draft .             }
+    OPTIONAL { ?container col:latest_published_version ?latest_published_version . }
+    OPTIONAL { ?container col:first_online_date        ?first_online_date . }
+    OPTIONAL { ?container col:totals_created_at        ?totals_created_at . }
+    OPTIONAL { ?container col:total_downloads          ?total_downloads .   }
+    OPTIONAL { ?container col:total_views              ?total_views .       }
+    OPTIONAL { ?container col:total_shares             ?total_shares .      }
+    OPTIONAL { ?container col:total_cites              ?total_cites .       }
+  }
+}
+{% endblock %}

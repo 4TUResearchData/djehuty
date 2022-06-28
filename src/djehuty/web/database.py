@@ -371,6 +371,15 @@ class SparqlInterface:
 
         return self.__run_query (query, query, "article_container")
 
+    def collection_container (self, collection_id):
+        """Procedure to get collection container properties (incl shallow statistics)."""
+
+        query   = self.__query_from_template ("collection_container", {
+            "collection_id":   collection_id
+        })
+
+        return self.__run_query (query, query, "collection_container")
+
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
                  is_public=None, job_title=None, last_name=None,
