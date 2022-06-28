@@ -9,6 +9,7 @@ import subprocess
 import secrets
 import requests
 import pygit2
+import re
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
@@ -95,6 +96,7 @@ class ApiServer:
             Rule("/file/<article_id>/<file_id>",              endpoint = "download_file"),
             Rule("/collections/<collection_id>",            endpoint = "collection_ui"),
             Rule("/collections/<collection_id>/<version>",  endpoint = "collection_ui"),
+            Rule("/search",                                   endpoint = "search_ui"),
 
             ## ----------------------------------------------------------------
             ## API
@@ -1618,6 +1620,85 @@ class ApiServer:
             logging.error ("File download failed due to missing file.")
 
         return self.error_500 ()
+
+    def api_search_ui(self, request):
+        if self.accepts_html (request):
+            search_for = self.get_parameter(request, "search")
+            search_for = search_for.strip()
+            operators = ("(", ")", "AND", "OR")
+            has_operators = any((operator in search_for) for operator in operators)
+
+            fields = ["title", "resource_title", "description", "citation", "format"]
+            re_field = ":(" + "|".join(fields+["search_term"]) + "):"
+            has_fieldsearch = re.search(re_field, search_for) is not None
+
+            re_operator = '(\(|\)|AND|OR)'
+            search_list = re.split(re_operator, search_for)
+
+            search_list = list(filter(None, [s.strip() for s in search_list]))
+
+            if has_operators:
+                search_list = [{"operator": element.upper()} if (element.upper() in operators) else element for element in search_list]
+            elif has_fieldsearch:
+                pass
+            else:
+                # search terms are handled separately (split on spaces) and combined with OR operators
+                # terms in double quotes are seen as one
+                quoted = search_for.split('"')[1::2]
+                not_quoted = [item.split() for item in search_for.split('"')[0::2]]
+                # flatten list
+                not_quoted = sum(not_quoted, [])
+                # combine quoted and non-quoted and strip leading and trailing spaces
+                search_list = [item.strip() for item in quoted + not_quoted]
+                # add OR operators
+                index = -1
+                while len(search_list) + index > 0:
+                    search_list.insert(index, {"operator": "OR"})
+                    index = index - 2
+
+            display_list = search_list[:]
+            for idx, search_term in enumerate(search_list):
+                if type(search_term) == type({}):
+                    continue
+                elif re.search(re_field, search_term) is not None:
+                    field_name = re.split(':', search_term)[1::2][0]
+                    value = list(filter(None, [s.strip() for s in re.split(':', search_term)[0::2]]))[0]
+                    if value.startswith('"') and value.endswith('"'):
+                        display_list[idx] = display_list[idx].replace(value, value.strip('"'))
+                        value = value.strip('"')
+                    if field_name in fields:
+                        search_list[idx] = {field_name: value}
+                    elif field_name == "search_term":
+                        search_dict = {}
+                        for field_name in fields:
+                            search_dict[field_name] = value
+                        search_list[idx] = search_dict
+                elif has_fieldsearch is False:
+                    search_dict = {}
+                    if search_term.startswith('"') and search_term.endswith('"'):
+                        display_list[idx] = search_term.strip('"')
+                        search_term = search_term.strip('"')
+                    for field_name in fields:
+                        search_dict[field_name] = search_term
+                    search_list[idx] = search_dict
+
+            dataset_count = self.db.datasets (search_for=search_list, is_published=True, return_count=True)
+            if dataset_count == []:
+                message = "Invalid query"
+                datasets = []
+                dataset_count = 0
+            else:
+                message = None
+                dataset_count = dataset_count[0]["articles"]
+                datasets = self.db.datasets (search_for=search_list, is_published=True, limit=100)
+            return self.__render_template (request, "search.html",
+                                           articles=datasets,
+                                           dataset_count=dataset_count,
+                                           message=message,
+                                           display_terms=display_list)
+        return self.response (json.dumps({
+            "message": "This page is meant for humans only."
+        }))
 
     def api_authorize (self, request):
         return self.error_404 (request)

@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script>
+// var group_ids = "{% for item in sub_groups: %}{{item.group_id}}{{ ',' if not loop.last else '' }}{% endfor %}";
+</script>
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<!--<script src="/static/js/ranking_by_institution.js"></script>-->
+<style>
+.tile-item {
+    display: inline-block;
+    margin: 0pt 10pt 10pt 0pt;
+    padding: 10pt;
+    width: 135pt;
+    border-radius: 10pt;
+    cursor: pointer;
+    background: #f9f9f9;
+}
+.tile-item:hover { background: #eeeeee; }
+.tile-item:active { background: #e9e9e9; }
+.tile-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 150pt;
+    height: 4em;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+.tile-preview {
+    overflow: hidden;
+    width: 100%;
+    height: 130pt;
+    margin: 0 auto;
+    user-select: none;
+}
+.tile-title a:hover { color: #df7e0e; }
+.search-terms { text-align: center; }
+.search-terms li { display: inline-block; list-style: none; }
+.search-terms li button {
+    margin: 5pt;
+    padding: 10pt;
+    border-radius: 5pt;
+    background: #f9f9f9;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+}
+.search-terms li button:hover { background: #eeeeee; }
+.search-terms li button:active { background: #e9e9e9; }
+.tabs ul { margin: 0em; padding: 0em; }
+.tabs li {
+    display: inline-block;
+    list-style-type: none;
+    text-decoration: none;
+    color: #000000;
+    font-size: 12pt;
+    padding: .5em .75em .5em .75em;
+    margin: 0pt 5pt 0pt 0pt;
+    user-select: none;
+    border-radius: .5em .5em 0em 0em;
+}
+.tabs li.active { background: #f49120; }
+.tabs li.active a { color: #ffffff; text-decoration: none; }
+.loader {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+    background-color: rgba(255, 255, 255, 0.5);
+    background-image: url('/static/images/loader.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 100;
+}
+#top-datasets th { text-align: left; white-space: nowrap; color: #ffffff; padding: .5em; }
+#top-datasets-wrapper table { width: 100%; max-width: 880pt; border: solid 2pt #f49120; }
+#top-datasets thead tr { background: #f49120; }
+#top-datasets tbody tr td { padding: .5em; z-index: 50; }
+#top-datasets tbody tr:nth-child(odd) { background: #fafafa; }
+#top-datasets tbody tr td:last-child { text-align: right; width: 130pt; }
+#top-datasets thead tr th:last-child { text-align: right; }
+#top-datasets tbody tr td:nth-child(1) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 750pt;
+}
+#top-datasets td { text-align: left; }
+</style>
+{% endblock %}
+{% block body %}
+
+<ul class="search-terms">{% for item in display_terms %}
+  {% if item is mapping %}
+  <li><button>{{ item.operator }}</button></li>
+  {% elif " " in item and not item.startswith(":") and not item.startswith("\"") %}
+  <li><a href='/search?search="{{item}}"'><button id="login-button">{{item}}</button></a></li>
+  {% else %}
+  <li><a href='/search?search={{item}}'><button id="login-button">{{item}}</button></a></li>
+  {% endif %}
+{% endfor %}</ul>
+
+{% if message is none %}
+<h2>Found results ({{ dataset_count}}):</h2>
+{% else: %}
+<h2>No results found ({{ message }})</h2>
+{% endif %}
+{% for item in articles %}
+<div class="tile-item">
+  <a href="{{item.url_public_html}}">{% if item.thumb | length: %}
+  <img class="tile-preview" src="{{item.thumb}}" aria-hidden="true" alt="thumbnail for {{item.id}}" />
+  {% else: %}
+  <img class="tile-preview" src="/static/images/dataset-thumb.svg" aria-hidden="true" alt="thumbnail for {{item.id}}" />
+  {% endif %}</a>
+  <div class="tile-title"><a href="{{item.url_public_html}}">{{item.title}}</a></div>
+  <div class="tile-date">Posted on {{item.timeline_posted}}</div>
+  <div class="tile-authors">
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

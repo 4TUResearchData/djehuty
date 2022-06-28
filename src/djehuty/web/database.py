@@ -200,7 +200,7 @@ class SparqlInterface:
                   exclude_ids=None, groups=None, handle=None, institution=None,
                   is_latest=False, item_type=None, limit=None, modified_since=None,
                   offset=None, order=None, order_direction=None, published_since=None,
-                  resource_doi=None, return_count=False, search_for=None,
+                  resource_doi=None, return_count=False, search_for=None, search_format=False,
                   version=None, is_published=True, is_under_review=None):
         """Procedure to retrieve version(s) of datasets."""
 
@@ -221,10 +221,34 @@ class SparqlInterface:
             filters += f"(?parent_category_id IN ({','.join(map(str, categories))})))\n"
 
         if search_for is not None:
-            filters += f"FILTER (CONTAINS(STR(?title),          \"{search_for}\") OR\n"
-            filters += f"        CONTAINS(STR(?resource_title), \"{search_for}\") OR\n"
-            filters += f"        CONTAINS(STR(?description),    \"{search_for}\") OR\n"
-            filters += f"        CONTAINS(STR(?citation),       \"{search_for}\"))"
+            if type(search_for) == type(""):
+                # turn into list for loop purposes
+                search_for = [search_for]
+            if type({}) in list(map(type, search_for)):
+                filters += f"FILTER ("
+                for element in search_for:
+                    if type(element) == type({}) and len(element.items()) == 1 and next(iter(element)) == "operator":
+                        filters += " {} ".format(element["operator"].upper())
+                    else:
+                        filter_list = []
+                        for key, value in element.items():
+                            if '"' in value:
+                                value = value.replace('"', '\\\"')
+                            filter_list.append(" CONTAINS(LCASE(?{}), \"{}\") \n".format(key, value.lower()))
+                        filters += "(" + " OR\n".join(filter_list) + ") \n"
+                filters += ")"
+            else:
+                filter_list = []
+                for search_term in search_for:
+                    search_term_lower = search_term.lower()
+                    filter_list.append(f"       CONTAINS(LCASE(?title),          \"{search_term_lower}\")")
+                    filter_list.append(f"       CONTAINS(LCASE(?resource_title), \"{search_term_lower}\")")
+                    filter_list.append(f"       CONTAINS(LCASE(?description),    \"{search_term_lower}\")")
+                    filter_list.append(f"       CONTAINS(LCASE(?citation),       \"{search_term_lower}\")")
+                    if search_format:
+                        filter_list.append(f"       CONTAINS(LCASE(?format),         \"{search_term_lower}\")")
+                if len(filter_list) > 0:
+                    filters += f"FILTER(\n" + " OR\n".join(filter_list) + ')'
 
         if published_since is not None:
             filters += rdf.sparql_bound_filter ("published_date")
