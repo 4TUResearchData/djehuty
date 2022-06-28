@@ -1,0 +1,17 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?article_id ?date ?type ?title
+WHERE {
+  GRAPH <{{state_graph}}> {
+    <{{collection}}>    col:articles/rdf:rest*/rdf:first  ?article_container .
+    ?article_container  rdf:type                          sg:ArticleContainer ;
+                        col:article_id                    ?article_id ;
+                        col:first_online_date             ?date ;
+                        col:latest_published_version      ?article .
+    ?article            rdf:type                          sg:Article ;
+                        col:title                         ?title ;
+                        col:defined_type_name             ?type .
+  }
+}
+ORDER BY DESC(?date) DESC(?title)
+{% endblock %}

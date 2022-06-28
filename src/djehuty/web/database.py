@@ -573,6 +573,18 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def collection_articles (self, collection_uri, limit=None, offset=0):
+        """Procedure to get the published articles of a collection."""
+
+        query = self.__query_from_template ("collection_articles", {
+            "collection":  collection_uri
+        })
+        #ordering is done in the query template as it depends on 2 parameters
+        #which is not supported by rdf.sparql_suffix
+        query += rdf.sparql_suffix (None, None, limit, offset)
+
+        return self.__run_query(query)
+
     ## ------------------------------------------------------------------------
     ## COLLECTIONS
     ## ------------------------------------------------------------------------
