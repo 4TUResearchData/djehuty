@@ -9,8 +9,8 @@ WHERE {
     ?collection_uri rdf:type           sg:Collection ;
                     col:container      ?container_uri ;
                     col:version        ?version ;
-                    col:url            ?url ;
-                    col:url_public_api ?url_public_api .
+                    col:url            ?url .
+    OPTIONAL {?collection_uri  col:url_public_api ?url_public_api .}
   }
 {%- if filters is not none %}{{ filters }}{% endif %}
 }
