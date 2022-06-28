@@ -186,6 +186,7 @@ body,html {
     text-transform: uppercase;
 }
 #site-navigation ul:first-child { margin-left: 5mm; }
+#primary-menu .menu-item-has-children:hover { color: #f39000; }
 #primary-menu .menu-item-has-children:hover > ul {
     background: #ffffff;
     display: block;
@@ -274,6 +275,22 @@ pre {
 #login-panel {
     display: block;
     position: relative;
+}
+
+.logos {
+    display: block;
+    background: #f49120;
+    height: 40px;
+}
+
+.whitelogos img {
+    margin: 10px;
+    float: right;
+}
+
+#footer .logos #footer-wrapper .footer-column {
+    height: 40px;
+    border: none;
 }
 #footer-wrapper {
     column-count: 3;
