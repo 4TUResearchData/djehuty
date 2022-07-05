@@ -3,7 +3,7 @@
 SELECT DISTINCT ?id ?url
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container      rdf:type/rdf:type        sg:Container .
+    ?container      rdf:type/rdfs:subClassOf sg:Container .
     {%- if account_id is not none %}
     ?container      col:account_id           {{account_id}} .
     {%- endif %}

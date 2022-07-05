@@ -24,9 +24,9 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container       rdf:type/rdf:type    sg:Container ;
-                     col:account_id       ?account_id ;
-                     col:draft            ?item_uri .
+    ?container       rdf:type/rdfs:subClassOf sg:Container ;
+                     col:account_id           ?account_id ;
+                     col:draft                ?item_uri .
 
     ?item_uri        col:private_links/rdf:rest*/rdf:first ?link .
 

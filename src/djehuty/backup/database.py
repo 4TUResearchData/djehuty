@@ -8,7 +8,7 @@ from datetime import datetime
 from threading import Lock
 from secrets import token_urlsafe
 import json
-from rdflib import Graph, Literal, RDF, XSD, URIRef
+from rdflib import Graph, Literal, RDF, RDFS, XSD, URIRef
 import requests
 from djehuty.utils.convenience import value_or, value_or_none
 from djehuty.utils import rdf
@@ -866,8 +866,7 @@ class DatabaseInterface:
 
     def insert_static_triplets (self):
         """Procedure to insert triplets to augment the state graph."""
-
-        self.store.add ((rdf.SG["ArticleContainer"],    RDF.type, rdf.SG["Container"]))
-        self.store.add ((rdf.SG["CollectionContainer"], RDF.type, rdf.SG["Container"]))
+        self.store.add ((rdf.SG["ArticleContainer"],    RDFS.subClassOf, rdf.SG["Container"]))
+        self.store.add ((rdf.SG["CollectionContainer"], RDFS.subClassOf, rdf.SG["Container"]))
 
         return True

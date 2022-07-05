@@ -17,7 +17,7 @@ WHERE {
     {%- if item_uri is not none %}
     ?item_uri        col:categories/rdf:rest*/rdf:first ?category .
     {%- if account_id is not none %}
-    ?container         rdf:type/rdf:type                sg:Container .
+    ?container         rdf:type/rdfs:subClassOf         sg:Container .
     ?container         col:account_id                   {{account_id}} .
     {%- if is_published %}
     ?container         col:published_versions/rdf:rest*/rdf:first ?item_uri .

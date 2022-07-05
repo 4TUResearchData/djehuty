@@ -4,7 +4,7 @@ SELECT DISTINCT ?account_id ?container_uuid ?version ?container_uri
                 ?item_uri AS ?uri ?uuid
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container_uri       rdf:type/rdf:type        sg:Container .
+    ?container_uri       rdf:type/rdfs:subClassOf sg:Container .
     ?container_uri       col:account_id           ?account_id .
 
     {%- if is_published %}
