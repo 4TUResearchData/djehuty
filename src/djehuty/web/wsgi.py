@@ -1481,8 +1481,6 @@ class ApiServer:
                         dates[date].append(label)
             dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
 
-            id_v = f'{collection_id}/{version}' if version else f'{collection_id}'
-
             lat = self_or_value_or_none(collection, 'latitude')
             lon = self_or_value_or_none(collection, 'longitude')
             lat_valid, lon_valid = decimal_coords(lat, lon)
