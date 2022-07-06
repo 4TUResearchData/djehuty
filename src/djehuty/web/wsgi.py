@@ -1666,7 +1666,8 @@ class ApiServer:
             for idx, search_term in enumerate(search_list):
                 if isinstance(search_term, dict):
                     continue
-                elif re.search(re_field, search_term) is not None:
+
+                if re.search(re_field, search_term) is not None:
                     field_name = re.split(':', search_term)[1::2][0]
                     value = list(filter(None, [s.strip() for s in re.split(':', search_term)[0::2]]))[0]
                     if value.startswith('"') and value.endswith('"'):
