@@ -7,9 +7,9 @@ import json
 import hashlib
 import subprocess
 import secrets
+import re
 import requests
 import pygit2
-import re
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
