@@ -48,8 +48,13 @@ class DatabaseInterface:
         logging.error("Error message:\n---\n%s\n---", response.text)
         return False
 
-    def __get_file_size_for_catalog (self, url):
+    def __get_file_size_for_catalog (self, url, recurse=None):
         """Returns the file size for an OPeNDAP catalog."""
+
+        if recurse == None:
+            noRecurse = ('/IDRA/', '/darelux/', '/zandmotor/meteohydro/xband/catalog', '/CF_Drinking_water/')
+            recurse = not True in [noRecurseFragment in url for noRecurseFragment in noRecurse]
+
         total_filesize = 0
         metadata_url   = url.replace(".html", ".xml")
         metadata       = False
@@ -68,13 +73,15 @@ class DatabaseInterface:
         references  = xml_root.findall(".//c:catalogRef", namespaces)
 
         ## Recursively handle directories.
-        if not references:
-            logging.debug("Catalog %s does not contain subdirectories.", url)
+        if not recurse:
+            logging.debug("Catalog %s is not recursed, subcatalogs are linked to other datasets.", url)
+        elif not references:
+            logging.debug("Catalog %s does not contain subcatalogs.", url)
         else:
             for reference in references:
                 suffix = reference.attrib["{http://www.w3.org/1999/xlink}href"]
                 suburl = metadata_url.replace("catalog.xml", suffix)
-                total_filesize += self.__get_file_size_for_catalog (suburl)
+                total_filesize += self.__get_file_size_for_catalog (suburl, recurse=True)
 
         ## Handle regular files.
         files          = xml_root.findall(".//c:dataSize", namespaces)
@@ -414,6 +421,7 @@ class DatabaseInterface:
 
     def handle_custom_fields (self, record, uri, item_id, version, item_type):
         '''Handle custom fields and fix contributors/organizations if needed'''
+        #TODO: add "Data Link Size" field for opendap catalogs in "Data Link" field (use self.__get_file_size_for_catalog)
         for field in value_or (record, "custom_fields", []):
             if field['name'] == 'Contributors':
                 try:
