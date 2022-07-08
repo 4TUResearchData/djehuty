@@ -134,6 +134,23 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                                                   config["use_reloader"])
             config = { **config, **new_config }
 
+        menu = xml_root.find("menu")
+        if menu:
+            menu_list = []
+            for primary_menu_item in menu:
+                title = config_value(primary_menu_item, "title", None, None)
+                menu_list.append({"title": title, "submenu": []})
+                for submenu_item in primary_menu_item:
+                    if submenu_item.tag == "sub-menu":
+                        subtitle = config_value(submenu_item, "title", None, None)
+                        href = config_value(submenu_item, "href", None, None)
+                        menu_list[-1]["submenu"].append({"title": subtitle, "href": href})
+            server.menu = menu_list
+            logging.info("Menu structure loaded")
+        elif not hasattr(server, "menu"):
+            logging.debug("Empty menu structure")
+            server.menu = []
+
         static_pages = xml_root.find("static-pages")
         if not static_pages:
             return config
@@ -168,6 +185,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                 if not inside_reload:
                     logging.info ("Added static page: %s", uri_path)
                     logging.info ("Related redirect-to (%i) page: %s ", code, redirect_to.text)
+
 
         return config
 

@@ -248,7 +248,8 @@ class ApiServer:
             "may_review":      self.db.may_review (token),
             "may_administer":  self.db.may_administer (token),
             "may_impersonate":  self.db.may_impersonate (token),
-            "impersonating_account": self.__impersonating_account (request)
+            "impersonating_account": self.__impersonating_account (request),
+            "menu":            self.menu,
         }
         return self.response (template.render({ **context, **parameters }),
                               mimetype='text/html; charset=utf-8')

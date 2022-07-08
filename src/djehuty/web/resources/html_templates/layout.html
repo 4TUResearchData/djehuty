@@ -47,58 +47,15 @@
       <nav id="site-navigation">
         <div id="primary-menu-wrapper">
         <ul id="primary-menu" class="primary-menu">
-          <li class="menu-item menu-item-has-children"><a href="https://data.4tu.nl/info/en/about-your-data/getting-started">About your Data</a>
+          {% for primary_menu in menu %}
+          <li class="menu-item menu-item-has-children">{{primary_menu.title}}</a>
             <ul class="submenu">
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-your-data/getting-started">Getting started</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-your-data/manage-share">Manage &amp; Share</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-your-data/publish-cite">Publish &amp; Cite</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/portal">Find &amp; Re-use</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-your-data/netcdf-and-opendap">NetCDF &amp; OPeNDAP</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-your-data/fair-data-fund">FAIR Data Fund</a></li>
+              {% for submenu in primary_menu.submenu %}
+              <li class="submenu-item"><a href="{{ submenu.href }}">{{ submenu.title }}</a></li>
+              {% endfor %}
             </ul>
           </li>
-          <li class="menu-item menu-item-has-children"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/organisation">About 4TU.ResearchData</a>
-            <ul class="submenu">
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/organisation">Organisation</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/highlights">Highlights</a></li>
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/testimonials/">Testimonials</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/policies-guidelines">Policies &amp; Guidelines</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/core-trust-seal">CoreTrustSeal</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/collaboration">Collaboration</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/frequently-asked-questions">Frequently Asked Questions</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/contact">Contact</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/about-4turesearchdata/job-vacancies">Job vacancies</a></li>
-            </ul>
-          </li>
-          <li class="menu-item current-menu-item menu-item-has-children"><a href="https://community.data.4tu.nl/join-our-community/">About our Community</a>
-            <ul class="submenu">
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/join-our-community/">Join our community</a></li>
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/members/">Community members</a></li>
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/groups/">Community groups</a></li>
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/category/researcher-stories/">Researcher stories</a></li>
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/category/research-support-stories/">Research support stories</a></li>
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/category/working-together/">Working together</a></li>
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/category/data-funds/">FAIR Data Fund stories</a></li>
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/games/">Games &amp; Activities</a></li>
-            </ul>
-          </li>
-          <li class="menu-item menu-item-has-children"><a href="https://community.data.4tu.nl/monthly-roundup/">News &amp; Events</a>
-            <ul class="submenu">
-              <li class="submenu-item"><a href="https://community.data.4tu.nl">Latest posts</a></li>
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/category/training-events/">Training &amp; Events</a></li>
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/category/events-highlights/">Event highlights</a></li>
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/category/monthly-newsletters/">Monthly newsletters</a></li>
-              <li class="submenu-item"><a href="https://m7.mailplus.nl/wpmY6EeZdyiQ-1051-370649-test-1">Subscribe to our newsletter</a></li>
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/news-events/news-archive">News archive</a></li>
-            </ul>
-          </li>
-          <li class="menu-item menu-item-has-children"><a href="https://data.4tu.nl/info/en/log-in-upload-data/about-log-in">Log in &amp; Upload Data</a>
-            <ul class="submenu">
-              <li class="submenu-item"><a href="https://data.4tu.nl/info/en/log-in-upload-data/about-log-in">About Log in / Sign up</a></li>
-              {% if not is_logged_in %}<li class="submenu-item"><a href="https://data.4tu.nl/account/home">Log in (Data Repository)</a></li>{% endif %}
-              <li class="submenu-item"><a href="https://community.data.4tu.nl/wp-login.php">Log in (Community)</a></li>
-            </ul>
-          </li>
+          {% endfor %}
         </ul>
         </div>
       </nav>
