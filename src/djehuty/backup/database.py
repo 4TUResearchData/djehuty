@@ -51,7 +51,7 @@ class DatabaseInterface:
     def __get_file_size_for_catalog (self, url, recurse=None):
         """Returns the file size for an OPeNDAP catalog."""
 
-        if recurse == None:
+        if recurse is None:
             noRecurse = ('/IDRA/', '/darelux/', '/zandmotor/meteohydro/xband/catalog', '/CF_Drinking_water/')
             recurse = not True in [noRecurseFragment in url for noRecurseFragment in noRecurse]
 
