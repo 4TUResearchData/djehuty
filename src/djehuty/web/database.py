@@ -225,7 +225,7 @@ class SparqlInterface:
                 # turn into list for loop purposes
                 search_for = [search_for]
             if type({}) in list(map(type, search_for)):
-                filters += f"FILTER ("
+                filters += "FILTER ("
                 for element in search_for:
                     if type(element) == type({}) and len(element.items()) == 1 and next(iter(element)) == "operator":
                         filters += " {} ".format(element["operator"].upper())
@@ -248,7 +248,7 @@ class SparqlInterface:
                     if search_format:
                         filter_list.append(f"       CONTAINS(LCASE(?format),         \"{search_term_lower}\")")
                 if len(filter_list) > 0:
-                    filters += f"FILTER(\n" + " OR\n".join(filter_list) + ')'
+                    filters += "FILTER(\n" + " OR\n".join(filter_list) + ')'
 
         if published_since is not None:
             filters += rdf.sparql_bound_filter ("published_date")
