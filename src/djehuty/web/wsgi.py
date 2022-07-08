@@ -51,6 +51,7 @@ class ApiServer:
             "thesis", "software"
         ]
 
+        self.menu = []
         self.static_pages = {}
 
         ## Routes to all API calls.
