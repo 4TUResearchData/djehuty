@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS        = subdir-objects
 
-PYTHON_SOURCES =                                                              \
+PYTHON_FILES =                                                                \
     djehuty/__init__.py                                                       \
     djehuty/ui.py                                                             \
     djehuty/backup/database.py                                                \
@@ -185,4 +185,4 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/portal/utwente.jpg                    \
     djehuty/web/resources/static/images/portal/wageningen.jpg
 
-EXTRA_DIST      = $(PYTHON_SOURCES) $(EXTRA_RESOURCES)
+EXTRA_DIST      = $(PYTHON_FILES) $(EXTRA_RESOURCES)
