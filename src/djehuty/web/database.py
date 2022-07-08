@@ -221,13 +221,15 @@ class SparqlInterface:
             filters += f"(?parent_category_id IN ({','.join(map(str, categories))})))\n"
 
         if search_for is not None:
-            if type(search_for) == type(""):
+            if isinstance (search_for, str):
                 # turn into list for loop purposes
                 search_for = [search_for]
-            if type({}) in list(map(type, search_for)):
+            if dict in list(map(type, search_for)):
                 filters += "FILTER ("
                 for element in search_for:
-                    if type(element) == type({}) and len(element.items()) == 1 and next(iter(element)) == "operator":
+                    if (isinstance (element, dict)
+                        and len(element.items()) == 1
+                        and next(iter(element)) == "operator"):
                         filters += " {} ".format(element["operator"].upper())
                     else:
                         filter_list = []
