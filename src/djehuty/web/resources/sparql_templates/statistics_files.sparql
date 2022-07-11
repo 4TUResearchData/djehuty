@@ -3,7 +3,7 @@
 SELECT DISTINCT ?file_id ?bytes
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?file           rdf:type            sg:File .
+    ?file           rdf:type            djht:File .
     ?file           col:id              ?file_id .
     ?file           col:size            ?bytes .
   }

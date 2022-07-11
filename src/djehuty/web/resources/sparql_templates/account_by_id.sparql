@@ -7,7 +7,7 @@ SELECT DISTINCT ?role ?active ?created_date ?email ?first_name ?group_id
                 ?group_parent_id
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?account             rdf:type                  sg:Account .
+    ?account             rdf:type                  djht:Account .
     ?account             col:id                    ?account_id .
     OPTIONAL { ?account  col:active                ?active . }
     OPTIONAL { ?account  col:created_date          ?created_date . }
@@ -26,13 +26,13 @@ WHERE {
     OPTIONAL { ?account  col:role                  ?role . }
 
     OPTIONAL {
-      ?group             rdf:type                  sg:InstitutionGroup ;
+      ?group             rdf:type                  djht:InstitutionGroup ;
                          col:association_criteria  ?domain ;
                          col:id                    ?group_id ;
                          col:parent_id             ?group_parent_id .
       ?account           col:domain                ?domain .
     }
-    ?session             rdf:type                  sg:Session .
+    ?session             rdf:type                  djht:Session .
     ?session             col:account_id            ?account_id .
     ?session             col:token                 ?token .
 

@@ -40,7 +40,7 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?file              rdf:type                sg:File .
+    ?file              rdf:type                djht:File .
 
     {#- Ensure that the account_id associated with the ?file can modify its
      #- properties. #}

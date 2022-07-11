@@ -120,7 +120,7 @@ class DatabaseInterface:
         try:
             query    = (
                 "SELECT ?uri WHERE { "
-                f"?uri <{str(RDF.type)}> <{str(rdf.SG[record_type])}> ; "
+                f"?uri <{str(RDF.type)}> <{str(rdf.DJHT[record_type])}> ; "
                 f"<{str(rdf.COL[identifier_name])}> {identifier} . }}"
             )
 
@@ -146,7 +146,7 @@ class DatabaseInterface:
 
         uri = rdf.unique_node ("account")
         self.lock_for_inserts.acquire()
-        self.store.add ((uri, RDF.type, rdf.SG["Account"]))
+        self.store.add ((uri, RDF.type, rdf.DJHT["Account"]))
 
         institution_user_id = value_or (record, "institution_user_id", None)
         domain              = None
@@ -181,7 +181,7 @@ class DatabaseInterface:
             institution_id = record["institution_id"]
             uri            = rdf.ROW[f"institution_{institution_id}"]
 
-            self.store.add ((uri, RDF.type,        rdf.SG["Institution"]))
+            self.store.add ((uri, RDF.type,        rdf.DJHT["Institution"]))
             self.store.add ((uri, rdf.COL["id"],   Literal(institution_id, datatype=XSD.integer)))
             self.store.add ((uri, rdf.COL["name"], Literal(record["name"], datatype=XSD.string)))
 
@@ -208,7 +208,7 @@ class DatabaseInterface:
         is_active = "is_active" in record and record["is_active"]
         is_public = "is_public" in record and record["is_public"]
 
-        self.store.add ((uri, RDF.type, rdf.SG["Author"]))
+        self.store.add ((uri, RDF.type, rdf.DJHT["Author"]))
 
         rdf.add (self.store, uri, rdf.COL["id"],             author_id,                                 XSD.integer)
         rdf.add (self.store, uri, rdf.COL["institution_id"], value_or (record, "institution_id", None), XSD.integer)
@@ -247,7 +247,7 @@ class DatabaseInterface:
             return uri
 
         uri = rdf.unique_node ("category")
-        self.store.add ((uri, RDF.type,      rdf.SG["Category"]))
+        self.store.add ((uri, RDF.type,      rdf.DJHT["Category"]))
         self.store.add ((uri, rdf.COL["id"], Literal(category_id)))
 
         rdf.add (self.store, uri, rdf.COL["title"],       value_or (record, "title", None),       XSD.string)
@@ -378,12 +378,12 @@ class DatabaseInterface:
             default_value = settings["default_value"]
 
         ## Avoid inserting the custom field's properties multiple times.
-        subjects = self.store.subjects ((None, RDF.type, rdf.SG["CustomField"]),
+        subjects = self.store.subjects ((None, RDF.type, rdf.DJHT["CustomField"]),
                                         (None, rdf.COL["name"], Literal(name, datatype=XSD.string)))
         field_uri = next (subjects, None)
         if field_uri is None:
             field_uri = rdf.ROW[f"custom_field_{name}"]
-            self.store.add ((field_uri,     RDF.type,                rdf.SG["CustomField"]))
+            self.store.add ((field_uri,     RDF.type,                rdf.DJHT["CustomField"]))
             rdf.add (self.store, field_uri, rdf.COL["predicate"],    rdf.COL[name], datatype="url")
             rdf.add (self.store, field_uri, rdf.COL["name"],         name,                                        XSD.string)
             rdf.add (self.store, field_uri, rdf.COL["original_name"], field["name"],                              XSD.string)
@@ -451,7 +451,7 @@ class DatabaseInterface:
         self.fix_doi (record, collection_id, version, 'collection')
 
         self.lock_for_inserts.acquire()
-        self.store.add ((uri, RDF.type,                 rdf.SG["Collection"]))
+        self.store.add ((uri, RDF.type,                 rdf.DJHT["Collection"]))
         self.store.add ((uri, rdf.COL["collection_id"], Literal(collection_id, datatype=XSD.integer)))
 
         rdf.add (self.store, uri, rdf.COL["url"],                 value_or_none (record, "url"), XSD.string)
@@ -547,7 +547,7 @@ class DatabaseInterface:
         is_user_defined = value_or (record, "is_user_defined", False)
 
         uri = rdf.unique_node ("funding")
-        self.store.add ((uri, RDF.type, rdf.SG["Funding"]))
+        self.store.add ((uri, RDF.type, rdf.DJHT["Funding"]))
         rdf.add (self.store, uri, rdf.COL["id"],              funding_id, XSD.integer)
         rdf.add (self.store, uri, rdf.COL["title"],           value_or_none (record, "title"), XSD.string)
         rdf.add (self.store, uri, rdf.COL["grant_code"],      value_or_none (record, "grant_code"), XSD.string)
@@ -564,7 +564,7 @@ class DatabaseInterface:
         suffix    = token_urlsafe (64)
         uri       = rdf.unique_node ("private_link")
 
-        self.store.add ((uri, RDF.type, rdf.SG["PrivateLink"]))
+        self.store.add ((uri, RDF.type, rdf.DJHT["PrivateLink"]))
         rdf.add (self.store, uri, rdf.COL["id"],           value_or_none (record, "id"), XSD.integer)
         rdf.add (self.store, uri, rdf.COL["suffix"],       suffix, XSD.string)
         rdf.add (self.store, uri, rdf.COL["expires_date"], value_or_none (record, "expires_date"), XSD.dateTime)
@@ -576,7 +576,7 @@ class DatabaseInterface:
         """Procedure to insert an embargo record."""
 
         uri = rdf.unique_node ("embargo")
-        self.store.add ((uri, RDF.type, rdf.SG["Embargo"]))
+        self.store.add ((uri, RDF.type, rdf.DJHT["Embargo"]))
         rdf.add (self.store, uri, rdf.COL["id"],      value_or_none (record, "id"), XSD.integer)
         rdf.add (self.store, uri, rdf.COL["type"],    value_or_none (record, "type"), XSD.string)
         rdf.add (self.store, uri, rdf.COL["ip_name"], value_or_none (record, "ip_name"), XSD.string)
@@ -592,10 +592,10 @@ class DatabaseInterface:
         license_uri  = URIRef (record["url"])
 
         ## Insert the license if it isn't in the graph.
-        if (license_uri, RDF.type, rdf.SG["License"]) not in self.store:
+        if (license_uri, RDF.type, rdf.DJHT["License"]) not in self.store:
             license_name = value_or_none (record,"name")
             license_id   = value_or_none (record,"value")
-            self.store.add ((license_uri, RDF.type, rdf.SG["License"]))
+            self.store.add ((license_uri, RDF.type, rdf.DJHT["License"]))
             self.store.add ((license_uri, rdf.COL["name"],
                              Literal(license_name, datatype=XSD.string)))
             self.store.add ((license_uri, rdf.COL["id"],
@@ -640,7 +640,7 @@ class DatabaseInterface:
         is_link_only = bool (value_or (record, "is_link_only", False))
 
         uri = rdf.unique_node ("file")
-        self.store.add ((uri, RDF.type, rdf.SG["File"]))
+        self.store.add ((uri, RDF.type, rdf.DJHT["File"]))
 
         rdf.add (self.store, uri, rdf.COL["id"],            file_id, XSD.integer)
         rdf.add (self.store, uri, rdf.COL["name"],          value_or_none (record, "name"), XSD.string)
@@ -694,7 +694,7 @@ class DatabaseInterface:
 
         if uri is None:
             uri = rdf.unique_node ("container")
-            self.store.add ((uri, RDF.type,                   rdf.SG[item_class]))
+            self.store.add ((uri, RDF.type,                   rdf.DJHT[item_class]))
             self.store.add ((uri, rdf.COL[f"{item_type}_id"], Literal(item_id, datatype=XSD.integer)))
             self.store.add ((uri, rdf.COL["account_id"],      Literal(account_id, datatype=XSD.integer)))
 
@@ -725,7 +725,7 @@ class DatabaseInterface:
 
         self.lock_for_inserts.acquire()
 
-        self.store.add ((uri, RDF.type,              rdf.SG["Article"]))
+        self.store.add ((uri, RDF.type,              rdf.DJHT["Article"]))
         self.store.add ((uri, rdf.COL["article_id"], Literal(article_id, datatype=XSD.integer)))
 
         self.insert_timeline (uri, value_or_none (record, "timeline"))
@@ -814,7 +814,7 @@ class DatabaseInterface:
         """Procedure to insert a institution group record."""
 
         uri        = rdf.unique_node ("institution_group")
-        self.store.add ((uri, RDF.type, rdf.SG["InstitutionGroup"]))
+        self.store.add ((uri, RDF.type, rdf.DJHT["InstitutionGroup"]))
 
         rdf.add (self.store, uri, rdf.COL["id"],                   value_or_none (record, "id"), datatype=XSD.integer)
         rdf.add (self.store, uri, rdf.COL["parent_id"],            value_or_none (record, "parent_id"), datatype=XSD.integer)
@@ -874,7 +874,7 @@ class DatabaseInterface:
 
     def insert_static_triplets (self):
         """Procedure to insert triplets to augment the state graph."""
-        self.store.add ((rdf.SG["ArticleContainer"],    RDFS.subClassOf, rdf.SG["Container"]))
-        self.store.add ((rdf.SG["CollectionContainer"], RDFS.subClassOf, rdf.SG["Container"]))
+        self.store.add ((rdf.DJHT["ArticleContainer"],    RDFS.subClassOf, rdf.DJHT["Container"]))
+        self.store.add ((rdf.DJHT["CollectionContainer"], RDFS.subClassOf, rdf.DJHT["Container"]))
 
         return True

@@ -3,7 +3,7 @@
 SELECT DISTINCT ?id ?uuid ?parent_id ?parent_uuid ?title ?source_id ?taxonomy_id
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?category        rdf:type             sg:Category .
+    ?category        rdf:type             djht:Category .
     ?category        col:id               ?id .
     ?category        col:title            ?title .
 
@@ -17,7 +17,7 @@ WHERE {
     OPTIONAL { ?category  col:source_id   ?source_id . }
     OPTIONAL { ?category  col:taxonomy_id ?taxonomy_id . }
 
-    ?account         rdf:type             sg:Account .
+    ?account         rdf:type             djht:Account .
     ?account         col:id               {{account_id}} .
     ?account         col:categories/rdf:rest*/rdf:first ?category .
 

@@ -7,7 +7,7 @@ SELECT DISTINCT ?active ?created_date ?email ?first_name ?group_id ?biography
                 ?location
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?account             rdf:type                  sg:Account .
+    ?account             rdf:type                  djht:Account .
     ?account             col:id                    ?account_id .
     OPTIONAL { ?account  col:active                ?active . }
     OPTIONAL { ?account  col:job_title             ?job_title . }

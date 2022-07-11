@@ -7,16 +7,16 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?order_index   ?uuid          ?filesystem_location
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?file              rdf:type                sg:File .
+    ?file              rdf:type                djht:File .
     {% if article_uri is not none %}
-    ?article_uri       rdf:type                sg:Article ;
+    ?article_uri       rdf:type                djht:Article ;
                        col:files               ?files .
     ?files             rdf:rest*               ?rest .
     ?rest              rdf:first               ?file ;
                        col:index               ?order_index .
     {% endif %}{% if account_id is not none %}
     ?article_uri       col:container            ?container .
-    ?container         rdf:type/rdfs:subClassOf sg:Container ;
+    ?container         rdf:type/rdfs:subClassOf djht:Container ;
                        col:account_id           {{account_id}} .
     {% endif %}
     OPTIONAL { ?file  col:id                   ?id . }

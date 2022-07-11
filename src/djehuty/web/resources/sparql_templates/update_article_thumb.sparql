@@ -12,16 +12,16 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article rdf:type       sg:Article .
+    ?article rdf:type       djht:Article .
     ?article col:article_version_id ?article_version_id .
     ?article col:account_id {{account_id}} .
     ?article col:version    {{version}}.
     OPTIONAL { ?article col:thumb      ?thumb . }
 
-    ?file    rdf:type       sg:File .
+    ?file    rdf:type       djht:File .
     ?file    col:id         ?file_id .
 
-    ?link    rdf:type       sg:ArticleFile .
+    ?link    rdf:type       djht:ArticleFile .
     ?link    col:article_version_id ?article_version_id .
     ?link    col:file_id    ?file_id .
   }

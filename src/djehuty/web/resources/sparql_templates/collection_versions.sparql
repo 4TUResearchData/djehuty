@@ -3,10 +3,10 @@
 SELECT DISTINCT ?collection_uri ?collection_id ?version ?url ?url_public_api
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container_uri  rdf:type            sg:CollectionContainer ;
+    ?container_uri  rdf:type            djht:CollectionContainer ;
                     col:collection_id   ?collection_id .
 
-    ?collection_uri rdf:type           sg:Collection ;
+    ?collection_uri rdf:type           djht:Collection ;
                     col:container      ?container_uri ;
                     col:version        ?version ;
                     col:url            ?url .

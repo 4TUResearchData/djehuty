@@ -126,15 +126,15 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container          rdf:type                 sg:ArticleContainer .
+    ?container          rdf:type                 djht:ArticleContainer .
     ?container          col:account_id           ?account_id .
     ?container          col:draft                ?article .
 
-    ?article            rdf:type                 sg:Article .
+    ?article            rdf:type                 djht:Article .
     ?article            col:title                ?title .
 
     {%- if license_id is not none %}
-    ?new_license        rdf:type                 sg:License ;
+    ?new_license        rdf:type                 djht:License ;
                         col:id                   {{license_id}} .
     {%- endif%}
 

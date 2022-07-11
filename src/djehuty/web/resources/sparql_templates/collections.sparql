@@ -12,7 +12,7 @@ SELECT DISTINCT ?account_id ?resource_id ?resource_doi ?resource_title
                 ?geolocation ?latitude ?longitude
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container_uri      rdf:type                 sg:CollectionContainer .
+    ?container_uri      rdf:type                 djht:CollectionContainer .
     ?container_uri      col:account_id           ?account_id .
     OPTIONAL { ?container_uri col:collection_id     ?collection_id . }
 
@@ -27,12 +27,12 @@ WHERE {
     {%- endif %}
 
     OPTIONAL {
-      ?account          rdf:type                 sg:Account .
+      ?account          rdf:type                 djht:Account .
       ?account          col:id                   ?account_id .
       ?account          col:institution_id       ?institution_id .
     }
 
-    ?collection            rdf:type                   sg:Collection .
+    ?collection            rdf:type                   djht:Collection .
 
     OPTIONAL { ?container_uri col:first_online_date    ?timeline_first_online . }
     OPTIONAL { ?collection    col:publisher_acceptance_date ?timeline_publisher_acceptance . }

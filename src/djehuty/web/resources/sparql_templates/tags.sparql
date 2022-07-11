@@ -3,7 +3,7 @@
 SELECT DISTINCT ?index ?tag
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?item_uri        rdf:type            sg:{{prefix}} ;
+    ?item_uri        rdf:type            djht:{{prefix}} ;
                      col:tags/rdf:rest*  ?tag_node .
     ?tag_node        rdf:first           ?tag ;
                      col:index           ?index .

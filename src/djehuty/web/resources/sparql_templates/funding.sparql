@@ -3,12 +3,12 @@
 SELECT DISTINCT ?id ?title ?grant_code ?funder_name ?url ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?item_uri         rdf:type                     sg:{{prefix}} .
+    ?item_uri         rdf:type                     djht:{{prefix}} .
     ?item_uri         col:funding_list/rdf:rest*   ?rest .
     ?rest             col:index                    ?order_index .
     ?rest             rdf:first                    ?funding .
 
-    ?funding          rdf:type                     sg:Funding .
+    ?funding          rdf:type                     djht:Funding .
     ?funding          col:id                       ?funding_id .
 
     OPTIONAL { ?funding  col:title                 ?title . }
@@ -17,7 +17,7 @@ WHERE {
     OPTIONAL { ?funding  col:url                   ?url . }
 
     {%- if account_id is not none %}
-    ?container      rdf:type                 sg:{{prefix}}Container .
+    ?container      rdf:type                 djht:{{prefix}}Container .
     ?container      col:account_id           {{account_id}} .
     {%- if is_published %}
     ?container      col:published_versions/rdf:rest*/rdf:first ?item_uri .

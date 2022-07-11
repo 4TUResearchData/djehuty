@@ -3,7 +3,7 @@
 SELECT DISTINCT ?id ?uuid ?parent_id ?parent_uuid ?title ?source_id ?taxonomy_id
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?category         rdf:type                          sg:Category ;
+    ?category         rdf:type                          djht:Category ;
                       col:id                            ?id ;
                       col:title                         ?title .
     OPTIONAL {
@@ -17,7 +17,7 @@ WHERE {
     {%- if item_uri is not none %}
     ?item_uri        col:categories/rdf:rest*/rdf:first ?category .
     {%- if account_id is not none %}
-    ?container         rdf:type/rdfs:subClassOf         sg:Container .
+    ?container         rdf:type/rdfs:subClassOf         djht:Container .
     ?container         col:account_id                   {{account_id}} .
     {%- if is_published %}
     ?container         col:published_versions/rdf:rest*/rdf:first ?item_uri .

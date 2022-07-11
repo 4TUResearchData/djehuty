@@ -3,7 +3,7 @@
 SELECT ?derived_from
 WHERE {
   GRAPH <{{state_graph}}> {
-    <{{item_uri}}>  rdf:type                sg:{{prefix}} ;
+    <{{item_uri}}>  rdf:type                djht:{{prefix}} ;
                     col:derived_from        ?derived_from .
   }
 }

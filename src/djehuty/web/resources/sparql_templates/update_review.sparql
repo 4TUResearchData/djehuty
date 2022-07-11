@@ -23,7 +23,7 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?review              rdf:type                  sg:Review .
+    ?review              rdf:type                  djht:Review .
     OPTIONAL { ?review   col:assigned_to           ?assigned_to . }
     OPTIONAL { ?review   col:status                ?status . }
     OPTIONAL { ?review   col:reminder_date         ?reminder_date . }

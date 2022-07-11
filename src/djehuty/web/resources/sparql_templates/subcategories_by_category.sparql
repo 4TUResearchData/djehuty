@@ -3,9 +3,9 @@
 SELECT DISTINCT ?uuid ?title ?source_id ?taxonomy_id
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?parent_category     rdf:type         sg:Category ;
+    ?parent_category     rdf:type         djht:Category ;
                          col:id           ?parent_id .
-    ?category            rdf:type         sg:Category ;
+    ?category            rdf:type         djht:Category ;
                          col:title        ?title ;
                          col:parent_id    ?parent_id .
     OPTIONAL { ?category col:source_id    ?source_id . }

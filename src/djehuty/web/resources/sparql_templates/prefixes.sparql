@@ -1,5 +1,5 @@
 PREFIX col:  <sg://0.99.12/table2rdf/Column/>
-PREFIX sg:   <https://sparqling-genomics.org/0.99.12/>
+PREFIX djht: <https://ontologies.data.4tu.nl/djehuty/0.0.1/>
 PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>

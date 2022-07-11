@@ -76,7 +76,7 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?account              rdf:type                  sg:Account .
+    ?account              rdf:type                  djht:Account .
     ?account              col:id                    ?id .
 
     OPTIONAL { ?account   col:is_active             ?is_active . }

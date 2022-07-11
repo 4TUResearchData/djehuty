@@ -6,18 +6,18 @@ SELECT DISTINCT ?first_name      ?full_name       ?group_id
                 ?orcid_id        ?url_name        ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?author            rdf:type                 sg:Author .
+    ?author            rdf:type                 djht:Author .
     OPTIONAL { ?author col:id                   ?id . }
 
     {%- if item_uri is not none %}
-    ?item_uri          rdf:type                 sg:{{prefix}} ;
+    ?item_uri          rdf:type                 djht:{{prefix}} ;
                        col:authors              ?authors .
     ?authors           rdf:rest*                ?rest .
     ?rest              rdf:first                ?author ;
                        col:index                ?order_index .
     {%- endif %}
     {%- if account_id is not none %}
-    ?container         rdf:type                 sg:{{prefix}}Container .
+    ?container         rdf:type                 djht:{{prefix}}Container .
     {%- if is_published %}
     ?container         col:published_versions/rdf:rest*/rdf:first ?item_uri .
     {%- else %}

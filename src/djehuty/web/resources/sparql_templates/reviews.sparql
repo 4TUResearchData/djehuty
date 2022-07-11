@@ -5,7 +5,7 @@ SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to ?status
                 ?submitter_first_name ?submitter_last_name ?submitter_email
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?review             rdf:type                 sg:Review ;
+    ?review             rdf:type                 djht:Review ;
                         col:dataset              ?dataset .
 
     OPTIONAL { ?review  col:request_date         ?request_date . }
@@ -17,11 +17,11 @@ WHERE {
                         col:title                ?dataset_title .
 
     ?container_uri      col:account_id           ?account_id .
-    ?account            rdf:type                 sg:Account ;
+    ?account            rdf:type                 djht:Account ;
                         col:id                   ?account_id .
 
     OPTIONAL {
-      ?group            rdf:type                 sg:InstitutionGroup ;
+      ?group            rdf:type                 djht:InstitutionGroup ;
                         col:id                   ?group_id ;
                         col:name                 ?group_name .
       ?dataset          col:group_id             ?group_id .

@@ -6,7 +6,7 @@ SELECT DISTINCT ?role ?active ?created_date ?email ?first_name ?group_id
                 ?used_quota ?used_quota_private ?used_quota_public
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?account             rdf:type                  sg:Account .
+    ?account             rdf:type                  djht:Account .
     ?account             col:id                    ?account_id .
     OPTIONAL { ?account  col:active                ?active . }
     OPTIONAL { ?account  col:created_date          ?created_date . }
@@ -25,7 +25,7 @@ WHERE {
     OPTIONAL { ?account  col:used_quota_public     ?used_quota_public . }
     OPTIONAL { ?account  col:role                  ?role . }
 
-    ?session             rdf:type                  sg:Session .
+    ?session             rdf:type                  djht:Session .
     ?session             col:account_id            ?account_id .
     ?session             col:token                 ?token .
   }

@@ -3,7 +3,7 @@
 SELECT DISTINCT ?id ?name ?url
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?url             rdf:type                 sg:License ;
+    ?url             rdf:type                 djht:License ;
                      col:id                   ?id ;
                      col:name                 ?name .
   }

@@ -24,7 +24,7 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container_uri      rdf:type                 sg:ArticleContainer .
+    ?container_uri      rdf:type                 djht:ArticleContainer .
     ?container_uri      col:account_id           ?account_id .
     OPTIONAL { ?container_uri col:article_id     ?article_id . }
 
@@ -37,7 +37,7 @@ WHERE {
     {%- else %}
     ?container_uri      col:draft                ?article .
     OPTIONAL {
-      ?review           rdf:type                 sg:Review ;
+      ?review           rdf:type                 djht:Review ;
                         col:dataset              ?article .
       {%- if is_under_review %}
       ?review           col:request_date         ?review_submit_date .
@@ -49,13 +49,13 @@ WHERE {
     OPTIONAL { ?article col:version              ?version . }
 
     OPTIONAL {
-      ?account          rdf:type                 sg:Account .
+      ?account          rdf:type                 djht:Account .
       ?account          col:id                   ?account_id .
       ?account          col:institution_id       ?institution_id .
     }
 
     {%- if collection_uri is not none %}
-    ?collection         rdf:type                 sg:Collection .
+    ?collection         rdf:type                 djht:Collection .
     ?collection         col:articles/rdf:rest*/rdf:first ?container_uri .
     {%- endif %}
     {%- if categories is not none: %}
@@ -73,7 +73,7 @@ WHERE {
 
     OPTIONAL {
       ?article          col:license               ?license_url .
-      ?license_url      rdf:type                  sg:License .
+      ?license_url      rdf:type                  djht:License .
       ?license_url      col:id                    ?license_id .
       ?license_url      col:name                  ?license_name .
     }

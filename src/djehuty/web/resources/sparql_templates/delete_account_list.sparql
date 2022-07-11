@@ -7,7 +7,7 @@ DELETE {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?account    rdf:type             sg:Account ;
+    ?account    rdf:type             djht:Account ;
                 col:account_id       ?account_id ;
                 col:{{predicate}}    ?item_list .
   }

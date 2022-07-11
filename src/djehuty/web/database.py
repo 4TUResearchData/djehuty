@@ -764,7 +764,7 @@ class SparqlInterface:
 
         if uri is None:
             uri = rdf.unique_node ("container")
-            graph.add ((uri, RDF.type,                   rdf.SG[item_class]))
+            graph.add ((uri, RDF.type,                   rdf.DJHT[item_class]))
             graph.add ((uri, rdf.COL["account_id"],      Literal(account_id, datatype=XSD.integer)))
 
             ## The item_id is a left-over from the Figshare days.
@@ -929,7 +929,7 @@ class SparqlInterface:
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
 
-        graph.add ((uri, RDF.type,                      rdf.SG["Article"]))
+        graph.add ((uri, RDF.type,                      rdf.DJHT["Article"]))
         graph.add ((uri, rdf.COL["title"],              Literal(title, datatype=XSD.string)))
         graph.add ((uri, rdf.COL["container"],          container))
 
@@ -1057,7 +1057,7 @@ class SparqlInterface:
         graph      = Graph()
         author_uri = rdf.unique_node ("author")
 
-        graph.add ((author_uri, RDF.type,      rdf.SG["Author"]))
+        graph.add ((author_uri, RDF.type,      rdf.DJHT["Author"]))
 
         rdf.add (graph, author_uri, rdf.COL["id"],             author_id)
         rdf.add (graph, author_uri, rdf.COL["institution_id"], institution_id)
@@ -1140,7 +1140,7 @@ class SparqlInterface:
         graph       = Graph()
         funding_uri = rdf.unique_node ("funding")
 
-        graph.add ((funding_uri, RDF.type,                   rdf.SG["Funding"]))
+        graph.add ((funding_uri, RDF.type,                   rdf.DJHT["Funding"]))
 
         rdf.add (graph, funding_uri, rdf.COL["id"],              funding_id)
         rdf.add (graph, funding_uri, rdf.COL["title"],           title,           XSD.string)
@@ -1165,7 +1165,7 @@ class SparqlInterface:
         graph    = Graph()
         file_uri = rdf.unique_node ("file")
 
-        graph.add ((file_uri, RDF.type,               rdf.SG["File"]))
+        graph.add ((file_uri, RDF.type,               rdf.DJHT["File"]))
 
         rdf.add (graph, file_uri, rdf.COL["id"],            file_id)
         rdf.add (graph, file_uri, rdf.COL["name"],          name,          XSD.string)
@@ -1227,7 +1227,7 @@ class SparqlInterface:
         graph    = Graph()
         license_uri = rdf.ROW[f"license_{license_id}"]
 
-        graph.add ((license_uri, RDF.type,               rdf.SG["License"]))
+        graph.add ((license_uri, RDF.type,               rdf.DJHT["License"]))
         graph.add ((license_uri, rdf.COL["id"],          Literal(license_id)))
 
         rdf.add (graph, license_uri, rdf.COL["name"],  name, XSD.string)
@@ -1249,7 +1249,7 @@ class SparqlInterface:
         graph    = Graph()
         link_uri = rdf.unique_node ("private_link")
 
-        graph.add ((link_uri, RDF.type,      rdf.SG["PrivateLink"]))
+        graph.add ((link_uri, RDF.type,      rdf.DJHT["PrivateLink"]))
 
         rdf.add (graph, link_uri, rdf.COL["id"],           id_string,    XSD.string)
         rdf.add (graph, link_uri, rdf.COL["read_only"],    read_only)
@@ -1268,7 +1268,7 @@ class SparqlInterface:
         graph    = Graph()
         embargo_uri = rdf.ROW[f"embargo_{embargo_id}"]
 
-        graph.add ((embargo_uri, RDF.type,               rdf.SG["ArticleEmbargoOption"]))
+        graph.add ((embargo_uri, RDF.type,               rdf.DJHT["ArticleEmbargoOption"]))
         graph.add ((embargo_uri, rdf.COL["id"],          Literal(embargo_id)))
         graph.add ((embargo_uri, rdf.COL["article_version_id"], Literal(article_version_id)))
 
@@ -1290,7 +1290,7 @@ class SparqlInterface:
         graph            = Graph()
         custom_field_uri = rdf.unique_node ("custom_field")
 
-        graph.add ((custom_field_uri, RDF.type,                   rdf.SG["CustomField"]))
+        graph.add ((custom_field_uri, RDF.type,                   rdf.DJHT["CustomField"]))
 
         rdf.add (graph, custom_field_uri, rdf.COL["name"],          name,          XSD.string)
         rdf.add (graph, custom_field_uri, rdf.COL["value"],         value)
@@ -1529,7 +1529,7 @@ class SparqlInterface:
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
 
-        graph.add ((uri, RDF.type,         rdf.SG["Collection"]))
+        graph.add ((uri, RDF.type,         rdf.DJHT["Collection"]))
         graph.add ((uri, rdf.COL["title"], Literal(title, datatype=XSD.string)))
         graph.add ((uri, rdf.COL["container"], container))
 
@@ -1781,7 +1781,7 @@ class SparqlInterface:
         if not isinstance (dataset_uri, URIRef):
             dataset_uri = URIRef(dataset_uri)
 
-        graph.add ((uri, RDF.type,                      rdf.SG["Review"]))
+        graph.add ((uri, RDF.type,                      rdf.DJHT["Review"]))
         graph.add ((uri, rdf.COL["dataset"],            dataset_uri))
 
         rdf.add (graph, uri, rdf.COL["request_date"],   request_date,  XSD.dateTime)
@@ -1884,7 +1884,7 @@ class SparqlInterface:
 
         graph       = Graph()
         link_uri    = rdf.unique_node ("session")
-        graph.add ((link_uri, RDF.type,              rdf.SG["Session"]))
+        graph.add ((link_uri, RDF.type,              rdf.DJHT["Session"]))
         graph.add ((link_uri, rdf.COL["account_id"], Literal(account_id)))
         graph.add ((link_uri, rdf.COL["created_date"], Literal(current_time, datatype=XSD.dateTime)))
         graph.add ((link_uri, rdf.COL["name"],       Literal(name, datatype=XSD.string)))

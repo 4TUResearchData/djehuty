@@ -2,18 +2,18 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?row     rdf:type             sg:{{prefix}}Category .
+    ?row     rdf:type             djht:{{prefix}}Category .
     ?row     col:{{item_type}}_version_id ?item_id .
     ?row     col:category_id      ?category_id .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?row     rdf:type             sg:{{prefix}}Category .
+    ?row     rdf:type             djht:{{prefix}}Category .
     ?row     col:{{item_type}}_version_id ?item_id .
     ?row     col:category_id      ?category_id .
 
-    ?item    rdf:type             sg:{{prefix}} .
+    ?item    rdf:type             djht:{{prefix}} .
     ?item    col:{{item_type}}_version_id ?item_id .
     ?item    col:account_id       ?account_id .
   }
