@@ -9,6 +9,7 @@ EXTRA_DIST              =                   \
   etc/djehuty/djehuty-example-config.xml    \
   guix.scm                                  \
   requirements.txt                          \
+  setup.cfg                                 \
   setup.py
 
 dist-rpm: source-dist
