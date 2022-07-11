@@ -403,7 +403,7 @@ class ApiServer:
                                             is_under_review = is_under_review,
                                             version      = version,
                                             account_id   = account_id)[0]
-            else:
+            elif validator.is_valid_uuid (identifier):
                 dataset = self.db.datasets (container_uuid = identifier,
                                             is_published   = is_published,
                                             is_latest      = is_latest,
@@ -428,7 +428,7 @@ class ApiServer:
                                                   version       = version,
                                                   account_id    = account_id,
                                                   limit         = 1)[0]
-            else:
+            elif validator.is_valid_uuid (identifier):
                 collection = self.db.collections (container_uuid = identifier,
                                                   is_published   = is_published,
                                                   is_latest      = is_latest,
@@ -450,7 +450,7 @@ class ApiServer:
                 file = self.db.article_files (file_id     = int(identifier),
                                               article_uri = article_uri,
                                               account_id  = account_id)[0]
-            else:
+            elif validator.is_valid_uuid (identifier):
                 file = self.db.article_files (file_uuid   = identifier,
                                               article_uri = article_uri,
                                               account_id  = account_id)[0]
