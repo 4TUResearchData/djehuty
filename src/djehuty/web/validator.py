@@ -2,6 +2,7 @@
 This module contains procedures to validate user input.
 """
 
+import re
 from djehuty.utils import convenience as conv
 
 class ValidationException(Exception):
@@ -273,3 +274,24 @@ def array_value (value, field_name, required=False):
 def object_value (value, field_name, required=False):
     """Validation procedure for object values."""
     return __typed_value (value, field_name, dict, "object", required)
+
+def is_valid_uuid (value):
+    """Returns True when VALUE looks like a UUID, False otherwise."""
+
+    ## Accept strings only.
+    if not isinstance(value, str):
+        return False
+
+    ## Don't process input that is too long.
+    try:
+        if value[36]:
+            return False
+    except IndexError:
+        pass
+
+    ## Check its form.
+    pattern = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    if re.match(pattern, value) is None:
+        return False
+
+    return True
