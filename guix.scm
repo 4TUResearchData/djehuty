@@ -33,7 +33,7 @@
    (source (origin
             (method url-fetch)
             (uri (string-append
-                  "file:///" (getcwd) "/dist/" name "-" version ".tar.gz"))
+                  "file:///" (getcwd) "/" name "-" version ".tar.gz"))
             (sha256
              (base32
               "0aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))))
