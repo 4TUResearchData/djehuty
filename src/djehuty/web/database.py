@@ -230,13 +230,13 @@ class SparqlInterface:
                     if (isinstance (element, dict)
                         and len(element.items()) == 1
                         and next(iter(element)) == "operator"):
-                        filters += " {} ".format(element["operator"].upper())
+                        filters += f" {element['operator'].upper()} "
                     else:
                         filter_list = []
                         for key, value in element.items():
                             if '"' in value:
                                 value = value.replace('"', '\\\"')
-                            filter_list.append(" CONTAINS(LCASE(?{}), \"{}\") \n".format(key, value.lower()))
+                            filter_list.append(f" CONTAINS(LCASE(?{key}), \"{value.lower()}\") \n")
                         filters += "(" + " OR\n".join(filter_list) + ") \n"
                 filters += ")"
             else:
