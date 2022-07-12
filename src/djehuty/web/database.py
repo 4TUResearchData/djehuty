@@ -119,15 +119,15 @@ class SparqlInterface:
                 logging.info("Connection to the SPARQL endpoint seems up again.")
                 self.sparql_is_up = True
 
+        except HTTPError as error:
+            logging.error("SPARQL endpoint returned %d:\n---\n%s\n---",
+                          error.code, error.message)
+            return []
         except URLError:
             if self.sparql_is_up:
                 logging.error("Connection to the SPARQL endpoint seems down.")
                 self.sparql_is_up = False
                 return []
-        except HTTPError as error:
-            logging.error("SPARQL endpoint returned %d:\n---\n%s\n---",
-                          error.code, error.message)
-            return []
         except SPARQLExceptions.QueryBadFormed:
             logging.error("Badly formed SPARQL query:")
             self.__log_query (query)
