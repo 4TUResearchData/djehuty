@@ -439,12 +439,13 @@ class DatabaseInterface:
                     pass
             #add "Data Link Size" field for opendap catalogs in "Data Link" field, correct opendap url if needed
             if field['name'] == 'Data Link':
-                url = field['value'].replace('https://opendap.tudelft.nl/', 'https://opendap.4tu.nl/')
-                field['value'] = url
-                dataLinkSize = self.__get_file_size_for_catalog(url)
-                if dataLinkSize:
-                    sizeField = {'name': 'Data Link Size', 'value': dataLinkSize}
-                    self.insert_custom_field (uri, sizeField)
+                urls = field['value']
+                urls = [url.replace('https://opendap.tudelft.nl/', 'https://opendap.4tu.nl/') for url in urls]
+                field['value'] = urls
+                data_link_size = sum([self.__get_file_size_for_catalog(url) for url in urls])
+                if data_link_size:
+                    size_field = {'name': 'Data Link Size', 'value': data_link_size}
+                    rdf.add (self.store, uri, rdf.DJHT["data_link_size"], data_link_size, XSD.integer)
 
             self.insert_custom_field (uri, field)
 
