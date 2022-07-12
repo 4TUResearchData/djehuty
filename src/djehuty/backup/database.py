@@ -495,7 +495,8 @@ class DatabaseInterface:
         self.insert_category_list (uri, value_or (record, "categories", []))
         self.insert_funding_list (uri, value_or (record, "funding_list", []))
         self.insert_private_links_list (uri, value_or (record, "private_links", []))
-        self.insert_item_list (uri, value_or (record, "tags", []), "tags")
+        tags = [tag for tag in value_or (record, "tags", []) if not tag.startswith('Collection: ')]
+        self.insert_item_list (uri, tags, "tags")
         self.insert_item_list (uri, value_or (record, "references", []), "references")
 
         self.handle_custom_fields (record, uri, collection_id, version, 'collections')
@@ -778,7 +779,8 @@ class DatabaseInterface:
         rdf.add (self.store, uri, rdf.DJHT["is_editable"],         is_editable, XSD.boolean)
 
         self.insert_item_list (uri, value_or (record, "references", []), "references")
-        self.insert_item_list (uri, value_or (record, "tags", []), "tags")
+        tags = [tag for tag in value_or (record, "tags", []) if not tag.startswith('Collection: ')]
+        self.insert_item_list (uri, tags, "tags")
         self.insert_category_list (uri, value_or (record, "categories", []))
         self.insert_author_list (uri, value_or (record, "authors", []))
         self.insert_file_list (uri, value_or (record, "files", []))
