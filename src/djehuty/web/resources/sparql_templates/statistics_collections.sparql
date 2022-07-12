@@ -4,8 +4,8 @@ SELECT (COUNT(DISTINCT ?collection_id) AS ?collections)
 WHERE {
   GRAPH <{{state_graph}}> {
     ?collection     rdf:type            djht:Collection .
-    ?collection     col:collection_id   ?collection_id .
-    ?collection     col:is_public       "true"^^xsd:boolean .
+    ?collection     djht:collection_id   ?collection_id .
+    ?collection     djht:is_public       "true"^^xsd:boolean .
   }
 {%- if filters is not none %}{{ filters }}{% endif %}
 }

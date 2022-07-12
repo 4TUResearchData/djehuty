@@ -4,12 +4,12 @@ SELECT ?article_id ?url_public_html ?published_date ?title
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article_container rdf:type                      djht:ArticleContainer ;
-                       col:article_id                ?article_id ;
-                       col:latest_published_version  ?article .
+                       djht:article_id                ?article_id ;
+                       djht:latest_published_version  ?article .
     ?article           rdf:type                      djht:Article ;
-                       col:url_public_html           ?url_public_html ;
-                       col:published_date            ?published_date ;
-                       col:title                     ?title .
+                       djht:url_public_html           ?url_public_html ;
+                       djht:published_date            ?published_date ;
+                       djht:title                     ?title .
   }   
 }
 ORDER BY DESC(?published_date)

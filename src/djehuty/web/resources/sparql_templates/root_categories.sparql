@@ -4,11 +4,11 @@ SELECT DISTINCT ?id ?uuid ?parent_id ?title ?source_id ?taxonomy_id
 WHERE {
   GRAPH <{{state_graph}}> {
     ?row             rdf:type                 djht:Category .
-    ?row             col:id                   ?id .
-    ?row             col:title                ?title .
-    OPTIONAL { ?row         col:parent_id        ?parent_id . }
-    OPTIONAL { ?row         col:source_id        ?source_id . }
-    OPTIONAL { ?row         col:taxonomy_id      ?taxonomy_id . }
+    ?row             djht:id                   ?id .
+    ?row             djht:title                ?title .
+    OPTIONAL { ?row         djht:parent_id        ?parent_id . }
+    OPTIONAL { ?row         djht:source_id        ?source_id . }
+    OPTIONAL { ?row         djht:taxonomy_id      ?taxonomy_id . }
   }
   BIND(STRAFTER(STR(?row), "category:") AS ?uuid)
   FILTER (! BOUND(?parent_id) OR ?parent_id = 0)

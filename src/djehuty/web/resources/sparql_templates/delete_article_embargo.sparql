@@ -3,26 +3,26 @@
 {self.default_prefixes}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?article  col:is_embargoed       ?is_embargoed .
-    ?article  col:embargo_type       ?embargo_type .
-    ?article  col:embargo_title      ?embargo_title .
-    ?article  col:embargo_reason     ?embargo_reason .
-    ?article  col:embargo_until_date ?embargo_until_date .
+    ?article  djht:is_embargoed       ?is_embargoed .
+    ?article  djht:embargo_type       ?embargo_type .
+    ?article  djht:embargo_title      ?embargo_title .
+    ?article  djht:embargo_reason     ?embargo_reason .
+    ?article  djht:embargo_until_date ?embargo_until_date .
   }
 }
 INSERT {
-    ?article  col:is_embargoed   "0"^^xsd:boolean .
+    ?article  djht:is_embargoed   "0"^^xsd:boolean .
 }
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article  rdf:type               djht:Article ;
-    ?article  col:account_id         {{account_id}} .
-    ?article  col:is_embargoed       ?is_embargoed .
+    ?article  djht:account_id         {{account_id}} .
+    ?article  djht:is_embargoed       ?is_embargoed .
 
-    OPTIONAL { ?article  col:embargo_type       ?embargo_type . }
-    OPTIONAL { ?article  col:embargo_title      ?embargo_title . }
-    OPTIONAL { ?article  col:embargo_reason     ?embargo_reason . }
-    OPTIONAL { ?article  col:embargo_until_date ?embargo_until_date . }
+    OPTIONAL { ?article  djht:embargo_type       ?embargo_type . }
+    OPTIONAL { ?article  djht:embargo_title      ?embargo_title . }
+    OPTIONAL { ?article  djht:embargo_reason     ?embargo_reason . }
+    OPTIONAL { ?article  djht:embargo_until_date ?embargo_until_date . }
   }
   FILTER (?article = <{{article_uri}}>)
 }

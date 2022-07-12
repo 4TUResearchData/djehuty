@@ -765,10 +765,10 @@ class SparqlInterface:
         if uri is None:
             uri = rdf.unique_node ("container")
             graph.add ((uri, RDF.type,                   rdf.DJHT[item_class]))
-            graph.add ((uri, rdf.COL["account_id"],      Literal(account_id, datatype=XSD.integer)))
+            graph.add ((uri, rdf.DJHT["account_id"],     Literal(account_id, datatype=XSD.integer)))
 
             ## The item_id is a left-over from the Figshare days.
-            rdf.add (graph, uri, rdf.COL[f"{item_type}_id"], item_id, datatype=XSD.integer)
+            rdf.add (graph, uri, rdf.DJHT[f"{item_type}_id"], item_id, datatype=XSD.integer)
 
         return uri
 
@@ -781,12 +781,12 @@ class SparqlInterface:
         """
         if records:
             blank_node = rdf.blank_node ()
-            graph.add ((uri, rdf.COL[name], blank_node))
+            graph.add ((uri, rdf.DJHT[name], blank_node))
 
             previous_blank_node = None
             for index, item in enumerate(records):
                 record_uri = insert_procedure (item)
-                graph.add ((blank_node, rdf.COL["index"], Literal (index, datatype=XSD.integer)))
+                graph.add ((blank_node, rdf.DJHT["index"], Literal (index, datatype=XSD.integer)))
                 graph.add ((blank_node, RDF.first,        record_uri))
 
                 if previous_blank_node is not None:
@@ -807,11 +807,11 @@ class SparqlInterface:
 
         if items:
             blank_node = rdf.blank_node ()
-            graph.add ((uri, rdf.COL[items_name], blank_node))
+            graph.add ((uri, rdf.DJHT[items_name], blank_node))
 
             previous_blank_node = None
             for index, item in enumerate(items):
-                graph.add ((blank_node, rdf.COL["index"], Literal (index, datatype=XSD.integer)))
+                graph.add ((blank_node, rdf.DJHT["index"], Literal (index, datatype=XSD.integer)))
                 if isinstance (item, URIRef):
                     graph.add ((blank_node, RDF.first,    item))
                 else:
@@ -930,31 +930,31 @@ class SparqlInterface:
         ## --------------------------------------------------------------------
 
         graph.add ((uri, RDF.type,                      rdf.DJHT["Article"]))
-        graph.add ((uri, rdf.COL["title"],              Literal(title, datatype=XSD.string)))
-        graph.add ((uri, rdf.COL["container"],          container))
+        graph.add ((uri, rdf.DJHT["title"],              Literal(title, datatype=XSD.string)))
+        graph.add ((uri, rdf.DJHT["container"],          container))
 
-        rdf.add (graph, uri, rdf.COL["description"],    description,    XSD.string)
-        rdf.add (graph, uri, rdf.COL["defined_type"],   defined_type,   XSD.string)
-        rdf.add (graph, uri, rdf.COL["funding"],        funding,        XSD.string)
-        rdf.add (graph, uri, rdf.COL["license_id"],     license_id)
-        rdf.add (graph, uri, rdf.COL["doi"],            doi,            XSD.string)
-        rdf.add (graph, uri, rdf.COL["handle"],         handle,         XSD.string)
-        rdf.add (graph, uri, rdf.COL["resource_doi"],   resource_doi,   XSD.string)
-        rdf.add (graph, uri, rdf.COL["resource_title"], resource_title, XSD.string)
-        rdf.add (graph, uri, rdf.COL["group_id"],       group_id)
+        rdf.add (graph, uri, rdf.DJHT["description"],    description,    XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["defined_type"],   defined_type,   XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["funding"],        funding,        XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["license_id"],     license_id)
+        rdf.add (graph, uri, rdf.DJHT["doi"],            doi,            XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["handle"],         handle,         XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["resource_doi"],   resource_doi,   XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["resource_title"], resource_title, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["group_id"],       group_id)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
-        rdf.add (graph, uri, rdf.COL["created_date"],   current_time, XSD.dateTime)
-        rdf.add (graph, uri, rdf.COL["modified_date"],  current_time, XSD.dateTime)
-        rdf.add (graph, uri, rdf.COL["published_date"], "NULL", XSD.string)
-        rdf.add (graph, uri, rdf.COL["is_public"],      0)
-        rdf.add (graph, uri, rdf.COL["is_active"],      1)
-        rdf.add (graph, uri, rdf.COL["is_latest"],      0)
-        rdf.add (graph, uri, rdf.COL["is_editable"],    1)
+        rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["published_date"], "NULL", XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["is_public"],      0)
+        rdf.add (graph, uri, rdf.DJHT["is_active"],      1)
+        rdf.add (graph, uri, rdf.DJHT["is_latest"],      0)
+        rdf.add (graph, uri, rdf.DJHT["is_editable"],    1)
 
         # Add the dataset to its container.
-        graph.add ((container, rdf.COL["draft"],       uri))
-        graph.add ((container, rdf.COL["account_id"],  Literal(account_id, datatype=XSD.integer)))
+        graph.add ((container, rdf.DJHT["draft"],       uri))
+        graph.add ((container, rdf.DJHT["account_id"],  Literal(account_id, datatype=XSD.integer)))
 
         query = self.__insert_query_for_graph (graph)
         container_uuid = rdf.uri_to_uuid (container)
@@ -1059,17 +1059,17 @@ class SparqlInterface:
 
         graph.add ((author_uri, RDF.type,      rdf.DJHT["Author"]))
 
-        rdf.add (graph, author_uri, rdf.COL["id"],             author_id)
-        rdf.add (graph, author_uri, rdf.COL["institution_id"], institution_id)
-        rdf.add (graph, author_uri, rdf.COL["is_active"],      is_active)
-        rdf.add (graph, author_uri, rdf.COL["is_public"],      is_public)
-        rdf.add (graph, author_uri, rdf.COL["first_name"],     first_name,     XSD.string)
-        rdf.add (graph, author_uri, rdf.COL["last_name"],      last_name,      XSD.string)
-        rdf.add (graph, author_uri, rdf.COL["full_name"],      full_name,      XSD.string)
-        rdf.add (graph, author_uri, rdf.COL["job_title"],      job_title,      XSD.string)
-        rdf.add (graph, author_uri, rdf.COL["url_name"],       url_name,       XSD.string)
-        rdf.add (graph, author_uri, rdf.COL["orcid_id"],       orcid_id,       XSD.string)
-        rdf.add (graph, author_uri, rdf.COL["email"],          email,          XSD.string)
+        rdf.add (graph, author_uri, rdf.DJHT["id"],             author_id)
+        rdf.add (graph, author_uri, rdf.DJHT["institution_id"], institution_id)
+        rdf.add (graph, author_uri, rdf.DJHT["is_active"],      is_active)
+        rdf.add (graph, author_uri, rdf.DJHT["is_public"],      is_public)
+        rdf.add (graph, author_uri, rdf.DJHT["first_name"],     first_name,     XSD.string)
+        rdf.add (graph, author_uri, rdf.DJHT["last_name"],      last_name,      XSD.string)
+        rdf.add (graph, author_uri, rdf.DJHT["full_name"],      full_name,      XSD.string)
+        rdf.add (graph, author_uri, rdf.DJHT["job_title"],      job_title,      XSD.string)
+        rdf.add (graph, author_uri, rdf.DJHT["url_name"],       url_name,       XSD.string)
+        rdf.add (graph, author_uri, rdf.DJHT["orcid_id"],       orcid_id,       XSD.string)
+        rdf.add (graph, author_uri, rdf.DJHT["email"],          email,          XSD.string)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1083,12 +1083,12 @@ class SparqlInterface:
                          posted=None, submission=None):
         """Procedure to add a timeline to the state graph."""
 
-        rdf.add (graph, item_uri, rdf.COL["revision"],             revision,     XSD.string)
-        rdf.add (graph, container_uri, rdf.COL["firstOnline"],     first_online, XSD.string)
-        rdf.add (graph, item_uri, rdf.COL["publisherPublication"], publisher_publication, XSD.string)
-        rdf.add (graph, item_uri, rdf.COL["publisherAcceptance"],  publisher_acceptance,  XSD.string)
-        rdf.add (graph, item_uri, rdf.COL["posted"],               posted,       XSD.string)
-        rdf.add (graph, item_uri, rdf.COL["submission"],           submission,   XSD.string)
+        rdf.add (graph, item_uri, rdf.DJHT["revision"],             revision,     XSD.string)
+        rdf.add (graph, container_uri, rdf.DJHT["firstOnline"],     first_online, XSD.string)
+        rdf.add (graph, item_uri, rdf.DJHT["publisherPublication"], publisher_publication, XSD.string)
+        rdf.add (graph, item_uri, rdf.DJHT["publisherAcceptance"],  publisher_acceptance,  XSD.string)
+        rdf.add (graph, item_uri, rdf.DJHT["posted"],               posted,       XSD.string)
+        rdf.add (graph, item_uri, rdf.DJHT["submission"],           submission,   XSD.string)
 
         return None
 
@@ -1142,12 +1142,12 @@ class SparqlInterface:
 
         graph.add ((funding_uri, RDF.type,                   rdf.DJHT["Funding"]))
 
-        rdf.add (graph, funding_uri, rdf.COL["id"],              funding_id)
-        rdf.add (graph, funding_uri, rdf.COL["title"],           title,           XSD.string)
-        rdf.add (graph, funding_uri, rdf.COL["grant_code"],      grant_code,      XSD.string)
-        rdf.add (graph, funding_uri, rdf.COL["funder_name"],     funder_name,     XSD.string)
-        rdf.add (graph, funding_uri, rdf.COL["is_user_defined"], is_user_defined)
-        rdf.add (graph, funding_uri, rdf.COL["url"],             url,             XSD.string)
+        rdf.add (graph, funding_uri, rdf.DJHT["id"],              funding_id)
+        rdf.add (graph, funding_uri, rdf.DJHT["title"],           title,           XSD.string)
+        rdf.add (graph, funding_uri, rdf.DJHT["grant_code"],      grant_code,      XSD.string)
+        rdf.add (graph, funding_uri, rdf.DJHT["funder_name"],     funder_name,     XSD.string)
+        rdf.add (graph, funding_uri, rdf.DJHT["is_user_defined"], is_user_defined)
+        rdf.add (graph, funding_uri, rdf.DJHT["url"],             url,             XSD.string)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1167,18 +1167,18 @@ class SparqlInterface:
 
         graph.add ((file_uri, RDF.type,               rdf.DJHT["File"]))
 
-        rdf.add (graph, file_uri, rdf.COL["id"],            file_id)
-        rdf.add (graph, file_uri, rdf.COL["name"],          name,          XSD.string)
-        rdf.add (graph, file_uri, rdf.COL["size"],          size)
-        rdf.add (graph, file_uri, rdf.COL["is_link_only"],  is_link_only)
-        rdf.add (graph, file_uri, rdf.COL["download_url"],  download_url,  XSD.string)
-        rdf.add (graph, file_uri, rdf.COL["supplied_md5"],  supplied_md5,  XSD.string)
-        rdf.add (graph, file_uri, rdf.COL["computed_md5"],  computed_md5,  XSD.string)
-        rdf.add (graph, file_uri, rdf.COL["viewer_type"],   viewer_type,   XSD.string)
-        rdf.add (graph, file_uri, rdf.COL["preview_state"], preview_state, XSD.string)
-        rdf.add (graph, file_uri, rdf.COL["status"],        status,        XSD.string)
-        rdf.add (graph, file_uri, rdf.COL["upload_url"],    upload_url,    XSD.string)
-        rdf.add (graph, file_uri, rdf.COL["upload_token"],  upload_token,  XSD.string)
+        rdf.add (graph, file_uri, rdf.DJHT["id"],            file_id)
+        rdf.add (graph, file_uri, rdf.DJHT["name"],          name,          XSD.string)
+        rdf.add (graph, file_uri, rdf.DJHT["size"],          size)
+        rdf.add (graph, file_uri, rdf.DJHT["is_link_only"],  is_link_only)
+        rdf.add (graph, file_uri, rdf.DJHT["download_url"],  download_url,  XSD.string)
+        rdf.add (graph, file_uri, rdf.DJHT["supplied_md5"],  supplied_md5,  XSD.string)
+        rdf.add (graph, file_uri, rdf.DJHT["computed_md5"],  computed_md5,  XSD.string)
+        rdf.add (graph, file_uri, rdf.DJHT["viewer_type"],   viewer_type,   XSD.string)
+        rdf.add (graph, file_uri, rdf.DJHT["preview_state"], preview_state, XSD.string)
+        rdf.add (graph, file_uri, rdf.DJHT["status"],        status,        XSD.string)
+        rdf.add (graph, file_uri, rdf.DJHT["upload_url"],    upload_url,    XSD.string)
+        rdf.add (graph, file_uri, rdf.DJHT["upload_token"],  upload_token,  XSD.string)
 
         self.cache.invalidate_by_prefix ("dataset")
         query = self.__insert_query_for_graph (graph)
@@ -1228,10 +1228,10 @@ class SparqlInterface:
         license_uri = rdf.ROW[f"license_{license_id}"]
 
         graph.add ((license_uri, RDF.type,               rdf.DJHT["License"]))
-        graph.add ((license_uri, rdf.COL["id"],          Literal(license_id)))
+        graph.add ((license_uri, rdf.DJHT["id"],          Literal(license_id)))
 
-        rdf.add (graph, license_uri, rdf.COL["name"],  name, XSD.string)
-        rdf.add (graph, license_uri, rdf.COL["url"],   url,  XSD.string)
+        rdf.add (graph, license_uri, rdf.DJHT["name"],  name, XSD.string)
+        rdf.add (graph, license_uri, rdf.DJHT["url"],   url,  XSD.string)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1251,10 +1251,10 @@ class SparqlInterface:
 
         graph.add ((link_uri, RDF.type,      rdf.DJHT["PrivateLink"]))
 
-        rdf.add (graph, link_uri, rdf.COL["id"],           id_string,    XSD.string)
-        rdf.add (graph, link_uri, rdf.COL["read_only"],    read_only)
-        rdf.add (graph, link_uri, rdf.COL["is_active"],    is_active)
-        rdf.add (graph, link_uri, rdf.COL["expires_date"], expires_date, XSD.string)
+        rdf.add (graph, link_uri, rdf.DJHT["id"],           id_string,    XSD.string)
+        rdf.add (graph, link_uri, rdf.DJHT["read_only"],    read_only)
+        rdf.add (graph, link_uri, rdf.DJHT["is_active"],    is_active)
+        rdf.add (graph, link_uri, rdf.DJHT["expires_date"], expires_date, XSD.string)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1269,11 +1269,11 @@ class SparqlInterface:
         embargo_uri = rdf.ROW[f"embargo_{embargo_id}"]
 
         graph.add ((embargo_uri, RDF.type,               rdf.DJHT["ArticleEmbargoOption"]))
-        graph.add ((embargo_uri, rdf.COL["id"],          Literal(embargo_id)))
-        graph.add ((embargo_uri, rdf.COL["article_version_id"], Literal(article_version_id)))
+        graph.add ((embargo_uri, rdf.DJHT["id"],          Literal(embargo_id)))
+        graph.add ((embargo_uri, rdf.DJHT["article_version_id"], Literal(article_version_id)))
 
-        rdf.add (graph, embargo_uri, rdf.COL["type"],    embargo_type, XSD.string)
-        rdf.add (graph, embargo_uri, rdf.COL["ip_name"], ip_name,      XSD.string)
+        rdf.add (graph, embargo_uri, rdf.DJHT["type"],    embargo_type, XSD.string)
+        rdf.add (graph, embargo_uri, rdf.DJHT["ip_name"], ip_name,      XSD.string)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1292,15 +1292,15 @@ class SparqlInterface:
 
         graph.add ((custom_field_uri, RDF.type,                   rdf.DJHT["CustomField"]))
 
-        rdf.add (graph, custom_field_uri, rdf.COL["name"],          name,          XSD.string)
-        rdf.add (graph, custom_field_uri, rdf.COL["value"],         value)
-        rdf.add (graph, custom_field_uri, rdf.COL["default_value"], default_value)
-        rdf.add (graph, custom_field_uri, rdf.COL["max_length"],    max_length)
-        rdf.add (graph, custom_field_uri, rdf.COL["min_length"],    min_length)
-        rdf.add (graph, custom_field_uri, rdf.COL["field_type"],    field_type)
-        rdf.add (graph, custom_field_uri, rdf.COL["is_mandatory"],  is_mandatory)
-        rdf.add (graph, custom_field_uri, rdf.COL["placeholder"],   placeholder)
-        rdf.add (graph, custom_field_uri, rdf.COL["is_multiple"],   is_multiple)
+        rdf.add (graph, custom_field_uri, rdf.DJHT["name"],          name,          XSD.string)
+        rdf.add (graph, custom_field_uri, rdf.DJHT["value"],         value)
+        rdf.add (graph, custom_field_uri, rdf.DJHT["default_value"], default_value)
+        rdf.add (graph, custom_field_uri, rdf.DJHT["max_length"],    max_length)
+        rdf.add (graph, custom_field_uri, rdf.DJHT["min_length"],    min_length)
+        rdf.add (graph, custom_field_uri, rdf.DJHT["field_type"],    field_type)
+        rdf.add (graph, custom_field_uri, rdf.DJHT["is_mandatory"],  is_mandatory)
+        rdf.add (graph, custom_field_uri, rdf.DJHT["placeholder"],   placeholder)
+        rdf.add (graph, custom_field_uri, rdf.DJHT["is_multiple"],   is_multiple)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1530,29 +1530,29 @@ class SparqlInterface:
         ## --------------------------------------------------------------------
 
         graph.add ((uri, RDF.type,         rdf.DJHT["Collection"]))
-        graph.add ((uri, rdf.COL["title"], Literal(title, datatype=XSD.string)))
-        graph.add ((uri, rdf.COL["container"], container))
+        graph.add ((uri, rdf.DJHT["title"], Literal(title, datatype=XSD.string)))
+        graph.add ((uri, rdf.DJHT["container"], container))
 
-        rdf.add (graph, uri, rdf.COL["collection_id"],  collection_id)
-        rdf.add (graph, uri, rdf.COL["account_id"],     account_id)
-        rdf.add (graph, uri, rdf.COL["description"],    description,    XSD.string)
-        rdf.add (graph, uri, rdf.COL["funding"],        funding,        XSD.string)
-        rdf.add (graph, uri, rdf.COL["doi"],            doi,            XSD.string)
-        rdf.add (graph, uri, rdf.COL["handle"],         handle,         XSD.string)
-        rdf.add (graph, uri, rdf.COL["url"],            url,            XSD.string)
-        rdf.add (graph, uri, rdf.COL["resource_doi"],   resource_doi,   XSD.string)
-        rdf.add (graph, uri, rdf.COL["resource_title"], resource_title, XSD.string)
-        rdf.add (graph, uri, rdf.COL["group_id"],       group_id)
+        rdf.add (graph, uri, rdf.DJHT["collection_id"],  collection_id)
+        rdf.add (graph, uri, rdf.DJHT["account_id"],     account_id)
+        rdf.add (graph, uri, rdf.DJHT["description"],    description,    XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["funding"],        funding,        XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["doi"],            doi,            XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["handle"],         handle,         XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["url"],            url,            XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["resource_doi"],   resource_doi,   XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["resource_title"], resource_title, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["group_id"],       group_id)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
-        rdf.add (graph, uri, rdf.COL["created_date"],   current_time, XSD.string)
-        rdf.add (graph, uri, rdf.COL["modified_date"],  current_time, XSD.string)
-        rdf.add (graph, uri, rdf.COL["published_date"], "NULL", XSD.string)
-        rdf.add (graph, uri, rdf.COL["is_public"],      0)
+        rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["published_date"], "NULL", XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["is_public"],      0)
 
         # Add the collection to its container.
-        graph.add ((container, rdf.COL["draft"],       uri))
-        graph.add ((container, rdf.COL["account_id"],  Literal(account_id, datatype=XSD.integer)))
+        graph.add ((container, rdf.DJHT["draft"],       uri))
+        graph.add ((container, rdf.DJHT["account_id"],  Literal(account_id, datatype=XSD.integer)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1782,12 +1782,12 @@ class SparqlInterface:
             dataset_uri = URIRef(dataset_uri)
 
         graph.add ((uri, RDF.type,                      rdf.DJHT["Review"]))
-        graph.add ((uri, rdf.COL["dataset"],            dataset_uri))
+        graph.add ((uri, rdf.DJHT["dataset"],            dataset_uri))
 
-        rdf.add (graph, uri, rdf.COL["request_date"],   request_date,  XSD.dateTime)
-        rdf.add (graph, uri, rdf.COL["reminder_date"],  reminder_date, XSD.dateTime)
-        rdf.add (graph, uri, rdf.COL["assigned_to"],    assigned_to,   XSD.integer)
-        rdf.add (graph, uri, rdf.COL["status"],         status,        XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["request_date"],   request_date,  XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["reminder_date"],  reminder_date, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["assigned_to"],    assigned_to,   XSD.integer)
+        rdf.add (graph, uri, rdf.DJHT["status"],         status,        XSD.string)
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
@@ -1885,11 +1885,11 @@ class SparqlInterface:
         graph       = Graph()
         link_uri    = rdf.unique_node ("session")
         graph.add ((link_uri, RDF.type,              rdf.DJHT["Session"]))
-        graph.add ((link_uri, rdf.COL["account_id"], Literal(account_id)))
-        graph.add ((link_uri, rdf.COL["created_date"], Literal(current_time, datatype=XSD.dateTime)))
-        graph.add ((link_uri, rdf.COL["name"],       Literal(name, datatype=XSD.string)))
-        graph.add ((link_uri, rdf.COL["token"],      Literal(token, datatype=XSD.string)))
-        graph.add ((link_uri, rdf.COL["editable"],   Literal(editable, datatype=XSD.boolean)))
+        graph.add ((link_uri, rdf.DJHT["account_id"], Literal(account_id)))
+        graph.add ((link_uri, rdf.DJHT["created_date"], Literal(current_time, datatype=XSD.dateTime)))
+        graph.add ((link_uri, rdf.DJHT["name"],       Literal(name, datatype=XSD.string)))
+        graph.add ((link_uri, rdf.DJHT["token"],      Literal(token, datatype=XSD.string)))
+        graph.add ((link_uri, rdf.DJHT["editable"],   Literal(editable, datatype=XSD.boolean)))
 
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):

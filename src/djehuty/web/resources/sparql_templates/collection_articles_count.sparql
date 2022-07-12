@@ -5,7 +5,7 @@ SELECT COUNT(DISTINCT ?articles) AS ?articles
 WHERE {
   GRAPH <{{state_graph}}> {
     <{{collection_uri}}> rdf:type                         djht:Collection ;
-                         col:articles/rdf:rest*/rdf:first ?articles .
+                         djht:articles/rdf:rest*/rdf:first ?articles .
   }
 }
 {% endblock %}

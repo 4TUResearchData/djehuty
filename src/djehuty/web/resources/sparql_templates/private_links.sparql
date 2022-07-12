@@ -5,15 +5,15 @@ SELECT DISTINCT ?id_string ?is_active ?expires_date ?suffix
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container         rdf:type/rdfs:subClassOf djht:Container ;
-                       col:draft                ?item_uri .
-    ?item_uri          col:private_links/rdf:rest*/rdf:first ?link .
+                       djht:draft                ?item_uri .
+    ?item_uri          djht:private_links/rdf:rest*/rdf:first ?link .
     ?link              rdf:type                 djht:PrivateLink ;
-                       col:id                   ?id_string ;
-                       col:suffix               ?suffix .
-    OPTIONAL { ?link   col:is_active            ?is_active . }
-    OPTIONAL { ?link   col:expires_date         ?expires_date . }
+                       djht:id                   ?id_string ;
+                       djht:suffix               ?suffix .
+    OPTIONAL { ?link   djht:is_active            ?is_active . }
+    OPTIONAL { ?link   djht:expires_date         ?expires_date . }
     {%- if account_id is not none %}
-    ?container         col:account_id           {{account_id}} .
+    ?container         djht:account_id           {{account_id}} .
     {%- endif %}
   }
   {%- if id_string is not none %}

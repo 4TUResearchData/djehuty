@@ -3,17 +3,17 @@
 SELECT ?article_id ?date (SUM(?{{item_type}})  AS ?{{item_type}})
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article        rdf:type            djht:Article .
-    ?article        col:article_id      ?article_id .
+    ?article        rdf:type             djht:Article .
+    ?article        djht:article_id      ?article_id .
 
-    ?category_link  rdf:type            djht:ArticleCategory .
-    ?category_link  col:category_id     ?category_id .
-    ?category_link  col:article_id      ?article_id .
+    ?category_link  rdf:type             djht:ArticleCategory .
+    ?category_link  djht:category_id     ?category_id .
+    ?category_link  djht:article_id      ?article_id .
 
-    ?stats          rdf:type            djht:Article{{item_class}} .
-    ?stats          col:article_id      ?article_id .
-    ?stats          col:date            ?date .
-    ?stats          col:{{item_type}}   ?{{item_type}} .
+    ?stats          rdf:type             djht:Article{{item_class}} .
+    ?stats          djht:article_id      ?article_id .
+    ?stats          djht:date            ?date .
+    ?stats          djht:{{item_type}}   ?{{item_type}} .
   }
 {%- if filters is not none %}{{ filters }}{% endif %}
 }

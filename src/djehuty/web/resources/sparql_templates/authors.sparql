@@ -7,34 +7,34 @@ SELECT DISTINCT ?first_name      ?full_name       ?group_id
 WHERE {
   GRAPH <{{state_graph}}> {
     ?author            rdf:type                 djht:Author .
-    OPTIONAL { ?author col:id                   ?id . }
+    OPTIONAL { ?author djht:id                  ?id . }
 
     {%- if item_uri is not none %}
     ?item_uri          rdf:type                 djht:{{prefix}} ;
-                       col:authors              ?authors .
+                       djht:authors             ?authors .
     ?authors           rdf:rest*                ?rest .
     ?rest              rdf:first                ?author ;
-                       col:index                ?order_index .
+                       djht:index               ?order_index .
     {%- endif %}
     {%- if account_id is not none %}
     ?container         rdf:type                 djht:{{prefix}}Container .
     {%- if is_published %}
-    ?container         col:published_versions/rdf:rest*/rdf:first ?item_uri .
+    ?container         djht:published_versions/rdf:rest*/rdf:first ?item_uri .
     {%- else %}
-    ?container         col:draft                ?item_uri .
+    ?container         djht:draft               ?item_uri .
     {%- endif %}
-    ?container         col:account_id           {{account_id}} .
+    ?container         djht:account_id          {{account_id}} .
     {%- endif %}
-    OPTIONAL { ?author col:first_name           ?first_name . }
-    OPTIONAL { ?author col:full_name            ?full_name . }
-    OPTIONAL { ?author col:group_id             ?group_id . }
-    OPTIONAL { ?author col:institution_id       ?institution_id . }
-    OPTIONAL { ?author col:is_active            ?is_active . }
-    OPTIONAL { ?author col:is_public            ?is_public . }
-    OPTIONAL { ?author col:job_title            ?job_title . }
-    OPTIONAL { ?author col:last_name            ?last_name . }
-    OPTIONAL { ?author col:orcid_id             ?orcid_id . }
-    OPTIONAL { ?author col:url_name             ?url_name . }
+    OPTIONAL { ?author djht:first_name          ?first_name . }
+    OPTIONAL { ?author djht:full_name           ?full_name . }
+    OPTIONAL { ?author djht:group_id            ?group_id . }
+    OPTIONAL { ?author djht:institution_id      ?institution_id . }
+    OPTIONAL { ?author djht:is_active           ?is_active . }
+    OPTIONAL { ?author djht:is_public           ?is_public . }
+    OPTIONAL { ?author djht:job_title           ?job_title . }
+    OPTIONAL { ?author djht:last_name           ?last_name . }
+    OPTIONAL { ?author djht:orcid_id            ?orcid_id . }
+    OPTIONAL { ?author djht:url_name            ?url_name . }
 
     BIND(STRAFTER(STR(?author), "author:") AS ?uuid)
   }

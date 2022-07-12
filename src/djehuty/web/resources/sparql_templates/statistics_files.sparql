@@ -4,8 +4,8 @@ SELECT DISTINCT ?file_id ?bytes
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file           rdf:type            djht:File .
-    ?file           col:id              ?file_id .
-    ?file           col:size            ?bytes .
+    ?file           djht:id              ?file_id .
+    ?file           djht:size            ?bytes .
   }
 {%- if filters is not none %}{{ filters }}{% endif %}
 }

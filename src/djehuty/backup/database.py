@@ -125,7 +125,7 @@ class DatabaseInterface:
             query    = (
                 "SELECT ?uri WHERE { "
                 f"?uri <{str(RDF.type)}> <{str(rdf.DJHT[record_type])}> ; "
-                f"<{str(rdf.COL[identifier_name])}> {identifier} . }}"
+                f"<{str(rdf.DJHT[identifier_name])}> {identifier} . }}"
             )
 
             results = self.store.query (query)
@@ -157,23 +157,23 @@ class DatabaseInterface:
         if institution_user_id is not None:
             domain = institution_user_id.partition("@")[2]
 
-        rdf.add (self.store, uri, rdf.COL["id"],                    value_or (record, "id", None),           XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["active"],                value_or (record, "active", False),      XSD.boolean)
-        rdf.add (self.store, uri, rdf.COL["domain"],                domain,                                  XSD.string)
-        rdf.add (self.store, uri, rdf.COL["email"],                 value_or (record, "email", None),        XSD.string)
-        rdf.add (self.store, uri, rdf.COL["first_name"],            value_or (record, "first_name", None),   XSD.string)
-        rdf.add (self.store, uri, rdf.COL["last_name"],             value_or (record, "last_name", None),    XSD.string)
-        rdf.add (self.store, uri, rdf.COL["institution_user_id"],   institution_user_id,                     XSD.string)
-        rdf.add (self.store, uri, rdf.COL["institution_id"],        value_or (record, "institution_id", None))
-        rdf.add (self.store, uri, rdf.COL["group_id"],              value_or (record, "group_id", None))
-        rdf.add (self.store, uri, rdf.COL["pending_quota_request"], value_or (record, "pending_quota_request", None))
-        rdf.add (self.store, uri, rdf.COL["used_quota_public"],     value_or (record, "used_quota_public", None))
-        rdf.add (self.store, uri, rdf.COL["used_quota_private"],    value_or (record, "used_quota_private", None))
-        rdf.add (self.store, uri, rdf.COL["used_quota"],            value_or (record, "used_quota", None))
-        rdf.add (self.store, uri, rdf.COL["maximum_file_size"],     value_or (record, "maximum_file_size", None))
-        rdf.add (self.store, uri, rdf.COL["quota"],                 value_or (record, "quota", None))
-        rdf.add (self.store, uri, rdf.COL["modified_date"],         value_or_none (record, "modified_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["created_date"],          value_or_none (record, "created_date"),  XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["id"],                    value_or (record, "id", None),           XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["active"],                value_or (record, "active", False),      XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["domain"],                domain,                                  XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["email"],                 value_or (record, "email", None),        XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["first_name"],            value_or (record, "first_name", None),   XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["last_name"],             value_or (record, "last_name", None),    XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["institution_user_id"],   institution_user_id,                     XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["institution_id"],        value_or (record, "institution_id", None))
+        rdf.add (self.store, uri, rdf.DJHT["group_id"],              value_or (record, "group_id", None))
+        rdf.add (self.store, uri, rdf.DJHT["pending_quota_request"], value_or (record, "pending_quota_request", None))
+        rdf.add (self.store, uri, rdf.DJHT["used_quota_public"],     value_or (record, "used_quota_public", None))
+        rdf.add (self.store, uri, rdf.DJHT["used_quota_private"],    value_or (record, "used_quota_private", None))
+        rdf.add (self.store, uri, rdf.DJHT["used_quota"],            value_or (record, "used_quota", None))
+        rdf.add (self.store, uri, rdf.DJHT["maximum_file_size"],     value_or (record, "maximum_file_size", None))
+        rdf.add (self.store, uri, rdf.DJHT["quota"],                 value_or (record, "quota", None))
+        rdf.add (self.store, uri, rdf.DJHT["modified_date"],         value_or_none (record, "modified_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["created_date"],          value_or_none (record, "created_date"),  XSD.dateTime)
 
         self.lock_for_inserts.release()
         return True
@@ -186,8 +186,8 @@ class DatabaseInterface:
             uri            = rdf.ROW[f"institution_{institution_id}"]
 
             self.store.add ((uri, RDF.type,        rdf.DJHT["Institution"]))
-            self.store.add ((uri, rdf.COL["id"],   Literal(institution_id, datatype=XSD.integer)))
-            self.store.add ((uri, rdf.COL["name"], Literal(record["name"], datatype=XSD.string)))
+            self.store.add ((uri, rdf.DJHT["id"],   Literal(institution_id, datatype=XSD.integer)))
+            self.store.add ((uri, rdf.DJHT["name"], Literal(record["name"], datatype=XSD.string)))
 
             return True
 
@@ -214,17 +214,17 @@ class DatabaseInterface:
 
         self.store.add ((uri, RDF.type, rdf.DJHT["Author"]))
 
-        rdf.add (self.store, uri, rdf.COL["id"],             author_id,                                 XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["institution_id"], value_or (record, "institution_id", None), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["group_id"],       value_or (record, "group_id",       None), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["first_name"],     value_or (record, "first_name",     None), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["last_name"],      value_or (record, "last_name",      None), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["full_name"],      value_or (record, "full_name",      None), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["job_title"],      value_or (record, "job_title",      None), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["url_name"],       value_or (record, "url_name",       None), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["orcid_id"],       value_or (record, "orcid_id",       None), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["is_active"],      is_active,                                 XSD.boolean)
-        rdf.add (self.store, uri, rdf.COL["is_public"],      is_public,                                 XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["id"],             author_id,                                 XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["institution_id"], value_or (record, "institution_id", None), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["group_id"],       value_or (record, "group_id",       None), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["first_name"],     value_or (record, "first_name",     None), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["last_name"],      value_or (record, "last_name",      None), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["full_name"],      value_or (record, "full_name",      None), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["job_title"],      value_or (record, "job_title",      None), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["url_name"],       value_or (record, "url_name",       None), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["orcid_id"],       value_or (record, "orcid_id",       None), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["is_active"],      is_active,                                 XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["is_public"],      is_public,                                 XSD.boolean)
 
         return uri
 
@@ -234,11 +234,11 @@ class DatabaseInterface:
         if not record:
             return False
 
-        rdf.add (self.store, uri, rdf.COL["revision_date"],     value_or_none (record, "revision"),             XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["publisher_publication_date"], value_or_none (record, "publisherPublication"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["publisher_acceptance_date"], value_or_none (record, "publisherAcceptance"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["posted_date"],       value_or_none (record, "posted"),               XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["submission_date"],   value_or_none (record, "submission"),           XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["revision_date"],     value_or_none (record, "revision"),             XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["publisher_publication_date"], value_or_none (record, "publisherPublication"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["publisher_acceptance_date"], value_or_none (record, "publisherAcceptance"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["posted_date"],       value_or_none (record, "posted"),               XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["submission_date"],   value_or_none (record, "submission"),           XSD.dateTime)
 
         return True
 
@@ -252,12 +252,12 @@ class DatabaseInterface:
 
         uri = rdf.unique_node ("category")
         self.store.add ((uri, RDF.type,      rdf.DJHT["Category"]))
-        self.store.add ((uri, rdf.COL["id"], Literal(category_id)))
+        self.store.add ((uri, rdf.DJHT["id"], Literal(category_id)))
 
-        rdf.add (self.store, uri, rdf.COL["title"],       value_or (record, "title", None),       XSD.string)
-        rdf.add (self.store, uri, rdf.COL["parent_id"],   value_or (record, "parent_id", None),   XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["source_id"],   value_or (record, "source_id", None),   XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["taxonomy_id"], value_or (record, "taxonomy_id", None), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["title"],       value_or (record, "title", None),       XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["parent_id"],   value_or (record, "parent_id", None),   XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["source_id"],   value_or (record, "source_id", None),   XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["taxonomy_id"], value_or (record, "taxonomy_id", None), XSD.integer)
 
         return uri
 
@@ -270,12 +270,12 @@ class DatabaseInterface:
         """
         if records:
             blank_node = rdf.blank_node ()
-            self.store.add ((uri, rdf.COL[name], blank_node))
+            self.store.add ((uri, rdf.DJHT[name], blank_node))
 
             previous_blank_node = None
             for index, item in enumerate(records):
                 record_uri = insert_procedure (item)
-                self.store.add ((blank_node, rdf.COL["index"], Literal (index, datatype=XSD.integer)))
+                self.store.add ((blank_node, rdf.DJHT["index"], Literal (index, datatype=XSD.integer)))
                 self.store.add ((blank_node, RDF.first,        record_uri))
 
                 if previous_blank_node is not None:
@@ -318,11 +318,11 @@ class DatabaseInterface:
 
         if items:
             blank_node = rdf.blank_node ()
-            self.store.add ((uri, rdf.COL[items_name], blank_node))
+            self.store.add ((uri, rdf.DJHT[items_name], blank_node))
 
             previous_blank_node = None
             for index, item in enumerate(items):
-                self.store.add ((blank_node, rdf.COL["index"], Literal (index, datatype=XSD.integer)))
+                self.store.add ((blank_node, rdf.DJHT["index"], Literal (index, datatype=XSD.integer)))
                 if isinstance (item, URIRef):
                     self.store.add ((blank_node, RDF.first,        item))
                 else:
@@ -352,10 +352,10 @@ class DatabaseInterface:
             for item in value:
                 if isinstance (item, str) and item == "":
                     continue
-                rdf.add (self.store, uri, rdf.COL[name], item, field_type)
+                rdf.add (self.store, uri, rdf.DJHT[name], item, field_type)
 
         elif not (isinstance (value, str) and value == ""):
-            rdf.add (self.store, uri, rdf.COL[name], value, field_type)
+            rdf.add (self.store, uri, rdf.DJHT[name], value, field_type)
 
     def insert_custom_field (self, uri, field):
         """Procedure to insert a custom_field record."""
@@ -383,19 +383,19 @@ class DatabaseInterface:
 
         ## Avoid inserting the custom field's properties multiple times.
         subjects = self.store.subjects ((None, RDF.type, rdf.DJHT["CustomField"]),
-                                        (None, rdf.COL["name"], Literal(name, datatype=XSD.string)))
+                                        (None, rdf.DJHT["name"], Literal(name, datatype=XSD.string)))
         field_uri = next (subjects, None)
         if field_uri is None:
             field_uri = rdf.ROW[f"custom_field_{name}"]
             self.store.add ((field_uri,     RDF.type,                rdf.DJHT["CustomField"]))
-            rdf.add (self.store, field_uri, rdf.COL["predicate"],    rdf.COL[name], datatype="url")
-            rdf.add (self.store, field_uri, rdf.COL["name"],         name,                                        XSD.string)
-            rdf.add (self.store, field_uri, rdf.COL["original_name"], field["name"],                              XSD.string)
-            rdf.add (self.store, field_uri, rdf.COL["max_length"],   value_or_none (validations, "max_length"))
-            rdf.add (self.store, field_uri, rdf.COL["min_length"],   value_or_none (validations, "min_length"))
-            rdf.add (self.store, field_uri, rdf.COL["is_mandatory"], value_or_none (validations, "is_mandatory"), XSD.boolean)
-            rdf.add (self.store, field_uri, rdf.COL["placeholder"],  value_or_none (validations, "placeholder"),  XSD.string)
-            rdf.add (self.store, field_uri, rdf.COL["is_multiple"],  value_or_none (validations, "is_multiple"),  XSD.boolean)
+            rdf.add (self.store, field_uri, rdf.DJHT["predicate"],    rdf.DJHT[name], datatype="url")
+            rdf.add (self.store, field_uri, rdf.DJHT["name"],         name,                                        XSD.string)
+            rdf.add (self.store, field_uri, rdf.DJHT["original_name"], field["name"],                              XSD.string)
+            rdf.add (self.store, field_uri, rdf.DJHT["max_length"],   value_or_none (validations, "max_length"))
+            rdf.add (self.store, field_uri, rdf.DJHT["min_length"],   value_or_none (validations, "min_length"))
+            rdf.add (self.store, field_uri, rdf.DJHT["is_mandatory"], value_or_none (validations, "is_mandatory"), XSD.boolean)
+            rdf.add (self.store, field_uri, rdf.DJHT["placeholder"],  value_or_none (validations, "placeholder"),  XSD.string)
+            rdf.add (self.store, field_uri, rdf.DJHT["is_multiple"],  value_or_none (validations, "is_multiple"),  XSD.boolean)
 
         if isinstance(field["value"], list):
             for value in field["value"]:
@@ -410,7 +410,7 @@ class DatabaseInterface:
                     if options_uri is None:
                         options_uri = rdf.ROW[f"custom_field_options_{name}"]
                         options     = value_or_none (settings, "options")
-                        rdf.add (self.store, options_uri, rdf.COL["name"], name, XSD.string)
+                        rdf.add (self.store, options_uri, rdf.DJHT["name"], name, XSD.string)
                         self.insert_item_list (options_uri, options, "values")
         else:
             value      = value_or (field, "value", default_value)
@@ -463,31 +463,31 @@ class DatabaseInterface:
 
         self.lock_for_inserts.acquire()
         self.store.add ((uri, RDF.type,                 rdf.DJHT["Collection"]))
-        self.store.add ((uri, rdf.COL["collection_id"], Literal(collection_id, datatype=XSD.integer)))
+        self.store.add ((uri, rdf.DJHT["collection_id"], Literal(collection_id, datatype=XSD.integer)))
 
-        rdf.add (self.store, uri, rdf.COL["url"],                 value_or_none (record, "url"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["title"],               value_or_none (record, "title"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["published_date"],      value_or_none (record, "published_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["created_date"],        value_or_none (record, "created_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["modified_date"],       value_or_none (record, "modified_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["doi"],                 value_or_none (record, "doi"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["citation"],            value_or_none (record, "citation"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["group_id"],            value_or_none (record, "group_id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["url"],                 value_or_none (record, "url"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["title"],               value_or_none (record, "title"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["published_date"],      value_or_none (record, "published_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["created_date"],        value_or_none (record, "created_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["modified_date"],       value_or_none (record, "modified_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["doi"],                 value_or_none (record, "doi"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["citation"],            value_or_none (record, "citation"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["group_id"],            value_or_none (record, "group_id"), XSD.integer)
         ## group_resource_id is always empty/NULL.
-        #rdf.add (self.store, uri, rdf.COL["group_resource_id"],   value_or_none (record, "group_resource_id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["institution_id"],      value_or_none (record, "institution_id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["description"],         value_or_none (record, "description"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["version"],             value_or_none (record, "version"), XSD.integer)
+        #rdf.add (self.store, uri, rdf.DJHT["group_resource_id"],   value_or_none (record, "group_resource_id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["institution_id"],      value_or_none (record, "institution_id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["description"],         value_or_none (record, "description"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["version"],             value_or_none (record, "version"), XSD.integer)
         ## resource_id is always empty/NULL.
-        #rdf.add (self.store, uri, rdf.COL["resource_id"],         value_or_none (record, "resource_id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["resource_version"],    value_or_none (record, "resource_version"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["resource_link"],       value_or_none (record, "resource_link"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["handle"],              value_or_none (record, "handle"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["is_public"],           is_public, XSD.boolean)
-        rdf.add (self.store, uri, rdf.COL["is_latest"],           is_latest, XSD.boolean)
-        rdf.add (self.store, uri, rdf.COL["is_editable"],         is_editable, XSD.boolean)
+        #rdf.add (self.store, uri, rdf.DJHT["resource_id"],         value_or_none (record, "resource_id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["resource_version"],    value_or_none (record, "resource_version"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["resource_link"],       value_or_none (record, "resource_link"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["handle"],              value_or_none (record, "handle"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["is_public"],           is_public, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["is_latest"],           is_latest, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["is_editable"],         is_editable, XSD.boolean)
 
         self.insert_timeline (uri, value_or_none (record, "timeline"))
         self.insert_author_list (uri, value_or (record, "authors", []))
@@ -515,7 +515,7 @@ class DatabaseInterface:
 
         ## Assign the collection to the container
         container = self.container_uri (collection_id, "collection", account_id)
-        rdf.add (self.store, uri, rdf.COL["container"], container, datatype="uri")
+        rdf.add (self.store, uri, rdf.DJHT["container"], container, datatype="uri")
 
         if "statistics" in record:
             stats = record["statistics"]
@@ -524,7 +524,7 @@ class DatabaseInterface:
             logging.warning ("No statistics available for collection %d.", collection_id)
 
         if is_editable:
-            self.store.add ((container, rdf.COL["draft"], uri))
+            self.store.add ((container, rdf.DJHT["draft"], uri))
         else:
             new_blank_node = rdf.blank_node ()
             self.store.add ((new_blank_node, RDF.type, RDF.List))
@@ -533,15 +533,15 @@ class DatabaseInterface:
 
             blank_node = self.last_list_node (container, "published_versions")
             if blank_node is None:
-                self.store.add    ((container, rdf.COL["published_versions"], new_blank_node))
+                self.store.add    ((container, rdf.DJHT["published_versions"], new_blank_node))
             else:
                 self.store.remove ((blank_node, RDF.rest, RDF.nil))
                 self.store.add    ((blank_node, RDF.rest, new_blank_node))
 
         if is_latest:
-            self.store.add ((container, rdf.COL["latest_published_version"], uri))
+            self.store.add ((container, rdf.DJHT["latest_published_version"], uri))
             timeline = value_or_none (record, "timeline")
-            rdf.add (self.store, container, rdf.COL["first_online_date"],
+            rdf.add (self.store, container, rdf.DJHT["first_online_date"],
                      value_or_none (timeline, "firstOnline"), XSD.dateTime)
 
         self.lock_for_inserts.release()
@@ -559,12 +559,12 @@ class DatabaseInterface:
 
         uri = rdf.unique_node ("funding")
         self.store.add ((uri, RDF.type, rdf.DJHT["Funding"]))
-        rdf.add (self.store, uri, rdf.COL["id"],              funding_id, XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["title"],           value_or_none (record, "title"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["grant_code"],      value_or_none (record, "grant_code"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["funder_name"],     value_or_none (record, "funder_name"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["url"],             value_or_none (record, "url"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["is_user_defined"], is_user_defined, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["id"],              funding_id, XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["title"],           value_or_none (record, "title"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["grant_code"],      value_or_none (record, "grant_code"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["funder_name"],     value_or_none (record, "funder_name"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["url"],             value_or_none (record, "url"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["is_user_defined"], is_user_defined, XSD.boolean)
 
         return uri
 
@@ -576,10 +576,10 @@ class DatabaseInterface:
         uri       = rdf.unique_node ("private_link")
 
         self.store.add ((uri, RDF.type, rdf.DJHT["PrivateLink"]))
-        rdf.add (self.store, uri, rdf.COL["id"],           value_or_none (record, "id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["suffix"],       suffix, XSD.string)
-        rdf.add (self.store, uri, rdf.COL["expires_date"], value_or_none (record, "expires_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["is_active"],    is_active, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["id"],           value_or_none (record, "id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["suffix"],       suffix, XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["expires_date"], value_or_none (record, "expires_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["is_active"],    is_active, XSD.boolean)
 
         return uri
 
@@ -588,9 +588,9 @@ class DatabaseInterface:
 
         uri = rdf.unique_node ("embargo")
         self.store.add ((uri, RDF.type, rdf.DJHT["Embargo"]))
-        rdf.add (self.store, uri, rdf.COL["id"],      value_or_none (record, "id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["type"],    value_or_none (record, "type"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["ip_name"], value_or_none (record, "ip_name"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["id"],      value_or_none (record, "id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["type"],    value_or_none (record, "type"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["ip_name"], value_or_none (record, "ip_name"), XSD.string)
 
         return uri
 
@@ -607,13 +607,13 @@ class DatabaseInterface:
             license_name = value_or_none (record,"name")
             license_id   = value_or_none (record,"value")
             self.store.add ((license_uri, RDF.type, rdf.DJHT["License"]))
-            self.store.add ((license_uri, rdf.COL["name"],
+            self.store.add ((license_uri, rdf.DJHT["name"],
                              Literal(license_name, datatype=XSD.string)))
-            self.store.add ((license_uri, rdf.COL["id"],
+            self.store.add ((license_uri, rdf.DJHT["id"],
                              Literal(license_id, datatype=XSD.integer)))
 
         ## Insert the link between URI and the license.
-        self.store.add ((uri, rdf.COL["license"], license_uri))
+        self.store.add ((uri, rdf.DJHT["license"], license_uri))
 
         return True
 
@@ -624,11 +624,11 @@ class DatabaseInterface:
             return None
 
         now = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
-        rdf.add (self.store, uri, rdf.COL["total_views"],     value_or_none (record, "views"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["total_downloads"], value_or_none (record, "downloads"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["total_shares"],    value_or_none (record, "shares"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["total_cites"],     value_or_none (record, "cites"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["totals_created_at"], now, XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["total_views"],     value_or_none (record, "views"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["total_downloads"], value_or_none (record, "downloads"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["total_shares"],    value_or_none (record, "shares"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["total_cites"],     value_or_none (record, "cites"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["totals_created_at"], now, XSD.dateTime)
 
         return True
 
@@ -653,18 +653,18 @@ class DatabaseInterface:
         uri = rdf.unique_node ("file")
         self.store.add ((uri, RDF.type, rdf.DJHT["File"]))
 
-        rdf.add (self.store, uri, rdf.COL["id"],            file_id, XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["name"],          value_or_none (record, "name"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["size"],          value_or_none (record, "size"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["download_url"],  value_or_none (record, "download_url"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["supplied_md5"],  value_or_none (record, "supplied_md5"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["computed_md5"],  value_or_none (record, "computed_md5"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["viewer_type"],   value_or_none (record, "viewer_type"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["preview_state"], value_or_none (record, "preview_state"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["status"],        value_or_none (record, "status"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["upload_url"],    value_or_none (record, "upload_url"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["upload_token"],  value_or_none (record, "upload_token"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["is_link_only"],  is_link_only, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["id"],            file_id, XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["name"],          value_or_none (record, "name"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["size"],          value_or_none (record, "size"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["download_url"],  value_or_none (record, "download_url"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["supplied_md5"],  value_or_none (record, "supplied_md5"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["computed_md5"],  value_or_none (record, "computed_md5"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["viewer_type"],   value_or_none (record, "viewer_type"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["preview_state"], value_or_none (record, "preview_state"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["status"],        value_or_none (record, "status"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["upload_url"],    value_or_none (record, "upload_url"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["upload_token"],  value_or_none (record, "upload_token"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["is_link_only"],  is_link_only, XSD.boolean)
 
         return uri
 
@@ -672,7 +672,7 @@ class DatabaseInterface:
         """Returns the URI of the last blank node for PARENT_URI or None."""
 
         try:
-            predicate = str(rdf.COL[predicate_name])
+            predicate = str(rdf.DJHT[predicate_name])
             query     = (
                 "SELECT ?uri WHERE { "
                 f"<{str(parent_uri)}> <{predicate}>/<{str(RDF.rest)}>* ?uri . "
@@ -706,8 +706,8 @@ class DatabaseInterface:
         if uri is None:
             uri = rdf.unique_node ("container")
             self.store.add ((uri, RDF.type,                   rdf.DJHT[item_class]))
-            self.store.add ((uri, rdf.COL[f"{item_type}_id"], Literal(item_id, datatype=XSD.integer)))
-            self.store.add ((uri, rdf.COL["account_id"],      Literal(account_id, datatype=XSD.integer)))
+            self.store.add ((uri, rdf.DJHT[f"{item_type}_id"], Literal(item_id, datatype=XSD.integer)))
+            self.store.add ((uri, rdf.DJHT["account_id"],      Literal(account_id, datatype=XSD.integer)))
 
             with self.container_uris_lock:
                 self.container_uris[key] = uri
@@ -737,44 +737,44 @@ class DatabaseInterface:
         self.lock_for_inserts.acquire()
 
         self.store.add ((uri, RDF.type,              rdf.DJHT["Article"]))
-        self.store.add ((uri, rdf.COL["article_id"], Literal(article_id, datatype=XSD.integer)))
+        self.store.add ((uri, rdf.DJHT["article_id"], Literal(article_id, datatype=XSD.integer)))
 
         self.insert_timeline (uri, value_or_none (record, "timeline"))
         self.insert_license (uri, value_or_none (record, "license"))
 
-        rdf.add (self.store, uri, rdf.COL["title"],               value_or_none (record, "title"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["doi"],                 value_or_none (record, "doi"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["handle"],              value_or_none (record, "handle"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["group_id"],            value_or_none (record, "group_id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["url"],                 value_or_none (record, "url"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["url_public_html"],     value_or_none (record, "url_public_html"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["url_public_api"],      value_or_none (record, "url_public_api"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["url_private_html"],    value_or_none (record, "url_private_html"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["url_private_api"],     value_or_none (record, "url_private_api"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["published_date"],      value_or_none (record, "published_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["created_date"],        value_or_none (record, "created_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["modified_date"],       value_or_none (record, "modified_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.COL["thumb"],               value_or_none (record, "thumb"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["defined_type"],        value_or_none (record, "defined_type"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["defined_type_name"],   value_or_none (record, "defined_type_name"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["citation"],            value_or_none (record, "citation"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["metadata_reason"],     value_or_none (record, "metadata_reason"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["confidential_reason"], value_or_none (record, "confidential_reason"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["funding"],             value_or_none (record, "funding"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["size"],                value_or_none (record, "size"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["status"],              value_or_none (record, "status"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["version"],             value_or_none (record, "version"), XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["description"],         value_or_none (record, "description"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["figshare_url"],        value_or_none (record, "figshare_url"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
-        rdf.add (self.store, uri, rdf.COL["has_linked_file"],     has_linked_file, XSD.boolean)
-        rdf.add (self.store, uri, rdf.COL["is_embargoed"],        is_embargoed, XSD.boolean)
-        rdf.add (self.store, uri, rdf.COL["is_metadata_record"],  is_metadata_record, XSD.boolean)
-        rdf.add (self.store, uri, rdf.COL["is_confidential"],     is_confidential, XSD.boolean)
-        rdf.add (self.store, uri, rdf.COL["is_public"],           is_public, XSD.boolean)
-        rdf.add (self.store, uri, rdf.COL["is_latest"],           is_latest, XSD.boolean)
-        rdf.add (self.store, uri, rdf.COL["is_editable"],         is_editable, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["title"],               value_or_none (record, "title"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["doi"],                 value_or_none (record, "doi"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["handle"],              value_or_none (record, "handle"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["group_id"],            value_or_none (record, "group_id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["url"],                 value_or_none (record, "url"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["url_public_html"],     value_or_none (record, "url_public_html"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["url_public_api"],      value_or_none (record, "url_public_api"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["url_private_html"],    value_or_none (record, "url_private_html"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["url_private_api"],     value_or_none (record, "url_private_api"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["published_date"],      value_or_none (record, "published_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["created_date"],        value_or_none (record, "created_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["modified_date"],       value_or_none (record, "modified_date"), XSD.dateTime)
+        rdf.add (self.store, uri, rdf.DJHT["thumb"],               value_or_none (record, "thumb"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["defined_type"],        value_or_none (record, "defined_type"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["defined_type_name"],   value_or_none (record, "defined_type_name"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["citation"],            value_or_none (record, "citation"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["metadata_reason"],     value_or_none (record, "metadata_reason"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["confidential_reason"], value_or_none (record, "confidential_reason"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["funding"],             value_or_none (record, "funding"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["size"],                value_or_none (record, "size"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["status"],              value_or_none (record, "status"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["version"],             value_or_none (record, "version"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["description"],         value_or_none (record, "description"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["figshare_url"],        value_or_none (record, "figshare_url"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["has_linked_file"],     has_linked_file, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["is_embargoed"],        is_embargoed, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["is_metadata_record"],  is_metadata_record, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["is_confidential"],     is_confidential, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["is_public"],           is_public, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["is_latest"],           is_latest, XSD.boolean)
+        rdf.add (self.store, uri, rdf.DJHT["is_editable"],         is_editable, XSD.boolean)
 
         self.insert_item_list (uri, value_or (record, "references", []), "references")
         self.insert_item_list (uri, value_or (record, "tags", []), "tags")
@@ -789,7 +789,7 @@ class DatabaseInterface:
 
         ## Assign the article to the container
         container = self.container_uri (article_id, "article", account_id)
-        rdf.add (self.store, uri, rdf.COL["container"], container, datatype="uri")
+        rdf.add (self.store, uri, rdf.DJHT["container"], container, datatype="uri")
 
         if "statistics" in record:
             stats = record["statistics"]
@@ -798,7 +798,7 @@ class DatabaseInterface:
             logging.warning ("No statistics available for article %d.", article_id)
 
         if is_editable:
-            self.store.add ((container, rdf.COL["draft"], uri))
+            self.store.add ((container, rdf.DJHT["draft"], uri))
         else:
             new_blank_node = rdf.blank_node ()
             self.store.add ((new_blank_node, RDF.type, RDF.List))
@@ -807,15 +807,15 @@ class DatabaseInterface:
 
             blank_node = self.last_list_node (container, "published_versions")
             if blank_node is None:
-                self.store.add    ((container, rdf.COL["published_versions"], new_blank_node))
+                self.store.add    ((container, rdf.DJHT["published_versions"], new_blank_node))
             else:
                 self.store.remove ((blank_node, RDF.rest, RDF.nil))
                 self.store.add    ((blank_node, RDF.rest, new_blank_node))
 
         if is_latest:
-            self.store.add ((container, rdf.COL["latest_published_version"], uri))
+            self.store.add ((container, rdf.DJHT["latest_published_version"], uri))
             timeline = value_or_none (record, "timeline")
-            rdf.add (self.store, container, rdf.COL["first_online_date"],
+            rdf.add (self.store, container, rdf.DJHT["first_online_date"],
                      value_or_none (timeline, "firstOnline"), XSD.dateTime)
 
         self.lock_for_inserts.release()
@@ -827,12 +827,12 @@ class DatabaseInterface:
         uri        = rdf.unique_node ("institution_group")
         self.store.add ((uri, RDF.type, rdf.DJHT["InstitutionGroup"]))
 
-        rdf.add (self.store, uri, rdf.COL["id"],                   value_or_none (record, "id"), datatype=XSD.integer)
-        rdf.add (self.store, uri, rdf.COL["parent_id"],            value_or_none (record, "parent_id"), datatype=XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["id"],                   value_or_none (record, "id"), datatype=XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["parent_id"],            value_or_none (record, "parent_id"), datatype=XSD.integer)
         ## resource_id is always empty.
-        #rdf.add (self.store, uri, rdf.COL["resource_id"],          value_or_none (record, "resource_id"), datatype=XSD.string)
-        rdf.add (self.store, uri, rdf.COL["name"],                 value_or_none (record, "name"), datatype=XSD.string)
-        rdf.add (self.store, uri, rdf.COL["association_criteria"], value_or_none (record, "association_criteria"), datatype=XSD.string)
+        #rdf.add (self.store, uri, rdf.DJHT["resource_id"],          value_or_none (record, "resource_id"), datatype=XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["name"],                 value_or_none (record, "name"), datatype=XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["association_criteria"], value_or_none (record, "association_criteria"), datatype=XSD.string)
 
         return True
 

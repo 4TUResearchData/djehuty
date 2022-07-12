@@ -4,8 +4,8 @@ SELECT DISTINCT ?id ?name ?url
 WHERE {
   GRAPH <{{state_graph}}> {
     ?url             rdf:type                 djht:License ;
-                     col:id                   ?id ;
-                     col:name                 ?name .
+                     djht:id                   ?id ;
+                     djht:name                 ?name .
   }
 }
 {% endblock %}

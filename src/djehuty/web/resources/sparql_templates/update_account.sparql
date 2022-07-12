@@ -3,98 +3,98 @@
 DELETE {
   GRAPH <{{state_graph}}> {
     {%- if is_active is not none %}
-    ?account          col:is_active             ?is_active .
+    ?account          djht:is_active             ?is_active .
     {%- endif%}{% if email is not none %}
-    ?account          col:email                 ?email .
+    ?account          djht:email                 ?email .
     {%- endif%}{% if job_title is not none %}
-    ?account          col:job_title             ?job_title .
+    ?account          djht:job_title             ?job_title .
     {%- endif%}{% if first_name is not none %}
-    ?account          col:first_name            ?first_name .
+    ?account          djht:first_name            ?first_name .
     {%- endif%}{% if last_name is not none %}
-    ?account          col:last_name             ?last_name .
+    ?account          djht:last_name             ?last_name .
     {%- endif%}{% if location is not none %}
-    ?account          col:location              ?location .
+    ?account          djht:location              ?location .
     {%- endif%}{% if biography is not none %}
-    ?account          col:biography             ?biography .
+    ?account          djht:biography             ?biography .
     {%- endif%}{% if institution_user_id is not none %}
-    ?account          col:institution_user_id   ?institution_user_id .
+    ?account          djht:institution_user_id   ?institution_user_id .
     {%- endif%}{% if institution_id is not none %}
-    ?account          col:institution_id        ?institution_id .
+    ?account          djht:institution_id        ?institution_id .
     {%- endif%}{% if pending_quota_request is not none %}
-    ?account          col:pending_quota_request ?pending_quota_request .
+    ?account          djht:pending_quota_request ?pending_quota_request .
     {%- endif%}{% if used_quota_public is not none %}
-    ?account          col:used_quota_public     ?used_quota_public .
+    ?account          djht:used_quota_public     ?used_quota_public .
     {%- endif%}{% if used_quota_private is not none %}
-    ?account          col:used_quota_private    ?used_quota_private .
+    ?account          djht:used_quota_private    ?used_quota_private .
     {%- endif%}{% if maximum_file_size is not none %}
-    ?account          col:maximum_file_size     ?maximum_file_size .
+    ?account          djht:maximum_file_size     ?maximum_file_size .
     {%- endif%}{% if quota is not none %}
-    ?account          col:quota                 ?quota .
+    ?account          djht:quota                 ?quota .
     {%- endif%}{% if modified_date is not none %}
-    ?account          col:modified_date         ?modified_date .
+    ?account          djht:modified_date         ?modified_date .
     {%- endif%}{% if group_id is not none %}
-    ?account          col:group_id              ?group_id .
+    ?account          djht:group_id              ?group_id .
     {%- endif%}
   }
 }
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if is_active is not none %}
-    ?account          col:is_active           {{is_active}} .
+    ?account          djht:is_active           {{is_active}} .
     {%- endif%}{% if email is not none %}
-    ?account          col:email               "{{email}}"^^xsd:string .
+    ?account          djht:email               "{{email}}"^^xsd:string .
     {%- endif%}{% if job_title is not none %}
-    ?account          col:job_title           "{{job_title}}"^^xsd:string .
+    ?account          djht:job_title           "{{job_title}}"^^xsd:string .
     {%- endif%}{% if first_name is not none %}
-    ?account          col:first_name          "{{first_name}}"^^xsd:string .
+    ?account          djht:first_name          "{{first_name}}"^^xsd:string .
     {%- endif%}{% if last_name is not none %}
-    ?account          col:last_name           "{{last_name}}"^^xsd:string .
+    ?account          djht:last_name           "{{last_name}}"^^xsd:string .
     {%- endif%}{% if location is not none %}
-    ?account          col:location            "{{location}}"^^xsd:string .
+    ?account          djht:location            "{{location}}"^^xsd:string .
     {%- endif%}{% if biography is not none %}
-    ?account          col:biography           "{{biography}}"^^xsd:string .
+    ?account          djht:biography           "{{biography}}"^^xsd:string .
     {%- endif%}{% if institution_user_id is not none %}
-    ?account          col:institution_user_id {{institution_user_id}} .
+    ?account          djht:institution_user_id {{institution_user_id}} .
     {%- endif%}{% if institution_id is not none %}
-    ?account          col:institution_id      {{institution_id}} .
+    ?account          djht:institution_id      {{institution_id}} .
     {%- endif%}{% if pending_quota_request is not none %}
-    ?account          col:pending_quota_request {{pending_quota_request}} .
+    ?account          djht:pending_quota_request {{pending_quota_request}} .
     {%- endif%}{% if used_quota_public is not none %}
-    ?account          col:used_quota_public   {{used_quota_public}} .
+    ?account          djht:used_quota_public   {{used_quota_public}} .
     {%- endif%}{% if used_quota_private is not none %}
-    ?account          col:used_quota_private  {{used_quota_private}} .
+    ?account          djht:used_quota_private  {{used_quota_private}} .
     {%- endif%}{% if maximum_file_size is not none %}
-    ?account          col:maximum_file_size   {{maximum_file_size}} .
+    ?account          djht:maximum_file_size   {{maximum_file_size}} .
     {%- endif%}{% if quota is not none %}
-    ?account          col:quota               {{quota}} .
+    ?account          djht:quota               {{quota}} .
     {%- endif%}{% if modified_date is not none %}
-    ?account          col:modified_date       "{{modified_date}}"^^xsd:string .
+    ?account          djht:modified_date       "{{modified_date}}"^^xsd:string .
     {%- endif%}{% if group_id is not none %}
-    ?account          col:group_id            {{group_id}} .
+    ?account          djht:group_id            {{group_id}} .
     {%- endif%}
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account              rdf:type                  djht:Account .
-    ?account              col:id                    ?id .
+    ?account              djht:id                    ?id .
 
-    OPTIONAL { ?account   col:is_active             ?is_active . }
-    OPTIONAL { ?account   col:email                 ?email . }
-    OPTIONAL { ?account   col:job_title             ?job_title . }
-    OPTIONAL { ?account   col:first_name            ?first_name . }
-    OPTIONAL { ?account   col:last_name             ?last_name . }
-    OPTIONAL { ?account   col:location              ?location . }
-    OPTIONAL { ?account   col:biography             ?biography . }
-    OPTIONAL { ?account   col:institution_user_id   ?institution_user_id . }
-    OPTIONAL { ?account   col:institution_id        ?institution_id . }
-    OPTIONAL { ?account   col:pending_quota_request ?pending_quota_request . }
-    OPTIONAL { ?account   col:used_quota_public     ?used_quota_public . }
-    OPTIONAL { ?account   col:used_quota_private    ?used_quota_private . }
-    OPTIONAL { ?account   col:maximum_file_size     ?maximum_file_size . }
-    OPTIONAL { ?account   col:quota                 ?quota . }
-    OPTIONAL { ?account   col:modified_date         ?modified_date . }
-    OPTIONAL { ?account   col:group_id              ?group_id . }
+    OPTIONAL { ?account   djht:is_active             ?is_active . }
+    OPTIONAL { ?account   djht:email                 ?email . }
+    OPTIONAL { ?account   djht:job_title             ?job_title . }
+    OPTIONAL { ?account   djht:first_name            ?first_name . }
+    OPTIONAL { ?account   djht:last_name             ?last_name . }
+    OPTIONAL { ?account   djht:location              ?location . }
+    OPTIONAL { ?account   djht:biography             ?biography . }
+    OPTIONAL { ?account   djht:institution_user_id   ?institution_user_id . }
+    OPTIONAL { ?account   djht:institution_id        ?institution_id . }
+    OPTIONAL { ?account   djht:pending_quota_request ?pending_quota_request . }
+    OPTIONAL { ?account   djht:used_quota_public     ?used_quota_public . }
+    OPTIONAL { ?account   djht:used_quota_private    ?used_quota_private . }
+    OPTIONAL { ?account   djht:maximum_file_size     ?maximum_file_size . }
+    OPTIONAL { ?account   djht:quota                 ?quota . }
+    OPTIONAL { ?account   djht:modified_date         ?modified_date . }
+    OPTIONAL { ?account   djht:group_id              ?group_id . }
   }
   FILTER (?id = {{account_id}})
 }

@@ -2,28 +2,28 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?article col:thumb  ?thumb .
+    ?article djht:thumb  ?thumb .
   }
 }
 INSERT {
   GRAPH <{{state_graph}}> {
-    ?article col:thumb  "/files/{{file_id}}/preview/{{file_id}}/thumb.png" .
+    ?article djht:thumb  "/files/{{file_id}}/preview/{{file_id}}/thumb.png" .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article rdf:type       djht:Article .
-    ?article col:article_version_id ?article_version_id .
-    ?article col:account_id {{account_id}} .
-    ?article col:version    {{version}}.
-    OPTIONAL { ?article col:thumb      ?thumb . }
+    ?article djht:article_version_id ?article_version_id .
+    ?article djht:account_id {{account_id}} .
+    ?article djht:version    {{version}}.
+    OPTIONAL { ?article djht:thumb      ?thumb . }
 
     ?file    rdf:type       djht:File .
-    ?file    col:id         ?file_id .
+    ?file    djht:id         ?file_id .
 
     ?link    rdf:type       djht:ArticleFile .
-    ?link    col:article_version_id ?article_version_id .
-    ?link    col:file_id    ?file_id .
+    ?link    djht:article_version_id ?article_version_id .
+    ?link    djht:file_id    ?file_id .
   }
 {%- if filters is not none %}{{ filters }}{% endif %}
 }

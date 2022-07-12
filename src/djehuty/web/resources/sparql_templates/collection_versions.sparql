@@ -4,13 +4,13 @@ SELECT DISTINCT ?collection_uri ?collection_id ?version ?url ?url_public_api
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri  rdf:type            djht:CollectionContainer ;
-                    col:collection_id   ?collection_id .
+                    djht:collection_id  ?collection_id .
 
-    ?collection_uri rdf:type           djht:Collection ;
-                    col:container      ?container_uri ;
-                    col:version        ?version ;
-                    col:url            ?url .
-    OPTIONAL {?collection_uri  col:url_public_api ?url_public_api .}
+    ?collection_uri rdf:type            djht:Collection ;
+                    djht:container      ?container_uri ;
+                    djht:version        ?version ;
+                    djht:url            ?url .
+    OPTIONAL {?collection_uri  djht:url_public_api ?url_public_api .}
   }
 {%- if filters is not none %}{{ filters }}{% endif %}
 }

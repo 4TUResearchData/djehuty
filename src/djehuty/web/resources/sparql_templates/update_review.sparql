@@ -2,31 +2,31 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?review          col:assigned_to           ?assigned_to .
+    ?review          djht:assigned_to           ?assigned_to .
     {% if status is not none %}
-    ?review          col:status                ?status .
+    ?review          djht:status                ?status .
     {%- endif%}{% if reminder_date is not none %}
-    ?review          col:reminder_date         ?reminder_date .
+    ?review          djht:reminder_date         ?reminder_date .
     {%- endif%}
   }
 }
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if assigned_to is not none %}
-    ?review          col:assigned_to          "{{assigned_to}}"^^xsd:integer .
+    ?review          djht:assigned_to          "{{assigned_to}}"^^xsd:integer .
     {%- endif%}{% if status is not none %}
-    ?review          col:status               "{{status}}"^^xsd:string .
+    ?review          djht:status               "{{status}}"^^xsd:string .
     {%- endif%}{% if reminder_date is not none %}
-    ?review          col:reminder_date        "{{reminder_date}}"^^xsd:dateTime .
+    ?review          djht:reminder_date        "{{reminder_date}}"^^xsd:dateTime .
     {%- endif%}
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review              rdf:type                  djht:Review .
-    OPTIONAL { ?review   col:assigned_to           ?assigned_to . }
-    OPTIONAL { ?review   col:status                ?status . }
-    OPTIONAL { ?review   col:reminder_date         ?reminder_date . }
+    OPTIONAL { ?review   djht:assigned_to           ?assigned_to . }
+    OPTIONAL { ?review   djht:status                ?status . }
+    OPTIONAL { ?review   djht:reminder_date         ?reminder_date . }
   }
   FILTER (?review = <{{review_uri}}>)
 }

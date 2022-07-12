@@ -7,26 +7,26 @@ SELECT DISTINCT ?active ?created_date ?email ?first_name ?group_id ?biography
                 ?location
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?account             rdf:type                  djht:Account .
-    ?account             col:id                    ?account_id .
-    OPTIONAL { ?account  col:active                ?active . }
-    OPTIONAL { ?account  col:job_title             ?job_title . }
-    OPTIONAL { ?account  col:location              ?location . }
-    OPTIONAL { ?account  col:biography             ?biography . }
-    OPTIONAL { ?account  col:created_date          ?created_date . }
-    OPTIONAL { ?account  col:email                 ?email . }
-    OPTIONAL { ?account  col:first_name            ?first_name . }
-    OPTIONAL { ?account  col:group_id              ?group_id . }
-    OPTIONAL { ?account  col:institution_id        ?institution_id . }
-    OPTIONAL { ?account  col:institution_user_id   ?institution_user_id . }
-    OPTIONAL { ?account  col:last_name             ?last_name . }
-    OPTIONAL { ?account  col:maximum_file_size     ?maximum_file_size . }
-    OPTIONAL { ?account  col:modified_date         ?modified_date . }
-    OPTIONAL { ?account  col:pending_quota_request ?pending_quota_request . }
-    OPTIONAL { ?account  col:quota                 ?quota . }
-    OPTIONAL { ?account  col:used_quota            ?used_quota . }
-    OPTIONAL { ?account  col:used_quota_private    ?used_quota_private . }
-    OPTIONAL { ?account  col:used_quota_public     ?used_quota_public . }
+    ?account             rdf:type                   djht:Account .
+    ?account             djht:id                    ?account_id .
+    OPTIONAL { ?account  djht:active                ?active . }
+    OPTIONAL { ?account  djht:job_title             ?job_title . }
+    OPTIONAL { ?account  djht:location              ?location . }
+    OPTIONAL { ?account  djht:biography             ?biography . }
+    OPTIONAL { ?account  djht:created_date          ?created_date . }
+    OPTIONAL { ?account  djht:email                 ?email . }
+    OPTIONAL { ?account  djht:first_name            ?first_name . }
+    OPTIONAL { ?account  djht:group_id              ?group_id . }
+    OPTIONAL { ?account  djht:institution_id        ?institution_id . }
+    OPTIONAL { ?account  djht:institution_user_id   ?institution_user_id . }
+    OPTIONAL { ?account  djht:last_name             ?last_name . }
+    OPTIONAL { ?account  djht:maximum_file_size     ?maximum_file_size . }
+    OPTIONAL { ?account  djht:modified_date         ?modified_date . }
+    OPTIONAL { ?account  djht:pending_quota_request ?pending_quota_request . }
+    OPTIONAL { ?account  djht:quota                 ?quota . }
+    OPTIONAL { ?account  djht:used_quota            ?used_quota . }
+    OPTIONAL { ?account  djht:used_quota_private    ?used_quota_private . }
+    OPTIONAL { ?account  djht:used_quota_public     ?used_quota_public . }
   }
   {%- if account_id is not none %}
   FILTER (?account_id = {{account_id}})

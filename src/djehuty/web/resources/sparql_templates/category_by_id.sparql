@@ -3,12 +3,12 @@
 SELECT DISTINCT ?id ?title ?parent_id ?source_id ?taxonomy_id
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?category            rdf:type         djht:Category .
-    ?category            col:id           ?id .
-    ?category            col:title        ?title .
-    OPTIONAL { ?category col:parent_id    ?parent_id . }
-    OPTIONAL { ?category col:source_id    ?source_id . }
-    OPTIONAL { ?category col:taxonomy_id  ?taxonomy_id . }
+    ?category            rdf:type          djht:Category .
+    ?category            djht:id           ?id .
+    ?category            djht:title        ?title .
+    OPTIONAL { ?category djht:parent_id    ?parent_id . }
+    OPTIONAL { ?category djht:source_id    ?source_id . }
+    OPTIONAL { ?category djht:taxonomy_id  ?taxonomy_id . }
   }
   FILTER (?id = {{category_id}})
 {%- if filters is not none %}{{ filters }}{% endif %}

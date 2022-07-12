@@ -8,7 +8,6 @@ from rdflib import Literal, Namespace, URIRef, XSD
 BLANK = Namespace("blank:")
 ROW   = Namespace("djehuty:")
 DJHT  = Namespace("https://ontologies.data.4tu.nl/djehuty/0.0.1/")
-COL   = Namespace("sg://0.99.12/table2rdf/Column/")
 
 def add (graph, subject, predicate, value, datatype=None):
     """Adds the triplet SUBJECT PREDICATE VALUE if VALUE is set."""

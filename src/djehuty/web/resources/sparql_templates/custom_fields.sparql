@@ -7,20 +7,20 @@ SELECT DISTINCT ?name          ?value         ?default_value
 WHERE {
   GRAPH <{{state_graph}}> {
     ?field             rdf:type                 djht:CustomField .
-    ?field             col:original_name        ?name .
-    ?field             col:predicate            ?predicate .
+    ?field             djht:original_name        ?name .
+    ?field             djht:predicate            ?predicate .
 
     {%- if item_uri is not none %}
     ?item_uri          rdf:type                 djht:{{prefix}} ;
                        ?predicate               ?value .
     {%- endif %}
-    OPTIONAL { ?field  col:default_value        ?default_value . }
-    OPTIONAL { ?field  col:placeholder          ?placeholder . }
-    OPTIONAL { ?field  col:max_length           ?max_length . }
-    OPTIONAL { ?field  col:min_length           ?min_length . }
-    OPTIONAL { ?field  col:field_type           ?field_type . }
-    OPTIONAL { ?field  col:is_multiple          ?is_multiple . }
-    OPTIONAL { ?field  col:is_mandatory         ?is_mandatory . }
+    OPTIONAL { ?field  djht:default_value        ?default_value . }
+    OPTIONAL { ?field  djht:placeholder          ?placeholder . }
+    OPTIONAL { ?field  djht:max_length           ?max_length . }
+    OPTIONAL { ?field  djht:min_length           ?min_length . }
+    OPTIONAL { ?field  djht:field_type           ?field_type . }
+    OPTIONAL { ?field  djht:is_multiple          ?is_multiple . }
+    OPTIONAL { ?field  djht:is_mandatory         ?is_mandatory . }
   }
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)

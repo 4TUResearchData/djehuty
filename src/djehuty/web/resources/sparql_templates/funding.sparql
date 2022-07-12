@@ -4,25 +4,25 @@ SELECT DISTINCT ?id ?title ?grant_code ?funder_name ?url ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
     ?item_uri         rdf:type                     djht:{{prefix}} .
-    ?item_uri         col:funding_list/rdf:rest*   ?rest .
-    ?rest             col:index                    ?order_index .
+    ?item_uri         djht:funding_list/rdf:rest*   ?rest .
+    ?rest             djht:index                    ?order_index .
     ?rest             rdf:first                    ?funding .
 
     ?funding          rdf:type                     djht:Funding .
-    ?funding          col:id                       ?funding_id .
+    ?funding          djht:id                       ?funding_id .
 
-    OPTIONAL { ?funding  col:title                 ?title . }
-    OPTIONAL { ?funding  col:grant_code            ?grant_code . }
-    OPTIONAL { ?funding  col:funder_name           ?funder_name . }
-    OPTIONAL { ?funding  col:url                   ?url . }
+    OPTIONAL { ?funding  djht:title                 ?title . }
+    OPTIONAL { ?funding  djht:grant_code            ?grant_code . }
+    OPTIONAL { ?funding  djht:funder_name           ?funder_name . }
+    OPTIONAL { ?funding  djht:url                   ?url . }
 
     {%- if account_id is not none %}
     ?container      rdf:type                 djht:{{prefix}}Container .
-    ?container      col:account_id           {{account_id}} .
+    ?container      djht:account_id           {{account_id}} .
     {%- if is_published %}
-    ?container      col:published_versions/rdf:rest*/rdf:first ?item_uri .
+    ?container      djht:published_versions/rdf:rest*/rdf:first ?item_uri .
     {%- else %}
-    ?container      col:draft                ?item_uri .
+    ?container      djht:draft                ?item_uri .
     {%- endif %}
     {%- endif %}
   }

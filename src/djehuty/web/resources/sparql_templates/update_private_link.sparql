@@ -3,39 +3,39 @@
 DELETE {
   GRAPH <{{state_graph}}> {
     {%- if is_active is not none %}
-    ?link     col:is_active        ?is_active .
+    ?link     djht:is_active        ?is_active .
     {%- endif %}{% if expires_date is not none %}
-    ?link     col:expires_date     ?expires_date .
+    ?link     djht:expires_date     ?expires_date .
     {%- endif %}{% if read_only is not none %}
-    ?link     col:read_only        ?read_only .
+    ?link     djht:read_only        ?read_only .
     {%- endif %}
   }
 }
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if is_active is not none %}
-    ?link     col:is_active        {{is_active}} .
+    ?link     djht:is_active        {{is_active}} .
     {%- endif %}{% if expires_date is not none %}
-    ?link     col:expires_date     "{{expires_date}}"^^xsd:string .
+    ?link     djht:expires_date     "{{expires_date}}"^^xsd:string .
     {%- endif %}{% if read_only is not none %}
-    ?link     col:read_only        {{read_only}} .
+    ?link     djht:read_only        {{read_only}} .
     {%- endif %}
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container       rdf:type/rdfs:subClassOf djht:Container ;
-                     col:account_id           ?account_id ;
-                     col:draft                ?item_uri .
+                     djht:account_id           ?account_id ;
+                     djht:draft                ?item_uri .
 
-    ?item_uri        col:private_links/rdf:rest*/rdf:first ?link .
+    ?item_uri        djht:private_links/rdf:rest*/rdf:first ?link .
 
     ?link            rdf:type             djht:PrivateLink ;
-                     col:id               ?id_string .
+                     djht:id               ?id_string .
 
-    OPTIONAL { ?link col:is_active        ?is_active . }
-    OPTIONAL { ?link col:expires_date     ?expires_date . }
-    OPTIONAL { ?link col:read_only        ?read_only . }
+    OPTIONAL { ?link djht:is_active        ?is_active . }
+    OPTIONAL { ?link djht:expires_date     ?expires_date . }
+    OPTIONAL { ?link djht:read_only        ?read_only . }
   }
   FILTER (?item_uri   = <{{item_uri}}>)
   FILTER (?account_id = {{account_id}})

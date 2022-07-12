@@ -4,7 +4,7 @@ SELECT DISTINCT ?uri
 WHERE {
   GRAPH <{{state_graph}}> {
     ?uri     rdf:type     djht:{{record_type}} ;
-             col:{{identifier_name}} {{identifier}} .
+             djht:{{identifier_name}} {{identifier}} .
   }
 }
 {% endblock %}

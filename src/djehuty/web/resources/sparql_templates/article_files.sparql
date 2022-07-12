@@ -10,28 +10,28 @@ WHERE {
     ?file              rdf:type                djht:File .
     {% if article_uri is not none %}
     ?article_uri       rdf:type                djht:Article ;
-                       col:files               ?files .
+                       djht:files              ?files .
     ?files             rdf:rest*               ?rest .
     ?rest              rdf:first               ?file ;
-                       col:index               ?order_index .
+                       djht:index              ?order_index .
     {% endif %}{% if account_id is not none %}
-    ?article_uri       col:container            ?container .
+    ?article_uri       djht:container           ?container .
     ?container         rdf:type/rdfs:subClassOf djht:Container ;
-                       col:account_id           {{account_id}} .
+                       djht:account_id          {{account_id}} .
     {% endif %}
-    OPTIONAL { ?file  col:id                   ?id . }
-    OPTIONAL { ?file  col:name                 ?name . }
-    OPTIONAL { ?file  col:filesystem_location  ?filesystem_location . }
-    OPTIONAL { ?file  col:size                 ?size . }
-    OPTIONAL { ?file  col:is_link_only         ?is_link_only . }
-    OPTIONAL { ?file  col:download_url         ?download_url . }
-    OPTIONAL { ?file  col:supplied_md5         ?supplied_md5 . }
-    OPTIONAL { ?file  col:computed_md5         ?computed_md5 . }
-    OPTIONAL { ?file  col:viewer_type          ?viewer_type . }
-    OPTIONAL { ?file  col:preview_state        ?preview_state . }
-    OPTIONAL { ?file  col:status               ?status . }
-    OPTIONAL { ?file  col:upload_url           ?upload_url . }
-    OPTIONAL { ?file  col:upload_token         ?upload_token . }
+    OPTIONAL { ?file  djht:id                   ?id . }
+    OPTIONAL { ?file  djht:name                 ?name . }
+    OPTIONAL { ?file  djht:filesystem_location  ?filesystem_location . }
+    OPTIONAL { ?file  djht:size                 ?size . }
+    OPTIONAL { ?file  djht:is_link_only         ?is_link_only . }
+    OPTIONAL { ?file  djht:download_url         ?download_url . }
+    OPTIONAL { ?file  djht:supplied_md5         ?supplied_md5 . }
+    OPTIONAL { ?file  djht:computed_md5         ?computed_md5 . }
+    OPTIONAL { ?file  djht:viewer_type          ?viewer_type . }
+    OPTIONAL { ?file  djht:preview_state        ?preview_state . }
+    OPTIONAL { ?file  djht:status               ?status . }
+    OPTIONAL { ?file  djht:upload_url           ?upload_url . }
+    OPTIONAL { ?file  djht:upload_token         ?upload_token . }
 
     BIND(STRAFTER(STR(?file), "file:") AS ?uuid)
   }

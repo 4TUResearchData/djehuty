@@ -3,12 +3,12 @@
 SELECT DISTINCT ?collection_id ?title
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?collection_container rdf:type                                         djht:CollectionContainer ;
-                          col:collection_id                                ?collection_id ;
-                          col:latest_published_version                     ?collection .
-    ?collection           rdf:type                                         djht:Collection ;
-                          col:title                                        ?title ;
-                          col:articles/rdf:rest*/rdf:first/col:article_id  {{article_id}} .
+    ?collection_container rdf:type                                          djht:CollectionContainer ;
+                          djht:collection_id                                ?collection_id ;
+                          djht:latest_published_version                     ?collection .
+    ?collection           rdf:type                                          djht:Collection ;
+                          djht:title                                        ?title ;
+                          djht:articles/rdf:rest*/rdf:first/djht:article_id  {{article_id}} .
   }   
 }
 {% endblock %}

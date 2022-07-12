@@ -25,108 +25,108 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri      rdf:type                 djht:ArticleContainer .
-    ?container_uri      col:account_id           ?account_id .
-    OPTIONAL { ?container_uri col:article_id     ?article_id . }
+    ?container_uri      djht:account_id           ?account_id .
+    OPTIONAL { ?container_uri djht:article_id     ?article_id . }
 
     {%- if is_published %}
     {%- if is_latest %}
-    ?container_uri      col:latest_published_version ?article .
+    ?container_uri      djht:latest_published_version ?article .
     {%- else %}
-    ?container_uri      col:published_versions/rdf:rest*/rdf:first ?article .
+    ?container_uri      djht:published_versions/rdf:rest*/rdf:first ?article .
     {%- endif %}
     {%- else %}
-    ?container_uri      col:draft                ?article .
+    ?container_uri      djht:draft                ?article .
     OPTIONAL {
       ?review           rdf:type                 djht:Review ;
-                        col:dataset              ?article .
+                        djht:dataset              ?article .
       {%- if is_under_review %}
-      ?review           col:request_date         ?review_submit_date .
+      ?review           djht:request_date         ?review_submit_date .
       {%- endif %}
     }
     {%- endif %}
 
-    ?article            col:title                ?title .
-    OPTIONAL { ?article col:version              ?version . }
+    ?article            djht:title                ?title .
+    OPTIONAL { ?article djht:version              ?version . }
 
     OPTIONAL {
       ?account          rdf:type                 djht:Account .
-      ?account          col:id                   ?account_id .
-      ?account          col:institution_id       ?institution_id .
+      ?account          djht:id                   ?account_id .
+      ?account          djht:institution_id       ?institution_id .
     }
 
     {%- if collection_uri is not none %}
     ?collection         rdf:type                 djht:Collection .
-    ?collection         col:articles/rdf:rest*/rdf:first ?container_uri .
+    ?collection         djht:articles/rdf:rest*/rdf:first ?container_uri .
     {%- endif %}
     {%- if categories is not none: %}
-    ?article            col:categories/rdf:rest*/rdf:first ?category .
-    ?category           col:id                   ?category_id .
-    ?category           col:parent_id            ?parent_category_id .
+    ?article            djht:categories/rdf:rest*/rdf:first ?category .
+    ?category           djht:id                   ?category_id .
+    ?category           djht:parent_id            ?parent_category_id .
     {%- endif %}
 
-    OPTIONAL { ?container_uri col:first_online_date    ?timeline_first_online . }
-    OPTIONAL { ?article col:publisher_acceptance_date ?timeline_publisher_acceptance . }
-    OPTIONAL { ?article col:publisher_publication_date ?timeline_publisher_publication . }
-    OPTIONAL { ?article col:submission_date      ?timeline_submission . }
-    OPTIONAL { ?article col:posted_date          ?timeline_posted . }
-    OPTIONAL { ?article col:revision_date        ?timeline_revision . }
+    OPTIONAL { ?container_uri djht:first_online_date    ?timeline_first_online . }
+    OPTIONAL { ?article djht:publisher_acceptance_date ?timeline_publisher_acceptance . }
+    OPTIONAL { ?article djht:publisher_publication_date ?timeline_publisher_publication . }
+    OPTIONAL { ?article djht:submission_date      ?timeline_submission . }
+    OPTIONAL { ?article djht:posted_date          ?timeline_posted . }
+    OPTIONAL { ?article djht:revision_date        ?timeline_revision . }
 
     OPTIONAL {
-      ?article          col:license               ?license_url .
+      ?article          djht:license               ?license_url .
       ?license_url      rdf:type                  djht:License .
-      ?license_url      col:id                    ?license_id .
-      ?license_url      col:name                  ?license_name .
+      ?license_url      djht:id                    ?license_id .
+      ?license_url      djht:name                  ?license_name .
     }
 
-    OPTIONAL { ?article col:citation              ?citation . }
-    OPTIONAL { ?article col:confidential_reason   ?confidential_reason . }
-    OPTIONAL { ?article col:created_date          ?created_date . }
-    OPTIONAL { ?article col:custom_fields_id      ?custom_fields_id . }
-    OPTIONAL { ?article col:defined_type          ?defined_type . }
-    OPTIONAL { ?article col:defined_type_name     ?defined_type_name . }
-    OPTIONAL { ?article col:description           ?description . }
-    OPTIONAL { ?article col:doi                   ?doi . }
-    OPTIONAL { ?article col:embargo_until_date    ?embargo_until_date . }
-    OPTIONAL { ?article col:embargo_type          ?embargo_type . }
-    OPTIONAL { ?article col:embargo_title         ?embargo_title . }
-    OPTIONAL { ?article col:embargo_reason        ?embargo_reason . }
-    OPTIONAL { ?article col:embargo_allow_access_requests ?embargo_allow_access_requests . }
-    OPTIONAL { ?article col:figshare_url          ?figshare_url . }
-    OPTIONAL { ?article col:funding               ?funding . }
-    OPTIONAL { ?article col:group_id              ?group_id . }
-    OPTIONAL { ?article col:handle                ?handle . }
-    OPTIONAL { ?article col:has_linked_file       ?has_linked_file . }
-    OPTIONAL { ?article col:is_active             ?is_active . }
-    OPTIONAL { ?article col:is_confidential       ?is_confidential . }
-    OPTIONAL { ?article col:is_embargoed          ?is_embargoed . }
-    OPTIONAL { ?article col:is_metadata_record    ?is_metadata_record . }
-    OPTIONAL { ?article col:metadata_reason       ?metadata_reason . }
-    OPTIONAL { ?article col:modified_date         ?modified_date . }
-    OPTIONAL { ?article col:published_date        ?published_date . }
-    OPTIONAL { ?article col:resource_doi          ?resource_doi . }
-    OPTIONAL { ?article col:resource_title        ?resource_title . }
-    OPTIONAL { ?article col:size                  ?size . }
-    OPTIONAL { ?article col:status                ?status . }
-    OPTIONAL { ?article col:thumb                 ?thumb . }
-    OPTIONAL { ?article col:url                   ?url . }
-    OPTIONAL { ?article col:url_private_api       ?url_private_api . }
-    OPTIONAL { ?article col:url_private_html      ?url_private_html . }
-    OPTIONAL { ?article col:url_public_api        ?url_public_api . }
-    OPTIONAL { ?article col:url_public_html       ?url_public_html . }
+    OPTIONAL { ?article djht:citation              ?citation . }
+    OPTIONAL { ?article djht:confidential_reason   ?confidential_reason . }
+    OPTIONAL { ?article djht:created_date          ?created_date . }
+    OPTIONAL { ?article djht:custom_fields_id      ?custom_fields_id . }
+    OPTIONAL { ?article djht:defined_type          ?defined_type . }
+    OPTIONAL { ?article djht:defined_type_name     ?defined_type_name . }
+    OPTIONAL { ?article djht:description           ?description . }
+    OPTIONAL { ?article djht:doi                   ?doi . }
+    OPTIONAL { ?article djht:embargo_until_date    ?embargo_until_date . }
+    OPTIONAL { ?article djht:embargo_type          ?embargo_type . }
+    OPTIONAL { ?article djht:embargo_title         ?embargo_title . }
+    OPTIONAL { ?article djht:embargo_reason        ?embargo_reason . }
+    OPTIONAL { ?article djht:embargo_allow_access_requests ?embargo_allow_access_requests . }
+    OPTIONAL { ?article djht:figshare_url          ?figshare_url . }
+    OPTIONAL { ?article djht:funding               ?funding . }
+    OPTIONAL { ?article djht:group_id              ?group_id . }
+    OPTIONAL { ?article djht:handle                ?handle . }
+    OPTIONAL { ?article djht:has_linked_file       ?has_linked_file . }
+    OPTIONAL { ?article djht:is_active             ?is_active . }
+    OPTIONAL { ?article djht:is_confidential       ?is_confidential . }
+    OPTIONAL { ?article djht:is_embargoed          ?is_embargoed . }
+    OPTIONAL { ?article djht:is_metadata_record    ?is_metadata_record . }
+    OPTIONAL { ?article djht:metadata_reason       ?metadata_reason . }
+    OPTIONAL { ?article djht:modified_date         ?modified_date . }
+    OPTIONAL { ?article djht:published_date        ?published_date . }
+    OPTIONAL { ?article djht:resource_doi          ?resource_doi . }
+    OPTIONAL { ?article djht:resource_title        ?resource_title . }
+    OPTIONAL { ?article djht:size                  ?size . }
+    OPTIONAL { ?article djht:status                ?status . }
+    OPTIONAL { ?article djht:thumb                 ?thumb . }
+    OPTIONAL { ?article djht:url                   ?url . }
+    OPTIONAL { ?article djht:url_private_api       ?url_private_api . }
+    OPTIONAL { ?article djht:url_private_html      ?url_private_html . }
+    OPTIONAL { ?article djht:url_public_api        ?url_public_api . }
+    OPTIONAL { ?article djht:url_public_html       ?url_public_html . }
     {#- Custom fields. #}
-    OPTIONAL { ?article col:publisher             ?publisher . }
-    OPTIONAL { ?article col:language              ?language . }
-    OPTIONAL { ?article col:time_coverage         ?time_coverage . }
-    OPTIONAL { ?article col:geolocation           ?geolocation . }
-    OPTIONAL { ?article col:longitude             ?longitude . }
-    OPTIONAL { ?article col:latitude              ?latitude . }
-    OPTIONAL { ?article col:format                ?format . }
-    OPTIONAL { ?article col:organizations         ?organizations . }
-    OPTIONAL { ?article col:data_link             ?data_link . }
-    OPTIONAL { ?article col:same_as               ?same_as . }
-    OPTIONAL { ?article col:derived_from          ?derived_from . }
-    OPTIONAL { ?article col:contributors          ?contributors . }
-    OPTIONAL { ?article col:license_remarks       ?license_remarks . }
+    OPTIONAL { ?article djht:publisher             ?publisher . }
+    OPTIONAL { ?article djht:language              ?language . }
+    OPTIONAL { ?article djht:time_coverage         ?time_coverage . }
+    OPTIONAL { ?article djht:geolocation           ?geolocation . }
+    OPTIONAL { ?article djht:longitude             ?longitude . }
+    OPTIONAL { ?article djht:latitude              ?latitude . }
+    OPTIONAL { ?article djht:format                ?format . }
+    OPTIONAL { ?article djht:organizations         ?organizations . }
+    OPTIONAL { ?article djht:data_link             ?data_link . }
+    OPTIONAL { ?article djht:same_as               ?same_as . }
+    OPTIONAL { ?article djht:derived_from          ?derived_from . }
+    OPTIONAL { ?article djht:contributors          ?contributors . }
+    OPTIONAL { ?article djht:license_remarks       ?license_remarks . }
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?article), "article:")         AS ?uuid)

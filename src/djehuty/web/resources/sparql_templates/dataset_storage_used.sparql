@@ -4,14 +4,14 @@ SELECT (SUM(?bytes) AS ?bytes)
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri  rdf:type                      djht:ArticleContainer .
-    ?container_uri  col:draft                     ?draft .
-    ?container_uri  col:published_versions        ?published .
+    ?container_uri  djht:draft                     ?draft .
+    ?container_uri  djht:published_versions        ?published .
     {
-      ?published    col:files/rdf:rest*/rdf:first ?file .
+      ?published    djht:files/rdf:rest*/rdf:first ?file .
     } UNION {
-      ?draft        col:files/rdf:rest*/rdf:first ?file .
+      ?draft        djht:files/rdf:rest*/rdf:first ?file .
     }
-    ?file           col:size                      ?bytes .
+    ?file           djht:size                      ?bytes .
     FILTER (?container_uri = <{{container_uri}}>)
   }
 }

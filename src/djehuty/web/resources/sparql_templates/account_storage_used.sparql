@@ -5,19 +5,19 @@ WHERE {
   GRAPH <{{state_graph}}> {
 
     ?container      rdf:type                      djht:ArticleContainer .
-    ?container      col:account_id                ?account_id .
+    ?container      djht:account_id               ?account_id .
 
     {
-      ?container    col:draft                     ?article .
+      ?container    djht:draft                    ?article .
     } UNION {
-      ?container    col:published_versions/rdf:rest*/rdf:first ?article .
+      ?container    djht:published_versions/rdf:rest*/rdf:first ?article .
     }
 
     ?article        rdf:type                      djht:Article .
-    ?article        col:files/rdf:rest*/rdf:first ?file .
+    ?article        djht:files/rdf:rest*/rdf:first ?file .
 
     ?file           rdf:type                      djht:File .
-    ?file           col:size                      ?bytes .
+    ?file           djht:size                     ?bytes .
   }
   FILTER (?account_id = {{account_id}})
 }

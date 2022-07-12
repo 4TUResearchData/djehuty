@@ -4,8 +4,8 @@ SELECT (COUNT(DISTINCT ?article_id) AS ?articles)
 WHERE {
   GRAPH <{{state_graph}}> {
     ?article        rdf:type            djht:Article .
-    ?article        col:article_id      ?article_id .
-    ?article        col:is_public       "true"^^xsd:boolean .
+    ?article        djht:article_id      ?article_id .
+    ?article        djht:is_public       "true"^^xsd:boolean .
   }
 {%- if filters is not none %}{{ filters }}{% endif %}
 }

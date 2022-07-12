@@ -6,31 +6,31 @@ SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to ?status
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review             rdf:type                 djht:Review ;
-                        col:dataset              ?dataset .
+                        djht:dataset              ?dataset .
 
-    OPTIONAL { ?review  col:request_date         ?request_date . }
-    OPTIONAL { ?review  col:reminder_date        ?reminder_date . }
-    OPTIONAL { ?review  col:assigned_to          ?assigned_to . }
-    OPTIONAL { ?review  col:status               ?status . }
+    OPTIONAL { ?review  djht:request_date         ?request_date . }
+    OPTIONAL { ?review  djht:reminder_date        ?reminder_date . }
+    OPTIONAL { ?review  djht:assigned_to          ?assigned_to . }
+    OPTIONAL { ?review  djht:status               ?status . }
 
-    ?dataset            col:container            ?container_uri ;
-                        col:title                ?dataset_title .
+    ?dataset            djht:container            ?container_uri ;
+                        djht:title                ?dataset_title .
 
-    ?container_uri      col:account_id           ?account_id .
+    ?container_uri      djht:account_id           ?account_id .
     ?account            rdf:type                 djht:Account ;
-                        col:id                   ?account_id .
+                        djht:id                   ?account_id .
 
     OPTIONAL {
       ?group            rdf:type                 djht:InstitutionGroup ;
-                        col:id                   ?group_id ;
-                        col:name                 ?group_name .
-      ?dataset          col:group_id             ?group_id .
+                        djht:id                   ?group_id ;
+                        djht:name                 ?group_name .
+      ?dataset          djht:group_id             ?group_id .
     }
 
-    OPTIONAL { ?account col:email                ?submitter_email . }
-    OPTIONAL { ?account col:first_name           ?submitter_first_name . }
-    OPTIONAL { ?account col:last_name            ?submitter_last_name . }
-    OPTIONAL { ?account col:institution_id       ?institution_id . }
+    OPTIONAL { ?account djht:email                ?submitter_email . }
+    OPTIONAL { ?account djht:first_name           ?submitter_first_name . }
+    OPTIONAL { ?account djht:last_name            ?submitter_last_name . }
+    OPTIONAL { ?account djht:institution_id       ?institution_id . }
 
     BIND(STRAFTER(STR(?dataset), "article:")  AS ?dataset_uuid)
     BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)

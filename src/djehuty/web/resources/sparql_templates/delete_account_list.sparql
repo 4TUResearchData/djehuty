@@ -2,14 +2,14 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?account     col:{{predicate}}   ?item_list .
+    ?account     djht:{{predicate}}   ?item_list .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account    rdf:type             djht:Account ;
-                col:account_id       ?account_id ;
-                col:{{predicate}}    ?item_list .
+                djht:account_id       ?account_id ;
+                djht:{{predicate}}    ?item_list .
   }
   FILTER (?account_id = {{account_id}})
 }

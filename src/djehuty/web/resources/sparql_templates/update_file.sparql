@@ -3,38 +3,38 @@
 DELETE {
   GRAPH <{{state_graph}}> {
     {%- if download_url is not none %}
-    ?file              col:download_url        ?download_url .
+    ?file              djht:download_url        ?download_url .
     {%- endif%}{% if computed_md5 is not none %}
-    ?file              col:computed_md5        ?computed_md5 .
+    ?file              djht:computed_md5        ?computed_md5 .
     {%- endif%}{% if viewer_type is not none %}
-    ?file              col:viewer_type         ?viewer_type .
+    ?file              djht:viewer_type         ?viewer_type .
     {%- endif%}{% if preview_state is not none %}
-    ?file              col:preview_state       ?preview_state .
+    ?file              djht:preview_state       ?preview_state .
     {%- endif%}{% if file_size is not none %}
-    ?file              col:size                ?size .
+    ?file              djht:size                ?size .
     {%- endif%}{% if status is not none %}
-    ?file              col:status              ?status .
+    ?file              djht:status              ?status .
     {%- endif%}{% if filesystem_location is not none %}
-    ?file              col:filesystem_location ?filesystem_location .
+    ?file              djht:filesystem_location ?filesystem_location .
     {%- endif%}
   }
 }
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if download_url is not none %}
-    ?file              col:download_url        "{{download_url}}"^^xsd:string .
+    ?file              djht:download_url        "{{download_url}}"^^xsd:string .
     {%- endif%}{% if computed_md5 is not none %}
-    ?file              col:computed_md5        "{{computed_md5}}"^^xsd:string .
+    ?file              djht:computed_md5        "{{computed_md5}}"^^xsd:string .
     {%- endif%}{% if viewer_type is not none %}
-    ?file              col:viewer_type         "{{viewer_type}}"^^xsd:string .
+    ?file              djht:viewer_type         "{{viewer_type}}"^^xsd:string .
     {%- endif%}{% if preview_state is not none %}
-    ?file              col:preview_state       "{{preview_state}}"^^xsd:string .
+    ?file              djht:preview_state       "{{preview_state}}"^^xsd:string .
     {%- endif%}{% if file_size is not none %}
-    ?file              col:size                {{file_size}} .
+    ?file              djht:size                {{file_size}} .
     {%- endif%}{% if status is not none %}
-    ?file              col:status              "{{status}}"^^xsd:string .
+    ?file              djht:status              "{{status}}"^^xsd:string .
     {%- endif%}{% if filesystem_location is not none %}
-    ?file              col:filesystem_location "{{filesystem_location}}"^^xsd:string .
+    ?file              djht:filesystem_location "{{filesystem_location}}"^^xsd:string .
     {%- endif%}
   }
 }
@@ -44,17 +44,17 @@ WHERE {
 
     {#- Ensure that the account_id associated with the ?file can modify its
      #- properties. #}
-    ?article           col:files/rdf:rest*/rdf:first ?file ;
-                       col:container/col:account_id  {{account_id}} .
+    ?article           djht:files/rdf:rest*/rdf:first ?file ;
+                       djht:container/djht:account_id  {{account_id}} .
 
-    OPTIONAL { ?file   col:id                  ?id . }
-    OPTIONAL { ?file   col:filesystem_location ?filesystem_location . }
-    OPTIONAL { ?file   col:download_url        ?download_url . }
-    OPTIONAL { ?file   col:computed_md5        ?computed_md5 . }
-    OPTIONAL { ?file   col:viewer_type         ?viewer_type . }
-    OPTIONAL { ?file   col:preview_state       ?preview_state . }
-    OPTIONAL { ?file   col:size                ?size . }
-    OPTIONAL { ?file   col:status              ?status . }
+    OPTIONAL { ?file   djht:id                  ?id . }
+    OPTIONAL { ?file   djht:filesystem_location ?filesystem_location . }
+    OPTIONAL { ?file   djht:download_url        ?download_url . }
+    OPTIONAL { ?file   djht:computed_md5        ?computed_md5 . }
+    OPTIONAL { ?file   djht:viewer_type         ?viewer_type . }
+    OPTIONAL { ?file   djht:preview_state       ?preview_state . }
+    OPTIONAL { ?file   djht:size                ?size . }
+    OPTIONAL { ?file   djht:status              ?status . }
   }
   FILTER (?file = <file:{{file_uuid}}>)
 }

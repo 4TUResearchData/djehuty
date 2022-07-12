@@ -5,12 +5,12 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?container      rdf:type/rdfs:subClassOf djht:Container .
     {%- if account_id is not none %}
-    ?container      col:account_id           {{account_id}} .
+    ?container      djht:account_id           {{account_id}} .
     {%- endif %}
 
-    ?item_uri       col:container            ?container .
-    ?item_uri       col:references/rdf:rest* ?rest .
-    ?rest           col:index                ?id .
+    ?item_uri       djht:container            ?container .
+    ?item_uri       djht:references/rdf:rest* ?rest .
+    ?rest           djht:index                ?id .
     ?rest           rdf:first                ?url .
   }
   FILTER (?item_uri = <{{item_uri}}>)

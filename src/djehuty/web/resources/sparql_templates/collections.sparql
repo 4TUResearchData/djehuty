@@ -13,55 +13,55 @@ SELECT DISTINCT ?account_id ?resource_id ?resource_doi ?resource_title
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri      rdf:type                 djht:CollectionContainer .
-    ?container_uri      col:account_id           ?account_id .
-    OPTIONAL { ?container_uri col:collection_id     ?collection_id . }
+    ?container_uri      djht:account_id          ?account_id .
+    OPTIONAL { ?container_uri djht:collection_id ?collection_id . }
 
     {%- if is_published %}
     {%- if is_latest %}
-    ?container_uri      col:latest_published_version ?collection .
+    ?container_uri      djht:latest_published_version ?collection .
     {%- else %}
-    ?container_uri      col:published_versions/rdf:rest*/rdf:first ?collection .
+    ?container_uri      djht:published_versions/rdf:rest*/rdf:first ?collection .
     {%- endif %}
     {%- else %}
-    ?container_uri      col:draft                    ?collection .
+    ?container_uri      djht:draft               ?collection .
     {%- endif %}
 
     OPTIONAL {
       ?account          rdf:type                 djht:Account .
-      ?account          col:id                   ?account_id .
-      ?account          col:institution_id       ?institution_id .
+      ?account          djht:id                  ?account_id .
+      ?account          djht:institution_id      ?institution_id .
     }
 
-    ?collection            rdf:type                   djht:Collection .
+    ?collection            rdf:type              djht:Collection .
 
-    OPTIONAL { ?container_uri col:first_online_date    ?timeline_first_online . }
-    OPTIONAL { ?collection    col:publisher_acceptance_date ?timeline_publisher_acceptance . }
-    OPTIONAL { ?collection    col:publisher_publication_date ?timeline_publisher_publication . }
-    OPTIONAL { ?collection    col:submission_date      ?timeline_submission . }
-    OPTIONAL { ?collection    col:posted_date          ?timeline_posted . }
-    OPTIONAL { ?collection    col:revision_date        ?timeline_revision . }
+    OPTIONAL { ?container_uri djht:first_online_date   ?timeline_first_online . }
+    OPTIONAL { ?collection    djht:publisher_acceptance_date ?timeline_publisher_acceptance . }
+    OPTIONAL { ?collection    djht:publisher_publication_date ?timeline_publisher_publication . }
+    OPTIONAL { ?collection    djht:submission_date     ?timeline_submission . }
+    OPTIONAL { ?collection    djht:posted_date         ?timeline_posted . }
+    OPTIONAL { ?collection    djht:revision_date       ?timeline_revision . }
 
-    OPTIONAL { ?collection   col:resource_id          ?resource_id . }
-    OPTIONAL { ?collection   col:resource_doi         ?resource_doi . }
-    OPTIONAL { ?collection   col:resource_title       ?resource_title . }
-    OPTIONAL { ?collection   col:resource_link        ?resource_link . }
-    OPTIONAL { ?collection   col:resource_version     ?resource_version . }
-    OPTIONAL { ?collection   col:version              ?version . }
-    OPTIONAL { ?collection   col:description          ?description . }
-    OPTIONAL { ?collection   col:group_id             ?group_id . }
-    OPTIONAL { ?collection   col:is_public            ?is_public . }
-    OPTIONAL { ?collection   col:citation             ?citation . }
-    OPTIONAL { ?collection   col:custom_fields_id     ?custom_fields_id . }
-    OPTIONAL { ?collection   col:modified_date        ?modified_date . }
-    OPTIONAL { ?collection   col:created_date         ?created_date . }
-    OPTIONAL { ?collection   col:title                ?title . }
-    OPTIONAL { ?collection   col:doi                  ?doi . }
-    OPTIONAL { ?collection   col:handle               ?handle . }
-    OPTIONAL { ?collection   col:url                  ?url . }
-    OPTIONAL { ?collection   col:geolocation          ?geolocation . }
-    OPTIONAL { ?collection   col:latitude             ?latitude . }
-    OPTIONAL { ?collection   col:longitude            ?longitude . }
-    OPTIONAL { ?collection   col:published_date       ?published_date . }
+    OPTIONAL { ?collection   djht:resource_id          ?resource_id . }
+    OPTIONAL { ?collection   djht:resource_doi         ?resource_doi . }
+    OPTIONAL { ?collection   djht:resource_title       ?resource_title . }
+    OPTIONAL { ?collection   djht:resource_link        ?resource_link . }
+    OPTIONAL { ?collection   djht:resource_version     ?resource_version . }
+    OPTIONAL { ?collection   djht:version              ?version . }
+    OPTIONAL { ?collection   djht:description          ?description . }
+    OPTIONAL { ?collection   djht:group_id             ?group_id . }
+    OPTIONAL { ?collection   djht:is_public            ?is_public . }
+    OPTIONAL { ?collection   djht:citation             ?citation . }
+    OPTIONAL { ?collection   djht:custom_fields_id     ?custom_fields_id . }
+    OPTIONAL { ?collection   djht:modified_date        ?modified_date . }
+    OPTIONAL { ?collection   djht:created_date         ?created_date . }
+    OPTIONAL { ?collection   djht:title                ?title . }
+    OPTIONAL { ?collection   djht:doi                  ?doi . }
+    OPTIONAL { ?collection   djht:handle               ?handle . }
+    OPTIONAL { ?collection   djht:url                  ?url . }
+    OPTIONAL { ?collection   djht:geolocation          ?geolocation . }
+    OPTIONAL { ?collection   djht:latitude             ?latitude . }
+    OPTIONAL { ?collection   djht:longitude            ?longitude . }
+    OPTIONAL { ?collection   djht:published_date       ?published_date . }
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?collection), "collection:") AS ?uuid)

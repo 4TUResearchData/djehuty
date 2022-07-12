@@ -3,89 +3,89 @@
 DELETE {
   GRAPH <{{state_graph}}> {
     {%- if title is not none %}
-    ?collection           col:title                ?title .
+    ?collection           djht:title                ?title .
     {%- endif%}{% if description is not none %}
-    ?collection           col:description          ?description .
+    ?collection           djht:description          ?description .
     {%- endif%}{% if resource_doi is not none %}
-    ?collection           col:resource_doi         ?resource_doi .
+    ?collection           djht:resource_doi         ?resource_doi .
     {%- endif%}{% if resource_title is not none %}
-    ?collection           col:resource_title       ?resource_title .
+    ?collection           djht:resource_title       ?resource_title .
     {%- endif%}{% if group_id is not none %}
-    ?collection           col:group_id             ?group_id .
+    ?collection           djht:group_id             ?group_id .
     {%- endif%}{% if time_coverage is not none %}
-    ?collection           col:time_coverage        ?time_coverage .
+    ?collection           djht:time_coverage        ?time_coverage .
     {%- endif%}{% if publisher is not none %}
-    ?collection           col:publisher            ?publisher .
+    ?collection           djht:publisher            ?publisher .
     {%- endif%}{% if language is not none %}
-    ?collection           col:language             ?language .
+    ?collection           djht:language             ?language .
     {%- endif%}{% if contributors is not none %}
-    ?collection           col:contributors         ?contributors .
+    ?collection           djht:contributors         ?contributors .
     {%- endif%}{% if geolocation is not none %}
-    ?collection           col:geolocation          ?geolocation .
+    ?collection           djht:geolocation          ?geolocation .
     {%- endif%}{% if longitude is not none %}
-    ?collection           col:longitude            ?longitude .
+    ?collection           djht:longitude            ?longitude .
     {%- endif%}{% if latitude is not none %}
-    ?collection           col:latitude             ?latitude .
+    ?collection           djht:latitude             ?latitude .
     {%- endif%}{% if organizations is not none %}
-    ?collection           col:organizations        ?organizations .
+    ?collection           djht:organizations        ?organizations .
     {%- endif%}
-    ?collection           col:modified_date        ?modified_date .
+    ?collection           djht:modified_date        ?modified_date .
   }
 }
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if title is not none %}
-    ?collection           col:title                "{{title}}"^^xsd:string .
+    ?collection           djht:title                "{{title}}"^^xsd:string .
     {%- endif%}{% if description is not none %}
-    ?collection           col:description          "{{description}}"^^xsd:string .
+    ?collection           djht:description          "{{description}}"^^xsd:string .
     {%- endif%}{% if resource_doi is not none %}
-    ?collection           col:resource_doi         "{{resource_doi}}"^^xsd:string .
+    ?collection           djht:resource_doi         "{{resource_doi}}"^^xsd:string .
     {%- endif%}{% if resource_title is not none %}
-    ?collection           col:resource_title       "{{resource_title}}"^^xsd:string .
+    ?collection           djht:resource_title       "{{resource_title}}"^^xsd:string .
     {%- endif%}{% if group_id is not none %}
-    ?collection           col:group_id             {{group_id}} .
+    ?collection           djht:group_id             {{group_id}} .
     {%- endif%}{% if time_coverage is not none %}
-    ?collection           col:time_coverage        "{{time_coverage}}"^^xsd:string .
+    ?collection           djht:time_coverage        "{{time_coverage}}"^^xsd:string .
     {%- endif%}{% if publisher is not none %}
-    ?collection           col:publisher            "{{publisher}}"^^xsd:string .
+    ?collection           djht:publisher            "{{publisher}}"^^xsd:string .
     {%- endif%}{% if language is not none %}
-    ?collection           col:language             "{{language}}"^^xsd:string .
+    ?collection           djht:language             "{{language}}"^^xsd:string .
     {%- endif%}{% if contributors is not none %}
-    ?collection           col:contributors         "{{contributors}}"^^xsd:string .
+    ?collection           djht:contributors         "{{contributors}}"^^xsd:string .
     {%- endif%}{% if geolocation is not none %}
-    ?collection           col:geolocation          "{{geolocation}}"^^xsd:string .
+    ?collection           djht:geolocation          "{{geolocation}}"^^xsd:string .
     {%- endif%}{% if longitude is not none %}
-    ?collection           col:longitude            "{{longitude}}"^^xsd:string .
+    ?collection           djht:longitude            "{{longitude}}"^^xsd:string .
     {%- endif%}{% if latitude is not none %}
-    ?collection           col:latitude             "{{latitude}}"^^xsd:string .
+    ?collection           djht:latitude             "{{latitude}}"^^xsd:string .
     {%- endif%}{% if organizations is not none %}
-    ?collection           col:organizations        "{{organizations}}"^^xsd:string .
+    ?collection           djht:organizations        "{{organizations}}"^^xsd:string .
     {%- endif%}
-    ?collection           col:modified_date        "{{modified_date}}"^^xsd:string .
+    ?collection           djht:modified_date        "{{modified_date}}"^^xsd:string .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container          rdf:type                 djht:CollectionContainer .
-    ?container          col:account_id           ?account_id .
-    ?container          col:draft                ?collection .
+    ?container          djht:account_id           ?account_id .
+    ?container          djht:draft                ?collection .
 
     ?collection         rdf:type                 djht:Collection .
 
-    OPTIONAL { ?collection col:title                ?title . }
-    OPTIONAL { ?collection col:description          ?description . }
-    OPTIONAL { ?collection col:group_id             ?group_id . }
-    OPTIONAL { ?collection col:resource_doi         ?resource_doi . }
-    OPTIONAL { ?collection col:resource_title       ?resource_title . }
-    OPTIONAL { ?collection col:modified_date        ?modified_date . }
-    OPTIONAL { ?collection col:publisher            ?publisher . }
-    OPTIONAL { ?collection col:language             ?language . }
-    OPTIONAL { ?collection col:time_coverage        ?time_coverage . }
-    OPTIONAL { ?collection col:geolocation          ?geolocation . }
-    OPTIONAL { ?collection col:longitude            ?longitude . }
-    OPTIONAL { ?collection col:latitude             ?latitude . }
-    OPTIONAL { ?collection col:organizations        ?organizations . }
-    OPTIONAL { ?collection col:contributors         ?contributors . }
+    OPTIONAL { ?collection djht:title                ?title . }
+    OPTIONAL { ?collection djht:description          ?description . }
+    OPTIONAL { ?collection djht:group_id             ?group_id . }
+    OPTIONAL { ?collection djht:resource_doi         ?resource_doi . }
+    OPTIONAL { ?collection djht:resource_title       ?resource_title . }
+    OPTIONAL { ?collection djht:modified_date        ?modified_date . }
+    OPTIONAL { ?collection djht:publisher            ?publisher . }
+    OPTIONAL { ?collection djht:language             ?language . }
+    OPTIONAL { ?collection djht:time_coverage        ?time_coverage . }
+    OPTIONAL { ?collection djht:geolocation          ?geolocation . }
+    OPTIONAL { ?collection djht:longitude            ?longitude . }
+    OPTIONAL { ?collection djht:latitude             ?latitude . }
+    OPTIONAL { ?collection djht:organizations        ?organizations . }
+    OPTIONAL { ?collection djht:contributors         ?contributors . }
   }
 {%- if account_id is not none: %}
   FILTER (?account_id = {{account_id}})

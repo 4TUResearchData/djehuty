@@ -4,9 +4,9 @@ SELECT DISTINCT ?index ?tag
 WHERE {
   GRAPH <{{state_graph}}> {
     ?item_uri        rdf:type            djht:{{prefix}} ;
-                     col:tags/rdf:rest*  ?tag_node .
+                     djht:tags/rdf:rest*  ?tag_node .
     ?tag_node        rdf:first           ?tag ;
-                     col:index           ?index .
+                     djht:index           ?index .
   }
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)
