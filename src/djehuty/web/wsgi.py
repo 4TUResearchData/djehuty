@@ -1640,7 +1640,7 @@ class ApiServer:
             re_field = ":(" + "|".join(fields+["search_term"]) + "):"
             has_fieldsearch = re.search(re_field, search_for) is not None
 
-            re_operator = '(\(|\)|AND|OR)'
+            re_operator = r"(\(|\)|AND|OR)"
             search_list = re.split(re_operator, search_for)
 
             search_list = list(filter(None, [s.strip() for s in search_list]))
