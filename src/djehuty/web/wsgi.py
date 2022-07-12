@@ -3960,16 +3960,16 @@ class ApiServer:
     def api_v3_private_article_git_refs (self, request, article_id):
         """Implements /v3/articles/<id>.git/<suffix>."""
 
-        service = validator.string_value (request.args, "service", 0, 255)
+        service = validator.string_value (request.args, "service", 0, 16)
         self.__git_create_repository (article_id)
 
         ## Used for clone and pull.
         if service == "git-upload-pack":
-            return self.__git_passthrough (request)
+            return self.api_v3_private_article_git_upload_pack (request, article_id)
 
         ## Used for push.
         if service == "git-receive-pack":
-            return self.__git_passthrough (request)
+            return self.api_v3_private_article_git_receive_pack (request, article_id)
 
         logging.error ("Unsupported Git service command: %s", service)
         return self.error_500 ()
@@ -3980,7 +3980,11 @@ class ApiServer:
 
     def api_v3_private_article_git_receive_pack (self, request, article_id):
         """Implements /v3/articles/<id>.git/git-receive-pack."""
-        return self.__git_passthrough (request)
+        dataset = self.__dataset_by_id_or_uri (article_id, is_published=False)
+        if dataset is not None:
+            return self.__git_passthrough (request)
+
+        return self.error_403 (request)
 
     def api_v3_profile (self, request):
         """Implements /v3/profile."""
