@@ -51,6 +51,10 @@ class DatabaseInterface:
     def __get_file_size_for_catalog (self, url, recurse=None):
         """Returns the file size for an OPeNDAP catalog."""
 
+        if not url.startswith('https://opendap.4tu.nl/thredds'):
+            logging.debug("Trying to get data size: %s is not an opendap catalog", url)
+            return 0
+
         if recurse is None:
             noRecurse = ('/IDRA/', '/darelux/', '/zandmotor/meteohydro/xband/catalog', '/CF_Drinking_water/')
             recurse = not True in [noRecurseFragment in url for noRecurseFragment in noRecurse]
@@ -420,12 +424,11 @@ class DatabaseInterface:
             record['doi'] = extra_dois[0]
 
     def handle_custom_fields (self, record, uri, item_id, version, item_type):
-        '''Handle custom fields and fix contributors/organizations if needed'''
-        #TODO: add "Data Link Size" field for opendap catalogs in "Data Link" field (use self.__get_file_size_for_catalog)
+        '''Handle custom fields and fix special cases'''
         for field in value_or (record, "custom_fields", []):
+            #replace contributors by organizations and (optional) contributors
             if field['name'] == 'Contributors':
                 try:
-                    #replace contributors by organizations and (optional) contributors
                     extra = self.extra_contributors_organizations[item_type][item_id][version]
                     contributors  = extra['contributors']
                     if contributors:
@@ -434,6 +437,14 @@ class DatabaseInterface:
                     field = {'name': 'Organizations', 'value': extra['organizations']}
                 except KeyError:
                     pass
+            #add "Data Link Size" field for opendap catalogs in "Data Link" field, correct opendap url if needed
+            if field['name'] == 'Data Link':
+                url = field['value'].replace('https://opendap.tudelft.nl/', 'https://opendap.4tu.nl/')
+                field['value'] = url
+                dataLinkSize = self.__get_file_size_for_catalog(url)
+                if dataLinkSize:
+                    sizeField = {'name': 'Data Link Size', 'value': dataLinkSize}
+                    self.insert_custom_field (uri, sizeField)
 
             self.insert_custom_field (uri, field)
 
