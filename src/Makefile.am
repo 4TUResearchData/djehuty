@@ -25,6 +25,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/403.html                             \
     djehuty/web/resources/html_templates/404.html                             \
     djehuty/web/resources/html_templates/admin/dashboard.html                 \
+    djehuty/web/resources/html_templates/admin/exploratory.html               \
     djehuty/web/resources/html_templates/admin/maintenance.html               \
     djehuty/web/resources/html_templates/admin/users.html                     \
     djehuty/web/resources/html_templates/article.html                         \
@@ -191,6 +192,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/js/edit-article.js                           \
     djehuty/web/resources/static/js/edit-collection.js                        \
     djehuty/web/resources/static/js/edit-profile.js                           \
+    djehuty/web/resources/static/js/exploratory.js                            \
     djehuty/web/resources/static/js/jquery-3.6.0.min.js                       \
     djehuty/web/resources/static/js/jquery.dataTables.min.js                  \
     djehuty/web/resources/static/js/quill.min.js                              \

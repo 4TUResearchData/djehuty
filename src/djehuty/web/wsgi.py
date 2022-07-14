@@ -83,6 +83,7 @@ class ApiServer:
             Rule("/review/unassign/<article_id>",             endpoint = "review_unassign"),
             Rule("/admin/dashboard",                          endpoint = "admin_dashboard"),
             Rule("/admin/users",                              endpoint = "admin_users"),
+            Rule("/admin/exploratory",                        endpoint = "admin_exploratory"),
             Rule("/admin/impersonate/<account_id>",           endpoint = "admin_impersonate"),
             Rule("/admin/maintenance",                        endpoint = "admin_maintenance"),
             Rule("/admin/maintenance/clear-cache",            endpoint = "admin_clear_cache"),
@@ -1256,6 +1257,16 @@ class ApiServer:
         accounts = self.db.accounts()
         return self.__render_template (request, "admin/users.html",
                                        accounts = accounts)
+
+    def api_admin_exploratory (self, request):
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        return self.__render_template (request, "admin/exploratory.html")
 
     def api_admin_maintenance (self, request):
         if not self.accepts_html (request):
