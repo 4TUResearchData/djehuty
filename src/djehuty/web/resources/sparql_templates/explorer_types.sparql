@@ -1,0 +1,9 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?type
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?subject rdf:type ?type .
+  }
+}
+{% endblock %}

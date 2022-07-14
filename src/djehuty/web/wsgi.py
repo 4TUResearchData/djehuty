@@ -181,6 +181,10 @@ class ApiServer:
             Rule("/v3/profile",                               endpoint = "v3_profile"),
             Rule("/v3/profile/categories",                    endpoint = "v3_profile_categories"),
 
+            # Data model exploratory
+            Rule("/v3/explore/types",                         endpoint = "v3_explore_types"),
+            Rule("/v3/explore/properties",                    endpoint = "v3_explore_properties"),
+
             ## ----------------------------------------------------------------
             ## GIT HTTP API
             ## ----------------------------------------------------------------
@@ -4045,3 +4049,42 @@ class ApiServer:
 
         categories = self.db.account_categories (account_id)
         return self.default_list_response (categories, formatter.format_category_record)
+
+    def api_v3_explore_types (self, request):
+        """Implements /v3/explore/types."""
+
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        types = self.db.types ()
+        types = list(map (lambda item: item["type"], types))
+        return self.response (json.dumps(types))
+
+    def api_v3_explore_properties (self, request):
+        """Implements /v3/explore/properties."""
+
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        try:
+            parameters = {}
+            parameters["uri"] = self.get_parameter (request, "uri")
+            uri        = validator.string_value (parameters, "uri", 0, 255)
+            uri        = requests.utils.unquote(uri)
+            properties = self.db.properties_for_type (uri)
+            properties = list(map (lambda item: item["predicate"], properties))
+
+            return self.response (json.dumps(properties))
+
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)

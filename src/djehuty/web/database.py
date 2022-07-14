@@ -1979,3 +1979,18 @@ class SparqlInterface:
         """Returns True when the session_token is valid, False otherwise."""
         account = self.account_by_session_token (session_token)
         return account is not None
+
+    def properties_for_type (self, rdf_type):
+        """Returns properties for the current state graph for RDF_TYPE."""
+
+        query = self.__query_from_template ("explorer_properties", {
+            "type": rdf_type
+        })
+
+        return self.__run_query (query, query, "explorer_properties")
+
+    def types (self):
+        """Returns a list of 'rdf:type's used in the state-graph."""
+
+        query = self.__query_from_template ("explorer_types")
+        return self.__run_query (query, query, "explorer_types")
