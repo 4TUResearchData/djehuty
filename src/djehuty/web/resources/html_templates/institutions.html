@@ -130,12 +130,12 @@ var group_ids = "{% for item in sub_groups: %}{{item.group_id}}{{ ',' if not loo
 <h2>All datasets</h2>
 {% for item in articles %}
 <div class="tile-item">
-  <a href="/articles/{{item.article_id}}">{% if item.thumb | length: %}
+  <a href="/datasets/{{item.article_id}}">{% if item.thumb | length: %}
   <img class="tile-preview" src="{{item.thumb}}" aria-hidden="true" alt="thumbnail for {{item.article_id}}" />
   {% else: %}
   <img class="tile-preview" src="/static/images/dataset-thumb.svg" aria-hidden="true" alt="thumbnail for {{item.article_id}}" />
   {% endif %}</a>
-  <div class="tile-title"><a href="/articles/{{item.article_id}}">{{item.title}}</a></div>
+  <div class="tile-title"><a href="/datasets/{{item.article_id}}">{{item.title}}</a></div>
   <div class="tile-date">Posted on {{item.timeline_posted}}</div>
   <div class="tile-authors">
   </div>
