@@ -183,6 +183,16 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/portal/tudelft.jpg                    \
     djehuty/web/resources/static/images/portal/tueindhoven.jpg                \
     djehuty/web/resources/static/images/portal/utwente.jpg                    \
-    djehuty/web/resources/static/images/portal/wageningen.jpg
+    djehuty/web/resources/static/images/portal/wageningen.jpg                 \
+    djehuty/web/resources/static/js/d3-extras.js                              \
+    djehuty/web/resources/static/js/d3.v7.min.js                              \
+    djehuty/web/resources/static/js/edit-article.js                           \
+    djehuty/web/resources/static/js/edit-collection.js                        \
+    djehuty/web/resources/static/js/edit-profile.js                           \
+    djehuty/web/resources/static/js/jquery-3.6.0.min.js                       \
+    djehuty/web/resources/static/js/jquery.dataTables.min.js                  \
+    djehuty/web/resources/static/js/quill.min.js                              \
+    djehuty/web/resources/static/js/ranking_by_institution.js                 \
+    djehuty/web/resources/static/js/ranking.js
 
 EXTRA_DIST      = $(PYTHON_FILES) $(EXTRA_RESOURCES)
