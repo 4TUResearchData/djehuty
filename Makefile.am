@@ -1,6 +1,9 @@
 AUTOMAKE_OPTIONS        = subdir-objects
 SUBDIRS                 = src
 
+# Help make tarballs more reproducible.
+export TAR_OPTIONS      = --owner=0 --group=0 --numeric-owner
+
 EXTRA_DIST              =                   \
   LICENSE                                   \
   MANIFEST.in                               \
