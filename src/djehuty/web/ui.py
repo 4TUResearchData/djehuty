@@ -45,6 +45,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if xml_root.tag != "djehuty":
             raise ConfigFileNotFound
 
+        config_dir = os.path.dirname(config_file)
         log_file = config_value (xml_root, "log-file", None, None)
         if log_file is not None:
             is_writeable = False
@@ -119,7 +120,6 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         for include_element in xml_root.iter('include'):
             include    = include_element.text
-            config_dir = os.path.dirname(config_file)
 
             if include is None:
                 continue
