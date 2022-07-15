@@ -444,7 +444,6 @@ class DatabaseInterface:
                 field['value'] = urls
                 data_link_size = sum([self.__get_file_size_for_catalog(url) for url in urls])
                 if data_link_size:
-                    size_field = {'name': 'Data Link Size', 'value': data_link_size}
                     rdf.add (self.store, uri, rdf.DJHT["data_link_size"], data_link_size, XSD.integer)
 
             self.insert_custom_field (uri, field)
