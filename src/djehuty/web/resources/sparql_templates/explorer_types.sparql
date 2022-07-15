@@ -6,4 +6,5 @@ WHERE {
     ?subject rdf:type ?type .
   }
 }
+ORDER BY ASC(?type)
 {% endblock %}

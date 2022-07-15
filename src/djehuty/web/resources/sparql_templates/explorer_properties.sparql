@@ -7,4 +7,5 @@ WHERE {
   }
   FILTER (?predicate != rdf:type)
 }
+ORDER BY ASC(?predicate)
 {% endblock %}
