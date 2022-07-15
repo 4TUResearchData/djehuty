@@ -56,8 +56,8 @@ class DatabaseInterface:
             return 0
 
         if recurse is None:
-            noRecurse = ('/IDRA/', '/darelux/', '/zandmotor/meteohydro/xband/catalog', '/CF_Drinking_water/')
-            recurse = not True in [noRecurseFragment in url for noRecurseFragment in noRecurse]
+            no_recurse = ('/IDRA/', '/darelux/', '/zandmotor/meteohydro/xband/catalog', '/CF_Drinking_water/')
+            recurse = not True in [no_recurse_fragment in url for no_recurse_fragment in no_recurse]
 
         total_filesize = 0
         metadata_url   = url.replace(".html", ".xml")
