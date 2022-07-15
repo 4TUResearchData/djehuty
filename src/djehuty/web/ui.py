@@ -117,9 +117,13 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                 except ValueError as error:
                     logging.error ("Privilege configuration error: %s", error)
 
-        include = config_value (xml_root, "include", None, None)
-        config_dir = os.path.dirname(config_file)
-        if include is not None:
+        for include_element in xml_root.iter('include'):
+            include    = include_element.text
+            config_dir = os.path.dirname(config_file)
+
+            if include is None:
+                continue
+
             if not os.path.isabs(include):
                 include = os.path.join(config_dir, include)
 
