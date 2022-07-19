@@ -110,6 +110,32 @@ class DatabaseInterface:
 
         return total_filesize
 
+    def get_crossref_events_for_doi (self, dois, from_date, mail_to):
+        """Returns a list of events for a list of DOIs."""
+        #rate limit is 15 queries per second. I'm going for 10/s
+        rate = .1
+        #from_date 'yyyy-mm-dd'
+        # dois is list of dois
+        # events is list of dictionaries (one per event)
+        events = []
+        for DOI in dois:
+            query = f"https://api.eventdata.crossref.org/v1/events?mailto={mail_to}&obj-id={DOI}&from-occurred-date={from_date}"
+            time.sleep(rate)
+            req = requests.get(query)
+            j = json.loads(req.content)
+            for i in j["message"]["events"]:
+                try:
+                    event = {}
+                    event['object']    = str(i["obj_id"])
+                    event['source']    = str(i["source_id"])
+                    event['timestamp'] = str(i["timestamp"])
+                    event['type']      = str(i["relation_type_id"])
+                    events.append(event)
+                except KeyError:
+                    logging.error("Failed to gather crossref data for %s.", DOI)
+
+        return events
+
     def record_uri (self, record_type, identifier_name, identifier):
         """
         Returns the URI for a record identified with IDENTIFIER_NAME and by
