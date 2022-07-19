@@ -12,7 +12,7 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article rdf:type       djht:Article .
+    ?article rdf:type       djht:Dataset .
     ?article djht:article_version_id ?article_version_id .
     ?article djht:account_id {{account_id}} .
     ?article djht:version    {{version}}.
@@ -21,7 +21,7 @@ WHERE {
     ?file    rdf:type       djht:File .
     ?file    djht:id         ?file_id .
 
-    ?link    rdf:type       djht:ArticleFile .
+    ?link    rdf:type       djht:DatasetFile .
     ?link    djht:article_version_id ?article_version_id .
     ?link    djht:file_id    ?file_id .
   }

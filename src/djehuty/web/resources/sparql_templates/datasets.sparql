@@ -24,7 +24,7 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container_uri      rdf:type                 djht:ArticleContainer .
+    ?container_uri      rdf:type                 djht:DatasetContainer .
     ?container_uri      djht:account_id           ?account_id .
     OPTIONAL { ?container_uri djht:article_id     ?article_id . }
 

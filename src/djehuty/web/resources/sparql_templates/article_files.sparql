@@ -9,7 +9,7 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                djht:File .
     {% if article_uri is not none %}
-    ?article_uri       rdf:type                djht:Article ;
+    ?article_uri       rdf:type                djht:Dataset ;
                        djht:files              ?files .
     ?files             rdf:rest*               ?rest .
     ?rest              rdf:first               ?file ;

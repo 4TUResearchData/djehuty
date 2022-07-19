@@ -929,7 +929,7 @@ class SparqlInterface:
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
 
-        graph.add ((uri, RDF.type,                      rdf.DJHT["Article"]))
+        graph.add ((uri, RDF.type,                      rdf.DJHT["Dataset"]))
         graph.add ((uri, rdf.DJHT["title"],              Literal(title, datatype=XSD.string)))
         graph.add ((uri, rdf.DJHT["container"],          container))
 
@@ -1268,7 +1268,7 @@ class SparqlInterface:
         graph    = Graph()
         embargo_uri = rdf.ROW[f"embargo_{embargo_id}"]
 
-        graph.add ((embargo_uri, RDF.type,               rdf.DJHT["ArticleEmbargoOption"]))
+        graph.add ((embargo_uri, RDF.type,               rdf.DJHT["DatasetEmbargoOption"]))
         graph.add ((embargo_uri, rdf.DJHT["id"],          Literal(embargo_id)))
         graph.add ((embargo_uri, rdf.DJHT["article_version_id"], Literal(article_version_id)))
 

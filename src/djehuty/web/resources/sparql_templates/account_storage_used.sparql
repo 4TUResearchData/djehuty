@@ -4,7 +4,7 @@ SELECT DISTINCT ?file ?bytes
 WHERE {
   GRAPH <{{state_graph}}> {
 
-    ?container      rdf:type                      djht:ArticleContainer .
+    ?container      rdf:type                      djht:DatasetContainer .
     ?container      djht:account_id               ?account_id .
 
     {
@@ -13,7 +13,7 @@ WHERE {
       ?container    djht:published_versions/rdf:rest*/rdf:first ?article .
     }
 
-    ?article        rdf:type                      djht:Article .
+    ?article        rdf:type                      djht:Dataset .
     ?article        djht:files/rdf:rest*/rdf:first ?file .
 
     ?file           rdf:type                      djht:File .

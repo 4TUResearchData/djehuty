@@ -3,10 +3,10 @@
 SELECT ?article_id ?url_public_html ?published_date ?title
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article_container rdf:type                      djht:ArticleContainer ;
+    ?article_container rdf:type                      djht:DatasetContainer ;
                        djht:article_id                ?article_id ;
                        djht:latest_published_version  ?article .
-    ?article           rdf:type                      djht:Article ;
+    ?article           rdf:type                      djht:Dataset ;
                        djht:url_public_html           ?url_public_html ;
                        djht:published_date            ?published_date ;
                        djht:title                     ?title .

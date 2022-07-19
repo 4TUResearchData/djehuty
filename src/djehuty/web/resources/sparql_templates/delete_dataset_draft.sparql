@@ -9,7 +9,7 @@ DELETE {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container rdf:type             djht:ArticleContainer ;
+    ?container rdf:type             djht:DatasetContainer ;
                djht:account_id       {{account_id}} ;
                djht:draft            ?article .
 

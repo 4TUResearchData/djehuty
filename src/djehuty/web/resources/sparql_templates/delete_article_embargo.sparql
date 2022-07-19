@@ -15,7 +15,7 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article  rdf:type               djht:Article ;
+    ?article  rdf:type               djht:Dataset ;
     ?article  djht:account_id         {{account_id}} .
     ?article  djht:is_embargoed       ?is_embargoed .
 

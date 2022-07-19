@@ -3,7 +3,7 @@
 SELECT (COUNT(DISTINCT ?article_id) AS ?articles)
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article        rdf:type            djht:Article .
+    ?article        rdf:type            djht:Dataset .
     ?article        djht:article_id      ?article_id .
     ?article        djht:is_public       "true"^^xsd:boolean .
   }

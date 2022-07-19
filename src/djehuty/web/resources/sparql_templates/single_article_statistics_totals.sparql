@@ -3,7 +3,7 @@
 SELECT ?downloads ?views ?shares ?cites
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container            a                    djht:ArticleContainer ;
+    ?container            a                    djht:DatasetContainer ;
                           djht:article_id       {{article_id}} .
     OPTIONAL { ?container djht:total_downloads  ?downloads . }
     OPTIONAL { ?container djht:total_views      ?views .     }

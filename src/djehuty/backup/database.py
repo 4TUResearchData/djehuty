@@ -529,7 +529,7 @@ class DatabaseInterface:
         articles = value_or (record, "articles", [])
         if articles:
             for index, article_id in enumerate (articles):
-                article_uri = self.record_uri ("ArticleContainer", "article_id", article_id)
+                article_uri = self.record_uri ("DatasetContainer", "article_id", article_id)
                 if article_uri is None:
                     logging.error ("Could not find article container for %d", article_id)
                     continue
@@ -763,7 +763,7 @@ class DatabaseInterface:
 
         self.lock_for_inserts.acquire()
 
-        self.store.add ((uri, RDF.type,              rdf.DJHT["Article"]))
+        self.store.add ((uri, RDF.type,              rdf.DJHT["Dataset"]))
         self.store.add ((uri, rdf.DJHT["article_id"], Literal(article_id, datatype=XSD.integer)))
 
         self.insert_timeline (uri, value_or_none (record, "timeline"))
@@ -913,7 +913,7 @@ class DatabaseInterface:
 
     def insert_static_triplets (self):
         """Procedure to insert triplets to augment the state graph."""
-        self.store.add ((rdf.DJHT["ArticleContainer"],    RDFS.subClassOf, rdf.DJHT["Container"]))
+        self.store.add ((rdf.DJHT["DatasetContainer"],    RDFS.subClassOf, rdf.DJHT["Container"]))
         self.store.add ((rdf.DJHT["CollectionContainer"], RDFS.subClassOf, rdf.DJHT["Container"]))
 
         return True

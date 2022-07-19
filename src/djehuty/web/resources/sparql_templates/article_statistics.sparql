@@ -3,7 +3,7 @@
 SELECT DISTINCT ?article_id (SUM(?{{item_type}}) / COUNT(?version)) AS ?{{item_type}} ?title ?figshare_url
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container      rdf:type                      djht:ArticleContainer .
+    ?container      rdf:type                      djht:DatasetContainer .
     ?container      djht:article_id               ?article_id .
     ?container      djht:total_{{item_type}}      ?{{item_type}} .
     ?container      djht:latest_published_version ?article .

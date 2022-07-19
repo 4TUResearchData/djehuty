@@ -6,7 +6,7 @@
 SELECT DISTINCT ?doi ?title
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article  a               djht:Article ;
+    ?article  a               djht:Dataset ;
               djht:container   ?container ;
               djht:version     ?version ;
               djht:title       ?title ;
@@ -15,7 +15,7 @@ WHERE {
       SELECT ?container (MAX(?i_version) AS ?version)
       WHERE {
         GRAPH <{{state_graph}}> {
-          ?i_article  a               djht:Article ;
+          ?i_article  a               djht:Dataset ;
                       djht:container   ?container ;
                       djht:version     ?i_version .
           { ?i_article  djht:files/rdf:rest*/rdf:first  ?file .
