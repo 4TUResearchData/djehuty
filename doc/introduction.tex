@@ -1,0 +1,86 @@
+\chapter{Introduction}
+
+\code{djehuty} is the data repository system developed by and for
+4TU.ResearchData.  The name finds its inspiration in
+\href{https://en.wikipedia.org/wiki/Thoth}{Thoth}, the Egyptian
+entity that introduced the idea of writing.
+
+\section{Obtaining the source code}
+\label{sec:obtaining-tarball}
+
+  \begin{sloppypar}
+  The source code can be downloaded at the
+  \href{https://github.com/4TUResearchData/djehuty/releases}%
+  {Releases}%
+  \footnote{\url{https://github.com/4TUResearchData/djehuty/releases}}
+  page.  Make sure to download the {\fontfamily{\ttdefault}\selectfont
+    djehuty-\djehutyversion{}.tar.gz} file.
+  \end{sloppypar}
+
+  Or, directly download the tarball using the command-line:
+
+\begin{lstlisting}[language=bash]
+curl -LO https://github.com/4TUResearchData/djehuty/releases/\
+download/(@*\djehutyversion{}*@)/djehuty-(@*\djehutyversion{}*@).tar.gz
+\end{lstlisting}
+
+  After obtaining the tarball, it can be unpacked using the \t{tar}
+  command:
+
+\begin{lstlisting}
+tar zxvf djehuty-(@*\djehutyversion{}*@).tar.gz
+\end{lstlisting}
+
+\section{Installing the prerequisites}
+\label{sec:prerequisites}
+
+  The \code{djehuty} program needs Python (version 3.6 or higher) and
+  Git to be installed.  Additionally, a couple of Python packages need
+  to be installed.  The following sections describe installing the
+  prerequisites on various GNU/Linux distributions.
+
+  The web service of \code{djehuty} stores its information in a SPARQL 1.1
+  endpoint.  
+
+\subsection{Installation on Enterprise Linux 7+}
+
+  The Python packages on Enterprise Linux version 7 or higher seem to
+  be too far out of date.  So installing the prerequisites involves
+  two steps.
+
+  The first step involves installing system-wide packages for Python and Git.
+
+\begin{lstlisting}
+yum install python39 git
+\end{lstlisting}
+
+  The second step involves using Python's \t{venv} module to
+  install the Python packages in a virtual environment:
+
+\begin{lstlisting}
+python3.9 -m venv djehuty-env
+. djehuty-env/bin/activate
+cd /path/to/the/repository/checkout/root
+pip install -r requirements.txt
+\end{lstlisting}
+
+\section{Installation instructions}
+
+  After obtaining the source code (see section \refer{sec:obtaining-tarball})
+  and installing the required tools (see section \refer{sec:prerequisites}),
+  building involves running the following commands:
+
+\begin{lstlisting}
+cd djehuty-(@*\djehutyversion{}*@)
+autoreconf -vif # Only needed if the "./configure" step does not work.
+./configure
+make
+make install
+\end{lstlisting}
+
+  To run the \t{make install} command, super user privileges may be
+  required.  Specify a \t{-{}-prefix} to the \t{configure}
+  script to install the tools to a user-writeable location to avoid
+  needing super user privileges.
+
+  After installation, the \t{djehuty} program will be available.

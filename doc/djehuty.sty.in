@@ -1,0 +1,178 @@
+\ProvidesPackage{djehuty}
+
+% LaTeX preamble
+% ------------------------------------------------------------------------------
+\usepackage[a4paper,margin=1.2cm,headheight=50pt,includeheadfoot]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{parskip}
+\usepackage{array}
+\usepackage[margin=1cm]{caption}
+
+\usepackage{fancyhdr}
+\setlength{\headheight}{30pt}
+\pagestyle{fancy}
+\fancyhead[RE]{\includegraphics[width=2cm]{figures/logo}}
+\fancyhead[LO]{\includegraphics[width=2cm]{figures/logo}}
+\fancypagestyle{plain}{\fancyhead{}}
+\addtolength{\topmargin}{-1cm}
+
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}p{#1}}
+\def\arraystretch{1.3}
+
+% Use a different font.
+\ifdefined\HCode
+\else
+\usepackage{libertine}
+\fi
+\usepackage[T1]{fontenc}
+
+% HTML tweaks.
+\ifdefined\HCode
+\Configure{HTML}{\HCode{<html lang="en">\Hnewline}}{\HCode{</html>}}{}{}
+\Configure{@HEAD}{\HCode{<meta http-equiv="Content-Type" content="text/html; charset=utf-8">\Hnewline}}
+\Configure{@HEAD}{\HCode{<link rel="stylesheet" href="djehuty.css">\Hnewline}}
+\Configure{@BODY}{\ifvmode\IgnorePar\fi\EndP\HCode{<div id="wrapper">}}
+\Configure{@/BODY}{\ifvmode\IgnorePar\fi\EndP\HCode{</div>}}
+\fi
+
+% Pretty character placement.
+\usepackage{microtype}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\setitemize{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt}
+\usepackage[titletoc,title]{appendix}
+
+% Change the teletype font back to the original.
+\renewcommand*\ttdefault{cmtt}
+
+% Allow an easy way to create full-width tables.
+\usepackage{tabularx}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\usepackage{float}
+
+\usepackage{color, colortbl}
+\definecolor{Gray}{rgb}{0.5, 0.63, 0.76}
+\definecolor{White}{gray}{1.00}
+\definecolor{HighlightColor}{rgb}{1.0, 0.97, 0.85}
+\definecolor{EvenRowColor}{rgb}{0.97, 0.97, 0.97}
+\definecolor{OddRowColor}{rgb}{0.93, 0.93, 0.93}
+\definecolor{CodeGray}{rgb}{0.97, 0.97, 0.97}
+\definecolor{CodeComment}{rgb}{0.4,0.4,0.4}
+\definecolor{CodePurple}{rgb}{0.58,0,0.82}
+\definecolor{CodeBG}{rgb}{0.95, 0.95, 0.95}
+\definecolor{Code}{rgb}{0.0, 0.2, 0.4}
+\definecolor{ShadowGray}{rgb}{0.8, 0.8, 0.8}
+\definecolor{LinkGray}{rgb}{0.47, 0.13, 0.13}
+\definecolor{CiteColor}{rgb}{0.13, 0.47, 0.13}
+\definecolor{DarkGray}{rgb}{0.40, 0.40, 0.40}
+
+% When highlighting text, make sure the highlighting box doesn't
+% add padding space.
+\setlength{\fboxsep}{0pt}
+
+%% Create a variable that holds the current version of djehuty.
+\def \djehutyversion {@VERSION@}
+
+\newcommand\VRule[1][\arrayrulewidth]{\vrule width #1}
+\newcommand{\oddcell}{\cellcolor{OddRowColor}}
+\newcommand{\oddrow}{\rowcolor{OddRowColor}}
+\newcommand{\evenrow}{\rowcolor{EvenRowColor}}
+\newcommand{\headrow}{\rowcolor{Gray}}
+\newcommand{\B}{$\bullet{}$}
+\ifdefined\HCode
+\newcommand\code[1]{\texttt{#1}}
+\else
+\newcommand\code[1]{{\setlength{\fboxrule}{2.0pt}\fcolorbox{CodeBG}{CodeBG}{\textcolor{Code}{\texttt{#1}}}}}
+\fi
+\ifdefined\HCode
+\newcommand\Highlight{}
+\else
+\newcommand\Highlight{\colorbox{HighlightColor}}
+\fi
+
+\newcommand\triplet[3]{\code{#1} $\rightarrow$ \code{#2} $\rightarrow$ \code{#3}}
+\newcommand\refer[1]{\ref{#1} {\color{LinkGray}`\nameref{#1}'}}
+\newcommand\file[1]{`\texttt{#1}'}
+\newcommand\program[1]{`\texttt{#1}'}
+\newcommand\origin[1]{\texttt{origin://}#1}
+\newcommand\sample[1]{\texttt{sample://}#1}
+\newcommand\bamrdf[1]{\texttt{bam2rdf:}#1}
+\newcommand\tablerdf[1]{\texttt{table2rdf:}#1}
+\newcommand{\dhref}[1]{\href{#1}{#1}}
+
+% Ontology terms shorthands.
+\newcommand\dcterms[1]{\href{http://www.dublincore.org/specifications/dublin-core/dcmi-terms/2012-06-14/\#terms-#1}{{\color{black}\texttt{dcterms:#1}}}}
+\newcommand\dctype[1]{\href{http://www.dublincore.org/specifications/dublin-core/dcmi-terms/2012-06-14/\#dcmitype-#1}{{\color{black}\texttt{dctype:#1}}}}
+\newcommand\faldo[1]{\href{http://biohackathon.org/resource/faldo\##1}{{\color{black}\texttt{faldo:#1}}}}
+\newcommand\prov[1]{\href{http://www.w3.org/ns/prov\##1}{{\color{black}\texttt{prov:#1}}}}
+\newcommand\obo[1]{\href{http://purl.obolibrary.org/obo/#1}{{\color{black}\texttt{obo:#1}}}}
+\newcommand\sg[1]{\href{https://www.djehuty.net/latest/#1}{{\color{black}\texttt{sg:#1}}}}
+\newcommand\rdf[1]{\href{http://www.w3.org/1999/02/22-rdf-syntax-ns\##1}{{\color{black}\texttt{rdf:#1}}}}
+
+\newcommand\sgv[1]{\sg\expandafter{\texttt{#1-\sgversion{}}}}
+\newcommand\project[1]{\sg\expandafter{\texttt{Project/#1}}}
+\newcommand\user[1]{\sg\expandafter{\texttt{User/#1}}}
+
+% Allow loading of graphics in the document.
+\ifdefined\HCode
+\usepackage{graphicx}
+\else
+\usepackage[pdftex]{graphicx}
+\fi
+
+% Define the style for bibliography
+\usepackage[natbibapa]{apacite}
+\bibliographystyle{apacite}
+
+% Hyperref should be loaded last.
+\usepackage[colorlinks=true,linkcolor=LinkGray,urlcolor=LinkGray,citecolor=CiteColor,plainpages=false,pdfpagelabels]{hyperref}
+
+% Alternative to \verbatim that allows escaping.
+\usepackage{listings}
+\lstset{escapeinside={(@*}{*@)}}
+
+\lstdefinelanguage{XML}
+{
+  basicstyle=\ttfamily,
+  morestring=[s]{"}{"},
+  %morecomment=[s]{?}{?},
+  morecomment=[s]{!--}{--},
+  commentstyle=\color{CodeComment},
+  moredelim=[s][\color{black}]{>}{<},
+  moredelim=[s][\color{magenta}]{\ }{=},
+  stringstyle=\color{CodePurple},
+  identifierstyle=\color{magenta}
+}
+
+\lstdefinestyle{codestyle}{
+    commentstyle=\color{CodeComment},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{CodeGray},
+    stringstyle=\color{CodePurple},
+    basicstyle=\ttfamily,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    rulecolor=\color{ShadowGray},
+    backgroundcolor=\color{CodeGray},
+    frame=single,
+    framesep=5pt,
+    framerule=1pt,
+    columns=fullflexible,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    xleftmargin=5pt,
+    xrightmargin=5pt
+}
+
+\lstset{style=codestyle}
+
+\renewcommand{\t}[1]{\texttt{#1}}
+\renewcommand{\i}[1]{\emph{#1}}
+\renewcommand{\b}[1]{\textbf{#1}}

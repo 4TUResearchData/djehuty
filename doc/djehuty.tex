@@ -1,0 +1,197 @@
+\documentclass[12pt,a4paper]{book}
+\usepackage{djehuty}
+\title{djehuty}
+\author{Roel Janssen}
+\begin{document}
+\ifdefined\HCode
+\ScriptEnv{html} {\NoFonts\hfill\break} {\EndNoFonts}
+\Tag{TITLE+}{djehuty}
+\CssFile
+@font-face {
+    font-family: 'SourceSans';
+    src: url('fonts/SourceSansPro-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'SourceSans-Italic';
+    src: url('fonts/SourceSansPro-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+@font-face {
+    font-family: 'SourceSans-Bold';
+    src: url('fonts/SourceSansPro-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'FiraMono';
+    src: url('fonts/FiraMono-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+body,html{
+  width: 100%;
+  height: 100%;
+  font-family: 'SourceSans', serif;
+  font-size: 12pt;
+  margin: 0pt;
+  padding: 0pt;
+  background-color: #f9f9f9;
+}
+#wrapper {
+  max-width: 900pt;
+  min-width: 400pt;
+  margin: auto;
+}
+.chapter {
+  background-color: #ffffff;
+  padding: 0pt;
+  margin: 20pt;
+  height: auto;
+  -webkit-border-radius: 4pt;
+  -moz-border-radius: 4pt;
+  border-radius: 4pt;
+  border-left: solid 1pt #cccccc;
+  border-right: solid 1pt #cccccc;
+  border-bottom: solid 1pt #cccccc;
+}
+.chapwrap {
+  padding: 0pt;
+  background: none;
+  -webkit-border-radius: 4pt;
+  -moz-border-radius: 4pt;
+  border-radius: 4pt;
+}
+.chapwrap p { padding: 0pt 10pt 0pt 10pt; }
+.chapwrap .sectionHead { padding: 0pt 10pt 0pt 10pt; }
+.chapwrap .subsectionHead { padding: 0pt 10pt 0pt 10pt; }
+.chapwrap .likesubsubsectionHead { padding: 0pt 10pt 0pt 10pt; }
+.ectt-1095 { font-family: "Lucida Console", Monaco, monospace; }
+.lstlisting {
+  text-align: left;
+  font-family: 'FiraMono', 'Lucida Console', Monaco, monospace;
+  font-style: normal;
+  background: #f8f8f8;
+  margin: 0pt 10pt 0pt 10pt;
+  padding: 10pt;
+  -webkit-border-radius: 2pt;
+  -moz-border-radius: 2pt;
+  border-radius: 2pt;
+  border: solid 1pt #cccccc;
+}
+.center { text-align: center; }
+.ectt-1200 {
+  font-family: 'FiraMono', 'Lucida Console', Monaco, monospace;
+}
+.likechapterHead, .chapterHead {
+  margin: 0pt;
+  padding: 10pt;
+  background-color: #d26000;
+  color: #ffffff;
+  -webkit-border-radius: 4pt 4pt 0pt 0pt;
+  -moz-border-radius: 4pt 4pt 0pt 0pt;
+  border-radius: 4pt 4pt 0pt 0pt;
+  border: solid 1pt #d26000;
+}
+table { margin: auto 10pt auto 10pt; width: 880pt; }
+table tr:nth-child(even) { background: #f9f9f9; }
+table tr:first-child {
+  background: #333333;
+  color: #ffffff;
+  -webkit-border-radius: 4pt 4pt 0pt 0pt;
+  -moz-border-radius: 4pt 4pt 0pt 0pt;
+  border-radius: 4pt 4pt 0pt 0pt;
+}
+table tr:first-child a { color: #eeeeee; }
+table tr:first-child a:hover { color: #cccccc; }
+hr { margin: 5pt 10pt 5pt 10pt; }
+td { padding-left: 10pt; }
+.tableofcontents { padding: 10pt; }
+.chapterToc { display: inline-block; padding: 4pt; margin-top: .75em; font-size: 1.5em; font-weight: bold; }
+.chapterToc a { color: #000000; }
+.chapterToc a:hover { color: #666666; }
+.sectionToc { padding-left: 20pt; font-size 1.0em;}
+.sectionToc a { color: #7c0000; }
+.sectionToc a:hover { color: #af6666; }
+.subsectionToc { padding-left: 40pt; font-size: 0.9em; }
+.subsectionToc a { color: #00007c; }
+.subsectionToc a:hover { color: #6666af; }
+img { width: 60%; height: auto; }
+.caption { text-align: center; }
+.rotatebox {
+  writing-mode: sideways-lr;
+  transform: rotate(45deg) !important;
+  transform-origin: left;
+  margin: 10pt;
+  padding: 0pt;
+}
+h1 { font-size 4em; }
+h3 { font-size: 1.25em; }
+h4 { font-size: 1.10em; }
+#titlepage-logo { width: 200pt; }
+hr { border: none; }
+div.figure p.noindent { display: none; }
+div.figure div.center p.noindent { display: block; }
+\EndCssFile
+\fi
+\begin{titlepage}
+  \begin{center}
+    \ifdefined\HCode
+      \begin{html}
+        <h1><code>djehuty</code></h1>
+        <h2>The 4TU.ResearchData repository system</h2>
+        <img id="titlepage-logo" src="figures/logo.png" alt="4TU.ResearchData">
+        <br><br>
+      \end{html}
+      version \djehutyversion{}, \today{}~\\
+    \else
+      \topskip0pt
+      \vspace*{\fill}
+      { \Huge \t{djehuty} }~\\~\\
+      { \Large The 4TU.ResearchData repository system }~\\~\\
+      \includegraphics[width=0.35\textwidth]{figures/logo.pdf}
+      ~\\~\\
+      \url{https://github.com/4TUResearchData/djehuty}~\\
+       version \djehutyversion{}, \today{}
+       % Put it a little bit above the center of the page.
+       ~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\
+       \topskip0pt
+       \vspace*{\fill}
+    \fi
+  \end{center}
+  \thispagestyle{empty}
+\end{titlepage}
+
+\setcounter{page}{1}
+\pagenumbering{roman}
+\hypersetup{linkcolor=black}
+
+\ifdefined\HCode
+\begin{html}
+<div class="chapter"><div class="chapwrap">
+\end{html}
+\fi
+
+\tableofcontents
+
+\newpage{}
+\hypersetup{linkcolor=LinkGray}
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\ifdefined\HCode
+\begin{html}
+</div></div><div class="chapter"><div class="chapwrap">
+\end{html}
+\fi
+
+\input{introduction}
+
+\ifdefined\HCode
+\begin{html}
+</div></div>
+\end{html}
+\fi
+\end{document}
