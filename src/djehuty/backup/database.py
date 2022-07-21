@@ -12,6 +12,7 @@ from rdflib import Graph, Literal, RDF, RDFS, XSD, URIRef
 import requests
 from djehuty.utils.convenience import value_or, value_or_none
 from djehuty.utils import rdf
+import time
 
 class DatabaseInterface:
     """
