@@ -10,6 +10,7 @@ from secrets import token_urlsafe
 import json
 from rdflib import Graph, Literal, RDF, RDFS, XSD, URIRef
 import requests
+from requests.utils import requote_uri
 from djehuty.utils.convenience import value_or, value_or_none
 from djehuty.utils import rdf
 import time
@@ -374,6 +375,12 @@ class DatabaseInterface:
         # cases should be considered text strings.
         if field_type != "url":
             field_type = XSD.string
+
+        # The URLs in the "Data Link" custom field aren't encoded.
+        # This could and would lead to invalid RDF serialization.
+        # So, we must re-encode the URLs to treat them as RDF URIs.
+        if name == "data_link":
+            value = requote_uri (value)
 
         if isinstance (value, list):
             for item in value:
