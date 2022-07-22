@@ -37,10 +37,19 @@ tar zxvf djehuty-(@*\djehutyversion{}*@).tar.gz
   The \code{djehuty} program needs Python (version 3.6 or higher) and
   Git to be installed.  Additionally, a couple of Python packages need
   to be installed.  The following sections describe installing the
-  prerequisites on various GNU/Linux distributions.
+  prerequisites on various GNU/Linux distributions.  To put the software in
+  the context of its environment, figure \ref{fig:references-graph} displays
+  the complete run-time dependencies from \t{djehuty} to \t{glibc}.
+
+  \includefigure{references-graph}{Run-time references when constructed with
+    the packages from GNU Guix.}
 
   The web service of \code{djehuty} stores its information in a SPARQL 1.1
-  endpoint.  
+  endpoint.  We recommend either \href{https://blazegraph.com/}{Blazegraph}%
+  \footnote{https://blazegraph.com/}
+  or \href{http://vos.openlinksw.com/owiki/wiki/VOS}%
+  {Virtuoso open-source edition}%
+  \footnote{http://vos.openlinksw.com/owiki/wiki/VOS}.
 
 \subsection{Installation on Enterprise Linux 7+}
 
