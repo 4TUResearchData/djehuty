@@ -28,7 +28,8 @@ $(doc_PDF):
 endif
 
 EXTRA_DIST              = $(doc_TEX) $(doc_STYLE)                  \
-                          introduction.tex
+                          introduction.tex                         \
+                          figures/logo.pdf
 
 if HAVE_HTLATEX
 $(doc_HTML): $(doc_PDF)
