@@ -8,12 +8,12 @@ from datetime import datetime
 from threading import Lock
 from secrets import token_urlsafe
 import json
+import time
 from rdflib import Graph, Literal, RDF, RDFS, XSD, URIRef
 import requests
 from requests.utils import requote_uri
 from djehuty.utils.convenience import value_or, value_or_none
 from djehuty.utils import rdf
-import time
 
 class DatabaseInterface:
     """
@@ -120,21 +120,21 @@ class DatabaseInterface:
         # dois is list of dois
         # events is list of dictionaries (one per event)
         events = []
-        for DOI in dois:
-            query = f"https://api.eventdata.crossref.org/v1/events?mailto={mail_to}&obj-id={DOI}&from-occurred-date={from_date}"
+        for doi in dois:
+            query = f"https://api.eventdata.crossref.org/v1/events?mailto={mail_to}&obj-id={doi}&from-occurred-date={from_date}"
             time.sleep(rate)
             req = requests.get(query)
-            j = json.loads(req.content)
-            for i in j["message"]["events"]:
+            data = json.loads(req.content)
+            for item in data["message"]["events"]:
                 try:
                     event = {}
-                    event['object']    = str(i["obj_id"])
-                    event['source']    = str(i["source_id"])
-                    event['timestamp'] = str(i["timestamp"])
-                    event['type']      = str(i["relation_type_id"])
+                    event['object']    = str(item["obj_id"])
+                    event['source']    = str(item["source_id"])
+                    event['timestamp'] = str(item["timestamp"])
+                    event['type']      = str(item["relation_type_id"])
                     events.append(event)
                 except KeyError:
-                    logging.error("Failed to gather crossref data for %s.", DOI)
+                    logging.error("Failed to gather crossref data for %s.", doi)
 
         return events
 
