@@ -1994,3 +1994,13 @@ class SparqlInterface:
 
         query = self.__query_from_template ("explorer_types")
         return self.__run_query (query, query, "explorer_types")
+
+    def types_for_property (self, rdf_type, rdf_property):
+        """Returns types for the current state graph for RDF_PROPERTY in RDF_TYPE."""
+
+        query = self.__query_from_template ("explorer_property_types", {
+            "type":     rdf_type,
+            "property": rdf_property
+        })
+
+        return self.__run_query (query, query, "explorer_property_types")

@@ -185,6 +185,7 @@ class ApiServer:
             # Data model exploratory
             Rule("/v3/explore/types",                         endpoint = "v3_explore_types"),
             Rule("/v3/explore/properties",                    endpoint = "v3_explore_properties"),
+            Rule("/v3/explore/property_value_types",          endpoint = "v3_explore_property_types"),
 
             ## ----------------------------------------------------------------
             ## GIT HTTP API
@@ -4096,6 +4097,34 @@ class ApiServer:
             properties = list(map (lambda item: item["predicate"], properties))
 
             return self.response (json.dumps(properties))
+
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+    def api_v3_explore_property_types (self, request):
+        """Implements /v3/explore/property_value_types."""
+
+        handler = self.default_error_handling (request, "GET")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        try:
+            parameters = {}
+            parameters["type"]     = self.get_parameter (request, "type")
+            parameters["property"] = self.get_parameter (request, "property")
+
+            rdf_type     = validator.string_value (parameters, "type", 0, 255)
+            rdf_type     = requests.utils.unquote(rdf_type)
+            rdf_property = validator.string_value (parameters, "property", 0, 255)
+            rdf_property = requests.utils.unquote(rdf_property)
+            types        = self.db.types_for_property (rdf_type, rdf_property)
+            types        = list(map (lambda item: item["type"], types))
+
+            return self.response (json.dumps(types))
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
