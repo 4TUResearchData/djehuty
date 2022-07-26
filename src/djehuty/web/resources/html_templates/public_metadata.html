@@ -126,13 +126,13 @@
     {% endif %}
         <div id="export">
             <div class="label">export as...</div>
-            <a href="{{export_base}}refworks">RefWorks</a>,
-            <a href="{{export_base}}bibtex">BibTeX</a>,
-            <a href="{{export_base}}refman">Reference Manager</a>,
-            <a href="{{export_base}}endnote">Endnote</a>,
-            <a href="{{export_base}}datacite">DataCite</a>,
-            <a href="{{export_base}}nlm">NLM</a>,
-            <a href="{{export_base}}dc">DC</a>
+            <a href="/export/refworks/datasets/{{id_version}}">RefWorks</a>,
+            <a href="/export/bibtex/datasets/{{id_version}}">BibTeX</a>,
+            <a href="/export/refman/datasets/{{id_version}}">Reference Manager</a>,
+            <a href="/export/endnote/datasets/{{id_version}}">Endnote</a>,
+            <a href="/export/datacite/datasets/{{id_version}}">DataCite</a>,
+            <a href="/export/nlm/datasets/{{id_version}}">NLM</a>,
+            <a href="/export/dc/datasets/{{id_version}}">DC</a>
         </div>
 {% endif %}
     </div>

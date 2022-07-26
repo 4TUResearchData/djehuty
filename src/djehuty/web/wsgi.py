@@ -193,7 +193,28 @@ class ApiServer:
             Rule("/v3/articles/<article_id>.git/info/refs",   endpoint = "v3_private_article_git_refs"),
             Rule("/v3/articles/<article_id>.git/git-upload-pack", endpoint = "v3_private_article_git_upload_pack"),
             Rule("/v3/articles/<article_id>.git/git-receive-pack", endpoint = "v3_private_article_git_receive_pack"),
-          ])
+
+            ## ----------------------------------------------------------------
+            ## EXPORT
+            ## ----------------------------------------------------------------
+            Rule("/export/datacite/datasets/<article_id>",                 endpoint = "export_datacite_dataset"),
+            Rule("/export/datacite/datasets/<article_id>/<version>",       endpoint = "export_datacite_dataset"),
+            Rule("/export/datacite/collections/<collection_id>",           endpoint = "export_datacite_collection"),
+            Rule("/export/datacite/collections/<collection_id>/<version>", endpoint = "export_datacite_collection"),
+            Rule("/export/refworks/datasets/<article_id>",                 endpoint = "export_refworks_dataset"),
+            Rule("/export/refworks/datasets/<article_id>/<version>",       endpoint = "export_refworks_dataset"),
+            Rule("/export/bibtex/datasets/<article_id>",                   endpoint = "export_bibtex_dataset"),
+            Rule("/export/bibtex/datasets/<article_id>/<version>",         endpoint = "export_bibtex_dataset"),
+            Rule("/export/refman/datasets/<article_id>",                   endpoint = "export_refman_dataset"),
+            Rule("/export/refman/datasets/<article_id>/<version>",         endpoint = "export_refman_dataset"),
+            Rule("/export/endnote/datasets/<article_id>",                  endpoint = "export_endnote_dataset"),
+            Rule("/export/endnote/datasets/<article_id>/<version>",        endpoint = "export_endnote_dataset"),
+            Rule("/export/nlm/datasets/<article_id>",                      endpoint = "export_nlm_dataset"),
+            Rule("/export/nlm/datasets/<article_id>/<version>",            endpoint = "export_nlm_dataset"),
+            Rule("/export/dc/datasets/<article_id>",                       endpoint = "export_dc_dataset"),
+            Rule("/export/dc/datasets/<article_id>/<version>",             endpoint = "export_dc_dataset"),
+
+           ])
 
         ## Static resources and HTML templates.
         ## --------------------------------------------------------------------
@@ -1406,8 +1427,7 @@ class ApiServer:
                         dates[date].append(label)
             dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
 
-            id_v = f'{article_id}/{version}' if version else f'{article_id}'
-            export_base = f'/datasets/{id_v}/exports/'
+            id_version = f'{article_id}/{version}' if version else f'{article_id}'
 
             lat = self_or_value_or_none(article, 'latitude')
             lon = self_or_value_or_none(article, 'longitude')
@@ -1451,7 +1471,7 @@ class ApiServer:
                                            coordinates=coordinates,
                                            member=member,
                                            member_url_name=member_url_name,
-                                           export_base = export_base,
+                                           id_version = id_version,
                                            opendap=opendap,
                                            statistics=statistics)
         return self.response (json.dumps({
@@ -4128,3 +4148,31 @@ class ApiServer:
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
+
+    ## ------------------------------------------------------------------------
+    ## EXPORTS
+    ## ------------------------------------------------------------------------
+
+    def api_export_datacite_dataset (self, request, article_id, version=None):
+        return self.response (json.dumps({"message": "TODO: datacite export"}))
+
+    def api_export_datacite_collection (self, request, article_id, version=None):
+        return self.response (json.dumps({"message": "TODO: datacite export"}))
+
+    def api_export_refworks_dataset (self, request, article_id, version=None):
+        return self.response (json.dumps({"message": "TODO: refworks export"}))
+
+    def api_export_bibtex_dataset (self, request, article_id, version=None):
+        return self.response (json.dumps({"message": "TODO: bibtex export"}))
+
+    def api_export_refman_dataset (self, request, article_id, version=None):
+        return self.response (json.dumps({"message": "TODO: refman export"}))
+
+    def api_export_endnote_dataset (self, request, article_id, version=None):
+        return self.response (json.dumps({"message": "TODO: endnote export"}))
+
+    def api_export_nlm_dataset (self, request, article_id, version=None):
+        return self.response (json.dumps({"message": "TODO: nlm export"}))
+
+    def api_export_dc_dataset (self, request, article_id, version=None):
+        return self.response (json.dumps({"message": "TODO: dc export"}))
