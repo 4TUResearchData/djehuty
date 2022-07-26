@@ -177,33 +177,32 @@ class DatabaseInterface:
         """Procedure to add an account record to GRAPH."""
 
         uri = rdf.unique_node ("account")
-        self.lock_for_inserts.acquire()
-        self.store.add ((uri, RDF.type, rdf.DJHT["Account"]))
+        with self.lock_for_inserts:
+            self.store.add ((uri, RDF.type, rdf.DJHT["Account"]))
 
-        institution_user_id = value_or (record, "institution_user_id", None)
-        domain              = None
-        if institution_user_id is not None:
-            domain = institution_user_id.partition("@")[2]
+            institution_user_id = value_or (record, "institution_user_id", None)
+            domain              = None
+            if institution_user_id is not None:
+                domain = institution_user_id.partition("@")[2]
 
-        rdf.add (self.store, uri, rdf.DJHT["id"],                    value_or (record, "id", None),           XSD.integer)
-        rdf.add (self.store, uri, rdf.DJHT["active"],                value_or (record, "active", False),      XSD.boolean)
-        rdf.add (self.store, uri, rdf.DJHT["domain"],                domain,                                  XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["email"],                 value_or (record, "email", None),        XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["first_name"],            value_or (record, "first_name", None),   XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["last_name"],             value_or (record, "last_name", None),    XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["institution_user_id"],   institution_user_id,                     XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["institution_id"],        value_or (record, "institution_id", None))
-        rdf.add (self.store, uri, rdf.DJHT["group_id"],              value_or (record, "group_id", None))
-        rdf.add (self.store, uri, rdf.DJHT["pending_quota_request"], value_or (record, "pending_quota_request", None))
-        rdf.add (self.store, uri, rdf.DJHT["used_quota_public"],     value_or (record, "used_quota_public", None))
-        rdf.add (self.store, uri, rdf.DJHT["used_quota_private"],    value_or (record, "used_quota_private", None))
-        rdf.add (self.store, uri, rdf.DJHT["used_quota"],            value_or (record, "used_quota", None))
-        rdf.add (self.store, uri, rdf.DJHT["maximum_file_size"],     value_or (record, "maximum_file_size", None))
-        rdf.add (self.store, uri, rdf.DJHT["quota"],                 value_or (record, "quota", None))
-        rdf.add (self.store, uri, rdf.DJHT["modified_date"],         value_or_none (record, "modified_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.DJHT["created_date"],          value_or_none (record, "created_date"),  XSD.dateTime)
+            rdf.add (self.store, uri, rdf.DJHT["id"],                    value_or (record, "id", None),           XSD.integer)
+            rdf.add (self.store, uri, rdf.DJHT["active"],                value_or (record, "active", False),      XSD.boolean)
+            rdf.add (self.store, uri, rdf.DJHT["domain"],                domain,                                  XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["email"],                 value_or (record, "email", None),        XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["first_name"],            value_or (record, "first_name", None),   XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["last_name"],             value_or (record, "last_name", None),    XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["institution_user_id"],   institution_user_id,                     XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["institution_id"],        value_or (record, "institution_id", None))
+            rdf.add (self.store, uri, rdf.DJHT["group_id"],              value_or (record, "group_id", None))
+            rdf.add (self.store, uri, rdf.DJHT["pending_quota_request"], value_or (record, "pending_quota_request", None))
+            rdf.add (self.store, uri, rdf.DJHT["used_quota_public"],     value_or (record, "used_quota_public", None))
+            rdf.add (self.store, uri, rdf.DJHT["used_quota_private"],    value_or (record, "used_quota_private", None))
+            rdf.add (self.store, uri, rdf.DJHT["used_quota"],            value_or (record, "used_quota", None))
+            rdf.add (self.store, uri, rdf.DJHT["maximum_file_size"],     value_or (record, "maximum_file_size", None))
+            rdf.add (self.store, uri, rdf.DJHT["quota"],                 value_or (record, "quota", None))
+            rdf.add (self.store, uri, rdf.DJHT["modified_date"],         value_or_none (record, "modified_date"), XSD.dateTime)
+            rdf.add (self.store, uri, rdf.DJHT["created_date"],          value_or_none (record, "created_date"),  XSD.dateTime)
 
-        self.lock_for_inserts.release()
         return True
 
     def insert_institution (self, record):
@@ -495,91 +494,90 @@ class DatabaseInterface:
         version = value_or_none(record, "version")
         self.fix_doi (record, collection_id, version, 'collection')
 
-        self.lock_for_inserts.acquire()
-        self.store.add ((uri, RDF.type,                 rdf.DJHT["Collection"]))
-        self.store.add ((uri, rdf.DJHT["collection_id"], Literal(collection_id, datatype=XSD.integer)))
+        with self.lock_for_inserts:
+            self.store.add ((uri, RDF.type,                 rdf.DJHT["Collection"]))
+            self.store.add ((uri, rdf.DJHT["collection_id"], Literal(collection_id, datatype=XSD.integer)))
 
-        rdf.add (self.store, uri, rdf.DJHT["url"],                 value_or_none (record, "url"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["title"],               value_or_none (record, "title"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["published_date"],      value_or_none (record, "published_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.DJHT["created_date"],        value_or_none (record, "created_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.DJHT["modified_date"],       value_or_none (record, "modified_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.DJHT["doi"],                 value_or_none (record, "doi"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["citation"],            value_or_none (record, "citation"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["group_id"],            value_or_none (record, "group_id"), XSD.integer)
-        ## group_resource_id is always empty/NULL.
-        #rdf.add (self.store, uri, rdf.DJHT["group_resource_id"],   value_or_none (record, "group_resource_id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.DJHT["institution_id"],      value_or_none (record, "institution_id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.DJHT["description"],         value_or_none (record, "description"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["version"],             value_or_none (record, "version"), XSD.integer)
-        ## resource_id is always empty/NULL.
-        #rdf.add (self.store, uri, rdf.DJHT["resource_id"],         value_or_none (record, "resource_id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.DJHT["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["resource_version"],    value_or_none (record, "resource_version"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["resource_link"],       value_or_none (record, "resource_link"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["handle"],              value_or_none (record, "handle"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["is_public"],           is_public, XSD.boolean)
-        rdf.add (self.store, uri, rdf.DJHT["is_latest"],           is_latest, XSD.boolean)
-        rdf.add (self.store, uri, rdf.DJHT["is_editable"],         is_editable, XSD.boolean)
+            rdf.add (self.store, uri, rdf.DJHT["url"],                 value_or_none (record, "url"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["title"],               value_or_none (record, "title"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["published_date"],      value_or_none (record, "published_date"), XSD.dateTime)
+            rdf.add (self.store, uri, rdf.DJHT["created_date"],        value_or_none (record, "created_date"), XSD.dateTime)
+            rdf.add (self.store, uri, rdf.DJHT["modified_date"],       value_or_none (record, "modified_date"), XSD.dateTime)
+            rdf.add (self.store, uri, rdf.DJHT["doi"],                 value_or_none (record, "doi"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["citation"],            value_or_none (record, "citation"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["group_id"],            value_or_none (record, "group_id"), XSD.integer)
+            ## group_resource_id is always empty/NULL.
+            #rdf.add (self.store, uri, rdf.DJHT["group_resource_id"],   value_or_none (record, "group_resource_id"), XSD.integer)
+            rdf.add (self.store, uri, rdf.DJHT["institution_id"],      value_or_none (record, "institution_id"), XSD.integer)
+            rdf.add (self.store, uri, rdf.DJHT["description"],         value_or_none (record, "description"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["version"],             value_or_none (record, "version"), XSD.integer)
+            ## resource_id is always empty/NULL.
+            #rdf.add (self.store, uri, rdf.DJHT["resource_id"],         value_or_none (record, "resource_id"), XSD.integer)
+            rdf.add (self.store, uri, rdf.DJHT["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["resource_version"],    value_or_none (record, "resource_version"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["resource_link"],       value_or_none (record, "resource_link"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["handle"],              value_or_none (record, "handle"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["is_public"],           is_public, XSD.boolean)
+            rdf.add (self.store, uri, rdf.DJHT["is_latest"],           is_latest, XSD.boolean)
+            rdf.add (self.store, uri, rdf.DJHT["is_editable"],         is_editable, XSD.boolean)
 
-        self.insert_timeline (uri, value_or_none (record, "timeline"))
-        self.insert_author_list (uri, value_or (record, "authors", []))
-        self.insert_category_list (uri, value_or (record, "categories", []))
-        self.insert_funding_list (uri, value_or (record, "funding_list", []))
-        self.insert_private_links_list (uri, value_or (record, "private_links", []))
-        tags = [tag for tag in value_or (record, "tags", []) if not tag.startswith('Collection: ')]
-        self.insert_item_list (uri, tags, "tags")
-        self.insert_item_list (uri, value_or (record, "references", []), "references")
+            self.insert_timeline (uri, value_or_none (record, "timeline"))
+            self.insert_author_list (uri, value_or (record, "authors", []))
+            self.insert_category_list (uri, value_or (record, "categories", []))
+            self.insert_funding_list (uri, value_or (record, "funding_list", []))
+            self.insert_private_links_list (uri, value_or (record, "private_links", []))
+            tags = [tag for tag in value_or (record, "tags", []) if not tag.startswith('Collection: ')]
+            self.insert_item_list (uri, tags, "tags")
+            self.insert_item_list (uri, value_or (record, "references", []), "references")
 
-        self.handle_custom_fields (record, uri, collection_id, version, 'collections')
+            self.handle_custom_fields (record, uri, collection_id, version, 'collections')
 
-        articles = value_or (record, "articles", [])
-        if articles:
-            for index, article_id in enumerate (articles):
-                article_uri = self.record_uri ("DatasetContainer", "article_id", article_id)
-                if article_uri is None:
-                    logging.error ("Could not find article container for %d", article_id)
-                    continue
+            articles = value_or (record, "articles", [])
+            if articles:
+                for index, article_id in enumerate (articles):
+                    article_uri = self.record_uri ("DatasetContainer", "article_id", article_id)
+                    if article_uri is None:
+                        logging.error ("Could not find article container for %d", article_id)
+                        continue
 
-                articles[index] = URIRef (article_uri)
+                    articles[index] = URIRef (article_uri)
 
-            self.insert_item_list (uri, articles, "articles")
-        else:
-            logging.warning ("Collection %d seems to be empty.", collection_id)
-
-        ## Assign the collection to the container
-        container = self.container_uri (collection_id, "collection", account_id)
-        rdf.add (self.store, uri, rdf.DJHT["container"], container, datatype="uri")
-
-        if "statistics" in record:
-            stats = record["statistics"]
-            self.insert_totals_statistics (stats["totals"], container)
-        elif is_public and is_latest:
-            logging.warning ("No statistics available for collection %d.", collection_id)
-
-        if is_editable:
-            self.store.add ((container, rdf.DJHT["draft"], uri))
-        else:
-            new_blank_node = rdf.blank_node ()
-            self.store.add ((new_blank_node, RDF.type, RDF.List))
-            self.store.add ((new_blank_node, RDF.first, uri))
-            self.store.add ((new_blank_node, RDF.rest, RDF.nil))
-
-            blank_node = self.last_list_node (container, "published_versions")
-            if blank_node is None:
-                self.store.add    ((container, rdf.DJHT["published_versions"], new_blank_node))
+                self.insert_item_list (uri, articles, "articles")
             else:
-                self.store.remove ((blank_node, RDF.rest, RDF.nil))
-                self.store.add    ((blank_node, RDF.rest, new_blank_node))
+                logging.warning ("Collection %d seems to be empty.", collection_id)
 
-        if is_latest:
-            self.store.add ((container, rdf.DJHT["latest_published_version"], uri))
-            timeline = value_or_none (record, "timeline")
-            rdf.add (self.store, container, rdf.DJHT["first_online_date"],
-                     value_or_none (timeline, "firstOnline"), XSD.dateTime)
+            ## Assign the collection to the container
+            container = self.container_uri (collection_id, "collection", account_id)
+            rdf.add (self.store, uri, rdf.DJHT["container"], container, datatype="uri")
 
-        self.lock_for_inserts.release()
+            if "statistics" in record:
+                stats = record["statistics"]
+                self.insert_totals_statistics (stats["totals"], container)
+            elif is_public and is_latest:
+                logging.warning ("No statistics available for collection %d.", collection_id)
+
+            if is_editable:
+                self.store.add ((container, rdf.DJHT["draft"], uri))
+            else:
+                new_blank_node = rdf.blank_node ()
+                self.store.add ((new_blank_node, RDF.type, RDF.List))
+                self.store.add ((new_blank_node, RDF.first, uri))
+                self.store.add ((new_blank_node, RDF.rest, RDF.nil))
+
+                blank_node = self.last_list_node (container, "published_versions")
+                if blank_node is None:
+                    self.store.add    ((container, rdf.DJHT["published_versions"], new_blank_node))
+                else:
+                    self.store.remove ((blank_node, RDF.rest, RDF.nil))
+                    self.store.add    ((blank_node, RDF.rest, new_blank_node))
+
+            if is_latest:
+                self.store.add ((container, rdf.DJHT["latest_published_version"], uri))
+                timeline = value_or_none (record, "timeline")
+                rdf.add (self.store, container, rdf.DJHT["first_online_date"],
+                         value_or_none (timeline, "firstOnline"), XSD.dateTime)
+
         return True
 
     def insert_funding (self, record):
@@ -769,92 +767,90 @@ class DatabaseInterface:
         is_metadata_record = bool (value_or (record, "is_metadata_record", False))
         has_linked_file    = bool (value_or (record, "has_linked_file", False))
 
-        self.lock_for_inserts.acquire()
+        with self.lock_for_inserts:
+            self.store.add ((uri, RDF.type,              rdf.DJHT["Dataset"]))
+            self.store.add ((uri, rdf.DJHT["article_id"], Literal(article_id, datatype=XSD.integer)))
 
-        self.store.add ((uri, RDF.type,              rdf.DJHT["Dataset"]))
-        self.store.add ((uri, rdf.DJHT["article_id"], Literal(article_id, datatype=XSD.integer)))
+            self.insert_timeline (uri, value_or_none (record, "timeline"))
+            self.insert_license (uri, value_or_none (record, "license"))
 
-        self.insert_timeline (uri, value_or_none (record, "timeline"))
-        self.insert_license (uri, value_or_none (record, "license"))
+            rdf.add (self.store, uri, rdf.DJHT["title"],               value_or_none (record, "title"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["doi"],                 value_or_none (record, "doi"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["handle"],              value_or_none (record, "handle"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["group_id"],            value_or_none (record, "group_id"), XSD.integer)
+            rdf.add (self.store, uri, rdf.DJHT["url"],                 value_or_none (record, "url"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["url_public_html"],     value_or_none (record, "url_public_html"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["url_public_api"],      value_or_none (record, "url_public_api"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["url_private_html"],    value_or_none (record, "url_private_html"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["url_private_api"],     value_or_none (record, "url_private_api"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["published_date"],      value_or_none (record, "published_date"), XSD.dateTime)
+            rdf.add (self.store, uri, rdf.DJHT["created_date"],        value_or_none (record, "created_date"), XSD.dateTime)
+            rdf.add (self.store, uri, rdf.DJHT["modified_date"],       value_or_none (record, "modified_date"), XSD.dateTime)
+            rdf.add (self.store, uri, rdf.DJHT["thumb"],               value_or_none (record, "thumb"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["defined_type"],        value_or_none (record, "defined_type"), XSD.integer)
+            rdf.add (self.store, uri, rdf.DJHT["defined_type_name"],   value_or_none (record, "defined_type_name"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["citation"],            value_or_none (record, "citation"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["metadata_reason"],     value_or_none (record, "metadata_reason"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["confidential_reason"], value_or_none (record, "confidential_reason"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["funding"],             value_or_none (record, "funding"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["size"],                value_or_none (record, "size"), XSD.integer)
+            rdf.add (self.store, uri, rdf.DJHT["status"],              value_or_none (record, "status"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["version"],             value_or_none (record, "version"), XSD.integer)
+            rdf.add (self.store, uri, rdf.DJHT["description"],         value_or_none (record, "description"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["figshare_url"],        value_or_none (record, "figshare_url"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
+            rdf.add (self.store, uri, rdf.DJHT["has_linked_file"],     has_linked_file, XSD.boolean)
+            rdf.add (self.store, uri, rdf.DJHT["is_embargoed"],        is_embargoed, XSD.boolean)
+            rdf.add (self.store, uri, rdf.DJHT["is_metadata_record"],  is_metadata_record, XSD.boolean)
+            rdf.add (self.store, uri, rdf.DJHT["is_confidential"],     is_confidential, XSD.boolean)
+            rdf.add (self.store, uri, rdf.DJHT["is_public"],           is_public, XSD.boolean)
+            rdf.add (self.store, uri, rdf.DJHT["is_latest"],           is_latest, XSD.boolean)
+            rdf.add (self.store, uri, rdf.DJHT["is_editable"],         is_editable, XSD.boolean)
 
-        rdf.add (self.store, uri, rdf.DJHT["title"],               value_or_none (record, "title"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["doi"],                 value_or_none (record, "doi"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["handle"],              value_or_none (record, "handle"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["group_id"],            value_or_none (record, "group_id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.DJHT["url"],                 value_or_none (record, "url"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["url_public_html"],     value_or_none (record, "url_public_html"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["url_public_api"],      value_or_none (record, "url_public_api"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["url_private_html"],    value_or_none (record, "url_private_html"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["url_private_api"],     value_or_none (record, "url_private_api"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["published_date"],      value_or_none (record, "published_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.DJHT["created_date"],        value_or_none (record, "created_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.DJHT["modified_date"],       value_or_none (record, "modified_date"), XSD.dateTime)
-        rdf.add (self.store, uri, rdf.DJHT["thumb"],               value_or_none (record, "thumb"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["defined_type"],        value_or_none (record, "defined_type"), XSD.integer)
-        rdf.add (self.store, uri, rdf.DJHT["defined_type_name"],   value_or_none (record, "defined_type_name"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["citation"],            value_or_none (record, "citation"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["metadata_reason"],     value_or_none (record, "metadata_reason"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["confidential_reason"], value_or_none (record, "confidential_reason"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["funding"],             value_or_none (record, "funding"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["size"],                value_or_none (record, "size"), XSD.integer)
-        rdf.add (self.store, uri, rdf.DJHT["status"],              value_or_none (record, "status"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["version"],             value_or_none (record, "version"), XSD.integer)
-        rdf.add (self.store, uri, rdf.DJHT["description"],         value_or_none (record, "description"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["figshare_url"],        value_or_none (record, "figshare_url"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["has_linked_file"],     has_linked_file, XSD.boolean)
-        rdf.add (self.store, uri, rdf.DJHT["is_embargoed"],        is_embargoed, XSD.boolean)
-        rdf.add (self.store, uri, rdf.DJHT["is_metadata_record"],  is_metadata_record, XSD.boolean)
-        rdf.add (self.store, uri, rdf.DJHT["is_confidential"],     is_confidential, XSD.boolean)
-        rdf.add (self.store, uri, rdf.DJHT["is_public"],           is_public, XSD.boolean)
-        rdf.add (self.store, uri, rdf.DJHT["is_latest"],           is_latest, XSD.boolean)
-        rdf.add (self.store, uri, rdf.DJHT["is_editable"],         is_editable, XSD.boolean)
+            self.insert_item_list (uri, value_or (record, "references", []), "references")
+            tags = [tag for tag in value_or (record, "tags", []) if not tag.startswith('Collection: ')]
+            self.insert_item_list (uri, tags, "tags")
+            self.insert_category_list (uri, value_or (record, "categories", []))
+            self.insert_author_list (uri, value_or (record, "authors", []))
+            self.insert_file_list (uri, value_or (record, "files", []))
+            self.insert_funding_list (uri, value_or (record, "funding_list", []))
+            self.insert_private_links_list (uri, value_or (record, "private_links", []))
+            self.insert_embargo_list (uri, value_or (record, "embargo_options", []))
 
-        self.insert_item_list (uri, value_or (record, "references", []), "references")
-        tags = [tag for tag in value_or (record, "tags", []) if not tag.startswith('Collection: ')]
-        self.insert_item_list (uri, tags, "tags")
-        self.insert_category_list (uri, value_or (record, "categories", []))
-        self.insert_author_list (uri, value_or (record, "authors", []))
-        self.insert_file_list (uri, value_or (record, "files", []))
-        self.insert_funding_list (uri, value_or (record, "funding_list", []))
-        self.insert_private_links_list (uri, value_or (record, "private_links", []))
-        self.insert_embargo_list (uri, value_or (record, "embargo_options", []))
+            self.handle_custom_fields (record, uri, article_id, version, 'articles')
 
-        self.handle_custom_fields (record, uri, article_id, version, 'articles')
+            ## Assign the article to the container
+            container = self.container_uri (article_id, "article", account_id)
+            rdf.add (self.store, uri, rdf.DJHT["container"], container, datatype="uri")
 
-        ## Assign the article to the container
-        container = self.container_uri (article_id, "article", account_id)
-        rdf.add (self.store, uri, rdf.DJHT["container"], container, datatype="uri")
+            if "statistics" in record:
+                stats = record["statistics"]
+                self.insert_totals_statistics (stats["totals"], container)
+            elif is_public and is_editable:
+                logging.warning ("No statistics available for article %d.", article_id)
 
-        if "statistics" in record:
-            stats = record["statistics"]
-            self.insert_totals_statistics (stats["totals"], container)
-        elif is_public and is_editable:
-            logging.warning ("No statistics available for article %d.", article_id)
-
-        if is_editable:
-            self.store.add ((container, rdf.DJHT["draft"], uri))
-        else:
-            new_blank_node = rdf.blank_node ()
-            self.store.add ((new_blank_node, RDF.type, RDF.List))
-            self.store.add ((new_blank_node, RDF.first, uri))
-            self.store.add ((new_blank_node, RDF.rest, RDF.nil))
-
-            blank_node = self.last_list_node (container, "published_versions")
-            if blank_node is None:
-                self.store.add    ((container, rdf.DJHT["published_versions"], new_blank_node))
+            if is_editable:
+                self.store.add ((container, rdf.DJHT["draft"], uri))
             else:
-                self.store.remove ((blank_node, RDF.rest, RDF.nil))
-                self.store.add    ((blank_node, RDF.rest, new_blank_node))
+                new_blank_node = rdf.blank_node ()
+                self.store.add ((new_blank_node, RDF.type, RDF.List))
+                self.store.add ((new_blank_node, RDF.first, uri))
+                self.store.add ((new_blank_node, RDF.rest, RDF.nil))
 
-        if is_latest:
-            self.store.add ((container, rdf.DJHT["latest_published_version"], uri))
-            timeline = value_or_none (record, "timeline")
-            rdf.add (self.store, container, rdf.DJHT["first_online_date"],
-                     value_or_none (timeline, "firstOnline"), XSD.dateTime)
+                blank_node = self.last_list_node (container, "published_versions")
+                if blank_node is None:
+                    self.store.add    ((container, rdf.DJHT["published_versions"], new_blank_node))
+                else:
+                    self.store.remove ((blank_node, RDF.rest, RDF.nil))
+                    self.store.add    ((blank_node, RDF.rest, new_blank_node))
 
-        self.lock_for_inserts.release()
+            if is_latest:
+                self.store.add ((container, rdf.DJHT["latest_published_version"], uri))
+                timeline = value_or_none (record, "timeline")
+                rdf.add (self.store, container, rdf.DJHT["first_online_date"],
+                         value_or_none (timeline, "firstOnline"), XSD.dateTime)
+
         return True
 
     def insert_institution_group (self, record):
