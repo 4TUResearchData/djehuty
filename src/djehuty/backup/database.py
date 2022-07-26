@@ -760,7 +760,7 @@ class DatabaseInterface:
         self.fix_doi (record, article_id, version, 'article')
 
         account_id = value_or_none (record, "account_id")
-        uri        = rdf.unique_node ("article")
+        uri        = rdf.unique_node ("dataset")
 
         is_embargoed       = bool (value_or (record, "is_embargoed", False))
         is_public          = bool (value_or (record, "is_public", False))
@@ -772,7 +772,7 @@ class DatabaseInterface:
 
         with self.lock_for_inserts:
             self.store.add ((uri, RDF.type,              rdf.DJHT["Dataset"]))
-            self.store.add ((uri, rdf.DJHT["article_id"], Literal(article_id, datatype=XSD.integer)))
+            self.store.add ((uri, rdf.DJHT["dataset_id"], Literal(article_id, datatype=XSD.integer)))
 
             self.insert_timeline (uri, value_or_none (record, "timeline"))
             self.insert_license (uri, value_or_none (record, "license"))
@@ -824,7 +824,7 @@ class DatabaseInterface:
             self.handle_custom_fields (record, uri, article_id, version, 'articles')
 
             ## Assign the article to the container
-            container = self.container_uri (article_id, "article", account_id)
+            container = self.container_uri (article_id, "dataset", account_id)
             rdf.add (self.store, uri, rdf.DJHT["container"], container, datatype="uri")
 
             if "statistics" in record:
