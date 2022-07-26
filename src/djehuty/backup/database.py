@@ -375,19 +375,22 @@ class DatabaseInterface:
         if field_type != "url":
             field_type = XSD.string
 
-        # The URLs in the "Data Link" custom field aren't encoded.
-        # This could and would lead to invalid RDF serialization.
-        # So, we must re-encode the URLs to treat them as RDF URIs.
-        if name == "data_link":
-            value = requote_uri (value)
-
         if isinstance (value, list):
             for item in value:
                 if isinstance (item, str) and item == "":
                     continue
+
+                # The URLs in the "Data Link" custom field aren't encoded.
+                # This could and would lead to invalid RDF serialization.
+                # So, we must re-encode the URLs to treat them as RDF URIs.
+                if name == "data_link":
+                    item = requote_uri (item)
+
                 rdf.add (self.store, uri, rdf.DJHT[name], item, field_type)
 
         elif not (isinstance (value, str) and value == ""):
+            if name == "data_link":
+                value = requote_uri (value)
             rdf.add (self.store, uri, rdf.DJHT[name], value, field_type)
 
     def insert_custom_field (self, uri, field):
