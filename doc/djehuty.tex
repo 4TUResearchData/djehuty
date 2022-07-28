@@ -95,19 +95,18 @@ body,html{
   border-radius: 4pt 4pt 0pt 0pt;
   border: solid 1pt #d26000;
 }
-table { margin: auto 10pt auto 10pt; width: 880pt; }
-table tr:nth-child(even) { background: #f9f9f9; }
-table tr:first-child {
-  background: #333333;
-  color: #ffffff;
-  -webkit-border-radius: 4pt 4pt 0pt 0pt;
-  -moz-border-radius: 4pt 4pt 0pt 0pt;
-  border-radius: 4pt 4pt 0pt 0pt;
+table {
+  margin: auto 10pt 10pt 10pt;
+  width: 100%;
+  max-width: 830pt;
+  border-collapse: collapse;
+  border: solid 2pt #f49120;
+  line-height: 1em;
 }
-table tr:first-child a { color: #eeeeee; }
-table tr:first-child a:hover { color: #cccccc; }
+table tr:nth-child(even) { background: #f9f9f9; }
+table tr:first-child { background: #f49120; color: #ffffff; }
 hr { margin: 5pt 10pt 5pt 10pt; }
-td { padding-left: 10pt; }
+td { font-size: 12pt; padding-left: 10pt; }
 .tableofcontents { padding: 10pt; }
 .chapterToc { display: inline-block; padding: 4pt; margin-top: .75em; font-size: 1.5em; font-weight: bold; }
 .chapterToc a { color: #000000; }
@@ -119,6 +118,7 @@ td { padding-left: 10pt; }
 .subsectionToc a { color: #00007c; }
 .subsectionToc a:hover { color: #6666af; }
 img { width: 60%; height: auto; }
+.figure img { width: 100%; height: auto; }
 .caption { text-align: center; }
 .rotatebox {
   writing-mode: sideways-lr;
@@ -132,8 +132,23 @@ h3 { font-size: 1.25em; }
 h4 { font-size: 1.10em; }
 #titlepage-logo { width: 200pt; }
 hr { border: none; }
+/* Hack for extraneous text for figures. */
 div.figure p.noindent { display: none; }
 div.figure div.center p.noindent { display: block; }
+/* Hack for extraneous text for tables. */
+div.table div.float span.ecrm-1095 { display: none; }
+div.table div.float div.caption span.content span.ecrm-1095 { font-size: 12pt; display: inline-block; }
+div.table div.float { font-size: 0em; }
+div.table div.float div.caption span.id { font-size: 12pt; }
+div.caption {
+  background: #eeeeee;
+  padding: 5pt;
+  margin: 0pt 150pt 0pt 150pt;
+  min-width: 300pt;
+  -webkit-border-radius: 10pt;
+  -moz-border-radius: 10pt;
+  border-radius: 10pt;
+}
 \EndCssFile
 \fi
 \begin{titlepage}
