@@ -2,7 +2,7 @@
 
 % LaTeX preamble
 % ------------------------------------------------------------------------------
-\usepackage[a4paper,margin=1.2cm,headheight=50pt,includeheadfoot]{geometry}
+\usepackage[a4paper,margin=1.5cm,headheight=50pt,includeheadfoot]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage{parskip}
@@ -54,7 +54,7 @@
 \usepackage{float}
 
 \usepackage{color, colortbl}
-\definecolor{Gray}{rgb}{0.5, 0.63, 0.76}
+\definecolor{Gray}{rgb}{0.95, 0.57, 0.13}
 \definecolor{White}{gray}{1.00}
 \definecolor{HighlightColor}{rgb}{1.0, 0.97, 0.85}
 \definecolor{EvenRowColor}{rgb}{0.97, 0.97, 0.97}
