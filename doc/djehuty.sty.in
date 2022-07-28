@@ -93,6 +93,16 @@
 \newcommand\Highlight{\colorbox{HighlightColor}}
 \fi
 
+\newcommand\includefigure[3]{
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=1.0\textwidth]{figures/#1.pdf}
+  \end{center}
+  \caption{\textit{#2}}
+  \label{fig:#1}
+\end{figure}
+}
+
 \newcommand\triplet[3]{\code{#1} $\rightarrow$ \code{#2} $\rightarrow$ \code{#3}}
 \newcommand\refer[1]{\ref{#1} {\color{LinkGray}`\nameref{#1}'}}
 \newcommand\file[1]{`\texttt{#1}'}
