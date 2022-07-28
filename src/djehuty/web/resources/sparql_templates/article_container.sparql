@@ -5,7 +5,7 @@ SELECT ?account_id ?draft ?latest_published_version ?first_online_date
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container            rdf:type                      djht:DatasetContainer ;
-                          djht:article_id               {{article_id}} .
+                          djht:dataset_id               {{dataset_id}} .
     OPTIONAL { ?container djht:account_id               ?account_id .        }
     OPTIONAL { ?container djht:draft                    ?draft .             }
     OPTIONAL { ?container djht:latest_published_version ?latest_published_version . }

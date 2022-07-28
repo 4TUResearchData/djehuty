@@ -2,7 +2,7 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?article  ?predicate            ?object .
+    ?dataset  ?predicate            ?object .
     ?list     djht:index             ?list_index .
     ?list     ?any                  ?list_item .
   }
@@ -11,9 +11,9 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?container rdf:type             djht:DatasetContainer ;
                djht:account_id       {{account_id}} ;
-               djht:draft            ?article .
+               djht:draft            ?dataset .
 
-    ?article   ?predicate           ?object ;
+    ?dataset   ?predicate           ?object ;
                ?list_predicate      ?list .
     OPTIONAL {
       ?list      rdf:type             rdf:List ;

@@ -8,13 +8,13 @@ WHERE {
     ?container      djht:account_id               ?account_id .
 
     {
-      ?container    djht:draft                    ?article .
+      ?container    djht:draft                    ?dataset .
     } UNION {
-      ?container    djht:published_versions/rdf:rest*/rdf:first ?article .
+      ?container    djht:published_versions/rdf:rest*/rdf:first ?dataset .
     }
 
-    ?article        rdf:type                      djht:Dataset .
-    ?article        djht:files/rdf:rest*/rdf:first ?file .
+    ?dataset        rdf:type                      djht:Dataset .
+    ?dataset        djht:files/rdf:rest*/rdf:first ?file .
 
     ?file           rdf:type                      djht:File .
     ?file           djht:size                     ?bytes .

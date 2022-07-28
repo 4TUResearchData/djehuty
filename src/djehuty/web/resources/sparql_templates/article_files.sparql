@@ -8,14 +8,14 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                djht:File .
-    {% if article_uri is not none %}
-    ?article_uri       rdf:type                djht:Dataset ;
+    {% if dataset_uri is not none %}
+    ?dataset_uri       rdf:type                djht:Dataset ;
                        djht:files              ?files .
     ?files             rdf:rest*               ?rest .
     ?rest              rdf:first               ?file ;
                        djht:index              ?order_index .
     {% endif %}{% if account_id is not none %}
-    ?article_uri       djht:container           ?container .
+    ?dataset_uri       djht:container           ?container .
     ?container         rdf:type/rdfs:subClassOf djht:Container ;
                        djht:account_id          {{account_id}} .
     {% endif %}
@@ -35,8 +35,8 @@ WHERE {
 
     BIND(STRAFTER(STR(?file), "file:") AS ?uuid)
   }
-{%- if article_uri is not none %}
-  FILTER (?article_uri = <{{article_uri}}>)
+{%- if dataset_uri is not none %}
+  FILTER (?dataset_uri = <{{dataset_uri}}>)
 {%- endif %}
 {%- if file_uuid is not none %}
   FILTER (?file = <file:{{file_uuid}}>)

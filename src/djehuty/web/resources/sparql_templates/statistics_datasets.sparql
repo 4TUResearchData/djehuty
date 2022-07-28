@@ -1,11 +1,11 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT (COUNT(DISTINCT ?article_id) AS ?articles)
+SELECT (COUNT(DISTINCT ?dataset_id) AS ?datasets)
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article        rdf:type            djht:Dataset .
-    ?article        djht:article_id      ?article_id .
-    ?article        djht:is_public       "true"^^xsd:boolean .
+    ?dataset        rdf:type            djht:Dataset .
+    ?dataset        djht:dataset_id     ?dataset_id .
+    ?dataset        djht:is_public      "true"^^xsd:boolean .
   }
 {%- if filters is not none %}{{ filters }}{% endif %}
 }

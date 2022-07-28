@@ -44,7 +44,7 @@ WHERE {
 
     {#- Ensure that the account_id associated with the ?file can modify its
      #- properties. #}
-    ?article           djht:files/rdf:rest*/rdf:first ?file ;
+    ?dataset           djht:files/rdf:rest*/rdf:first ?file ;
                        djht:container/djht:account_id  {{account_id}} .
 
     OPTIONAL { ?file   djht:id                  ?id . }

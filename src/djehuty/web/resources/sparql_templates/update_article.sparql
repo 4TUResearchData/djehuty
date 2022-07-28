@@ -3,169 +3,169 @@
 DELETE {
   GRAPH <{{state_graph}}> {
     {%- if title is not none %}
-    ?article           djht:title                ?title .
+    ?dataset           djht:title                ?title .
     {%- endif%}{% if description is not none %}
-    ?article           djht:description          ?description .
+    ?dataset           djht:description          ?description .
     {%- endif%}{% if resource_doi is not none %}
-    ?article           djht:resource_doi         ?resource_doi .
+    ?dataset           djht:resource_doi         ?resource_doi .
     {%- endif%}{% if resource_title is not none %}
-    ?article           djht:resource_title       ?resource_title .
+    ?dataset           djht:resource_title       ?resource_title .
     {%- endif%}{% if license_id is not none %}
-    ?article           djht:license              ?license .
+    ?dataset           djht:license              ?license .
     {%- endif%}{% if group_id is not none %}
-    ?article           djht:group_id             ?group_id .
+    ?dataset           djht:group_id             ?group_id .
     {%- endif%}{% if time_coverage is not none %}
-    ?article           djht:time_coverage        ?time_coverage .
+    ?dataset           djht:time_coverage        ?time_coverage .
     {%- endif%}{% if publisher is not none %}
-    ?article           djht:publisher            ?publisher .
+    ?dataset           djht:publisher            ?publisher .
     {%- endif%}{% if language is not none %}
-    ?article           djht:language             ?language .
+    ?dataset           djht:language             ?language .
     {%- endif%}{% if format is not none %}
-    ?article           djht:format               ?format .
+    ?dataset           djht:format               ?format .
     {%- endif%}{% if contributors is not none %}
-    ?article           djht:contributors         ?contributors .
+    ?dataset           djht:contributors         ?contributors .
     {%- endif%}{% if license_remarks is not none %}
-    ?article           djht:license_remarks      ?license_remarks .
+    ?dataset           djht:license_remarks      ?license_remarks .
     {%- endif%}{% if geolocation is not none %}
-    ?article           djht:geolocation          ?geolocation .
+    ?dataset           djht:geolocation          ?geolocation .
     {%- endif%}{% if longitude is not none %}
-    ?article           djht:longitude            ?longitude .
+    ?dataset           djht:longitude            ?longitude .
     {%- endif%}{% if latitude is not none %}
-    ?article           djht:latitude             ?latitude .
+    ?dataset           djht:latitude             ?latitude .
     {%- endif%}{% if data_link is not none %}
-    ?article           djht:data_link            ?data_link .
+    ?dataset           djht:data_link            ?data_link .
     {%- endif%}{% if derived_from is not none %}
-    ?article           djht:derived_from         ?derived_from .
+    ?dataset           djht:derived_from         ?derived_from .
     {%- endif%}{% if same_as is not none %}
-    ?article           djht:same_as              ?same_as .
+    ?dataset           djht:same_as              ?same_as .
     {%- endif%}{% if organizations is not none %}
-    ?article           djht:organizations        ?organizations .
+    ?dataset           djht:organizations        ?organizations .
     {%- endif%}{% if defined_type_name is not none %}
-    ?article           djht:defined_type_name    ?defined_type_name .
+    ?dataset           djht:defined_type_name    ?defined_type_name .
     {%- endif%}{% if defined_type is not none %}
-    ?article           djht:defined_type         ?defined_type .
+    ?dataset           djht:defined_type         ?defined_type .
     {%- endif%}{% if has_linked_file is not none %}
-    ?article           djht:has_linked_file      ?has_linked_file .
+    ?dataset           djht:has_linked_file      ?has_linked_file .
     {%- endif%}{% if is_embargoed is not none %}
-    ?article           djht:is_embargoed         ?is_embargoed .
+    ?dataset           djht:is_embargoed         ?is_embargoed .
     {%- endif%}{% if embargo_until_date is not none %}
-    ?article           djht:embargo_until_date   ?embargo_until_date .
+    ?dataset           djht:embargo_until_date   ?embargo_until_date .
     {%- endif%}{% if embargo_type is not none %}
-    ?article           djht:embargo_type         ?embargo_type .
+    ?dataset           djht:embargo_type         ?embargo_type .
     {%- endif%}{% if embargo_title is not none %}
-    ?article           djht:embargo_title        ?embargo_title .
+    ?dataset           djht:embargo_title        ?embargo_title .
     {%- endif%}{% if embargo_reason is not none %}
-    ?article           djht:embargo_reason       ?embargo_reason .
+    ?dataset           djht:embargo_reason       ?embargo_reason .
     {%- endif%}{% if embargo_allow_access_requests is not none %}
-    ?article  djht:embargo_allow_access_requests ?embargo_allow_access_requests .
+    ?dataset  djht:embargo_allow_access_requests ?embargo_allow_access_requests .
     {%- endif%}
-    ?article           djht:modified_date        ?modified_date .
+    ?dataset           djht:modified_date        ?modified_date .
   }
 }
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if title is not none %}
-    ?article           djht:title                {{title}} .
+    ?dataset           djht:title                {{title}} .
     {%- endif%}{% if description is not none %}
-    ?article           djht:description          {{description}} .
+    ?dataset           djht:description          {{description}} .
     {%- endif%}{% if resource_doi is not none %}
-    ?article           djht:resource_doi         {{resource_doi}} .
+    ?dataset           djht:resource_doi         {{resource_doi}} .
     {%- endif%}{% if resource_title is not none %}
-    ?article           djht:resource_title       {{resource_title}} .
+    ?dataset           djht:resource_title       {{resource_title}} .
     {%- endif%}{% if license_id is not none %}
-    ?article           djht:license              ?new_license .
+    ?dataset           djht:license              ?new_license .
     {%- endif%}{% if group_id is not none %}
-    ?article           djht:group_id             {{group_id}} .
+    ?dataset           djht:group_id             {{group_id}} .
     {%- endif%}{% if time_coverage is not none %}
-    ?article           djht:time_coverage        {{time_coverage}} .
+    ?dataset           djht:time_coverage        {{time_coverage}} .
     {%- endif%}{% if publisher is not none %}
-    ?article           djht:publisher            {{publisher}} .
+    ?dataset           djht:publisher            {{publisher}} .
     {%- endif%}{% if language is not none %}
-    ?article           djht:language             {{language}} .
+    ?dataset           djht:language             {{language}} .
     {%- endif%}{% if format is not none %}
-    ?article           djht:format               {{format}} .
+    ?dataset           djht:format               {{format}} .
     {%- endif%}{% if contributors is not none %}
-    ?article           djht:contributors         {{contributors}} .
+    ?dataset           djht:contributors         {{contributors}} .
     {%- endif%}{% if license_remarks is not none %}
-    ?article           djht:license_remarks      {{license_remarks}} .
+    ?dataset           djht:license_remarks      {{license_remarks}} .
     {%- endif%}{% if geolocation is not none %}
-    ?article           djht:geolocation          {{geolocation}} .
+    ?dataset           djht:geolocation          {{geolocation}} .
     {%- endif%}{% if longitude is not none %}
-    ?article           djht:longitude            {{longitude}} .
+    ?dataset           djht:longitude            {{longitude}} .
     {%- endif%}{% if latitude is not none %}
-    ?article           djht:latitude             {{latitude}} .
+    ?dataset           djht:latitude             {{latitude}} .
     {%- endif%}{% if data_link is not none %}
-    ?article           djht:data_link            {{data_link}} .
+    ?dataset           djht:data_link            {{data_link}} .
     {%- endif%}{% if derived_from is not none %}
-    ?article           djht:derived_from         {{derived_from}} .
+    ?dataset           djht:derived_from         {{derived_from}} .
     {%- endif%}{% if same_as is not none %}
-    ?article           djht:same_as              {{same_as}} .
+    ?dataset           djht:same_as              {{same_as}} .
     {%- endif%}{% if organizations is not none %}
-    ?article           djht:organizations        {{organizations}} .
+    ?dataset           djht:organizations        {{organizations}} .
     {%- endif%}{% if defined_type_name is not none %}
-    ?article           djht:defined_type_name    {{defined_type_name}} .
+    ?dataset           djht:defined_type_name    {{defined_type_name}} .
     {%- endif%}{% if defined_type is not none %}
-    ?article           djht:defined_type         {{defined_type}} .
+    ?dataset           djht:defined_type         {{defined_type}} .
     {%- endif%}{% if has_linked_file is not none %}
-    ?article           djht:has_linked_file      {{has_linked_file}} .
+    ?dataset           djht:has_linked_file      {{has_linked_file}} .
     {%- endif%}{% if is_embargoed is not none %}
-    ?article           djht:is_embargoed         "{{is_embargoed}}"^^xsd:boolean .
+    ?dataset           djht:is_embargoed         "{{is_embargoed}}"^^xsd:boolean .
     {%- endif%}{% if embargo_until_date is not none %}
-    ?article           djht:embargo_until_date   {{embargo_until_date}} .
+    ?dataset           djht:embargo_until_date   {{embargo_until_date}} .
     {%- endif%}{% if embargo_type is not none %}
-    ?article           djht:embargo_type         {{embargo_type}} .
+    ?dataset           djht:embargo_type         {{embargo_type}} .
     {%- endif%}{% if embargo_title is not none %}
-    ?article           djht:embargo_title        {{embargo_title}} .
+    ?dataset           djht:embargo_title        {{embargo_title}} .
     {%- endif%}{% if embargo_reason is not none %}
-    ?article           djht:embargo_reason       {{embargo_reason}} .
+    ?dataset           djht:embargo_reason       {{embargo_reason}} .
     {%- endif%}{% if embargo_allow_access_requests is not none %}
-    ?article  djht:embargo_allow_access_requests {{embargo_allow_access_requests}} .
+    ?dataset  djht:embargo_allow_access_requests {{embargo_allow_access_requests}} .
     {%- endif%}
-    ?article           djht:modified_date        "{{modified_date}}"^^xsd:dateTime .
+    ?dataset           djht:modified_date        "{{modified_date}}"^^xsd:dateTime .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container          rdf:type                 djht:DatasetContainer .
     ?container          djht:account_id           ?account_id .
-    ?container          djht:draft                ?article .
+    ?container          djht:draft                ?dataset .
 
-    ?article            rdf:type                 djht:Dataset .
-    ?article            djht:title                ?title .
+    ?dataset            rdf:type                 djht:Dataset .
+    ?dataset            djht:title                ?title .
 
     {%- if license_id is not none %}
     ?new_license        rdf:type                 djht:License ;
                         djht:id                   {{license_id}} .
     {%- endif%}
 
-    OPTIONAL { ?article djht:license              ?license . }
-    OPTIONAL { ?article djht:description          ?description . }
-    OPTIONAL { ?article djht:group_id             ?group_id . }
-    OPTIONAL { ?article djht:resource_doi         ?resource_doi . }
-    OPTIONAL { ?article djht:resource_title       ?resource_title . }
-    OPTIONAL { ?article djht:modified_date        ?modified_date . }
-    OPTIONAL { ?article djht:publisher             ?publisher . }
-    OPTIONAL { ?article djht:language              ?language . }
-    OPTIONAL { ?article djht:time_coverage         ?time_coverage . }
-    OPTIONAL { ?article djht:geolocation           ?geolocation . }
-    OPTIONAL { ?article djht:longitude             ?longitude . }
-    OPTIONAL { ?article djht:latitude              ?latitude . }
-    OPTIONAL { ?article djht:format                ?format . }
-    OPTIONAL { ?article djht:organizations         ?organizations . }
-    OPTIONAL { ?article djht:data_link             ?data_link . }
-    OPTIONAL { ?article djht:same_as               ?same_as . }
-    OPTIONAL { ?article djht:derived_from          ?derived_from . }
-    OPTIONAL { ?article djht:contributors          ?contributors . }
-    OPTIONAL { ?article djht:license_remarks       ?license_remarks . }
-    OPTIONAL { ?article djht:defined_type_name     ?defined_type_name . }
-    OPTIONAL { ?article djht:defined_type          ?defined_type . }
-    OPTIONAL { ?article djht:has_linked_file       ?has_linked_file . }
-    OPTIONAL { ?article djht:is_embargoed          ?is_embargoed . }
-    OPTIONAL { ?article djht:embargo_until_date    ?embargo_until_date . }
-    OPTIONAL { ?article djht:embargo_type          ?embargo_type . }
-    OPTIONAL { ?article djht:embargo_title         ?embargo_title . }
-    OPTIONAL { ?article djht:embargo_reason        ?embargo_reason . }
-    OPTIONAL { ?article djht:embargo_allow_access_requests ?embargo_allow_access_requests . }
+    OPTIONAL { ?dataset djht:license              ?license . }
+    OPTIONAL { ?dataset djht:description          ?description . }
+    OPTIONAL { ?dataset djht:group_id             ?group_id . }
+    OPTIONAL { ?dataset djht:resource_doi         ?resource_doi . }
+    OPTIONAL { ?dataset djht:resource_title       ?resource_title . }
+    OPTIONAL { ?dataset djht:modified_date        ?modified_date . }
+    OPTIONAL { ?dataset djht:publisher             ?publisher . }
+    OPTIONAL { ?dataset djht:language              ?language . }
+    OPTIONAL { ?dataset djht:time_coverage         ?time_coverage . }
+    OPTIONAL { ?dataset djht:geolocation           ?geolocation . }
+    OPTIONAL { ?dataset djht:longitude             ?longitude . }
+    OPTIONAL { ?dataset djht:latitude              ?latitude . }
+    OPTIONAL { ?dataset djht:format                ?format . }
+    OPTIONAL { ?dataset djht:organizations         ?organizations . }
+    OPTIONAL { ?dataset djht:data_link             ?data_link . }
+    OPTIONAL { ?dataset djht:same_as               ?same_as . }
+    OPTIONAL { ?dataset djht:derived_from          ?derived_from . }
+    OPTIONAL { ?dataset djht:contributors          ?contributors . }
+    OPTIONAL { ?dataset djht:license_remarks       ?license_remarks . }
+    OPTIONAL { ?dataset djht:defined_type_name     ?defined_type_name . }
+    OPTIONAL { ?dataset djht:defined_type          ?defined_type . }
+    OPTIONAL { ?dataset djht:has_linked_file       ?has_linked_file . }
+    OPTIONAL { ?dataset djht:is_embargoed          ?is_embargoed . }
+    OPTIONAL { ?dataset djht:embargo_until_date    ?embargo_until_date . }
+    OPTIONAL { ?dataset djht:embargo_type          ?embargo_type . }
+    OPTIONAL { ?dataset djht:embargo_title         ?embargo_title . }
+    OPTIONAL { ?dataset djht:embargo_reason        ?embargo_reason . }
+    OPTIONAL { ?dataset djht:embargo_allow_access_requests ?embargo_allow_access_requests . }
   }
 {%- if account_id is not none: %}
   FILTER (?account_id = {{account_id}})

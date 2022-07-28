@@ -32,7 +32,7 @@ WHERE {
     OPTIONAL { ?account djht:last_name            ?submitter_last_name . }
     OPTIONAL { ?account djht:institution_id       ?institution_id . }
 
-    BIND(STRAFTER(STR(?dataset), "article:")  AS ?dataset_uuid)
+    BIND(STRAFTER(STR(?dataset), "dataset:")  AS ?dataset_uuid)
     BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)
   }
 {%- if is_assigned is not none %}

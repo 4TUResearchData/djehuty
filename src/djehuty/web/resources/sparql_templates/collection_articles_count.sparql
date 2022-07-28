@@ -1,11 +1,11 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT COUNT(DISTINCT ?articles) AS ?articles
+SELECT COUNT(DISTINCT ?datasets) AS ?datasets
 
 WHERE {
   GRAPH <{{state_graph}}> {
     <{{collection_uri}}> rdf:type                         djht:Collection ;
-                         djht:articles/rdf:rest*/rdf:first ?articles .
+                         djht:datasets/rdf:rest*/rdf:first ?datasets .
   }
 }
 {% endblock %}

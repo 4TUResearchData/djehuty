@@ -2,27 +2,27 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?article djht:thumb  ?thumb .
+    ?dataset djht:thumb  ?thumb .
   }
 }
 INSERT {
   GRAPH <{{state_graph}}> {
-    ?article djht:thumb  "/files/{{file_id}}/preview/{{file_id}}/thumb.png" .
+    ?dataset djht:thumb  "/files/{{file_id}}/preview/{{file_id}}/thumb.png" .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article rdf:type       djht:Dataset .
-    ?article djht:article_version_id ?article_version_id .
-    ?article djht:account_id {{account_id}} .
-    ?article djht:version    {{version}}.
-    OPTIONAL { ?article djht:thumb      ?thumb . }
+    ?dataset rdf:type       djht:Dataset .
+    ?dataset djht:dataset_version_id ?dataset_version_id .
+    ?dataset djht:account_id {{account_id}} .
+    ?dataset djht:version    {{version}}.
+    OPTIONAL { ?dataset djht:thumb      ?thumb . }
 
     ?file    rdf:type       djht:File .
     ?file    djht:id         ?file_id .
 
     ?link    rdf:type       djht:DatasetFile .
-    ?link    djht:article_version_id ?article_version_id .
+    ?link    djht:dataset_version_id ?dataset_version_id .
     ?link    djht:file_id    ?file_id .
   }
 {%- if filters is not none %}{{ filters }}{% endif %}

@@ -1,13 +1,13 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
 {%- if return_count %}
-SELECT COUNT(DISTINCT ?article) AS ?articles
+SELECT COUNT(DISTINCT ?dataset) AS ?datasets
 {%- else %}
 SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
                 ?created_date ?custom_fields_id ?defined_type ?defined_type_name
                 ?description ?doi ?embargo_until_date ?embargo_allow_access_requests
                 ?embargo_reason ?embargo_title ?embargo_type ?figshare_url
-                ?funding ?group_id ?has_linked_file ?article_id
+                ?funding ?group_id ?has_linked_file ?dataset_id
                 ?institution_id ?is_active ?is_confidential ?is_embargoed
                 ?is_metadata_record ?license_id ?license_name ?license_url
                 ?metadata_reason ?modified_date ?published_date
@@ -19,117 +19,117 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
                 ?url_public_html ?version ?publisher ?language ?time_coverage
                 ?geolocation ?longitude ?latitude ?format ?organizations
                 ?data_link ?derived_from ?same_as ?contributors
-                ?license_remarks ?container_uri ?article AS ?uri ?uuid
+                ?license_remarks ?container_uri ?dataset AS ?uri ?uuid
                 ?is_under_review ?review AS ?review_uri ?review_submit_date
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container_uri      rdf:type                 djht:DatasetContainer .
+    ?container_uri      rdf:type                  djht:DatasetContainer .
     ?container_uri      djht:account_id           ?account_id .
-    OPTIONAL { ?container_uri djht:article_id     ?article_id . }
+    OPTIONAL { ?container_uri djht:dataset_id     ?dataset_id . }
 
     {%- if is_published %}
     {%- if is_latest %}
-    ?container_uri      djht:latest_published_version ?article .
+    ?container_uri      djht:latest_published_version ?dataset .
     {%- else %}
-    ?container_uri      djht:published_versions/rdf:rest*/rdf:first ?article .
+    ?container_uri      djht:published_versions/rdf:rest*/rdf:first ?dataset .
     {%- endif %}
     {%- else %}
-    ?container_uri      djht:draft                ?article .
+    ?container_uri      djht:draft                ?dataset .
     OPTIONAL {
-      ?review           rdf:type                 djht:Review ;
-                        djht:dataset              ?article .
+      ?review           rdf:type                  djht:Review ;
+                        djht:dataset              ?dataset .
       {%- if is_under_review %}
       ?review           djht:request_date         ?review_submit_date .
       {%- endif %}
     }
     {%- endif %}
 
-    ?article            djht:title                ?title .
-    OPTIONAL { ?article djht:version              ?version . }
+    ?dataset            djht:title                ?title .
+    OPTIONAL { ?dataset djht:version              ?version . }
 
     OPTIONAL {
-      ?account          rdf:type                 djht:Account .
+      ?account          rdf:type                  djht:Account .
       ?account          djht:id                   ?account_id .
       ?account          djht:institution_id       ?institution_id .
     }
 
     {%- if collection_uri is not none %}
-    ?collection         rdf:type                 djht:Collection .
-    ?collection         djht:articles/rdf:rest*/rdf:first ?container_uri .
+    ?collection         rdf:type                  djht:Collection .
+    ?collection         djht:datasets/rdf:rest*/rdf:first ?container_uri .
     {%- endif %}
     {%- if categories is not none: %}
-    ?article            djht:categories/rdf:rest*/rdf:first ?category .
+    ?dataset            djht:categories/rdf:rest*/rdf:first ?category .
     ?category           djht:id                   ?category_id .
     ?category           djht:parent_id            ?parent_category_id .
     {%- endif %}
 
     OPTIONAL { ?container_uri djht:first_online_date    ?timeline_first_online . }
-    OPTIONAL { ?article djht:publisher_acceptance_date ?timeline_publisher_acceptance . }
-    OPTIONAL { ?article djht:publisher_publication_date ?timeline_publisher_publication . }
-    OPTIONAL { ?article djht:submission_date      ?timeline_submission . }
-    OPTIONAL { ?article djht:posted_date          ?timeline_posted . }
-    OPTIONAL { ?article djht:revision_date        ?timeline_revision . }
+    OPTIONAL { ?dataset djht:publisher_acceptance_date ?timeline_publisher_acceptance . }
+    OPTIONAL { ?dataset djht:publisher_publication_date ?timeline_publisher_publication . }
+    OPTIONAL { ?dataset djht:submission_date      ?timeline_submission . }
+    OPTIONAL { ?dataset djht:posted_date          ?timeline_posted . }
+    OPTIONAL { ?dataset djht:revision_date        ?timeline_revision . }
 
     OPTIONAL {
-      ?article          djht:license               ?license_url .
-      ?license_url      rdf:type                  djht:License .
+      ?dataset          djht:license               ?license_url .
+      ?license_url      rdf:type                   djht:License .
       ?license_url      djht:id                    ?license_id .
       ?license_url      djht:name                  ?license_name .
     }
 
-    OPTIONAL { ?article djht:citation              ?citation . }
-    OPTIONAL { ?article djht:confidential_reason   ?confidential_reason . }
-    OPTIONAL { ?article djht:created_date          ?created_date . }
-    OPTIONAL { ?article djht:custom_fields_id      ?custom_fields_id . }
-    OPTIONAL { ?article djht:defined_type          ?defined_type . }
-    OPTIONAL { ?article djht:defined_type_name     ?defined_type_name . }
-    OPTIONAL { ?article djht:description           ?description . }
-    OPTIONAL { ?article djht:doi                   ?doi . }
-    OPTIONAL { ?article djht:embargo_until_date    ?embargo_until_date . }
-    OPTIONAL { ?article djht:embargo_type          ?embargo_type . }
-    OPTIONAL { ?article djht:embargo_title         ?embargo_title . }
-    OPTIONAL { ?article djht:embargo_reason        ?embargo_reason . }
-    OPTIONAL { ?article djht:embargo_allow_access_requests ?embargo_allow_access_requests . }
-    OPTIONAL { ?article djht:figshare_url          ?figshare_url . }
-    OPTIONAL { ?article djht:funding               ?funding . }
-    OPTIONAL { ?article djht:group_id              ?group_id . }
-    OPTIONAL { ?article djht:handle                ?handle . }
-    OPTIONAL { ?article djht:has_linked_file       ?has_linked_file . }
-    OPTIONAL { ?article djht:is_active             ?is_active . }
-    OPTIONAL { ?article djht:is_confidential       ?is_confidential . }
-    OPTIONAL { ?article djht:is_embargoed          ?is_embargoed . }
-    OPTIONAL { ?article djht:is_metadata_record    ?is_metadata_record . }
-    OPTIONAL { ?article djht:metadata_reason       ?metadata_reason . }
-    OPTIONAL { ?article djht:modified_date         ?modified_date . }
-    OPTIONAL { ?article djht:published_date        ?published_date . }
-    OPTIONAL { ?article djht:resource_doi          ?resource_doi . }
-    OPTIONAL { ?article djht:resource_title        ?resource_title . }
-    OPTIONAL { ?article djht:size                  ?size . }
-    OPTIONAL { ?article djht:status                ?status . }
-    OPTIONAL { ?article djht:thumb                 ?thumb . }
-    OPTIONAL { ?article djht:url                   ?url . }
-    OPTIONAL { ?article djht:url_private_api       ?url_private_api . }
-    OPTIONAL { ?article djht:url_private_html      ?url_private_html . }
-    OPTIONAL { ?article djht:url_public_api        ?url_public_api . }
-    OPTIONAL { ?article djht:url_public_html       ?url_public_html . }
+    OPTIONAL { ?dataset djht:citation              ?citation . }
+    OPTIONAL { ?dataset djht:confidential_reason   ?confidential_reason . }
+    OPTIONAL { ?dataset djht:created_date          ?created_date . }
+    OPTIONAL { ?dataset djht:custom_fields_id      ?custom_fields_id . }
+    OPTIONAL { ?dataset djht:defined_type          ?defined_type . }
+    OPTIONAL { ?dataset djht:defined_type_name     ?defined_type_name . }
+    OPTIONAL { ?dataset djht:description           ?description . }
+    OPTIONAL { ?dataset djht:doi                   ?doi . }
+    OPTIONAL { ?dataset djht:embargo_until_date    ?embargo_until_date . }
+    OPTIONAL { ?dataset djht:embargo_type          ?embargo_type . }
+    OPTIONAL { ?dataset djht:embargo_title         ?embargo_title . }
+    OPTIONAL { ?dataset djht:embargo_reason        ?embargo_reason . }
+    OPTIONAL { ?dataset djht:embargo_allow_access_requests ?embargo_allow_access_requests . }
+    OPTIONAL { ?dataset djht:figshare_url          ?figshare_url . }
+    OPTIONAL { ?dataset djht:funding               ?funding . }
+    OPTIONAL { ?dataset djht:group_id              ?group_id . }
+    OPTIONAL { ?dataset djht:handle                ?handle . }
+    OPTIONAL { ?dataset djht:has_linked_file       ?has_linked_file . }
+    OPTIONAL { ?dataset djht:is_active             ?is_active . }
+    OPTIONAL { ?dataset djht:is_confidential       ?is_confidential . }
+    OPTIONAL { ?dataset djht:is_embargoed          ?is_embargoed . }
+    OPTIONAL { ?dataset djht:is_metadata_record    ?is_metadata_record . }
+    OPTIONAL { ?dataset djht:metadata_reason       ?metadata_reason . }
+    OPTIONAL { ?dataset djht:modified_date         ?modified_date . }
+    OPTIONAL { ?dataset djht:published_date        ?published_date . }
+    OPTIONAL { ?dataset djht:resource_doi          ?resource_doi . }
+    OPTIONAL { ?dataset djht:resource_title        ?resource_title . }
+    OPTIONAL { ?dataset djht:size                  ?size . }
+    OPTIONAL { ?dataset djht:status                ?status . }
+    OPTIONAL { ?dataset djht:thumb                 ?thumb . }
+    OPTIONAL { ?dataset djht:url                   ?url . }
+    OPTIONAL { ?dataset djht:url_private_api       ?url_private_api . }
+    OPTIONAL { ?dataset djht:url_private_html      ?url_private_html . }
+    OPTIONAL { ?dataset djht:url_public_api        ?url_public_api . }
+    OPTIONAL { ?dataset djht:url_public_html       ?url_public_html . }
     {#- Custom fields. #}
-    OPTIONAL { ?article djht:publisher             ?publisher . }
-    OPTIONAL { ?article djht:language              ?language . }
-    OPTIONAL { ?article djht:time_coverage         ?time_coverage . }
-    OPTIONAL { ?article djht:geolocation           ?geolocation . }
-    OPTIONAL { ?article djht:longitude             ?longitude . }
-    OPTIONAL { ?article djht:latitude              ?latitude . }
-    OPTIONAL { ?article djht:format                ?format . }
-    OPTIONAL { ?article djht:organizations         ?organizations . }
-    OPTIONAL { ?article djht:data_link             ?data_link . }
-    OPTIONAL { ?article djht:same_as               ?same_as . }
-    OPTIONAL { ?article djht:derived_from          ?derived_from . }
-    OPTIONAL { ?article djht:contributors          ?contributors . }
-    OPTIONAL { ?article djht:license_remarks       ?license_remarks . }
+    OPTIONAL { ?dataset djht:publisher             ?publisher . }
+    OPTIONAL { ?dataset djht:language              ?language . }
+    OPTIONAL { ?dataset djht:time_coverage         ?time_coverage . }
+    OPTIONAL { ?dataset djht:geolocation           ?geolocation . }
+    OPTIONAL { ?dataset djht:longitude             ?longitude . }
+    OPTIONAL { ?dataset djht:latitude              ?latitude . }
+    OPTIONAL { ?dataset djht:format                ?format . }
+    OPTIONAL { ?dataset djht:organizations         ?organizations . }
+    OPTIONAL { ?dataset djht:data_link             ?data_link . }
+    OPTIONAL { ?dataset djht:same_as               ?same_as . }
+    OPTIONAL { ?dataset djht:derived_from          ?derived_from . }
+    OPTIONAL { ?dataset djht:contributors          ?contributors . }
+    OPTIONAL { ?dataset djht:license_remarks       ?license_remarks . }
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
-    BIND(STRAFTER(STR(?article), "article:")         AS ?uuid)
+    BIND(STRAFTER(STR(?dataset), "dataset:")         AS ?uuid)
     BIND(BOUND(?review)                              AS ?is_under_review)
   }
 {%- if is_under_review is not none %}

@@ -1,12 +1,12 @@
-{# Find the latest version of each article for which one of the conditions in
-   the UNION clause holds and return some properties of these article versions.
+{# Find the latest version of each dataset for which one of the conditions in
+   the UNION clause holds and return some properties of these dataset versions.
    Filters restrict the values of ?data_url. #}
 {% extends "prefixes.sparql" %}
 {% block query %}
 SELECT DISTINCT ?doi ?title
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?article  a               djht:Dataset ;
+    ?dataset  a               djht:Dataset ;
               djht:container   ?container ;
               djht:version     ?version ;
               djht:title       ?title ;
@@ -15,14 +15,14 @@ WHERE {
       SELECT ?container (MAX(?i_version) AS ?version)
       WHERE {
         GRAPH <{{state_graph}}> {
-          ?i_article  a               djht:Dataset ;
+          ?i_dataset  a               djht:Dataset ;
                       djht:container   ?container ;
                       djht:version     ?i_version .
-          { ?i_article  djht:files/rdf:rest*/rdf:first  ?file .
+          { ?i_dataset  djht:files/rdf:rest*/rdf:first  ?file .
             ?file       a                              djht:File ;
                         djht:is_link_only               true ;
                         djht:download_url               ?data_url . } UNION
-          { ?i_article  djht:data_link                  ?data_url . }
+          { ?i_dataset  djht:data_link                  ?data_url . }
         }
         {{ filters }}
       }

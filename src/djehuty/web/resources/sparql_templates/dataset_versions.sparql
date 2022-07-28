@@ -1,10 +1,10 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?dataset_uri ?article_id ?version ?url ?url_public_api
+SELECT DISTINCT ?dataset_uri ?dataset_id ?version ?url ?url_public_api
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri rdf:type             djht:DatasetContainer ;
-                   djht:article_id      ?article_id .
+                   djht:dataset_id      ?dataset_id .
     ?dataset_uri   rdf:type             djht:Dataset ;
                    djht:container       ?container_uri ;
                    djht:version         ?version ;
