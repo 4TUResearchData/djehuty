@@ -29,8 +29,14 @@ endif
 
 EXTRA_DIST              = $(doc_TEX) $(doc_STYLE)                  \
                           introduction.tex                         \
+                          knowledge-graph.tex                      \
+                          references.bib                           \
                           figures/logo.pdf                         \
-                          figures/references-graph.pdf
+                          figures/rdf-list-abbrev.pdf              \
+                          figures/references-graph.pdf             \
+                          figures/typed-literals-notation.pdf      \
+                          figures/typed-notation.pdf
+
 
 if HAVE_HTLATEX
 $(doc_HTML): $(doc_PDF)
@@ -41,6 +47,8 @@ $(doc_HTML): $(doc_PDF)
 
 nobase_dist_doc_DATA     = $(doc_HTML)                             \
                            $(doc_NAME)2.html                       \
+                           $(doc_NAME)3.html                       \
+                           $(doc_NAME)4.html                       \
                            $(doc_NAME).css
 endif
 
@@ -64,7 +72,14 @@ docs-clean:
       $(doc_NAME).css                                              \
       $(doc_NAME).html                                             \
       $(doc_NAME)2.html                                            \
+      $(doc_NAME)3.html                                            \
+      $(doc_NAME)4.html                                            \
       missfont.log                                                 \
-      texput.log
+      texput.log                                                   \
+      figures/logo-.png                                            \
+      figures/rdf-list-abbrev-.png                                 \
+      figures/references-graph-.png                                \
+      figures/typed-literals-notation-.png                         \
+      figures/typed-notation-.png
 
 clean-local: docs-clean

@@ -1,0 +1,70 @@
+\chapter{Knowledge graph}
+
+  \code{djehuty} processes its information using the Resource Description
+  Framework (\cite{lassila-99-rdf}).  This chapter describes the parts that
+  make up the data model of \t{djehuty}.
+
+\section{Use of vocabularies}
+
+  Throughout this chapter, abbreviated references to ontologies are used.
+  Table \ref{table:vocabularies} lists these abbreviations.
+
+  \hypersetup{urlcolor=black}
+  \begin{table}[H]
+    \begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+      \headrow
+      \b{Abbreviation} & \b{Ontology URI}\\
+      \evenrow
+      \t{djht}         & \dhref{https://ontologies.data.4tu.nl/djehuty/\djehutyversion/}\\
+      \oddrow
+      \t{rdf}          & \dhref{http://www.w3.org/1999/02/22-rdf-syntax-ns\#}\\
+      \evenrow
+      \t{rdfs}         & \dhref{http://www.w3.org/2000/01/rdf-schema\#}\\
+      \oddrow
+      \t{xsd}          & \dhref{http://www.w3.org/2001/XMLSchema\#}\\
+    \end{tabularx}
+    \caption{\small Lookup table for vocabulary URIs and their abbreviations.}
+    \label{table:vocabularies}
+  \end{table}
+  \hypersetup{urlcolor=LinkGray}
+
+\section{Notational shortcuts}
+
+  In addition to abbreviating ontologies with their prefix we use another
+  notational shortcut.  To effectively communicate the structure of the RDF
+  graph used by \t{djehuty} we introduce a couple of shorthand notations.
+
+\subsection{Notation for typed triples}
+
+  When the \code{object} in a triple is \i{typed}, we introduce the shorthand
+  to only show the type, rather than the actual value of the \code{object}.
+  Figure \ref{fig:typed-notation} displays this for URIs, and figure
+  \ref{fig:typed-literals-notation} displays this for literals.
+
+  \includefigure{typed-notation}{Shorthand notation for triples with an
+    \code{rdf:type} which features a hollow predicate arrow and a colored
+    type specifier with rounded corners.}
+
+  Literals are depicted by rectangles (with sharp edges) in contrast to URIs
+  which are depicted as rectangles with rounded edges.
+
+  \includefigure{typed-literals-notation}{Shorthand notation for triples with
+    a literal, which features a hollow predicate arrow and a colored
+    rectangular type specifier.}
+
+  When the subject of a triple is the shorthand type, assume the subject is not
+  the type itself but the subject which has that type.
+
+\subsection{Notation for \code{rdf:List}}
+
+  To preserve the order in which lists were formed, the data model makes use
+  of \code{rdf:List} with numeric indexes.  This pattern will be abbreviated
+  in the remainder of the figures as displayed in figure
+  \ref{fig:rdf-list-abbrev}.
+
+  \includefigure{rdf-list-abbrev}{Shorthand notation for \code{rdf:List}
+    with numeric indexes, which features a hollow double-arrow.  Lists have
+    arbitrary lengths, and the numeric indexes use 1-based indexing.}
+
+  The hollow double-arrow depicts the use of an \code{rdf:List} with numeric
+  indexes.

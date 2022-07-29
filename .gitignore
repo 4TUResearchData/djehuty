@@ -11,6 +11,7 @@ rpmbuild/SRPMS/
 autom4te.cache/
 aclocal.m4
 configure
+configure~
 config.log
 config.status
 Makefile
@@ -22,5 +23,8 @@ install-sh
 .idea/
 djehuty.spec
 djehuty.xml
+doc/djehuty.sty
+doc/figures/*.svg
+doc/fonts
 *.bak
 *.BAK
