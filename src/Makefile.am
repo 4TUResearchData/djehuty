@@ -86,6 +86,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/delete_sessions.sparql             \
     djehuty/web/resources/sparql_templates/derived_from.sparql                \
     djehuty/web/resources/sparql_templates/explorer_properties.sparql         \
+    djehuty/web/resources/sparql_templates/explorer_property_types.sparql     \
     djehuty/web/resources/sparql_templates/explorer_types.sparql              \
     djehuty/web/resources/sparql_templates/funding.sparql                     \
     djehuty/web/resources/sparql_templates/group_by_name.sparql               \

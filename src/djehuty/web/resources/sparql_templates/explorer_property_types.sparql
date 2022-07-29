@@ -1,0 +1,12 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?type
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?subject rdf:type <{{type}}> ; <{{property}}> ?object .
+    OPTIONAL { ?object rdf:type ?object_type . }
+    BIND (IF (bound(?object_type), ?object_type, datatype(?object)) as ?type)
+  }
+}
+ORDER BY ASC(?type)
+{% endblock %}
