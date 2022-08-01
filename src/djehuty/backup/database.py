@@ -536,17 +536,17 @@ class DatabaseInterface:
 
             self.handle_custom_fields (record, uri, collection_id, version, 'collections')
 
-            articles = value_or (record, "articles", [])
-            if articles:
-                for index, article_id in enumerate (articles):
-                    article_uri = self.record_uri ("DatasetContainer", "article_id", article_id)
-                    if article_uri is None:
-                        logging.error ("Could not find article container for %d", article_id)
+            datasets = value_or (record, "articles", [])
+            if datasets:
+                for index, dataset_id in enumerate (datasets):
+                    dataset_uri = self.record_uri ("DatasetContainer", "dataset_id", dataset_id)
+                    if dataset_uri is None:
+                        logging.error ("Could not find dataset container for %d", dataset_id)
                         continue
 
-                    articles[index] = URIRef (article_uri)
+                    datasets[index] = URIRef (dataset_uri)
 
-                self.insert_item_list (uri, articles, "articles")
+                self.insert_item_list (uri, datasets, "datasets")
             else:
                 logging.warning ("Collection %d seems to be empty.", collection_id)
 
@@ -605,7 +605,7 @@ class DatabaseInterface:
         return uri
 
     def insert_private_link (self, record):
-        """Procedure to insert a private link to an article or a collection."""
+        """Procedure to insert a private link to an dataset or a collection."""
 
         is_active = value_or (record, "is_active", False)
         suffix    = token_urlsafe (64)
@@ -654,7 +654,7 @@ class DatabaseInterface:
         return True
 
     def insert_totals_statistics (self, record, uri):
-        """Procedure to insert simplified totals for an article or collection."""
+        """Procedure to insert simplified totals for an dataset or collection."""
 
         if record is None:
             return None
@@ -726,7 +726,7 @@ class DatabaseInterface:
         return None
 
     def container_uri (self, item_id, item_type, account_id):
-        """Returns the URI of the article container belonging to article_id."""
+        """Returns the URI of the dataset container belonging to dataset_id."""
 
         prefix     = item_type.capitalize()
         item_class = f"{prefix}Container"
@@ -750,14 +750,14 @@ class DatabaseInterface:
 
         return uri
 
-    def insert_article (self, record):
-        """Procedure to insert an article record."""
+    def insert_dataset (self, record):
+        """Procedure to insert an dataset record."""
 
-        article_id = value_or_none (record, "id")
-        if article_id is None:
+        dataset_id = value_or_none (record, "id")
+        if dataset_id is None:
             return False
         version = value_or_none(record, "version")
-        self.fix_doi (record, article_id, version, 'article')
+        self.fix_doi (record, dataset_id, version, 'article')
 
         account_id = value_or_none (record, "account_id")
         uri        = rdf.unique_node ("dataset")
@@ -772,7 +772,7 @@ class DatabaseInterface:
 
         with self.lock_for_inserts:
             self.store.add ((uri, RDF.type,              rdf.DJHT["Dataset"]))
-            self.store.add ((uri, rdf.DJHT["dataset_id"], Literal(article_id, datatype=XSD.integer)))
+            self.store.add ((uri, rdf.DJHT["dataset_id"], Literal(dataset_id, datatype=XSD.integer)))
 
             self.insert_timeline (uri, value_or_none (record, "timeline"))
             self.insert_license (uri, value_or_none (record, "license"))
@@ -821,17 +821,17 @@ class DatabaseInterface:
             self.insert_private_links_list (uri, value_or (record, "private_links", []))
             self.insert_embargo_list (uri, value_or (record, "embargo_options", []))
 
-            self.handle_custom_fields (record, uri, article_id, version, 'articles')
+            self.handle_custom_fields (record, uri, dataset_id, version, 'articles')
 
-            ## Assign the article to the container
-            container = self.container_uri (article_id, "dataset", account_id)
+            ## Assign the dataset to the container
+            container = self.container_uri (dataset_id, "dataset", account_id)
             rdf.add (self.store, uri, rdf.DJHT["container"], container, datatype="uri")
 
             if "statistics" in record:
                 stats = record["statistics"]
                 self.insert_totals_statistics (stats["totals"], container)
             elif is_public and is_editable:
-                logging.warning ("No statistics available for article %d.", article_id)
+                logging.warning ("No statistics available for dataset %d.", dataset_id)
 
             if is_editable:
                 self.store.add ((container, rdf.DJHT["draft"], uri))

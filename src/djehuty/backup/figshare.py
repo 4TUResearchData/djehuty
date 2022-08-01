@@ -167,8 +167,8 @@ class FigshareEndpoint:
 
         ## We fetch pages concurrently in a loop because we cannot predict
         ## when we have fetched all items.  We can test whether there are
-        ## more items to fetch by comparing the number of fetched articles
-        ## to the number of articles it should've fetched.
+        ## more items to fetch by comparing the number of fetched datasets
+        ## to the number of datasets it should've fetched.
         start_page = 1
         start_time = time.perf_counter()
 
@@ -207,24 +207,24 @@ class FigshareEndpoint:
         logging.debug ("Fetched %d items in %.2f seconds", total_fetched, end_time - start_time)
         return total
 
-    def get_articles (self,
+    def get_datasets (self,
                       published_since="1970-01-01",
                       published_until="2300-01-01"):
-        """Procedure to get articles from the Figshare API."""
+        """Procedure to get datasets from the Figshare API."""
 
         return self.get_all ("/articles",
                              published_since = published_since,
                              published_until = published_until)
 
-    def get_article_details_by_account_by_id (self, account_id, article_id):
-        """Procedure to get detailed article information for a given account_id."""
+    def get_dataset_details_by_account_by_id (self, account_id, dataset_id):
+        """Procedure to get detailed dataset information for a given account_id."""
 
         headers      = self.__request_headers()
         parameters   = { "impersonate": account_id }
-        record       = self.get(f"/account/articles/{article_id}", headers, parameters)
+        record       = self.get(f"/account/articles/{dataset_id}", headers, parameters)
 
         if isinstance(record, list):
-            logging.error ("Failed to get article %d for account %d.", article_id, account_id)
+            logging.error ("Failed to get dataset %d for account %d.", dataset_id, account_id)
             logging.error ("Received: %s", json.dumps(record))
             return None
 
@@ -244,8 +244,8 @@ class FigshareEndpoint:
             logging.error ("Failed to process authors for account %d", account_id)
 
         record["authors"]       = authors
-        record["private_links"] = self.get_article_private_links_by_account_by_id (account_id,
-                                                                                   article_id)
+        record["private_links"] = self.get_dataset_private_links_by_account_by_id (account_id,
+                                                                                   dataset_id)
         record["account_id"]    = account_id
         record["is_latest"]     = 0
         record["is_editable"]   = 1
@@ -259,7 +259,7 @@ class FigshareEndpoint:
         record["version"]       = None
 
         if conv.value_or (record, "is_public", False):
-            versions = self.get_article_versions (article_id, account_id,
+            versions = self.get_dataset_versions (dataset_id, account_id,
                                                   latest=current_version)
             record["versions"] = versions
 
@@ -276,18 +276,18 @@ class FigshareEndpoint:
                                                  "%Y-%m-%d %H:%M:%S")
                 created_date = datetime.strftime(date, "%Y-%m-%d")
 
-            record["statistics"] = self.get_statistics_for_article(article_id,
+            record["statistics"] = self.get_statistics_for_dataset(dataset_id,
                                                                    created_date,
                                                                    now)
 
         return record
 
-    def get_article_private_links_by_account_by_id (self, account_id, article_id):
-        """Procedure to get private links to an article."""
+    def get_dataset_private_links_by_account_by_id (self, account_id, dataset_id):
+        """Procedure to get private links to an dataset."""
 
         headers    = self.__request_headers()
         parameters = { "impersonate": account_id }
-        record     = self.get(f"/account/articles/{article_id}/private_links",
+        record     = self.get(f"/account/articles/{dataset_id}/private_links",
                               headers,
                               parameters)
         return record
@@ -302,24 +302,24 @@ class FigshareEndpoint:
                               parameters)
         return record
 
-    def get_articles_by_account (self, account_id):
-        """Procedure to get articles for a given account_id."""
+    def get_datasets_by_account (self, account_id):
+        """Procedure to get datasets for a given account_id."""
 
         summaries = self.get_all ("/account/articles", impersonate=account_id)
         if not summaries:
             return []
 
-        article_ids = list(map(lambda article : article['id'], summaries))
+        dataset_ids = list(map(lambda dataset : dataset['id'], summaries))
         with concurrent.futures.ThreadPoolExecutor() as executor:
             start_time = time.perf_counter()
-            articles = [executor.submit(self.get_article_details_by_account_by_id,
+            datasets = [executor.submit(self.get_dataset_details_by_account_by_id,
                                         account_id,
-                                        article_id)
-                        for article_id in article_ids]
-            results = list(map(lambda item : item.result(), articles))
+                                        dataset_id)
+                        for dataset_id in dataset_ids]
+            results = list(map(lambda item : item.result(), datasets))
             end_time   = time.perf_counter()
             total_fetched = len(results)
-            logging.debug ("Fetched %d full articles in %.2f seconds",
+            logging.debug ("Fetched %d full datasets in %.2f seconds",
                            total_fetched, end_time - start_time)
             return results
 
@@ -350,7 +350,7 @@ class FigshareEndpoint:
         parameters   = { "impersonate": account_id }
         record       = self.get(f"/account/collections/{collection_id}",
                                 headers, parameters)
-        articles     = self.get_articles_for_collection (account_id,
+        datasets     = self.get_datasets_for_collection (account_id,
                                                          collection_id)
         authors      = []
         for author in record["authors"]:
@@ -362,7 +362,7 @@ class FigshareEndpoint:
 
         record["authors"]       = authors
         record["private_links"] = private_links
-        record["articles"]      = articles
+        record["datasets"]      = datasets
         record["account_id"]    = account_id
         record["is_latest"]     = 0
         record["is_editable"]   = 1
@@ -383,11 +383,11 @@ class FigshareEndpoint:
                 versioned_record["is_editable"] = 0
                 version = conv.value_or_none (versioned_record, "version")
                 if current_version is not None and version == current_version:
-                    articles = self.get_articles_for_collection (account_id,
+                    datasets = self.get_datasets_for_collection (account_id,
                                                                  collection_id,
                                                                  is_public = True)
                     versioned_record["is_latest"] = 1
-                    versioned_record["articles"]  = articles
+                    versioned_record["datasets"]  = datasets
 
                 versions.append(versioned_record)
 
@@ -408,32 +408,32 @@ class FigshareEndpoint:
         logging.info("Getting collections.")
         return self.get_all ("/collections", published_since=published_since)
 
-    def get_articles_for_collection (self, account_id, collection_id, is_public=False):
-        """Procedure to retrieve the articles for a given collection."""
+    def get_datasets_for_collection (self, account_id, collection_id, is_public=False):
+        """Procedure to retrieve the datasets for a given collection."""
 
         prefix      = "" if is_public else "/account"
         uri_path    = f"{prefix}/collections/{collection_id}/articles"
         impersonate = None if is_public else account_id
-        articles    = self.get_all (uri_path, impersonate=impersonate)
+        datasets    = self.get_all (uri_path, impersonate=impersonate)
         output      = []
 
-        for item in articles:
+        for item in datasets:
             output.append (item["id"])
 
         return output
 
-    def get_article_versions (self, article_id, account_id, exclude=None,
+    def get_dataset_versions (self, dataset_id, account_id, exclude=None,
                               latest=None):
-        """Procedure to get versioning information for an article."""
+        """Procedure to get versioning information for an dataset."""
 
         headers  = self.__request_headers ()
-        versions = self.get (f"/articles/{article_id}/versions", headers, {})
+        versions = self.get (f"/articles/{dataset_id}/versions", headers, {})
         output   = []
 
         for item in versions:
             version = item["version"]
             if exclude is None or version != exclude:
-                record  = self.get_record (f"/articles/{article_id}/versions/{version}")
+                record  = self.get_record (f"/articles/{dataset_id}/versions/{version}")
                 record["account_id"] = account_id
                 record["is_latest"]  = 0
                 record["is_editable"]= 0
@@ -491,7 +491,7 @@ class FigshareEndpoint:
                                  item_type,
                                  start_date = None,
                                  end_date   = None):
-        """Procedure to get statistics for an article or collection."""
+        """Procedure to get statistics for an dataset or collection."""
 
         if self.stats_auth is None:
             logging.info("Missing authentication for the statistics endpoint.")
@@ -527,12 +527,12 @@ class FigshareEndpoint:
 
         return output
 
-    def get_statistics_for_article (self,
-                                    article_id,
+    def get_statistics_for_dataset (self,
+                                    dataset_id,
                                     start_date = None,
                                     end_date   = None):
-        """Procedure to get statistics for an article."""
-        return self.get_statistics_for_type (item_id    = article_id,
+        """Procedure to get statistics for an dataset."""
+        return self.get_statistics_for_type (item_id    = dataset_id,
                                              item_type  = "article",
                                              start_date = start_date,
                                              end_date   = end_date)
