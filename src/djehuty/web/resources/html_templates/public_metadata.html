@@ -23,7 +23,7 @@
     {% for ver in versions %}
         {% set v = ver.version %}
         {% if v != thisversion %}
-        <a href="/{{item_type}}/{{pid}}/{{v}}">{{v}}{% if v==latest %} (latest){% endif %}</a>
+        <a href="/{{item_type}}s/{{pid}}/{{v}}">{{v}}{% if v==latest %} (latest){% endif %}</a>
         {% endif %}
     {% endfor %}
     </div>
