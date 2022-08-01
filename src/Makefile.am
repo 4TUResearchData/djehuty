@@ -28,13 +28,13 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/admin/exploratory.html               \
     djehuty/web/resources/html_templates/admin/maintenance.html               \
     djehuty/web/resources/html_templates/admin/users.html                     \
-    djehuty/web/resources/html_templates/article.html                         \
+    djehuty/web/resources/html_templates/dataset.html                         \
     djehuty/web/resources/html_templates/categories.html                      \
     djehuty/web/resources/html_templates/category.html                        \
     djehuty/web/resources/html_templates/collection.html                      \
     djehuty/web/resources/html_templates/debug.html                           \
     djehuty/web/resources/html_templates/depositor/dashboard.html             \
-    djehuty/web/resources/html_templates/depositor/edit-article.html          \
+    djehuty/web/resources/html_templates/depositor/edit-dataset.html          \
     djehuty/web/resources/html_templates/depositor/edit-collection.html       \
     djehuty/web/resources/html_templates/depositor/edit-session.html          \
     djehuty/web/resources/html_templates/depositor/my-collections.html        \
@@ -190,7 +190,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/portal/wageningen.jpg                 \
     djehuty/web/resources/static/js/d3-extras.js                              \
     djehuty/web/resources/static/js/d3.v7.min.js                              \
-    djehuty/web/resources/static/js/edit-article.js                           \
+    djehuty/web/resources/static/js/edit-dataset.js                           \
     djehuty/web/resources/static/js/edit-collection.js                        \
     djehuty/web/resources/static/js/edit-profile.js                           \
     djehuty/web/resources/static/js/exploratory.js                            \

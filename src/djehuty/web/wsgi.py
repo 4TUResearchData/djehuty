@@ -925,7 +925,7 @@ class ApiServer:
 
             return self.__render_template (
                 request,
-                "depositor/edit-article.html",
+                "depositor/edit-dataset.html",
                 container_uuid = dataset["container_uuid"],
                 article    = dataset,
                 account    = account,
@@ -1462,7 +1462,7 @@ class ApiServer:
                 contributors = contr_parts
                 contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
 
-            return self.__render_template (request, "article.html",
+            return self.__render_template (request, "dataset.html",
                                            item=dataset,
                                            version=version,
                                            versions=versions,
