@@ -1,5 +1,5 @@
 AC_INIT(djehuty, 0.0.1)
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign tar-ustar])
 AM_PATH_PYTHON([3.6])
 AC_CONFIG_FILES([
   Makefile
