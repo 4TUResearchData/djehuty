@@ -612,7 +612,7 @@ class DatabaseInterface:
         uri       = rdf.unique_node ("private_link")
 
         self.store.add ((uri, RDF.type, rdf.DJHT["PrivateLink"]))
-        rdf.add (self.store, uri, rdf.DJHT["id"],           value_or_none (record, "id"), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["id"],           value_or_none (record, "id"), XSD.string)
         rdf.add (self.store, uri, rdf.DJHT["suffix"],       suffix, XSD.string)
         rdf.add (self.store, uri, rdf.DJHT["expires_date"], value_or_none (record, "expires_date"), XSD.dateTime)
         rdf.add (self.store, uri, rdf.DJHT["is_active"],    is_active, XSD.boolean)
