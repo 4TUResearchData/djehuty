@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?dataset_id ?date ?type ?title
+SELECT DISTINCT ?dataset_id ?container_uuid ?dataset_uuid ?date ?type ?title
 WHERE {
   GRAPH <{{state_graph}}> {
     <{{collection}}>    djht:datasets/rdf:rest*/rdf:first  ?dataset_container .
@@ -11,6 +11,9 @@ WHERE {
     ?dataset            rdf:type                           djht:Dataset ;
                         djht:title                         ?title ;
                         djht:defined_type_name             ?type .
+
+    BIND(STRAFTER(STR(?dataset_container), "container:") AS ?container_uuid)
+    BIND(STRAFTER(STR(?dataset), "dataset:")             AS ?dataset_uuid)
   }
 }
 ORDER BY DESC(?date) DESC(?title)
