@@ -20,6 +20,8 @@ def add (graph, subject, predicate, value, datatype=None):
         else:
             graph.add((subject, predicate, Literal(value, datatype=datatype)))
 
+    return None
+
 def urify_value (value):
     """Returns a string including smaller-than and greater-than brackets."""
     if isinstance(value, str) and value.startswith ("<"):
