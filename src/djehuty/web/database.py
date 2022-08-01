@@ -150,7 +150,7 @@ class SparqlInterface:
     ## ------------------------------------------------------------------------
 
     def dataset_storage_used (self, container_uri):
-        """Returns the number of bytes used by an article."""
+        """Returns the number of bytes used by an dataset."""
 
         query = self.__query_from_template ("dataset_storage_used", {
             "container_uri": container_uri
@@ -167,10 +167,10 @@ class SparqlInterface:
         return 0
 
     def dataset_versions (self, limit=1000, offset=0, order="version",
-                          order_direction="desc", article_id=None,
+                          order_direction="desc", dataset_id=None,
                           container_uri=None):
-        """Procedure to retrieve the versions of an article."""
-        filters  = rdf.sparql_filter ("article_id", article_id)
+        """Procedure to retrieve the versions of an dataset."""
+        filters  = rdf.sparql_filter ("dataset_id", dataset_id)
         filters += rdf.sparql_filter ("container_uri", container_uri, is_uri=True)
 
         query = self.__query_from_template ("dataset_versions", {
@@ -181,7 +181,7 @@ class SparqlInterface:
         return self.__run_query (query)
 
     def container_items (self, account_id=None, container_uuid=None,
-                         item_uuid=None, item_type="article", is_published=True,
+                         item_uuid=None, item_type="dataset", is_published=True,
                          is_latest=False):
 
         query = self.__query_from_template ("container_items", {
@@ -205,16 +205,16 @@ class SparqlInterface:
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
-        filters += rdf.sparql_filter ("article",        rdf.uuid_to_uri (dataset_uuid, "article"), is_uri=True)
+        filters += rdf.sparql_filter ("dataset",        rdf.uuid_to_uri (dataset_uuid, "dataset"), is_uri=True)
         filters += rdf.sparql_filter ("institution_id", institution)
         filters += rdf.sparql_filter ("defined_type",   item_type)
-        filters += rdf.sparql_filter ("article_id",     dataset_id)
+        filters += rdf.sparql_filter ("dataset_id",     dataset_id)
         filters += rdf.sparql_filter ("version",        version)
         filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
         filters += rdf.sparql_filter ("doi",            doi,          escape=True)
         filters += rdf.sparql_filter ("handle",         handle,       escape=True)
         filters += rdf.sparql_in_filter ("group_id",    groups)
-        filters += rdf.sparql_in_filter ("article_id", exclude_ids, negate=True)
+        filters += rdf.sparql_in_filter ("dataset_id", exclude_ids, negate=True)
 
         if categories is not None:
             filters += f"FILTER ((?category_id IN ({','.join(map(str, categories))})) OR "
@@ -287,14 +287,14 @@ class SparqlInterface:
         """Procedure to retrieve repository-wide statistics."""
 
         parameters        = { "state_graph":   self.state_graph }
-        articles_query    = self.__query_from_template ("statistics_datasets", parameters)
+        datasets_query    = self.__query_from_template ("statistics_datasets", parameters)
         collections_query = self.__query_from_template ("statistics_collections", parameters)
         authors_query     = self.__query_from_template ("statistics_authors", parameters)
         files_query       = self.__query_from_template ("statistics_files", parameters)
 
-        row = { "articles": 0, "authors": 0, "collections": 0, "files": 0, "bytes": 0 }
+        row = { "datasets": 0, "authors": 0, "collections": 0, "files": 0, "bytes": 0 }
         try:
-            articles    = self.__run_query (articles_query, articles_query, "statistics")
+            datasets    = self.__run_query (datasets_query, datasets_query, "statistics")
             authors     = self.__run_query (authors_query, authors_query, "statistics")
             collections = self.__run_query (collections_query, collections_query, "statistics")
             files       = self.__run_query (files_query, files_query, "statistics")
@@ -308,7 +308,7 @@ class SparqlInterface:
                 "files": number_of_files,
                 "bytes": number_of_bytes
             }
-            row = { **articles[0], **authors[0], **collections[0], **files_results }
+            row = { **datasets[0], **authors[0], **collections[0], **files_results }
         except IndexError:
             pass
         except KeyError:
@@ -316,14 +316,14 @@ class SparqlInterface:
 
         return row
 
-    def article_statistics (self, item_type="downloads",
+    def dataset_statistics (self, item_type="downloads",
                                   order="downloads",
                                   order_direction="desc",
                                   group_ids=None,
                                   category_ids=None,
                                   limit=10,
                                   offset=0):
-        """Procedure to retrieve article statistics."""
+        """Procedure to retrieve dataset statistics."""
 
         prefix  = item_type.capitalize()
         filters = ""
@@ -345,8 +345,8 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query, query, "statistics")
 
-    def article_statistics_timeline (self,
-                                     article_id=None,
+    def dataset_statistics_timeline (self,
+                                     dataset_id=None,
                                      item_type="downloads",
                                      order="downloads",
                                      order_direction="desc",
@@ -354,13 +354,13 @@ class SparqlInterface:
                                      limit=10,
                                      offset=0,
                                      aggregation_type="day"):
-        """Procedure to retrieve article statistics per date."""
+        """Procedure to retrieve dataset statistics per date."""
 
         item_class  = item_type.capitalize()
         filters = ""
 
-        if article_id is not None:
-            filters += rdf.sparql_filter("article_id", article_id)
+        if dataset_id is not None:
+            filters += rdf.sparql_filter("dataset_id", dataset_id)
 
         if category_ids is not None:
             filters += f"FILTER (?category_id={category_ids[0]}"
@@ -375,27 +375,27 @@ class SparqlInterface:
             "filters":       filters
         })
 
-        order = "article_id" if order is None else order
+        order = "dataset_id" if order is None else order
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query, query, "statistics")
 
-    def single_article_statistics_totals (self, article_id): #obsolete? (see article_container)
-        """Procedure to get shallow statistics of an article."""
+    def single_dataset_statistics_totals (self, dataset_id): #obsolete? (see dataset_container)
+        """Procedure to get shallow statistics of an dataset."""
 
-            "article_id":   article_id
         query   = self.__query_from_template ("single_dataset_statistics_totals", {
+            "dataset_id":   dataset_id
         })
 
         return self.__run_query (query, query, "statistics")
 
-    def article_container (self, article_id):
-        """Procedure to get article container properties (incl shallow statistics)."""
+    def dataset_container (self, dataset_id):
+        """Procedure to get dataset container properties (incl shallow statistics)."""
 
-            "article_id":   article_id
         query   = self.__query_from_template ("dataset_container", {
+            "dataset_id":   dataset_id
         })
 
-        return self.__run_query (query, query, "article_container")
+        return self.__run_query (query, query, "dataset_container")
 
     def collection_container (self, collection_id):
         """Procedure to get collection container properties (incl shallow statistics)."""
@@ -411,8 +411,8 @@ class SparqlInterface:
                  is_public=None, job_title=None, last_name=None,
                  orcid_id=None, url_name=None, limit=10, order="order_index",
                  order_direction="asc", item_uri=None, search_for=None,
-                 account_id=None, item_type="article", is_published=True):
-        """Procedure to retrieve authors of an article."""
+                 account_id=None, item_type="dataset", is_published=True):
+        """Procedure to retrieve authors of an dataset."""
 
         prefix = item_type.capitalize()
 
@@ -446,13 +446,13 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def article_files (self, name=None, size=None, is_link_only=None,
+    def dataset_files (self, name=None, size=None, is_link_only=None,
                        file_uuid=None, download_url=None, supplied_md5=None,
                        computed_md5=None, viewer_type=None, preview_state=None,
                        status=None, upload_url=None, upload_token=None,
                        order="order_index", order_direction="asc", limit=10,
-                       article_uri=None, account_id=None, file_id=None):
-        """Procedure to retrieve files of an article."""
+                       dataset_uri=None, account_id=None, file_id=None):
+        """Procedure to retrieve files of an dataset."""
 
         filters  = rdf.sparql_filter ("size",          size)
         filters += rdf.sparql_filter ("is_link_only",  is_link_only)
@@ -467,8 +467,8 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("upload_url",    upload_url,    escape=True)
         filters += rdf.sparql_filter ("upload_token",  upload_token,  escape=True)
 
-            "article_uri":         article_uri,
         query = self.__query_from_template ("dataset_files", {
+            "dataset_uri":         dataset_uri,
             "account_id":          account_id,
             "file_uuid":           file_uuid,
             "filters":             filters
@@ -478,7 +478,7 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def derived_from (self, item_uri, item_type='article',
+    def derived_from (self, item_uri, item_type='dataset',
                       order=None, order_direction=None, limit=10):
         """Procedure to retrieve derived_from links"""
 
@@ -495,8 +495,8 @@ class SparqlInterface:
                        field_id=None, placeholder=None, max_length=None,
                        min_length=None, field_type=None, is_multiple=None,
                        is_mandatory=None, order="name", order_direction=None,
-                       limit=10, item_uri=None, item_type="article"):
-        """Procedure to get custom metadata of an article or a collection."""
+                       limit=10, item_uri=None, item_type="dataset"):
+        """Procedure to get custom metadata of an dataset or a collection."""
 
         prefix = item_type.capitalize()
 
@@ -522,8 +522,8 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def tags (self, order=None, order_direction=None, limit=10,
-              item_uri=None, item_type="article"):
-        """Procedure to get tags for an article or a collection."""
+              item_uri=None, item_type="dataset"):
+        """Procedure to get tags for an dataset or a collection."""
 
         prefix  = item_type.capitalize()
         query   = self.__query_from_template ("tags", {
@@ -538,7 +538,7 @@ class SparqlInterface:
     def categories (self, title=None, order=None, order_direction=None,
                     limit=10, item_uri=None, account_id=None,
                     is_published=True):
-        """Procedure to retrieve categories of an article."""
+        """Procedure to retrieve categories of an dataset."""
 
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("categories", {
@@ -553,7 +553,7 @@ class SparqlInterface:
 
     def account_categories (self, account_id, title=None, order=None,
                             order_direction=None, limit=10):
-        """Procedure to retrieve categories of an article."""
+        """Procedure to retrieve categories of an dataset."""
 
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("account_categories", {
@@ -565,7 +565,7 @@ class SparqlInterface:
         return self.__run_query (query)
 
     def private_links (self, item_uri=None, account_id=None, id_string=None):
-        """Procedure to get private links to an article or a collection."""
+        """Procedure to get private links to an dataset or a collection."""
 
         query   = self.__query_from_template ("private_links", {
             "id_string":   id_string,
@@ -581,8 +581,8 @@ class SparqlInterface:
         query = self.__query_from_template ("licenses")
         return self.__run_query (query, query, "licenses")
 
-    def latest_articles_portal (self, page_size=30):
-        """Procedure to get the latest articles."""
+    def latest_datasets_portal (self, page_size=30):
+        """Procedure to get the latest datasets."""
 
         query = self.__query_from_template ("latest_datasets_portal", {
             "page_size":   page_size
@@ -590,17 +590,17 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def collections_from_article (self, article_id):
-        """Procedure to get the collections an article is part of."""
+    def collections_from_dataset (self, dataset_id):
+        """Procedure to get the collections an dataset is part of."""
 
-            "article_id":  article_id
         query = self.__query_from_template ("collections_from_dataset", {
+            "dataset_id":  dataset_id
         })
 
         return self.__run_query(query)
 
-    def collection_articles (self, collection_uri, limit=None, offset=0):
-        """Procedure to get the published articles of a collection."""
+    def collection_datasets (self, collection_uri, limit=None, offset=0):
+        """Procedure to get the published datasets of a collection."""
 
         query = self.__query_from_template ("collection_datasets", {
             "collection":  collection_uri
@@ -629,13 +629,13 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query)
 
-    ## This procedure exists because the 'articles' procedure will only
-    ## count articles that are either public, or were published using the
+    ## This procedure exists because the 'datasets' procedure will only
+    ## count datasets that are either public, or were published using the
     ## same account_id as the collection.
     ##
     ## So to get the actual count, this separate procedure exists.
-    def collections_article_count (self, collection_uri):
-        """Procedure to count the articles in a collection."""
+    def collections_dataset_count (self, collection_uri):
+        """Procedure to count the datasets in a collection."""
 
         if collection_uri is None:
             return 0
@@ -646,7 +646,7 @@ class SparqlInterface:
         results = self.__run_query (query)
 
         try:
-            return results[0]["articles"]
+            return results[0]["datasets"]
         except KeyError:
             return 0
 
@@ -695,7 +695,7 @@ class SparqlInterface:
 
     def fundings (self, title=None, order=None, order_direction=None,
                   limit=10, item_uri=None, account_id=None,
-                  item_type="article", is_published=True):
+                  item_type="dataset", is_published=True):
         """Procedure to retrieve funding information."""
 
         filters = rdf.sparql_filter ("title", title, escape=True)
@@ -859,7 +859,7 @@ class SparqlInterface:
                         private_links=None,
                         files=None,
                         embargo_options=None):
-        """Procedure to insert an article to the state graph."""
+        """Procedure to insert an dataset to the state graph."""
 
         funding_list    = [] if funding_list    is None else funding_list
         tags            = [] if tags            is None else tags
@@ -872,8 +872,8 @@ class SparqlInterface:
         embargo_options = [] if embargo_options is None else embargo_options
 
         graph           = Graph()
-        uri             = rdf.unique_node ("article")
-        container       = self.container_uri (graph, None, "article", account_id)
+        uri             = rdf.unique_node ("dataset")
+        container       = self.container_uri (graph, None, "dataset", account_id)
 
         ## TIMELINE
         ## --------------------------------------------------------------------
@@ -907,7 +907,7 @@ class SparqlInterface:
         for embargo in embargo_options:
             self.insert_embargo (
                 embargo_id         = conv.value_or_none (embargo, "id"),
-                article_version_id = article_version_id,
+                dataset_version_id = dataset_version_id,
                 embargo_type       = conv.value_or_none (embargo, "type"),
                 ip_name            = conv.value_or_none (embargo, "ip_name"))
 
@@ -924,7 +924,7 @@ class SparqlInterface:
                 is_mandatory  = conv.value_or_none (field, "is_mandatory"),
                 placeholder   = conv.value_or_none (field, "placeholder"),
                 is_multiple   = conv.value_or_none (field, "is_multiple"),
-                item_id       = article_id)
+                item_id       = dataset_id)
 
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
@@ -959,7 +959,7 @@ class SparqlInterface:
         query = self.__insert_query_for_graph (graph)
         container_uuid = rdf.uri_to_uuid (container)
         if self.__run_query(query):
-            logging.info ("Inserted article %s", container_uuid)
+            logging.info ("Inserted dataset %s", container_uuid)
             self.cache.invalidate_by_prefix (f"datasets_{account_id}")
             return container_uuid
 
@@ -1090,10 +1090,8 @@ class SparqlInterface:
         rdf.add (graph, item_uri, rdf.DJHT["posted"],               posted,       XSD.string)
         rdf.add (graph, item_uri, rdf.DJHT["submission"],           submission,   XSD.string)
 
-        return None
-
     def delete_associations (self, container_uuid, account_id, predicate):
-        """Procedure to delete the list of PREDICATE of an article or collection."""
+        """Procedure to delete the list of PREDICATE of an dataset or collection."""
 
         query = self.__query_from_template ("delete_associations", {
             "container_uri": rdf.uuid_to_uri (container_uuid, "container"),
@@ -1114,8 +1112,8 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def delete_item_categories (self, item_id, account_id, category_id=None,
-                                item_type="article"):
-        """Procedure to delete the categories of an article or collection."""
+                                item_type="dataset"):
+        """Procedure to delete the categories of an dataset or collection."""
 
         prefix = item_type.capitalize()
         query = self.__query_from_template ("delete_item_categories", {
@@ -1128,9 +1126,9 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def delete_article_categories (self, article_id, account_id, category_id=None):
-        """Procedure to delete the categories related to an article."""
-        return self.delete_item_categories (article_id, account_id, category_id, "article")
+    def delete_dataset_categories (self, dataset_id, account_id, category_id=None):
+        """Procedure to delete the categories related to an dataset."""
+        return self.delete_item_categories (dataset_id, account_id, category_id, "dataset")
 
     def insert_funding (self, title=None, grant_code=None, funder_name=None,
                         is_user_defined=None, url=None, item_id=None,
@@ -1159,7 +1157,7 @@ class SparqlInterface:
                      is_link_only=None, download_url=None, supplied_md5=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
                      status=None, upload_url=None, upload_token=None,
-                     article_uri=None, account_id=None):
+                     dataset_uri=None, account_id=None):
         """Procedure to add an file to the state graph."""
 
         graph    = Graph()
@@ -1183,12 +1181,12 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix ("dataset")
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
-            existing_files = self.article_files (article_uri=article_uri)
+            existing_files = self.dataset_files (dataset_uri=dataset_uri)
             existing_files = list(map (lambda item: URIRef(rdf.uuid_to_uri(item["uuid"], "file")),
                                          existing_files))
 
             new_files    = existing_files + [URIRef(file_uri)]
-            dataset_uuid = rdf.uri_to_uuid (article_uri)
+            dataset_uuid = rdf.uri_to_uuid (dataset_uri)
             dataset      = self.datasets (dataset_uuid = dataset_uuid,
                                           account_id     = account_id,
                                           is_published = False,
@@ -1262,7 +1260,7 @@ class SparqlInterface:
 
         return None
 
-    def insert_embargo (self, embargo_id, article_version_id, embargo_type=None, ip_name=None):
+    def insert_embargo (self, embargo_id, dataset_version_id, embargo_type=None, ip_name=None):
         """Procedure to add an license to the state graph."""
 
         graph    = Graph()
@@ -1270,7 +1268,7 @@ class SparqlInterface:
 
         graph.add ((embargo_uri, RDF.type,               rdf.DJHT["DatasetEmbargoOption"]))
         graph.add ((embargo_uri, rdf.DJHT["id"],          Literal(embargo_id)))
-        graph.add ((embargo_uri, rdf.DJHT["article_version_id"], Literal(article_version_id)))
+        graph.add ((embargo_uri, rdf.DJHT["dataset_version_id"], Literal(dataset_version_id)))
 
         rdf.add (graph, embargo_uri, rdf.DJHT["type"],    embargo_type, XSD.string)
         rdf.add (graph, embargo_uri, rdf.DJHT["ip_name"], ip_name,      XSD.string)
@@ -1309,7 +1307,7 @@ class SparqlInterface:
         return None
 
     def delete_dataset_draft (self, container_uuid, account_id):
-        """Remove the draft article from a container in the state graph."""
+        """Remove the draft dataset from a container in the state graph."""
 
         query   = self.__query_from_template ("delete_dataset_draft", {
             "account_id":          account_id,
@@ -1322,7 +1320,7 @@ class SparqlInterface:
 
         return result
 
-    def update_article (self, container_uuid, account_id, title=None,
+    def update_dataset (self, container_uuid, account_id, title=None,
                         description=None, resource_doi=None,
                         resource_title=None, license_id=None, group_id=None,
                         time_coverage=None, publisher=None, language=None,
@@ -1334,7 +1332,7 @@ class SparqlInterface:
                         embargo_until_date=None, embargo_type=None,
                         embargo_title=None, embargo_reason=None,
                         embargo_allow_access_requests=None, is_embargoed=False):
-        """Procedure to overwrite parts of an article."""
+        """Procedure to overwrite parts of an dataset."""
 
         query   = self.__query_from_template ("update_dataset", {
             "account_id":      account_id,
@@ -1383,18 +1381,18 @@ class SparqlInterface:
 
         return True
 
-    def delete_article_embargo (self, article_uri, account_id):
-        """Procedure to lift the embargo on an article."""
+    def delete_dataset_embargo (self, dataset_uri, account_id):
+        """Procedure to lift the embargo on an dataset."""
 
         query   = self.__query_from_template ("delete_dataset_embargo", {
             "account_id":  account_id,
-            "article_uri":  article_uri
+            "dataset_uri":  dataset_uri
         })
 
         return self.__run_query(query)
 
-    def delete_private_links (self, item_id, account_id, link_id, item_type="article"):
-        """Procedure to remove private links to an article."""
+    def delete_private_links (self, item_id, account_id, link_id, item_type="dataset"):
+        """Procedure to remove private links to an dataset."""
 
         prefix  = item_type.capitalize()
         query   = self.__query_from_template ("delete_private_links", {
@@ -1410,7 +1408,7 @@ class SparqlInterface:
     def update_private_link (self, item_uri, account_id, link_id,
                              is_active=None, expires_date=None,
                              read_only=None):
-        """Procedure to update a private link to an article."""
+        """Procedure to update a private link to an dataset."""
 
         query   = self.__query_from_template ("update_private_link", {
             "account_id":   account_id,
@@ -1423,13 +1421,13 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def article_update_thumb (self, article_id, version, account_id, file_id):
-        """Procedure to update the thumbnail of an article."""
+    def dataset_update_thumb (self, dataset_id, version, account_id, file_id):
+        """Procedure to update the thumbnail of an dataset."""
 
         filters = rdf.sparql_filter ("file_id", file_id)
         query   = self.__query_from_template ("update_dataset_thumb", {
             "account_id":  account_id,
-            "article_id":  article_id,
+            "dataset_id":  dataset_id,
             "version":     version,
             "filters":     filters
         })
@@ -1442,7 +1440,7 @@ class SparqlInterface:
                            funding=None,
                            funding_list=None,
                            description=None,
-                           articles=None,
+                           datasets=None,
                            authors=None,
                            categories=None,
                            categories_by_source_id=None,
@@ -1478,7 +1476,7 @@ class SparqlInterface:
         custom_fields           = [] if custom_fields           is None else custom_fields
         custom_fields_list      = [] if custom_fields_list      is None else custom_fields_list
         private_links           = [] if private_links           is None else private_links
-        articles                = [] if articles                is None else articles
+        datasets                = [] if datasets                is None else datasets
 
         graph                   = Graph()
         uri                     = rdf.unique_node ("collection")
@@ -1507,7 +1505,7 @@ class SparqlInterface:
         self.insert_record_list (graph, uri, funding_list, "funding_list", self.insert_funding)
         self.insert_record_list (graph, uri, private_links, "private_links", self.insert_private_link)
 
-        ## ARTICLES
+        ## DATASETS
         ## --------------------------------------------------------------------
         # ...
 
@@ -1574,7 +1572,7 @@ class SparqlInterface:
 
     def update_collection (self, container_uuid, account_id, title=None,
                            description=None, resource_doi=None,
-                           resource_title=None, group_id=None, articles=None,
+                           resource_title=None, group_id=None, datasets=None,
                            time_coverage=None, publisher=None, language=None,
                            contributors=None, geolocation=None, longitude=None,
                            latitude=None, organizations=None, categories=None):
@@ -1607,9 +1605,9 @@ class SparqlInterface:
             items = rdf.uris_from_records (categories, "category")
             self.update_item_list (container_uuid, account_id, items, "categories")
 
-        if results and articles:
-            items = rdf.uris_from_records (categories, "article")
-            self.update_item_list (container_uuid, account_id, items, "articles")
+        if results and datasets:
+            items = rdf.uris_from_records (categories, "dataset")
+            self.update_item_list (container_uuid, account_id, items, "datasets")
 
         return results
 
@@ -1792,7 +1790,7 @@ class SparqlInterface:
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             self.cache.invalidate_by_prefix ("reviews")
-            logging.info ("Inserted review for article %s", dataset_uri)
+            logging.info ("Inserted review for dataset %s", dataset_uri)
             return uri
 
         return None

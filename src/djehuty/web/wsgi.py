@@ -66,9 +66,9 @@ class ApiServer:
             Rule("/logout",                                   endpoint = "logout"),
             Rule("/my/dashboard",                             endpoint = "dashboard"),
             Rule("/my/datasets",                              endpoint = "my_data"),
-            Rule("/my/datasets/<article_id>/edit",            endpoint = "edit_article"),
-            Rule("/my/datasets/<article_id>/delete",          endpoint = "delete_article"),
-            Rule("/my/datasets/new",                          endpoint = "new_article"),
+            Rule("/my/datasets/<dataset_id>/edit",            endpoint = "edit_dataset"),
+            Rule("/my/datasets/<dataset_id>/delete",          endpoint = "delete_dataset"),
+            Rule("/my/datasets/new",                          endpoint = "new_dataset"),
             Rule("/my/collections",                           endpoint = "my_collections"),
             Rule("/my/collections/<collection_id>/edit",      endpoint = "edit_collection"),
             Rule("/my/collections/<collection_id>/delete",    endpoint = "delete_collection"),
@@ -78,9 +78,9 @@ class ApiServer:
             Rule("/my/sessions/new",                          endpoint = "new_session"),
             Rule("/my/profile",                               endpoint = "profile"),
             Rule("/review/dashboard",                         endpoint = "review_dashboard"),
-            Rule("/review/goto-dataset/<article_id>",         endpoint = "review_impersonate_to_dataset"),
-            Rule("/review/assign-to-me/<article_id>",         endpoint = "review_assign_to_me"),
-            Rule("/review/unassign/<article_id>",             endpoint = "review_unassign"),
+            Rule("/review/goto-dataset/<dataset_id>",         endpoint = "review_impersonate_to_dataset"),
+            Rule("/review/assign-to-me/<dataset_id>",         endpoint = "review_assign_to_me"),
+            Rule("/review/unassign/<dataset_id>",             endpoint = "review_unassign"),
             Rule("/admin/dashboard",                          endpoint = "admin_dashboard"),
             Rule("/admin/users",                              endpoint = "admin_users"),
             Rule("/admin/exploratory",                        endpoint = "admin_exploratory"),
@@ -93,9 +93,9 @@ class ApiServer:
             Rule("/category",                                 endpoint = "category"),
             Rule("/institutions/<institution_name>",          endpoint = "institution"),
             Rule("/opendap_to_doi",                           endpoint = "opendap_to_doi"),
-            Rule("/datasets/<article_id>",                    endpoint = "article_ui"),
-            Rule("/datasets/<article_id>/<version>",          endpoint = "article_ui"),
-            Rule("/file/<article_id>/<file_id>",              endpoint = "download_file"),
+            Rule("/datasets/<dataset_id>",                    endpoint = "dataset_ui"),
+            Rule("/datasets/<dataset_id>/<version>",          endpoint = "dataset_ui"),
+            Rule("/file/<dataset_id>/<file_id>",              endpoint = "download_file"),
             Rule("/collections/<collection_id>",              endpoint = "collection_ui"),
             Rule("/collections/<collection_id>/<version>",    endpoint = "collection_ui"),
             Rule("/search",                                   endpoint = "search_ui"),
@@ -114,31 +114,31 @@ class ApiServer:
 
             ## Public articles
             ## ----------------------------------------------------------------
-            Rule("/v2/articles",                              endpoint = "articles"),
-            Rule("/v2/articles/search",                       endpoint = "articles_search"),
-            Rule("/v2/articles/<article_id>",                 endpoint = "article_details"),
-            Rule("/v2/articles/<article_id>/versions",        endpoint = "article_versions"),
-            Rule("/v2/articles/<article_id>/versions/<version>", endpoint = "article_version_details"),
-            Rule("/v2/articles/<article_id>/versions/<version>/embargo", endpoint = "article_version_embargo"),
-            Rule("/v2/articles/<article_id>/versions/<version>/confidentiality", endpoint = "article_version_confidentiality"),
-            Rule("/v2/articles/<article_id>/versions/<version>/update_thumb", endpoint = "article_version_update_thumb"),
-            Rule("/v2/articles/<article_id>/files",           endpoint = "article_files"),
-            Rule("/v2/articles/<article_id>/files/<file_id>", endpoint = "article_file_details"),
+            Rule("/v2/articles",                              endpoint = "datasets"),
+            Rule("/v2/articles/search",                       endpoint = "datasets_search"),
+            Rule("/v2/articles/<dataset_id>",                 endpoint = "dataset_details"),
+            Rule("/v2/articles/<dataset_id>/versions",        endpoint = "dataset_versions"),
+            Rule("/v2/articles/<dataset_id>/versions/<version>", endpoint = "dataset_version_details"),
+            Rule("/v2/articles/<dataset_id>/versions/<version>/embargo", endpoint = "dataset_version_embargo"),
+            Rule("/v2/articles/<dataset_id>/versions/<version>/confidentiality", endpoint = "dataset_version_confidentiality"),
+            Rule("/v2/articles/<dataset_id>/versions/<version>/update_thumb", endpoint = "dataset_version_update_thumb"),
+            Rule("/v2/articles/<dataset_id>/files",           endpoint = "dataset_files"),
+            Rule("/v2/articles/<dataset_id>/files/<file_id>", endpoint = "dataset_file_details"),
 
             ## Private articles
             ## ----------------------------------------------------------------
-            Rule("/v2/account/articles",                      endpoint = "private_articles"),
-            Rule("/v2/account/articles/search",               endpoint = "private_articles_search"),
-            Rule("/v2/account/articles/<article_id>",         endpoint = "private_article_details"),
-            Rule("/v2/account/articles/<article_id>/authors", endpoint = "private_article_authors"),
-            Rule("/v2/account/articles/<article_id>/authors/<author_id>", endpoint = "private_article_author_delete"),
-            Rule("/v2/account/articles/<article_id>/categories", endpoint = "private_article_categories"),
-            Rule("/v2/account/articles/<article_id>/categories/<category_id>", endpoint = "private_delete_article_category"),
-            Rule("/v2/account/articles/<article_id>/embargo", endpoint = "private_article_embargo"),
-            Rule("/v2/account/articles/<article_id>/files",   endpoint = "private_article_files"),
-            Rule("/v2/account/articles/<article_id>/files/<file_id>", endpoint = "private_article_file_details"),
-            Rule("/v2/account/articles/<article_id>/private_links", endpoint = "private_article_private_links"),
-            Rule("/v2/account/articles/<article_id>/private_links/<link_id>", endpoint = "private_article_private_links_details"),
+            Rule("/v2/account/articles",                      endpoint = "private_datasets"),
+            Rule("/v2/account/articles/search",               endpoint = "private_datasets_search"),
+            Rule("/v2/account/articles/<dataset_id>",         endpoint = "private_dataset_details"),
+            Rule("/v2/account/articles/<dataset_id>/authors", endpoint = "private_dataset_authors"),
+            Rule("/v2/account/articles/<dataset_id>/authors/<author_id>", endpoint = "private_dataset_author_delete"),
+            Rule("/v2/account/articles/<dataset_id>/categories", endpoint = "private_dataset_categories"),
+            Rule("/v2/account/articles/<dataset_id>/categories/<category_id>", endpoint = "private_delete_dataset_category"),
+            Rule("/v2/account/articles/<dataset_id>/embargo", endpoint = "private_dataset_embargo"),
+            Rule("/v2/account/articles/<dataset_id>/files",   endpoint = "private_dataset_files"),
+            Rule("/v2/account/articles/<dataset_id>/files/<file_id>", endpoint = "private_dataset_file_details"),
+            Rule("/v2/account/articles/<dataset_id>/private_links", endpoint = "private_dataset_private_links"),
+            Rule("/v2/account/articles/<dataset_id>/private_links/<link_id>", endpoint = "private_dataset_private_links_details"),
 
             ## Public collections
             ## ----------------------------------------------------------------
@@ -147,7 +147,7 @@ class ApiServer:
             Rule("/v2/collections/<collection_id>",           endpoint = "collection_details"),
             Rule("/v2/collections/<collection_id>/versions",  endpoint = "collection_versions"),
             Rule("/v2/collections/<collection_id>/versions/<version>", endpoint = "collection_version_details"),
-            Rule("/v2/collections/<collection_id>/articles",  endpoint = "collection_articles"),
+            Rule("/v2/collections/<collection_id>/articles",  endpoint = "collection_datasets"),
 
             ## Private collections
             ## ----------------------------------------------------------------
@@ -157,8 +157,8 @@ class ApiServer:
             Rule("/v2/account/collections/<collection_id>/authors", endpoint = "private_collection_authors"),
             Rule("/v2/account/collections/<collection_id>/authors/<author_id>", endpoint = "private_collection_author_delete"),
             Rule("/v2/account/collections/<collection_id>/categories", endpoint = "private_collection_categories"),
-            Rule("/v2/account/collections/<collection_id>/articles", endpoint = "private_collection_articles"),
-            Rule("/v2/account/collections/<collection_id>/articles/<article_id>", endpoint = "private_collection_article_delete"),
+            Rule("/v2/account/collections/<collection_id>/articles", endpoint = "private_collection_datasets"),
+            Rule("/v2/account/collections/<collection_id>/articles/<dataset_id>", endpoint = "private_collection_dataset_delete"),
 
             ## Private authors
             Rule("/v2/account/authors/search",                endpoint = "private_authors_search"),
@@ -170,14 +170,14 @@ class ApiServer:
             ## ----------------------------------------------------------------
             ## V3 API
             ## ----------------------------------------------------------------
-            Rule("/v3/articles",                              endpoint = "v3_articles"),
-            Rule("/v3/articles/top/<item_type>",              endpoint = "v3_articles_top"),
-            Rule("/v3/articles/<article_id>/submit-for-review", endpoint = "v3_article_submit"),
-            Rule("/v3/articles/timeline/<item_type>",         endpoint = "v3_articles_timeline"),
-            Rule("/v3/articles/<article_id>/upload",          endpoint = "v3_article_upload_file"),
-            Rule("/v3/articles/<article_id>.git/files",       endpoint = "v3_article_git_files"),
+            Rule("/v3/articles",                              endpoint = "v3_datasets"),
+            Rule("/v3/articles/top/<item_type>",              endpoint = "v3_datasets_top"),
+            Rule("/v3/articles/<dataset_id>/submit-for-review", endpoint = "v3_dataset_submit"),
+            Rule("/v3/articles/timeline/<item_type>",         endpoint = "v3_datasets_timeline"),
+            Rule("/v3/articles/<dataset_id>/upload",          endpoint = "v3_dataset_upload_file"),
+            Rule("/v3/articles/<dataset_id>.git/files",       endpoint = "v3_dataset_git_files"),
             Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
-            Rule("/v3/articles/<article_id>/references",      endpoint = "v3_article_references"),
+            Rule("/v3/articles/<dataset_id>/references",      endpoint = "v3_dataset_references"),
             Rule("/v3/groups",                                endpoint = "v3_groups"),
             Rule("/v3/profile",                               endpoint = "v3_profile"),
             Rule("/v3/profile/categories",                    endpoint = "v3_profile_categories"),
@@ -190,29 +190,29 @@ class ApiServer:
             ## ----------------------------------------------------------------
             ## GIT HTTP API
             ## ----------------------------------------------------------------
-            Rule("/v3/articles/<article_id>.git/info/refs",   endpoint = "v3_private_article_git_refs"),
-            Rule("/v3/articles/<article_id>.git/git-upload-pack", endpoint = "v3_private_article_git_upload_pack"),
-            Rule("/v3/articles/<article_id>.git/git-receive-pack", endpoint = "v3_private_article_git_receive_pack"),
+            Rule("/v3/articles/<dataset_id>.git/info/refs",   endpoint = "v3_private_dataset_git_refs"),
+            Rule("/v3/articles/<dataset_id>.git/git-upload-pack", endpoint = "v3_private_dataset_git_upload_pack"),
+            Rule("/v3/articles/<dataset_id>.git/git-receive-pack", endpoint = "v3_private_dataset_git_receive_pack"),
 
             ## ----------------------------------------------------------------
             ## EXPORT
             ## ----------------------------------------------------------------
-            Rule("/export/datacite/datasets/<article_id>",                 endpoint = "export_datacite_dataset"),
-            Rule("/export/datacite/datasets/<article_id>/<version>",       endpoint = "export_datacite_dataset"),
+            Rule("/export/datacite/datasets/<dataset_id>",                 endpoint = "export_datacite_dataset"),
+            Rule("/export/datacite/datasets/<dataset_id>/<version>",       endpoint = "export_datacite_dataset"),
             Rule("/export/datacite/collections/<collection_id>",           endpoint = "export_datacite_collection"),
             Rule("/export/datacite/collections/<collection_id>/<version>", endpoint = "export_datacite_collection"),
-            Rule("/export/refworks/datasets/<article_id>",                 endpoint = "export_refworks_dataset"),
-            Rule("/export/refworks/datasets/<article_id>/<version>",       endpoint = "export_refworks_dataset"),
-            Rule("/export/bibtex/datasets/<article_id>",                   endpoint = "export_bibtex_dataset"),
-            Rule("/export/bibtex/datasets/<article_id>/<version>",         endpoint = "export_bibtex_dataset"),
-            Rule("/export/refman/datasets/<article_id>",                   endpoint = "export_refman_dataset"),
-            Rule("/export/refman/datasets/<article_id>/<version>",         endpoint = "export_refman_dataset"),
-            Rule("/export/endnote/datasets/<article_id>",                  endpoint = "export_endnote_dataset"),
-            Rule("/export/endnote/datasets/<article_id>/<version>",        endpoint = "export_endnote_dataset"),
-            Rule("/export/nlm/datasets/<article_id>",                      endpoint = "export_nlm_dataset"),
-            Rule("/export/nlm/datasets/<article_id>/<version>",            endpoint = "export_nlm_dataset"),
-            Rule("/export/dc/datasets/<article_id>",                       endpoint = "export_dc_dataset"),
-            Rule("/export/dc/datasets/<article_id>/<version>",             endpoint = "export_dc_dataset"),
+            Rule("/export/refworks/datasets/<dataset_id>",                 endpoint = "export_refworks_dataset"),
+            Rule("/export/refworks/datasets/<dataset_id>/<version>",       endpoint = "export_refworks_dataset"),
+            Rule("/export/bibtex/datasets/<dataset_id>",                   endpoint = "export_bibtex_dataset"),
+            Rule("/export/bibtex/datasets/<dataset_id>/<version>",         endpoint = "export_bibtex_dataset"),
+            Rule("/export/refman/datasets/<dataset_id>",                   endpoint = "export_refman_dataset"),
+            Rule("/export/refman/datasets/<dataset_id>/<version>",         endpoint = "export_refman_dataset"),
+            Rule("/export/endnote/datasets/<dataset_id>",                  endpoint = "export_endnote_dataset"),
+            Rule("/export/endnote/datasets/<dataset_id>/<version>",        endpoint = "export_endnote_dataset"),
+            Rule("/export/nlm/datasets/<dataset_id>",                      endpoint = "export_nlm_dataset"),
+            Rule("/export/nlm/datasets/<dataset_id>/<version>",            endpoint = "export_nlm_dataset"),
+            Rule("/export/dc/datasets/<dataset_id>",                       endpoint = "export_dc_dataset"),
+            Rule("/export/dc/datasets/<dataset_id>/<version>",             endpoint = "export_dc_dataset"),
 
            ])
 
@@ -470,16 +470,16 @@ class ApiServer:
 
     def __file_by_id_or_uri (self, identifier,
                              account_id=None,
-                             article_uri=None):
+                             dataset_uri=None):
         try:
             file = None
             if parses_to_int (identifier):
-                file = self.db.article_files (file_id     = int(identifier),
-                                              article_uri = article_uri,
+                file = self.db.dataset_files (file_id     = int(identifier),
+                                              dataset_uri = dataset_uri,
                                               account_id  = account_id)[0]
             elif validator.is_valid_uuid (identifier):
-                file = self.db.article_files (file_uuid   = identifier,
-                                              article_uri = article_uri,
+                file = self.db.dataset_files (file_uuid   = identifier,
+                                              dataset_uri = dataset_uri,
                                               account_id  = account_id)[0]
 
             return file
@@ -739,7 +739,7 @@ class ApiServer:
         response.delete_cookie (key=self.cookie_key)
         return response
 
-    def api_review_impersonate_to_dataset (self, request, article_id):
+    def api_review_impersonate_to_dataset (self, request, dataset_id):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -749,7 +749,7 @@ class ApiServer:
 
         dataset = None
         try:
-            dataset = self.db.datasets (dataset_uuid    = article_id,
+            dataset = self.db.datasets (dataset_uuid    = dataset_id,
                                         is_published    = False,
                                         is_under_review = True)[0]
         except IndexError:
@@ -869,7 +869,7 @@ class ApiServer:
                                        review_datasets    = review_datasets,
                                        published_datasets = published_datasets)
 
-    def api_new_article (self, request):
+    def api_new_dataset (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -881,14 +881,14 @@ class ApiServer:
         if not self.db.is_depositor (token):
             return self.error_404 (request)
 
-        article_id = self.db.insert_dataset(title = "Untitled item",
+        dataset_id = self.db.insert_dataset(title = "Untitled item",
                                             account_id = account_id)
-        if article_id is not None:
-            return redirect (f"/my/datasets/{article_id}/edit", code=302)
+        if dataset_id is not None:
+            return redirect (f"/my/datasets/{dataset_id}/edit", code=302)
 
         return self.error_500()
 
-    def api_edit_article (self, request, article_id):
+    def api_edit_dataset (self, request, dataset_id):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -901,7 +901,7 @@ class ApiServer:
             return self.error_404 (request)
 
         try:
-            article = self.__dataset_by_id_or_uri (article_id,
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                    is_published = False,
                                                    account_id   = account_id)
 
@@ -926,8 +926,8 @@ class ApiServer:
             return self.__render_template (
                 request,
                 "depositor/edit-article.html",
-                container_uuid = article["container_uuid"],
-                article    = article,
+                container_uuid = dataset["container_uuid"],
+                article    = dataset,
                 account    = account,
                 categories = categories,
                 groups     = groups)
@@ -937,7 +937,7 @@ class ApiServer:
 
         return self.error_404 (request)
 
-    def api_delete_article (self, request, article_id):
+    def api_delete_dataset (self, request, dataset_id):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -950,7 +950,7 @@ class ApiServer:
             return self.error_404 (request)
 
         try:
-            dataset = self.__dataset_by_id_or_uri (article_id,
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                    account_id=account_id,
                                                    is_published=False)
 
@@ -983,8 +983,8 @@ class ApiServer:
                                            limit        = 10000)
 
         for collection in collections:
-            count = self.db.collections_article_count(collection["uri"])
-            collection["number_of_articles"] = count
+            count = self.db.collections_dataset_count(collection["uri"])
+            collection["number_of_datasets"] = count
 
         return self.__render_template (request, "depositor/my-collections.html",
                                        collections = collections)
@@ -1202,7 +1202,7 @@ class ApiServer:
                                        unassigned_reviews = unassigned)
 
 
-    def api_review_assign_to_me (self, request, article_id):
+    def api_review_assign_to_me (self, request, dataset_id):
 
         account_id = self.account_id_from_request (request)
         token = self.token_from_cookie (request)
@@ -1212,7 +1212,7 @@ class ApiServer:
 
         dataset    = None
         try:
-            dataset = self.db.datasets (dataset_uuid    = article_id,
+            dataset = self.db.datasets (dataset_uuid    = dataset_id,
                                         is_published    = False,
                                         is_under_review = True)[0]
         except IndexError:
@@ -1230,7 +1230,7 @@ class ApiServer:
 
         return self.error_500()
 
-    def api_review_unassign (self, request, article_id):
+    def api_review_unassign (self, request, dataset_id):
 
         account_id = self.account_id_from_request (request)
         token = self.token_from_cookie (request)
@@ -1240,7 +1240,7 @@ class ApiServer:
 
         dataset = None
         try:
-            dataset = self.db.datasets (dataset_uuid    = article_id,
+            dataset = self.db.datasets (dataset_uuid    = dataset_id,
                                         is_published    = False,
                                         is_under_review = True)[0]
         except IndexError:
@@ -1348,7 +1348,7 @@ class ApiServer:
                     data = json.dumps({'page_size': page_size, 'institution_id': 898, 'order': 'published_date', 'order_direction': 'desc'})
                     records = requests.get(base, headers=headers, data=data).json()
                 else:
-                    records = self.db.latest_articles_portal(page_size)
+                    records = self.db.latest_datasets_portal(page_size)
                 for rec in records:
                     pub_date = rec['published_date'][:10]
                     days = (today - date(*[int(x) for x in pub_date.split('-')])).days
@@ -1357,7 +1357,7 @@ class ApiServer:
                     x, y = [min(1., days/d) for d in rgb_opa_days]
                     rgba = [round(i[0] + x*(i[1]-i[0])) for i in rgb_shift] + [round(1 - y*(1-opa_min), 3)]
                     str_rgba = ','.join([str(c) for c in rgba])
-                    url = rec['url_public_html'] if from_figshare else f'/datasets/{rec["article_id"]}'
+                    url = rec['url_public_html'] if from_figshare else f'/datasets/{rec["dataset_id"]}'
                     latest.append((url, rec['title'], pub_date, ago, str_rgba))
             except:
                 pass
@@ -1376,41 +1376,51 @@ class ApiServer:
 
         category      = self.db.category_by_id (category_id)
         subcategories = self.db.subcategories_for_category (category_id)
-        articles      = self.db.datasets (categories=[category_id], limit=100)
+        datasets      = self.db.datasets (categories=[category_id], limit=100)
 
         return self.__render_template (request, "categories.html",
-                                       articles=articles,
+                                       articles=datasets,
                                        category=category,
                                        subcategories=subcategories)
 
-    def api_article_ui (self, request, article_id, version=None):
+    def api_dataset_ui (self, request, dataset_id, version=None):
         if self.accepts_html (request):
-            container     = self.db.article_container(article_id=article_id)[0]
-            versions      = self.db.dataset_versions(article_id=article_id)
+            container     = self.__dataset_by_id_or_uri (
+                dataset_id,
+                is_published = True,
+                is_latest    = not bool(version),
+                version      = version)
+
+            if container is None:
+                return self.error_404 (request)
+
+            # TODO: Numeric IDs are not available for future datasets.
+            # Use UUIDs instead.
+            versions      = self.db.dataset_versions(dataset_id=container["dataset_id"])
             versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
             current_version = version if version else versions[0]['version']
-            article       = self.db.datasets (dataset_id    = article_id,
+            dataset       = self.db.datasets (dataset_id    = container["dataset_id"],
                                               version       = current_version,
                                               is_published  = True)[0]
-            article_uri   = article['uri']
-            authors       = self.db.authors(item_uri=article_uri)
-            files         = self.db.article_files(article_uri=article_uri, limit=None)
+            dataset_uri   = container['uri']
+            authors       = self.db.authors(item_uri=dataset_uri)
+            files         = self.db.dataset_files(dataset_uri=dataset_uri, limit=None)
             embargo_options = None #TODO
-            tags          = self.db.tags(item_uri=article_uri)
-            categories    = self.db.categories(item_uri=article_uri)
-            references    = self.db.references(item_uri=article_uri)
-            derived_from  = self.db.derived_from(item_uri=article_uri)
-            fundings      = self.db.fundings(item_uri=article_uri)
-            collections   = self.db.collections_from_article(article_id=article_id)
+            tags          = self.db.tags(item_uri=dataset_uri)
+            categories    = self.db.categories(item_uri=dataset_uri)
+            references    = self.db.references(item_uri=dataset_uri)
+            derived_from  = self.db.derived_from(item_uri=dataset_uri)
+            fundings      = self.db.fundings(item_uri=dataset_uri)
+            collections   = self.db.collections_from_dataset(dataset_id=container["dataset_id"])
             statistics    = {'downloads': value_or(container, 'total_downloads', 0),
                              'views'    : value_or(container, 'total_views'    , 0),
                              'shares'   : value_or(container, 'total_shares'   , 0),
                              'cites'    : value_or(container, 'total_cites'    , 0)}
             statistics    = {key:val for (key,val) in statistics.items() if val > 0}
-            member = value_or(group_to_member, article["group_id"], 'other')
+            member = value_or(group_to_member, dataset["group_id"], 'other')
             member_url_name = member_url_names[member]
             tags = set([t['tag'] for t in tags])
-            article['timeline_first_online'] = container['first_online_date']
+            dataset['timeline_first_online'] = container['timeline_first_online']
             date_types = ( ('submitted'   , 'timeline_submission'),
                            ('first online', 'timeline_first_online'),
                            ('published'   , 'published_date'),
@@ -1418,8 +1428,8 @@ class ApiServer:
                            ('revised'     , 'timeline_revision') )
             dates = {}
             for (label, dtype) in date_types:
-                if dtype in article:
-                    date = article[dtype]
+                if dtype in dataset:
+                    date = dataset[dtype]
                     if date:
                         date = date[:10]
                         if not date in dates:
@@ -1427,10 +1437,10 @@ class ApiServer:
                         dates[date].append(label)
             dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
 
-            id_version = f'{article_id}/{version}' if version else f'{article_id}'
+            id_version = f'{dataset_id}/{version}' if version else f'{dataset_id}'
 
-            lat = self_or_value_or_none(article, 'latitude')
-            lon = self_or_value_or_none(article, 'longitude')
+            lat = self_or_value_or_none(dataset, 'latitude')
+            lon = self_or_value_or_none(dataset, 'longitude')
             lat_valid, lon_valid = decimal_coords(lat, lon)
             coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
 
@@ -1439,21 +1449,21 @@ class ApiServer:
             files_services = [(f, f['is_link_only']) for (f, odap) in odap_files if not odap]
             services = [f['download_url'] for (f, link) in files_services if link]
             files = [f for (f, link) in files_services if not link]
-            if 'data_link' in article:
-                url = article['data_link']
+            if 'data_link' in dataset:
+                url = dataset['data_link']
                 if url.split('/')[2]=='opendap.4tu.nl':
                     opendap.append(url)
-                    del article['data_link']
+                    del dataset['data_link']
 
             contributors = []
-            if 'contributors' in article:
-                contr = article['contributors'].split(';\\n')
+            if 'contributors' in dataset:
+                contr = dataset['contributors'].split(';\\n')
                 contr_parts = [ c.split(' [orcid:') for c in contr ]
                 contributors = contr_parts
                 contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
 
             return self.__render_template (request, "article.html",
-                                           item=article,
+                                           item=dataset,
                                            version=version,
                                            versions=versions,
                                            authors=authors,
@@ -1479,7 +1489,7 @@ class ApiServer:
         }))
 
     def api_collection_ui (self, request, collection_id, version=None):
-        #This function is copied from api_article_ui and slightly adapted as a start. It will not yet work properly.
+        #This function is copied from api_dataset_ui and slightly adapted as a start. It will not yet work properly.
         if self.accepts_html (request):
             container     = self.db.collection_container(collection_id=collection_id)[0]
             versions      = self.db.collection_versions(collection_id=collection_id)
@@ -1531,7 +1541,7 @@ class ApiServer:
                 contributors = contr_parts
                 contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
 
-            articles = self.db.collection_articles(collection_uri)
+            datasets = self.db.collection_datasets(collection_uri)
 
             return self.__render_template (request, "collection.html",
                                            item=collection,
@@ -1547,7 +1557,7 @@ class ApiServer:
                                            coordinates=coordinates,
                                            member=member,
                                            member_url_name=member_url_name,
-                                           articles=articles,
+                                           datasets=datasets,
                                            statistics=statistics)
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
@@ -1561,12 +1571,12 @@ class ApiServer:
         group         = self.db.group_by_name (group_name)
         sub_groups    = self.db.group_by_name (group_name, startswith=True)
         sub_group_ids = [item['group_id'] for item in sub_groups]
-        articles      = self.db.datasets (groups=sub_group_ids,
+        datasets      = self.db.datasets (groups=sub_group_ids,
                                           is_published=True,
                                           limit=100)
 
         return self.__render_template (request, "institutions.html",
-                                       articles=articles,
+                                       articles=datasets,
                                        group=group,
                                        sub_groups=sub_groups)
 
@@ -1624,25 +1634,25 @@ class ApiServer:
             "message": "This page is meant for humans only."
         }))
 
-    def api_download_file (self, request, article_id, file_id):
+    def api_download_file (self, request, dataset_id, file_id):
         try:
-            article  = self.__dataset_by_id_or_uri (article_id)
+            dataset  = self.__dataset_by_id_or_uri (dataset_id)
 
-            ## When downloading a file from an article that isn't published,
+            ## When downloading a file from an dataset that isn't published,
             ## we need to authorize it first.
-            if article is None:
+            if dataset is None:
                 account_id = self.account_id_from_request (request)
                 if account_id is not None:
-                    article = self.__dataset_by_id_or_uri (article_id,
+                    dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                            account_id   = account_id,
                                                            is_published = False)
 
-            ## Check again whether a private article has been found.
-            if article is None:
+            ## Check again whether a private dataset has been found.
+            if dataset is None:
                 return self.error_404 (request)
 
             metadata = self.__file_by_id_or_uri (file_id,
-                                                 article_uri = article["uri"])
+                                                 dataset_uri = dataset["uri"])
 
             file_path = metadata["filesystem_location"]
             if file_path is None:
@@ -1734,7 +1744,7 @@ class ApiServer:
                 dataset_count = 0
             else:
                 message = None
-                dataset_count = dataset_count[0]["articles"]
+                dataset_count = dataset_count[0]["datasets"]
                 datasets = self.db.datasets (search_for=search_list, is_published=True, limit=100)
             return self.__render_template (request, "search.html",
                                            articles=datasets,
@@ -1784,7 +1794,7 @@ class ApiServer:
 
         return self.response (json.dumps (formatted))
 
-    def api_articles (self, request):
+    def api_datasets (self, request):
         if request.method != 'GET':
             return self.error_405 ("GET")
 
@@ -1796,12 +1806,12 @@ class ApiServer:
         try:
             record  = self.__default_dataset_api_parameters (request)
             records = self.db.datasets (**record, is_latest = 1)
-            return self.default_list_response (records, formatter.format_article_record)
+            return self.default_list_response (records, formatter.format_dataset_record)
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
-    def api_articles_search (self, request):
+    def api_datasets_search (self, request):
         if request.method != 'POST':
             return self.error_405 ("POST")
 
@@ -1811,7 +1821,7 @@ class ApiServer:
         try:
             record  = self.__default_dataset_api_parameters (request.get_json())
             records = self.db.datasets (**record)
-            return self.default_list_response (records, formatter.format_article_record)
+            return self.default_list_response (records, formatter.format_dataset_record)
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
@@ -1823,7 +1833,7 @@ class ApiServer:
         records = self.db.licenses()
         return self.default_list_response (records, formatter.format_license_record)
 
-    def api_article_details (self, request, article_id):
+    def api_dataset_details (self, request, dataset_id):
         if request.method != 'GET':
             return self.error_405 ("GET")
 
@@ -1831,16 +1841,16 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article         = self.__dataset_by_id_or_uri (article_id, account_id=None, is_latest=True)
-            article_uri     = article["uri"]
-            authors         = self.db.authors(item_uri=article_uri, item_type="article")
-            files           = self.db.article_files(article_uri=article_uri)
-            custom_fields   = self.db.custom_fields(item_uri=article_uri, item_type="article")
-            tags            = self.db.tags(item_uri=article_uri, item_type="article")
-            categories      = self.db.categories(item_uri=article_uri)
-            references      = self.db.references(item_uri=article_uri)
-            funding_list    = self.db.fundings(item_uri=article_uri, item_type="article")
-            total         = formatter.format_article_details_record (article,
+            dataset         = self.__dataset_by_id_or_uri (dataset_id, account_id=None, is_latest=True)
+            dataset_uri     = dataset["uri"]
+            authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
+            files           = self.db.dataset_files(dataset_uri=dataset_uri)
+            custom_fields   = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
+            tags            = self.db.tags(item_uri=dataset_uri, item_type="dataset")
+            categories      = self.db.categories(item_uri=dataset_uri)
+            references      = self.db.references(item_uri=dataset_uri)
+            funding_list    = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
+            total         = formatter.format_dataset_details_record (dataset,
                                                                      authors,
                                                                      files,
                                                                      custom_fields,
@@ -1852,31 +1862,31 @@ class ApiServer:
             custom = total['custom_fields']
             custom = [c for c in custom if c['name'] != 'Derived From']
             custom.append( {"name": "Derived From",
-                            "value": self.db.derived_from(item_uri=article_uri)} )
+                            "value": self.db.derived_from(item_uri=dataset_uri)} )
             total['custom_fields'] = custom
             return self.response (json.dumps(total))
         except IndexError:
             response = self.response (json.dumps({
-                "message": "This article cannot be found."
+                "message": "This dataset cannot be found."
             }))
             response.status_code = 404
             return response
 
-    def api_article_versions (self, request, article_id):
+    def api_dataset_versions (self, request, dataset_id):
         handler = self.default_error_handling (request, "GET")
         if handler is not None:
             return handler
 
         versions = []
-        if parses_to_int (article_id):
-            versions = self.db.dataset_versions (article_id=article_id)
-        elif isinstance (article_id, str):
-            uri      = uuid_to_uri (article_id, "container")
+        if parses_to_int (dataset_id):
+            versions = self.db.dataset_versions (dataset_id=dataset_id)
+        elif isinstance (dataset_id, str):
+            uri      = uuid_to_uri (dataset_id, "container")
             versions = self.db.dataset_versions (container_uri = uri)
 
         return self.default_list_response (versions, formatter.format_version_record)
 
-    def api_article_version_details (self, request, article_id, version):
+    def api_dataset_version_details (self, request, dataset_id, version):
         if request.method != 'GET':
             return self.error_405 ("GET")
 
@@ -1884,19 +1894,19 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article       = self.__dataset_by_id_or_uri (article_id,
+            dataset       = self.__dataset_by_id_or_uri (dataset_id,
                                                          is_published = True,
                                                          version = version)
 
-            article_uri   = article["uri"]
-            authors       = self.db.authors(item_uri=article_uri, item_type="article")
-            files         = self.db.article_files(article_uri=article_uri)
-            custom_fields = self.db.custom_fields(item_uri=article_uri, item_type="article")
-            tags          = self.db.tags(item_uri=article_uri, item_type="article")
-            categories    = self.db.categories(item_uri=article_uri)
-            references    = self.db.references(item_uri=article_uri)
-            fundings      = self.db.fundings(item_uri=article_uri, item_type="article")
-            total         = formatter.format_article_details_record (article,
+            dataset_uri   = dataset["uri"]
+            authors       = self.db.authors(item_uri=dataset_uri, item_type="dataset")
+            files         = self.db.dataset_files(dataset_uri=dataset_uri)
+            custom_fields = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
+            tags          = self.db.tags(item_uri=dataset_uri, item_type="dataset")
+            categories    = self.db.categories(item_uri=dataset_uri)
+            references    = self.db.references(item_uri=dataset_uri)
+            fundings      = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
+            total         = formatter.format_dataset_details_record (dataset,
                                                                      authors,
                                                                      files,
                                                                      custom_fields,
@@ -1907,12 +1917,12 @@ class ApiServer:
             return self.response (json.dumps(total))
         except IndexError:
             response = self.response (json.dumps({
-                "message": "This article cannot be found."
+                "message": "This dataset cannot be found."
             }))
             response.status_code = 404
             return response
 
-    def api_article_version_embargo (self, request, article_id, version):
+    def api_dataset_version_embargo (self, request, dataset_id, version):
         if request.method != 'GET':
             return self.error_405 ("GET")
 
@@ -1920,19 +1930,19 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            article = self.__dataset_by_id_or_uri (article_id,
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                    version      = version,
                                                    is_published = True)
-            total   = formatter.format_article_embargo_record (article)
+            total   = formatter.format_dataset_embargo_record (dataset)
             return self.response (json.dumps(total))
         except IndexError:
             response = self.response (json.dumps({
-                "message": "This article cannot be found."
+                "message": "This dataset cannot be found."
             }))
             response.status_code = 404
             return response
 
-    def api_article_version_confidentiality (self, request, article_id, version):
+    def api_dataset_version_confidentiality (self, request, dataset_id, version):
         if request.method != 'GET':
             return self.error_405 ("GET")
 
@@ -1940,19 +1950,19 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            dataset       = self.__dataset_by_id_or_uri (article_id,
+            dataset       = self.__dataset_by_id_or_uri (dataset_id,
                                                          version = version,
                                                          is_published = True)
-            total           = formatter.format_article_confidentiality_record (dataset)
+            total           = formatter.format_dataset_confidentiality_record (dataset)
             return self.response (json.dumps(total))
         except IndexError:
             response = self.response (json.dumps({
-                "message": "This article cannot be found."
+                "message": "This dataset cannot be found."
             }))
             response.status_code = 404
             return response
 
-    def api_article_version_update_thumb (self, request, article_id, version):
+    def api_dataset_version_update_thumb (self, request, dataset_id, version):
         if request.method != 'PUT':
             return self.error_405 ("PUT")
 
@@ -1962,35 +1972,35 @@ class ApiServer:
 
         parameters = request.get_json()
         file_id    = value_or_none (parameters, "file_id")
-        if not self.db.article_update_thumb (article_id, version, account_id, file_id):
+        if not self.db.dataset_update_thumb (dataset_id, version, account_id, file_id):
             return self.respond_205()
 
         return self.error_500()
 
-    def api_article_files (self, request, article_id):
+    def api_dataset_files (self, request, dataset_id):
         if request.method != 'GET':
             return self.error_405 ("GET")
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
-        article = self.__dataset_by_id_or_uri (article_id, is_published=True)
-        files   = self.db.article_files (article_uri=article["uri"])
+        dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=True)
+        files   = self.db.dataset_files (dataset_uri=dataset["uri"])
 
-        return self.default_list_response (files, formatter.format_file_for_article_record)
+        return self.default_list_response (files, formatter.format_file_for_dataset_record)
 
-    def api_article_file_details (self, request, article_id, file_id):
+    def api_dataset_file_details (self, request, dataset_id, file_id):
         if request.method != 'GET':
             return self.error_405 ("GET")
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
         try:
-            article = self.__dataset_by_id_or_uri (article_id, is_published=True)
+            dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=True)
             files   = self.__file_by_id_or_uri (file_id,
-                                                article_uri = article["uri"])
+                                                dataset_uri = dataset["uri"])
 
-            results = formatter.format_file_for_article_record (files)
+            results = formatter.format_file_for_dataset_record (files)
             return self.response (json.dumps(results))
         except IndexError:
             response = self.response (json.dumps({
@@ -2000,7 +2010,7 @@ class ApiServer:
             return response
 
 
-    def api_private_articles (self, request):
+    def api_private_datasets (self, request):
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -2024,7 +2034,7 @@ class ApiServer:
                                             is_published = False,
                                             account_id=account_id)
 
-                return self.default_list_response (records, formatter.format_article_record)
+                return self.default_list_response (records, formatter.format_dataset_record)
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
@@ -2071,7 +2081,7 @@ class ApiServer:
 
         return self.error_405 (["GET", "POST"])
 
-    def api_private_article_details (self, request, article_id):
+    def api_private_dataset_details (self, request, dataset_id):
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -2084,22 +2094,22 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                article     = self.__dataset_by_id_or_uri (article_id,
+                dataset     = self.__dataset_by_id_or_uri (dataset_id,
                                                            account_id=account_id,
                                                            is_published=False)
 
-                if not article:
+                if not dataset:
                     return self.response (json.dumps([]))
 
-                article_uri     = article["uri"]
-                authors         = self.db.authors(item_uri=article_uri, item_type="article")
-                files           = self.db.article_files(article_uri=article_uri)
-                custom_fields   = self.db.custom_fields(item_uri=article_uri, item_type="article")
-                tags            = self.db.tags(item_uri=article_uri, item_type="article")
-                categories      = self.db.categories(item_uri=article_uri)
-                references      = self.db.references(item_uri=article_uri)
-                funding_list    = self.db.fundings(item_uri=article_uri, item_type="article")
-                total           = formatter.format_article_details_record (article,
+                dataset_uri     = dataset["uri"]
+                authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
+                files           = self.db.dataset_files(dataset_uri=dataset_uri)
+                custom_fields   = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
+                tags            = self.db.tags(item_uri=dataset_uri, item_type="dataset")
+                categories      = self.db.categories(item_uri=dataset_uri)
+                references      = self.db.references(item_uri=dataset_uri)
+                funding_list    = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
+                total           = formatter.format_dataset_details_record (dataset,
                                                                            authors,
                                                                            files,
                                                                            custom_fields,
@@ -2111,12 +2121,12 @@ class ApiServer:
                 custom = total['custom_fields']
                 custom = [c for c in custom if c['name'] != 'Derived From']
                 custom.append( {"name": "Derived From",
-                                "value": self.db.derived_from(item_uri=article_uri)} )
+                                "value": self.db.derived_from(item_uri=dataset_uri)} )
                 total['custom_fields'] = custom
                 return self.response (json.dumps(total))
             except IndexError:
                 response = self.response (json.dumps({
-                    "message": "This article cannot be found."
+                    "message": "This dataset cannot be found."
                 }))
                 response.status_code = 404
                 return response
@@ -2132,11 +2142,11 @@ class ApiServer:
                 elif defined_type_name == "dataset":
                     defined_type = 3
 
-                article = self.__dataset_by_id_or_uri (article_id,
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                        account_id = account_id,
                                                        is_published = False)
 
-                result = self.db.update_article (uri_to_uuid (article["container_uri"]),
+                result = self.db.update_dataset (uri_to_uuid (dataset["container_uri"]),
                     account_id,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000),
@@ -2183,7 +2193,7 @@ class ApiServer:
 
         if request.method == 'DELETE':
             try:
-                dataset     = self.__dataset_by_id_or_uri (article_id,
+                dataset     = self.__dataset_by_id_or_uri (dataset_id,
                                                            account_id=account_id,
                                                            is_published=False)
 
@@ -2199,7 +2209,7 @@ class ApiServer:
 
         return self.error_405 (["GET", "PUT", "DELETE"])
 
-    def api_private_article_authors (self, request, article_id):
+    def api_private_dataset_authors (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/authors."""
 
         if not self.accepts_json(request):
@@ -2213,14 +2223,14 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                article = self.__dataset_by_id_or_uri (article_id,
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                        account_id=account_id,
                                                        is_published=False)
 
-                authors = self.db.authors (item_uri   = article["uri"],
+                authors = self.db.authors (item_uri   = dataset["uri"],
                                            account_id = account_id,
                                            is_published = False,
-                                           item_type  = "article",
+                                           item_type  = "dataset",
                                            limit      = 10000)
 
                 return self.default_list_response (authors, formatter.format_author_record)
@@ -2262,7 +2272,7 @@ class ApiServer:
                             return self.error_500()
                     new_authors.append(URIRef(uuid_to_uri (author_uuid, "author")))
 
-                article = self.__dataset_by_id_or_uri (article_id,
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                        account_id=account_id,
                                                        is_published=False)
 
@@ -2272,9 +2282,9 @@ class ApiServer:
                 existing_authors = []
                 if request.method == 'POST':
                     existing_authors = self.db.authors (
-                        item_uri     = article["uri"],
+                        item_uri     = dataset["uri"],
                         account_id   = account_id,
-                        item_type    = "article",
+                        item_type    = "dataset",
                         is_published = False,
                         limit        = 10000)
 
@@ -2282,7 +2292,7 @@ class ApiServer:
                                                  existing_authors))
 
                 authors = existing_authors + new_authors
-                if not self.db.update_item_list (uri_to_uuid (article["container_uri"]),
+                if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
                                                  account_id,
                                                  authors,
                                                  "authors"):
@@ -2305,7 +2315,7 @@ class ApiServer:
 
         return self.error_405 ("GET")
 
-    def api_private_article_author_delete (self, request, article_id, author_id):
+    def api_private_dataset_author_delete (self, request, dataset_id, author_id):
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
 
@@ -2314,14 +2324,14 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         try:
-            article   = self.__dataset_by_id_or_uri (article_id,
+            dataset   = self.__dataset_by_id_or_uri (dataset_id,
                                                      account_id   = account_id,
                                                      is_published = False)
 
-            authors = self.db.authors (item_uri     = article["uri"],
+            authors = self.db.authors (item_uri     = dataset["uri"],
                                        account_id   = account_id,
                                        is_published = False,
-                                       item_type    = "article",
+                                       item_type    = "dataset",
                                        limit        = 10000)
 
             if parses_to_int (author_id):
@@ -2330,7 +2340,7 @@ class ApiServer:
                 authors.remove (next (filter (lambda item: item['uuid'] == author_id, authors)))
 
             authors = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "author")), authors))
-            if self.db.update_item_list (uri_to_uuid (article["container_uri"]),
+            if self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
                                          account_id,
                                          authors,
                                          "authors"):
@@ -2385,7 +2395,7 @@ class ApiServer:
 
         return self.error_403 (request)
 
-    def api_private_collection_article_delete (self, request, collection_id, article_id):
+    def api_private_collection_dataset_delete (self, request, collection_id, dataset_id):
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
 
@@ -2395,23 +2405,23 @@ class ApiServer:
 
         try:
             collection = self.__collection_by_id_or_uri (collection_id, account_id=account_id)
-            article    = self.__dataset_by_id_or_uri (article_id, account_id=account_id)
-            if collection is None or article is None:
+            dataset    = self.__dataset_by_id_or_uri (dataset_id, account_id=account_id)
+            if collection is None or dataset is None:
                 return self.error_404 (request)
 
-            articles = self.db.datasets(collection_uri=collection["uri"])
-            articles.remove (next
+            datasets = self.db.datasets(collection_uri=collection["uri"])
+            datasets.remove (next
                              (filter
-                              (lambda item: item["uuid"] == article["uuid"],
-                               articles)))
+                              (lambda item: item["uuid"] == dataset["uuid"],
+                               datasets)))
 
-            articles = list(map(lambda item: URIRef(uuid_to_uri(item["uuid"], "article")),
-                                articles))
+            datasets = list(map(lambda item: URIRef(uuid_to_uri(item["uuid"], "dataset")),
+                                datasets))
 
             if self.db.update_item_list (collection["container_uuid"],
                                          account_id,
-                                         articles,
-                                         "articles"):
+                                         datasets,
+                                         "datasets"):
                 return self.respond_204()
         except IndexError:
             return self.error_500 ()
@@ -2420,7 +2430,7 @@ class ApiServer:
 
         return self.error_403 (request)
 
-    def api_private_article_categories (self, request, article_id):
+    def api_private_dataset_categories (self, request, dataset_id):
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -2433,11 +2443,11 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                article       = self.__dataset_by_id_or_uri (article_id,
+                dataset       = self.__dataset_by_id_or_uri (dataset_id,
                                                              account_id=account_id,
                                                              is_published=False)
 
-                categories    = self.db.categories (item_uri   = article["uri"],
+                categories    = self.db.categories (item_uri   = dataset["uri"],
                                                     account_id = account_id,
                                                     is_published = False)
 
@@ -2459,20 +2469,20 @@ class ApiServer:
                                            "Missing 'categories' parameter.",
                                            "MissingRequiredField")
 
-                article = self.__dataset_by_id_or_uri (article_id,
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                        account_id = account_id,
                                                        is_published = False)
 
                 # First, validate all values passed by the user.
                 # This way, we can be as certain as we can be that performing
                 # a PUT will not end in having no categories associated with
-                # an article.
+                # an dataset.
                 for index, _ in enumerate(categories):
                     categories[index] = validator.string_value (categories, index, 0, 36)
 
                 ## Append when using POST, otherwise overwrite.
                 if request.method == 'POST':
-                    existing_categories = self.db.categories (item_uri     = article["uri"],
+                    existing_categories = self.db.categories (item_uri     = dataset["uri"],
                                                               account_id   = account_id,
                                                               is_published = False,
                                                               limit        = 10000)
@@ -2483,7 +2493,7 @@ class ApiServer:
                     categories = list(dict.fromkeys(existing_categories + categories))
 
                 categories = uris_from_records (categories, "category")
-                if self.db.update_item_list (article["container_uuid"],
+                if self.db.update_item_list (dataset["container_uuid"],
                                              account_id,
                                              categories,
                                              "categories"):
@@ -2503,7 +2513,7 @@ class ApiServer:
 
         return self.error_405 (["GET", "POST", "PUT"])
 
-    def api_private_delete_article_category (self, request, article_id, category_id):
+    def api_private_delete_dataset_category (self, request, dataset_id, category_id):
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -2514,12 +2524,12 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed(request)
 
-        if self.db.delete_article_categories (article_id, account_id, category_id):
+        if self.db.delete_dataset_categories (dataset_id, account_id, category_id):
             return self.respond_204()
 
         return self.error_500()
 
-    def api_private_article_embargo (self, request, article_id):
+    def api_private_dataset_embargo (self, request, dataset_id):
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -2530,21 +2540,21 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
-            article = self.__dataset_by_id_or_uri (article_id,
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                    account_id = account_id,
                                                    is_published = False)
-            if not article:
+            if not dataset:
                 return self.response (json.dumps([]))
 
-            return self.response (json.dumps (formatter.format_article_embargo_record (article)))
+            return self.response (json.dumps (formatter.format_dataset_embargo_record (dataset)))
 
         if request.method == 'DELETE':
             try:
-                article = self.__dataset_by_id_or_uri (article_id,
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                        account_id = account_id,
                                                        is_published = False)
 
-                if self.db.delete_article_embargo (article_uri = article["uri"],
+                if self.db.delete_dataset_embargo (dataset_uri = dataset["uri"],
                                                    account_id  = account_id):
                     return self.respond_204()
             except IndexError:
@@ -2556,7 +2566,7 @@ class ApiServer:
 
         return self.error_405 (["GET", "DELETE"])
 
-    def api_private_article_files (self, request, article_id):
+    def api_private_dataset_files (self, request, dataset_id):
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -2569,15 +2579,15 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                article       = self.__dataset_by_id_or_uri (article_id,
+                dataset       = self.__dataset_by_id_or_uri (dataset_id,
                                                              account_id=account_id,
                                                              is_published=False)
-                files = self.db.article_files (
-                    article_uri = article["uri"],
+                files = self.db.dataset_files (
+                    dataset_uri = dataset["uri"],
                     account_id = account_id,
                     limit      = validator.integer_value (request.args, "limit"))
 
-                return self.default_list_response (files, formatter.format_file_for_article_record)
+                return self.default_list_response (files, formatter.format_file_for_dataset_record)
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
@@ -2592,13 +2602,13 @@ class ApiServer:
             parameters = request.get_json()
             try:
                 link = validator.string_value (parameters, "link", 0, 1000, False)
-                article = self.__dataset_by_id_or_uri (article_id,
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                        account_id=account_id,
                                                        is_published=False)
 
                 if link is not None:
                     file_id = self.db.insert_file (
-                        article_uri        = article["uri"],
+                        dataset_uri        = dataset["uri"],
                         account_id         = account_id,
                         is_link_only       = True,
                         download_url       = link)
@@ -2607,11 +2617,11 @@ class ApiServer:
                         return self.error_500()
 
                     return self.respond_201({
-                        "location": f"{self.base_url}/v2/account/articles/{article_id}/files/{file_id}"
+                        "location": f"{self.base_url}/v2/account/articles/{dataset_id}/files/{file_id}"
                     })
 
                 file_id = self.db.insert_file (
-                    article_uri   = article["uri"],
+                    dataset_uri   = dataset["uri"],
                     account_id    = account_id,
                     is_link_only  = False,
                     upload_token  = self.token_from_request (request),
@@ -2623,7 +2633,7 @@ class ApiServer:
                     return self.error_500()
 
                 return self.respond_201({
-                    "location": f"{self.base_url}/v2/account/articles/{article_id}/files/{file_id}"
+                    "location": f"{self.base_url}/v2/account/articles/{dataset_id}/files/{file_id}"
                 })
 
             except validator.ValidationException as error:
@@ -2637,7 +2647,7 @@ class ApiServer:
 
         return self.error_405 (["GET", "POST"])
 
-    def api_private_article_file_details (self, request, article_id, file_id):
+    def api_private_dataset_file_details (self, request, dataset_id, file_id):
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -2650,13 +2660,13 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                article = self.__dataset_by_id_or_uri (article_id,
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                        account_id = account_id,
                                                        is_published = False)
 
                 files   = self.__file_by_id_or_uri (file_id,
                                                     account_id  = account_id,
-                                                    article_uri = article["uri"])
+                                                    dataset_uri = dataset["uri"])
 
                 return self.default_list_response (files, formatter.format_file_details_record)
             except IndexError:
@@ -2671,16 +2681,16 @@ class ApiServer:
 
         if request.method == 'DELETE':
             try:
-                article = self.__dataset_by_id_or_uri (article_id,
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                        account_id=account_id,
                                                        is_published=False)
 
-                files = self.db.article_files (article_uri=article["uri"])
+                files = self.db.dataset_files (dataset_uri=dataset["uri"])
                 files.remove (next (filter (lambda item: item["uuid"] == file_id, files)))
                 files = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "file")),
                                            files))
 
-                if self.db.update_item_list (article["container_uuid"],
+                if self.db.update_item_list (dataset["container_uuid"],
                                              account_id,
                                              files,
                                              "files"):
@@ -2695,7 +2705,7 @@ class ApiServer:
 
         return self.error_405 (["GET", "POST", "DELETE"])
 
-    def api_private_article_private_links (self, request, article_id):
+    def api_private_dataset_private_links (self, request, dataset_id):
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -2708,7 +2718,7 @@ class ApiServer:
 
         if request.method == 'GET':
 
-            dataset = self.__dataset_by_id_or_uri (article_id,
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                    account_id = account_id,
                                                    is_published = False)
 
@@ -2723,7 +2733,7 @@ class ApiServer:
         if request.method == 'POST':
             parameters = request.get_json()
             try:
-                dataset      = self.__dataset_by_id_or_uri (article_id,
+                dataset      = self.__dataset_by_id_or_uri (dataset_id,
                                                             account_id = account_id)
                 if dataset is None:
                     return self.error_404 (request)
@@ -2765,7 +2775,7 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def api_private_article_private_links_details (self, request, article_id, link_id):
+    def api_private_dataset_private_links_details (self, request, dataset_id, link_id):
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -2776,7 +2786,7 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed(request)
 
-        dataset = self.__dataset_by_id_or_uri (article_id,
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                account_id = account_id,
                                                is_published = False)
 
@@ -2807,7 +2817,7 @@ class ApiServer:
                     return self.error_500()
 
                 return self.response(json.dumps({
-                    "location": f"{self.base_url}/articles/{link_id}"
+                    "location": f"{self.base_url}/datasets/{link_id}"
                 }))
 
             except validator.ValidationException as error:
@@ -2827,7 +2837,7 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def api_private_articles_search (self, request):
+    def api_private_datasets_search (self, request):
         if request.method != 'POST':
             return self.error_405 ("POST")
 
@@ -2849,7 +2859,7 @@ class ApiServer:
             group = validator.integer_value (parameters, "group")
             records = self.db.datasets(
                 resource_doi    = validator.string_value (parameters, "resource_doi", 0, 512),
-                # "resource_id" here is not a typo for "article_id".
+                # "resource_id" here is not a typo for "dataset_id".
                 dataset_id      = validator.integer_value (parameters, "resource_id"),
                 item_type       = validator.integer_value (parameters, "item_type"),
                 doi             = validator.string_value (parameters, "doi", 0, 255),
@@ -2868,7 +2878,7 @@ class ApiServer:
                 is_published    = False
             )
 
-            return self.default_list_response (records, formatter.format_article_record)
+            return self.default_list_response (records, formatter.format_dataset_record)
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
@@ -2959,7 +2969,7 @@ class ApiServer:
             return self.error_404 (request)
 
         collection_uri = collection["uri"]
-        articles_count = self.db.collections_article_count(collection_uri = collection_uri)
+        datasets_count = self.db.collections_dataset_count(collection_uri = collection_uri)
         fundings       = self.db.fundings(item_uri = collection_uri, item_type="collection")
         categories     = self.db.categories(item_uri = collection_uri)
         references     = self.db.references(item_uri = collection_uri)
@@ -2973,7 +2983,7 @@ class ApiServer:
                                                                      tags,
                                                                      authors,
                                                                      custom_fields,
-                                                                     articles_count)
+                                                                     datasets_count)
         return self.response (json.dumps(total))
 
     def api_collection_versions (self, request, collection_id):
@@ -3000,7 +3010,7 @@ class ApiServer:
             return self.error_404 (request)
 
         collection_uri = collection["uri"]
-        articles_count = self.db.collections_article_count(collection_uri = collection_uri)
+        datasets_count = self.db.collections_dataset_count(collection_uri = collection_uri)
         fundings       = self.db.fundings(item_uri = collection_uri, item_type="collection")
         categories     = self.db.categories(item_uri = collection_uri)
         references     = self.db.references(item_uri = collection_uri)
@@ -3014,7 +3024,7 @@ class ApiServer:
                                                                      tags,
                                                                      authors,
                                                                      custom_fields,
-                                                                     articles_count)
+                                                                     datasets_count)
 
         return self.response (json.dumps(total))
 
@@ -3076,7 +3086,7 @@ class ApiServer:
                     funding                 = validator.string_value  (record, "funding",          0, 255,        False),
                     funding_list            = validator.array_value   (record, "funding_list",                    False),
                     description             = validator.string_value  (record, "description",      0, 10000,      False),
-                    articles                = validator.array_value   (record, "articles",                        False),
+                    datasets                = validator.array_value   (record, "articles",                        False),
                     authors                 = validator.array_value   (record, "authors",                         False),
                     categories              = validator.array_value   (record, "categories",                      False),
                     categories_by_source_id = validator.array_value   (record, "categories_by_source_id",         False),
@@ -3133,7 +3143,7 @@ class ApiServer:
                                                                 is_published = False)
 
                 collection_uri = collection["uri"]
-                articles_count= self.db.collections_article_count(collection_uri=collection_uri)
+                datasets_count= self.db.collections_dataset_count(collection_uri=collection_uri)
                 fundings      = self.db.fundings(item_uri=collection_uri, item_type="collection")
                 categories    = self.db.categories(item_uri=collection_uri)
                 references    = self.db.references(item_uri=collection_uri)
@@ -3147,7 +3157,7 @@ class ApiServer:
                                                                             tags,
                                                                             authors,
                                                                             custom_fields,
-                                                                            articles_count)
+                                                                            datasets_count)
                 return self.response (json.dumps(total))
 
             except IndexError:
@@ -3246,7 +3256,7 @@ class ApiServer:
             account_id      = account_id
         )
 
-        return self.default_list_response (records, formatter.format_article_record)
+        return self.default_list_response (records, formatter.format_dataset_record)
 
     def api_private_collection_authors (self, request, collection_id):
         """Implements /v2/account/collections/<id>/authors."""
@@ -3381,7 +3391,7 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def api_private_collection_articles (self, request, collection_id):
+    def api_private_collection_datasets (self, request, collection_id):
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -3398,10 +3408,10 @@ class ApiServer:
                 if collection is None:
                     return self.error_404 (request)
 
-                articles   = self.db.datasets (collection_uri = collection["uri"],
+                datasets   = self.db.datasets (collection_uri = collection["uri"],
                                                account_id     = account_id)
 
-                return self.default_list_response (articles, formatter.format_article_record)
+                return self.default_list_response (datasets, formatter.format_dataset_record)
             except IndexError:
                 pass
             except KeyError:
@@ -3412,7 +3422,7 @@ class ApiServer:
         if request.method in ('PUT', 'POST'):
             try:
                 parameters = request.get_json()
-                articles = parameters["articles"]
+                datasets = parameters["articles"]
 
                 collection = self.__collection_by_id_or_uri (collection_id, account_id=account_id)
                 if collection is None:
@@ -3420,21 +3430,21 @@ class ApiServer:
 
                 # First, validate all values passed by the user.
                 # This way, we can be as certain as we can be that performing
-                # a PUT will not end in having no articles associated with
-                # an article.
-                for index, _ in enumerate(articles):
-                    if parses_to_int (articles[index]):
-                        article = validator.integer_value (articles, index)
+                # a PUT will not end in having no datasets associated with
+                # an dataset.
+                for index, _ in enumerate(datasets):
+                    if parses_to_int (datasets[index]):
+                        dataset = validator.integer_value (datasets, index)
                     else:
-                        article = validator.string_value (articles, index, 36, 36)
+                        dataset = validator.string_value (datasets, index, 36, 36)
 
-                    article = self.__dataset_by_id_or_uri (article)
-                    articles[index] = URIRef(article["container_uri"])
+                    dataset = self.__dataset_by_id_or_uri (dataset)
+                    datasets[index] = URIRef(dataset["container_uri"])
 
                 if self.db.update_item_list (collection["uuid"],
                                              account_id,
-                                             articles,
-                                             "articles"):
+                                             datasets,
+                                             "datasets"):
                     return self.respond_205()
 
                 return self.error_500 ()
@@ -3445,12 +3455,12 @@ class ApiServer:
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
             except Exception as error:
-                logging.error("An error occurred when adding articles:")
+                logging.error("An error occurred when adding datasets:")
                 logging.error("Exception: %s", error)
 
         return self.error_405 (["GET", "POST", "PUT"])
 
-    def api_collection_articles (self, request, collection_id):
+    def api_collection_datasets (self, request, collection_id):
         handler = self.default_error_handling (request, "GET")
         if handler is not None:
             return handler
@@ -3460,8 +3470,8 @@ class ApiServer:
             if collection is None:
                 return self.error_404 (request)
 
-            articles   = self.db.datasets (collection_uri = collection["uri"])
-            return self.default_list_response (articles, formatter.format_article_record)
+            datasets   = self.db.datasets (collection_uri = collection["uri"])
+            return self.default_list_response (datasets, formatter.format_dataset_record)
         except IndexError:
             pass
         except KeyError:
@@ -3497,7 +3507,7 @@ class ApiServer:
     ## V3 API
     ## ------------------------------------------------------------------------
 
-    def api_v3_articles (self, request):
+    def api_v3_datasets (self, request):
         handler = self.default_error_handling (request, "GET")
         if handler is not None:
             return handler
@@ -3567,11 +3577,11 @@ class ApiServer:
         if record["return_count"]:
             return self.response (json.dumps(records[0]))
 
-        return self.default_list_response (records, formatter.format_article_record)
+        return self.default_list_response (records, formatter.format_dataset_record)
 
-    def __api_v3_articles_parameters (self, request, item_type):
+    def __api_v3_datasets_parameters (self, request, item_type):
         record = {}
-        record["article_id"]      = self.get_parameter (request, "id")
+        record["dataset_id"]      = self.get_parameter (request, "id")
         record["limit"]           = self.get_parameter (request, "limit")
         record["offset"]          = self.get_parameter (request, "offset")
         record["order"]           = self.get_parameter (request, "order")
@@ -3580,7 +3590,7 @@ class ApiServer:
         record["categories"]      = self.get_parameter (request, "categories")
         record["item_type"]       = item_type
 
-        validator.integer_value (record, "id")
+        validator.integer_value (record, "dataset_id")
         validator.integer_value (record, "limit")
         validator.integer_value (record, "offset")
         validator.string_value  (record, "order", maximum_length=32)
@@ -3612,14 +3622,14 @@ class ApiServer:
 
         return record
 
-    def api_v3_articles_top (self, request, item_type):
+    def api_v3_datasets_top (self, request, item_type):
         handler = self.default_error_handling (request, "GET")
         if handler is not None:
             return handler
 
         record = {}
         try:
-            record = self.__api_v3_articles_parameters (request, item_type)
+            record = self.__api_v3_datasets_parameters (request, item_type)
 
             if ("categories" in record
                 and record["categories"] is not None
@@ -3648,7 +3658,7 @@ class ApiServer:
             for index, _ in enumerate(record["group_ids"]):
                 record["group_ids"][index] = validator.integer_value (record["group_ids"], index)
 
-        records = self.db.article_statistics (
+        records = self.db.dataset_statistics (
             limit           = limit,
             offset          = offset,
             order           = validator.string_value (request.args, "order", 0, 255),
@@ -3659,20 +3669,20 @@ class ApiServer:
 
         return self.response (json.dumps(records))
 
-    def api_v3_articles_timeline (self, request, item_type):
+    def api_v3_datasets_timeline (self, request, item_type):
         handler = self.default_error_handling (request, "GET")
         if handler is not None:
             return handler
 
         record = {}
         try:
-            record = self.__api_v3_articles_parameters (request, item_type)
+            record = self.__api_v3_datasets_parameters (request, item_type)
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
-        records = self.db.article_statistics_timeline (
-            article_id      = record["article_id"],
+        records = self.db.dataset_statistics_timeline (
+            dataset_id      = record["dataset_id"],
             limit           = record["limit"],
             offset          = record["offset"],
             order           = record["order"],
@@ -3682,12 +3692,12 @@ class ApiServer:
 
         return self.response (json.dumps(records))
 
-    def api_v3_article_git_files (self, request, article_id):
+    def api_v3_dataset_git_files (self, request, dataset_id):
 
         if request.method != "GET":
             return self.error_405 ("GET")
 
-        git_directory  = f"{self.db.storage}/{article_id}.git"
+        git_directory  = f"{self.db.storage}/{dataset_id}.git"
         if not os.path.exists (git_directory):
             return self.response ("[]")
 
@@ -3706,7 +3716,7 @@ class ApiServer:
 
         return self.response (json.dumps(files))
 
-    def api_v3_article_submit (self, request, article_id):
+    def api_v3_dataset_submit (self, request, dataset_id):
         handler = self.default_error_handling (request, "POST")
         if handler is not None:
             return handler
@@ -3715,7 +3725,7 @@ class ApiServer:
         if account_id is None:
             return self.error_authorization_failed(request)
 
-        dataset = self.__dataset_by_id_or_uri (article_id,
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                account_id   = account_id,
                                                is_published = False)
 
@@ -3727,7 +3737,7 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def api_v3_article_upload_file (self, request, article_id):
+    def api_v3_dataset_upload_file (self, request, dataset_id):
         handler = self.default_error_handling (request, "POST")
         if handler is not None:
             return handler
@@ -3737,7 +3747,7 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         try:
-            article   = self.__dataset_by_id_or_uri (article_id,
+            dataset   = self.__dataset_by_id_or_uri (dataset_id,
                                                      account_id=account_id,
                                                      is_published=False)
             file_data = request.files['file']
@@ -3745,12 +3755,12 @@ class ApiServer:
                 name          = file_data.filename,
                 size          = file_data.content_length,
                 is_link_only  = 0,
-                upload_url    = f"/article/{article_id}/upload",
+                upload_url    = f"/article/{dataset_id}/upload",
                 upload_token  = self.token_from_request (request),
-                article_uri   = article["uri"],
+                dataset_uri   = dataset["uri"],
                 account_id    = account_id)
 
-            output_filename = f"{self.db.storage}/{article_id}_{file_uuid}"
+            output_filename = f"{self.db.storage}/{dataset_id}_{file_uuid}"
 
             file_data.save (output_filename)
             file_data.close()
@@ -3765,7 +3775,7 @@ class ApiServer:
                     md5.update(chunk)
                     computed_md5 = md5.hexdigest()
 
-            download_url = f"{self.base_url}/file/{article_id}/{file_uuid}"
+            download_url = f"{self.base_url}/file/{dataset_id}/{file_uuid}"
             self.db.update_file (account_id, file_uuid,
                                  computed_md5 = computed_md5,
                                  download_url = download_url,
@@ -3804,7 +3814,7 @@ class ApiServer:
 
         return self.error_500()
 
-    def api_v3_article_references (self, request, article_id):
+    def api_v3_dataset_references (self, request, dataset_id):
         """Implements /v3/articles/<id>/references."""
 
         if not self.accepts_json(request):
@@ -3820,11 +3830,11 @@ class ApiServer:
             return self.error_405 (["GET", "POST", "DELETE"])
 
         try:
-            article        = self.__dataset_by_id_or_uri (article_id,
+            dataset        = self.__dataset_by_id_or_uri (dataset_id,
                                                           account_id=account_id,
                                                           is_published=False)
 
-            references     = self.db.references (item_uri   = article["uri"],
+            references     = self.db.references (item_uri   = dataset["uri"],
                                                  account_id = account_id)
 
             if request.method == 'GET':
@@ -3836,7 +3846,7 @@ class ApiServer:
                 url_encoded = validator.string_value (request.args, "url", 0, 1024, True)
                 url         = requests.utils.unquote(url_encoded)
                 references.remove (next (filter (lambda item: item == url, references)))
-                if not self.db.update_item_list (uri_to_uuid (article["container_uri"]),
+                if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
                                                  account_id,
                                                  references,
                                                  "references"):
@@ -3857,7 +3867,7 @@ class ApiServer:
             if request.method == 'POST':
                 references = references + new_references
 
-            if not self.db.update_item_list (uri_to_uuid (article["container_uri"]),
+            if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
                                              account_id,
                                              references,
                                              "references"):
@@ -3910,8 +3920,8 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def __git_create_repository (self, article_id):
-        git_directory = f"{self.db.storage}/{article_id}.git"
+    def __git_create_repository (self, dataset_id):
+        git_directory = f"{self.db.storage}/{dataset_id}.git"
         if not os.path.exists (git_directory):
             initial_repository = pygit2.init_repository (git_directory, False)
             if initial_repository:
@@ -3968,7 +3978,7 @@ class ApiServer:
             "QUERY_STRING":        request.query_string,
 
             ## Rewrite as if the request matches the filesystem layout.
-            ## It assumes the first twelve characters are: "/v3/articles".
+            ## It assumes the first twelve characters are: "/v3/datasets".
             "PATH_TRANSLATED":     f"{self.db.storage}{request.path[12:]}",
         }
 
@@ -3993,30 +4003,35 @@ class ApiServer:
             logging.error ("The command was:\n---\n%s\n---", error.cmd)
             return self.error_500()
 
-    def api_v3_private_article_git_refs (self, request, article_id):
+    def api_v3_private_dataset_git_refs (self, request, dataset_id):
         """Implements /v3/articles/<id>.git/<suffix>."""
 
         service = validator.string_value (request.args, "service", 0, 16)
-        self.__git_create_repository (article_id)
+        self.__git_create_repository (dataset_id)
 
         ## Used for clone and pull.
         if service == "git-upload-pack":
-            return self.api_v3_private_article_git_upload_pack (request, article_id)
+            return self.api_v3_private_dataset_git_upload_pack (request, dataset_id)
 
         ## Used for push.
         if service == "git-receive-pack":
-            return self.api_v3_private_article_git_receive_pack (request, article_id)
+            return self.api_v3_private_dataset_git_receive_pack (request, dataset_id)
 
         logging.error ("Unsupported Git service command: %s", service)
         return self.error_500 ()
 
-    def api_v3_private_article_git_upload_pack (self, request, article_id):
+    def api_v3_private_dataset_git_upload_pack (self, request, dataset_id):
         """Implements /v3/articles/<id>.git/git-upload-pack."""
-        return self.__git_passthrough (request)
 
-    def api_v3_private_article_git_receive_pack (self, request, article_id):
+        dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=False)
+        if dataset is not None:
+            return self.__git_passthrough (request)
+
+        return self.error_403 (request)
+
+    def api_v3_private_dataset_git_receive_pack (self, request, dataset_id):
         """Implements /v3/articles/<id>.git/git-receive-pack."""
-        dataset = self.__dataset_by_id_or_uri (article_id, is_published=False)
+        dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=False)
         if dataset is not None:
             return self.__git_passthrough (request)
 
@@ -4153,26 +4168,26 @@ class ApiServer:
     ## EXPORTS
     ## ------------------------------------------------------------------------
 
-    def api_export_datacite_dataset (self, request, article_id, version=None):
+    def api_export_datacite_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: datacite export"}))
 
-    def api_export_datacite_collection (self, request, article_id, version=None):
+    def api_export_datacite_collection (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: datacite export"}))
 
-    def api_export_refworks_dataset (self, request, article_id, version=None):
+    def api_export_refworks_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: refworks export"}))
 
-    def api_export_bibtex_dataset (self, request, article_id, version=None):
+    def api_export_bibtex_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: bibtex export"}))
 
-    def api_export_refman_dataset (self, request, article_id, version=None):
+    def api_export_refman_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: refman export"}))
 
-    def api_export_endnote_dataset (self, request, article_id, version=None):
+    def api_export_endnote_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: endnote export"}))
 
-    def api_export_nlm_dataset (self, request, article_id, version=None):
+    def api_export_nlm_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: nlm export"}))
 
-    def api_export_dc_dataset (self, request, article_id, version=None):
+    def api_export_dc_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: dc export"}))

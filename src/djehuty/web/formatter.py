@@ -17,10 +17,10 @@ def format_account_record (record):
         "orcid_id":       conv.value_or (record, "orcid_id", ""),
     }
 
-def format_article_record (record):
-    """Record formatter for articles."""
+def format_dataset_record (record):
+    """Record formatter for datasets."""
     return {
-        "id":                      conv.value_or_none(record, "article_id"),
+        "id":                      conv.value_or_none(record, "dataset_id"),
         "uuid":                    conv.value_or_none(record, "container_uuid"),
         "title":                   conv.value_or_none(record, "title"),
         "doi":                     conv.value_or_none(record, "doi"),
@@ -73,7 +73,7 @@ def format_author_details_record (record):
       "url_name":       conv.value_or_none(record, "url_name")
     }
 
-def format_file_for_article_record (record):
+def format_file_for_dataset_record (record):
     """Record formatter for files."""
     return {
       "id":           conv.value_or_none(record, "id"),
@@ -140,71 +140,71 @@ def format_license_record (record):
         "url":           conv.value_or_none(record, "url"),
     }
 
-def format_article_details_record (article, authors, files, custom_fields,
+def format_dataset_details_record (dataset, authors, files, custom_fields,
                                    tags, categories, funding, references):
-    """Detailed record formatter for articles."""
+    """Detailed record formatter for datasets."""
     return {
-        "files":             list (map (format_file_for_article_record, files)),
+        "files":             list (map (format_file_for_dataset_record, files)),
         "custom_fields":     list (map (format_custom_field_record, custom_fields)),
         "authors":           list (map (format_author_record, authors)),
-        "figshare_url":      conv.value_or_none(article, "figshare_url"),
-        "description":       conv.value_or_none(article, "description"),
-        "funding":           conv.value_or_none(article, "funding"),
+        "figshare_url":      conv.value_or_none(dataset, "figshare_url"),
+        "description":       conv.value_or_none(dataset, "description"),
+        "funding":           conv.value_or_none(dataset, "funding"),
         "funding_list":      list (map (format_funding_record, funding)),
-        "version":           conv.value_or_none(article, "version"),
-        "status":            conv.value_or_none(article, "status"),
-        "size":              conv.value_or_none(article, "size"),
-        "created_date":      conv.value_or_none(article, "created_date"),
-        "modified_date":     conv.value_or_none(article, "modified_date"),
-        "is_public":         bool(conv.value_or_none(article, "is_public")),
-        "is_confidential":   bool(conv.value_or_none(article, "is_confidential")),
-        "is_metadata_record": bool(conv.value_or_none(article, "is_metadata_record")),
-        "confidential_reason": conv.value_or(article, "confidential_reason", ""),
-        "metadata_reason":   conv.value_or(article, "metadata_reason", ""),
+        "version":           conv.value_or_none(dataset, "version"),
+        "status":            conv.value_or_none(dataset, "status"),
+        "size":              conv.value_or_none(dataset, "size"),
+        "created_date":      conv.value_or_none(dataset, "created_date"),
+        "modified_date":     conv.value_or_none(dataset, "modified_date"),
+        "is_public":         bool(conv.value_or_none(dataset, "is_public")),
+        "is_confidential":   bool(conv.value_or_none(dataset, "is_confidential")),
+        "is_metadata_record": bool(conv.value_or_none(dataset, "is_metadata_record")),
+        "confidential_reason": conv.value_or(dataset, "confidential_reason", ""),
+        "metadata_reason":   conv.value_or(dataset, "metadata_reason", ""),
         "license": {
-            "value":         conv.value_or_none(article, "license_id"),
-            "name":          conv.value_or_none(article, "license_name"),
-            "url":           conv.value_or_none(article, "license_url"),
+            "value":         conv.value_or_none(dataset, "license_id"),
+            "name":          conv.value_or_none(dataset, "license_name"),
+            "url":           conv.value_or_none(dataset, "license_url"),
         },
         "tags":              list (map (format_tag_record, tags)),
         "categories":        list (map (format_category_record, categories)),
         "references":        list (map (format_reference_record, references)),
-        "has_linked_file":   bool(conv.value_or_none(article, "has_linked_file")),
-        "citation":          conv.value_or_none(article, "citation"),
-#        "is_active":         conv.value_or_none(article, "is_active"),
-        "is_embargoed":      bool(conv.value_or_none(article, "is_embargoed")),
-        "embargo_date":      conv.value_or_none(article, "embargo_until_date"),
-        "embargo_type":      conv.value_or(article, "embargo_type", "file"),
-        "embargo_title":     conv.value_or(article, "embargo_title", ""),
-        "embargo_reason":    conv.value_or(article, "embargo_reason", ""),
+        "has_linked_file":   bool(conv.value_or_none(dataset, "has_linked_file")),
+        "citation":          conv.value_or_none(dataset, "citation"),
+#        "is_active":         conv.value_or_none(dataset, "is_active"),
+        "is_embargoed":      bool(conv.value_or_none(dataset, "is_embargoed")),
+        "embargo_date":      conv.value_or_none(dataset, "embargo_until_date"),
+        "embargo_type":      conv.value_or(dataset, "embargo_type", "file"),
+        "embargo_title":     conv.value_or(dataset, "embargo_title", ""),
+        "embargo_reason":    conv.value_or(dataset, "embargo_reason", ""),
         "embargo_options":   [],
-        "id":                conv.value_or_none(article, "article_id"),
-        "title":             conv.value_or_none(article, "title"),
-        "doi":               conv.value_or_none(article, "doi"),
-        "handle":            conv.value_or(article, "handle", ""),
-        "url":               conv.value_or_none(article, "url"),
-        "published_date":    conv.value_or_none(article, "published_date"),
-        "thumb":             conv.value_or(article, "thumb", ""),
-        "defined_type":      conv.value_or_none(article, "defined_type"),
-        "defined_type_name": conv.value_or_none(article, "defined_type_name"),
-        "group_id":          conv.value_or_none(article, "group_id"),
-        "url_private_api":   conv.value_or_none(article, "url_private_api"),
-        "url_public_api":    conv.value_or_none(article, "url_public_api"),
-        "url_private_html":  conv.value_or_none(article, "url_private_html"),
-        "url_public_html":   conv.value_or_none(article, "url_public_html"),
+        "id":                conv.value_or_none(dataset, "dataset_id"),
+        "title":             conv.value_or_none(dataset, "title"),
+        "doi":               conv.value_or_none(dataset, "doi"),
+        "handle":            conv.value_or(dataset, "handle", ""),
+        "url":               conv.value_or_none(dataset, "url"),
+        "published_date":    conv.value_or_none(dataset, "published_date"),
+        "thumb":             conv.value_or(dataset, "thumb", ""),
+        "defined_type":      conv.value_or_none(dataset, "defined_type"),
+        "defined_type_name": conv.value_or_none(dataset, "defined_type_name"),
+        "group_id":          conv.value_or_none(dataset, "group_id"),
+        "url_private_api":   conv.value_or_none(dataset, "url_private_api"),
+        "url_public_api":    conv.value_or_none(dataset, "url_public_api"),
+        "url_private_html":  conv.value_or_none(dataset, "url_private_html"),
+        "url_public_html":   conv.value_or_none(dataset, "url_public_html"),
         "timeline": {
-            "posted":        conv.value_or_none(article, "timeline_posted"),
-            "revision":      conv.value_or_none(article, "timeline_revision"),
-            "submission":    conv.value_or_none(article, "timeline_submission"),
-            "firstOnline":   conv.value_or_none(article, "timeline_first_online"),
-            "publisherPublication": conv.value_or_none(article, "timeline_publisher_publication"),
-            "publisherAcceptance": conv.value_or_none(article, "timeline_publisher_acceptance"),
+            "posted":        conv.value_or_none(dataset, "timeline_posted"),
+            "revision":      conv.value_or_none(dataset, "timeline_revision"),
+            "submission":    conv.value_or_none(dataset, "timeline_submission"),
+            "firstOnline":   conv.value_or_none(dataset, "timeline_first_online"),
+            "publisherPublication": conv.value_or_none(dataset, "timeline_publisher_publication"),
+            "publisherAcceptance": conv.value_or_none(dataset, "timeline_publisher_acceptance"),
         },
-        "resource_title":    conv.value_or(article, "resource_title", ""),
-        "resource_doi":      conv.value_or(article, "resource_doi", ""),
+        "resource_title":    conv.value_or(dataset, "resource_title", ""),
+        "resource_doi":      conv.value_or(dataset, "resource_doi", ""),
     }
 
-def format_article_embargo_option_record (record):
+def format_dataset_embargo_option_record (record):
     """Record formatter for embargo options."""
     return {
         "id":                conv.value_or_none (record, "id"),
@@ -212,28 +212,28 @@ def format_article_embargo_option_record (record):
         "ip_name":           conv.value_or_none (record, "ip_name")
     }
 
-def format_article_embargo_record (article):
+def format_dataset_embargo_record (dataset):
     """Record formatter for embargos."""
     return {
-        "is_embargoed":      bool(conv.value_or_none(article, "is_embargoed")),
-        "embargo_date":      conv.value_or_none(article, "embargo_until"),
-        "embargo_type":      conv.value_or(article, "embargo_type", "file"),
-        "embargo_title":     conv.value_or(article, "embargo_title", ""),
-        "embargo_reason":    conv.value_or(article, "embargo_reason", ""),
+        "is_embargoed":      bool(conv.value_or_none(dataset, "is_embargoed")),
+        "embargo_date":      conv.value_or_none(dataset, "embargo_until"),
+        "embargo_type":      conv.value_or(dataset, "embargo_type", "file"),
+        "embargo_title":     conv.value_or(dataset, "embargo_title", ""),
+        "embargo_reason":    conv.value_or(dataset, "embargo_reason", ""),
 
         # Embargo options are irrelevant outside of Figshare.
         "embargo_options":   [],
     }
 
-def format_article_confidentiality_record (article):
+def format_dataset_confidentiality_record (dataset):
     """Record formatter for confidentiality."""
     return {
-        "is_confidential":   bool(conv.value_or_none(article, "is_confidential")),
-        "reason": conv.value_or(article, "confidential_reason", ""),
+        "is_confidential":   bool(conv.value_or_none(dataset, "is_confidential")),
+        "reason": conv.value_or(dataset, "confidential_reason", ""),
     }
 
-def format_article_version_record (record):
-    """Record formatter for article versions."""
+def format_dataset_version_record (record):
+    """Record formatter for dataset versions."""
     return {
         "version":           conv.value_or_none(record, "version"),
         "url":               conv.value_or_none(record, "url")
@@ -261,7 +261,7 @@ def format_collection_record (record):
 
 def format_collection_details_record (collection, funding, categories,
                                       references, tags, authors, custom_fields,
-                                      articles_count):
+                                      datasets_count):
     """Detailed record formatter for collections."""
     return {
         "version":           conv.value_or_none(collection, "version"),
@@ -279,7 +279,7 @@ def format_collection_details_record (collection, funding, categories,
         "institution_id":    conv.value_or_none(collection, "institution_id"),
         "group_id":          conv.value_or_none(collection, "group_id"),
         "group_resource_id": conv.value_or_none(collection, "group_resource_id"),
-        "articles_count":    0 if articles_count is None else articles_count,
+        "articles_count":    0 if datasets_count is None else datasets_count,
         "public":            bool(conv.value_or_none(collection, "is_public")),
         "custom_fields":     list (map (format_custom_field_record, custom_fields)),
         "citation":          conv.value_or_none(collection, "citation"),

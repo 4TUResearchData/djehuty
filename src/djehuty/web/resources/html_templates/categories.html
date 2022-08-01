@@ -123,12 +123,12 @@ var categories = "{% for item in subcategories: %}{{item.id}}{{ ',' if not loop.
 <h2>All datasets</h2>
 {% for item in articles %}
 <div class="tile-item">
-  <a href="/datasets/{{item.article_id}}">{% if item.thumb | length: %}
-  <img class="tile-preview" src="{{item.thumb}}" aria-hidden="true" alt="thumbnail for {{item.article_id}}" />
+  <a href="/datasets/{{item.container_uuid}}">{% if item.thumb | length: %}
+  <img class="tile-preview" src="{{item.thumb}}" aria-hidden="true" alt="thumbnail for {{item.container_uuid}}" />
   {% else: %}
-  <img class="tile-preview" src="/static/images/dataset-thumb.svg" aria-hidden="true" alt="thumbnail for {{item.article_id}}" />
+  <img class="tile-preview" src="/static/images/dataset-thumb.svg" aria-hidden="true" alt="thumbnail for {{item.container_uuid}}" />
   {% endif %}</a>
-  <div class="tile-title"><a href="/datasets/{{item.article_id}}">{{item.title}}</a></div>
+  <div class="tile-title"><a href="/datasets/{{item.container_uuid}}">{{item.title}}</a></div>
   <div class="tile-date">Posted on {{item.timeline_posted}}</div>
   <div class="tile-authors">
   </div>

@@ -43,9 +43,9 @@
 <div id="data">
     <h3>DATASETS</h3>
     <ul>
-{% for article in articles %}
+{% for dataset in datasets %}
         <li>
-            [{{article.type}}] <a href="/datasets/{{article.article_id}}" title="first online {{article.date[:10]}}">{{article.title}}</a>
+            [{{dataset.type}}] <a href="/datasets/{{dataset.container_uuid}}" title="first online {{dataset.date[:10]}}">{{dataset.title}}</a>
         </li>
 {% endfor %}
     </ul>
@@ -53,7 +53,7 @@
 {%- if not in_production: %}
 {% set debug_vars = {"item":item, "version":version, "versions":versions, "authors":authors, "contributors":contributors,
                      "tags":tags, "categories":categories, "fundings":fundings, "references": references,
-                     "dates":dates, "coordinates":coordinates, "statistics":statistics, "articles":articles} %}
+                     "dates":dates, "coordinates":coordinates, "statistics":statistics, "datasets":datasets} %}
 {% set djehuty_API   = "/v2/collections/"~pid %}
 {% set figshare_html = "https://data.4tu.nl/collections/_/"~pid %}
 {% set figshare_API = "https://api.figshare.com/v2/collections/"~pid %}
