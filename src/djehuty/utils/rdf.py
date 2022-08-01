@@ -12,6 +12,9 @@ DJHT  = Namespace("https://ontologies.data.4tu.nl/djehuty/0.0.1/")
 def add (graph, subject, predicate, value, datatype=None):
     """Adds the triplet SUBJECT PREDICATE VALUE if VALUE is set."""
     if value is not None:
+        if isinstance (value, str) and value == "" and datatype == XSD.integer:
+            return None
+
         if datatype in ("url", "uri"):
             graph.add ((subject, predicate, URIRef(value)))
         else:
