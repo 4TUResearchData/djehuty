@@ -56,17 +56,17 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/account_sessions.sparql            \
     djehuty/web/resources/sparql_templates/accounts.sparql                    \
     djehuty/web/resources/sparql_templates/account_storage_used.sparql        \
-    djehuty/web/resources/sparql_templates/article_container.sparql           \
-    djehuty/web/resources/sparql_templates/article_files.sparql               \
-    djehuty/web/resources/sparql_templates/article_statistics.sparql          \
-    djehuty/web/resources/sparql_templates/article_statistics_timeline.sparql \
+    djehuty/web/resources/sparql_templates/dataset_container.sparql           \
+    djehuty/web/resources/sparql_templates/dataset_files.sparql               \
+    djehuty/web/resources/sparql_templates/dataset_statistics.sparql          \
+    djehuty/web/resources/sparql_templates/dataset_statistics_timeline.sparql \
     djehuty/web/resources/sparql_templates/authors.sparql                     \
     djehuty/web/resources/sparql_templates/categories.sparql                  \
     djehuty/web/resources/sparql_templates/category_by_id.sparql              \
-    djehuty/web/resources/sparql_templates/collection_articles_count.sparql   \
-    djehuty/web/resources/sparql_templates/collection_articles.sparql         \
+    djehuty/web/resources/sparql_templates/collection_datasets_count.sparql   \
+    djehuty/web/resources/sparql_templates/collection_datasets.sparql         \
     djehuty/web/resources/sparql_templates/collection_container.sparql        \
-    djehuty/web/resources/sparql_templates/collections_from_article.sparql    \
+    djehuty/web/resources/sparql_templates/collections_from_dataset.sparql    \
     djehuty/web/resources/sparql_templates/collections.sparql                 \
     djehuty/web/resources/sparql_templates/collection_versions.sparql         \
     djehuty/web/resources/sparql_templates/container_items.sparql             \
@@ -75,7 +75,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/dataset_storage_used.sparql        \
     djehuty/web/resources/sparql_templates/dataset_versions.sparql            \
     djehuty/web/resources/sparql_templates/delete_account_list.sparql         \
-    djehuty/web/resources/sparql_templates/delete_article_embargo.sparql      \
+    djehuty/web/resources/sparql_templates/delete_dataset_embargo.sparql      \
     djehuty/web/resources/sparql_templates/delete_associations.sparql         \
     djehuty/web/resources/sparql_templates/delete_collection_draft.sparql     \
     djehuty/web/resources/sparql_templates/delete_dataset_draft.sparql        \
@@ -91,7 +91,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/funding.sparql                     \
     djehuty/web/resources/sparql_templates/group_by_name.sparql               \
     djehuty/web/resources/sparql_templates/group.sparql                       \
-    djehuty/web/resources/sparql_templates/latest_articles_portal.sparql      \
+    djehuty/web/resources/sparql_templates/latest_datasets_portal.sparql      \
     djehuty/web/resources/sparql_templates/licenses.sparql                    \
     djehuty/web/resources/sparql_templates/opendap_to_doi.sparql              \
     djehuty/web/resources/sparql_templates/prefixes.sparql                    \
@@ -100,7 +100,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/references.sparql                  \
     djehuty/web/resources/sparql_templates/reviews.sparql                     \
     djehuty/web/resources/sparql_templates/root_categories.sparql             \
-    djehuty/web/resources/sparql_templates/single_article_statistics_totals.sparql \
+    djehuty/web/resources/sparql_templates/single_dataset_statistics_totals.sparql \
     djehuty/web/resources/sparql_templates/statistics_authors.sparql          \
     djehuty/web/resources/sparql_templates/statistics_collections.sparql      \
     djehuty/web/resources/sparql_templates/statistics_datasets.sparql         \
@@ -109,8 +109,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/subcategories_by_category.sparql   \
     djehuty/web/resources/sparql_templates/tags.sparql                        \
     djehuty/web/resources/sparql_templates/update_account.sparql              \
-    djehuty/web/resources/sparql_templates/update_article.sparql              \
-    djehuty/web/resources/sparql_templates/update_article_thumb.sparql        \
+    djehuty/web/resources/sparql_templates/update_dataset.sparql              \
+    djehuty/web/resources/sparql_templates/update_dataset_thumb.sparql        \
     djehuty/web/resources/sparql_templates/update_collection.sparql           \
     djehuty/web/resources/sparql_templates/update_file.sparql                 \
     djehuty/web/resources/sparql_templates/update_private_link.sparql         \

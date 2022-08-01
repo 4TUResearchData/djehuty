@@ -335,7 +335,7 @@ class SparqlInterface:
             filters += f"FILTER ((?group_id) IN ({','.join(map(str, group_ids))}))\n"
 
 
-        query   = self.__query_from_template ("article_statistics", {
+        query   = self.__query_from_template ("dataset_statistics", {
             "category_ids":  category_ids,
             "item_type":     item_type,
             "prefix":        prefix,
@@ -368,7 +368,7 @@ class SparqlInterface:
                 filters += f" OR ?category_id={category_id}"
             filters += ")\n"
 
-        query   = self.__query_from_template ("article_statistics_timeline", {
+        query   = self.__query_from_template ("dataset_statistics_timeline", {
             "category_ids":  category_ids,
             "item_type":     item_type,
             "item_class":    item_class,
@@ -382,8 +382,8 @@ class SparqlInterface:
     def single_article_statistics_totals (self, article_id): #obsolete? (see article_container)
         """Procedure to get shallow statistics of an article."""
 
-        query   = self.__query_from_template ("single_article_statistics_totals", {
             "article_id":   article_id
+        query   = self.__query_from_template ("single_dataset_statistics_totals", {
         })
 
         return self.__run_query (query, query, "statistics")
@@ -391,8 +391,8 @@ class SparqlInterface:
     def article_container (self, article_id):
         """Procedure to get article container properties (incl shallow statistics)."""
 
-        query   = self.__query_from_template ("article_container", {
             "article_id":   article_id
+        query   = self.__query_from_template ("dataset_container", {
         })
 
         return self.__run_query (query, query, "article_container")
@@ -467,8 +467,8 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("upload_url",    upload_url,    escape=True)
         filters += rdf.sparql_filter ("upload_token",  upload_token,  escape=True)
 
-        query = self.__query_from_template ("article_files", {
             "article_uri":         article_uri,
+        query = self.__query_from_template ("dataset_files", {
             "account_id":          account_id,
             "file_uuid":           file_uuid,
             "filters":             filters
@@ -584,7 +584,7 @@ class SparqlInterface:
     def latest_articles_portal (self, page_size=30):
         """Procedure to get the latest articles."""
 
-        query = self.__query_from_template ("latest_articles_portal", {
+        query = self.__query_from_template ("latest_datasets_portal", {
             "page_size":   page_size
         })
 
@@ -593,8 +593,8 @@ class SparqlInterface:
     def collections_from_article (self, article_id):
         """Procedure to get the collections an article is part of."""
 
-        query = self.__query_from_template ("collections_from_article", {
             "article_id":  article_id
+        query = self.__query_from_template ("collections_from_dataset", {
         })
 
         return self.__run_query(query)
@@ -602,7 +602,7 @@ class SparqlInterface:
     def collection_articles (self, collection_uri, limit=None, offset=0):
         """Procedure to get the published articles of a collection."""
 
-        query = self.__query_from_template ("collection_articles", {
+        query = self.__query_from_template ("collection_datasets", {
             "collection":  collection_uri
         })
         #ordering is done in the query template as it depends on 2 parameters
@@ -640,7 +640,7 @@ class SparqlInterface:
         if collection_uri is None:
             return 0
 
-        query = self.__query_from_template ("collection_articles_count", {
+        query = self.__query_from_template ("collection_datasets_count", {
             "collection_uri":  collection_uri
         })
         results = self.__run_query (query)
@@ -1336,7 +1336,7 @@ class SparqlInterface:
                         embargo_allow_access_requests=None, is_embargoed=False):
         """Procedure to overwrite parts of an article."""
 
-        query   = self.__query_from_template ("update_article", {
+        query   = self.__query_from_template ("update_dataset", {
             "account_id":      account_id,
             "container_uri":   rdf.uuid_to_uri (container_uuid, "container"),
             "contributors":    rdf.escape_string_value (contributors),
@@ -1386,7 +1386,7 @@ class SparqlInterface:
     def delete_article_embargo (self, article_uri, account_id):
         """Procedure to lift the embargo on an article."""
 
-        query   = self.__query_from_template ("delete_article_embargo", {
+        query   = self.__query_from_template ("delete_dataset_embargo", {
             "account_id":  account_id,
             "article_uri":  article_uri
         })
@@ -1427,7 +1427,7 @@ class SparqlInterface:
         """Procedure to update the thumbnail of an article."""
 
         filters = rdf.sparql_filter ("file_id", file_id)
-        query   = self.__query_from_template ("update_article_thumb", {
+        query   = self.__query_from_template ("update_dataset_thumb", {
             "account_id":  account_id,
             "article_id":  article_id,
             "version":     version,
