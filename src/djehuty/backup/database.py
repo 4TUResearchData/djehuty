@@ -536,7 +536,7 @@ class DatabaseInterface:
 
             self.handle_custom_fields (record, uri, collection_id, version, 'collections')
 
-            datasets = value_or (record, "articles", [])
+            datasets = value_or (record, "datasets", [])
             if datasets:
                 for index, dataset_id in enumerate (datasets):
                     dataset_uri = self.record_uri ("DatasetContainer", "dataset_id", dataset_id)
