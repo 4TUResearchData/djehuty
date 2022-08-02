@@ -1491,11 +1491,19 @@ class ApiServer:
     def api_collection_ui (self, request, collection_id, version=None):
         #This function is copied from api_dataset_ui and slightly adapted as a start. It will not yet work properly.
         if self.accepts_html (request):
-            container     = self.db.collection_container(collection_id=collection_id)[0]
-            versions      = self.db.collection_versions(collection_id=collection_id)
+            container     = self.__collection_by_id_or_uri (
+                collection_id,
+                is_published = True,
+                is_latest    = not bool(version),
+                version      = version)
+
+            if container is None:
+                return self.error_404 (request)
+
+            versions      = self.db.collection_versions(collection_id=container["collection_id"])
             versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
             current_version = version if version else versions[0]['version']
-            collection    = self.db.collections (collection_id = collection_id,
+            collection    = self.db.collections (collection_id = container["collection_id"],
                                                  version       = current_version,
                                                  is_published  = True)[0]
             collection_uri = collection['uri']
@@ -1512,7 +1520,7 @@ class ApiServer:
             member = value_or(group_to_member, collection["group_id"], 'other')
             member_url_name = member_url_names[member]
             tags = set([t['tag'] for t in tags])
-            collection['timeline_first_online'] = container['first_online_date']
+            collection['timeline_first_online'] = container['timeline_first_online']
             date_types = ( ('submitted'   , 'timeline_submission'),
                            ('first online', 'timeline_first_online'),
                            ('published'   , 'published_date'),
