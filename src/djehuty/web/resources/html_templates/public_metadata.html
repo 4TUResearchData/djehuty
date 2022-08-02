@@ -3,7 +3,7 @@
 
 <div id="metadata">
     <div id="doi">persistent link: <a href="https://doi.org/{{doi}}" target="_blank" title="opens in new window">doi.org/{{doi}}</a></div>
-{% if item_type == "article" %}
+{% if item_type == "dataset" %}
     <div id="type">{{ item.defined_type_name|capitalize }}</div>
 {% else %}
     <div id="type">Collection</div>
@@ -23,7 +23,7 @@
     {% for ver in versions %}
         {% set v = ver.version %}
         {% if v != thisversion %}
-        <a href="/{{item_type}}s/{{pid}}/{{v}}">{{v}}{% if v==latest %} (latest){% endif %}</a>
+        <a href="/{{item_type}}s/{{uuid}}/{{v}}">{{v}}{% if v==latest %} (latest){% endif %}</a>
         {% endif %}
     {% endfor %}
     </div>
