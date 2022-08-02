@@ -21,6 +21,8 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
                 ?data_link ?derived_from ?same_as ?contributors
                 ?license_remarks ?container_uri ?dataset AS ?uri ?uuid
                 ?is_under_review ?review AS ?review_uri ?review_submit_date
+                ?totals_created_at ?total_downloads ?total_views ?total_shares
+                ?total_cites
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -65,6 +67,12 @@ WHERE {
     {%- endif %}
 
     OPTIONAL { ?container_uri djht:first_online_date    ?timeline_first_online . }
+    OPTIONAL { ?container_uri djht:totals_created_at    ?totals_created_at . }
+    OPTIONAL { ?container_uri djht:total_downloads      ?total_downloads .   }
+    OPTIONAL { ?container_uri djht:total_views          ?total_views .       }
+    OPTIONAL { ?container_uri djht:total_shares         ?total_shares .      }
+    OPTIONAL { ?container_uri djht:total_cites          ?total_cites .       }
+
     OPTIONAL { ?dataset djht:publisher_acceptance_date ?timeline_publisher_acceptance . }
     OPTIONAL { ?dataset djht:publisher_publication_date ?timeline_publisher_publication . }
     OPTIONAL { ?dataset djht:submission_date      ?timeline_submission . }
