@@ -1,21 +1,21 @@
 function render_in_form (text) { return [text].join(''); }
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 
-function delete_article (article_uuid, event) {
+function delete_dataset (dataset_uuid, event) {
     event.preventDefault();
     event.stopPropagation();
-    if (confirm("Deleting this draft article is unrecoverable. "+
+    if (confirm("Deleting this draft dataset is unrecoverable. "+
                 "Do you want to continue?"))
     {
         var jqxhr = jQuery.ajax({
-            url:         `/v2/account/articles/${article_uuid}`,
+            url:         `/v2/account/articles/${dataset_uuid}`,
             type:        "DELETE",
         }).done(function () { window.location.pathname = '/my/datasets' })
           .fail(function () { console.log("Failed to retrieve licenses."); });
     }
 }
 
-function save_article (article_uuid, event, notify=true) {
+function save_dataset (dataset_uuid, event, notify=true) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -76,7 +76,7 @@ function save_article (article_uuid, event, notify=true) {
     }
 
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_uuid}`,
+        url:         `/v2/account/articles/${dataset_uuid}`,
         type:        "PUT",
         contentType: "application/json",
         accept:      "application/json",
@@ -97,9 +97,9 @@ function save_article (article_uuid, event, notify=true) {
       .fail(function () { console.log("Failed to save form."); });
 }
 
-function render_licenses (article) {
+function render_licenses (dataset) {
     chosen_license = null;
-    try { chosen_license = article.license.value; }
+    try { chosen_license = dataset.license.value; }
     catch (TypeError) {}
 
     var jqxhr = jQuery.ajax({
@@ -118,9 +118,9 @@ function render_licenses (article) {
     });
 }
 
-function render_categories_for_article (article_uuid) {
+function render_categories_for_dataset (dataset_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_uuid}/categories`,
+        url:         `/v2/account/articles/${dataset_uuid}/categories`,
         data:        { "limit": 10000 },
         type:        "GET",
         accept:      "application/json",
@@ -135,9 +135,9 @@ function render_categories_for_article (article_uuid) {
     });
 }
 
-function render_references_for_article (article_uuid) {
+function render_references_for_dataset (dataset_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v3/datasets/${article_uuid}/references`,
+        url:         `/v3/datasets/${dataset_uuid}/references`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
@@ -147,7 +147,7 @@ function render_references_for_article (article_uuid) {
             row = `<tr><td><a target="_blank" href="${encodeURIComponent(url)}">`;
             row += `${url}</a></td><td><a href="#" `;
             row += `onclick="javascript:remove_reference('${encodeURIComponent(url)}', `;
-            row += `'${article_uuid}'); return false;" class="fas fa-trash-can" `;
+            row += `'${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
             jQuery("#references-list tbody").append(row);
         }
@@ -157,9 +157,9 @@ function render_references_for_article (article_uuid) {
     });
 }
 
-function render_authors_for_article (article_uuid) {
+function render_authors_for_dataset (dataset_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_uuid}/authors`,
+        url:         `/v2/account/articles/${dataset_uuid}/authors`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
@@ -172,7 +172,7 @@ function render_authors_for_article (article_uuid) {
             }
             row += `</a></td><td><a href="#" `;
             row += `onclick="javascript:remove_author('${author.uuid}', `;
-            row += `'${article_uuid}'); return false;" class="fas fa-trash-can" `;
+            row += `'${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
             jQuery("#authors-list tbody").append(row);
         }
@@ -182,13 +182,13 @@ function render_authors_for_article (article_uuid) {
     });
 }
 
-function render_git_files_for_article (article_uuid, event) {
+function render_git_files_for_dataset (dataset_uuid, event) {
     if (event !== null) {
         event.preventDefault();
         event.stopPropagation();
     }
     var jqxhr = jQuery.ajax({
-        url:         `/v3/datasets/${article_uuid}.git/files`,
+        url:         `/v3/datasets/${dataset_uuid}.git/files`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
@@ -201,9 +201,9 @@ function render_git_files_for_article (article_uuid, event) {
         console.log("Failed to retrieve Git file details.");
     });
 }
-function render_files_for_article (article_uuid) {
+function render_files_for_dataset (dataset_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_uuid}/files`,
+        url:         `/v2/account/articles/${dataset_uuid}/files`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
@@ -220,7 +220,7 @@ function render_files_for_article (article_uuid) {
                 html = `<tr><td><a href="${file.download_url}">${file.name}</a> (${prettify_size(file.size)})</td>`;
                 html += `<td>${render_in_form(file["computed_md5"])}</td>`;
                 html += `<td><a href="#" onclick="javascript:remove_file('${file.uuid}',`;
-                html += ` '${article_uuid}'); return false;" class="fas fa-trash-can" `;
+                html += ` '${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
                 html += `title="Remove"></a></td></tr>`;
                 jQuery("#files tbody").append(html);
             }
@@ -235,28 +235,28 @@ function render_files_for_article (article_uuid) {
     });
 }
 
-function add_author (author_uuid, article_uuid) {
+function add_author (author_uuid, dataset_uuid) {
     jQuery.ajax({
-        url:         `/v2/account/articles/${article_uuid}/authors`,
+        url:         `/v2/account/articles/${dataset_uuid}/authors`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
         data:        JSON.stringify({ "authors": [{ "uuid": author_uuid }] }),
     }).done(function () {
-        render_authors_for_article (article_uuid);
+        render_authors_for_dataset (dataset_uuid);
         jQuery("#authors").val("");
-        autocomplete_author(null, article_uuid);
+        autocomplete_author(null, dataset_uuid);
     }).fail(function () { console.log (`Failed to add ${author_uuid}`); });
 }
 
-function submit_external_link (article_uuid) {
+function submit_external_link (dataset_uuid) {
     var url = jQuery("#external_url").val();
     if (url == "") {
         jQuery("#external_url").css("background", "#cc0000");
         return false;
     }
     jQuery.ajax({
-        url:         `/v2/account/articles/${article_uuid}/files`,
+        url:         `/v2/account/articles/${dataset_uuid}/files`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
@@ -264,34 +264,34 @@ function submit_external_link (article_uuid) {
     }).done(function () {
         jQuery("#external_url").val("");
         jQuery("#external_link_field").hide();
-        render_files_for_article (article_uuid);
+        render_files_for_dataset (dataset_uuid);
     }).fail(function () { console.log (`Failed to add ${url}`); });
 }
 
-function add_reference (article_uuid) {
+function add_reference (dataset_uuid) {
     url = jQuery.trim(jQuery("#references").val());
     if (url != "") {
         jQuery.ajax({
-            url:         `/v3/datasets/${article_uuid}/references`,
+            url:         `/v3/datasets/${dataset_uuid}/references`,
             type:        "POST",
             contentType: "application/json",
             accept:      "application/json",
             data:        JSON.stringify({ "references": [{ "url": url }] }),
         }).done(function () {
-            render_references_for_article (article_uuid);
+            render_references_for_dataset (dataset_uuid);
             jQuery("#references").val("");
         }).fail(function () { console.log (`Failed to add ${url}`); });
     }
 }
 
-function submit_new_author (article_uuid) {
+function submit_new_author (dataset_uuid) {
     first_name = jQuery("#author_first_name").val();
     last_name  = jQuery("#author_last_name").val();
     email      = jQuery("#author_email").val();
     orcid      = jQuery("#author_orcid").val();
 
     jQuery.ajax({
-        url:         `/v2/account/articles/${article_uuid}/authors`,
+        url:         `/v2/account/articles/${dataset_uuid}/authors`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
@@ -307,11 +307,11 @@ function submit_new_author (article_uuid) {
     }).done(function () {
         jQuery("#authors-ac").remove();
         jQuery("#authors").removeClass("input-for-ac");
-        render_authors_for_article (article_uuid);
+        render_authors_for_dataset (dataset_uuid);
     }).fail(function () { console.log (`Failed to add author.`); });
 }
 
-function new_author (article_uuid) {
+function new_author (dataset_uuid) {
     var html = `<div id="new-author-form">`;
     html += `<label for="author_first_name">First name</label>`;
     html += `<input type="text" id="author_first_name" name="author_first_name">`;
@@ -322,7 +322,7 @@ function new_author (article_uuid) {
     html += `<label for="author_first_name">ORCID</label>`;
     html += `<input type="text" id="author_orcid" name="author_orcid">`;
     html += `<div id="new-author" class="a-button">`;
-    html += `<a href="#" onclick="javascript:submit_new_author('${article_uuid}'); `;
+    html += `<a href="#" onclick="javascript:submit_new_author('${dataset_uuid}'); `;
     html += `return false;">Add author</a></div>`;
     html += `</div>`;
     jQuery("#authors-ac ul").remove();
@@ -330,7 +330,7 @@ function new_author (article_uuid) {
     jQuery("#authors-ac").append(html);
 }
 
-function autocomplete_author (event, article_uuid) {
+function autocomplete_author (event, dataset_uuid) {
     current_text = jQuery.trim(jQuery("#authors").val());
     if (current_text == "") {
         jQuery("#authors-ac").remove();
@@ -349,7 +349,7 @@ function autocomplete_author (event, article_uuid) {
             for (item of data) {
                 html += `<li><a href="#" `;
                 html += `onclick="javascript:add_author('${item["uuid"]}', `;
-                html += `'${article_uuid}'); return false;">${item["full_name"]}`;
+                html += `'${dataset_uuid}'); return false;">${item["full_name"]}`;
                 if (item["orcid_id"] != null && item["orcid_id"] != "") {
                     html += ` (${item["orcid_id"]})`;
                 }
@@ -358,7 +358,7 @@ function autocomplete_author (event, article_uuid) {
             html += "</ul>";
 
             html += `<div id="new-author" class="a-button"><a href="#" `
-            html += `onclick="javascript:new_author('${article_uuid}'); `
+            html += `onclick="javascript:new_author('${dataset_uuid}'); `
             html += `return false;">Create new author record</a></div>`;
             jQuery("#authors")
                 .addClass("input-for-ac")
@@ -367,7 +367,7 @@ function autocomplete_author (event, article_uuid) {
     }
 }
 
-function toggle_record_type (article_uuid) {
+function toggle_record_type (dataset_uuid) {
     if (jQuery("#metadata_record_only").prop("checked")) {
         jQuery(".record-type-field").hide();
         jQuery("#metadata_reason_field").show();
@@ -387,39 +387,39 @@ function toggle_record_type (article_uuid) {
     }
 }
 
-function activate (article_uuid) {
+function activate (dataset_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_uuid}`,
+        url:         `/v2/account/articles/${dataset_uuid}`,
         type:        "GET",
         accept:      "application/json",
     }).done(function (data) {
-        render_authors_for_article (article_uuid);
-        render_references_for_article (article_uuid);
-        render_categories_for_article (article_uuid);
+        render_authors_for_dataset (dataset_uuid);
+        render_references_for_dataset (dataset_uuid);
+        render_categories_for_dataset (dataset_uuid);
         render_licenses (data);
         jQuery("#authors").on("input", function (event) {
-            return autocomplete_author (event, article_uuid);
+            return autocomplete_author (event, dataset_uuid);
         });
         jQuery("#references").on("keypress", function(e){
             if(e.which == 13){
-                add_reference(article_uuid);
+                add_reference(dataset_uuid);
             }
         });
-        render_files_for_article (article_uuid);
+        render_files_for_dataset (dataset_uuid);
         if (data["defined_type_name"] != null) {
             jQuery(`#type-${data["defined_type_name"]}`).prop("checked", true);
         }
         if (data["group_id"] != null) {
             jQuery(`#group_${data["group_id"]}`).prop("checked", true);
         }
-        jQuery(`#article_${article_uuid}`).removeClass("loader");
-        jQuery(`#article_${article_uuid}`).show();
+        jQuery(`#article_${dataset_uuid}`).removeClass("loader");
+        jQuery(`#article_${dataset_uuid}`).show();
         var quill1 = new Quill('#embargo_reason', { theme: '4tu' });
         var quill2 = new Quill('#description', { theme: '4tu' });
-        activate_drag_and_drop (article_uuid);
+        activate_drag_and_drop (dataset_uuid);
 
         jQuery("input[name='record_type']").change(function () {
-            toggle_record_type (article_uuid);
+            toggle_record_type (dataset_uuid);
         });
 
         if (data["is_metadata_record"]) {
@@ -428,23 +428,23 @@ function activate (article_uuid) {
             jQuery("#external_link").prop("checked", true);
         } else if (data["defined_type_name"] == "software") {
             jQuery("#upload_software").prop("checked", true);
-            render_git_files_for_article (article_uuid, null);
+            render_git_files_for_dataset (dataset_uuid, null);
         } else {
             jQuery("#upload_files").prop("checked", true);
         }
 
-        toggle_record_type (article_uuid);
+        toggle_record_type (dataset_uuid);
 
-        jQuery("#delete").on("click", function (event) { delete_article (article_uuid, event); });
-        jQuery("#save").on("click", function (event)   { save_article (article_uuid, event); });
-        jQuery("#submit").on("click", function (event) { submit_article (article_uuid, event); });
+        jQuery("#delete").on("click", function (event) { delete_dataset (dataset_uuid, event); });
+        jQuery("#save").on("click", function (event)   { save_dataset (dataset_uuid, event); });
+        jQuery("#submit").on("click", function (event) { submit_dataset (dataset_uuid, event); });
         jQuery("#refresh-git-files").on("click", function (event) {
-            render_git_files_for_article (article_uuid, event);
+            render_git_files_for_dataset (dataset_uuid, event);
         });
         jQuery("#configure_embargo").on("click", toggle_embargo_options);
         jQuery("#embargo_until_forever").on("change", toggle_embargo_until);
         jQuery("#cancel_embargo").on("click", toggle_embargo_options);
-    }).fail(function () { console.log(`Failed to retrieve article ${article_uuid}.`); });
+    }).fail(function () { console.log(`Failed to retrieve article ${dataset_uuid}.`); });
 }
 
 function toggle_embargo_options (event) {
@@ -468,7 +468,7 @@ function toggle_embargo_until (event) {
               jQuery("#embargo_until_forever").prop("checked"));
 }
 
-function perform_upload (files, current_file, article_uuid) {
+function perform_upload (files, current_file, dataset_uuid) {
     total_files = files.length;
     var index = current_file - 1;
     var data  = new FormData();
@@ -488,49 +488,49 @@ function perform_upload (files, current_file, article_uuid) {
             }, false);
             return xhr;
         },
-        url:         `/v3/datasets/${article_uuid}/upload`,
+        url:         `/v3/datasets/${dataset_uuid}/upload`,
         type:        "POST",
         data:        data,
         processData: false,
         contentType: false,
         success: function (data, textStatus, request) {
             jQuery("#file-upload h4").text("Drag files here");
-            render_files_for_article (article_uuid);
+            render_files_for_dataset (dataset_uuid);
             if (current_file < total_files) {
-                return perform_upload (files, current_file + 1, total_files, article_uuid);
+                return perform_upload (files, current_file + 1, total_files, dataset_uuid);
             }
         }
     });
 }
 
-function remove_file (file_id, article_uuid) {
+function remove_file (file_id, dataset_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_uuid}/files/${file_id}`,
+        url:         `/v2/account/articles/${dataset_uuid}/files/${file_id}`,
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (files) {
-        render_files_for_article (article_uuid);
+        render_files_for_dataset (dataset_uuid);
         if (jQuery("#external_link").prop("checked")) {
             jQuery("#external_link_field").show();
         }
     }).fail(function () { console.log (`Failed to remove ${file_id}`); });
 }
 
-function remove_author (author_id, article_uuid) {
+function remove_author (author_id, dataset_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/articles/${article_uuid}/authors/${author_id}`,
+        url:         `/v2/account/articles/${dataset_uuid}/authors/${author_id}`,
         type:        "DELETE",
         accept:      "application/json",
-    }).done(function (authors) { render_authors_for_article (article_uuid); })
+    }).done(function (authors) { render_authors_for_dataset (dataset_uuid); })
       .fail(function () { console.log (`Failed to remove ${author_id}`); });
 }
 
-function remove_reference (url, article_uuid) {
+function remove_reference (url, dataset_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v3/datasets/${article_uuid}/references?url=${url}`,
+        url:         `/v3/datasets/${dataset_uuid}/references?url=${url}`,
         type:        "DELETE",
         accept:      "application/json",
-    }).done(function (authors) { render_references_for_article (article_uuid); })
+    }).done(function (authors) { render_references_for_dataset (dataset_uuid); })
       .fail(function () { console.log (`Failed to remove ${url}`); });
 }
 
@@ -541,14 +541,14 @@ function prettify_size (size) {
     return Math.round(size / Math.pow(1000, i), 2) + ' ' + sizes[i];
 }
 
-function submit_article (article_uuid, event) {
+function submit_dataset (dataset_uuid, event) {
     event.preventDefault();
     event.stopPropagation();
 
-    save_article (article_uuid, event, notify=false);
+    save_dataset (dataset_uuid, event, notify=false);
 
     var jqxhr = jQuery.ajax({
-        url:         `/v3/datasets/${article_uuid}/submit-for-review`,
+        url:         `/v3/datasets/${dataset_uuid}/submit-for-review`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
@@ -568,7 +568,7 @@ function submit_article (article_uuid, event) {
     });
 }
 
-function activate_drag_and_drop (article_uuid) {
+function activate_drag_and_drop (dataset_uuid) {
     // Drag and drop handling for the entire window.
     jQuery("html").on("dragover", function (event) {
         event.preventDefault();
@@ -603,7 +603,7 @@ function activate_drag_and_drop (article_uuid) {
         jQuery("#file-upload h4").text("Uploading ...");
 
         var files = event.originalEvent.dataTransfer.files;
-        perform_upload (files, 1, article_uuid);
+        perform_upload (files, 1, dataset_uuid);
     });
 
     // Open file selector on div click
@@ -614,6 +614,6 @@ function activate_drag_and_drop (article_uuid) {
     // file selected
     jQuery("#file").change(function () {
         var files = jQuery('#file')[0].files;
-        perform_upload (files, 1, article_uuid);
+        perform_upload (files, 1, dataset_uuid);
     });
 }

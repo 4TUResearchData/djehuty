@@ -1,7 +1,7 @@
 function render_in_form (text) { return [text].join(''); }
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 
-function render_categories_for_collection (article_uuid, categories) {
+function render_categories_for_collection (dataset_uuid, categories) {
     for (category of categories) {
         jQuery(`#category_${category["uuid"]}`).prop("checked", true);
         jQuery(`#category_${category["parent_uuid"]}`).prop("checked", true);
@@ -9,28 +9,28 @@ function render_categories_for_collection (article_uuid, categories) {
     }
 }
 
-function render_articles_for_collection (collection_id) {
+function render_datasets_for_collection (collection_id) {
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/articles`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
-    }).done(function (articles) {
+    }).done(function (datasets) {
         jQuery("#articles-list tbody").empty();
-        for (article of articles) {
-            row = `<tr><td><a href="#">${article.title}`;
-            if (article.doi != null && article.doi != "") {
-                row += ` (${article.doi})`;
+        for (dataset of datasets) {
+            row = `<tr><td><a href="#">${dataset.title}`;
+            if (dataset.doi != null && dataset.doi != "") {
+                row += ` (${dataset.doi})`;
             }
             row += `</a></td><td><a href="#" `;
-            row += `onclick="javascript:remove_article('${article.uuid}', `;
+            row += `onclick="javascript:remove_dataset('${dataset.uuid}', `;
             row += `'${collection_id}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
             jQuery("#articles-list tbody").append(row);
         }
         jQuery("#articles-list").show();
     }).fail(function () {
-        console.log("Failed to retrieve article details.");
+        console.log("Failed to retrieve dataset details.");
     });
 }
 
@@ -82,18 +82,18 @@ function add_author (author_id, collection_id) {
     }).fail(function () { console.log (`Failed to add ${author_id}`); });
 }
 
-function add_article (article_id, collection_id) {
+function add_dataset (dataset_id, collection_id) {
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/articles`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
-        data:        JSON.stringify({ "articles": [article_id] }),
+        data:        JSON.stringify({ "articles": [dataset_id] }),
     }).done(function () {
-        render_articles_for_collection (collection_id);
+        render_datasets_for_collection (collection_id);
         jQuery("#article-search").val("");
-        autocomplete_article(null, collection_id);
-    }).fail(function () { console.log (`Failed to add ${article_id}`); });
+        autocomplete_dataset(null, collection_id);
+    }).fail(function () { console.log (`Failed to add ${dataset_id}`); });
 }
 
 function remove_author (author_id, collection_id) {
@@ -105,16 +105,16 @@ function remove_author (author_id, collection_id) {
       .fail(function () { console.log (`Failed to remove ${author_id}`); });
 }
 
-function remove_article (article_id, collection_id) {
+function remove_dataset (dataset_id, collection_id) {
     var jqxhr = jQuery.ajax({
-        url:         `/v2/account/collections/${collection_id}/articles/${article_id}`,
+        url:         `/v2/account/collections/${collection_id}/articles/${dataset_id}`,
         type:        "DELETE",
         accept:      "application/json",
-    }).done(function (articles) {
-        console.log (`Removed article ${article_id}.`);
-        render_articles_for_collection (collection_id);
+    }).done(function (datasets) {
+        console.log (`Removed dataset ${dataset_id}.`);
+        render_datasets_for_collection (collection_id);
     })
-      .fail(function () { console.log (`Failed to remove ${article_id}`); });
+      .fail(function () { console.log (`Failed to remove ${dataset_id}`); });
 }
 
 function delete_collection (collection_id) {
@@ -179,13 +179,13 @@ function save_collection (collection_id) {
     }).fail(function () { console.log("Failed to save form."); });
 }
 
-function autocomplete_article (event, collection_id) {
+function autocomplete_dataset (event, collection_id) {
     var current_text = jQuery.trim(jQuery("#article-search").val());
     if (current_text == "") {
         jQuery("#articles-ac").remove();
         jQuery("#article-search").removeClass("input-for-ac");
     } else if (current_text.length > 2) {
-        console.log(`Triggered articles autocomplete with ${current_text}.`);
+        console.log(`Triggered datasets autocomplete with ${current_text}.`);
         jQuery.ajax({
             url:         `/v2/account/articles/search`,
             type:        "POST",
@@ -198,7 +198,7 @@ function autocomplete_article (event, collection_id) {
             html = "<ul>";
             for (item of data) {
                 html += `<li><a href="#" `;
-                html += `onclick="javascript:add_article('${item["uuid"]}', `;
+                html += `onclick="javascript:add_dataset('${item["uuid"]}', `;
                 html += `'${collection_id}'); return false;">${item["title"]}`;
                 if (item["doi"] != null && item["doi"] != "") {
                     html += ` (${item["doi"]})`;
@@ -306,7 +306,7 @@ function activate (collection_id) {
         return autocomplete_author (event, collection_id);
     });
     jQuery("#article-search").on("input", function (event) {
-        return autocomplete_article (event, collection_id);
+        return autocomplete_dataset (event, collection_id);
     });
 
     jQuery.ajax({
@@ -316,7 +316,7 @@ function activate (collection_id) {
     }).done(function (data) {
         render_categories_for_collection (collection_id, categories = data["categories"]);
         render_authors_for_collection (collection_id, authors = data["authors"]);
-        render_articles_for_collection (collection_id);
+        render_datasets_for_collection (collection_id);
 
         if (data["group_id"] != null) {
             jQuery(`#group_${data["group_id"]}`).prop("checked", true);
