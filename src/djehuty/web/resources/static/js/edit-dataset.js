@@ -137,7 +137,7 @@ function render_categories_for_article (article_uuid) {
 
 function render_references_for_article (article_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v3/articles/${article_uuid}/references`,
+        url:         `/v3/datasets/${article_uuid}/references`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
@@ -188,7 +188,7 @@ function render_git_files_for_article (article_uuid, event) {
         event.stopPropagation();
     }
     var jqxhr = jQuery.ajax({
-        url:         `/v3/articles/${article_uuid}.git/files`,
+        url:         `/v3/datasets/${article_uuid}.git/files`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
@@ -272,7 +272,7 @@ function add_reference (article_uuid) {
     url = jQuery.trim(jQuery("#references").val());
     if (url != "") {
         jQuery.ajax({
-            url:         `/v3/articles/${article_uuid}/references`,
+            url:         `/v3/datasets/${article_uuid}/references`,
             type:        "POST",
             contentType: "application/json",
             accept:      "application/json",
@@ -488,7 +488,7 @@ function perform_upload (files, current_file, article_uuid) {
             }, false);
             return xhr;
         },
-        url:         `/v3/articles/${article_uuid}/upload`,
+        url:         `/v3/datasets/${article_uuid}/upload`,
         type:        "POST",
         data:        data,
         processData: false,
@@ -527,7 +527,7 @@ function remove_author (author_id, article_uuid) {
 
 function remove_reference (url, article_uuid) {
     var jqxhr = jQuery.ajax({
-        url:         `/v3/articles/${article_uuid}/references?url=${url}`,
+        url:         `/v3/datasets/${article_uuid}/references?url=${url}`,
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (authors) { render_references_for_article (article_uuid); })
@@ -548,7 +548,7 @@ function submit_article (article_uuid, event) {
     save_article (article_uuid, event, notify=false);
 
     var jqxhr = jQuery.ajax({
-        url:         `/v3/articles/${article_uuid}/submit-for-review`,
+        url:         `/v3/datasets/${article_uuid}/submit-for-review`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",

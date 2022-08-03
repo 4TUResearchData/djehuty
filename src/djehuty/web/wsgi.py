@@ -170,14 +170,14 @@ class ApiServer:
             ## ----------------------------------------------------------------
             ## V3 API
             ## ----------------------------------------------------------------
-            Rule("/v3/articles",                              endpoint = "v3_datasets"),
-            Rule("/v3/articles/top/<item_type>",              endpoint = "v3_datasets_top"),
-            Rule("/v3/articles/<dataset_id>/submit-for-review", endpoint = "v3_dataset_submit"),
-            Rule("/v3/articles/timeline/<item_type>",         endpoint = "v3_datasets_timeline"),
-            Rule("/v3/articles/<dataset_id>/upload",          endpoint = "v3_dataset_upload_file"),
-            Rule("/v3/articles/<dataset_id>.git/files",       endpoint = "v3_dataset_git_files"),
+            Rule("/v3/datasets",                              endpoint = "v3_datasets"),
+            Rule("/v3/datasets/top/<item_type>",              endpoint = "v3_datasets_top"),
+            Rule("/v3/datasets/<dataset_id>/submit-for-review", endpoint = "v3_dataset_submit"),
+            Rule("/v3/datasets/timeline/<item_type>",         endpoint = "v3_datasets_timeline"),
+            Rule("/v3/datasets/<dataset_id>/upload",          endpoint = "v3_dataset_upload_file"),
+            Rule("/v3/datasets/<dataset_id>.git/files",       endpoint = "v3_dataset_git_files"),
             Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
-            Rule("/v3/articles/<dataset_id>/references",      endpoint = "v3_dataset_references"),
+            Rule("/v3/datasets/<dataset_id>/references",      endpoint = "v3_dataset_references"),
             Rule("/v3/groups",                                endpoint = "v3_groups"),
             Rule("/v3/profile",                               endpoint = "v3_profile"),
             Rule("/v3/profile/categories",                    endpoint = "v3_profile_categories"),
@@ -190,9 +190,9 @@ class ApiServer:
             ## ----------------------------------------------------------------
             ## GIT HTTP API
             ## ----------------------------------------------------------------
-            Rule("/v3/articles/<dataset_id>.git/info/refs",   endpoint = "v3_private_dataset_git_refs"),
-            Rule("/v3/articles/<dataset_id>.git/git-upload-pack", endpoint = "v3_private_dataset_git_upload_pack"),
-            Rule("/v3/articles/<dataset_id>.git/git-receive-pack", endpoint = "v3_private_dataset_git_receive_pack"),
+            Rule("/v3/datasets/<dataset_id>.git/info/refs",   endpoint = "v3_private_dataset_git_refs"),
+            Rule("/v3/datasets/<dataset_id>.git/git-upload-pack", endpoint = "v3_private_dataset_git_upload_pack"),
+            Rule("/v3/datasets/<dataset_id>.git/git-receive-pack", endpoint = "v3_private_dataset_git_receive_pack"),
 
             ## ----------------------------------------------------------------
             ## EXPORT
@@ -3823,7 +3823,7 @@ class ApiServer:
         return self.error_500()
 
     def api_v3_dataset_references (self, request, dataset_id):
-        """Implements /v3/articles/<id>/references."""
+        """Implements /v3/datasets/<id>/references."""
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -4012,7 +4012,7 @@ class ApiServer:
             return self.error_500()
 
     def api_v3_private_dataset_git_refs (self, request, dataset_id):
-        """Implements /v3/articles/<id>.git/<suffix>."""
+        """Implements /v3/datasets/<id>.git/<suffix>."""
 
         service = validator.string_value (request.args, "service", 0, 16)
         self.__git_create_repository (dataset_id)
@@ -4029,7 +4029,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_v3_private_dataset_git_upload_pack (self, request, dataset_id):
-        """Implements /v3/articles/<id>.git/git-upload-pack."""
+        """Implements /v3/datasets/<id>.git/git-upload-pack."""
 
         dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=False)
         if dataset is not None:
@@ -4038,7 +4038,7 @@ class ApiServer:
         return self.error_403 (request)
 
     def api_v3_private_dataset_git_receive_pack (self, request, dataset_id):
-        """Implements /v3/articles/<id>.git/git-receive-pack."""
+        """Implements /v3/datasets/<id>.git/git-receive-pack."""
         dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=False)
         if dataset is not None:
             return self.__git_passthrough (request)

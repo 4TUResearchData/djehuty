@@ -10,7 +10,7 @@ function latest_datasets () {
 
     if (group_ids !== "") { jQuery.extend(parameters, { "group_ids": group_ids }) }
 
-    var jqxhr = jQuery.get("/v3/articles", parameters, function() {
+    var jqxhr = jQuery.get("/v3/datasets", parameters, function() {
     })
         .done(function(data) {
             output = '<ul class="latest-datasets">';
@@ -57,7 +57,7 @@ function top_datasets (item_type) {
 
     if (group_ids !== "") { jQuery.extend(parameters, { "group_ids": group_ids }) }
 
-    var jqxhr = jQuery.get("/v3/articles/top/" + item_type, parameters, function() {
+    var jqxhr = jQuery.get("/v3/datasets/top/" + item_type, parameters, function() {
     })
         .done(function(data) {
             var output = '<table id="top-datasets"><thead>';
