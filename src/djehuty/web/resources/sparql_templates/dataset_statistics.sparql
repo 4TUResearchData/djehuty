@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?dataset_id (SUM(?{{item_type}}) / COUNT(?version)) AS ?{{item_type}} ?title ?figshare_url
+SELECT DISTINCT ?container_uuid ?dataset_id (SUM(?{{item_type}}) / COUNT(?version)) AS ?{{item_type}} ?title ?figshare_url
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container      rdf:type                      djht:DatasetContainer .
@@ -13,6 +13,8 @@ WHERE {
     ?dataset        djht:figshare_url             ?figshare_url .
     ?dataset        djht:published_date           ?published_date .
     OPTIONAL { ?dataset      djht:group_id        ?group_id . }
+
+    BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
   }
 {% if filters is not none %}{{ filters }}{% endif %}
 }

@@ -65,7 +65,7 @@ function top_datasets (item_type) {
             output += '</thead><tbody>';
             jQuery.each (data, function(index) {
                 output += '<tr><td>';
-                output += '<a href="/datasets/'+ data[index].article_id +'">';
+                output += '<a href="/datasets/'+ data[index].container_uuid +'">';
                 output += data[index].title + '</a>';
                 output += '</td>';
                 output += '<td>' + data[index][item_type] + '</td></tr>';
