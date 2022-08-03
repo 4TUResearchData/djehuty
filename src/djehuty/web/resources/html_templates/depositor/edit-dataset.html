@@ -78,7 +78,7 @@ jQuery(document).ready(function (){
 #content-wrapper input[type="datetime-local"],
 #content-wrapper textarea,
 .texteditor,
-#content-wrapper .options-wrapper, #groups-wrapper {
+#content-wrapper .options-wrapper, #groups-wrapper, #access-wrapper {
     display: block;
     padding: .7em;
     border: solid 1pt #aaa;
@@ -88,6 +88,24 @@ jQuery(document).ready(function (){
     margin-bottom: 1em;
     font-size: 13pt;
 }
+#access-wrapper #access-type-wrapper {
+    border: none;
+    border-bottom: solid 2pt #333;
+    border-radius: 0em;
+    width: 812pt !important;
+    padding-bottom: 0pt;
+}
+#access-wrapper #access-type-wrapper label { border-radius: .5em .5em 0em 0em;  }
+#access-wrapper input[type="text"],
+#access-wrapper input[type="datetime-local"],
+#access-wrapper textarea,
+#access-wrapper .options-wrapper { width: 812pt !important; }
+#access-wrapper select,
+#access-wrapper .ql-toolbar.ql-4tu,
+#access-wrapper .texteditor { width: 832pt !important; }
+#embargoed_access_form { display: none }
+#restricted_access_form { display: none; }
+#closed_access_form { display: none; }
 #content-wrapper select {
     display: block;
     padding: .7em;
@@ -118,6 +136,12 @@ jQuery(document).ready(function (){
     display: inline-block;
     background: none;
     font-weight: normal;
+    cursor: pointer;
+}
+#content-wrapper label.inner-head {
+    display: inline-block;
+    background: #eeeeee;
+    font-weight: bold;
     cursor: pointer;
 }
 #content-wrapper textarea:focus,
@@ -235,10 +259,62 @@ jQuery(document).ready(function (){
 <div id="description" class="texteditor">
   {{article["description"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
-<label for="license">License</label>
-<select id="license" name="license">
-  <option value="" disabled selected>Select a license</option>
-</select>
+<label>License &#38; Access</label>
+<div id="access-wrapper">
+  <div id="access-type-wrapper" class="options-wrapper">
+<input type="radio" name="access_type" id="open_access" value="open" checked="checked" /><!--
+--><label for="open_access" class="no-head">Open access</label><!--
+--><input type="radio" name="access_type" id="embargoed_access" value="embargoed" /><!--
+--><label for="embargoed_access" class="no-head">Embargoed access</label><!--
+--><input type="radio" name="access_type" id="restricted_access" value="restricted" /><!--
+--><label for="restricted_access" class="no-head">Restricted access</label><!--
+--><input type="radio" name="access_type" id="closed_access" value="closed" /><!--
+--><label for="closed_access" class="no-head">Closed access</label>
+  </div>
+  <div class="access_level" id="open_access_form">
+    <label for="license_open" class="inner-head">License</label>
+    <select id="license_open" class="license-selector" name="license">
+      <option value="" disabled selected>Select a license</option>
+    </select>
+  </div>
+  <div class="access_level" id="embargoed_access_form">
+    <label for="license_embargoed" class="inner-head">License</label>
+    <select id="license_embargoed" class="license-selector" name="license">
+      <option value="" disabled selected>Select a license</option>
+    </select>
+    <label for="embargo_until_date" class="inner-head">Until date</label>
+    <input id="embargo_until_date" type="datetime-local" name="embargo_until_date" />
+    <label class="inner-head">Embargo type</label>
+    <div id="record-type-wrapper" class="options-wrapper">
+      <input type="radio" name="embargo_type" id="files_only_embargo" value="file" /><!--
+--><label for="files_only_embargo" class="no-head">Files-only embargo</label>
+      <input type="radio" name="embargo_type" id="content_embargo" value="content" /><!--
+--><label for="content_embargo" class="no-head">Full content embargo</label></div>
+    <label for="title" class="inner-head">Title</label>
+    <input type="text" id="title" name="title" value="{{article["embargo_title"]}}" />
+    <label class="inner-head">Reason</label>
+    <div id="embargo_reason" class="texteditor">
+      {{article["embargo_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
+    </div>
+  </div>
+  <div class="access_level" id="restricted_access_form">
+    <!--
+        * Upload box for EULA document.
+        * Reason for restricted access field.
+      -->
+  </div>
+  <div class="access_level" id="closed_access_form">
+    <p>
+      We strongly encourage considering publishing as <em>restricted access</em>
+      instead.  Therefore, please provide a detailed reson for why closed access
+      is necessary.
+    </p>
+    <label class="inner-head">Reason</label>
+    <div id="closed_access_reason" class="texteditor">
+      {{article["closed_access_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
+    </div>
+  </div>
+</div>
 <label>Categories</label>
 <div id="categories-wrapper" class="options-wrapper">
 {%- for root in categories: %}
@@ -308,34 +384,6 @@ jQuery(document).ready(function (){
 <input type="text" id="same_as" name="same_as" value="{{article["same_as"] | default("", True)}}" />
 <label for="organizations">Organizations</label>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{article["organizations"] | default("", True) }}</textarea>
-<div class="center">
-  <a id="configure_embargo" class="button neutral-button">Configure embargo</a>
-</div>
-<div id="embargo_options">
-  <h3>Embargo</h3>
-  <label for="embargo_until_date">Until date</label>
-  <input id="embargo_until_date" type="datetime-local" name="embargo_until_date" />
-  <input id="embargo_until_forever" type="checkbox" /><!--
---><label for="embargo_until_forever" class="no-head">Embargo indefinitely</label>
-  <p></p>
-  <label>Embargo type</label>
-  <div id="record-type-wrapper" class="options-wrapper">
-    <input type="radio" name="embargo_type" id="files_only_embargo" value="file" /><!--
---><label for="files_only_embargo" class="no-head">Files-only embargo</label>
-    <input type="radio" name="embargo_type" id="content_embargo" value="content" /><!--
---><label for="content_embargo" class="no-head">Full content embargo</label></div>
-  <label for="title">Title</label>
-  <input type="text" id="title" name="title" value="{{article["embargo_title"]}}" />
-  <label>Reason</label>
-  <div id="embargo_reason" class="texteditor">
-    {{article["embargo_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
-  </div>
-  <input id="allow_embargo_access_requests" type="checkbox" /><!--
---><label for="allow_embargo_access_requests" class="no-head">Allow requesting access while under embargo</label>
-<div class="center">
-  <a id="cancel_embargo" class="button cancel-button">Cancel embargo</a>
-</div>
-</div>
 <h3>Files</h3>
 <label>Type</label>
 <div id="record-type-wrapper" class="options-wrapper">

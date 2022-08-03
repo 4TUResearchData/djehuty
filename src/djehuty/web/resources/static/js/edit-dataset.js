@@ -41,7 +41,7 @@ function save_dataset (dataset_uuid, event, notify=true) {
     form_data = {
         "title":          or_null(jQuery("#title").val()),
         "description":    or_null(jQuery("#description .ql-editor").html()),
-        "license_id":     or_null(jQuery("#license").val()),
+        "license_id":     or_null(jQuery(".license-selector").val()),
         "resource_title": or_null(jQuery("#resource_title").val()),
         "resource_doi":   or_null(jQuery("#resource_doi").val()),
         "geolocation":    or_null(jQuery("#geolocation").val()),
@@ -111,7 +111,7 @@ function render_licenses (dataset) {
             selected = "";
             selected = ((chosen_license == license.value) ? " selected" : "");
             html = `<option value="${license.value}"${selected}>${license.name}</option>`;
-            jQuery("#license").append(html);
+            jQuery(".license-selector").append(html);
         }
     }).fail(function () {
         console.log("Failed to retrieve licenses.");
@@ -387,6 +387,19 @@ function toggle_record_type (dataset_uuid) {
     }
 }
 
+function toggle_access_level (dataset_uuid) {
+    jQuery(".access_level").hide();
+    if (jQuery("#open_access").prop("checked")) {
+        jQuery("#open_access_form").show();
+    } else if (jQuery("#embargoed_access").prop("checked")) {
+        jQuery("#embargoed_access_form").show();
+    } else if (jQuery("#restricted_access").prop("checked")) {
+        jQuery("#restricted_access_form").show();
+    } else if (jQuery("#closed_access").prop("checked")) {
+        jQuery("#closed_access_form").show();
+    }
+}
+
 function activate (dataset_uuid) {
     var jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}`,
@@ -416,6 +429,7 @@ function activate (dataset_uuid) {
         jQuery(`#article_${dataset_uuid}`).show();
         var quill1 = new Quill('#embargo_reason', { theme: '4tu' });
         var quill2 = new Quill('#description', { theme: '4tu' });
+        var quill3 = new Quill('#closed_access_reason', { theme: '4tu' });
         activate_drag_and_drop (dataset_uuid);
 
         jQuery("input[name='record_type']").change(function () {
@@ -434,6 +448,7 @@ function activate (dataset_uuid) {
         }
 
         toggle_record_type (dataset_uuid);
+        toggle_access_level (dataset_uuid);
 
         jQuery("#delete").on("click", function (event) { delete_dataset (dataset_uuid, event); });
         jQuery("#save").on("click", function (event)   { save_dataset (dataset_uuid, event); });
@@ -441,6 +456,7 @@ function activate (dataset_uuid) {
         jQuery("#refresh-git-files").on("click", function (event) {
             render_git_files_for_dataset (dataset_uuid, event);
         });
+        jQuery("input[name=access_type]").on("change", toggle_access_level);
         jQuery("#configure_embargo").on("click", toggle_embargo_options);
         jQuery("#embargo_until_forever").on("change", toggle_embargo_until);
         jQuery("#cancel_embargo").on("click", toggle_embargo_options);
