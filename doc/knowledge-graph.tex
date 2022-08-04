@@ -68,3 +68,30 @@
 
   The hollow double-arrow depicts the use of an \code{rdf:List} with numeric
   indexes.
+
+\section{Datasets}
+
+  Datasets play a central role in the repository system because every
+  other type links in one way or another to it.  The user submits
+  files along with data about those bytes as a single record which we
+  call a \code{djht:Dataset}.  Figure \ref{fig:dataset} shows how the
+  remainder of types in this chapter relate to a \code{djht:Dataset}.
+
+  \includefigure{dataset}{The RDF pattern for an \code{djht:Dataset}.
+    For a full overview of \code{djht:Dataset} properties, use the exploratory
+    from the administration panel.}
+
+  Datasets are versioned records.  The data and metadata between versions
+  can differ, except all versions of a dataset share an identifier.  We use
+  \code{djht:DatasetContainer} to describe the version-unspecific properties
+  of a set of versioned datasets.
+
+  \includefigure{dataset-container}{The RDF pattern for a
+    \code{djht:DatasetContainer}.  All versions of a dataset share a
+    \code{djht:dataset\_id} and a UUID in the container URI.}
+
+  The data model follows a natural expression of published versions as a
+  linked list.  Figure \ref{fig:dataset-container} further reveals that
+  the \i{view}, \i{download}, \i{share} and \i{citation} counts are stored
+  in a version-unspecific way.
+
