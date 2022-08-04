@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?collection_id ?title
+SELECT DISTINCT ?collection_id ?container_uuid ?title
 WHERE {
   GRAPH <{{state_graph}}> {
     ?collection_container rdf:type                                          djht:CollectionContainer ;
@@ -9,6 +9,8 @@ WHERE {
     ?collection           rdf:type                                          djht:Collection ;
                           djht:title                                        ?title ;
                           djht:datasets/rdf:rest*/rdf:first/djht:dataset_id  {{dataset_id}} .
+
+    BIND(STRAFTER(STR(?collection_container), "container:") AS ?container_uuid)
   }   
 }
 {% endblock %}

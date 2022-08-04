@@ -119,7 +119,7 @@
             <div class="label">collection{% if collections[1:] %}s{% endif %}</div>
             <ul>
         {% for c in collections %}
-                <li><a href="/collections/{{c.collection_id}}">{{c.title}}</a></li>
+                <li><a href="/collections/{{c.container_uuid}}">{{c.title}}</a></li>
         {% endfor %}
             </ul>
         </div>
