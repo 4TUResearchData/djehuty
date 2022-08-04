@@ -61,158 +61,158 @@ class ApiServer:
             ## ----------------------------------------------------------------
             ## UI
             ## ----------------------------------------------------------------
-            Rule("/",                                         endpoint = "home"),
-            Rule("/login",                                    endpoint = "login"),
-            Rule("/logout",                                   endpoint = "logout"),
-            Rule("/my/dashboard",                             endpoint = "dashboard"),
-            Rule("/my/datasets",                              endpoint = "my_data"),
-            Rule("/my/datasets/<dataset_id>/edit",            endpoint = "edit_dataset"),
-            Rule("/my/datasets/<dataset_id>/delete",          endpoint = "delete_dataset"),
-            Rule("/my/datasets/new",                          endpoint = "new_dataset"),
-            Rule("/my/collections",                           endpoint = "my_collections"),
-            Rule("/my/collections/<collection_id>/edit",      endpoint = "edit_collection"),
-            Rule("/my/collections/<collection_id>/delete",    endpoint = "delete_collection"),
-            Rule("/my/collections/new",                       endpoint = "new_collection"),
-            Rule("/my/sessions/<session_uuid>/edit",          endpoint = "edit_session"),
-            Rule("/my/sessions/<session_uuid>/delete",        endpoint = "delete_session"),
-            Rule("/my/sessions/new",                          endpoint = "new_session"),
-            Rule("/my/profile",                               endpoint = "profile"),
-            Rule("/review/dashboard",                         endpoint = "review_dashboard"),
-            Rule("/review/goto-dataset/<dataset_id>",         endpoint = "review_impersonate_to_dataset"),
-            Rule("/review/assign-to-me/<dataset_id>",         endpoint = "review_assign_to_me"),
-            Rule("/review/unassign/<dataset_id>",             endpoint = "review_unassign"),
-            Rule("/admin/dashboard",                          endpoint = "admin_dashboard"),
-            Rule("/admin/users",                              endpoint = "admin_users"),
-            Rule("/admin/exploratory",                        endpoint = "admin_exploratory"),
-            Rule("/admin/impersonate/<account_id>",           endpoint = "admin_impersonate"),
-            Rule("/admin/maintenance",                        endpoint = "admin_maintenance"),
-            Rule("/admin/maintenance/clear-cache",            endpoint = "admin_clear_cache"),
-            Rule("/admin/maintenance/clear-sessions",         endpoint = "admin_clear_sessions"),
-            Rule("/portal",                                   endpoint = "portal"),
-            Rule("/categories/<category_id>",                 endpoint = "categories"),
-            Rule("/category",                                 endpoint = "category"),
-            Rule("/institutions/<institution_name>",          endpoint = "institution"),
-            Rule("/opendap_to_doi",                           endpoint = "opendap_to_doi"),
-            Rule("/datasets/<dataset_id>",                    endpoint = "dataset_ui"),
-            Rule("/datasets/<dataset_id>/<version>",          endpoint = "dataset_ui"),
-            Rule("/file/<dataset_id>/<file_id>",              endpoint = "download_file"),
-            Rule("/collections/<collection_id>",              endpoint = "collection_ui"),
-            Rule("/collections/<collection_id>/<version>",    endpoint = "collection_ui"),
-            Rule("/search",                                   endpoint = "search_ui"),
+            Rule("/",                                         endpoint = "ui_home"),
+            Rule("/login",                                    endpoint = "ui_login"),
+            Rule("/logout",                                   endpoint = "ui_logout"),
+            Rule("/my/dashboard",                             endpoint = "ui_dashboard"),
+            Rule("/my/datasets",                              endpoint = "ui_my_data"),
+            Rule("/my/datasets/<dataset_id>/edit",            endpoint = "ui_edit_dataset"),
+            Rule("/my/datasets/<dataset_id>/delete",          endpoint = "ui_delete_dataset"),
+            Rule("/my/datasets/new",                          endpoint = "ui_new_dataset"),
+            Rule("/my/collections",                           endpoint = "ui_my_collections"),
+            Rule("/my/collections/<collection_id>/edit",      endpoint = "ui_edit_collection"),
+            Rule("/my/collections/<collection_id>/delete",    endpoint = "ui_delete_collection"),
+            Rule("/my/collections/new",                       endpoint = "ui_new_collection"),
+            Rule("/my/sessions/<session_uuid>/edit",          endpoint = "ui_edit_session"),
+            Rule("/my/sessions/<session_uuid>/delete",        endpoint = "ui_delete_session"),
+            Rule("/my/sessions/new",                          endpoint = "ui_new_session"),
+            Rule("/my/profile",                               endpoint = "ui_profile"),
+            Rule("/review/dashboard",                         endpoint = "ui_review_dashboard"),
+            Rule("/review/goto-dataset/<dataset_id>",         endpoint = "ui_review_impersonate_to_dataset"),
+            Rule("/review/assign-to-me/<dataset_id>",         endpoint = "ui_review_assign_to_me"),
+            Rule("/review/unassign/<dataset_id>",             endpoint = "ui_review_unassign"),
+            Rule("/admin/dashboard",                          endpoint = "ui_admin_dashboard"),
+            Rule("/admin/users",                              endpoint = "ui_admin_users"),
+            Rule("/admin/exploratory",                        endpoint = "ui_admin_exploratory"),
+            Rule("/admin/impersonate/<account_id>",           endpoint = "ui_admin_impersonate"),
+            Rule("/admin/maintenance",                        endpoint = "ui_admin_maintenance"),
+            Rule("/admin/maintenance/clear-cache",            endpoint = "ui_admin_clear_cache"),
+            Rule("/admin/maintenance/clear-sessions",         endpoint = "ui_admin_clear_sessions"),
+            Rule("/portal",                                   endpoint = "ui_portal"),
+            Rule("/categories/<category_id>",                 endpoint = "ui_categories"),
+            Rule("/category",                                 endpoint = "ui_category"),
+            Rule("/institutions/<institution_name>",          endpoint = "ui_institution"),
+            Rule("/opendap_to_doi",                           endpoint = "ui_opendap_to_doi"),
+            Rule("/datasets/<dataset_id>",                    endpoint = "ui_dataset"),
+            Rule("/datasets/<dataset_id>/<version>",          endpoint = "ui_dataset"),
+            Rule("/file/<dataset_id>/<file_id>",              endpoint = "ui_download_file"),
+            Rule("/collections/<collection_id>",              endpoint = "ui_collection"),
+            Rule("/collections/<collection_id>/<version>",    endpoint = "ui_collection"),
+            Rule("/search",                                   endpoint = "ui_search"),
 
             ## ----------------------------------------------------------------
             ## API
             ## ----------------------------------------------------------------
-            Rule("/v2/account/applications/authorize",        endpoint = "authorize"),
-            Rule("/v2/token",                                 endpoint = "token"),
-            Rule("/v2/collections",                           endpoint = "collections"),
+            Rule("/v2/account/applications/authorize",        endpoint = "api_authorize"),
+            Rule("/v2/token",                                 endpoint = "api_token"),
+            Rule("/v2/collections",                           endpoint = "api_collections"),
 
             ## Private institutions
             ## ----------------------------------------------------------------
-            Rule("/v2/account/institution",                   endpoint = "private_institution"),
-            Rule("/v2/account/institution/users/<account_id>",endpoint = "private_institution_account"),
+            Rule("/v2/account/institution",                   endpoint = "api_private_institution"),
+            Rule("/v2/account/institution/users/<account_id>",endpoint = "api_private_institution_account"),
 
             ## Public articles
             ## ----------------------------------------------------------------
-            Rule("/v2/articles",                              endpoint = "datasets"),
-            Rule("/v2/articles/search",                       endpoint = "datasets_search"),
-            Rule("/v2/articles/<dataset_id>",                 endpoint = "dataset_details"),
-            Rule("/v2/articles/<dataset_id>/versions",        endpoint = "dataset_versions"),
-            Rule("/v2/articles/<dataset_id>/versions/<version>", endpoint = "dataset_version_details"),
-            Rule("/v2/articles/<dataset_id>/versions/<version>/embargo", endpoint = "dataset_version_embargo"),
-            Rule("/v2/articles/<dataset_id>/versions/<version>/confidentiality", endpoint = "dataset_version_confidentiality"),
-            Rule("/v2/articles/<dataset_id>/versions/<version>/update_thumb", endpoint = "dataset_version_update_thumb"),
-            Rule("/v2/articles/<dataset_id>/files",           endpoint = "dataset_files"),
-            Rule("/v2/articles/<dataset_id>/files/<file_id>", endpoint = "dataset_file_details"),
+            Rule("/v2/articles",                              endpoint = "api_datasets"),
+            Rule("/v2/articles/search",                       endpoint = "api_datasets_search"),
+            Rule("/v2/articles/<dataset_id>",                 endpoint = "api_dataset_details"),
+            Rule("/v2/articles/<dataset_id>/versions",        endpoint = "api_dataset_versions"),
+            Rule("/v2/articles/<dataset_id>/versions/<version>", endpoint = "api_dataset_version_details"),
+            Rule("/v2/articles/<dataset_id>/versions/<version>/embargo", endpoint = "api_dataset_version_embargo"),
+            Rule("/v2/articles/<dataset_id>/versions/<version>/confidentiality", endpoint = "api_dataset_version_confidentiality"),
+            Rule("/v2/articles/<dataset_id>/versions/<version>/update_thumb", endpoint = "api_dataset_version_update_thumb"),
+            Rule("/v2/articles/<dataset_id>/files",           endpoint = "api_dataset_files"),
+            Rule("/v2/articles/<dataset_id>/files/<file_id>", endpoint = "api_dataset_file_details"),
 
             ## Private articles
             ## ----------------------------------------------------------------
-            Rule("/v2/account/articles",                      endpoint = "private_datasets"),
-            Rule("/v2/account/articles/search",               endpoint = "private_datasets_search"),
-            Rule("/v2/account/articles/<dataset_id>",         endpoint = "private_dataset_details"),
-            Rule("/v2/account/articles/<dataset_id>/authors", endpoint = "private_dataset_authors"),
-            Rule("/v2/account/articles/<dataset_id>/authors/<author_id>", endpoint = "private_dataset_author_delete"),
-            Rule("/v2/account/articles/<dataset_id>/categories", endpoint = "private_dataset_categories"),
-            Rule("/v2/account/articles/<dataset_id>/categories/<category_id>", endpoint = "private_delete_dataset_category"),
-            Rule("/v2/account/articles/<dataset_id>/embargo", endpoint = "private_dataset_embargo"),
-            Rule("/v2/account/articles/<dataset_id>/files",   endpoint = "private_dataset_files"),
-            Rule("/v2/account/articles/<dataset_id>/files/<file_id>", endpoint = "private_dataset_file_details"),
-            Rule("/v2/account/articles/<dataset_id>/private_links", endpoint = "private_dataset_private_links"),
-            Rule("/v2/account/articles/<dataset_id>/private_links/<link_id>", endpoint = "private_dataset_private_links_details"),
+            Rule("/v2/account/articles",                      endpoint = "api_private_datasets"),
+            Rule("/v2/account/articles/search",               endpoint = "api_private_datasets_search"),
+            Rule("/v2/account/articles/<dataset_id>",         endpoint = "api_private_dataset_details"),
+            Rule("/v2/account/articles/<dataset_id>/authors", endpoint = "api_private_dataset_authors"),
+            Rule("/v2/account/articles/<dataset_id>/authors/<author_id>", endpoint = "api_private_dataset_author_delete"),
+            Rule("/v2/account/articles/<dataset_id>/categories", endpoint = "api_private_dataset_categories"),
+            Rule("/v2/account/articles/<dataset_id>/categories/<category_id>", endpoint = "api_private_delete_dataset_category"),
+            Rule("/v2/account/articles/<dataset_id>/embargo", endpoint = "api_private_dataset_embargo"),
+            Rule("/v2/account/articles/<dataset_id>/files",   endpoint = "api_private_dataset_files"),
+            Rule("/v2/account/articles/<dataset_id>/files/<file_id>", endpoint = "api_private_dataset_file_details"),
+            Rule("/v2/account/articles/<dataset_id>/private_links", endpoint = "api_private_dataset_private_links"),
+            Rule("/v2/account/articles/<dataset_id>/private_links/<link_id>", endpoint = "api_private_dataset_private_links_details"),
 
             ## Public collections
             ## ----------------------------------------------------------------
-            Rule("/v2/collections",                           endpoint = "collections"),
-            Rule("/v2/collections/search",                    endpoint = "collections_search"),
-            Rule("/v2/collections/<collection_id>",           endpoint = "collection_details"),
-            Rule("/v2/collections/<collection_id>/versions",  endpoint = "collection_versions"),
-            Rule("/v2/collections/<collection_id>/versions/<version>", endpoint = "collection_version_details"),
-            Rule("/v2/collections/<collection_id>/articles",  endpoint = "collection_datasets"),
+            Rule("/v2/collections",                           endpoint = "api_collections"),
+            Rule("/v2/collections/search",                    endpoint = "api_collections_search"),
+            Rule("/v2/collections/<collection_id>",           endpoint = "api_collection_details"),
+            Rule("/v2/collections/<collection_id>/versions",  endpoint = "api_collection_versions"),
+            Rule("/v2/collections/<collection_id>/versions/<version>", endpoint = "api_collection_version_details"),
+            Rule("/v2/collections/<collection_id>/articles",  endpoint = "api_collection_datasets"),
 
             ## Private collections
             ## ----------------------------------------------------------------
-            Rule("/v2/account/collections",                   endpoint = "private_collections"),
-            Rule("/v2/account/collections/search",            endpoint = "private_collections_search"),
-            Rule("/v2/account/collections/<collection_id>",   endpoint = "private_collection_details"),
-            Rule("/v2/account/collections/<collection_id>/authors", endpoint = "private_collection_authors"),
-            Rule("/v2/account/collections/<collection_id>/authors/<author_id>", endpoint = "private_collection_author_delete"),
-            Rule("/v2/account/collections/<collection_id>/categories", endpoint = "private_collection_categories"),
-            Rule("/v2/account/collections/<collection_id>/articles", endpoint = "private_collection_datasets"),
-            Rule("/v2/account/collections/<collection_id>/articles/<dataset_id>", endpoint = "private_collection_dataset_delete"),
+            Rule("/v2/account/collections",                   endpoint = "api_private_collections"),
+            Rule("/v2/account/collections/search",            endpoint = "api_private_collections_search"),
+            Rule("/v2/account/collections/<collection_id>",   endpoint = "api_private_collection_details"),
+            Rule("/v2/account/collections/<collection_id>/authors", endpoint = "api_private_collection_authors"),
+            Rule("/v2/account/collections/<collection_id>/authors/<author_id>", endpoint = "api_private_collection_author_delete"),
+            Rule("/v2/account/collections/<collection_id>/categories", endpoint = "api_private_collection_categories"),
+            Rule("/v2/account/collections/<collection_id>/articles", endpoint = "api_private_collection_datasets"),
+            Rule("/v2/account/collections/<collection_id>/articles/<dataset_id>", endpoint = "api_private_collection_dataset_delete"),
 
             ## Private authors
-            Rule("/v2/account/authors/search",                endpoint = "private_authors_search"),
+            Rule("/v2/account/authors/search",                endpoint = "api_private_authors_search"),
 
             ## Other
             ## ----------------------------------------------------------------
-            Rule("/v2/licenses",                              endpoint = "licenses"),
+            Rule("/v2/licenses",                              endpoint = "api_licenses"),
 
             ## ----------------------------------------------------------------
             ## V3 API
             ## ----------------------------------------------------------------
-            Rule("/v3/datasets",                              endpoint = "v3_datasets"),
-            Rule("/v3/datasets/top/<item_type>",              endpoint = "v3_datasets_top"),
-            Rule("/v3/datasets/<dataset_id>/submit-for-review", endpoint = "v3_dataset_submit"),
-            Rule("/v3/datasets/timeline/<item_type>",         endpoint = "v3_datasets_timeline"),
-            Rule("/v3/datasets/<dataset_id>/upload",          endpoint = "v3_dataset_upload_file"),
-            Rule("/v3/datasets/<dataset_id>.git/files",       endpoint = "v3_dataset_git_files"),
-            Rule("/v3/file/<file_id>",                        endpoint = "v3_file"),
-            Rule("/v3/datasets/<dataset_id>/references",      endpoint = "v3_dataset_references"),
-            Rule("/v3/groups",                                endpoint = "v3_groups"),
-            Rule("/v3/profile",                               endpoint = "v3_profile"),
-            Rule("/v3/profile/categories",                    endpoint = "v3_profile_categories"),
+            Rule("/v3/datasets",                              endpoint = "api_v3_datasets"),
+            Rule("/v3/datasets/top/<item_type>",              endpoint = "api_v3_datasets_top"),
+            Rule("/v3/datasets/<dataset_id>/submit-for-review", endpoint = "api_v3_dataset_submit"),
+            Rule("/v3/datasets/timeline/<item_type>",         endpoint = "api_v3_datasets_timeline"),
+            Rule("/v3/datasets/<dataset_id>/upload",          endpoint = "api_v3_dataset_upload_file"),
+            Rule("/v3/datasets/<dataset_id>.git/files",       endpoint = "api_v3_dataset_git_files"),
+            Rule("/v3/file/<file_id>",                        endpoint = "api_v3_file"),
+            Rule("/v3/datasets/<dataset_id>/references",      endpoint = "api_v3_dataset_references"),
+            Rule("/v3/groups",                                endpoint = "api_v3_groups"),
+            Rule("/v3/profile",                               endpoint = "api_v3_profile"),
+            Rule("/v3/profile/categories",                    endpoint = "api_v3_profile_categories"),
 
             # Data model exploratory
-            Rule("/v3/explore/types",                         endpoint = "v3_explore_types"),
-            Rule("/v3/explore/properties",                    endpoint = "v3_explore_properties"),
-            Rule("/v3/explore/property_value_types",          endpoint = "v3_explore_property_types"),
+            Rule("/v3/explore/types",                         endpoint = "api_v3_explore_types"),
+            Rule("/v3/explore/properties",                    endpoint = "api_v3_explore_properties"),
+            Rule("/v3/explore/property_value_types",          endpoint = "api_v3_explore_property_types"),
 
             ## ----------------------------------------------------------------
             ## GIT HTTP API
             ## ----------------------------------------------------------------
-            Rule("/v3/datasets/<dataset_id>.git/info/refs",   endpoint = "v3_private_dataset_git_refs"),
-            Rule("/v3/datasets/<dataset_id>.git/git-upload-pack", endpoint = "v3_private_dataset_git_upload_pack"),
-            Rule("/v3/datasets/<dataset_id>.git/git-receive-pack", endpoint = "v3_private_dataset_git_receive_pack"),
+            Rule("/v3/datasets/<dataset_id>.git/info/refs",   endpoint = "api_v3_private_dataset_git_refs"),
+            Rule("/v3/datasets/<dataset_id>.git/git-upload-pack", endpoint = "api_v3_private_dataset_git_upload_pack"),
+            Rule("/v3/datasets/<dataset_id>.git/git-receive-pack", endpoint = "api_v3_private_dataset_git_receive_pack"),
 
             ## ----------------------------------------------------------------
             ## EXPORT
             ## ----------------------------------------------------------------
-            Rule("/export/datacite/datasets/<dataset_id>",                 endpoint = "export_datacite_dataset"),
-            Rule("/export/datacite/datasets/<dataset_id>/<version>",       endpoint = "export_datacite_dataset"),
-            Rule("/export/datacite/collections/<collection_id>",           endpoint = "export_datacite_collection"),
-            Rule("/export/datacite/collections/<collection_id>/<version>", endpoint = "export_datacite_collection"),
-            Rule("/export/refworks/datasets/<dataset_id>",                 endpoint = "export_refworks_dataset"),
-            Rule("/export/refworks/datasets/<dataset_id>/<version>",       endpoint = "export_refworks_dataset"),
-            Rule("/export/bibtex/datasets/<dataset_id>",                   endpoint = "export_bibtex_dataset"),
-            Rule("/export/bibtex/datasets/<dataset_id>/<version>",         endpoint = "export_bibtex_dataset"),
-            Rule("/export/refman/datasets/<dataset_id>",                   endpoint = "export_refman_dataset"),
-            Rule("/export/refman/datasets/<dataset_id>/<version>",         endpoint = "export_refman_dataset"),
-            Rule("/export/endnote/datasets/<dataset_id>",                  endpoint = "export_endnote_dataset"),
-            Rule("/export/endnote/datasets/<dataset_id>/<version>",        endpoint = "export_endnote_dataset"),
-            Rule("/export/nlm/datasets/<dataset_id>",                      endpoint = "export_nlm_dataset"),
-            Rule("/export/nlm/datasets/<dataset_id>/<version>",            endpoint = "export_nlm_dataset"),
-            Rule("/export/dc/datasets/<dataset_id>",                       endpoint = "export_dc_dataset"),
-            Rule("/export/dc/datasets/<dataset_id>/<version>",             endpoint = "export_dc_dataset"),
+            Rule("/export/datacite/datasets/<dataset_id>",                 endpoint = "ui_export_datacite_dataset"),
+            Rule("/export/datacite/datasets/<dataset_id>/<version>",       endpoint = "ui_export_datacite_dataset"),
+            Rule("/export/datacite/collections/<collection_id>",           endpoint = "ui_export_datacite_collection"),
+            Rule("/export/datacite/collections/<collection_id>/<version>", endpoint = "ui_export_datacite_collection"),
+            Rule("/export/refworks/datasets/<dataset_id>",                 endpoint = "ui_export_refworks_dataset"),
+            Rule("/export/refworks/datasets/<dataset_id>/<version>",       endpoint = "ui_export_refworks_dataset"),
+            Rule("/export/bibtex/datasets/<dataset_id>",                   endpoint = "ui_export_bibtex_dataset"),
+            Rule("/export/bibtex/datasets/<dataset_id>/<version>",         endpoint = "ui_export_bibtex_dataset"),
+            Rule("/export/refman/datasets/<dataset_id>",                   endpoint = "ui_export_refman_dataset"),
+            Rule("/export/refman/datasets/<dataset_id>/<version>",         endpoint = "ui_export_refman_dataset"),
+            Rule("/export/endnote/datasets/<dataset_id>",                  endpoint = "ui_export_endnote_dataset"),
+            Rule("/export/endnote/datasets/<dataset_id>/<version>",        endpoint = "ui_export_endnote_dataset"),
+            Rule("/export/nlm/datasets/<dataset_id>",                      endpoint = "ui_export_nlm_dataset"),
+            Rule("/export/nlm/datasets/<dataset_id>/<version>",            endpoint = "ui_export_nlm_dataset"),
+            Rule("/export/dc/datasets/<dataset_id>",                       endpoint = "ui_export_dc_dataset"),
+            Rule("/export/dc/datasets/<dataset_id>/<version>",             endpoint = "ui_export_dc_dataset"),
 
            ])
 
@@ -286,7 +286,7 @@ class ApiServer:
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoint, values = adapter.match()
-            return getattr(self, f"api_{endpoint}")(request, **values)
+            return getattr(self, endpoint)(request, **values)
         except NotFound:
             if request.path in self.static_pages:
                 page = self.static_pages[request.path]
@@ -683,13 +683,13 @@ class ApiServer:
     ## API CALLS
     ## ------------------------------------------------------------------------
 
-    def api_home (self, request):
+    def ui_home (self, request):
         if self.accepts_html (request):
             return redirect ("/portal", code=301)
 
         return self.response (json.dumps({ "status": "OK" }))
 
-    def api_login (self, request):
+    def ui_login (self, request):
         orcid_record = self.authenticate_using_orcid (request)
         if orcid_record is None:
             return self.error_403 (request)
@@ -711,7 +711,7 @@ class ApiServer:
                              secure=self.in_production)
         return response
 
-    def api_logout (self, request):
+    def ui_logout (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -739,7 +739,7 @@ class ApiServer:
         response.delete_cookie (key=self.cookie_key)
         return response
 
-    def api_review_impersonate_to_dataset (self, request, dataset_id):
+    def ui_review_impersonate_to_dataset (self, request, dataset_id):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -778,7 +778,7 @@ class ApiServer:
                              secure = self.in_production)
         return response
 
-    def api_admin_impersonate (self, request, account_id):
+    def ui_admin_impersonate (self, request, account_id):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -803,7 +803,7 @@ class ApiServer:
                              secure = self.in_production)
         return response
 
-    def api_dashboard (self, request):
+    def ui_dashboard (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -819,7 +819,7 @@ class ApiServer:
             storage_used = pretty_print_size (storage_used),
             sessions     = sessions)
 
-    def api_my_data (self, request):
+    def ui_my_data (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -869,7 +869,7 @@ class ApiServer:
                                        review_datasets    = review_datasets,
                                        published_datasets = published_datasets)
 
-    def api_new_dataset (self, request):
+    def ui_new_dataset (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -888,7 +888,7 @@ class ApiServer:
 
         return self.error_500()
 
-    def api_edit_dataset (self, request, dataset_id):
+    def ui_edit_dataset (self, request, dataset_id):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -937,7 +937,7 @@ class ApiServer:
 
         return self.error_404 (request)
 
-    def api_delete_dataset (self, request, dataset_id):
+    def ui_delete_dataset (self, request, dataset_id):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -966,7 +966,7 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def api_my_collections (self, request):
+    def ui_my_collections (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -989,7 +989,7 @@ class ApiServer:
         return self.__render_template (request, "depositor/my-collections.html",
                                        collections = collections)
 
-    def api_edit_collection (self, request, collection_id):
+    def ui_edit_collection (self, request, collection_id):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1038,7 +1038,7 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def api_new_collection (self, request):
+    def ui_new_collection (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1059,7 +1059,7 @@ class ApiServer:
 
         return self.error_500()
 
-    def api_delete_collection (self, request, collection_id):
+    def ui_delete_collection (self, request, collection_id):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1096,7 +1096,7 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def api_edit_session (self, request, session_uuid):
+    def ui_edit_session (self, request, session_uuid):
 
         account_id = self.account_id_from_request (request)
         if account_id is None:
@@ -1131,7 +1131,7 @@ class ApiServer:
 
         return self.error_405 (["GET", "PUT"])
 
-    def api_new_session (self, request):
+    def ui_new_session (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1147,7 +1147,7 @@ class ApiServer:
 
         return self.error_500()
 
-    def api_delete_session (self, request, session_uuid):
+    def ui_delete_session (self, request, session_uuid):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1159,7 +1159,7 @@ class ApiServer:
         self.db.delete_session_by_uuid (account_id, session_uuid)
         return response
 
-    def api_profile (self, request):
+    def ui_profile (self, request):
         if not self.accepts_html (request):
             return self.response (json.dumps({
                 "message": "This page is meant for humans only."
@@ -1181,7 +1181,7 @@ class ApiServer:
 
         return self.error_405 ("GET")
 
-    def api_review_dashboard (self, request):
+    def ui_review_dashboard (self, request):
         if not self.accepts_html (request):
             return self.response (json.dumps({
                 "message": "This page is meant for humans only."
@@ -1202,7 +1202,7 @@ class ApiServer:
                                        unassigned_reviews = unassigned)
 
 
-    def api_review_assign_to_me (self, request, dataset_id):
+    def ui_review_assign_to_me (self, request, dataset_id):
 
         account_id = self.account_id_from_request (request)
         token = self.token_from_cookie (request)
@@ -1230,7 +1230,7 @@ class ApiServer:
 
         return self.error_500()
 
-    def api_review_unassign (self, request, dataset_id):
+    def ui_review_unassign (self, request, dataset_id):
 
         account_id = self.account_id_from_request (request)
         token = self.token_from_cookie (request)
@@ -1258,7 +1258,7 @@ class ApiServer:
 
         return self.error_500()
 
-    def api_admin_dashboard (self, request):
+    def ui_admin_dashboard (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1268,7 +1268,7 @@ class ApiServer:
 
         return self.__render_template (request, "admin/dashboard.html")
 
-    def api_admin_users (self, request):
+    def ui_admin_users (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1280,7 +1280,7 @@ class ApiServer:
         return self.__render_template (request, "admin/users.html",
                                        accounts = accounts)
 
-    def api_admin_exploratory (self, request):
+    def ui_admin_exploratory (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1290,7 +1290,7 @@ class ApiServer:
 
         return self.__render_template (request, "admin/exploratory.html")
 
-    def api_admin_maintenance (self, request):
+    def ui_admin_maintenance (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1300,7 +1300,7 @@ class ApiServer:
 
         return self.__render_template (request, "admin/maintenance.html")
 
-    def api_admin_clear_cache (self, request):
+    def ui_admin_clear_cache (self, request):
         token = self.token_from_cookie (request)
         if self.db.may_administer (token):
             logging.info("Invalidating caches.")
@@ -1309,7 +1309,7 @@ class ApiServer:
 
         return self.error_403 (request)
 
-    def api_admin_clear_sessions (self, request):
+    def ui_admin_clear_sessions (self, request):
         token = self.token_from_cookie (request)
         if self.db.may_administer (token):
             logging.info("Invalidating sessions.")
@@ -1318,7 +1318,7 @@ class ApiServer:
 
         return self.error_403 (request)
 
-    def api_portal (self, request):
+    def ui_portal (self, request):
         #When Djehuty is completely in production, set from_figshare to False.
         if self.accepts_html (request):
             summary_data = self.db.repository_statistics()
@@ -1370,7 +1370,7 @@ class ApiServer:
             "message": "This page is meant for humans only."
         }))
 
-    def api_categories (self, request, category_id):
+    def ui_categories (self, request, category_id):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1383,7 +1383,7 @@ class ApiServer:
                                        category=category,
                                        subcategories=subcategories)
 
-    def api_dataset_ui (self, request, dataset_id, version=None):
+    def ui_dataset (self, request, dataset_id, version=None):
         if self.accepts_html (request):
             container     = self.__dataset_by_id_or_uri (
                 dataset_id,
@@ -1488,8 +1488,8 @@ class ApiServer:
             "message": "This page is meant for humans only."
         }))
 
-    def api_collection_ui (self, request, collection_id, version=None):
-        #This function is copied from api_dataset_ui and slightly adapted as a start. It will not yet work properly.
+    def ui_collection (self, request, collection_id, version=None):
+        #This function is copied from ui_dataset and slightly adapted as a start. It will not yet work properly.
         if self.accepts_html (request):
             container     = self.__collection_by_id_or_uri (
                 collection_id,
@@ -1571,7 +1571,7 @@ class ApiServer:
             "message": "This page is meant for humans only."
         }))
 
-    def api_institution (self, request, institution_name):
+    def ui_institution (self, request, institution_name):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1588,7 +1588,7 @@ class ApiServer:
                                        group=group,
                                        sub_groups=sub_groups)
 
-    def api_category (self, request):
+    def ui_category (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1601,7 +1601,7 @@ class ApiServer:
         return self.__render_template (request, "category.html",
                                        categories=categories)
 
-    def api_opendap_to_doi(self, request):
+    def ui_opendap_to_doi(self, request):
         """
             Establish back-links from opendap by matching http referrer with triple store
             and list datasets in repository, or redirect if there is exactly one.
@@ -1642,7 +1642,7 @@ class ApiServer:
             "message": "This page is meant for humans only."
         }))
 
-    def api_download_file (self, request, dataset_id, file_id):
+    def ui_download_file (self, request, dataset_id, file_id):
         try:
             dataset  = self.__dataset_by_id_or_uri (dataset_id)
 
@@ -1683,7 +1683,7 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def api_search_ui(self, request):
+    def ui_search (self, request):
         if self.accepts_html (request):
             search_for = self.get_parameter(request, "search")
             search_for = search_for.strip()
@@ -4176,26 +4176,26 @@ class ApiServer:
     ## EXPORTS
     ## ------------------------------------------------------------------------
 
-    def api_export_datacite_dataset (self, request, dataset_id, version=None):
+    def ui_export_datacite_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: datacite export"}))
 
-    def api_export_datacite_collection (self, request, dataset_id, version=None):
+    def ui_export_datacite_collection (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: datacite export"}))
 
-    def api_export_refworks_dataset (self, request, dataset_id, version=None):
+    def ui_export_refworks_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: refworks export"}))
 
-    def api_export_bibtex_dataset (self, request, dataset_id, version=None):
+    def ui_export_bibtex_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: bibtex export"}))
 
-    def api_export_refman_dataset (self, request, dataset_id, version=None):
+    def ui_export_refman_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: refman export"}))
 
-    def api_export_endnote_dataset (self, request, dataset_id, version=None):
+    def ui_export_endnote_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: endnote export"}))
 
-    def api_export_nlm_dataset (self, request, dataset_id, version=None):
+    def ui_export_nlm_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: nlm export"}))
 
-    def api_export_dc_dataset (self, request, dataset_id, version=None):
+    def ui_export_dc_dataset (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: dc export"}))
