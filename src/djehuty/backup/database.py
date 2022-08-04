@@ -203,7 +203,7 @@ class DatabaseInterface:
             rdf.add (self.store, uri, rdf.DJHT["modified_date"],         value_or_none (record, "modified_date"), XSD.dateTime)
             rdf.add (self.store, uri, rdf.DJHT["created_date"],          value_or_none (record, "created_date"),  XSD.dateTime)
 
-        return True
+        return uri
 
     def insert_institution (self, record):
         """Procedure to insert an institution record."""
@@ -484,7 +484,7 @@ class DatabaseInterface:
 
             self.insert_custom_field (uri, field)
 
-    def insert_collection (self, record, account_id):
+    def insert_collection (self, record, account_id, account_uri):
         """Procedure to insert a collection record."""
 
         collection_id  = record["id"]
@@ -551,7 +551,8 @@ class DatabaseInterface:
                 logging.warning ("Collection %d seems to be empty.", collection_id)
 
             ## Assign the collection to the container
-            container = self.container_uri (collection_id, "collection", account_id)
+            container = self.container_uri (collection_id, "collection",
+                                            account_id, account_uri)
             rdf.add (self.store, uri, rdf.DJHT["container"], container, datatype="uri")
 
             if "statistics" in record:
@@ -725,7 +726,7 @@ class DatabaseInterface:
 
         return None
 
-    def container_uri (self, item_id, item_type, account_id):
+    def container_uri (self, item_id, item_type, account_id, account_uri):
         """Returns the URI of the dataset container belonging to dataset_id."""
 
         prefix     = item_type.capitalize()
@@ -744,6 +745,7 @@ class DatabaseInterface:
             self.store.add ((uri, RDF.type,                   rdf.DJHT[item_class]))
             self.store.add ((uri, rdf.DJHT[f"{item_type}_id"], Literal(item_id, datatype=XSD.integer)))
             self.store.add ((uri, rdf.DJHT["account_id"],      Literal(account_id, datatype=XSD.integer)))
+            self.store.add ((uri, rdf.DJHT["account"],         URIRef(account_uri)))
 
             with self.container_uris_lock:
                 self.container_uris[key] = uri
@@ -760,6 +762,7 @@ class DatabaseInterface:
         self.fix_doi (record, dataset_id, version, 'article')
 
         account_id = value_or_none (record, "account_id")
+        account_uri = value_or_none (record, "account_uri")
         uri        = rdf.unique_node ("dataset")
 
         is_embargoed       = bool (value_or (record, "is_embargoed", False))
@@ -824,7 +827,7 @@ class DatabaseInterface:
             self.handle_custom_fields (record, uri, dataset_id, version, 'articles')
 
             ## Assign the dataset to the container
-            container = self.container_uri (dataset_id, "dataset", account_id)
+            container = self.container_uri (dataset_id, "dataset", account_id, account_uri)
             rdf.add (self.store, uri, rdf.DJHT["container"], container, datatype="uri")
 
             if "statistics" in record:

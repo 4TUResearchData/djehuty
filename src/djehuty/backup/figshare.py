@@ -216,7 +216,7 @@ class FigshareEndpoint:
                              published_since = published_since,
                              published_until = published_until)
 
-    def get_dataset_details_by_account_by_id (self, account_id, dataset_id):
+    def get_dataset_details_by_account_by_id (self, account_id, account_uri, dataset_id):
         """Procedure to get detailed dataset information for a given account_id."""
 
         headers      = self.__request_headers()
@@ -247,6 +247,7 @@ class FigshareEndpoint:
         record["private_links"] = self.get_dataset_private_links_by_account_by_id (account_id,
                                                                                    dataset_id)
         record["account_id"]    = account_id
+        record["account_uri"]   = account_uri
         record["is_latest"]     = 0
         record["is_editable"]   = 1
 
@@ -302,7 +303,7 @@ class FigshareEndpoint:
                               parameters)
         return record
 
-    def get_datasets_by_account (self, account_id):
+    def get_datasets_by_account (self, account_id, account_uri):
         """Procedure to get datasets for a given account_id."""
 
         summaries = self.get_all ("/account/articles", impersonate=account_id)
@@ -314,6 +315,7 @@ class FigshareEndpoint:
             start_time = time.perf_counter()
             datasets = [executor.submit(self.get_dataset_details_by_account_by_id,
                                         account_id,
+                                        account_uri,
                                         dataset_id)
                         for dataset_id in dataset_ids]
             results = list(map(lambda item : item.result(), datasets))
@@ -323,7 +325,7 @@ class FigshareEndpoint:
                            total_fetched, end_time - start_time)
             return results
 
-    def get_collections_by_account (self, account_id):
+    def get_collections_by_account (self, account_id, account_uri):
         """Procedure to get collections for a given account_id."""
 
         logging.info("Getting collections for account %d.", account_id)
@@ -333,8 +335,9 @@ class FigshareEndpoint:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             start_time  = time.perf_counter()
             collections = [executor.submit(self.get_collection_by_id,
-                                        account_id,
-                                        collection_id)
+                                           account_id,
+                                           account_uri,
+                                           collection_id)
                         for collection_id in collection_ids]
             results     = list(map(lambda item : item.result(), collections))
             end_time   = time.perf_counter()
@@ -343,7 +346,7 @@ class FigshareEndpoint:
                          total_fetched, end_time - start_time)
             return results
 
-    def get_collection_by_id (self, account_id, collection_id):
+    def get_collection_by_id (self, account_id, account_uri, collection_id):
         """Procedure to get detailed collection information."""
 
         headers      = self.__request_headers ()
@@ -364,9 +367,9 @@ class FigshareEndpoint:
         record["private_links"] = private_links
         record["datasets"]      = datasets
         record["account_id"]    = account_id
+        record["account_uri"]   = account_uri
         record["is_latest"]     = 0
         record["is_editable"]   = 1
-
 
         ## Other versions
         ## --------------------------------------------------------------------

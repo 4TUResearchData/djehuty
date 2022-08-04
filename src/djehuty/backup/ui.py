@@ -19,12 +19,14 @@ def process_datasets_for_account (endpoint, account):
     datasets_written = 0
     datasets_failed  = 0
 
-    if not endpoint.rdf_store.insert_account (account):
+    account["uri"] = endpoint.rdf_store.insert_account (account)
+    if not account["uri"]:
         # When processing the account fails, don't attempt to
         # process collections and datasets from this account.
         return False
 
-    datasets            = endpoint.get_datasets_by_account (account["id"])
+    datasets            = endpoint.get_datasets_by_account (account["id"],
+                                                            account["uri"])
     number_of_datasets  = len(datasets)
     for dataset_index, dataset in enumerate (datasets):
         logging.info ("Processing dataset %d of %d.",
@@ -47,19 +49,24 @@ def process_collections_for_account (endpoint, account):
 
     collections_written     = 0
     collections_failed      = 0
-    collections             = endpoint.get_collections_by_account (account["id"])
+    collections             = endpoint.get_collections_by_account (account["id"],
+                                                                   account["uri"])
     number_of_collections   = len(collections)
     for collection_index, collection in enumerate (collections):
         logging.info ("Processing collection %d of %d.",
                       collection_index + 1, number_of_collections)
-        if endpoint.rdf_store.insert_collection (collection, account["id"]):
+        if endpoint.rdf_store.insert_collection (collection,
+                                                 account["id"],
+                                                 account["uri"]):
             collections_written += 1
         else:
             collections_failed += 1
 
         versions = value_or (collection, "versions", [])
         for version in versions:
-            if not endpoint.rdf_store.insert_collection (version, account["id"]):
+            if not endpoint.rdf_store.insert_collection (version,
+                                                         account["id"],
+                                                         account["uri"]):
                 logging.error("Inserting a version of %s failed.", collection['id'])
 
     del collections
