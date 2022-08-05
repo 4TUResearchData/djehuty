@@ -99,17 +99,6 @@ def self_or_value_or_none(record, key):
     '''
     return self_or_value(record[key]) if key in record else None
 
-def unversion_doi(doi):
-    '''
-    return versionless doi
-    '''
-    try:
-        doi_parts = doi.split('.v')
-        versionless = '.v'.join(doi_parts[:-1])
-        return versionless
-    except:
-        return doi
-
 def parses_to_int (input_string):
     """Return True when wrapping in int() would succeed, False otherwise."""
     try:
