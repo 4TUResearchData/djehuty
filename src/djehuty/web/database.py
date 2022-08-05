@@ -159,9 +159,7 @@ class SparqlInterface:
         results = self.__run_query (query, query, f"{container_uri}_dataset")
         try:
             return results[0]["bytes"]
-        except IndexError:
-            pass
-        except KeyError:
+        except (IndexError, KeyError):
             pass
 
         return 0
@@ -309,9 +307,7 @@ class SparqlInterface:
                 "bytes": number_of_bytes
             }
             row = { **datasets[0], **authors[0], **collections[0], **files_results }
-        except IndexError:
-            pass
-        except KeyError:
+        except (IndexError, KeyError):
             pass
 
         return row
@@ -744,9 +740,7 @@ class SparqlInterface:
             })
             results = self.__run_query (query)
             return results[0]["uri"]
-        except KeyError:
-            pass
-        except IndexError:
+        except (KeyError, IndexError):
             pass
 
         return None
@@ -1712,9 +1706,7 @@ class SparqlInterface:
             for entry in files:
                 number_of_bytes += int(float(entry["bytes"]))
             return number_of_bytes
-        except IndexError:
-            pass
-        except KeyError:
+        except (IndexError, KeyError):
             pass
 
         return 0
@@ -1949,9 +1941,7 @@ class SparqlInterface:
         account = self.account_by_session_token (session_token)
         try:
             return account[f"may_{task}"]
-        except KeyError:
-            pass
-        except TypeError:
+        except (KeyError, TypeError):
             pass
 
         return False
