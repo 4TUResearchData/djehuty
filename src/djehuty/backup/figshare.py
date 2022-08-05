@@ -284,7 +284,7 @@ class FigshareEndpoint:
         return record
 
     def get_dataset_private_links_by_account_by_id (self, account_id, dataset_id):
-        """Procedure to get private links to an dataset."""
+        """Procedure to get private links to a dataset."""
 
         headers    = self.__request_headers()
         parameters = { "impersonate": account_id }
@@ -427,7 +427,7 @@ class FigshareEndpoint:
 
     def get_dataset_versions (self, dataset_id, account_id, exclude=None,
                               latest=None):
-        """Procedure to get versioning information for an dataset."""
+        """Procedure to get versioning information for a dataset."""
 
         headers  = self.__request_headers ()
         versions = self.get (f"/articles/{dataset_id}/versions", headers, {})
@@ -494,7 +494,7 @@ class FigshareEndpoint:
                                  item_type,
                                  start_date = None,
                                  end_date   = None):
-        """Procedure to get statistics for an dataset or collection."""
+        """Procedure to get statistics for a dataset or collection."""
 
         if self.stats_auth is None:
             logging.info("Missing authentication for the statistics endpoint.")
@@ -534,7 +534,7 @@ class FigshareEndpoint:
                                     dataset_id,
                                     start_date = None,
                                     end_date   = None):
-        """Procedure to get statistics for an dataset."""
+        """Procedure to get statistics for a dataset."""
         return self.get_statistics_for_type (item_id    = dataset_id,
                                              item_type  = "article",
                                              start_date = start_date,

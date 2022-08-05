@@ -1646,7 +1646,7 @@ class ApiServer:
         try:
             dataset  = self.__dataset_by_id_or_uri (dataset_id)
 
-            ## When downloading a file from an dataset that isn't published,
+            ## When downloading a file from a dataset that isn't published,
             ## we need to authorize it first.
             if dataset is None:
                 account_id = self.account_id_from_request (request)
@@ -2484,7 +2484,7 @@ class ApiServer:
                 # First, validate all values passed by the user.
                 # This way, we can be as certain as we can be that performing
                 # a PUT will not end in having no categories associated with
-                # an dataset.
+                # a dataset.
                 for index, _ in enumerate(categories):
                     categories[index] = validator.string_value (categories, index, 0, 36)
 
@@ -3439,7 +3439,7 @@ class ApiServer:
                 # First, validate all values passed by the user.
                 # This way, we can be as certain as we can be that performing
                 # a PUT will not end in having no datasets associated with
-                # an dataset.
+                # a dataset.
                 for index, _ in enumerate(datasets):
                     if parses_to_int (datasets[index]):
                         dataset = validator.integer_value (datasets, index)

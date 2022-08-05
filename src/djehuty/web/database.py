@@ -150,7 +150,7 @@ class SparqlInterface:
     ## ------------------------------------------------------------------------
 
     def dataset_storage_used (self, container_uri):
-        """Returns the number of bytes used by an dataset."""
+        """Returns the number of bytes used by a dataset."""
 
         query = self.__query_from_template ("dataset_storage_used", {
             "container_uri": container_uri
@@ -169,7 +169,7 @@ class SparqlInterface:
     def dataset_versions (self, limit=1000, offset=0, order="version",
                           order_direction="desc", dataset_id=None,
                           container_uri=None):
-        """Procedure to retrieve the versions of an dataset."""
+        """Procedure to retrieve the versions of a dataset."""
         filters  = rdf.sparql_filter ("dataset_id", dataset_id)
         filters += rdf.sparql_filter ("container_uri", container_uri, is_uri=True)
 
@@ -380,7 +380,7 @@ class SparqlInterface:
         return self.__run_query (query, query, "statistics")
 
     def single_dataset_statistics_totals (self, dataset_id): #obsolete? (see dataset_container)
-        """Procedure to get shallow statistics of an dataset."""
+        """Procedure to get shallow statistics of a dataset."""
 
         query   = self.__query_from_template ("single_dataset_statistics_totals", {
             "dataset_id":   dataset_id
@@ -412,7 +412,7 @@ class SparqlInterface:
                  orcid_id=None, url_name=None, limit=10, order="order_index",
                  order_direction="asc", item_uri=None, search_for=None,
                  account_id=None, item_type="dataset", is_published=True):
-        """Procedure to retrieve authors of an dataset."""
+        """Procedure to retrieve authors of a dataset."""
 
         prefix = item_type.capitalize()
 
@@ -452,7 +452,7 @@ class SparqlInterface:
                        status=None, upload_url=None, upload_token=None,
                        order="order_index", order_direction="asc", limit=10,
                        dataset_uri=None, account_id=None, file_id=None):
-        """Procedure to retrieve files of an dataset."""
+        """Procedure to retrieve files of a dataset."""
 
         filters  = rdf.sparql_filter ("size",          size)
         filters += rdf.sparql_filter ("is_link_only",  is_link_only)
@@ -496,7 +496,7 @@ class SparqlInterface:
                        min_length=None, field_type=None, is_multiple=None,
                        is_mandatory=None, order="name", order_direction=None,
                        limit=10, item_uri=None, item_type="dataset"):
-        """Procedure to get custom metadata of an dataset or a collection."""
+        """Procedure to get custom metadata of a dataset or a collection."""
 
         prefix = item_type.capitalize()
 
@@ -523,7 +523,7 @@ class SparqlInterface:
 
     def tags (self, order=None, order_direction=None, limit=10,
               item_uri=None, item_type="dataset"):
-        """Procedure to get tags for an dataset or a collection."""
+        """Procedure to get tags for a dataset or a collection."""
 
         prefix  = item_type.capitalize()
         query   = self.__query_from_template ("tags", {
@@ -538,7 +538,7 @@ class SparqlInterface:
     def categories (self, title=None, order=None, order_direction=None,
                     limit=10, item_uri=None, account_id=None,
                     is_published=True):
-        """Procedure to retrieve categories of an dataset."""
+        """Procedure to retrieve categories of a dataset."""
 
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("categories", {
@@ -553,7 +553,7 @@ class SparqlInterface:
 
     def account_categories (self, account_id, title=None, order=None,
                             order_direction=None, limit=10):
-        """Procedure to retrieve categories of an dataset."""
+        """Procedure to retrieve categories of a dataset."""
 
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("account_categories", {
@@ -565,7 +565,7 @@ class SparqlInterface:
         return self.__run_query (query)
 
     def private_links (self, item_uri=None, account_id=None, id_string=None):
-        """Procedure to get private links to an dataset or a collection."""
+        """Procedure to get private links to a dataset or a collection."""
 
         query   = self.__query_from_template ("private_links", {
             "id_string":   id_string,
@@ -591,7 +591,7 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def collections_from_dataset (self, dataset_id):
-        """Procedure to get the collections an dataset is part of."""
+        """Procedure to get the collections a dataset is part of."""
 
         query = self.__query_from_template ("collections_from_dataset", {
             "dataset_id":  dataset_id
@@ -859,7 +859,7 @@ class SparqlInterface:
                         private_links=None,
                         files=None,
                         embargo_options=None):
-        """Procedure to insert an dataset to the state graph."""
+        """Procedure to insert a dataset to the state graph."""
 
         funding_list    = [] if funding_list    is None else funding_list
         tags            = [] if tags            is None else tags
@@ -1091,7 +1091,7 @@ class SparqlInterface:
         rdf.add (graph, item_uri, rdf.DJHT["submission"],           submission,   XSD.string)
 
     def delete_associations (self, container_uuid, account_id, predicate):
-        """Procedure to delete the list of PREDICATE of an dataset or collection."""
+        """Procedure to delete the list of PREDICATE of a dataset or collection."""
 
         query = self.__query_from_template ("delete_associations", {
             "container_uri": rdf.uuid_to_uri (container_uuid, "container"),
@@ -1113,7 +1113,7 @@ class SparqlInterface:
 
     def delete_item_categories (self, item_id, account_id, category_id=None,
                                 item_type="dataset"):
-        """Procedure to delete the categories of an dataset or collection."""
+        """Procedure to delete the categories of a dataset or collection."""
 
         prefix = item_type.capitalize()
         query = self.__query_from_template ("delete_item_categories", {
@@ -1127,7 +1127,7 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def delete_dataset_categories (self, dataset_id, account_id, category_id=None):
-        """Procedure to delete the categories related to an dataset."""
+        """Procedure to delete the categories related to a dataset."""
         return self.delete_item_categories (dataset_id, account_id, category_id, "dataset")
 
     def insert_funding (self, title=None, grant_code=None, funder_name=None,
@@ -1332,7 +1332,7 @@ class SparqlInterface:
                         embargo_until_date=None, embargo_type=None,
                         embargo_title=None, embargo_reason=None,
                         embargo_allow_access_requests=None, is_embargoed=False):
-        """Procedure to overwrite parts of an dataset."""
+        """Procedure to overwrite parts of a dataset."""
 
         query   = self.__query_from_template ("update_dataset", {
             "account_id":      account_id,
@@ -1382,7 +1382,7 @@ class SparqlInterface:
         return True
 
     def delete_dataset_embargo (self, dataset_uri, account_id):
-        """Procedure to lift the embargo on an dataset."""
+        """Procedure to lift the embargo on a dataset."""
 
         query   = self.__query_from_template ("delete_dataset_embargo", {
             "account_id":  account_id,
@@ -1392,7 +1392,7 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def delete_private_links (self, item_id, account_id, link_id, item_type="dataset"):
-        """Procedure to remove private links to an dataset."""
+        """Procedure to remove private links to a dataset."""
 
         prefix  = item_type.capitalize()
         query   = self.__query_from_template ("delete_private_links", {
@@ -1408,7 +1408,7 @@ class SparqlInterface:
     def update_private_link (self, item_uri, account_id, link_id,
                              is_active=None, expires_date=None,
                              read_only=None):
-        """Procedure to update a private link to an dataset."""
+        """Procedure to update a private link to a dataset."""
 
         query   = self.__query_from_template ("update_private_link", {
             "account_id":   account_id,
@@ -1422,7 +1422,7 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def dataset_update_thumb (self, dataset_id, version, account_id, file_id):
-        """Procedure to update the thumbnail of an dataset."""
+        """Procedure to update the thumbnail of a dataset."""
 
         filters = rdf.sparql_filter ("file_id", file_id)
         query   = self.__query_from_template ("update_dataset_thumb", {

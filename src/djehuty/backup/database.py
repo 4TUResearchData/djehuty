@@ -606,7 +606,7 @@ class DatabaseInterface:
         return uri
 
     def insert_private_link (self, record):
-        """Procedure to insert a private link to an dataset or a collection."""
+        """Procedure to insert a private link to a dataset or a collection."""
 
         is_active = value_or (record, "is_active", False)
         suffix    = token_urlsafe (64)
@@ -655,7 +655,7 @@ class DatabaseInterface:
         return True
 
     def insert_totals_statistics (self, record, uri):
-        """Procedure to insert simplified totals for an dataset or collection."""
+        """Procedure to insert simplified totals for a dataset or collection."""
 
         if record is None:
             return None
@@ -753,7 +753,7 @@ class DatabaseInterface:
         return uri
 
     def insert_dataset (self, record):
-        """Procedure to insert an dataset record."""
+        """Procedure to insert a dataset record."""
 
         dataset_id = value_or_none (record, "id")
         if dataset_id is None:
