@@ -69,6 +69,7 @@ class ApiServer:
             Rule("/my/datasets/<dataset_id>/edit",            endpoint = "ui_edit_dataset"),
             Rule("/my/datasets/<dataset_id>/delete",          endpoint = "ui_delete_dataset"),
             Rule("/my/datasets/new",                          endpoint = "ui_new_dataset"),
+            Rule("/my/datasets/submitted-for-review",         endpoint = "ui_dataset_submitted"),
             Rule("/my/collections",                           endpoint = "ui_my_collections"),
             Rule("/my/collections/<collection_id>/edit",      endpoint = "ui_edit_collection"),
             Rule("/my/collections/<collection_id>/delete",    endpoint = "ui_delete_collection"),
@@ -868,6 +869,20 @@ class ApiServer:
                                        draft_datasets     = draft_datasets,
                                        review_datasets    = review_datasets,
                                        published_datasets = published_datasets)
+
+    def ui_dataset_submitted (self, request):
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed (request)
+
+        token = self.token_from_cookie (request)
+        if not self.db.is_depositor (token):
+            return self.error_404 (request)
+
+        return self.__render_template (request, "depositor/submitted-for-review.html")
 
     def ui_new_dataset (self, request):
         if not self.accepts_html (request):

@@ -570,7 +570,7 @@ function submit_dataset (dataset_uuid, event) {
         accept:      "application/json",
         data:        JSON.stringify(form_data),
     }).done(function () {
-        window.location.replace("/my/datasets");
+        window.location.replace("/my/datasets/submitted-for-review");
     }).fail(function () {
         jQuery("#message")
             .addClass("failure")
