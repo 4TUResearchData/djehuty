@@ -3777,7 +3777,7 @@ class ApiServer:
             file_size = os.path.getsize (output_filename)
 
             computed_md5 = None
-            md5 = hashlib.md5()
+            md5 = hashlib.new ("md5", usedforsecurity=False)
             with open(output_filename, "rb") as stream:
                 for chunk in iter(lambda: stream.read(4096), b""):
                     md5.update(chunk)

@@ -22,7 +22,9 @@ class CacheLayer:
         if input_string is None:
             return None
 
-        return hashlib.md5(input_string.encode('utf-8')).hexdigest()
+        md5 = hashlib.new ("md5", usedforsecurity=False)
+        md5.update (input_string.encode('utf-8'))
+        return md5.hexdigest()
 
     def cache_is_ready(self):
         """Procedure to set up and test the ability to cache."""
