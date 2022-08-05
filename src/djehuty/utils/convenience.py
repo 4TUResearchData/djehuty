@@ -85,19 +85,15 @@ def decimal_coords(lat, lon, digits=5):
     lon_validated = decimal_coord(lon, 'E', digits=digits)
     return (lat_validated, lon_validated)
 
-def self_or_value(x):
-    '''
-    Return x['value'] or x.
-    Use: deal with triples where table2rdf transformed a string into a number.
-    '''
-    return value_or(x, 'value', x)
-
 def self_or_value_or_none(record, key):
     '''
     Return record[key]['value'] or record[key] or none.
     Use: deal with triples where table2rdf transformed a string into a number.
     '''
-    return self_or_value(record[key]) if key in record else None
+    if key in record:
+        return value_or (record[key], 'value', record[key])
+
+    return None
 
 def parses_to_int (input_string):
     """Return True when wrapping in int() would succeed, False otherwise."""
