@@ -51,9 +51,8 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             is_writeable = False
             log_file     = os.path.abspath (log_file)
             try:
-                file_test = open (log_file, "a", encoding = "utf-8")
-                file_test.close()
-                is_writeable = True
+                with open (log_file, "a", encoding = "utf-8"):
+                    is_writeable = True
             except PermissionError:
                 pass
             except FileNotFoundError:
