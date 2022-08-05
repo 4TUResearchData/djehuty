@@ -59,12 +59,12 @@ def decimal_coord(raw_input, axis, digits=5):
         raw_input = raw_input.strip()
         try:
             deg = float(raw_input)
-        except:
+        except ValueError:
             match = re.search(pattern, raw_input)
             if match:
-                g = match.groups()
-                deg = int(g[0]) + int(g[1])/60 + float(g[2])/3600
-                direction = g[-1] #direction may be N,E,S,W, axis N,E.
+                components = match.groups()
+                deg = int(components[0]) + int(components[1])/60 + float(components[2])/3600
+                direction = components[-1] #direction may be N,E,S,W, axis N,E.
                 if (direction == 'S' and axis == 'N') or (direction == 'W' and axis == 'E'):
                     deg = -deg
                 elif direction != axis:
