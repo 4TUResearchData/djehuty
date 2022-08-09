@@ -257,7 +257,7 @@
     {% autoescape false %}
         <div id="organizations">
             <div class="label">organizations</div>
-            {{ item.organizations.replace('\\n', '<br />') }}
+            {{ item.organizations.replace('\n', '<br />') }}
         </div>
     {% endautoescape %}
 {% endif %}

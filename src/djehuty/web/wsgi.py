@@ -1472,9 +1472,8 @@ class ApiServer:
 
             contributors = []
             if 'contributors' in dataset:
-                contr = dataset['contributors'].split(';\\n')
+                contr = dataset['contributors'].split(';\n')
                 contr_parts = [ c.split(' [orcid:') for c in contr ]
-                contributors = contr_parts
                 contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
 
             return self.__render_template (request, "dataset.html",
@@ -1559,9 +1558,8 @@ class ApiServer:
 
             contributors = []
             if 'contributors' in collection:
-                contr = collection['contributors'].split(';\\n')
+                contr = collection['contributors'].split(';\n')
                 contr_parts = [ c.split(' [orcid:') for c in contr ]
-                contributors = contr_parts
                 contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
 
             datasets = self.db.collection_datasets(collection_uri)
