@@ -272,6 +272,9 @@ jQuery(document).ready(function (){
 --><label for="closed_access" class="no-head">Closed access</label>
   </div>
   <div class="access_level" id="open_access_form">
+    <p>
+      Open access is the default setting in 4TU.ResearchData by which your dataset will be directly accessible to others.
+    </p>
     <label for="license_open" class="inner-head">License</label>
     <select id="license_open" class="license-selector" name="license">
       <option value="" disabled selected>Select a license</option>
@@ -302,6 +305,9 @@ jQuery(document).ready(function (){
     </div>
   </div>
   <div class="access_level" id="restricted_access_form">
+    <p>
+      Restricted access allows you to share your dataset under specific conditions and with users who have been granted access. Please add the End-User License Agreement (EULA) in which you specify the conditions under which you grant users access to your data files, and add the reason why your dataset is restricted.
+    </p>
     <!--
         * Upload box for EULA document.
         * Reason for restricted access field.
@@ -309,9 +315,8 @@ jQuery(document).ready(function (){
   </div>
   <div class="access_level" id="closed_access_form">
     <p>
-      We strongly encourage considering publishing as <em>restricted access</em>
-      instead.  Therefore, please provide a detailed reson for why closed access
-      is necessary.
+      The dataset is inaccessible and there is no process in place to allow others to apply for access to it. We strongly encourage considering publishing as <em>restricted access</em>
+      instead. Therefore, please provide a detailed reason for why closed access is applied.
     </p>
     <label class="inner-head">Reason</label>
     <div id="closed_access_reason" class="texteditor">
