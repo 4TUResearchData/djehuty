@@ -113,7 +113,7 @@
   {% else: %}
   <img class="tile-preview" src="/static/images/dataset-thumb.svg" aria-hidden="true" alt="thumbnail for {{item.id}}" />
   {% endif %}</a>
-  <div class="tile-title"><a href="{{item.url_public_html}}">{{item.title}}</a></div>
+  <div class="tile-title"><a href="/datasets/{{item.container_uuid}}">{{item.title}}</a></div>
   <div class="tile-date">Posted on {{item.timeline_posted}}</div>
   <div class="tile-authors">
   </div>
