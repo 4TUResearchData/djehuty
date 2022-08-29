@@ -1445,12 +1445,12 @@ class ApiServer:
             dates = {}
             for (label, dtype) in date_types:
                 if dtype in dataset:
-                    date = dataset[dtype]
-                    if date:
-                        date = date[:10]
-                        if not date in dates:
-                            dates[date] = []
-                        dates[date].append(label)
+                    date_value = dataset[dtype]
+                    if date_value:
+                        date_value = date_value[:10]
+                        if not date_value in dates:
+                            dates[date_value] = []
+                        dates[date_value].append(label)
             dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
 
             id_version = f'{dataset_id}/{version}' if version else f'{dataset_id}'
@@ -1544,12 +1544,12 @@ class ApiServer:
             dates = {}
             for (label, dtype) in date_types:
                 if dtype in collection:
-                    date = collection[dtype]
-                    if date:
-                        date = date[:10]
-                        if not date in dates:
-                            dates[date] = []
-                        dates[date].append(label)
+                    date_value = collection[dtype]
+                    if date_value:
+                        date_value = date_value[:10]
+                        if not date_value in dates:
+                            dates[date_value] = []
+                        dates[date_value].append(label)
             dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
 
             lat = self_or_value_or_none(collection, 'latitude')
