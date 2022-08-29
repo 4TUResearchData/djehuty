@@ -42,7 +42,8 @@ class DatabaseInterface:
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
         response = requests.get(url,
                                 headers = headers,
-                                params  = parameters)
+                                params  = parameters,
+                                timeout = 60)
         if response.status_code == 200:
             return response.text
 
@@ -123,7 +124,7 @@ class DatabaseInterface:
         for doi in dois:
             query = f"https://api.eventdata.crossref.org/v1/events?mailto={mail_to}&obj-id={doi}&from-occurred-date={from_date}"
             time.sleep(rate)
-            req = requests.get(query)
+            req = requests.get(query, timeout = 60)
             data = json.loads(req.content)
             for item in data["message"]["events"]:
                 try:
