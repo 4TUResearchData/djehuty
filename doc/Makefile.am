@@ -31,6 +31,7 @@ EXTRA_DIST              = $(doc_TEX) $(doc_STYLE)                  \
                           introduction.tex                         \
                           knowledge-graph.tex                      \
                           references.bib                           \
+                          figures/account.pdf                      \
                           figures/dataset.pdf                      \
                           figures/dataset-container.pdf            \
                           figures/logo.pdf                         \
@@ -78,6 +79,7 @@ docs-clean:
       $(doc_NAME)4.html                                            \
       missfont.log                                                 \
       texput.log                                                   \
+      figures/account-.png                                         \
       figures/dataset-.png                                         \
       figures/dataset-container-.png                               \
       figures/logo-.png                                            \
