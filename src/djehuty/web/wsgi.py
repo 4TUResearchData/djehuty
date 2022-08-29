@@ -553,7 +553,8 @@ class ApiServer:
             }
             response = requests.post(f"{self.orcid_endpoint}/token",
                                      params  = url_parameters,
-                                     headers = headers)
+                                     headers = headers,
+                                     timeout = 10)
 
             if response.status_code == 200:
                 return response.json()
@@ -1361,7 +1362,7 @@ class ApiServer:
                     base = 'https://api.figshare.com/v2/articles'
                     headers = {'Content-Type': 'application/json'}
                     data = json.dumps({'page_size': page_size, 'institution_id': 898, 'order': 'published_date', 'order_direction': 'desc'})
-                    records = requests.get(base, headers=headers, data=data).json()
+                    records = requests.get(base, headers=headers, data=data, timeout=60).json()
                 else:
                     records = self.db.latest_datasets_portal(page_size)
                 for rec in records:
