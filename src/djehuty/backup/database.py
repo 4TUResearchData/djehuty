@@ -337,10 +337,6 @@ class DatabaseInterface:
         """Adds an RDF list with indexes for PRIVATE_LINKS to GRAPH."""
         self.insert_record_list (uri, records, "private_links", self.insert_private_link)
 
-    def insert_embargo_list (self, uri, records):
-        """Adds an RDF list with indexes for EMBARGOS to GRAPH."""
-        self.insert_record_list (uri, records, "embargos", self.insert_embargo)
-
     def insert_item_list (self, uri, items, items_name):
         """Adds an RDF list with indexes for ITEMS to GRAPH."""
 
@@ -621,17 +617,6 @@ class DatabaseInterface:
 
         return uri
 
-    def insert_embargo (self, record):
-        """Procedure to insert an embargo record."""
-
-        uri = rdf.unique_node ("embargo")
-        self.store.add ((uri, RDF.type, rdf.DJHT["Embargo"]))
-        rdf.add (self.store, uri, rdf.DJHT["id"],      value_or_none (record, "id"), XSD.integer)
-        rdf.add (self.store, uri, rdf.DJHT["type"],    value_or_none (record, "type"), XSD.string)
-        rdf.add (self.store, uri, rdf.DJHT["ip_name"], value_or_none (record, "ip_name"), XSD.string)
-
-        return uri
-
     def insert_license (self, uri, record):
         """Procedure to insert a license record."""
 
@@ -815,6 +800,12 @@ class DatabaseInterface:
             rdf.add (self.store, uri, rdf.DJHT["is_latest"],           is_latest, XSD.boolean)
             rdf.add (self.store, uri, rdf.DJHT["is_editable"],         is_editable, XSD.boolean)
 
+            if is_embargoed:
+                rdf.add (self.store, uri, rdf.DJHT["embargo_until_date"], value_or_none (record, "embargo_date"), XSD.date)
+                rdf.add (self.store, uri, rdf.DJHT["embargo_type"],    value_or_none (record, "embargo_type"), XSD.string)
+                rdf.add (self.store, uri, rdf.DJHT["embargo_title"],   value_or_none (record, "embargo_title"), XSD.string)
+                rdf.add (self.store, uri, rdf.DJHT["embargo_reason"],  value_or_none (record, "embargo_reason"), XSD.string)
+
             self.insert_item_list (uri, value_or (record, "references", []), "references")
             tags = [tag for tag in value_or (record, "tags", []) if not tag.startswith('Collection: ')]
             self.insert_item_list (uri, tags, "tags")
@@ -823,7 +814,6 @@ class DatabaseInterface:
             self.insert_file_list (uri, value_or (record, "files", []))
             self.insert_funding_list (uri, value_or (record, "funding_list", []))
             self.insert_private_links_list (uri, value_or (record, "private_links", []))
-            self.insert_embargo_list (uri, value_or (record, "embargo_options", []))
 
             self.handle_custom_fields (record, uri, dataset_id, version, 'articles')
 
