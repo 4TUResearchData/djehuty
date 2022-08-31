@@ -21,6 +21,7 @@
              (gnu packages python-web)
              (gnu packages rdf)
              (gnu packages version-control)
+             (gnu packages xml)
              (gnu packages)
              (guix build-system python)
              (guix download)
@@ -42,6 +43,7 @@
     `(#:tests? #f))
    (propagated-inputs
     `(("git" ,git)
+      ("python-defusedxml" ,python-defusedxml)
       ("python-jinja2" ,python-jinja2)
       ("python-rdflib" ,python-rdflib)
       ("python-pygit2" ,python-pygit2)

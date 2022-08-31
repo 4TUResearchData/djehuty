@@ -1,7 +1,6 @@
 """This module provides an interface to store data fetched by the 'figshare' module."""
 
 import os
-import xml.etree.ElementTree as ET
 import ast
 import logging
 from datetime import datetime
@@ -9,6 +8,7 @@ from threading import Lock
 from secrets import token_urlsafe
 import json
 import time
+import defusedxml.ElementTree as ET
 from rdflib import Graph, Literal, RDF, RDFS, XSD, URIRef
 import requests
 from requests.utils import requote_uri

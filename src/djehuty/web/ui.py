@@ -2,8 +2,8 @@
 
 import logging
 import os
-import xml.etree.ElementTree as ET
 import shutil
+import defusedxml.ElementTree as ET
 from werkzeug.serving import run_simple
 from djehuty.web import database
 from djehuty.web import wsgi
