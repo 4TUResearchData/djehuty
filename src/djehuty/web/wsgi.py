@@ -1887,7 +1887,7 @@ class ApiServer:
                             "value": self.db.derived_from(item_uri=dataset_uri)} )
             total['custom_fields'] = custom
             return self.response (json.dumps(total))
-        except IndexError:
+        except (IndexError, TypeError):
             response = self.response (json.dumps({
                 "message": "This dataset cannot be found."
             }))
