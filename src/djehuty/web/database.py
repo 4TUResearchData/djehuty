@@ -66,6 +66,8 @@ class SparqlInterface:
                         time_value = time_value[:-1]
                     timestamp    = datetime.strptime(time_value, "%Y-%m-%dT%H:%M:%S")
                     record[item] = datetime.strftime (timestamp, "%Y-%m-%d %H:%M:%S")
+                elif datatype == "http://www.w3.org/2001/XMLSchema#date":
+                    record[item] = record[item]["value"]
                 elif datatype == "http://www.w3.org/2001/XMLSchema#string":
                     if record[item]["value"] == "NULL":
                         record[item] = None
