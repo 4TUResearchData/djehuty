@@ -106,7 +106,6 @@ WHERE {
     OPTIONAL { ?dataset djht:has_linked_file       ?has_linked_file . }
     OPTIONAL { ?dataset djht:is_active             ?is_active . }
     OPTIONAL { ?dataset djht:is_confidential       ?is_confidential . }
-    OPTIONAL { ?dataset djht:is_embargoed          ?is_embargoed . }
     OPTIONAL { ?dataset djht:is_metadata_record    ?is_metadata_record . }
     OPTIONAL { ?dataset djht:metadata_reason       ?metadata_reason . }
     OPTIONAL { ?dataset djht:modified_date         ?modified_date . }
@@ -139,6 +138,7 @@ WHERE {
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?dataset), "dataset:")         AS ?uuid)
     BIND(BOUND(?review)                              AS ?is_under_review)
+    BIND((BOUND(?embargo_until_date) AND ?embargo_until_date > NOW()) AS ?is_embargoed)
   }
 {%- if is_under_review is not none %}
 {%- if is_under_review %}

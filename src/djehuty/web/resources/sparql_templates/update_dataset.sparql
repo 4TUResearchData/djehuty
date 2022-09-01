@@ -46,8 +46,6 @@ DELETE {
     ?dataset           djht:defined_type         ?defined_type .
     {%- endif%}{% if has_linked_file is not none %}
     ?dataset           djht:has_linked_file      ?has_linked_file .
-    {%- endif%}{% if is_embargoed is not none %}
-    ?dataset           djht:is_embargoed         ?is_embargoed .
     {%- endif%}{% if embargo_until_date is not none %}
     ?dataset           djht:embargo_until_date   ?embargo_until_date .
     {%- endif%}{% if embargo_type is not none %}
@@ -108,8 +106,6 @@ INSERT {
     ?dataset           djht:defined_type         {{defined_type}} .
     {%- endif%}{% if has_linked_file is not none %}
     ?dataset           djht:has_linked_file      {{has_linked_file}} .
-    {%- endif%}{% if is_embargoed is not none %}
-    ?dataset           djht:is_embargoed         "{{is_embargoed}}"^^xsd:boolean .
     {%- endif%}{% if embargo_until_date is not none %}
     ?dataset           djht:embargo_until_date   {{embargo_until_date}} .
     {%- endif%}{% if embargo_type is not none %}
@@ -160,7 +156,6 @@ WHERE {
     OPTIONAL { ?dataset djht:defined_type_name     ?defined_type_name . }
     OPTIONAL { ?dataset djht:defined_type          ?defined_type . }
     OPTIONAL { ?dataset djht:has_linked_file       ?has_linked_file . }
-    OPTIONAL { ?dataset djht:is_embargoed          ?is_embargoed . }
     OPTIONAL { ?dataset djht:embargo_until_date    ?embargo_until_date . }
     OPTIONAL { ?dataset djht:embargo_type          ?embargo_type . }
     OPTIONAL { ?dataset djht:embargo_title         ?embargo_title . }

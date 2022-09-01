@@ -3,21 +3,16 @@
 {self.default_prefixes}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?dataset  djht:is_embargoed       ?is_embargoed .
     ?dataset  djht:embargo_type       ?embargo_type .
     ?dataset  djht:embargo_title      ?embargo_title .
     ?dataset  djht:embargo_reason     ?embargo_reason .
     ?dataset  djht:embargo_until_date ?embargo_until_date .
   }
 }
-INSERT {
-    ?dataset  djht:is_embargoed   "0"^^xsd:boolean .
-}
 WHERE {
   GRAPH <{{state_graph}}> {
     ?dataset  rdf:type               djht:Dataset ;
     ?dataset  djht:account_id         {{account_id}} .
-    ?dataset  djht:is_embargoed       ?is_embargoed .
 
     OPTIONAL { ?dataset  djht:embargo_type       ?embargo_type . }
     OPTIONAL { ?dataset  djht:embargo_title      ?embargo_title . }
