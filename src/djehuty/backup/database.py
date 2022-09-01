@@ -793,7 +793,6 @@ class DatabaseInterface:
             rdf.add (self.store, uri, rdf.DJHT["resource_doi"],        value_or_none (record, "resource_doi"), XSD.string)
             rdf.add (self.store, uri, rdf.DJHT["resource_title"],      value_or_none (record, "resource_title"), XSD.string)
             rdf.add (self.store, uri, rdf.DJHT["has_linked_file"],     has_linked_file, XSD.boolean)
-            rdf.add (self.store, uri, rdf.DJHT["is_embargoed"],        is_embargoed, XSD.boolean)
             rdf.add (self.store, uri, rdf.DJHT["is_metadata_record"],  is_metadata_record, XSD.boolean)
             rdf.add (self.store, uri, rdf.DJHT["is_confidential"],     is_confidential, XSD.boolean)
             rdf.add (self.store, uri, rdf.DJHT["is_public"],           is_public, XSD.boolean)
