@@ -858,7 +858,10 @@ class SparqlInterface:
                         custom_fields=None,
                         private_links=None,
                         files=None,
-                        embargo_options=None):
+                        embargo_type=None,
+                        embargo_until_date=None,
+                        embargo_title=None,
+                        embargo_reason=None):
         """Procedure to insert a dataset to the state graph."""
 
         funding_list    = [] if funding_list    is None else funding_list
@@ -869,7 +872,6 @@ class SparqlInterface:
         custom_fields   = [] if custom_fields   is None else custom_fields
         private_links   = [] if private_links   is None else private_links
         files           = [] if files           is None else files
-        embargo_options = [] if embargo_options is None else embargo_options
 
         graph           = Graph()
         uri             = rdf.unique_node ("dataset")
@@ -897,19 +899,9 @@ class SparqlInterface:
         self.insert_record_list (graph, uri, files, "files", self.insert_file)
         self.insert_record_list (graph, uri, funding_list, "funding_list", self.insert_funding)
         self.insert_record_list (graph, uri, private_links, "private_links", self.insert_private_link)
-        self.insert_record_list (graph, uri, embargo_options, "embargos", self.insert_embargo)
 
         for field in custom_fields:
             self.insert_custom_field (uri, field)
-
-        ## EMBARGOS
-        ## --------------------------------------------------------------------
-        for embargo in embargo_options:
-            self.insert_embargo (
-                embargo_id         = conv.value_or_none (embargo, "id"),
-                dataset_version_id = dataset_version_id,
-                embargo_type       = conv.value_or_none (embargo, "type"),
-                ip_name            = conv.value_or_none (embargo, "ip_name"))
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
@@ -951,6 +943,11 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["is_active"],      1)
         rdf.add (graph, uri, rdf.DJHT["is_latest"],      0)
         rdf.add (graph, uri, rdf.DJHT["is_editable"],    1)
+
+        rdf.add (graph, uri, rdf.DJHT["embargo_type"], embargo_type, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["embargo_until_date"], embargo_until_date, XSD.date)
+        rdf.add (graph, uri, rdf.DJHT["embargo_title"], embargo_title, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["embargo_reason"], embargo_reason, XSD.string)
 
         # Add the dataset to its container.
         graph.add ((container, rdf.DJHT["draft"],       uri))
@@ -1257,25 +1254,6 @@ class SparqlInterface:
         query = self.__insert_query_for_graph (graph)
         if self.__run_query(query):
             return link_uri
-
-        return None
-
-    def insert_embargo (self, embargo_id, dataset_version_id, embargo_type=None, ip_name=None):
-        """Procedure to add an license to the state graph."""
-
-        graph    = Graph()
-        embargo_uri = rdf.ROW[f"embargo_{embargo_id}"]
-
-        graph.add ((embargo_uri, RDF.type,               rdf.DJHT["DatasetEmbargoOption"]))
-        graph.add ((embargo_uri, rdf.DJHT["id"],          Literal(embargo_id)))
-        graph.add ((embargo_uri, rdf.DJHT["dataset_version_id"], Literal(dataset_version_id)))
-
-        rdf.add (graph, embargo_uri, rdf.DJHT["type"],    embargo_type, XSD.string)
-        rdf.add (graph, embargo_uri, rdf.DJHT["ip_name"], ip_name,      XSD.string)
-
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
-            return embargo_id
 
         return None
 
