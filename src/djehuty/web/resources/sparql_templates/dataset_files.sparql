@@ -19,6 +19,7 @@ WHERE {
     ?container         rdf:type/rdfs:subClassOf djht:Container ;
                        djht:account_id          {{account_id}} .
     {% endif %}
+    OPTIONAL { ?dataset_uri djht:embargo_until_date ?embargo_until_date . }
     OPTIONAL { ?file  djht:id                   ?id . }
     OPTIONAL { ?file  djht:name                 ?name . }
     OPTIONAL { ?file  djht:filesystem_location  ?filesystem_location . }
@@ -35,6 +36,7 @@ WHERE {
 
     BIND(STRAFTER(STR(?file), "file:") AS ?uuid)
   }
+  FILTER (! (BOUND(?embargo_until_date) AND ?embargo_until_date > NOW()))
 {%- if dataset_uri is not none %}
   FILTER (?dataset_uri = <{{dataset_uri}}>)
 {%- endif %}
