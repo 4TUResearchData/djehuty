@@ -19,6 +19,16 @@ def format_account_record (record):
 
 def format_dataset_record (record):
     """Record formatter for datasets."""
+
+    if (bool(conv.value_or (record, "is_embargoed", False)) and
+        conv.value_or (record, "embargo_type", "") == "article"):
+        return {
+            "embargo_date":   conv.value_or_none(record, "embargo_until_date"),
+            "embargo_type":   conv.value_or_none(record, "embargo_type"),
+            "embargo_title":  conv.value_or(record, "embargo_title", ""),
+            "embargo_reason": conv.value_or(record, "embargo_reason", ""),
+        }
+
     return {
         "id":                      conv.value_or_none(record, "dataset_id"),
         "uuid":                    conv.value_or_none(record, "container_uuid"),
@@ -141,8 +151,20 @@ def format_license_record (record):
     }
 
 def format_dataset_details_record (dataset, authors, files, custom_fields,
-                                   tags, categories, funding, references):
+                                   tags, categories, funding, references,
+                                   is_private=False):
     """Detailed record formatter for datasets."""
+
+    if (bool(conv.value_or (dataset, "is_embargoed", False)) and
+        conv.value_or (dataset, "embargo_type", "") == "article" and
+        not is_private):
+        return {
+            "embargo_date":      conv.value_or_none(dataset, "embargo_until_date"),
+            "embargo_type":      conv.value_or_none(dataset, "embargo_type"),
+            "embargo_title":     conv.value_or(dataset, "embargo_title", ""),
+            "embargo_reason":    conv.value_or(dataset, "embargo_reason", ""),
+        }
+
     return {
         "files":             list (map (format_file_for_dataset_record, files)),
         "custom_fields":     list (map (format_custom_field_record, custom_fields)),

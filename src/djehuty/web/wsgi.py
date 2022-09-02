@@ -2138,7 +2138,8 @@ class ApiServer:
                                                                            tags,
                                                                            categories,
                                                                            funding_list,
-                                                                           references)
+                                                                           references,
+                                                                           is_private=True)
                 # ugly fix for custom field Derived From
                 custom = total['custom_fields']
                 custom = [c for c in custom if c['name'] != 'Derived From']
