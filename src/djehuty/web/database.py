@@ -350,8 +350,7 @@ class SparqlInterface:
                                      order_direction="desc",
                                      category_ids=None,
                                      limit=10,
-                                     offset=0,
-                                     aggregation_type="day"):
+                                     offset=0):
         """Procedure to retrieve dataset statistics per date."""
 
         item_class  = item_type.capitalize()
