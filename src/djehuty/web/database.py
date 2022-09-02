@@ -649,7 +649,7 @@ class SparqlInterface:
             return 0
 
     def collections (self, limit=10, offset=None, order=None,
-                     order_direction=None, institution=None,
+                     order_direction=None, institution=None, categories=None,
                      published_since=None, modified_since=None, group=None,
                      resource_doi=None, resource_id=None, doi=None, handle=None,
                      account_id=None, search_for=None, collection_id=None,
@@ -667,6 +667,10 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("doi",            doi,          escape=True)
         filters += rdf.sparql_filter ("handle",         handle,       escape=True)
 
+        if categories is not None:
+            filters += f"FILTER ((?category_id IN ({','.join(map(str, categories))})) OR "
+            filters += f"(?parent_category_id IN ({','.join(map(str, categories))})))\n"
+
         if search_for is not None:
             filters += (f"FILTER (CONTAINS(STR(?title),          \"{search_for}\") OR\n"
                         f"        CONTAINS(STR(?resource_title), \"{search_for}\") OR\n"
@@ -683,6 +687,7 @@ class SparqlInterface:
 
         query   = self.__query_from_template ("collections", {
             "account_id":   account_id,
+            "categories":   categories,
             "filters":      filters,
             "is_latest":    is_latest,
             "is_published": is_published

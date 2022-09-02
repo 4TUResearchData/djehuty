@@ -39,6 +39,12 @@ WHERE {
 
     ?collection            rdf:type              djht:Collection .
 
+    {%- if categories is not none: %}
+    ?collection         djht:categories/rdf:rest*/rdf:first ?category .
+    ?category           djht:id                   ?category_id .
+    ?category           djht:parent_id            ?parent_category_id .
+    {%- endif %}
+
     OPTIONAL { ?container_uri djht:first_online_date   ?timeline_first_online . }
     OPTIONAL { ?collection    djht:publisher_acceptance_date ?timeline_publisher_acceptance . }
     OPTIONAL { ?collection    djht:publisher_publication_date ?timeline_publisher_publication . }

@@ -133,6 +133,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/fonts/SourceSansPro-Italic.ttf               \
     djehuty/web/resources/static/fonts/SourceSansPro-Regular.ttf              \
     djehuty/web/resources/static/images/CoreTrustSeal.png                     \
+    djehuty/web/resources/static/images/collection-thumb.svg                  \
     djehuty/web/resources/static/images/dataset-thumb.svg                     \
     djehuty/web/resources/static/images/ext-link.png                          \
     djehuty/web/resources/static/images/favicon.ico                           \

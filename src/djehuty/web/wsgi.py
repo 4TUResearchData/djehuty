@@ -1393,9 +1393,11 @@ class ApiServer:
         category      = self.db.category_by_id (category_id)
         subcategories = self.db.subcategories_for_category (category_id)
         datasets      = self.db.datasets (categories=[category_id], limit=100)
+        collections   = self.db.collections (categories=[category_id], limit=100)
 
         return self.__render_template (request, "categories.html",
                                        articles=datasets,
+                                       collections=collections,
                                        category=category,
                                        subcategories=subcategories)
 
