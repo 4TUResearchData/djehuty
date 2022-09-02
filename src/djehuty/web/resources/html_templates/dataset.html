@@ -2,7 +2,6 @@
 {% block headers %}
 {# TODO:
    file previews (for which file types?)
-   embargo
    versioned and unversioned doi on latest version, explained #}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <style>
@@ -43,6 +42,11 @@
 
 <div id="data">
     <h3>DATA</h3>
+{% if item.is_embargoed: %}
+<div id="embargo_notice">
+  <p>The files in this dataset are under embargo until {{item.embargo_until_date}}.</p>
+</div>
+{% else: %}
 {% if item.is_metadata_record %}
 {# test 12999575 #}
         <div id="metadata_only">
@@ -94,6 +98,7 @@
     {% endif %}
         </ul>
     </div>
+{% endif %}
 {% endif %}
 </div>
 {%- if not in_production: %}
