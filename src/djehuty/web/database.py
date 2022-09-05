@@ -1339,7 +1339,7 @@ class SparqlInterface:
             "time_coverage":   rdf.escape_string_value (time_coverage),
             "title":           rdf.escape_string_value (title),
             "is_embargoed":    int(is_embargoed),
-            "embargo_until_date": rdf.escape_string_value (embargo_until_date),
+            "embargo_until_date": rdf.escape_date_value (embargo_until_date),
             "embargo_type":    rdf.escape_string_value (embargo_type),
             "embargo_title":   rdf.escape_string_value (embargo_title),
             "embargo_reason":  rdf.escape_string_value (embargo_reason),
