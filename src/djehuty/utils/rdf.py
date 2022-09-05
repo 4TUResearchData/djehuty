@@ -44,12 +44,20 @@ def sparql_filter (name, value, escape=False, is_uri=False):
 
     return query
 
-def escape_string_value (value):
-    """Returns VALUE wrapped in double quotes."""
+def escape_value (value, datatype=None):
+    """Returns VALUE wrapped in double quotes with type annotation DATATYPE."""
     if value is None:
         return None
 
-    return Literal(value, datatype=XSD.string).n3()
+    return Literal(value, datatype=datatype).n3()
+
+def escape_string_value (value):
+    """Returns VALUE wrapped in double quotes and annotated as xsd:string."""
+    return escape_value (value, datatype=XSD.string)
+
+def escape_date_value (value):
+    """Returns VALUE wrapped in double quotes and annotated as xsd:date."""
+    return escape_value (value, datatype=XSD.date)
 
 def sparql_in_filter (name, values, escape=False, is_uri=False, negate=False):
     """Returns a FILTER statement for a list of values."""
