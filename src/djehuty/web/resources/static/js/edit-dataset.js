@@ -36,7 +36,7 @@ function save_dataset (dataset_uuid, event, notify=true) {
     if (group_id !== undefined) { group_id = group_id["value"]; }
     else { group_id = null; }
 
-    var is_embargoed = jQuery("#embargo_options").is(":visible");
+    var is_embargoed = jQuery("#embargoed_access").prop("checked");
 
     form_data = {
         "title":          or_null(jQuery("#title").val()),
@@ -60,10 +60,7 @@ function save_dataset (dataset_uuid, event, notify=true) {
     }
 
     if (is_embargoed) {
-        var embargo_indefinitely = jQuery("#embargo_options").prop("checked");
-        if (! embargo_indefinitely) {
-            form_data["embargo_until_date"] = or_null(jQuery("#embargo_until_date").val());
-        }
+        form_data["embargo_until_date"] = or_null(jQuery("#embargo_until_date").val());
         form_data["embargo_title"]  = or_null(jQuery("#embargo_title").val());
         form_data["embargo_reason"] = or_null(jQuery("#embargo_reason .ql-editor").html());
         form_data["embargo_allow_access_requests"] = jQuery("#allow_embargo_access_requests").prop("checked");
@@ -71,7 +68,7 @@ function save_dataset (dataset_uuid, event, notify=true) {
         if (jQuery("#files_only_embargo").prop("checked")) {
             form_data["embargo_type"] = "file";
         } else if (jQuery("#content_embargo").prop("checked")) {
-            form_data["embargo_type"] = "content";
+            form_data["embargo_type"] = "article";
         }
     }
 
@@ -445,6 +442,16 @@ function activate (dataset_uuid) {
             render_git_files_for_dataset (dataset_uuid, null);
         } else {
             jQuery("#upload_files").prop("checked", true);
+        }
+
+        if (data["is_embargoed"]) {
+            jQuery("#embargoed_access").prop("checked", true);
+
+            if (data["embargo_type"] == "file") {
+                jQuery("#files_only_embargo").prop("checked", true);
+            } else if (data["embargo_type"] == "article") {
+                jQuery("#content_embargo").prop("checked", true);
+            }
         }
 
         toggle_record_type (dataset_uuid);

@@ -76,6 +76,7 @@ jQuery(document).ready(function (){
 }
 #content-wrapper input[type="text"],
 #content-wrapper input[type="datetime-local"],
+#content-wrapper input[type="date"],
 #content-wrapper textarea,
 .texteditor,
 #content-wrapper .options-wrapper, #groups-wrapper, #access-wrapper {
@@ -98,6 +99,7 @@ jQuery(document).ready(function (){
 #access-wrapper #access-type-wrapper label { border-radius: .5em .5em 0em 0em;  }
 #access-wrapper input[type="text"],
 #access-wrapper input[type="datetime-local"],
+#access-wrapper input[type="date"],
 #access-wrapper textarea,
 #access-wrapper .options-wrapper { width: 812pt !important; }
 #access-wrapper select,
@@ -290,15 +292,15 @@ jQuery(document).ready(function (){
       <option value="" disabled selected>Select a license</option>
     </select>
     <label for="embargo_until_date" class="inner-head">Until date</label>
-    <input id="embargo_until_date" type="datetime-local" name="embargo_until_date" />
+    <input id="embargo_until_date" type="date" name="embargo_until_date" value="{{article["embargo_until_date"]}}" />
     <label class="inner-head">Embargo type</label>
     <div id="record-type-wrapper" class="options-wrapper">
       <input type="radio" name="embargo_type" id="files_only_embargo" value="file" /><!--
 --><label for="files_only_embargo" class="no-head">Files-only embargo</label>
-      <input type="radio" name="embargo_type" id="content_embargo" value="content" /><!--
+      <input type="radio" name="embargo_type" id="content_embargo" value="article" /><!--
 --><label for="content_embargo" class="no-head">Full content embargo</label></div>
     <label for="title" class="inner-head">Title</label>
-    <input type="text" id="title" name="title" value="{{article["embargo_title"]}}" />
+    <input type="text" id="embargo_title" name="embargo_title" value="{{article["embargo_title"]}}" />
     <label class="inner-head">Reason</label>
     <div id="embargo_reason" class="texteditor">
       {{article["embargo_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
