@@ -207,7 +207,7 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None, req
 
     return value
 
-def boolean_value (record, field_name, required=False):
+def boolean_value (record, field_name, required=False, when_none=None):
     """Validation procedure for boolean values."""
 
     value = conv.value_or_none (record, field_name)
@@ -216,7 +216,7 @@ def boolean_value (record, field_name, required=False):
             raise MissingRequiredField(
                 message = f"Missing required value for '{field_name}'.",
                 code    = "MissingRequiredField")
-        return value
+        return when_none
 
     if isinstance(value, str):
         if value.lower() == "true":
