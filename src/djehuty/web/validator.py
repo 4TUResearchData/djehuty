@@ -207,6 +207,43 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None, req
 
     return value
 
+def date_value (record, field_name, required=False):
+    """Validation procedure for date values."""
+
+    value = conv.value_or_none (record, field_name)
+    if value is None:
+        if required:
+            raise MissingRequiredField(
+                message = f"Missing required value for '{field_name}'.",
+                code    = "MissingRequiredField")
+        return None
+
+    if not isinstance (value, str):
+        raise InvalidValueType(
+                message = f"Expected '{field_name}' in the form YYYY-MM-DD.",
+                code    = "WrongValueType")
+    ## Accept strings only.
+    if not isinstance(value, str):
+        return False
+
+    ## Don't process input that is too long.
+    try:
+        if value[10]:
+            raise InvalidValueType(
+                message = f"Expected '{field_name}' in the form YYYY-MM-DD.",
+                code    = "ValueTooLong")
+    except IndexError:
+        pass
+
+    ## Check its form.
+    pattern = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    if re.match(pattern, value) is None:
+        raise InvalidValueType(
+                message = f"Expected '{field_name}' in the form YYYY-MM-DD.",
+                code    = "WrongValueFormat")
+
+    return value
+
 def boolean_value (record, field_name, required=False, when_none=None):
     """Validation procedure for boolean values."""
 
