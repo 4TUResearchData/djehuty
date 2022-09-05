@@ -23,6 +23,14 @@ pip install --editable .
 djehuty web -d -r
 ```
 
+#### Keeping your development environment up-to-date
+
+To update packages in the virtual environment, use the following command
+inside an activated virtual environment:
+```bash
+pip freeze | grep -v "djehuty.git" | cut -d= -f1 | xargs -n1 pip install -U
+```
+
 ## Deploy
 
 ### PyInstaller
