@@ -2192,7 +2192,7 @@ class ApiServer:
                     derived_from    = validator.string_value  (record, "derived_from",   0, 255),
                     same_as         = validator.string_value  (record, "same_as",        0, 255),
                     organizations   = validator.string_value  (record, "organizations",  0, 512),
-                    is_embargoed    = validator.boolean_value (record, "is_embargoed"),
+                    is_embargoed    = validator.boolean_value (record, "is_embargoed", when_none=False),
                     embargo_until_date = validator.string_value (record, "embargo_until_date", 0, 20),
                     embargo_type    = validator.string_value (record, "embargo_type", 0, 32),
                     embargo_title   = validator.string_value (record, "embargo_title", 0, 1000),
