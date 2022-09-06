@@ -915,8 +915,7 @@ class SparqlInterface:
                 field_type    = conv.value_or_none (field, "field_type"),
                 is_mandatory  = conv.value_or_none (field, "is_mandatory"),
                 placeholder   = conv.value_or_none (field, "placeholder"),
-                is_multiple   = conv.value_or_none (field, "is_multiple"),
-                item_id       = dataset_id)
+                is_multiple   = conv.value_or_none (field, "is_multiple"))
 
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
@@ -1260,7 +1259,7 @@ class SparqlInterface:
     def insert_custom_field (self, name=None, value=None, default_value=None,
                              max_length=None, min_length=None, field_type=None,
                              is_mandatory=None, placeholder=None,
-                             is_multiple=None, item_id=None):
+                             is_multiple=None):
         """Procedure to add a custom field to the state graph."""
 
         graph            = Graph()
@@ -1499,8 +1498,7 @@ class SparqlInterface:
                 field_type    = conv.value_or_none (field, "field_type"),
                 is_mandatory  = conv.value_or_none (field, "is_mandatory"),
                 placeholder   = conv.value_or_none (field, "placeholder"),
-                is_multiple   = conv.value_or_none (field, "is_multiple"),
-                item_id       = collection_id)
+                is_multiple   = conv.value_or_none (field, "is_multiple"))
 
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
