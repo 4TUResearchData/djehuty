@@ -1343,7 +1343,7 @@ class SparqlInterface:
             "embargo_title":   rdf.escape_string_value (embargo_title),
             "embargo_reason":  rdf.escape_string_value (embargo_reason),
             "embargo_allow_access_requests":
-                               rdf.escape_string_value (embargo_allow_access_requests)
+                               rdf.escape_boolean_value (embargo_allow_access_requests)
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{account_id}")
