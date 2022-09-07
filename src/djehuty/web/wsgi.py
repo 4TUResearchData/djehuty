@@ -191,9 +191,9 @@ class ApiServer:
             ## ----------------------------------------------------------------
             ## GIT HTTP API
             ## ----------------------------------------------------------------
-            Rule("/v3/datasets/<dataset_id>.git/info/refs",   endpoint = "api_v3_private_dataset_git_refs"),
-            Rule("/v3/datasets/<dataset_id>.git/git-upload-pack", endpoint = "api_v3_private_dataset_git_upload_pack"),
-            Rule("/v3/datasets/<dataset_id>.git/git-receive-pack", endpoint = "api_v3_private_dataset_git_receive_pack"),
+            Rule("/v3/datasets/<git_uuid>.git/info/refs",   endpoint = "api_v3_private_dataset_git_refs"),
+            Rule("/v3/datasets/<git_uuid>.git/git-upload-pack", endpoint = "api_v3_private_dataset_git_upload_pack"),
+            Rule("/v3/datasets/<git_uuid>.git/git-receive-pack", endpoint = "api_v3_private_dataset_git_receive_pack"),
 
             ## ----------------------------------------------------------------
             ## EXPORT
@@ -3730,7 +3730,18 @@ class ApiServer:
         if request.method != "GET":
             return self.error_405 ("GET")
 
-        git_directory  = f"{self.db.storage}/{dataset_id}.git"
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
+
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               account_id   = account_id,
+                                               is_published = False)
+
+        if dataset is None:
+            return self.error_404 (request)
+
+        git_directory  = f"{self.db.storage}/{dataset['git_uuid']}.git"
         if not os.path.exists (git_directory):
             return self.response ("[]")
 
@@ -3953,8 +3964,8 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def __git_create_repository (self, dataset_id):
-        git_directory = f"{self.db.storage}/{dataset_id}.git"
+    def __git_create_repository (self, git_uuid):
+        git_directory = f"{self.db.storage}/{git_uuid}.git"
         if not os.path.exists (git_directory):
             initial_repository = pygit2.init_repository (git_directory, False)
             if initial_repository:
@@ -4036,35 +4047,49 @@ class ApiServer:
             logging.error ("The command was:\n---\n%s\n---", error.cmd)
             return self.error_500()
 
-    def api_v3_private_dataset_git_refs (self, request, dataset_id):
+    def api_v3_private_dataset_git_refs (self, request, git_uuid):
         """Implements /v3/datasets/<id>.git/<suffix>."""
 
         service = validator.string_value (request.args, "service", 0, 16)
-        self.__git_create_repository (dataset_id)
+        self.__git_create_repository (git_uuid)
 
         ## Used for clone and pull.
         if service == "git-upload-pack":
-            return self.api_v3_private_dataset_git_upload_pack (request, dataset_id)
+            return self.api_v3_private_dataset_git_upload_pack (request, git_uuid)
 
         ## Used for push.
         if service == "git-receive-pack":
-            return self.api_v3_private_dataset_git_receive_pack (request, dataset_id)
+            return self.api_v3_private_dataset_git_receive_pack (request, git_uuid)
 
         logging.error ("Unsupported Git service command: %s", service)
         return self.error_500 ()
 
-    def api_v3_private_dataset_git_upload_pack (self, request, dataset_id):
+    def api_v3_private_dataset_git_upload_pack (self, request, git_uuid):
         """Implements /v3/datasets/<id>.git/git-upload-pack."""
 
-        dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=False)
+        dataset = None
+        try:
+            if validator.is_valid_uuid (git_uuid):
+                dataset = self.db.datasets (git_uuid = git_uuid,
+                                            is_published = False)[0]
+        except IndexError:
+            return None
+
         if dataset is not None:
             return self.__git_passthrough (request)
 
         return self.error_403 (request)
 
-    def api_v3_private_dataset_git_receive_pack (self, request, dataset_id):
+    def api_v3_private_dataset_git_receive_pack (self, request, git_uuid):
         """Implements /v3/datasets/<id>.git/git-receive-pack."""
-        dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=False)
+        dataset = None
+        try:
+            if validator.is_valid_uuid (git_uuid):
+                dataset = self.db.datasets (git_uuid = git_uuid,
+                                            is_published = False)[0]
+        except IndexError:
+            return None
+
         if dataset is not None:
             return self.__git_passthrough (request)
 

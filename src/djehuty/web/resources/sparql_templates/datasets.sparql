@@ -22,7 +22,7 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
                 ?license_remarks ?container_uri ?dataset AS ?uri ?uuid
                 ?is_under_review ?review AS ?review_uri ?review_submit_date
                 ?totals_created_at ?total_downloads ?total_views ?total_shares
-                ?total_cites
+                ?total_cites ?git_uuid
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -86,6 +86,7 @@ WHERE {
       ?license_url      djht:name                  ?license_name .
     }
 
+    OPTIONAL { ?dataset djht:git_uuid              ?git_uuid . }
     OPTIONAL { ?dataset djht:citation              ?citation . }
     OPTIONAL { ?dataset djht:confidential_reason   ?confidential_reason . }
     OPTIONAL { ?dataset djht:created_date          ?created_date . }

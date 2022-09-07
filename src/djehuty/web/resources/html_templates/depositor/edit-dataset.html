@@ -430,7 +430,7 @@ jQuery(document).ready(function (){
   <h4>Publish source code through Git</h4>
   <p>To publish from a Git repository, push a branch to the <code>4tu</code> remote.</p>
   <p>First, add the <code>4tu</code> remote:</p>
-  <pre>git remote add 4tu {{base_url}}/v3/datasets/{{container_uuid}}.git</pre>
+  <pre>git remote add 4tu {{base_url}}/v3/datasets/{{article.git_uuid}}.git</pre>
   <p>Then, push the repository to it:</p>
   <pre>
 git push 4tu --all

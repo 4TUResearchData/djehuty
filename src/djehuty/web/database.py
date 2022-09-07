@@ -3,6 +3,7 @@ This module provides the communication with the SPARQL endpoint to provide
 data for the API server.
 """
 
+import uuid
 import secrets
 import os.path
 import logging
@@ -201,7 +202,7 @@ class SparqlInterface:
                   is_latest=False, item_type=None, limit=None, modified_since=None,
                   offset=None, order=None, order_direction=None, published_since=None,
                   resource_doi=None, return_count=False, search_for=None, search_format=False,
-                  version=None, is_published=True, is_under_review=None):
+                  version=None, is_published=True, is_under_review=None, git_uuid=None):
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -209,6 +210,7 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("institution_id", institution)
         filters += rdf.sparql_filter ("defined_type",   item_type)
         filters += rdf.sparql_filter ("dataset_id",     dataset_id)
+        filters += rdf.sparql_filter ("git_uuid",       git_uuid,     escape=True)
         filters += rdf.sparql_filter ("version",        version)
         filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
         filters += rdf.sparql_filter ("doi",            doi,          escape=True)
@@ -947,6 +949,9 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["embargo_until_date"], embargo_until_date, XSD.date)
         rdf.add (graph, uri, rdf.DJHT["embargo_title"], embargo_title, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["embargo_reason"], embargo_reason, XSD.string)
+
+        # Reserve a UUID for a Git repository.
+        rdf.add (graph, uri, rdf.DJHT["git_uuid"], str(uuid.uuid4()), XSD.string)
 
         # Add the dataset to its container.
         graph.add ((container, rdf.DJHT["draft"],       uri))
