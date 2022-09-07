@@ -138,7 +138,8 @@ WHERE {
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?dataset), "dataset:")         AS ?uuid)
     BIND(BOUND(?review)                              AS ?is_under_review)
-    BIND((BOUND(?embargo_until_date) AND ?embargo_until_date > NOW()) AS ?is_embargoed)
+    BIND(((BOUND(?embargo_until_date) AND ?embargo_until_date > NOW()) OR
+          (BOUND(?embargo_allow_access_requests))) AS ?is_embargoed)
   }
 {%- if is_under_review is not none %}
 {%- if is_under_review %}

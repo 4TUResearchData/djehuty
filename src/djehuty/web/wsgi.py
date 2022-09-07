@@ -2172,6 +2172,12 @@ class ApiServer:
                                                        is_published = False)
 
                 is_embargoed = validator.boolean_value (record, "is_embargoed", when_none=False)
+                embargo_options = validator.array_value (record, "embargo_options")
+                embargo_option  = value_or_none (embargo_options, 0)
+                is_restricted   = value_or (embargo_option, "id", 0) == 1000
+                is_closed       = value_or (embargo_option, "id", 0) == 1001
+                is_temporary_embargo = is_embargoed and not is_restricted and not is_closed
+
                 result = self.db.update_dataset (uri_to_uuid (dataset["container_uri"]),
                     account_id,
                     title           = validator.string_value  (record, "title",          3, 1000),
@@ -2194,11 +2200,12 @@ class ApiServer:
                     same_as         = validator.string_value  (record, "same_as",        0, 255),
                     organizations   = validator.string_value  (record, "organizations",  0, 512),
                     is_embargoed    = is_embargoed,
-                    embargo_until_date = validator.date_value (record, "embargo_until_date", is_embargoed),
-                    embargo_type    = validator.string_value (record, "embargo_type", 0, 32),
-                    embargo_title   = validator.string_value (record, "embargo_title", 0, 1000),
-                    embargo_reason  = validator.string_value (record, "embargo_reason", 0, 10000),
-                    embargo_allow_access_requests = validator.integer_value (record, "embargo_allow_access_requests", 0, 2),
+                    embargo_until_date = validator.date_value (record, "embargo_until_date",
+                                                               is_temporary_embargo),
+                    embargo_type    = validator.options_value (record, "embargo_type", ["article", "file"]),
+                    embargo_title   = validator.string_value  (record, "embargo_title", 0, 1000),
+                    embargo_reason  = validator.string_value  (record, "embargo_reason", 0, 10000),
+                    embargo_allow_access_requests = is_restricted or is_temporary_embargo,
                     defined_type_name = defined_type_name,
                     defined_type    = defined_type,
                     categories      = validator.array_value   (record, "categories"),

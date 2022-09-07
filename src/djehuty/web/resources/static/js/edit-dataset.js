@@ -7,7 +7,7 @@ function delete_dataset (dataset_uuid, event) {
     if (confirm("Deleting this draft dataset is unrecoverable. "+
                 "Do you want to continue?"))
     {
-        var jqxhr = jQuery.ajax({
+        let jqxhr = jQuery.ajax({
             url:         `/v2/account/articles/${dataset_uuid}`,
             type:        "DELETE",
         }).done(function () { window.location.pathname = '/my/datasets' })
@@ -25,18 +25,20 @@ function save_dataset (dataset_uuid, event, notify=true) {
         category_ids.push(jQuery(category).val());
     }
 
-    var defined_type_name = null;
+    let defined_type_name = null;
     if (jQuery("#upload_software").prop("checked")) {
         defined_type_name = "software";
     } else {
         defined_type_name = "dataset";
     }
 
-    var group_id = jQuery("input[name='groups']:checked")[0]
+    let group_id = jQuery("input[name='groups']:checked")[0]
     if (group_id !== undefined) { group_id = group_id["value"]; }
     else { group_id = null; }
 
-    var is_embargoed = jQuery("#embargoed_access").prop("checked");
+    let is_embargoed  = jQuery("#embargoed_access").prop("checked");
+    let is_restricted = jQuery("#restricted_access").prop("checked");
+    let is_closed     = jQuery("#closed_access").prop("checked");
 
     form_data = {
         "title":          or_null(jQuery("#title").val()),
@@ -54,7 +56,7 @@ function save_dataset (dataset_uuid, event, notify=true) {
         "organizations":  or_null(jQuery("#organizations").val()),
         "publisher":      or_null(jQuery("#publisher").val()),
         "defined_type_name": defined_type_name,
-        "is_embargoed":   is_embargoed,
+        "is_embargoed":   is_embargoed || is_restricted || is_closed,
         "group_id":       group_id,
         "categories":     category_ids
     }
@@ -63,16 +65,25 @@ function save_dataset (dataset_uuid, event, notify=true) {
         form_data["embargo_until_date"] = or_null(jQuery("#embargo_until_date").val());
         form_data["embargo_title"]  = or_null(jQuery("#embargo_title").val());
         form_data["embargo_reason"] = or_null(jQuery("#embargo_reason .ql-editor").html());
-        form_data["embargo_allow_access_requests"] = jQuery("#allow_embargo_access_requests").prop("checked");
 
         if (jQuery("#files_only_embargo").prop("checked")) {
             form_data["embargo_type"] = "file";
         } else if (jQuery("#content_embargo").prop("checked")) {
             form_data["embargo_type"] = "article";
         }
+    } else if (is_restricted) {
+        form_data["embargo_until_date"] = null;
+        form_data["embargo_title"]  = "Restricted access";
+        form_data["embargo_reason"] = or_null(jQuery("#restricted_access_reason .ql-editor").html());
+        form_data["embargo_options"] = [{ "id": 1000, "type": "restricted_access" }]
+    } else if (is_closed) {
+        form_data["embargo_until_date"] = null;
+        form_data["embargo_title"]  = "Closed access";
+        form_data["embargo_reason"] = or_null(jQuery("#closed_access_reason .ql-editor").html());
+        form_data["embargo_options"] = [{ "id": 1001, "type": "closed_access" }]
     }
 
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}`,
         type:        "PUT",
         contentType: "application/json",
@@ -99,7 +110,7 @@ function render_licenses (dataset) {
     try { chosen_license = dataset.license.value; }
     catch (TypeError) {}
 
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         "/v2/licenses",
         type:        "GET",
         accept:      "application/json",
@@ -116,7 +127,7 @@ function render_licenses (dataset) {
 }
 
 function render_categories_for_dataset (dataset_uuid) {
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/categories`,
         data:        { "limit": 10000 },
         type:        "GET",
@@ -133,7 +144,7 @@ function render_categories_for_dataset (dataset_uuid) {
 }
 
 function render_references_for_dataset (dataset_uuid) {
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}/references`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
@@ -155,7 +166,7 @@ function render_references_for_dataset (dataset_uuid) {
 }
 
 function render_authors_for_dataset (dataset_uuid) {
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/authors`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
@@ -184,7 +195,7 @@ function render_git_files_for_dataset (dataset_uuid, event) {
         event.preventDefault();
         event.stopPropagation();
     }
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}.git/files`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
@@ -199,7 +210,7 @@ function render_git_files_for_dataset (dataset_uuid, event) {
     });
 }
 function render_files_for_dataset (dataset_uuid) {
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/files`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
@@ -247,7 +258,7 @@ function add_author (author_uuid, dataset_uuid) {
 }
 
 function submit_external_link (dataset_uuid) {
-    var url = jQuery("#external_url").val();
+    let url = jQuery("#external_url").val();
     if (url == "") {
         jQuery("#external_url").css("background", "#cc0000");
         return false;
@@ -309,7 +320,7 @@ function submit_new_author (dataset_uuid) {
 }
 
 function new_author (dataset_uuid) {
-    var html = `<div id="new-author-form">`;
+    let html = `<div id="new-author-form">`;
     html += `<label for="author_first_name">First name</label>`;
     html += `<input type="text" id="author_first_name" name="author_first_name">`;
     html += `<label for="author_first_name">Last name</label>`;
@@ -389,16 +400,25 @@ function toggle_access_level (dataset_uuid) {
     if (jQuery("#open_access").prop("checked")) {
         jQuery("#open_access_form").show();
     } else if (jQuery("#embargoed_access").prop("checked")) {
+        if (jQuery("#embargo_reason.ql-container").length === 0) {
+            let quill = new Quill('#embargo_reason', { theme: '4tu' });
+        }
         jQuery("#embargoed_access_form").show();
     } else if (jQuery("#restricted_access").prop("checked")) {
+        if (jQuery("#restricted_access_reason.ql-container").length === 0) {
+            let quill = new Quill('#restricted_access_reason', { theme: '4tu' });
+        }
         jQuery("#restricted_access_form").show();
     } else if (jQuery("#closed_access").prop("checked")) {
+        if (jQuery("#closed_access_reason.ql-container").length === 0) {
+            let quill = new Quill('#closed_access_reason', { theme: '4tu' });
+        }
         jQuery("#closed_access_form").show();
     }
 }
 
 function activate (dataset_uuid) {
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}`,
         type:        "GET",
         accept:      "application/json",
@@ -424,9 +444,7 @@ function activate (dataset_uuid) {
         }
         jQuery(`#article_${dataset_uuid}`).removeClass("loader");
         jQuery(`#article_${dataset_uuid}`).show();
-        var quill1 = new Quill('#embargo_reason', { theme: '4tu' });
-        var quill2 = new Quill('#description', { theme: '4tu' });
-        var quill3 = new Quill('#closed_access_reason', { theme: '4tu' });
+        let quill = new Quill('#description', { theme: '4tu' });
         activate_drag_and_drop (dataset_uuid);
 
         jQuery("input[name='record_type']").change(function () {
@@ -445,12 +463,21 @@ function activate (dataset_uuid) {
         }
 
         if (data["is_embargoed"]) {
-            jQuery("#embargoed_access").prop("checked", true);
+            let access_type = 0;
+            try { access_type = data["embargo_options"][0]["id"]; }
+            catch (error) { access_type = 0; }
 
-            if (data["embargo_type"] == "file") {
-                jQuery("#files_only_embargo").prop("checked", true);
-            } else if (data["embargo_type"] == "article") {
-                jQuery("#content_embargo").prop("checked", true);
+            if (access_type === 1000) {
+                jQuery("#restricted_access").prop("checked", true);
+            } else if (access_type === 1001) {
+                jQuery("#closed_access").prop("checked", true);
+            } else {
+                jQuery("#embargoed_access").prop("checked", true);
+                if (data["embargo_type"] == "file") {
+                    jQuery("#files_only_embargo").prop("checked", true);
+                } else if (data["embargo_type"] == "article") {
+                    jQuery("#content_embargo").prop("checked", true);
+                }
             }
         }
 
@@ -493,16 +520,16 @@ function toggle_embargo_until (event) {
 
 function perform_upload (files, current_file, dataset_uuid) {
     total_files = files.length;
-    var index = current_file - 1;
-    var data  = new FormData();
+    let index = current_file - 1;
+    let data  = new FormData();
     data.append (`file`, files[index], files[index].name);
 
     jQuery.ajax({
         xhr: function () {
-            var xhr = new window.XMLHttpRequest();
+            let xhr = new window.XMLHttpRequest();
             xhr.upload.addEventListener("progress", function (evt) {
                 if (evt.lengthComputable) {
-                    var completed = parseInt(evt.loaded / evt.total * 100);
+                    let completed = parseInt(evt.loaded / evt.total * 100);
                     jQuery("#file-upload h4").text(`Uploading at ${completed}% (${current_file}/${total_files})`);
                     if (completed === 100) {
                         jQuery("#file-upload h4").text(`Computing MD5 ... (${current_file}/${total_files})`);
@@ -527,7 +554,7 @@ function perform_upload (files, current_file, dataset_uuid) {
 }
 
 function remove_file (file_id, dataset_uuid) {
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/files/${file_id}`,
         type:        "DELETE",
         accept:      "application/json",
@@ -540,7 +567,7 @@ function remove_file (file_id, dataset_uuid) {
 }
 
 function remove_author (author_id, dataset_uuid) {
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/authors/${author_id}`,
         type:        "DELETE",
         accept:      "application/json",
@@ -549,7 +576,7 @@ function remove_author (author_id, dataset_uuid) {
 }
 
 function remove_reference (url, dataset_uuid) {
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}/references?url=${url}`,
         type:        "DELETE",
         accept:      "application/json",
@@ -558,9 +585,9 @@ function remove_reference (url, dataset_uuid) {
 }
 
 function prettify_size (size) {
-    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     if (size == 0 || size == null) return '0 Byte';
-    var i = parseInt(Math.floor(Math.log(size) / Math.log(1000)));
+    let i = parseInt(Math.floor(Math.log(size) / Math.log(1000)));
     return Math.round(size / Math.pow(1000, i), 2) + ' ' + sizes[i];
 }
 
@@ -570,7 +597,7 @@ function submit_dataset (dataset_uuid, event) {
 
     save_dataset (dataset_uuid, event, notify=false);
 
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}/submit-for-review`,
         type:        "POST",
         contentType: "application/json",
@@ -625,7 +652,7 @@ function activate_drag_and_drop (dataset_uuid) {
 
         jQuery("#file-upload h4").text("Uploading ...");
 
-        var files = event.originalEvent.dataTransfer.files;
+        let files = event.originalEvent.dataTransfer.files;
         perform_upload (files, 1, dataset_uuid);
     });
 
@@ -636,7 +663,7 @@ function activate_drag_and_drop (dataset_uuid) {
 
     // file selected
     jQuery("#file").change(function () {
-        var files = jQuery('#file')[0].files;
+        let files = jQuery('#file')[0].files;
         perform_upload (files, 1, dataset_uuid);
     });
 }

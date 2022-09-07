@@ -308,8 +308,16 @@ jQuery(document).ready(function (){
   </div>
   <div class="access_level" id="restricted_access_form">
     <p>
-      Restricted access allows you to share your dataset under specific conditions and with users who have been granted access. Please add the End-User License Agreement (EULA) in which you specify the conditions under which you grant users access to your data files, and add the reason why your dataset is restricted.
+      Restricted access allows you to share your dataset under specific
+      conditions and with users who have been granted access. Please specify
+      the End-User License Agreement (EULA) in which you specify the
+      conditions under which you grant users access to your data files,
+      and add the reason why your dataset is restricted.
     </p>
+    <label class="inner-head">EULA</label>
+    <div id="restricted_access_reason" class="texteditor">
+      {{article["embargo_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
+    </div>
     <!--
         * Upload box for EULA document.
         * Reason for restricted access field.
@@ -322,7 +330,7 @@ jQuery(document).ready(function (){
     </p>
     <label class="inner-head">Reason</label>
     <div id="closed_access_reason" class="texteditor">
-      {{article["closed_access_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
+      {{article["embargo_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
     </div>
   </div>
 </div>

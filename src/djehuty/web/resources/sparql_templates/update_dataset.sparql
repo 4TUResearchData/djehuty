@@ -46,9 +46,9 @@ DELETE {
     ?dataset           djht:defined_type         ?defined_type .
     {%- endif%}{% if has_linked_file is not none %}
     ?dataset           djht:has_linked_file      ?has_linked_file .
-    {%- endif%}{% if embargo_until_date is not none or not is_embargoed %}
+    {%- endif%}
     ?dataset           djht:embargo_until_date   ?embargo_until_date .
-    {%- endif%}{% if embargo_type is not none or not is_embargoed %}
+    {%- if embargo_type is not none or not is_embargoed %}
     ?dataset           djht:embargo_type         ?embargo_type .
     {%- endif%}{% if embargo_title is not none or not is_embargoed %}
     ?dataset           djht:embargo_title        ?embargo_title .
@@ -106,15 +106,15 @@ INSERT {
     ?dataset           djht:defined_type         {{defined_type}} .
     {%- endif%}{% if has_linked_file is not none %}
     ?dataset           djht:has_linked_file      {{has_linked_file}} .
-    {%- endif%}{% if embargo_until_date is not none %}
+    {%- endif%}{% if embargo_until_date is not none and is_embargoed %}
     ?dataset           djht:embargo_until_date   {{embargo_until_date}} .
-    {%- endif%}{% if embargo_type is not none %}
+    {%- endif%}{% if embargo_type is not none and is_embargoed %}
     ?dataset           djht:embargo_type         {{embargo_type}} .
-    {%- endif%}{% if embargo_title is not none %}
+    {%- endif%}{% if embargo_title is not none and is_embargoed %}
     ?dataset           djht:embargo_title        {{embargo_title}} .
-    {%- endif%}{% if embargo_reason is not none %}
+    {%- endif%}{% if embargo_reason is not none and is_embargoed %}
     ?dataset           djht:embargo_reason       {{embargo_reason}} .
-    {%- endif%}{% if embargo_allow_access_requests is not none %}
+    {%- endif%}{% if embargo_allow_access_requests is not none and is_embargoed %}
     ?dataset  djht:embargo_allow_access_requests {{embargo_allow_access_requests}} .
     {%- endif%}
     ?dataset           djht:modified_date        "{{modified_date}}"^^xsd:dateTime .
