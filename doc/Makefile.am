@@ -34,6 +34,7 @@ EXTRA_DIST              = $(doc_TEX) $(doc_STYLE)                  \
                           figures/account.pdf                      \
                           figures/dataset.pdf                      \
                           figures/dataset-container.pdf            \
+                          figures/funding.pdf                      \
                           figures/logo.pdf                         \
                           figures/rdf-list-abbrev.pdf              \
                           figures/references-graph.pdf             \
@@ -82,6 +83,7 @@ docs-clean:
       figures/account-.png                                         \
       figures/dataset-.png                                         \
       figures/dataset-container-.png                               \
+      figures/funding-.png                                         \
       figures/logo-.png                                            \
       figures/rdf-list-abbrev-.png                                 \
       figures/references-graph-.png                                \
