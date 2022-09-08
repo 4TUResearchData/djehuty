@@ -1363,7 +1363,7 @@ class ApiServer:
                     str_rgba = ','.join([str(c) for c in rgba])
                     url = rec['url_public_html'] if from_figshare else f'/datasets/{rec["dataset_id"]}'
                     latest.append((url, rec['title'], pub_date, ago, str_rgba))
-            except:
+            except (IndexError, KeyError):
                 pass
 
             return self.__render_template (request, "portal.html",
