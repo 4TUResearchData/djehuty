@@ -1411,7 +1411,6 @@ class ApiServer:
             dataset_uri   = container['uri']
             authors       = self.db.authors(item_uri=dataset_uri)
             files         = self.db.dataset_files(dataset_uri=dataset_uri, limit=None)
-            embargo_options = None #TODO
             tags          = self.db.tags(item_uri=dataset_uri)
             categories    = self.db.categories(item_uri=dataset_uri)
             references    = self.db.references(item_uri=dataset_uri)
@@ -1475,7 +1474,6 @@ class ApiServer:
                                            contributors = contributors,
                                            files=files,
                                            services=services,
-                                           embargo_options=embargo_options,
                                            tags=tags,
                                            categories=categories,
                                            fundings=fundings,
