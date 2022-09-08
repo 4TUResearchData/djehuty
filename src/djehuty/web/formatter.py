@@ -343,6 +343,7 @@ def format_funding_record (record):
     """Record formatter for funding."""
     return {
         "id":                conv.value_or_none(record, "id"),
+        "uuid":              conv.value_or_none(record, "uuid"),
         "title":             conv.value_or_none(record, "title"),
         "grant_code":        conv.value_or_none(record, "grant_code"),
         "funder_name":       conv.value_or_none(record, "funder_name"),
