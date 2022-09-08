@@ -631,9 +631,7 @@ class ApiServer:
 
                 if impersonate is not None:
                     return int(impersonate)
-        except KeyError:
-            return int(account["account_id"])
-        except TypeError:
+        except (KeyError, TypeError):
             return int(account["account_id"])
 
         return int(account["account_id"])
@@ -754,9 +752,7 @@ class ApiServer:
             dataset = self.db.datasets (dataset_uuid    = dataset_id,
                                         is_published    = False,
                                         is_under_review = True)[0]
-        except IndexError:
-            pass
-        except TypeError:
+        except (IndexError, TypeError):
             pass
 
         if dataset is None:
@@ -975,9 +971,7 @@ class ApiServer:
                 return redirect ("/my/datasets", code=303)
 
             return self.error_404 (request)
-        except IndexError:
-            pass
-        except KeyError:
+        except (IndexError, KeyError):
             pass
 
         return self.error_500 ()
@@ -1105,9 +1099,7 @@ class ApiServer:
             if result is not None:
                 return redirect ("/my/collections", code=303)
 
-        except IndexError:
-            pass
-        except KeyError:
+        except (IndexError, KeyError):
             pass
 
         return self.error_500 ()
@@ -1231,9 +1223,7 @@ class ApiServer:
             dataset = self.db.datasets (dataset_uuid    = dataset_id,
                                         is_published    = False,
                                         is_under_review = True)[0]
-        except IndexError:
-            pass
-        except TypeError:
+        except (IndexError, TypeError):
             pass
 
         if dataset is None:
@@ -1259,9 +1249,7 @@ class ApiServer:
             dataset = self.db.datasets (dataset_uuid    = dataset_id,
                                         is_published    = False,
                                         is_under_review = True)[0]
-        except IndexError:
-            pass
-        except TypeError:
+        except (IndexError, TypeError):
             pass
 
         if dataset is None:
@@ -2217,9 +2205,7 @@ class ApiServer:
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
 
             return self.error_500 ()
@@ -2233,9 +2219,7 @@ class ApiServer:
                 container_uuid = uri_to_uuid (dataset["container_uri"])
                 if self.db.delete_dataset_draft (container_uuid, account_id):
                     return self.respond_204()
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
 
             return self.error_500 ()
@@ -2267,11 +2251,7 @@ class ApiServer:
                                            limit      = 10000)
 
                 return self.default_list_response (authors, formatter.format_author_record)
-            except IndexError:
-                pass
-            except KeyError:
-                pass
-            except TypeError:
+            except (IndexError, KeyError, TypeError):
                 pass
 
             return self.error_500 ()
@@ -2380,9 +2360,7 @@ class ApiServer:
                 return self.respond_204()
 
             return self.error_500()
-        except IndexError:
-            return self.error_500 ()
-        except KeyError:
+        except (IndexError, KeyError):
             return self.error_500 ()
 
         return self.error_403 (request)
@@ -2421,9 +2399,7 @@ class ApiServer:
                 return self.respond_204()
 
             return self.error_500()
-        except IndexError:
-            return self.error_500 ()
-        except KeyError:
+        except (IndexError, KeyError):
             return self.error_500 ()
 
         return self.error_403 (request)
@@ -2456,9 +2432,7 @@ class ApiServer:
                                          datasets,
                                          "datasets"):
                 return self.respond_204()
-        except IndexError:
-            return self.error_500 ()
-        except KeyError:
+        except (IndexError, KeyError):
             return self.error_500 ()
 
         return self.error_403 (request)
@@ -2486,9 +2460,7 @@ class ApiServer:
 
                 return self.default_list_response (categories, formatter.format_category_record)
 
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
 
             return self.error_500 ()
@@ -2590,9 +2562,7 @@ class ApiServer:
                 if self.db.delete_dataset_embargo (dataset_uri = dataset["uri"],
                                                    account_id  = account_id):
                     return self.respond_204()
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
 
             return self.error_500 ()
@@ -2624,9 +2594,7 @@ class ApiServer:
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
 
             return self.error_500 ()
@@ -2671,9 +2639,7 @@ class ApiServer:
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
 
             return self.error_500 ()
@@ -2702,9 +2668,7 @@ class ApiServer:
                                                     dataset_uri = dataset["uri"])
 
                 return self.default_list_response (files, formatter.format_file_details_record)
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
 
             return self.error_500 ()
@@ -2729,9 +2693,7 @@ class ApiServer:
                                              "files"):
                     return self.respond_204()
 
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
 
             return self.error_500()
@@ -3228,9 +3190,7 @@ class ApiServer:
 
                 return self.respond_205()
 
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
@@ -3251,9 +3211,7 @@ class ApiServer:
                         container_uuid = collection["container_uuid"],
                         account_id     = account_id):
                     return self.respond_204()
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
 
         return self.error_500 ()
@@ -3316,9 +3274,7 @@ class ApiServer:
                                               limit        = 10000)
 
                 return self.default_list_response (authors, formatter.format_author_record)
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
 
             return self.error_500 ()
@@ -3417,9 +3373,7 @@ class ApiServer:
                                             account_id = account_id)
 
             return self.default_list_response (categories, formatter.format_category_record)
-        except IndexError:
-            pass
-        except KeyError:
+        except (IndexError, KeyError):
             pass
 
         return self.error_500 ()
@@ -3445,9 +3399,7 @@ class ApiServer:
                                                account_id     = account_id)
 
                 return self.default_list_response (datasets, formatter.format_dataset_record)
-            except IndexError:
-                pass
-            except KeyError:
+            except (IndexError, KeyError):
                 pass
 
             return self.error_500 ()
@@ -3505,9 +3457,7 @@ class ApiServer:
 
             datasets   = self.db.datasets (collection_uri = collection["uri"])
             return self.default_list_response (datasets, formatter.format_dataset_record)
-        except IndexError:
-            pass
-        except KeyError:
+        except (IndexError, KeyError):
             pass
 
         return self.error_500 ()
@@ -3831,9 +3781,7 @@ class ApiServer:
         except OSError:
             logging.error ("Writing %s to disk failed.", output_filename)
             return self.error_500 ()
-        except IndexError:
-            pass
-        except KeyError:
+        except (IndexError, KeyError):
             pass
 
         return self.error_500 ()
