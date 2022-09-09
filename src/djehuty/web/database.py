@@ -428,10 +428,11 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("url_name",       url_name,   escape=True)
 
         if search_for is not None:
-            filters += (f"FILTER (CONTAINS(STR(?first_name), \"{search_for}\") OR\n"
-                        f"        CONTAINS(STR(?last_name),  \"{search_for}\") OR\n"
-                        f"        CONTAINS(STR(?full_name),  \"{search_for}\") OR\n"
-                        f"        CONTAINS(STR(?orcid_id),   \"{search_for}\"))")
+            escaped = rdf.escape_string_value (search_for)
+            filters += (f"FILTER (CONTAINS(STR(?first_name), {escaped}) OR\n"
+                        f"        CONTAINS(STR(?last_name),  {escaped}) OR\n"
+                        f"        CONTAINS(STR(?full_name),  {escaped}) OR\n"
+                        f"        CONTAINS(STR(?orcid_id),   {escaped}))")
 
         query = self.__query_from_template ("authors", {
             "item_type":   item_type,
@@ -673,10 +674,11 @@ class SparqlInterface:
             filters += f"(?parent_category_id IN ({','.join(map(str, categories))})))\n"
 
         if search_for is not None:
-            filters += (f"FILTER (CONTAINS(STR(?title),          \"{search_for}\") OR\n"
-                        f"        CONTAINS(STR(?resource_title), \"{search_for}\") OR\n"
-                        f"        CONTAINS(STR(?description),    \"{search_for}\") OR\n"
-                        f"        CONTAINS(STR(?citation),       \"{search_for}\"))")
+            escaped = rdf.escape_string_value (search_for)
+            filters += (f"FILTER (CONTAINS(STR(?title),          {escaped}) OR\n"
+                        f"        CONTAINS(STR(?resource_title), {escaped}) OR\n"
+                        f"        CONTAINS(STR(?description),    {escaped}) OR\n"
+                        f"        CONTAINS(STR(?citation),       {escaped}))")
 
         if published_since is not None:
             filters += rdf.sparql_bound_filter ("published_date")
@@ -749,7 +751,7 @@ class SparqlInterface:
             return None
 
         if isinstance(identifier, str):
-            identifier = f"\"{identifier}\"^^xsd:string"
+            identifier = rdf.escape_string_value (identifier)
 
         try:
             query    = self.__query_from_template ("record_uri.sparql", {
