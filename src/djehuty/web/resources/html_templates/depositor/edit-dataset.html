@@ -187,8 +187,8 @@ jQuery(document).ready(function (){
     cursor: pointer;
     user-select: none;
 }
-#authors-list { display: none; border: none; }
-#authors-list thead { display: none; }
+.multi-list { display: none; border: none; }
+.multi-list thead { display: none; }
 #new-author { text-align: center; line-height: 3.5em; height: 3.5em; }
 .a-button a {
     text-decoration: none;
@@ -349,7 +349,7 @@ jQuery(document).ready(function (){
 </div>
 <h3>Authors</h3>
 <label for="authors">Authors</label><input type="text" id="authors" name="authors" />
-<table class="branded-table" id="authors-list">
+<table class="branded-table multi-list" id="authors-list">
   <thead>
     <tr><th>Author</th><th>Actions</th></tr>
   </thead>
