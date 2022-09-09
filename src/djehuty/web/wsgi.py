@@ -133,6 +133,7 @@ class ApiServer:
             Rule("/v2/account/articles/<dataset_id>",         endpoint = "api_private_dataset_details"),
             Rule("/v2/account/articles/<dataset_id>/authors", endpoint = "api_private_dataset_authors"),
             Rule("/v2/account/articles/<dataset_id>/authors/<author_id>", endpoint = "api_private_dataset_author_delete"),
+            Rule("/v2/account/articles/<dataset_id>/funding", endpoint = "api_private_dataset_funding"),
             Rule("/v2/account/articles/<dataset_id>/categories", endpoint = "api_private_dataset_categories"),
             Rule("/v2/account/articles/<dataset_id>/categories/<category_id>", endpoint = "api_private_delete_dataset_category"),
             Rule("/v2/account/articles/<dataset_id>/embargo", endpoint = "api_private_dataset_embargo"),
@@ -2369,6 +2370,108 @@ class ApiServer:
             return self.error_500 ()
 
         return self.error_403 (request)
+
+    def api_private_dataset_funding (self, request, dataset_id):
+        """Implements /v2/account/articles/<id>/funding."""
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
+
+        if request.method == 'GET':
+            try:
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                       account_id=account_id,
+                                                       is_published=False)
+
+                if dataset is None:
+                    return self.error_403 (request)
+
+                funding = self.db.fundings (item_uri     = dataset["uri"],
+                                            account_id   = account_id,
+                                            is_published = False,
+                                            item_type    = "dataset",
+                                            limit        = 10000)
+
+                return self.default_list_response (funding, formatter.format_funding_record)
+            except (IndexError, KeyError, TypeError):
+                pass
+
+            return self.error_500 ()
+
+        if request.method in ['POST', 'PUT']:
+            ## The 'parameters' will be a dictionary containing a key "funders",
+            ## which can contain multiple dictionaries of funding records.
+            parameters = request.get_json()
+
+            try:
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                       account_id=account_id,
+                                                       is_published=False)
+
+                if dataset is None:
+                    return self.error_403 (request)
+
+                new_fundings = []
+                records     = parameters["funders"]
+                for record in records:
+                    funder_uuid = validator.string_value (record, "uuid", 0, 36, False)
+
+                    if funder_uuid is None:
+                        funder_uuid = self.db.insert_funding (
+                            title       = validator.string_value (record, "title", 0, 255, False),
+                            grant_code  = validator.string_value (record, "grant_code", 0, 32, False),
+                            funder_name = validator.string_value (record, "funder_name", 0, 255, False),
+                            url         = validator.string_value (record, "url", 0, 512, False),
+                            is_user_defined = True)
+                        if funder_uuid is None:
+                            logging.error("Adding a single funder failed.")
+                            return self.error_500()
+                    new_fundings.append(URIRef(uuid_to_uri (funder_uuid, "funding")))
+
+                # The PUT method overwrites the existing funding list, so we can
+                # keep an empty starting list. For POST we must retrieve the
+                # existing authors to preserve them.
+                existing_fundings = []
+                if request.method == 'POST':
+                    existing_fundings = self.db.fundings (
+                        item_uri     = dataset["uri"],
+                        account_id   = account_id,
+                        item_type    = "dataset",
+                        is_published = False,
+                        limit        = 10000)
+
+                    existing_fundings = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"],"funding")),
+                                                 existing_fundings))
+
+                fundings = existing_fundings + new_fundings
+                if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+                                                 account_id,
+                                                 fundings,
+                                                 "funding_list"):
+                    logging.error("Adding a single funder failed.")
+                    return self.error_500()
+
+                return self.respond_205()
+
+            except KeyError:
+                return self.error_400 (request, "Expected a 'funders' field.", "NoFundersField")
+            except IndexError:
+                return self.error_500 ()
+            except validator.ValidationException as error:
+                return self.error_400 (request, error.message, error.code)
+            except Exception as error:
+                logging.error("An error occurred when adding a funder record:")
+                logging.error("Exception: %s", error)
+
+            return self.error_500()
+
+        return self.error_405 ("GET")
 
     def api_private_collection_author_delete (self, request, collection_id, author_id):
         if request.method != 'DELETE':
