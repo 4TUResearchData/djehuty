@@ -55,6 +55,7 @@ jQuery(document).ready(function () {
 #content-wrapper input[type="text"],
 #content-wrapper textarea,
 .texteditor,
+#geolocation-wrapper,
 .options-wrapper {
     display: block;
     padding: .7em;
@@ -185,6 +186,9 @@ jQuery(document).ready(function () {
 }
 #groups-wrapper h4:nth-child(1) { margin: 0em; }
 #metadata_reason_field, #external_link_field, #file_upload_field { display: none; }
+#geolocation-wrapper { padding: 1em; }
+#geolocation-wrapper label { background: #eee; }
+#geolocation-wrapper input[type="text"] { width: 812pt; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -262,12 +266,15 @@ jQuery(document).ready(function () {
   <tbody></tbody>
 </table>
 <h3>Findability</h3>
-<label for="geolocation">Geolocation</label>
-<input type="text" id="geolocation" name="geolocation" placeholder="Example: Dam Square, Amsterdam" value="{{collection["geolocation"] | default("", True)}}" />
-<label for="longitude">Longitude</label>
-<input type="text" id="longitude" name="longitude" placeholder="Example: 4.893" value="{{collection["longitude"] | default("", True)}}" />
-<label for="latitude">Latitude</label>
-<input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{collection["latitude"] | default("", True)}}" />
+<label>Geolocation</label>
+<div id="geolocation-wrapper">
+  <label for="geolocation">Name</label>
+  <input type="text" id="geolocation" name="geolocation" placeholder="Example: Dam Square, Amsterdam" value="{{collection["geolocation"] | default("", True)}}" />
+  <label for="longitude">Longitude</label>
+  <input type="text" id="longitude" name="longitude" placeholder="Example: 4.893" value="{{collection["longitude"] | default("", True)}}" />
+  <label for="latitude">Latitude</label>
+  <input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{collection["latitude"] | default("", True)}}" />
+</div>
 <label for="organizations">Organizations</label>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{collection["organizations"] | default("", True) }}</textarea>
 <h3>Datasets</h3>
