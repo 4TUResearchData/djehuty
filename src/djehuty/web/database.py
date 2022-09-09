@@ -698,19 +698,30 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def fundings (self, title=None, order=None, order_direction=None,
-                  limit=10, item_uri=None, account_id=None,
+                  limit=10, item_uri=None, account_id=None, search_for=None,
                   item_type="dataset", is_published=True):
         """Procedure to retrieve funding information."""
 
         filters = rdf.sparql_filter ("title", title, escape=True)
+        if search_for is not None:
+            escaped  = rdf.escape_string_value (search_for)
+            filters += (f"FILTER (CONTAINS(STR(?title),       {escaped}) OR\n"
+                        f"        CONTAINS(STR(?grant_code),  {escaped}) OR\n"
+                        f"        CONTAINS(STR(?funder_name), {escaped}) OR\n"
+                        f"        CONTAINS(STR(?url),         {escaped}))")
+
         query   = self.__query_from_template ("funding", {
             "prefix":      item_type.capitalize(),
             "item_uri":    item_uri,
             "account_id":  account_id,
             "filters":     filters
         })
-        query += rdf.sparql_suffix (order, order_direction, limit, None)
 
+        if order_direction is None and order is None:
+            order_direction = "asc"
+            order = "order_index"
+
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
         return self.__run_query(query)
 
     def references (self, order=None, order_direction=None, limit=10,

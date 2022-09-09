@@ -166,6 +166,7 @@ class ApiServer:
 
             ## Other
             ## ----------------------------------------------------------------
+            Rule("/v2/account/funding/search",                endpoint = "api_private_funding_search"),
             Rule("/v2/licenses",                              endpoint = "api_licenses"),
 
             ## ----------------------------------------------------------------
@@ -3466,10 +3467,6 @@ class ApiServer:
 
         return self.error_500 ()
 
-    ## ------------------------------------------------------------------------
-    ## AUTHORS
-    ## ------------------------------------------------------------------------
-
     def api_private_authors_search (self, request):
         handler = self.default_error_handling (request, "POST")
         if handler is not None:
@@ -3486,6 +3483,26 @@ class ApiServer:
             )
 
             return self.default_list_response (records, formatter.format_author_details_record)
+
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+    def api_private_funding_search (self, request):
+        handler = self.default_error_handling (request, "POST")
+        if handler is not None:
+            return handler
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
+
+        try:
+            parameters = request.get_json()
+            records = self.db.fundings(
+                search_for = validator.string_value (parameters, "search", 0, 255, True)
+            )
+
+            return self.default_list_response (records, formatter.format_funding_record)
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
