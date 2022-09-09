@@ -917,6 +917,9 @@ class ApiServer:
                                                    is_published = False,
                                                    account_id   = account_id)
 
+            if dataset is None:
+                return self.error_403 (request)
+
             categories = self.db.categories_tree ()
 
             account   = self.db.account_by_id (account_id)
@@ -965,6 +968,9 @@ class ApiServer:
             dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                    account_id=account_id,
                                                    is_published=False)
+
+            if dataset is None:
+                return self.error_403 (request)
 
             container_uuid = uri_to_uuid (dataset["container_uri"])
             if self.db.delete_dataset_draft (container_uuid, account_id):
