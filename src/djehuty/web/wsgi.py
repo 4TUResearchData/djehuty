@@ -1349,7 +1349,7 @@ class ApiServer:
                 from_figshare = True
 
             page_size_param = self.get_parameter (request, "n")     #override page_size
-            if page_size_param is not None and conv.parses_to_int (page_size_param):
+            if page_size_param is not None and parses_to_int (page_size_param):
                 page_size = int(page_size_param)
 
             today = date.today()
