@@ -190,6 +190,28 @@ function render_authors_for_dataset (dataset_uuid) {
     });
 }
 
+function render_funding_for_dataset (dataset_uuid) {
+    let jqxhr = jQuery.ajax({
+        url:         `/v2/account/articles/${dataset_uuid}/funding`,
+        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (funders) {
+        jQuery("#funding-list tbody").empty();
+        for (funding of funders) {
+            row = `<tr><td>${funding.title}</td>`;
+            row += `<td><a href="#" `;
+            row += `onclick="javascript:remove_funding('${funding.uuid}', `;
+            row += `'${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
+            row += `title="Remove"></a></td></tr>`;
+            jQuery("#funding-list tbody").append(row);
+        }
+        jQuery("#funding-list").show();
+    }).fail(function () {
+        console.log("Failed to retrieve funding details.");
+    });
+}
+
 function render_git_files_for_dataset (dataset_uuid, event) {
     if (event !== null) {
         event.preventDefault();
@@ -257,6 +279,20 @@ function add_author (author_uuid, dataset_uuid) {
     }).fail(function () { console.log (`Failed to add ${author_uuid}`); });
 }
 
+function add_funding (funding_uuid, dataset_uuid) {
+    jQuery.ajax({
+        url:         `/v2/account/articles/${dataset_uuid}/funding`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({ "funders": [{ "uuid": funding_uuid }] }),
+    }).done(function () {
+        render_funding_for_dataset (dataset_uuid);
+        jQuery("#funding").val("");
+        autocomplete_funding(null, dataset_uuid);
+    }).fail(function () { console.log (`Failed to add ${funding_uuid}`); });
+}
+
 function submit_external_link (dataset_uuid) {
     let url = jQuery("#external_url").val();
     if (url == "") {
@@ -319,15 +355,36 @@ function submit_new_author (dataset_uuid) {
     }).fail(function () { console.log (`Failed to add author.`); });
 }
 
+function submit_new_funding (dataset_uuid) {
+    jQuery.ajax({
+        url:         `/v2/account/articles/${dataset_uuid}/funding`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({
+            "funders": [{
+                "title":       jQuery("#funding_title").val(),
+                "grant_code":  jQuery("#funding_grant_code").val(),
+                "funder_name": jQuery("#funding_funder_name").val(),
+                "url":         jQuery("#funding_url").val()
+            }]
+        }),
+    }).done(function () {
+        jQuery("#funding-ac").remove();
+        jQuery("#funding").removeClass("input-for-ac");
+        render_funding_for_dataset (dataset_uuid);
+    }).fail(function () { console.log (`Failed to add funding.`); });
+}
+
 function new_author (dataset_uuid) {
     let html = `<div id="new-author-form">`;
     html += `<label for="author_first_name">First name</label>`;
     html += `<input type="text" id="author_first_name" name="author_first_name">`;
-    html += `<label for="author_first_name">Last name</label>`;
+    html += `<label for="author_last_name">Last name</label>`;
     html += `<input type="text" id="author_last_name" name="author_last_name">`;
-    html += `<label for="author_first_name">E-mail address</label>`;
+    html += `<label for="author_email">E-mail address</label>`;
     html += `<input type="text" id="author_email" name="author_email">`;
-    html += `<label for="author_first_name">ORCID</label>`;
+    html += `<label for="author_orcid">ORCID</label>`;
     html += `<input type="text" id="author_orcid" name="author_orcid">`;
     html += `<div id="new-author" class="a-button">`;
     html += `<a href="#" onclick="javascript:submit_new_author('${dataset_uuid}'); `;
@@ -336,6 +393,25 @@ function new_author (dataset_uuid) {
     jQuery("#authors-ac ul").remove();
     jQuery("#new-author").remove();
     jQuery("#authors-ac").append(html);
+}
+
+function new_funding (dataset_uuid) {
+    let html = `<div id="new-funding-form">`;
+    html += `<label for="funding_title">Title</label>`;
+    html += `<input type="text" id="funding_title" name="funding_title">`;
+    html += `<label for="funding_grant_code">Grant code</label>`;
+    html += `<input type="text" id="funding_grant_code" name="funding_grant_code">`;
+    html += `<label for="funding_funder_name">Funder name</label>`;
+    html += `<input type="text" id="funding_funder_name" name="funding_funder_name">`;
+    html += `<label for="funding_url">URL</label>`;
+    html += `<input type="text" id="funding_url" name="funding_url">`;
+    html += `<div id="new-funding" class="a-button">`;
+    html += `<a href="#" onclick="javascript:submit_new_funding('${dataset_uuid}'); `;
+    html += `return false;">Add funding</a></div>`;
+    html += `</div>`;
+    jQuery("#funding-ac ul").remove();
+    jQuery("#new-funding").remove();
+    jQuery("#funding-ac").append(html);
 }
 
 function autocomplete_author (event, dataset_uuid) {
@@ -371,6 +447,39 @@ function autocomplete_author (event, dataset_uuid) {
             jQuery("#authors")
                 .addClass("input-for-ac")
                 .after(`<div id="authors-ac" class="autocomplete">${html}</div>`);
+        });
+    }
+}
+
+function autocomplete_funding (event, dataset_uuid) {
+    current_text = jQuery.trim(jQuery("#funding").val());
+    if (current_text == "") {
+        jQuery("#funding-ac").remove();
+        jQuery("#funding").removeClass("input-for-ac");
+    } else if (current_text.length > 2) {
+        jQuery.ajax({
+            url:         `/v2/account/funding/search`,
+            type:        "POST",
+            contentType: "application/json",
+            accept:      "application/json",
+            data:        JSON.stringify({ "search": current_text }),
+            dataType:    "json"
+        }).done(function (data) {
+            jQuery("#funding-ac").remove();
+            html = "<ul>";
+            for (item of data) {
+                html += `<li><a href="#" `;
+                html += `onclick="javascript:add_funding('${item["uuid"]}', `;
+                html += `'${dataset_uuid}'); return false;">${item["title"]}</a>`;
+            }
+            html += "</ul>";
+
+            html += `<div id="new-funding" class="a-button"><a href="#" `
+            html += `onclick="javascript:new_funding('${dataset_uuid}'); `
+            html += `return false;">Create funding record</a></div>`;
+            jQuery("#funding")
+                .addClass("input-for-ac")
+                .after(`<div id="funding-ac" class="autocomplete">${html}</div>`);
         });
     }
 }
@@ -425,10 +534,14 @@ function activate (dataset_uuid) {
     }).done(function (data) {
         render_authors_for_dataset (dataset_uuid);
         render_references_for_dataset (dataset_uuid);
+        render_funding_for_dataset (dataset_uuid);
         render_categories_for_dataset (dataset_uuid);
         render_licenses (data);
         jQuery("#authors").on("input", function (event) {
             return autocomplete_author (event, dataset_uuid);
+        });
+        jQuery("#funding").on("input", function (event) {
+            return autocomplete_funding (event, dataset_uuid);
         });
         jQuery("#references").on("keypress", function(e){
             if(e.which == 13){
@@ -573,6 +686,15 @@ function remove_author (author_id, dataset_uuid) {
         accept:      "application/json",
     }).done(function (authors) { render_authors_for_dataset (dataset_uuid); })
       .fail(function () { console.log (`Failed to remove ${author_id}`); });
+}
+
+function remove_funding (funding_id, dataset_uuid) {
+    let jqxhr = jQuery.ajax({
+        url:         `/v2/account/articles/${dataset_uuid}/funding/${funding_id}`,
+        type:        "DELETE",
+        accept:      "application/json",
+    }).done(function (funding) { render_funding_for_dataset (dataset_uuid); })
+      .fail(function () { console.log (`Failed to remove ${funding_id}`); });
 }
 
 function remove_reference (url, dataset_uuid) {

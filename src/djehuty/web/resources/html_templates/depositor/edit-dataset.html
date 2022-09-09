@@ -190,6 +190,7 @@ jQuery(document).ready(function (){
 .multi-list { display: none; border: none; }
 .multi-list thead { display: none; }
 #new-author { text-align: center; line-height: 3.5em; height: 3.5em; }
+#new-funding { text-align: center; line-height: 3.5em; height: 3.5em; }
 .a-button a {
     text-decoration: none;
     color: #fff;
@@ -203,6 +204,9 @@ jQuery(document).ready(function (){
 #new-author-form { padding: 1em; }
 #new-author-form label { background: #eee; }
 #new-author-form input[type="text"] { width: 800pt; }
+#new-funding-form { padding: 1em; }
+#new-funding-form label { background: #eee; }
+#new-funding-form input[type="text"] { width: 800pt; }
 #references-list { display: none; border: none; }
 #references-list thead { display: none; }
 #content-wrapper .options-wrapper input[type="radio"] { display: none; }
@@ -371,6 +375,13 @@ jQuery(document).ready(function (){
 </div>
 <label for="publisher">Publisher</label>
 <input type="text" id="publisher" name="publisher" value="{{article["publisher"] | default("4TU.ResearchData", True)}}">
+<label for="funding">Funding</label><input type="text" id="funding" name="funding" />
+<table class="branded-table multi-list" id="funding-list">
+  <thead>
+    <tr><th>Name</th><th>Actions</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
 <h3>Linked resource &amp; references</h3>
 <p>If the dataset is published as part of a scientific paper, add its title and DOI here.</p>
 <label for="resource_title">Resource title</label>
