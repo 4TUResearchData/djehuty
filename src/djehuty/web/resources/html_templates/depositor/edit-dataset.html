@@ -79,7 +79,7 @@ jQuery(document).ready(function (){
 #content-wrapper input[type="date"],
 #content-wrapper textarea,
 .texteditor,
-#content-wrapper .options-wrapper, #groups-wrapper, #access-wrapper {
+#content-wrapper .options-wrapper, #groups-wrapper, #access-wrapper, #geolocation-wrapper {
     display: block;
     padding: .7em;
     border: solid 1pt #aaa;
@@ -207,6 +207,9 @@ jQuery(document).ready(function (){
 #new-funding-form { padding: 1em; }
 #new-funding-form label { background: #eee; }
 #new-funding-form input[type="text"] { width: 800pt; }
+#geolocation-wrapper { padding: 1em; }
+#geolocation-wrapper label { background: #eee; }
+#geolocation-wrapper input[type="text"] { width: 812pt; }
 #references-list { display: none; border: none; }
 #references-list thead { display: none; }
 #content-wrapper .options-wrapper input[type="radio"] { display: none; }
@@ -398,12 +401,15 @@ jQuery(document).ready(function (){
   <tbody></tbody>
 </table>
 <h3>Findability</h3>
-<label for="geolocation">Geolocation</label>
-<input type="text" id="geolocation" name="geolocation" placeholder="Example: Dam Square, Amsterdam" value="{{article["geolocation"] | default("", True)}}" />
-<label for="longitude">Longitude</label>
-<input type="text" id="longitude" name="longitude" placeholder="Example: 4.893" value="{{article["longitude"] | default("", True)}}" />
-<label for="latitude">Latitude</label>
-<input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{article["latitude"] | default("", True)}}" />
+<label>Geolocation</label>
+<div id="geolocation-wrapper">
+  <label for="geolocation">Name</label>
+  <input type="text" id="geolocation" name="geolocation" placeholder="Example: Dam Square, Amsterdam" value="{{article["geolocation"] | default("", True)}}" />
+  <label for="longitude">Longitude</label>
+  <input type="text" id="longitude" name="longitude" placeholder="Example: 4.893" value="{{article["longitude"] | default("", True)}}" />
+  <label for="latitude">Latitude</label>
+  <input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{article["latitude"] | default("", True)}}" />
+</div>
 <label for="format">Format</label>
 <input type="text" id="format" name="format" placeholder="Example: image/jpeg" value="{{article["format"] | default("", True)}}" />
 <label for="data_link">Data Link</label>
