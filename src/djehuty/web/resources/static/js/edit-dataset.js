@@ -174,11 +174,11 @@ function render_authors_for_dataset (dataset_uuid) {
     }).done(function (authors) {
         jQuery("#authors-list tbody").empty();
         for (author of authors) {
-            row = `<tr><td><a href="#">${author.full_name}`;
+            row = `<tr><td>${author.full_name}`;
             if (author.orcid_id != null && author.orcid_id != "") {
                 row += ` (${author.orcid_id})`;
             }
-            row += `</a></td><td><a href="#" `;
+            row += `</td><td><a href="#" `;
             row += `onclick="javascript:remove_author('${author.uuid}', `;
             row += `'${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
