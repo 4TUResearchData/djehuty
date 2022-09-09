@@ -55,6 +55,7 @@ function save_dataset (dataset_uuid, event, notify=true) {
         "same_as":        or_null(jQuery("#same_as").val()),
         "organizations":  or_null(jQuery("#organizations").val()),
         "publisher":      or_null(jQuery("#publisher").val()),
+        "time_coverage":  or_null(jQuery("#time_coverage").val()),
         "defined_type_name": defined_type_name,
         "is_embargoed":   is_embargoed || is_restricted || is_closed,
         "group_id":       group_id,

@@ -401,6 +401,8 @@ jQuery(document).ready(function (){
   <tbody></tbody>
 </table>
 <h3>Findability</h3>
+<label for="time_coverage">Time coverage</label>
+<input type="text" id="time_coverage" name="time_coverage" value="{{article["time_coverage"] | default("", True)}}" />
 <label>Geolocation</label>
 <div id="geolocation-wrapper">
   <label for="geolocation">Name</label>
