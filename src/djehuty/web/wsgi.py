@@ -134,6 +134,7 @@ class ApiServer:
             Rule("/v2/account/articles/<dataset_id>/authors", endpoint = "api_private_dataset_authors"),
             Rule("/v2/account/articles/<dataset_id>/authors/<author_id>", endpoint = "api_private_dataset_author_delete"),
             Rule("/v2/account/articles/<dataset_id>/funding", endpoint = "api_private_dataset_funding"),
+            Rule("/v2/account/articles/<dataset_id>/funding/<funding_id>", endpoint = "api_private_dataset_funding_delete"),
             Rule("/v2/account/articles/<dataset_id>/categories", endpoint = "api_private_dataset_categories"),
             Rule("/v2/account/articles/<dataset_id>/categories/<category_id>", endpoint = "api_private_delete_dataset_category"),
             Rule("/v2/account/articles/<dataset_id>/embargo", endpoint = "api_private_dataset_embargo"),
@@ -2472,6 +2473,43 @@ class ApiServer:
             return self.error_500()
 
         return self.error_405 ("GET")
+
+    def api_private_dataset_funding_delete (self, request, dataset_id, funding_id):
+        if request.method != 'DELETE':
+            return self.error_405 ("DELETE")
+
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
+
+        try:
+            dataset   = self.__dataset_by_id_or_uri (dataset_id,
+                                                     account_id   = account_id,
+                                                     is_published = False)
+
+            if dataset is None:
+                return self.error_403 (request)
+
+            fundings = self.db.fundings (item_uri     = dataset["uri"],
+                                         account_id   = account_id,
+                                         is_published = False,
+                                         item_type    = "dataset",
+                                         limit        = 10000)
+
+            fundings.remove (next (filter (lambda item: item['uuid'] == funding_id, fundings)))
+
+            fundings = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "funding")), fundings))
+            if self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+                                         account_id,
+                                         fundings,
+                                         "funding_list"):
+                return self.respond_204()
+
+            return self.error_500()
+        except (IndexError, KeyError):
+            return self.error_500 ()
+
+        return self.error_403 (request)
 
     def api_private_collection_author_delete (self, request, collection_id, author_id):
         if request.method != 'DELETE':
