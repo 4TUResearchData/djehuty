@@ -20,10 +20,10 @@ EXTRA_DIST              =                   \
   setup.cfg                                 \
   setup.py
 
-dist-rpm: source-dist
+dist-rpm: dist
 	mkdir -p rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 	rm -f rpmbuild/SOURCES/*
-	ln -s $(abs_top_srcdir)/dist/djehuty-@VERSION@.tar.gz rpmbuild/SOURCES/djehuty-@VERSION@.tar.gz
+	ln -s $(abs_top_srcdir)/djehuty-@VERSION@.tar.gz rpmbuild/SOURCES/djehuty-@VERSION@.tar.gz
 	rpmbuild --define "_topdir $(abs_top_srcdir)/rpmbuild" -ba $(abs_top_srcdir)/rpmbuild/SPECS/djehuty.spec
 
 source-dist:
