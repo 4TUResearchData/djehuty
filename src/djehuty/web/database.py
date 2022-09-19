@@ -522,17 +522,20 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def tags (self, order=None, order_direction=None, limit=10,
-              item_uri=None, item_type="dataset"):
+              item_uri=None, account_id=None):
         """Procedure to get tags for a dataset or a collection."""
 
-        prefix  = item_type.capitalize()
         query   = self.__query_from_template ("tags", {
-            "prefix":      prefix,
-            "item_type":   item_type,
+            "account_id":  account_id,
             "item_uri":    item_uri
         })
-        query += rdf.sparql_suffix (order, order_direction, limit, None)
 
+        # Order by insertion-order by default.
+        if order is None and order_direction is None:
+            order = "index"
+            order_direction = "asc"
+
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
         return self.__run_query(query)
 
     def categories (self, title=None, order=None, order_direction=None,

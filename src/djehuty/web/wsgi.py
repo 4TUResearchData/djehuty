@@ -1520,7 +1520,7 @@ class ApiServer:
                                                  is_published  = True)[0]
             collection_uri = collection['uri']
             authors       = self.db.authors(item_uri=collection_uri, item_type='collection')
-            tags          = self.db.tags(item_uri=collection_uri, item_type='collection')
+            tags          = self.db.tags(item_uri=collection_uri)
             categories    = self.db.categories(item_uri=collection_uri)
             references    = self.db.references(item_uri=collection_uri)
             fundings      = self.db.fundings(item_uri=collection_uri)
@@ -1865,7 +1865,7 @@ class ApiServer:
             authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
             files           = self.db.dataset_files(dataset_uri=dataset_uri)
             custom_fields   = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
-            tags            = self.db.tags(item_uri=dataset_uri, item_type="dataset")
+            tags            = self.db.tags(item_uri=dataset_uri)
             categories      = self.db.categories(item_uri=dataset_uri)
             references      = self.db.references(item_uri=dataset_uri)
             funding_list    = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
@@ -1921,7 +1921,7 @@ class ApiServer:
             authors       = self.db.authors(item_uri=dataset_uri, item_type="dataset")
             files         = self.db.dataset_files(dataset_uri=dataset_uri)
             custom_fields = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
-            tags          = self.db.tags(item_uri=dataset_uri, item_type="dataset")
+            tags          = self.db.tags(item_uri=dataset_uri)
             categories    = self.db.categories(item_uri=dataset_uri)
             references    = self.db.references(item_uri=dataset_uri)
             fundings      = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
@@ -2124,7 +2124,7 @@ class ApiServer:
                 authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
                 files           = self.db.dataset_files(dataset_uri=dataset_uri)
                 custom_fields   = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
-                tags            = self.db.tags(item_uri=dataset_uri, item_type="dataset")
+                tags            = self.db.tags(item_uri=dataset_uri)
                 categories      = self.db.categories(item_uri=dataset_uri)
                 references      = self.db.references(item_uri=dataset_uri)
                 funding_list    = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
@@ -3115,7 +3115,7 @@ class ApiServer:
         categories     = self.db.categories(item_uri = collection_uri)
         references     = self.db.references(item_uri = collection_uri)
         custom_fields  = self.db.custom_fields(item_uri = collection_uri, item_type="collection")
-        tags           = self.db.tags(item_uri = collection_uri, item_type="collection")
+        tags           = self.db.tags(item_uri = collection_uri)
         authors        = self.db.authors(item_uri = collection_uri, item_type="collection")
         total          = formatter.format_collection_details_record (collection,
                                                                      fundings,
@@ -3156,7 +3156,7 @@ class ApiServer:
         categories     = self.db.categories(item_uri = collection_uri)
         references     = self.db.references(item_uri = collection_uri)
         custom_fields  = self.db.custom_fields(item_uri = collection_uri, item_type="collection")
-        tags           = self.db.tags(item_uri = collection_uri, item_type="collection")
+        tags           = self.db.tags(item_uri = collection_uri)
         authors        = self.db.authors(item_uri = collection_uri, item_type="collection")
         total          = formatter.format_collection_details_record (collection,
                                                                      fundings,
@@ -3289,7 +3289,7 @@ class ApiServer:
                 categories    = self.db.categories(item_uri=collection_uri)
                 references    = self.db.references(item_uri=collection_uri)
                 custom_fields = self.db.custom_fields(item_uri=collection_uri, item_type="collection")
-                tags          = self.db.tags(item_uri=collection_uri, item_type="collection")
+                tags          = self.db.tags(item_uri=collection_uri)
                 authors       = self.db.authors(item_uri=collection_uri, item_type="collection")
                 total         = formatter.format_collection_details_record (collection,
                                                                             fundings,

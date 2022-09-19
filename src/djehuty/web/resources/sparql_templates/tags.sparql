@@ -3,10 +3,15 @@
 SELECT DISTINCT ?index ?tag
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?item_uri        rdf:type            djht:{{prefix}} ;
-                     djht:tags/rdf:rest*  ?tag_node .
-    ?tag_node        rdf:first           ?tag ;
-                     djht:index           ?index .
+    ?container      rdf:type/rdfs:subClassOf djht:Container .
+    {%- if account_id is not none %}
+    ?container      djht:account_id           {{account_id}} .
+    {%- endif %}
+
+    ?item_uri       djht:container            ?container .
+    ?item_uri       djht:tags/rdf:rest*       ?tag_node .
+    ?tag_node       rdf:first                 ?tag ;
+                    djht:index                ?index .
   }
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)
