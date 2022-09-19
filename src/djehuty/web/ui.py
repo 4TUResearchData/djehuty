@@ -203,7 +203,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
     except FileNotFoundError as error:
         if not inside_reload:
             logging.error ("Could not open '%s'.", config_file)
-        raise error
+        raise SystemExit from error
 
     return {}
 
