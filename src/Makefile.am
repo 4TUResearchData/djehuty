@@ -67,6 +67,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/collection_datasets_count.sparql   \
     djehuty/web/resources/sparql_templates/collection_datasets.sparql         \
     djehuty/web/resources/sparql_templates/collection_container.sparql        \
+    djehuty/web/resources/sparql_templates/collections_by_account.sparql      \
     djehuty/web/resources/sparql_templates/collections_from_dataset.sparql    \
     djehuty/web/resources/sparql_templates/collections.sparql                 \
     djehuty/web/resources/sparql_templates/collection_versions.sparql         \

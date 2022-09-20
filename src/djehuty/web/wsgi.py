@@ -1400,6 +1400,11 @@ class ApiServer:
 
     def ui_dataset (self, request, dataset_id, version=None):
         if self.accepts_html (request):
+            my_collections = []
+            account_id = self.account_id_from_request (request)
+            if account_id:
+                my_collections = self.db.collections_by_account (account_id = account_id)
+
             container     = self.__dataset_by_id_or_uri (
                 dataset_id,
                 is_published = True,
@@ -1479,6 +1484,7 @@ class ApiServer:
                                            item=dataset,
                                            version=version,
                                            versions=versions,
+                                           my_collections = my_collections,
                                            authors=authors,
                                            contributors = contributors,
                                            files=files,
@@ -1496,9 +1502,7 @@ class ApiServer:
                                            id_version = id_version,
                                            opendap=opendap,
                                            statistics=statistics)
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        return self.error_406 ("text/html")
 
     def ui_collection (self, request, collection_id, version=None):
         #This function is copied from ui_dataset and slightly adapted as a start. It will not yet work properly.

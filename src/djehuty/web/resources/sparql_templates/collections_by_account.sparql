@@ -1,0 +1,13 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?collection ?collection_id ?container_uri ?title
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container_uri            rdf:type                 djht:CollectionContainer ;
+                              djht:account_id          {{account_id}} ;
+                              djht:draft               ?collection .
+    OPTIONAL { ?container_uri djht:collection_id       ?collection_id . }
+    ?collection               djht:title               ?title .
+    }
+}
+{% endblock %}

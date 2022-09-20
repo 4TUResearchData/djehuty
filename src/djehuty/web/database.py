@@ -702,6 +702,17 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def collections_by_account (self, account_id=None, limit=100, offset=None,
+                                order=None, order_direction=None):
+        """Procedure to retrieve essential metadata of collections of an account."""
+
+        query   = self.__query_from_template ("collections_by_account", {
+            "account_id":   account_id
+        })
+        query += rdf.sparql_suffix (order, order_direction, limit, offset)
+
+        return self.__run_query(query)
+
     def fundings (self, title=None, order=None, order_direction=None,
                   limit=10, item_uri=None, account_id=None, search_for=None,
                   item_type="dataset", is_published=True):

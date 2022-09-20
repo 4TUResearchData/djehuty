@@ -103,8 +103,8 @@
 </div>
 {%- if not in_production: %}
 {% set debug_vars = {"item":item, "version":version, "versions":versions, "authors":authors, "contributors":contributors,
-                     "files":files, "services":services, "tags":tags, "categories":categories,
-                     "fundings":fundings, "references": references, "derived_from":derived_from, "collections":collections,
+                     "files":files, "services":services, "tags":tags, "categories":categories, "fundings":fundings,
+                     "references": references, "derived_from":derived_from, "collections":collections, "my_collections":my_collections,
                      "dates":dates, "coordinates":coordinates, "id_version":id_version, "opendap":opendap, "statistics":statistics} %}
 {% set djehuty_API   = "/v2/articles/"~pid %}
 {% set figshare_html = "https://data.4tu.nl/articles/_/"~pid %}
