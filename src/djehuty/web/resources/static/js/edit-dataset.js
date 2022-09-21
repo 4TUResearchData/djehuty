@@ -43,7 +43,6 @@ function save_dataset (dataset_uuid, event, notify=true) {
     form_data = {
         "title":          or_null(jQuery("#title").val()),
         "description":    or_null(jQuery("#description .ql-editor").html()),
-        "license_id":     or_null(jQuery(".license-selector").val()),
         "resource_title": or_null(jQuery("#resource_title").val()),
         "resource_doi":   or_null(jQuery("#resource_doi").val()),
         "geolocation":    or_null(jQuery("#geolocation").val()),
@@ -67,22 +66,26 @@ function save_dataset (dataset_uuid, event, notify=true) {
         form_data["embargo_until_date"] = or_null(jQuery("#embargo_until_date").val());
         form_data["embargo_title"]  = or_null(jQuery("#embargo_title").val());
         form_data["embargo_reason"] = or_null(jQuery("#embargo_reason .ql-editor").html());
-
+        form_data["license_id"]     = or_null(jQuery("#license_embargoed").val());
         if (jQuery("#files_only_embargo").prop("checked")) {
             form_data["embargo_type"] = "file";
         } else if (jQuery("#content_embargo").prop("checked")) {
             form_data["embargo_type"] = "article";
         }
     } else if (is_restricted) {
+        form_data["license_id"]     = null;
         form_data["embargo_until_date"] = null;
         form_data["embargo_title"]  = "Restricted access";
         form_data["embargo_reason"] = or_null(jQuery("#restricted_access_reason .ql-editor").html());
         form_data["embargo_options"] = [{ "id": 1000, "type": "restricted_access" }]
     } else if (is_closed) {
+        form_data["license_id"]     = null;
         form_data["embargo_until_date"] = null;
         form_data["embargo_title"]  = "Closed access";
         form_data["embargo_reason"] = or_null(jQuery("#closed_access_reason .ql-editor").html());
         form_data["embargo_options"] = [{ "id": 1001, "type": "closed_access" }]
+    } else {
+        form_data["license_id"]     = or_null(jQuery("#license_open").val());
     }
 
     let jqxhr = jQuery.ajax({
