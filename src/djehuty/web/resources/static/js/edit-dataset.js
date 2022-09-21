@@ -167,6 +167,24 @@ function render_references_for_dataset (dataset_uuid) {
     });
 }
 
+function render_tags_for_dataset (dataset_uuid) {
+    let jqxhr = jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}/tags`,
+        data:        { "limit": 10000 },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (tags) {
+        jQuery("#tags-list").empty();
+        for (tag of tags) {
+            row = `<li>${tag} &nbsp; <a href="#" class="fas fa-trash-can"`;
+            row += ` onclick="javascript:remove_tag('${tag}', `;
+            row += `'${dataset_uuid}'); return false;"></a></li>`;
+            jQuery("#tags-list").append(row);
+        }
+        jQuery("#tags-list").show();
+    }).fail(function () { console.log("Failed to retrieve tags."); });
+}
+
 function render_authors_for_dataset (dataset_uuid) {
     let jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/authors`,
@@ -328,6 +346,22 @@ function add_reference (dataset_uuid) {
             jQuery("#references").val("");
         }).fail(function () { console.log (`Failed to add ${url}`); });
     }
+}
+
+function add_tag (dataset_uuid) {
+    tag = jQuery.trim(jQuery("#tag").val());
+    if (tag == "") { return 0; }
+
+    jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}/tags`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({ "tags": [tag] }),
+    }).done(function () {
+        render_tags_for_dataset (dataset_uuid);
+        jQuery("#tag").val("");
+    }).fail(function () { console.log (`Failed to add ${tag}`); });
 }
 
 function submit_new_author (dataset_uuid) {
@@ -536,6 +570,7 @@ function activate (dataset_uuid) {
     }).done(function (data) {
         render_authors_for_dataset (dataset_uuid);
         render_references_for_dataset (dataset_uuid);
+        render_tags_for_dataset (dataset_uuid);
         render_funding_for_dataset (dataset_uuid);
         render_categories_for_dataset (dataset_uuid);
         render_licenses (data);
@@ -548,6 +583,11 @@ function activate (dataset_uuid) {
         jQuery("#references").on("keypress", function(e){
             if(e.which == 13){
                 add_reference(dataset_uuid);
+            }
+        });
+        jQuery("#tag").on("keypress", function(e){
+            if(e.which == 13){
+                add_tag(dataset_uuid);
             }
         });
         render_files_for_dataset (dataset_uuid);
@@ -706,6 +746,15 @@ function remove_reference (url, dataset_uuid) {
         accept:      "application/json",
     }).done(function (authors) { render_references_for_dataset (dataset_uuid); })
       .fail(function () { console.log (`Failed to remove ${url}`); });
+}
+
+function remove_tag (tag, dataset_uuid) {
+    let jqxhr = jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}/tags?tag=${tag}`,
+        type:        "DELETE",
+        accept:      "application/json",
+    }).done(function (authors) { render_tags_for_dataset (dataset_uuid); })
+      .fail(function () { console.log (`Failed to remove ${tag}`); });
 }
 
 function prettify_size (size) {

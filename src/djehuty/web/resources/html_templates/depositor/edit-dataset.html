@@ -212,6 +212,15 @@ jQuery(document).ready(function (){
 #geolocation-wrapper input[type="text"] { width: 812pt; }
 #references-list { display: none; border: none; }
 #references-list thead { display: none; }
+#tags-list { display: none; border: none; padding: 0em; }
+#tags-list li {
+  display: inline-block;
+  list-style-type: none;
+  margin: 0em 1em .5em 0em;
+  padding: .5em;
+  border-radius: .5em;
+  background: #eee;
+}
 #content-wrapper .options-wrapper input[type="radio"] { display: none; }
 #content-wrapper .options-wrapper label { padding: .5em; border-radius: .5em; user-select: none; }
 #content-wrapper .options-wrapper label:hover { cursor: pointer; background: #eee; }
@@ -513,6 +522,9 @@ jQuery(document).ready(function (){
 <input type="text" id="derived_from" name="derived_from" value="{{article["derived_from"] | default("", True)}}" />
 <label for="same_as">Same As</label>
 <input type="text" id="same_as" name="same_as" value="{{article["same_as"] | default("", True)}}" />
+<label for="tag">Keywords</label>
+<input type="text" id="tag" name="tag" value="" />
+<ul id="tags-list"></ul>
 <label for="organizations">Organizations</label>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{article["organizations"] | default("", True) }}</textarea>
 <h3>Files</h3>
