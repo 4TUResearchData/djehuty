@@ -278,7 +278,7 @@ jQuery(document).ready(function (){
 <div id="description" class="texteditor">
   {{article["description"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
-<label>License &#38; Access</label>
+<label>Licence &#38; Access</label>
 <div id="access-wrapper">
   <div id="access-type-wrapper" class="options-wrapper">
 <input type="radio" name="access_type" id="open_access" value="open" checked="checked" /><!--
@@ -294,9 +294,9 @@ jQuery(document).ready(function (){
     <p>
       Open access is the default setting in 4TU.ResearchData by which your dataset will be directly accessible to others.
     </p>
-    <label for="license_open" class="inner-head">License</label>
+    <label for="license_open" class="inner-head">Licence</label>
     <select id="license_open" class="license-selector" name="license">
-      <option value="" disabled selected>Select a license</option>
+      <option value="" disabled selected>Select a licence</option>
     </select>
   </div>
   <div class="access_level" id="embargoed_access_form">
@@ -304,9 +304,9 @@ jQuery(document).ready(function (){
       Embargo is a period during which a dataset is unavailable and not accessible to anyone else.
       Please enter the end date of the embargo period and add the reason why the files are under embargo.  
     </p>
-    <label for="license_embargoed" class="inner-head">License</label>
+    <label for="license_embargoed" class="inner-head">Licence</label>
     <select id="license_embargoed" class="license-selector" name="license">
-      <option value="" disabled selected>Select a license</option>
+      <option value="" disabled selected>Select a licence</option>
     </select>
     <label for="embargo_until_date" class="inner-head">Until date</label>
     <input id="embargo_until_date" type="date" name="embargo_until_date" value="{{article["embargo_until_date"]}}" />
@@ -327,7 +327,7 @@ jQuery(document).ready(function (){
     <p>
       Restricted access allows you to share your dataset under specific
       conditions and with users who have been granted access. Please specify
-      the End-User License Agreement (EULA) in which you specify the
+      the End-User Licence Agreement (EULA) in which you specify the
       conditions under which you grant users access to your data files,
       and add the reason why your dataset is restricted.
     </p>
