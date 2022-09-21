@@ -380,6 +380,7 @@ img.cts { width: 120px; }
 .fa-clipboard-check::before { content: "\f46c"; }
 .fa-angle-double-up::before { content: "\f102"; }
 .fa-angle-double-down::before { content: "\f103"; }
+.fa-sync::before { content: "\f021"; }
 .fa-empty::before {}
 
 a.fas { text-decoration: none; }
@@ -473,7 +474,7 @@ img { user-select: none; }
 .failure { background: #990000; padding: 0em; margin: 0em; }
 .hidden { font-size: 0; user-select: none; }
 .center { text-align: center; }
-
+.no-select { user-select: none; }
 #pre-header {
     display: block;
     width: 100%;

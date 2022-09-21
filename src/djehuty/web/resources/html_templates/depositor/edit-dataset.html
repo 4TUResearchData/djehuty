@@ -246,6 +246,7 @@ jQuery(document).ready(function (){
 #git-files li { list-style-type: none; margin: 0em; padding: .5em; }
 #git-files li:nth-child(even) { background: #fafafa; }
 #embargo_options { display: none; }
+#refresh-git-files { font-size: .75em; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -559,11 +560,8 @@ jQuery(document).ready(function (){
   <pre>
 git push 4tu --all
 git push 4tu --tags</pre>
-  <h4>Repository file tree</h4>
+  <h4>Repository file tree<span class="no-select"> &nbsp;<a id="refresh-git-files" href="#" class="fas fa-sync"></a></span></h4>
   <ul id="git-files"></ul>
-  <div class="center">
-    <a id="refresh-git-files" href="#" class="button neutral-button">Refresh repository file list</a>
-  </div>
   <h4>Distribution artefacts</h4>
   <p>
     Software packages oftentimes have separate distribution tarballs
