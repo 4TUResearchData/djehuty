@@ -58,7 +58,7 @@ function top_datasets (item_type) {
     })
         .done(function(data) {
             var output = '<table id="top-datasets"><thead>';
-            output += '<tr><th>Article</th><th># '+ capitalize(item_type) +'</th></tr>';
+            output += '<tr><th>Dataset</th><th># '+ capitalize(item_type) +'</th></tr>';
             output += '</thead><tbody>';
             jQuery.each (data, function(index) {
                 output += '<tr><td>';
