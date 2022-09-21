@@ -182,6 +182,7 @@ class ApiServer:
             Rule("/v3/datasets/<dataset_id>.git/files",       endpoint = "api_v3_dataset_git_files"),
             Rule("/v3/file/<file_id>",                        endpoint = "api_v3_file"),
             Rule("/v3/datasets/<dataset_id>/references",      endpoint = "api_v3_dataset_references"),
+            Rule("/v3/datasets/<dataset_id>/tags",            endpoint = "api_v3_dataset_tags"),
             Rule("/v3/groups",                                endpoint = "api_v3_groups"),
             Rule("/v3/profile",                               endpoint = "api_v3_profile"),
             Rule("/v3/profile/categories",                    endpoint = "api_v3_profile_categories"),
@@ -4044,6 +4045,94 @@ class ApiServer:
         except Exception as error:
             logging.error("An error occurred when adding a reference record:")
             logging.error("Exception: %s", error)
+
+        return self.error_500 ()
+
+
+    def api_v3_dataset_tags (self, request, dataset_id):
+        """Implements /v3/datasets/<id>/tags."""
+
+        if not self.accepts_json(request):
+            return self.error_406 ("application/json")
+
+        ## Authorization
+        ## ----------------------------------------------------------------
+        account_id = self.account_id_from_request (request)
+        if account_id is None:
+            return self.error_authorization_failed(request)
+
+        if request.method not in ['GET', 'POST', 'DELETE']:
+            return self.error_405 (["GET", "POST", "DELETE"])
+
+        try:
+            dataset  = self.__dataset_by_id_or_uri (dataset_id,
+                                                    account_id=account_id,
+                                                    is_published=False)
+
+            limit           = validator.integer_value (request.args, "limit")
+            order           = validator.integer_value (request.args, "order")
+            order_direction = validator.string_value  (request.args, "order_direction", 0, 4)
+
+            tags     = self.db.tags (item_uri        = dataset["uri"],
+                                     account_id      = account_id,
+                                     limit           = limit,
+                                     order           = order,
+                                     order_direction = order_direction)
+
+            if request.method == 'GET':
+                return self.default_list_response (tags, formatter.format_tag_record)
+
+            tags     = list(map(lambda tag: tag["tag"], tags))
+
+            if request.method == 'DELETE':
+                tag_encoded = validator.string_value (request.args, "tag", 0, 1024, True)
+                tag         = requests.utils.unquote(tag_encoded)
+                tags.remove (next (filter (lambda item: item == tag, tags)))
+                if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+                                                 account_id,
+                                                 tags,
+                                                 "tags"):
+                    logging.error("Deleting a tag failed.")
+                    return self.error_500()
+
+                return self.respond_204()
+
+            ## For POST and PUT requests, the 'parameters' will be a dictionary
+            ## containing a key "references", which can contain multiple
+            ## dictionaries of reference records.
+            parameters     = request.get_json()
+            tags           = parameters["tags"]
+            new_tags = []
+            for index, _ in enumerate(tags):
+                new_tags.append(validator.string_value (tags, index, 0, 512, True))
+
+            if request.method == 'POST':
+                existing_tags = self.db.tags (item_uri   = dataset["uri"],
+                                              account_id = account_id,
+                                              limit      = 10000)
+
+                # Drop the index field.
+                existing_tags = list (map (lambda item: item["tag"], existing_tags))
+
+                # Remove duplicates by converting to a set and then back to list.
+                tags = list(set(existing_tags + new_tags))
+
+            if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+                                             account_id,
+                                             tags,
+                                             "tags"):
+                logging.error("Updating tags failed.")
+                return self.error_500()
+
+            return self.respond_205()
+
+        except IndexError:
+            return self.error_500 ()
+        except KeyError as error:
+            logging.error ("KeyError: %s", error)
+            return self.error_400 (request, "Expected a 'tags' field.", "NoTagsField")
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
 
