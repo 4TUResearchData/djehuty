@@ -574,19 +574,25 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def accepts_html (self, request):
-        acceptable = request.headers['Accept']
-        if not acceptable:
-            return False
+        try:
+            acceptable = request.headers['Accept']
+            if not acceptable:
+                return False
 
-        return "text/html" in acceptable
+            return "text/html" in acceptable
+        except KeyError:
+            return False
 
     def accepts_json (self, request):
-        acceptable = request.headers['Accept']
-        if not acceptable:
-            return False
+        try:
+            acceptable = request.headers['Accept']
+            if not acceptable:
+                return False
 
-        return (("application/json" in acceptable) or
-                ("*/*" in acceptable))
+            return (("application/json" in acceptable) or
+                    ("*/*" in acceptable))
+        except KeyError:
+            return False
 
     def contains_json (self, request):
         contains = request.headers['Content-Type']
