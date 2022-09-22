@@ -73,13 +73,14 @@ function save_dataset (dataset_uuid, event, notify=true) {
             form_data["embargo_type"] = "article";
         }
     } else if (is_restricted) {
-        form_data["license_id"]     = null;
+        // 149 is the licence ID of the "Restricted Licence".
+        form_data["license_id"]     = 149;
         form_data["embargo_until_date"] = null;
         form_data["embargo_title"]  = "Restricted access";
         form_data["embargo_reason"] = or_null(jQuery("#restricted_access_reason .ql-editor").html());
         form_data["embargo_options"] = [{ "id": 1000, "type": "restricted_access" }]
     } else if (is_closed) {
-        form_data["license_id"]     = null;
+        form_data["license_id"]     = 149;
         form_data["embargo_until_date"] = null;
         form_data["embargo_title"]  = "Closed access";
         form_data["embargo_reason"] = or_null(jQuery("#closed_access_reason .ql-editor").html());
