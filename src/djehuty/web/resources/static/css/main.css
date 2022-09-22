@@ -487,3 +487,4 @@ img { user-select: none; }
 #pre-header a { color: #fff; }
 #pre-header a:hover { color: #ccc; }
 #pre-header a:active { color: #999; }
+.sticky { position: fixed !important; top: 0px; width: 100% }

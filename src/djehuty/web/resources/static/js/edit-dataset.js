@@ -566,6 +566,17 @@ function toggle_access_level (dataset_uuid) {
 }
 
 function activate (dataset_uuid) {
+    var submenu_offset = jQuery("#submenu").offset().top;
+
+    jQuery(window).on('resize scroll', function() {
+        let scroll_offset  = jQuery(window).scrollTop();
+        if (submenu_offset <= scroll_offset) {
+            jQuery("#submenu").addClass("sticky")
+        } else {
+            jQuery("#submenu").removeClass("sticky")
+        }
+    });
+
     let jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}`,
         type:        "GET",
