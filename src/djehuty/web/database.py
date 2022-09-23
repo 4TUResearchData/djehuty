@@ -984,9 +984,8 @@ class SparqlInterface:
         graph.add ((container, rdf.DJHT["draft"],       uri))
         graph.add ((container, rdf.DJHT["account_id"],  Literal(account_id, datatype=XSD.integer)))
 
-        query = self.__insert_query_for_graph (graph)
-        container_uuid = rdf.uri_to_uuid (container)
-        if self.__run_query(query):
+        if self.add_triples_from_graph (graph):
+            container_uuid = rdf.uri_to_uuid (container)
             logging.info ("Inserted dataset %s", container_uuid)
             self.cache.invalidate_by_prefix (f"datasets_{account_id}")
             return container_uuid
@@ -1041,8 +1040,7 @@ class SparqlInterface:
                                        items,
                                        "categories")
 
-                query = self.__insert_query_for_graph (graph)
-                if not self.__run_query (query):
+                if not self.add_triples_from_graph (graph):
                     logging.error("Updating categories for account %d failed.",
                                   account_id)
                     return None
@@ -1063,8 +1061,7 @@ class SparqlInterface:
                                        items,
                                        predicate)
 
-                query = self.__insert_query_for_graph (graph)
-                if not self.__run_query (query):
+                if not self.add_triples_from_graph (graph):
                     logging.error ("%s insert query failed for %s",
                                    predicate, container_uuid)
 
@@ -1099,8 +1096,7 @@ class SparqlInterface:
         rdf.add (graph, author_uri, rdf.DJHT["orcid_id"],       orcid_id,       XSD.string)
         rdf.add (graph, author_uri, rdf.DJHT["email"],          email,          XSD.string)
 
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
+        if self.add_triples_from_graph (graph):
             return rdf.uri_to_uuid (author_uri)
 
         return None
@@ -1175,8 +1171,7 @@ class SparqlInterface:
         rdf.add (graph, funding_uri, rdf.DJHT["is_user_defined"], is_user_defined)
         rdf.add (graph, funding_uri, rdf.DJHT["url"],             url,             XSD.string)
 
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
+        if self.add_triples_from_graph (graph):
             return rdf.uri_to_uuid (funding_uri)
 
         return None
@@ -1207,8 +1202,7 @@ class SparqlInterface:
         rdf.add (graph, file_uri, rdf.DJHT["upload_token"],  upload_token,  XSD.string)
 
         self.cache.invalidate_by_prefix ("dataset")
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
+        if self.add_triples_from_graph (graph):
             existing_files = self.dataset_files (dataset_uri=dataset_uri)
             existing_files = list(map (lambda item: URIRef(rdf.uuid_to_uri(item["uuid"], "file")),
                                          existing_files))
@@ -1259,8 +1253,7 @@ class SparqlInterface:
         rdf.add (graph, license_uri, rdf.DJHT["name"],  name, XSD.string)
         rdf.add (graph, license_uri, rdf.DJHT["url"],   url,  XSD.string)
 
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
+        if self.add_triples_from_graph (graph):
             return license_id
 
         return None
@@ -1282,8 +1275,7 @@ class SparqlInterface:
         rdf.add (graph, link_uri, rdf.DJHT["is_active"],    is_active)
         rdf.add (graph, link_uri, rdf.DJHT["expires_date"], expires_date, XSD.string)
 
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
+        if self.add_triples_from_graph (graph):
             return link_uri
 
         return None
@@ -1309,8 +1301,7 @@ class SparqlInterface:
         rdf.add (graph, custom_field_uri, rdf.DJHT["placeholder"],   placeholder)
         rdf.add (graph, custom_field_uri, rdf.DJHT["is_multiple"],   is_multiple)
 
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
+        if self.add_triples_from_graph (graph):
             return custom_field_uri
 
         return None
@@ -1560,8 +1551,7 @@ class SparqlInterface:
         graph.add ((container, rdf.DJHT["draft"],       uri))
         graph.add ((container, rdf.DJHT["account_id"],  Literal(account_id, datatype=XSD.integer)))
 
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
+        if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
             logging.info ("Inserted collection %s", container_uuid)
             return container_uuid
@@ -1793,8 +1783,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["assigned_to"],    assigned_to,   XSD.integer)
         rdf.add (graph, uri, rdf.DJHT["status"],         status,        XSD.string)
 
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
+        if self.add_triples_from_graph (graph):
             self.cache.invalidate_by_prefix ("reviews")
             logging.info ("Inserted review for dataset %s", dataset_uri)
             return uri
@@ -1895,8 +1884,7 @@ class SparqlInterface:
         graph.add ((link_uri, rdf.DJHT["token"],      Literal(token, datatype=XSD.string)))
         graph.add ((link_uri, rdf.DJHT["editable"],   Literal(editable, datatype=XSD.boolean)))
 
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query(query):
+        if self.add_triples_from_graph (graph):
             return token, rdf.uri_to_uuid (link_uri)
 
         return None, None
@@ -2006,3 +1994,15 @@ class SparqlInterface:
         })
 
         return self.__run_query (query, query, "explorer_property_types")
+
+    def add_triples_from_graph (self, graph):
+        """Inserts triples from GRAPH into the state graph."""
+
+        query = self.__insert_query_for_graph (graph)
+        if self.__run_query (query):
+            return True
+
+        logging.error ("Inserting triples from a graph failed.")
+        self.__log_query (query)
+
+        return False
