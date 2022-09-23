@@ -30,7 +30,8 @@ def config_value (xml_root, path, command_line=None, fallback=None):
 
 
 def read_configuration_file (server, config_file, address, port, state_graph,
-                             storage, base_url, use_debugger, use_reloader):
+                             storage, cache, base_url, use_debugger,
+                             use_reloader):
     """Procedure to parse a configuration file."""
 
     inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
@@ -82,7 +83,8 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         server.in_production    = bool(int(config_value (xml_root, "production", None,
                                                          server.in_production)))
         server.db.storage       = config_value (xml_root, "storage-root", storage)
-        server.db.cache.storage = f"{server.db.storage}/cache"
+        server.db.cache.storage = config_value (xml_root, "cache-root", cache,
+                                                f"{server.db.storage}/cache")
         server.db.endpoint      = config_value (xml_root, "rdf-store/sparql-uri")
         server.db.state_graph   = config_value (xml_root, "rdf-store/state-graph", state_graph)
         config["use_reloader"]  = config_value (xml_root, "live-reload", use_reloader)
@@ -133,6 +135,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                                                   config["port"],
                                                   server.db.state_graph,
                                                   server.db.storage,
+                                                  server.db.cache.storage,
                                                   server.base_url,
                                                   config["use_debugger"],
                                                   config["use_reloader"])
@@ -219,7 +222,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
     try:
         server = wsgi.ApiServer ()
         config = read_configuration_file (server, config_file, address, port,
-                                          state_graph, storage, base_url,
+                                          state_graph, storage, None, base_url,
                                           use_debugger, use_reloader)
 
         if not server.db.cache.cache_is_ready():
@@ -244,6 +247,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
             logging.info("State graph:  %s.", server.db.state_graph)
             logging.info("Storage path: %s.", server.db.storage)
+            logging.info("Cache storage path: %s.", server.db.cache.storage)
             logging.info("Running on %s", server.base_url)
 
         if initialize:
