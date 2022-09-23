@@ -3,7 +3,7 @@ djehuty
 
 This Python package provides the repository system for 4TU.ResearchData.
 
-## Development setup
+## Develop
 
 To create a development environment, use the following snippet:
 ```bash
