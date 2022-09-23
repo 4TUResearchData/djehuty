@@ -12,6 +12,10 @@ WHERE {
     ?dataset        djht:version                  ?version .
     ?dataset        djht:figshare_url             ?figshare_url .
     ?dataset        djht:published_date           ?published_date .
+    {%- if category_ids is not none: %}
+    ?dataset            djht:categories/rdf:rest*/rdf:first ?category .
+    ?category           djht:id                   ?category_id .
+    {%- endif %}
     OPTIONAL { ?dataset      djht:group_id        ?group_id . }
 
     BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)

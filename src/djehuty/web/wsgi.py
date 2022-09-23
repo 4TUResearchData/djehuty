@@ -1395,9 +1395,9 @@ class ApiServer:
             return self.error_406 ("text/html")
 
         category      = self.db.category_by_id (category_id)
-        subcategories = self.db.subcategories_for_category (category_id)
-        datasets      = self.db.datasets (categories=[category_id], limit=100)
-        collections   = self.db.collections (categories=[category_id], limit=100)
+        subcategories = self.db.subcategories_for_category (category["uuid"])
+        datasets      = self.db.datasets (categories=[category["id"]], limit=100)
+        collections   = self.db.collections (categories=[category["id"]], limit=100)
 
         return self.__render_template (request, "categories.html",
                                        articles=datasets,
@@ -3765,10 +3765,12 @@ class ApiServer:
                 categories = None
             else:
                 categories = categories.split(",")
+                record["categories"] = categories
                 validator.array_value   (record, "categories")
                 for index, _ in enumerate(categories):
                     category_id = validator.integer_value (categories, index)
                     categories[index] = category_id
+                record["categories"] = categories
 
         if record["group_ids"] is not None:
             record["group_ids"] = record["group_ids"].split(",")
@@ -3786,16 +3788,6 @@ class ApiServer:
         record = {}
         try:
             record = self.__api_v3_datasets_parameters (request, item_type)
-
-            if ("categories" in record
-                and record["categories"] is not None
-                and record["categories"] != ""):
-                validator.array_value (record, "categories")
-                for index, _ in enumerate(record["categories"]):
-                    record["categories"][index] = validator.integer_value (record["categories"], index)
-            else:
-                record["categories"] = None
-
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
