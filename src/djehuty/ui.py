@@ -38,6 +38,7 @@ Available subcommands and options:
     --config-file=ARG    -c Load configuration from a file.
     --debug              -d Enable debugging.
     --dev-reload         -r Enable active reloading.
+    --initialize         -i Populate the RDF store with default triples.
 
   Global options:
   --help                 -h  Show this message.
@@ -77,6 +78,7 @@ def main ():
     web_parser.add_argument('--config-file','-c', type=str, default=None)
     web_parser.add_argument('--debug',      '-d', action='store_true')
     web_parser.add_argument('--dev-reload', '-r', action='store_true')
+    web_parser.add_argument('--initialize', '-i', action='store_true')
 
     ### GLOBAL ARGUMENTS
     ### -----------------------------------------------------------------------
@@ -107,7 +109,8 @@ def main ():
 
     if args.command == "web":
         web_ui.main (args.address, args.port, args.state_graph, args.storage,
-                     args.base_url, args.config_file, args.debug, args.dev_reload)
+                     args.base_url, args.config_file, args.debug,
+                     args.dev_reload, True, args.initialize)
 
     elif len(sys.argv) == 1:
         print("Try --help for usage options.")

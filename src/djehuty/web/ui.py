@@ -7,6 +7,7 @@ import defusedxml.ElementTree as ET
 from werkzeug.serving import run_simple
 from djehuty.web import database
 from djehuty.web import wsgi
+import djehuty.backup.database as backup_database
 
 class ConfigFileNotFound(Exception):
     """Raised when the database is not queryable."""
@@ -213,7 +214,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
 def main (address=None, port=None, state_graph=None, storage=None,
           base_url=None, config_file=None, use_debugger=False,
-          use_reloader=False, run_internal_server=True):
+          use_reloader=False, run_internal_server=True, initialize=True):
     """The main entry point for the 'web' subcommand."""
     try:
         server = wsgi.ApiServer ()
@@ -244,6 +245,21 @@ def main (address=None, port=None, state_graph=None, storage=None,
             logging.info("State graph:  %s.", server.db.state_graph)
             logging.info("Storage path: %s.", server.db.storage)
             logging.info("Running on %s", server.base_url)
+
+        if initialize:
+            logging.info("Initializing RDF store ...")
+            rdf_store = backup_database.DatabaseInterface()
+
+            if not rdf_store.insert_root_categories ():
+                logging.error ("Failed to gather root categories")
+
+            if not rdf_store.insert_static_triplets ():
+                logging.error ("Failed to gather static triplets")
+
+            if server.db.add_triples_from_graph (rdf_store.store):
+                logging.info("Initialization completed.")
+
+            initialize = False
 
         run_simple (config["address"], config["port"], server,
                     threaded=(config["maximum_workers"] <= 1),
