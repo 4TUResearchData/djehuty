@@ -3583,7 +3583,7 @@ class ApiServer:
                     dataset = self.__dataset_by_id_or_uri (dataset)
                     datasets[index] = URIRef(dataset["container_uri"])
 
-                if self.db.update_item_list (collection["uuid"],
+                if self.db.update_item_list (collection["container_uuid"],
                                              account_id,
                                              datasets,
                                              "datasets"):
