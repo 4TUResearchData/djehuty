@@ -51,3 +51,7 @@ install-exec-local:
 uninstall-local:
 	cat $(DESTDIR)$(pkgpythondir)/install_files.txt | xargs rm -rf
 	rm -rf $(DESTDIR)$(pkgpythondir)
+
+lint:
+	@pylint src/djehuty/* > pylint.log || true
+	@printf "Wrote 'pylint.log'.\n"

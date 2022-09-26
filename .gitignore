@@ -26,5 +26,6 @@ djehuty.xml
 doc/djehuty.sty
 doc/figures/*.svg
 doc/fonts
+pylint.log
 *.bak
 *.BAK
