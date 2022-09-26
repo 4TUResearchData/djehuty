@@ -229,7 +229,8 @@ def main (address=None, port=None, state_graph=None, storage=None,
         if not server.db.cache.cache_is_ready():
             logging.error("Failed to set up cache layer.")
 
-        if not server.in_production:
+        inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
+        if not server.in_production and not inside_reload:
             logging.warning ("Assuming to run in a non-production environment.")
             logging.warning (("Set <production> to 1 in your configuration "
                               "file for hardened security settings."))
@@ -237,7 +238,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
         if not run_internal_server:
             return server
 
-        if os.environ.get('WERKZEUG_RUN_MAIN'):
+        if inside_reload:
             logging.info("Reloaded.")
         else:
             if not server.menu:
