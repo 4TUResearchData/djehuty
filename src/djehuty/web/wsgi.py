@@ -43,6 +43,7 @@ class ApiServer:
         self.orcid_client_id     = None
         self.orcid_client_secret = None
         self.orcid_endpoint      = None
+        self.identity_provider   = None
 
         self.defined_type_options = [
             "figure", "online resource", "preprint", "book",
@@ -276,6 +277,7 @@ class ApiServer:
             "base_url":        self.base_url,
             "path":            request.path,
             "in_production":   self.in_production,
+            "identity_provider": self.identity_provider,
             "orcid_client_id": self.orcid_client_id,
             "is_logged_in":    self.db.is_logged_in (token),
             "may_review":      self.db.may_review (token),

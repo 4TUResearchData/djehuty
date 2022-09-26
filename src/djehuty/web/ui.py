@@ -104,6 +104,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             server.orcid_client_id     = config_value (orcid, "client-id")
             server.orcid_client_secret = config_value (orcid, "client-secret")
             server.orcid_endpoint      = config_value (orcid, "endpoint")
+            server.identity_provider   = "orcid"
 
         privileges = xml_root.find("privileges")
         if privileges:
@@ -249,6 +250,12 @@ def main (address=None, port=None, state_graph=None, storage=None,
             logging.info("Storage path: %s.", server.db.storage)
             logging.info("Cache storage path: %s.", server.db.cache.storage)
             logging.info("Running on %s", server.base_url)
+
+            if server.identity_provider is not None:
+                logging.info ("Using %s as identity provider.",
+                              server.identity_provider.upper())
+            else:
+                logging.warning ("Missing identity provider configuration.")
 
         if initialize:
             logging.info("Initializing RDF store ...")
