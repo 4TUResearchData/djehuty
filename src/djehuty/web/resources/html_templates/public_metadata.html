@@ -73,9 +73,10 @@
         </div>
         <div id="tags">
             <div class="label">keywords</div>
-                {# The href below will not work. First figure out what to do with search. #}
+                {# The query below searches for full text. Field search does not yet work for keywords #}
 {% for tag in tags|sort %}
-            <a href="/keywords/{{tag|urlencode}}">{{tag}}</a>
+    {% set query = '"'~tag~'"' %}
+            <a href="/search?search={{query|urlencode}}">{{tag}}</a>
     {%- if loop.revindex0 %}, {% endif %}
 {% endfor %}
         </div>
