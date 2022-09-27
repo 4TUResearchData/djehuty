@@ -22,7 +22,7 @@ from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import database
 from djehuty.utils.convenience import pretty_print_size, decimal_coords
-from djehuty.utils.convenience import value_or, value_or_none
+from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
 from djehuty.utils.constants import group_to_member, member_url_names
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
@@ -4114,8 +4114,8 @@ class ApiServer:
                 # Drop the index field.
                 existing_tags = list (map (lambda item: item["tag"], existing_tags))
 
-                # Remove duplicates by converting to a set and then back to list.
-                tags = list(set(existing_tags + new_tags))
+                # Remove duplicates.
+                tags = deduplicate_list(existing_tags + new_tags)
 
             if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
                                              account_id,
