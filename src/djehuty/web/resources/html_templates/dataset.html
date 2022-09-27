@@ -4,6 +4,7 @@
    file previews (for which file types?)
    versioned and unversioned doi on latest version, explained #}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/dataset_landing_page.js"></script>
 <style>
     #content a    { color: #f49120; text-decoration: none }
     #content a:hover { text-decoration: underline }
@@ -29,6 +30,9 @@
     #data         { clear: right; border-top: 1px solid #000; margin-bottom: 10px }
     #data ul      { margin-left: 20px }
     li.zip        { padding: 2px; width: 180px; text-align: center; border: 1px solid #000 }
+    #add_to_collection { display: none }
+    #add_to_collection_show { border: none; margin-bottom: 10px }
+    #add_to_collection_hide { border: none }
 </style>
 {% endblock %}
 
@@ -41,6 +45,7 @@
 {% include 'public_metadata.html' %}
 
 <div id="data">
+
     <h3>DATA</h3>
 {% if item.is_embargoed: %}
 <div id="embargo_notice">

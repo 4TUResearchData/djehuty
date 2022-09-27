@@ -4,9 +4,22 @@
 {% if item.embargo_type == "article": %}
 <p>This {{item_type}} is under embargo until {{item.embargo_until_date}}.</p>
 {% else: %}
+
 <div id="metadata">
     <div id="doi">persistent link: <a href="https://doi.org/{{doi}}" target="_blank" title="opens in new window">doi.org/{{doi}}</a></div>
 {% if item_type == "dataset" %}
+    {% if my_collections %}
+    <button id="add_to_collection_show" class="neutral-button" onclick='document.getElementById("add_to_collection").style.display="block"'>Collect</button>
+    <div id="add_to_collection">
+        <button id="add_to_collection_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
+        Add to collection:
+        <ul>
+        {% for collection in my_collections %}
+            <li><a href="#" onclick="javascript:add_dataset_to_collection('{{uuid}}','{{collection.container_uuid}}'); return false">{{collection.title}}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
     <div id="type">{{ item.defined_type_name|capitalize }}</div>
 {% else %}
     <div id="type">Collection</div>
