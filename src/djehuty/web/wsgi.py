@@ -588,6 +588,9 @@ class ApiServer:
     def accepts_html (self, request):
         return self.accepts_content_type (request, "text/html")
 
+    def accepts_xml (self, request):
+        return (self.accepts_content_type (request, "application/xml") or
+                self.accepts_content_type (request, "text/xml"))
 
     def accepts_json (self, request):
         return (self.accepts_content_type (request, "application/json") or
