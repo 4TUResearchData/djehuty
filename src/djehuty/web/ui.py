@@ -3,6 +3,7 @@
 import logging
 import os
 import shutil
+import json
 import defusedxml.ElementTree as ET
 from werkzeug.serving import run_simple
 from djehuty.web import database
@@ -11,6 +12,9 @@ import djehuty.backup.database as backup_database
 
 class ConfigFileNotFound(Exception):
     """Raised when the database is not queryable."""
+
+class UnsupportedSAMLProtocol(Exception):
+    """Raised when an unsupported SAML protocol is used."""
 
 def config_value (xml_root, path, command_line=None, fallback=None):
     """Procedure to get the value a config item should have at run-time."""
@@ -105,6 +109,80 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             server.orcid_client_secret = config_value (orcid, "client-secret")
             server.orcid_endpoint      = config_value (orcid, "endpoint")
             server.identity_provider   = "orcid"
+
+        saml = xml_root.find("authentication/saml")
+        if saml:
+            saml_version = None
+            if "version" in saml.attrib:
+                saml_version = saml.attrib["version"]
+
+            if saml_version != "2.0":
+                logging.error ("Only SAML 2.0 is supported.")
+                raise UnsupportedSAMLProtocol
+
+            saml_strict = bool(int(config_value (saml, "strict", None, True)))
+            saml_debug  = bool(int(config_value (saml, "debug", None, False)))
+
+            ## Service Provider settings
+            service_provider     = saml.find ("service-provider")
+            if service_provider is None:
+                logging.error ("Missing service-provider information for SAML.")
+
+            saml_sp_x509         = config_value (service_provider, "x509-certificate")
+            saml_sp_private_key  = config_value (service_provider, "private-key")
+
+            ## Identity Provider settings
+            identity_provider    = saml.find ("identity-provider")
+            if identity_provider is None:
+                logging.error ("Missing identity-provider information for SAML.")
+
+            saml_idp_entity_id   = config_value (identity_provider, "entity-id")
+            saml_idp_x509        = config_value (identity_provider, "x509-certificate")
+
+            sso_service          = identity_provider.find ("single-signon-service")
+            if sso_service is None:
+                logging.error ("Missing SSO information of the identity-provider for SAML.")
+
+            saml_idp_sso_url     = config_value (sso_service, "url")
+            saml_idp_sso_binding = config_value (sso_service, "binding")
+
+            server.identity_provider = "saml"
+
+            ## Create an almost-ready-to-serialize configuration structure.
+            ## The SP entityId will and ACS URL be generated at a later time.
+            server.saml_config = {
+                "strict": saml_strict,
+                "debug":  saml_debug,
+                "sp": {
+                    "entityId": None,
+                    "assertionConsumerService": {
+                        "url": None,
+                        "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                    },
+                    "singleLogoutService": {
+                        "url": None,
+                        "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                    },
+                    "NameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+                    "x509cert": saml_sp_x509,
+                    "privateKey": saml_sp_private_key
+                },
+                "idp": {
+                    "entityId": saml_idp_entity_id,
+                    "singleSignOnService": {
+                        "url": saml_idp_sso_url,
+                        "binding": saml_idp_sso_binding
+                    },
+                    "singleLogoutService": {
+                        "url": None,
+                        "binding": None
+                    },
+                    "x509cert": saml_idp_x509
+                }
+            }
+
+            del saml_sp_x509
+            del saml_sp_private_key
 
         privileges = xml_root.find("privileges")
         if privileges:
@@ -209,6 +287,8 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if not inside_reload:
             logging.error ("Could not open '%s'.", config_file)
         raise SystemExit from error
+    except UnsupportedSAMLProtocol as error:
+        raise SystemExit from error
 
     return {}
 
@@ -228,6 +308,27 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
         if not server.db.cache.cache_is_ready():
             logging.error("Failed to set up cache layer.")
+
+        ## python3-saml wants to read its configuration from a file,
+        ## but unfortunately we can only indicate the directory for that
+        ## file.  Therefore, we create a separate directory in the cache
+        ## for this purpose and place the file in that directory.
+        if server.identity_provider == "saml":
+            saml_cache_dir = os.path.join(server.db.cache.storage, "saml-config")
+            os.makedirs (saml_cache_dir, mode=0o700, exist_ok=True)
+            if os.path.isdir (saml_cache_dir):
+                filename  = os.path.join (saml_cache_dir, "settings.json")
+                saml_base_url = f"{server.base_url}/saml"
+                saml_idp_binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                server.saml_config["sp"]["entityId"] = saml_base_url
+                server.saml_config["sp"]["assertionConsumerService"]["url"] = f"{saml_base_url}/login"
+                server.saml_config["idp"]["singleSignOnService"]["binding"] = saml_idp_binding
+                config_fd = os.open (filename, os.O_WRONLY | os.O_CREAT, 0o600)
+                with open (config_fd, "w", encoding="utf-8") as file_stream:
+                    json.dump(server.saml_config, file_stream)
+                server.saml_config_path = saml_cache_dir
+            else:
+                logging.error ("Failed to create '%s'.", saml_cache_dir)
 
         inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
         if not server.in_production and not inside_reload:

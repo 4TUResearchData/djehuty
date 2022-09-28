@@ -46,6 +46,9 @@ class ApiServer:
         self.orcid_endpoint      = None
         self.identity_provider   = None
 
+        self.saml_config_path    = None
+        self.saml_config         = None
+
         self.defined_type_options = [
             "figure", "online resource", "preprint", "book",
             "conference contribution", "media", "dataset",
