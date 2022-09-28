@@ -575,26 +575,23 @@ class ApiServer:
     ## CONVENIENCE PROCEDURES
     ## ------------------------------------------------------------------------
 
-    def accepts_html (self, request):
+    def accepts_content_type (self, request, content_type):
         try:
             acceptable = request.headers['Accept']
             if not acceptable:
                 return False
 
-            return "text/html" in acceptable
+            return content_type in acceptable
         except KeyError:
             return False
+
+    def accepts_html (self, request):
+        return self.accepts_content_type (request, "text/html")
+
 
     def accepts_json (self, request):
-        try:
-            acceptable = request.headers['Accept']
-            if not acceptable:
-                return False
-
-            return (("application/json" in acceptable) or
-                    ("*/*" in acceptable))
-        except KeyError:
-            return False
+        return (self.accepts_content_type (request, "application/json") or
+                self.accepts_content_type (request, "*/*"))
 
     def contains_json (self, request):
         contains = request.headers['Content-Type']
