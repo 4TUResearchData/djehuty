@@ -28,6 +28,12 @@ from djehuty.utils.convenience import make_citation
 from djehuty.utils.constants import group_to_member, member_url_names
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 
+try:
+    from onelogin.saml2.auth import OneLogin_Saml2_Auth
+    from onelogin.saml2.auth import OneLogin_Saml2_Settings
+    SAML2_DEPENDENCY_LOADED = True
+except (ImportError, ModuleNotFoundError):
+    SAML2_DEPENDENCY_LOADED = False
 
 class ApiServer:
     """This class implements the API server."""
@@ -203,6 +209,11 @@ class ApiServer:
             Rule("/v3/datasets/<git_uuid>.git/info/refs",   endpoint = "api_v3_private_dataset_git_refs"),
             Rule("/v3/datasets/<git_uuid>.git/git-upload-pack", endpoint = "api_v3_private_dataset_git_upload_pack"),
             Rule("/v3/datasets/<git_uuid>.git/git-receive-pack", endpoint = "api_v3_private_dataset_git_receive_pack"),
+
+            ## ----------------------------------------------------------------
+            ## SAML 2.0
+            ## ----------------------------------------------------------------
+            Rule("/saml/metadata",                            endpoint = "saml_metadata"),
 
             ## ----------------------------------------------------------------
             ## EXPORT
@@ -575,6 +586,40 @@ class ApiServer:
         except validator.ValidationException:
             logging.error("ORCID parameter validation error")
             return None
+
+    def __request_to_saml_request (self, request):
+        """Turns a werkzeug request into one that python3-saml understands."""
+
+        return {
+            "https":       "on" if request.scheme == "https" else "off",
+            "http_host":   request.host,
+            "script_name": request.path,
+            "get_data":    request.args.copy(),
+            "post_data":   request.form.copy()
+        }
+
+    def saml_metadata (self, request):
+        """Communicates the service provider metadata for SAML 2.0."""
+
+        if not self.accepts_xml (request):
+            return self.error_406 ("text/xml")
+
+        if not SAML2_DEPENDENCY_LOADED:
+            logging.error ("Missing python3-saml dependency.")
+            logging.error ("Cannot initiate authentication with SAML.")
+            return self.error_500()
+
+        http_fields = self.__request_to_saml_request (request)
+        saml_auth   = OneLogin_Saml2_Auth (http_fields, custom_base_path=self.saml_config_path)
+        settings    = saml_auth.get_settings()
+        metadata    = settings.get_sp_metadata()
+        errors      = settings.validate_metadata(metadata)
+        if len(errors) == 0:
+            return self.response (metadata, mimetype="text/xml")
+        else:
+            logging.error ("SAML SP Metadata validation failed.")
+            logging.error ("Errors: %s", ", ".join(errors))
+            return self.error_500()
 
     ## CONVENIENCE PROCEDURES
     ## ------------------------------------------------------------------------
