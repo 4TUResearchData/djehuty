@@ -1432,13 +1432,13 @@ class ApiServer:
                                               version       = current_version,
                                               is_published  = True)[0]
             dataset_uri   = container['uri']
-            authors       = self.db.authors(item_uri=dataset_uri)
+            authors       = self.db.authors(item_uri=dataset_uri, limit=None)
             files         = self.db.dataset_files(dataset_uri=dataset_uri, limit=None)
-            tags          = self.db.tags(item_uri=dataset_uri)
-            categories    = self.db.categories(item_uri=dataset_uri)
-            references    = self.db.references(item_uri=dataset_uri)
-            derived_from  = self.db.derived_from(item_uri=dataset_uri)
-            fundings      = self.db.fundings(item_uri=dataset_uri)
+            tags          = self.db.tags(item_uri=dataset_uri, limit=None)
+            categories    = self.db.categories(item_uri=dataset_uri, limit=None)
+            references    = self.db.references(item_uri=dataset_uri, limit=None)
+            derived_from  = self.db.derived_from(item_uri=dataset_uri, limit=None)
+            fundings      = self.db.fundings(item_uri=dataset_uri, limit=None)
             collections   = self.db.collections_from_dataset(dataset_id=container["dataset_id"])
             statistics    = {'downloads': value_or(container, 'total_downloads', 0),
                              'views'    : value_or(container, 'total_views'    , 0),
@@ -1532,11 +1532,11 @@ class ApiServer:
                                                  version       = current_version,
                                                  is_published  = True)[0]
             collection_uri = collection['uri']
-            authors       = self.db.authors(item_uri=collection_uri, item_type='collection')
-            tags          = self.db.tags(item_uri=collection_uri)
-            categories    = self.db.categories(item_uri=collection_uri)
-            references    = self.db.references(item_uri=collection_uri)
-            fundings      = self.db.fundings(item_uri=collection_uri)
+            authors       = self.db.authors(item_uri=collection_uri, item_type='collection', limit=None)
+            tags          = self.db.tags(item_uri=collection_uri, limit=None)
+            categories    = self.db.categories(item_uri=collection_uri, limit=None)
+            references    = self.db.references(item_uri=collection_uri, limit=None)
+            fundings      = self.db.fundings(item_uri=collection_uri, limit=None)
             statistics    = {'downloads': value_or(container, 'total_downloads', 0),
                              'views'    : value_or(container, 'total_views'    , 0),
                              'shares'   : value_or(container, 'total_shares'   , 0),
