@@ -10,11 +10,21 @@ from djehuty.web import database
 from djehuty.web import wsgi
 import djehuty.backup.database as backup_database
 
+try:
+    from onelogin.saml2.auth import OneLogin_Saml2_Auth
+    from onelogin.saml2.auth import OneLogin_Saml2_Settings
+    SAML2_DEPENDENCY_LOADED = True
+except (ImportError, ModuleNotFoundError):
+    SAML2_DEPENDENCY_LOADED = False
+
 class ConfigFileNotFound(Exception):
     """Raised when the database is not queryable."""
 
 class UnsupportedSAMLProtocol(Exception):
     """Raised when an unsupported SAML protocol is used."""
+
+class DependencyNotAvailable(Exception):
+    """Raised when a required software dependency isn't available."""
 
 def config_value (xml_root, path, command_line=None, fallback=None):
     """Procedure to get the value a config item should have at run-time."""
@@ -314,6 +324,11 @@ def main (address=None, port=None, state_graph=None, storage=None,
         ## file.  Therefore, we create a separate directory in the cache
         ## for this purpose and place the file in that directory.
         if server.identity_provider == "saml":
+            if not SAML2_DEPENDENCY_LOADED:
+                logging.error ("Missing python3-saml dependency.")
+                logging.error ("Cannot initiate authentication with SAML.")
+                raise DependencyNotAvailable
+
             saml_cache_dir = os.path.join(server.db.cache.storage, "saml-config")
             os.makedirs (saml_cache_dir, mode=0o700, exist_ok=True)
             if os.path.isdir (saml_cache_dir):
@@ -347,6 +362,8 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
             if shutil.which ("git") is None:
                 logging.error("Cannot find the 'git' executable.  Please install it.")
+                if server.in_production:
+                    raise DependencyNotAvailable
 
             logging.info("State graph:  %s.", server.db.state_graph)
             logging.info("Storage path: %s.", server.db.storage)
@@ -380,7 +397,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
                     use_debugger=config["use_debugger"],
                     use_reloader=config["use_reloader"])
 
-    except FileNotFoundError:
+    except (FileNotFoundError, DependencyNotAvailable):
         pass
     except database.UnknownDatabaseState:
         logging.error ("Please make sure the database is up and running.")

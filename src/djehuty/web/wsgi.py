@@ -28,12 +28,13 @@ from djehuty.utils.convenience import make_citation
 from djehuty.utils.constants import group_to_member, member_url_names
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 
+## Error handling for loading python3-saml is done in 'ui'.
+## So if it fails here, we can safely assume we don't need it.
 try:
     from onelogin.saml2.auth import OneLogin_Saml2_Auth
     from onelogin.saml2.auth import OneLogin_Saml2_Settings
-    SAML2_DEPENDENCY_LOADED = True
 except (ImportError, ModuleNotFoundError):
-    SAML2_DEPENDENCY_LOADED = False
+    pass
 
 class ApiServer:
     """This class implements the API server."""
