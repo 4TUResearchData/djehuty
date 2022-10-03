@@ -139,5 +139,5 @@ def make_citation (authors, year, title, version, item_type, doi,
         citation += f' Version {version}. {publisher}. {item_type}. https://doi.org/{doi}'
         return citation
     except:
-        logging.error('could not make citation for $s', doi)
+        logging.error('could not make citation for %s', doi)
         return None
