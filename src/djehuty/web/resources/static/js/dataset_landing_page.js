@@ -7,7 +7,7 @@ function add_dataset_to_collection (dataset_id, collection_id) {
         data:        JSON.stringify({ "articles": [dataset_id] }),
     }).done(function () {
         window.alert('Dataset succesfully added to collection');
-        document.getElementById("add_to_collection").style.display="none"
+        document.getElementById("collect").style.display="none"
     }).fail(function () {
         console.log (`Failed to add ${dataset_id}`);
         window.alert('Failed to add dataset to collection');
