@@ -1101,6 +1101,32 @@ class SparqlInterface:
 
         return None
 
+    def insert_account (self, active=None, email=None, job_title=None,
+                        first_name=None, last_name=None, full_name=None,
+                        institution_user_id=None, quota=None, group_id=None,
+                        location=None, biography=None, categories=None):
+        """Procedure to create an account."""
+
+        graph       = Graph()
+        account_uri = rdf.unique_node ("account")
+
+        graph.add ((account_uri, RDF.type,      rdf.DJHT["Account"]))
+
+        rdf.add (graph, account_uri, rdf.DJHT["active"],     1)
+        rdf.add (graph, account_uri, rdf.DJHT["first_name"], first_name, XSD.string)
+        rdf.add (graph, account_uri, rdf.DJHT["last_name"],  last_name,  XSD.string)
+        rdf.add (graph, account_uri, rdf.DJHT["full_name"],  full_name,  XSD.string)
+        rdf.add (graph, account_uri, rdf.DJHT["email"],      email,      XSD.string)
+
+        # Legacy properties.
+        rdf.add (graph, account_uri, rdf.DJHT["institution_id"], 898)
+        rdf.add (graph, account_uri, rdf.DJHT["url_name"],       "_", XSD.string)
+
+        if self.add_triples_from_graph (graph):
+            return rdf.uri_to_uuid (account_uri)
+
+        return None
+
     def insert_timeline (self, graph, container_uri=None, item_uri=None,
                          revision=None, first_online=None,
                          publisher_publication=None, publisher_acceptance=None,
