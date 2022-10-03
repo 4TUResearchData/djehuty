@@ -4,7 +4,7 @@ SELECT DISTINCT ?container_uuid ?title
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri            rdf:type                 djht:CollectionContainer ;
-                              djht:account_id          {{account_id}} ;
+                              djht:account             <account:{{account_uuid}}> ;
                               
                               djht:draft               ?collection .
     OPTIONAL { ?container_uri djht:collection_id       ?collection_id . }

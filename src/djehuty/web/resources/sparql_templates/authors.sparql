@@ -16,14 +16,14 @@ WHERE {
     ?rest              rdf:first                ?author ;
                        djht:index               ?order_index .
     {%- endif %}
-    {%- if account_id is not none %}
+    {%- if account_uuid is not none %}
     ?container         rdf:type                 djht:{{prefix}}Container .
     {%- if is_published %}
     ?container         djht:published_versions/rdf:rest*/rdf:first ?item_uri .
     {%- else %}
     ?container         djht:draft               ?item_uri .
     {%- endif %}
-    ?container         djht:account_id          {{account_id}} .
+    ?container         djht:account             <account:{{account_uuid}}> .
     {%- endif %}
     OPTIONAL { ?author djht:first_name          ?first_name . }
     OPTIONAL { ?author djht:full_name           ?full_name . }

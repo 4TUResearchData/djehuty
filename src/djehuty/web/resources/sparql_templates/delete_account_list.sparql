@@ -8,9 +8,8 @@ DELETE {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account    rdf:type             djht:Account ;
-                djht:account_id       ?account_id ;
                 djht:{{predicate}}    ?item_list .
   }
-  FILTER (?account_id = {{account_id}})
+  FILTER (?account = <account:{{account_uuid}}>)
 }
 {% endblock %}

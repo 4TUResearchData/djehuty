@@ -1,11 +1,12 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?account_id
+SELECT DISTINCT ?uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     ?row             rdf:type                 djht:AccountOrcid .
-    ?row             djht:account_id          ?account_id .
+    ?row             djht:account             ?account .
     ?row             djht:orcid_uri           <{{orcid}}> .
   }
+  BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
 }
 {% endblock %}

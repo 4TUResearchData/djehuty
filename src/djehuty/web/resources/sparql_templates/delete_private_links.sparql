@@ -14,10 +14,10 @@ WHERE {
 
     ?item rdf:type                djht:{{prefix}} .
     ?item djht:{{item_type}}_version_id ?item_id .
-    ?item djht:account_id          ?account_id .
+    ?item djht:container/djht:account ?account .
   }
   FILTER (?item_id    = {{item_id}})
-  FILTER (?account_id = {{account_id}})
+  FILTER (?account    = <account:{{account_uuid}}>)
   {%- if id_string is not none %}
   FILTER (?id_string = "{{id_string}}"^^xsd:string)
   {%- endif %}

@@ -1,17 +1,17 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
 SELECT DISTINCT ?role ?active ?created_date ?email ?first_name ?group_id
-                ?account_id ?institution_id ?institution_user_id ?last_name
-                ?maximum_file_size ?modified_date ?pending_quota_request ?quota
+                ?institution_id ?institution_user_id ?last_name ?quota
+                ?maximum_file_size ?modified_date ?pending_quota_request
                 ?used_quota ?used_quota_private ?used_quota_public ?uuid
                 ?group_parent_id
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?account             rdf:type                  djht:Account .
-    ?account             djht:id                    ?account_id .
+    ?account             rdf:type                   djht:Account .
+    ?account             djht:email                 ?email .
+
     OPTIONAL { ?account  djht:active                ?active . }
     OPTIONAL { ?account  djht:created_date          ?created_date . }
-    OPTIONAL { ?account  djht:email                 ?email . }
     OPTIONAL { ?account  djht:first_name            ?first_name . }
     OPTIONAL { ?account  djht:institution_id        ?institution_id . }
     OPTIONAL { ?account  djht:institution_user_id   ?institution_user_id . }
@@ -26,18 +26,14 @@ WHERE {
     OPTIONAL { ?account  djht:role                  ?role . }
 
     OPTIONAL {
-      ?group             rdf:type                  djht:InstitutionGroup ;
+      ?group             rdf:type                   djht:InstitutionGroup ;
                          djht:association_criteria  ?domain ;
                          djht:id                    ?group_id ;
                          djht:parent_id             ?group_parent_id .
       ?account           djht:domain                ?domain .
     }
-    ?session             rdf:type                  djht:Session .
-    ?session             djht:account_id            ?account_id .
-    ?session             djht:token                 ?token .
-
     BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
   }
-  FILTER (?account_id = {{account_id}})
+  FILTER (STR(?email) = "{{email}}")
 }
 {% endblock %}

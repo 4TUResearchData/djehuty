@@ -77,7 +77,6 @@ INSERT {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account              rdf:type                  djht:Account .
-    ?account              djht:id                    ?id .
 
     OPTIONAL { ?account   djht:is_active             ?is_active . }
     OPTIONAL { ?account   djht:email                 ?email . }
@@ -96,6 +95,6 @@ WHERE {
     OPTIONAL { ?account   djht:modified_date         ?modified_date . }
     OPTIONAL { ?account   djht:group_id              ?group_id . }
   }
-  FILTER (?id = {{account_id}})
+  FILTER (?account = <account:{{account_uuid}}>)
 }
 {% endblock %}

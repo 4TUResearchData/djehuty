@@ -5,7 +5,7 @@ WHERE {
   GRAPH <{{state_graph}}> {
 
     ?container      rdf:type                      djht:DatasetContainer .
-    ?container      djht:account_id               ?account_id .
+    ?container      djht:account                  ?account .
 
     {
       ?container    djht:draft                    ?dataset .
@@ -19,6 +19,6 @@ WHERE {
     ?file           rdf:type                      djht:File .
     ?file           djht:size                     ?bytes .
   }
-  FILTER (?account_id = {{account_id}})
+  FILTER (?account = <account:{{account_uuid}}>)
 }
 {% endblock %}

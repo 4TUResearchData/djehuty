@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?account_id ?resource_id ?resource_doi ?resource_title
+SELECT DISTINCT ?account_uuid ?resource_id ?resource_doi ?resource_title
                 ?resource_link ?resource_version ?version ?description
                 ?institution_id ?group_id ?is_public
                 ?citation ?custom_fields_id ?modified_date
@@ -14,7 +14,7 @@ SELECT DISTINCT ?account_id ?resource_id ?resource_doi ?resource_title
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri      rdf:type                 djht:CollectionContainer .
-    ?container_uri      djht:account_id          ?account_id .
+    ?container_uri      djht:account             ?account .
     OPTIONAL { ?container_uri djht:collection_id ?collection_id . }
     OPTIONAL { ?container_uri djht:total_downloads ?total_downloads . }
     OPTIONAL { ?container_uri djht:total_views    ?total_views .      }
@@ -33,7 +33,6 @@ WHERE {
 
     OPTIONAL {
       ?account          rdf:type                 djht:Account .
-      ?account          djht:id                  ?account_id .
       ?account          djht:institution_id      ?institution_id .
     }
 
@@ -76,9 +75,10 @@ WHERE {
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?collection), "collection:") AS ?uuid)
+    BIND(STRAFTER(STR(?account), "account:") AS ?account_uuid)
   }
-{%- if account_id is not none: %}
-FILTER (?account_id = {{account_id}})
+{%- if account_uuid is not none: %}
+FILTER (?account = <account:{{account_uuid}}>)
 {%- endif %}
 {% if filters is not none %}{{ filters }}{% endif %}
 }

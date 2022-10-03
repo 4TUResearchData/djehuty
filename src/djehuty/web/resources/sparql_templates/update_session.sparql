@@ -13,12 +13,12 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?session  rdf:type                  djht:Session .
-    ?session  djht:account_id            ?account_id .
+    ?session  rdf:type                   djht:Session .
+    ?session  djht:account               ?account .
     ?session  djht:name                  ?name .
     ?session  djht:editable              1 .
   }
-  FILTER (?account_id = {{account_id}})
+  FILTER (?account = <account:{{account_uuid}}>)
   FILTER (?session = <session:{{session_uuid}}>)
 }
 {% endblock %}

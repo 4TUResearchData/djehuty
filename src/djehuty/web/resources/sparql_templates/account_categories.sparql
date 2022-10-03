@@ -18,11 +18,11 @@ WHERE {
     OPTIONAL { ?category  djht:taxonomy_id ?taxonomy_id . }
 
     ?account         rdf:type             djht:Account .
-    ?account         djht:id               {{account_id}} .
     ?account         djht:categories/rdf:rest*/rdf:first ?category .
 
     BIND(STRAFTER(STR(?category), "category:") AS ?uuid)
   }
+  FILTER (?account = <account:{{account_uuid}}>)
 {%- if filters is not none %}{{ filters }}{% endif %}
 }
 {% endblock %}

@@ -17,9 +17,9 @@ WHERE {
     OPTIONAL { ?funding  djht:funder_name           ?funder_name . }
     OPTIONAL { ?funding  djht:url                   ?url . }
 
-    {%- if account_id is not none %}
+    {%- if account_uuid is not none %}
     ?container      rdf:type                 djht:{{prefix}}Container .
-    ?container      djht:account_id           {{account_id}} .
+    ?container      djht:account             <account:{{account_uuid}}> .
     {%- if is_published %}
     ?container      djht:published_versions/rdf:rest*/rdf:first ?item_uri .
     {%- else %}

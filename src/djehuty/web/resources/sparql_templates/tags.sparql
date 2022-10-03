@@ -4,8 +4,8 @@ SELECT DISTINCT ?index ?tag
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container      rdf:type/rdfs:subClassOf djht:Container .
-    {%- if account_id is not none %}
-    ?container      djht:account_id           {{account_id}} .
+    {%- if account_uuid is not none %}
+    ?container      djht:account              <account:{{account_uuid}}> .
     {%- endif %}
 
     ?item_uri       djht:container            ?container .

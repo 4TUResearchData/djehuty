@@ -69,7 +69,7 @@ jQuery(document).ready(function () {
       <td>{{account.first_name | default("", False)}} {{account.last_name | default("", False)}}</td>
       <td>{{account.email | default("-", False)}}</td>
       <td>{{account.group_id | default("-", False)}}</td>
-      <td>{% if may_impersonate %}<a href="/admin/impersonate/{{account.account_id}}" class="fas fa-user-secret" title="Impersonate"><span class="hidden">Impersonate</span></a>{% endif %}</td>
+      <td>{% if may_impersonate %}<a href="/admin/impersonate/{{account.uuid}}" class="fas fa-user-secret" title="Impersonate"><span class="hidden">Impersonate</span></a>{% endif %}</td>
     </tr>
     {%- endfor %}
   </tbody>

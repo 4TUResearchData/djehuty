@@ -123,7 +123,7 @@ INSERT {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container          rdf:type                 djht:DatasetContainer .
-    ?container          djht:account_id           ?account_id .
+    ?container          djht:account              ?account .
     ?container          djht:draft                ?dataset .
 
     ?dataset            rdf:type                 djht:Dataset .
@@ -162,8 +162,8 @@ WHERE {
     OPTIONAL { ?dataset djht:embargo_reason        ?embargo_reason . }
     OPTIONAL { ?dataset djht:embargo_allow_access_requests ?embargo_allow_access_requests . }
   }
-{%- if account_id is not none: %}
-  FILTER (?account_id = {{account_id}})
+{%- if account_uuid is not none: %}
+  FILTER (?account = <account:{{account_uuid}}>)
 {%- endif %}
   FILTER (?container = <{{container_uri}}>)
 }

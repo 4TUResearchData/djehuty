@@ -3,7 +3,7 @@
 {%- if return_count %}
 SELECT COUNT(DISTINCT ?dataset) AS ?datasets
 {%- else %}
-SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
+SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?created_date ?custom_fields_id ?defined_type ?defined_type_name
                 ?description ?doi ?embargo_until_date ?embargo_allow_access_requests
                 ?embargo_reason ?embargo_title ?embargo_type ?figshare_url
@@ -27,7 +27,7 @@ SELECT DISTINCT ?account_id ?citation ?confidential_reason ?container_uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri      rdf:type                  djht:DatasetContainer .
-    ?container_uri      djht:account_id           ?account_id .
+    ?container_uri      djht:account              ?account .
     OPTIONAL { ?container_uri djht:dataset_id     ?dataset_id . }
 
     {%- if is_published %}
@@ -52,7 +52,6 @@ WHERE {
 
     OPTIONAL {
       ?account          rdf:type                  djht:Account .
-      ?account          djht:id                   ?account_id .
       ?account          djht:institution_id       ?institution_id .
     }
 
@@ -138,6 +137,7 @@ WHERE {
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?dataset), "dataset:")         AS ?uuid)
+    BIND(STRAFTER(STR(?account), "account:")         AS ?account_uuid)
     BIND(BOUND(?review)                              AS ?is_under_review)
     BIND(((BOUND(?embargo_until_date) AND ?embargo_until_date > NOW()) OR
           (BOUND(?embargo_allow_access_requests))) AS ?is_embargoed)
@@ -152,8 +152,8 @@ FILTER (! BOUND(?review))
 {%- if collection_uri is not none %}
 FILTER (?collection = <{{collection_uri}}>)
 {%- endif %}
-{%- if account_id is not none: %}
-FILTER (?account_id = {{account_id}})
+{%- if account_uuid is not none: %}
+FILTER (?account = <account:{{account_uuid}}>)
 {%- endif %}
 {% if filters is not none %}{{ filters }}{% endif %}
 }

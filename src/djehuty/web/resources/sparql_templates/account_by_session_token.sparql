@@ -1,16 +1,15 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
 SELECT DISTINCT ?role ?active ?created_date ?email ?first_name ?group_id
-                ?account_id ?institution_id ?institution_user_id ?last_name
+                ?uuid ?institution_id ?institution_user_id ?last_name
                 ?maximum_file_size ?modified_date ?pending_quota_request ?quota
                 ?used_quota ?used_quota_private ?used_quota_public
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account             rdf:type                  djht:Account .
-    ?account             djht:id                    ?account_id .
+    ?account             djht:email                 ?email .
     OPTIONAL { ?account  djht:active                ?active . }
     OPTIONAL { ?account  djht:created_date          ?created_date . }
-    OPTIONAL { ?account  djht:email                 ?email . }
     OPTIONAL { ?account  djht:first_name            ?first_name . }
     OPTIONAL { ?account  djht:group_id              ?group_id . }
     OPTIONAL { ?account  djht:institution_id        ?institution_id . }
@@ -26,9 +25,11 @@ WHERE {
     OPTIONAL { ?account  djht:role                  ?role . }
 
     ?session             rdf:type                  djht:Session .
-    ?session             djht:account_id            ?account_id .
+    ?session             djht:account               ?account .
     ?session             djht:token                 ?token .
+
+    BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
   }
-  FILTER (?token = "{{token}}"^^xsd:string)
+  FILTER (STR(?token) = "{{token}}")
 }
 {% endblock %}

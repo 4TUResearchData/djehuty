@@ -1,6 +1,6 @@
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 
-function save_profile (account_id) {
+function save_profile (account_uuid) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -40,7 +40,7 @@ function save_profile (account_id) {
       .fail(function () { console.log("Failed to save form."); });
 }
 
-function render_categories_for_profile (account_id) {
+function render_categories_for_profile (account_uuid) {
     var jqxhr = jQuery.ajax({
         url:         "/v3/profile/categories",
         data:        { "limit": 10000 },
@@ -57,7 +57,7 @@ function render_categories_for_profile (account_id) {
     });
 }
 
-function activate (account_id) {
-    render_categories_for_profile (account_id);
-    jQuery("#save").on("click", function (event)   { save_profile (account_id); });
+function activate (account_uuid) {
+    render_categories_for_profile (account_uuid);
+    jQuery("#save").on("click", function (event)   { save_profile (account_uuid); });
 }

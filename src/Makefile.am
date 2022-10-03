@@ -50,11 +50,11 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/review/dashboard.html                \
     djehuty/web/resources/html_templates/search.html                          \
     djehuty/web/resources/robots.txt                                          \
-    djehuty/web/resources/sparql_templates/account_by_id.sparql               \
+    djehuty/web/resources/sparql_templates/account_by_email.sparql            \
     djehuty/web/resources/sparql_templates/account_by_session_token.sparql    \
     djehuty/web/resources/sparql_templates/account_categories.sparql          \
-    djehuty/web/resources/sparql_templates/account_id_by_orcid.sparql         \
     djehuty/web/resources/sparql_templates/account_sessions.sparql            \
+    djehuty/web/resources/sparql_templates/account_uuid_by_orcid.sparql       \
     djehuty/web/resources/sparql_templates/accounts.sparql                    \
     djehuty/web/resources/sparql_templates/account_storage_used.sparql        \
     djehuty/web/resources/sparql_templates/dataset_container.sparql           \

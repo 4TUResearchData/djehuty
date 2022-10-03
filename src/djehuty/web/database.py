@@ -181,12 +181,12 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
-    def container_items (self, account_id=None, container_uuid=None,
+    def container_items (self, account_uuid=None, container_uuid=None,
                          item_uuid=None, item_type="dataset", is_published=True,
                          is_latest=False):
 
         query = self.__query_from_template ("container_items", {
-            "account_id":     account_id,
+            "account_uuid":   account_uuid,
             "container_uri":  rdf.uuid_to_uri (container_uuid, "container"),
             "item_uri":       rdf.uuid_to_uri (item_uuid, item_type),
             "item_type":      item_type,
@@ -196,7 +196,7 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
-    def datasets (self, account_id=None, categories=None, collection_uri=None,
+    def datasets (self, account_uuid=None, categories=None, collection_uri=None,
                   container_uuid=None, dataset_id=None, dataset_uuid=None, doi=None,
                   exclude_ids=None, groups=None, handle=None, institution=None,
                   is_latest=False, item_type=None, limit=None, modified_since=None,
@@ -265,7 +265,7 @@ class SparqlInterface:
         query = self.__query_from_template ("datasets", {
             "categories":     categories,
             "collection_uri": collection_uri,
-            "account_id":     account_id,
+            "account_uuid":   account_uuid,
             "is_latest":      is_latest,
             "is_published":   is_published,
             "is_under_review": is_under_review,
@@ -282,7 +282,7 @@ class SparqlInterface:
         if not return_count:
             query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
-        cache_key = f"datasets_{account_id}" if account_id is not None else "datasets"
+        cache_key = f"datasets_{account_uuid}" if account_uuid is not None else "datasets"
         return self.__run_query (query, query, cache_key)
 
     def repository_statistics (self):
@@ -410,7 +410,7 @@ class SparqlInterface:
                  is_public=None, job_title=None, last_name=None,
                  orcid_id=None, url_name=None, limit=10, order="order_index",
                  order_direction="asc", item_uri=None, search_for=None,
-                 account_id=None, item_type="dataset", is_published=True):
+                 account_uuid=None, item_type="dataset", is_published=True):
         """Procedure to retrieve authors of a dataset."""
 
         prefix = item_type.capitalize()
@@ -439,7 +439,7 @@ class SparqlInterface:
             "prefix":      prefix,
             "is_published": is_published,
             "item_uri":    item_uri,
-            "account_id":  account_id,
+            "account_uuid": account_uuid,
             "filters":     filters
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
@@ -451,7 +451,7 @@ class SparqlInterface:
                        computed_md5=None, viewer_type=None, preview_state=None,
                        status=None, upload_url=None, upload_token=None,
                        order="order_index", order_direction="asc", limit=10,
-                       dataset_uri=None, account_id=None, file_id=None):
+                       dataset_uri=None, account_uuid=None, file_id=None):
         """Procedure to retrieve files of a dataset."""
 
         filters  = rdf.sparql_filter ("size",          size)
@@ -469,7 +469,7 @@ class SparqlInterface:
 
         query = self.__query_from_template ("dataset_files", {
             "dataset_uri":         dataset_uri,
-            "account_id":          account_id,
+            "account_uuid":        account_uuid,
             "file_uuid":           file_uuid,
             "filters":             filters
         })
@@ -522,11 +522,11 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def tags (self, order=None, order_direction=None, limit=10,
-              item_uri=None, account_id=None):
+              item_uri=None, account_uuid=None):
         """Procedure to get tags for a dataset or a collection."""
 
         query   = self.__query_from_template ("tags", {
-            "account_id":  account_id,
+            "account_uuid": account_uuid,
             "item_uri":    item_uri
         })
 
@@ -539,14 +539,14 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def categories (self, title=None, order=None, order_direction=None,
-                    limit=10, item_uri=None, account_id=None,
+                    limit=10, item_uri=None, account_uuid=None,
                     is_published=True):
         """Procedure to retrieve categories of a dataset."""
 
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("categories", {
             "item_uri":     item_uri,
-            "account_id":   account_id,
+            "account_uuid": account_uuid,
             "is_published": is_published,
             "filters":      filters
         })
@@ -554,26 +554,26 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def account_categories (self, account_id, title=None, order=None,
+    def account_categories (self, account_uuid, title=None, order=None,
                             order_direction=None, limit=10):
         """Procedure to retrieve categories of a dataset."""
 
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("account_categories", {
-            "account_id":  account_id,
-            "filters":     filters
+            "account_uuid": account_uuid,
+            "filters":      filters
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 
         return self.__run_query (query)
 
-    def private_links (self, item_uri=None, account_id=None, id_string=None):
+    def private_links (self, item_uri=None, account_uuid=None, id_string=None):
         """Procedure to get private links to a dataset or a collection."""
 
         query   = self.__query_from_template ("private_links", {
             "id_string":   id_string,
             "item_uri":    item_uri,
-            "account_id":  account_id,
+            "account_uuid": account_uuid,
         })
 
         return self.__run_query(query)
@@ -634,7 +634,7 @@ class SparqlInterface:
 
     ## This procedure exists because the 'datasets' procedure will only
     ## count datasets that are either public, or were published using the
-    ## same account_id as the collection.
+    ## same account_uuid as the collection.
     ##
     ## So to get the actual count, this separate procedure exists.
     def collections_dataset_count (self, collection_uri):
@@ -657,7 +657,7 @@ class SparqlInterface:
                      order_direction=None, institution=None, categories=None,
                      published_since=None, modified_since=None, group=None,
                      resource_doi=None, resource_id=None, doi=None, handle=None,
-                     account_id=None, search_for=None, collection_id=None,
+                     account_uuid=None, search_for=None, collection_id=None,
                      collection_uri=None, version=None, container_uuid=None,
                      is_latest=False, is_published=True):
         """Procedure to retrieve collections."""
@@ -692,7 +692,7 @@ class SparqlInterface:
             filters += f"FILTER (?modified_date > \"{modified_since}\"^^xsd:dateTime)\n"
 
         query   = self.__query_from_template ("collections", {
-            "account_id":   account_id,
+            "account_uuid": account_uuid,
             "categories":   categories,
             "filters":      filters,
             "is_latest":    is_latest,
@@ -702,19 +702,19 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def collections_by_account (self, account_id=None, limit=100, offset=None,
+    def collections_by_account (self, account_uuid=None, limit=100, offset=None,
                                 order=None, order_direction=None):
         """Procedure to retrieve essential metadata of collections of an account."""
 
         query   = self.__query_from_template ("collections_by_account", {
-            "account_id":   account_id
+            "account_uuid": account_uuid
         })
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
         return self.__run_query(query)
 
     def fundings (self, title=None, order=None, order_direction=None,
-                  limit=10, item_uri=None, account_id=None, search_for=None,
+                  limit=10, item_uri=None, account_uuid=None, search_for=None,
                   item_type="dataset", is_published=True):
         """Procedure to retrieve funding information."""
 
@@ -729,7 +729,7 @@ class SparqlInterface:
         query   = self.__query_from_template ("funding", {
             "prefix":      item_type.capitalize(),
             "item_uri":    item_uri,
-            "account_id":  account_id,
+            "account_uuid": account_uuid,
             "filters":     filters
         })
 
@@ -741,12 +741,12 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def references (self, order=None, order_direction=None, limit=10,
-                    item_uri=None, account_id=None):
+                    item_uri=None, account_uuid=None):
         """Procedure to retrieve references."""
 
         query   = self.__query_from_template ("references", {
             "item_uri":       item_uri,
-            "account_id":     account_id,
+            "account_uuid":   account_uuid,
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 
@@ -780,7 +780,7 @@ class SparqlInterface:
 
         return None
 
-    def container_uri (self, graph, item_id, item_type, account_id):
+    def container_uri (self, graph, item_id, item_type, account_uuid):
         """Returns the URI of the container belonging to item with item_id."""
 
         prefix     = item_type.capitalize()
@@ -793,8 +793,9 @@ class SparqlInterface:
 
         if uri is None:
             uri = rdf.unique_node ("container")
+            account_uri = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
             graph.add ((uri, RDF.type,                   rdf.DJHT[item_class]))
-            graph.add ((uri, rdf.DJHT["account_id"],     Literal(account_id, datatype=XSD.integer)))
+            graph.add ((uri, rdf.DJHT["account"],        account_uri))
 
             ## The item_id is a left-over from the Figshare days.
             rdf.add (graph, uri, rdf.DJHT[f"{item_type}_id"], item_id, datatype=XSD.integer)
@@ -861,7 +862,7 @@ class SparqlInterface:
 
     def insert_dataset (self,
                         title,
-                        account_id,
+                        account_uuid,
                         container_uuid=None,
                         description=None,
                         keywords=None,
@@ -904,7 +905,8 @@ class SparqlInterface:
 
         graph           = Graph()
         uri             = rdf.unique_node ("dataset")
-        container       = self.container_uri (graph, None, "dataset", account_id)
+        container       = self.container_uri (graph, None, "dataset", account_uuid)
+        account_uri     = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
 
         ## TIMELINE
         ## --------------------------------------------------------------------
@@ -982,17 +984,17 @@ class SparqlInterface:
 
         # Add the dataset to its container.
         graph.add ((container, rdf.DJHT["draft"],       uri))
-        graph.add ((container, rdf.DJHT["account_id"],  Literal(account_id, datatype=XSD.integer)))
+        graph.add ((container, rdf.DJHT["account"],     account_uri))
 
         if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
             logging.info ("Inserted dataset %s", container_uuid)
-            self.cache.invalidate_by_prefix (f"datasets_{account_id}")
+            self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
             return container_uuid
 
         return None
 
-    def update_account (self, account_id, active=None, email=None, job_title=None,
+    def update_account (self, account_uuid, active=None, email=None, job_title=None,
                         first_name=None, last_name=None, institution_user_id=None,
                         institution_id=None, pending_quota_request=None,
                         used_quota_public=None, used_quota_private=None,
@@ -1005,7 +1007,7 @@ class SparqlInterface:
             modified_date = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
 
         query        = self.__query_from_template ("update_account", {
-            "account_id":            account_id,
+            "account_uuid":          account_uuid,
             "is_active":             active,
             "job_title":             job_title,
             "email":                 email,
@@ -1033,28 +1035,27 @@ class SparqlInterface:
             if categories:
                 graph = Graph()
                 items = rdf.uris_from_records (categories, "category")
-                account = self.account_by_id (account_id)
-                self.delete_account_list (account_id, "categories")
+                self.delete_account_list (account_uuid, "categories")
                 self.insert_item_list (graph,
-                                       URIRef(rdf.uuid_to_uri (account["uuid"], "account")),
+                                       URIRef(rdf.uuid_to_uri (account_uuid, "account")),
                                        items,
                                        "categories")
 
                 if not self.add_triples_from_graph (graph):
                     logging.error("Updating categories for account %d failed.",
-                                  account_id)
+                                  account_uuid)
                     return None
 
         return results
 
-    def update_item_list (self, container_uuid, account_id, items, predicate):
+    def update_item_list (self, container_uuid, account_uuid, items, predicate):
         try:
             graph   = Graph()
             dataset = self.container_items (container_uuid = container_uuid,
                                             is_published   = False,
-                                            account_id     = account_id)[0]
+                                            account_uuid   = account_uuid)[0]
 
-            self.delete_associations (container_uuid, account_id, predicate)
+            self.delete_associations (container_uuid, account_uuid, predicate)
             if items:
                 self.insert_item_list (graph,
                                        URIRef(dataset["uri"]),
@@ -1140,28 +1141,28 @@ class SparqlInterface:
         rdf.add (graph, item_uri, rdf.DJHT["posted"],               posted,       XSD.string)
         rdf.add (graph, item_uri, rdf.DJHT["submission"],           submission,   XSD.string)
 
-    def delete_associations (self, container_uuid, account_id, predicate):
+    def delete_associations (self, container_uuid, account_uuid, predicate):
         """Procedure to delete the list of PREDICATE of a dataset or collection."""
 
         query = self.__query_from_template ("delete_associations", {
             "container_uri": rdf.uuid_to_uri (container_uuid, "container"),
             "predicate":     predicate,
-            "account_id":    account_id,
+            "account_uuid":  account_uuid,
         })
 
         return self.__run_query(query)
 
-    def delete_account_list (self, account_id, predicate):
+    def delete_account_list (self, account_uuid, predicate):
         """Procedure to delete the list of PREDICATE of an account."""
 
         query = self.__query_from_template ("delete_account_list", {
             "predicate":     predicate,
-            "account_id":    account_id,
+            "account_uuid":  account_uuid,
         })
 
         return self.__run_query(query)
 
-    def delete_item_categories (self, item_id, account_id, category_id=None,
+    def delete_item_categories (self, item_id, account_uuid, category_id=None,
                                 item_type="dataset"):
         """Procedure to delete the categories of a dataset or collection."""
 
@@ -1170,15 +1171,15 @@ class SparqlInterface:
             "item_id":     item_id,
             "item_type":   item_type,
             "prefix":      prefix,
-            "account_id":  account_id,
+            "account_uuid": account_uuid,
             "category_id": category_id
         })
 
         return self.__run_query(query)
 
-    def delete_dataset_categories (self, dataset_id, account_id, category_id=None):
+    def delete_dataset_categories (self, dataset_id, account_uuid, category_id=None):
         """Procedure to delete the categories related to a dataset."""
-        return self.delete_item_categories (dataset_id, account_id, category_id, "dataset")
+        return self.delete_item_categories (dataset_id, account_uuid, category_id, "dataset")
 
     def insert_funding (self, title=None, grant_code=None, funder_name=None,
                         is_user_defined=None, url=None, item_id=None,
@@ -1206,7 +1207,7 @@ class SparqlInterface:
                      is_link_only=None, download_url=None, supplied_md5=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
                      status=None, upload_url=None, upload_token=None,
-                     dataset_uri=None, account_id=None):
+                     dataset_uri=None, account_uuid=None):
         """Procedure to add an file to the state graph."""
 
         graph    = Graph()
@@ -1236,25 +1237,25 @@ class SparqlInterface:
             new_files    = existing_files + [URIRef(file_uri)]
             dataset_uuid = rdf.uri_to_uuid (dataset_uri)
             dataset      = self.datasets (dataset_uuid = dataset_uuid,
-                                          account_id     = account_id,
+                                          account_uuid = account_uuid,
                                           is_published = False,
                                           limit        = 1)[0]
 
             if self.update_item_list (dataset["container_uuid"],
-                                      account_id,
+                                      account_uuid,
                                       new_files,
                                       "files"):
                 return rdf.uri_to_uuid (file_uri)
 
         return None
 
-    def update_file (self, account_id, file_uuid, download_url=None,
+    def update_file (self, account_uuid, file_uuid, download_url=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
                      file_size=None, status=None, filesystem_location=None):
         """Procedure to update file metadata."""
 
         query   = self.__query_from_template ("update_file", {
-            "account_id":    account_id,
+            "account_uuid":  account_uuid,
             "file_uuid":     file_uuid,
             "filesystem_location": filesystem_location,
             "download_url":  download_url,
@@ -1332,21 +1333,21 @@ class SparqlInterface:
 
         return None
 
-    def delete_dataset_draft (self, container_uuid, account_id):
+    def delete_dataset_draft (self, container_uuid, account_uuid):
         """Remove the draft dataset from a container in the state graph."""
 
         query   = self.__query_from_template ("delete_dataset_draft", {
-            "account_id":          account_id,
+            "account_uuid":        account_uuid,
             "container_uri":       rdf.uuid_to_uri (container_uuid, "container")
         })
 
         result = self.__run_query (query)
         self.cache.invalidate_by_prefix (f"dataset_{container_uuid}")
-        self.cache.invalidate_by_prefix (f"datasets_{account_id}")
+        self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
 
         return result
 
-    def update_dataset (self, container_uuid, account_id, title=None,
+    def update_dataset (self, container_uuid, account_uuid, title=None,
                         description=None, resource_doi=None,
                         resource_title=None, license_id=None, group_id=None,
                         time_coverage=None, publisher=None, language=None,
@@ -1361,7 +1362,7 @@ class SparqlInterface:
         """Procedure to overwrite parts of a dataset."""
 
         query   = self.__query_from_template ("update_dataset", {
-            "account_id":      account_id,
+            "account_uuid":    account_uuid,
             "container_uri":   rdf.uuid_to_uri (container_uuid, "container"),
             "contributors":    rdf.escape_string_value (contributors),
             "data_link":       rdf.escape_string_value (data_link),
@@ -1395,34 +1396,34 @@ class SparqlInterface:
                                rdf.escape_boolean_value (embargo_allow_access_requests)
         })
 
-        self.cache.invalidate_by_prefix (f"datasets_{account_id}")
+        self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix (f"dataset_{container_uuid}")
         results = self.__run_query (query)
         if results:
             if categories:
                 items = rdf.uris_from_records (categories, "category")
-                self.update_item_list (container_uuid, account_id, items, "categories")
+                self.update_item_list (container_uuid, account_uuid, items, "categories")
         else:
             return False
 
         return True
 
-    def delete_dataset_embargo (self, dataset_uri, account_id):
+    def delete_dataset_embargo (self, dataset_uri, account_uuid):
         """Procedure to lift the embargo on a dataset."""
 
         query   = self.__query_from_template ("delete_dataset_embargo", {
-            "account_id":  account_id,
+            "account_uuid": account_uuid,
             "dataset_uri":  dataset_uri
         })
 
         return self.__run_query(query)
 
-    def delete_private_links (self, item_id, account_id, link_id, item_type="dataset"):
+    def delete_private_links (self, item_id, account_uuid, link_id, item_type="dataset"):
         """Procedure to remove private links to a dataset."""
 
         prefix  = item_type.capitalize()
         query   = self.__query_from_template ("delete_private_links", {
-            "account_id":  account_id,
+            "account_uuid": account_uuid,
             "item_id":     item_id,
             "item_type":   item_type,
             "prefix":      prefix,
@@ -1431,13 +1432,13 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def update_private_link (self, item_uri, account_id, link_id,
+    def update_private_link (self, item_uri, account_uuid, link_id,
                              is_active=None, expires_date=None,
                              read_only=None):
         """Procedure to update a private link to a dataset."""
 
         query   = self.__query_from_template ("update_private_link", {
-            "account_id":   account_id,
+            "account_uuid": account_uuid,
             "item_uri":     item_uri,
             "id_string":    link_id,
             "is_active":    is_active,
@@ -1447,12 +1448,12 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def dataset_update_thumb (self, dataset_id, version, account_id, file_id):
+    def dataset_update_thumb (self, dataset_id, version, account_uuid, file_id):
         """Procedure to update the thumbnail of a dataset."""
 
         filters = rdf.sparql_filter ("file_id", file_id)
         query   = self.__query_from_template ("update_dataset_thumb", {
-            "account_id":  account_id,
+            "account_uuid": account_uuid,
             "dataset_id":  dataset_id,
             "version":     version,
             "filters":     filters
@@ -1461,7 +1462,7 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def insert_collection (self, title,
-                           account_id,
+                           account_uuid,
                            collection_id=None,
                            funding=None,
                            funding_list=None,
@@ -1506,7 +1507,8 @@ class SparqlInterface:
 
         graph                   = Graph()
         uri                     = rdf.unique_node ("collection")
-        container               = self.container_uri (graph, None, "collection", account_id)
+        container               = self.container_uri (graph, None, "collection", account_uuid)
+        account_uri             = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
 
         ## TIMELINE
         ## --------------------------------------------------------------------
@@ -1557,7 +1559,7 @@ class SparqlInterface:
         graph.add ((uri, rdf.DJHT["container"], container))
 
         rdf.add (graph, uri, rdf.DJHT["collection_id"],  collection_id)
-        rdf.add (graph, uri, rdf.DJHT["account_id"],     account_id)
+        rdf.add (graph, uri, rdf.DJHT["account"],        account_uri)
         rdf.add (graph, uri, rdf.DJHT["description"],    description,    XSD.string)
         rdf.add (graph, uri, rdf.DJHT["funding"],        funding,        XSD.string)
         rdf.add (graph, uri, rdf.DJHT["doi"],            doi,            XSD.string)
@@ -1575,7 +1577,7 @@ class SparqlInterface:
 
         # Add the collection to its container.
         graph.add ((container, rdf.DJHT["draft"],       uri))
-        graph.add ((container, rdf.DJHT["account_id"],  Literal(account_id, datatype=XSD.integer)))
+        graph.add ((container, rdf.DJHT["account"],     account_uri))
 
         if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
@@ -1584,17 +1586,17 @@ class SparqlInterface:
 
         return None
 
-    def delete_collection (self, container_uuid, account_id):
+    def delete_collection (self, container_uuid, account_uuid):
         """Procedure to remove a collection from the state graph."""
 
         query   = self.__query_from_template ("delete_collection_draft", {
-            "account_id":     account_id,
+            "account_uuid":   account_uuid,
             "container_uri":  rdf.uuid_to_uri (container_uuid, "container")
         })
 
         return self.__run_query(query)
 
-    def update_collection (self, container_uuid, account_id, title=None,
+    def update_collection (self, container_uuid, account_uuid, title=None,
                            description=None, resource_doi=None,
                            resource_title=None, group_id=None, datasets=None,
                            time_coverage=None, publisher=None, language=None,
@@ -1603,7 +1605,7 @@ class SparqlInterface:
         """Procedure to overwrite parts of a collection."""
 
         query   = self.__query_from_template ("update_collection", {
-            "account_id":        account_id,
+            "account_uuid":      account_uuid,
             "container_uri":     rdf.uuid_to_uri (container_uuid, "container"),
             "contributors":      contributors,
             "description":       description,
@@ -1627,11 +1629,11 @@ class SparqlInterface:
         results = self.__run_query (query, query, f"{container_uuid}_collection")
         if results and categories:
             items = rdf.uris_from_records (categories, "category")
-            self.update_item_list (container_uuid, account_id, items, "categories")
+            self.update_item_list (container_uuid, account_uuid, items, "categories")
 
         if results and datasets:
             items = rdf.uris_from_records (categories, "dataset")
-            self.update_item_list (container_uuid, account_id, items, "datasets")
+            self.update_item_list (container_uuid, account_uuid, items, "datasets")
 
         return results
 
@@ -1723,11 +1725,11 @@ class SparqlInterface:
         except IndexError:
             return None
 
-    def account_storage_used (self, account_id):
+    def account_storage_used (self, account_uuid):
         """Returns the number of bytes used by an account."""
 
         query = self.__query_from_template ("account_storage_used", {
-            "account_id":  account_id
+            "account_uuid": account_uuid
         })
 
         files = self.__run_query (query, query, "storage")
@@ -1772,14 +1774,15 @@ class SparqlInterface:
     ## ------------------------------------------------------------------------
 
     def reviews (self, assigned_to=None, dataset_uri=None, status=None,
-                 account_id=None, limit=10, order=None, order_direction=None,
+                 account_uuid=None, limit=10, order=None, order_direction=None,
                  offset=None, is_assigned=None, review_uuid=None):
         """Returns reviews within the scope of the procedure's parameters."""
 
-        filters  = rdf.sparql_filter ("assigned_to", account_id)
+        filters  = rdf.sparql_filter ("assigned_to", assigned_to)
         filters += rdf.sparql_filter ("dataset", dataset_uri, is_uri=True)
 
         query = self.__query_from_template ("reviews", {
+            "account_uuid":   account_uuid,
             "is_assigned":    is_assigned,
             "review_uuid":    review_uuid,
             "filters":        filters,
@@ -1830,23 +1833,23 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix ("reviews")
         return self.__run_query (query)
 
-    def account_id_by_orcid (self, orcid):
+    def account_uuid_by_orcid (self, orcid):
         """Returns the account ID belonging to an ORCID."""
 
-        query = self.__query_from_template ("account_id_by_orcid", {
+        query = self.__query_from_template ("account_uuid_by_orcid", {
             "orcid":       orcid
         })
 
         try:
             results = self.__run_query (query)
-            return results[0]["account_id"]
+            return results[0]["uuid"]
         except IndexError:
             return None
         except KeyError:
             return None
 
     def account_by_session_token (self, session_token):
-        """Returns an account_id or None."""
+        """Returns an account record or None."""
 
         query = self.__query_from_template ("account_by_session_token", {
             "token":       session_token
@@ -1855,7 +1858,7 @@ class SparqlInterface:
         try:
             results = self.__run_query (query)
             account = results[0]
-            privileges = self.privileges[int(account["account_id"])]
+            privileges = self.privileges[account["email"]]
             account = { **account, **privileges }
             return account
         except IndexError:
@@ -1863,26 +1866,22 @@ class SparqlInterface:
         except KeyError:
             return account
 
-    def accounts (self, account_id=None):
+    def accounts (self, account_uuid=None):
         """Returns accounts."""
 
         query = self.__query_from_template ("accounts", {
-            "account_id":  account_id
+            "account_uuid": account_uuid
         })
 
         return self.__run_query (query, query, "accounts")
 
-    def account_by_id (self, account_id):
-        """Returns an account_id or None."""
-
-        query = self.__query_from_template ("account_by_id", {
-            "account_id":  account_id
-        })
+    def account_by_uuid (self, account_uuid):
+        """Returns an account record or None."""
 
         try:
-            results    = self.__run_query (query)
+            results    = self.accounts(account_uuid)
             account    = results[0]
-            privileges = self.privileges[int(account["account_id"])]
+            privileges = self.privileges[account["email"]]
             account    = { **account, **privileges }
             return account
         except IndexError:
@@ -1890,10 +1889,26 @@ class SparqlInterface:
         except KeyError:
             return account
 
-    def insert_session (self, account_id, name=None, token=None, editable=False):
-        """Procedure to add a session token for an account_id."""
+    def account_by_email (self, email):
+        query = self.__query_from_template ("account_by_email", {
+            "email":  email
+        })
 
-        if account_id is None:
+        try:
+            results    = self.__run_query (query)
+            account    = results[0]
+            privileges = self.privileges[email]
+            account    = { **account, **privileges }
+            return account
+        except IndexError:
+            return None
+        except KeyError:
+            return account
+
+    def insert_session (self, account_uuid, name=None, token=None, editable=False):
+        """Procedure to add a session token for an account_uuid."""
+
+        if account_uuid is None:
             return None, None
 
         if token is None:
@@ -1903,8 +1918,10 @@ class SparqlInterface:
 
         graph       = Graph()
         link_uri    = rdf.unique_node ("session")
-        graph.add ((link_uri, RDF.type,              rdf.DJHT["Session"]))
-        graph.add ((link_uri, rdf.DJHT["account_id"], Literal(account_id)))
+        account_uri = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
+
+        graph.add ((link_uri, RDF.type,               rdf.DJHT["Session"]))
+        graph.add ((link_uri, rdf.DJHT["account"],    account_uri))
         graph.add ((link_uri, rdf.DJHT["created_date"], Literal(current_time, datatype=XSD.dateTime)))
         graph.add ((link_uri, rdf.DJHT["name"],       Literal(name, datatype=XSD.string)))
         graph.add ((link_uri, rdf.DJHT["token"],      Literal(token, datatype=XSD.string)))
@@ -1915,11 +1932,11 @@ class SparqlInterface:
 
         return None, None
 
-    def update_session (self, account_id, session_uuid, name):
+    def update_session (self, account_uuid, session_uuid, name):
         """Procedure to edit a session."""
 
         query = self.__query_from_template ("update_session", {
-            "account_id":    account_id,
+            "account_uuid":  account_uuid,
             "session_uuid":  session_uuid,
             "name":          name
         })
@@ -1932,12 +1949,12 @@ class SparqlInterface:
         query = self.__query_from_template ("delete_sessions")
         return self.__run_query (query)
 
-    def delete_session_by_uuid (self, account_id, session_uuid):
+    def delete_session_by_uuid (self, account_uuid, session_uuid):
         """Procedure to remove a session from the state graph."""
 
         query   = self.__query_from_template ("delete_session_by_uuid", {
             "session_uuid":  session_uuid,
-            "account_id":  account_id
+            "account_uuid":  account_uuid
         })
 
         return self.__run_query (query)
@@ -1954,11 +1971,11 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def sessions (self, account_id, session_uuid=None):
+    def sessions (self, account_uuid, session_uuid=None):
         """Returns the sessions for an account."""
 
         query = self.__query_from_template ("account_sessions", {
-            "account_id":  account_id,
+            "account_uuid":  account_uuid,
             "session_uuid":  session_uuid
         })
 

@@ -67,7 +67,7 @@ INSERT {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container          rdf:type                 djht:CollectionContainer .
-    ?container          djht:account_id           ?account_id .
+    ?container          djht:account              ?account .
     ?container          djht:draft                ?collection .
 
     ?collection         rdf:type                 djht:Collection .
@@ -87,8 +87,8 @@ WHERE {
     OPTIONAL { ?collection djht:organizations        ?organizations . }
     OPTIONAL { ?collection djht:contributors         ?contributors . }
   }
-{%- if account_id is not none: %}
-  FILTER (?account_id = {{account_id}})
+{%- if account_uuid is not none: %}
+  FILTER (?account = <account:{{account_uuid}}>)
 {%- endif %}
   FILTER (?container = <{{container_uri}}>)
 }

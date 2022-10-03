@@ -8,7 +8,8 @@ from djehuty.utils import convenience as conv
 def format_account_record (record):
     """Record formatter for accounts."""
     return {
-        "id":             conv.value_or_none(record, "account_id"),
+        "id":             None, # numeric IDs have been scrapped.
+        "uuid":           conv.value_or_none(record, "uuid"),
         "first_name":     conv.value_or_none(record, "first_name"),
         "last_name":      conv.value_or_none(record, "last_name"),
         "is_active":      bool(conv.value_or_none(record, "active")),

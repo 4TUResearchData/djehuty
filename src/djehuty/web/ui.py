@@ -201,8 +201,8 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if privileges:
             for account in privileges:
                 try:
-                    account_id = int(account.attrib["id"])
-                    server.db.privileges[account_id] = {
+                    email = account.attrib["email"]
+                    server.db.privileges[email] = {
                         "may_administer":  bool(int(config_value (account, "may-administer", None, False))),
                         "may_impersonate": bool(int(config_value (account, "may-impersonate", None, False))),
                         "may_review":      bool(int(config_value (account, "may-review", None, False)))

@@ -11,8 +11,8 @@ DELETE {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?dataset  rdf:type               djht:Dataset ;
-    ?dataset  djht:account_id         {{account_id}} .
+    ?dataset  rdf:type               djht:Dataset .
+    ?dataset  djht:container/djht:account <account:{{account_uuid}}> .
 
     OPTIONAL { ?dataset  djht:embargo_type       ?embargo_type . }
     OPTIONAL { ?dataset  djht:embargo_title      ?embargo_title . }

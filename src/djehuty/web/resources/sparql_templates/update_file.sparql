@@ -42,10 +42,10 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                djht:File .
 
-    {#- Ensure that the account_id associated with the ?file can modify its
+    {#- Ensure that the account_uuid associated with the ?file can modify its
      #- properties. #}
     ?dataset           djht:files/rdf:rest*/rdf:first ?file ;
-                       djht:container/djht:account_id  {{account_id}} .
+                       djht:container/djht:account    <account:{{account_uuid}}> .
 
     OPTIONAL { ?file   djht:id                  ?id . }
     OPTIONAL { ?file   djht:filesystem_location ?filesystem_location . }

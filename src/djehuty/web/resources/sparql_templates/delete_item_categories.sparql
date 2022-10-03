@@ -14,11 +14,11 @@ WHERE {
     ?row     djht:category_id      ?category_id .
 
     ?item    rdf:type             djht:{{prefix}} .
+    ?item    djht:container/djht:account ?account .
     ?item    djht:{{item_type}}_version_id ?item_id .
-    ?item    djht:account_id       ?account_id .
   }
   FILTER (?item_id = {{item_id}})
-  FILTER (?account_id = {{account_id}})
+  FILTER (?account = <account:{{account_uuid}}>)
   {%- if category_id is not none %}
   FILTER (?category_id = {{category_id}})
   {%- endif %}

@@ -97,7 +97,7 @@ class ApiServer:
             Rule("/admin/dashboard",                          endpoint = "ui_admin_dashboard"),
             Rule("/admin/users",                              endpoint = "ui_admin_users"),
             Rule("/admin/exploratory",                        endpoint = "ui_admin_exploratory"),
-            Rule("/admin/impersonate/<account_id>",           endpoint = "ui_admin_impersonate"),
+            Rule("/admin/impersonate/<account_uuid>",         endpoint = "ui_admin_impersonate"),
             Rule("/admin/maintenance",                        endpoint = "ui_admin_maintenance"),
             Rule("/admin/maintenance/clear-cache",            endpoint = "ui_admin_clear_cache"),
             Rule("/admin/maintenance/clear-sessions",         endpoint = "ui_admin_clear_sessions"),
@@ -123,7 +123,7 @@ class ApiServer:
             ## Private institutions
             ## ----------------------------------------------------------------
             Rule("/v2/account/institution",                   endpoint = "api_private_institution"),
-            Rule("/v2/account/institution/users/<account_id>",endpoint = "api_private_institution_account"),
+            Rule("/v2/account/institution/users/<account_uuid>",endpoint = "api_private_institution_account"),
 
             ## Public articles
             ## ----------------------------------------------------------------
@@ -441,7 +441,7 @@ class ApiServer:
     ## GENERAL HELPERS
     ## ----------------------------------------------------------------------------
 
-    def __dataset_by_id_or_uri (self, identifier, account_id=None,
+    def __dataset_by_id_or_uri (self, identifier, account_uuid=None,
                                 is_published=True, is_latest=False,
                                 is_under_review=None, version = None):
         try:
@@ -452,21 +452,21 @@ class ApiServer:
                                             is_latest    = is_latest,
                                             is_under_review = is_under_review,
                                             version      = version,
-                                            account_id   = account_id)[0]
+                                            account_uuid = account_uuid)[0]
             elif validator.is_valid_uuid (identifier):
                 dataset = self.db.datasets (container_uuid = identifier,
                                             is_published   = is_published,
                                             is_latest      = is_latest,
                                             is_under_review = is_under_review,
                                             version        = version,
-                                            account_id     = account_id)[0]
+                                            account_uuid   = account_uuid)[0]
 
             return dataset
 
         except IndexError:
             return None
 
-    def __collection_by_id_or_uri (self, identifier, account_id=None,
+    def __collection_by_id_or_uri (self, identifier, account_uuid=None,
                                    is_published=True, is_latest=False,
                                    version = None):
         try:
@@ -476,14 +476,14 @@ class ApiServer:
                                                   is_published  = is_published,
                                                   is_latest     = is_latest,
                                                   version       = version,
-                                                  account_id    = account_id,
+                                                  account_uuid  = account_uuid,
                                                   limit         = 1)[0]
             elif validator.is_valid_uuid (identifier):
                 collection = self.db.collections (container_uuid = identifier,
                                                   is_published   = is_published,
                                                   is_latest      = is_latest,
                                                   version        = version,
-                                                  account_id     = account_id,
+                                                  account_uuid   = account_uuid,
                                                   limit          = 1)[0]
 
             return collection
@@ -492,18 +492,18 @@ class ApiServer:
             return None
 
     def __file_by_id_or_uri (self, identifier,
-                             account_id=None,
+                             account_uuid=None,
                              dataset_uri=None):
         try:
             file = None
             if parses_to_int (identifier):
                 file = self.db.dataset_files (file_id     = int(identifier),
                                               dataset_uri = dataset_uri,
-                                              account_id  = account_id)[0]
+                                              account_uuid = account_uuid)[0]
             elif validator.is_valid_uuid (identifier):
                 file = self.db.dataset_files (file_uuid   = identifier,
                                               dataset_uri = dataset_uri,
-                                              account_id  = account_id)[0]
+                                              account_uuid = account_uuid)[0]
 
             return file
 
@@ -678,7 +678,7 @@ class ApiServer:
 
         return token_string
 
-    def impersonated_account_id (self, request, account):
+    def impersonated_account_uuid (self, request, account):
         try:
             if account["may_impersonate"]:
                 ## Handle the "impersonate" URL parameter.
@@ -692,26 +692,26 @@ class ApiServer:
                         impersonate = value_or_none (body, "impersonate")
 
                 if impersonate is not None:
-                    return int(impersonate)
+                    return impersonate
         except (KeyError, TypeError):
-            return int(account["account_id"])
+            return account["uuid"]
 
-        return int(account["account_id"])
+        return account["uuid"]
 
-    def account_id_from_request (self, request):
-        account_id = None
+    def account_uuid_from_request (self, request):
+        uuid  = None
         token = self.token_from_request (request)
 
-        ## Match the token to an account_id.  If the token does not
+        ## Match the token to an account_uuid.  If the token does not
         ## exist, we cannot authenticate.
         try:
             account    = self.db.account_by_session_token (token)
             if account is not None:
-                account_id = self.impersonated_account_id (request, account)
+                uuid = self.impersonated_account_uuid (request, account)
         except KeyError:
             logging.error("Attempt to authenticate with %s failed.", token)
 
-        return account_id
+        return uuid
 
     def default_list_response (self, records, format_function):
         output     = []
@@ -831,14 +831,14 @@ class ApiServer:
                              secure = self.in_production)
 
         # Create a new session for the user to be impersonated as.
-        new_token, _ = self.db.insert_session (dataset["account_id"],
+        new_token, _ = self.db.insert_session (dataset["account_uuid"],
                                                name="Reviewer")
         response.set_cookie (key    = self.cookie_key,
                              value  = new_token,
                              secure = self.in_production)
         return response
 
-    def ui_admin_impersonate (self, request, account_id):
+    def ui_admin_impersonate (self, request, account_uuid):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -857,7 +857,7 @@ class ApiServer:
                              secure = self.in_production)
 
         # Create a new session for the user to be impersonated as.
-        new_token, _ = self.db.insert_session (int(account_id), name="Impersonation")
+        new_token, _ = self.db.insert_session (account_uuid, name="Impersonation")
         response.set_cookie (key    = self.cookie_key,
                              value  = new_token,
                              secure = self.in_production)
@@ -871,9 +871,9 @@ class ApiServer:
         if not self.db.is_depositor (token):
             return self.error_404 (request)
 
-        account_id   = self.account_id_from_request (request)
-        storage_used = self.db.account_storage_used (account_id)
-        sessions     = self.db.sessions (account_id)
+        account_uuid = self.account_uuid_from_request (request)
+        storage_used = self.db.account_storage_used (account_uuid)
+        sessions     = self.db.sessions (account_uuid)
         return self.__render_template (
             request, "depositor/dashboard.html",
             storage_used = pretty_print_size (storage_used),
@@ -883,15 +883,15 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         token = self.token_from_cookie (request)
         if not self.db.is_depositor (token):
             return self.error_404 (request)
 
-        draft_datasets = self.db.datasets (account_id   = account_id,
+        draft_datasets = self.db.datasets (account_uuid = account_uuid,
                                            limit        = 10000,
                                            is_published = False,
                                            is_under_review = False)
@@ -902,7 +902,7 @@ class ApiServer:
                 used = self.db.dataset_storage_used (draft_dataset["container_uri"])
             draft_dataset["storage_used"] = pretty_print_size (used)
 
-        review_datasets = self.db.datasets (account_id      = account_id,
+        review_datasets = self.db.datasets (account_uuid    = account_uuid,
                                             limit           = 10000,
                                             is_published    = False,
                                             is_under_review = True)
@@ -913,7 +913,7 @@ class ApiServer:
                 used = self.db.dataset_storage_used (review_dataset["container_uri"])
             review_dataset["storage_used"] = pretty_print_size (used)
 
-        published_datasets = self.db.datasets (account_id = account_id,
+        published_datasets = self.db.datasets (account_uuid = account_uuid,
                                                is_latest  = True,
                                                is_under_review = False,
                                                limit      = 10000)
@@ -933,8 +933,8 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed (request)
 
         token = self.token_from_cookie (request)
@@ -947,8 +947,8 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         token = self.token_from_cookie (request)
@@ -956,7 +956,7 @@ class ApiServer:
             return self.error_404 (request)
 
         dataset_id = self.db.insert_dataset(title = "Untitled item",
-                                            account_id = account_id)
+                                            account_uuid = account_uuid)
         if dataset_id is not None:
             return redirect (f"/my/datasets/{dataset_id}/edit", code=302)
 
@@ -966,8 +966,8 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         token = self.token_from_cookie (request)
@@ -977,14 +977,14 @@ class ApiServer:
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                    is_published = False,
-                                                   account_id   = account_id)
+                                                   account_uuid = account_uuid)
 
             if dataset is None:
                 return self.error_403 (request)
 
             categories = self.db.categories_tree ()
 
-            account   = self.db.account_by_id (account_id)
+            account   = self.db.account_by_uuid (account_uuid)
             groups = None
             if "group_id" in account:
                 groups = self.db.group (group_id = account["group_id"])
@@ -1018,8 +1018,8 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         token = self.token_from_cookie (request)
@@ -1028,14 +1028,14 @@ class ApiServer:
 
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                   account_id=account_id,
+                                                   account_uuid=account_uuid,
                                                    is_published=False)
 
             if dataset is None:
                 return self.error_403 (request)
 
             container_uuid = uri_to_uuid (dataset["container_uri"])
-            if self.db.delete_dataset_draft (container_uuid, account_id):
+            if self.db.delete_dataset_draft (container_uuid, account_uuid):
                 return redirect ("/my/datasets", code=303)
 
             return self.error_404 (request)
@@ -1048,15 +1048,15 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         token = self.token_from_cookie (request)
         if not self.db.is_depositor (token):
             return self.error_404 (request)
 
-        collections = self.db.collections (account_id   = account_id,
+        collections = self.db.collections (account_uuid   = account_uuid,
                                            is_published = False,
                                            limit        = 10000)
 
@@ -1071,8 +1071,8 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         token = self.token_from_cookie (request)
@@ -1082,12 +1082,12 @@ class ApiServer:
         try:
             collection = self.__collection_by_id_or_uri(
                 collection_id,
-                account_id   = account_id,
+                account_uuid = account_uuid,
                 is_published = False)
 
             categories = self.db.categories_tree ()
 
-            account = self.db.account_by_id (account_id)
+            account = self.db.account_by_uuid (account_uuid)
             groups = None
             if "group_id" in account:
                 groups = self.db.group (group_id = account["group_id"])
@@ -1120,8 +1120,8 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         token = self.token_from_cookie (request)
@@ -1130,7 +1130,7 @@ class ApiServer:
 
         collection_id = self.db.insert_collection(
             title = "Untitled collection",
-            account_id = account_id)
+            account_uuid = account_uuid)
 
         if collection_id is not None:
             return redirect (f"/my/collections/{collection_id}/edit", code=302)
@@ -1141,8 +1141,8 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         token = self.token_from_cookie (request)
@@ -1152,7 +1152,7 @@ class ApiServer:
         try:
             collection = self.__collection_by_id_or_uri(
                 collection_id,
-                account_id   = account_id,
+                account_uuid   = account_uuid,
                 is_published = False)
 
             # Either accessing another account's collection or
@@ -1162,7 +1162,7 @@ class ApiServer:
 
             result = self.db.delete_collection (
                 container_uuid = collection["container_uuid"],
-                account_id     = account_id)
+                account_uuid   = account_uuid)
 
             if result is not None:
                 return redirect ("/my/collections", code=303)
@@ -1174,13 +1174,13 @@ class ApiServer:
 
     def ui_edit_session (self, request, session_uuid):
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             if self.accepts_html (request):
-                session = self.db.sessions (account_id, session_uuid=session_uuid)[0]
+                session = self.db.sessions (account_uuid, session_uuid=session_uuid)[0]
                 if not session["editable"]:
                     return self.error_403 (request)
 
@@ -1197,7 +1197,7 @@ class ApiServer:
             try:
                 parameters = request.get_json()
                 name = validator.string_value (parameters, "name", 0, 255)
-                if self.db.update_session (account_id, session_uuid, name):
+                if self.db.update_session (account_uuid, session_uuid, name):
                     return self.respond_205 ()
 
                 return self.error_500 ()
@@ -1211,11 +1211,11 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        _, session_uuid = self.db.insert_session (account_id,
+        _, session_uuid = self.db.insert_session (account_uuid,
                                                   name     = "Untitled",
                                                   editable = True)
         if session_uuid is not None:
@@ -1227,12 +1227,12 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         response   = redirect (request.referrer, code=302)
-        self.db.delete_session_by_uuid (account_id, session_uuid)
+        self.db.delete_session_by_uuid (account_uuid, session_uuid)
         return response
 
     def ui_profile (self, request):
@@ -1245,10 +1245,10 @@ class ApiServer:
             token = self.token_from_cookie (request)
             if self.db.is_depositor (token):
                 try:
-                    account_id = self.account_id_from_request (request)
+                    account_uuid = self.account_uuid_from_request (request)
                     return self.__render_template (
                         request, "depositor/profile.html",
-                        account = self.db.accounts (account_id=account_id)[0],
+                        account = self.db.accounts (account_uuid=account_uuid)[0],
                         categories = self.db.categories_tree ())
                 except IndexError:
                     return self.error_404 (request)
@@ -1267,9 +1267,9 @@ class ApiServer:
         if not self.db.may_review (token):
             return self.error_403 (request)
 
-        account_id = self.account_id_from_request (request)
+        account_uuid = self.account_uuid_from_request (request)
         unassigned = self.db.reviews (limit = 10000, is_assigned = False)
-        assigned   = self.db.reviews (assigned_to = account_id,
+        assigned   = self.db.reviews (assigned_to = account_uuid,
                                       limit       = 10000,
                                       is_assigned = True)
 
@@ -1280,10 +1280,10 @@ class ApiServer:
 
     def ui_review_assign_to_me (self, request, dataset_id):
 
-        account_id = self.account_id_from_request (request)
+        account_uuid = self.account_uuid_from_request (request)
         token = self.token_from_cookie (request)
         if not self.db.may_review (token):
-            logging.error ("Account %d attempted a reviewer action.", account_id)
+            logging.error ("Account %d attempted a reviewer action.", account_uuid)
             return self.error_403 (request)
 
         dataset    = None
@@ -1298,7 +1298,7 @@ class ApiServer:
             return self.error_403 (request)
 
         if self.db.update_review (dataset["review_uri"],
-                                  assigned_to = account_id,
+                                  assigned_to = account_uuid,
                                   status      = "assigned"):
             return redirect ("/review/dashboard", code=302)
 
@@ -1306,10 +1306,10 @@ class ApiServer:
 
     def ui_review_unassign (self, request, dataset_id):
 
-        account_id = self.account_id_from_request (request)
+        account_uuid = self.account_uuid_from_request (request)
         token = self.token_from_cookie (request)
         if not self.db.may_review (token):
-            logging.error ("Account %d attempted a reviewer action.", account_id)
+            logging.error ("Account %s attempted a reviewer action.", account_uuid)
             return self.error_403 (request)
 
         dataset = None
@@ -1460,9 +1460,9 @@ class ApiServer:
     def ui_dataset (self, request, dataset_id, version=None):
         if self.accepts_html (request):
             my_collections = []
-            account_id = self.account_id_from_request (request)
-            if account_id:
-                my_collections = self.db.collections_by_account (account_id = account_id)
+            account_uuid = self.account_uuid_from_request (request)
+            if account_uuid:
+                my_collections = self.db.collections_by_account (account_uuid = account_uuid)
 
             container     = self.__dataset_by_id_or_uri (
                 dataset_id,
@@ -1731,10 +1731,10 @@ class ApiServer:
             ## When downloading a file from a dataset that isn't published,
             ## we need to authorize it first.
             if dataset is None:
-                account_id = self.account_id_from_request (request)
-                if account_id is not None:
+                account_uuid = self.account_uuid_from_request (request)
+                if account_uuid is not None:
                     dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                           account_id   = account_id,
+                                                           account_uuid = account_uuid,
                                                            is_published = False)
 
             ## Check again whether a private dataset has been found.
@@ -1858,8 +1858,8 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         ## Our API only contains data from 4TU.ResearchData.
@@ -1868,18 +1868,18 @@ class ApiServer:
             "name": "4TU.ResearchData"
         }))
 
-    def api_private_institution_account (self, request, account_id):
+    def api_private_institution_account (self, request, account_uuid):
         handler = self.default_error_handling (request, "GET")
         if handler is not None:
             return handler
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        account   = self.db.account_by_id (account_id)
+        account   = self.db.account_by_uuid (account_uuid)
         formatted = formatter.format_account_record(account)
 
         return self.response (json.dumps (formatted))
@@ -1931,7 +1931,7 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         try:
-            dataset         = self.__dataset_by_id_or_uri (dataset_id, account_id=None, is_latest=True)
+            dataset         = self.__dataset_by_id_or_uri (dataset_id, account_uuid=None, is_latest=True)
             dataset_uri     = dataset["uri"]
             authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
             files           = self.db.dataset_files(dataset_uri=dataset_uri)
@@ -2056,13 +2056,13 @@ class ApiServer:
         if request.method != 'PUT':
             return self.error_405 ("PUT")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         parameters = request.get_json()
         file_id    = value_or_none (parameters, "file_id")
-        if not self.db.dataset_update_thumb (dataset_id, version, account_id, file_id):
+        if not self.db.dataset_update_thumb (dataset_id, version, account_uuid, file_id):
             return self.respond_205()
 
         return self.error_500()
@@ -2106,8 +2106,8 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
@@ -2122,7 +2122,7 @@ class ApiServer:
                 records = self.db.datasets (limit=limit,
                                             offset=offset,
                                             is_published = False,
-                                            account_id=account_id)
+                                            account_uuid=account_uuid)
 
                 return self.default_list_response (records, formatter.format_dataset_record)
 
@@ -2136,7 +2136,7 @@ class ApiServer:
                 timeline   = validator.object_value (record, "timeline", False)
                 dataset_uuid = self.db.insert_dataset (
                     title          = validator.string_value  (record, "title",          3, 1000,                   True),
-                    account_id     = account_id,
+                    account_uuid     = account_uuid,
                     description    = validator.string_value  (record, "description",    0, 10000,                  False),
                     tags           = validator.array_value   (record, "tags",                                      False),
                     keywords       = validator.array_value   (record, "keywords",                                  False),
@@ -2178,14 +2178,14 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
                 dataset     = self.__dataset_by_id_or_uri (dataset_id,
-                                                           account_id=account_id,
+                                                           account_uuid=account_uuid,
                                                            is_published=False)
 
                 if not dataset:
@@ -2234,7 +2234,7 @@ class ApiServer:
                     defined_type = 3
 
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_id = account_id,
+                                                       account_uuid = account_uuid,
                                                        is_published = False)
 
                 is_embargoed = validator.boolean_value (record, "is_embargoed", when_none=False)
@@ -2245,7 +2245,7 @@ class ApiServer:
                 is_temporary_embargo = is_embargoed and not is_restricted and not is_closed
 
                 result = self.db.update_dataset (uri_to_uuid (dataset["container_uri"]),
-                    account_id,
+                    account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
@@ -2291,11 +2291,11 @@ class ApiServer:
         if request.method == 'DELETE':
             try:
                 dataset     = self.__dataset_by_id_or_uri (dataset_id,
-                                                           account_id=account_id,
+                                                           account_uuid=account_uuid,
                                                            is_published=False)
 
                 container_uuid = uri_to_uuid (dataset["container_uri"])
-                if self.db.delete_dataset_draft (container_uuid, account_id):
+                if self.db.delete_dataset_draft (container_uuid, account_uuid):
                     return self.respond_204()
             except (IndexError, KeyError):
                 pass
@@ -2312,18 +2312,18 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_id=account_id,
+                                                       account_uuid=account_uuid,
                                                        is_published=False)
 
                 authors = self.db.authors (item_uri   = dataset["uri"],
-                                           account_id = account_id,
+                                           account_uuid = account_uuid,
                                            is_published = False,
                                            item_type  = "dataset",
                                            limit      = 10000)
@@ -2364,7 +2364,7 @@ class ApiServer:
                     new_authors.append(URIRef(uuid_to_uri (author_uuid, "author")))
 
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_id=account_id,
+                                                       account_uuid=account_uuid,
                                                        is_published=False)
 
                 # The PUT method overwrites the existing authors, so we can
@@ -2374,7 +2374,7 @@ class ApiServer:
                 if request.method == 'POST':
                     existing_authors = self.db.authors (
                         item_uri     = dataset["uri"],
-                        account_id   = account_id,
+                        account_uuid   = account_uuid,
                         item_type    = "dataset",
                         is_published = False,
                         limit        = 10000)
@@ -2384,7 +2384,7 @@ class ApiServer:
 
                 authors = existing_authors + new_authors
                 if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
-                                                 account_id,
+                                                 account_uuid,
                                                  authors,
                                                  "authors"):
                     logging.error("Adding a single author failed.")
@@ -2410,17 +2410,17 @@ class ApiServer:
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         try:
             dataset   = self.__dataset_by_id_or_uri (dataset_id,
-                                                     account_id   = account_id,
+                                                     account_uuid = account_uuid,
                                                      is_published = False)
 
             authors = self.db.authors (item_uri     = dataset["uri"],
-                                       account_id   = account_id,
+                                       account_uuid = account_uuid,
                                        is_published = False,
                                        item_type    = "dataset",
                                        limit        = 10000)
@@ -2432,7 +2432,7 @@ class ApiServer:
 
             authors = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "author")), authors))
             if self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
-                                         account_id,
+                                         account_uuid,
                                          authors,
                                          "authors"):
                 return self.respond_204()
@@ -2451,21 +2451,21 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_id=account_id,
+                                                       account_uuid=account_uuid,
                                                        is_published=False)
 
                 if dataset is None:
                     return self.error_403 (request)
 
                 funding = self.db.fundings (item_uri     = dataset["uri"],
-                                            account_id   = account_id,
+                                            account_uuid = account_uuid,
                                             is_published = False,
                                             item_type    = "dataset",
                                             limit        = 10000)
@@ -2483,7 +2483,7 @@ class ApiServer:
 
             try:
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_id=account_id,
+                                                       account_uuid=account_uuid,
                                                        is_published=False)
 
                 if dataset is None:
@@ -2513,7 +2513,7 @@ class ApiServer:
                 if request.method == 'POST':
                     existing_fundings = self.db.fundings (
                         item_uri     = dataset["uri"],
-                        account_id   = account_id,
+                        account_uuid = account_uuid,
                         item_type    = "dataset",
                         is_published = False,
                         limit        = 10000)
@@ -2523,7 +2523,7 @@ class ApiServer:
 
                 fundings = existing_fundings + new_fundings
                 if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
-                                                 account_id,
+                                                 account_uuid,
                                                  fundings,
                                                  "funding_list"):
                     logging.error("Adding a single funder failed.")
@@ -2549,20 +2549,20 @@ class ApiServer:
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         try:
             dataset   = self.__dataset_by_id_or_uri (dataset_id,
-                                                     account_id   = account_id,
+                                                     account_uuid = account_uuid,
                                                      is_published = False)
 
             if dataset is None:
                 return self.error_403 (request)
 
             fundings = self.db.fundings (item_uri     = dataset["uri"],
-                                         account_id   = account_id,
+                                         account_uuid = account_uuid,
                                          is_published = False,
                                          item_type    = "dataset",
                                          limit        = 10000)
@@ -2571,7 +2571,7 @@ class ApiServer:
 
             fundings = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "funding")), fundings))
             if self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
-                                         account_id,
+                                         account_uuid,
                                          fundings,
                                          "funding_list"):
                 return self.respond_204()
@@ -2586,17 +2586,17 @@ class ApiServer:
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         try:
             collection = self.__collection_by_id_or_uri (collection_id,
-                                                         account_id  = account_id,
+                                                         account_uuid = account_uuid,
                                                          is_published = False)
 
             authors    = self.db.authors (item_uri     = collection["uri"],
-                                          account_id   = account_id,
+                                          account_uuid = account_uuid,
                                           is_published = False,
                                           item_type    = "collection",
                                           limit        = 10000)
@@ -2610,7 +2610,7 @@ class ApiServer:
                                 authors))
 
             if self.db.update_item_list (uri_to_uuid (collection["container_uri"]),
-                                         account_id,
+                                         account_uuid,
                                          authors,
                                          "authors"):
                 return self.respond_204()
@@ -2625,13 +2625,13 @@ class ApiServer:
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         try:
-            collection = self.__collection_by_id_or_uri (collection_id, account_id=account_id)
-            dataset    = self.__dataset_by_id_or_uri (dataset_id, account_id=account_id)
+            collection = self.__collection_by_id_or_uri (collection_id, account_uuid=account_uuid)
+            dataset    = self.__dataset_by_id_or_uri (dataset_id, account_uuid=account_uuid)
             if collection is None or dataset is None:
                 return self.error_404 (request)
 
@@ -2645,7 +2645,7 @@ class ApiServer:
                                 datasets))
 
             if self.db.update_item_list (collection["container_uuid"],
-                                         account_id,
+                                         account_uuid,
                                          datasets,
                                          "datasets"):
                 return self.respond_204()
@@ -2661,18 +2661,18 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
                 dataset       = self.__dataset_by_id_or_uri (dataset_id,
-                                                             account_id=account_id,
+                                                             account_uuid=account_uuid,
                                                              is_published=False)
 
                 categories    = self.db.categories (item_uri   = dataset["uri"],
-                                                    account_id = account_id,
+                                                    account_uuid = account_uuid,
                                                     is_published = False)
 
                 return self.default_list_response (categories, formatter.format_category_record)
@@ -2692,7 +2692,7 @@ class ApiServer:
                                            "MissingRequiredField")
 
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_id = account_id,
+                                                       account_uuid = account_uuid,
                                                        is_published = False)
 
                 # First, validate all values passed by the user.
@@ -2705,7 +2705,7 @@ class ApiServer:
                 ## Append when using POST, otherwise overwrite.
                 if request.method == 'POST':
                     existing_categories = self.db.categories (item_uri     = dataset["uri"],
-                                                              account_id   = account_id,
+                                                              account_uuid = account_uuid,
                                                               is_published = False,
                                                               limit        = 10000)
 
@@ -2716,7 +2716,7 @@ class ApiServer:
 
                 categories = uris_from_records (categories, "category")
                 if self.db.update_item_list (dataset["container_uuid"],
-                                             account_id,
+                                             account_uuid,
                                              categories,
                                              "categories"):
                     return self.respond_205()
@@ -2742,11 +2742,11 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if self.db.delete_dataset_categories (dataset_id, account_id, category_id):
+        if self.db.delete_dataset_categories (dataset_id, account_uuid, category_id):
             return self.respond_204()
 
         return self.error_500()
@@ -2757,13 +2757,13 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                   account_id = account_id,
+                                                   account_uuid = account_uuid,
                                                    is_published = False)
             if not dataset:
                 return self.response (json.dumps([]))
@@ -2773,11 +2773,11 @@ class ApiServer:
         if request.method == 'DELETE':
             try:
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_id = account_id,
+                                                       account_uuid = account_uuid,
                                                        is_published = False)
 
                 if self.db.delete_dataset_embargo (dataset_uri = dataset["uri"],
-                                                   account_id  = account_id):
+                                                   account_uuid = account_uuid):
                     return self.respond_204()
             except (IndexError, KeyError):
                 pass
@@ -2793,18 +2793,18 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
                 dataset       = self.__dataset_by_id_or_uri (dataset_id,
-                                                             account_id=account_id,
+                                                             account_uuid=account_uuid,
                                                              is_published=False)
                 files = self.db.dataset_files (
                     dataset_uri = dataset["uri"],
-                    account_id = account_id,
+                    account_uuid = account_uuid,
                     limit      = validator.integer_value (request.args, "limit"))
 
                 return self.default_list_response (files, formatter.format_file_for_dataset_record)
@@ -2821,13 +2821,13 @@ class ApiServer:
             try:
                 link = validator.string_value (parameters, "link", 0, 1000, False)
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_id=account_id,
+                                                       account_uuid=account_uuid,
                                                        is_published=False)
 
                 if link is not None:
                     file_id = self.db.insert_file (
                         dataset_uri        = dataset["uri"],
-                        account_id         = account_id,
+                        account_uuid       = account_uuid,
                         is_link_only       = True,
                         download_url       = link)
 
@@ -2840,7 +2840,7 @@ class ApiServer:
 
                 file_id = self.db.insert_file (
                     dataset_uri   = dataset["uri"],
-                    account_id    = account_id,
+                    account_uuid  = account_uuid,
                     is_link_only  = False,
                     upload_token  = self.token_from_request (request),
                     supplied_md5  = validator.string_value  (parameters, "md5",  32, 32),
@@ -2870,18 +2870,18 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_id = account_id,
+                                                       account_uuid = account_uuid,
                                                        is_published = False)
 
                 files   = self.__file_by_id_or_uri (file_id,
-                                                    account_id  = account_id,
+                                                    account_uuid = account_uuid,
                                                     dataset_uri = dataset["uri"])
 
                 return self.default_list_response (files, formatter.format_file_details_record)
@@ -2896,7 +2896,7 @@ class ApiServer:
         if request.method == 'DELETE':
             try:
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_id=account_id,
+                                                       account_uuid=account_uuid,
                                                        is_published=False)
 
                 files = self.db.dataset_files (dataset_uri=dataset["uri"])
@@ -2905,7 +2905,7 @@ class ApiServer:
                                            files))
 
                 if self.db.update_item_list (dataset["container_uuid"],
-                                             account_id,
+                                             account_uuid,
                                              files,
                                              "files"):
                     return self.respond_204()
@@ -2924,21 +2924,21 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
 
             dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                   account_id = account_id,
+                                                   account_uuid = account_uuid,
                                                    is_published = False)
 
             if dataset is None:
                 return self.error_404 (request)
 
             links = self.db.private_links (item_uri   = dataset["uri"],
-                                           account_id = account_id)
+                                           account_uuid = account_uuid)
 
             return self.default_list_response (links, formatter.format_private_links_record)
 
@@ -2946,7 +2946,7 @@ class ApiServer:
             parameters = request.get_json()
             try:
                 dataset      = self.__dataset_by_id_or_uri (dataset_id,
-                                                            account_id = account_id)
+                                                            account_uuid = account_uuid)
                 if dataset is None:
                     return self.error_404 (request)
 
@@ -2965,12 +2965,12 @@ class ApiServer:
                     return self.error_500()
 
                 links    = self.db.private_links (item_uri   = dataset["uri"],
-                                                  account_id = account_id)
+                                                  account_uuid = account_uuid)
                 links    = list(map (lambda item: URIRef(item["uri"]), links))
                 links    = links + [ URIRef(link_uri) ]
 
                 if self.db.update_item_list (dataset["container_uuid"],
-                                             account_id,
+                                             account_uuid,
                                              links,
                                              "private_links"):
                     logging.error("Updating private links failed for %s.",
@@ -2994,12 +2994,12 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                               account_id = account_id,
+                                               account_uuid = account_uuid,
                                                is_published = False)
 
         if dataset is None:
@@ -3009,7 +3009,7 @@ class ApiServer:
             links = self.db.private_links (
                         item_uri   = dataset["uri"],
                         id_string  = link_id,
-                        account_id = account_id)
+                        account_uuid = account_uuid)
 
             return self.default_list_response (links, formatter.format_private_links_record)
 
@@ -3020,7 +3020,7 @@ class ApiServer:
                 is_active    = validator.boolean_value (parameters, "is_active", False)
 
                 result = self.db.update_private_link (dataset["uri"],
-                                                      account_id,
+                                                      account_uuid,
                                                       link_id,
                                                       expires_date = expires_date,
                                                       is_active    = is_active)
@@ -3039,7 +3039,7 @@ class ApiServer:
 
         if request.method == 'DELETE':
             result = self.db.delete_private_links (dataset["uri"],
-                                                   account_id,
+                                                   account_uuid,
                                                    link_id)
 
             if result is None:
@@ -3058,8 +3058,8 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         try:
@@ -3086,7 +3086,7 @@ class ApiServer:
                 modified_since  = validator.string_value (parameters, "modified_since", 0, 255),
                 groups          = [group] if group is not None else None,
                 exclude_ids     = validator.string_value (parameters, "exclude", 0, 255),
-                account_id      = account_id,
+                account_uuid    = account_uuid,
                 is_published    = False
             )
 
@@ -3247,8 +3247,8 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
@@ -3283,7 +3283,7 @@ class ApiServer:
                                            resource_doi=resource_doi,
                                            doi=doi,
                                            handle=handle,
-                                           account_id=account_id)
+                                           account_uuid=account_uuid)
 
             return self.default_list_response (records, formatter.format_collection_record)
 
@@ -3294,7 +3294,7 @@ class ApiServer:
                 timeline   = validator.object_value (record, "timeline", False)
                 collection_id = self.db.insert_collection (
                     title                   = validator.string_value  (record, "title",            3, 1000,       True),
-                    account_id              = account_id,
+                    account_uuid            = account_uuid,
                     funding                 = validator.string_value  (record, "funding",          0, 255,        False),
                     funding_list            = validator.array_value   (record, "funding_list",                    False),
                     description             = validator.string_value  (record, "description",      0, 10000,      False),
@@ -3344,14 +3344,14 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
                 collection    = self.__collection_by_id_or_uri (collection_id,
-                                                                account_id = account_id,
+                                                                account_uuid = account_uuid,
                                                                 is_published = False)
 
                 collection_uri = collection["uri"]
@@ -3383,10 +3383,10 @@ class ApiServer:
             record = request.get_json()
             try:
                 collection     = self.__collection_by_id_or_uri (collection_id,
-                                                                 account_id = account_id,
+                                                                 account_uuid = account_uuid,
                                                                  is_published = False)
                 container_uuid = collection["container_uuid"]
-                result = self.db.update_collection (container_uuid, account_id,
+                result = self.db.update_collection (container_uuid, account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
@@ -3418,7 +3418,7 @@ class ApiServer:
             try:
                 collection = self.__collection_by_id_or_uri(
                     collection_id,
-                    account_id   = account_id,
+                    account_uuid = account_uuid,
                     is_published = False)
 
                 if collection is None:
@@ -3426,7 +3426,7 @@ class ApiServer:
 
                 if self.db.delete_collection (
                         container_uuid = collection["container_uuid"],
-                        account_id     = account_id):
+                        account_uuid   = account_uuid):
                     return self.respond_204()
             except (IndexError, KeyError):
                 pass
@@ -3440,8 +3440,8 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         parameters = request.get_json()
@@ -3461,7 +3461,7 @@ class ApiServer:
             published_since = value_or_none (parameters, "published_since"),
             modified_since  = value_or_none (parameters, "modified_since"),
             group           = value_or_none (parameters, "group"),
-            account_id      = account_id
+            account_uuid    = account_uuid
         )
 
         return self.default_list_response (records, formatter.format_dataset_record)
@@ -3474,19 +3474,19 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
                 collection = self.__collection_by_id_or_uri (collection_id,
-                                                             account_id   = account_id,
+                                                             account_uuid = account_uuid,
                                                              is_published = False)
 
                 authors    = self.db.authors (item_uri     = collection["uri"],
                                               is_published = False,
-                                              account_id   = account_id,
+                                              account_uuid = account_uuid,
                                               item_type    = "collection",
                                               limit        = 10000)
 
@@ -3526,7 +3526,7 @@ class ApiServer:
                     new_authors.append(URIRef(uuid_to_uri (author_uuid, "author")))
 
                 collection = self.__collection_by_id_or_uri (collection_id,
-                                                             account_id   = account_id,
+                                                             account_uuid = account_uuid,
                                                              is_published = False)
 
                 # The PUT method overwrites the existing authors, so we can
@@ -3536,7 +3536,7 @@ class ApiServer:
                 if request.method == 'POST':
                     existing_authors = self.db.authors (
                         item_uri     = collection["uri"],
-                        account_id   = account_id,
+                        account_uuid = account_uuid,
                         item_type    = "collection",
                         is_published = False,
                         limit        = 10000)
@@ -3546,7 +3546,7 @@ class ApiServer:
 
                 authors = existing_authors + new_authors
                 if not self.db.update_item_list (uri_to_uuid (collection["container_uri"]),
-                                                 account_id,
+                                                 account_uuid,
                                                  authors,
                                                  "authors"):
                     logging.error("Adding a single author failed.")
@@ -3575,19 +3575,19 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         try:
             collection = self.__collection_by_id_or_uri (collection_id,
-                                                         account_id=account_id)
+                                                         account_uuid=account_uuid)
 
             if collection is None:
                 return self.error_404 (request)
 
             categories = self.db.categories(item_uri   = collection["uri"],
-                                            account_id = account_id)
+                                            account_uuid = account_uuid)
 
             return self.default_list_response (categories, formatter.format_category_record)
         except (IndexError, KeyError):
@@ -3599,21 +3599,21 @@ class ApiServer:
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method == 'GET':
             try:
                 collection = self.__collection_by_id_or_uri (collection_id,
                                                              is_published = False,
-                                                             account_id = account_id)
+                                                             account_uuid = account_uuid)
 
                 if collection is None:
                     return self.error_404 (request)
 
                 datasets   = self.db.datasets (collection_uri = collection["uri"],
-                                               account_id     = account_id)
+                                               account_uuid   = account_uuid)
 
                 return self.default_list_response (datasets, formatter.format_dataset_record)
             except (IndexError, KeyError):
@@ -3626,7 +3626,7 @@ class ApiServer:
                 parameters = request.get_json()
                 datasets = parameters["articles"]
 
-                collection = self.__collection_by_id_or_uri (collection_id, account_id=account_id)
+                collection = self.__collection_by_id_or_uri (collection_id, account_uuid=account_uuid)
                 if collection is None:
                     return self.error_404 (request)
 
@@ -3644,7 +3644,7 @@ class ApiServer:
                     datasets[index] = URIRef(dataset["container_uri"])
 
                 if self.db.update_item_list (collection["container_uuid"],
-                                             account_id,
+                                             account_uuid,
                                              datasets,
                                              "datasets"):
                     return self.respond_205()
@@ -3684,8 +3684,8 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         try:
@@ -3704,8 +3704,8 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         try:
@@ -3905,12 +3905,12 @@ class ApiServer:
         if request.method != "GET":
             return self.error_405 ("GET")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                               account_id   = account_id,
+                                               account_uuid = account_uuid,
                                                is_published = False)
 
         if dataset is None:
@@ -3940,12 +3940,12 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                               account_id   = account_id,
+                                               account_uuid = account_uuid,
                                                is_published = False)
 
         if dataset is None:
@@ -3961,13 +3961,13 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         try:
             dataset   = self.__dataset_by_id_or_uri (dataset_id,
-                                                     account_id=account_id,
+                                                     account_uuid=account_uuid,
                                                      is_published=False)
             file_data = request.files['file']
             file_uuid = self.db.insert_file (
@@ -3977,7 +3977,7 @@ class ApiServer:
                 upload_url    = f"/article/{dataset_id}/upload",
                 upload_token  = self.token_from_request (request),
                 dataset_uri   = dataset["uri"],
-                account_id    = account_id)
+                account_uuid  = account_uuid)
 
             output_filename = f"{self.db.storage}/{dataset_id}_{file_uuid}"
 
@@ -3995,7 +3995,7 @@ class ApiServer:
                     computed_md5 = md5.hexdigest()
 
             download_url = f"{self.base_url}/file/{dataset_id}/{file_uuid}"
-            self.db.update_file (account_id, file_uuid,
+            self.db.update_file (account_uuid, file_uuid,
                                  computed_md5 = computed_md5,
                                  download_url = download_url,
                                  filesystem_location = output_filename,
@@ -4016,11 +4016,11 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        metadata = self.__file_by_id_or_uri (file_id, account_id = account_id)
+        metadata = self.__file_by_id_or_uri (file_id, account_uuid = account_uuid)
         if metadata is None:
             return self.error_404 (request)
 
@@ -4039,8 +4039,8 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method not in ['GET', 'POST', 'DELETE']:
@@ -4048,11 +4048,11 @@ class ApiServer:
 
         try:
             dataset        = self.__dataset_by_id_or_uri (dataset_id,
-                                                          account_id=account_id,
+                                                          account_uuid=account_uuid,
                                                           is_published=False)
 
             references     = self.db.references (item_uri   = dataset["uri"],
-                                                 account_id = account_id)
+                                                 account_uuid = account_uuid)
 
             if request.method == 'GET':
                 return self.default_list_response (references, formatter.format_reference_record)
@@ -4064,7 +4064,7 @@ class ApiServer:
                 url         = requests.utils.unquote(url_encoded)
                 references.remove (next (filter (lambda item: item == url, references)))
                 if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
-                                                 account_id,
+                                                 account_uuid,
                                                  references,
                                                  "references"):
                     logging.error("Deleting a reference failed.")
@@ -4085,7 +4085,7 @@ class ApiServer:
                 references = references + new_references
 
             if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
-                                             account_id,
+                                             account_uuid,
                                              references,
                                              "references"):
                 logging.error("Updating references failed.")
@@ -4115,8 +4115,8 @@ class ApiServer:
 
         ## Authorization
         ## ----------------------------------------------------------------
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         if request.method not in ['GET', 'POST', 'DELETE']:
@@ -4124,7 +4124,7 @@ class ApiServer:
 
         try:
             dataset  = self.__dataset_by_id_or_uri (dataset_id,
-                                                    account_id=account_id,
+                                                    account_uuid=account_uuid,
                                                     is_published=False)
 
             limit           = validator.integer_value (request.args, "limit")
@@ -4132,7 +4132,7 @@ class ApiServer:
             order_direction = validator.string_value  (request.args, "order_direction", 0, 4)
 
             tags     = self.db.tags (item_uri        = dataset["uri"],
-                                     account_id      = account_id,
+                                     account_uuid    = account_uuid,
                                      limit           = limit,
                                      order           = order,
                                      order_direction = order_direction)
@@ -4147,7 +4147,7 @@ class ApiServer:
                 tag         = requests.utils.unquote(tag_encoded)
                 tags.remove (next (filter (lambda item: item == tag, tags)))
                 if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
-                                                 account_id,
+                                                 account_uuid,
                                                  tags,
                                                  "tags"):
                     logging.error("Deleting a tag failed.")
@@ -4166,7 +4166,7 @@ class ApiServer:
 
             if request.method == 'POST':
                 existing_tags = self.db.tags (item_uri   = dataset["uri"],
-                                              account_id = account_id,
+                                              account_uuid = account_uuid,
                                               limit      = 10000)
 
                 # Drop the index field.
@@ -4176,7 +4176,7 @@ class ApiServer:
                 tags = deduplicate_list(existing_tags + new_tags)
 
             if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
-                                             account_id,
+                                             account_uuid,
                                              tags,
                                              "tags"):
                 logging.error("Updating tags failed.")
@@ -4365,8 +4365,8 @@ class ApiServer:
         if request.method != 'PUT':
             return self.error_405 ("PUT")
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
         try:
@@ -4376,7 +4376,7 @@ class ApiServer:
                 for index, _ in enumerate(categories):
                     categories[index] = validator.string_value (categories, index, 36, 36)
 
-            if self.db.update_account (account_id,
+            if self.db.update_account (account_uuid,
                     active                = validator.integer_value (record, "active", 0, 1),
                     job_title             = validator.string_value  (record, "job_title", 0, 255),
                     email                 = validator.string_value  (record, "email", 0, 255),
@@ -4409,11 +4409,11 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        account_id = self.account_id_from_request (request)
-        if account_id is None:
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        categories = self.db.account_categories (account_id)
+        categories = self.db.account_categories (account_uuid)
         return self.default_list_response (categories, formatter.format_category_record)
 
     def api_v3_explore_types (self, request):

@@ -1,7 +1,7 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
 SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to ?status
-                ?account_id ?dataset_uuid ?dataset_title ?group_name
+                ?account_uuid ?dataset_uuid ?dataset_title ?group_name
                 ?submitter_first_name ?submitter_last_name ?submitter_email
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -16,9 +16,7 @@ WHERE {
     ?dataset            djht:container            ?container_uri ;
                         djht:title                ?dataset_title .
 
-    ?container_uri      djht:account_id           ?account_id .
-    ?account            rdf:type                 djht:Account ;
-                        djht:id                   ?account_id .
+    ?container_uri      djht:account              ?account .
 
     OPTIONAL {
       ?group            rdf:type                 djht:InstitutionGroup ;
@@ -33,6 +31,7 @@ WHERE {
     OPTIONAL { ?account djht:institution_id       ?institution_id . }
 
     BIND(STRAFTER(STR(?dataset), "dataset:")  AS ?dataset_uuid)
+    BIND(STRAFTER(STR(?account), "account:")  AS ?account_uuid)
     BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)
   }
 {%- if is_assigned is not none %}

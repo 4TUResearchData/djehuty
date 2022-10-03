@@ -25,7 +25,7 @@ INSERT {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container       rdf:type/rdfs:subClassOf djht:Container ;
-                     djht:account_id           ?account_id ;
+                     djht:account              ?account ;
                      djht:draft                ?item_uri .
 
     ?item_uri        djht:private_links/rdf:rest*/rdf:first ?link .
@@ -38,7 +38,7 @@ WHERE {
     OPTIONAL { ?link djht:read_only        ?read_only . }
   }
   FILTER (?item_uri   = <{{item_uri}}>)
-  FILTER (?account_id = {{account_id}})
+  FILTER (?account    = <account:{{account_uuid}}>)
   {%- if id_string is not none %}
   FILTER (?id_string  = "{{id_string}}"^^xsd:string)
   {%- endif %}

@@ -12,8 +12,8 @@ WHERE {
                        djht:suffix               ?suffix .
     OPTIONAL { ?link   djht:is_active            ?is_active . }
     OPTIONAL { ?link   djht:expires_date         ?expires_date . }
-    {%- if account_id is not none %}
-    ?container         djht:account_id           {{account_id}} .
+    {%- if account_uuid is not none %}
+    ?container         djht:account              <account:{{account_uuid}}> .
     {%- endif %}
   }
   {%- if id_string is not none %}

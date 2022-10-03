@@ -14,10 +14,10 @@ WHERE {
     ?files             rdf:rest*               ?rest .
     ?rest              rdf:first               ?file ;
                        djht:index              ?order_index .
-    {% endif %}{% if account_id is not none %}
+    {% endif %}{% if account_uuid is not none %}
     ?dataset_uri       djht:container           ?container .
     ?container         rdf:type/rdfs:subClassOf djht:Container ;
-                       djht:account_id          {{account_id}} .
+                       djht:account             <account:{{account_uuid}}> .
     {% endif %}
     OPTIONAL { ?dataset_uri djht:embargo_until_date ?embargo_until_date . }
     OPTIONAL { ?file  djht:id                   ?id . }
