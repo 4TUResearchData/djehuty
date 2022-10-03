@@ -592,12 +592,69 @@ class ApiServer:
         """Turns a werkzeug request into one that python3-saml understands."""
 
         return {
-            "https":       "on" if request.scheme == "https" else "off",
-            "http_host":   request.host,
+            ## Always assume HTTPS.  A proxy server may mask it.
+            "https":       "on",
+            ## Override the internal HTTP host because a proxy server masks the
+            ## actual HTTP host used.  Fortunately, we pre-configure the
+            ## expected HTTP host in the form of the "base_url".  So we strip
+            ## off the protocol prefix.
+            "http_host":   self.base_url.split("://")[1],
             "script_name": request.path,
             "get_data":    request.args.copy(),
             "post_data":   request.form.copy()
         }
+
+    def __saml_auth (self, request):
+        """Returns an instance of OneLogin_Saml2_Auth."""
+        http_fields = self.__request_to_saml_request (request)
+        return OneLogin_Saml2_Auth (http_fields, custom_base_path=self.saml_config_path)
+
+    def authenticate_using_saml (self, request):
+        """Returns a record upon success, None otherwise."""
+
+        http_fields = self.__request_to_saml_request (request)
+        saml_auth   = OneLogin_Saml2_Auth (http_fields, custom_base_path=self.saml_config_path)
+        try:
+            saml_auth.process_response ()
+        except OneLogin_Saml2_Error.SAML_RESPONSE_NOT_FOUND:
+            logging.error ("Missing SAMLResponse in POST data.")
+            return None
+
+        errors = saml_auth.get_errors()
+        if errors:
+            logging.error("Errors in the SAML authentication:")
+            logging.error("%s", ", ".join(errors))
+            return None
+
+        if not saml_auth.is_authenticated():
+            logging.error("SAML authentication failed.")
+            return None
+
+        ## Gather SAML session information.
+        session = {}
+        session['samlNameId']                = saml_auth.get_nameid()
+        session['samlNameIdFormat']          = saml_auth.get_nameid_format()
+        session['samlNameIdNameQualifier']   = saml_auth.get_nameid_nq()
+        session['samlNameIdSPNameQualifier'] = saml_auth.get_nameid_spnq()
+        session['samlSessionIndex']          = saml_auth.get_session_index()
+
+        ## Gather attributes from user.
+        record               = {}
+        attributes           = saml_auth.get_attributes()
+        record["session"]    = session
+        record["email"]      = attributes["urn:mace:dir:attribute-def:mail"][0]
+        record["first_name"] = attributes["urn:mace:dir:attribute-def:givenName"][0]
+        record["last_name"]  = attributes["urn:mace:dir:attribute-def:sn"][0]
+        record["domain"]     = attributes["urn:mace:terena.org:attribute-def:schacHomeOrganization"][0]
+        record["institution_user_id"] = attributes["urn:mace:dir:attribute-def:eduPersonPrincipalName"][0]
+
+        if not (record["domain"] and
+                record["institution_user_id"] and
+                record["email"]):
+            logging.error("Didn't receive required fields in SAMLResponse.")
+            return None
+
+        return record
 
     def saml_metadata (self, request):
         """Communicates the service provider metadata for SAML 2.0."""
@@ -605,16 +662,10 @@ class ApiServer:
         if not self.accepts_xml (request):
             return self.error_406 ("text/xml")
 
-        if not SAML2_DEPENDENCY_LOADED:
-            logging.error ("Missing python3-saml dependency.")
-            logging.error ("Cannot initiate authentication with SAML.")
-            return self.error_500()
-
-        http_fields = self.__request_to_saml_request (request)
-        saml_auth   = OneLogin_Saml2_Auth (http_fields, custom_base_path=self.saml_config_path)
-        settings    = saml_auth.get_settings()
-        metadata    = settings.get_sp_metadata()
-        errors      = settings.validate_metadata(metadata)
+        saml_auth   = self.__saml_auth (request)
+        settings    = saml_auth.get_settings ()
+        metadata    = settings.get_sp_metadata ()
+        errors      = settings.validate_metadata (metadata)
         if len(errors) == 0:
             return self.response (metadata, mimetype="text/xml")
         else:
@@ -752,26 +803,70 @@ class ApiServer:
         return self.response (json.dumps({ "status": "OK" }))
 
     def ui_login (self, request):
-        orcid_record = self.authenticate_using_orcid (request)
-        if orcid_record is None:
-            return self.error_403 (request)
 
-        orcid_uri = f"https://orcid.org/{orcid_record['orcid']}"
-        if not self.accepts_html (request):
-            return self.error_406 ("text/html")
+        ## ORCID authentication
+        ## --------------------------------------------------------------------
+        if self.identity_provider == "orcid":
+            orcid_record = self.authenticate_using_orcid (request)
+            if orcid_record is None:
+                return self.error_403 (request)
 
-        response   = redirect ("/my/dashboard", code=302)
-        account_id = self.db.account_id_by_orcid (orcid_uri)
+            orcid_uri = f"https://orcid.org/{orcid_record['orcid']}"
+            if not self.accepts_html (request):
+                return self.error_406 ("text/html")
 
-        # XXX: We could create an account for an unknown ORCID.
-        #      Here we limit the system to known ORCID users.
-        if account_id is None:
-            return self.error_403 (request)
+            response     = redirect ("/my/dashboard", code=302)
+            account_uuid = self.db.account_uuid_by_orcid (orcid_uri)
 
-        token, _ = self.db.insert_session (account_id, name="Website login")
-        response.set_cookie (key=self.cookie_key, value=token,
-                             secure=self.in_production)
-        return response
+            # XXX: We could create an account for an unknown ORCID.
+            #      Here we limit the system to known ORCID users.
+            if account_uuid is None:
+                return self.error_403 (request)
+
+            token, _ = self.db.insert_session (account_uuid, name="Website login")
+            response.set_cookie (key=self.cookie_key, value=token,
+                                 secure=self.in_production)
+            return response
+
+        ## SAML 2.0 authentication
+        ## --------------------------------------------------------------------
+        elif self.identity_provider == "saml":
+
+            ## Initiate the login procedure.
+            if request.method == "GET":
+                saml_auth   = self.__saml_auth (request)
+                settings    = saml_auth.get_settings()
+                redirect_url = saml_auth.login()
+                response    = redirect (redirect_url)
+
+                return response
+
+            ## Retrieve signed data from SURFConext via the user.
+            elif request.method == "POST":
+                if not self.accepts_html (request):
+                    return self.error_406 ("text/html")
+
+                saml_record = self.authenticate_using_saml (request)
+                if saml_record is None:
+                    return self.error_403 (request)
+
+            response = redirect ("/my/dashboard", code=302)
+            account  = self.db.account_by_email (saml_record["email"])
+            account_uuid = None
+            if not account:
+                account_uuid = self.db.insert_account (
+                    email      = saml_record["email"],
+                    first_name = value_or_none (saml_record, "first_name"),
+                    last_name  = value_or_none (saml_record, "last_name"),
+                    institution_user_id = value_or_none (saml_record, "institution_user_id")
+                )
+            else:
+                account_uuid = account["uuid"]
+
+            token, _ = self.db.insert_session (account_uuid, name="Website login")
+            response.set_cookie (key=self.cookie_key, value=token,
+                                 secure=self.in_production)
+            return response
 
     def ui_logout (self, request):
         if not self.accepts_html (request):
