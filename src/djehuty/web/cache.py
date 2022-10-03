@@ -93,5 +93,7 @@ class CacheLayer:
                 os.remove(file_path)
             except FileNotFoundError:
                 logging.error ("Trying to remove %s multiple times.", file_path)
+            except IsADirectoryError:
+                pass
 
         return True
