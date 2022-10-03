@@ -319,7 +319,9 @@ def main (address=None, port=None, state_graph=None, storage=None,
                                           state_graph, storage, None, base_url,
                                           use_debugger, use_reloader)
 
-        if not server.db.cache.cache_is_ready():
+        inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
+
+        if not server.db.cache.cache_is_ready() and not inside_reload:
             logging.error("Failed to set up cache layer.")
 
         ## python3-saml wants to read its configuration from a file,
@@ -348,7 +350,6 @@ def main (address=None, port=None, state_graph=None, storage=None,
             else:
                 logging.error ("Failed to create '%s'.", saml_cache_dir)
 
-        inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
         if not server.in_production and not inside_reload:
             logging.warning ("Assuming to run in a non-production environment.")
             logging.warning (("Set <production> to 1 in your configuration "
