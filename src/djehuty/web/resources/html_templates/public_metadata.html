@@ -7,11 +7,20 @@
 
 <div id="metadata">
     <div id="doi">persistent link: <a href="https://doi.org/{{doi}}" target="_blank" title="opens in new window">doi.org/{{doi}}</a></div>
+    <button id="cite_show" class="neutral-button" onclick='document.getElementById("cite").style.display="block"' title="Show citation.">Cite</button>
+    {% if my_collections %}
+    <button id="collect_show" class="neutral-button" onclick='document.getElementById("collect").style.display="block"' title="Add this {{item.defined_type_name}} to one of your collections.">Collect</button>
+    {% endif %}
+    <div id="cite">
+        <button id="cite_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
+        Datacite citation style:
+        <div id="citation">{{citation}}</div>
+        <a href="https://doi.datacite.org/dois/{{item.doi|replace('/','%2F')}}" target="_blank" title="opens in new window">Other citation styles (APA, Harvard, MLA, Vancouver, Chicago, IEEE) available at Datacite</a>
+    </div>
 {% if item_type == "dataset" %}
     {% if my_collections %}
-    <button id="add_to_collection_show" class="neutral-button" onclick='document.getElementById("add_to_collection").style.display="block"'>Collect</button>
-    <div id="add_to_collection">
-        <button id="add_to_collection_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
+    <div id="collect">
+        <button id="collect_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
         Add to collection:
         <ul>
         {% for collection in my_collections %}

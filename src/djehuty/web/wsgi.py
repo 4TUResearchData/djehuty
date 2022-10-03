@@ -24,6 +24,7 @@ from djehuty.web import database
 from djehuty.utils.convenience import pretty_print_size, decimal_coords
 from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
+from djehuty.utils.convenience import make_citation
 from djehuty.utils.constants import group_to_member, member_url_names
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 
@@ -1467,6 +1468,9 @@ class ApiServer:
 
             id_version = f'{dataset_id}/{version}' if version else f'{dataset_id}'
 
+            citation = make_citation(authors, dataset['timeline_posted'][:4], dataset['title'],
+                                     dataset['version'], dataset['defined_type_name'], dataset['doi'])
+
             lat = self_or_value_or_none(dataset, 'latitude')
             lon = self_or_value_or_none(dataset, 'longitude')
             lat_valid, lon_valid = decimal_coords(lat, lon)
@@ -1493,6 +1497,7 @@ class ApiServer:
                                            item=dataset,
                                            version=version,
                                            versions=versions,
+                                           citation=citation,
                                            my_collections = my_collections,
                                            authors=authors,
                                            contributors = contributors,
@@ -1562,6 +1567,9 @@ class ApiServer:
                         dates[date_value].append(label)
             dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
 
+            citation = make_citation(authors, collection['timeline_posted'][:4], collection['title'],
+                                     collection['version'], 'collection', collection['doi'])
+
             lat = self_or_value_or_none(collection, 'latitude')
             lon = self_or_value_or_none(collection, 'longitude')
             lat_valid, lon_valid = decimal_coords(lat, lon)
@@ -1579,6 +1587,7 @@ class ApiServer:
                                            item=collection,
                                            version=version,
                                            versions=versions,
+                                           citation=citation,
                                            authors=authors,
                                            contributors = contributors,
                                            tags=tags,

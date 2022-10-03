@@ -120,3 +120,24 @@ def deduplicate_list (alist):
     except:
         logging.error('Unknown error with %s in deduplicate_list', alist)
         return None
+
+def make_citation (authors, year, title, version, item_type, doi,
+                   publisher='4TU.ResearchData', max_cited_authors=5):
+    ''' Return citation in standard Datacite format '''
+    try:
+        auths = [{key:val for key,val in author.items() if val}
+                 for author in authors]   #remove empty name parts
+        citation = '; '.join([
+            ('{last_name}, {first_name}'.format(**author) if
+            not {'first_name','last_name'}-set(author)
+            else author['full_name']) for author in auths[:max_cited_authors]])
+        if authors[max_cited_authors:max_cited_authors+1]:
+            citation += ' et. al.'
+        citation += f' ({year}): {title}'
+        if not citation.endswith('.'):
+            citation += '.'
+        citation += f' Version {version}. {publisher}. {item_type}. https://doi.org/{doi}'
+        return citation
+    except:
+        logging.error('could not make citation for $s', doi)
+        return None

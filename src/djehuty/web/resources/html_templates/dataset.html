@@ -30,9 +30,13 @@
     #data         { clear: right; border-top: 1px solid #000; margin-bottom: 10px }
     #data ul      { margin-left: 20px }
     li.zip        { padding: 2px; width: 180px; text-align: center; border: 1px solid #000 }
-    #add_to_collection { display: none }
-    #add_to_collection_show { border: none; margin-bottom: 10px }
-    #add_to_collection_hide { border: none }
+    #collect      { display: none; border: 3px solid #f39000; padding: 10px; margin-bottom:10px }
+    #collect_show { border: none; padding:5px; margin-bottom: 10px }
+    #collect_hide { border: none }
+    #cite         { display: none; border: 3px solid #f39000; padding: 10px; margin-bottom:10px }
+    #cite_show    { border: none; padding:5px; margin-bottom: 10px }
+    #cite_hide    { border: none }
+    #citation     { font-weight: bold }
 </style>
 {% endblock %}
 
@@ -107,7 +111,7 @@
 {% endif %}
 </div>
 {%- if not in_production: %}
-{% set debug_vars = {"item":item, "version":version, "versions":versions, "authors":authors, "contributors":contributors,
+{% set debug_vars = {"item":item, "version":version, "versions":versions, "citation":citation, "authors":authors, "contributors":contributors,
                      "files":files, "services":services, "tags":tags, "categories":categories, "fundings":fundings,
                      "references": references, "derived_from":derived_from, "collections":collections, "my_collections":my_collections,
                      "dates":dates, "coordinates":coordinates, "id_version":id_version, "opendap":opendap, "statistics":statistics} %}
