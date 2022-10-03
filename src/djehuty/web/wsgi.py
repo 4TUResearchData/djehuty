@@ -114,7 +114,7 @@ class ApiServer:
             Rule("/search",                                   endpoint = "ui_search"),
 
             ## ----------------------------------------------------------------
-            ## API
+            ## V2 API
             ## ----------------------------------------------------------------
             Rule("/v2/account/applications/authorize",        endpoint = "api_authorize"),
             Rule("/v2/token",                                 endpoint = "api_token"),
