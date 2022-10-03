@@ -26,6 +26,9 @@ class UnsupportedSAMLProtocol(Exception):
 class DependencyNotAvailable(Exception):
     """Raised when a required software dependency isn't available."""
 
+class MissingConfigurationError(Exception):
+    """Raised when a crucial piece of configuration is missing."""
+
 def config_value (xml_root, path, command_line=None, fallback=None):
     """Procedure to get the value a config item should have at run-time."""
 
@@ -374,7 +377,9 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 logging.info ("Using %s as identity provider.",
                               server.identity_provider.upper())
             else:
-                logging.warning ("Missing identity provider configuration.")
+                logging.error ("Missing identity provider configuration.")
+                if server.in_production:
+                    raise MissingConfigurationError
 
         if initialize:
             logging.info("Initializing RDF store ...")
@@ -397,7 +402,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
                     use_debugger=config["use_debugger"],
                     use_reloader=config["use_reloader"])
 
-    except (FileNotFoundError, DependencyNotAvailable):
+    except (FileNotFoundError, DependencyNotAvailable, MissingConfigurationError):
         pass
     except database.UnknownDatabaseState:
         logging.error ("Please make sure the database is up and running.")
