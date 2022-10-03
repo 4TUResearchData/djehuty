@@ -34,4 +34,8 @@ AM_COND_IF([HAVE_PDFLATEX],
               doc/Makefile
               doc/djehuty.sty])])
 
+dnl Check for presence of 'git'.
+dnl ---------------------------------------------------------------------------
+AC_CHECK_PROG(GIT, git, git)
+
 AC_OUTPUT
