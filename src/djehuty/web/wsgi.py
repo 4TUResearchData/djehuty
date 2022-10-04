@@ -3721,7 +3721,7 @@ class ApiServer:
                 parameters = request.get_json()
                 datasets = parameters["articles"]
 
-                collection = self.__collection_by_id_or_uri (collection_id, account_uuid=account_uuid)
+                collection = self.__collection_by_id_or_uri (collection_id, is_published=False, account_uuid=account_uuid)
                 if collection is None:
                     return self.error_404 (request)
 
