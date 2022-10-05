@@ -283,10 +283,14 @@ pre {
     height: 40px;
 }
 
-.whitelogos img {
-    margin: 10px;
-    float: right;
+#whitelogos {
+    max-width: 880pt;
+    margin: 0 auto;
+    padding: 0;
+    text-align: right;
 }
+
+#whitelogos img { margin: 10px; }
 
 #footer .logos #footer-wrapper .footer-column {
     height: 40px;
