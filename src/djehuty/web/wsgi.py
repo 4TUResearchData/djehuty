@@ -668,10 +668,10 @@ class ApiServer:
         errors      = settings.validate_metadata (metadata)
         if len(errors) == 0:
             return self.response (metadata, mimetype="text/xml")
-        else:
-            logging.error ("SAML SP Metadata validation failed.")
-            logging.error ("Errors: %s", ", ".join(errors))
-            return self.error_500()
+
+        logging.error ("SAML SP Metadata validation failed.")
+        logging.error ("Errors: %s", ", ".join(errors))
+        return self.error_500 ()
 
     ## CONVENIENCE PROCEDURES
     ## ------------------------------------------------------------------------
@@ -830,7 +830,7 @@ class ApiServer:
 
         ## SAML 2.0 authentication
         ## --------------------------------------------------------------------
-        elif self.identity_provider == "saml":
+        if self.identity_provider == "saml":
 
             ## Initiate the login procedure.
             if request.method == "GET":
@@ -841,7 +841,7 @@ class ApiServer:
                 return response
 
             ## Retrieve signed data from SURFConext via the user.
-            elif request.method == "POST":
+            if request.method == "POST":
                 if not self.accepts_html (request):
                     return self.error_406 ("text/html")
 
@@ -852,20 +852,22 @@ class ApiServer:
             response = redirect ("/my/dashboard", code=302)
             account  = self.db.account_by_email (saml_record["email"])
             account_uuid = None
-            if not account:
+            if account:
+                account_uuid = account["uuid"]
+            else:
                 account_uuid = self.db.insert_account (
                     email      = saml_record["email"],
                     first_name = value_or_none (saml_record, "first_name"),
                     last_name  = value_or_none (saml_record, "last_name"),
                     institution_user_id = value_or_none (saml_record, "institution_user_id")
                 )
-            else:
-                account_uuid = account["uuid"]
 
             token, _ = self.db.insert_session (account_uuid, name="Website login")
             response.set_cookie (key=self.cookie_key, value=token,
                                  secure=self.in_production)
             return response
+
+        return self.error_500 ()
 
     def ui_logout (self, request):
         if not self.accepts_html (request):
@@ -3909,6 +3911,7 @@ class ApiServer:
 
         if item_type not in {"downloads", "views", "shares", "cites"}:
             raise validator.InvalidValue(
+                field_name = "item_type",
                 message = ("The last URL parameter must be one of "
                            "'downloads', 'views', 'shares' or 'cites'."),
                 code    = "InvalidURLParameterValue")
