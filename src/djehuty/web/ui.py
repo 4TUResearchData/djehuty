@@ -343,9 +343,14 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 filename  = os.path.join (saml_cache_dir, "settings.json")
                 saml_base_url = f"{server.base_url}/saml"
                 saml_idp_binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                # pylint: disable=unsubscriptable-object
+                # PyLint assumes server.saml_config is None, but we can be certain
+                # it contains a saml configuration, because otherwise
+                # server.identity_provider wouldn't be set to "saml".
                 server.saml_config["sp"]["entityId"] = saml_base_url
                 server.saml_config["sp"]["assertionConsumerService"]["url"] = f"{saml_base_url}/login"
                 server.saml_config["idp"]["singleSignOnService"]["binding"] = saml_idp_binding
+                # pylint: enable=unsubscriptable-object
                 config_fd = os.open (filename, os.O_WRONLY | os.O_CREAT, 0o600)
                 with open (config_fd, "w", encoding="utf-8") as file_stream:
                     json.dump(server.saml_config, file_stream)
