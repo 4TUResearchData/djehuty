@@ -62,7 +62,7 @@ body,html {
     border: none;
 }
 #wrapper.footer1 { margin-bottom: -420px; }
-#wrapper.footer2 { margin-bottom: -80px; }
+#wrapper.footer2 { margin-bottom: -123px; }
 #content {
     max-width: 880pt;
     min-height: 200mm;
@@ -72,7 +72,7 @@ body,html {
 }
 #content-wrapper { padding: 5mm; }
 #content-spacer { min-height: 420px; }
-#content-spacer2 { min-height: 80px; }
+#content-spacer2 { min-height: 123px; }
 #header img {
     padding: 15px 0px 25px 15px;
     user-select: none;
@@ -237,7 +237,7 @@ nav { display: block; }
     text-align: center;
     color: #ffffff;
     background: #707070;
-    border-bottom: 1mm solid #f49120;
+    border-bottom: 3px solid #f49120;
 }
 #footer p { padding: 0.5em 0em 0em 0em; margin: 0em; }
 #footer a { color: #ffffff; }
