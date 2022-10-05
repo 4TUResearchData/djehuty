@@ -536,7 +536,7 @@ class ApiServer:
         record["limit"]  = limit
 
         validator.string_value  (record, "order", 0, 32)
-        validator.order_direction (record["order_direction"])
+        validator.order_direction (record, "order_direction")
         validator.integer_value (record, "institution")
         validator.string_value  (record, "published_since", maximum_length=32)
         validator.string_value  (record, "modified_since",  maximum_length=32)
@@ -3219,7 +3219,7 @@ class ApiServer:
                 "offset":    self.get_parameter (request, "offset")
             })
 
-            validator.order_direction (order_direction)
+            validator.order_direction ({"order_direction": order_direction}, "order_direction")
             validator.institution (institution)
             validator.group (group)
 
@@ -3844,7 +3844,7 @@ class ApiServer:
             validator.integer_value (record, "limit")
             validator.integer_value (record, "offset")
             validator.string_value  (record, "order",           maximum_length=32)
-            validator.order_direction (record["order_direction"])
+            validator.order_direction (record, "order_direction")
             validator.integer_value (record, "institution")
             validator.string_value  (record, "published_since", maximum_length=32)
             validator.string_value  (record, "modified_since",  maximum_length=32)
@@ -3905,7 +3905,7 @@ class ApiServer:
         validator.integer_value (record, "limit")
         validator.integer_value (record, "offset")
         validator.string_value  (record, "order", maximum_length=32)
-        validator.order_direction (record["order_direction"])
+        validator.order_direction (record, "order_direction")
         validator.string_value  (record, "item_type", maximum_length=32)
 
         if item_type not in {"downloads", "views", "shares", "cites"}:

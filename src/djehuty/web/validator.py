@@ -5,10 +5,19 @@ This module contains procedures to validate user input.
 import re
 from djehuty.utils import convenience as conv
 
+def raise_or_return_error (error_list, error):
+    """Adds the error to the ERROR_LIST or raises ERROR."""
+
+    if error_list is None:
+        raise error
+
+    error_list.append ({ "field_name": error.field_name, "message": error.message })
+
 class ValidationException(Exception):
     """Base class for validation errors."""
 
-    def __init__(self, message, code):
+    def __init__(self, field_name, message, code):
+        self.field_name = field_name
         self.message = message
         self.code    = code
         super().__init__(message)
@@ -16,125 +25,146 @@ class ValidationException(Exception):
 class InvalidIntegerValue(ValidationException):
     """Exception thrown when the 'limit' parameter holds no valid value."""
 
-    def __init__(self, message, code):
+    def __init__(self, field_name, message, code):
+        self.field_name = field_name
         self.message = message
         self.code    = code
-        super().__init__(message, code)
+        super().__init__(field_name, message, code)
 
 class InvalidOrderDirection(ValidationException):
     """Exception thrown when the 'order_direction' parameter holds no valid value."""
 
-    def __init__(self, message, code):
+    def __init__(self, field_name, message, code):
+        self.field_name = field_name
         self.message = message
         self.code    = code
-        super().__init__(message, code)
+        super().__init__(field_name, message, code)
 
 class MissingRequiredField(ValidationException):
     """Exception thrown when a required parameter holds no value."""
 
-    def __init__(self, message, code):
+    def __init__(self, field_name, message, code):
+        self.field_name = field_name
         self.message = message
         self.code    = code
-        super().__init__(message, code)
+        super().__init__(field_name, message, code)
 
 class ValueTooLong(ValidationException):
     """Exception thrown when a string parameter is too long."""
 
-    def __init__(self, message, code):
+    def __init__(self, field_name, message, code):
+        self.field_name = field_name
         self.message = message
         self.code    = code
-        super().__init__(message, code)
+        super().__init__(field_name, message, code)
 
 class ValueTooShort(ValidationException):
     """Exception thrown when a string parameter is too short."""
 
-    def __init__(self, message, code):
+    def __init__(self, field_name, message, code):
+        self.field_name = field_name
         self.message = message
         self.code    = code
-        super().__init__(message, code)
+        super().__init__(field_name, message, code)
 
 class InvalidValueType(ValidationException):
     """Exception thrown when the wrong type of a value was given."""
 
-    def __init__(self, message, code):
+    def __init__(self, field_name, message, code):
+        self.field_name = field_name
         self.message = message
         self.code    = code
-        super().__init__(message, code)
+        super().__init__(field_name, message, code)
 
 class InvalidValue(ValidationException):
     """Exception thrown when the wrong value was given."""
 
-    def __init__(self, message, code):
+    def __init__(self, field_name, message, code):
+        self.field_name = field_name
         self.message = message
         self.code    = code
-        super().__init__(message, code)
+        super().__init__(field_name, message, code)
 
 class InvalidOptionsValue(ValidationException):
     """Exception thrown when the wrong type of a value was given."""
 
-    def __init__(self, message, code):
+    def __init__(self, field_name, message, code):
+        self.field_name = field_name
         self.message = message
         self.code    = code
-        super().__init__(message, code)
+        super().__init__(field_name, message, code)
 
 class InvalidPagingOptions(ValidationException):
     """Exception thrown when paging is mixed with limit/offset."""
 
-    def __init__(self, message, code):
+    def __init__(self, field_name, message, code):
+        self.field_name = field_name
         self.message = message
         self.code    = code
-        super().__init__(message, code)
+        super().__init__(field_name, message, code)
 
-def order_direction (value, required=False):
+def order_direction (record, field_name, required=False, error_list=None):
     """Validation procedure for the order direction field."""
 
+    value = conv.value_or_none (record, field_name)
     if (value is None and required):
-        raise MissingRequiredField(
-            message = "Missing required value for 'order_direction'.",
-            code    = "MissingRequiredField")
+        return raise_or_return_error (error_list,
+                    MissingRequiredField(
+                        field_name = field_name,
+                        message = "Missing required value for 'order_direction'.",
+                        code    = "MissingRequiredField"))
 
     if (value is not None and
         (not (value.lower() == "desc" or
               value.lower() == "asc"))):
-        raise InvalidOrderDirection(
-            message = "The value for 'order_direction' must be either 'desc' or 'asc'.",
-            code    = "InvalidOrderDirectionValue")
+        return raise_or_return_error (error_list,
+                    InvalidOrderDirection(
+                        field_name = field_name,
+                        message = "The value for 'order_direction' must be either 'desc' or 'asc'.",
+                        code    = "InvalidOrderDirectionValue"))
 
-    return True
+    return value
 
-def integer_value (record, field_name, minimum_value=None, maximum_value=None, required=False):
+def integer_value (record, field_name, minimum_value=None, maximum_value=None, required=False, error_list=None):
     """Validation procedure for integer values."""
 
-    value = conv.value_or_none (record, field_name)
-    prefix = field_name.capitalize() if isinstance(field_name, str) else ""
+    value   = conv.value_or_none (record, field_name)
+    prefix  = field_name.capitalize() if isinstance(field_name, str) else ""
+
     if value is None or (isinstance(value, str) and value == ""):
         if required:
-            raise MissingRequiredField(
-                message = f"Missing required value for '{field_name}'.",
-                code    = "MissingRequiredField")
-
+            return raise_or_return_error (error_list,
+                        MissingRequiredField(
+                            field_name = field_name,
+                            message = f"Missing required value for '{field_name}'.",
+                            code    = "MissingRequiredField"))
         return None
 
     try:
         value = int(value)
 
         if maximum_value is not None and value > maximum_value:
-            raise InvalidIntegerValue(
-                message = f"The maximum value for '{field_name}' is {maximum_value}.",
-                code    = f"{prefix}ValueTooHigh")
+            return raise_or_return_error (error_list,
+                        InvalidIntegerValue(
+                            field_name = field_name,
+                            message = f"The maximum value for '{field_name}' is {maximum_value}.",
+                            code    = f"{prefix}ValueTooHigh"))
 
         if minimum_value is not None and value < minimum_value:
-            raise InvalidIntegerValue(
-                message = f"The minimum value for '{field_name}' is {minimum_value}.",
-                code    = f"{prefix}ValueTooLow")
+            return raise_or_return_error (error_list,
+                        InvalidIntegerValue(
+                            field_name = field_name,
+                            message = f"The minimum value for '{field_name}' is {minimum_value}.",
+                            code    = f"{prefix}ValueTooLow"))
 
-        return value
+    except (ValueError, TypeError):
+        return raise_or_return_error (error_list,
+                    InvalidIntegerValue(
+                        field_name = field_name,
+                        message = f"Unexpected value '{value}' is not an integer.",
+                        code    = f"Invalid{prefix}Value"))
 
-    except Exception as error:
-        raise InvalidIntegerValue(
-            message = f"Unexpected value '{value}' is not an integer.",
-            code    = f"Invalid{prefix}Value") from error
-
+    return value
 
 def paging_to_offset_and_limit (record):
     """Procedure returns two values: offset and limit."""
@@ -149,6 +179,7 @@ def paging_to_offset_and_limit (record):
     if ((page is not None or page_size is not None) and
         (offset is not None or limit is not None)):
         raise InvalidPagingOptions(
+            field_name = "page_size",
             message = ("Either use page/page-size or offset/limit. "
                        "Mixing is not supported."),
             code    = "InvalidPagingOptions")
@@ -178,81 +209,96 @@ def index_exists (value, index):
 
     return True
 
-def string_value (record, field_name, minimum_length=0, maximum_length=None, required=False):
+def string_value (record, field_name, minimum_length=0, maximum_length=None, required=False, error_list=None):
     """Validation procedure for string values."""
 
     value = conv.value_or_none (record, field_name)
     if value is None:
         if required:
-            raise MissingRequiredField(
-                message = f"Missing required value for '{field_name}'.",
-                code    = "MissingRequiredField")
+            return raise_or_return_error (error_list,
+                        MissingRequiredField(
+                            field_name = field_name,
+                            message = f"Missing required value for '{field_name}'.",
+                            code    = "MissingRequiredField"))
         return value
 
     if not isinstance (value, str):
-        raise InvalidValueType(
-                message = f"Expected a string for '{field_name}'.",
-                code    = "WrongValueType")
+        return raise_or_return_error (error_list,
+                    InvalidValueType(
+                        field_name = field_name,
+                        message = f"Expected a string for '{field_name}'.",
+                        code    = "WrongValueType"))
 
     if maximum_length is not None and index_exists (value, maximum_length):
-        raise ValueTooLong(
-            message = f"The value for '{field_name}' is longer than {maximum_length}.",
-            code    = "ValueTooLong")
+        return raise_or_return_error (error_list,
+                    ValueTooLong(
+                        field_name = field_name,
+                        message = f"The value for '{field_name}' is longer than {maximum_length}.",
+                        code    = "ValueTooLong"))
 
     minimum_length = max(minimum_length, 1)
     if not index_exists (value, minimum_length - 1):
-        raise ValueTooShort(
-            message = f"The value for '{field_name}' needs to be longer than {minimum_length}.",
-            code    = "ValueTooShort")
+        return raise_or_return_error (error_list,
+                    ValueTooShort(
+                        field_name = field_name,
+                        message = f"The value for '{field_name}' needs to be longer than {minimum_length}.",
+                        code    = "ValueTooShort"))
 
     return value
 
-def date_value (record, field_name, required=False):
+def date_value (record, field_name, required=False, error_list=None):
     """Validation procedure for date values."""
 
     value = conv.value_or_none (record, field_name)
     if value is None:
         if required:
-            raise MissingRequiredField(
-                message = f"Missing required value for '{field_name}'.",
-                code    = "MissingRequiredField")
+            return raise_or_return_error (error_list,
+                        MissingRequiredField(
+                            field_name = field_name,
+                            message = f"Missing required value for '{field_name}'.",
+                            code    = "MissingRequiredField"))
         return None
 
     if not isinstance (value, str):
-        raise InvalidValueType(
-                message = f"Expected '{field_name}' in the form YYYY-MM-DD.",
-                code    = "WrongValueType")
-    ## Accept strings only.
-    if not isinstance(value, str):
-        return False
+        return raise_or_return_error (error_list,
+                    InvalidValueType(
+                        field_name = field_name,
+                        message = f"Expected '{field_name}' in the form YYYY-MM-DD.",
+                        code    = "WrongValueType"))
 
     ## Don't process input that is too long.
     try:
         if value[10]:
-            raise InvalidValueType(
-                message = f"Expected '{field_name}' in the form YYYY-MM-DD.",
-                code    = "ValueTooLong")
+            return raise_or_return_error (error_list,
+                        InvalidValueType(
+                            field_name = field_name,
+                            message = f"Expected '{field_name}' in the form YYYY-MM-DD.",
+                            code    = "ValueTooLong"))
     except IndexError:
         pass
 
     ## Check its form.
     pattern = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
     if re.match(pattern, value) is None:
-        raise InvalidValueType(
-                message = f"Expected '{field_name}' in the form YYYY-MM-DD.",
-                code    = "WrongValueFormat")
+        return raise_or_return_error (error_list,
+                    InvalidValueType(
+                        field_name = field_name,
+                        message = f"Expected '{field_name}' in the form YYYY-MM-DD.",
+                        code    = "WrongValueFormat"))
 
     return value
 
-def boolean_value (record, field_name, required=False, when_none=None):
+def boolean_value (record, field_name, required=False, when_none=None, error_list=None):
     """Validation procedure for boolean values."""
 
     value = conv.value_or_none (record, field_name)
     if value is None:
         if required:
-            raise MissingRequiredField(
-                message = f"Missing required value for '{field_name}'.",
-                code    = "MissingRequiredField")
+            return raise_or_return_error (error_list,
+                        MissingRequiredField(
+                            field_name = field_name,
+                            message = f"Missing required value for '{field_name}'.",
+                            code    = "MissingRequiredField"))
         return when_none
 
     if isinstance(value, str):
@@ -262,45 +308,55 @@ def boolean_value (record, field_name, required=False, when_none=None):
             value = False
 
     if not isinstance (value, bool):
-        raise InvalidValueType(
-            message = f"Expected a boolean value for '{field_name}'.",
-            code    = "WrongValueType")
+        return raise_or_return_error (error_list,
+                    InvalidValueType(
+                        field_name = field_name,
+                        message = f"Expected a boolean value for '{field_name}'.",
+                        code    = "WrongValueType"))
 
     return value
 
-def options_value (record, field_name, options, required=False):
+def options_value (record, field_name, options, required=False, error_list=None):
     """Validation procedure for pre-defined options fields."""
 
     value = conv.value_or_none (record, field_name)
     if value is None:
         if required:
-            raise MissingRequiredField(
-                message = f"Missing required value for '{field_name}'.",
-                code    = "MissingRequiredField")
+            return raise_or_return_error (error_list,
+                        MissingRequiredField(
+                            field_name = field_name,
+                            message = f"Missing required value for '{field_name}'.",
+                            code    = "MissingRequiredField"))
         return value
 
     if value not in options:
-        raise InvalidOptionsValue(
-            message = f"Invalid value for '{field_name}'. It must be one of {options}",
-            code    = "InvalidValue")
+        return raise_or_return_error (error_list,
+                    InvalidOptionsValue(
+                        field_name = field_name,
+                        message = f"Invalid value for '{field_name}'. It must be one of {options}",
+                        code    = "InvalidValue"))
 
     return value
 
-def __typed_value (record, field_name, expected_type=None, type_name=None, required=False):
+def __typed_value (record, field_name, expected_type=None, type_name=None, required=False, error_list=None):
     """Procedure to validate multiple-values fields."""
 
     value = conv.value_or_none (record, field_name)
     if value is None:
         if required:
-            raise MissingRequiredField(
-                message = f"Missing required value for '{field_name}'.",
-                code    = "MissingRequiredField")
+            return raise_or_return_error (error_list,
+                        MissingRequiredField(
+                            field_name = field_name,
+                            message = f"Missing required value for '{field_name}'.",
+                            code    = "MissingRequiredField"))
         return value
 
     if not isinstance (value, expected_type):
-        raise InvalidValueType(
-                message = f"Expected {type_name} for '{field_name}'.",
-                code    = "WrongValueType")
+        return raise_or_return_error (error_list,
+                    InvalidValueType(
+                        field_name = field_name,
+                        message = f"Expected {type_name} for '{field_name}'.",
+                        code    = "WrongValueType"))
 
     return value
 
