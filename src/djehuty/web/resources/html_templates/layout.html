@@ -12,7 +12,7 @@
     {% block headers %}{% endblock %}
   </head>
   <body>
-    <div id="wrapper">
+    <div id="wrapper" {%- if path == "/portal" %}class="footer1"{% else %}class="footer2"{% endif %}>
       {%- if impersonating_account %}
       <div id="pre-header">
         <p>Impersonating as <strong>{{impersonating_account.first_name}} {{impersonating_account.last_name}}</strong>.
@@ -70,7 +70,7 @@
           <div id="message"></div>
           {% block body %}{% endblock %}
         </div>
-        <div id="content-spacer"></div>
+        {%- if path == "/portal" %}<div id="content-spacer">{% else %}<div id="content-spacer2">{% endif %}</div>
       </div>
     </div>
     <div id="footer">
@@ -86,6 +86,7 @@
             --><img class="fourth" src="/static/images/logosleft-white-wageningen.png" alt="4TU Wageningen"></a>
         </div>
       </div>
+      {% if path == "/portal" %}
       <div id="footer-wrapper">
       <div class="footer-column">
         <h2>About 4TU.ResearchData</h2>
@@ -126,6 +127,10 @@
         <p><span class="fas fa-copyright" aria-hidden="true"></span> 2022</p>
       </div>
       </div>
+      {%- else %}
+      <div id="footer-wrapper2">
+        <p><a href="/info/en/about-your-data/getting-started">Getting started</a> | <a href="/info/en/about-4turesearchdata/contact">Contact</a> | <a href="https://data.4tu.nl/info/fileadmin/user_upload/Documenten/Data_collection_policy_2020.pdf">Data Collection Policy</a> | <a href="https://data.4tu.nl/info/fileadmin/user_upload/Documenten/4TU-Privacy-policy.pdf">Privacy Policy</a> | <a href="https://data.4tu.nl/info/fileadmin/user_upload/Documenten/Cookie-Policy.pdf">Cookie Policy</a> | <a href="https://data.4tu.nl/info/fileadmin/user_upload/Documenten/Terms_of_Use_4TU.ResearchData.pdf">Terms of Use</a><p></div>
+      {%- endif %}
     </div>
   </body>
 </html>

@@ -59,9 +59,10 @@ body,html {
     min-height: 100%;
     padding: 0em;
     margin: 0em auto auto auto;
-    margin-bottom: -121mm;
     border: none;
 }
+#wrapper.footer1 { margin-bottom: -420px; }
+#wrapper.footer2 { margin-bottom: -80px; }
 #content {
     max-width: 880pt;
     min-height: 200mm;
@@ -70,9 +71,8 @@ body,html {
     color: #000000;
 }
 #content-wrapper { padding: 5mm; }
-#content-spacer {
-    min-height: 120mm;
-}
+#content-spacer { min-height: 420px; }
+#content-spacer2 { min-height: 80px; }
 #header img {
     padding: 15px 0px 25px 15px;
     user-select: none;
@@ -230,7 +230,7 @@ nav { display: block; }
 .submenu-item a { color: #000000; }
 .submenu-item a:hover { color: #333333; }
 #footer {
-    height: 120mm;
+    height: auto;
     width: 100%;
     margin: 0em;
     padding: auto;
@@ -292,11 +292,16 @@ pre {
 
 #whitelogos img { margin: 10px; }
 
-#footer .logos #footer-wrapper .footer-column {
-    height: 40px;
-    border: none;
+#footer-wrapper2 a { text-decoration: none; color: #fff; }
+#footer-wrapper2 p { line-height: 60px; color: #aaa; }
+#footer-wrapper2 {
+    height: 80px;
+    max-width: 880pt;
+    margin: 0 auto;
+    padding: 0;
 }
 #footer-wrapper {
+    height: 420px;
     column-count: 3;
     column-gap: 0em;
     max-width: 880pt;
@@ -306,7 +311,7 @@ pre {
 .footer-column {
     page-break-inside: avoid;
     border: solid 1pt rgba(128,128,128,0);
-    height: 110mm;
+    height: 400px;
     margin: auto;
     padding: 0mm 0mm 0mm 5mm;
     text-align: left;
