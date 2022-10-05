@@ -10,9 +10,12 @@ from djehuty.web import database
 from djehuty.web import wsgi
 import djehuty.backup.database as backup_database
 
+# Even though we don't use these imports in 'ui', the state of
+# SAML2_DEPENDENCY_LOADED is important to catch the situation
+# in which this dependency is required due to the run-time configuration.
 try:
-    from onelogin.saml2.auth import OneLogin_Saml2_Auth
-    from onelogin.saml2.auth import OneLogin_Saml2_Settings
+    from onelogin.saml2.auth import OneLogin_Saml2_Auth  # pylint: disable=unused-import
+    from onelogin.saml2.errors import OneLogin_Saml2_Error  # pylint: disable=unused-import
     SAML2_DEPENDENCY_LOADED = True
 except (ImportError, ModuleNotFoundError):
     SAML2_DEPENDENCY_LOADED = False

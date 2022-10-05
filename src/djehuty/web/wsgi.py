@@ -32,7 +32,7 @@ from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 ## So if it fails here, we can safely assume we don't need it.
 try:
     from onelogin.saml2.auth import OneLogin_Saml2_Auth
-    from onelogin.saml2.auth import OneLogin_Saml2_Settings
+    from onelogin.saml2.errors import OneLogin_Saml2_Error
 except (ImportError, ModuleNotFoundError):
     pass
 
@@ -835,7 +835,6 @@ class ApiServer:
             ## Initiate the login procedure.
             if request.method == "GET":
                 saml_auth   = self.__saml_auth (request)
-                settings    = saml_auth.get_settings()
                 redirect_url = saml_auth.login()
                 response    = redirect (redirect_url)
 
