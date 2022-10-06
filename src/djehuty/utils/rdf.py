@@ -66,7 +66,7 @@ def escape_boolean_value (value):
 def sparql_in_filter (name, values, escape=False, is_uri=False, negate=False):
     """Returns a FILTER statement for a list of values."""
     query   = ""
-    if values is None:
+    if ((values is None) or (isinstance(values, str) and values == "")):
         return query
 
     compare = "NOT IN" if negate else "IN"

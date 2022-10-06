@@ -329,11 +329,10 @@ class SparqlInterface:
         filters = ""
 
         if category_ids is not None:
-            filters += f"FILTER ((?category_id) IN ({','.join(map(str, category_ids))}))\n"
+            filters += rdf.sparql_in_filter ("category_id", category_ids)
 
         if group_ids is not None:
-            filters += f"FILTER ((?group_id) IN ({','.join(map(str, group_ids))}))\n"
-
+            filters += rdf.sparql_in_filter ("group_id", group_ids)
 
         query   = self.__query_from_template ("dataset_statistics", {
             "category_ids":  category_ids,
