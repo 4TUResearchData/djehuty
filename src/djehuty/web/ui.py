@@ -390,20 +390,20 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 if server.in_production:
                     raise MissingConfigurationError
 
-        if initialize:
-            logging.info("Initializing RDF store ...")
-            rdf_store = backup_database.DatabaseInterface()
+            if initialize:
+                logging.info("Initializing RDF store ...")
+                rdf_store = backup_database.DatabaseInterface()
 
-            if not rdf_store.insert_root_categories ():
-                logging.error ("Failed to gather root categories")
+                if not rdf_store.insert_root_categories ():
+                    logging.error ("Failed to gather root categories")
 
-            if not rdf_store.insert_static_triplets ():
-                logging.error ("Failed to gather static triplets")
+                    if not rdf_store.insert_static_triplets ():
+                        logging.error ("Failed to gather static triplets")
 
-            if server.db.add_triples_from_graph (rdf_store.store):
-                logging.info("Initialization completed.")
+                        if server.db.add_triples_from_graph (rdf_store.store):
+                            logging.info("Initialization completed.")
 
-            initialize = False
+                initialize = False
 
         run_simple (config["address"], config["port"], server,
                     threaded=(config["maximum_workers"] <= 1),
