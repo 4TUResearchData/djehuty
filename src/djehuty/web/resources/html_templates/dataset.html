@@ -9,7 +9,7 @@
     #content a    { color: #f49120; text-decoration: none }
     #content a:hover { text-decoration: underline }
     #doi          { text-align: right }
-    #type         { padding: 2px; width: 80px; text-align: center; border: 1px solid #000 }
+    #type         { display:inline; padding: 2px 10px 2px 10px; text-align: center; border: 1px solid #000 }
     #metadata #versions { margin-top: 0px }
     #description  { margin-top: 10px; padding:10px; border: 1px solid #666 }
     #authors img, #contributors img  { height: 15px }
@@ -30,13 +30,16 @@
     #data         { clear: right; border-top: 1px solid #000; margin-bottom: 10px }
     #data ul      { margin-left: 20px }
     li.zip        { padding: 2px; width: 180px; text-align: center; border: 1px solid #000 }
-    #collect      { display: none; border: 3px solid #f39000; padding: 10px; margin-bottom:10px }
-    #collect_show { border: none; padding:5px; margin-bottom: 10px }
-    #collect_hide { border: none }
-    #cite         { display: none; border: 3px solid #f39000; padding: 10px; margin-bottom:10px }
-    #cite_show    { border: none; padding:5px; margin-bottom: 10px }
-    #cite_hide    { border: none }
+    #collect,      #cite,      #versions      { display: none; border: 3px solid #f39000; padding: 10px; margin-bottom:10px }
+    #collect_show, #cite_show                 { border: none; padding:5px; margin-bottom: 10px }
+    #collect_hide, #cite_hide, #versions_hide { border: none }
     #citation     { font-weight: bold }
+    #type_versions { margin-bottom:10px }
+    #versions     { width: 220px; position:absolute; background-color: #fff }
+    #versions_show { padding: 2px 10px 2px 10px; border: none; background-color: #fff; font: inherit; font-size: inherit; }
+    #versions_show:hover { text-decoration: underline; cursor: pointer }
+    #versions a   { display: block }
+    #versions div { color: #999 }
 </style>
 {% endblock %}
 

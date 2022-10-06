@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?collection_uri ?collection_id ?version ?url ?url_public_api
+SELECT DISTINCT ?collection_uri ?collection_id ?version ?url ?url_public_api ?posted_date
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri  rdf:type            djht:CollectionContainer ;
@@ -9,7 +9,8 @@ WHERE {
     ?collection_uri rdf:type            djht:Collection ;
                     djht:container      ?container_uri ;
                     djht:version        ?version ;
-                    djht:url            ?url .
+                    djht:url            ?url ;
+                    djht:posted_date    ?posted_date .
     OPTIONAL {?collection_uri  djht:url_public_api ?url_public_api .}
   }
 {%- if filters is not none %}{{ filters }}{% endif %}

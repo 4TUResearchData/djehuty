@@ -8,9 +8,9 @@
 <div id="metadata">
     <div id="doi">persistent link: <a href="https://doi.org/{{doi}}" target="_blank" title="opens in new window">doi.org/{{doi}}</a></div>
     <button id="cite_show" class="neutral-button" onclick='document.getElementById("cite").style.display="block"' title="Show citation.">Cite</button>
-    {% if my_collections %}
+{% if my_collections %}
     <button id="collect_show" class="neutral-button" onclick='document.getElementById("collect").style.display="block"' title="Add this {{item.defined_type_name}} to one of your collections.">Collect</button>
-    {% endif %}
+{% endif %}
     <div id="cite">
         <button id="cite_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
         Datacite citation style:
@@ -18,41 +18,47 @@
         <a href="https://doi.datacite.org/dois/{{item.doi|replace('/','%2F')}}" target="_blank" title="opens in new window">Other citation styles (APA, Harvard, MLA, Vancouver, Chicago, IEEE) available at Datacite</a>
     </div>
 {% if item_type == "dataset" %}
-    {% if my_collections %}
+    {% set dtype = item.defined_type_name|capitalize %}
+{% else %}
+    {% set dtype = "Collection" %}
+{% endif %}
+{% if my_collections %}
     <div id="collect">
         <button id="collect_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
         Add to collection:
         <ul>
-        {% for collection in my_collections %}
+    {% for collection in my_collections %}
             <li><a href="#" onclick="javascript:add_dataset_to_collection('{{uuid}}','{{collection.container_uuid}}'); return false">{{collection.title}}</a></li>
-        {% endfor %}
+    {% endfor %}
         </ul>
     </div>
-    {% endif %}
-    <div id="type">{{ item.defined_type_name|capitalize }}</div>
-{% else %}
-    <div id="type">Collection</div>
 {% endif %}
+    <div id="type_versions">
+        <div id="type">{{ dtype }}</div>
 {% if versions[1:2] %}
 {# test 12763700 #}
     {% set thisversion = item.version %}
     {% set latest = versions[0].version %}
     {% set old = thisversion < latest %}
-    <div id ="versions">
-    {% if old %}
-        <span class="warning">version {{thisversion}} (old)</span>
-    {% else %}
-        <span>version {{thisversion}}</span>
-    {% endif %}
-        - other versions:
+        <button id="versions_show" onclick="document.getElementById('versions').style.display='block'" title="Choose another version."
+            {% if old %}style="background-color: #ff0"{% endif %}>version {{thisversion}}
+            {% if old %} (old){% endif %}⮟</button>
+        <div id ="versions">
+            <button id="versions_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
+            choose version:
     {% for ver in versions %}
         {% set v = ver.version %}
-        {% if v != thisversion %}
-        <a href="/{{item_type}}s/{{uuid}}/{{v}}">{{v}}{% if v==latest %} (latest){% endif %}</a>
+        {% set label = "version "~v~" - "~ver.posted_date[:10] %}
+        {% if v == latest %}{% set label = label~" (latest)" %}{% endif %}
+        {% if v == thisversion %}
+            <div>{{label}}</div>
+        {% else %}
+            <a href="/{{item_type}}s/{{uuid}}/{{v}}">{{label}}</a>
         {% endif %}
     {% endfor %}
-    </div>
+        </div>
 {% endif %}
+    </div>
 
     <div id="right_column">
 {% if member != "other" %}
