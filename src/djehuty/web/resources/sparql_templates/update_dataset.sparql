@@ -56,6 +56,10 @@ DELETE {
     ?dataset           djht:embargo_reason       ?embargo_reason .
     {%- endif%}{% if embargo_allow_access_requests is not none or not is_embargoed %}
     ?dataset  djht:embargo_allow_access_requests ?embargo_allow_access_requests .
+    {%- endif%}{% if agreed_to_deposit_agreement is not none %}
+    ?dataset           djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement .
+    {%- endif%}{% if agreed_to_publish is not none %}
+    ?dataset           djht:agreed_to_publish    ?agreed_to_publish .
     {%- endif%}
     ?dataset           djht:modified_date        ?modified_date .
   }
@@ -116,6 +120,10 @@ INSERT {
     ?dataset           djht:embargo_reason       {{embargo_reason}} .
     {%- endif%}{% if embargo_allow_access_requests is not none and is_embargoed %}
     ?dataset  djht:embargo_allow_access_requests {{embargo_allow_access_requests}} .
+    {%- endif%}{% if agreed_to_deposit_agreement is not none %}
+    ?dataset           djht:agreed_to_deposit_agreement {{agreed_to_deposit_agreement}} .
+    {%- endif%}{% if agreed_to_publish is not none %}
+    ?dataset           djht:agreed_to_publish    {{agreed_to_publish}} .
     {%- endif%}
     ?dataset           djht:modified_date        "{{modified_date}}"^^xsd:dateTime .
   }
@@ -161,6 +169,8 @@ WHERE {
     OPTIONAL { ?dataset djht:embargo_title         ?embargo_title . }
     OPTIONAL { ?dataset djht:embargo_reason        ?embargo_reason . }
     OPTIONAL { ?dataset djht:embargo_allow_access_requests ?embargo_allow_access_requests . }
+    OPTIONAL { ?dataset djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
+    OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }
   }
 {%- if account_uuid is not none: %}
   FILTER (?account = <account:{{account_uuid}}>)

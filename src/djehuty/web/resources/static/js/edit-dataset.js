@@ -39,6 +39,8 @@ function save_dataset (dataset_uuid, event, notify=true) {
     let is_embargoed  = jQuery("#embargoed_access").prop("checked");
     let is_restricted = jQuery("#restricted_access").prop("checked");
     let is_closed     = jQuery("#closed_access").prop("checked");
+    let agreed_to_da  = jQuery("#deposit_agreement").prop("checked");
+    let agreed_to_publish = jQuery("#publish_agreement").prop("checked");
 
     form_data = {
         "title":          or_null(jQuery("#title").val()),
@@ -59,6 +61,8 @@ function save_dataset (dataset_uuid, event, notify=true) {
         "defined_type_name": defined_type_name,
         "is_embargoed":   is_embargoed || is_restricted || is_closed,
         "group_id":       group_id,
+        "agreed_to_deposit_agreement": agreed_to_da,
+        "agreed_to_publish": agreed_to_publish,
         "categories":     category_ids
     }
 
@@ -652,6 +656,13 @@ function activate (dataset_uuid) {
                     jQuery("#content_embargo").prop("checked", true);
                 }
             }
+        }
+
+        if (data["agreed_to_deposit_agreement"]) {
+            jQuery("#deposit_agreement").prop("checked", true);
+        }
+        if (data["agreed_to_publish"]) {
+            jQuery("#publish_agreement").prop("checked", true);
         }
 
         toggle_record_type (dataset_uuid);

@@ -240,6 +240,8 @@ def format_dataset_details_record (dataset, authors, files, custom_fields,
         },
         "resource_title":    conv.value_or(dataset, "resource_title", ""),
         "resource_doi":      conv.value_or(dataset, "resource_doi", ""),
+        "agreed_to_deposit_agreement": bool(conv.value_or_none (dataset, "agreed_to_deposit_agreement")),
+        "agreed_to_publish": bool(conv.value_or_none(dataset, "agreed_to_publish"))
     }
 
 def format_dataset_embargo_option_record (record):

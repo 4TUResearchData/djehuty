@@ -1357,7 +1357,8 @@ class SparqlInterface:
                         defined_type=None, defined_type_name=None,
                         embargo_until_date=None, embargo_type=None,
                         embargo_title=None, embargo_reason=None,
-                        embargo_allow_access_requests=None, is_embargoed=False):
+                        embargo_allow_access_requests=None, is_embargoed=False,
+                        agreed_to_deposit_agreement=False, agreed_to_publish=False):
         """Procedure to overwrite parts of a dataset."""
 
         query   = self.__query_from_template ("update_dataset", {
@@ -1392,7 +1393,10 @@ class SparqlInterface:
             "embargo_title":   rdf.escape_string_value (embargo_title),
             "embargo_reason":  rdf.escape_string_value (embargo_reason),
             "embargo_allow_access_requests":
-                               rdf.escape_boolean_value (embargo_allow_access_requests)
+                               rdf.escape_boolean_value (embargo_allow_access_requests),
+            "agreed_to_deposit_agreement":
+                               rdf.escape_boolean_value (agreed_to_deposit_agreement),
+            "agreed_to_publish": rdf.escape_boolean_value (agreed_to_publish),
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")

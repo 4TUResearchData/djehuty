@@ -22,7 +22,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?license_remarks ?container_uri ?dataset AS ?uri ?uuid
                 ?is_under_review ?review AS ?review_uri ?review_submit_date
                 ?totals_created_at ?total_downloads ?total_views ?total_shares
-                ?total_cites ?git_uuid
+                ?total_cites ?git_uuid ?agreed_to_deposit_agreement ?agreed_to_publish
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -134,6 +134,8 @@ WHERE {
     OPTIONAL { ?dataset djht:derived_from          ?derived_from . }
     OPTIONAL { ?dataset djht:contributors          ?contributors . }
     OPTIONAL { ?dataset djht:license_remarks       ?license_remarks . }
+    OPTIONAL { ?dataset djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
+    OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?dataset), "dataset:")         AS ?uuid)

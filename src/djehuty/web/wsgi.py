@@ -2373,6 +2373,8 @@ class ApiServer:
                     embargo_allow_access_requests = is_restricted or is_temporary_embargo,
                     defined_type_name = defined_type_name,
                     defined_type    = defined_type,
+                    agreed_to_deposit_agreement = validator.boolean_value (record, "agreed_to_deposit_agreement", False, False),
+                    agreed_to_publish = validator.boolean_value (record, "agreed_to_publish", False, False),
                     categories      = validator.array_value   (record, "categories"),
                 )
                 if not result:
