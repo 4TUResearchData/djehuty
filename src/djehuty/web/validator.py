@@ -360,13 +360,13 @@ def __typed_value (record, field_name, expected_type=None, type_name=None, requi
 
     return value
 
-def array_value (value, field_name, required=False):
+def array_value (value, field_name, required=False, error_list=None):
     """Validation procedure for array values."""
-    return __typed_value (value, field_name, list, "array", required)
+    return __typed_value (value, field_name, list, "array", required, error_list)
 
-def object_value (value, field_name, required=False):
+def object_value (value, field_name, required=False, error_list=None):
     """Validation procedure for object values."""
-    return __typed_value (value, field_name, dict, "object", required)
+    return __typed_value (value, field_name, dict, "object", required, error_list)
 
 def is_valid_uuid (value):
     """Returns True when VALUE looks like a UUID, False otherwise."""
