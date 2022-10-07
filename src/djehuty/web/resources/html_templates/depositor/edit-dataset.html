@@ -412,7 +412,7 @@ jQuery(document).ready(function (){
 <h3>Findability</h3>
 <label for="language">Language</label>
 <select id="language" class="language-selector" name="language">
-  <option value="" disabled {% if not article.language %}selected{% endif %}>Select a language</option>
+  <option value="" disabled>Select a language</option>
   <option value="af" {% if article.language == "af" %}selected{% endif %}>Afrikaans</option>
   <option value="ar" {% if article.language == "ar" %}selected{% endif %}>Arabic</option>
   <option value="ast" {% if article.language == "ast" %}selected{% endif %}>Asturian, Asturleonese, Bable, Leonese</option>
@@ -429,7 +429,7 @@ jQuery(document).ready(function (){
   <option value="de" {% if article.language == "de" %}selected{% endif %}>German</option>
   <option value="dsb" {% if article.language == "dsb" %}selected{% endif %}>Lower Sorbian</option>
   <option value="el" {% if article.language == "el" %}selected{% endif %}>Modern Greek (1453-)</option>
-  <option value="en" {% if article.language == "en" %}selected{% endif %}>English</option>
+  <option value="en" {% if article.language == "en" or not article.language %}selected{% endif %}>English</option>
   <option value="en-au" {% if article.language == "en-au" %}selected{% endif %}>English, Australian</option>
   <option value="en-gb" {% if article.language == "en-gb" %}selected{% endif %}>English, British</option>
   <option value="en-us" {% if article.language == "en-us" %}selected{% endif %}>English, American</option>
