@@ -531,7 +531,7 @@ jQuery(document).ready(function (){
 <label>Type</label>
 <div id="record-type-wrapper" class="options-wrapper">
 <input type="radio" name="record_type" id="metadata_record_only" value="meta" /><!--
---><label for="metadata_record_only" class="no-head">Metadata record</label><!--
+--><label for="metadata_record_only" class="no-head">Metadata-only record</label><!--
 --><input type="radio" name="record_type" id="external_link" value="link" /><!--
 --><label for="external_link" class="no-head">External link</label><!--
 --><input type="radio" name="record_type" id="upload_files" value="files" /><!--
@@ -540,6 +540,8 @@ jQuery(document).ready(function (){
 --><label for="upload_software" class="no-head">Software deposit</label>
 </div>
 <div id="metadata_reason_field" class="record-type-field">
+  <p>Only use this option when there are no files to attach.  Enter the reason
+    for creating a metadata only record and why the files cannot be shared.</p>
   <label for="metadata_only_reason">Reason</label>
   <input type="text" name="metadata_only_reason" id="metadata_only_reason" value="{{article["metadata_reason"]}}"/>
 </div>
