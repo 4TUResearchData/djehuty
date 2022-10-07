@@ -497,3 +497,5 @@ img { user-select: none; }
 #pre-header a:hover { color: #ccc; }
 #pre-header a:active { color: #999; }
 .sticky { position: fixed !important; top: 0px; width: 100% }
+.sticky-message { position: fixed !important; top: 70px; }
+.sticky-message p { margin: 0em; }

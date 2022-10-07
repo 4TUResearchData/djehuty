@@ -572,9 +572,12 @@ function activate (dataset_uuid) {
     jQuery(window).on('resize scroll', function() {
         let scroll_offset  = jQuery(window).scrollTop();
         if (submenu_offset <= scroll_offset) {
-            jQuery("#submenu").addClass("sticky")
+            jQuery("#submenu").addClass("sticky");
+            jQuery("#message").addClass("sticky-message");
+            jQuery("#message").width(jQuery("#content-wrapper").width());
         } else {
-            jQuery("#submenu").removeClass("sticky")
+            jQuery("#submenu").removeClass("sticky");
+            jQuery("#message").removeClass("sticky-message");
         }
     });
 
