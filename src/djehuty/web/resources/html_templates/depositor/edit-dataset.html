@@ -247,6 +247,7 @@ jQuery(document).ready(function (){
 #git-files li:nth-child(even) { background: #fafafa; }
 #embargo_options { display: none; }
 #refresh-git-files { font-size: .75em; }
+.required-field { color: #cc0000; user-select: none; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -272,16 +273,18 @@ jQuery(document).ready(function (){
 </noscript>
 <div class="hide-for-javascript">
 <h2>Dataset details</h2>
-<label for="title">Title</label>
+<p>Fields marked with <span class="required-field">&#8727;</span> are required.</p>
+<label for="title">Title</label><span class="required-field"> &#8727;</span>
 <input type="text" id="title" name="title" value="{{article["title"]}}" />
-<label for="authors">Authors</label><input type="text" id="authors" name="authors" />
+<label for="authors">Authors</label><span class="required-field"> &#8727;</span>
+<input type="text" id="authors" name="authors" />
 <table class="branded-table multi-list" id="authors-list">
   <thead>
     <tr><th>Author</th><th>Actions</th></tr>
   </thead>
   <tbody></tbody>
 </table>
-<label>Description</label>
+<label>Description</label><span class="required-field"> &#8727;</span>
 <div id="description" class="texteditor">
   {{article["description"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
@@ -301,7 +304,7 @@ jQuery(document).ready(function (){
     <p>
       Open access is the default setting in 4TU.ResearchData by which your dataset will be directly accessible to others.
     </p>
-    <label for="license_open" class="inner-head">Licence</label>
+    <label for="license_open" class="inner-head">Licence</label><span class="required-field"> &#8727;</span>
     <select id="license_open" class="license-selector" name="license">
       <option value="" disabled selected>Select a licence</option>
     </select>
@@ -311,13 +314,13 @@ jQuery(document).ready(function (){
       Embargo is a period during which a dataset is unavailable and not accessible to anyone else.
       Please enter the end date of the embargo period and add the reason why the files are under embargo.  
     </p>
-    <label for="license_embargoed" class="inner-head">Licence</label>
+    <label for="license_embargoed" class="inner-head">Licence</label><span class="required-field"> &#8727;</span>
     <select id="license_embargoed" class="license-selector" name="license">
       <option value="" disabled selected>Select a licence</option>
     </select>
-    <label for="embargo_until_date" class="inner-head">Until date</label>
+    <label for="embargo_until_date" class="inner-head">Until date</label><span class="required-field"> &#8727;</span>
     <input id="embargo_until_date" type="date" name="embargo_until_date" value="{{article["embargo_until_date"]}}" />
-    <label class="inner-head">Embargo type</label>
+    <label class="inner-head">Embargo type</label><span class="required-field"> &#8727;</span>
     <div id="record-type-wrapper" class="options-wrapper">
       <input type="radio" name="embargo_type" id="files_only_embargo" value="file" /><!--
 --><label for="files_only_embargo" class="no-head">Files-only embargo</label>
@@ -338,7 +341,7 @@ jQuery(document).ready(function (){
       conditions under which you grant users access to your data files,
       and add the reason why your dataset is restricted.
     </p>
-    <label class="inner-head">EULA</label>
+    <label class="inner-head">EULA</label><span class="required-field"> &#8727;</span>
     <div id="restricted_access_reason" class="texteditor">
       {{article["embargo_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
     </div>
@@ -358,7 +361,7 @@ jQuery(document).ready(function (){
     </div>
   </div>
 </div>
-<label>Categories</label>
+<label>Categories</label><span class="required-field"> &#8727;</span>
 <div id="categories-wrapper" class="options-wrapper">
 {%- for root in categories: %}
 <input type="checkbox" name="categories" value="{{root.uuid}}" id="category_{{root.uuid}}"><!--
@@ -371,7 +374,7 @@ jQuery(document).ready(function (){
 </div>
 {%- endfor %}
 </div>
-<label>Group</label>
+<label>Group</label><span class="required-field"> &#8727;</span>
 <div id="groups-wrapper">
 {%- for group in groups: %}
 <h4>{{group.name}}</h4>
@@ -522,7 +525,7 @@ jQuery(document).ready(function (){
 <input type="text" id="derived_from" name="derived_from" value="{{article["derived_from"] | default("", True)}}" />
 <label for="same_as">Same As</label>
 <input type="text" id="same_as" name="same_as" value="{{article["same_as"] | default("", True)}}" />
-<label for="tag">Keywords</label>
+<label for="tag">Keywords</label><span class="required-field"> &#8727;</span>
 <input type="text" id="tag" name="tag" value="" />
 <ul id="tags-list"></ul>
 <label for="organizations">Organizations</label>
@@ -587,9 +590,9 @@ git push 4tu --tags</pre>
 </div>
 <h3>Terms and agreement</h3>
 <input type="checkbox" name="deposit_agreement" id="deposit_agreement">
-<label class="no-head" for="deposit_agreement">I agree with the Deposit Agreement.</label><br />
+<label class="no-head" for="deposit_agreement">I agree with the Deposit Agreement.</label><span class="required-field">&#8727;</span><br />
 <input type="checkbox" name="publish_agreement" id="publish_agreement">
 <label class="no-head" for="publish_agreement">I agree that my dataset will be published once
-  the review is complete.</label>
+  the review is complete.</label><span class="required-field">&#8727;</span>
 </div>
 {% endblock %}
