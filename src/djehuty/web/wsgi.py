@@ -665,6 +665,9 @@ class ApiServer:
         if not self.accepts_xml (request):
             return self.error_406 ("text/xml")
 
+        if self.identity_provider != "saml":
+            return self.error_404 (request)
+
         saml_auth   = self.__saml_auth (request)
         settings    = saml_auth.get_settings ()
         metadata    = settings.get_sp_metadata ()
