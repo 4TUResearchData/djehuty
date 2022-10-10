@@ -4056,7 +4056,7 @@ class ApiServer:
         return self.response (json.dumps(files))
 
     def api_v3_dataset_submit (self, request, dataset_id):
-        handler = self.default_error_handling (request, "POST")
+        handler = self.default_error_handling (request, "PUT")
         if handler is not None:
             return handler
 
@@ -4071,8 +4071,104 @@ class ApiServer:
         if dataset is None:
             return self.error_404 (request)
 
-        if self.db.insert_review (dataset["uri"]) is not None:
-            return self.respond_204 ()
+        record = request.get_json()
+        try:
+            dataset_type = validator.string_value (record, "dataset_type", 0, 512)
+            ## These magic numbers are pre-determined by Figshare.
+            defined_type = 0
+            if dataset_type == "software":
+                defined_type = 9
+            elif dataset_type == "dataset":
+                defined_type = 3
+
+            errors          = []
+            is_embargoed    = validator.boolean_value (record, "is_embargoed", when_none=False)
+            embargo_options = validator.array_value (record, "embargo_options")
+            embargo_option  = value_or_none (embargo_options, 0)
+            is_restricted   = value_or (embargo_option, "id", 0) == 1000
+            is_closed       = value_or (embargo_option, "id", 0) == 1001
+            is_temporary_embargo = is_embargoed and not is_restricted and not is_closed
+            agreed_to_deposit_agreement = validator.boolean_value (record, "agreed_to_deposit_agreement", True, False, errors)
+            agreed_to_publish = validator.boolean_value (record, "agreed_to_publish", True, False, errors)
+
+            if not agreed_to_deposit_agreement:
+                errors.append({
+                    "field_name": "agreed_to_deposit_agreement",
+                    "message": "The dataset cannot be published without agreeing to the Deposit Agreement."
+                })
+
+            if not agreed_to_publish:
+                errors.append({
+                    "field_name": "agreed_to_publish",
+                    "message": "The dataset cannot be published without giving the reviewer permission to do so."
+                })
+
+            authors = self.db.authors (item_uri  = dataset["uri"],
+                                       item_type = "dataset")
+            if not authors:
+                errors.append({
+                    "field_name": "authors",
+                    "message": "The dataset must have at least one author."})
+
+            ## resource_doi and resource_title are not required, but if one of
+            ## the two is provided, the other must be provided as well.
+            resource_doi =   validator.string_value  (record, "resource_doi",   0, 255,   False, errors)
+            resource_title = validator.string_value  (record, "resource_title", 0, 255,   False, errors)
+
+            if resource_doi is not None:
+                validator.string_value  (record, "resource_title", 0, 255,   True, errors)
+            if resource_title is not None:
+                validator.string_value  (record, "resource_doi",   0, 255,   True, errors)
+
+            parameters = {
+                "container_uuid":     dataset["container_uuid"],
+                "account_uuid":       account_uuid,
+                "title":              validator.string_value  (record, "title",          3, 1000,  True, errors),
+                "description":        validator.string_value  (record, "description",    0, 10000, True, errors),
+                "resource_doi":       resource_doi,
+                "resource_title":     resource_title,
+                "license_id":         validator.integer_value (record, "license_id",     0, pow(2, 63), True, errors),
+                "group_id":           validator.integer_value (record, "group_id",       0, pow(2, 63), True, errors),
+                "time_coverage":      validator.string_value  (record, "time_coverage",  0, 512,   False, errors),
+                "publisher":          validator.string_value  (record, "publisher",      0, 10000, True, errors),
+                "language":           validator.string_value  (record, "language",       0, 10,    True, errors),
+                "contributors":       validator.string_value  (record, "contributors",   0, 10000, True, errors),
+                "license_remarks":    validator.string_value  (record, "license_remarks",0, 10000, True, errors),
+                "geolocation":        validator.string_value  (record, "geolocation",    0, 255,   False, errors),
+                "longitude":          validator.string_value  (record, "longitude",      0, 64,    False, errors),
+                "latitude":           validator.string_value  (record, "latitude",       0, 64,    False, errors),
+                "mimetype":           validator.string_value  (record, "format",         0, 255,   False, errors),
+                "data_link":          validator.string_value  (record, "data_link",      0, 255,   False, errors),
+                "derived_from":       validator.string_value  (record, "derived_from",   0, 255,   False, errors),
+                "same_as":            validator.string_value  (record, "same_as",        0, 255,   False, errors),
+                "organizations":      validator.string_value  (record, "organizations",  0, 512,   False, errors),
+                "is_embargoed":       is_embargoed,
+                "embargo_until_date": validator.date_value    (record, "embargo_until_date", is_temporary_embargo, errors),
+                "embargo_type":       validator.options_value (record, "embargo_type", ["article", "file"], is_embargoed, errors),
+                "embargo_title":      validator.string_value  (record, "embargo_title", 0, 1000, is_embargoed, errors),
+                "embargo_reason":     validator.string_value  (record, "embargo_reason", 0, 10000, is_embargoed, errors),
+                "embargo_allow_access_requests": is_restricted or is_temporary_embargo,
+                "defined_type_name":  dataset_type,
+                "defined_type":       defined_type,
+                "agreed_to_deposit_agreement": agreed_to_deposit_agreement,
+                "agreed_to_publish":  agreed_to_publish,
+                "categories":         validator.array_value   (record, "categories", True, errors)
+            }
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            result = self.db.update_dataset (**parameters)
+            if not result:
+                return self.error_500()
+
+            if self.db.insert_review (dataset["uri"]) is not None:
+                return self.respond_204 ()
+
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+        except (IndexError, KeyError):
+            pass
 
         return self.error_500 ()
 

@@ -806,16 +806,109 @@ function submit_dataset (dataset_uuid, event) {
 
     save_dataset (dataset_uuid, event, notify=false);
 
+    let categories   = jQuery("input[name='categories']:checked");
+    let category_ids = []
+    for (category of categories) {
+        category_ids.push(jQuery(category).val());
+    }
+
+    let dataset_type = null;
+    if (jQuery("#upload_software").prop("checked")) {
+        dataset_type = "software";
+    } else {
+        dataset_type = "dataset";
+    }
+
+    let group_id = jQuery("input[name='groups']:checked")[0]
+    if (group_id !== undefined) { group_id = group_id["value"]; }
+    else { group_id = null; }
+
+    let is_embargoed  = jQuery("#embargoed_access").prop("checked");
+    let is_restricted = jQuery("#restricted_access").prop("checked");
+    let is_closed     = jQuery("#closed_access").prop("checked");
+    let agreed_to_da  = jQuery("#deposit_agreement").prop("checked");
+    let agreed_to_publish = jQuery("#publish_agreement").prop("checked");
+
+    form_data = {
+        "title":          or_null(jQuery("#title").val()),
+        "description":    or_null(jQuery("#description .ql-editor").html()),
+        "resource_title": or_null(jQuery("#resource_title").val()),
+        "resource_doi":   or_null(jQuery("#resource_doi").val()),
+        "geolocation":    or_null(jQuery("#geolocation").val()),
+        "longitude":      or_null(jQuery("#longitude").val()),
+        "latitude":       or_null(jQuery("#latitude").val()),
+        "format":         or_null(jQuery("#format").val()),
+        "data_link":      or_null(jQuery("#data_link").val()),
+        "derived_from":   or_null(jQuery("#derived_from").val()),
+        "same_as":        or_null(jQuery("#same_as").val()),
+        "organizations":  or_null(jQuery("#organizations").val()),
+        "publisher":      or_null(jQuery("#publisher").val()),
+        "time_coverage":  or_null(jQuery("#time_coverage").val()),
+        "language":       or_null(jQuery("#language").val()),
+        "dataset_type":   dataset_type,
+        "is_embargoed":   is_embargoed || is_restricted || is_closed,
+        "group_id":       group_id,
+        "agreed_to_deposit_agreement": agreed_to_da,
+        "agreed_to_publish": agreed_to_publish,
+        "categories":     category_ids
+    }
+
+    if (is_embargoed) {
+        form_data["embargo_until_date"] = or_null(jQuery("#embargo_until_date").val());
+        form_data["embargo_title"]  = or_null(jQuery("#embargo_title").val());
+        form_data["embargo_reason"] = or_null(jQuery("#embargo_reason .ql-editor").html());
+        form_data["license_id"]     = or_null(jQuery("#license_embargoed").val());
+        if (jQuery("#files_only_embargo").prop("checked")) {
+            form_data["embargo_type"] = "file";
+        } else if (jQuery("#content_embargo").prop("checked")) {
+            form_data["embargo_type"] = "article";
+        }
+    } else if (is_restricted) {
+        // 149 is the licence ID of the "Restricted Licence".
+        form_data["license_id"]     = 149;
+        form_data["embargo_until_date"] = null;
+        form_data["embargo_title"]  = "Restricted access";
+        form_data["embargo_reason"] = or_null(jQuery("#restricted_access_reason .ql-editor").html());
+        form_data["embargo_options"] = [{ "id": 1000, "type": "restricted_access" }]
+    } else if (is_closed) {
+        form_data["license_id"]     = 149;
+        form_data["embargo_until_date"] = null;
+        form_data["embargo_title"]  = "Closed access";
+        form_data["embargo_reason"] = or_null(jQuery("#closed_access_reason .ql-editor").html());
+        form_data["embargo_options"] = [{ "id": 1001, "type": "closed_access" }]
+    } else {
+        form_data["license_id"]     = or_null(jQuery("#license_open").val());
+    }
+
     let jqxhr = jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}/submit-for-review`,
-        type:        "POST",
+        type:        "PUT",
         contentType: "application/json",
         accept:      "application/json",
         data:        JSON.stringify(form_data),
     }).done(function () {
         window.location.replace("/my/datasets/submitted-for-review");
-    }).fail(function () {
-        show_message ("failure", "<p>Oops! Submitting for review failed.</p>");
+    }).fail(function (response, text_status, error_code) {
+        jQuery(".missing-required").removeClass("missing-required");
+        let error_messages = jQuery.parseJSON (response.responseText);
+        let error_message = "<p>Please fill in all required fields.</p>";
+        if (error_messages.length > 0) {
+            error_message = "<p>Please fill in all required fields:</p><ul>";
+            for (message of error_messages) {
+                if (message.field_name == "license_id") {
+                    jQuery("#license_open").addClass("missing-required");
+                    jQuery("#license_embargoed").addClass("missing-required");
+                } else {
+                    jQuery(`#${message.field_name}`).addClass("missing-required");
+                }
+                error_message += `<li>${message.message}</li>`;
+            }
+            error_message += "</ul>";
+        }
+        if (error_code == 400) {
+            error_message = "Please fill in all required fields.";
+        }
+        show_message ("failure", `${error_message}`);
     });
 }
 
