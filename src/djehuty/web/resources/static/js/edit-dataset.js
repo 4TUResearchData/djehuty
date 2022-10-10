@@ -1,6 +1,18 @@
 function render_in_form (text) { return [text].join(''); }
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 
+function show_message (type, message) {
+    jQuery("#message")
+        .addClass(type)
+        .append(message)
+        .fadeIn(250);
+    setTimeout(function() {
+        jQuery("#message").fadeOut(500, function() {
+            jQuery("#message").removeClass(type).empty();
+        });
+    }, 5000);
+}
+
 function delete_dataset (dataset_uuid, event) {
     event.preventDefault();
     event.stopPropagation();
@@ -101,15 +113,7 @@ function save_dataset (dataset_uuid, event, notify=true) {
         data:        JSON.stringify(form_data),
     }).done(function () {
         if (notify) {
-            jQuery("#message")
-                .addClass("success")
-                .append("<p>Saved changed.</p>")
-                .fadeIn(250);
-            setTimeout(function() {
-                jQuery("#message").fadeOut(500, function() {
-                    jQuery("#message").removeClass("success").empty();
-                });
-            }, 5000);
+            show_message ("success", "<p>Saved changed.</p>");
         }
     })
       .fail(function () { console.log("Failed to save form."); });
@@ -808,15 +812,7 @@ function submit_dataset (dataset_uuid, event) {
     }).done(function () {
         window.location.replace("/my/datasets/submitted-for-review");
     }).fail(function () {
-        jQuery("#message")
-            .addClass("failure")
-            .append("<p>Oops! Submitting for review failed.</p>")
-            .fadeIn(250);
-        setTimeout(function() {
-            jQuery("#message").fadeOut(500, function() {
-                jQuery("#message").removeClass("failure").empty();
-            });
-        }, 5000);
+        show_message ("failure", "<p>Oops! Submitting for review failed.</p>");
     });
 }
 
