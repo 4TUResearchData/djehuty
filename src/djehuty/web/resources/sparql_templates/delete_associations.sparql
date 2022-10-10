@@ -12,7 +12,7 @@ WHERE {
                   djht:draft                ?item .
     ?item         djht:{{predicate}}        ?item_list .
   }
-  FILTER (?account = <{{account_uuid}}>)
+  FILTER (?account = <account:{{account_uuid}}>)
   FILTER (?container  = <{{container_uri}}>)
 }
 {% endblock %}
