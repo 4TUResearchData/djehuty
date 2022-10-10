@@ -115,8 +115,11 @@ function save_dataset (dataset_uuid, event, notify=true) {
         if (notify) {
             show_message ("success", "<p>Saved changed.</p>");
         }
-    })
-      .fail(function () { console.log("Failed to save form."); });
+    }).fail(function (request, text_status, error_code) {
+        if (notify) {
+            show_message ("failure", "<p>Failed to save draft. Please try again at a later time.</p>");
+        }
+    });
 }
 
 function render_licenses (dataset) {
@@ -136,7 +139,7 @@ function render_licenses (dataset) {
             jQuery(".license-selector").append(html);
         }
     }).fail(function () {
-        console.log("Failed to retrieve licenses.");
+        show_message ("failure", "<p>Failed to retrieve license list.</p>")
     });
 }
 
@@ -153,7 +156,7 @@ function render_categories_for_dataset (dataset_uuid) {
             jQuery(`#subcategories_${category["parent_uuid"]}`).show();
         }
     }).fail(function () {
-        console.log("Failed to retrieve article categories.");
+        show_message ("failure", "<p>Failed to retrieve categories.</p>")
     });
 }
 
@@ -175,7 +178,7 @@ function render_references_for_dataset (dataset_uuid) {
         }
         jQuery("#references-list").show();
     }).fail(function () {
-        console.log("Failed to retrieve reference details.");
+        show_message ("failure", "<p>Failed to retrieve references.</p>");
     });
 }
 
@@ -194,7 +197,7 @@ function render_tags_for_dataset (dataset_uuid) {
             jQuery("#tags-list").append(row);
         }
         jQuery("#tags-list").show();
-    }).fail(function () { console.log("Failed to retrieve tags."); });
+    }).fail(function () { show_message ("failure", "<p>Failed to retrieve tags.</p>"); });
 }
 
 function render_authors_for_dataset (dataset_uuid) {
@@ -218,7 +221,7 @@ function render_authors_for_dataset (dataset_uuid) {
         }
         jQuery("#authors-list").show();
     }).fail(function () {
-        console.log("Failed to retrieve author details.");
+        show_message ("failure", "<p>Failed to retrieve author details.</p>");
     });
 }
 
@@ -240,7 +243,7 @@ function render_funding_for_dataset (dataset_uuid) {
         }
         jQuery("#funding-list").show();
     }).fail(function () {
-        console.log("Failed to retrieve funding details.");
+        show_message ("failure", "<p>Failed to retrieve funding details.</p>");
     });
 }
 
@@ -260,7 +263,7 @@ function render_git_files_for_dataset (dataset_uuid, event) {
             jQuery("#git-files").append(`<li>${files[index]}</li>`);
         }
     }).fail(function () {
-        console.log("Failed to retrieve Git file details.");
+        show_message ("failure", "<p>Failed to retrieve Git file details.</p>");
     });
 }
 function render_files_for_dataset (dataset_uuid) {
@@ -293,7 +296,7 @@ function render_files_for_dataset (dataset_uuid) {
             jQuery("input[name='record_type']").attr('disabled', false);
         }
     }).fail(function () {
-        console.log("Failed to retrieve file details.");
+        show_message ("failure", "<p>Failed to retrieve file details.</p>");
     });
 }
 
@@ -308,7 +311,7 @@ function add_author (author_uuid, dataset_uuid) {
         render_authors_for_dataset (dataset_uuid);
         jQuery("#authors").val("");
         autocomplete_author(null, dataset_uuid);
-    }).fail(function () { console.log (`Failed to add ${author_uuid}`); });
+    }).fail(function () { show_message ("failure", `Failed to add ${author_uuid}`); });
 }
 
 function add_funding (funding_uuid, dataset_uuid) {
@@ -322,7 +325,7 @@ function add_funding (funding_uuid, dataset_uuid) {
         render_funding_for_dataset (dataset_uuid);
         jQuery("#funding").val("");
         autocomplete_funding(null, dataset_uuid);
-    }).fail(function () { console.log (`Failed to add ${funding_uuid}`); });
+    }).fail(function () { show_message ("failure", `Failed to add ${funding_uuid}`); });
 }
 
 function submit_external_link (dataset_uuid) {
@@ -341,7 +344,7 @@ function submit_external_link (dataset_uuid) {
         jQuery("#external_url").val("");
         jQuery("#external_link_field").hide();
         render_files_for_dataset (dataset_uuid);
-    }).fail(function () { console.log (`Failed to add ${url}`); });
+    }).fail(function () { show_message ("failure", `Failed to add ${url}`); });
 }
 
 function add_reference (dataset_uuid) {
@@ -356,7 +359,7 @@ function add_reference (dataset_uuid) {
         }).done(function () {
             render_references_for_dataset (dataset_uuid);
             jQuery("#references").val("");
-        }).fail(function () { console.log (`Failed to add ${url}`); });
+        }).fail(function () { show_message ("failure", `Failed to add ${url}`); });
     }
 }
 
@@ -373,7 +376,7 @@ function add_tag (dataset_uuid) {
     }).done(function () {
         render_tags_for_dataset (dataset_uuid);
         jQuery("#tag").val("");
-    }).fail(function () { console.log (`Failed to add ${tag}`); });
+    }).fail(function () { show_message ("failure", `Failed to add ${tag}`); });
 }
 
 function submit_new_author (dataset_uuid) {
@@ -400,7 +403,7 @@ function submit_new_author (dataset_uuid) {
         jQuery("#authors-ac").remove();
         jQuery("#authors").removeClass("input-for-ac");
         render_authors_for_dataset (dataset_uuid);
-    }).fail(function () { console.log (`Failed to add author.`); });
+    }).fail(function () { show_message ("failure", `Failed to add author.`); });
 }
 
 function submit_new_funding (dataset_uuid) {
@@ -421,7 +424,7 @@ function submit_new_funding (dataset_uuid) {
         jQuery("#funding-ac").remove();
         jQuery("#funding").removeClass("input-for-ac");
         render_funding_for_dataset (dataset_uuid);
-    }).fail(function () { console.log (`Failed to add funding.`); });
+    }).fail(function () { show_message ("failure", `Failed to add funding.`); });
 }
 
 function new_author (dataset_uuid) {
@@ -751,7 +754,7 @@ function remove_file (file_id, dataset_uuid) {
         if (jQuery("#external_link").prop("checked")) {
             jQuery("#external_link_field").show();
         }
-    }).fail(function () { console.log (`Failed to remove ${file_id}`); });
+    }).fail(function () { show_message ("failure", `Failed to remove ${file_id}`); });
 }
 
 function remove_author (author_id, dataset_uuid) {
@@ -760,7 +763,7 @@ function remove_author (author_id, dataset_uuid) {
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (authors) { render_authors_for_dataset (dataset_uuid); })
-      .fail(function () { console.log (`Failed to remove ${author_id}`); });
+      .fail(function () { show_message ("failure", `Failed to remove ${author_id}`); });
 }
 
 function remove_funding (funding_id, dataset_uuid) {
@@ -769,7 +772,7 @@ function remove_funding (funding_id, dataset_uuid) {
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (funding) { render_funding_for_dataset (dataset_uuid); })
-      .fail(function () { console.log (`Failed to remove ${funding_id}`); });
+      .fail(function () { show_message ("failure", `Failed to remove ${funding_id}`); });
 }
 
 function remove_reference (url, dataset_uuid) {
@@ -778,7 +781,7 @@ function remove_reference (url, dataset_uuid) {
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (authors) { render_references_for_dataset (dataset_uuid); })
-      .fail(function () { console.log (`Failed to remove ${url}`); });
+      .fail(function () { show_message ("failure", `Failed to remove ${url}`); });
 }
 
 function remove_tag (tag, dataset_uuid) {
@@ -787,7 +790,7 @@ function remove_tag (tag, dataset_uuid) {
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (authors) { render_tags_for_dataset (dataset_uuid); })
-      .fail(function () { console.log (`Failed to remove ${tag}`); });
+      .fail(function () { show_message ("failure", `Failed to remove ${tag}`); });
 }
 
 function prettify_size (size) {
