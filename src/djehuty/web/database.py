@@ -1070,6 +1070,7 @@ class SparqlInterface:
                 if not self.add_triples_from_graph (graph):
                     logging.error ("%s insert query failed for %s",
                                    predicate, container_uuid)
+                    return False
 
             return True
 
