@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<style>
+    #content a    { color: #f49120; text-decoration: none }
+    #content a:hover { text-decoration: underline }
+    #contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export, #data_link
+                  { margin-top: 10px }
+    #metadata #left_column  { width: 65%; margin-bottom:10px }
+    #metadata #right_column { float: right; width: 33%; margin-bottom:10px }
+    .label        { text-transform: uppercase }
+    ul            { list-style-type: none; padding:0; margin:0 }
+    #orcid img    { height: 20px }
+</style>
+{% endblock %}
+{% block body %}
+
+<h3>{{profile.full_name}}</h3>
+{% if profile.orcid_id %}
+<div id="orcid">
+    <img src="/static/images/orcid.svg" alt="orcid logo"/>
+    <a href="https://orcid.org/{{profile.orcid_id}}" target="_blank" title="ORCID profile (new window)">{{profile.orcid_id}}</a>
+</div>
+{% endif %}
+{% if profile.job_title %}
+<div>{{profile.job_title}}</div>
+{% endif %}
+
+{%- if not in_production: %}
+    {% set debug_vars = {"profile": profile} %}
+    {% set figshare_html = "https://data.4tu.nl/authors/_/"~profile.id %}
+    {% include 'debug.html' %}
+{%- endif %}
+{% endblock %}
+

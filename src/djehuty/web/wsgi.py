@@ -111,6 +111,7 @@ class ApiServer:
             Rule("/file/<dataset_id>/<file_id>",              endpoint = "ui_download_file"),
             Rule("/collections/<collection_id>",              endpoint = "ui_collection"),
             Rule("/collections/<collection_id>/<version>",    endpoint = "ui_collection"),
+            Rule("/authors/<author_id>",                      endpoint = "ui_author"),
             Rule("/search",                                   endpoint = "ui_search"),
 
             ## ----------------------------------------------------------------
@@ -1754,6 +1755,20 @@ class ApiServer:
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
         }))
+
+    def ui_author (self, request, author_id):
+        #TODO: add datasets, publications, co-authors, usage metrics
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        author_uri = f'author:{author_id}'
+        try:
+            profile = self.db.author_profile (author_uri)[0]
+            return self.__render_template (request, "author.html", profile=profile)
+        except IndexError:
+            return self.error_404 (request)
+
+        return self.error_500 ()
 
     def ui_institution (self, request, institution_name):
         if not self.accepts_html (request):
