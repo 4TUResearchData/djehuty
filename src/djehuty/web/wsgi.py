@@ -356,7 +356,7 @@ class ApiServer:
     def error_400_list (self, request, errors):
         response = None
         if self.accepts_html (request):
-            response = self.__render_template (request, "400.html", message=message)
+            response = self.__render_template (request, "400.html", message=errors)
         else:
             response = self.response (json.dumps(errors))
         response.status_code = 400
