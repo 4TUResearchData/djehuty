@@ -5,12 +5,19 @@
 <div id="debug" style="background-color: #eee; color: #666; margin-top: 20px; font-family: monospace; display: none">
     <button onclick="document.getElementById('debug').style.display = 'none'">undebug</button>
     COMPARE
+{% if djehuty_API %}
     <a href="{{djehuty_API}}">json</a>,
+{% endif %}
     Figshare 
+{% if figshare_html %}
     <a href="{{figshare_html}}" target="_blank">html</a>
+{% endif %}
+{% if figshare_API %}
     <a href="{{figshare_API}}" target="_blank">json</a>
+{% endif %}
     <div style="text-align:center">RAW DATA</div>
 {% for key,val in debug_vars.items() %}
     <h3>{{key}}</h3>{{val}}
 {% endfor %}
+</div>
 {% endblock %}
