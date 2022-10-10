@@ -1136,7 +1136,7 @@ class ApiServer:
             if dataset is None:
                 return self.error_403 (request)
 
-            container_uuid = uri_to_uuid (dataset["container_uri"])
+            container_uuid = dataset["container_uuid"]
             if self.db.delete_dataset_draft (container_uuid, account_uuid):
                 return redirect ("/my/datasets", code=303)
 
@@ -2346,7 +2346,7 @@ class ApiServer:
                 is_closed       = value_or (embargo_option, "id", 0) == 1001
                 is_temporary_embargo = is_embargoed and not is_restricted and not is_closed
 
-                result = self.db.update_dataset (uri_to_uuid (dataset["container_uri"]),
+                result = self.db.update_dataset (dataset["container_uuid"],
                     account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000),
@@ -2398,7 +2398,7 @@ class ApiServer:
                                                            account_uuid=account_uuid,
                                                            is_published=False)
 
-                container_uuid = uri_to_uuid (dataset["container_uri"])
+                container_uuid = dataset["container_uuid"]
                 if self.db.delete_dataset_draft (container_uuid, account_uuid):
                     return self.respond_204()
             except (IndexError, KeyError):
@@ -2487,7 +2487,7 @@ class ApiServer:
                                                  existing_authors))
 
                 authors = existing_authors + new_authors
-                if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+                if not self.db.update_item_list (dataset["container_uuid"],
                                                  account_uuid,
                                                  authors,
                                                  "authors"):
@@ -2535,7 +2535,7 @@ class ApiServer:
                 authors.remove (next (filter (lambda item: item['uuid'] == author_id, authors)))
 
             authors = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "author")), authors))
-            if self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+            if self.db.update_item_list (dataset["container_uuid"],
                                          account_uuid,
                                          authors,
                                          "authors"):
@@ -2626,7 +2626,7 @@ class ApiServer:
                                                  existing_fundings))
 
                 fundings = existing_fundings + new_fundings
-                if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+                if not self.db.update_item_list (dataset["container_uuid"],
                                                  account_uuid,
                                                  fundings,
                                                  "funding_list"):
@@ -2674,7 +2674,7 @@ class ApiServer:
             fundings.remove (next (filter (lambda item: item['uuid'] == funding_id, fundings)))
 
             fundings = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "funding")), fundings))
-            if self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+            if self.db.update_item_list (dataset["container_uuid"],
                                          account_uuid,
                                          fundings,
                                          "funding_list"):
@@ -4168,7 +4168,7 @@ class ApiServer:
                 url_encoded = validator.string_value (request.args, "url", 0, 1024, True)
                 url         = requests.utils.unquote(url_encoded)
                 references.remove (next (filter (lambda item: item == url, references)))
-                if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+                if not self.db.update_item_list (dataset["container_uuid"],
                                                  account_uuid,
                                                  references,
                                                  "references"):
@@ -4189,7 +4189,7 @@ class ApiServer:
             if request.method == 'POST':
                 references = references + new_references
 
-            if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+            if not self.db.update_item_list (dataset["container_uuid"],
                                              account_uuid,
                                              references,
                                              "references"):
@@ -4251,7 +4251,7 @@ class ApiServer:
                 tag_encoded = validator.string_value (request.args, "tag", 0, 1024, True)
                 tag         = requests.utils.unquote(tag_encoded)
                 tags.remove (next (filter (lambda item: item == tag, tags)))
-                if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+                if not self.db.update_item_list (dataset["container_uuid"],
                                                  account_uuid,
                                                  tags,
                                                  "tags"):
@@ -4280,7 +4280,7 @@ class ApiServer:
                 # Remove duplicates.
                 tags = deduplicate_list(existing_tags + new_tags)
 
-            if not self.db.update_item_list (uri_to_uuid (dataset["container_uri"]),
+            if not self.db.update_item_list (dataset["container_uuid"],
                                              account_uuid,
                                              tags,
                                              "tags"):
