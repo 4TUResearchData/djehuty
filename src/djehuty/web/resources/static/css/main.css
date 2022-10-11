@@ -390,6 +390,7 @@ img.cts { width: 120px; }
 .fa-angle-double-up::before { content: "\f102"; }
 .fa-angle-double-down::before { content: "\f103"; }
 .fa-sync::before { content: "\f021"; }
+.fa-question-circle::before { content: "\f059"; }
 .fa-empty::before {}
 
 a.fas { text-decoration: none; }
@@ -500,3 +501,20 @@ img { user-select: none; }
 .sticky-message { position: fixed !important; top: 70px; }
 .sticky-message p { margin: 0em; }
 .missing-required { border: solid 2pt #990000 !important; background: #ffeeee !important; }
+.help-icon { margin: 0pt 0pt 0pt 5pt; }
+.help-icon .help-text { display: none; }
+.help-icon:hover { cursor: pointer; }
+.help-icon:hover .help-text {
+  position: absolute;
+  max-width: 700pt;
+  display: block;
+  background: #fffaea;
+  border: solid 2pt #ffeecc;
+  font-family: 'SourceSans', sans-serif;
+  font-size: 12pt;
+  font-weight: normal;
+  padding: .5em;
+  border-radius: .5em;
+  margin-top: -2.5em;
+  margin-left: 1.5em;
+}
