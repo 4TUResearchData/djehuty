@@ -8,7 +8,7 @@
                   { margin-top: 10px }
     #metadata #left_column  { width: 65%; margin-bottom:10px }
     #metadata #right_column { float: right; width: 33%; margin-bottom:10px }
-    .label        { text-transform: uppercase }
+    .label        { text-transform: uppercase; margin-top:20px }
     ul            { list-style-type: none; padding:0; margin:0 }
     #orcid img    { height: 20px }
 </style>
@@ -25,9 +25,35 @@
 {% if profile.job_title %}
 <div>{{profile.job_title}}</div>
 {% endif %}
+{% if datasets %}
+<div id="#datasets">
+    <div class="label">Datasets</div>
+    <ul>
+    {% for dataset in datasets %}
+        <li>
+            <a href="/datasets/{{dataset.container_uuid}}/{{dataset.version}}"
+               title="published {{dataset.posted_date[:10]}}">{{dataset.title}}</a>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% if collections %}
+<div id="#collections">
+    <div class="label">Collections</div>
+    <ul>
+    {% for collection in collections %}
+        <li>
+            <a href="/collections/{{collection.container_uuid}}/{{collection.version}}"
+               title="published {{collection.posted_date[:10]}}">{{collection.title}}</a>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
 
 {%- if not in_production: %}
-    {% set debug_vars = {"profile": profile} %}
+    {% set debug_vars = {"profile":profile, "datasets":datasets, "collections":collections} %}
     {% set figshare_html = "https://data.4tu.nl/authors/_/"~profile.id %}
     {% include 'debug.html' %}
 {%- endif %}

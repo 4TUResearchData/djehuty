@@ -1764,7 +1764,11 @@ class ApiServer:
         author_uri = f'author:{author_id}'
         try:
             profile = self.db.author_profile (author_uri)[0]
-            return self.__render_template (request, "author.html", profile=profile)
+            public_items = self.db.author_public_items(author_uri)
+            datasets    = [pi for pi in public_items if pi['is_dataset']]
+            collections = [pi for pi in public_items if not pi['is_dataset']]
+            return self.__render_template (request, "author.html", profile=profile,
+                                           datasets=datasets, collections=collections)
         except IndexError:
             return self.error_404 (request)
 

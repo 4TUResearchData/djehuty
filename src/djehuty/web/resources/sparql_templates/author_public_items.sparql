@@ -1,0 +1,29 @@
+{# Find for each item the latest version authored by a given author. #}
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT (?item_type = <https://ontologies.data.4tu.nl/djehuty/0.0.1/Dataset>) AS ?is_dataset
+                STRAFTER(STR(?container), ":") AS ?container_uuid
+                ?version ?posted_date ?title
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?item  rdf:type          ?item_type ;
+           djht:container    ?container ;
+           djht:version      ?version ;
+           djht:posted_date  ?posted_date ;
+           djht:title        ?title .
+    {
+      SELECT ?container (MAX(?i_version) AS ?version)
+      WHERE {
+        GRAPH <{{state_graph}}> {
+          ?i_item  djht:container                    ?container ;
+                   djht:version                      ?i_version ;
+                   djht:is_public                    true ;
+                   djht:authors/rdf:rest*/rdf:first  <{{author_uri}}> .
+        }
+      }
+      GROUP BY ?container
+    }
+  }
+}
+ORDER BY DESC(?posted_date)
+{% endblock %}
