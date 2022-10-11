@@ -620,8 +620,11 @@ class ApiServer:
         saml_auth   = OneLogin_Saml2_Auth (http_fields, custom_base_path=self.saml_config_path)
         try:
             saml_auth.process_response ()
-        except OneLogin_Saml2_Error.SAML_RESPONSE_NOT_FOUND:
-            logging.error ("Missing SAMLResponse in POST data.")
+        except OneLogin_Saml2_Error as error:
+            if error.code == OneLogin_Saml2_Error.SAML_RESPONSE_NOT_FOUND:
+                logging.error ("Missing SAMLResponse in POST data.")
+            else:
+                logging.error ("SAML error %d occured.", error.code)
             return None
 
         errors = saml_auth.get_errors()
