@@ -4117,6 +4117,16 @@ class ApiServer:
                     "field_name": "tag",
                     "message": "The dataset must have at least one keyword."})
 
+
+            categories = self.db.categories (item_uri = dataset["uri"],
+                                             account_uuid = account_uuid,
+                                             is_published = False)
+
+            if not categories:
+                errors.append({
+                    "field_name": "categories",
+                    "message": "Please specify at least one category."})
+
             ## resource_doi and resource_title are not required, but if one of
             ## the two is provided, the other must be provided as well.
             resource_doi =   validator.string_value  (record, "resource_doi",   0, 255,   False, errors)

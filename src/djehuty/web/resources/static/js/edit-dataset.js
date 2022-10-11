@@ -900,6 +900,8 @@ function submit_dataset (dataset_uuid, event) {
                     jQuery("#license_embargoed").addClass("missing-required");
                 } else if (message.field_name == "group_id") {
                     jQuery("#groups-wrapper").addClass("missing-required");
+                } else if (message.field_name == "categories") {
+                    jQuery("#categories-wrapper").addClass("missing-required");
                 } else {
                     jQuery(`#${message.field_name}`).addClass("missing-required");
                 }
