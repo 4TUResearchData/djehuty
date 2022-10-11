@@ -893,20 +893,17 @@ function submit_dataset (dataset_uuid, event) {
         let error_messages = jQuery.parseJSON (response.responseText);
         let error_message = "<p>Please fill in all required fields.</p>";
         if (error_messages.length > 0) {
-            error_message = "<p>Please fill in all required fields:</p><ul>";
+            error_message = "<p>Please fill in all required fields.</p>";
             for (message of error_messages) {
                 if (message.field_name == "license_id") {
                     jQuery("#license_open").addClass("missing-required");
                     jQuery("#license_embargoed").addClass("missing-required");
+                } else if (message.field_name == "group_id") {
+                    jQuery("#groups-wrapper").addClass("missing-required");
                 } else {
                     jQuery(`#${message.field_name}`).addClass("missing-required");
                 }
-                error_message += `<li>${message.message}</li>`;
             }
-            error_message += "</ul>";
-        }
-        if (error_code == 400) {
-            error_message = "Please fill in all required fields.";
         }
         show_message ("failure", `${error_message}`);
     });

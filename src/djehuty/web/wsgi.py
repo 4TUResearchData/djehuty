@@ -4110,6 +4110,13 @@ class ApiServer:
                     "field_name": "authors",
                     "message": "The dataset must have at least one author."})
 
+            tags = self.db.tags (item_uri     = dataset["uri"],
+                                 account_uuid = account_uuid)
+            if not tags:
+                errors.append({
+                    "field_name": "tag",
+                    "message": "The dataset must have at least one keyword."})
+
             ## resource_doi and resource_title are not required, but if one of
             ## the two is provided, the other must be provided as well.
             resource_doi =   validator.string_value  (record, "resource_doi",   0, 255,   False, errors)
@@ -4132,7 +4139,7 @@ class ApiServer:
                 "time_coverage":      validator.string_value  (record, "time_coverage",  0, 512,   False, errors),
                 "publisher":          validator.string_value  (record, "publisher",      0, 10000, True, errors),
                 "language":           validator.string_value  (record, "language",       0, 10,    True, errors),
-                "contributors":       validator.string_value  (record, "contributors",   0, 10000, True, errors),
+                "contributors":       validator.string_value  (record, "contributors",   0, 10000, False, errors),
                 "license_remarks":    validator.string_value  (record, "license_remarks",0, 10000, True, errors),
                 "geolocation":        validator.string_value  (record, "geolocation",    0, 255,   False, errors),
                 "longitude":          validator.string_value  (record, "longitude",      0, 64,    False, errors),

@@ -499,4 +499,4 @@ img { user-select: none; }
 .sticky { position: fixed !important; top: 0px; width: 100% }
 .sticky-message { position: fixed !important; top: 70px; }
 .sticky-message p { margin: 0em; }
-.missing-required { border: solid 2pt #990000 !important; background: #ffeeee; }
+.missing-required { border: solid 2pt #990000 !important; background: #ffeeee !important; }
