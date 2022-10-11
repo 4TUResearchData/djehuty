@@ -274,9 +274,9 @@ jQuery(document).ready(function (){
 <div class="hide-for-javascript">
 <h2>Dataset details</h2>
 <p>Fields marked with <span class="required-field">&#8727;</span> are required.</p>
-<label for="title">Title</label><span class="required-field"> &#8727;</span>
+<label for="title">Title</label><div class="fas fa-question-circle help-icon"><span class="help-text">Give your research a title that is more descriptive than just a file name. This will help making your items discoverable via search engines such as Google. The title should have at least three characters.</span></div><span class="required-field">&#8727;</span>
 <input type="text" id="title" name="title" value="{{article["title"]}}" />
-<label for="authors">Authors</label><span class="required-field"> &#8727;</span>
+<label for="authors">Authors</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select authors from the list or manually add them by creating a new author record. Hit enter after adding each author and drag and drop names to arrange them in the order you wish.</span></div><span class="required-field">&#8727;</span>
 <input type="text" id="authors" name="authors" />
 <table class="branded-table multi-list" id="authors-list">
   <thead>
@@ -284,11 +284,11 @@ jQuery(document).ready(function (){
   </thead>
   <tbody></tbody>
 </table>
-<label>Description</label><span class="required-field"> &#8727;</span>
+<label>Description</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add as much context as possible so that others can interpret your research and reproduce it. Make sure you include methodology, techniques used, and if relevant information about approval for data collection to confirm adherence to legal or ethical requirements. The description should have at least four characters.</span></div><span class="required-field">&#8727;</span>
 <div id="description" class="texteditor">
   {{article["description"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
-<label>Licence &#38; Access</label>
+<label>Licence &#38; Access</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select the appropriate licence from the list. Need to know more? Read our <a target="_blank" href="https://data.4tu.nl/info/en/use/publish-cite/upload-your-data-in-our-data-repository/licencing">guidance</a> for more information on the licence types we offer.</span></div>
 <div id="access-wrapper">
   <div id="access-type-wrapper" class="options-wrapper">
 <input type="radio" name="access_type" id="open_access" value="open" checked="checked" /><!--
@@ -361,7 +361,7 @@ jQuery(document).ready(function (){
     </div>
   </div>
 </div>
-<label>Categories</label><span class="required-field"> &#8727;</span>
+<label>Categories</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select one or multiple categories that this research best correlates with.</span></div><span class="required-field">&#8727;</span>
 <div id="categories-wrapper" class="options-wrapper">
 {%- for root in categories: %}
 <input type="checkbox" name="categories" value="{{root.uuid}}" id="category_{{root.uuid}}"><!--
@@ -390,7 +390,8 @@ jQuery(document).ready(function (){
 </div>
 <label for="publisher">Publisher</label>
 <input type="text" id="publisher" name="publisher" value="{{article["publisher"] | default("4TU.ResearchData", True)}}">
-<label for="funding">Funding</label><input type="text" id="funding" name="funding" />
+<label for="funding">Funding</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select from the list by searching for funder name, grant number or grant name or manually add them by creating a new funding record.</span></div>
+<input type="text" id="funding" name="funding" />
 <table class="branded-table multi-list" id="funding-list">
   <thead>
     <tr><th>Name</th><th>Actions</th></tr>
@@ -399,12 +400,12 @@ jQuery(document).ready(function (){
 </table>
 <h3>Linked resource &amp; references</h3>
 <p>If the dataset is published as part of a scientific paper, add its title and DOI here.</p>
-<label for="resource_title">Resource title</label>
+<label for="resource_title">Resource title</label><div class="fas fa-question-circle help-icon"><span class="help-text">Please add the title of the peer-reviewed article/paper or research you want to link back to. This will appear on the public page as the link title. If you add the Resource title, you will need to complete the Resource DOI field.</span></div>
 <input type="text" id="resource_title" name="resource_title" value="{{article["resource_title"] | default("", True)}}" />
-<label for="resource_doi">Resource DOI</label>
+<label for="resource_doi">Resource DOI</label><div class="fas fa-question-circle help-icon"><span class="help-text">Please add the DOI of the peer-reviewed article/paper or research you want to link back to. This is the link destination for the Resource title. If you add the Resource DOI, you will need to complete the Resource title field.</span></div>
 <input type="text" id="resource_doi" name="resource_doi" value="{{article["resource_doi"] | default("", True)}}" />
 <p>Add any other relevant URLs or DOIs below.</p>
-<label for="references">References</label>
+<label for="references">References</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add references (links) to any relevant content or external sources that help describe the resource. All links must be full, valid URLs or DOIs in order to function, eg: https://doi.org/10.4233/uuid:35022242-b3ba-48d9-b3f6-c6ab20b8cc19. Hit return to enter new references.</span></div>
 <input type="text" id="references" name="references" value="" />
 <table class="branded-table" id="references-list">
   <thead>
@@ -413,7 +414,7 @@ jQuery(document).ready(function (){
   <tbody></tbody>
 </table>
 <h3>Findability</h3>
-<label for="language">Language</label><span class="required-field"> &#8727;</span>
+<label for="language">Language</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select a language from the list.</span></div><span class="required-field">&#8727;</span>
 <select id="language" class="language-selector" name="language">
   <option value="" disabled>Select a language</option>
   <option value="af" {% if article.language == "af" %}selected{% endif %}>Afrikaans</option>
@@ -506,29 +507,29 @@ jQuery(document).ready(function (){
   <option value="zh-hans" {% if article.language == "zh-hans" %}selected{% endif %}>Chinese, Simplified</option>
   <option value="zh-hant" {% if article.language == "zh-hant" %}selected{% endif %}>Chinese, Traditional</option>
 </select>
-<label for="time_coverage">Time coverage</label>
+<label for="time_coverage">Time coverage</label><div class="fas fa-question-circle help-icon"><span class="help-text">Indicate the dates to which the data refer. Enter the year, or the beginning and ending date.</span></div>
 <input type="text" id="time_coverage" name="time_coverage" value="{{article["time_coverage"] | default("", True)}}" />
 <label>Geolocation</label>
 <div id="geolocation-wrapper">
-  <label for="geolocation">Name</label>
+  <label for="geolocation">Name</label><div class="fas fa-question-circle help-icon"><span class="help-text">The geographic area to which the data refer (e.g. municipality, town/city, region, country)</span></div>
   <input type="text" id="geolocation" name="geolocation" placeholder="Example: Dam Square, Amsterdam" value="{{article["geolocation"] | default("", True)}}" />
-  <label for="longitude">Longitude</label>
+  <label for="longitude">Longitude</label><div class="fas fa-question-circle help-icon"><span class="help-text">Geographic longitude in decimal degrees, East is positive, West is negative. Values: -180 to 180.</span></div>
   <input type="text" id="longitude" name="longitude" placeholder="Example: 4.893" value="{{article["longitude"] | default("", True)}}" />
-  <label for="latitude">Latitude</label>
+  <label for="latitude">Latitude</label><div class="fas fa-question-circle help-icon"><span class="help-text">Geographic latitude in decimal degrees, North is positive, South is negative. Values: -90 to 90.</span></div>
   <input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{article["latitude"] | default("", True)}}" />
 </div>
-<label for="format">Format</label>
+<label for="format">Format</label><div class="fas fa-question-circle help-icon"><span class="help-text">Format of the data file(s), e.g. the media type like image/jpeg or a description like &#8220;gzipped shape files&#8221;.</span></div>
 <input type="text" id="format" name="format" placeholder="Example: image/jpeg" value="{{article["format"] | default("", True)}}" />
-<label for="data_link">Data Link</label>
+<label for="data_link">Data Link</label><div class="fas fa-question-circle help-icon"><span class="help-text">Link to extra data that belong to the current item, e.g. an OpenDAP catalog with netCDF files on our OpenDAP server.</span></div>
 <input type="text" id="data_link" name="data_link" placeholder="Link to extra data related to the current item" value="{{article["data_link"] | default("", True)}}" />
-<label for="derived_from">Derived From</label>
+<label for="derived_from">Derived From</label><div class="fas fa-question-circle help-icon"><span class="help-text">URL of the dataset from which the current item was derived.</span></div>
 <input type="text" id="derived_from" name="derived_from" value="{{article["derived_from"] | default("", True)}}" />
-<label for="same_as">Same As</label>
+<label for="same_as">Same As</label><div class="fas fa-question-circle help-icon"><span class="help-text">URL of exactly the same data. This can be a copy in another location or an alternative URL that redirects to the current item.</span></div>
 <input type="text" id="same_as" name="same_as" value="{{article["same_as"] | default("", True)}}" />
-<label for="tag">Keywords</label><span class="required-field"> &#8727;</span>
+<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add keywords that will help make your research more discoverable. Hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
 <input type="text" id="tag" name="tag" value="" />
 <ul id="tags-list"></ul>
-<label for="organizations">Organizations</label>
+<label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resource. Separate different names with a semicolon (;)</span></div>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{article["organizations"] | default("", True) }}</textarea>
 <h3>Files</h3>
 <label>Type</label>
