@@ -592,6 +592,15 @@ function activate (dataset_uuid) {
         }
     });
 
+    jQuery(".help-icon").on("click", function () {
+        let selector = jQuery(this).find(".help-text");
+        if (selector.is(":visible") ||
+            selector.css("display") != "none") {
+            jQuery(this).removeClass("help-icon-clicked");
+        } else {
+            jQuery(this).addClass("help-icon-clicked");
+        }
+    });
     let jqxhr = jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}`,
         type:        "GET",
