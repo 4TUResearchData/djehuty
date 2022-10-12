@@ -302,6 +302,29 @@ function activate (collection_id) {
     jQuery("#save").on("click", function (event)   { save_collection (collection_id); });
     var quill = new Quill('#description', { theme: '4tu' });
 
+    var submenu_offset = jQuery("#submenu").offset().top;
+    jQuery(window).on('resize scroll', function() {
+        let scroll_offset  = jQuery(window).scrollTop();
+        if (submenu_offset <= scroll_offset) {
+            jQuery("#submenu").addClass("sticky");
+            jQuery("#message").addClass("sticky-message");
+            jQuery("#message").width(jQuery("#content-wrapper").width());
+        } else {
+            jQuery("#submenu").removeClass("sticky");
+            jQuery("#message").removeClass("sticky-message");
+        }
+    });
+
+    jQuery(".help-icon").on("click", function () {
+        let selector = jQuery(this).find(".help-text");
+        if (selector.is(":visible") ||
+            selector.css("display") != "none") {
+            jQuery(this).removeClass("help-icon-clicked");
+        } else {
+            jQuery(this).addClass("help-icon-clicked");
+        }
+    });
+
     jQuery("#authors").on("input", function (event) {
         return autocomplete_author (event, collection_id);
     });
