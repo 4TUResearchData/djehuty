@@ -97,7 +97,7 @@ function add_dataset (dataset_id, collection_id) {
 }
 
 function remove_author (author_id, collection_id) {
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/authors/${author_id}`,
         type:        "DELETE",
         accept:      "application/json",
@@ -106,7 +106,7 @@ function remove_author (author_id, collection_id) {
 }
 
 function remove_dataset (dataset_id, collection_id) {
-    var jqxhr = jQuery.ajax({
+    let jqxhr = jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/articles/${dataset_id}`,
         type:        "DELETE",
         accept:      "application/json",
@@ -123,7 +123,7 @@ function delete_collection (collection_id) {
     if (confirm("Deleting this draft collection is unrecoverable. "+
                 "Do you want to continue?"))
     {
-        var jqxhr = jQuery.ajax({
+        let jqxhr = jQuery.ajax({
             url:         `/v2/account/collections/${collection_id}`,
             type:        "DELETE",
         }).done(function () { window.location.pathname = '/my/collections' })
@@ -141,7 +141,7 @@ function save_collection (collection_id) {
         category_ids.push(jQuery(category).val());
     }
 
-    var group_id = jQuery("input[name='groups']:checked")[0]
+    let group_id = jQuery("input[name='groups']:checked")[0]
     if (group_id !== undefined) { group_id = group_id["value"]; }
     else { group_id = null; }
 
@@ -180,7 +180,7 @@ function save_collection (collection_id) {
 }
 
 function autocomplete_dataset (event, collection_id) {
-    var current_text = jQuery.trim(jQuery("#article-search").val());
+    let current_text = jQuery.trim(jQuery("#article-search").val());
     if (current_text == "") {
         jQuery("#articles-ac").remove();
         jQuery("#article-search").removeClass("input-for-ac");
@@ -214,7 +214,7 @@ function autocomplete_dataset (event, collection_id) {
 }
 
 function autocomplete_author (event, collection_id) {
-    var current_text = jQuery.trim(jQuery("#authors").val());
+    let current_text = jQuery.trim(jQuery("#authors").val());
     if (current_text == "") {
         jQuery("#authors-ac").remove();
         jQuery("#authors").removeClass("input-for-ac");
@@ -251,7 +251,7 @@ function autocomplete_author (event, collection_id) {
 }
 
 function new_author (collection_id) {
-    var html = `<div id="new-author-form">`;
+    let html = `<div id="new-author-form">`;
     html += `<label for="author_first_name">First name</label>`;
     html += `<input type="text" id="author_first_name" name="author_first_name">`;
     html += `<label for="author_first_name">Last name</label>`;
@@ -300,7 +300,7 @@ function activate (collection_id) {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery("#delete").on("click", function (event) { delete_collection (collection_id); });
     jQuery("#save").on("click", function (event)   { save_collection (collection_id); });
-    var quill = new Quill('#description', { theme: '4tu' });
+    let quill = new Quill('#description', { theme: '4tu' });
 
     var submenu_offset = jQuery("#submenu").offset().top;
     jQuery(window).on('resize scroll', function() {
