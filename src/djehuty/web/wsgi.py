@@ -75,6 +75,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             Rule("/",                                         endpoint = "ui_home"),
             Rule("/login",                                    endpoint = "ui_login"),
+            Rule("/account/home",                             endpoint = "ui_account_home"),
             Rule("/logout",                                   endpoint = "ui_logout"),
             Rule("/my/dashboard",                             endpoint = "ui_dashboard"),
             Rule("/my/datasets",                              endpoint = "ui_my_data"),
@@ -811,6 +812,28 @@ class ApiServer:
             return redirect ("/portal", code=301)
 
         return self.response (json.dumps({ "status": "OK" }))
+
+    def ui_account_home (self, request):
+        if request.method != "GET":
+            return self.error_405 (method)
+
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is not None:
+            return redirect ("/my/dashboard", code=302)
+
+        if self.identity_provider == "saml":
+            return redirect ("/login", code=302)
+
+        if self.identity_provider == "orcid":
+            return redirect (("https://orcid.org/oauth/authorize?client_id="
+                              f"{self.orcid_client_id}&response_type=code"
+                              "&scope=/authenticate&redirect_uri="
+                              f"{self.base_url}/login"), 302)
+
+        return self.error_403 (request)
 
     def ui_login (self, request):
 
