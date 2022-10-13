@@ -815,7 +815,7 @@ class ApiServer:
 
     def ui_account_home (self, request):
         if request.method != "GET":
-            return self.error_405 (method)
+            return self.error_405 ("GET")
 
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
