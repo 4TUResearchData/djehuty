@@ -11,6 +11,7 @@
     .label        { text-transform: uppercase; margin-top:20px }
     ul            { list-style-type: none; padding:0; margin:0 }
     #orcid img    { height: 20px }
+    .is_active    { font-weight: bold }
 </style>
 {% endblock %}
 {% block body %}
@@ -51,9 +52,26 @@
     </ul>
 </div>
 {% endif %}
+{% if collaborators %}
+<div id="#collaborators">
+    <div class="label">Collaborators</div>
+    <ul>
+    {% for collaborator in collaborators %}
+        <li>
+            <a {% if collaborator.is_active %}class="is_active"{%endif%}
+               href="/authors/{{collaborator.collaborator_uuid}}"
+               title="">{{collaborator.full_name}}</a>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
 
 {%- if not in_production: %}
-    {% set debug_vars = {"profile":profile, "datasets":datasets, "collections":collections} %}
+    {% set debug_vars = {"profile": profile,
+                         "datasets": datasets,
+                         "collections": collections,
+                         "collaborators": collaborators} %}
     {% set figshare_html = "https://data.4tu.nl/authors/_/"~profile.id %}
     {% include 'debug.html' %}
 {%- endif %}

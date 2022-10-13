@@ -457,6 +457,12 @@ class SparqlInterface:
         })
         return self.__run_query(query)
 
+    def author_collaborators (self, author_uri):
+        query = self.__query_from_template ("author_collaborators", {
+            "author_uri": author_uri
+        })
+        return self.__run_query(query)
+
     def dataset_files (self, name=None, size=None, is_link_only=None,
                        file_uuid=None, download_url=None, supplied_md5=None,
                        computed_md5=None, viewer_type=None, preview_state=None,

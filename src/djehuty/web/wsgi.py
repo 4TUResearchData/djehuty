@@ -1793,8 +1793,10 @@ class ApiServer:
             public_items = self.db.author_public_items(author_uri)
             datasets    = [pi for pi in public_items if pi['is_dataset']]
             collections = [pi for pi in public_items if not pi['is_dataset']]
+            collaborators = self.db.author_collaborators(author_uri)
             return self.__render_template (request, "author.html", profile=profile,
-                                           datasets=datasets, collections=collections)
+                                           datasets=datasets, collections=collections,
+                                           collaborators=collaborators)
         except IndexError:
             return self.error_404 (request)
 
