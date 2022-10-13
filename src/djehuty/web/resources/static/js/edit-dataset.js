@@ -747,7 +747,7 @@ function perform_upload (files, current_file, dataset_uuid) {
             jQuery("#file-upload h4").text("Drag files here");
             render_files_for_dataset (dataset_uuid);
             if (current_file < total_files) {
-                return perform_upload (files, current_file + 1, total_files, dataset_uuid);
+                return perform_upload (files, current_file + 1, dataset_uuid);
             }
         }
     });
