@@ -3050,6 +3050,9 @@ class ApiServer:
                                                        account_uuid=account_uuid,
                                                        is_published=False)
 
+                if dataset is None:
+                    return self.error_403 (request)
+
                 files = self.db.dataset_files (dataset_uri=dataset["uri"])
                 files.remove (next (filter (lambda item: item["uuid"] == file_id, files)))
                 files = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "file")),
@@ -4234,6 +4237,9 @@ class ApiServer:
             dataset   = self.__dataset_by_id_or_uri (dataset_id,
                                                      account_uuid=account_uuid,
                                                      is_published=False)
+            if dataset is None:
+                return self.error_403 (request)
+
             file_data = request.files['file']
             file_uuid = self.db.insert_file (
                 name          = file_data.filename,
