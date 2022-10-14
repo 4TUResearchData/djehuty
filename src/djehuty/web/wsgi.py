@@ -47,6 +47,7 @@ class ApiServer:
         self.db               = database.SparqlInterface()
         self.cookie_key       = "djehuty_session"
         self.in_production    = False
+        self.using_uwsgi      = False
 
         self.orcid_client_id     = None
         self.orcid_client_secret = None

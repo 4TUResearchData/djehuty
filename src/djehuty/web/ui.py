@@ -364,6 +364,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
                               "file for hardened security settings."))
 
         if not run_internal_server:
+            server.using_uwsgi = True
             return server
 
         if inside_reload:
