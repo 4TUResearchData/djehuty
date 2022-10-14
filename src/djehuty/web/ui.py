@@ -147,6 +147,35 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             saml_sp_x509         = config_value (service_provider, "x509-certificate")
             saml_sp_private_key  = config_value (service_provider, "private-key")
 
+            ## Service provider metadata
+            sp_metadata          = service_provider.find ("metadata")
+            if sp_metadata is None:
+                logging.error ("Missing service provider's metadata for SAML.")
+
+            organization_name    = config_value (sp_metadata, "display-name")
+            organization_url     = config_value (sp_metadata, "url")
+
+            sp_tech_contact      = sp_metadata.find ("./contact[@type='technical']")
+            if sp_tech_contact is None:
+                logging.error ("Missing technical contact information for SAML.")
+            sp_tech_email        = config_value (sp_tech_contact, "email")
+            if sp_tech_email is None:
+                sp_tech_email = "-"
+
+            sp_admin_contact     = sp_metadata.find ("./contact[@type='administrative']")
+            if sp_admin_contact is None:
+                logging.error ("Missing administrative contact information for SAML.")
+            sp_admin_email        = config_value (sp_admin_contact, "email")
+            if sp_admin_email is None:
+                sp_admin_email = "-"
+
+            sp_support_contact   = sp_metadata.find ("./contact[@type='support']")
+            if sp_support_contact is None:
+                logging.error ("Missing support contact information for SAML.")
+            sp_support_email        = config_value (sp_support_contact, "email")
+            if sp_support_email is None:
+                sp_support_email = "-"
+
             ## Identity Provider settings
             identity_provider    = saml.find ("identity-provider")
             if identity_provider is None:
@@ -194,6 +223,48 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                         "binding": None
                     },
                     "x509cert": saml_idp_x509
+                },
+                "security": {
+                    "nameIdEncrypted": False,
+                    "authnRequestsSigned": True,
+                    "logoutRequestSigned": True,
+                    "logoutResponseSigned": True,
+                    "signMetadata": True,
+                    "wantMessagesSigned": True,
+                    "wantAssertionsSigned": True,
+                    "wantNameId" : True,
+                    "wantNameIdEncrypted": False,
+                    "wantAssertionsEncrypted": False,
+                    "allowSingleLabelDomains": False,
+                    "signatureAlgorithm": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+                    "digestAlgorithm": "http://www.w3.org/2001/04/xmlenc#sha256",
+                    "rejectDeprecatedAlgorithm": True
+                },
+                "contactPerson": {
+                    "technical": {
+                        "givenName": "Technical support",
+                        "emailAddress": sp_tech_email
+                    },
+                    "support": {
+                        "givenName": "General support",
+                        "emailAddress": sp_support_email
+                    },
+                    "administrative": {
+                        "givenName": "Administrative support",
+                        "emailAddress": sp_admin_email
+                    }
+                },
+                "organization": {
+                    "nl": {
+                        "name": organization_name,
+                        "displayname": organization_name,
+                        "url": organization_url
+                    },
+                    "en": {
+                        "name": organization_name,
+                        "displayname": organization_name,
+                        "url": organization_url
+                    }
                 }
             }
 
