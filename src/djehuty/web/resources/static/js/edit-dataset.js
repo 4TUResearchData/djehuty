@@ -23,7 +23,7 @@ function delete_dataset (dataset_uuid, event) {
             url:         `/v2/account/articles/${dataset_uuid}`,
             type:        "DELETE",
         }).done(function () { window.location.pathname = '/my/datasets' })
-          .fail(function () { console.log("Failed to retrieve licenses."); });
+          .fail(function () { show_message ("failure", "<p>Failed to retrieve licenses.</p>"); });
     }
 }
 
@@ -311,7 +311,7 @@ function add_author (author_uuid, dataset_uuid) {
         render_authors_for_dataset (dataset_uuid);
         jQuery("#authors").val("");
         autocomplete_author(null, dataset_uuid);
-    }).fail(function () { show_message ("failure", `Failed to add ${author_uuid}`); });
+    }).fail(function () { show_message ("failure", `<p>Failed to add ${author_uuid}.</p>`); });
 }
 
 function add_funding (funding_uuid, dataset_uuid) {
@@ -325,7 +325,7 @@ function add_funding (funding_uuid, dataset_uuid) {
         render_funding_for_dataset (dataset_uuid);
         jQuery("#funding").val("");
         autocomplete_funding(null, dataset_uuid);
-    }).fail(function () { show_message ("failure", `Failed to add ${funding_uuid}`); });
+    }).fail(function () { show_message ("failure", `<p>Failed to add ${funding_uuid}.</p>`); });
 }
 
 function submit_external_link (dataset_uuid) {
@@ -344,7 +344,7 @@ function submit_external_link (dataset_uuid) {
         jQuery("#external_url").val("");
         jQuery("#external_link_field").hide();
         render_files_for_dataset (dataset_uuid);
-    }).fail(function () { show_message ("failure", `Failed to add ${url}`); });
+    }).fail(function () { show_message ("failure", `<p>Failed to add ${url}.</p>`); });
 }
 
 function add_reference (dataset_uuid) {
@@ -359,7 +359,7 @@ function add_reference (dataset_uuid) {
         }).done(function () {
             render_references_for_dataset (dataset_uuid);
             jQuery("#references").val("");
-        }).fail(function () { show_message ("failure", `Failed to add ${url}`); });
+        }).fail(function () { show_message ("failure", `<p>Failed to add ${url}.</p>`); });
     }
 }
 
@@ -376,7 +376,7 @@ function add_tag (dataset_uuid) {
     }).done(function () {
         render_tags_for_dataset (dataset_uuid);
         jQuery("#tag").val("");
-    }).fail(function () { show_message ("failure", `Failed to add ${tag}`); });
+    }).fail(function () { show_message ("failure", `<p>Failed to add ${tag}.</p>`); });
 }
 
 function submit_new_author (dataset_uuid) {
@@ -403,7 +403,7 @@ function submit_new_author (dataset_uuid) {
         jQuery("#authors-ac").remove();
         jQuery("#authors").removeClass("input-for-ac");
         render_authors_for_dataset (dataset_uuid);
-    }).fail(function () { show_message ("failure", `Failed to add author.`); });
+    }).fail(function () { show_message ("failure", `<p>Failed to add author.</p>`); });
 }
 
 function submit_new_funding (dataset_uuid) {
@@ -424,7 +424,7 @@ function submit_new_funding (dataset_uuid) {
         jQuery("#funding-ac").remove();
         jQuery("#funding").removeClass("input-for-ac");
         render_funding_for_dataset (dataset_uuid);
-    }).fail(function () { show_message ("failure", `Failed to add funding.`); });
+    }).fail(function () { show_message ("failure", `<p>Failed to add funding.</p>`); });
 }
 
 function new_author (dataset_uuid) {
@@ -694,7 +694,7 @@ function activate (dataset_uuid) {
         jQuery("#configure_embargo").on("click", toggle_embargo_options);
         jQuery("#embargo_until_forever").on("change", toggle_embargo_until);
         jQuery("#cancel_embargo").on("click", toggle_embargo_options);
-    }).fail(function () { console.log(`Failed to retrieve article ${dataset_uuid}.`); });
+    }).fail(function () { show_message ("failure", `<p>Failed to retrieve article ${dataset_uuid}.</p>`); });
 }
 
 function toggle_embargo_options (event) {
@@ -763,7 +763,7 @@ function remove_file (file_id, dataset_uuid) {
         if (jQuery("#external_link").prop("checked")) {
             jQuery("#external_link_field").show();
         }
-    }).fail(function () { show_message ("failure", `Failed to remove ${file_id}`); });
+    }).fail(function () { show_message ("failure", `<p>Failed to remove ${file_id}.</p>`); });
 }
 
 function remove_author (author_id, dataset_uuid) {
@@ -772,7 +772,7 @@ function remove_author (author_id, dataset_uuid) {
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (authors) { render_authors_for_dataset (dataset_uuid); })
-      .fail(function () { show_message ("failure", `Failed to remove ${author_id}`); });
+      .fail(function () { show_message ("failure", `<p>Failed to remove ${author_id}</p>`); });
 }
 
 function remove_funding (funding_id, dataset_uuid) {
@@ -781,7 +781,7 @@ function remove_funding (funding_id, dataset_uuid) {
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (funding) { render_funding_for_dataset (dataset_uuid); })
-      .fail(function () { show_message ("failure", `Failed to remove ${funding_id}`); });
+      .fail(function () { show_message ("failure", `<p>Failed to remove ${funding_id}.</p>`); });
 }
 
 function remove_reference (url, dataset_uuid) {
@@ -790,7 +790,7 @@ function remove_reference (url, dataset_uuid) {
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (authors) { render_references_for_dataset (dataset_uuid); })
-      .fail(function () { show_message ("failure", `Failed to remove ${url}`); });
+      .fail(function () { show_message ("failure", `<p>Failed to remove ${url}</p>`); });
 }
 
 function remove_tag (tag, dataset_uuid) {
@@ -799,7 +799,7 @@ function remove_tag (tag, dataset_uuid) {
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (authors) { render_tags_for_dataset (dataset_uuid); })
-      .fail(function () { show_message ("failure", `Failed to remove ${tag}`); });
+      .fail(function () { show_message ("failure", `<p>Failed to remove ${tag}.</p>`); });
 }
 
 function prettify_size (size) {
