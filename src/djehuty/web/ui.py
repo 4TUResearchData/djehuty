@@ -363,6 +363,11 @@ def main (address=None, port=None, state_graph=None, storage=None,
             logging.warning (("Set <production> to 1 in your configuration "
                               "file for hardened security settings."))
 
+        if server.in_production and not os.path.isdir (server.db.storage):
+            logging.error ("The storage directory '%s' does not exist.",
+                           server.db.storage)
+            raise FileNotFoundError
+
         if not run_internal_server:
             server.using_uwsgi = True
             return server
