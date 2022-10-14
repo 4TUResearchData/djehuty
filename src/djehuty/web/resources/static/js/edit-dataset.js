@@ -722,7 +722,11 @@ function perform_upload (files, current_file, dataset_uuid) {
     total_files = files.length;
     let index = current_file - 1;
     let data  = new FormData();
-    data.append (`file`, files[index], files[index].name);
+    if (files[index].webkitRelativePath) {
+        data.append ("file", files[index], files[index].webkitRelativePath);
+    } else {
+        data.append ("file", files[index], files[index].name);
+    }
 
     jQuery.ajax({
         xhr: function () {
@@ -920,6 +924,22 @@ function submit_dataset (dataset_uuid, event) {
     });
 }
 
+function process_file_tree (item, prefix, dataset_uuid) {
+    if (item.isFile) {
+        item.file(function(file) {
+            perform_upload ([file], 1, dataset_uuid);
+        });
+    } else if (item.isDirectory) {
+        var reader = item.createReader();
+        reader.readEntries(function(items) {
+            for (var index = 0; index < items.length; index++) {
+                let filepath = prefix + item.name + "/";
+                process_file_tree (items[index], filepath, dataset_uuid);
+            }
+        });
+    }
+}
+
 function activate_drag_and_drop (dataset_uuid) {
     // Drag and drop handling for the entire window.
     jQuery("html").on("dragover", function (event) {
@@ -953,9 +973,23 @@ function activate_drag_and_drop (dataset_uuid) {
         event.preventDefault();
 
         jQuery("#file-upload h4").text("Uploading ...");
-
-        let files = event.originalEvent.dataTransfer.files;
-        perform_upload (files, 1, dataset_uuid);
+        try {
+            let items = event.originalEvent.dataTransfer.items;
+            if (items) {
+                for (var index = 0; index < items.length; index++) {
+                    let item = items[index].webkitGetAsEntry();
+                    process_file_tree (item, "", dataset_uuid);
+                }
+            } else {
+                console.log("Using fallback file uploader.");
+                let files = event.originalEvent.dataTransfer.files;
+                if (files) {
+                    perform_upload (files, 1, dataset_uuid);
+                }
+            }
+        } catch (error) {
+            show_message ("failure", "<p>Something went wrong. Please retry the file upload.</p>");
+        }
     });
 
     // Open file selector on div click
