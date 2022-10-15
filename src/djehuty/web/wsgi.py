@@ -1795,9 +1795,15 @@ class ApiServer:
             datasets    = [pi for pi in public_items if pi['is_dataset']]
             collections = [pi for pi in public_items if not pi['is_dataset']]
             collaborators = self.db.author_collaborators(author_uri)
-            return self.__render_template (request, "author.html", profile=profile,
-                                           datasets=datasets, collections=collections,
-                                           collaborators=collaborators)
+            member = value_or(group_to_member, profile["group_id"], 'other')
+            member_url_name = member_url_names[member]
+            return self.__render_template (request, "author.html",
+                                           profile=profile,
+                                           datasets=datasets,
+                                           collections=collections,
+                                           collaborators=collaborators,
+                                           member=member,
+                                           member_url_name=member_url_name)
         except IndexError:
             return self.error_404 (request)
 

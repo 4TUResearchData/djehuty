@@ -6,8 +6,8 @@
     #content a:hover { text-decoration: underline }
     #contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export, #data_link
                   { margin-top: 10px }
-    #metadata #left_column  { width: 65%; margin-bottom:10px }
-    #metadata #right_column { float: right; width: 33%; margin-bottom:10px }
+    #left_column  { width: 65%; margin-bottom:10px }
+    #right_column { float: right; width: 33%; margin-bottom:10px }
     .label        { text-transform: uppercase; margin-top:20px }
     ul            { list-style-type: none; padding:0; margin:0 }
     #orcid img    { height: 20px }
@@ -16,54 +16,76 @@
 {% endblock %}
 {% block body %}
 
-<h3>{{profile.full_name}}</h3>
-{% if profile.orcid_id %}
-<div id="orcid">
-    <img src="/static/images/orcid.svg" alt="orcid logo"/>
-    <a href="https://orcid.org/{{profile.orcid_id}}" target="_blank" title="ORCID profile (new window)">{{profile.orcid_id}}</a>
+<div id="right_column">
+{% if member != "other" %}
+    <div id="member">
+        <a href="/institutions/{{member_url_name}}"><img src="/static/images/logo-{{member}}.png" alt="{{member_url_name.replace('_',' ')}} logo" /></a>
+    </div>
+{% endif %}
+{# TODO: add data for statistics #}
+{% if statistics %}
+    <div id="usage">
+        <div class="label">usage stats</div>
+    {% for metric in statistics %}
+        <div class="metric">
+            <div class="number">{{statistics[metric]}}</div>
+            {{metric}}
+        </div>
+    {% endfor %}
+    </div>
+{% endif %}
 </div>
+
+<div id="left_column">
+    <h3>{{profile.full_name}}</h3>
+{% if profile.orcid_id %}
+    <div id="orcid">
+        <img src="/static/images/orcid.svg" alt="orcid logo"/>
+        <a href="https://orcid.org/{{profile.orcid_id}}" target="_blank" title="ORCID profile (new window)">{{profile.orcid_id}}</a>
+    </div>
 {% endif %}
 {% if profile.job_title %}
-<div>{{profile.job_title}}</div>
+    <div>{{profile.job_title}}</div>
 {% endif %}
 {% if datasets %}
-<div id="#datasets">
-    <div class="label">Datasets</div>
-    <ul>
+    <div id="#datasets">
+        <div class="label">Datasets</div>
+        <ul>
     {% for dataset in datasets %}
-        <li>
-            <a href="/datasets/{{dataset.container_uuid}}/{{dataset.version}}"
-               title="published {{dataset.posted_date[:10]}}">{{dataset.title}}</a>
-        </li>
+            <li>
+                <a href="/datasets/{{dataset.container_uuid}}/{{dataset.version}}"
+                   title="published {{dataset.posted_date[:10]}}">{{dataset.title}}</a>
+            </li>
     {% endfor %}
-    </ul>
-</div>
+        </ul>
+    </div>
 {% endif %}
 {% if collections %}
-<div id="#collections">
-    <div class="label">Collections</div>
-    <ul>
+    <div id="#collections">
+        <div class="label">Collections</div>
+        <ul>
     {% for collection in collections %}
-        <li>
-            <a href="/collections/{{collection.container_uuid}}/{{collection.version}}"
-               title="published {{collection.posted_date[:10]}}">{{collection.title}}</a>
-        </li>
+            <li>
+                <a href="/collections/{{collection.container_uuid}}/{{collection.version}}"
+                   title="published {{collection.posted_date[:10]}}">{{collection.title}}</a>
+            </li>
     {% endfor %}
-    </ul>
-</div>
+        </ul>
+    </div>
 {% endif %}
 {% if collaborators %}
-<div id="#collaborators">
-    <div class="label">Collaborators</div>
-    <ul>
+    <div id="#collaborators">
+        <div class="label">Collaborators</div>
+        <ul>
     {% for collaborator in collaborators %}
-        <li>
-            <a {% if collaborator.is_active %}class="is_active"{%endif%}
-               href="/authors/{{collaborator.collaborator_uuid}}"
-               title="">{{collaborator.full_name}}</a>
-        </li>
+            <li>
+                <a {% if collaborator.is_active %}class="is_active"{%endif%}
+                   href="/authors/{{collaborator.   collaborator_uuid}}"
+                   title="">{{collaborator.full_name}}</a>
+            </li>
     {% endfor %}
-    </ul>
+        </ul>
+    </div>
 </div>
 {% endif %}
 
@@ -71,7 +93,9 @@
     {% set debug_vars = {"profile": profile,
                          "datasets": datasets,
                          "collections": collections,
-                         "collaborators": collaborators} %}
+                         "collaborators": collaborators,
+                         "member": member,
+                         "member_url_name": member_url_name} %}
     {% set figshare_html = "https://data.4tu.nl/authors/_/"~profile.id %}
     {% include 'debug.html' %}
 {%- endif %}
