@@ -168,14 +168,11 @@ class SparqlInterface:
         return 0
 
     def dataset_versions (self, limit=1000, offset=0, order="version",
-                          order_direction="desc", dataset_id=None,
-                          container_uri=None):
+                          order_direction="desc", container_uri=None):
         """Procedure to retrieve the versions of a dataset."""
-        filters  = rdf.sparql_filter ("dataset_id", dataset_id)
-        filters += rdf.sparql_filter ("container_uri", container_uri, is_uri=True)
 
         query = self.__query_from_template ("dataset_versions", {
-            "filters":     filters
+            "container_uri": container_uri
         })
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
@@ -610,11 +607,11 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def collections_from_dataset (self, dataset_id):
+    def collections_from_dataset (self, dataset_container_uuid):
         """Procedure to get the collections a dataset is part of."""
 
         query = self.__query_from_template ("collections_from_dataset", {
-            "dataset_id":  dataset_id
+            "dataset_container_uuid":  dataset_container_uuid
         })
 
         return self.__run_query(query)

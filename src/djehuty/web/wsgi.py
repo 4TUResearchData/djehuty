@@ -1610,12 +1610,10 @@ class ApiServer:
             if container is None:
                 return self.error_404 (request)
 
-            # TODO: Numeric IDs are not available for future datasets.
-            # Use UUIDs instead.
-            versions      = self.db.dataset_versions(dataset_id=container["dataset_id"])
+            versions      = self.db.dataset_versions(container_uri=container["container_uri"])
             versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
             current_version = version if version else versions[0]['version']
-            dataset       = self.db.datasets (dataset_id    = container["dataset_id"],
+            dataset       = self.db.datasets (container_uuid= container["container_uuid"],
                                               version       = current_version,
                                               is_published  = True)[0]
             dataset_uri   = container['uri']
@@ -1626,7 +1624,7 @@ class ApiServer:
             references    = self.db.references(item_uri=dataset_uri, limit=None)
             derived_from  = self.db.derived_from(item_uri=dataset_uri, limit=None)
             fundings      = self.db.fundings(item_uri=dataset_uri, limit=None)
-            collections   = self.db.collections_from_dataset(dataset_id=container["dataset_id"])
+            collections   = self.db.collections_from_dataset(container["container_uuid"])
             statistics    = {'downloads': value_or(container, 'total_downloads', 0),
                              'views'    : value_or(container, 'total_views'    , 0),
                              'shares'   : value_or(container, 'total_shares'   , 0),
@@ -2134,13 +2132,11 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        versions = []
-        if parses_to_int (dataset_id):
-            versions = self.db.dataset_versions (dataset_id=dataset_id)
-        elif isinstance (dataset_id, str):
-            uri      = uuid_to_uri (dataset_id, "container")
-            versions = self.db.dataset_versions (container_uri = uri)
+        container = self.__dataset_by_id_or_uri (dataset_id, is_published=True)
+        if container is None:
+            return self.error_404 (request)
 
+        versions  = self.db.dataset_versions (container_uri=container["container_uri"])
         return self.default_list_response (versions, formatter.format_version_record)
 
     def api_dataset_version_details (self, request, dataset_id, version):
