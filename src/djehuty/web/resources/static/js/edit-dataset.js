@@ -722,10 +722,24 @@ function perform_upload (files, current_file, dataset_uuid) {
     total_files = files.length;
     let index = current_file - 1;
     let data  = new FormData();
-    if (files[index].webkitRelativePath) {
+
+    if (files[index] === undefined || files[index] == null) {
+        show_message ("failure", "<p>Uploading file(s) failed due to a web browser incompatibility.</p>");
+        jQuery("#file-upload h4").text("Uploading failed.");
+        return;
+    } else if (files[index].webkitRelativePath !== undefined &&
+               files[index].webkitRelativePath != "") {
         data.append ("file", files[index], files[index].webkitRelativePath);
-    } else {
+    } else if (files[index].name !== undefined) {
         data.append ("file", files[index], files[index].name);
+    } else {
+        jQuery("#file-upload h4").text("Click here to open file dialog");
+        jQuery("#file-upload p").text("Because the drag and drop functionality"+
+                                      " does not work for your web browser.");
+        show_message ("failure", "<p>Uploading file(s). Please try selecting " +
+                                 "files with the file chooser instead of " +
+                                 "using the drag-and-drop.</p>");
+        return;
     }
 
     jQuery.ajax({
@@ -746,14 +760,15 @@ function perform_upload (files, current_file, dataset_uuid) {
         type:        "POST",
         data:        data,
         processData: false,
-        contentType: false,
-        success: function (data, textStatus, request) {
-            jQuery("#file-upload h4").text("Drag files here");
-            render_files_for_dataset (dataset_uuid);
-            if (current_file < total_files) {
-                return perform_upload (files, current_file + 1, dataset_uuid);
-            }
+        contentType: false
+    }).done(function (data, textStatus, request) {
+        jQuery("#file-upload h4").text("Drag files here");
+        render_files_for_dataset (dataset_uuid);
+        if (current_file < total_files) {
+            return perform_upload (files, current_file + 1, dataset_uuid);
         }
+    }).fail(function () {
+        show_message ("failure", "<p>Uploading file(s) failed.</p>");
     });
 }
 
@@ -975,10 +990,17 @@ function activate_drag_and_drop (dataset_uuid) {
         jQuery("#file-upload h4").text("Uploading ...");
         try {
             let items = event.originalEvent.dataTransfer.items;
-            if (items) {
+            if (items.length > 0) {
                 for (var index = 0; index < items.length; index++) {
                     let item = items[index].webkitGetAsEntry();
-                    process_file_tree (item, "", dataset_uuid);
+                    if (item == null) {
+                        if (items[index].hasOwnProperty("getAsEntry")) {
+                            item = items[index].getAsEntry();
+                        }
+                        perform_upload (items, index + 1, dataset_uuid);
+                    } else {
+                        process_file_tree (item, "", dataset_uuid);
+                    }
                 }
             } else {
                 console.log("Using fallback file uploader.");
