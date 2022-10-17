@@ -38,6 +38,10 @@ WHERE {
     {%- endif %}
     {%- else %}
     ?container_uri      djht:draft                ?dataset .
+    {%- if private_link_id_string is not none %}
+    ?dataset            djht:private_links/rdf:rest*/rdf:first ?private_link .
+    ?private_link       djht:id                   ?private_link_id_string .
+    {%- endif %}
     OPTIONAL {
       ?review           rdf:type                  djht:Review ;
                         djht:dataset              ?dataset .
