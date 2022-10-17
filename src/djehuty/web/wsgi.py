@@ -1,6 +1,7 @@
 """This module implements the API server."""
 
 from datetime import date
+from threading import Lock
 import os.path
 import logging
 import json
@@ -36,6 +37,11 @@ try:
 except (ImportError, ModuleNotFoundError):
     pass
 
+try:
+    import uwsgi
+except ModuleNotFoundError:
+    pass
+
 class ApiServer:
     """This class implements the API server."""
 
@@ -46,6 +52,7 @@ class ApiServer:
         self.base_url         = f"http://{address}:{port}"
         self.db               = database.SparqlInterface()
         self.cookie_key       = "djehuty_session"
+        self.file_list_lock  = Lock()
         self.in_production    = False
         self.using_uwsgi      = False
 
@@ -3060,6 +3067,11 @@ class ApiServer:
                 if dataset is None:
                     return self.error_403 (request)
 
+                if self.using_uwsgi:
+                    uwsgi.lock()
+                else:
+                    self.file_list_lock.acquire(timeout=60000)
+
                 files = self.db.dataset_files (dataset_uri=dataset["uri"], limit=None)
                 files.remove (next (filter (lambda item: item["uuid"] == file_id, files)))
                 files = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "file")),
@@ -3069,10 +3081,20 @@ class ApiServer:
                                              account_uuid,
                                              files,
                                              "files"):
+                    if self.using_uwsgi:
+                        uwsgi.unlock()
+                    else:
+                        self.file_list_lock.release()
+
                     return self.respond_204()
 
-            except (IndexError, KeyError):
+            except (IndexError, KeyError, StopIteration):
                 pass
+
+            if self.using_uwsgi:
+                uwsgi.unlock()
+            else:
+                self.file_list_lock.release()
 
             return self.error_500()
 
@@ -3802,6 +3824,9 @@ class ApiServer:
                         dataset = validator.string_value (datasets, index, 36, 36)
 
                     dataset = self.__dataset_by_id_or_uri (dataset)
+                    if dataset is None:
+                        return self.error_500 ()
+
                     datasets[index] = URIRef(dataset["container_uri"])
 
                 if self.db.update_item_list (collection["container_uuid"],
@@ -3810,7 +3835,6 @@ class ApiServer:
                                              "datasets"):
                     return self.respond_205()
 
-                return self.error_500 ()
             except IndexError:
                 return self.error_500 ()
             except KeyError:
@@ -3820,6 +3844,8 @@ class ApiServer:
             except Exception as error:
                 logging.error("An error occurred when adding datasets:")
                 logging.error("Exception: %s", error)
+
+            return self.error_500()
 
         return self.error_405 (["GET", "POST", "PUT"])
 
@@ -4248,6 +4274,11 @@ class ApiServer:
                 return self.error_403 (request)
 
             file_data = request.files['file']
+            if self.using_uwsgi:
+                uwsgi.lock()
+            else:
+                self.file_list_lock.acquire(timeout=60000)
+
             file_uuid = self.db.insert_file (
                 name          = file_data.filename,
                 size          = file_data.content_length,
@@ -4256,6 +4287,10 @@ class ApiServer:
                 upload_token  = self.token_from_request (request),
                 dataset_uri   = dataset["uri"],
                 account_uuid  = account_uuid)
+            if self.using_uwsgi:
+                uwsgi.unlock()
+            else:
+                self.file_list_lock.release()
 
             output_filename = f"{self.db.storage}/{dataset_id}_{file_uuid}"
 
