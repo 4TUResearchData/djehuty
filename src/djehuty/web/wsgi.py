@@ -3133,6 +3133,7 @@ class ApiServer:
             parameters = request.get_json()
             try:
                 dataset      = self.__dataset_by_id_or_uri (dataset_id,
+                                                            is_published = False,
                                                             account_uuid = account_uuid)
                 if dataset is None:
                     return self.error_404 (request)
@@ -3156,12 +3157,12 @@ class ApiServer:
                 links    = list(map (lambda item: URIRef(item["uri"]), links))
                 links    = links + [ URIRef(link_uri) ]
 
-                if self.db.update_item_list (dataset["container_uuid"],
-                                             account_uuid,
-                                             links,
-                                             "private_links"):
+                if not self.db.update_item_list (dataset["container_uuid"],
+                                                 account_uuid,
+                                                 links,
+                                                 "private_links"):
                     logging.error("Updating private links failed for %s.",
-                                  dataset["uuid"])
+                                  dataset["container_uuid"])
 
                     return self.error_500()
 

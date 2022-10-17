@@ -1,15 +1,13 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?id_string ?is_active ?expires_date ?suffix
-                 ?uuid ?link as ?uri
+SELECT DISTINCT ?id_string ?is_active ?expires_date ?uuid ?link as ?uri
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container         rdf:type/rdfs:subClassOf djht:Container ;
                        djht:draft                ?item_uri .
     ?item_uri          djht:private_links/rdf:rest*/rdf:first ?link .
     ?link              rdf:type                 djht:PrivateLink ;
-                       djht:id                   ?id_string ;
-                       djht:suffix               ?suffix .
+                       djht:id                   ?id_string .
     OPTIONAL { ?link   djht:is_active            ?is_active . }
     OPTIONAL { ?link   djht:expires_date         ?expires_date . }
     {%- if account_uuid is not none %}
