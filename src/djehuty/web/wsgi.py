@@ -1791,7 +1791,7 @@ class ApiServer:
         }))
 
     def ui_author (self, request, author_id):
-        #TODO: add datasets, publications, co-authors, usage metrics
+        #TODO: add account info
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1802,15 +1802,19 @@ class ApiServer:
             datasets    = [pi for pi in public_items if pi['is_dataset']]
             collections = [pi for pi in public_items if not pi['is_dataset']]
             collaborators = self.db.author_collaborators(author_uri)
-            member = value_or(group_to_member, profile["group_id"], 'other')
+            member = value_or(group_to_member, value_or_none(profile, 'group_id'), 'other')
             member_url_name = member_url_names[member]
+            statistics = { metric: sum([dataset[metric] for dataset in datasets])
+                           for metric in ('downloads', 'views', 'shares', 'cites') }
+            statistics = { key:val for (key,val) in statistics.items() if val > 0 }
             return self.__render_template (request, "author.html",
                                            profile=profile,
                                            datasets=datasets,
                                            collections=collections,
                                            collaborators=collaborators,
                                            member=member,
-                                           member_url_name=member_url_name)
+                                           member_url_name=member_url_name,
+                                           statistics=statistics)
         except IndexError:
             return self.error_404 (request)
 

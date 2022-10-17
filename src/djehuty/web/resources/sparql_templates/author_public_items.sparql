@@ -4,6 +4,7 @@
 SELECT DISTINCT (?item_type = <https://ontologies.data.4tu.nl/djehuty/0.0.1/Dataset>) AS ?is_dataset
                 STRAFTER(STR(?container), ":") AS ?container_uuid
                 ?version ?posted_date ?title
+                ?downloads ?views ?shares ?cites
 WHERE {
   GRAPH <{{state_graph}}> {
     ?item  rdf:type          ?item_type ;
@@ -11,6 +12,10 @@ WHERE {
            djht:version      ?version ;
            djht:posted_date  ?posted_date ;
            djht:title        ?title .
+    OPTIONAL { ?container djht:total_downloads ?downloads . }
+    OPTIONAL { ?container djht:total_views     ?views . }
+    OPTIONAL { ?container djht:total_shares    ?shares . }
+    OPTIONAL { ?container djht:total_cites     ?cites . }
     {
       SELECT ?container (MAX(?i_version) AS ?version)
       WHERE {

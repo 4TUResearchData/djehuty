@@ -4,14 +4,19 @@
 <style>
     #content a    { color: #f49120; text-decoration: none }
     #content a:hover { text-decoration: underline }
-    #contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export, #data_link
+    #datasets, #collections, #member, #usage, #collaborators
                   { margin-top: 10px }
+    #has-account  { margin-top: 80px }
     #left_column  { width: 65%; margin-bottom:10px }
     #right_column { float: right; width: 33%; margin-bottom:10px }
     .label        { text-transform: uppercase; margin-top:20px }
     ul            { list-style-type: none; padding:0; margin:0 }
+    .small        { font-size: 75%; opacity: 0.8 }
+    .metric       { float: left; margin:5px; text-align: center }
+    .metric .number { font-size: 24px; font-weight: bold }
     #orcid img    { height: 20px }
     .is_active    { font-weight: bold }
+    #has-account  { clear: both }
 </style>
 {% endblock %}
 {% block body %}
@@ -22,10 +27,10 @@
         <a href="/institutions/{{member_url_name}}"><img src="/static/images/logo-{{member}}.png" alt="{{member_url_name.replace('_',' ')}} logo" /></a>
     </div>
 {% endif %}
-{# TODO: add data for statistics #}
 {% if statistics %}
     <div id="usage">
         <div class="label">usage stats</div>
+        <div class="small">Totals for datasets (co-)authored by {{profile.full_name}}</div>
     {% for metric in statistics %}
         <div class="metric">
             <div class="number">{{statistics[metric]}}</div>
@@ -34,10 +39,19 @@
     {% endfor %}
     </div>
 {% endif %}
+    <div id="has-account">
+        <div class="label">account?</div>
+        <div>
+{% if profile.is_active %}
+            Yes. <div class="small">{{profile.full_name}} has an account at 4TU.ResearchData.</div>
+{% else %}
+            No. <div class="small">{{profile.full_name}} does not have an account at 4TU.ResearchData.</div>
+{% endif %}</div>
+    </div>
 </div>
 
 <div id="left_column">
-    <h3>{{profile.full_name}}</h3>
+    <h2>{{profile.full_name}}</h2>
 {% if profile.orcid_id %}
     <div id="orcid">
         <img src="/static/images/orcid.svg" alt="orcid logo"/>
@@ -48,7 +62,7 @@
     <div>{{profile.job_title}}</div>
 {% endif %}
 {% if datasets %}
-    <div id="#datasets">
+    <div id="datasets">
         <div class="label">Datasets</div>
         <ul>
     {% for dataset in datasets %}
@@ -61,7 +75,7 @@
     </div>
 {% endif %}
 {% if collections %}
-    <div id="#collections">
+    <div id="collections">
         <div class="label">Collections</div>
         <ul>
     {% for collection in collections %}
@@ -74,8 +88,9 @@
     </div>
 {% endif %}
 {% if collaborators %}
-    <div id="#collaborators">
+    <div id="collaborators">
         <div class="label">Collaborators</div>
+        <div class="small">Co-authors of {{profile.full_name}}'s datasets/collections. Bold: authors with a 4TU.ResearchData account.</div>
         <ul>
     {% for collaborator in collaborators %}
             <li>
@@ -95,7 +110,8 @@
                          "collections": collections,
                          "collaborators": collaborators,
                          "member": member,
-                         "member_url_name": member_url_name} %}
+                         "member_url_name": member_url_name,
+                         "statistics": statistics} %}
     {% set figshare_html = "https://data.4tu.nl/authors/_/"~profile.id %}
     {% include 'debug.html' %}
 {%- endif %}
