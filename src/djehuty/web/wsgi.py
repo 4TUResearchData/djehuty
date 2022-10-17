@@ -3060,7 +3060,7 @@ class ApiServer:
                 if dataset is None:
                     return self.error_403 (request)
 
-                files = self.db.dataset_files (dataset_uri=dataset["uri"])
+                files = self.db.dataset_files (dataset_uri=dataset["uri"], limit=None)
                 files.remove (next (filter (lambda item: item["uuid"] == file_id, files)))
                 files = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "file")),
                                            files))

@@ -1248,7 +1248,7 @@ class SparqlInterface:
 
         self.cache.invalidate_by_prefix ("dataset")
         if self.add_triples_from_graph (graph):
-            existing_files = self.dataset_files (dataset_uri=dataset_uri)
+            existing_files = self.dataset_files (dataset_uri=dataset_uri, limit=None)
             existing_files = list(map (lambda item: URIRef(rdf.uuid_to_uri(item["uuid"], "file")),
                                          existing_files))
 
