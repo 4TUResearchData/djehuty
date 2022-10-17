@@ -20,6 +20,18 @@ try:
 except (ImportError, ModuleNotFoundError):
     SAML2_DEPENDENCY_LOADED = False
 
+
+# The 'uwsgi' module only needs to be available when deploying using uwsgi.
+# To catch potential run-time problems early on in the situation that the
+# uwsgi module is required, we set UWSGI_DEPENDENCY_LOADED here without
+# actually using the module itself. It merely provides a mechanism to detect
+# a run-time configuration error.
+try:
+    import uwsgi  # pylint: disable=unused-import
+    UWSGI_DEPENDENCY_LOADED = True
+except ModuleNotFoundError:
+    UWSGI_DEPENDENCY_LOADED = False
+
 class ConfigFileNotFound(Exception):
     """Raised when the database is not queryable."""
 
@@ -504,6 +516,10 @@ def application (env, start_response):
 
     logging.basicConfig(format='[ %(levelname)s ] %(asctime)s: %(message)s',
                         level=logging.INFO)
+
+    if not UWSGI_DEPENDENCY_LOADED:
+        start_response('500 Internal Server Error', [('Content-Type','text/html')])
+        return [b"<p>Cannot find the <code>uwsgi</code> Python module.</p>"]
 
     config_file = os.getenv ("DJEHUTY_CONFIG_FILE")
 
