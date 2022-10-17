@@ -54,21 +54,38 @@
 <div id="data">
 
     <h3>DATA</h3>
-{% if item.is_embargoed: %}
-<div id="embargo_notice">
-  <p>The files in this dataset are under embargo until {{item.embargo_until_date}}.</p>
-</div>
-{% else: %}
-{% if item.is_metadata_record %}
-{# test 12999575 #}
+{% if item.is_embargoed %}
+  {# TODO: item.embargo_allow_access_requests:
+           - add link
+           - only for embargoes or also for other restricted access?
+     item.embargo_title: Needed? it usually says "File(s) under embargo".
+     item.embargo_type will always be "file" here, but what happens with item.embargo_type "article"?
+  #}
+        <div id="embargo_notice">
+            <p>The files in this dataset are under embargo{% if item.embargo_until_date %} until {{item.embargo_until_date}}{% endif %}.</p>
+    {% if embargo_allow_access_requests %}
+            <a href="#">request access</a> {# not yet clear where the link should go #}
+    {% endif %}
+        </div>
+{% elif item.is_metadata_record %}
+{# test 18586031 #}
         <div id="metadata_only">
+    {% if item.metadata_reason %}
+            {{item.metadata_reason}}
+    {% else %}
+            Data is undisclosed.
+    {% endif %}
+        </div>
+{% elif item.is_confidential %}
+{# test 12999575 #}
+        <div id="confidential">
     {% if item.confidential_reason %}
             {{item.confidential_reason}}
     {% else %}
             Data is confidential.
     {% endif %}
         </div>
-{% endif %}
+{% else %}
 {% if services %}
 {# test 12717890 #}
     <div id="services">
