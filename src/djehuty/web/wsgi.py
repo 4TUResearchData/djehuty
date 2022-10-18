@@ -890,23 +890,26 @@ class ApiServer:
                 if saml_record is None:
                     return self.error_403 (request)
 
-            response = redirect ("/my/dashboard", code=302)
-            account  = self.db.account_by_email (saml_record["email"])
-            account_uuid = None
-            if account:
-                account_uuid = account["uuid"]
-            else:
-                account_uuid = self.db.insert_account (
-                    email      = saml_record["email"],
-                    first_name = value_or_none (saml_record, "first_name"),
-                    last_name  = value_or_none (saml_record, "last_name"),
-                    institution_user_id = value_or_none (saml_record, "institution_user_id")
-                )
+            try:
+                response = redirect ("/my/dashboard", code=302)
+                account  = self.db.account_by_email (saml_record["email"])
+                account_uuid = None
+                if account:
+                    account_uuid = account["uuid"]
+                else:
+                    account_uuid = self.db.insert_account (
+                        email      = saml_record["email"],
+                        first_name = value_or_none (saml_record, "first_name"),
+                        last_name  = value_or_none (saml_record, "last_name"),
+                        institution_user_id = value_or_none (saml_record, "institution_user_id")
+                    )
 
-            token, _ = self.db.insert_session (account_uuid, name="Website login")
-            response.set_cookie (key=self.cookie_key, value=token,
-                                 secure=self.in_production)
-            return response
+                    token, _ = self.db.insert_session (account_uuid, name="Website login")
+                    response.set_cookie (key=self.cookie_key, value=token,
+                                         secure=self.in_production)
+                return response
+            except TypeError:
+                pass
 
         return self.error_500 ()
 
