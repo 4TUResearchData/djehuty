@@ -72,6 +72,22 @@ def process_collections_for_account (endpoint, account):
     del collections
     return { "written": collections_written, "failed": collections_failed }
 
+def process_author_links_for_account (endpoint, account):
+    """Procedure to link authors to accounts."""
+
+    written = 0
+    failed  = 0
+
+    try:
+        author_id  = endpoint.get_author_for_account (account["id"])
+        author_uri = endpoint.rdf_store.record_uri ("Author", "id", author_id)
+        endpoint.rdf_store.insert_account_author_link (account["uri"], author_uri)
+        written   += 1
+    except KeyError:
+        failed    += 1
+
+    return { "written": written, "failed": failed }
+
 def main (figshare_token, figshare_stats_auth, account_id):
     """The main entry point for the 'backup' subcommand."""
 
@@ -89,6 +105,8 @@ def main (figshare_token, figshare_stats_auth, account_id):
     datasets_failed         = 0
     collections_written     = 0
     collections_failed      = 0
+    author_links_written    = 0
+    author_links_failed     = 0
     groups_written          = 0
     groups_failed           = 0
     start_time              = time.perf_counter()
@@ -116,6 +134,15 @@ def main (figshare_token, figshare_stats_auth, account_id):
             result = response.result()
             collections_failed  += result["failed"]
             collections_written += result["written"]
+
+    ## Gather links between accounts and authors.
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as runner:
+        results = [runner.submit(process_author_links_for_account, endpoint, account)
+                   for account in accounts]
+        for response in results:
+            result = response.result()
+            author_links_failed  += result["failed"]
+            author_links_written += result["written"]
 
     del accounts
     gc.collect()
@@ -155,6 +182,8 @@ def main (figshare_token, figshare_stats_auth, account_id):
         logging.info("Succesfully processed %d collections.", collections_written)
     if groups_written > 0:
         logging.info("Succesfully processed %d groups.", groups_written)
+    if author_links_written > 0:
+        logging.info("Succesfully linked %d authors to accounts.", author_links_written)
 
     if accounts_failed > 0:
         logging.info("Failed to process %d accounts.", accounts_failed)
@@ -164,6 +193,8 @@ def main (figshare_token, figshare_stats_auth, account_id):
         logging.info("Failed to process %d collections.", collections_failed)
     if groups_failed > 0:
         logging.info("Failed to process %d groups.", groups_failed)
+    if author_links_failed > 0:
+        logging.info("Failed to link %d authors to accounts.", author_links_failed)
 
     end_time      = time.perf_counter()
     logging.info ("This run took %.2f seconds", end_time - start_time)

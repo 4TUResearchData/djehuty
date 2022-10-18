@@ -225,6 +225,11 @@ class DatabaseInterface:
         logging.error ("Failed to insert Institution record: %s", record)
         return False
 
+    def insert_account_author_link (self, account_uri, author_uri):
+        """Procedure to insert a link between an account and an author."""
+        self.store.add ((author_uri, rdf.DJHT["account"], account_uri))
+        return True
+
     def insert_author (self, record):
         """Procedure to insert an author record."""
 

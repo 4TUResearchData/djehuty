@@ -553,3 +553,15 @@ class FigshareEndpoint:
     def get_institutional_groups (self):
         """Procedure to get groups of an institution."""
         return self.get_record ("/account/institution/groups")
+
+    def get_author_for_account (self, account_id):
+        """Procedure to get the author linked to an account."""
+
+        try:
+            record = self.get_record (f"/account/institution/users/{account_id}")
+            if record:
+                return record["id"]
+        except KeyError:
+            pass
+
+        return None
