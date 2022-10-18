@@ -172,12 +172,7 @@
     <div id="left_column">
         <div id="authors">by
 {% for a in authors %}
-    {%- set name = a.full_name %}
-    {%- if a.is_active %}
-            <a href="/authors/{{a.uuid}}">{{name}}</a>
-    {%- else %}
-            {{name}}
-    {%- endif %}
+            <a href="/authors/{{a.uuid}}" {% if a.is_active %} class="is_active"{% endif %}>{{a.full_name}}</a>
     {%- if a.orcid_id %}
             <a href="https://orcid.org/{{a.orcid_id}}" target="_blank" title="opens in new window"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
     {%- endif %}
