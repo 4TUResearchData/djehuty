@@ -268,6 +268,7 @@ class SparqlInterface:
             "is_latest":      is_latest,
             "is_published":   is_published,
             "is_under_review": is_under_review,
+            "private_link_id_string": private_link_id_string,
             "filters":        filters,
             "return_count":   return_count
         })
