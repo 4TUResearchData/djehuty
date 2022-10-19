@@ -305,6 +305,7 @@ class ApiServer:
             "in_production":   self.in_production,
             "identity_provider": self.identity_provider,
             "orcid_client_id": self.orcid_client_id,
+            "session_token":   self.token_from_request (request),
             "is_logged_in":    self.db.is_logged_in (token),
             "may_review":      self.db.may_review (token),
             "may_administer":  self.db.may_administer (token),

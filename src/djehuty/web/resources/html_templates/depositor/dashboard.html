@@ -61,11 +61,11 @@
       <td>{% if session.editable %}
         <a href="/my/sessions/{{session.uuid}}/edit">{{session.name | default("Unnamed", False)}}</a>
         {% else %}
-        {{session.name | default("Unnamed", False)}}
+        {{session.name | default("Unnamed", False)}}{%- if session_token == session.token %} <span class="active-badge">Current session</span>{% endif %}
         {% endif %}
       </td>
       <td>{{session.created_date | default("Unknown", False)}}</td>
-      <td><a href="/my/sessions/{{session.uuid}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+      <td>{%- if session_token != session.token %}<a href="/my/sessions/{{session.uuid}}/delete" class="fas fa-trash-can" title="Remove"></a>{% endif %}</td>
     </tr>
     {%- endfor %}
   </tbody>

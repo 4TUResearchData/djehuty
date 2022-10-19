@@ -519,3 +519,13 @@ img { user-select: none; }
   margin-top: -2.5em;
   margin-left: 1.5em;
 }
+.active-badge {
+    display: inline-block;
+    background: #eee;
+    border-radius: .5em;
+    border: solid 1pt #ccc;
+    text-transform: uppercase;
+    padding: .25em;
+    margin-left: 1em;
+    font-size: small;
+}
