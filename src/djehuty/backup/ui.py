@@ -81,9 +81,9 @@ def process_author_links_for_account (endpoint, account):
     try:
         author_id  = endpoint.get_author_for_account (account["id"])
         author_uri = endpoint.rdf_store.record_uri ("Author", "id", author_id)
-        endpoint.rdf_store.insert_account_author_link (account["uri"], author_uri)
+        endpoint.rdf_store.insert_account_author_link (URIRef(account["uri"]), author_uri)
         written   += 1
-    except KeyError:
+    except (KeyError, AssertionError):
         failed    += 1
 
     return { "written": written, "failed": failed }
