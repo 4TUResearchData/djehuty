@@ -41,7 +41,6 @@ jQuery(document).ready(function () {
     jQuery("#clear-cache").on("click", function (event) {
         event.preventDefault();
         event.stopPropagation();
-        console.log("Button clicked.");
         jQuery.ajax({
             url:         `/admin/maintenance/clear-cache`,
             type:        "GET",

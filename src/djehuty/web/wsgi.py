@@ -1518,7 +1518,7 @@ class ApiServer:
         if self.db.may_administer (token):
             logging.info("Invalidating caches.")
             self.db.cache.invalidate_all ()
-            return redirect ("/admin/dashboard", code=302)
+            return self.respond_204 ()
 
         return self.error_403 (request)
 
