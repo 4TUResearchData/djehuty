@@ -2005,6 +2005,7 @@ class ApiServer:
                 dataset_count = dataset_count[0]["datasets"]
                 datasets = self.db.datasets (search_for=search_list, is_published=True, limit=100)
             return self.__render_template (request, "search.html",
+                                           search_for=search_for,
                                            articles=datasets,
                                            dataset_count=dataset_count,
                                            message=message,
