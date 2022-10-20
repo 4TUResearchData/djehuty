@@ -662,12 +662,9 @@ class ApiServer:
         record["email"]      = attributes["urn:mace:dir:attribute-def:mail"][0]
         record["first_name"] = attributes["urn:mace:dir:attribute-def:givenName"][0]
         record["last_name"]  = attributes["urn:mace:dir:attribute-def:sn"][0]
-        record["domain"]     = attributes["urn:mace:terena.org:attribute-def:schacHomeOrganization"][0]
-        record["institution_user_id"] = attributes["urn:mace:dir:attribute-def:eduPersonPrincipalName"][0]
+        record["common_name"] = attributes["urn:mace:dir:attribute-def:cn"][0]
 
-        if not (record["domain"] and
-                record["institution_user_id"] and
-                record["email"]):
+        if not (record["email"]):
             logging.error("Didn't receive required fields in SAMLResponse.")
             return None
 
@@ -905,9 +902,10 @@ class ApiServer:
                         institution_user_id = value_or_none (saml_record, "institution_user_id")
                     )
 
-                    token, _ = self.db.insert_session (account_uuid, name="Website login")
-                    response.set_cookie (key=self.cookie_key, value=token,
-                                         secure=self.in_production)
+                token, _ = self.db.insert_session (account_uuid, name="Website login")
+                response.set_cookie (key=self.cookie_key, value=token,
+                                     secure=self.in_production)
+
                 return response
             except TypeError:
                 pass
