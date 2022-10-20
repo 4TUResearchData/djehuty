@@ -427,11 +427,11 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("url_name",       url_name,   escape=True)
 
         if search_for is not None:
-            escaped = rdf.escape_string_value (search_for)
-            filters += (f"FILTER (CONTAINS(STR(?first_name), {escaped}) OR\n"
-                        f"        CONTAINS(STR(?last_name),  {escaped}) OR\n"
-                        f"        CONTAINS(STR(?full_name),  {escaped}) OR\n"
-                        f"        CONTAINS(STR(?orcid_id),   {escaped}))")
+            escaped = rdf.escape_string_value (search_for.lower())
+            filters += (f"FILTER (CONTAINS(LCASE(?first_name), {escaped}) OR\n"
+                        f"        CONTAINS(LCASE(?last_name),  {escaped}) OR\n"
+                        f"        CONTAINS(LCASE(?full_name),  {escaped}) OR\n"
+                        f"        CONTAINS(LCASE(?orcid_id),   {escaped}))")
 
         query = self.__query_from_template ("authors", {
             "item_type":   item_type,
