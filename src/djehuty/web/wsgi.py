@@ -933,6 +933,7 @@ class ApiServer:
                                  value  = other_session_token,
                                  secure = self.in_production)
             response.delete_cookie (key = other_cookie_key)
+            response.delete_cookie (key = "redirect_to")
             return response
 
         response = redirect ("/", code=302)
