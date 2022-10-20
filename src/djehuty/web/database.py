@@ -737,11 +737,11 @@ class SparqlInterface:
 
         filters = rdf.sparql_filter ("title", title, escape=True)
         if search_for is not None:
-            escaped  = rdf.escape_string_value (search_for)
-            filters += (f"FILTER (CONTAINS(STR(?title),       {escaped}) OR\n"
-                        f"        CONTAINS(STR(?grant_code),  {escaped}) OR\n"
-                        f"        CONTAINS(STR(?funder_name), {escaped}) OR\n"
-                        f"        CONTAINS(STR(?url),         {escaped}))")
+            escaped  = rdf.escape_string_value (search_for.lower())
+            filters += (f"FILTER (CONTAINS(LCASE(?title),       {escaped}) OR\n"
+                        f"        CONTAINS(LCASE(?grant_code),  {escaped}) OR\n"
+                        f"        CONTAINS(LCASE(?funder_name), {escaped}) OR\n"
+                        f"        CONTAINS(LCASE(?url),         {escaped}))")
 
         query   = self.__query_from_template ("funding", {
             "prefix":      item_type.capitalize(),
