@@ -1536,7 +1536,7 @@ class ApiServer:
             summary_data = self.db.repository_statistics()
 
             page_size = 30
-            rgb_shift = ((208,0), (104,104), (0,208)) #begin and end values of r,g,b
+            rgb_shift = ((244,32), (145,145), (32,244)) #begin and end values of r,g,b
             opa_min = 0.3                             #minimum opacity
             rgb_opa_days = (7., 21.)                  #fading times (days) for color and opacity
             from_figshare = False                      #from Figshare API or from SPARQL query?
@@ -1561,11 +1561,14 @@ class ApiServer:
                     records = requests.get(base, headers=headers, data=data, timeout=60).json()
                 else:
                     records = self.db.latest_datasets_portal(page_size)
+                latest_pub_date = records[0]['published_date'][:10]
+                fading_delay_days = (today - date(*[int(x) for x in latest_pub_date.split('-')])).days
                 for rec in records:
                     pub_date = rec['published_date'][:10]
                     days = (today - date(*[int(x) for x in pub_date.split('-')])).days
                     #days = (today - date.fromisoformat(pub_date)).days  #newer Python versions
                     ago = ('today','yesterday')[days] if days < 2 else f'{days} days ago'
+                    days = days - fading_delay_days
                     x, y = [min(1., days/d) for d in rgb_opa_days]
                     rgba = [round(i[0] + x*(i[1]-i[0])) for i in rgb_shift] + [round(1 - y*(1-opa_min), 3)]
                     str_rgba = ','.join([str(c) for c in rgba])
