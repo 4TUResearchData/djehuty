@@ -4221,7 +4221,7 @@ class ApiServer:
                 "publisher":          validator.string_value  (record, "publisher",      0, 10000, True, errors),
                 "language":           validator.string_value  (record, "language",       0, 10,    True, errors),
                 "contributors":       validator.string_value  (record, "contributors",   0, 10000, False, errors),
-                "license_remarks":    validator.string_value  (record, "license_remarks",0, 10000, True, errors),
+                "license_remarks":    validator.string_value  (record, "license_remarks",0, 10000, False, errors),
                 "geolocation":        validator.string_value  (record, "geolocation",    0, 255,   False, errors),
                 "longitude":          validator.string_value  (record, "longitude",      0, 64,    False, errors),
                 "latitude":           validator.string_value  (record, "latitude",       0, 64,    False, errors),
