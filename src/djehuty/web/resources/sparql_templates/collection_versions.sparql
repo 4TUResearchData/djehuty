@@ -13,6 +13,6 @@ WHERE {
                     djht:posted_date    ?posted_date .
     OPTIONAL {?collection_uri  djht:url_public_api ?url_public_api .}
   }
-{%- if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}

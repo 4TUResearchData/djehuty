@@ -23,6 +23,6 @@ WHERE {
     BIND(STRAFTER(STR(?category), "category:") AS ?uuid)
   }
   FILTER (?account = <account:{{account_uuid}}>)
-{%- if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}

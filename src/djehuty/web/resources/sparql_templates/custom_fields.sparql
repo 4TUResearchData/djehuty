@@ -25,6 +25,6 @@ WHERE {
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)
 {%- endif %}
-{%- if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}

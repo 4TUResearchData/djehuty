@@ -38,7 +38,7 @@ class SparqlInterface:
                                        # Auto-escape is set to False because
                                        # we put quotes around strings in
                                        # filters.
-                                       autoescape=False)
+                                       autoescape=True)
 
         self.sparql      = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)

@@ -20,6 +20,6 @@ WHERE {
 
     BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
   }
-{% if filters is not none %}{{ filters }}{% endif %}
+{% if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}

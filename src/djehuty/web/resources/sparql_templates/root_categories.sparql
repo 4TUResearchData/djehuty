@@ -12,6 +12,6 @@ WHERE {
   }
   BIND(STRAFTER(STR(?row), "category:") AS ?uuid)
   FILTER (! BOUND(?parent_id) OR ?parent_id = 0)
-{%- if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}

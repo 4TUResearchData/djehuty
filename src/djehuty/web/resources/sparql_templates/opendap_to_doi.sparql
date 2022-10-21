@@ -24,7 +24,7 @@ WHERE {
                         djht:download_url               ?data_url . } UNION
           { ?i_dataset  djht:data_link                  ?data_url . }
         }
-        {{ filters }}
+        {%- if filters is not none %}{{ filters | safe }}{% endif %}
       }
       GROUP BY ?container
     }

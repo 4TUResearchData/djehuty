@@ -67,65 +67,65 @@ DELETE {
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if title is not none %}
-    ?dataset           djht:title                {{title}} .
+    ?dataset           djht:title                {{title | safe}} .
     {%- endif%}{% if description is not none %}
-    ?dataset           djht:description          {{description}} .
+    ?dataset           djht:description          {{description | safe}} .
     {%- endif%}{% if resource_doi is not none %}
-    ?dataset           djht:resource_doi         {{resource_doi}} .
+    ?dataset           djht:resource_doi         {{resource_doi | safe}} .
     {%- endif%}{% if resource_title is not none %}
-    ?dataset           djht:resource_title       {{resource_title}} .
+    ?dataset           djht:resource_title       {{resource_title | safe}} .
     {%- endif%}{% if license_id is not none %}
     ?dataset           djht:license              ?new_license .
     {%- endif%}{% if group_id is not none %}
-    ?dataset           djht:group_id             {{group_id}} .
+    ?dataset           djht:group_id             {{group_id | safe}} .
     {%- endif%}{% if time_coverage is not none %}
-    ?dataset           djht:time_coverage        {{time_coverage}} .
+    ?dataset           djht:time_coverage        {{time_coverage | safe}} .
     {%- endif%}{% if publisher is not none %}
-    ?dataset           djht:publisher            {{publisher}} .
+    ?dataset           djht:publisher            {{publisher | safe}} .
     {%- endif%}{% if language is not none %}
-    ?dataset           djht:language             {{language}} .
+    ?dataset           djht:language             {{language | safe}} .
     {%- endif%}{% if format is not none %}
-    ?dataset           djht:format               {{format}} .
+    ?dataset           djht:format               {{format | safe}} .
     {%- endif%}{% if contributors is not none %}
-    ?dataset           djht:contributors         {{contributors}} .
+    ?dataset           djht:contributors         {{contributors | safe}} .
     {%- endif%}{% if license_remarks is not none %}
-    ?dataset           djht:license_remarks      {{license_remarks}} .
+    ?dataset           djht:license_remarks      {{license_remarks | safe}} .
     {%- endif%}{% if geolocation is not none %}
-    ?dataset           djht:geolocation          {{geolocation}} .
+    ?dataset           djht:geolocation          {{geolocation | safe}} .
     {%- endif%}{% if longitude is not none %}
-    ?dataset           djht:longitude            {{longitude}} .
+    ?dataset           djht:longitude            {{longitude | safe}} .
     {%- endif%}{% if latitude is not none %}
-    ?dataset           djht:latitude             {{latitude}} .
+    ?dataset           djht:latitude             {{latitude | safe}} .
     {%- endif%}{% if data_link is not none %}
-    ?dataset           djht:data_link            {{data_link}} .
+    ?dataset           djht:data_link            {{data_link | safe}} .
     {%- endif%}{% if derived_from is not none %}
-    ?dataset           djht:derived_from         {{derived_from}} .
+    ?dataset           djht:derived_from         {{derived_from | safe}} .
     {%- endif%}{% if same_as is not none %}
-    ?dataset           djht:same_as              {{same_as}} .
+    ?dataset           djht:same_as              {{same_as | safe}} .
     {%- endif%}{% if organizations is not none %}
-    ?dataset           djht:organizations        {{organizations}} .
+    ?dataset           djht:organizations        {{organizations | safe}} .
     {%- endif%}{% if defined_type_name is not none %}
-    ?dataset           djht:defined_type_name    {{defined_type_name}} .
+    ?dataset           djht:defined_type_name    {{defined_type_name | safe}} .
     {%- endif%}{% if defined_type is not none %}
-    ?dataset           djht:defined_type         {{defined_type}} .
+    ?dataset           djht:defined_type         {{defined_type | safe}} .
     {%- endif%}{% if has_linked_file is not none %}
-    ?dataset           djht:has_linked_file      {{has_linked_file}} .
+    ?dataset           djht:has_linked_file      {{has_linked_file | safe}} .
     {%- endif%}{% if embargo_until_date is not none and is_embargoed %}
-    ?dataset           djht:embargo_until_date   {{embargo_until_date}} .
+    ?dataset           djht:embargo_until_date   {{embargo_until_date | safe}} .
     {%- endif%}{% if embargo_type is not none and is_embargoed %}
-    ?dataset           djht:embargo_type         {{embargo_type}} .
+    ?dataset           djht:embargo_type         {{embargo_type | safe}} .
     {%- endif%}{% if embargo_title is not none and is_embargoed %}
-    ?dataset           djht:embargo_title        {{embargo_title}} .
+    ?dataset           djht:embargo_title        {{embargo_title | safe}} .
     {%- endif%}{% if embargo_reason is not none and is_embargoed %}
-    ?dataset           djht:embargo_reason       {{embargo_reason}} .
+    ?dataset           djht:embargo_reason       {{embargo_reason | safe}} .
     {%- endif%}{% if embargo_allow_access_requests is not none and is_embargoed %}
-    ?dataset  djht:embargo_allow_access_requests {{embargo_allow_access_requests}} .
+    ?dataset  djht:embargo_allow_access_requests {{embargo_allow_access_requests | safe}} .
     {%- endif%}{% if agreed_to_deposit_agreement is not none %}
-    ?dataset           djht:agreed_to_deposit_agreement {{agreed_to_deposit_agreement}} .
+    ?dataset           djht:agreed_to_deposit_agreement {{agreed_to_deposit_agreement | safe}} .
     {%- endif%}{% if agreed_to_publish is not none %}
-    ?dataset           djht:agreed_to_publish    {{agreed_to_publish}} .
+    ?dataset           djht:agreed_to_publish    {{agreed_to_publish | safe}} .
     {%- endif%}
-    ?dataset           djht:modified_date        "{{modified_date}}"^^xsd:dateTime .
+    ?dataset           djht:modified_date        "{{modified_date | safe}}"^^xsd:dateTime .
   }
 }
 WHERE {
@@ -139,7 +139,7 @@ WHERE {
 
     {%- if license_id is not none %}
     ?new_license        rdf:type                 djht:License ;
-                        djht:id                   {{license_id}} .
+                        djht:id                   {{license_id | safe}} .
     {%- endif%}
 
     OPTIONAL { ?dataset djht:license              ?license . }
@@ -173,8 +173,8 @@ WHERE {
     OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }
   }
 {%- if account_uuid is not none: %}
-  FILTER (?account = <account:{{account_uuid}}>)
+  FILTER (?account = <account:{{account_uuid | safe}}>)
 {%- endif %}
-  FILTER (?container = <{{container_uri}}>)
+  FILTER (?container = <{{container_uri | safe}}>)
 }
 {% endblock %}

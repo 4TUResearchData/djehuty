@@ -42,17 +42,17 @@ INSERT {
     {%- if is_active is not none %}
     ?account          djht:is_active           {{is_active}} .
     {%- endif%}{% if email is not none %}
-    ?account          djht:email               "{{email}}"^^xsd:string .
+    ?account          djht:email               "{{email | safe}}"^^xsd:string .
     {%- endif%}{% if job_title is not none %}
-    ?account          djht:job_title           "{{job_title}}"^^xsd:string .
+    ?account          djht:job_title           "{{job_title | safe}}"^^xsd:string .
     {%- endif%}{% if first_name is not none %}
-    ?account          djht:first_name          "{{first_name}}"^^xsd:string .
+    ?account          djht:first_name          "{{first_name | safe}}"^^xsd:string .
     {%- endif%}{% if last_name is not none %}
-    ?account          djht:last_name           "{{last_name}}"^^xsd:string .
+    ?account          djht:last_name           "{{last_name | safe}}"^^xsd:string .
     {%- endif%}{% if location is not none %}
-    ?account          djht:location            "{{location}}"^^xsd:string .
+    ?account          djht:location            "{{location | safe}}"^^xsd:string .
     {%- endif%}{% if biography is not none %}
-    ?account          djht:biography           "{{biography}}"^^xsd:string .
+    ?account          djht:biography           "{{biography | safe}}"^^xsd:string .
     {%- endif%}{% if institution_user_id is not none %}
     ?account          djht:institution_user_id {{institution_user_id}} .
     {%- endif%}{% if institution_id is not none %}
@@ -68,7 +68,7 @@ INSERT {
     {%- endif%}{% if quota is not none %}
     ?account          djht:quota               {{quota}} .
     {%- endif%}{% if modified_date is not none %}
-    ?account          djht:modified_date       "{{modified_date}}"^^xsd:string .
+    ?account          djht:modified_date       "{{modified_date | safe}}"^^xsd:string .
     {%- endif%}{% if group_id is not none %}
     ?account          djht:group_id            {{group_id}} .
     {%- endif%}

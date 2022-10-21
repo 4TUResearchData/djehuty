@@ -35,33 +35,33 @@ DELETE {
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if title is not none %}
-    ?collection           djht:title                "{{title}}"^^xsd:string .
+    ?collection           djht:title                "{{title | safe}}"^^xsd:string .
     {%- endif%}{% if description is not none %}
-    ?collection           djht:description          "{{description}}"^^xsd:string .
+    ?collection           djht:description          "{{description | safe}}"^^xsd:string .
     {%- endif%}{% if resource_doi is not none %}
-    ?collection           djht:resource_doi         "{{resource_doi}}"^^xsd:string .
+    ?collection           djht:resource_doi         "{{resource_doi | safe}}"^^xsd:string .
     {%- endif%}{% if resource_title is not none %}
-    ?collection           djht:resource_title       "{{resource_title}}"^^xsd:string .
+    ?collection           djht:resource_title       "{{resource_title | safe}}"^^xsd:string .
     {%- endif%}{% if group_id is not none %}
     ?collection           djht:group_id             {{group_id}} .
     {%- endif%}{% if time_coverage is not none %}
-    ?collection           djht:time_coverage        "{{time_coverage}}"^^xsd:string .
+    ?collection           djht:time_coverage        "{{time_coverage | safe}}"^^xsd:string .
     {%- endif%}{% if publisher is not none %}
-    ?collection           djht:publisher            "{{publisher}}"^^xsd:string .
+    ?collection           djht:publisher            "{{publisher | safe}}"^^xsd:string .
     {%- endif%}{% if language is not none %}
-    ?collection           djht:language             "{{language}}"^^xsd:string .
+    ?collection           djht:language             "{{language | safe}}"^^xsd:string .
     {%- endif%}{% if contributors is not none %}
-    ?collection           djht:contributors         "{{contributors}}"^^xsd:string .
+    ?collection           djht:contributors         "{{contributors | safe}}"^^xsd:string .
     {%- endif%}{% if geolocation is not none %}
-    ?collection           djht:geolocation          "{{geolocation}}"^^xsd:string .
+    ?collection           djht:geolocation          "{{geolocation | safe}}"^^xsd:string .
     {%- endif%}{% if longitude is not none %}
-    ?collection           djht:longitude            "{{longitude}}"^^xsd:string .
+    ?collection           djht:longitude            "{{longitude | safe}}"^^xsd:string .
     {%- endif%}{% if latitude is not none %}
-    ?collection           djht:latitude             "{{latitude}}"^^xsd:string .
+    ?collection           djht:latitude             "{{latitude | safe}}"^^xsd:string .
     {%- endif%}{% if organizations is not none %}
-    ?collection           djht:organizations        "{{organizations}}"^^xsd:string .
+    ?collection           djht:organizations        "{{organizations | safe}}"^^xsd:string .
     {%- endif%}
-    ?collection           djht:modified_date        "{{modified_date}}"^^xsd:string .
+    ?collection           djht:modified_date        "{{modified_date | safe}}"^^xsd:string .
   }
 }
 WHERE {

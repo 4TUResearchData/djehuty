@@ -7,6 +7,6 @@ WHERE {
     ?collection     djht:collection_id   ?collection_id .
     ?collection     djht:is_public       "true"^^xsd:boolean .
   }
-{%- if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}

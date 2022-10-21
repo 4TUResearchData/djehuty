@@ -30,6 +30,6 @@ WHERE {
   BIND(STRAFTER(STR(?funding), "funding:")         AS ?uuid)
 {%- if item_uri %}
   FILTER (?item_uri = <{{item_uri}}>)
-{%- endif %}{%if filters is not none %}{{ filters }}{% endif %}
+{%- endif %}{%if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}

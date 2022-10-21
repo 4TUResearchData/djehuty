@@ -8,7 +8,7 @@ DELETE {
 }
 INSERT {
   GRAPH <{{state_graph}}> {
-    ?session djht:name       "{{name}}"^^xsd:string .
+    ?session djht:name       "{{name | safe}}"^^xsd:string .
   }
 }
 WHERE {

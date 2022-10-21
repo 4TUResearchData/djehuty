@@ -30,6 +30,6 @@ WHERE {
 
     BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
   }
-  FILTER (STR(?token) = "{{token}}")
+  FILTER (STR(?token) = "{{token | safe}}")
 }
 {% endblock %}

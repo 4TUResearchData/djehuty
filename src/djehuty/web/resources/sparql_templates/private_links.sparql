@@ -11,14 +11,14 @@ WHERE {
     OPTIONAL { ?link   djht:is_active            ?is_active . }
     OPTIONAL { ?link   djht:expires_date         ?expires_date . }
     {%- if account_uuid is not none %}
-    ?container         djht:account              <account:{{account_uuid}}> .
+    ?container         djht:account              <account:{{account_uuid | safe}}> .
     {%- endif %}
   }
   {%- if id_string is not none %}
-  FILTER(?id_string = "{{id_string}}"^^xsd:string)
+  FILTER(?id_string = "{{id_string | safe}}"^^xsd:string)
   {%- endif %}
   {%- if item_uri is not none %}
-  FILTER(?item_uri = <{{item_uri}}>)
+  FILTER(?item_uri = <{{item_uri | safe}}>)
   {%- endif %}
 
   BIND(STRAFTER(STR(?link), "private_link:") AS ?uuid)

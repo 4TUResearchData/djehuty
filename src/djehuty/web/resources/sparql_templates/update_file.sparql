@@ -22,19 +22,19 @@ DELETE {
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if download_url is not none %}
-    ?file              djht:download_url        "{{download_url}}"^^xsd:string .
+    ?file              djht:download_url        "{{download_url | safe}}"^^xsd:string .
     {%- endif%}{% if computed_md5 is not none %}
-    ?file              djht:computed_md5        "{{computed_md5}}"^^xsd:string .
+    ?file              djht:computed_md5        "{{computed_md5 | safe}}"^^xsd:string .
     {%- endif%}{% if viewer_type is not none %}
-    ?file              djht:viewer_type         "{{viewer_type}}"^^xsd:string .
+    ?file              djht:viewer_type         "{{viewer_type | safe}}"^^xsd:string .
     {%- endif%}{% if preview_state is not none %}
-    ?file              djht:preview_state       "{{preview_state}}"^^xsd:string .
+    ?file              djht:preview_state       "{{preview_state | safe}}"^^xsd:string .
     {%- endif%}{% if file_size is not none %}
-    ?file              djht:size                {{file_size}} .
+    ?file              djht:size                {{file_size | safe}} .
     {%- endif%}{% if status is not none %}
-    ?file              djht:status              "{{status}}"^^xsd:string .
+    ?file              djht:status              "{{status | safe}}"^^xsd:string .
     {%- endif%}{% if filesystem_location is not none %}
-    ?file              djht:filesystem_location "{{filesystem_location}}"^^xsd:string .
+    ?file              djht:filesystem_location "{{filesystem_location | safe}}"^^xsd:string .
     {%- endif%}
   }
 }
@@ -45,7 +45,7 @@ WHERE {
     {#- Ensure that the account_uuid associated with the ?file can modify its
      #- properties. #}
     ?dataset           djht:files/rdf:rest*/rdf:first ?file ;
-                       djht:container/djht:account    <account:{{account_uuid}}> .
+                       djht:container/djht:account    <account:{{account_uuid | safe}}> .
 
     OPTIONAL { ?file   djht:id                  ?id . }
     OPTIONAL { ?file   djht:filesystem_location ?filesystem_location . }
@@ -56,6 +56,6 @@ WHERE {
     OPTIONAL { ?file   djht:size                ?size . }
     OPTIONAL { ?file   djht:status              ?status . }
   }
-  FILTER (?file = <file:{{file_uuid}}>)
+  FILTER (?file = <file:{{file_uuid | safe}}>)
 }
 {% endblock %}

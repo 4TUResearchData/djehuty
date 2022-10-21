@@ -15,7 +15,7 @@ WHERE {
     ?stats          djht:date            ?date .
     ?stats          djht:{{item_type}}   ?{{item_type}} .
   }
-{%- if filters is not none %}{{ filters }}{% endif %}
+{%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
 GROUP BY ?dataset_id ?date
 {% endblock %}
