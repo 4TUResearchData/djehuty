@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block headers %}
+<style>
+.branded-table {
+    width: 100%;
+    max-width: 880pt;
+    border: solid 2pt #f49120;
+    border-radius: .5em;
+}
+.branded-table thead tr { background: #f49120; border-radius: .5em .5em 0em 0em; }
+.branded-table thead tr th {
+    color: #000;
+    text-align: left;
+    padding: .5em;
+    z-index: 50;
+    border-top: none;
+    white-space: nowrap;
+}
+.branded-table thead tr th:last-child { text-align: right; }
+.branded-table tbody tr td { padding: .5em; z-index: 50; }
+.branded-table tbody tr:nth-child(even) { background: #fafafa; }
+.branded-table tbody tr td:last-child { text-align: right; width: 130pt; }
+.branded-table tbody tr td:nth-child(1) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    max-width: 572pt;
+}
+#session-table tbody tr td:nth-child(2) { white-space: nowrap; }
+#create-new-dataset { margin: auto; }
+#create-new-collection { margin: auto; }
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/my/dashboard">&#8592; Go back</a>
+  <li class="create-button"><a href="/my/datasets/{{dataset.container_uuid}}/private_link/new">Create new private link</a>
+</ul>
+{% endblock %}
+{% block body %}
+<h1>Private links</h1>
+<p>Manage private links for <strong>{{dataset.title}}</strong>.</p>
+<p><strong>Note</strong>: Private links give access to a dataset including
+  access to the files within the dataset, regardless of the embargo,
+  restricted access, or closed access settings.</p>
+{%- if private_links %}
+<table id="private-links-table" class="branded-table">
+  <thead><tr><th>Private link</th><th>Actions</th></tr></thead>
+  <tbody>
+    {%- for link in private_links: %}
+    <tr>
+      <td><a href="/private_datasets/{{link.id_string}}">{{link.id_string}}</a></td>
+      <td><a href="/my/datasets/{{dataset.container_uuid}}/private_link/{{link.id_string}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+    </tr>
+    {%- endfor %}
+  </tbody>
+</table>
+{%- else %}
+<div class="center"><a href="/my/datasets/{{dataset.container_uuid}}/private_link/new" class="button neutral-button">Create new private link</a></div>
+{%- endif %}
+{% endblock %}

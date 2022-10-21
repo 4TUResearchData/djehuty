@@ -391,6 +391,7 @@ img.cts { width: 120px; }
 .fa-angle-double-down::before { content: "\f103"; }
 .fa-sync::before { content: "\f021"; }
 .fa-question-circle::before { content: "\f059"; }
+.fa-link::before { content: "\f0c1"; }
 .fa-empty::before {}
 
 a.fas { text-decoration: none; }

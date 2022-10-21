@@ -1303,9 +1303,13 @@ class SparqlInterface:
 
         return None
 
-    def insert_private_link (self, read_only=True, id_string=None,
+    def insert_private_link (self, dataset_uuid, account_uuid,
+                             read_only=True, id_string=None,
                              is_active=True, expires_date=None):
         """Procedure to add a private link to the state graph."""
+
+        if dataset_uuid is None:
+            return None
 
         if id_string is None:
             id_string = secrets.token_urlsafe()
@@ -1321,7 +1325,22 @@ class SparqlInterface:
         rdf.add (graph, link_uri, rdf.DJHT["expires_date"], expires_date, XSD.string)
 
         if self.add_triples_from_graph (graph):
-            return link_uri
+            dataset_uri    = rdf.uuid_to_uri (dataset_uuid, "dataset")
+            existing_links = self.private_links (item_uri=dataset_uri, account_uuid=account_uuid)
+            existing_links = list(map (lambda item: URIRef(rdf.uuid_to_uri(item["uuid"], "private_link")),
+                                               existing_links))
+
+            new_links    = existing_links + [URIRef(link_uri)]
+            dataset      = self.datasets (dataset_uuid = dataset_uuid,
+                                          account_uuid = account_uuid,
+                                          is_published = False,
+                                          limit        = 1)[0]
+
+            if self.update_item_list (dataset["container_uuid"],
+                                      account_uuid,
+                                      new_links,
+                                      "private_links"):
+                return link_uri
 
         return None
 
@@ -1441,16 +1460,13 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def delete_private_links (self, item_id, account_uuid, link_id, item_type="dataset"):
+    def delete_private_links (self, container_uuid, account_uuid, link_id):
         """Procedure to remove private links to a dataset."""
 
-        prefix  = item_type.capitalize()
         query   = self.__query_from_template ("delete_private_links", {
-            "account_uuid": account_uuid,
-            "item_id":     item_id,
-            "item_type":   item_type,
-            "prefix":      prefix,
-            "id_string":   link_id
+            "account_uuid":   account_uuid,
+            "container_uuid": container_uuid,
+            "id_string":      link_id
         })
 
         return self.__run_query(query)

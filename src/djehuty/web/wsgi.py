@@ -89,6 +89,9 @@ class ApiServer:
             Rule("/my/datasets",                              endpoint = "ui_my_data"),
             Rule("/my/datasets/<dataset_id>/edit",            endpoint = "ui_edit_dataset"),
             Rule("/my/datasets/<dataset_id>/delete",          endpoint = "ui_delete_dataset"),
+            Rule("/my/datasets/<dataset_id>/private_links",   endpoint = "ui_dataset_private_links"),
+            Rule("/my/datasets/<dataset_id>/private_link/<private_link_id>/delete", endpoint = "ui_delete_private_link"),
+            Rule("/my/datasets/<dataset_id>/private_link/new", endpoint = "ui_new_private_link"),
             Rule("/my/datasets/new",                          endpoint = "ui_new_dataset"),
             Rule("/my/datasets/submitted-for-review",         endpoint = "ui_dataset_submitted"),
             Rule("/my/collections",                           endpoint = "ui_my_collections"),
@@ -1184,6 +1187,31 @@ class ApiServer:
 
         return self.error_500 ()
 
+    def ui_dataset_private_links (self, request, dataset_id):
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        if request.method == 'GET':
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                   account_uuid = account_uuid,
+                                                   is_published = False)
+            if not dataset:
+                return self.error_404 (request)
+
+            links = self.db.private_links (item_uri     = dataset["uri"],
+                                           account_uuid = account_uuid)
+
+            return self.__render_template (request,
+                                           "depositor/private-links.html",
+                                           dataset       = dataset,
+                                           private_links = links)
+
+        return self.error_500()
+
     def ui_my_collections (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
@@ -1373,6 +1401,45 @@ class ApiServer:
 
         response   = redirect (request.referrer, code=302)
         self.db.delete_session_by_uuid (account_uuid, session_uuid)
+        return response
+
+    def ui_new_private_link (self, request, dataset_id):
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        dataset  = self.__dataset_by_id_or_uri (dataset_id,
+                                                account_uuid = account_uuid,
+                                                is_published = False)
+        if dataset is None:
+            return self.error_403 (request)
+
+        link_uri = self.db.insert_private_link (dataset["uuid"], account_uuid)
+        return redirect (f"/my/datasets/{dataset_id}/private_links", code=302)
+
+    def ui_delete_private_link (self, request, dataset_id, private_link_id):
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               account_uuid = account_uuid,
+                                               is_published = False)
+        if not dataset:
+            return self.error_403 (request)
+
+        response = redirect (request.referrer, code=302)
+        if self.db.delete_private_links (dataset["container_uuid"],
+                                         account_uuid,
+                                         private_link_id) is None:
+            return self.error_500()
+
         return response
 
     def ui_profile (self, request):
@@ -3229,7 +3296,7 @@ class ApiServer:
             return self.error_500 ()
 
         if request.method == 'DELETE':
-            result = self.db.delete_private_links (dataset["uri"],
+            result = self.db.delete_private_links (dataset["container_uuid"],
                                                    account_uuid,
                                                    link_id)
 
