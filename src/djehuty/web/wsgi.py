@@ -1473,10 +1473,9 @@ class ApiServer:
             return self.error_403 (request)
 
         account_uuid = self.account_uuid_from_request (request)
-        unassigned = self.db.reviews (limit = 10000, is_assigned = False)
+        unassigned = self.db.reviews (limit = 10000, assigned_to = None)
         assigned   = self.db.reviews (assigned_to = account_uuid,
-                                      limit       = 10000,
-                                      is_assigned = True)
+                                      limit       = 10000)
 
         return self.__render_template (request, "review/dashboard.html",
                                        assigned_reviews   = assigned,
