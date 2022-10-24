@@ -918,7 +918,12 @@ class SparqlInterface:
                         embargo_type=None,
                         embargo_until_date=None,
                         embargo_title=None,
-                        embargo_reason=None):
+                        embargo_reason=None,
+                        is_public=0,
+                        is_active=1,
+                        is_latest=0,
+                        is_editable=1,
+                        git_uuid=None):
         """Procedure to insert a dataset to the state graph."""
 
         funding_list    = [] if funding_list    is None else funding_list
@@ -996,10 +1001,10 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["published_date"], "NULL", XSD.string)
-        rdf.add (graph, uri, rdf.DJHT["is_public"],      0)
-        rdf.add (graph, uri, rdf.DJHT["is_active"],      1)
-        rdf.add (graph, uri, rdf.DJHT["is_latest"],      0)
-        rdf.add (graph, uri, rdf.DJHT["is_editable"],    1)
+        rdf.add (graph, uri, rdf.DJHT["is_public"],      is_public)
+        rdf.add (graph, uri, rdf.DJHT["is_active"],      is_active)
+        rdf.add (graph, uri, rdf.DJHT["is_latest"],      is_latest)
+        rdf.add (graph, uri, rdf.DJHT["is_editable"],    is_editable)
 
         rdf.add (graph, uri, rdf.DJHT["embargo_type"], embargo_type, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["embargo_until_date"], embargo_until_date, XSD.date)
@@ -1007,7 +1012,10 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["embargo_reason"], embargo_reason, XSD.string)
 
         # Reserve a UUID for a Git repository.
-        rdf.add (graph, uri, rdf.DJHT["git_uuid"], str(uuid.uuid4()), XSD.string)
+        if git_uuid is None:
+            git_uuid = str(uuid.uuid4())
+
+        rdf.add (graph, uri, rdf.DJHT["git_uuid"], git_uuid, XSD.string)
 
         # Add the dataset to its container.
         graph.add ((container, rdf.DJHT["draft"],       uri))
