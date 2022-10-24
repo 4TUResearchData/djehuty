@@ -187,7 +187,7 @@ function autocomplete_dataset (event, collection_id) {
     } else if (current_text.length > 2) {
         console.log(`Triggered datasets autocomplete with ${current_text}.`);
         jQuery.ajax({
-            url:         `/v2/account/articles/search`,
+            url:         `/v2/articles/search`,
             type:        "POST",
             contentType: "application/json",
             accept:      "application/json",
