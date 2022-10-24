@@ -1876,7 +1876,7 @@ class SparqlInterface:
         """Returns the account ID belonging to an ORCID."""
 
         query = self.__query_from_template ("account_uuid_by_orcid", {
-            "orcid":       orcid
+            "orcid": rdf.escape_string_value (orcid)
         })
 
         try:

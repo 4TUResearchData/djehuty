@@ -3,8 +3,9 @@
 SELECT DISTINCT ?uuid
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?account    rdf:type             djht:Account .
-    ?account    djht:orcid_uri       <{{orcid}}> .
+    ?author     rdf:type             djht:Author ;
+                djht:orcid_id        {{orcid | safe}} ;
+                djht:account         ?account .
   }
   BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
 }

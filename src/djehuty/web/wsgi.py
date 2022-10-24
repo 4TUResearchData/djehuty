@@ -853,12 +853,11 @@ class ApiServer:
             if orcid_record is None:
                 return self.error_403 (request)
 
-            orcid_uri = f"https://orcid.org/{orcid_record['orcid']}"
             if not self.accepts_html (request):
                 return self.error_406 ("text/html")
 
             response     = redirect ("/my/dashboard", code=302)
-            account_uuid = self.db.account_uuid_by_orcid (orcid_uri)
+            account_uuid = self.db.account_uuid_by_orcid (orcid_record['orcid'])
 
             # XXX: We could create an account for an unknown ORCID.
             #      Here we limit the system to known ORCID users.
