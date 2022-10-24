@@ -923,7 +923,8 @@ class SparqlInterface:
                         is_active=1,
                         is_latest=0,
                         is_editable=1,
-                        git_uuid=None):
+                        git_uuid=None,
+                        version=None):
         """Procedure to insert a dataset to the state graph."""
 
         funding_list    = [] if funding_list    is None else funding_list
@@ -1005,6 +1006,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["is_active"],      is_active)
         rdf.add (graph, uri, rdf.DJHT["is_latest"],      is_latest)
         rdf.add (graph, uri, rdf.DJHT["is_editable"],    is_editable)
+        rdf.add (graph, uri, rdf.DJHT["version"],        version)
 
         rdf.add (graph, uri, rdf.DJHT["embargo_type"], embargo_type, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["embargo_until_date"], embargo_until_date, XSD.date)
