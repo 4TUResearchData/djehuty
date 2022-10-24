@@ -1795,9 +1795,12 @@ class ApiServer:
 
             git_repository_url = None
             if dataset["defined_type_name"] == "software":
-                git_directory  = f"{self.db.storage}/{dataset['git_uuid']}.git"
-                if os.path.exists (git_directory):
-                    git_repository_url = f"{self.base_url}/v3/datasets/{dataset['git_uuid']}.git"
+                try:
+                    git_directory  = f"{self.db.storage}/{dataset['git_uuid']}.git"
+                    if os.path.exists (git_directory):
+                        git_repository_url = f"{self.base_url}/v3/datasets/{dataset['git_uuid']}.git"
+                except KeyError:
+                    pass
 
             return self.__render_template (request, "dataset.html",
                                            item=dataset,
