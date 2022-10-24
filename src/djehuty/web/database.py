@@ -1138,10 +1138,9 @@ class SparqlInterface:
 
         return None
 
-    def insert_account (self, active=None, email=None, job_title=None,
-                        first_name=None, last_name=None, full_name=None,
-                        institution_user_id=None, quota=None, group_id=None,
-                        location=None, biography=None, categories=None):
+    def insert_account (self, email=None, first_name=None, last_name=None,
+                        full_name=None, location=None, biography=None,
+                        categories=None):
         """Procedure to create an account."""
 
         graph       = Graph()
@@ -1154,6 +1153,8 @@ class SparqlInterface:
         rdf.add (graph, account_uri, rdf.DJHT["last_name"],  last_name,  XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["full_name"],  full_name,  XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["email"],      email,      XSD.string)
+        rdf.add (graph, account_uri, rdf.DJHT["location"],   location,   XSD.string)
+        rdf.add (graph, account_uri, rdf.DJHT["biography"],  biography,  XSD.string)
 
         # Legacy properties.
         rdf.add (graph, account_uri, rdf.DJHT["institution_id"], 898)
