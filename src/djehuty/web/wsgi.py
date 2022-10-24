@@ -1103,10 +1103,10 @@ class ApiServer:
         if not self.db.is_depositor (token):
             return self.error_404 (request)
 
-        dataset_id = self.db.insert_dataset(title = "Untitled item",
-                                            account_uuid = account_uuid)
-        if dataset_id is not None:
-            return redirect (f"/my/datasets/{dataset_id}/edit", code=302)
+        container_uuid, _ = self.db.insert_dataset(title = "Untitled item",
+                                                   account_uuid = account_uuid)
+        if container_uuid is not None:
+            return redirect (f"/my/datasets/{container_uuid}/edit", code=302)
 
         return self.error_500()
 
@@ -2428,7 +2428,7 @@ class ApiServer:
                     tags = validator.array_value (record, "keywords", False)
 
                 timeline   = validator.object_value (record, "timeline", False)
-                dataset_uuid = self.db.insert_dataset (
+                container_uuid, _ = self.db.insert_dataset (
                     title          = validator.string_value  (record, "title",          3, 1000,                   True),
                     account_uuid     = account_uuid,
                     description    = validator.string_value  (record, "description",    0, 10000,                  False),
@@ -2456,7 +2456,7 @@ class ApiServer:
                 )
 
                 return self.response(json.dumps({
-                    "location": f"{self.base_url}/v2/account/articles/{dataset_uuid}",
+                    "location": f"{self.base_url}/v2/account/articles/{container_uuid}",
                     "warnings": []
                 }))
             except validator.ValidationException as error:

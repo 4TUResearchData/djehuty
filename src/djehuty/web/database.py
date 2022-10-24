@@ -1027,7 +1027,7 @@ class SparqlInterface:
             container_uuid = rdf.uri_to_uuid (container)
             logging.info ("Inserted dataset %s", container_uuid)
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
-            return container_uuid
+            return (container_uuid, rdf.uri_to_uuid (uri))
 
         return None
 
