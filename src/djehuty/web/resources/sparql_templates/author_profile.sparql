@@ -3,19 +3,21 @@
 PREFIX author: <{{author_uri}}>
 SELECT DISTINCT ?id         ?full_name       ?first_name  ?last_name
                 ?group_id   ?institution_id  ?is_active   ?is_public
-                ?job_title  ?orcid_id
+                ?job_title  ?orcid_id        ?account
 WHERE {
   GRAPH <{{state_graph}}> {
+    author:            djht:is_active           ?is_active ;
+                       djht:is_public           ?is_public ; 
+                       djht:full_name           ?full_name .
     OPTIONAL { author: djht:id                  ?id . }
-    OPTIONAL { author: djht:full_name           ?full_name . }
+    OPTIONAL { author: djht:account             ?account . }
     OPTIONAL { author: djht:first_name          ?first_name . }
     OPTIONAL { author: djht:last_name           ?last_name . }
     OPTIONAL { author: djht:group_id            ?group_id . }
     OPTIONAL { author: djht:institution_id      ?institution_id . }
-    OPTIONAL { author: djht:is_active           ?is_active . }
-    OPTIONAL { author: djht:is_public           ?is_public . }
     OPTIONAL { author: djht:job_title           ?job_title . }
     OPTIONAL { author: djht:orcid_id            ?orcid_id . }
+    OPTIONAL { author: djht:account             ?account . }
   }
 }
 {% endblock %}
