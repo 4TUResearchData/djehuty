@@ -5,8 +5,8 @@ PYTHON_FILES =                                                                \
     djehuty/ui.py                                                             \
     djehuty/backup/database.py                                                \
     djehuty/backup/figshare.py                                                \
-    djehuty/backup/ui.py                                                      \
     djehuty/backup/database.py                                                \
+    djehuty/backup/ui.py                                                      \
     djehuty/utils/constants.py                                                \
     djehuty/utils/convenience.py                                              \
     djehuty/utils/html2md.py                                                  \
@@ -28,14 +28,15 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/admin/exploratory.html               \
     djehuty/web/resources/html_templates/admin/maintenance.html               \
     djehuty/web/resources/html_templates/admin/users.html                     \
-    djehuty/web/resources/html_templates/dataset.html                         \
+    djehuty/web/resources/html_templates/author.html                          \
     djehuty/web/resources/html_templates/categories.html                      \
     djehuty/web/resources/html_templates/category.html                        \
     djehuty/web/resources/html_templates/collection.html                      \
+    djehuty/web/resources/html_templates/dataset.html                         \
     djehuty/web/resources/html_templates/debug.html                           \
     djehuty/web/resources/html_templates/depositor/dashboard.html             \
-    djehuty/web/resources/html_templates/depositor/edit-dataset.html          \
     djehuty/web/resources/html_templates/depositor/edit-collection.html       \
+    djehuty/web/resources/html_templates/depositor/edit-dataset.html          \
     djehuty/web/resources/html_templates/depositor/edit-session.html          \
     djehuty/web/resources/html_templates/depositor/my-collections.html        \
     djehuty/web/resources/html_templates/depositor/my-data.html               \
@@ -56,45 +57,48 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/account_by_session_token.sparql    \
     djehuty/web/resources/sparql_templates/account_categories.sparql          \
     djehuty/web/resources/sparql_templates/account_sessions.sparql            \
+    djehuty/web/resources/sparql_templates/account_storage_used.sparql        \
     djehuty/web/resources/sparql_templates/account_uuid_by_orcid.sparql       \
     djehuty/web/resources/sparql_templates/accounts.sparql                    \
-    djehuty/web/resources/sparql_templates/account_storage_used.sparql        \
+    djehuty/web/resources/sparql_templates/author_collaborators.sparql        \
+    djehuty/web/resources/sparql_templates/author_profile.sparql              \
+    djehuty/web/resources/sparql_templates/author_public_items.sparql         \
+    djehuty/web/resources/sparql_templates/authors.sparql                     \
+    djehuty/web/resources/sparql_templates/categories.sparql                  \
+    djehuty/web/resources/sparql_templates/category_by_id.sparql              \
+    djehuty/web/resources/sparql_templates/collection_container.sparql        \
+    djehuty/web/resources/sparql_templates/collection_datasets.sparql         \
+    djehuty/web/resources/sparql_templates/collection_datasets_count.sparql   \
+    djehuty/web/resources/sparql_templates/collection_versions.sparql         \
+    djehuty/web/resources/sparql_templates/collections.sparql                 \
+    djehuty/web/resources/sparql_templates/collections_by_account.sparql      \
+    djehuty/web/resources/sparql_templates/collections_from_dataset.sparql    \
+    djehuty/web/resources/sparql_templates/container_items.sparql             \
+    djehuty/web/resources/sparql_templates/custom_fields.sparql               \
     djehuty/web/resources/sparql_templates/dataset_container.sparql           \
     djehuty/web/resources/sparql_templates/dataset_files.sparql               \
     djehuty/web/resources/sparql_templates/dataset_statistics.sparql          \
     djehuty/web/resources/sparql_templates/dataset_statistics_timeline.sparql \
-    djehuty/web/resources/sparql_templates/authors.sparql                     \
-    djehuty/web/resources/sparql_templates/categories.sparql                  \
-    djehuty/web/resources/sparql_templates/category_by_id.sparql              \
-    djehuty/web/resources/sparql_templates/collection_datasets_count.sparql   \
-    djehuty/web/resources/sparql_templates/collection_datasets.sparql         \
-    djehuty/web/resources/sparql_templates/collection_container.sparql        \
-    djehuty/web/resources/sparql_templates/collections_by_account.sparql      \
-    djehuty/web/resources/sparql_templates/collections_from_dataset.sparql    \
-    djehuty/web/resources/sparql_templates/collections.sparql                 \
-    djehuty/web/resources/sparql_templates/collection_versions.sparql         \
-    djehuty/web/resources/sparql_templates/container_items.sparql             \
-    djehuty/web/resources/sparql_templates/custom_fields.sparql               \
-    djehuty/web/resources/sparql_templates/datasets.sparql                    \
     djehuty/web/resources/sparql_templates/dataset_storage_used.sparql        \
     djehuty/web/resources/sparql_templates/dataset_versions.sparql            \
+    djehuty/web/resources/sparql_templates/datasets.sparql                    \
     djehuty/web/resources/sparql_templates/delete_account_list.sparql         \
-    djehuty/web/resources/sparql_templates/delete_dataset_embargo.sparql      \
     djehuty/web/resources/sparql_templates/delete_associations.sparql         \
     djehuty/web/resources/sparql_templates/delete_collection_draft.sparql     \
     djehuty/web/resources/sparql_templates/delete_dataset_draft.sparql        \
+    djehuty/web/resources/sparql_templates/delete_dataset_embargo.sparql      \
     djehuty/web/resources/sparql_templates/delete_item_categories.sparql      \
     djehuty/web/resources/sparql_templates/delete_private_links.sparql        \
-    djehuty/web/resources/sparql_templates/delete_session_by_uuid.sparql      \
     djehuty/web/resources/sparql_templates/delete_session.sparql              \
+    djehuty/web/resources/sparql_templates/delete_session_by_uuid.sparql      \
     djehuty/web/resources/sparql_templates/delete_sessions.sparql             \
     djehuty/web/resources/sparql_templates/derived_from.sparql                \
     djehuty/web/resources/sparql_templates/explorer_properties.sparql         \
     djehuty/web/resources/sparql_templates/explorer_property_types.sparql     \
     djehuty/web/resources/sparql_templates/explorer_types.sparql              \
     djehuty/web/resources/sparql_templates/funding.sparql                     \
-    djehuty/web/resources/sparql_templates/group_by_name.sparql               \
     djehuty/web/resources/sparql_templates/group.sparql                       \
+    djehuty/web/resources/sparql_templates/group_by_name.sparql               \
     djehuty/web/resources/sparql_templates/latest_datasets_portal.sparql      \
     djehuty/web/resources/sparql_templates/licenses.sparql                    \
     djehuty/web/resources/sparql_templates/opendap_to_doi.sparql              \
@@ -105,17 +109,17 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/reviews.sparql                     \
     djehuty/web/resources/sparql_templates/root_categories.sparql             \
     djehuty/web/resources/sparql_templates/single_dataset_statistics_totals.sparql \
+    djehuty/web/resources/sparql_templates/statistics.sparql                  \
     djehuty/web/resources/sparql_templates/statistics_authors.sparql          \
     djehuty/web/resources/sparql_templates/statistics_collections.sparql      \
     djehuty/web/resources/sparql_templates/statistics_datasets.sparql         \
     djehuty/web/resources/sparql_templates/statistics_files.sparql            \
-    djehuty/web/resources/sparql_templates/statistics.sparql                  \
     djehuty/web/resources/sparql_templates/subcategories_by_category.sparql   \
     djehuty/web/resources/sparql_templates/tags.sparql                        \
     djehuty/web/resources/sparql_templates/update_account.sparql              \
+    djehuty/web/resources/sparql_templates/update_collection.sparql           \
     djehuty/web/resources/sparql_templates/update_dataset.sparql              \
     djehuty/web/resources/sparql_templates/update_dataset_thumb.sparql        \
-    djehuty/web/resources/sparql_templates/update_collection.sparql           \
     djehuty/web/resources/sparql_templates/update_file.sparql                 \
     djehuty/web/resources/sparql_templates/update_git_uuid.sparql             \
     djehuty/web/resources/sparql_templates/update_private_link.sparql         \
@@ -136,18 +140,32 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/fonts/SourceSansPro-Bold.ttf                 \
     djehuty/web/resources/static/fonts/SourceSansPro-Italic.ttf               \
     djehuty/web/resources/static/fonts/SourceSansPro-Regular.ttf              \
-    djehuty/web/resources/static/images/CoreTrustSeal.png                     \
     djehuty/web/resources/static/images/collection-thumb.svg                  \
+    djehuty/web/resources/static/images/CoreTrustSeal.png                     \
     djehuty/web/resources/static/images/dataset-thumb.svg                     \
+    djehuty/web/resources/static/images/datatables/sort_asc.png               \
+    djehuty/web/resources/static/images/datatables/sort_asc_disabled.png      \
+    djehuty/web/resources/static/images/datatables/sort_both.png              \
+    djehuty/web/resources/static/images/datatables/sort_desc.png              \
+    djehuty/web/resources/static/images/datatables/sort_desc_disabled.png     \
     djehuty/web/resources/static/images/ext-link.png                          \
     djehuty/web/resources/static/images/favicon.ico                           \
     djehuty/web/resources/static/images/favicon.png                           \
+    djehuty/web/resources/static/images/licenses/apache.png                   \
+    djehuty/web/resources/static/images/licenses/cc-0.png                     \
+    djehuty/web/resources/static/images/licenses/cc-by.png                    \
+    djehuty/web/resources/static/images/licenses/cc-by-nc.png                 \
+    djehuty/web/resources/static/images/licenses/cc-by-nc-nd.png              \
+    djehuty/web/resources/static/images/licenses/cc-by-nc-sa.png              \
+    djehuty/web/resources/static/images/licenses/cc-by-nd.png                 \
+    djehuty/web/resources/static/images/licenses/cc-by-sa.png                 \
+    djehuty/web/resources/static/images/licenses/gnu-gpl-v3.png               \
     djehuty/web/resources/static/images/loader.svg                            \
+    djehuty/web/resources/static/images/logo.png                              \
     djehuty/web/resources/static/images/logo-delft.png                        \
     djehuty/web/resources/static/images/logo-eindhoven.png                    \
     djehuty/web/resources/static/images/logo-gray.svg                         \
     djehuty/web/resources/static/images/logo-other.png                        \
-    djehuty/web/resources/static/images/logo.png                              \
     djehuty/web/resources/static/images/logosleft-white-tudelft.png           \
     djehuty/web/resources/static/images/logosleft-white-tueindhoven.png       \
     djehuty/web/resources/static/images/logosleft-white-tutwente.png          \
@@ -155,20 +173,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/logo-twente.png                       \
     djehuty/web/resources/static/images/logo-wageningen.png                   \
     djehuty/web/resources/static/images/orcid.svg                             \
-    djehuty/web/resources/static/images/datatables/sort_asc_disabled.png      \
-    djehuty/web/resources/static/images/datatables/sort_asc.png               \
-    djehuty/web/resources/static/images/datatables/sort_both.png              \
-    djehuty/web/resources/static/images/datatables/sort_desc_disabled.png     \
-    djehuty/web/resources/static/images/datatables/sort_desc.png              \
-    djehuty/web/resources/static/images/licenses/apache.png                   \
-    djehuty/web/resources/static/images/licenses/cc-0.png                     \
-    djehuty/web/resources/static/images/licenses/cc-by-nc-nd.png              \
-    djehuty/web/resources/static/images/licenses/cc-by-nc.png                 \
-    djehuty/web/resources/static/images/licenses/cc-by-nc-sa.png              \
-    djehuty/web/resources/static/images/licenses/cc-by-nd.png                 \
-    djehuty/web/resources/static/images/licenses/cc-by.png                    \
-    djehuty/web/resources/static/images/licenses/cc-by-sa.png                 \
-    djehuty/web/resources/static/images/licenses/gnu-gpl-v3.png               \
     djehuty/web/resources/static/images/portal/aerospace-engineering.jpg      \
     djehuty/web/resources/static/images/portal/agricultural-and-veterinary-sciences.jpg \
     djehuty/web/resources/static/images/portal/atmospheric-sciences.jpg       \
@@ -194,17 +198,17 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/portal/tueindhoven.jpg                \
     djehuty/web/resources/static/images/portal/utwente.jpg                    \
     djehuty/web/resources/static/images/portal/wageningen.jpg                 \
-    djehuty/web/resources/static/js/d3-extras.js                              \
     djehuty/web/resources/static/js/d3.v7.min.js                              \
+    djehuty/web/resources/static/js/d3-extras.js                              \
     djehuty/web/resources/static/js/dataset_landing_page.js                   \
-    djehuty/web/resources/static/js/edit-dataset.js                           \
     djehuty/web/resources/static/js/edit-collection.js                        \
+    djehuty/web/resources/static/js/edit-dataset.js                           \
     djehuty/web/resources/static/js/edit-profile.js                           \
     djehuty/web/resources/static/js/exploratory.js                            \
-    djehuty/web/resources/static/js/jquery-3.6.0.min.js                       \
     djehuty/web/resources/static/js/jquery.dataTables.min.js                  \
+    djehuty/web/resources/static/js/jquery-3.6.0.min.js                       \
     djehuty/web/resources/static/js/quill.min.js                              \
-    djehuty/web/resources/static/js/ranking_by_institution.js                 \
-    djehuty/web/resources/static/js/ranking.js
+    djehuty/web/resources/static/js/ranking.js                                \
+    djehuty/web/resources/static/js/ranking_by_institution.js
 
 EXTRA_DIST      = $(PYTHON_FILES) $(EXTRA_RESOURCES)
