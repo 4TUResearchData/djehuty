@@ -1210,8 +1210,7 @@ class SparqlInterface:
         return self.delete_item_categories (dataset_id, account_uuid, category_id, "dataset")
 
     def insert_funding (self, title=None, grant_code=None, funder_name=None,
-                        is_user_defined=None, url=None, item_id=None,
-                        item_type=None, funding_id=None):
+                        is_user_defined=None, url=None, funding_id=None):
         """Procedure to add an funding to the state graph."""
 
         graph       = Graph()
