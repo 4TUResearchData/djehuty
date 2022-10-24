@@ -2369,13 +2369,16 @@ class ApiServer:
             record = request.get_json()
 
             try:
+                tags = validator.array_value (record, "tags", False)
+                if not tags:
+                    tags = validator.array_value (record, "keywords", False)
+
                 timeline   = validator.object_value (record, "timeline", False)
                 dataset_uuid = self.db.insert_dataset (
                     title          = validator.string_value  (record, "title",          3, 1000,                   True),
                     account_uuid     = account_uuid,
                     description    = validator.string_value  (record, "description",    0, 10000,                  False),
-                    tags           = validator.array_value   (record, "tags",                                      False),
-                    keywords       = validator.array_value   (record, "keywords",                                  False),
+                    tags           = tags,
                     references     = validator.array_value   (record, "references",                                False),
                     categories     = validator.array_value   (record, "categories",                                False),
                     authors        = validator.array_value   (record, "authors",                                   False),
@@ -3548,6 +3551,9 @@ class ApiServer:
             record = request.get_json()
 
             try:
+                tags = validator.array_value (record, "tags", False)
+                if not tags:
+                    tags = validator.array_value (record, "keywords", False)
                 timeline   = validator.object_value (record, "timeline", False)
                 collection_id = self.db.insert_collection (
                     title                   = validator.string_value  (record, "title",            3, 1000,       True),
@@ -3560,7 +3566,6 @@ class ApiServer:
                     categories              = validator.array_value   (record, "categories",                      False),
                     categories_by_source_id = validator.array_value   (record, "categories_by_source_id",         False),
                     tags                    = validator.array_value   (record, "tags",                            False),
-                    keywords                = validator.array_value   (record, "keywords",                        False),
                     references              = validator.array_value   (record, "references",                      False),
                     custom_fields           = validator.object_value  (record, "custom_fields",                   False),
                     custom_fields_list      = validator.object_value  (record, "custom_fields_list",              False),
