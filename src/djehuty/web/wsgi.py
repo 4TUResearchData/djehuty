@@ -1653,9 +1653,30 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
+        offset    = None
+        limit     = None
+        page_size = self.get_parameter (request, "page_size")
+        page      = self.get_parameter (request, "page")
+        if page_size is None:
+            page_size = 100
+        if page is None:
+            page = 1
+
+        try:
+            offset, limit = validator.paging_to_offset_and_limit ({
+                "page":      page,
+                "page_size": page_size,
+                "limit":     None,
+                "offset":    None
+            })
+        except validator.ValidationException:
+            pass
+
         category      = self.db.category_by_id (category_id)
         subcategories = self.db.subcategories_for_category (category["uuid"])
-        datasets      = self.db.datasets (categories=[category["id"]], limit=100)
+        datasets      = self.db.datasets (categories = [category["id"]],
+                                          limit      = limit,
+                                          offset     = offset)
         collections   = self.db.collections (categories=[category["id"]], limit=100)
 
         return self.__render_template (request, "categories.html",
