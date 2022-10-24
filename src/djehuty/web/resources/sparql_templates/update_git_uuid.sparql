@@ -1,0 +1,21 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?dataset          djht:git_uuid            ?git_uuid .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?dataset          djht:git_uuid            {{git_uuid}} .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container            rdf:type             djht:DatasetContainer ;
+                          djht:draft           ?dataset .
+    ?dataset              djht:git_uuid        ?git_uuid .
+  }
+  FILTER (?dataset = <dataset:{{dataset_uuid}}>)
+}
+{% endblock %}

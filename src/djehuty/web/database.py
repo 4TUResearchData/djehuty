@@ -877,6 +877,16 @@ class SparqlInterface:
 
         return True
 
+    def update_dataset_git_uuid (self, dataset_uuid):
+        """Procedure to update the Git UUID of a draft dataset."""
+
+        query = self.__query_from_template ("update_git_uuid", {
+            "dataset_uuid": dataset_uuid,
+            "git_uuid":     rdf.escape_string_value (str (uuid.uuid4()))
+        })
+
+        return self.__run_query (query)
+
     def insert_dataset (self,
                         title,
                         account_uuid,

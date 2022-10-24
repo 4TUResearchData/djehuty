@@ -116,6 +116,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/update_dataset_thumb.sparql        \
     djehuty/web/resources/sparql_templates/update_collection.sparql           \
     djehuty/web/resources/sparql_templates/update_file.sparql                 \
+    djehuty/web/resources/sparql_templates/update_git_uuid.sparql             \
     djehuty/web/resources/sparql_templates/update_private_link.sparql         \
     djehuty/web/resources/sparql_templates/update_review.sparql               \
     djehuty/web/resources/sparql_templates/update_session.sparql              \
