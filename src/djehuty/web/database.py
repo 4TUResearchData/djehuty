@@ -1613,6 +1613,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["doi"],            doi,            XSD.string)
         rdf.add (graph, uri, rdf.DJHT["handle"],         handle,         XSD.string)
         rdf.add (graph, uri, rdf.DJHT["url"],            url,            XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["resource_id"],    resource_id,    XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_doi"],   resource_doi,   XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_title"], resource_title, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["group_id"],       group_id)
