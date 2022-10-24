@@ -1,0 +1,18 @@
+%0 {{ reference_type }}
+{% for author in authors -%}
+%A {{ author.last_name }}, {{ author.first_name }}
+{% endfor -%}
+%D {{ published_year }}
+%T {{ item.title }}
+%U {{ item.url_public_html }}
+%R {{ item.doi}}
+{% for file in files -%}
+%2 {{ file.download_url }}
+{% endfor -%}
+{% for tag in tags -%}
+%K {{ tag }}
+{% endfor -%}
+{% autoescape false -%}
+%X {{ item.description.replace('\\n', '\n') }}
+{% endautoescape -%}
+%I {{ item.publisher }}

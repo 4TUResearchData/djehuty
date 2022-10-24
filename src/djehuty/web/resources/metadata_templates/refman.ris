@@ -1,0 +1,19 @@
+TY - DATA
+T1 - {{ item.title }}
+PY - {{ published_date }}
+{% for author in authors -%}
+AU - {{ author.full_name }}
+{% endfor -%}
+UR - {{ item.url_public_html }}
+DO - {{ item.doi }}
+{% for file in files -%}
+L4 - {{ file.download_url }}
+{% endfor -%}
+{% for tag in tags -%}
+KW - {{ tag }}
+{% endfor -%}
+{# TODO: html decode description -#}
+{% autoescape false -%}
+N2 - {{ item.description.replace('\\n', '\n') }}
+{% endautoescape -%}
+ER -

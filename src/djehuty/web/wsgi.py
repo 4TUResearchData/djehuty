@@ -17,7 +17,7 @@ from werkzeug.routing import Map, Rule
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound, BadRequest
 from rdflib import URIRef
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, escape
 from jinja2.exceptions import TemplateNotFound
 from djehuty.web import validator
 from djehuty.web import formatter
@@ -268,6 +268,10 @@ class ApiServer:
                 "/"
             ]), autoescape = True)
 
+        self.metadata_jinja = Environment(loader = FileSystemLoader([
+            os.path.join(resources_path, "resources", "metadata_templates"),
+        ]), autoescape = True)
+
         self.wsgi    = SharedDataMiddleware(self.__respond, self.static_roots)
 
         ## Disable werkzeug logging.
@@ -325,6 +329,12 @@ class ApiServer:
         }
         return self.response (template.render({ **context, **parameters }),
                               mimetype='text/html; charset=utf-8')
+
+    def __render_export_format (self, request, mimetype, template_name, **context):
+        template      = self.metadata_jinja.get_template (template_name)
+        #context = {k: escape(v) for k,v in context.items()}
+        return self.response (template.render( **context ),
+                              mimetype=mimetype)
 
     def __dispatch_request (self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
@@ -4935,26 +4945,162 @@ class ApiServer:
     ## EXPORTS
     ## ------------------------------------------------------------------------
 
+    def __metadata_export_parameters(self, request, dataset_id, version=None):
+        container = self.__dataset_by_id_or_uri(
+            dataset_id,
+            is_published=True,
+            is_latest=not bool(version),
+            version=version)
+
+        if container is None:
+            return self.error_404(request)
+
+        # TODO: Numeric IDs are not available for future datasets.
+        # Use UUIDs instead.
+        container_uuid = container['container_uuid']
+        container_uri = f'container:{container_uuid}'
+        versions = self.db.dataset_versions(container_uri=container_uri)
+        versions = [v for v in versions if v['version']]  # exclude version None (still necessary?)
+        current_version = version if version else versions[0]['version']
+        dataset = self.db.datasets(dataset_id=container["dataset_id"],
+                                   version=current_version,
+                                   is_published=True)[0]
+        dataset_uri = container['uri']
+        authors = self.db.authors(item_uri=dataset_uri)
+        collections = self.db.collections_from_dataset(container_uuid)
+        tags = self.db.tags(item_uri=dataset_uri)
+        tags = [tag['tag'] for tag in sorted(tags, key=lambda t: t['index'])]
+        if collections is not None:
+            # Add collection(s) as additional tag(s), by prepending them while keeping the order
+            for collection in collections[::-1]:
+                tags.insert(0, f'Collection: {collection["title"]}')
+        if 'time_coverage' in dataset:
+            # Add time coverage as additional tag
+            tags.append(f'Time: {dataset["time_coverage"]}')
+        published_year = dataset['published_date'][:4]
+        published_date = dataset['published_date'][:10]
+        organizations = []
+        if 'organizations' in dataset:
+            if '\n;' in dataset['organizations']:
+                split_str = '\n;'
+            elif ';\n' in dataset['organizations']:
+                split_str = ';\n'
+            else:
+                split_str = '\n\n'
+            organizations = dataset['organizations'].split(split_str)
+        contributors = []
+        if 'contributors' in dataset:
+            if '\n;' in dataset['contributors']:
+                split_str = '\n;'
+            else:
+                split_str = ';\n'
+            contr = dataset['contributors'].split(split_str)
+            contr_parts = [c.split(' [orcid:') for c in contr]
+            contributors = [{'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
+        references = self.db.references(item_uri=dataset_uri)
+        fundings = self.db.fundings(item_uri=dataset_uri)
+        files = self.db.dataset_files(dataset_uri=dataset_uri, limit=None)
+
+        parameters = {'item': dataset,
+                      'authors': authors,
+                      'tags': tags,
+                      'published_year': published_year,
+                      'published_date': published_date,
+                      'organizations': organizations,
+                      'contributors': contributors,
+                      'fundings': fundings,
+                      'files': files}
+        return parameters
+
     def ui_export_datacite_dataset (self, request, dataset_id, version=None):
-        return self.response (json.dumps({"message": "TODO: datacite export"}))
+        """export metadata in datacite format"""
+        # collect rendering parameters
+        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
+        # adjust rendering parameters
+        for funding_idx, funding in enumerate(parameters['fundings']):
+            if "funder_name" not in funding:
+                # make sure the funder_name field is defined
+                parameters["fundings"][funding_idx]["funder_name"] = "unknown"
+
+        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_datacite.xml"}
+        return self.__render_export_format(request, template_name="datacite.xml",
+                                      mimetype="application/xml; charset=utf-8",
+                                      headers=headers, **parameters)
 
     def ui_export_datacite_collection (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: datacite export"}))
 
     def ui_export_refworks_dataset (self, request, dataset_id, version=None):
-        return self.response (json.dumps({"message": "TODO: refworks export"}))
+        """export metadata in refworks format"""
+        # collect rendering parameters
+        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
+        # adjust rendering parameters: turn tags into one semicolon delimited string
+        parameters["tags_str"] = ';'.join(parameters["tags"])
+
+        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_refworks.xml"}
+        return self.__render_export_format(request, template_name="refworks.xml",
+                                      mimetype="application/xml; charset=utf-8",
+                                      headers=headers, **parameters)
 
     def ui_export_bibtex_dataset (self, request, dataset_id, version=None):
-        return self.response (json.dumps({"message": "TODO: bibtex export"}))
+        """export metadata in bibtex format"""
+        # collect rendering parameters
+        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
+        # adjust rendering parameters
+        # turn authors in one string
+        parameters["authors_str"] = " and ".join([f"{author['last_name']}, {author['first_name']}" for author in
+                                                 parameters["authors"]])
+        # turn tags into one comma delimited string
+        parameters["tags_str"] = ', '.join(parameters["tags"])
+
+        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.bib"}
+        return self.__render_export_format(request, template_name="bibtex.bib",
+                                      mimetype="text/plain; charset=utf-8",
+                                      headers=headers, **parameters)
 
     def ui_export_refman_dataset (self, request, dataset_id, version=None):
-        return self.response (json.dumps({"message": "TODO: refman export"}))
+        """export metadata in .ris format"""
+        # collect rendering parameters
+        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
+        # adjust rendering parameters: use / as date separator
+        parameters['published_date'] = parameters['published_date'].replace('-', '/')
+
+        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.ris"}
+        return self.__render_export_format(request, template_name="refman.ris",
+                                      mimetype="text/plain; charset=utf-8",
+                                      headers=headers, **parameters)
 
     def ui_export_endnote_dataset (self, request, dataset_id, version=None):
-        return self.response (json.dumps({"message": "TODO: endnote export"}))
+        """export metadata in .enw format"""
+        # collect rendering parameters
+        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
+        # adjust rendering parameters
+        # prepare Reference Type (Tag %0)
+        parameters["reference_type"] = "Generic"
+        if parameters["item"]["defined_type_name"] == "software":
+            parameters["reference_type"] = "Computer Program"
+
+        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.enw"}
+        return self.__render_export_format(request, template_name="endnote.enw",
+                                      mimetype="text/plain; charset=utf-8",
+                                      headers=headers, **parameters)
 
     def ui_export_nlm_dataset (self, request, dataset_id, version=None):
-        return self.response (json.dumps({"message": "TODO: nlm export"}))
+        """export metadata in nlm format"""
+        # collect rendering parameters
+        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
+
+        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_nlm.xml"}
+        return self.__render_export_format(request, template_name="nlm.xml",
+                                      mimetype="application/xml; charset=utf-8",
+                                      headers=headers, **parameters)
 
     def ui_export_dc_dataset (self, request, dataset_id, version=None):
-        return self.response (json.dumps({"message": "TODO: dc export"}))
+        """export metadata in doublin core format"""
+        # collect rendering parameters
+        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
+
+        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_dc.xml"}
+        return self.__render_export_format(request, template_name="dc.xml",
+                                      mimetype="application/xml; charset=utf-8",
+                                      headers=headers, **parameters)

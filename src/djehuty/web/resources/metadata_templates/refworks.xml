@@ -1,0 +1,22 @@
+<references>
+<reference>
+{% for author in authors -%}
+<a{{ loop.index }}>{{ author.last_name }}, {{ author.first_name }}</a{{ loop.index }}>
+{% endfor -%}
+<t1>{{ item.title}}</t1>
+<sn/>
+<op/>
+<vo/>
+{% autoescape false -%}
+<ab>{{ item.description.replace('\\n', '\n') }}</ab>
+{% endautoescape -%}
+<la/>
+<k1>{{ tags_str}}</k1>
+<pb/>
+<pp/>
+<yr>{{ published_date }}</yr>
+<ed/>
+<ul>{{ item.url_public_html }}</ul>
+<do>{{ item.doi }}</do>
+</reference>
+</references>

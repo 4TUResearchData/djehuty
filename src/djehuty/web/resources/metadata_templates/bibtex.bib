@@ -1,0 +1,10 @@
+@misc{{ '{' }}https://doi.org/{{ item.doi }},
+  doi = {{ '{' }}{{ item.doi }}{{ '}' }},
+  url = {{ '{' }}{{ item.url_public_html }}{{ '}' }},
+  author = {{ '{' }}{{ authors_str }}{{ '}' }},
+  keywords = {{ '{' }}{{ tags_str }}{{ '}' }},
+  title = {{ '{' }}{{ item.title }}{{ '}' }},
+  publisher = {{ '{' }}{{ item.publisher }}{{ '}' }},
+  year = {{ '{' }}{{ published_year }}{{ '}' }},
+  copyright = {{ '{' }}{{ item.license_name }}{{ '}' }},
+}

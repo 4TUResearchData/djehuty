@@ -52,6 +52,13 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/review/dashboard.html                \
     djehuty/web/resources/html_templates/review/published.html                \
     djehuty/web/resources/html_templates/search.html                          \
+    djehuty/web/resources/metadata_templates/bibtex.bib                       \
+    djehuty/web/resources/metadata_templates/datacite.xml                     \
+    djehuty/web/resources/metadata_templates/dc.xml                           \
+    djehuty/web/resources/metadata_templates/endnote.enw                      \
+    djehuty/web/resources/metadata_templates/nlm.xml                          \
+    djehuty/web/resources/metadata_templates/refman.ris                       \
+    djehuty/web/resources/metadata_templates/refworks.xml                     \
     djehuty/web/resources/robots.txt                                          \
     djehuty/web/resources/sparql_templates/account_by_email.sparql            \
     djehuty/web/resources/sparql_templates/account_by_session_token.sparql    \
