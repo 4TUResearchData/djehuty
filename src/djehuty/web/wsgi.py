@@ -1774,6 +1774,12 @@ class ApiServer:
                 contr_parts = [ c.split(' [orcid:') for c in contr ]
                 contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
 
+            git_repository_url = None
+            if dataset["defined_type_name"] == "software":
+                git_directory  = f"{self.db.storage}/{dataset['git_uuid']}.git"
+                if os.path.exists (git_directory):
+                    git_repository_url = f"{self.base_url}/v3/datasets/{dataset['git_uuid']}.git"
+
             return self.__render_template (request, "dataset.html",
                                            item=dataset,
                                            version=version,
@@ -1796,7 +1802,8 @@ class ApiServer:
                                            member_url_name=member_url_name,
                                            id_version = id_version,
                                            opendap=opendap,
-                                           statistics=statistics)
+                                           statistics=statistics,
+                                           git_repository_url=git_repository_url)
         return self.error_406 ("text/html")
 
     def ui_collection (self, request, collection_id, version=None):

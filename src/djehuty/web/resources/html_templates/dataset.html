@@ -112,6 +112,12 @@
         </ul>
     </div>
 {% endif%}
+{%- if git_repository_url %}
+    <div id="git-repository">
+      <p>To access the source code, use the following command:</p>
+      <pre>git clone {{git_repository_url}}</pre>
+    </div>
+{%- endif %}
 {% if files %}
 {# test 16545714 #}
     <div id="files">
