@@ -248,6 +248,8 @@ jQuery(document).ready(function (){
 #embargo_options { display: none; }
 #refresh-git-files { font-size: .75em; }
 .required-field { color: #cc0000; user-select: none; }
+.publish-button a { background: #f49120 !important; }
+.publish-button a:hover { background: #f7ad58 !important; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -257,6 +259,9 @@ jQuery(document).ready(function (){
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save draft</a>
   {%- if not article.is_under_review %}
   <li class="hide-for-javascript submit-button"><a id="submit" href="#">Submit for review</a>
+  {%- endif %}
+  {%- if article.is_under_review and is_reviewing %}
+  <li class="hide-for-javascript publish-button"><a id="publish" href="#">Publish</a>
   {%- endif %}
   <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
 </ul>

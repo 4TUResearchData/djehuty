@@ -687,6 +687,7 @@ function activate (dataset_uuid) {
         jQuery("#delete").on("click", function (event) { delete_dataset (dataset_uuid, event); });
         jQuery("#save").on("click", function (event)   { save_dataset (dataset_uuid, event); });
         jQuery("#submit").on("click", function (event) { submit_dataset (dataset_uuid, event); });
+        jQuery("#publish").on("click", function (event) { publish_dataset (dataset_uuid, event); });
         jQuery("#refresh-git-files").on("click", function (event) {
             render_git_files_for_dataset (dataset_uuid, event);
         });
@@ -936,6 +937,24 @@ function submit_dataset (dataset_uuid, event) {
             }
         }
         show_message ("failure", `${error_message}`);
+    });
+}
+
+function publish_dataset (dataset_uuid, event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    save_dataset (dataset_uuid, event, notify=false);
+    let jqxhr = jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}/publish`,
+        type:        "POST",
+        accept:      "application/json",
+    }).done(function () {
+        window.location.replace(`/review/published/${dataset_uuid}`);
+    }).fail(function (response, text_status, error_code) {
+        show_message ("failure",
+                      `<p>Could not publish due to error ` +
+                      `<code>${error_code}</code>.</p>`);
     });
 }
 
