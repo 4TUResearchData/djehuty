@@ -1814,15 +1814,14 @@ class SparqlInterface:
 
     def reviews (self, assigned_to=None, dataset_uri=None, status=None,
                  account_uuid=None, limit=10, order=None, order_direction=None,
-                 offset=None, is_assigned=None, review_uuid=None):
+                 offset=None, review_uuid=None):
         """Returns reviews within the scope of the procedure's parameters."""
 
-        filters  = rdf.sparql_filter ("assigned_to", assigned_to)
-        filters += rdf.sparql_filter ("dataset", dataset_uri, is_uri=True)
+        filters = rdf.sparql_filter ("dataset", dataset_uri, is_uri=True)
 
         query = self.__query_from_template ("reviews", {
             "account_uuid":   account_uuid,
-            "is_assigned":    is_assigned,
+            "assigned_to":    assigned_to,
             "review_uuid":    review_uuid,
             "filters":        filters,
         })

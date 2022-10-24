@@ -34,15 +34,13 @@ WHERE {
     BIND(STRAFTER(STR(?account), "account:")  AS ?account_uuid)
     BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)
   }
-{%- if is_assigned is not none %}
-{%- if not is_assigned: %}
-  FILTER (! BOUND(?assigned_to))
-{%- else %}
-  FILTER (BOUND(?assigned_to))
-{%- endif %}
+{%- if assigned_to is not none %}
+  FILTER (?assigned_to = <account:{{assigned_to}}>)
 {%- if review_uuid is not none: %}
   FILTER (?review = <review:{{review_uuid}}>)
 {%- endif %}
+{%- else %}
+  FILTER (! BOUND(?assigned_to))
 {%- endif %}
 }
 {% endblock %}
