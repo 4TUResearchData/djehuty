@@ -106,6 +106,7 @@ class ApiServer:
             Rule("/review/goto-dataset/<dataset_id>",         endpoint = "ui_review_impersonate_to_dataset"),
             Rule("/review/assign-to-me/<dataset_id>",         endpoint = "ui_review_assign_to_me"),
             Rule("/review/unassign/<dataset_id>",             endpoint = "ui_review_unassign"),
+            Rule("/review/published/<dataset_id>",            endpoint = "ui_review_published"),
             Rule("/admin/dashboard",                          endpoint = "ui_admin_dashboard"),
             Rule("/admin/users",                              endpoint = "ui_admin_users"),
             Rule("/admin/exploratory",                        endpoint = "ui_admin_exploratory"),
@@ -1539,6 +1540,24 @@ class ApiServer:
             return redirect ("/review/dashboard", code=302)
 
         return self.error_500()
+
+    def ui_review_published (self, request, dataset_id):
+
+        account_uuid = self.account_uuid_from_request (request)
+        token = self.token_from_cookie (request)
+        if not self.db.may_review (token):
+            logging.error ("Account %d attempted a reviewer action.", account_uuid)
+            return self.error_403 (request)
+
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               is_published = True,
+                                               is_latest    = True)
+
+        if dataset is None:
+            return self.error_403 (request)
+
+        return self.__render_template (request, "review/published.html",
+                                       container_uuid=dataset["container_uuid"])
 
     def ui_admin_dashboard (self, request):
         if not self.accepts_html (request):

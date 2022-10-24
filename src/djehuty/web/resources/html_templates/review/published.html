@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block submenu %}
+<ul>
+  <li><a href="/review/dashboard">&#8592; Go back</a>
+  <li class="active">
+</ul>
+{% endblock %}
+{% block body %}
+<h1>The dataset has been published</h1>
+<p>The dataset has been published.  Have a nice day!</p>
+<div class="center">
+  <a id="create-new-dataset" href="/datasets/{{container_uuid}}" class="button neutral-button">Go to dataset page.</a>
+</div>
+{% endblock %}

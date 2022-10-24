@@ -49,6 +49,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/portal.html                          \
     djehuty/web/resources/html_templates/public_metadata.html                 \
     djehuty/web/resources/html_templates/review/dashboard.html                \
+    djehuty/web/resources/html_templates/review/published.html                \
     djehuty/web/resources/html_templates/search.html                          \
     djehuty/web/resources/robots.txt                                          \
     djehuty/web/resources/sparql_templates/account_by_email.sparql            \
