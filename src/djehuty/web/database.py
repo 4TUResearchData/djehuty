@@ -1615,7 +1615,9 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["url"],            url,            XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_id"],    resource_id,    XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_doi"],   resource_doi,   XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["resource_link"],  resource_link,  XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_title"], resource_title, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["resource_version"], resource_version)
         rdf.add (graph, uri, rdf.DJHT["group_id"],       group_id)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
