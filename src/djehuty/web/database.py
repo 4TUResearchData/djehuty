@@ -878,6 +878,21 @@ class SparqlInterface:
 
         return True
 
+    def wrap_dataset_in_blank_node (self, dataset_uuid):
+        """Returns the blank node URI for the rdf:List node for a dataset."""
+
+        rdf_store  = Graph ()
+        blank_node = rdf.blank_node ()
+        dataset_uri = rdf.uuid_to_uri (dataset_uuid, "dataset")
+        rdf.add (rdf_store, blank_node, RDF.first, URIRef(dataset_uri))
+        rdf.add (rdf_store, blank_node, RDF.rest, RDF.nil)
+
+        query = self.__insert_query_for_graph (rdf_store)
+        if self.add_triples_from_graph (rdf_store):
+            return blank_node
+
+        return None
+
     def update_dataset_git_uuid (self, dataset_uuid):
         """Procedure to update the Git UUID of a draft dataset."""
 
