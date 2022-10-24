@@ -667,7 +667,7 @@ class ApiServer:
         record["last_name"]  = attributes["urn:mace:dir:attribute-def:sn"][0]
         record["common_name"] = attributes["urn:mace:dir:attribute-def:cn"][0]
 
-        if not (record["email"]):
+        if not record["email"]:
             logging.error("Didn't receive required fields in SAMLResponse.")
             return None
 
@@ -1415,7 +1415,7 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        link_uri = self.db.insert_private_link (dataset["uuid"], account_uuid)
+        self.db.insert_private_link (dataset["uuid"], account_uuid)
         return redirect (f"/my/datasets/{dataset_id}/private_links", code=302)
 
     def ui_delete_private_link (self, request, dataset_id, private_link_id):
