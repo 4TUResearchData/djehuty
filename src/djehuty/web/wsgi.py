@@ -900,8 +900,7 @@ class ApiServer:
                     account_uuid = self.db.insert_account (
                         email      = saml_record["email"],
                         first_name = value_or_none (saml_record, "first_name"),
-                        last_name  = value_or_none (saml_record, "last_name"),
-                        institution_user_id = value_or_none (saml_record, "institution_user_id")
+                        last_name  = value_or_none (saml_record, "last_name")
                     )
 
                 token, _ = self.db.insert_session (account_uuid, name="Website login")
