@@ -3213,6 +3213,8 @@ class ApiServer:
                 read_only    = validator.boolean_value (parameters, "read_only", False)
                 id_string    = secrets.token_urlsafe()
                 link_uri     = self.db.insert_private_link (
+                                   dataset["uuid"],
+                                   account_uuid,
                                    expires_date = expires_date,
                                    read_only    = read_only,
                                    id_string    = id_string,
