@@ -134,6 +134,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/update_session.sparql              \
     djehuty/web/resources/static/css/jquery.dataTables.min.css                \
     djehuty/web/resources/static/css/main.css                                 \
+    djehuty/web/resources/static/css/pub.css                                  \
     djehuty/web/resources/static/css/quill.4tu.css                            \
     djehuty/web/resources/static/fonts/fa-brands-400.eot                      \
     djehuty/web/resources/static/fonts/fa-brands-400.ttf                      \

@@ -1,0 +1,39 @@
+#wrapper #content a             { color: #f49120; text-decoration: none }
+#wrapper #content a:hover       { text-decoration: underline }
+#wrapper #content #doi          { text-align: right }
+#wrapper #content #type         { display:inline; padding: 2px 10px 2px 10px; text-align: center; border: 1px solid #000 }
+#wrapper #content #metadata #versions { margin-top: 0px }
+#wrapper #content #description  { margin-top: 10px; padding:10px; border: 1px solid #666 }
+#wrapper #content #authors img, #contributors img  { height: 15px }
+#wrapper #content .metric       { float: left; margin:5px; text-align: center }
+#wrapper #content .metric .number { font-size: 24px; font-weight: bold }
+#wrapper #content #categories   { padding-top: 10px; clear: left }
+#wrapper #content #tags, #geo, #time_coverage, #dates, #collections, #peer, #references, #publisher, #format, #organizations,
+#wrapper #content #contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export, #data_link
+                                { margin-top: 10px }
+#wrapper #content #funding ul   { list-style-type: square; margin-left: 20px }
+#wrapper #content #funding .funder_name { display: block; color: #999 }
+#wrapper #content #files .size   { display: inline-block; width:120px; font-size:12px; color: #999; text-align:right; margin-right:5px }
+#wrapper #content #metadata #left_column  { width: 65%; margin-bottom:10px }
+#wrapper #content #metadata #right_column { float: right; width: 33%; margin-bottom:10px }
+#wrapper #content .warning      { background-color: #ff0 }
+#wrapper #content .label        { text-transform: uppercase }
+#wrapper #content ul            { list-style-type: none; padding:0; margin:0 }
+#wrapper #content #data         { clear: right; border-top: 1px solid #000; margin-bottom: 10px }
+#wrapper #content #data ul      { margin-left: 20px }
+#wrapper #content li.zip        { padding: 2px; width: 180px; text-align: center; border: 1px solid #000 }
+#wrapper #content #collect,      #cite,      #versions      { display: none; border: 3px solid #f39000; padding: 10px; margin-bottom:10px }
+#wrapper #content #collect_show, #cite_show                 { border: none; padding:5px; margin-bottom: 10px }
+#wrapper #content #collect_hide, #cite_hide, #versions_hide { border: none }
+#wrapper #content #citation     { font-weight: bold }
+#wrapper #content #type_versions { margin-bottom:10px }
+#wrapper #content #versions     { width: 220px; position:absolute; background-color: #fff }
+#wrapper #content #versions_show { padding: 2px 10px 2px 10px; border: none; background-color: #fff; font: inherit; font-size: inherit; }
+#wrapper #content #versions_show:hover { text-decoration: underline; cursor: pointer }
+#wrapper #content #versions a   { display: block }
+#wrapper #content #versions div { color: #999 }
+#wrapper #content .is_active    { font-weight: bold }
+#wrapper #content .small        { font-size: 75%; opacity: 0.8 }
+#wrapper #content #orcid img    { height: 20px }
+#wrapper #content #has-account  { margin-top: 80px; clear: both }
+

@@ -1,47 +1,7 @@
 ﻿{% extends "layout.html" %}
 {% block headers %}
-{# TODO:
-   file previews (for which file types?)
-   embargo
-   versioned and unversioned doi on latest version, explained #}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
-<style>
-    #content a    { color: #f49120; text-decoration: none }
-    #content a:hover { text-decoration: underline }
-    #doi          { text-align: right }
-    #type         { display:inline; padding: 2px 10px 2px 10px; text-align: center; border: 1px solid #000 }
-    #metadata #versions { margin-top: 0px }
-    #description  { margin-top: 10px; padding:10px; border: 1px solid #666 }
-    #authors img, #contributors img  { height: 15px }
-    .metric       { float: left; margin:5px; text-align: center }
-    .metric .number { font-size: 24px; font-weight: bold }
-    #categories   { padding-top: 10px; clear: left }
-    #tags, #geo, #time_coverage, #dates, #collections, #peer, #references, #publisher, #format, #organizations,
-    #contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export, #data_link
-                  { margin-top: 10px }
-    #funding ul   { list-style-type: square; margin-left: 20px }
-    #funding .funder_name { display: block; color: #999 }
-    #files .size   { display: inline-block; width:120px; font-size:12px; color: #999; text-align:right; margin-right:5px }
-    #metadata #left_column  { width: 65%; margin-bottom:10px }
-    #metadata #right_column { float: right; width: 33%; margin-bottom:10px }
-    .warning      { background-color: #ff0 }
-    .label        { text-transform: uppercase }
-    ul            { list-style-type: none; padding:0; margin:0 }
-    #data         { clear: right; border-top: 1px solid #000; margin-bottom: 10px }
-    #data ul      { margin-left: 20px }
-    li.zip        { padding: 2px; width: 180px; text-align: center; border: 1px solid #000 }
-    #collect,      #cite,      #versions      { display: none; border: 3px solid #f39000; padding: 10px; margin-bottom:10px }
-    #collect_show, #cite_show                 { border: none; padding:5px; margin-bottom: 10px }
-    #collect_hide, #cite_hide, #versions_hide { border: none }
-    #citation     { font-weight: bold }
-    #type_versions { margin-bottom: 10px }
-    #versions     { width: 220px; position:absolute; background-color: #fff }
-    #versions_show { padding: 2px 10px 2px 10px; border: none; background-color: #fff; font: inherit; font-size: inherit; }
-    #versions_show:hover { text-decoration: underline; cursor: pointer }
-    #versions a   { display: block }
-    #versions div { color: #999 }
-    .is_active    { font-weight: bold }
-</style>
+<link rel="stylesheet" type="text/css" href="/static/css/pub.css" />
 {% endblock %}
 
 {% block body %}
