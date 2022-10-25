@@ -860,6 +860,7 @@ function submit_dataset (dataset_uuid, event) {
     let is_closed     = jQuery("#closed_access").prop("checked");
     let agreed_to_da  = jQuery("#deposit_agreement").prop("checked");
     let agreed_to_publish = jQuery("#publish_agreement").prop("checked");
+    let is_metadata_record = jQuery("#metadata_record_only").prop("checked");
 
     form_data = {
         "title":          or_null(jQuery("#title").val()),
