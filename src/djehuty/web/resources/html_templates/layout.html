@@ -12,7 +12,7 @@
     {% block headers %}{% endblock %}
   </head>
   <body>
-    <div id="wrapper" {%- if path == "/portal" %}class="footer1"{% else %}class="footer2"{% endif %}>
+    <div id="wrapper" {%- if path == "/portal" %} class="footer1"{% else %} class="footer2"{% endif %}>
       {%- if impersonating_account %}
       <div id="pre-header">
         <p>Impersonating as <strong>{{impersonating_account.first_name}} {{impersonating_account.last_name}}</strong>.
@@ -58,7 +58,7 @@
         <div id="primary-menu-wrapper">
         <ul id="primary-menu" class="primary-menu">
           {% for primary_menu in menu %}
-          <li class="menu-item menu-item-has-children">{{primary_menu.title}}</a>
+          <li class="menu-item menu-item-has-children">{{primary_menu.title}}
             <ul class="submenu">
               {% for submenu in primary_menu.submenu %}
               <li class="submenu-item"><a href="{{ submenu.href }}">{{ submenu.title }}</a></li>
