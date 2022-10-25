@@ -561,7 +561,7 @@ jQuery(document).ready(function (){
   <label for="external_link">External URL</label>
   <input type="text" name="external_url" id="external_url" value="{{article["url"]}}" />
   <div class="a-button">
-    <a href="#" onclick="javascript:submit_external_link({{article["article_id"]}}); return false;">Save URL</a>
+    <a href="#" onclick="javascript:submit_external_link('{{article["container_uuid"]}}'); return false;">Save URL</a>
   </div>
 </div>
 <div id="software_upload_field" class="record-type-field">
