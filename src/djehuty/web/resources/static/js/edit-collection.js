@@ -30,7 +30,7 @@ function render_datasets_for_collection (collection_id) {
     }).done(function (datasets) {
         jQuery("#articles-list tbody").empty();
         for (dataset of datasets) {
-            row = `<tr><td><a href="#">${dataset.title}`;
+            row = `<tr><td><a href="/datasets/${dataset.uuid}">${dataset.title}`;
             if (dataset.doi != null && dataset.doi != "") {
                 row += ` (${dataset.doi})`;
             }
