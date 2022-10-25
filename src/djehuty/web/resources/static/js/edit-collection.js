@@ -1,6 +1,18 @@
 function render_in_form (text) { return [text].join(''); }
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 
+function show_message (type, message) {
+    jQuery("#message")
+        .addClass(type)
+        .append(message)
+        .fadeIn(250);
+    setTimeout(function() {
+        jQuery("#message").fadeOut(500, function() {
+            jQuery("#message").removeClass(type).empty();
+        });
+    }, 5000);
+}
+
 function render_categories_for_collection (dataset_uuid, categories) {
     for (category of categories) {
         jQuery(`#category_${category["uuid"]}`).prop("checked", true);
@@ -30,7 +42,7 @@ function render_datasets_for_collection (collection_id) {
         }
         jQuery("#articles-list").show();
     }).fail(function () {
-        console.log("Failed to retrieve dataset details.");
+        show_message ("failure","<p>Failed to retrieve dataset details.</p>");
     });
 }
 
@@ -61,7 +73,7 @@ function render_authors_for_collection (collection_id, authors = null) {
         }).done(function (authors) {
             draw_authors_for_collection (collection_id, authors);
         }).fail(function () {
-            console.log("Failed to retrieve author details.");
+            show_message ("failure","<p>Failed to retrieve author details.</p>");
         });
     } else {
         draw_authors_for_collection (collection_id, authors);
@@ -79,7 +91,9 @@ function add_author (author_id, collection_id) {
         render_authors_for_collection (collection_id);
         jQuery("#authors").val("");
         autocomplete_author(null, collection_id);
-    }).fail(function () { console.log (`Failed to add ${author_id}`); });
+    }).fail(function () {
+        show_message ("failure",`<p>Failed to add ${author_id}.</p>`);
+    });
 }
 
 function add_dataset (dataset_id, collection_id) {
@@ -93,7 +107,9 @@ function add_dataset (dataset_id, collection_id) {
         render_datasets_for_collection (collection_id);
         jQuery("#article-search").val("");
         autocomplete_dataset(null, collection_id);
-    }).fail(function () { console.log (`Failed to add ${dataset_id}`); });
+    }).fail(function () {
+        show_message ("failure",`<p>Failed to add ${dataset_id}.</p>`);
+    });
 }
 
 function remove_author (author_id, collection_id) {
@@ -102,7 +118,9 @@ function remove_author (author_id, collection_id) {
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (authors) { render_authors_for_collection (collection_id); })
-      .fail(function () { console.log (`Failed to remove ${author_id}`); });
+      .fail(function () {
+          show_message ("failure",`<p>Failed to remove ${author_id}</p>`);
+      });
 }
 
 function remove_dataset (dataset_id, collection_id) {
@@ -111,10 +129,10 @@ function remove_dataset (dataset_id, collection_id) {
         type:        "DELETE",
         accept:      "application/json",
     }).done(function (datasets) {
-        console.log (`Removed dataset ${dataset_id}.`);
         render_datasets_for_collection (collection_id);
-    })
-      .fail(function () { console.log (`Failed to remove ${dataset_id}`); });
+    }).fail(function () {
+        show_message ("failure",`<p>Failed to remove ${dataset_id}.</p>`);
+    });
 }
 
 function delete_collection (collection_id) {
@@ -127,7 +145,9 @@ function delete_collection (collection_id) {
             url:         `/v2/account/collections/${collection_id}`,
             type:        "DELETE",
         }).done(function () { window.location.pathname = '/my/collections' })
-          .fail(function () { console.log("Failed to delete collection."); });
+          .fail(function () {
+              show_message ("failure", "<p>Failed to delete collection.</p>");
+          });
     }
 }
 
@@ -175,8 +195,9 @@ function save_collection (collection_id) {
                 jQuery("#message").removeClass("success").empty();
             });
         }, 5000);
-        console.log("Form was saved.");
-    }).fail(function () { console.log("Failed to save form."); });
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to save form.</p>");
+    });
 }
 
 function autocomplete_dataset (event, collection_id) {
@@ -185,7 +206,6 @@ function autocomplete_dataset (event, collection_id) {
         jQuery("#articles-ac").remove();
         jQuery("#article-search").removeClass("input-for-ac");
     } else if (current_text.length > 2) {
-        console.log(`Triggered datasets autocomplete with ${current_text}.`);
         jQuery.ajax({
             url:         `/v2/articles/search`,
             type:        "POST",
@@ -293,7 +313,9 @@ function submit_new_author (collection_id) {
         jQuery("#authors-ac").remove();
         jQuery("#authors").removeClass("input-for-ac");
         render_authors_for_collection (collection_id);
-    }).fail(function () { console.log (`Failed to add author.`); });
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to add author.</p>");
+    });
 }
 
 function activate (collection_id) {
@@ -345,6 +367,6 @@ function activate (collection_id) {
             jQuery(`#group_${data["group_id"]}`).prop("checked", true);
         }        
     }).fail(function () {
-        console.log("Failed to retrieve collection.");
+        show_message ("failure","<p>Failed to retrieve collection.</p>");
     });
 }
