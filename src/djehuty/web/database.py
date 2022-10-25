@@ -1431,7 +1431,8 @@ class SparqlInterface:
                         embargo_until_date=None, embargo_type=None,
                         embargo_title=None, embargo_reason=None,
                         embargo_allow_access_requests=None, is_embargoed=False,
-                        agreed_to_deposit_agreement=False, agreed_to_publish=False):
+                        agreed_to_deposit_agreement=False, agreed_to_publish=False,
+                        is_metadata_record=False, metadata_reason=None):
         """Procedure to overwrite parts of a dataset."""
 
         query   = self.__query_from_template ("update_dataset", {
@@ -1461,6 +1462,8 @@ class SparqlInterface:
             "time_coverage":   rdf.escape_string_value (time_coverage),
             "title":           rdf.escape_string_value (title),
             "is_embargoed":    int(is_embargoed),
+            "is_metadata_record": rdf.escape_boolean_value (is_metadata_record),
+            "metadata_reason": rdf.escape_string_value (metadata_reason),
             "embargo_until_date": rdf.escape_date_value (embargo_until_date),
             "embargo_type":    rdf.escape_string_value (embargo_type),
             "embargo_title":   rdf.escape_string_value (embargo_title),

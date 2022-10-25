@@ -50,6 +50,10 @@ DELETE {
     ?dataset           djht:embargo_until_date   ?embargo_until_date .
     {%- if embargo_type is not none or not is_embargoed %}
     ?dataset           djht:embargo_type         ?embargo_type .
+    {%- endif%}{% if is_metadata_record is not none %}
+    ?dataset           djht:is_metadata_record   ?is_metadata_record .
+    {%- endif%}{% if metadata_reason is not none %}
+    ?dataset           djht:metadata_reason      ?metadata_reason .
     {%- endif%}{% if embargo_title is not none or not is_embargoed %}
     ?dataset           djht:embargo_title        ?embargo_title .
     {%- endif%}{% if embargo_reason is not none or not is_embargoed %}
@@ -110,6 +114,10 @@ INSERT {
     ?dataset           djht:defined_type         {{defined_type | safe}} .
     {%- endif%}{% if has_linked_file is not none %}
     ?dataset           djht:has_linked_file      {{has_linked_file | safe}} .
+    {%- endif%}{% if is_metadata_record is not none %}
+    ?dataset           djht:is_metadata_record   {{is_metadata_record | safe}} .
+    {%- endif%}{% if metadata_reason is not none %}
+    ?dataset           djht:metadata_reason      {{metadata_reason | safe}} .
     {%- endif%}{% if embargo_until_date is not none and is_embargoed %}
     ?dataset           djht:embargo_until_date   {{embargo_until_date | safe}} .
     {%- endif%}{% if embargo_type is not none and is_embargoed %}
@@ -164,6 +172,8 @@ WHERE {
     OPTIONAL { ?dataset djht:defined_type_name     ?defined_type_name . }
     OPTIONAL { ?dataset djht:defined_type          ?defined_type . }
     OPTIONAL { ?dataset djht:has_linked_file       ?has_linked_file . }
+    OPTIONAL { ?dataset djht:is_metadata_record    ?is_metadata_record . }
+    OPTIONAL { ?dataset djht:metadata_reason       ?metadata_reason . }
     OPTIONAL { ?dataset djht:embargo_until_date    ?embargo_until_date . }
     OPTIONAL { ?dataset djht:embargo_type          ?embargo_type . }
     OPTIONAL { ?dataset djht:embargo_title         ?embargo_title . }

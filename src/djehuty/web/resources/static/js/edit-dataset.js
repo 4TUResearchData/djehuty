@@ -53,6 +53,7 @@ function save_dataset (dataset_uuid, event, notify=true) {
     let is_closed     = jQuery("#closed_access").prop("checked");
     let agreed_to_da  = jQuery("#deposit_agreement").prop("checked");
     let agreed_to_publish = jQuery("#publish_agreement").prop("checked");
+    let is_metadata_record = jQuery("#metadata_record_only").prop("checked");
 
     form_data = {
         "title":          or_null(jQuery("#title").val()),
@@ -70,6 +71,8 @@ function save_dataset (dataset_uuid, event, notify=true) {
         "publisher":      or_null(jQuery("#publisher").val()),
         "time_coverage":  or_null(jQuery("#time_coverage").val()),
         "language":       or_null(jQuery("#language").val()),
+        "is_metadata_record": is_metadata_record,
+        "metadata_reason": or_null(jQuery("#metadata_only_reason").val()),
         "defined_type_name": defined_type_name,
         "is_embargoed":   is_embargoed || is_restricted || is_closed,
         "group_id":       group_id,
@@ -874,6 +877,8 @@ function submit_dataset (dataset_uuid, event) {
         "publisher":      or_null(jQuery("#publisher").val()),
         "time_coverage":  or_null(jQuery("#time_coverage").val()),
         "language":       or_null(jQuery("#language").val()),
+        "is_metadata_record": is_metadata_record,
+        "metadata_reason": or_null(jQuery("#metadata_only_reason").val()),
         "dataset_type":   dataset_type,
         "is_embargoed":   is_embargoed || is_restricted || is_closed,
         "group_id":       group_id,
