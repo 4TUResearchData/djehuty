@@ -494,7 +494,7 @@ img { user-select: none; }
     color: #fff;
     text-align: center;
 }
-#pre-header p { padding: .5em; line-height: 2em; font-size: 1.25em; }
+#pre-header p { padding: .5em; line-height: 2em; font-size: 1.25em; margin: auto; }
 #pre-header a { color: #fff; }
 #pre-header a:hover { color: #ccc; }
 #pre-header a:active { color: #999; }
