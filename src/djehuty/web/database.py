@@ -1080,9 +1080,9 @@ class SparqlInterface:
             "group_id":              group_id
         })
 
+        self.cache.invalidate_by_prefix ("accounts")
         results = self.__run_query (query)
         if results and categories:
-            self.cache.invalidate_by_prefix ("accounts")
 
             if categories:
                 graph = Graph()
