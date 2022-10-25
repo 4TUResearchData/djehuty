@@ -17,7 +17,7 @@ from werkzeug.routing import Map, Rule
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound, BadRequest
 from rdflib import URIRef
-from jinja2 import Environment, FileSystemLoader, escape
+from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
 from djehuty.web import validator
 from djehuty.web import formatter
@@ -332,7 +332,6 @@ class ApiServer:
 
     def __render_export_format (self, request, mimetype, template_name, **context):
         template      = self.metadata_jinja.get_template (template_name)
-        #context = {k: escape(v) for k,v in context.items()}
         return self.response (template.render( **context ),
                               mimetype=mimetype)
 
