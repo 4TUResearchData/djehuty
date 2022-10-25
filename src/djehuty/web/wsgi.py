@@ -121,6 +121,7 @@ class ApiServer:
             Rule("/opendap_to_doi",                           endpoint = "ui_opendap_to_doi"),
             Rule("/datasets/<dataset_id>",                    endpoint = "ui_dataset"),
             Rule("/datasets/<dataset_id>/<version>",          endpoint = "ui_dataset"),
+            Rule("/private_datasets/<private_link_id>",       endpoint = "ui_private_dataset"),
             Rule("/file/<dataset_id>/<file_id>",              endpoint = "ui_download_file"),
             Rule("/collections/<collection_id>",              endpoint = "ui_collection"),
             Rule("/collections/<collection_id>/<version>",    endpoint = "ui_collection"),
@@ -1719,28 +1720,52 @@ class ApiServer:
                                        category=category,
                                        subcategories=subcategories)
 
-    def ui_dataset (self, request, dataset_id, version=None):
+    def ui_private_dataset (self, request, private_link_id):
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        if request.method == 'GET':
+            try:
+                dataset = self.db.datasets (private_link_id_string = private_link_id,
+                                            is_published           = False)[0]
+                return self.ui_dataset (request, dataset["container_uuid"],
+                                        container=dataset, private_view=True)
+            except IndexError:
+                pass
+
+            return self.error_404 (request)
+
+    def ui_dataset (self, request, dataset_id, version=None, container=None, private_view=False):
         if self.accepts_html (request):
             my_collections = []
             account_uuid = self.account_uuid_from_request (request)
             if account_uuid:
                 my_collections = self.db.collections_by_account (account_uuid = account_uuid)
 
-            container     = self.__dataset_by_id_or_uri (
-                dataset_id,
-                is_published = True,
-                is_latest    = not bool(version),
-                version      = version)
+            if container is None:
+                container     = self.__dataset_by_id_or_uri (
+                    dataset_id,
+                    is_published = True,
+                    is_latest    = not bool(version),
+                    version      = version)
 
             if container is None:
                 return self.error_404 (request)
-
             versions      = self.db.dataset_versions(container_uri=container["container_uri"])
+            if not versions:
+                versions = [{"version": 1}]
             versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
             current_version = version if version else versions[0]['version']
-            dataset       = self.db.datasets (container_uuid= container["container_uuid"],
+
+            dataset       = None
+            try:
+                dataset   = self.db.datasets (container_uuid= container["container_uuid"],
                                               version       = current_version,
                                               is_published  = True)[0]
+            except IndexError:
+                dataset   = self.db.datasets (container_uuid = container["container_uuid"],
+                                              is_published  = False)[0]
+
             dataset_uri   = container['uri']
             authors       = self.db.authors(item_uri=dataset_uri, limit=None)
             files         = self.db.dataset_files(dataset_uri=dataset_uri, limit=None)
@@ -1755,10 +1780,10 @@ class ApiServer:
                              'shares'   : value_or(container, 'total_shares'   , 0),
                              'cites'    : value_or(container, 'total_cites'    , 0)}
             statistics    = {key:val for (key,val) in statistics.items() if val > 0}
-            member = value_or(group_to_member, dataset["group_id"], 'other')
+            member = value_or(group_to_member, value_or_none (dataset, "group_id"), 'other')
             member_url_name = member_url_names[member]
             tags = set([t['tag'] for t in tags])
-            dataset['timeline_first_online'] = container['timeline_first_online']
+            dataset['timeline_first_online'] = value_or_none (container, 'timeline_first_online')
             date_types = ( ('submitted'   , 'timeline_submission'),
                            ('first online', 'timeline_first_online'),
                            ('published'   , 'published_date'),
@@ -1767,7 +1792,7 @@ class ApiServer:
             dates = {}
             for (label, dtype) in date_types:
                 if dtype in dataset:
-                    date_value = dataset[dtype]
+                    date_value = value_or_none (dataset, dtype)
                     if date_value:
                         date_value = date_value[:10]
                         if not date_value in dates:
@@ -1777,8 +1802,16 @@ class ApiServer:
 
             id_version = f'{dataset_id}/{version}' if version else f'{dataset_id}'
 
-            citation = make_citation(authors, dataset['timeline_posted'][:4], dataset['title'],
-                                     dataset['version'], dataset['defined_type_name'], dataset['doi'])
+            posted_date = value_or_none (dataset, "timeline_posted")
+            if posted_date is not None:
+                posted_date = posted_date[:4]
+            else:
+                posted_date = "unpublished"
+
+            citation = make_citation(authors, posted_date, dataset['title'],
+                                     value_or (dataset, 'version', 0),
+                                     value_or (dataset, 'defined_type_name', 'undefined'),
+                                     value_or (dataset, 'doi', 'unavailable'))
 
             lat = self_or_value_or_none(dataset, 'latitude')
             lon = self_or_value_or_none(dataset, 'longitude')
@@ -1803,7 +1836,7 @@ class ApiServer:
                 contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
 
             git_repository_url = None
-            if dataset["defined_type_name"] == "software":
+            if "defined_type_name" in dataset and dataset["defined_type_name"] == "software":
                 try:
                     git_directory  = f"{self.db.storage}/{dataset['git_uuid']}.git"
                     if os.path.exists (git_directory):
@@ -1834,7 +1867,8 @@ class ApiServer:
                                            id_version = id_version,
                                            opendap=opendap,
                                            statistics=statistics,
-                                           git_repository_url=git_repository_url)
+                                           git_repository_url=git_repository_url,
+                                           private_view=private_view)
         return self.error_406 ("text/html")
 
     def ui_collection (self, request, collection_id, version=None):

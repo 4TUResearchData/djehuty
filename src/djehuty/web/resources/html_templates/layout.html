@@ -19,6 +19,11 @@
           <a href="/logout">Click here</a> to stop impersonating.</p>
       </div>
       {%- endif %}
+      {%- if private_view %}
+      <div id="pre-header">
+        <p>You are viewing a pre-publication dataset. It hasn't been curated.</p>
+      </div>
+      {%- endif %}
       <div id="header">
         <div id="header-left"><a href="/portal"><img id="logo" src="/static/images/logo.png" alt="4TU.ResearchData portal"></a></div>
         <div id="header-middle">

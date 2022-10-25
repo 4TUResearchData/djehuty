@@ -181,7 +181,9 @@
         </div>
         <div id="description">
 {% autoescape false %}
-            {{ item.description.replace('\\n', '\n') }}
+        {%- if item.description %}
+        {{ item.description.replace('\\n', '\n') }}
+        {%- endif %}
 {% endautoescape %}
         </div>
         <div id="dates">
