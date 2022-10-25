@@ -7,7 +7,7 @@ DELETE {
 }
 INSERT {
   GRAPH <{{state_graph}}> {
-    ?dataset          djht:git_uuid            {{git_uuid}} .
+    ?dataset          djht:git_uuid            {{git_uuid | safe}} .
   }
 }
 WHERE {
