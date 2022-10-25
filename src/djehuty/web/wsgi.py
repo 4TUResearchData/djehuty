@@ -2970,24 +2970,25 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         try:
-            collection = self.__collection_by_id_or_uri (collection_id, account_uuid=account_uuid)
-            dataset    = self.__dataset_by_id_or_uri (dataset_id, account_uuid=account_uuid)
+            collection = self.__collection_by_id_or_uri (collection_id, account_uuid=account_uuid, is_published=False)
+            dataset    = self.__dataset_by_id_or_uri (dataset_id)
             if collection is None or dataset is None:
                 return self.error_404 (request)
 
-            datasets = self.db.datasets(collection_uri=collection["uri"])
+            datasets = self.db.datasets(collection_uri=collection["uri"], is_latest=True)
             datasets.remove (next
                              (filter
-                              (lambda item: item["uuid"] == dataset["uuid"],
+                              (lambda item: item["container_uuid"] == dataset["container_uuid"],
                                datasets)))
 
-            datasets = list(map(lambda item: URIRef(uuid_to_uri(item["uuid"], "dataset")),
+            datasets = list(map(lambda item: URIRef(uuid_to_uri(item["container_uuid"], "container")),
                                 datasets))
 
             if self.db.update_item_list (collection["container_uuid"],
                                          account_uuid,
                                          datasets,
                                          "datasets"):
+                self.db.cache.invalidate_by_prefix ("datasets")
                 return self.respond_204()
         except (IndexError, KeyError):
             return self.error_500 ()
@@ -3975,8 +3976,7 @@ class ApiServer:
                 if collection is None:
                     return self.error_404 (request)
 
-                datasets   = self.db.datasets (collection_uri = collection["uri"],
-                                               account_uuid   = account_uuid)
+                datasets   = self.db.datasets (collection_uri = collection["uri"])
 
                 return self.default_list_response (datasets, formatter.format_dataset_record)
             except (IndexError, KeyError):
@@ -3987,9 +3987,14 @@ class ApiServer:
         if request.method in ('PUT', 'POST'):
             try:
                 parameters = request.get_json()
-                datasets = parameters["articles"]
-
                 collection = self.__collection_by_id_or_uri (collection_id, is_published=False, account_uuid=account_uuid)
+                existing_datasets = self.db.datasets(collection_uri=collection["uri"])
+                if existing_datasets:
+                    existing_datasets = list(map(lambda item: item["container_uuid"],
+                                                 existing_datasets))
+                new_datasets = parameters["articles"]
+                datasets   = existing_datasets + new_datasets
+
                 if collection is None:
                     return self.error_404 (request)
 
@@ -4003,7 +4008,9 @@ class ApiServer:
                     else:
                         dataset = validator.string_value (datasets, index, 36, 36)
 
-                    dataset = self.__dataset_by_id_or_uri (dataset)
+                    dataset = self.__dataset_by_id_or_uri (dataset,
+                                                           is_latest    = True,
+                                                           is_published = True)
                     if dataset is None:
                         return self.error_500 ()
 
@@ -4013,6 +4020,7 @@ class ApiServer:
                                              account_uuid,
                                              datasets,
                                              "datasets"):
+                    self.db.cache.invalidate_by_prefix ("datasets")
                     return self.respond_205()
 
             except IndexError:
