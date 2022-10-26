@@ -595,13 +595,12 @@ class ApiServer:
 
         record = { "code": self.get_parameter (request, "code") }
         try:
-            validator.string_value (record, "code", 0, 10, required=True)
             url_parameters = {
                 "client_id":     self.orcid_client_id,
                 "client_secret": self.orcid_client_secret,
                 "grant_type":    "authorization_code",
                 "redirect_uri":  f"{self.base_url}/login",
-                "code":          record["code"]
+                "code":          validator.string_value (record, "code", 0, 10, required=True)
             }
             headers = {
                 "Accept": "application/json",
@@ -3278,16 +3277,14 @@ class ApiServer:
                 if dataset is None:
                     return self.error_404 (request)
 
-                expires_date = validator.string_value (parameters, "expires_date", 0, 255, False)
-                read_only    = validator.boolean_value (parameters, "read_only", False)
-                id_string    = secrets.token_urlsafe()
-                link_uri     = self.db.insert_private_link (
-                                   dataset["uuid"],
-                                   account_uuid,
-                                   expires_date = expires_date,
-                                   read_only    = read_only,
-                                   id_string    = id_string,
-                                   is_active    = True)
+                id_string = secrets.token_urlsafe()
+                link_uri  = self.db.insert_private_link (
+                    dataset["uuid"],
+                    account_uuid,
+                    expires_date = validator.string_value (parameters, "expires_date", 0, 255, False),
+                    read_only    = validator.boolean_value (parameters, "read_only", False),
+                    id_string    = id_string,
+                    is_active    = True)
 
                 if link_uri is None:
                     logging.error ("Creating a private link failed for %s",
@@ -3346,14 +3343,12 @@ class ApiServer:
         if request.method == 'PUT':
             parameters = request.get_json()
             try:
-                expires_date = validator.string_value (parameters, "expires_date", 0, 255, False)
-                is_active    = validator.boolean_value (parameters, "is_active", False)
-
-                result = self.db.update_private_link (dataset["uri"],
-                                                      account_uuid,
-                                                      link_id,
-                                                      expires_date = expires_date,
-                                                      is_active    = is_active)
+                result = self.db.update_private_link (
+                    dataset["uri"],
+                    account_uuid,
+                    link_id,
+                    expires_date = validator.string_value (parameters, "expires_date", 0, 255, False),
+                    is_active    = validator.boolean_value (parameters, "is_active", False))
 
                 if result is None:
                     return self.error_500()
@@ -4587,15 +4582,12 @@ class ApiServer:
                                                     account_uuid=account_uuid,
                                                     is_published=False)
 
-            limit           = validator.integer_value (request.args, "limit")
-            order           = validator.integer_value (request.args, "order")
-            order_direction = validator.string_value  (request.args, "order_direction", 0, 4)
-
-            tags     = self.db.tags (item_uri        = dataset["uri"],
-                                     account_uuid    = account_uuid,
-                                     limit           = limit,
-                                     order           = order,
-                                     order_direction = order_direction)
+            tags = self.db.tags (
+                item_uri        = dataset["uri"],
+                account_uuid    = account_uuid,
+                limit           = validator.integer_value (request.args, "limit"),
+                order           = validator.integer_value (request.args, "order"),
+                order_direction = validator.string_value  (request.args, "order_direction", 0, 4))
 
             if request.method == 'GET':
                 return self.default_list_response (tags, formatter.format_tag_record)
@@ -4660,23 +4652,15 @@ class ApiServer:
             return handler
 
         try:
-            limit           = validator.integer_value (request.args, "limit")
-            offset          = validator.integer_value (request.args, "offset")
-            order           = validator.integer_value (request.args, "order")
-            order_direction = validator.string_value  (request.args, "order_direction", 0, 4)
-            group_id        = validator.integer_value (request.args, "id")
-            parent_id       = validator.integer_value (request.args, "parent_id")
-            name            = validator.string_value  (request.args, "name", 0, 255)
-            association     = validator.string_value  (request.args, "association", 0, 255)
-
-            records         = self.db.group (group_id        = group_id,
-                                             parent_id       = parent_id,
-                                             name            = name,
-                                             association     = association,
-                                             limit           = limit,
-                                             offset          = offset,
-                                             order           = order,
-                                             order_direction = order_direction)
+            records = self.db.group (
+                group_id        = validator.integer_value (request.args, "id"),
+                parent_id       = validator.integer_value (request.args, "parent_id"),
+                name            = validator.string_value  (request.args, "name", 0, 255),
+                association     = validator.string_value  (request.args, "association", 0, 255),
+                limit           = validator.integer_value (request.args, "limit"),
+                offset          = validator.integer_value (request.args, "offset"),
+                order           = validator.integer_value (request.args, "order"),
+                order_direction = validator.string_value  (request.args, "order_direction", 0, 4))
 
             return self.default_list_response (records, formatter.format_group_record)
 
