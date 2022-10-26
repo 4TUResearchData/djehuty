@@ -486,11 +486,11 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 if not rdf_store.insert_root_categories ():
                     logging.error ("Failed to gather root categories")
 
-                    if not rdf_store.insert_static_triplets ():
-                        logging.error ("Failed to gather static triplets")
+                if not rdf_store.insert_static_triplets ():
+                    logging.error ("Failed to gather static triplets")
 
-                        if server.db.add_triples_from_graph (rdf_store.store):
-                            logging.info("Initialization completed.")
+                if server.db.add_triples_from_graph (rdf_store.store):
+                    logging.info("Initialization completed.")
 
                 initialize = False
 
