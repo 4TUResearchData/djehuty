@@ -840,11 +840,9 @@ class ApiServer:
         return self.response (json.dumps({ "status": "OK" }))
 
     def ui_account_home (self, request):
-        if request.method != "GET":
-            return self.error_405 ("GET")
-
-        if not self.accepts_html (request):
-            return self.error_406 ("text/html")
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
 
         account_uuid = self.account_uuid_from_request (request)
         if account_uuid is not None:
@@ -1458,26 +1456,22 @@ class ApiServer:
         return response
 
     def ui_profile (self, request):
-        if not self.accepts_html (request):
-            return self.response (json.dumps({
-                "message": "This page is meant for humans only."
-            }))
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
 
-        if request.method == 'GET':
-            token = self.token_from_cookie (request)
-            if self.db.is_depositor (token):
-                try:
-                    account_uuid = self.account_uuid_from_request (request)
-                    return self.__render_template (
-                        request, "depositor/profile.html",
-                        account = self.db.accounts (account_uuid=account_uuid)[0],
-                        categories = self.db.categories_tree ())
-                except IndexError:
-                    return self.error_404 (request)
+        token = self.token_from_cookie (request)
+        if self.db.is_depositor (token):
+            try:
+                account_uuid = self.account_uuid_from_request (request)
+                return self.__render_template (
+                    request, "depositor/profile.html",
+                    account = self.db.accounts (account_uuid=account_uuid)[0],
+                    categories = self.db.categories_tree ())
+            except IndexError:
+                return self.error_404 (request)
 
-            return self.error_403 (request)
-
-        return self.error_405 ("GET")
+        return self.error_403 (request)
 
     def ui_review_dashboard (self, request):
         if not self.accepts_html (request):
@@ -1721,19 +1715,19 @@ class ApiServer:
                                        subcategories=subcategories)
 
     def ui_private_dataset (self, request, private_link_id):
-        if not self.accepts_html (request):
-            return self.error_406 ("text/html")
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
 
-        if request.method == 'GET':
-            try:
-                dataset = self.db.datasets (private_link_id_string = private_link_id,
-                                            is_published           = False)[0]
-                return self.ui_dataset (request, dataset["container_uuid"],
-                                        container=dataset, private_view=True)
-            except IndexError:
-                pass
+        try:
+            dataset = self.db.datasets (private_link_id_string = private_link_id,
+                                        is_published           = False)[0]
+            return self.ui_dataset (request, dataset["container_uuid"],
+                                    container=dataset, private_view=True)
+        except IndexError:
+            pass
 
-            return self.error_404 (request)
+        return self.error_404 (request)
 
     def ui_dataset (self, request, dataset_id, version=None, container=None, private_view=False):
         if self.accepts_html (request):
@@ -2220,14 +2214,10 @@ class ApiServer:
         return self.response (json.dumps (formatted))
 
     def api_datasets (self, request):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
 
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
-
-        ## Parameters
-        ## ----------------------------------------------------------------
         try:
             record  = self.__default_dataset_api_parameters (request)
             records = self.db.datasets (**record, is_latest = 1)
@@ -2237,11 +2227,9 @@ class ApiServer:
             return self.error_400 (request, error.message, error.code)
 
     def api_datasets_search (self, request):
-        if request.method != 'POST':
-            return self.error_405 ("POST")
-
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
 
         try:
             record  = self.__default_dataset_api_parameters (request.get_json())
@@ -2259,11 +2247,9 @@ class ApiServer:
         return self.default_list_response (records, formatter.format_license_record)
 
     def api_dataset_details (self, request, dataset_id):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
-
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
 
         try:
             dataset         = self.__dataset_by_id_or_uri (dataset_id, account_uuid=None, is_latest=True)
@@ -2310,11 +2296,9 @@ class ApiServer:
         return self.default_list_response (versions, formatter.format_version_record)
 
     def api_dataset_version_details (self, request, dataset_id, version):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
-
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
 
         try:
             dataset       = self.__dataset_by_id_or_uri (dataset_id,
@@ -2346,11 +2330,9 @@ class ApiServer:
             return response
 
     def api_dataset_version_embargo (self, request, dataset_id, version):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
-
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
 
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id,
@@ -2366,11 +2348,9 @@ class ApiServer:
             return response
 
     def api_dataset_version_confidentiality (self, request, dataset_id, version):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
-
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
 
         try:
             dataset       = self.__dataset_by_id_or_uri (dataset_id,
@@ -2401,11 +2381,9 @@ class ApiServer:
         return self.error_500()
 
     def api_dataset_files (self, request, dataset_id):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
-
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
 
         dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=True)
         files   = self.db.dataset_files (dataset_uri=dataset["uri"])
@@ -2413,10 +2391,9 @@ class ApiServer:
         return self.default_list_response (files, formatter.format_file_for_dataset_record)
 
     def api_dataset_file_details (self, request, dataset_id, file_id):
-        if request.method != 'GET':
-            return self.error_405 ("GET")
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
 
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=True)
@@ -3412,11 +3389,9 @@ class ApiServer:
         return self.error_500 ()
 
     def api_private_datasets_search (self, request):
-        if request.method != 'POST':
-            return self.error_405 ("POST")
-
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
 
         ## Authorization
         ## ----------------------------------------------------------------
@@ -4862,11 +4837,9 @@ class ApiServer:
     def api_v3_profile (self, request):
         """Implements /v3/profile."""
 
-        if not self.accepts_json (request):
-            return self.error_406 ("application/json")
-
-        if request.method != 'PUT':
-            return self.error_405 ("PUT")
+        handler = self.default_error_handling (request, "PUT", "application/json")
+        if handler is not None:
+            return handler
 
         account_uuid = self.account_uuid_from_request (request)
         if account_uuid is None:
