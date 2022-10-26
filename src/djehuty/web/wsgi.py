@@ -456,12 +456,12 @@ class ApiServer:
         response.status_code = 403
         return response
 
-    def default_error_handling (self, request, method):
+    def default_error_handling (self, request, method, content_type):
         if request.method != method:
             return self.error_405 (method)
 
         if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+            return self.error_406 (content_type)
 
         return None
 
@@ -2187,7 +2187,7 @@ class ApiServer:
         return self.error_404 (request)
 
     def api_private_institution (self, request):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -2204,7 +2204,7 @@ class ApiServer:
         }))
 
     def api_private_institution_account (self, request, account_uuid):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -2251,7 +2251,7 @@ class ApiServer:
             return self.error_400 (request, error.message, error.code)
 
     def api_licenses (self, request):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -2298,7 +2298,7 @@ class ApiServer:
             return response
 
     def api_dataset_versions (self, request, dataset_id):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -3462,7 +3462,7 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def api_collections (self, request):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -3508,7 +3508,7 @@ class ApiServer:
             return self.error_400 (request, error.message, error.code)
 
     def api_collections_search (self, request):
-        handler = self.default_error_handling (request, "POST")
+        handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
 
@@ -3531,7 +3531,7 @@ class ApiServer:
         return self.default_list_response (records, formatter.format_collection_record)
 
     def api_collection_details (self, request, collection_id):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -3561,7 +3561,7 @@ class ApiServer:
         return self.response (json.dumps(total))
 
     def api_collection_versions (self, request, collection_id):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -3575,7 +3575,7 @@ class ApiServer:
         return self.default_list_response (versions, formatter.format_version_record)
 
     def api_collection_version_details (self, request, collection_id, version):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -3798,7 +3798,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_private_collections_search (self, request):
-        handler = self.default_error_handling (request, "POST")
+        handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
 
@@ -3933,7 +3933,7 @@ class ApiServer:
         return self.error_405 ("GET")
 
     def api_private_collection_categories (self, request, collection_id):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -4038,7 +4038,7 @@ class ApiServer:
         return self.error_405 (["GET", "POST", "PUT"])
 
     def api_collection_datasets (self, request, collection_id):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -4055,7 +4055,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_private_authors_search (self, request):
-        handler = self.default_error_handling (request, "POST")
+        handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
 
@@ -4075,7 +4075,7 @@ class ApiServer:
             return self.error_400 (request, error.message, error.code)
 
     def api_private_funding_search (self, request):
-        handler = self.default_error_handling (request, "POST")
+        handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
 
@@ -4099,7 +4099,7 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def api_v3_datasets (self, request):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -4217,7 +4217,7 @@ class ApiServer:
         return record
 
     def api_v3_datasets_top (self, request, item_type):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -4254,7 +4254,7 @@ class ApiServer:
         return self.response (json.dumps(records))
 
     def api_v3_datasets_timeline (self, request, item_type):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -4312,7 +4312,7 @@ class ApiServer:
         return self.response (json.dumps(files))
 
     def api_v3_dataset_submit (self, request, dataset_id):
-        handler = self.default_error_handling (request, "PUT")
+        handler = self.default_error_handling (request, "PUT", "application/json")
         if handler is not None:
             return handler
 
@@ -4448,7 +4448,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_v3_dataset_upload_file (self, request, dataset_id):
-        handler = self.default_error_handling (request, "POST")
+        handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
 
@@ -4515,7 +4515,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_v3_file (self, request, file_id):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -4698,7 +4698,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_v3_groups (self, request):
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -4908,7 +4908,7 @@ class ApiServer:
     def api_v3_profile_categories (self, request):
         """Implements /v3/profile/categories."""
 
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -4922,7 +4922,7 @@ class ApiServer:
     def api_v3_explore_types (self, request):
         """Implements /v3/explore/types."""
 
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -4937,7 +4937,7 @@ class ApiServer:
     def api_v3_explore_properties (self, request):
         """Implements /v3/explore/properties."""
 
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
@@ -4961,7 +4961,7 @@ class ApiServer:
     def api_v3_explore_property_types (self, request):
         """Implements /v3/explore/property_value_types."""
 
-        handler = self.default_error_handling (request, "GET")
+        handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
