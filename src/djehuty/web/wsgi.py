@@ -2715,9 +2715,6 @@ class ApiServer:
                 return self.error_500 ()
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
-            except Exception as error:
-                logging.error("An error occurred when adding an author record:")
-                logging.error("Exception: %s", error)
 
             return self.error_500()
 
@@ -2854,9 +2851,6 @@ class ApiServer:
                 return self.error_500 ()
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
-            except Exception as error:
-                logging.error("An error occurred when adding a funder record:")
-                logging.error("Exception: %s", error)
 
             return self.error_500()
 
@@ -3047,9 +3041,6 @@ class ApiServer:
                 return self.error_400 (request, "Expected an array for 'categories'.", "NoCategoriesField")
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
-            except Exception as error:
-                logging.error("An error occurred when adding a category record:")
-                logging.error("Exception: %s", error)
 
         return self.error_405 (["GET", "POST", "PUT"])
 
@@ -3899,9 +3890,6 @@ class ApiServer:
                 return self.error_400 (request, "Expected an 'authors' field.", "NoAuthorsField")
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
-            except Exception as error:
-                logging.error("An error occurred when adding an author record:")
-                logging.error("Exception: %s", error)
 
             return self.error_500()
 
@@ -3998,15 +3986,12 @@ class ApiServer:
                     self.db.cache.invalidate_by_prefix ("datasets")
                     return self.respond_205()
 
-            except IndexError:
+            except (IndexError, TypeError):
                 return self.error_500 ()
             except KeyError:
                 return self.error_400 (request, "Expected an array for 'articles'.", "NoArticlesField")
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
-            except Exception as error:
-                logging.error("An error occurred when adding datasets:")
-                logging.error("Exception: %s", error)
 
             return self.error_500()
 
@@ -4578,9 +4563,6 @@ class ApiServer:
             return self.error_400 (request, "Expected a 'references' field.", "NoReferencesField")
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
-        except Exception as error:
-            logging.error("An error occurred when adding a reference record:")
-            logging.error("Exception: %s", error)
 
         return self.error_500 ()
 
