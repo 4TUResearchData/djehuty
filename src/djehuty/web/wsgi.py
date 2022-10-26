@@ -331,7 +331,7 @@ class ApiServer:
         return self.response (template.render({ **context, **parameters }),
                               mimetype='text/html; charset=utf-8')
 
-    def __render_export_format (self, request, mimetype, template_name, **context):
+    def __render_export_format (self, mimetype, template_name, **context):
         template      = self.metadata_jinja.get_template (template_name)
         return self.response (template.render( **context ),
                               mimetype=mimetype)
@@ -5041,9 +5041,9 @@ class ApiServer:
                 parameters["fundings"][funding_idx]["funder_name"] = "unknown"
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_datacite.xml"}
-        return self.__render_export_format(request, template_name="datacite.xml",
-                                      mimetype="application/xml; charset=utf-8",
-                                      headers=headers, **parameters)
+        return self.__render_export_format(template_name="datacite.xml",
+                                           mimetype="application/xml; charset=utf-8",
+                                           headers=headers, **parameters)
 
     def ui_export_datacite_collection (self, request, dataset_id, version=None):
         return self.response (json.dumps({"message": "TODO: datacite export"}))
@@ -5056,9 +5056,9 @@ class ApiServer:
         parameters["tags_str"] = ';'.join(parameters["tags"])
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_refworks.xml"}
-        return self.__render_export_format(request, template_name="refworks.xml",
-                                      mimetype="application/xml; charset=utf-8",
-                                      headers=headers, **parameters)
+        return self.__render_export_format(template_name="refworks.xml",
+                                           mimetype="application/xml; charset=utf-8",
+                                           headers=headers, **parameters)
 
     def ui_export_bibtex_dataset (self, request, dataset_id, version=None):
         """export metadata in bibtex format"""
@@ -5072,9 +5072,9 @@ class ApiServer:
         parameters["tags_str"] = ', '.join(parameters["tags"])
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.bib"}
-        return self.__render_export_format(request, template_name="bibtex.bib",
-                                      mimetype="text/plain; charset=utf-8",
-                                      headers=headers, **parameters)
+        return self.__render_export_format(template_name="bibtex.bib",
+                                           mimetype="text/plain; charset=utf-8",
+                                           headers=headers, **parameters)
 
     def ui_export_refman_dataset (self, request, dataset_id, version=None):
         """export metadata in .ris format"""
@@ -5084,9 +5084,9 @@ class ApiServer:
         parameters['published_date'] = parameters['published_date'].replace('-', '/')
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.ris"}
-        return self.__render_export_format(request, template_name="refman.ris",
-                                      mimetype="text/plain; charset=utf-8",
-                                      headers=headers, **parameters)
+        return self.__render_export_format(template_name="refman.ris",
+                                           mimetype="text/plain; charset=utf-8",
+                                           headers=headers, **parameters)
 
     def ui_export_endnote_dataset (self, request, dataset_id, version=None):
         """export metadata in .enw format"""
@@ -5099,9 +5099,9 @@ class ApiServer:
             parameters["reference_type"] = "Computer Program"
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.enw"}
-        return self.__render_export_format(request, template_name="endnote.enw",
-                                      mimetype="text/plain; charset=utf-8",
-                                      headers=headers, **parameters)
+        return self.__render_export_format(template_name="endnote.enw",
+                                           mimetype="text/plain; charset=utf-8",
+                                           headers=headers, **parameters)
 
     def ui_export_nlm_dataset (self, request, dataset_id, version=None):
         """export metadata in nlm format"""
@@ -5109,9 +5109,9 @@ class ApiServer:
         parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_nlm.xml"}
-        return self.__render_export_format(request, template_name="nlm.xml",
-                                      mimetype="application/xml; charset=utf-8",
-                                      headers=headers, **parameters)
+        return self.__render_export_format(template_name="nlm.xml",
+                                           mimetype="application/xml; charset=utf-8",
+                                           headers=headers, **parameters)
 
     def ui_export_dc_dataset (self, request, dataset_id, version=None):
         """export metadata in doublin core format"""
@@ -5119,6 +5119,6 @@ class ApiServer:
         parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_dc.xml"}
-        return self.__render_export_format(request, template_name="dc.xml",
-                                      mimetype="application/xml; charset=utf-8",
-                                      headers=headers, **parameters)
+        return self.__render_export_format(template_name="dc.xml",
+                                           mimetype="application/xml; charset=utf-8",
+                                           headers=headers, **parameters)
