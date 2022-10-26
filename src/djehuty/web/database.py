@@ -887,7 +887,6 @@ class SparqlInterface:
         rdf.add (rdf_store, blank_node, RDF.first, URIRef(dataset_uri))
         rdf.add (rdf_store, blank_node, RDF.rest, RDF.nil)
 
-        query = self.__insert_query_for_graph (rdf_store)
         if self.add_triples_from_graph (rdf_store):
             return blank_node
 
