@@ -3132,6 +3132,9 @@ class ApiServer:
                                                        account_uuid=account_uuid,
                                                        is_published=False)
 
+                if dataset is None:
+                    return self.error_403 (request)
+
                 if link is not None:
                     file_id = self.db.insert_file (
                         dataset_uri        = dataset["uri"],
