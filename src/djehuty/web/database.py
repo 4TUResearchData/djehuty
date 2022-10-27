@@ -996,7 +996,6 @@ class SparqlInterface:
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.dateTime)
-        rdf.add (graph, uri, rdf.DJHT["published_date"], "NULL", XSD.string)
         rdf.add (graph, uri, rdf.DJHT["is_public"],      is_public)
         rdf.add (graph, uri, rdf.DJHT["is_active"],      is_active)
         rdf.add (graph, uri, rdf.DJHT["is_latest"],      is_latest)
@@ -1631,7 +1630,6 @@ class SparqlInterface:
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.string)
-        rdf.add (graph, uri, rdf.DJHT["published_date"], "NULL", XSD.string)
         rdf.add (graph, uri, rdf.DJHT["is_public"],      0)
 
         # Add the collection to its container.
