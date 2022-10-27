@@ -236,6 +236,9 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None, req
                         message = f"The value for '{field_name}' is longer than {maximum_length}.",
                         code    = "ValueTooLong"))
 
+    if minimum_length == 0 and value == "":
+        return value
+
     minimum_length = max(minimum_length, 1)
     if not index_exists (value, minimum_length - 1):
         return raise_or_return_error (error_list,
