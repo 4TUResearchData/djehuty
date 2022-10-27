@@ -833,32 +833,9 @@ class SparqlInterface:
 
             previous_blank_node = None
             for index, item in enumerate(records):
-                record_uri = insert_procedure (item)
-                graph.add ((blank_node, rdf.DJHT["index"], Literal (index, datatype=XSD.integer)))
-                graph.add ((blank_node, RDF.first,        record_uri))
+                if insert_procedure:
+                    item = insert_procedure (item)
 
-                if previous_blank_node is not None:
-                    graph.add ((previous_blank_node, RDF.rest, blank_node))
-                    graph.add ((previous_blank_node, RDF.type, RDF.List))
-
-                previous_blank_node = blank_node
-                blank_node = rdf.blank_node ()
-
-            del blank_node
-            graph.add ((previous_blank_node, RDF.rest, RDF.nil))
-            graph.add ((previous_blank_node, RDF.type, RDF.List))
-
-        return True
-
-    def insert_item_list (self, graph, uri, items, items_name):
-        """Adds an RDF list with indexes for ITEMS to GRAPH."""
-
-        if items:
-            blank_node = rdf.blank_node ()
-            graph.add ((uri, rdf.DJHT[items_name], blank_node))
-
-            previous_blank_node = None
-            for index, item in enumerate(items):
                 graph.add ((blank_node, rdf.DJHT["index"], Literal (index, datatype=XSD.integer)))
                 if isinstance (item, URIRef):
                     graph.add ((blank_node, RDF.first,    item))
@@ -877,6 +854,10 @@ class SparqlInterface:
             graph.add ((previous_blank_node, RDF.type, RDF.List))
 
         return True
+
+    def insert_item_list (self, graph, uri, items, items_name):
+        """Adds an RDF list with indexes for ITEMS to GRAPH."""
+        return self.insert_record_list (graph, uri, items, items_name, None)
 
     def wrap_dataset_in_blank_node (self, dataset_uuid):
         """Returns the blank node URI for the rdf:List node for a dataset."""
