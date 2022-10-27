@@ -937,6 +937,10 @@ function submit_dataset (dataset_uuid, event) {
                     jQuery("#groups-wrapper").addClass("missing-required");
                 } else if (message.field_name == "categories") {
                     jQuery("#categories-wrapper").addClass("missing-required");
+                } else if (message.field_name == "agreed_to_deposit_agreement") {
+                    jQuery("label[for='deposit_agreement']").addClass("missing-required");
+                } else if (message.field_name == "agreed_to_publish") {
+                    jQuery("label[for='publish_agreement']").addClass("missing-required");
                 } else {
                     jQuery(`#${message.field_name}`).addClass("missing-required");
                 }
