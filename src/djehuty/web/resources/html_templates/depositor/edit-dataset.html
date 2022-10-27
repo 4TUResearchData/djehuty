@@ -332,8 +332,6 @@ jQuery(document).ready(function (){
 --><label for="files_only_embargo" class="no-head">Files-only embargo</label>
       <input type="radio" name="embargo_type" id="content_embargo" value="article" /><!--
 --><label for="content_embargo" class="no-head">Full content embargo</label></div>
-    <label for="title" class="inner-head">Title</label>
-    <input type="text" id="embargo_title" name="embargo_title" value="{{article["embargo_title"]}}" />
     <label class="inner-head">Reason</label>
     <div id="embargo_reason" class="texteditor">
       {{article["embargo_reason"] | default("", True) | replace("\\n", "<br>") | safe }}

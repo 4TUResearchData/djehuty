@@ -83,7 +83,7 @@ function save_dataset (dataset_uuid, event, notify=true) {
 
     if (is_embargoed) {
         form_data["embargo_until_date"] = or_null(jQuery("#embargo_until_date").val());
-        form_data["embargo_title"]  = or_null(jQuery("#embargo_title").val());
+        form_data["embargo_title"]  = "Under embargo";
         form_data["embargo_reason"] = or_null(jQuery("#embargo_reason .ql-editor").html());
         form_data["license_id"]     = or_null(jQuery("#license_embargoed").val());
         if (jQuery("#files_only_embargo").prop("checked")) {
@@ -890,7 +890,7 @@ function submit_dataset (dataset_uuid, event) {
 
     if (is_embargoed) {
         form_data["embargo_until_date"] = or_null(jQuery("#embargo_until_date").val());
-        form_data["embargo_title"]  = or_null(jQuery("#embargo_title").val());
+        form_data["embargo_title"]  = "Under embargo";
         form_data["embargo_reason"] = or_null(jQuery("#embargo_reason .ql-editor").html());
         form_data["license_id"]     = or_null(jQuery("#license_embargoed").val());
         if (jQuery("#files_only_embargo").prop("checked")) {
