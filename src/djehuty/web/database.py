@@ -965,16 +965,11 @@ class SparqlInterface:
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
         for field in custom_fields:
-            self.insert_custom_field (
-                name          = conv.value_or_none (field, "name"),
-                value         = conv.value_or_none (field, "value"),
-                default_value = conv.value_or_none (field, "default_value"),
-                max_length    = conv.value_or_none (field, "max_length"),
-                min_length    = conv.value_or_none (field, "min_length"),
-                field_type    = conv.value_or_none (field, "field_type"),
-                is_mandatory  = conv.value_or_none (field, "is_mandatory"),
-                placeholder   = conv.value_or_none (field, "placeholder"),
-                is_multiple   = conv.value_or_none (field, "is_multiple"))
+            self.insert_custom_field_value (
+                name     = conv.value_or_none (field, "name"),
+                value    = conv.value_or_none (field, "value"),
+                item_uri = uri,
+                graph    = graph)
 
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
@@ -1358,31 +1353,26 @@ class SparqlInterface:
 
         return None
 
-    def insert_custom_field (self, name=None, value=None, default_value=None,
-                             max_length=None, min_length=None, field_type=None,
-                             is_mandatory=None, placeholder=None,
-                             is_multiple=None):
-        """Procedure to add a custom field to the state graph."""
+    def insert_custom_field_value (self, name=None, value=None,
+                                   item_uri=None, graph=None):
+        """Procedure to add a custom field value to the state graph."""
 
-        graph            = Graph()
-        custom_field_uri = rdf.unique_node ("custom_field")
+        if name is None or value is None or item_uri is None or graph is None:
+            logging.error ("insert_custom_field_value was passed None parameters.")
+            return False
 
-        graph.add ((custom_field_uri, RDF.type,                   rdf.DJHT["CustomField"]))
+        name = name.lower().replace(" ", "_")
 
-        rdf.add (graph, custom_field_uri, rdf.DJHT["name"],          name,          XSD.string)
-        rdf.add (graph, custom_field_uri, rdf.DJHT["value"],         value)
-        rdf.add (graph, custom_field_uri, rdf.DJHT["default_value"], default_value)
-        rdf.add (graph, custom_field_uri, rdf.DJHT["max_length"],    max_length)
-        rdf.add (graph, custom_field_uri, rdf.DJHT["min_length"],    min_length)
-        rdf.add (graph, custom_field_uri, rdf.DJHT["field_type"],    field_type)
-        rdf.add (graph, custom_field_uri, rdf.DJHT["is_mandatory"],  is_mandatory)
-        rdf.add (graph, custom_field_uri, rdf.DJHT["placeholder"],   placeholder)
-        rdf.add (graph, custom_field_uri, rdf.DJHT["is_multiple"],   is_multiple)
+        ## Exceptions to the custom field names.
+        if name == "licence_remarks":
+            name = "license_remarks"
+        if name == "geolocation_latitude":
+            name = "latitude"
+        if name == "geolocation_longitude":
+            name = "longitude"
 
-        if self.add_triples_from_graph (graph):
-            return custom_field_uri
-
-        return None
+        rdf.add (graph, item_uri, rdf.DJHT[name], value)
+        return True
 
     def delete_dataset_draft (self, container_uuid, account_uuid):
         """Remove the draft dataset from a container in the state graph."""
@@ -1595,16 +1585,11 @@ class SparqlInterface:
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
         for field in custom_fields:
-            self.insert_custom_field (
-                name          = conv.value_or_none (field, "name"),
-                value         = conv.value_or_none (field, "value"),
-                default_value = conv.value_or_none (field, "default_value"),
-                max_length    = conv.value_or_none (field, "max_length"),
-                min_length    = conv.value_or_none (field, "min_length"),
-                field_type    = conv.value_or_none (field, "field_type"),
-                is_mandatory  = conv.value_or_none (field, "is_mandatory"),
-                placeholder   = conv.value_or_none (field, "placeholder"),
-                is_multiple   = conv.value_or_none (field, "is_multiple"))
+            self.insert_custom_field_value (
+                name     = conv.value_or_none (field, "name"),
+                value    = conv.value_or_none (field, "value"),
+                item_uri = uri,
+                graph    = graph)
 
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
