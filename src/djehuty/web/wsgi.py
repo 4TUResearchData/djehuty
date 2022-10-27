@@ -486,14 +486,16 @@ class ApiServer:
                                             is_latest    = is_latest,
                                             is_under_review = is_under_review,
                                             version      = version,
-                                            account_uuid = account_uuid)[0]
+                                            account_uuid = account_uuid,
+                                            limit        = 1)[0]
             elif validator.is_valid_uuid (identifier):
                 dataset = self.db.datasets (container_uuid = identifier,
                                             is_published   = is_published,
                                             is_latest      = is_latest,
                                             is_under_review = is_under_review,
                                             version        = version,
-                                            account_uuid   = account_uuid)[0]
+                                            account_uuid   = account_uuid,
+                                            limit          = 1)[0]
 
             return dataset
 
