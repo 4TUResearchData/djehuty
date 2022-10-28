@@ -834,7 +834,7 @@ class SparqlInterface:
             previous_blank_node = None
             for index, item in enumerate(records):
                 if insert_procedure:
-                    item = insert_procedure (item)
+                    item = insert_procedure (**item)
 
                 graph.add ((blank_node, rdf.DJHT["index"], Literal (index, datatype=XSD.integer)))
                 if isinstance (item, URIRef):
