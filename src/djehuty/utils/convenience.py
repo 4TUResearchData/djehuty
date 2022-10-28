@@ -120,14 +120,14 @@ def deduplicate_list (alist):
 
 def make_citation (authors, year, title, version, item_type, doi,
                    publisher='4TU.ResearchData', max_cited_authors=5):
-    ''' Return citation in standard Datacite format '''
+    """Return citation in standard Datacite format."""
     try:
         auths = [{key:val for key,val in author.items() if val}
                  for author in authors]   #remove empty name parts
         citation = '; '.join([
-            ('{last_name}, {first_name}'.format(**author) if
-            not {'first_name','last_name'}-set(author)
-            else author['full_name']) for author in auths[:max_cited_authors]])
+            (f"{author['last_name']}, {author['first_name']}" if
+             not {'first_name','last_name'}-set(author)
+             else author['full_name']) for author in auths[:max_cited_authors]])
         if authors[max_cited_authors:max_cited_authors+1]:
             citation += ' et. al.'
         citation += f' ({year}): {title}'
