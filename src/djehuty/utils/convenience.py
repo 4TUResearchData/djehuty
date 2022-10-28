@@ -108,17 +108,14 @@ def parses_to_int (input_string):
     return True
 
 def deduplicate_list (alist):
-    '''
+    """
     Return deduplicated list, retaining original ordering,
     based on first occurrence of duplicates.
-    '''
+    """
     try:
         return list({item[1]:item[0] for item in list(enumerate(alist))})
     except TypeError:
         logging.error('Wrong type of %s in deduplicate_list', alist)
-        return None
-    except:
-        logging.error('Unknown error with %s in deduplicate_list', alist)
         return None
 
 def make_citation (authors, year, title, version, item_type, doi,
