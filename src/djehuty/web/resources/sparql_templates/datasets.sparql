@@ -144,7 +144,7 @@ WHERE {
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?dataset), "dataset:")         AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:")         AS ?account_uuid)
-    BIND(BOUND(?review)                              AS ?is_under_review)
+    BIND(BOUND(?review) AND !BOUND(?published_date)  AS ?is_under_review)
     BIND(((BOUND(?embargo_until_date) AND ?embargo_until_date > NOW()) OR
           (BOUND(?embargo_allow_access_requests))) AS ?is_embargoed)
   }
