@@ -2507,7 +2507,7 @@ class ApiServer:
 
                 dataset_uri     = dataset["uri"]
                 authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
-                files           = self.db.dataset_files(dataset_uri=dataset_uri)
+                files           = self.db.dataset_files(dataset_uri=dataset_uri, account_uuid=account_uuid)
                 custom_fields   = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
                 tags            = self.db.tags(item_uri=dataset_uri)
                 categories      = self.db.categories(item_uri=dataset_uri)
@@ -3220,7 +3220,9 @@ class ApiServer:
                 else:
                     self.file_list_lock.acquire(timeout=60000)
 
-                files = self.db.dataset_files (dataset_uri=dataset["uri"], limit=None)
+                files = self.db.dataset_files (dataset_uri  = dataset["uri"],
+                                               limit        = None,
+                                               account_uuid = account_uuid)
                 files.remove (next (filter (lambda item: item["uuid"] == file_id, files)))
                 files = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "file")),
                                            files))

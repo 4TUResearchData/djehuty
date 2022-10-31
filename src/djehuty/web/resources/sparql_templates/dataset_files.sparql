@@ -36,7 +36,9 @@ WHERE {
 
     BIND(STRAFTER(STR(?file), "file:") AS ?uuid)
   }
+  {%- if account_uuid is none %}
   FILTER (! (BOUND(?embargo_until_date) AND ?embargo_until_date > NOW()))
+  {%- endif %}
 {%- if dataset_uri is not none %}
   FILTER (?dataset_uri = <{{dataset_uri}}>)
 {%- endif %}
