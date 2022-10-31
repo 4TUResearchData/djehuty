@@ -4374,7 +4374,7 @@ class ApiServer:
                 "is_metadata_record": validator.boolean_value (record, "is_metadata_record", when_none=False),
                 "metadata_reason":    validator.string_value  (record, "metadata_reason",  0, 512),
                 "embargo_until_date": validator.date_value    (record, "embargo_until_date", is_temporary_embargo, errors),
-                "embargo_type":       validator.options_value (record, "embargo_type", ["article", "file"], is_embargoed, errors),
+                "embargo_type":       validator.options_value (record, "embargo_type", validator.embargo_types, is_temporary_embargo, errors),
                 "embargo_title":      validator.string_value  (record, "embargo_title", 0, 1000, is_embargoed, errors),
                 "embargo_reason":     validator.string_value  (record, "embargo_reason", 0, 10000, is_embargoed, errors),
                 "embargo_allow_access_requests": is_restricted or is_temporary_embargo,
