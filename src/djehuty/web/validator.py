@@ -391,3 +391,12 @@ def is_valid_uuid (value):
         return False
 
     return True
+
+dataset_types = [
+    "figure", "online resource", "preprint", "book",
+    "conference contribution", "media", "dataset",
+    "poster", "journal contribution", "presentation",
+    "thesis", "software"
+]
+
+embargo_types = [ "file", "article" ]

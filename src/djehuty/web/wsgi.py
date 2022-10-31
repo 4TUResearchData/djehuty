@@ -64,13 +64,6 @@ class ApiServer:
         self.saml_config_path    = None
         self.saml_config         = None
 
-        self.defined_type_options = [
-            "figure", "online resource", "preprint", "book",
-            "conference contribution", "media", "dataset",
-            "poster", "journal contribution", "presentation",
-            "thesis", "software"
-        ]
-
         self.menu = []
         self.static_pages = {}
 
@@ -2457,7 +2450,7 @@ class ApiServer:
                     references     = validator.array_value   (record, "references",                                False),
                     categories     = validator.array_value   (record, "categories",                                False),
                     authors        = validator.array_value   (record, "authors",                                   False),
-                    defined_type   = validator.options_value (record, "defined_type",   self.defined_type_options, False),
+                    defined_type   = validator.options_value (record, "defined_type",   validator.dataset_types,   False),
                     funding        = validator.string_value  (record, "funding",        0, 255,                    False),
                     funding_list   = validator.array_value   (record, "funding_list",                              False),
                     license_id     = validator.integer_value (record, "license",        0, pow(2, 63),             False),
@@ -2584,7 +2577,7 @@ class ApiServer:
                     metadata_reason = validator.string_value  (record, "metadata_reason",  0, 512),
                     embargo_until_date = validator.date_value (record, "embargo_until_date",
                                                                is_temporary_embargo),
-                    embargo_type    = validator.options_value (record, "embargo_type", ["article", "file"]),
+                    embargo_type    = validator.options_value (record, "embargo_type", validator.embargo_types),
                     embargo_title   = validator.string_value  (record, "embargo_title", 0, 1000),
                     embargo_reason  = validator.string_value  (record, "embargo_reason", 0, 10000),
                     embargo_allow_access_requests = is_restricted or is_temporary_embargo,
@@ -3410,7 +3403,7 @@ class ApiServer:
                 search_for      = validator.string_value (parameters, "search_for", 0, 512),
                 limit           = limit,
                 offset          = offset,
-                order_direction = validator.options_value (parameters, "order_direction", ["asc", "desc"]),
+                order_direction = validator.order_direction (parameters, "order_direction"),
                 institution     = validator.integer_value (parameters, "institution"),
                 published_since = validator.string_value (parameters, "published_since", 0, 255),
                 modified_since  = validator.string_value (parameters, "modified_since", 0, 255),
@@ -4208,7 +4201,7 @@ class ApiServer:
             limit           = limit,
             offset          = offset,
             order           = validator.string_value (request.args, "order", 0, 255),
-            order_direction = validator.options_value (request.args, "order_direction", ["asc", "desc"]),
+            order_direction = validator.order_direction (request.args, "order_direction"),
             group_ids       = record["group_ids"],
             category_ids    = record["categories"],
             item_type       = item_type)
@@ -4594,7 +4587,7 @@ class ApiServer:
                 account_uuid    = account_uuid,
                 limit           = validator.integer_value (request.args, "limit"),
                 order           = validator.integer_value (request.args, "order"),
-                order_direction = validator.string_value  (request.args, "order_direction", 0, 4))
+                order_direction = validator.order_direction (request.args, "order_direction"))
 
             if request.method == 'GET':
                 return self.default_list_response (tags, formatter.format_tag_record)
@@ -4667,7 +4660,7 @@ class ApiServer:
                 limit           = validator.integer_value (request.args, "limit"),
                 offset          = validator.integer_value (request.args, "offset"),
                 order           = validator.integer_value (request.args, "order"),
-                order_direction = validator.string_value  (request.args, "order_direction", 0, 4))
+                order_direction = validator.order_direction (request.args, "order_direction"))
 
             return self.default_list_response (records, formatter.format_group_record)
 
