@@ -1,11 +1,13 @@
 function shorthand_uri (value) {
     return value.replace("https://ontologies.data.4tu.nl/djehuty/0.0.1/", "djht:")
-                .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:");
+                .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:")
+                .replace("http://www.w3.org/2000/01/rdf-schema#", "rdfs:");
 }
 
 function longform_uri (value) {
     return value.replace("djht:", "https://ontologies.data.4tu.nl/djehuty/0.0.1/")
-                .replace("rdf:", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+                .replace("rdf:", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+                .replace("rdfs:", "http://www.w3.org/2000/01/rdf-schema#");
 }
 
 function draw_grid () {
