@@ -111,6 +111,9 @@ def main (figshare_token, figshare_stats_auth, account_id):
     groups_failed           = 0
     start_time              = time.perf_counter()
 
+    if not endpoint.rdf_store.insert_static_triplets ():
+        logging.error ("Failed to insert static triplets")
+
     accounts                = endpoint.get_institutional_accounts (account_id)
     number_of_accounts      = len(accounts)
     logging.info("Found %d institutional accounts.", number_of_accounts)
@@ -160,9 +163,6 @@ def main (figshare_token, figshare_stats_auth, account_id):
 
     if not endpoint.rdf_store.insert_root_categories ():
         logging.error ("Failed to insert root categories")
-
-    if not endpoint.rdf_store.insert_static_triplets ():
-        logging.error ("Failed to insert static triplets")
 
     ## Serializing seems to take ~300 megabytes of memory.  Before doing
     ## so, it's a great moment to reduce the memory footprint by

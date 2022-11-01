@@ -633,6 +633,7 @@ class DatabaseInterface:
         ## Insert the license if it isn't in the graph.
         if (license_uri, RDF.type, rdf.DJHT["License"]) not in self.store:
             license_name = value_or_none (record,"name")
+            license_type = value_or_none (record,"type")
             license_id   = value_or_none (record,"value")
             self.store.add ((license_uri, RDF.type, rdf.DJHT["License"]))
             self.store.add ((license_uri, rdf.DJHT["name"],
@@ -640,8 +641,20 @@ class DatabaseInterface:
             self.store.add ((license_uri, rdf.DJHT["id"],
                              Literal(license_id, datatype=XSD.integer)))
 
+            if license_type == "software":
+                license_type = rdf.DJHT["SoftwareLicense"]
+            elif license_type == "data":
+                license_type = rdf.DJHT["DataLicense"]
+            elif license_type == "legacy":
+                license_type = rdf.DJHT["LegacyLicense"]
+            else:
+                license_type = None
+
+            rdf.add (self.store, license_uri, rdf.DJHT["type"], license_type, "url")
+
         ## Insert the link between URI and the license.
-        self.store.add ((uri, rdf.DJHT["license"], license_uri))
+        if uri is not None:
+            self.store.add ((uri, rdf.DJHT["license"], license_uri))
 
         return True
 
@@ -1021,5 +1034,113 @@ class DatabaseInterface:
                              Literal(language[1], datatype=XSD.string)))
             self.store.add ((uri, rdf.DJHT["shortcode"],
                              Literal(language[0], datatype=XSD.string)))
+
+        licenses = [
+            {
+                "url": "https://opensource.org/licenses/EUPL-1.2",
+                "value": 99,
+                "name": "EUPL-1.2",
+                "type": "software"
+            },
+            {
+                "url": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
+                "value": 88,
+                "name": "GPL-2.0",
+                "type": "software"
+            },
+            {
+                "url": "https://www.gnu.org/licenses/agpl-3.0.en.html",
+                "value": 85,
+                "name": "AGPL-3.0",
+                "type": "software"
+            },
+            {
+                "url": "https://opensource.org/licenses/BSD-3-Clause",
+                "value": 148,
+                "name": "BSD-3-Clause",
+                "type": "software"
+            },
+            {
+                "url": "https://creativecommons.org/licenses/by-nd/4.0/",
+                "value": 9,
+                "name": "CC BY-ND 4.0",
+                "type": "data"
+            },
+            {
+                "url": "https://data.4tu.nl/info/fileadmin/user_upload/Documenten/4TU.ResearchData_Restricted_Data_2022.pdf",
+                "value": 149,
+                "name": "Restrictive Licence",
+                "type": "legacy"
+            },
+            {
+                "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+                "value": 145,
+                "name": "Apache-2.0",
+                "type": "software"
+            },
+            {
+                "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+                "value": 61,
+                "name": "CC BY-NC-SA 3.0",
+                "type": "data"
+            },
+            {
+                "url": "https://www.gnu.org/licenses/gpl-3.0.html",
+                "value": 94,
+                "name": "GPL-3.0",
+                "type": "software"
+            },
+            {
+                "url": "https://opensource.org/licenses/MIT",
+                "value": 3,
+                "name": "MIT",
+                "type": "software"
+            },
+            {
+                "url": "https://creativecommons.org/licenses/by-sa/4.0/",
+                "value": 8,
+                "name": "CC BY-SA 4.0",
+                "type": "data"
+            },
+            {
+                "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+                "value": 11,
+                "name": "CC BY-NC-SA 4.0",
+                "type": "data"
+            },
+            {
+                "url": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+                "value": 12,
+                "name": "CC BY-NC-ND 4.0",
+                "type": "data"
+            },
+            {
+                "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+                "value": 10,
+                "name": "CC BY-NC 4.0",
+                "type": "data"
+            },
+            {
+                "url": "https://creativecommons.org/licenses/by/4.0/",
+                "value": 1,
+                "name": "CC BY 4.0",
+                "type": "data"
+            },
+            {
+                "url": "https://doi.org/10.4121/resource:terms_of_use",
+                "value": 98,
+                "name": "4TU General Terms of Use",
+                "type": "legacy"
+            },
+            {
+                "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+                "value": 2,
+                "name": "CC0",
+                "type": "data"
+            }
+        ]
+
+        for license in licenses:
+            self.insert_license (None, license)
 
         return True
