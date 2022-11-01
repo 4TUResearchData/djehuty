@@ -2668,7 +2668,8 @@ class ApiServer:
                             orcid_id   = validator.string_value  (record, "orcid_id",   0, 255,        False),
                             job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
                             is_active  = False,
-                            is_public  = True)
+                            is_public  = True,
+                            created_by = account_uuid)
                         if author_uuid is None:
                             logging.error("Adding a single author failed.")
                             return self.error_500()
@@ -3844,7 +3845,8 @@ class ApiServer:
                             orcid_id   = validator.string_value  (record, "orcid_id",   0, 255,        False),
                             job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
                             is_active  = False,
-                            is_public  = True)
+                            is_public  = True,
+                            created_by = account_uuid)
                         if author_uuid is None:
                             logging.error("Adding a single author failed.")
                             return self.error_500()

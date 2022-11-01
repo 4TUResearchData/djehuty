@@ -1127,6 +1127,7 @@ class SparqlInterface:
         rdf.add (graph, author_uri, rdf.DJHT["url_name"],       url_name,       XSD.string)
         rdf.add (graph, author_uri, rdf.DJHT["orcid_id"],       orcid_id,       XSD.string)
         rdf.add (graph, author_uri, rdf.DJHT["email"],          email,          XSD.string)
+        rdf.add (graph, author_uri, rdf.DJHT["created_by"],     rdf.uuid_to_uri (created_by, "account"), "uri")
 
         if self.add_triples_from_graph (graph):
             return rdf.uri_to_uuid (author_uri)
