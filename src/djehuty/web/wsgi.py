@@ -167,6 +167,7 @@ class ApiServer:
             Rule("/v2/account/articles/<dataset_id>/files/<file_id>", endpoint = "api_private_dataset_file_details"),
             Rule("/v2/account/articles/<dataset_id>/private_links", endpoint = "api_private_dataset_private_links"),
             Rule("/v2/account/articles/<dataset_id>/private_links/<link_id>", endpoint = "api_private_dataset_private_links_details"),
+            Rule("/v2/account/articles/<dataset_id>/reserve_doi", endpoint = "api_private_dataset_reserve_doi"),
 
             ## Public collections
             ## ----------------------------------------------------------------
@@ -3379,6 +3380,56 @@ class ApiServer:
             return self.respond_204()
 
         return self.error_500 ()
+
+    def api_private_dataset_reserve_doi (self, request, dataset_id):
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed(request)
+
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               is_published = False,
+                                               account_uuid = account_uuid)
+
+        if dataset is None:
+            return self.error_403 (request)
+
+        try:
+            headers = {
+                "Accept": "application/vnd.api+json",
+                "Content-Type": "application/vnd.api+json"
+            }
+            json_data = { "data": { "type": "dois", "attributes": { "prefix": self.datacite_prefix } } }
+            response = requests.post(f"{self.datacite_url}/dois",
+                                     headers = headers,
+                                     auth    = (self.datacite_id,
+                                                self.datacite_password),
+                                     timeout = 10,
+                                     json    = json_data)
+
+            if response.status_code == 201:
+                data = response.json()
+                reserved_doi = data["data"]["id"]
+                if self.db.update_dataset (
+                        dataset["container_uuid"],
+                        account_uuid,
+                        doi                         = reserved_doi,
+                        agreed_to_deposit_agreement = dataset["agreed_to_deposit_agreement"],
+                        agreed_to_publish           = dataset["agreed_to_publish"],
+                        is_metadata_record          = dataset["is_metadata_record"]):
+                    return self.response (json.dumps({"doi": reserved_doi }))
+                else:
+                    logging.error("Updating the dataset %s for reserving DOI %s failed.",
+                                  dataset_id, reserved_doi)
+            else:
+                logging.error("DataCite responded with %s", response.status_code)
+        except (requests.exceptions.ConnectionError):
+            logging.error("Failed to reserve a DOI due to a connection error.")
+
+        return self.error_500()
 
     def api_private_datasets_search (self, request):
         handler = self.default_error_handling (request, "POST", "application/json")

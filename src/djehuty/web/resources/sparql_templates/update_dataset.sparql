@@ -8,6 +8,8 @@ DELETE {
     ?dataset           djht:description          ?description .
     {%- endif%}{% if resource_doi is not none %}
     ?dataset           djht:resource_doi         ?resource_doi .
+    {%- endif%}{% if doi is not none %}
+    ?dataset           djht:doi                  ?doi .
     {%- endif%}{% if resource_title is not none %}
     ?dataset           djht:resource_title       ?resource_title .
     {%- endif%}{% if license_id is not none %}
@@ -76,6 +78,8 @@ INSERT {
     ?dataset           djht:description          {{description | safe}} .
     {%- endif%}{% if resource_doi is not none %}
     ?dataset           djht:resource_doi         {{resource_doi | safe}} .
+    {%- endif%}{% if doi is not none %}
+    ?dataset           djht:doi                  {{doi | safe}} .
     {%- endif%}{% if resource_title is not none %}
     ?dataset           djht:resource_title       {{resource_title | safe}} .
     {%- endif%}{% if license_id is not none %}
@@ -154,6 +158,7 @@ WHERE {
     OPTIONAL { ?dataset djht:description          ?description . }
     OPTIONAL { ?dataset djht:group_id             ?group_id . }
     OPTIONAL { ?dataset djht:resource_doi         ?resource_doi . }
+    OPTIONAL { ?dataset djht:doi                  ?doi . }
     OPTIONAL { ?dataset djht:resource_title       ?resource_title . }
     OPTIONAL { ?dataset djht:modified_date        ?modified_date . }
     OPTIONAL { ?dataset djht:publisher             ?publisher . }

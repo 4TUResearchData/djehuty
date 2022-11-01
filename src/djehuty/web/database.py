@@ -1423,6 +1423,7 @@ class SparqlInterface:
             "defined_type_name": rdf.escape_string_value (defined_type_name),
             "derived_from":    rdf.escape_string_value (derived_from),
             "description":     rdf.escape_string_value (description),
+            "doi":             rdf.escape_string_value (doi),
             "format":          rdf.escape_string_value (mimetype),
             "geolocation":     rdf.escape_string_value (geolocation),
             "has_linked_file": has_linked_file,
