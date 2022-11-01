@@ -64,6 +64,11 @@ class ApiServer:
         self.saml_config_path    = None
         self.saml_config         = None
 
+        self.datacite_url        = None
+        self.datacite_id         = None
+        self.datacite_password   = None
+        self.datacite_prefix     = None
+
         self.menu = []
         self.static_pages = {}
 

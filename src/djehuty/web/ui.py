@@ -138,6 +138,13 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             server.orcid_endpoint      = config_value (orcid, "endpoint")
             server.identity_provider   = "orcid"
 
+        datacite = xml_root.find("datacite")
+        if datacite:
+            server.datacite_url      = config_value (datacite, "api-url")
+            server.datacite_id       = config_value (datacite, "repository-id")
+            server.datacite_password = config_value (datacite, "password")
+            server.datacite_prefix   = config_value (datacite, "prefix")
+
         saml = xml_root.find("authentication/saml")
         if saml:
             saml_version = None

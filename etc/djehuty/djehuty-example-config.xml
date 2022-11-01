@@ -14,6 +14,12 @@
     <sparql-uri>http://localhost:8890/sparql</sparql-uri>
     <state-graph>djehuty://local</state-graph>
   </rdf-store>
+  <datacite>
+    <api-url>https://api.datacite.org</api-url>
+    <repository-id>changeme</repository-id>
+    <password>changeme</password>
+    <prefix>10.5438</prefix>
+  </datacite>
   <authentication>
     <orcid>
       <client-id>APP-XXXXXXXXXXXXXXXX</client-id>
