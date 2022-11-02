@@ -1396,6 +1396,8 @@ class SparqlInterface:
         })
 
         result = self.__run_query (query)
+        self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
+        self.cache.invalidate_by_prefix (f"container:{container_uuid}_dataset_storage")
         self.cache.invalidate_by_prefix (f"dataset_{container_uuid}")
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
 
