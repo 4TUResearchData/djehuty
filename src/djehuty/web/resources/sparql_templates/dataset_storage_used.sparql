@@ -5,7 +5,7 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri  rdf:type                      djht:DatasetContainer .
     ?container_uri  djht:draft                     ?draft .
-    ?container_uri  djht:published_versions        ?published .
+    OPTIONAL { ?container_uri djht:published_versions ?published . }
     {
       ?published    djht:files/rdf:rest*/rdf:first ?file .
     } UNION {

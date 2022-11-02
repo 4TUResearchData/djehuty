@@ -159,7 +159,7 @@ class SparqlInterface:
             "container_uri": container_uri
         })
 
-        results = self.__run_query (query, query, f"{container_uri}_dataset")
+        results = self.__run_query (query, query, f"{container_uri}_dataset_storage")
         try:
             return results[0]["bytes"]
         except (IndexError, KeyError):
@@ -1278,6 +1278,9 @@ class SparqlInterface:
                                           is_published = False,
                                           limit        = 1)[0]
 
+            container_uri = f"container:{dataset['container_uuid']}"
+            self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
+            self.cache.invalidate_by_prefix (f"{container_uri}_dataset_storage")
             if self.update_item_list (dataset["container_uuid"],
                                       account_uuid,
                                       new_files,
@@ -1785,7 +1788,7 @@ class SparqlInterface:
             "account_uuid": account_uuid
         })
 
-        files = self.__run_query (query, query, "storage")
+        files = self.__run_query (query, query, f"{account_uuid}_storage")
         try:
             number_of_bytes = 0
             for entry in files:
