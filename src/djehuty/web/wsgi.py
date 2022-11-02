@@ -3421,12 +3421,12 @@ class ApiServer:
                         agreed_to_publish           = value_or (dataset, "agreed_to_publish", False),
                         is_metadata_record          = value_or (dataset, "is_metadata_record", False)):
                     return self.response (json.dumps({ "doi": reserved_doi }))
-                else:
-                    logging.error("Updating the dataset %s for reserving DOI %s failed.",
-                                  dataset_id, reserved_doi)
+
+                logging.error("Updating the dataset %s for reserving DOI %s failed.",
+                              dataset_id, reserved_doi)
             else:
                 logging.error("DataCite responded with %s", response.status_code)
-        except (requests.exceptions.ConnectionError):
+        except requests.exceptions.ConnectionError:
             logging.error("Failed to reserve a DOI due to a connection error.")
 
         return self.error_500()
