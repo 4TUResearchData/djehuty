@@ -1399,7 +1399,7 @@ class SparqlInterface:
         return result
 
     def update_dataset (self, container_uuid, account_uuid, title=None,
-                        description=None, resource_doi=None,
+                        description=None, resource_doi=None, doi=None,
                         resource_title=None, license_id=None, group_id=None,
                         time_coverage=None, publisher=None, language=None,
                         mimetype=None, contributors=None, license_remarks=None,
