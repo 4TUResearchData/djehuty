@@ -3417,10 +3417,10 @@ class ApiServer:
                         dataset["container_uuid"],
                         account_uuid,
                         doi                         = reserved_doi,
-                        agreed_to_deposit_agreement = dataset["agreed_to_deposit_agreement"],
-                        agreed_to_publish           = dataset["agreed_to_publish"],
-                        is_metadata_record          = dataset["is_metadata_record"]):
-                    return self.response (json.dumps({"doi": reserved_doi }))
+                        agreed_to_deposit_agreement = value_or (dataset, "agreed_to_deposit_agreement", False),
+                        agreed_to_publish           = value_or (dataset, "agreed_to_publish", False),
+                        is_metadata_record          = value_or (dataset, "is_metadata_record", False)):
+                    return self.response (json.dumps({ "doi": reserved_doi }))
                 else:
                     logging.error("Updating the dataset %s for reserving DOI %s failed.",
                                   dataset_id, reserved_doi)

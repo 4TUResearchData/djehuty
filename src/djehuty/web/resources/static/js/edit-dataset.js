@@ -125,6 +125,20 @@ function save_dataset (dataset_uuid, event, notify=true) {
     });
 }
 
+function reserve_doi (dataset_uuid) {
+    jQuery.ajax({
+        url:         `/v2/account/articles/${dataset_uuid}/reserve_doi`,
+        type:        "POST",
+        accept:      "application/json",
+    }).done(function (record) {
+        jQuery("#doi-wrapper p").replaceWith(
+            `<p>Reserved DOI is: <strong>${record["doi"]}</strong>.</p>`
+        );
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to reserve DOI. Please try again later.</p>")
+    });
+}
+
 function render_licenses (dataset) {
     chosen_license = null;
     try { chosen_license = dataset.license.value; }
@@ -677,6 +691,11 @@ function activate (dataset_uuid) {
             }
         }
 
+        if (data["doi"]) {
+            jQuery("#doi-wrapper p").replaceWith(
+                `<p>Reserved DOI is: <strong>${data["doi"]}</strong>.</p>`
+            );
+        }
         if (data["agreed_to_deposit_agreement"]) {
             jQuery("#deposit_agreement").prop("checked", true);
         }

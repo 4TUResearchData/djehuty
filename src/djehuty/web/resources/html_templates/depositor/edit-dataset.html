@@ -251,6 +251,7 @@ jQuery(document).ready(function (){
 .required-field { color: #cc0000; user-select: none; }
 .publish-button a { background: #f49120 !important; }
 .publish-button a:hover { background: #f7ad58 !important; }
+#doi-wrapper p { margin: 0pt; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -417,6 +418,10 @@ jQuery(document).ready(function (){
   </thead>
   <tbody></tbody>
 </table>
+<label>DOI reservation</label><div class="fas fa-question-circle help-icon"><span class="help-text">Upon publication, a DOI will be assigned to your dataset. If you need to have the DOI before publication, reserve it here.</span></div>
+<div id="doi-wrapper" class="options-wrapper">
+  <p><a href="#" onclick="javascript:reserve_doi('{{article["container_uuid"]}}'); return false;">Reserve DOI</a>.</p>
+</div>
 <h3>Findability</h3>
 <label for="language">Language</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select a language from the list.</span></div><span class="required-field">&#8727;</span>
 <select id="language" class="language-selector" name="language">
