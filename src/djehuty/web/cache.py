@@ -31,8 +31,13 @@ class CacheLayer:
         if self.storage is None:
             return False
 
-        os.makedirs(self.storage, mode=0o700, exist_ok=True)
-        return os.path.isdir(self.storage)
+        try:
+            os.makedirs(self.storage, mode=0o700, exist_ok=True)
+            return os.path.isdir(self.storage)
+        except PermissionError:
+            pass
+
+        return False
 
     def cached_value (self, prefix, key):
         """Returns the cached value or None."""
