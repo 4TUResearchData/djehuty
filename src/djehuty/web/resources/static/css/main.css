@@ -500,6 +500,7 @@ img { user-select: none; }
 #pre-header a:active { color: #999; }
 .sticky { position: fixed !important; top: 0px; width: 100% }
 .sticky-message { position: fixed !important; top: 70px; }
+.sticky-margin { margin-top: 60px; }
 .sticky-message p { margin: 0em; }
 .missing-required { border: solid 2pt #990000 !important; background: #ffeeee !important; }
 .help-icon { margin: 0pt 0pt 0pt 5pt; }

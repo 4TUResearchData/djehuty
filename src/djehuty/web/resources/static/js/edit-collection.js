@@ -330,10 +330,12 @@ function activate (collection_id) {
         if (submenu_offset <= scroll_offset) {
             jQuery("#submenu").addClass("sticky");
             jQuery("#message").addClass("sticky-message");
+            jQuery("h1").addClass("sticky-margin");
             jQuery("#message").width(jQuery("#content-wrapper").width());
         } else {
             jQuery("#submenu").removeClass("sticky");
             jQuery("#message").removeClass("sticky-message");
+            jQuery("h1").removeClass("sticky-margin");
         }
     });
 
