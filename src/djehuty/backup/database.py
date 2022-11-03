@@ -1047,6 +1047,12 @@ class DatabaseInterface:
                 "type": "software"
             },
             {
+                "url": "https://www.gnu.org/licenses/lgpl-3.0.en.html",
+                "value": 86,
+                "name": "LGPL-3.0",
+                "type": "software"
+            },
+            {
                 "url": "https://opensource.org/licenses/BSD-3-Clause",
                 "value": 148,
                 "name": "BSD-3-Clause",
