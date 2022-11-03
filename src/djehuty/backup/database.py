@@ -1138,7 +1138,7 @@ class DatabaseInterface:
             }
         ]
 
-        for license in licenses:
-            self.insert_license (None, license)
+        for license_record in licenses:
+            self.insert_license (None, license_record)
 
         return True
