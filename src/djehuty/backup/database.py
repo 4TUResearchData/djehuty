@@ -12,7 +12,7 @@ import defusedxml.ElementTree as ET
 from rdflib import Graph, Literal, RDF, RDFS, XSD, URIRef
 import requests
 from requests.utils import requote_uri
-from djehuty.utils.convenience import value_or, value_or_none
+from djehuty.utils.convenience import value_or, value_or_none, custom_field_name
 from djehuty.utils import rdf
 
 class DatabaseInterface:
@@ -398,15 +398,7 @@ class DatabaseInterface:
     def insert_custom_field (self, uri, field):
         """Procedure to insert a custom_field record."""
 
-        name        = field["name"].lower().replace(" ", "_")
-
-        ## Exceptions to the custom field names.
-        if name == "licence_remarks":
-            name = "license_remarks"
-        if name == "geolocation_latitude":
-            name = "latitude"
-        if name == "geolocation_longitude":
-            name = "longitude"
+        name = custom_field_name (field["name"])
 
         settings    = {}
         validations = {}

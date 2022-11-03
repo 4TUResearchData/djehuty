@@ -1372,16 +1372,7 @@ class SparqlInterface:
             logging.error ("insert_custom_field_value was passed None parameters.")
             return False
 
-        name = name.lower().replace(" ", "_")
-
-        ## Exceptions to the custom field names.
-        if name == "licence_remarks":
-            name = "license_remarks"
-        if name == "geolocation_latitude":
-            name = "latitude"
-        if name == "geolocation_longitude":
-            name = "longitude"
-
+        name = conv.custom_field_name (name)
         rdf.add (graph, item_uri, rdf.DJHT[name], value)
         return True
 

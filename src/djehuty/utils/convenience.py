@@ -138,3 +138,18 @@ def make_citation (authors, year, title, version, item_type, doi,
     except TypeError:
         logging.error('could not make citation for %s', doi)
         return None
+
+def custom_field_name (name):
+    """Return a predicatable name for a custom field."""
+
+    name = name.lower().replace(" ", "_")
+
+    ## Exceptions to the custom field names.
+    if name == "licence_remarks":
+        name = "license_remarks"
+    if name == "geolocation_latitude":
+        name = "latitude"
+    if name == "geolocation_longitude":
+        name = "longitude"
+
+    return name
