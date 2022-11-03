@@ -959,8 +959,6 @@ class SparqlInterface:
         self.insert_record_list (graph, uri, funding_list, "funding_list", self.insert_funding)
         self.insert_record_list (graph, uri, private_links, "private_links", self.insert_private_link)
 
-        for field in custom_fields:
-            self.insert_custom_field (uri, field)
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
