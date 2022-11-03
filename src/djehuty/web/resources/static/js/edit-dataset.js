@@ -116,7 +116,7 @@ function save_dataset (dataset_uuid, event, notify=true) {
         data:        JSON.stringify(form_data),
     }).done(function () {
         if (notify) {
-            show_message ("success", "<p>Saved changed.</p>");
+            show_message ("success", "<p>Saved changes.</p>");
         }
     }).fail(function (request, text_status, error_code) {
         if (notify) {

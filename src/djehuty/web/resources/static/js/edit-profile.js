@@ -28,7 +28,7 @@ function save_profile (account_uuid) {
     }).done(function () {
         jQuery("#message")
             .addClass("success")
-            .append("<p>Saved changed.</p>")
+            .append("<p>Saved changes.</p>")
             .fadeIn(250);
         setTimeout(function() {
             jQuery("#message").fadeOut(500, function() {
