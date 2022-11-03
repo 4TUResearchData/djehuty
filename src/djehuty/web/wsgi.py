@@ -5039,7 +5039,7 @@ class ApiServer:
             contr = dataset['contributors'].split(split_str)
             contr_parts = [c.split(' [orcid:') for c in contr]
             contributors = [{'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
-        references = self.db.references(item_uri=dataset_uri)
+
         fundings = self.db.fundings(item_uri=dataset_uri)
         files = self.db.dataset_files(dataset_uri=dataset_uri, limit=None)
 
