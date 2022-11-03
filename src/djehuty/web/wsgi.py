@@ -25,7 +25,7 @@ from djehuty.web import database
 from djehuty.utils.convenience import pretty_print_size, decimal_coords
 from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
-from djehuty.utils.convenience import make_citation
+from djehuty.utils.convenience import make_citation, is_opendap_url
 from djehuty.utils.constants import group_to_member, member_url_names
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 
@@ -1812,10 +1812,10 @@ class ApiServer:
             lat_valid, lon_valid = decimal_coords(lat, lon)
             coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
 
-            odap_files = [(f, f['download_url'].split('/')[2]=='opendap.4tu.nl') for f in files]
-            opendap = [f['download_url'] for (f, odap) in odap_files if odap]
+            odap_files = [(f, is_opendap_url(value_or_none(f, "download_url"))) for f in files]
+            opendap = [value_or_none(f, "download_url") for (f, odap) in odap_files if odap]
             files_services = [(f, f['is_link_only']) for (f, odap) in odap_files if not odap]
-            services = [f['download_url'] for (f, link) in files_services if link]
+            services = [value_or_none(f, "download_url") for (f, link) in files_services if link]
             files = [f for (f, link) in files_services if not link]
             if 'data_link' in dataset:
                 url = dataset['data_link']

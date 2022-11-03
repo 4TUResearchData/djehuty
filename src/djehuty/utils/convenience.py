@@ -153,3 +153,9 @@ def custom_field_name (name):
         name = "longitude"
 
     return name
+
+def is_opendap_url (url):
+    try:
+        return url.split("/")[2] == "opendap.4tu.nl"
+    except (AttributeError, IndexError, KeyError):
+        return False
