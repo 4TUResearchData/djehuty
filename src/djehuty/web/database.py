@@ -1892,10 +1892,10 @@ class SparqlInterface:
         try:
             results = self.__run_query (query)
             return results[0]["uuid"]
-        except IndexError:
-            return None
-        except KeyError:
-            return None
+        except (IndexError, KeyError):
+            pass
+
+        return None
 
     def account_by_session_token (self, session_token):
         """Returns an account record or None."""
@@ -1939,6 +1939,8 @@ class SparqlInterface:
             return account
 
     def account_by_email (self, email):
+        """Returns the account matching EMAIL."""
+
         query = self.__query_from_template ("account_by_email", {
             "email":  email
         })
@@ -1984,6 +1986,7 @@ class SparqlInterface:
                 return None
 
             logging.info ("Linked account of %s to ORCID: %s.", email, orcid)
+            return None
 
     def insert_session (self, account_uuid, name=None, token=None, editable=False):
         """Procedure to add a session token for an account_uuid."""
