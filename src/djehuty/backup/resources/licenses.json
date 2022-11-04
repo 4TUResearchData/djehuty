@@ -1,0 +1,110 @@
+[
+    {
+        "url": "https://opensource.org/licenses/EUPL-1.2",
+        "value": 99,
+        "name": "EUPL-1.2",
+        "type": "software"
+    },
+    {
+        "url": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
+        "value": 88,
+        "name": "GPL-2.0",
+        "type": "software"
+    },
+    {
+        "url": "https://www.gnu.org/licenses/agpl-3.0.en.html",
+        "value": 85,
+        "name": "AGPL-3.0",
+        "type": "software"
+    },
+    {
+        "url": "https://www.gnu.org/licenses/lgpl-3.0.en.html",
+        "value": 86,
+        "name": "LGPL-3.0",
+        "type": "software"
+    },
+    {
+        "url": "https://opensource.org/licenses/BSD-3-Clause",
+        "value": 148,
+        "name": "BSD-3-Clause",
+        "type": "software"
+    },
+    {
+        "url": "https://creativecommons.org/licenses/by-nd/4.0/",
+        "value": 9,
+        "name": "CC BY-ND 4.0",
+        "type": "data"
+    },
+    {
+        "url": "https://data.4tu.nl/info/fileadmin/user_upload/Documenten/4TU.ResearchData_Restricted_Data_2022.pdf",
+        "value": 149,
+        "name": "Restrictive Licence",
+        "type": "legacy"
+    },
+    {
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+        "value": 145,
+        "name": "Apache-2.0",
+        "type": "software"
+    },
+    {
+        "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+        "value": 61,
+        "name": "CC BY-NC-SA 3.0",
+        "type": "data"
+    },
+    {
+        "url": "https://www.gnu.org/licenses/gpl-3.0.html",
+        "value": 94,
+        "name": "GPL-3.0",
+        "type": "software"
+    },
+    {
+        "url": "https://opensource.org/licenses/MIT",
+        "value": 3,
+        "name": "MIT",
+        "type": "software"
+    },
+    {
+        "url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "value": 8,
+        "name": "CC BY-SA 4.0",
+        "type": "data"
+    },
+    {
+        "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "value": 11,
+        "name": "CC BY-NC-SA 4.0",
+        "type": "data"
+    },
+    {
+        "url": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+        "value": 12,
+        "name": "CC BY-NC-ND 4.0",
+        "type": "data"
+    },
+    {
+        "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+        "value": 10,
+        "name": "CC BY-NC 4.0",
+        "type": "data"
+    },
+    {
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "value": 1,
+        "name": "CC BY 4.0",
+        "type": "data"
+    },
+    {
+        "url": "https://doi.org/10.4121/resource:terms_of_use",
+        "value": 98,
+        "name": "4TU General Terms of Use",
+        "type": "legacy"
+    },
+    {
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "value": 2,
+        "name": "CC0",
+        "type": "data"
+    }
+]

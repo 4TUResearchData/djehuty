@@ -107,8 +107,6 @@ def main (figshare_token, figshare_stats_auth, account_id):
     collections_failed      = 0
     author_links_written    = 0
     author_links_failed     = 0
-    groups_written          = 0
-    groups_failed           = 0
     start_time              = time.perf_counter()
 
     if not endpoint.rdf_store.insert_static_triplets ():
@@ -150,20 +148,6 @@ def main (figshare_token, figshare_stats_auth, account_id):
     del accounts
     gc.collect()
 
-    groups           = endpoint.get_institutional_groups()
-    number_of_groups = len(groups)
-    for group_index, group in enumerate (groups):
-        logging.info ("Processing group %d of %d.", group_index + 1, number_of_groups)
-        if endpoint.rdf_store.insert_institution_group (group):
-            groups_written += 1
-        else:
-            groups_failed += 1
-
-    del groups
-
-    if not endpoint.rdf_store.insert_root_categories ():
-        logging.error ("Failed to insert root categories")
-
     ## Serializing seems to take ~300 megabytes of memory.  Before doing
     ## so, it's a great moment to reduce the memory footprint by
     ## deallocating what we no longer need.
@@ -180,8 +164,6 @@ def main (figshare_token, figshare_stats_auth, account_id):
         logging.info("Succesfully processed %d datasets.", datasets_written)
     if collections_written > 0:
         logging.info("Succesfully processed %d collections.", collections_written)
-    if groups_written > 0:
-        logging.info("Succesfully processed %d groups.", groups_written)
     if author_links_written > 0:
         logging.info("Succesfully linked %d authors to accounts.", author_links_written)
 
@@ -191,8 +173,6 @@ def main (figshare_token, figshare_stats_auth, account_id):
         logging.info("Failed to process %d datasets.", datasets_failed)
     if collections_failed > 0:
         logging.info("Failed to process %d collections.", collections_failed)
-    if groups_failed > 0:
-        logging.info("Failed to process %d groups.", groups_failed)
     if author_links_failed > 0:
         logging.info("Failed to link %d authors to accounts.", author_links_failed)
 

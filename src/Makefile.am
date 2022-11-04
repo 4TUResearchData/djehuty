@@ -21,6 +21,10 @@ PYTHON_FILES =                                                                \
 EXTRA_RESOURCES =                                                             \
     djehuty/backup/resources/contributors_organizations.json                  \
     djehuty/backup/resources/dois.json                                        \
+    djehuty/backup/resources/groups.json                                      \
+    djehuty/backup/resources/languages.json                                   \
+    djehuty/backup/resources/licenses.json                                    \
+    djehuty/backup/resources/root_categories.json                             \
     djehuty/web/resources/html_templates/400.html                             \
     djehuty/web/resources/html_templates/403.html                             \
     djehuty/web/resources/html_templates/404.html                             \

@@ -113,6 +113,18 @@ class DatabaseInterface:
 
         return total_filesize
 
+    def __load_resource_file (self, filename):
+        script_path = os.path.dirname(os.path.abspath(__file__))
+        data        = None
+        try:
+            with open(f"{script_path}/resources/{filename}", "r",
+                      encoding = "utf-8") as data_file:
+                data = json.load(data_file)
+        except FileNotFoundError:
+            logging.error("Could not load resource '%s'.", filename)
+
+        return data
+
     def get_crossref_events_for_doi (self, dois, from_date, mail_to):
         """Returns a list of events for a list of DOIs."""
         #rate limit is 15 queries per second. I'm going for 10/s
@@ -874,271 +886,31 @@ class DatabaseInterface:
 
         return True
 
-    def insert_root_categories (self):
-        """Procedure to insert root categories."""
-
-        categories = [
-            { "id": 13431, "title": "Mathematical Sciences", "parent_id": 0, "source_id": 85 },
-            { "id": 13603, "title": "Physical Sciences", "parent_id": 0, "source_id": 85 },
-            { "id": 13594, "title": "Chemical Sciences", "parent_id": 0, "source_id": 85 },
-            { "id": 13551, "title": "Earth Sciences", "parent_id": 0, "source_id": 85 },
-            { "id": 13410, "title": "Environmental Sciences", "parent_id": 0, "source_id": 85 },
-            { "id": 13578, "title": "Biological Sciences", "parent_id": 0, "source_id": 85 },
-            { "id": 13376, "title": "Agricultural and Veterinary Sciences", "parent_id": 0, "source_id": 85 },
-            { "id": 13611, "title": "Information and Computing Sciences", "parent_id": 0, "source_id": 85 },
-            { "id": 13630, "title": "Engineering", "parent_id": 0, "source_id": 85 },
-            { "id": 13652, "title": "Technology", "parent_id": 0, "source_id": 85 },
-            { "id": 13474, "title": "Medical and Health Sciences", "parent_id": 0, "source_id": 85 },
-            { "id": 13362, "title": "Built Environment and Design", "parent_id": 0, "source_id": 85 },
-            { "id": 13647, "title": "Education", "parent_id": 0, "source_id": 85 },
-            { "id": 13566, "title": "Economics", "parent_id": 0, "source_id": 85 },
-            { "id": 13500, "title": "Commerce, Management, Tourism and Services", "parent_id": 0, "source_id": 85 },
-            { "id": 13464, "title": "Studies in Human Society", "parent_id": 0, "source_id": 85 },
-            { "id": 13453, "title": "Psychology and Cognitive Sciences", "parent_id": 0, "source_id": 85 },
-            { "id": 13427, "title": "Law and Legal Studies", "parent_id": 0, "source_id": 85 },
-            { "id": 13559, "title": "Studies in Creative Arts and Writing", "parent_id": 0, "source_id": 85 },
-            { "id": 13517, "title": "Language, Communication and Culture", "parent_id": 0, "source_id": 85 },
-            { "id": 13448, "title": "History and Archaeology", "parent_id": 0, "source_id": 85 },
-            { "id": 13588, "title": "Philosophy and Religious Studies", "parent_id": 0, "source_id": 85 },
-            { "id": 13360, "title": "Defence", "parent_id": 0, "source_id": 85 },
-            { "id": 13401, "title": "Plant Production and Plant Primary Products", "parent_id": 0, "source_id": 85 },
-            { "id": 13440, "title": "Animal Production and Animal Primary Products", "parent_id": 0, "source_id": 85 },
-            { "id": 13421, "title": "Mineral Resources (excl. Energy Resources)", "parent_id": 0, "source_id": 85 },
-            { "id": 13620, "title": "Energy", "parent_id": 0, "source_id": 85 },
-            { "id": 13524, "title": "Manufacturing", "parent_id": 0, "source_id": 85 },
-            { "id": 13509, "title": "Construction", "parent_id": 0, "source_id": 85 },
-            { "id": 13661, "title": "Transport", "parent_id": 0, "source_id": 85 },
-            { "id": 13544, "title": "Information and Communication Services", "parent_id": 0, "source_id": 85 },
-            { "id": 13457, "title": "Commercial Services and Tourism", "parent_id": 0, "source_id": 85 },
-            { "id": 13667, "title": "Economic Framework", "parent_id": 0, "source_id": 85 },
-            { "id": 13415, "title": "Health", "parent_id": 0, "source_id": 85 },
-            { "id": 13571, "title": "Education and Training", "parent_id": 0, "source_id": 85 },
-            { "id": 13369, "title": "Law, Politics and Community Services", "parent_id": 0, "source_id": 85 },
-            { "id": 13493, "title": "Cultural Understanding", "parent_id": 0, "source_id": 85 },
-            { "id": 13385, "title": "Environment", "parent_id": 0, "source_id": 85 },
-            { "id": 13438, "title": "Expanding Knowledge", "parent_id": 0, "source_id": 85 }]
-
-        status = list(map(self.insert_category, categories))
-        return all (status)
-
     def insert_static_triplets (self):
         """Procedure to insert triplets to augment the state graph."""
+
         self.store.add ((rdf.DJHT["DatasetContainer"],    RDFS.subClassOf, rdf.DJHT["Container"]))
         self.store.add ((rdf.DJHT["CollectionContainer"], RDFS.subClassOf, rdf.DJHT["Container"]))
 
-        languages = [
-            # Shortcode, Name
-            ( "af",      "Afrikaans" ),
-            ( "ar",      "Arabic" ),
-            ( "ast",     "Asturian, Asturleonese, Bable, Leonese" ),
-            ( "az",      "Azerbaijani" ),
-            ( "bg",      "Bulgarian" ),
-            ( "be",      "Belarusian" ),
-            ( "bn",      "Bengali, Bangla" ),
-            ( "br",      "Breton" ),
-            ( "bs",      "Bosnian" ),
-            ( "ca",      "Catalan, Valencian" ),
-            ( "cs",      "Czech" ),
-            ( "cy",      "Welsh" ),
-            ( "da",      "Danish" ),
-            ( "de",      "German" ),
-            ( "dsb",     "Lower Sorbian" ),
-            ( "el",      "Modern Greek (1453-)" ),
-            ( "en",      "English" ),
-            ( "en-au",   "English, Australian" ),
-            ( "en-gb",   "English, British" ),
-            ( "en-us",   "English, American" ),
-            ( "eo",      "Esperanto" ),
-            ( "es",      "Spanish, Castilian" ),
-            ( "es-ar",   "Spanish, Argentina" ),
-            ( "es-co",   "Spanish, Colombia" ),
-            ( "es-mx",   "Spanish, Mexico" ),
-            ( "es-ni",   "Spanish, Nicaragua" ),
-            ( "es-ve",   "Spanish, Venezuela" ),
-            ( "et",      "Estonian" ),
-            ( "eu",      "Basque" ),
-            ( "fa",      "Farsi" ),
-            ( "fi",      "Finnish" ),
-            ( "fr",      "French" ),
-            ( "fy",      "Western Frisian" ),
-            ( "ga",      "Irish" ),
-            ( "gd",      "Scottish Gaelic, Gaelic" ),
-            ( "gl",      "Galician" ),
-            ( "he",      "Hebrew" ),
-            ( "hi",      "Hindi" ),
-            ( "hr",      "Croatian" ),
-            ( "hsb",     "Upper Sorbian" ),
-            ( "hu",      "Hungarian" ),
-            ( "ia",      "Interlingua" ),
-            ( "id",      "Indonesian" ),
-            ( "io",      "Ido" ),
-            ( "is",      "Icelandic" ),
-            ( "it",      "Italian" ),
-            ( "ja",      "Japanese" ),
-            ( "ka",      "Georgian" ),
-            ( "kk",      "Kazakh" ),
-            ( "km",      "Khmer, Central Khmer" ),
-            ( "kn",      "Kannada" ),
-            ( "ko",      "Korean" ),
-            ( "lb",      "Luxembourgish, Letzeburgesch" ),
-            ( "lt",      "Lithuanian" ),
-            ( "lv",      "Latvian" ),
-            ( "mk",      "Macedonian" ),
-            ( "ml",      "Malayalam" ),
-            ( "mn",      "Mongolian" ),
-            ( "mr",      "Marathi" ),
-            ( "my",      "Burmese" ),
-            ( "nb",      "Norwegian Bokmål" ),
-            ( "ne",      "Nepali" ),
-            ( "nl",      "Dutch, Flemish" ),
-            ( "nn",      "Norwegian Nynorsk" ),
-            ( "os",      "Ossetian, Ossetic" ),
-            ( "pa",      "Panjabi, Punjabi" ),
-            ( "pl",      "Polish" ),
-            ( "pt",      "Portuguese" ),
-            ( "pt-br",   "Portuguese, Brazil" ),
-            ( "ro",      "Romanian" ),
-            ( "ru",      "Russian" ),
-            ( "sk",      "Slovak" ),
-            ( "sl",      "Slovenian" ),
-            ( "sq",      "Albanian" ),
-            ( "sr",      "Serbian" ),
-            ( "sr-latn", "Serbian, Latin" ),
-            ( "sv",      "Swedish" ),
-            ( "sw",      "Swahili" ),
-            ( "ta",      "Tamil" ),
-            ( "te",      "Telugu" ),
-            ( "th",      "Thai" ),
-            ( "tr",      "Turkish" ),
-            ( "tt",      "Tatar" ),
-            ( "udm",     "Udmurt" ),
-            ( "uk",      "Ukrainian" ),
-            ( "ur",      "Urdu" ),
-            ( "vi",      "Vietnamese" ),
-            ( "zh-hans", "Chinese, Simplified" ),
-            ( "zh-hant", "Chinese, Traditional" )
-        ]
-
+        languages = self.__load_resource_file("languages.json")
         for language in languages:
             uri = rdf.unique_node ("language")
             self.store.add ((uri, RDF.type, rdf.DJHT["Language"]))
             self.store.add ((uri, RDFS.label,
-                             Literal(language[1], datatype=XSD.string)))
+                             Literal(language["name"], datatype=XSD.string)))
             self.store.add ((uri, rdf.DJHT["shortcode"],
-                             Literal(language[0], datatype=XSD.string)))
+                             Literal(language["shortcode"], datatype=XSD.string)))
 
-        licenses = [
-            {
-                "url": "https://opensource.org/licenses/EUPL-1.2",
-                "value": 99,
-                "name": "EUPL-1.2",
-                "type": "software"
-            },
-            {
-                "url": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
-                "value": 88,
-                "name": "GPL-2.0",
-                "type": "software"
-            },
-            {
-                "url": "https://www.gnu.org/licenses/agpl-3.0.en.html",
-                "value": 85,
-                "name": "AGPL-3.0",
-                "type": "software"
-            },
-            {
-                "url": "https://www.gnu.org/licenses/lgpl-3.0.en.html",
-                "value": 86,
-                "name": "LGPL-3.0",
-                "type": "software"
-            },
-            {
-                "url": "https://opensource.org/licenses/BSD-3-Clause",
-                "value": 148,
-                "name": "BSD-3-Clause",
-                "type": "software"
-            },
-            {
-                "url": "https://creativecommons.org/licenses/by-nd/4.0/",
-                "value": 9,
-                "name": "CC BY-ND 4.0",
-                "type": "data"
-            },
-            {
-                "url": "https://data.4tu.nl/info/fileadmin/user_upload/Documenten/4TU.ResearchData_Restricted_Data_2022.pdf",
-                "value": 149,
-                "name": "Restrictive Licence",
-                "type": "legacy"
-            },
-            {
-                "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
-                "value": 145,
-                "name": "Apache-2.0",
-                "type": "software"
-            },
-            {
-                "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
-                "value": 61,
-                "name": "CC BY-NC-SA 3.0",
-                "type": "data"
-            },
-            {
-                "url": "https://www.gnu.org/licenses/gpl-3.0.html",
-                "value": 94,
-                "name": "GPL-3.0",
-                "type": "software"
-            },
-            {
-                "url": "https://opensource.org/licenses/MIT",
-                "value": 3,
-                "name": "MIT",
-                "type": "software"
-            },
-            {
-                "url": "https://creativecommons.org/licenses/by-sa/4.0/",
-                "value": 8,
-                "name": "CC BY-SA 4.0",
-                "type": "data"
-            },
-            {
-                "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
-                "value": 11,
-                "name": "CC BY-NC-SA 4.0",
-                "type": "data"
-            },
-            {
-                "url": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
-                "value": 12,
-                "name": "CC BY-NC-ND 4.0",
-                "type": "data"
-            },
-            {
-                "url": "https://creativecommons.org/licenses/by-nc/4.0/",
-                "value": 10,
-                "name": "CC BY-NC 4.0",
-                "type": "data"
-            },
-            {
-                "url": "https://creativecommons.org/licenses/by/4.0/",
-                "value": 1,
-                "name": "CC BY 4.0",
-                "type": "data"
-            },
-            {
-                "url": "https://doi.org/10.4121/resource:terms_of_use",
-                "value": 98,
-                "name": "4TU General Terms of Use",
-                "type": "legacy"
-            },
-            {
-                "url": "https://creativecommons.org/publicdomain/zero/1.0/",
-                "value": 2,
-                "name": "CC0",
-                "type": "data"
-            }
-        ]
-
+        licenses = self.__load_resource_file ("licenses.json")
         for license_record in licenses:
             self.insert_license (None, license_record)
+
+        groups = self.__load_resource_file ("groups.json")
+        for group in groups:
+            self.insert_institution_group (group)
+
+        categories = self.__load_resource_file ("root_categories.json")
+        for category in categories:
+            self.insert_category(category)
 
         return True
