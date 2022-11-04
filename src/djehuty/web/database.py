@@ -1954,6 +1954,37 @@ class SparqlInterface:
         except KeyError:
             return account
 
+    def initialize_privileged_accounts (self):
+        """Ensures privileged accounts are present in the database."""
+
+        privileged_accounts = list(self.privileges.keys())
+        for email in privileged_accounts:
+            account = self.account_by_email (email)
+            if account is not None:
+                logging.info ("Account for %s already exists.", email)
+                return None
+
+            account_uuid = self.insert_account (email=email)
+            if not account_uuid:
+                logging.error ("Creating account for %s failed.", email)
+                return None
+
+            logging.info ("Created account for %s.", email)
+
+            orcid = self.privileges[email]["orcid"]
+            if orcid is None:
+                return None
+
+            author_uuid = self.insert_author (
+                email        = email,
+                account_uuid = account_uuid,
+                orcid_id     = orcid)
+            if not author_uuid:
+                logging.warning ("Failed to link author to account for %s.", email)
+                return None
+
+            logging.info ("Linked account of %s to ORCID: %s.", email, orcid)
+
     def insert_session (self, account_uuid, name=None, token=None, editable=False):
         """Procedure to add a session token for an account_uuid."""
 

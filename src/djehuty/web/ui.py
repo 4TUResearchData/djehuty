@@ -295,10 +295,15 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             for account in privileges:
                 try:
                     email = account.attrib["email"]
+                    orcid = None
+                    if "orcid" in account.attrib:
+                        orcid = account.attrib["orcid"]
+
                     server.db.privileges[email] = {
                         "may_administer":  bool(int(config_value (account, "may-administer", None, False))),
                         "may_impersonate": bool(int(config_value (account, "may-impersonate", None, False))),
-                        "may_review":      bool(int(config_value (account, "may-review", None, False)))
+                        "may_review":      bool(int(config_value (account, "may-review", None, False))),
+                        "orcid":           orcid
                     }
                 except KeyError as error:
                     logging.error ("Missing %s attribute for a privilege configuration.", error)
@@ -499,6 +504,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 if server.db.add_triples_from_graph (rdf_store.store):
                     logging.info("Initialization completed.")
 
+                server.db.initialize_privileged_accounts ()
                 initialize = False
 
         run_simple (config["address"], config["port"], server,
