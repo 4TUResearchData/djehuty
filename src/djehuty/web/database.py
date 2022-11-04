@@ -1102,12 +1102,12 @@ class SparqlInterface:
     def insert_author (self, author_id=None, is_active=None, first_name=None,
                        last_name=None, full_name=None, institution_id=None,
                        job_title=None, is_public=None, url_name=None,
-                       orcid_id=None, email=None, group_id=None, uuid=None,
-                       created_by=None, account_uuid=None):
+                       orcid_id=None, email=None, group_id=None,
+                       author_uuid=None, created_by=None, account_uuid=None):
         """Procedure to add an author to the state graph."""
 
-        if uuid is not None:
-            return uuid
+        if author_uuid is not None:
+            return author_uuid
 
         graph      = Graph()
         author_uri = rdf.unique_node ("author")
@@ -1240,11 +1240,11 @@ class SparqlInterface:
                      is_link_only=None, download_url=None, supplied_md5=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
                      status=None, upload_url=None, upload_token=None,
-                     dataset_uri=None, account_uuid=None, uuid=None):
+                     dataset_uri=None, account_uuid=None, file_uuid=None):
         """Procedure to add an file to the state graph."""
 
-        if uuid is not None:
-            return uuid
+        if file_uuid is not None:
+            return file_uuid
 
         graph    = Graph()
         file_uri = rdf.unique_node ("file")
