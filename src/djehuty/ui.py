@@ -27,6 +27,8 @@ Available subcommands and options:
     --stats-auth=ARG     -a Username/password for the statistics endpoint.
     --token=ARG          -t The API token to use.
     --account=ARG        -i The account ID to backup.
+    --api-url            -u The base URL for accessing the API. Defaults to
+                            'https://api.figshare.com'.
 
   web:
     --help               -h Show a help message.
@@ -66,6 +68,7 @@ def main ():
     backup_parser.add_argument('--token',       '-t', type=str, default='')
     backup_parser.add_argument('--stats-auth',  '-a', type=str, default='')
     backup_parser.add_argument('--account-id',  '-i', type=str, default=None)
+    backup_parser.add_argument('--api-url',     '-u', type=str, default=None)
 
     ### WEB SUBCOMMAND
     ### -----------------------------------------------------------------------
@@ -105,7 +108,8 @@ def main ():
             print ("The 'backup' command requires multiple arguments.")
             print ("Try --help for usage options.")
         else:
-            backup_ui.main (args.token, args.stats_auth, args.account_id)
+            backup_ui.main (args.token, args.stats_auth, args.account_id,
+                            args.api_url)
 
     if args.command == "web":
         web_ui.main (args.address, args.port, args.state_graph, args.storage,

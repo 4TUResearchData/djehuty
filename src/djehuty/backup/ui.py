@@ -88,7 +88,7 @@ def process_author_links_for_account (endpoint, account):
 
     return { "written": written, "failed": failed }
 
-def main (figshare_token, figshare_stats_auth, account_id):
+def main (figshare_token, figshare_stats_auth, account_id, api_url):
     """The main entry point for the 'backup' subcommand."""
 
     workers                 = os.cpu_count() * 4
@@ -99,6 +99,10 @@ def main (figshare_token, figshare_stats_auth, account_id):
     endpoint.stats_auth     = base64.b64encode(figshare_stats_auth.encode('ascii')).decode('ascii')
     endpoint.institution_id = 898
     endpoint.rdf_store      = database.DatabaseInterface()
+
+    if api_url is not None:
+        endpoint.base = api_url
+
     accounts_written        = 0
     accounts_failed         = 0
     datasets_written        = 0
