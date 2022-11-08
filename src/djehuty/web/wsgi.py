@@ -776,8 +776,11 @@ class ApiServer:
                 if impersonate is None:
                     content_type = value_or (request.headers, "Content-Type", "")
                     if "application/json" in content_type:
-                        body  = request.get_json()
-                        impersonate = value_or_none (body, "impersonate")
+                        try:
+                            body        = request.get_json()
+                            impersonate = value_or_none (body, "impersonate")
+                        except BadRequest:
+                            impersonate = None
 
                 if impersonate is not None:
                     return impersonate
