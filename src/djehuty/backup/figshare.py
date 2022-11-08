@@ -19,8 +19,6 @@ class FigshareEndpoint:
     """
 
     def __init__ (self, maximum_simultaneous_connections=None):
-        self.api_location     = "/v2"
-        self.domain           = "api.figshare.com"
         self.base             = "https://api.figshare.com/v2"
         self.token            = None
         self.stats_base       = "https://stats.figshare.com"
