@@ -51,7 +51,7 @@ class FigshareEndpoint:
             "Content-Type":  "application/json",
             "User-Agent":    "Djehuty"
         }
-        if not additional_headers is None:
+        if additional_headers is not None:
             return { **defaults, **additional_headers }
 
         return defaults
@@ -97,7 +97,7 @@ class FigshareEndpoint:
         headers    = self.__request_headers()
         parameters = {}
 
-        if not impersonate is None:
+        if impersonate is not None:
             parameters["impersonate"] = impersonate
 
         chunk      = self.get(path, headers, parameters)
@@ -126,17 +126,17 @@ class FigshareEndpoint:
             "institution": institution_id,
         }
 
-        if not published_since is None:
+        if published_since is not None:
             parameters["published_since"] = published_since
 
-        if not published_until is None:
+        if published_until is not None:
             parameters["published_until"] = published_until
 
-        if not published_since is None and not published_until is None:
+        if published_since is not None and published_until is not None:
             parameters["order"]           = "published_date"
             parameters["order_direction"] = "desc"
 
-        if not impersonate is None:
+        if impersonate is not None:
             parameters["impersonate"] = impersonate
 
         chunk      = self.get(path, headers, parameters)
