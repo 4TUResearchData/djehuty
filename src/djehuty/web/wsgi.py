@@ -1792,7 +1792,7 @@ class ApiServer:
                     date_value = value_or_none (dataset, dtype)
                     if date_value:
                         date_value = date_value[:10]
-                        if not date_value in dates:
+                        if date_value not in dates:
                             dates[date_value] = []
                         dates[date_value].append(label)
             dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
@@ -1912,7 +1912,7 @@ class ApiServer:
                     date_value = collection[dtype]
                     if date_value:
                         date_value = date_value[:10]
-                        if not date_value in dates:
+                        if date_value not in dates:
                             dates[date_value] = []
                         dates[date_value].append(label)
             dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
