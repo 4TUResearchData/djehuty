@@ -16,12 +16,6 @@ from djehuty.web import cache
 from djehuty.utils import rdf
 from djehuty.utils import convenience as conv
 
-class UnknownDatabaseState(Exception):
-    """Raised when the database is not queryable."""
-
-class EmptyDatabase(Exception):
-    """Raised when the database is empty."""
-
 class SparqlInterface:
     """This class reads and writes data from a SPARQL endpoint."""
 

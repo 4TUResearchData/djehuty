@@ -512,8 +512,6 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
     except (FileNotFoundError, DependencyNotAvailable, MissingConfigurationError):
         pass
-    except database.UnknownDatabaseState:
-        logging.error ("Please make sure the database is up and running.")
 
     return None
 
