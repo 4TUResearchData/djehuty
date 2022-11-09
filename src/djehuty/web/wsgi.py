@@ -137,6 +137,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             Rule("/v2/account/institution",                   endpoint = "api_private_institution"),
             Rule("/v2/account/institution/users/<account_uuid>",endpoint = "api_private_institution_account"),
+            Rule("/v2/account/institution/accounts",          endpoint = "api_private_institution_accounts"),
 
             ## Public articles
             ## ----------------------------------------------------------------
@@ -2199,6 +2200,32 @@ class ApiServer:
             "id": 898,
             "name": "4TU.ResearchData"
         }))
+
+    def api_private_institution_accounts (self, request):
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_request (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        try:
+            offset, limit       = validator.paging_to_offset_and_limit (request.args)
+            institution_user_id = validator.string_value (request.args, "institution_user_id", 0, 4096)
+            is_active           = validator.integer_value (request.args, "is_active", 0, 1)
+            email               = validator.string_value (request.args, "email", 0, 4096)
+            id_lte              = validator.integer_value (request.args, "id_lte", 0, pow(2, 63))
+            id_gte              = validator.integer_value (request.args, "id_gte", 0, pow(2, 63))
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+        accounts = self.db.accounts (limit=limit,   offset=offset,
+                                     email=email,   is_active=is_active,
+                                     id_lte=id_lte, id_gte=id_gte,
+                                     institution_user_id=institution_user_id)
+
+        return self.default_list_response (accounts, formatter.format_account_record)
 
     def api_private_institution_account (self, request, account_uuid):
         handler = self.default_error_handling (request, "GET", "application/json")
