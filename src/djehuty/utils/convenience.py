@@ -19,15 +19,6 @@ def value_or_none (record, key):
     """Return the value of KEY or None."""
     return value_or (record, key, None)
 
-def to_camel (name):
-    """Return a camel-casing string for a snake-casing string."""
-    splitted = name.split("_")
-    output = ""
-    for part in splitted:
-        output += part.capitalize()
-
-    return output
-
 def pretty_print_size (num_bytes):
     """Return pretty-printed file size."""
 
