@@ -4,10 +4,11 @@ SELECT DISTINCT ?active ?created_date ?email ?first_name ?group_id ?biography
                 ?uuid ?institution_id ?institution_user_id ?last_name
                 ?maximum_file_size ?modified_date ?pending_quota_request ?quota
                 ?used_quota ?used_quota_private ?used_quota_public ?job_title
-                ?location
+                ?location ?account_id
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account             rdf:type                   djht:Account .
+    OPTIONAL { ?account  djht:id                    ?account_id . }
     OPTIONAL { ?account  djht:active                ?active . }
     OPTIONAL { ?account  djht:job_title             ?job_title . }
     OPTIONAL { ?account  djht:location              ?location . }
