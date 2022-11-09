@@ -5027,14 +5027,12 @@ class ApiServer:
         if container is None:
             return self.error_404(request)
 
-        # TODO: Numeric IDs are not available for future datasets.
-        # Use UUIDs instead.
         container_uuid = container['container_uuid']
         container_uri = f'container:{container_uuid}'
         versions = self.db.dataset_versions(container_uri=container_uri)
         versions = [v for v in versions if v['version']]  # exclude version None (still necessary?)
         current_version = version if version else versions[0]['version']
-        dataset = self.db.datasets(dataset_id=container["dataset_id"],
+        dataset = self.db.datasets(container_uuid=container["container_uuid"],
                                    version=current_version,
                                    is_published=True)[0]
         dataset_uri = container['uri']
