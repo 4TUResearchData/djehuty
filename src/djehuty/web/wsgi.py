@@ -1780,7 +1780,7 @@ class ApiServer:
             statistics    = {key:val for (key,val) in statistics.items() if val > 0}
             member = value_or(group_to_member, value_or_none (dataset, "group_id"), 'other')
             member_url_name = member_url_names[member]
-            tags = set([t['tag'] for t in tags])
+            tags = { t['tag'] for t in tags }
             dataset['timeline_first_online'] = value_or_none (container, 'timeline_first_online')
             date_types = ( ('submitted'   , 'timeline_submission'),
                            ('first online', 'timeline_first_online'),
@@ -1900,7 +1900,7 @@ class ApiServer:
             statistics    = {key:val for (key,val) in statistics.items() if val > 0}
             member = value_or(group_to_member, collection["group_id"], 'other')
             member_url_name = member_url_names[member]
-            tags = set([t['tag'] for t in tags])
+            tags = { t['tag'] for t in tags }
             collection['timeline_first_online'] = container['timeline_first_online']
             date_types = ( ('submitted'   , 'timeline_submission'),
                            ('first online', 'timeline_first_online'),
