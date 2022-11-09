@@ -1915,13 +1915,14 @@ class SparqlInterface:
         except KeyError:
             return account
 
-    def accounts (self, account_uuid=None):
+    def accounts (self, account_uuid=None, order=None, order_direction=None,
+                  limit=None, offset=None):
         """Returns accounts."""
 
         query = self.__query_from_template ("accounts", {
-            "account_uuid": account_uuid
+            "account_uuid": account_uuid,
         })
-
+        query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query, query, "accounts")
 
     def account_by_uuid (self, account_uuid):
