@@ -6,7 +6,6 @@ import shutil
 import json
 import defusedxml.ElementTree as ET
 from werkzeug.serving import run_simple
-from djehuty.web import database
 from djehuty.web import wsgi
 import djehuty.backup.database as backup_database
 
