@@ -2125,8 +2125,32 @@ class SparqlInterface:
     def add_triples_from_graph (self, graph):
         """Inserts triples from GRAPH into the state graph."""
 
-        query = self.__insert_query_for_graph (graph)
-        if self.__run_query (query):
+        ## There's an upper limit to how many triples one can add in a single
+        ## INSERT query.  To stay on the safe side, we create batches of 250
+        ## triplets per INSERT query.
+
+        counter             = 0
+        processing_complete = True
+        insertable_graph    = Graph()
+
+        for s, p, o in graph:
+            counter += 1
+            insertable_graph.add ((s, p, o))
+            if counter >= 250:
+                query = self.__insert_query_for_graph (insertable_graph)
+                if not self.__run_query (query):
+                    processing_complete = False
+                    break
+
+                # Reset the graph by creating a new one.
+                insertable_graph = Graph()
+                counter = 0
+
+        query = self.__insert_query_for_graph (insertable_graph)
+        if not self.__run_query (query):
+            processing_complete = False
+
+        if processing_complete:
             return True
 
         logging.error ("Inserting triples from a graph failed.")
