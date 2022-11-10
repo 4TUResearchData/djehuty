@@ -52,6 +52,7 @@ class ApiServer:
         self.base_url         = f"http://{address}:{port}"
         self.db               = database.SparqlInterface()
         self.cookie_key       = "djehuty_session"
+        self.impersonator_cookie_key = f"impersonator_{self.cookie_key}"
         self.file_list_lock  = Lock()
         self.in_production    = False
         self.using_uwsgi      = False
@@ -296,12 +297,10 @@ class ApiServer:
         return self.wsgi (environ, start_response)
 
     def __impersonator_token (self, request):
-        other_cookie_key = f"impersonator_{self.cookie_key}"
-        return self.token_from_cookie (request, other_cookie_key)
+        return self.token_from_cookie (request, self.impersonator_cookie_key)
 
     def __impersonating_account (self, request):
-        other_cookie_key = f"impersonator_{self.cookie_key}"
-        admin_token = self.token_from_cookie (request, other_cookie_key)
+        admin_token = self.token_from_cookie (request, self.impersonator_cookie_key)
         if admin_token:
             user_token = self.token_from_cookie (request)
             account = self.db.account_by_session_token (user_token)
@@ -938,8 +937,7 @@ class ApiServer:
 
         # When impersonating, find the admin's token,
         # and set it as the new session token.
-        other_cookie_key    = f"impersonator_{self.cookie_key}"
-        other_session_token = self.token_from_cookie (request, other_cookie_key)
+        other_session_token = self.token_from_cookie (request, self.impersonator_cookie_key)
         redirect_to         = self.token_from_cookie (request, "redirect_to")
         if other_session_token:
             response = None
@@ -952,7 +950,7 @@ class ApiServer:
             response.set_cookie (key    = self.cookie_key,
                                  value  = other_session_token,
                                  secure = self.in_production)
-            response.delete_cookie (key = other_cookie_key)
+            response.delete_cookie (key = self.impersonator_cookie_key)
             response.delete_cookie (key = "redirect_to")
             return response
 
@@ -982,8 +980,7 @@ class ApiServer:
 
         # Add a secundary cookie to go back to at one point.
         response = redirect (f"/my/datasets/{dataset['container_uuid']}/edit", code=302)
-        other_cookie_key = f"impersonator_{self.cookie_key}"
-        response.set_cookie (key    = other_cookie_key,
+        response.set_cookie (key    = self.impersonator_cookie_key,
                              value  = token,
                              secure = self.in_production)
         response.set_cookie (key    = "redirect_to",
@@ -1008,8 +1005,7 @@ class ApiServer:
 
         # Add a secundary cookie to go back to at one point.
         response = redirect ("/my/dashboard", code=302)
-        other_cookie_key = f"impersonator_{self.cookie_key}"
-        response.set_cookie (key    = other_cookie_key,
+        response.set_cookie (key    = self.impersonator_cookie_key,
                              value  = token,
                              secure = self.in_production)
         response.set_cookie (key    = "redirect_to",
