@@ -900,6 +900,7 @@ class SparqlInterface:
                         container_uuid=None,
                         description=None,
                         defined_type=None,
+                        defined_type_name=None,
                         funding=None,
                         license_url=None,
                         language=None,
@@ -990,7 +991,8 @@ class SparqlInterface:
         graph.add ((uri, rdf.DJHT["container"],          container))
 
         rdf.add (graph, uri, rdf.DJHT["description"],    description,    XSD.string)
-        rdf.add (graph, uri, rdf.DJHT["defined_type"],   defined_type,   XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["defined_type"],   defined_type)
+        rdf.add (graph, uri, rdf.DJHT["defined_type_name"], defined_type_name, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["funding"],        funding,        XSD.string)
         rdf.add (graph, uri, rdf.DJHT["license"],        license_url,    "url")
         rdf.add (graph, uri, rdf.DJHT["language"],       language,       XSD.string)

@@ -73,7 +73,7 @@ function save_dataset (dataset_uuid, event, notify=true) {
         "language":       or_null(jQuery("#language").val()),
         "is_metadata_record": is_metadata_record,
         "metadata_reason": or_null(jQuery("#metadata_only_reason").val()),
-        "defined_type_name": defined_type_name,
+        "defined_type":   defined_type_name,
         "is_embargoed":   is_embargoed || is_restricted || is_closed,
         "group_id":       group_id,
         "agreed_to_deposit_agreement": agreed_to_da,

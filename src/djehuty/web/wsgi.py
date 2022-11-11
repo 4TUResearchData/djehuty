@@ -2490,7 +2490,7 @@ class ApiServer:
                     references     = validator.array_value   (record, "references",                                False),
                     categories     = validator.array_value   (record, "categories",                                False),
                     authors        = validator.array_value   (record, "authors",                                   False),
-                    defined_type   = validator.options_value (record, "defined_type",   validator.dataset_types,   False),
+                    defined_type_name = validator.options_value (record, "defined_type", validator.dataset_types,  False),
                     funding        = validator.string_value  (record, "funding",        0, 255,                    False),
                     funding_list   = validator.array_value   (record, "funding_list",                              False),
                     license_url    = license_url,
@@ -2574,7 +2574,7 @@ class ApiServer:
         if request.method == 'PUT':
             record = request.get_json()
             try:
-                defined_type_name = validator.string_value (record, "defined_type_name", 0, 512)
+                defined_type_name = validator.string_value (record, "defined_type", 0, 512)
                 ## These magic numbers are pre-determined by Figshare.
                 defined_type = 0
                 if defined_type_name == "software":
