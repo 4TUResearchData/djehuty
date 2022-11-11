@@ -2473,6 +2473,8 @@ class ApiServer:
                 if not tags:
                     tags = validator.array_value (record, "keywords", False)
 
+                license_id  = validator.integer_value (record, "license", 0, pow(2, 63), False)
+                license_url = self.db.license_url_by_id (license_id)
                 timeline   = validator.object_value (record, "timeline", False)
                 container_uuid, _ = self.db.insert_dataset (
                     title          = validator.string_value  (record, "title",          3, 1000,                   True),
@@ -2485,7 +2487,7 @@ class ApiServer:
                     defined_type   = validator.options_value (record, "defined_type",   validator.dataset_types,   False),
                     funding        = validator.string_value  (record, "funding",        0, 255,                    False),
                     funding_list   = validator.array_value   (record, "funding_list",                              False),
-                    license_id     = validator.integer_value (record, "license",        0, pow(2, 63),             False),
+                    license_url    = license_url,
                     doi            = validator.string_value  (record, "doi",            0, 255,                    False),
                     handle         = validator.string_value  (record, "handle",         0, 255,                    False),
                     resource_doi   = validator.string_value  (record, "resource_doi",   0, 255,                    False),
@@ -2582,6 +2584,8 @@ class ApiServer:
                 is_restricted   = value_or (embargo_option, "id", 0) == 1000
                 is_closed       = value_or (embargo_option, "id", 0) == 1001
                 is_temporary_embargo = is_embargoed and not is_restricted and not is_closed
+                license_id  = validator.integer_value (record, "license_id", 0, pow(2, 63))
+                license_url = self.db.license_url_by_id (license_id)
 
                 result = self.db.update_dataset (dataset["container_uuid"],
                     account_uuid,
@@ -2589,7 +2593,7 @@ class ApiServer:
                     description     = validator.string_value  (record, "description",    0, 10000),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
                     resource_title  = validator.string_value  (record, "resource_title", 0, 255),
-                    license_id      = validator.integer_value (record, "license_id",     0, pow(2, 63)),
+                    license_url     = license_url,
                     group_id        = validator.integer_value (record, "group_id",       0, pow(2, 63)),
                     time_coverage   = validator.string_value  (record, "time_coverage",  0, 512),
                     publisher       = validator.string_value  (record, "publisher",      0, 10000),
@@ -4432,6 +4436,8 @@ class ApiServer:
             if resource_title is not None:
                 validator.string_value  (record, "resource_doi",   0, 255,   True, errors)
 
+            license_id = validator.integer_value (record, "license_id", 0, pow(2, 63), True, errors)
+            license_url = self.db.license_url_by_id (license_id)
             parameters = {
                 "container_uuid":     dataset["container_uuid"],
                 "account_uuid":       account_uuid,
@@ -4439,7 +4445,7 @@ class ApiServer:
                 "description":        validator.string_value  (record, "description",    0, 10000, True, errors),
                 "resource_doi":       resource_doi,
                 "resource_title":     resource_title,
-                "license_id":         validator.integer_value (record, "license_id",     0, pow(2, 63), True, errors),
+                "license_url":        license_url,
                 "group_id":           validator.integer_value (record, "group_id",       0, pow(2, 63), True, errors),
                 "time_coverage":      validator.string_value  (record, "time_coverage",  0, 512,   False, errors),
                 "publisher":          validator.string_value  (record, "publisher",      0, 10000, True, errors),

@@ -12,7 +12,7 @@ DELETE {
     ?dataset           djht:doi                  ?doi .
     {%- endif%}{% if resource_title is not none %}
     ?dataset           djht:resource_title       ?resource_title .
-    {%- endif%}{% if license_id is not none %}
+    {%- endif%}{% if license_url is not none %}
     ?dataset           djht:license              ?license .
     {%- endif%}{% if group_id is not none %}
     ?dataset           djht:group_id             ?group_id .
@@ -82,8 +82,8 @@ INSERT {
     ?dataset           djht:doi                  {{doi | safe}} .
     {%- endif%}{% if resource_title is not none %}
     ?dataset           djht:resource_title       {{resource_title | safe}} .
-    {%- endif%}{% if license_id is not none %}
-    ?dataset           djht:license              ?new_license .
+    {%- endif%}{% if license_url is not none %}
+    ?dataset           djht:license              <{{license_url | safe}}> .
     {%- endif%}{% if group_id is not none %}
     ?dataset           djht:group_id             {{group_id | safe}} .
     {%- endif%}{% if time_coverage is not none %}
@@ -148,11 +148,6 @@ WHERE {
 
     ?dataset            rdf:type                 djht:Dataset .
     ?dataset            djht:title                ?title .
-
-    {%- if license_id is not none %}
-    ?new_license        rdf:type                 djht:License ;
-                        djht:id                   {{license_id | safe}} .
-    {%- endif%}
 
     OPTIONAL { ?dataset djht:license              ?license . }
     OPTIONAL { ?dataset djht:description          ?description . }

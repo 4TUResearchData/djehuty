@@ -8,6 +8,9 @@ WHERE {
                      djht:type                 ?type ;
                      djht:name                 ?name .
   }
+  {%- if license_id is defined: %}
+  FILTER (?id = {{license_id}})
+  {%- endif %}
 }
 ORDER BY ASC(?type) ?name
 {% endblock %}

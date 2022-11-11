@@ -589,6 +589,23 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def license_url_by_id (self, license_id):
+        """Procedure to get a license URL by its ID."""
+
+        if license_id is None:
+            return None
+
+        query = self.__query_from_template ("licenses", {
+            "license_id": license_id
+        })
+
+        try:
+            return self.__run_query (query, query, "licenses")[0]["url"]
+        except (IndexError, KeyError):
+            pass
+
+        return None
+
     def licenses (self):
         """Procedure to get a list of allowed licenses."""
 
@@ -884,7 +901,7 @@ class SparqlInterface:
                         description=None,
                         defined_type=None,
                         funding=None,
-                        license_id=None,
+                        license_url=None,
                         doi=None,
                         handle=None,
                         resource_doi=None,
@@ -973,7 +990,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["description"],    description,    XSD.string)
         rdf.add (graph, uri, rdf.DJHT["defined_type"],   defined_type,   XSD.string)
         rdf.add (graph, uri, rdf.DJHT["funding"],        funding,        XSD.string)
-        rdf.add (graph, uri, rdf.DJHT["license_id"],     license_id)
+        rdf.add (graph, uri, rdf.DJHT["license"],        license_url,    "url")
         rdf.add (graph, uri, rdf.DJHT["doi"],            doi,            XSD.string)
         rdf.add (graph, uri, rdf.DJHT["handle"],         handle,         XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_doi"],   resource_doi,   XSD.string)
@@ -1391,7 +1408,7 @@ class SparqlInterface:
 
     def update_dataset (self, container_uuid, account_uuid, title=None,
                         description=None, resource_doi=None, doi=None,
-                        resource_title=None, license_id=None, group_id=None,
+                        resource_title=None, license_url=None, group_id=None,
                         time_coverage=None, publisher=None, language=None,
                         mimetype=None, contributors=None, license_remarks=None,
                         geolocation=None, longitude=None, latitude=None,
@@ -1420,7 +1437,7 @@ class SparqlInterface:
             "has_linked_file": has_linked_file,
             "language":        rdf.escape_string_value (language),
             "latitude":        rdf.escape_string_value (latitude),
-            "license_id":      license_id,
+            "license_url":     license_url,
             "group_id":        group_id,
             "license_remarks": rdf.escape_string_value (license_remarks),
             "longitude":       rdf.escape_string_value (longitude),
