@@ -902,11 +902,13 @@ class SparqlInterface:
                         defined_type=None,
                         funding=None,
                         license_url=None,
+                        language=None,
                         doi=None,
                         handle=None,
                         resource_doi=None,
                         resource_title=None,
                         first_online=None,
+                        publisher=None,
                         publisher_publication=None,
                         publisher_acceptance=None,
                         submission=None,
@@ -991,11 +993,13 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["defined_type"],   defined_type,   XSD.string)
         rdf.add (graph, uri, rdf.DJHT["funding"],        funding,        XSD.string)
         rdf.add (graph, uri, rdf.DJHT["license"],        license_url,    "url")
+        rdf.add (graph, uri, rdf.DJHT["language"],       language,       XSD.string)
         rdf.add (graph, uri, rdf.DJHT["doi"],            doi,            XSD.string)
         rdf.add (graph, uri, rdf.DJHT["handle"],         handle,         XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_doi"],   resource_doi,   XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_title"], resource_title, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["group_id"],       group_id)
+        rdf.add (graph, uri, rdf.DJHT["publisher"],      publisher,      XSD.string)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)

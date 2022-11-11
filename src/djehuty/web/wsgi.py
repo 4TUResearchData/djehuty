@@ -2494,11 +2494,13 @@ class ApiServer:
                     funding        = validator.string_value  (record, "funding",        0, 255,                    False),
                     funding_list   = validator.array_value   (record, "funding_list",                              False),
                     license_url    = license_url,
+                    language       = validator.string_value  (record, "language",       0, 8,                      False),
                     doi            = validator.string_value  (record, "doi",            0, 255,                    False),
                     handle         = validator.string_value  (record, "handle",         0, 255,                    False),
                     resource_doi   = validator.string_value  (record, "resource_doi",   0, 255,                    False),
                     resource_title = validator.string_value  (record, "resource_title", 0, 255,                    False),
                     group_id       = validator.integer_value (record, "group_id",       0, pow(2, 63),             False),
+                    publisher      = validator.string_value  (record, "publisher",      0, 255,                    False),
                     custom_fields  = validator.object_value  (record, "custom_fields",                             False),
                     # Unpack the 'timeline' object.
                     first_online          = validator.string_value (timeline, "firstOnline",                       False),
