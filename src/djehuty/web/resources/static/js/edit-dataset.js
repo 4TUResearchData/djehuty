@@ -982,7 +982,7 @@ function publish_dataset (dataset_uuid, event) {
         type:        "POST",
         accept:      "application/json",
     }).done(function () {
-        window.location.replace(`/review/published/${dataset_uuid}`);
+        window.location.replace("/logout");
     }).fail(function (response, text_status, error_code) {
         show_message ("failure",
                       `<p>Could not publish due to error ` +
