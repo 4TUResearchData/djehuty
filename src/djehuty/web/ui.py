@@ -7,6 +7,7 @@ import json
 import defusedxml.ElementTree as ET
 from werkzeug.serving import run_simple
 from djehuty.web import wsgi
+from djehuty.utils import convenience
 import djehuty.backup.database as backup_database
 
 # Even though we don't use these imports in 'ui', the state of
@@ -411,6 +412,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
           use_reloader=False, run_internal_server=True, initialize=True):
     """The main entry point for the 'web' subcommand."""
     try:
+        convenience.add_logging_level ("ACCESS", logging.INFO + 5)
         server = wsgi.ApiServer ()
         config = read_configuration_file (server, config_file, address, port,
                                           state_graph, storage, None, base_url,
@@ -523,6 +525,7 @@ def application (env, start_response):
 
     logging.basicConfig(format='[ %(levelname)s ] %(asctime)s: %(message)s',
                         level=logging.INFO)
+    convenience.add_logging_level ("ACCESS", logging.INFO + 5)
 
     if not UWSGI_DEPENDENCY_LOADED:
         start_response('500 Internal Server Error', [('Content-Type','text/html')])
