@@ -29,10 +29,7 @@ class SparqlInterface:
         self.jinja       = Environment(loader = FileSystemLoader(
                             os.path.join(os.path.dirname(__file__),
                                          "resources/sparql_templates")),
-                                       # Auto-escape is set to False because
-                                       # we put quotes around strings in
-                                       # filters.
-                                       autoescape=True)
+                                         autoescape=True)
 
         self.sparql      = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)
