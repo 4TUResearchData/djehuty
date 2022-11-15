@@ -873,7 +873,7 @@ class SparqlInterface:
         rdf_store  = Graph ()
         blank_node = rdf.blank_node ()
         dataset_uri = rdf.uuid_to_uri (dataset_uuid, "dataset")
-        rdf.add (rdf_store, blank_node, RDF.first, URIRef(dataset_uri))
+        rdf.add (rdf_store, blank_node, RDF.first, URIRef(dataset_uri), "url")
         rdf.add (rdf_store, blank_node, RDF.rest, RDF.nil)
 
         if self.add_triples_from_graph (rdf_store):
