@@ -205,6 +205,7 @@ class ApiServer:
             Rule("/v3/datasets",                              endpoint = "api_v3_datasets"),
             Rule("/v3/datasets/top/<item_type>",              endpoint = "api_v3_datasets_top"),
             Rule("/v3/datasets/<dataset_id>/submit-for-review", endpoint = "api_v3_dataset_submit"),
+            Rule("/v3/datasets/<dataset_id>/publish",         endpoint = "api_v3_dataset_publish"),
             Rule("/v3/datasets/timeline/<item_type>",         endpoint = "api_v3_datasets_timeline"),
             Rule("/v3/datasets/<dataset_id>/upload",          endpoint = "api_v3_dataset_upload_file"),
             Rule("/v3/datasets/<dataset_id>.git/files",       endpoint = "api_v3_dataset_git_files"),
@@ -4361,6 +4362,33 @@ class ApiServer:
             files = [e.name for e in files]
 
         return self.response (json.dumps(files))
+
+    def api_v3_dataset_publish (self, request, dataset_id):
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie (request, self.impersonator_cookie_key)
+        if not self.db.may_review (token):
+            return self.error_403 (request)
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               account_uuid = account_uuid,
+                                               is_published = False)
+
+        if dataset is None:
+            return self.error_403 (request)
+
+        if self.db.publish_dataset (dataset["container_uuid"]):
+            return self.respond_201 ({
+                "location": f"{self.base_url}/review/published/{dataset_id}"
+            })
+
+        return self.error_500 ()
 
     def api_v3_dataset_submit (self, request, dataset_id):
         handler = self.default_error_handling (request, "PUT", "application/json")

@@ -1,0 +1,60 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    {%- if not first_publication %}
+    ?container     djht:latest_published_version ?latest_published_version .
+    {%- endif %}
+    ?container     djht:draft                    ?draft_dataset .
+    ?draft_dataset djht:is_latest                ?is_latest .
+    ?draft_dataset djht:is_public                ?is_public .
+    ?draft_dataset djht:is_editable              ?is_editable .
+    ?draft_dataset djht:version                  ?version .
+
+    ?review        djht:status                   ?review_status .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?container     djht:latest_published_version <dataset:{{dataset_uuid}}> .
+
+    ?draft_dataset djht:is_latest                "true"^^xsd:boolean ;
+                   djht:is_public                "true"^^xsd:boolean ;
+                   djht:is_editable              "false"^^xsd:boolean ;
+                   djht:published_date           ?now ;
+                   djht:posted_date              ?now ;
+                   djht:version                  {{version}} .
+    ?review        djht:status                   "accepted"^^xsd:string .
+
+    {%- if first_publication %}
+    ?container     djht:published_versions       <{{blank_node}}> .
+    {%- else %}
+    ?append_node   rdf:rest                      <{{blank_node}}> .
+    <{{blank_node}}> djht:index                  {{version}} .
+    {%- endif %}
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container     rdf:type                      djht:DatasetContainer ;
+                   djht:draft                    ?draft_dataset .
+    ?review        rdf:type                      djht:Review ;
+                   djht:dataset                  ?draft_dataset ;
+                   djht:status                   ?review_status .
+
+    {%- if not first_publication %}
+    ?container     djht:published_versions/rdf:rest* ?append_node .
+    ?append_node   rdf:rest                      rdf:nil .
+    {%- endif %}
+
+    OPTIONAL { ?container djht:latest_published_version ?latest_published_version . }
+    OPTIONAL { ?draft_dataset djht:is_latest     ?is_latest . }
+    OPTIONAL { ?draft_dataset djht:is_public     ?is_public . }
+    OPTIONAL { ?draft_dataset djht:is_editable   ?is_editable . }
+    OPTIONAL { ?draft_dataset djht:version       ?version . }
+
+    BIND(NOW() AS ?now)
+  }
+  FILTER (?container = <container:{{container_uuid}}>)
+}
+{% endblock %}

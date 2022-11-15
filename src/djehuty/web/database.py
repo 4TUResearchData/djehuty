@@ -1414,6 +1414,43 @@ class SparqlInterface:
 
         return result
 
+    def publish_dataset (self, container_uuid):
+        """Procedure to publish a draft dataset."""
+
+        draft = None
+        try:
+            draft = self.datasets (container_uuid = container_uuid,
+                                   is_published   = False)[0]
+        except IndexError:
+            return False
+
+        new_version_number = 1
+        latest             = None
+        try:
+            latest = self.datasets (container_uuid = container_uuid,
+                                    is_published   = True,
+                                    is_latest      = True)[0]
+            new_version_number = latest["version"] + 1
+        except IndexError:
+            pass
+
+        dataset_uuid = draft["uuid"]
+        blank_node   = self.wrap_dataset_in_blank_node (dataset_uuid)
+        query        = self.__query_from_template ("publish_draft_dataset", {
+            "blank_node":        blank_node,
+            "version":           new_version_number,
+            "container_uuid":    container_uuid,
+            "dataset_uuid":      dataset_uuid,
+            "first_publication": not latest
+        })
+
+        if self.__run_query (query):
+            self.cache.invalidate_by_prefix ("reviews")
+            self.cache.invalidate_by_prefix (f"dataset_{container_uuid}")
+            return True
+
+        return False
+
     def update_dataset (self, container_uuid, account_uuid, title=None,
                         description=None, resource_doi=None, doi=None,
                         resource_title=None, license_url=None, group_id=None,
