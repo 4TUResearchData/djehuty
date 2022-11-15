@@ -34,6 +34,7 @@ WHERE {
     BIND(STRAFTER(STR(?account), "account:")  AS ?account_uuid)
     BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)
   }
+  FILTER NOT EXISTS { ?dataset djht:published_date ?published_date . }
 {%- if assigned_to is not none %}
   FILTER (?assigned_to = <account:{{assigned_to}}>)
 {%- if review_uuid is not none: %}
