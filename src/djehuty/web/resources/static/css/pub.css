@@ -1,6 +1,7 @@
 #wrapper #content a             { color: #f49120; text-decoration: none }
 #wrapper #content a:hover       { text-decoration: underline }
 #wrapper #content #doi          { text-align: right }
+#wrapper #content #doi span     { color: #fff; background-color: #000; padding: 0px 5px 0px 5px }
 #wrapper #content #type         { display:inline; padding: 2px 10px 2px 10px; text-align: center; border: 1px solid #000 }
 #wrapper #content #metadata #versions { margin-top: 0px }
 #wrapper #content #description  { margin-top: 10px; padding:10px; border: 1px solid #666 }
