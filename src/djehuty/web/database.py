@@ -69,8 +69,8 @@ class SparqlInterface:
                 if (record[item]['value'].startswith("Modify ") or
                     record[item]['value'].startswith("Insert into ") or
                     record[item]['value'].startswith("Delete from ")):
-                    logging.info("RDF store: %s", record[item]['value'])
-
+                    # The 'store' member has been dynamically added in the 'ui' module.
+                    logging.store ("%s", record[item]['value']) #  pylint: disable=no-member
                     return record[item]["value"]
 
                 record[item] = record[item]["value"]
