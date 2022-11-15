@@ -1,16 +1,16 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT ?dataset_id ?url_public_html ?published_date ?title
+SELECT ?container_uuid ?published_date ?title
 WHERE {
   GRAPH <{{state_graph}}> {
     ?dataset_container rdf:type                       djht:DatasetContainer ;
-                       djht:dataset_id                ?dataset_id ;
                        djht:latest_published_version  ?dataset .
     ?dataset           rdf:type                       djht:Dataset ;
-                       djht:url_public_html           ?url_public_html ;
                        djht:published_date            ?published_date ;
                        djht:title                     ?title .
-  }   
+
+    BIND(STRAFTER(STR(?dataset_container), "container:") AS ?container_uuid)
+  }
 }
 ORDER BY DESC(?published_date)
 LIMIT {{page_size}}

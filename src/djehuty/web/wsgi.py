@@ -1672,7 +1672,7 @@ class ApiServer:
                     x, y = [min(1., days/d) for d in rgb_opa_days]
                     rgba = [round(i[0] + x*(i[1]-i[0])) for i in rgb_shift] + [round(1 - y*(1-opa_min), 3)]
                     str_rgba = ','.join([str(c) for c in rgba])
-                    url = rec['url_public_html'] if from_figshare else f'/datasets/{rec["dataset_id"]}'
+                    url = rec['url_public_html'] if from_figshare else f'/datasets/{rec["container_uuid"]}'
                     latest.append((url, rec['title'], pub_date, ago, str_rgba))
             except (IndexError, KeyError):
                 pass
