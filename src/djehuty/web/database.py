@@ -1130,6 +1130,7 @@ class SparqlInterface:
 
         rdf.add (graph, author_uri, rdf.DJHT["id"],             author_id)
         rdf.add (graph, author_uri, rdf.DJHT["institution_id"], institution_id)
+        rdf.add (graph, author_uri, rdf.DJHT["group_id"],       group_id)
         rdf.add (graph, author_uri, rdf.DJHT["is_active"],      is_active)
         rdf.add (graph, author_uri, rdf.DJHT["is_public"],      is_public)
         rdf.add (graph, author_uri, rdf.DJHT["first_name"],     first_name,     XSD.string)
