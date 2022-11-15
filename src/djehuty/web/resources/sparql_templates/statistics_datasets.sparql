@@ -1,11 +1,14 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT (COUNT(DISTINCT ?dataset_id) AS ?datasets)
+SELECT (COUNT(DISTINCT ?container_uuid) AS ?datasets)
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?dataset        rdf:type            djht:Dataset .
-    ?dataset        djht:dataset_id     ?dataset_id .
-    ?dataset        djht:is_public      "true"^^xsd:boolean .
+    ?container  rdf:type                      djht:DatasetContainer ;
+                djht:latest_published_version ?dataset .
+    ?dataset    rdf:type                      djht:Dataset ;
+                djht:is_public                "true"^^xsd:boolean .
+
+    BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
   }
 {%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
