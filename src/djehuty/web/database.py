@@ -944,7 +944,11 @@ class SparqlInterface:
 
         graph           = Graph()
         uri             = rdf.unique_node ("dataset")
-        container       = self.container_uri (graph, None, "dataset", account_uuid)
+        container_uri   = None
+        if container_uuid is not None:
+            container_uri   = URIRef(rdf.uuid_to_uri (container_uuid, "container"))
+
+        container       = self.container_uri (graph, container_uri, "dataset", account_uuid)
         account_uri     = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
 
         ## TIMELINE
