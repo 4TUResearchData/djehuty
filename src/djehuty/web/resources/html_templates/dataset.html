@@ -90,7 +90,11 @@
     {% for file in files %}
             <li>
                 <span class="size">{{'{:,}'.format(file.size)}} bytes</span>
-                <a href="{{file.download_url}}" title="md5: {{file.computed_md5}}">{{file.name}}</a>
+                <span class="md5">
+                    <span>md5</span>
+                    <input readonly value="{{file.computed_md5}}"> </input>
+                </span>
+                <a href="{{file.download_url}}">{{file.name}}</a>
             </li>
     {% endfor %}
     {% if files|length > 1 %}
