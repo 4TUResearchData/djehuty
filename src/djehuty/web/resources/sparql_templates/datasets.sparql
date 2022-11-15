@@ -151,6 +151,7 @@ WHERE {
 {%- if is_under_review is not none %}
 {%- if is_under_review %}
 FILTER (BOUND(?review))
+FILTER (?is_under_review = "true"^^xsd:string)
 {%- else %}
 FILTER (! BOUND(?review))
 {%- endif %}
