@@ -962,6 +962,8 @@ function submit_dataset (dataset_uuid, event) {
                         jQuery("label[for='deposit_agreement']").addClass("missing-required");
                     } else if (message.field_name == "agreed_to_publish") {
                         jQuery("label[for='publish_agreement']").addClass("missing-required");
+                    } else if (message.field_name == "embargo_type") {
+                        jQuery("#record-type-wrapper").addClass("missing-required");
                     } else {
                         jQuery(`#${message.field_name}`).addClass("missing-required");
                     }
