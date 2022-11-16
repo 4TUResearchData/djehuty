@@ -24,6 +24,9 @@ INSERT {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review              rdf:type                  djht:Review .
+    {%- if dataset_uri is not none %}
+    ?review djht:dataset <{{dataset_uri}}>
+    {%- endif %}
     OPTIONAL { ?review   djht:assigned_to           ?assigned_to . }
     OPTIONAL { ?review   djht:status                ?status . }
     OPTIONAL { ?review   djht:reminder_date         ?reminder_date . }

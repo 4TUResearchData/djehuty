@@ -42,6 +42,8 @@ WHERE {
 {%- endif %}
 {%- else %}
   FILTER (! BOUND(?assigned_to))
+{%- endif %}{% if status is not none %}
+  FILTER (?status = {{status}})
 {%- endif %}
 }
 {% endblock %}

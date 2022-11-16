@@ -1884,6 +1884,7 @@ class SparqlInterface:
             "account_uuid":   account_uuid,
             "assigned_to":    assigned_to,
             "review_uuid":    review_uuid,
+            "status":         rdf.escape_string_value (status),
             "filters":        filters,
         })
 
@@ -1924,6 +1925,7 @@ class SparqlInterface:
 
         query        = self.__query_from_template ("update_review", {
             "review_uri":            review_uri,
+            "dataset_uri":           dataset_uri,
             "assigned_to":           assigned_to,
             "status":                status,
             "reminder_date":         reminder_date
