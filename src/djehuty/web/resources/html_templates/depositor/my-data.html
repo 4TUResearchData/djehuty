@@ -111,6 +111,7 @@ jQuery(document).ready(function () {
       <th>Type</th>
       <th>Size</th>
       <th>Submitted&nbsp;at</th>
+      <th>Status</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -120,6 +121,7 @@ jQuery(document).ready(function () {
       <td>{{article.defined_type_name | default("undefined", False)}}</td>
       <td>{{article.storage_used}}</td>
       <td>{{article.review_submit_date | truncate(10,False,'')}}</td>
+      <td>{{article.review_status | default("unassigned", False)}}</td>
       <td><a href="/my/datasets/{{article.container_uuid}}/private_links" class="fas fa-link" title="Private links"></a></td>
     </tr>
   {% endfor %}</tbody>

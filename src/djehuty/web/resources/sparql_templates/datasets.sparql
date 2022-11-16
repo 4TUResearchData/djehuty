@@ -18,7 +18,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?url_private_api ?url_private_html ?url_public_api
                 ?url_public_html ?version ?publisher ?language ?time_coverage
                 ?geolocation ?longitude ?latitude ?format ?organizations
-                ?data_link ?derived_from ?same_as ?contributors
+                ?data_link ?derived_from ?same_as ?contributors ?review_status
                 ?license_remarks ?container_uri ?dataset AS ?uri ?uuid
                 ?is_under_review ?review AS ?review_uri ?review_submit_date
                 ?totals_created_at ?total_downloads ?total_views ?total_shares
@@ -45,6 +45,7 @@ WHERE {
     OPTIONAL {
       ?review           rdf:type                  djht:Review ;
                         djht:dataset              ?dataset .
+      OPTIONAL { ?review  djht:status             ?review_status . }
       {%- if is_under_review %}
       ?review           djht:request_date         ?review_submit_date .
       {%- endif %}
