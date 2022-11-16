@@ -146,6 +146,7 @@ def custom_field_name (name):
     return name
 
 def is_opendap_url (url):
+    """Returns True when URL links to 4TU's OPeNDAP server, False otherwise."""
     try:
         return url.split("/")[2] == "opendap.4tu.nl"
     except (AttributeError, IndexError, KeyError):

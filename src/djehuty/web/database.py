@@ -172,6 +172,7 @@ class SparqlInterface:
     def container_items (self, account_uuid=None, container_uuid=None,
                          item_uuid=None, item_type="dataset", is_published=True,
                          is_latest=False):
+        """Returns datasets or collections filtered by its parameters."""
 
         query = self.__query_from_template ("container_items", {
             "account_uuid":   account_uuid,
@@ -427,18 +428,21 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def author_profile (self, author_uri):
+        """Returns author and account information for an AUTHOR_URI."""
         query = self.__query_from_template ("author_profile", {
             "author_uri": author_uri
         })
         return self.__run_query(query)
 
     def author_public_items (self, author_uri):
+        """Returns the public datasets and collections of a given AUTHOR_URI."""
         query = self.__query_from_template ("author_public_items", {
             "author_uri": author_uri
         })
         return self.__run_query(query)
 
     def author_collaborators (self, author_uri):
+        """Returns collaborating authors for a given AUTHOR_URI."""
         query = self.__query_from_template ("author_collaborators", {
             "author_uri": author_uri
         })
@@ -1081,6 +1085,7 @@ class SparqlInterface:
         return results
 
     def update_item_list (self, container_uuid, account_uuid, items, predicate):
+        """Procedure to modify a list property of a container item."""
         try:
             graph   = Graph()
             dataset = self.container_items (container_uuid = container_uuid,
