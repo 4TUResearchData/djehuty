@@ -2191,9 +2191,9 @@ class SparqlInterface:
         processing_complete = True
         insertable_graph    = Graph()
 
-        for s, p, o in graph:
+        for subject, predicate, noun in graph:
             counter += 1
-            insertable_graph.add ((s, p, o))
+            insertable_graph.add ((subject, predicate, noun))
             if counter >= 250:
                 query = self.__insert_query_for_graph (insertable_graph)
                 if not self.__run_query (query):
