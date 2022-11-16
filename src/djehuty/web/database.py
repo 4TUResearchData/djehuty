@@ -279,11 +279,10 @@ class SparqlInterface:
     def repository_statistics (self):
         """Procedure to retrieve repository-wide statistics."""
 
-        parameters        = { "state_graph":   self.state_graph }
-        datasets_query    = self.__query_from_template ("statistics_datasets", parameters)
-        collections_query = self.__query_from_template ("statistics_collections", parameters)
-        authors_query     = self.__query_from_template ("statistics_authors", parameters)
-        files_query       = self.__query_from_template ("statistics_files", parameters)
+        datasets_query    = self.__query_from_template ("statistics_datasets")
+        collections_query = self.__query_from_template ("statistics_collections")
+        authors_query     = self.__query_from_template ("statistics_authors")
+        files_query       = self.__query_from_template ("statistics_files")
 
         row = { "datasets": 0, "authors": 0, "collections": 0, "files": 0, "bytes": 0 }
         try:
