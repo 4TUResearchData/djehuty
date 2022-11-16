@@ -120,7 +120,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/references.sparql                  \
     djehuty/web/resources/sparql_templates/reviews.sparql                     \
     djehuty/web/resources/sparql_templates/root_categories.sparql             \
-    djehuty/web/resources/sparql_templates/single_dataset_statistics_totals.sparql \
     djehuty/web/resources/sparql_templates/statistics.sparql                  \
     djehuty/web/resources/sparql_templates/statistics_authors.sparql          \
     djehuty/web/resources/sparql_templates/statistics_collections.sparql      \

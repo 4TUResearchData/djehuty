@@ -367,15 +367,6 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query, query, "statistics")
 
-    def single_dataset_statistics_totals (self, dataset_id): #obsolete? (see dataset_container)
-        """Procedure to get shallow statistics of a dataset."""
-
-        query   = self.__query_from_template ("single_dataset_statistics_totals", {
-            "dataset_id":   dataset_id
-        })
-
-        return self.__run_query (query, query, "statistics")
-
     def dataset_container (self, dataset_id):
         """Procedure to get dataset container properties (incl shallow statistics)."""
 
