@@ -117,7 +117,7 @@ class SparqlInterface:
             logging.error("SPARQL endpoint returned %d:\n---\n%s\n---",
                           error.code, error.message)
             return []
-        except URLError:
+        except (URLError, SPARQLExceptions.EndPointNotFound):
             if self.sparql_is_up:
                 logging.error("Connection to the SPARQL endpoint seems down.")
                 self.sparql_is_up = False
