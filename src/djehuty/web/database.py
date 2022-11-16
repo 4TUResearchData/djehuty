@@ -1769,10 +1769,9 @@ class SparqlInterface:
         """Procedure to return a tree of categories."""
 
         categories = self.root_categories ()
-        for index, _ in enumerate(categories):
-            category      = categories[index]
+        for category in categories:
             subcategories = self.subcategories_for_category (category["uuid"])
-            categories[index]["subcategories"] = subcategories
+            category["subcategories"] = subcategories
 
         return categories
 
