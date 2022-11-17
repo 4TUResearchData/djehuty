@@ -374,6 +374,17 @@ img.cts { width: 120px; }
     background: #ffffdd;
     outline: none;
 }
+#profile-button::before {
+    font-size: 3em;
+    vertical-align: middle;
+    margin-right: 7pt;
+}
+#profile-button {
+    display: inline-block;
+    padding: 0pt 14pt 0pt 0pt !important;
+    background: none !important;
+    user-select: none;
+}
 .fa-envelope::before { content: "\f0e0"; }
 .fa-linkedin-in::before { content: "\f0e1"; }
 .fa-twitter::before { content: "\f099"; }
@@ -387,6 +398,7 @@ img.cts { width: 120px; }
 .fa-gear::before { content: "\f013"; }
 .fa-users::before { content: "\f0c0"; }
 .fa-user-secret::before { content: "\f21b"; }
+.fa-user-circle::before { content: "\f2bd"; }
 .fa-clipboard-check::before { content: "\f46c"; }
 .fa-angle-double-up::before { content: "\f102"; }
 .fa-angle-double-down::before { content: "\f103"; }
