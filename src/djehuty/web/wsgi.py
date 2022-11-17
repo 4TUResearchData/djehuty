@@ -879,8 +879,6 @@ class ApiServer:
             account_uuid = self.db.account_uuid_by_orcid (orcid_record['orcid'])
             logging.access ("Account %s logged in via ORCID.", account_uuid)
 
-            # XXX: We could create an account for an unknown ORCID.
-            #      Here we limit the system to known ORCID users.
             if account_uuid is None:
                 return self.error_403 (request)
 
