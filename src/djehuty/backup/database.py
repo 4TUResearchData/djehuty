@@ -303,6 +303,7 @@ class DatabaseInterface:
         rdf.add (self.store, uri, rdf.DJHT["parent_id"],   value_or (record, "parent_id", None),   XSD.integer)
         rdf.add (self.store, uri, rdf.DJHT["source_id"],   value_or (record, "source_id", None),   XSD.integer)
         rdf.add (self.store, uri, rdf.DJHT["taxonomy_id"], value_or (record, "taxonomy_id", None), XSD.integer)
+        rdf.add (self.store, uri, rdf.DJHT["classification_code"], value_or (record, "classification_code", None), XSD.string)
 
         return uri
 
