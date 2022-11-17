@@ -130,7 +130,7 @@ class SparqlInterface:
             return []
         except Exception as error:
             logging.error("SPARQL query failed.")
-            logging.error("Exception: %s", error)
+            logging.error("Exception: %s", type(error))
             self.__log_query (query)
             return []
 
