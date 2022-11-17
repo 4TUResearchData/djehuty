@@ -3780,6 +3780,8 @@ class ApiServer:
                 collection    = self.__collection_by_id_or_uri (collection_id,
                                                                 account_uuid = account_uuid,
                                                                 is_published = False)
+                if collection is None:
+                    return self.error_403 (request)
 
                 collection_uri = collection["uri"]
                 datasets_count= self.db.collections_dataset_count(collection_uri=collection_uri)
