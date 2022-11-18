@@ -49,8 +49,8 @@
           {%- if may_administer %}
           <a href="/admin/dashboard" class="fas fa-gear" title="Administrator dashboard"><span class="hidden">Administration dashboard</span></a>
           {%- endif %}
-          <a href="/logout"><div class="button" id="logout-button">Log out</div></a>
           {%- if not path.startswith("/my") %}<a href="/my/dashboard"><div class="button" id="dashboard-button">Dashboard</div></a>{% endif %}
+          <a href="/logout"><div class="button" id="logout-button">Log out</div></a>
           <a id="profile-button" class="fas fa-user-circle" href="/my/profile"></a>
           {%- endif %}
         </div>

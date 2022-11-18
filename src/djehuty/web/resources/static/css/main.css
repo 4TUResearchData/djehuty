@@ -146,7 +146,7 @@ body,html {
 #login-button:hover { background: #d26000; cursor: pointer; }
 #login-button:active { background: #9d4800; cursor: pointer; }
 #login-button a { color: #ffffff; text-decoration: none; }
-#dashboard-button { background: #505050; color: #ffffff; }
+#dashboard-button { margin: 25px auto auto 25px; background: #505050; color: #ffffff; }
 #dashboard-button:hover { background: #303030; cursor: pointer; }
 #dashboard-button:active { background: #000000; cursor: pointer; }
 #dashboard-button a { color: #ffffff; text-decoration: none; }
