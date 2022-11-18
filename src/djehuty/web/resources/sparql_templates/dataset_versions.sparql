@@ -7,9 +7,10 @@ WHERE {
     ?dataset_uri   rdf:type             djht:Dataset ;
                    djht:container       ?container_uri ;
                    djht:version         ?version ;
-                   djht:url             ?url ;
-                   djht:url_public_api  ?url_public_api ;
                    djht:posted_date     ?posted_date .
+
+    OPTIONAL { ?dataset_uri djht:url             ?url . }
+    OPTIONAL { ?dataset_uri djht:url_public_api  ?url_public_api . }
     OPTIONAL { ?container_uri djht:dataset_id ?dataset_id . }
   }
 {%- if container_uri is not none %}
