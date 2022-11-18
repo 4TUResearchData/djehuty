@@ -1740,7 +1740,7 @@ class SparqlInterface:
             self.update_item_list (container_uuid, account_uuid, items, "categories")
 
         if results and datasets:
-            items = rdf.uris_from_records (categories, "dataset")
+            items = rdf.uris_from_records (datasets, "dataset")
             self.update_item_list (container_uuid, account_uuid, items, "datasets")
 
         return results
