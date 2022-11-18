@@ -2543,7 +2543,7 @@ class ApiServer:
                                                            is_published=False)
 
                 if not dataset:
-                    return self.response (json.dumps([]))
+                    return self.response ("[]")
 
                 dataset_uri     = dataset["uri"]
                 authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
@@ -3119,7 +3119,7 @@ class ApiServer:
                                                    account_uuid = account_uuid,
                                                    is_published = False)
             if not dataset:
-                return self.response (json.dumps([]))
+                return self.response ("[]")
 
             return self.response (json.dumps (formatter.format_dataset_embargo_record (dataset)))
 
