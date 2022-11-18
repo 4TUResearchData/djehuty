@@ -142,7 +142,7 @@ body,html {
     font-weight: bold;
     text-decoration: none;
 }
-#login-button { background: #f39000; color: #ffffff; }
+#login-button { margin-right: 25px; background: #f39000; color: #ffffff; }
 #login-button:hover { background: #d26000; cursor: pointer; }
 #login-button:active { background: #9d4800; cursor: pointer; }
 #login-button a { color: #ffffff; text-decoration: none; }
