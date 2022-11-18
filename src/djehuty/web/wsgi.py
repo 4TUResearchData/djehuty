@@ -3155,6 +3155,9 @@ class ApiServer:
                 dataset       = self.__dataset_by_id_or_uri (dataset_id,
                                                              account_uuid=account_uuid,
                                                              is_published=False)
+                if dataset is None:
+                    return self.error_403 (request)
+
                 files = self.db.dataset_files (
                     dataset_uri = dataset["uri"],
                     account_uuid = account_uuid,
