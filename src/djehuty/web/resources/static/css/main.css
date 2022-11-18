@@ -75,7 +75,6 @@ body,html {
 #content-spacer2 { min-height: 123px; }
 #header img {
     padding: 15px 0px 25px 15px;
-    user-select: none;
     margin: 0em;
     max-height: 100px;
 }
@@ -87,6 +86,7 @@ body,html {
     text-align: center;
     color: #333333;
     border-top: 1mm solid #f49120;
+    user-select: none;
 }
 #header-left  {  display: block; height: 100px; text-align: left; }
 #header-middle { display: block; height: 100px; text-align: center; }
