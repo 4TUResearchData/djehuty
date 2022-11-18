@@ -1173,8 +1173,6 @@ class ApiServer:
         except IndexError:
             return self.error_403 (request)
 
-        return self.error_404 (request)
-
     def ui_delete_dataset (self, request, dataset_id):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
@@ -1300,8 +1298,6 @@ class ApiServer:
         except IndexError:
             return self.error_403 (request)
 
-        return self.error_500 ()
-
     def ui_new_collection (self, request):
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
@@ -1344,7 +1340,7 @@ class ApiServer:
             # Either accessing another account's collection or
             # trying to remove a published collection.
             if collection is None:
-                self.error_403 (request)
+                return self.error_403 (request)
 
             result = self.db.delete_collection (
                 container_uuid = collection["container_uuid"],
@@ -1989,8 +1985,6 @@ class ApiServer:
                                            statistics=statistics)
         except IndexError:
             return self.error_404 (request)
-
-        return self.error_500 ()
 
     def ui_institution (self, request, institution_name):
         if not self.accepts_html (request):
@@ -2760,8 +2754,6 @@ class ApiServer:
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
 
-            return self.error_500()
-
         return self.error_405 ("GET")
 
     def api_private_dataset_author_delete (self, request, dataset_id, author_id):
@@ -2776,6 +2768,9 @@ class ApiServer:
             dataset   = self.__dataset_by_id_or_uri (dataset_id,
                                                      account_uuid = account_uuid,
                                                      is_published = False)
+
+            if dataset is None:
+                return self.error_403 (request)
 
             authors = self.db.authors (item_uri     = dataset["uri"],
                                        account_uuid = account_uuid,
@@ -2798,8 +2793,6 @@ class ApiServer:
             return self.error_500()
         except (IndexError, KeyError):
             return self.error_500 ()
-
-        return self.error_403 (request)
 
     def api_private_dataset_funding (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/funding."""
@@ -2896,8 +2889,6 @@ class ApiServer:
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
 
-            return self.error_500()
-
         return self.error_405 ("GET")
 
     def api_private_dataset_funding_delete (self, request, dataset_id, funding_id):
@@ -2935,8 +2926,6 @@ class ApiServer:
         except (IndexError, KeyError):
             return self.error_500 ()
 
-        return self.error_403 (request)
-
     def api_private_collection_author_delete (self, request, collection_id, author_id):
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
@@ -2949,6 +2938,9 @@ class ApiServer:
             collection = self.__collection_by_id_or_uri (collection_id,
                                                          account_uuid = account_uuid,
                                                          is_published = False)
+
+            if collection is None:
+                return self.error_403 (request)
 
             authors    = self.db.authors (item_uri     = collection["uri"],
                                           account_uuid = account_uuid,
@@ -2973,8 +2965,6 @@ class ApiServer:
             return self.error_500()
         except (IndexError, KeyError):
             return self.error_500 ()
-
-        return self.error_403 (request)
 
     def api_private_collection_dataset_delete (self, request, collection_id, dataset_id):
         if request.method != 'DELETE':
@@ -3412,8 +3402,6 @@ class ApiServer:
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
-
-            return self.error_500 ()
 
         if request.method == 'DELETE':
             result = self.db.delete_private_links (dataset["container_uuid"],
@@ -3992,8 +3980,6 @@ class ApiServer:
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
 
-            return self.error_500()
-
         return self.error_405 ("GET")
 
     def api_private_collection_categories (self, request, collection_id):
@@ -4052,15 +4038,16 @@ class ApiServer:
             try:
                 parameters = request.get_json()
                 collection = self.__collection_by_id_or_uri (collection_id, is_published=False, account_uuid=account_uuid)
+
+                if collection is None:
+                    return self.error_404 (request)
+
                 existing_datasets = self.db.datasets(collection_uri=collection["uri"])
                 if existing_datasets:
                     existing_datasets = list(map(lambda item: item["container_uuid"],
                                                  existing_datasets))
                 new_datasets = parameters["articles"]
                 datasets   = existing_datasets + new_datasets
-
-                if collection is None:
-                    return self.error_404 (request)
 
                 # First, validate all values passed by the user.
                 # This way, we can be as certain as we can be that performing
@@ -4622,8 +4609,6 @@ class ApiServer:
         except KeyError:
             return self.error_500()
 
-        return self.error_500()
-
     def api_v3_dataset_references (self, request, dataset_id):
         """Implements /v3/datasets/<id>/references."""
 
@@ -4693,9 +4678,6 @@ class ApiServer:
             return self.error_400 (request, "Expected a 'references' field.", "NoReferencesField")
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
-
-        return self.error_500 ()
-
 
     def api_v3_dataset_tags (self, request, dataset_id):
         """Implements /v3/datasets/<id>/tags."""
@@ -4779,8 +4761,6 @@ class ApiServer:
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
-        return self.error_500 ()
-
     def api_v3_groups (self, request):
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
@@ -4801,8 +4781,6 @@ class ApiServer:
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
-
-        return self.error_500 ()
 
     def __git_create_repository (self, git_uuid):
         git_directory = f"{self.db.storage}/{git_uuid}.git"
