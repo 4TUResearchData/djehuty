@@ -57,7 +57,7 @@
         <div class="label">data service</div>
         <ul>
     {% for url in services %}
-            <li><a href="{{url}}" target="_blank" title="opens in new window">{{url}}</a></li>
+            <li><a href="{{url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{url}}</a></li>
     {% endfor %}
         </ul>
     </div>
@@ -69,8 +69,8 @@
         <ul>
     {% for url in opendap %}
             <li>
-                <a href="{{url}}" target="_blank" title="opens in new window">{{url}}</a>
-                [<a href="{{url|replace('.html','.xml')}}" target="_blank">xml</a>]
+                <a href="{{url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{url}}</a>
+                [<a href="{{url|replace('.html','.xml')}}" target="_blank" rel="noopener noreferrer">xml</a>]
             </li>
     {% endfor %}
         </ul>

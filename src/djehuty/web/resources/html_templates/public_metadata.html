@@ -6,7 +6,7 @@
 {% else: %}
 
 <div id="metadata">
-    <div id="doi"><span>doi:</span> <a href="https://doi.org/{{doi}}" target="_blank" title="opens in new window">{{doi}}</a></div>
+    <div id="doi"><span>doi:</span> <a href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{doi}}</a></div>
     <button id="cite_show" class="neutral-button" onclick='document.getElementById("cite").style.display="block"' title="Show citation.">Cite</button>
 {% if my_collections %}
     <button id="collect_show" class="neutral-button" onclick='document.getElementById("collect").style.display="block"' title="Add this {{item.defined_type_name}} to one of your collections.">Collect</button>
@@ -15,7 +15,7 @@
         <button id="cite_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
         Datacite citation style:
         <div id="citation">{{citation}}</div>
-        <a href="https://doi.datacite.org/dois/{{item.doi|replace('/','%2F')}}" target="_blank" title="opens in new window">Other citation styles (APA, Harvard, MLA, Vancouver, Chicago, IEEE) available at Datacite</a>
+        <a href="https://doi.datacite.org/dois/{{item.doi|replace('/','%2F')}}" target="_blank" rel="noopener noreferrer" title="opens in new window">Other citation styles (APA, Harvard, MLA, Vancouver, Chicago, IEEE) available at Datacite</a>
     </div>
 {% if item_type == "dataset" %}
     {% set dtype = item.defined_type_name|capitalize %}
@@ -115,7 +115,7 @@
     {% endif %}
     {% if vlat and vlon %}
             <a href="https://www.openstreetmap.org/?mlat={{vlat}}&mlon={{vlon}}#map=12/{{vlat}}/{{vlon}}"
-               target="_blank" title="opens in new window">view on openstreetmap</a>
+               target="_blank" rel="noopener noreferrer" title="opens in new window">view on openstreetmap</a>
     {% endif %}
         </div>
 {% endif %}
@@ -138,7 +138,7 @@
     {% set lic_img = lic_imgs[item.license_name] %}
         <div id="licence">
             <div class="label">licence</div>
-            <a href="{{item.license_url}}" target="_blank" title="opens in new window">
+            <a href="{{item.license_url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">
                 {%- if lic_img %}<img src="/static/images/licenses/{{lic_img}}" alt="{{lic_img}} logo"/>{% endif %}
                 {{item.license_name}}</a>
     {% if item.license_remarks %}
@@ -174,7 +174,7 @@
 {% for a in authors %}
             <a href="/authors/{{a.uuid}}" {% if a.is_active %} class="is_active"{% endif %}>{{a.full_name}}</a>
     {%- if a.orcid_id %}
-            <a href="https://orcid.org/{{a.orcid_id}}" target="_blank" title="opens in new window"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
+            <a href="https://orcid.org/{{a.orcid_id}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
     {%- endif %}
     {%- if loop.revindex0 %}, {% endif %}
 {% endfor %}
@@ -210,7 +210,7 @@
 {# test 16825843 #}
         <div id="peer">
             <div class="label">associated peer-reviewed publication</div>
-            <a href="https://doi.org/{{item.resource_doi}}" target="_blank" title="opens in new window">{{item.resource_title}}</a>
+            <a href="https://doi.org/{{item.resource_doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{item.resource_title}}</a>
         </div>
 {% endif %}
 {% if references %}
@@ -218,7 +218,7 @@
             <div class="label">references</div>
             <ul>
     {% for r in references %}
-                <li><a href="{{r.url}}" target="_blank" title="opens in new window">{{r.url}}</a></li>
+                <li><a href="{{r.url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{r.url}}</a></li>
     {% endfor %}
             </ul>
         </div>
@@ -229,7 +229,7 @@
             <div class="label">derived from</div>
             <ul>
     {% for d in derived_from %}
-                <li><a href="{{d}}" target="_blank" title="opens in new window">{{d}}</a></li>
+                <li><a href="{{d}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{d}}</a></li>
     {% endfor %}
             </ul>
         </div>
@@ -238,14 +238,14 @@
 {# test 18865355 #}
         <div id="same_as">
             <div class="label">same as</div>
-            <a href="{{item.same_as}}" target="_blank" title="opens in new window">{{item.same_as}}</a>
+            <a href="{{item.same_as}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{item.same_as}}</a>
         </div>
 {% endif %}
 {% if item.data_link %}
 {# test 14377295 #}
         <div id="data_link">
             <div class="label">data link</div>
-            <a href="{{item.data_link}}" target="_blank" title="opens in new window">{{item.data_link}}</a>
+            <a href="{{item.data_link}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{item.data_link}}</a>
         </div>
 {% endif %}
 {% if item.language %}
@@ -271,7 +271,7 @@
                     <span class="grant_code">(grant code {{funding.grant_code}})</span>
         {% endif %}
         {% if funding.url %}
-                    [<a href="{{funding.url}}" target="_blank" title="opens in new window">more info...</a>]
+                    [<a href="{{funding.url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">more info...</a>]
         {% endif %}
         {% if funding.funder_name %}
                     <span class="funder_name">{{funding.funder_name}}</span>
@@ -299,7 +299,7 @@
                 <li>
                     {{c.name}} 
         {% if c.orcid %}
-                    <a href="https://orcid.org/{{c.orcid}}" target="_blank" title="opens in new window"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
+                    <a href="https://orcid.org/{{c.orcid}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
         {% endif %}
                 </li>
     {% endfor %}

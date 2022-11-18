@@ -55,7 +55,7 @@
 {% if profile.orcid_id %}
     <div id="orcid">
         <img src="/static/images/orcid.svg" alt="orcid logo"/>
-        <a href="https://orcid.org/{{profile.orcid_id}}" target="_blank" title="ORCID profile (new window)">{{profile.orcid_id}}</a>
+        <a href="https://orcid.org/{{profile.orcid_id}}" target="_blank" rel="noopener noreferrer" title="ORCID profile (new window)">{{profile.orcid_id}}</a>
     </div>
 {% endif %}
 {% if profile.job_title %}

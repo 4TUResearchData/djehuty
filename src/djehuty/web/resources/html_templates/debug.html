@@ -10,10 +10,10 @@
 {% endif %}
     Figshare 
 {% if figshare_html %}
-    <a href="{{figshare_html}}" target="_blank">html</a>
+    <a href="{{figshare_html}}" target="_blank" rel="noopener noreferrer" >html</a>
 {% endif %}
 {% if figshare_API %}
-    <a href="{{figshare_API}}" target="_blank">json</a>
+    <a href="{{figshare_API}}" target="_blank" rel="noopener noreferrer" >json</a>
 {% endif %}
     <div style="text-align:center">RAW DATA</div>
 {% for key,val in debug_vars.items() %}
