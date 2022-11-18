@@ -98,9 +98,9 @@ body,html {
     text-align: center;
 }
 .button {
-    margin: 25px 25px auto auto;
+    margin: 25px auto auto auto;
     display: inline-block;
-    padding: .5em 1em .5em 1em;
+    padding: .5em;
     border-radius: .5em;
     text-transform: uppercase;
     font-size: 14pt;
@@ -146,11 +146,11 @@ body,html {
 #login-button:hover { background: #d26000; cursor: pointer; }
 #login-button:active { background: #9d4800; cursor: pointer; }
 #login-button a { color: #ffffff; text-decoration: none; }
-#dashboard-button { margin: 25px auto auto 25px; background: #505050; color: #ffffff; }
+#dashboard-button { margin-left: .5em; background: #505050; color: #ffffff; }
 #dashboard-button:hover { background: #303030; cursor: pointer; }
 #dashboard-button:active { background: #000000; cursor: pointer; }
 #dashboard-button a { color: #ffffff; text-decoration: none; }
-#logout-button { margin: 25px auto auto auto; color: #cc0000; }
+#logout-button { color: #cc0000; }
 #logout-button:hover { color: #ff0000; cursor: pointer; }
 
 #logo { height: 60px; }
@@ -320,6 +320,7 @@ p.cts { text-align: right; }
 img.cts { width: 120px; }
 
 /* Font Awesome bits. */
+a.far, a.fab, a.fas { text-decoration: none; }
 .fab {
     display: inline-block;
     min-width: 1.5em;
@@ -407,7 +408,6 @@ img.cts { width: 120px; }
 .fa-link::before { content: "\f0c1"; }
 .fa-empty::before {}
 
-a.fas { text-decoration: none; }
 ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; font-size: 13pt; }
 .datasets-stage-one, .datasets-stage-one a { color: rgba(208,104,0,1.0); }
 .datasets-stage-two, .datasets-stage-two a { color: rgba(178,104,30,0.967); }

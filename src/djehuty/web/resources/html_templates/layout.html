@@ -44,14 +44,14 @@
           {%- endif %}
           {%- else %}
           {%- if may_review %}
-          <a href="/review/dashboard" class="fas fa-clipboard-check" title="Reviewer dashboard"><span class="hidden">Reviewer dashboard</span></a>
+          <a href="/review/dashboard" class="button fas fa-clipboard-check" title="Reviewer dashboard"><span class="hidden">Reviewer dashboard</span></a>
           {%- endif %}
           {%- if may_administer %}
-          <a href="/admin/dashboard" class="fas fa-gear" title="Administrator dashboard"><span class="hidden">Administration dashboard</span></a>
+          <a href="/admin/dashboard" class="button fas fa-gear" title="Administrator dashboard"><span class="hidden">Administration dashboard</span></a>
           {%- endif %}
           {%- if not path.startswith("/my") %}<a href="/my/dashboard"><div class="button" id="dashboard-button">Dashboard</div></a>{% endif %}
           <a href="/logout"><div class="button" id="logout-button">Log out</div></a>
-          <a id="profile-button" class="fas fa-user-circle" href="/my/profile"></a>
+          <a id="profile-button" title="My profile" class="fas fa-user-circle" href="/my/profile"><span class="hidden">My profile</span></a>
           {%- endif %}
         </div>
       </div>
@@ -117,10 +117,10 @@
             <img width="200" src="/static/images/logo-gray.svg" alt="4TU.ResearchData"></a>
         </p>
         <p>
-          <a href="mailto:researchdata@4tu.nl"><span class="far fa-envelope fa-2x" aria-hidden="true"></span></a>
-          <a href="https://twitter.com/4turesearchdata"><span class="fab fa-twitter fa-2x" aria-hidden="true"></span></a>
-          <a href="https://nl.linkedin.com/company/4tu-researchdata"><span class="fab fa-linkedin-in fa-2x" aria-hidden="true"></span></a>
-          <a href="https://github.com/4TUResearchData/djehuty"><span class="fab fa-github fa-2x" aria-hidden="true"></span></a>
+          <a class="far fa-envelope fa-2x" href="mailto:researchdata@4tu.nl"><span class="hidden">E-mail us</span></a>
+          <a class="fab fa-twitter fa-2x" href="https://twitter.com/4turesearchdata"><span class="hidden">Twitter</span></a>
+          <a class="fab fa-linkedin-in fa-2x" href="https://nl.linkedin.com/company/4tu-researchdata"><span class="hidden">LinkedIn</span></a>
+          <a class="fab fa-github fa-2x" href="https://github.com/4TUResearchData/djehuty"><span class="hidden">Source code</span></a>
         </p>
         <p>
           <span class="fas fa-map-marker-alt" aria-hidden="true"></span> 4TU.ResearchData<br>
