@@ -2858,7 +2858,7 @@ class ApiServer:
                             grant_code  = validator.string_value (record, "grant_code", 0, 32, False),
                             funder_name = validator.string_value (record, "funder_name", 0, 255, False),
                             url         = validator.string_value (record, "url", 0, 512, False),
-                            is_user_defined = True)
+                            account_uuid = account_uuid)
                         if funder_uuid is None:
                             logging.error("Adding a single funder failed.")
                             return self.error_500()

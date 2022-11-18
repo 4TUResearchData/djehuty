@@ -1230,7 +1230,7 @@ class SparqlInterface:
         return self.delete_item_categories (dataset_id, account_uuid, category_id, "dataset")
 
     def insert_funding (self, title=None, grant_code=None, funder_name=None,
-                        is_user_defined=None, url=None, funding_id=None):
+                        account_uuid=None, url=None, funding_id=None):
         """Procedure to add an funding to the state graph."""
 
         graph       = Graph()
@@ -1238,12 +1238,19 @@ class SparqlInterface:
 
         graph.add ((funding_uri, RDF.type,                   rdf.DJHT["Funding"]))
 
+        account_uri = None
+        is_user_defined = False
+        if account_uuid:
+            account_uri = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
+            is_user_defined = True
+
         rdf.add (graph, funding_uri, rdf.DJHT["id"],              funding_id)
         rdf.add (graph, funding_uri, rdf.DJHT["title"],           title,           XSD.string)
         rdf.add (graph, funding_uri, rdf.DJHT["grant_code"],      grant_code,      XSD.string)
         rdf.add (graph, funding_uri, rdf.DJHT["funder_name"],     funder_name,     XSD.string)
         rdf.add (graph, funding_uri, rdf.DJHT["is_user_defined"], is_user_defined)
         rdf.add (graph, funding_uri, rdf.DJHT["url"],             url,             XSD.string)
+        rdf.add (graph, funding_uri, rdf.DJHT["created_by"],      account_uri,     "uri")
 
         if self.add_triples_from_graph (graph):
             return rdf.uri_to_uuid (funding_uri)
