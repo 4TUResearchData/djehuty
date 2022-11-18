@@ -910,29 +910,32 @@ class ApiServer:
                 if saml_record is None:
                     return self.error_403 (request)
 
-            try:
-                response = redirect ("/my/dashboard", code=302)
-                account  = self.db.account_by_email (saml_record["email"])
-                account_uuid = None
-                if account:
-                    account_uuid = account["uuid"]
-                    logging.access ("Account %s logged in via SAML.", account_uuid)
-                else:
-                    account_uuid = self.db.insert_account (
-                        email      = saml_record["email"],
-                        first_name = value_or_none (saml_record, "first_name"),
-                        last_name  = value_or_none (saml_record, "last_name")
-                    )
-                    logging.access ("Account %s created via SAML.", account_uuid)
+                try:
+                    if "email" not in saml_record:
+                        return self.error_400 (request, "Invalid request", "MissingEmailProperty")
 
-                token, session_uuid = self.db.insert_session (account_uuid, name="Website login")
-                logging.access ("Created session %s for account %s.", session_uuid, account_uuid)
-                response.set_cookie (key=self.cookie_key, value=token,
-                                     secure=self.in_production)
+                    response = redirect ("/my/dashboard", code=302)
+                    account  = self.db.account_by_email (saml_record["email"])
+                    account_uuid = None
+                    if account:
+                        account_uuid = account["uuid"]
+                        logging.access ("Account %s logged in via SAML.", account_uuid)
+                    else:
+                        account_uuid = self.db.insert_account (
+                            email      = saml_record["email"],
+                            first_name = value_or_none (saml_record, "first_name"),
+                            last_name  = value_or_none (saml_record, "last_name")
+                        )
+                        logging.access ("Account %s created via SAML.", account_uuid)
 
-                return response
-            except TypeError:
-                pass
+                    token, session_uuid = self.db.insert_session (account_uuid, name="Website login")
+                    logging.access ("Created session %s for account %s.", session_uuid, account_uuid)
+                    response.set_cookie (key=self.cookie_key, value=token,
+                                         secure=self.in_production)
+
+                    return response
+                except TypeError:
+                    pass
 
         return self.error_500 ()
 
