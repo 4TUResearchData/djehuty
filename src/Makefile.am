@@ -17,6 +17,7 @@ PYTHON_FILES =                                                                \
     djehuty/web/ui.py                                                         \
     djehuty/web/validator.py                                                  \
     djehuty/web/wsgi.py
+    djehuty/web/xml_formatter.py                                                  \
 
 EXTRA_RESOURCES =                                                             \
     djehuty/backup/resources/contributors_organizations.json                  \
@@ -57,7 +58,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/review/published.html                \
     djehuty/web/resources/html_templates/search.html                          \
     djehuty/web/resources/metadata_templates/bibtex.bib                       \
-    djehuty/web/resources/metadata_templates/datacite.xml                     \
     djehuty/web/resources/metadata_templates/dc.xml                           \
     djehuty/web/resources/metadata_templates/endnote.enw                      \
     djehuty/web/resources/metadata_templates/nlm.xml                          \

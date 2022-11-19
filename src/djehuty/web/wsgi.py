@@ -21,6 +21,7 @@ from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
 from djehuty.web import validator
 from djehuty.web import formatter
+from djehuty.web import xml_formatter
 from djehuty.web import database
 from djehuty.utils.convenience import pretty_print_size, decimal_coords
 from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
@@ -1832,12 +1833,7 @@ class ApiServer:
                 if url.split('/')[2]=='opendap.4tu.nl':
                     opendap.append(url)
                     del dataset['data_link']
-
-            contributors = []
-            if 'contributors' in dataset:
-                contr = dataset['contributors'].split(';\n')
-                contr_parts = [ c.split(' [orcid:') for c in contr ]
-                contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
+            contributors = self.parse_contributors(value_or(dataset, 'contributors', ''))
 
             git_repository_url = None
             if "defined_type_name" in dataset and dataset["defined_type_name"] == "software":
@@ -1932,11 +1928,7 @@ class ApiServer:
             lat_valid, lon_valid = decimal_coords(lat, lon)
             coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
 
-            contributors = []
-            if 'contributors' in collection:
-                contr = collection['contributors'].split(';\n')
-                contr_parts = [ c.split(' [orcid:') for c in contr ]
-                contributors = [ {'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
+            contributors = self.parse_contributors(value_or(collection, 'contributors', ''))
 
             datasets = self.db.collection_datasets(collection_uri)
 
@@ -5045,7 +5037,7 @@ class ApiServer:
     ## EXPORTS
     ## ------------------------------------------------------------------------
 
-    def __metadata_export_parameters(self, request, dataset_id, version=None):
+    def __metadata_export_parameters(self, request, dataset_id, version=None, item_type="dataset"):
         container = self.__dataset_by_id_or_uri(
             dataset_id,
             is_published=True,
@@ -5064,69 +5056,56 @@ class ApiServer:
                                    version=current_version,
                                    is_published=True)[0]
         dataset_uri = container['uri']
+        doi = dataset['doi'] if version else container['doi']
         authors = self.db.authors(item_uri=dataset_uri)
-        collections = self.db.collections_from_dataset(container_uuid)
         tags = self.db.tags(item_uri=dataset_uri)
         tags = [tag['tag'] for tag in sorted(tags, key=lambda t: t['index'])]
-        if collections is not None:
-            # Add collection(s) as additional tag(s), by prepending them while keeping the order
-            for collection in collections[::-1]:
-                tags.insert(0, f'Collection: {collection["title"]}')
-        if 'time_coverage' in dataset:
-            # Add time coverage as additional tag
-            tags.append(f'Time: {dataset["time_coverage"]}')
         published_year = dataset['published_date'][:4]
         published_date = dataset['published_date'][:10]
-        organizations = []
-        if 'organizations' in dataset:
-            if '\n;' in dataset['organizations']:
-                split_str = '\n;'
-            elif ';\n' in dataset['organizations']:
-                split_str = ';\n'
-            else:
-                split_str = '\n\n'
-            organizations = dataset['organizations'].split(split_str)
-        contributors = []
-        if 'contributors' in dataset:
-            if '\n;' in dataset['contributors']:
-                split_str = '\n;'
-            else:
-                split_str = ';\n'
-            contr = dataset['contributors'].split(split_str)
-            contr_parts = [c.split(' [orcid:') for c in contr]
-            contributors = [{'name': c[0], 'orcid': c[1][:-1] if c[1:] else None} for c in contr_parts]
-
+        organizations = self.parse_organizations(value_or(dataset, 'organizations', ''))
+        contributors  = self.parse_contributors (value_or(dataset, 'contributors' , ''))
         fundings = self.db.fundings(item_uri=dataset_uri)
-        files = self.db.dataset_files(dataset_uri=dataset_uri, limit=None)
+        categories = self.db.categories(item_uri=dataset_uri, limit=None)
+        references = self.db.references(item_uri=dataset_uri, limit=None)
+
+        lat = self_or_value_or_none(dataset, 'latitude')
+        lon = self_or_value_or_none(dataset, 'longitude')
+        lat_valid, lon_valid = decimal_coords(lat, lon)
+        coordinates = {'lat_valid': lat_valid, 'lon_valid': lon_valid}
 
         parameters = {'item': dataset,
+                      'doi': doi,
                       'authors': authors,
+                      'categories': categories,
                       'tags': tags,
                       'published_year': published_year,
                       'published_date': published_date,
                       'organizations': organizations,
                       'contributors': contributors,
-                      'fundings': fundings,
-                      'files': files}
+                      'references' : references,
+                      'coordinates' : coordinates,
+                      'fundings': fundings}
         return parameters
 
     def ui_export_datacite_dataset (self, request, dataset_id, version=None):
+        return self.export_datacite(request, dataset_id, version)
+
+    def ui_export_datacite_collection (self, request, collection_id, version=None):
+        return self.export_datacite(request, collection_id, version, item_type="collection")
+
+    def export_datacite (self, request, item_id, version=None, item_type="dataset"):
         """export metadata in datacite format"""
-        # collect rendering parameters
-        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
-        # adjust rendering parameters
-        for funding_idx, funding in enumerate(parameters['fundings']):
-            if "funder_name" not in funding:
-                # make sure the funder_name field is defined
-                parameters["fundings"][funding_idx]["funder_name"] = "unknown"
+        xml_string = self.format_datacite(request, item_id, version, item_type=item_type)
+        output = Response(xml_string, mimetype="application/xml; charset=utf-8")
+        output.headers["Server"] = "4TU.ResearchData API"
+        version_string = f'_v{version}' if version else ''
+        output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_datacite.xml"
+        return output
 
-        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_datacite.xml"}
-        return self.__render_export_format(template_name="datacite.xml",
-                                           mimetype="application/xml; charset=utf-8",
-                                           headers=headers, **parameters)
-
-    def ui_export_datacite_collection (self, request, dataset_id, version=None):
-        return self.response (json.dumps({"message": "TODO: datacite export"}))
+    def format_datacite(self, request, item_id, version=None, item_type="dataset"):
+        """render metadata in datacite format"""
+        parameters = self.__metadata_export_parameters(request, item_id, version, item_type=item_type)
+        return xml_formatter.datacite(parameters)
 
     def ui_export_refworks_dataset (self, request, dataset_id, version=None):
         """export metadata in refworks format"""
@@ -5202,3 +5181,17 @@ class ApiServer:
         return self.__render_export_format(template_name="dc.xml",
                                            mimetype="application/xml; charset=utf-8",
                                            headers=headers, **parameters)
+
+    def parse_organizations (self, text):
+        return [x for x in re.split(r'\s*[;\n]\s*', text) if x != '']
+
+    def parse_contributors (self, text):
+        contributors = []
+        for contributor in text.split(';\n'):
+            if contributor:
+                parts = contributor.split(' [orcid:', 1)
+                contr_dict = {'name': parts[0]}
+                if parts[1:]:
+                    contr_dict['orcid'] = parts[1][:-1]
+                contributors.append(contr_dict)
+        return contributors

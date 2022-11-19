@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?id ?uuid ?parent_id ?parent_uuid ?title ?source_id ?taxonomy_id
+SELECT DISTINCT ?id ?uuid ?parent_id ?parent_uuid ?title ?source_id ?taxonomy_id ?classification_code
 WHERE {
   GRAPH <{{state_graph}}> {
     ?category         rdf:type                           djht:Category ;
@@ -12,6 +12,7 @@ WHERE {
 
       BIND(STRAFTER(STR(?parent_category), "category:") AS ?parent_uuid)
     }
+    OPTIONAL { ?category  djht:classification_code       ?classification_code . }
     OPTIONAL { ?category  djht:source_id                 ?source_id . }
     OPTIONAL { ?category  djht:taxonomy_id               ?taxonomy_id . }
     {%- if item_uri is not none %}
