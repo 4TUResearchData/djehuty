@@ -219,7 +219,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/js/jquery.dataTables.min.js                  \
     djehuty/web/resources/static/js/jquery-3.6.0.min.js                       \
     djehuty/web/resources/static/js/quill.min.js                              \
-    djehuty/web/resources/static/js/ranking.js                                \
-    djehuty/web/resources/static/js/ranking_by_institution.js
+    djehuty/web/resources/static/js/ranking.js
 
 EXTRA_DIST      = $(PYTHON_FILES) $(EXTRA_RESOURCES)
