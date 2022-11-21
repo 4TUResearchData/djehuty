@@ -1,5 +1,5 @@
 function render_categories_for_collection (dataset_uuid, categories) {
-    for (category of categories) {
+    for (let category of categories) {
         jQuery(`#category_${category["uuid"]}`).prop("checked", true);
         jQuery(`#category_${category["parent_uuid"]}`).prop("checked", true);
         jQuery(`#subcategories_${category["parent_uuid"]}`).show();
@@ -14,8 +14,8 @@ function render_datasets_for_collection (collection_id) {
         accept:      "application/json",
     }).done(function (datasets) {
         jQuery("#articles-list tbody").empty();
-        for (dataset of datasets) {
-            row = `<tr><td><a href="/datasets/${dataset.uuid}">${dataset.title}`;
+        for (let dataset of datasets) {
+            let row = `<tr><td><a href="/datasets/${dataset.uuid}">${dataset.title}`;
             if (dataset.doi != null && dataset.doi != "") {
                 row += ` (${dataset.doi})`;
             }
@@ -35,8 +35,8 @@ function render_authors_for_collection (collection_id, authors = null) {
 
     function draw_authors_for_collection (collection_id, authors) {
         jQuery("#authors-list tbody").empty();
-        for (author of authors) {
-            row = `<tr><td><a href="#">${author.full_name}`;
+        for (let author of authors) {
+            let row = `<tr><td><a href="#">${author.full_name}`;
             if (author.orcid_id != null && author.orcid_id != "") {
                 row += ` (${author.orcid_id})`;
             }
@@ -98,22 +98,22 @@ function add_dataset (dataset_id, collection_id) {
 }
 
 function remove_author (author_id, collection_id) {
-    let jqxhr = jQuery.ajax({
+    jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/authors/${author_id}`,
         type:        "DELETE",
         accept:      "application/json",
-    }).done(function (authors) { render_authors_for_collection (collection_id); })
+    }).done(function () { render_authors_for_collection (collection_id); })
       .fail(function () {
           show_message ("failure",`<p>Failed to remove ${author_id}</p>`);
       });
 }
 
 function remove_dataset (dataset_id, collection_id) {
-    let jqxhr = jQuery.ajax({
+    jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/articles/${dataset_id}`,
         type:        "DELETE",
         accept:      "application/json",
-    }).done(function (datasets) {
+    }).done(function () {
         render_datasets_for_collection (collection_id);
     }).fail(function () {
         show_message ("failure",`<p>Failed to remove ${dataset_id}.</p>`);
@@ -126,7 +126,7 @@ function delete_collection (collection_id) {
     if (confirm("Deleting this draft collection is unrecoverable. "+
                 "Do you want to continue?"))
     {
-        let jqxhr = jQuery.ajax({
+        jQuery.ajax({
             url:         `/v2/account/collections/${collection_id}`,
             type:        "DELETE",
         }).done(function () { window.location.pathname = '/my/collections' })
@@ -140,9 +140,9 @@ function save_collection (collection_id) {
     event.preventDefault();
     event.stopPropagation();
 
-    categories   = jQuery("input[name='categories']:checked");
-    category_ids = []
-    for (category of categories) {
+    let categories   = jQuery("input[name='categories']:checked");
+    let category_ids = []
+    for (let category of categories) {
         category_ids.push(jQuery(category).val());
     }
 
@@ -150,7 +150,7 @@ function save_collection (collection_id) {
     if (group_id !== undefined) { group_id = group_id["value"]; }
     else { group_id = null; }
 
-    form_data = {
+    let form_data = {
         "title":          or_null(jQuery("#title").val()),
         "description":    or_null(jQuery("#description .ql-editor").html()),
         "resource_title": or_null(jQuery("#resource_title").val()),
@@ -200,8 +200,8 @@ function autocomplete_dataset (event, collection_id) {
             dataType:    "json"
         }).done(function (data) {
             jQuery("#articles-ac").remove();
-            html = "<ul>";
-            for (item of data) {
+            let html = "<ul>";
+            for (let item of data) {
                 html += `<li><a href="#" `;
                 html += `onclick="javascript:add_dataset('${item["uuid"]}', `;
                 html += `'${collection_id}'); return false;">${item["title"]}`;
@@ -233,8 +233,8 @@ function autocomplete_author (event, collection_id) {
             dataType:    "json"
         }).done(function (data) {
             jQuery("#authors-ac").remove();
-            html = "<ul>";
-            for (item of data) {
+            let html = "<ul>";
+            for (let item of data) {
                 html += `<li><a href="#" `;
                 html += `onclick="javascript:add_author('${item["uuid"]}', `;
                 html += `'${collection_id}'); return false;">${item["full_name"]}`;
@@ -275,25 +275,22 @@ function new_author (collection_id) {
 }
 
 function submit_new_author (collection_id) {
-    first_name = jQuery("#author_first_name").val();
-    last_name  = jQuery("#author_last_name").val();
-    email      = jQuery("#author_email").val();
-    orcid      = jQuery("#author_orcid").val();
+    let first_name = jQuery("#author_first_name").val();
+    let last_name = jQuery("#author_last_name").val();
+    let authors = [{
+        "name":       `${first_name} ${last_name}`,
+        "first_name": first_name,
+        "last_name":  last_name,
+        "email":      jQuery("#author_email").val(),
+        "orcid":      jQuery("#author_orcid").val()
+    }];
 
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/authors`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
-        data:        JSON.stringify({
-            "authors": [{
-                "name":       `${first_name} ${last_name}`,
-                "first_name": first_name,
-                "last_name":  last_name,
-                "email":      email,
-                "orcid":      orcid
-            }]
-        }),
+        data:        JSON.stringify({ "authors": authors }),
     }).done(function () {
         jQuery("#authors-ac").remove();
         jQuery("#authors").removeClass("input-for-ac");
@@ -305,9 +302,11 @@ function submit_new_author (collection_id) {
 
 function activate (collection_id) {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
-    jQuery("#delete").on("click", function (event) { delete_collection (collection_id); });
-    jQuery("#save").on("click", function (event)   { save_collection (collection_id); });
-    let quill = new Quill('#description', { theme: '4tu' });
+    jQuery("#delete").on("click", function () { delete_collection (collection_id); });
+    jQuery("#save").on("click", function ()   { save_collection (collection_id); });
+
+    // Initialize Quill to provide the WYSIWYG editor.
+    new Quill('#description', { theme: '4tu' });
 
     var submenu_offset = jQuery("#submenu").offset().top;
     jQuery(window).on('resize scroll', function() {
@@ -346,8 +345,8 @@ function activate (collection_id) {
         type:        "GET",
         accept:      "application/json",
     }).done(function (data) {
-        render_categories_for_collection (collection_id, categories = data["categories"]);
-        render_authors_for_collection (collection_id, authors = data["authors"]);
+        render_categories_for_collection (collection_id, data["categories"]);
+        render_authors_for_collection (collection_id, data["authors"]);
         render_datasets_for_collection (collection_id);
 
         if (data["group_id"] != null) {
