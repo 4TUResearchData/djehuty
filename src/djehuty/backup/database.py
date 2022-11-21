@@ -41,15 +41,20 @@ class DatabaseInterface:
 
     def __get_from_url (self, url: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
-        response = requests.get(url,
-                                headers = headers,
-                                params  = parameters,
-                                timeout = 60)
-        if response.status_code == 200:
-            return response.text
+        try:
+            response = requests.get(url,
+                                    headers = headers,
+                                    params  = parameters,
+                                    timeout = 60)
+            if response.status_code == 200:
+                return response.text
 
-        logging.error("%s returned %d.", url, response.status_code)
-        logging.error("Error message:\n---\n%s\n---", response.text)
+            logging.error("%s returned %d.", url, response.status_code)
+            logging.error("Error message:\n---\n%s\n---", response.text)
+
+        except requests.exceptions.ConnectionError:
+            logging.error("Failed to connect to %s.", metadata_url)
+
         return False
 
     def __get_file_size_for_catalog (self, url, recurse=None):
@@ -65,12 +70,7 @@ class DatabaseInterface:
 
         total_filesize = 0
         metadata_url   = url.replace(".html", ".xml")
-        metadata       = False
-
-        try:
-            metadata   = self.__get_from_url (metadata_url, {}, {})
-        except requests.exceptions.ConnectionError:
-            logging.error("Failed to connect to %s.", metadata_url)
+        metadata       = self.__get_from_url (metadata_url, {}, {})
 
         if not metadata:
             logging.error("Couldn't get file metadata for %s.", url)
