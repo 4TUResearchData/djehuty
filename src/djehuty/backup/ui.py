@@ -91,7 +91,7 @@ def process_author_links_for_account (endpoint, account):
 def main (figshare_token, figshare_stats_auth, account_id, api_url):
     """The main entry point for the 'backup' subcommand."""
 
-    workers                 = os.cpu_count() * 4
+    workers                 = min (os.cpu_count() * 4, 8)
     logging.info("Using a maximum of %d simultaneous connections.", workers)
 
     endpoint                = figshare.FigshareEndpoint(workers)
