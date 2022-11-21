@@ -51,6 +51,8 @@ class CacheLayer:
                 logging.debug("Cache hit for %s.", key)
         except OSError:
             logging.debug("No cached response for %s.", key)
+        except json.decoder.JSONDecodeError:
+            logging.error ("Possible cache corruption at %s.", filename)
 
         return data
 
