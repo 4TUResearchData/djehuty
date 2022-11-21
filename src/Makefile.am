@@ -211,7 +211,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/portal/utwente.jpg                    \
     djehuty/web/resources/static/images/portal/wageningen.jpg                 \
     djehuty/web/resources/static/js/d3.v7.min.js                              \
-    djehuty/web/resources/static/js/d3-extras.js                              \
     djehuty/web/resources/static/js/dataset_landing_page.js                   \
     djehuty/web/resources/static/js/edit-collection.js                        \
     djehuty/web/resources/static/js/edit-dataset.js                           \
