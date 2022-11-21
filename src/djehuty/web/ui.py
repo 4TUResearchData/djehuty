@@ -240,7 +240,6 @@ def setup_saml_service_provider (server):
             config_fd = os.open (filename, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
             with open (config_fd, "w", encoding="utf-8") as file_stream:
                 json.dump(server.saml_config, file_stream)
-                os.fchmod(config_fd, 0o400)
             server.saml_config_path = saml_cache_dir
         else:
             logging.error ("Failed to create '%s'.", saml_cache_dir)
