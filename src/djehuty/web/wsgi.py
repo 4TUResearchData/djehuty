@@ -287,6 +287,7 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def add_static_root (self, uri, path):
+        """Procedure to register a filesystem root for static files."""
         if uri is not None and path is not None:
             self.static_roots = { **self.static_roots, **{ uri: path } }
             self.wsgi = SharedDataMiddleware(self.__respond, self.static_roots)
@@ -375,6 +376,7 @@ class ApiServer:
         return response(environ, start_response)
 
     def token_from_cookie (self, request, cookie_key=None):
+        """Procedure to gather an access token from a HTTP cookie."""
         try:
             if cookie_key is None:
                 cookie_key = self.cookie_key
@@ -386,6 +388,7 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def error_400_list (self, request, errors):
+        """Procedure to respond with HTTP 400 with a list of error messages."""
         response = None
         if self.accepts_html (request):
             response = self.__render_template (request, "400.html", message=errors)
@@ -395,12 +398,14 @@ class ApiServer:
         return response
 
     def error_400 (self, request, message, code):
+        """Procedure to respond with HTTP 400 with a single error message."""
         return self.error_400_list (request, {
             "message": message,
             "code":    code
         })
 
     def error_403 (self, request):
+        """Procedure to respond with HTTP 403."""
         response = None
         if self.accepts_html (request):
             response = self.__render_template (request, "403.html")
@@ -412,6 +417,7 @@ class ApiServer:
         return response
 
     def error_404 (self, request):
+        """Procedure to respond with HTTP 404."""
         response = None
         if self.accepts_html (request):
             response = self.__render_template (request, "404.html")
@@ -423,29 +429,34 @@ class ApiServer:
         return response
 
     def error_405 (self, allowed_methods):
+        """Procedure to respond with HTTP 405."""
         response = self.response (f"Acceptable methods: {allowed_methods}",
                                   mimetype="text/plain")
         response.status_code = 405
         return response
 
     def error_415 (self, allowed_types):
+        """Procedure to respond with HTTP 415."""
         response = self.response (f"Supported Content-Types: {allowed_types}",
                                   mimetype="text/plain")
         response.status_code = 415
         return response
 
     def error_406 (self, allowed_formats):
+        """Procedure to respond with HTTP 406."""
         response = self.response (f"Acceptable formats: {allowed_formats}",
                                   mimetype="text/plain")
         response.status_code = 406
         return response
 
     def error_500 (self):
+        """Procedure to respond with HTTP 500."""
         response = self.response ("")
         response.status_code = 500
         return response
 
     def error_authorization_failed (self, request):
+        """Procedure to handle authorization failures."""
         if self.accepts_html (request):
             response = self.__render_template (request, "403.html")
         else:
@@ -458,6 +469,7 @@ class ApiServer:
         return response
 
     def default_error_handling (self, request, method, content_type):
+        """Procedure to handle both method and content type mismatches."""
         if request.method != method:
             return self.error_405 (method)
 
@@ -716,6 +728,7 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def accepts_content_type (self, request, content_type):
+        """Procedure to check whether the client accepts a content type."""
         try:
             acceptable = request.headers['Accept']
             if not acceptable:
@@ -726,17 +739,21 @@ class ApiServer:
             return False
 
     def accepts_html (self, request):
+        """Procedure to check whether the client accepts HTML."""
         return self.accepts_content_type (request, "text/html")
 
     def accepts_xml (self, request):
+        """Procedure to check whether the client accepts XML."""
         return (self.accepts_content_type (request, "application/xml") or
                 self.accepts_content_type (request, "text/xml"))
 
     def accepts_json (self, request):
+        """Procedure to check whether the client accepts JSON."""
         return (self.accepts_content_type (request, "application/json") or
                 self.accepts_content_type (request, "*/*"))
 
     def contains_json (self, request):
+        """Procedure to check whether the client sent JSON data."""
         contains = request.headers['Content-Type']
         if not contains:
             return False
@@ -744,6 +761,7 @@ class ApiServer:
         return "application/json" in contains
 
     def get_parameter (self, request, parameter):
+        """Procedure to get a parameter from either the content body or the URI string."""
         try:
             return request.form[parameter]
         except KeyError:
@@ -752,6 +770,7 @@ class ApiServer:
             return value_or_none (request, parameter)
 
     def token_from_request (self, request):
+        """Procedure to get the access token from a HTTP request."""
         token_string = None
 
         ## Get the token from the "Authorization" HTTP header.
@@ -769,6 +788,7 @@ class ApiServer:
         return token_string
 
     def impersonated_account_uuid (self, request, account):
+        """Procedure to get the account UUID in the case of impersonation."""
         try:
             if account["may_impersonate"]:
                 ## Handle the "impersonate" URL parameter.
@@ -802,6 +822,7 @@ class ApiServer:
         return account["uuid"]
 
     def account_uuid_from_request (self, request):
+        """Procedure to the account UUID for a HTTP request."""
         uuid  = None
         token = self.token_from_request (request)
 
@@ -817,6 +838,7 @@ class ApiServer:
         return uuid
 
     def default_list_response (self, records, format_function):
+        """Procedure to respond a list of items."""
         output     = []
         try:
             output = list(map (format_function, records))
@@ -826,21 +848,25 @@ class ApiServer:
         return self.response (json.dumps(output))
 
     def respond_201 (self, body):
+        """Procedure to respond with HTTP 201."""
         output = self.response (json.dumps(body))
         output.status_code = 201
         return output
 
     def respond_202 (self):
+        """Procedure to respond with HTTP 202."""
         output = Response("", 202, {})
         output.headers["Server"] = "4TU.ResearchData API"
         return output
 
     def respond_204 (self):
+        """Procedure to respond with HTTP 204."""
         output = Response("", 204, {})
         output.headers["Server"] = "4TU.ResearchData API"
         return output
 
     def respond_205 (self):
+        """Procedure to respond with HTTP 205."""
         output = Response("", 205, {})
         output.headers["Server"] = "4TU.ResearchData API"
         return output
@@ -849,12 +875,14 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def ui_home (self, request):
+        """Implements /."""
         if self.accepts_html (request):
             return redirect ("/portal", code=301)
 
         return self.response (json.dumps({ "status": "OK" }))
 
     def ui_account_home (self, request):
+        """Implements /account/home."""
         handler = self.default_error_handling (request, "GET", "text/html")
         if handler is not None:
             return handler
@@ -875,6 +903,7 @@ class ApiServer:
         return self.error_403 (request)
 
     def ui_login (self, request):
+        """Implements /login."""
 
         ## ORCID authentication
         ## --------------------------------------------------------------------
@@ -951,6 +980,7 @@ class ApiServer:
         return self.error_500 ()
 
     def ui_logout (self, request):
+        """Implements /logout."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -979,6 +1009,7 @@ class ApiServer:
         return response
 
     def ui_review_impersonate_to_dataset (self, request, dataset_id):
+        """Implements /review/goto-dataset/<id>."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1015,6 +1046,7 @@ class ApiServer:
         return response
 
     def ui_admin_impersonate (self, request, account_uuid):
+        """Implements /admin/impersonate/<id>."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1039,6 +1071,7 @@ class ApiServer:
         return response
 
     def ui_dashboard (self, request):
+        """Implements /my/dashboard."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1055,6 +1088,7 @@ class ApiServer:
             sessions     = sessions)
 
     def ui_my_data (self, request):
+        """Implements /my/datasets."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1105,6 +1139,7 @@ class ApiServer:
                                        published_datasets = published_datasets)
 
     def ui_dataset_submitted (self, request):
+        """Implements /my/datasets/submitted-for-review."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1119,6 +1154,7 @@ class ApiServer:
         return self.__render_template (request, "depositor/submitted-for-review.html")
 
     def ui_new_dataset (self, request):
+        """Implements /my/datasets/new."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1138,6 +1174,7 @@ class ApiServer:
         return self.error_500()
 
     def ui_edit_dataset (self, request, dataset_id):
+        """Implements /my/datasets/<id>/edit."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1188,6 +1225,7 @@ class ApiServer:
             return self.error_403 (request)
 
     def ui_delete_dataset (self, request, dataset_id):
+        """Implements /my/datasets/<id>/delete."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1218,6 +1256,7 @@ class ApiServer:
         return self.error_500 ()
 
     def ui_dataset_private_links (self, request, dataset_id):
+        """Implements /my/datasets/<id>/private_links."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1243,6 +1282,7 @@ class ApiServer:
         return self.error_500()
 
     def ui_my_collections (self, request):
+        """Implements /my/collections."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1266,6 +1306,7 @@ class ApiServer:
                                        collections = collections)
 
     def ui_edit_collection (self, request, collection_id):
+        """Implements /my/collections/<id>/edit."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1313,6 +1354,7 @@ class ApiServer:
             return self.error_403 (request)
 
     def ui_new_collection (self, request):
+        """Implements /my/collections/new."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1334,6 +1376,7 @@ class ApiServer:
         return self.error_500()
 
     def ui_delete_collection (self, request, collection_id):
+        """Implements /my/collections/<id>/delete."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1369,7 +1412,7 @@ class ApiServer:
         return self.error_500 ()
 
     def ui_edit_session (self, request, session_uuid):
-
+        """Implements /my/sessions/<id>/edit."""
         account_uuid = self.account_uuid_from_request (request)
         if account_uuid is None:
             return self.error_authorization_failed(request)
@@ -1404,6 +1447,7 @@ class ApiServer:
         return self.error_405 (["GET", "PUT"])
 
     def ui_new_session (self, request):
+        """Implements /my/sessions/new."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1420,6 +1464,7 @@ class ApiServer:
         return self.error_500()
 
     def ui_delete_session (self, request, session_uuid):
+        """Implements /my/sessions/<id>/delete."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1432,6 +1477,7 @@ class ApiServer:
         return response
 
     def ui_new_private_link (self, request, dataset_id):
+        """Implements /my/datasets/<id>/private_link/new."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1449,6 +1495,7 @@ class ApiServer:
         return redirect (f"/my/datasets/{dataset_id}/private_links", code=302)
 
     def ui_delete_private_link (self, request, dataset_id, private_link_id):
+        """Implements /my/datasets/<id>/private_link/<pid>/delete."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1471,6 +1518,7 @@ class ApiServer:
         return response
 
     def ui_profile (self, request):
+        """Implements /my/profile."""
         handler = self.default_error_handling (request, "GET", "text/html")
         if handler is not None:
             return handler
@@ -1489,6 +1537,7 @@ class ApiServer:
         return self.error_403 (request)
 
     def ui_review_dashboard (self, request):
+        """Implements /review/dashboard."""
         if not self.accepts_html (request):
             return self.response (json.dumps({
                 "message": "This page is meant for humans only."
@@ -1509,7 +1558,7 @@ class ApiServer:
 
 
     def ui_review_assign_to_me (self, request, dataset_id):
-
+        """Implements /review/assign-to-me/<id>."""
         account_uuid = self.account_uuid_from_request (request)
         token = self.token_from_cookie (request)
         if not self.db.may_review (token):
@@ -1535,7 +1584,7 @@ class ApiServer:
         return self.error_500()
 
     def ui_review_unassign (self, request, dataset_id):
-
+        """Implements /review/unassign/<id>."""
         account_uuid = self.account_uuid_from_request (request)
         token = self.token_from_cookie (request)
         if not self.db.may_review (token):
@@ -1561,7 +1610,7 @@ class ApiServer:
         return self.error_500()
 
     def ui_review_published (self, request, dataset_id):
-
+        """Implements /review/published/<id>."""
         account_uuid = self.account_uuid_from_request (request)
         token = self.token_from_cookie (request)
         if not self.db.may_review (token):
@@ -1579,6 +1628,7 @@ class ApiServer:
                                        container_uuid=dataset["container_uuid"])
 
     def ui_admin_dashboard (self, request):
+        """Implements /admin/dashboard."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1589,6 +1639,7 @@ class ApiServer:
         return self.__render_template (request, "admin/dashboard.html")
 
     def ui_admin_users (self, request):
+        """Implements /admin/users."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1601,6 +1652,7 @@ class ApiServer:
                                        accounts = accounts)
 
     def ui_admin_exploratory (self, request):
+        """Implements /admin/exploratory."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1611,6 +1663,7 @@ class ApiServer:
         return self.__render_template (request, "admin/exploratory.html")
 
     def ui_admin_maintenance (self, request):
+        """Implements /admin/maintenance."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1621,6 +1674,7 @@ class ApiServer:
         return self.__render_template (request, "admin/maintenance.html")
 
     def ui_admin_clear_cache (self, request):
+        """Implements /admin/maintenance/clear-cache."""
         token = self.token_from_cookie (request)
         if self.db.may_administer (token):
             logging.info("Invalidating caches.")
@@ -1630,6 +1684,7 @@ class ApiServer:
         return self.error_403 (request)
 
     def ui_admin_clear_sessions (self, request):
+        """Implements /admin/maintenance/clear-sessions."""
         token = self.token_from_cookie (request)
         if self.db.may_administer (token):
             logging.info("Invalidating sessions.")
@@ -1639,6 +1694,7 @@ class ApiServer:
         return self.error_403 (request)
 
     def ui_portal (self, request):
+        """Implements /portal."""
         #When Djehuty is completely in production, set from_figshare to False.
         if self.accepts_html (request):
             summary_data = self.db.repository_statistics()
@@ -1694,6 +1750,7 @@ class ApiServer:
         }))
 
     def ui_categories (self, request, category_id):
+        """Implements /categories/<id>."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1730,6 +1787,7 @@ class ApiServer:
                                        subcategories=subcategories)
 
     def ui_private_dataset (self, request, private_link_id):
+        """Implements /private_datasets/<id>."""
         handler = self.default_error_handling (request, "GET", "text/html")
         if handler is not None:
             return handler
@@ -1745,6 +1803,7 @@ class ApiServer:
         return self.error_404 (request)
 
     def ui_dataset (self, request, dataset_id, version=None, container=None, private_view=False):
+        """Implements /datasets/<id>."""
         if self.accepts_html (request):
             my_collections = []
             account_uuid = self.account_uuid_from_request (request)
@@ -1882,6 +1941,7 @@ class ApiServer:
         return self.error_406 ("text/html")
 
     def ui_collection (self, request, collection_id, version=None):
+        """Implements /collections/<id>."""
         #This function is copied from ui_dataset and slightly adapted as a start. It will not yet work properly.
         if self.accepts_html (request):
             container     = self.__collection_by_id_or_uri (
@@ -1964,6 +2024,7 @@ class ApiServer:
         }))
 
     def ui_author (self, request, author_id):
+        """Implements /authors/<id>."""
         #TODO: add account info
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
@@ -1992,6 +2053,7 @@ class ApiServer:
             return self.error_404 (request)
 
     def ui_institution (self, request, institution_name):
+        """Implements /institutions/<name>."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -2009,6 +2071,7 @@ class ApiServer:
                                        sub_groups=sub_groups)
 
     def ui_category (self, request):
+        """Implements /category."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -2023,8 +2086,8 @@ class ApiServer:
 
     def ui_opendap_to_doi(self, request):
         """
-            Establish back-links from opendap by matching http referrer with triple store
-            and list datasets in repository, or redirect if there is exactly one.
+        Establish back-links from opendap by matching http referrer with triple store
+        and list datasets in repository, or redirect if there is exactly one.
         """
         if self.accepts_html (request):
             referrer = request.referrer
@@ -2063,6 +2126,7 @@ class ApiServer:
         }))
 
     def ui_download_file (self, request, dataset_id, file_id):
+        """Implements /file/<id>/<fid>."""
         try:
             dataset  = self.__dataset_by_id_or_uri (dataset_id)
 
@@ -2104,6 +2168,7 @@ class ApiServer:
         return self.error_500 ()
 
     def ui_search (self, request):
+        """Implements /search."""
         if self.accepts_html (request):
             search_for = self.get_parameter(request, "search")
             search_for = search_for.strip()
@@ -2185,12 +2250,15 @@ class ApiServer:
         }))
 
     def api_authorize (self, request):
+        """Implements /v2/account/applications/authorize."""
         return self.error_404 (request)
 
     def api_token (self, request):
+        """Implements /v2/token."""
         return self.error_404 (request)
 
     def api_private_institution (self, request):
+        """Implements /v2/account/institution."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2208,6 +2276,7 @@ class ApiServer:
         }))
 
     def api_private_institution_accounts (self, request):
+        """Implements /v2/account/institution/accounts."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2234,6 +2303,7 @@ class ApiServer:
         return self.default_list_response (accounts, formatter.format_account_record)
 
     def api_private_institution_account (self, request, account_uuid):
+        """Implements /v2/account/institution/users/<id>."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2250,6 +2320,7 @@ class ApiServer:
         return self.response (json.dumps (formatted))
 
     def api_datasets (self, request):
+        """Implements /v2/articles."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2263,6 +2334,7 @@ class ApiServer:
             return self.error_400 (request, error.message, error.code)
 
     def api_datasets_search (self, request):
+        """Implements /v2/articles/search."""
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
@@ -2275,6 +2347,7 @@ class ApiServer:
             return self.error_400 (request, error.message, error.code)
 
     def api_licenses (self, request):
+        """Implements /v2/licenses."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2283,6 +2356,7 @@ class ApiServer:
         return self.default_list_response (records, formatter.format_license_record)
 
     def api_dataset_details (self, request, dataset_id):
+        """Implements /v2/articles/<id>."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2320,6 +2394,7 @@ class ApiServer:
             return response
 
     def api_dataset_versions (self, request, dataset_id):
+        """Implements /v2/articles/<id>/versions."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2332,6 +2407,7 @@ class ApiServer:
         return self.default_list_response (versions, formatter.format_version_record)
 
     def api_dataset_version_details (self, request, dataset_id, version):
+        """Implements /v2/articles/<id>/versions/<version>."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2366,6 +2442,7 @@ class ApiServer:
             return response
 
     def api_dataset_version_embargo (self, request, dataset_id, version):
+        """Implements /v2/articles/<id>/versions/<version>/embargo."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2384,6 +2461,7 @@ class ApiServer:
             return response
 
     def api_dataset_version_confidentiality (self, request, dataset_id, version):
+        """Implements /v2/articles/<id>/versions/<version>/confidentiality."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2402,6 +2480,7 @@ class ApiServer:
             return response
 
     def api_dataset_version_update_thumb (self, request, dataset_id, version):
+        """Implements /v2/articles/<id>/versions/<version>/update_thumb."""
         if request.method != 'PUT':
             return self.error_405 ("PUT")
 
@@ -2417,6 +2496,7 @@ class ApiServer:
         return self.error_500()
 
     def api_dataset_files (self, request, dataset_id):
+        """Implements /v2/articles/<id>/files."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2427,6 +2507,7 @@ class ApiServer:
         return self.default_list_response (files, formatter.format_file_for_dataset_record)
 
     def api_dataset_file_details (self, request, dataset_id, file_id):
+        """Implements /v2/articles/<id>/files/<fid>."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -2447,6 +2528,7 @@ class ApiServer:
 
 
     def api_private_datasets (self, request):
+        """Implements /v2/account/articles."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -2525,7 +2607,7 @@ class ApiServer:
         return self.error_405 (["GET", "POST"])
 
     def api_private_dataset_details (self, request, dataset_id):
-
+        """Implements /v2/account/articles/<id>."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -2762,6 +2844,7 @@ class ApiServer:
         return self.error_405 ("GET")
 
     def api_private_dataset_author_delete (self, request, dataset_id, author_id):
+        """Implements /v2/account/articles/<id>/authors/<a_id>."""
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
 
@@ -2897,6 +2980,7 @@ class ApiServer:
         return self.error_405 ("GET")
 
     def api_private_dataset_funding_delete (self, request, dataset_id, funding_id):
+        """Implements /v2/account/articles/<id>/funding/<fid>."""
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
 
@@ -2932,6 +3016,7 @@ class ApiServer:
             return self.error_500 ()
 
     def api_private_collection_author_delete (self, request, collection_id, author_id):
+        """Implements /v2/account/collections/<id>/authors/<a_id>."""
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
 
@@ -2972,6 +3057,7 @@ class ApiServer:
             return self.error_500 ()
 
     def api_private_collection_dataset_delete (self, request, collection_id, dataset_id):
+        """Implements /v2/account/collections/<id>/articles/<dataset_id>."""
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
 
@@ -3006,7 +3092,7 @@ class ApiServer:
         return self.error_403 (request)
 
     def api_private_dataset_categories (self, request, dataset_id):
-
+        """Implements /v2/account/articles/<id>/categories."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -3084,7 +3170,7 @@ class ApiServer:
         return self.error_405 (["GET", "POST", "PUT"])
 
     def api_private_delete_dataset_category (self, request, dataset_id, category_id):
-
+        """Implements /v2/account/articles/<id>/categories/<cid>."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -3100,6 +3186,7 @@ class ApiServer:
         return self.error_500()
 
     def api_private_dataset_embargo (self, request, dataset_id):
+        """Implements /v2/account/articles/<id>/embargo."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -3135,7 +3222,7 @@ class ApiServer:
         return self.error_405 (["GET", "DELETE"])
 
     def api_private_dataset_files (self, request, dataset_id):
-
+        """Implements /v2/account/articles/<id>/files."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -3218,7 +3305,7 @@ class ApiServer:
         return self.error_405 (["GET", "POST"])
 
     def api_private_dataset_file_details (self, request, dataset_id, file_id):
-
+        """Implements /v2/account/articles/<id>/files/<fid>."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -3292,7 +3379,7 @@ class ApiServer:
         return self.error_405 (["GET", "POST", "DELETE"])
 
     def api_private_dataset_private_links (self, request, dataset_id):
-
+        """Implements /v2/account/articles/<id>/private_links."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -3363,7 +3450,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_private_dataset_private_links_details (self, request, dataset_id, link_id):
-
+        """Implements /v2/account/articles/<id>/private_links/<link_id>."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -3421,6 +3508,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_private_dataset_reserve_doi (self, request, dataset_id):
+        """Implements /v2/account/articles/<id>/reserve_doi."""
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
@@ -3471,6 +3559,7 @@ class ApiServer:
         return self.error_500()
 
     def api_private_datasets_search (self, request):
+        """Implements /v2/account/articles/search."""
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
@@ -3519,6 +3608,7 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def api_collections (self, request):
+        """Implements /v2/collections."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -3565,6 +3655,7 @@ class ApiServer:
             return self.error_400 (request, error.message, error.code)
 
     def api_collections_search (self, request):
+        """Implements /v2/collections/search."""
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
@@ -3588,6 +3679,7 @@ class ApiServer:
         return self.default_list_response (records, formatter.format_collection_record)
 
     def api_collection_details (self, request, collection_id):
+        """Implements /v2/collections/<id>."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -3618,6 +3710,7 @@ class ApiServer:
         return self.response (json.dumps(total))
 
     def api_collection_versions (self, request, collection_id):
+        """Implements /v2/collections/<id>/versions."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -3632,6 +3725,7 @@ class ApiServer:
         return self.default_list_response (versions, formatter.format_version_record)
 
     def api_collection_version_details (self, request, collection_id, version):
+        """Implements /v2/collections/<id>/versions/<version>."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -3660,7 +3754,7 @@ class ApiServer:
         return self.response (json.dumps(total))
 
     def api_private_collections (self, request):
-
+        """Implements /v2/collections/<id>/versions/<version>."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -3759,7 +3853,7 @@ class ApiServer:
 
 
     def api_private_collection_details (self, request, collection_id):
-
+        """Implements /v2/account/collections/<id>."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -3857,6 +3951,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_private_collections_search (self, request):
+        """Implements /v2/account/collections/search."""
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
@@ -3988,6 +4083,7 @@ class ApiServer:
         return self.error_405 ("GET")
 
     def api_private_collection_categories (self, request, collection_id):
+        """Implements /v2/account/collections/<id>/categories."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -4015,6 +4111,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_private_collection_datasets (self, request, collection_id):
+        """Implements /v2/account/collections/<id>/articles."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -4091,6 +4188,7 @@ class ApiServer:
         return self.error_405 (["GET", "POST", "PUT"])
 
     def api_collection_datasets (self, request, collection_id):
+        """Implements /v2/collections/<id>/articles."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -4108,6 +4206,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_private_authors_search (self, request):
+        """Implements /v2/account/authors/search."""
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
@@ -4128,6 +4227,7 @@ class ApiServer:
             return self.error_400 (request, error.message, error.code)
 
     def api_private_funding_search (self, request):
+        """Implements /v2/account/funding/search."""
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
@@ -4152,6 +4252,7 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def api_v3_datasets (self, request):
+        """Implements /v3/datasets."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -4270,6 +4371,7 @@ class ApiServer:
         return record
 
     def api_v3_datasets_top (self, request, item_type):
+        """Implements /v3/datasets/top/<type>."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -4307,6 +4409,7 @@ class ApiServer:
         return self.response (json.dumps(records))
 
     def api_v3_datasets_timeline (self, request, item_type):
+        """Implements /v3/datasets/timeline/<type>."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -4330,7 +4433,7 @@ class ApiServer:
         return self.response (json.dumps(records))
 
     def api_v3_dataset_git_files (self, request, dataset_id):
-
+        """Implements /v3/datasets/<id>.git/files."""
         if request.method != "GET":
             return self.error_405 ("GET")
 
@@ -4365,6 +4468,7 @@ class ApiServer:
         return self.response (json.dumps(files))
 
     def api_v3_dataset_publish (self, request, dataset_id):
+        """Implements /v3/datasets/<id>/publish."""
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
@@ -4392,6 +4496,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_v3_dataset_submit (self, request, dataset_id):
+        """Implements /v3/datasets/<id>/submit-for-review."""
         handler = self.default_error_handling (request, "PUT", "application/json")
         if handler is not None:
             return handler
@@ -4530,6 +4635,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_v3_dataset_upload_file (self, request, dataset_id):
+        """Implements /v3/datasets/<id>/upload."""
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
@@ -4597,6 +4703,7 @@ class ApiServer:
         return self.error_500 ()
 
     def api_v3_file (self, request, file_id):
+        """Implements /v3/file/<id>."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -4767,6 +4874,7 @@ class ApiServer:
             return self.error_400 (request, error.message, error.code)
 
     def api_v3_groups (self, request):
+        """Implements /v3/groups."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
@@ -5098,9 +5206,11 @@ class ApiServer:
         return parameters
 
     def ui_export_datacite_dataset (self, request, dataset_id, version=None):
+        """Implements /export/datacite/datasets/<id>."""
         return self.export_datacite(request, dataset_id, version)
 
     def ui_export_datacite_collection (self, request, collection_id, version=None):
+        """Implements /export/datacite/collections/<id>."""
         return self.export_datacite(request, collection_id, version, item_type="collection")
 
     def export_datacite (self, request, item_id, version=None, item_type="dataset"):
