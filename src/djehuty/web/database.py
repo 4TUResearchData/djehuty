@@ -185,6 +185,48 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
+    def __search_query_to_sparql_filters (self, search_for, search_format):
+        """
+        Procedure to parse search queries and return SPARQL FILTER statements.
+        """
+
+        filters = ""
+        if search_for is None:
+            return filters
+
+        if isinstance (search_for, str):
+            # turn into list for loop purposes
+            search_for = [search_for]
+        if dict in list(map(type, search_for)):
+            filters += "FILTER ("
+            for element in search_for:
+                if (isinstance (element, dict)
+                    and len(element.items()) == 1
+                    and next(iter(element)) == "operator"):
+                    filters += f" {element['operator'].upper()} "
+                else:
+                    filter_list = []
+                    for key, value in element.items():
+                        if '"' in value:
+                            value = value.replace('"', '\\\"')
+                        filter_list.append(f" CONTAINS(LCASE(?{key}), \"{value.lower()}\") \n")
+                    filters += "(" + " OR\n".join(filter_list) + ") \n"
+            filters += ")"
+        else:
+            filter_list = []
+            for search_term in search_for:
+                search_term_lower = search_term.lower()
+                filter_list.append(f"       CONTAINS(LCASE(?title),          \"{search_term_lower}\")")
+                filter_list.append(f"       CONTAINS(LCASE(?resource_title), \"{search_term_lower}\")")
+                filter_list.append(f"       CONTAINS(LCASE(?description),    \"{search_term_lower}\")")
+                filter_list.append(f"       CONTAINS(LCASE(?citation),       \"{search_term_lower}\")")
+                if search_format:
+                    filter_list.append(f"       CONTAINS(LCASE(?format),         \"{search_term_lower}\")")
+            if len(filter_list) > 0:
+                filters += "FILTER(\n" + " OR\n".join(filter_list) + ')'
+
+        return filters
+
     def datasets (self, account_uuid=None, categories=None, collection_uri=None,
                   container_uuid=None, dataset_id=None, dataset_uuid=None, doi=None,
                   exclude_ids=None, groups=None, handle=None, institution=None,
@@ -208,42 +250,12 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("private_link_id_string", private_link_id_string, escape=True)
         filters += rdf.sparql_in_filter ("group_id",    groups)
         filters += rdf.sparql_in_filter ("dataset_id", exclude_ids, negate=True)
+        filters += self.__search_query_to_sparql_filters (search_for, search_format)
 
         if categories is not None:
             filters += f"FILTER ((?category_id IN ({','.join(map(str, categories))})) OR "
             filters += f"(?parent_category_id IN ({','.join(map(str, categories))})))\n"
 
-        if search_for is not None:
-            if isinstance (search_for, str):
-                # turn into list for loop purposes
-                search_for = [search_for]
-            if dict in list(map(type, search_for)):
-                filters += "FILTER ("
-                for element in search_for:
-                    if (isinstance (element, dict)
-                        and len(element.items()) == 1
-                        and next(iter(element)) == "operator"):
-                        filters += f" {element['operator'].upper()} "
-                    else:
-                        filter_list = []
-                        for key, value in element.items():
-                            if '"' in value:
-                                value = value.replace('"', '\\\"')
-                            filter_list.append(f" CONTAINS(LCASE(?{key}), \"{value.lower()}\") \n")
-                        filters += "(" + " OR\n".join(filter_list) + ") \n"
-                filters += ")"
-            else:
-                filter_list = []
-                for search_term in search_for:
-                    search_term_lower = search_term.lower()
-                    filter_list.append(f"       CONTAINS(LCASE(?title),          \"{search_term_lower}\")")
-                    filter_list.append(f"       CONTAINS(LCASE(?resource_title), \"{search_term_lower}\")")
-                    filter_list.append(f"       CONTAINS(LCASE(?description),    \"{search_term_lower}\")")
-                    filter_list.append(f"       CONTAINS(LCASE(?citation),       \"{search_term_lower}\")")
-                    if search_format:
-                        filter_list.append(f"       CONTAINS(LCASE(?format),         \"{search_term_lower}\")")
-                if len(filter_list) > 0:
-                    filters += "FILTER(\n" + " OR\n".join(filter_list) + ')'
 
         if published_since is not None:
             filters += rdf.sparql_bound_filter ("published_date")
