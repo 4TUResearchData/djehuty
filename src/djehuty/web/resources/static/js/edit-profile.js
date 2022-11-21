@@ -1,14 +1,14 @@
-function save_profile (account_uuid) {
+function save_profile () {
     event.preventDefault();
     event.stopPropagation();
 
-    categories   = jQuery("input[name='categories']:checked");
-    category_ids = []
-    for (category of categories) {
+    let categories   = jQuery("input[name='categories']:checked");
+    let category_ids = []
+    for (let category of categories) {
         category_ids.push(jQuery(category).val());
     }
 
-    form_data = {
+    let form_data = {
         "first_name":     or_null(jQuery("#first_name").val()),
         "last_name":      or_null(jQuery("#last_name").val()),
         "job_title":      or_null(jQuery("#job_title").val()),
@@ -17,7 +17,7 @@ function save_profile (account_uuid) {
         "categories":     category_ids
     }
 
-    var jqxhr = jQuery.ajax({
+    jQuery.ajax({
         url:         "/v3/profile",
         type:        "PUT",
         contentType: "application/json",
@@ -34,18 +34,17 @@ function save_profile (account_uuid) {
             });
         }, 5000);
         console.log("Form was saved.");
-    })
-      .fail(function () { console.log("Failed to save form."); });
+    }).fail(function () { console.log("Failed to save form."); });
 }
 
-function render_categories_for_profile (account_uuid) {
-    var jqxhr = jQuery.ajax({
+function render_categories_for_profile () {
+    jQuery.ajax({
         url:         "/v3/profile/categories",
         data:        { "limit": 10000 },
         type:        "GET",
         accept:      "application/json",
     }).done(function (categories) {
-        for (category of categories) {
+        for (let category of categories) {
             jQuery(`#category_${category["uuid"]}`).prop("checked", true);
             jQuery(`#category_${category["parent_uuid"]}`).prop("checked", true);
             jQuery(`#subcategories_${category["parent_uuid"]}`).show();
@@ -55,7 +54,7 @@ function render_categories_for_profile (account_uuid) {
     });
 }
 
-function activate (account_uuid) {
-    render_categories_for_profile (account_uuid);
-    jQuery("#save").on("click", function (event)   { save_profile (account_uuid); });
+function activate () {
+    render_categories_for_profile ();
+    jQuery("#save").on("click", function () { save_profile (); });
 }
