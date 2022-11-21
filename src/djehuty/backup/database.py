@@ -163,12 +163,9 @@ class DatabaseInterface:
 
             results = self.store.query (query)
             return results.bindings[0]["uri"]
-        except KeyError:
-            pass
-        except IndexError:
-            pass
 
-        return None
+        except (KeyError, IndexError):
+            return None
 
     def serialize (self):
         """Output the triplets in the graph  to stdout."""
