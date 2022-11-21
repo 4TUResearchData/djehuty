@@ -1,4 +1,8 @@
-import re
+"""
+This module implements constructing XML trees for rendering the DataCite
+XML format.
+"""
+
 import xml.etree.ElementTree as ET
 from djehuty.utils.convenience import value_or, value_or_none
 
@@ -10,57 +14,77 @@ class ElementMaker:
     enabling tree construction using prefixes instead of full namespaces
     in element and attribute names. Default namespace is also obeyed.
     '''
-    def __init__(self, NS={}):
-        self.NS = NS
-        for prefix, uri in NS.items():
+    def __init__ (self, namespace=None):
+        self.namespace = namespace
+        if namespace is None:
+            self.namespace = {}
+
+        for prefix, uri in namespace.items():
             ET.register_namespace(prefix, uri)
-    def resolve(self, name, isElement=True):
+
+    def resolve (self, name, is_element=True):
+        """Procedure to translate a prefixed NAME to its full namespace URI."""
         if ':' in name:
             prefix, suffix = name.split(':' ,1)
-            return f'{{{self.NS[prefix]}}}{suffix}'
-        elif isElement and '' in self.NS:
-            return f'{{{self.NS[""]}}}{name}'
+            return f'{{{self.namespace[prefix]}}}{suffix}'
+
+        if is_element and '' in self.namespace:
+            return f'{{{self.namespace[""]}}}{name}'
+
         return name
-    def child(self, parent, name, attrib={}, text=None):
+
+    def child (self, parent, name, attrib=None, text=None):
+        """Procedure to process a child element including attributes."""
         if parent is not None:
             element = ET.SubElement(parent, self.resolve(name))
         else:
             element = ET.Element(self.resolve(name))
-        for attname, val in attrib.items():
-            element.set(self.resolve(attname, False), val)
+
+        if attrib is not None:
+            for attname, val in attrib.items():
+                element.set(self.resolve(attname, False), val)
+
         if text:
-            element.text = f'{text}'
+            element.text = f"{text}"
+
         return element
-    def child_option(self, parent, name, source, key, attrib={}):
+
+    def child_option (self, parent, name, source, key, attrib=None):
+        """Procedure to process a child element if KEY exists in SOURCE."""
         if key in source:
-            return self.child(parent, name, attrib, f'{source[key]}')
+            return self.child(parent, name, attrib, f"{source[key]}")
         return None
-    def root(self, name, attrib={}, text=None):
+
+    def root(self, name, attrib=None, text=None):
+        """Procedure to find the ElementTree root."""
         return self.child(None, name, attrib, text)
 
-def xml_str(tree, indent=True):
+def serialize_tree_to_string (tree, indent=True):
+    """Procedure to turn the ElementTree into a string."""
     if indent:
         ET.indent(tree)
     return ET.tostring(tree, encoding='utf8', short_empty_elements=True)
 
-def scrub(obj): # move to convenience.py?
-    ''' eliminate from construct of dicts and lists all values x for which bool(x)==False '''
+def scrub(obj):
+    """Eliminate from construct of dicts and lists all values x for which bool(x)==False."""
     if isinstance(obj, dict):
         scrubbed = {key:scrub(val) for key,val in obj.items() if val}
         return {key:val for key,val in scrubbed.items() if val}
-    elif isinstance(obj, list):
+
+    if isinstance(obj, list):
         scrubbed = [scrub(val) for val in obj if val]
         return [val for val in scrubbed if val]
-    elif obj:
-        return obj
 
-def datacite_tree(parameters, debug=False):
+    return obj
+
+def datacite_tree (parameters, debug=False):
+    """Procedure to create a DataCite XML tree from PARAMETERS."""
     parameters = scrub(parameters)
-    NS = {''   : 'http://datacite.org/schema/kernel-4',
+    namespace = {''   : 'http://datacite.org/schema/kernel-4',
           'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
-    maker = ElementMaker(NS)
+    maker = ElementMaker(namespace)
     schema_url = 'http://schema.datacite.org/meta/kernel-4.4/metadata.xsd'
-    root = maker.root('resource', {'xsi:schemaLocation': f'{NS[""]} {schema_url}'})
+    root = maker.root('resource', {'xsi:schemaLocation': f'{namespace[""]} {schema_url}'})
     item = parameters['item']
 
     #01 identifier
@@ -189,7 +213,6 @@ def datacite_tree(parameters, debug=False):
             maker.child(point_element, 'pointLatitude', {}, coordinates['lat_valid'])
 
     #17 fundingReferences
-    fT = 'funding_list'
     if 'fundings' in parameters:
         fundings_element = maker.child(root, 'fundingReferences')
         for funding in parameters['fundings']:
@@ -206,5 +229,6 @@ def datacite_tree(parameters, debug=False):
 
     return root
 
-def datacite(parameters):
-    return xml_str(datacite_tree(parameters))
+def datacite (parameters):
+    """Procedure to create a DataCite XML string from PARAMETERS."""
+    return serialize_tree_to_string (datacite_tree (parameters))

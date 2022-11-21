@@ -5155,7 +5155,7 @@ class ApiServer:
     ## EXPORTS
     ## ------------------------------------------------------------------------
 
-    def __metadata_export_parameters(self, request, dataset_id, version=None, item_type="dataset"):
+    def __metadata_export_parameters (self, request, dataset_id, version=None):
         container = self.__dataset_by_id_or_uri(
             dataset_id,
             is_published=True,
@@ -5224,7 +5224,7 @@ class ApiServer:
 
     def format_datacite(self, request, item_id, version=None, item_type="dataset"):
         """render metadata in datacite format"""
-        parameters = self.__metadata_export_parameters(request, item_id, version, item_type=item_type)
+        parameters = self.__metadata_export_parameters(request, item_id, version)
         return xml_formatter.datacite(parameters)
 
     def ui_export_refworks_dataset (self, request, dataset_id, version=None):
