@@ -849,7 +849,7 @@ function prettify_size (size) {
     let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     if (size == 0 || size == null) return '0 Byte';
     let i = parseInt(Math.floor(Math.log(size) / Math.log(1000)));
-    return Math.round(size / Math.pow(1000, i), 2) + ' ' + sizes[i];
+    return Math.round(size / Math.pow(1000, i)) + ' ' + sizes[i];
 }
 
 function submit_dataset (dataset_uuid, event) {
