@@ -43,10 +43,11 @@ class CacheLayer:
         """Returns the cached value or None."""
         data = None
         try:
-            with open(f"{self.storage}/{prefix}_{key}", "r",
-                      encoding = "utf-8") as file:
-                cached = file.read()
-                data = json.loads(cached)
+            filename = f"{self.storage}/{prefix}_{key}"
+            with open(filename, "r",
+                      encoding = "utf-8") as cache_file:
+                cached = cache_file.read()
+                data   = json.loads(cached)
                 logging.debug("Cache hit for %s.", key)
         except OSError:
             logging.debug("No cached response for %s.", key)
@@ -56,14 +57,18 @@ class CacheLayer:
     def cache_value (self, prefix, key, value, query=None):
         """Procedure to store 'value' as a cache."""
         try:
-            with open(f"{self.storage}/{prefix}_{key}", "w",
-                      encoding = "utf-8") as file:
-                file.write(json.dumps(value))
+            cache_filename = f"{self.storage}/{prefix}_{key}"
+            cache_fd = os.open (cache_filename, os.O_WRONLY | os.O_CREAT, 0o600)
+            with open(cache_fd, "w", encoding = "utf-8") as cache_file:
+                cache_file.write(json.dumps(value))
+                os.fchmod (cache_fd, 0o400)
 
             if query is not None:
-                with open(f"{self.storage}/{prefix}_{key}.sparql", "w",
-                          encoding = "utf-8") as file:
-                    file.write(query)
+                query_filename = f"{self.storage}/{prefix}_{key}.sparql"
+                query_fd = os.open (query_filename, os.O_WRONLY | os.O_CREAT, 0o600)
+                with open(query_fd, "w", encoding = "utf-8") as query_file:
+                    query_file.write(query)
+                    os.fchmod (query_fd, 0o400)
         except OSError:
             logging.error("Failed to save cache for %s.", key)
 
