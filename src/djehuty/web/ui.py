@@ -448,9 +448,10 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 server.saml_config["sp"]["assertionConsumerService"]["url"] = f"{saml_base_url}/login"
                 server.saml_config["idp"]["singleSignOnService"]["binding"] = saml_idp_binding
                 # pylint: enable=unsubscriptable-object
-                config_fd = os.open (filename, os.O_WRONLY | os.O_CREAT, 0o600)
+                config_fd = os.open (filename, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
                 with open (config_fd, "w", encoding="utf-8") as file_stream:
                     json.dump(server.saml_config, file_stream)
+                    os.fchmod(config_fd, 0o400)
                 server.saml_config_path = saml_cache_dir
             else:
                 logging.error ("Failed to create '%s'.", saml_cache_dir)
