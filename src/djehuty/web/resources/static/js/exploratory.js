@@ -11,12 +11,12 @@ function longform_uri (value) {
 }
 
 function draw_grid () {
-    explorer    = d3.select("#data-model-explorer");
-    width       = parseInt(explorer.style("width"));
-    height      = parseInt(explorer.style("height"));
+    let explorer    = d3.select("#data-model-explorer");
+    let width       = parseInt(explorer.style("width"));
+    let height      = parseInt(explorer.style("height"));
 
     explorer.select("#grid").remove()
-    grid = explorer.append("g").attr("id", "grid")
+    let grid = explorer.append("g").attr("id", "grid")
     grid.lower()
     for (let x = 10; x < width; x += 10) {
         // Vertical lines
@@ -37,12 +37,12 @@ function draw_grid () {
 }
 
 function draw_column_title (column, value) {
-    translate_x = 20 + column * 290;
-    explorer    = d3.select("#data-model-explorer");
+    let translate_x = 20 + column * 290;
+    let explorer    = d3.select("#data-model-explorer");
     explorer.selectAll(`.node-${column}-column-title`).remove()
-    title_group = explorer.append("g")
-                          .attr("transform", "translate("+ translate_x +",20)")
-                          .classed(`node-${column}-column-title`, true);
+    let title_group = explorer.append("g")
+        .attr("transform", "translate("+ translate_x +",20)")
+        .classed(`node-${column}-column-title`, true);
     title_group
         .append("text").text(value)
         .attr("transform", "translate(0, 11)")
@@ -50,28 +50,28 @@ function draw_column_title (column, value) {
 }
 
 function resize_svg () {
-    explorer      = d3.select("#data-model-explorer");
+    let explorer      = d3.select("#data-model-explorer");
 
     // Determine the maximum rows to adjust for.
-    column_0_rows = explorer.selectAll(".column-0").size();
-    column_1_rows = explorer.selectAll(".column-1").size();
-    rows          = ((column_0_rows > column_1_rows) ? column_0_rows : column_1_rows);
+    let column_0_rows = explorer.selectAll(".column-0").size();
+    let column_1_rows = explorer.selectAll(".column-1").size();
+    let rows          = ((column_0_rows > column_1_rows) ? column_0_rows : column_1_rows);
 
     // The formula is: header-padding + number-of-rows * height-of-the-row.
-    new_height    = 70 + rows * 40;
+    let new_height    = 70 + rows * 40;
     explorer.style("height", `${new_height}px`);
 }
 
 function draw_node (row, column, value) {
-    translate_x = 20 + column * 290;
-    translate_y = 60 + row * 40;
-    fill_color  = ((row % 2 == 0) ? "#ffffff" : "#eeeeee");
-    explorer    = d3.select("#data-model-explorer");
-    node_group  = explorer.append("g").attr("transform", "translate("+ translate_x +","+ translate_y +")");
+    let translate_x = 20 + column * 290;
+    let translate_y = 60 + row * 40;
+    let fill_color  = ((row % 2 == 0) ? "#ffffff" : "#eeeeee");
+    let explorer    = d3.select("#data-model-explorer");
+    let node_group  = explorer.append("g").attr("transform", "translate("+ translate_x +","+ translate_y +")");
 
     // Re-adjust the height so that all rendered nodes are visible.
-    current_height = parseInt(explorer.style("height"));
-    new_height     = translate_y + 50;
+    let current_height = parseInt(explorer.style("height"));
+    let new_height     = translate_y + 50;
     if (current_height < new_height) {
         explorer.style("height", new_height + "px");
     }
@@ -94,35 +94,35 @@ function draw_node (row, column, value) {
         .on("mouseup",   node_mouseup);
 }
 
-function node_mouseover (event, i) {
-    group = d3.select(this);
-    rect  = group.select("rect");
+function node_mouseover () {
+    let group = d3.select(this);
+    let rect  = group.select("rect");
     rect.style("fill-opacity", ".5");
 }
 
-function node_mouseout (event, i) {
-    group = d3.select(this);
-    rect  = group.select("rect");
+function node_mouseout () {
+    let group = d3.select(this);
+    let rect  = group.select("rect");
     rect.style("fill-opacity", "1");
 }
 
-function node_mouseup (event, i) {
-    group = d3.select(this);
-    rect  = group.select("rect");
+function node_mouseup () {
+    let group = d3.select(this);
+    let rect  = group.select("rect");
     rect.style("fill-opacity", "1");
 }
 
-function node_mousedown (event, i) {
-    group = d3.select(this);
-    rect  = group.select("rect");
-    text  = group.select("text");
+function node_mousedown () {
+    let group = d3.select(this);
+    let rect  = group.select("rect");
+    let text  = group.select("text");
 
     // Reset active node.
     d3.select(".active-node").classed("active-node", false);
     rect.classed("active-node", true);
 
     // Load the next column
-    value = text.text();
+    let value = text.text();
     jQuery.ajax({
         url:         "/v3/explore/properties",
         type:        "GET",
@@ -131,7 +131,7 @@ function node_mousedown (event, i) {
     }).done(function (properties) {
         draw_column_title (1, "Properties");
         d3.selectAll(".column-1").remove();
-        for (index in properties) {
+        for (let index in properties) {
             value = shorthand_uri(properties[index]);
             draw_node (index, 1, value);
         }
@@ -150,8 +150,8 @@ jQuery(document).ready(function () {
     }).done(function (types) {
         draw_column_title (0, "Types");
         d3.selectAll(".column-0").remove();
-        for (index in types) {
-            value = shorthand_uri(types[index]);
+        for (let index in types) {
+            let value = shorthand_uri(types[index]);
             draw_node (index, 0, value);
         }
         resize_svg();
