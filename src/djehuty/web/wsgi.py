@@ -823,18 +823,15 @@ class ApiServer:
                             impersonate = None
 
                 if impersonate is not None:
-                    try:
-                        impersonated_account = self.db.accounts (
-                            id_lte=impersonate,
-                            id_gte=impersonate)[0]
-                        impersonate = impersonated_account["uuid"]
-                        logging.access ("Account %s impersonating account %s.",
-                                        account["uuid"], impersonate)
-                        return impersonate
-                    except (KeyError, IndexError):
-                        pass
+                    impersonated_account = self.db.accounts (
+                        id_lte=impersonate,
+                        id_gte=impersonate)[0]
+                    impersonate = impersonated_account["uuid"]
+                    logging.access ("Account %s impersonating account %s.",
+                                    account["uuid"], impersonate)
+                    return impersonate
 
-        except (KeyError, TypeError):
+        except (KeyError, IndexError, TypeError):
             return account["uuid"]
 
         return account["uuid"]
