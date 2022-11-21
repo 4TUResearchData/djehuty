@@ -53,7 +53,7 @@ class DatabaseInterface:
             logging.error("Error message:\n---\n%s\n---", response.text)
 
         except requests.exceptions.ConnectionError:
-            logging.error("Failed to connect to %s.", metadata_url)
+            logging.error("Failed to connect to %s.", url)
 
         return False
 
