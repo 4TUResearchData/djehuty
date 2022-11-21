@@ -12,7 +12,8 @@ import defusedxml.ElementTree as ET
 from rdflib import Graph, Literal, RDF, RDFS, XSD, URIRef
 import requests
 from requests.utils import requote_uri
-from djehuty.utils.convenience import value_or, value_or_none, custom_field_name
+from djehuty.utils.convenience import value_or, value_or_none
+from djehuty.utils.convenience import custom_field_name, opendap_sizes_to_bytes
 from djehuty.utils import rdf
 
 class DatabaseInterface:
@@ -97,19 +98,10 @@ class DatabaseInterface:
                 logging.debug ("There are no files in %s.", url)
             return total_filesize
 
-        for file in files:
-            units = file.attrib["units"]
-            size  = ast.literal_eval(file.text)
-            if units == "Tbytes":
-                size = size * 1000000000000
-            elif units == "Gbytes":
-                size = size * 1000000000
-            elif units == "Mbytes":
-                size = size * 1000000
-            elif units == "Kbytes":
-                size = size * 1000
-
-            total_filesize += size
+        for single_file in files:
+            units = single_file.attrib["units"]
+            size  = ast.literal_eval(single_file.text)
+            total_filesize += opendap_sizes_to_bytes (size, units)
 
         return total_filesize
 

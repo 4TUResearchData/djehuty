@@ -38,6 +38,21 @@ def pretty_print_size (num_bytes):
 
     return output
 
+def opendap_sizes_to_bytes (size, units):
+    """Return the bytes for a pretty-printed SIZE with UNITS."""
+    output = size
+
+    if units == "Tbytes":
+        output = size * 1000000000000
+    elif units == "Gbytes":
+        output = size * 1000000000
+    elif units == "Mbytes":
+        output = size * 1000000
+    elif units == "Kbytes":
+        output = size * 1000
+
+    return output
+
 def decimal_coord(raw_input, axis, digits=5):
     '''
     Converts txt to string with decimal coordinates or None if invalid.
