@@ -602,6 +602,24 @@ class ApiServer:
 
         return record
 
+    def __pretty_print_dates_for_item (self, item):
+        date_types = (('submitted'   , 'timeline_submission'),
+                      ('first online', 'timeline_first_online'),
+                      ('published'   , 'published_date'),
+                      ('posted'      , 'timeline_posted'),
+                      ('revised'     , 'timeline_revision'))
+        dates = {}
+        for (label, dtype) in date_types:
+            if dtype in item:
+                date_value = value_or_none (item, dtype)
+                if date_value:
+                    date_value = date_value[:10]
+                    if date_value not in dates:
+                        dates[date_value] = []
+                    dates[date_value].append(label)
+        dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
+        return dates
+
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
 
@@ -1858,21 +1876,7 @@ class ApiServer:
             member_url_name = member_url_names[member]
             tags = { t['tag'] for t in tags }
             dataset['timeline_first_online'] = value_or_none (container, 'timeline_first_online')
-            date_types = ( ('submitted'   , 'timeline_submission'),
-                           ('first online', 'timeline_first_online'),
-                           ('published'   , 'published_date'),
-                           ('posted'      , 'timeline_posted'),
-                           ('revised'     , 'timeline_revision') )
-            dates = {}
-            for (label, dtype) in date_types:
-                if dtype in dataset:
-                    date_value = value_or_none (dataset, dtype)
-                    if date_value:
-                        date_value = date_value[:10]
-                        if date_value not in dates:
-                            dates[date_value] = []
-                        dates[date_value].append(label)
-            dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
+            dates = self.__pretty_print_dates_for_item (dataset)
 
             id_version = f'{dataset_id}/{version}' if version else f'{dataset_id}'
 
@@ -1974,22 +1978,7 @@ class ApiServer:
             member_url_name = member_url_names[member]
             tags = { t['tag'] for t in tags }
             collection['timeline_first_online'] = container['timeline_first_online']
-            date_types = ( ('submitted'   , 'timeline_submission'),
-                           ('first online', 'timeline_first_online'),
-                           ('published'   , 'published_date'),
-                           ('posted'      , 'timeline_posted'),
-                           ('revised'     , 'timeline_revision') )
-            dates = {}
-            for (label, dtype) in date_types:
-                if dtype in collection:
-                    date_value = collection[dtype]
-                    if date_value:
-                        date_value = date_value[:10]
-                        if date_value not in dates:
-                            dates[date_value] = []
-                        dates[date_value].append(label)
-            dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
-
+            dates = self.__pretty_print_dates_for_item (self, collection)
             citation = make_citation(authors, collection['timeline_posted'][:4], collection['title'],
                                      collection['version'], 'collection', collection['doi'])
 
