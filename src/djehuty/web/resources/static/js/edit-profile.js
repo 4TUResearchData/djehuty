@@ -1,5 +1,3 @@
-function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
-
 function save_profile (account_uuid) {
     event.preventDefault();
     event.stopPropagation();
