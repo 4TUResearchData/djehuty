@@ -1845,18 +1845,15 @@ class ApiServer:
 
             dataset       = None
             try:
-                dataset   = self.db.datasets (container_uuid= container["container_uuid"],
-                                              version       = current_version,
-                                              is_published  = True)[0]
-            except IndexError:
-                try:
-                    if not private_view:
-                        return self.error_403 (request)
-
+                if private_view:
                     dataset = self.db.datasets (container_uuid = container["container_uuid"],
                                                 is_published   = False)[0]
-                except IndexError:
-                    return self.error_403 (request)
+                else:
+                    dataset = self.db.datasets (container_uuid= container["container_uuid"],
+                                                version       = current_version,
+                                                is_published  = True)[0]
+            except IndexError:
+                return self.error_403 (request)
 
             dataset_uri   = container['uri']
             authors       = self.db.authors(item_uri=dataset_uri, limit=None)
