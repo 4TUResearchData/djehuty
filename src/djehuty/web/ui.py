@@ -60,6 +60,311 @@ def config_value (xml_root, path, command_line=None, fallback=None):
     ## Fall back to the fallback value.
     return fallback
 
+def read_saml_configuration (server, xml_root):
+    """Read the SAML configuration from XML_ROOT."""
+
+    saml = xml_root.find("authentication/saml")
+    if not saml:
+        return None
+
+    saml_version = None
+    if "version" in saml.attrib:
+        saml_version = saml.attrib["version"]
+
+    if saml_version != "2.0":
+        logging.error ("Only SAML 2.0 is supported.")
+        raise UnsupportedSAMLProtocol
+
+    saml_strict = bool(int(config_value (saml, "strict", None, True)))
+    saml_debug  = bool(int(config_value (saml, "debug", None, False)))
+
+    ## Service Provider settings
+    service_provider     = saml.find ("service-provider")
+    if service_provider is None:
+        logging.error ("Missing service-provider information for SAML.")
+
+    saml_sp_x509         = config_value (service_provider, "x509-certificate")
+    saml_sp_private_key  = config_value (service_provider, "private-key")
+
+    ## Service provider metadata
+    sp_metadata          = service_provider.find ("metadata")
+    if sp_metadata is None:
+        logging.error ("Missing service provider's metadata for SAML.")
+
+    organization_name    = config_value (sp_metadata, "display-name")
+    organization_url     = config_value (sp_metadata, "url")
+
+    sp_tech_contact      = sp_metadata.find ("./contact[@type='technical']")
+    if sp_tech_contact is None:
+        logging.error ("Missing technical contact information for SAML.")
+    sp_tech_email        = config_value (sp_tech_contact, "email")
+    if sp_tech_email is None:
+        sp_tech_email = "-"
+
+    sp_admin_contact     = sp_metadata.find ("./contact[@type='administrative']")
+    if sp_admin_contact is None:
+        logging.error ("Missing administrative contact information for SAML.")
+    sp_admin_email        = config_value (sp_admin_contact, "email")
+    if sp_admin_email is None:
+        sp_admin_email = "-"
+
+    sp_support_contact   = sp_metadata.find ("./contact[@type='support']")
+    if sp_support_contact is None:
+        logging.error ("Missing support contact information for SAML.")
+    sp_support_email        = config_value (sp_support_contact, "email")
+    if sp_support_email is None:
+        sp_support_email = "-"
+
+    ## Identity Provider settings
+    identity_provider    = saml.find ("identity-provider")
+    if identity_provider is None:
+        logging.error ("Missing identity-provider information for SAML.")
+
+    saml_idp_entity_id   = config_value (identity_provider, "entity-id")
+    saml_idp_x509        = config_value (identity_provider, "x509-certificate")
+
+    sso_service          = identity_provider.find ("single-signon-service")
+    if sso_service is None:
+        logging.error ("Missing SSO information of the identity-provider for SAML.")
+
+    saml_idp_sso_url     = config_value (sso_service, "url")
+    saml_idp_sso_binding = config_value (sso_service, "binding")
+
+    server.identity_provider = "saml"
+
+    ## Create an almost-ready-to-serialize configuration structure.
+    ## The SP entityId will and ACS URL be generated at a later time.
+    server.saml_config = {
+        "strict": saml_strict,
+        "debug":  saml_debug,
+        "sp": {
+            "entityId": None,
+            "assertionConsumerService": {
+                "url": None,
+                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+            },
+            "singleLogoutService": {
+                "url": None,
+                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+            },
+            "NameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+            "x509cert": saml_sp_x509,
+            "privateKey": saml_sp_private_key
+        },
+        "idp": {
+            "entityId": saml_idp_entity_id,
+            "singleSignOnService": {
+                "url": saml_idp_sso_url,
+                "binding": saml_idp_sso_binding
+            },
+            "singleLogoutService": {
+                "url": None,
+                "binding": None
+            },
+            "x509cert": saml_idp_x509
+        },
+        "security": {
+            "nameIdEncrypted": False,
+            "authnRequestsSigned": True,
+            "logoutRequestSigned": True,
+            "logoutResponseSigned": True,
+            "signMetadata": True,
+            "wantMessagesSigned": False,
+            "wantAssertionsSigned": False,
+            "wantNameId" : True,
+            "wantNameIdEncrypted": False,
+            "wantAssertionsEncrypted": False,
+            "allowSingleLabelDomains": False,
+            "signatureAlgorithm": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+            "digestAlgorithm": "http://www.w3.org/2001/04/xmlenc#sha256",
+            "rejectDeprecatedAlgorithm": True
+        },
+        "contactPerson": {
+            "technical": {
+                "givenName": "Technical support",
+                "emailAddress": sp_tech_email
+            },
+            "support": {
+                "givenName": "General support",
+                "emailAddress": sp_support_email
+            },
+            "administrative": {
+                "givenName": "Administrative support",
+                "emailAddress": sp_admin_email
+            }
+        },
+        "organization": {
+            "nl": {
+                "name": organization_name,
+                "displayname": organization_name,
+                "url": organization_url
+            },
+            "en": {
+                "name": organization_name,
+                "displayname": organization_name,
+                "url": organization_url
+            }
+        }
+    }
+
+    del saml_sp_x509
+    del saml_sp_private_key
+    return None
+
+def setup_saml_service_provider (server):
+    """Write the SAML configuration file to disk and set up its metadata."""
+    ## python3-saml wants to read its configuration from a file,
+    ## but unfortunately we can only indicate the directory for that
+    ## file.  Therefore, we create a separate directory in the cache
+    ## for this purpose and place the file in that directory.
+    if server.identity_provider == "saml":
+        if not SAML2_DEPENDENCY_LOADED:
+            logging.error ("Missing python3-saml dependency.")
+            logging.error ("Cannot initiate authentication with SAML.")
+            raise DependencyNotAvailable
+
+        saml_cache_dir = os.path.join(server.db.cache.storage, "saml-config")
+        os.makedirs (saml_cache_dir, mode=0o700, exist_ok=True)
+        if os.path.isdir (saml_cache_dir):
+            filename  = os.path.join (saml_cache_dir, "settings.json")
+            saml_base_url = f"{server.base_url}/saml"
+            saml_idp_binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+            # pylint: disable=unsubscriptable-object
+            # PyLint assumes server.saml_config is None, but we can be certain
+            # it contains a saml configuration, because otherwise
+            # server.identity_provider wouldn't be set to "saml".
+            server.saml_config["sp"]["entityId"] = saml_base_url
+            server.saml_config["sp"]["assertionConsumerService"]["url"] = f"{saml_base_url}/login"
+            server.saml_config["idp"]["singleSignOnService"]["binding"] = saml_idp_binding
+            # pylint: enable=unsubscriptable-object
+            config_fd = os.open (filename, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with open (config_fd, "w", encoding="utf-8") as file_stream:
+                json.dump(server.saml_config, file_stream)
+                os.fchmod(config_fd, 0o400)
+            server.saml_config_path = saml_cache_dir
+        else:
+            logging.error ("Failed to create '%s'.", saml_cache_dir)
+
+def read_privilege_configuration (server, xml_root):
+    """Read the privileges configureation from XML_ROOT."""
+    privileges = xml_root.find("privileges")
+    if not privileges:
+        return None
+
+    for account in privileges:
+        try:
+            email = account.attrib["email"]
+            orcid = None
+            if "orcid" in account.attrib:
+                orcid = account.attrib["orcid"]
+
+            server.db.privileges[email] = {
+                "may_administer":  bool(int(config_value (account, "may-administer", None, False))),
+                "may_impersonate": bool(int(config_value (account, "may-impersonate", None, False))),
+                "may_review":      bool(int(config_value (account, "may-review", None, False))),
+                "orcid":           orcid
+            }
+        except KeyError as error:
+            logging.error ("Missing %s attribute for a privilege configuration.", error)
+        except ValueError as error:
+            logging.error ("Privilege configuration error: %s", error)
+
+    return None
+
+def configure_file_logging (log_file, inside_reload):
+    """Procedure to set up logging to a file."""
+    is_writeable = False
+    log_file     = os.path.abspath (log_file)
+    try:
+        with open (log_file, "a", encoding = "utf-8"):
+            is_writeable = True
+    except (PermissionError, FileNotFoundError):
+        pass
+
+    if not is_writeable:
+        if not inside_reload:
+            logging.warning ("Cannot write to '%s'.", log_file)
+    else:
+        file_handler = logging.FileHandler (log_file, 'a')
+        if not inside_reload:
+            logging.info ("Writing further messages to '%s'.", log_file)
+
+        formatter    = logging.Formatter('[ %(levelname)s ] %(asctime)s: %(message)s')
+        file_handler.setFormatter(formatter)
+        file_handler.setLevel(logging.INFO)
+        logger       = logging.getLogger()
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
+        logger.addHandler(file_handler)
+
+def read_menu_configuration (xml_root, server, inside_reload):
+    """Procedure to parse the menu configuration from XML_ROOT."""
+    menu = xml_root.find("menu")
+    if not menu:
+        return None
+
+    for primary_menu_item in menu:
+        submenu = []
+        for submenu_item in primary_menu_item:
+            if submenu_item.tag == "sub-menu":
+                submenu.append({
+                    "title": config_value (submenu_item, "title"),
+                    "href":  config_value (submenu_item, "href")
+                })
+
+        server.menu.append({
+            "title":   config_value (primary_menu_item, "title"),
+            "submenu": submenu
+        })
+
+    if not inside_reload:
+        logging.info("Menu structure loaded")
+
+    return None
+
+def read_static_pages (static_pages, server, inside_reload, config_dir):
+    """Procedure to parse and register static pages."""
+    for page in static_pages:
+        uri_path        = config_value (page, "uri-path")
+        filesystem_path = config_value (page, "filesystem-path")
+        redirect_to     = page.find("redirect-to")
+
+        if uri_path is not None and filesystem_path is not None:
+            if not os.path.isabs(filesystem_path):
+                # take filesystem_path relative to config_dir and turn into absolute path
+                filesystem_path = os.path.abspath(os.path.join(config_dir, filesystem_path))
+
+            server.static_pages[uri_path] = {"filesystem-path": filesystem_path}
+            if not inside_reload:
+                logging.info ("Added static page: %s -> %s", uri_path, filesystem_path)
+                logging.info("Related filesystem path: %s", filesystem_path)
+
+        if uri_path is not None and redirect_to is not None:
+            code = 302
+            if "code" in redirect_to.attrib:
+                code = int(redirect_to.attrib["code"])
+            server.static_pages[uri_path] = {"redirect-to": redirect_to.text, "code": code}
+            if not inside_reload:
+                logging.info ("Added static page: %s", uri_path)
+                logging.info ("Related redirect-to (%i) page: %s ", code, redirect_to.text)
+
+def read_datacite_configuration (server, xml_root):
+    """Procedure to parse and set the DataCite API configuration."""
+    datacite = xml_root.find("datacite")
+    if not datacite:
+        server.datacite_url      = config_value (datacite, "api-url")
+        server.datacite_id       = config_value (datacite, "repository-id")
+        server.datacite_password = config_value (datacite, "password")
+        server.datacite_prefix   = config_value (datacite, "prefix")
+
+def read_orcid_configuration (server, xml_root):
+    """Procedure to parse and set the ORCID API configuration."""
+    orcid = xml_root.find("authentication/orcid")
+    if orcid:
+        server.orcid_client_id     = config_value (orcid, "client-id")
+        server.orcid_client_secret = config_value (orcid, "client-secret")
+        server.orcid_endpoint      = config_value (orcid, "endpoint")
+        server.identity_provider   = "orcid"
 
 def read_configuration_file (server, config_file, address, port, state_graph,
                              storage, cache, base_url, use_debugger,
@@ -82,31 +387,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         config_dir = os.path.dirname(config_file)
         log_file = config_value (xml_root, "log-file", None, None)
         if log_file is not None:
-            is_writeable = False
-            log_file     = os.path.abspath (log_file)
-            try:
-                with open (log_file, "a", encoding = "utf-8"):
-                    is_writeable = True
-            except PermissionError:
-                pass
-            except FileNotFoundError:
-                pass
-
-            if not is_writeable:
-                if not inside_reload:
-                    logging.warning ("Cannot write to '%s'.", log_file)
-            else:
-                file_handler = logging.FileHandler (log_file, 'a')
-                if not inside_reload:
-                    logging.info ("Writing further messages to '%s'.", log_file)
-
-                formatter    = logging.Formatter('[ %(levelname)s ] %(asctime)s: %(message)s')
-                file_handler.setFormatter(formatter)
-                file_handler.setLevel(logging.INFO)
-                logger       = logging.getLogger()
-                for handler in logger.handlers[:]:
-                    logger.removeHandler(handler)
-                logger.addHandler(file_handler)
+            configure_file_logging (log_file, inside_reload)
 
         config["address"]       = config_value (xml_root, "bind-address", address, "127.0.0.1")
         config["port"]          = int(config_value (xml_root, "port", port, 8080))
@@ -131,184 +412,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if not xml_root:
             return config
 
-        orcid = xml_root.find("authentication/orcid")
-        if orcid:
-            server.orcid_client_id     = config_value (orcid, "client-id")
-            server.orcid_client_secret = config_value (orcid, "client-secret")
-            server.orcid_endpoint      = config_value (orcid, "endpoint")
-            server.identity_provider   = "orcid"
-
-        datacite = xml_root.find("datacite")
-        if datacite:
-            server.datacite_url      = config_value (datacite, "api-url")
-            server.datacite_id       = config_value (datacite, "repository-id")
-            server.datacite_password = config_value (datacite, "password")
-            server.datacite_prefix   = config_value (datacite, "prefix")
-
-        saml = xml_root.find("authentication/saml")
-        if saml:
-            saml_version = None
-            if "version" in saml.attrib:
-                saml_version = saml.attrib["version"]
-
-            if saml_version != "2.0":
-                logging.error ("Only SAML 2.0 is supported.")
-                raise UnsupportedSAMLProtocol
-
-            saml_strict = bool(int(config_value (saml, "strict", None, True)))
-            saml_debug  = bool(int(config_value (saml, "debug", None, False)))
-
-            ## Service Provider settings
-            service_provider     = saml.find ("service-provider")
-            if service_provider is None:
-                logging.error ("Missing service-provider information for SAML.")
-
-            saml_sp_x509         = config_value (service_provider, "x509-certificate")
-            saml_sp_private_key  = config_value (service_provider, "private-key")
-
-            ## Service provider metadata
-            sp_metadata          = service_provider.find ("metadata")
-            if sp_metadata is None:
-                logging.error ("Missing service provider's metadata for SAML.")
-
-            organization_name    = config_value (sp_metadata, "display-name")
-            organization_url     = config_value (sp_metadata, "url")
-
-            sp_tech_contact      = sp_metadata.find ("./contact[@type='technical']")
-            if sp_tech_contact is None:
-                logging.error ("Missing technical contact information for SAML.")
-            sp_tech_email        = config_value (sp_tech_contact, "email")
-            if sp_tech_email is None:
-                sp_tech_email = "-"
-
-            sp_admin_contact     = sp_metadata.find ("./contact[@type='administrative']")
-            if sp_admin_contact is None:
-                logging.error ("Missing administrative contact information for SAML.")
-            sp_admin_email        = config_value (sp_admin_contact, "email")
-            if sp_admin_email is None:
-                sp_admin_email = "-"
-
-            sp_support_contact   = sp_metadata.find ("./contact[@type='support']")
-            if sp_support_contact is None:
-                logging.error ("Missing support contact information for SAML.")
-            sp_support_email        = config_value (sp_support_contact, "email")
-            if sp_support_email is None:
-                sp_support_email = "-"
-
-            ## Identity Provider settings
-            identity_provider    = saml.find ("identity-provider")
-            if identity_provider is None:
-                logging.error ("Missing identity-provider information for SAML.")
-
-            saml_idp_entity_id   = config_value (identity_provider, "entity-id")
-            saml_idp_x509        = config_value (identity_provider, "x509-certificate")
-
-            sso_service          = identity_provider.find ("single-signon-service")
-            if sso_service is None:
-                logging.error ("Missing SSO information of the identity-provider for SAML.")
-
-            saml_idp_sso_url     = config_value (sso_service, "url")
-            saml_idp_sso_binding = config_value (sso_service, "binding")
-
-            server.identity_provider = "saml"
-
-            ## Create an almost-ready-to-serialize configuration structure.
-            ## The SP entityId will and ACS URL be generated at a later time.
-            server.saml_config = {
-                "strict": saml_strict,
-                "debug":  saml_debug,
-                "sp": {
-                    "entityId": None,
-                    "assertionConsumerService": {
-                        "url": None,
-                        "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                    },
-                    "singleLogoutService": {
-                        "url": None,
-                        "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                    },
-                    "NameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
-                    "x509cert": saml_sp_x509,
-                    "privateKey": saml_sp_private_key
-                },
-                "idp": {
-                    "entityId": saml_idp_entity_id,
-                    "singleSignOnService": {
-                        "url": saml_idp_sso_url,
-                        "binding": saml_idp_sso_binding
-                    },
-                    "singleLogoutService": {
-                        "url": None,
-                        "binding": None
-                    },
-                    "x509cert": saml_idp_x509
-                },
-                "security": {
-                    "nameIdEncrypted": False,
-                    "authnRequestsSigned": True,
-                    "logoutRequestSigned": True,
-                    "logoutResponseSigned": True,
-                    "signMetadata": True,
-                    "wantMessagesSigned": False,
-                    "wantAssertionsSigned": False,
-                    "wantNameId" : True,
-                    "wantNameIdEncrypted": False,
-                    "wantAssertionsEncrypted": False,
-                    "allowSingleLabelDomains": False,
-                    "signatureAlgorithm": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
-                    "digestAlgorithm": "http://www.w3.org/2001/04/xmlenc#sha256",
-                    "rejectDeprecatedAlgorithm": True
-                },
-                "contactPerson": {
-                    "technical": {
-                        "givenName": "Technical support",
-                        "emailAddress": sp_tech_email
-                    },
-                    "support": {
-                        "givenName": "General support",
-                        "emailAddress": sp_support_email
-                    },
-                    "administrative": {
-                        "givenName": "Administrative support",
-                        "emailAddress": sp_admin_email
-                    }
-                },
-                "organization": {
-                    "nl": {
-                        "name": organization_name,
-                        "displayname": organization_name,
-                        "url": organization_url
-                    },
-                    "en": {
-                        "name": organization_name,
-                        "displayname": organization_name,
-                        "url": organization_url
-                    }
-                }
-            }
-
-            del saml_sp_x509
-            del saml_sp_private_key
-
-        privileges = xml_root.find("privileges")
-        if privileges:
-            for account in privileges:
-                try:
-                    email = account.attrib["email"]
-                    orcid = None
-                    if "orcid" in account.attrib:
-                        orcid = account.attrib["orcid"]
-
-                    server.db.privileges[email] = {
-                        "may_administer":  bool(int(config_value (account, "may-administer", None, False))),
-                        "may_impersonate": bool(int(config_value (account, "may-impersonate", None, False))),
-                        "may_review":      bool(int(config_value (account, "may-review", None, False))),
-                        "orcid":           orcid
-                    }
-                except KeyError as error:
-                    logging.error ("Missing %s attribute for a privilege configuration.", error)
-                except ValueError as error:
-                    logging.error ("Privilege configuration error: %s", error)
+        read_orcid_configuration (server, xml_root)
+        read_datacite_configuration (server, xml_root)
+        read_saml_configuration (server, xml_root)
+        read_privilege_configuration (server, xml_root)
 
         for include_element in xml_root.iter('include'):
             include    = include_element.text
@@ -331,24 +438,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                                                   config["use_reloader"])
             config = { **config, **new_config }
 
-        menu = xml_root.find("menu")
-        if menu:
-            for primary_menu_item in menu:
-                submenu = []
-                for submenu_item in primary_menu_item:
-                    if submenu_item.tag == "sub-menu":
-                        submenu.append({
-                            "title": config_value (submenu_item, "title"),
-                            "href":  config_value (submenu_item, "href")
-                        })
-
-                server.menu.append({
-                    "title":   config_value (primary_menu_item, "title"),
-                    "submenu": submenu
-                })
-
-            if not inside_reload:
-                logging.info("Menu structure loaded")
+        read_menu_configuration (xml_root, server, inside_reload)
 
         static_pages = xml_root.find("static-pages")
         if not static_pages:
@@ -361,29 +451,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if (server.add_static_root ("/s", resources_root) and not inside_reload):
             logging.info ("Added static root: %s", resources_root)
 
-        for page in static_pages:
-            uri_path        = config_value (page, "uri-path")
-            filesystem_path = config_value (page, "filesystem-path")
-            redirect_to     = page.find("redirect-to")
-
-            if uri_path is not None and filesystem_path is not None:
-                if not os.path.isabs(filesystem_path):
-                    # take filesystem_path relative to config_dir and turn into absolute path
-                    filesystem_path = os.path.abspath(os.path.join(config_dir, filesystem_path))
-
-                server.static_pages[uri_path] = {"filesystem-path": filesystem_path}
-                if not inside_reload:
-                    logging.info ("Added static page: %s -> %s", uri_path, filesystem_path)
-                    logging.info("Related filesystem path: %s", filesystem_path)
-
-            if uri_path is not None and redirect_to is not None:
-                code = 302
-                if "code" in redirect_to.attrib:
-                    code = int(redirect_to.attrib["code"])
-                server.static_pages[uri_path] = {"redirect-to": redirect_to.text, "code": code}
-                if not inside_reload:
-                    logging.info ("Added static page: %s", uri_path)
-                    logging.info ("Related redirect-to (%i) page: %s ", code, redirect_to.text)
+        read_static_pages (static_pages, server, inside_reload, config_dir)
 
         return config
 
@@ -424,37 +492,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
         if not server.db.cache.cache_is_ready() and not inside_reload:
             logging.error("Failed to set up cache layer.")
 
-        ## python3-saml wants to read its configuration from a file,
-        ## but unfortunately we can only indicate the directory for that
-        ## file.  Therefore, we create a separate directory in the cache
-        ## for this purpose and place the file in that directory.
-        if server.identity_provider == "saml":
-            if not SAML2_DEPENDENCY_LOADED:
-                logging.error ("Missing python3-saml dependency.")
-                logging.error ("Cannot initiate authentication with SAML.")
-                raise DependencyNotAvailable
-
-            saml_cache_dir = os.path.join(server.db.cache.storage, "saml-config")
-            os.makedirs (saml_cache_dir, mode=0o700, exist_ok=True)
-            if os.path.isdir (saml_cache_dir):
-                filename  = os.path.join (saml_cache_dir, "settings.json")
-                saml_base_url = f"{server.base_url}/saml"
-                saml_idp_binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                # pylint: disable=unsubscriptable-object
-                # PyLint assumes server.saml_config is None, but we can be certain
-                # it contains a saml configuration, because otherwise
-                # server.identity_provider wouldn't be set to "saml".
-                server.saml_config["sp"]["entityId"] = saml_base_url
-                server.saml_config["sp"]["assertionConsumerService"]["url"] = f"{saml_base_url}/login"
-                server.saml_config["idp"]["singleSignOnService"]["binding"] = saml_idp_binding
-                # pylint: enable=unsubscriptable-object
-                config_fd = os.open (filename, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-                with open (config_fd, "w", encoding="utf-8") as file_stream:
-                    json.dump(server.saml_config, file_stream)
-                    os.fchmod(config_fd, 0o400)
-                server.saml_config_path = saml_cache_dir
-            else:
-                logging.error ("Failed to create '%s'.", saml_cache_dir)
+        setup_saml_service_provider (server)
 
         if not server.in_production and not inside_reload:
             logging.warning ("Assuming to run in a non-production environment.")
