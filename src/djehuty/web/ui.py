@@ -350,7 +350,7 @@ def read_static_pages (static_pages, server, inside_reload, config_dir):
 def read_datacite_configuration (server, xml_root):
     """Procedure to parse and set the DataCite API configuration."""
     datacite = xml_root.find("datacite")
-    if not datacite:
+    if datacite:
         server.datacite_url      = config_value (datacite, "api-url")
         server.datacite_id       = config_value (datacite, "repository-id")
         server.datacite_password = config_value (datacite, "password")
