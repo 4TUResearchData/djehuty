@@ -832,8 +832,8 @@ class ApiServer:
                         id_lte=impersonate,
                         id_gte=impersonate)[0]
                     impersonate = impersonated_account["uuid"]
-                    logging.access ("Account %s impersonating account %s.",
-                                    account["uuid"], impersonate)  #  pylint: disable=no-member
+                    logging.access ("Account %s impersonating account %s.", #  pylint: disable=no-member
+                                    account["uuid"], impersonate)
                     return impersonate
 
         except (KeyError, IndexError, TypeError):
@@ -1977,7 +1977,7 @@ class ApiServer:
             member_url_name = member_url_names[member]
             tags = { t['tag'] for t in tags }
             collection['timeline_first_online'] = container['timeline_first_online']
-            dates = self.__pretty_print_dates_for_item (self, collection)
+            dates = self.__pretty_print_dates_for_item (collection)
             citation = make_citation(authors, collection['timeline_posted'][:4], collection['title'],
                                      collection['version'], 'collection', collection['doi'])
 
@@ -5223,14 +5223,14 @@ class ApiServer:
 
     def export_datacite (self, request, item_id, version=None, item_type="dataset"):
         """export metadata in datacite format"""
-        xml_string = self.format_datacite(request, item_id, version, item_type=item_type)
+        xml_string = self.format_datacite(request, item_id, version)
         output = Response(xml_string, mimetype="application/xml; charset=utf-8")
         output.headers["Server"] = "4TU.ResearchData API"
         version_string = f'_v{version}' if version else ''
         output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_datacite.xml"
         return output
 
-    def format_datacite(self, request, item_id, version=None, item_type="dataset"):
+    def format_datacite(self, request, item_id, version=None):
         """render metadata in datacite format"""
         parameters = self.__metadata_export_parameters(request, item_id, version)
         return xml_formatter.datacite(parameters)
@@ -5311,9 +5311,11 @@ class ApiServer:
                                            headers=headers, **parameters)
 
     def parse_organizations (self, text):
+        """Obscure procedure to split organizations by semicolon."""
         return [x for x in re.split(r'\s*[;\n]\s*', text) if x != '']
 
     def parse_contributors (self, text):
+        """Procedure to split contributors by semicolon."""
         contributors = []
         for contributor in text.split(';\n'):
             if contributor:
