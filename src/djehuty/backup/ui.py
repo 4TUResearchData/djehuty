@@ -88,6 +88,11 @@ def process_author_links_for_account (endpoint, account):
 
     return { "written": written, "failed": failed }
 
+def show_if_relevant (score, suffix, prefix):
+    """Emits a log message when SCORE > 0."""
+    if score > 0:
+        logging.info("%s processed %d %s.", prefix, score, suffix)
+
 def main (figshare_token, figshare_stats_auth, account_id, api_url):
     """The main entry point for the 'backup' subcommand."""
 
@@ -162,23 +167,15 @@ def main (figshare_token, figshare_stats_auth, account_id, api_url):
     logging.info ("Serializing the RDF triplets...")
     endpoint.rdf_store.serialize ()
 
-    if accounts_written > 0:
-        logging.info("Succesfully processed %d accounts.", accounts_written)
-    if datasets_written > 0:
-        logging.info("Succesfully processed %d datasets.", datasets_written)
-    if collections_written > 0:
-        logging.info("Succesfully processed %d collections.", collections_written)
-    if author_links_written > 0:
-        logging.info("Succesfully linked %d authors to accounts.", author_links_written)
+    show_if_relevant (accounts_written,     "accounts",            "Succesfully")
+    show_if_relevant (datasets_written,     "datasets",            "Succesfully")
+    show_if_relevant (collections_written,  "collections",         "Succesfully")
+    show_if_relevant (author_links_written, "authors to accounts", "Succesfully linked")
 
-    if accounts_failed > 0:
-        logging.info("Failed to process %d accounts.", accounts_failed)
-    if datasets_failed > 0:
-        logging.info("Failed to process %d datasets.", datasets_failed)
-    if collections_failed > 0:
-        logging.info("Failed to process %d collections.", collections_failed)
-    if author_links_failed > 0:
-        logging.info("Failed to link %d authors to accounts.", author_links_failed)
+    show_if_relevant (accounts_failed,     "accounts",            "Failed")
+    show_if_relevant (datasets_failed,     "datasets",            "Failed")
+    show_if_relevant (collections_failed,  "collections",         "Failed")
+    show_if_relevant (author_links_failed, "authors to accounts", "Failed to link")
 
     end_time      = time.perf_counter()
     logging.info ("This run took %.2f seconds", end_time - start_time)
