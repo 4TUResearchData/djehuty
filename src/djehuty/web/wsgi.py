@@ -932,13 +932,13 @@ class ApiServer:
 
             response     = redirect ("/my/dashboard", code=302)
             account_uuid = self.db.account_uuid_by_orcid (orcid_record['orcid'])
-            logging.access ("Account %s logged in via ORCID.", account_uuid)
+            logging.access ("Account %s logged in via ORCID.", account_uuid) #  pylint: disable=no-member
 
             if account_uuid is None:
                 return self.error_403 (request)
 
             token, session_uuid = self.db.insert_session (account_uuid, name="Website login")
-            logging.access ("Created session %s for account %s.", session_uuid, account_uuid)
+            logging.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
 
             response.set_cookie (key=self.cookie_key, value=token,
                                  secure=self.in_production)
@@ -974,17 +974,17 @@ class ApiServer:
                     account_uuid = None
                     if account:
                         account_uuid = account["uuid"]
-                        logging.access ("Account %s logged in via SAML.", account_uuid)
+                        logging.access ("Account %s logged in via SAML.", account_uuid) #  pylint: disable=no-member
                     else:
                         account_uuid = self.db.insert_account (
                             email      = saml_record["email"],
                             first_name = value_or_none (saml_record, "first_name"),
                             last_name  = value_or_none (saml_record, "last_name")
                         )
-                        logging.access ("Account %s created via SAML.", account_uuid)
+                        logging.access ("Account %s created via SAML.", account_uuid) #  pylint: disable=no-member
 
                     token, session_uuid = self.db.insert_session (account_uuid, name="Website login")
-                    logging.access ("Created session %s for account %s.", session_uuid, account_uuid)
+                    logging.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
                     response.set_cookie (key=self.cookie_key, value=token,
                                          secure=self.in_production)
 
