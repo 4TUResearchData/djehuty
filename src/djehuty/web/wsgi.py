@@ -473,7 +473,7 @@ class ApiServer:
         if request.method != method:
             return self.error_405 (method)
 
-        if not self.accepts_json(request):
+        if not self.accepts_content_type (request, content_type, strict=False):
             return self.error_406 (content_type)
 
         return None
@@ -745,14 +745,19 @@ class ApiServer:
     ## CONVENIENCE PROCEDURES
     ## ------------------------------------------------------------------------
 
-    def accepts_content_type (self, request, content_type):
+    def accepts_content_type (self, request, content_type, strict=True):
         """Procedure to check whether the client accepts a content type."""
         try:
             acceptable = request.headers['Accept']
             if not acceptable:
                 return False
 
-            return content_type in acceptable
+            exact_match  = content_type in acceptable
+            if strict and exact_match:
+                return exact_match
+
+            global_match = "*/*" in acceptable
+            return global_match
         except KeyError:
             return False
 
@@ -767,8 +772,7 @@ class ApiServer:
 
     def accepts_json (self, request):
         """Procedure to check whether the client accepts JSON."""
-        return (self.accepts_content_type (request, "application/json") or
-                self.accepts_content_type (request, "*/*"))
+        return self.accepts_content_type (request, "application/json", strict=False)
 
     def contains_json (self, request):
         """Procedure to check whether the client sent JSON data."""
