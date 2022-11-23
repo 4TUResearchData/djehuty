@@ -194,6 +194,7 @@ class ApiServer:
 
             ## Private authors
             Rule("/v2/account/authors/search",                endpoint = "api_private_authors_search"),
+            Rule("/v2/account/authors/<author_id>",           endpoint = "api_private_author_details"),
 
             ## Other
             ## ----------------------------------------------------------------
@@ -4212,6 +4213,26 @@ class ApiServer:
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
+
+    def api_private_author_details (self, request, author_id):
+        """Implements /v2/account/authors/<id>."""
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_request (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        try:
+            if parses_to_int (author_id):
+                author = self.db.authors(author_id=int(author_id))[0]
+
+            return self.response (json.dumps (formatter.format_author_details_record (author)))
+        except IndexError:
+            pass
+
+        return self.error_403 (request)
 
     def api_private_funding_search (self, request):
         """Implements /v2/account/funding/search."""
