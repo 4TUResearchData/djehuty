@@ -753,11 +753,11 @@ class ApiServer:
                 return False
 
             exact_match  = content_type in acceptable
-            if strict and exact_match:
+            if strict:
                 return exact_match
 
             global_match = "*/*" in acceptable
-            return global_match
+            return global_match or exact_match
         except KeyError:
             return False
 
