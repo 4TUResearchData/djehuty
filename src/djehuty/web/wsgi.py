@@ -828,7 +828,7 @@ class ApiServer:
                         id_gte=impersonate)[0]
                     impersonate = impersonated_account["uuid"]
                     logging.access ("Account %s impersonating account %s.",
-                                    account["uuid"], impersonate)
+                                    account["uuid"], impersonate)  #  pylint: disable=no-member
                     return impersonate
 
         except (KeyError, IndexError, TypeError):
