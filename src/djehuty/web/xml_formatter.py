@@ -16,7 +16,7 @@ class ElementMaker:
     '''
     def __init__ (self, namespace=None):
         self.namespace = namespace
-        if namespace is None:
+        if self.namespace is None:
             self.namespace = {}
 
         for prefix, uri in namespace.items():
