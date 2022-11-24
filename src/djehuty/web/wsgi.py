@@ -1097,7 +1097,7 @@ class ApiServer:
 
         token = self.token_from_cookie (request)
         if not self.db.is_depositor (token):
-            return self.error_404 (request)
+            return self.error_403 (request)
 
         account_uuid = self.account_uuid_from_request (request)
         storage_used = self.db.account_storage_used (account_uuid)
@@ -1118,7 +1118,7 @@ class ApiServer:
 
         token = self.token_from_cookie (request)
         if not self.db.is_depositor (token):
-            return self.error_404 (request)
+            return self.error_403 (request)
 
         draft_datasets = self.db.datasets (account_uuid = account_uuid,
                                            limit        = 10000,
@@ -1184,7 +1184,7 @@ class ApiServer:
 
         token = self.token_from_cookie (request)
         if not self.db.is_depositor (token):
-            return self.error_404 (request)
+            return self.error_403 (request)
 
         container_uuid, _ = self.db.insert_dataset(title = "Untitled item",
                                                    account_uuid = account_uuid)
@@ -1204,7 +1204,7 @@ class ApiServer:
 
         token = self.token_from_cookie (request)
         if not self.db.is_depositor (token):
-            return self.error_404 (request)
+            return self.error_403 (request)
 
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id,
@@ -1255,7 +1255,7 @@ class ApiServer:
 
         token = self.token_from_cookie (request)
         if not self.db.is_depositor (token):
-            return self.error_404 (request)
+            return self.error_403 (request)
 
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id,
@@ -1336,7 +1336,7 @@ class ApiServer:
 
         token = self.token_from_cookie (request)
         if not self.db.is_depositor (token):
-            return self.error_404 (request)
+            return self.error_403 (request)
 
         try:
             collection = self.__collection_by_id_or_uri(
@@ -1384,7 +1384,7 @@ class ApiServer:
 
         token = self.token_from_cookie (request)
         if not self.db.is_depositor (token):
-            return self.error_404 (request)
+            return self.error_403 (request)
 
         collection_id = self.db.insert_collection(
             title = "Untitled collection",
@@ -1406,7 +1406,7 @@ class ApiServer:
 
         token = self.token_from_cookie (request)
         if not self.db.is_depositor (token):
-            return self.error_404 (request)
+            return self.error_403 (request)
 
         try:
             collection = self.__collection_by_id_or_uri(
@@ -1552,7 +1552,7 @@ class ApiServer:
                     account = self.db.accounts (account_uuid=account_uuid)[0],
                     categories = self.db.categories_tree ())
             except IndexError:
-                return self.error_404 (request)
+                return self.error_403 (request)
 
         return self.error_403 (request)
 
