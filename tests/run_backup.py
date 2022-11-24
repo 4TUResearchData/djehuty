@@ -20,15 +20,9 @@ class TestRunBackup(unittest.TestCase):
         super(TestRunBackup, self).__init__(*args, **kwargs)
         self.collection_location = None
 
-    def api_url (self, path):
-        return f"{base_url}{path}"
-
     ## Create and destroy
     ## ------------------------------------------------------------------------
     def test_run_backup (self):
         """Runs the back-up tool and tests whether it reaches the end."""
         result = backup_ui.main (token, "-", account_id, base_url)
         self.assertTrue (result)
-
-if __name__ == "__main__":
-    unittest.main()
