@@ -1991,7 +1991,6 @@ class ApiServer:
 
     def ui_author (self, request, author_id):
         """Implements /authors/<id>."""
-        #TODO: add account info
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -5197,9 +5196,9 @@ class ApiServer:
 
     def ui_export_datacite_collection (self, request, collection_id, version=None):
         """Implements /export/datacite/collections/<id>."""
-        return self.export_datacite(request, collection_id, version, item_type="collection")
+        return self.export_datacite(request, collection_id, version)
 
-    def export_datacite (self, request, item_id, version=None, item_type="dataset"):
+    def export_datacite (self, request, item_id, version=None):
         """export metadata in datacite format"""
         xml_string = self.format_datacite(request, item_id, version)
         output = Response(xml_string, mimetype="application/xml; charset=utf-8")
