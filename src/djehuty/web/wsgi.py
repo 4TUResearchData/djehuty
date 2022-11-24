@@ -3454,7 +3454,7 @@ class ApiServer:
                     return self.error_500()
 
                 return self.response(json.dumps({
-                    "location": f"{self.base_url}/datasets/{link_id}"
+                    "location": f"{self.base_url}/private_datasets/{link_id}"
                 }))
 
             except validator.ValidationException as error:
