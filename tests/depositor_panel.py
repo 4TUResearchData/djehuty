@@ -1,5 +1,5 @@
 """
-This module tests browsing the admin features.
+This module tests browsing the depositor features.
 """
 
 import os
