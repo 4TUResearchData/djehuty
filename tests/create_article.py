@@ -99,9 +99,17 @@ class TestDatasetFunctionality(unittest.TestCase):
 
         data     = response.json()
         self.assertIsNotNone (data)
-        print(f"Data: {data}")
         link_id = conv.value_or_none (data[0], "id")
         self.assertIsNotNone (link_id)
+
+        ## Visit private link page.
+        ## --------------------------------------------------------------------
+        response = requests.get(
+            url = f"{BASE_URL}private_datasets/{link_id}",
+            headers = { "Accept": "text/html" },
+            timeout = TIMEOUT)
+
+        self.assertEqual (response.status_code, 200)
 
         ## Delete private link.
         ## --------------------------------------------------------------------

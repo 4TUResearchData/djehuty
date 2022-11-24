@@ -124,3 +124,23 @@ class TestAdminFunctionality(unittest.TestCase):
             timeout = TIMEOUT)
 
         self.assertEqual (response.status_code, 200)
+
+    def test_clear_cache (self):
+        """Tests whether clearing the cache works."""
+
+        response = requests.get(
+            url  = f"{BASE_URL}/admin/maintenance/clear-cache",
+            headers = { "Accept": "text/html" },
+            timeout = TIMEOUT)
+
+        self.assertEqual (response.status_code, 403)
+
+        response = requests.get(
+            url  = f"{BASE_URL}/admin/maintenance/clear-cache",
+            headers = {
+                "Cookie": f"djehuty_session={TOKEN}",
+                "Accept": "text/html"
+            },
+            timeout = TIMEOUT)
+
+        self.assertEqual (response.status_code, 204)
