@@ -56,8 +56,7 @@ class SparqlInterface:
                     time_value = record[item]["value"].partition(".")[0]
                     if time_value[-1] == 'Z':
                         time_value = time_value[:-1]
-                    timestamp    = datetime.strptime(time_value, "%Y-%m-%dT%H:%M:%S")
-                    record[item] = datetime.strftime (timestamp, "%Y-%m-%d %H:%M:%S")
+                    record[item] = time_value
                 elif datatype == "http://www.w3.org/2001/XMLSchema#date":
                     record[item] = record[item]["value"]
                 elif datatype == "http://www.w3.org/2001/XMLSchema#string":
@@ -1052,7 +1051,7 @@ class SparqlInterface:
         """Procedure to update account settings."""
 
         if modified_date is None:
-            modified_date = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
+            modified_date = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
 
         query        = self.__query_from_template ("update_account", {
             "account_uuid":          account_uuid,
@@ -1690,7 +1689,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["resource_version"], resource_version)
         rdf.add (graph, uri, rdf.DJHT["group_id"],       group_id)
 
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S")
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["is_public"],      0)
@@ -1734,7 +1733,7 @@ class SparqlInterface:
             "latitude":          latitude,
             "group_id":          group_id,
             "longitude":         longitude,
-            "modified_date":     datetime.strftime (datetime.now(), "%Y-%m-%d %H:%M:%S"),
+            "modified_date":     datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S"),
             "organizations":     organizations,
             "publisher":         publisher,
             "resource_doi":      resource_doi,
