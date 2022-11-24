@@ -621,6 +621,29 @@ class ApiServer:
         dates = [ (label, ', '.join(val)) for (label,val) in dates.items() ]
         return dates
 
+    def __formatted_collection_record (self, collection):
+        """Gathers a complete collection record and formats it."""
+        try:
+            uri = collection["uri"]
+            datasets_count = self.db.collections_dataset_count (collection_uri = uri)
+            fundings       = self.db.fundings (item_uri = uri, item_type="collection")
+            categories     = self.db.categories (item_uri = uri)
+            references     = self.db.references (item_uri = uri)
+            custom_fields  = self.db.custom_fields (item_uri = uri, item_type="collection")
+            tags           = self.db.tags (item_uri = uri)
+            authors        = self.db.authors (item_uri = uri, item_type="collection")
+            total          = formatter.format_collection_details_record (collection,
+                                                                         fundings,
+                                                                         categories,
+                                                                         references,
+                                                                         tags,
+                                                                         authors,
+                                                                         custom_fields,
+                                                                         datasets_count)
+            return total
+        except IndexError:
+            return None
+
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
 
@@ -3656,22 +3679,7 @@ class ApiServer:
         if collection is None:
             return self.error_404 (request)
 
-        collection_uri = collection["uri"]
-        datasets_count = self.db.collections_dataset_count(collection_uri = collection_uri)
-        fundings       = self.db.fundings(item_uri = collection_uri, item_type="collection")
-        categories     = self.db.categories(item_uri = collection_uri)
-        references     = self.db.references(item_uri = collection_uri)
-        custom_fields  = self.db.custom_fields(item_uri = collection_uri, item_type="collection")
-        tags           = self.db.tags(item_uri = collection_uri)
-        authors        = self.db.authors(item_uri = collection_uri, item_type="collection")
-        total          = formatter.format_collection_details_record (collection,
-                                                                     fundings,
-                                                                     categories,
-                                                                     references,
-                                                                     tags,
-                                                                     authors,
-                                                                     custom_fields,
-                                                                     datasets_count)
+        total = self.__formatted_collection_record (collection)
         return self.response (json.dumps(total))
 
     def api_collection_versions (self, request, collection_id):
@@ -3699,23 +3707,7 @@ class ApiServer:
         if collection is None:
             return self.error_404 (request)
 
-        collection_uri = collection["uri"]
-        datasets_count = self.db.collections_dataset_count(collection_uri = collection_uri)
-        fundings       = self.db.fundings(item_uri = collection_uri, item_type="collection")
-        categories     = self.db.categories(item_uri = collection_uri)
-        references     = self.db.references(item_uri = collection_uri)
-        custom_fields  = self.db.custom_fields(item_uri = collection_uri, item_type="collection")
-        tags           = self.db.tags(item_uri = collection_uri)
-        authors        = self.db.authors(item_uri = collection_uri, item_type="collection")
-        total          = formatter.format_collection_details_record (collection,
-                                                                     fundings,
-                                                                     categories,
-                                                                     references,
-                                                                     tags,
-                                                                     authors,
-                                                                     custom_fields,
-                                                                     datasets_count)
-
+        total = self.__formatted_collection_record (collection)
         return self.response (json.dumps(total))
 
     def api_private_collections (self, request):
@@ -3836,22 +3828,7 @@ class ApiServer:
                 if collection is None:
                     return self.error_403 (request)
 
-                collection_uri = collection["uri"]
-                datasets_count= self.db.collections_dataset_count(collection_uri=collection_uri)
-                fundings      = self.db.fundings(item_uri=collection_uri, item_type="collection")
-                categories    = self.db.categories(item_uri=collection_uri)
-                references    = self.db.references(item_uri=collection_uri)
-                custom_fields = self.db.custom_fields(item_uri=collection_uri, item_type="collection")
-                tags          = self.db.tags(item_uri=collection_uri)
-                authors       = self.db.authors(item_uri=collection_uri, item_type="collection")
-                total         = formatter.format_collection_details_record (collection,
-                                                                            fundings,
-                                                                            categories,
-                                                                            references,
-                                                                            tags,
-                                                                            authors,
-                                                                            custom_fields,
-                                                                            datasets_count)
+                total = self.__formatted_collection_record (collection)
                 return self.response (json.dumps(total))
 
             except IndexError:
