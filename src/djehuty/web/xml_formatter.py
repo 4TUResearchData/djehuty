@@ -120,8 +120,33 @@ def dublincore_tree (parameters):
     return root
 
 def dublincore (parameters):
-    """Procedure to create a Doblin Core XML string from PARAMETERS."""
+    """Procedure to create a Dublin Core XML string from PARAMETERS."""
     return serialize_tree_to_string (dublincore_tree (parameters))
+
+def nlm (parameters):
+    """Procedure to create a NLM XML string from PARAMETERS."""
+    parameters = scrub(parameters)
+    namespaces = {'xlink': 'http://www.w3.org/1999/xlink/'}
+    maker = ElementMaker(namespaces)
+    root    = maker.root('articles')
+    article = maker.child(root, 'article')
+    front   = maker.child(article, 'front')
+    meta    = maker.child(front, 'article-meta')
+    item = parameters['item']
+    maker.child(maker.child(meta, 'title-group'),
+                'article-title', {}, item['title'])
+    contribs = maker.child(meta, 'contrib-group')
+    authors = parameters['authors']
+    for author in authors:
+        name = maker.child(maker.child(contribs, 'contrib', {'contrib-type': 'author'}),
+                           'name')
+        maker.child_option(name, 'surname', author, 'last_name')
+        maker.child_option(name, 'given-name', author, 'first_name')
+    maker.child(maker.child(meta, 'pub-date', {'pub-type': 'pub'}),
+                'year', {}, parameters['published_year'])
+    maker.child(meta, 'self-uri', {'xlink:href': f"https:doi.org/{parameters['doi']}"})
+    maker.child(front, 'abstract', {}, item['description'])
+    return serialize_tree_to_string(root)
 
 def datacite_tree (parameters, debug=False):
     """Procedure to create a DataCite XML tree from PARAMETERS."""
