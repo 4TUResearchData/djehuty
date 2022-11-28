@@ -5184,16 +5184,34 @@ class ApiServer:
         return xml_formatter.datacite(parameters)
 
     def ui_export_refworks_dataset (self, request, dataset_id, version=None):
-        """export metadata in refworks format"""
-        # collect rendering parameters
-        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
-        # adjust rendering parameters: turn tags into one semicolon delimited string
-        parameters["tags_str"] = ';'.join(parameters["tags"])
+        """export metadata in Refworks format"""
+        parameters = self.__metadata_export_parameters(request, dataset_id, version)
+        xml_string = xml_formatter.refworks(parameters)
+        output = Response(xml_string, mimetype="application/xml; charset=utf-8")
+        output.headers["Server"] = "4TU.ResearchData API"
+        version_string = f'_v{version}' if version else ''
+        output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_refworks.xml"
+        return output
 
-        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_refworks.xml"}
-        return self.__render_export_format(template_name="refworks.xml",
-                                           mimetype="application/xml; charset=utf-8",
-                                           headers=headers, **parameters)
+    def ui_export_nlm_dataset (self, request, dataset_id, version=None):
+        """export metadata in NLM format"""
+        parameters = self.__metadata_export_parameters(request, dataset_id, version)
+        xml_string = xml_formatter.nlm(parameters)
+        output = Response(xml_string, mimetype="application/xml; charset=utf-8")
+        output.headers["Server"] = "4TU.ResearchData API"
+        version_string = f'_v{version}' if version else ''
+        output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_nlm.xml"
+        return output
+
+    def ui_export_dc_dataset (self, request, dataset_id, version=None):
+        """export metadata in Dublin Core format"""
+        parameters = self.__metadata_export_parameters(request, dataset_id, version)
+        xml_string = xml_formatter.dublincore(parameters)
+        output = Response(xml_string, mimetype="application/xml; charset=utf-8")
+        output.headers["Server"] = "4TU.ResearchData API"
+        version_string = f'_v{version}' if version else ''
+        output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_dublincore.xml"
+        return output
 
     def ui_export_bibtex_dataset (self, request, dataset_id, version=None):
         """export metadata in bibtex format"""
@@ -5237,26 +5255,6 @@ class ApiServer:
         return self.__render_export_format(template_name="endnote.enw",
                                            mimetype="text/plain; charset=utf-8",
                                            headers=headers, **parameters)
-
-    def ui_export_nlm_dataset (self, request, dataset_id, version=None):
-        """export metadata in NLM format"""
-        parameters = self.__metadata_export_parameters(request, dataset_id, version)
-        xml_string = xml_formatter.nlm(parameters)
-        output = Response(xml_string, mimetype="application/xml; charset=utf-8")
-        output.headers["Server"] = "4TU.ResearchData API"
-        version_string = f'_v{version}' if version else ''
-        output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_nlm.xml"
-        return output
-
-    def ui_export_dc_dataset (self, request, dataset_id, version=None):
-        """export metadata in Dublin Core format"""
-        parameters = self.__metadata_export_parameters(request, dataset_id, version)
-        xml_string = xml_formatter.dublincore(parameters)
-        output = Response(xml_string, mimetype="application/xml; charset=utf-8")
-        output.headers["Server"] = "4TU.ResearchData API"
-        version_string = f'_v{version}' if version else ''
-        output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_dublincore.xml"
-        return output
 
     def parse_organizations (self, text):
         """Obscure procedure to split organizations by semicolon."""

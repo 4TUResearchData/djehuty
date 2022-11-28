@@ -19,7 +19,7 @@ class ElementMaker:
         if self.namespaces is None:
             self.namespaces = {}
 
-        for prefix, uri in namespaces.items():
+        for prefix, uri in self.namespaces.items():
             ET.register_namespace(prefix, uri)
 
     def resolve (self, name, is_element=True):
@@ -146,6 +146,36 @@ def nlm (parameters):
                 'year', {}, parameters['published_year'])
     maker.child(meta, 'self-uri', {'xlink:href': f"https:doi.org/{parameters['doi']}"})
     maker.child(front, 'abstract', {}, item['description'])
+    return serialize_tree_to_string(root)
+
+def refworks (parameters):
+    """Procedure to create a Refworks XML string from PARAMETERS."""
+    parameters = scrub(parameters)
+    maker = ElementMaker()
+    root = maker.root('references')
+    ref  = maker.child(root, 'reference')
+    item    = parameters['item']
+    authors = parameters['authors']
+    for i, author in enumerate(authors):
+        name = author['full_name']
+        if 'last_name' in author and 'first_name' in author:
+            name = f"{author['last_name']}, {author['first_name']}"
+        maker.child(ref, f'a{i+1}', {}, name)
+    maker.child(ref, 't1', {}, item['title'])
+    maker.child(ref, 'sn')
+    maker.child(ref, 'op')
+    maker.child(ref, 'vo')
+    maker.child(ref, 'ab', {}, item['description'])
+    maker.child(ref, 'la', {}, value_or(item, 'language', 'en'))
+    for i, tag in enumerate(parameters['tags']):
+        maker.child(ref, f'k{i+1}', {}, tag)
+    maker.child(ref, 'pb')
+    maker.child(ref, 'pp')
+    maker.child(ref, 'yr', {}, parameters['published_year'])
+    maker.child(ref, 'ed')
+    doi = parameters['doi']
+    maker.child(ref, 'ul', {}, f'https://doi.org/{doi}')
+    maker.child(ref, 'do', {}, doi)
     return serialize_tree_to_string(root)
 
 def datacite_tree (parameters, debug=False):
