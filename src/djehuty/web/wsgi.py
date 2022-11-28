@@ -5249,14 +5249,14 @@ class ApiServer:
                                            headers=headers, **parameters)
 
     def ui_export_dc_dataset (self, request, dataset_id, version=None):
-        """export metadata in doublin core format"""
-        # collect rendering parameters
-        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
-
-        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_dc.xml"}
-        return self.__render_export_format(template_name="dc.xml",
-                                           mimetype="application/xml; charset=utf-8",
-                                           headers=headers, **parameters)
+        """export metadata in Dublin Core format"""
+        parameters = self.__metadata_export_parameters(request, dataset_id, version)
+        xml_string = xml_formatter.dublincore(parameters)
+        output = Response(xml_string, mimetype="application/xml; charset=utf-8")
+        output.headers["Server"] = "4TU.ResearchData API"
+        version_string = f'_v{version}' if version else ''
+        output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_dublincore.xml"
+        return output
 
     def parse_organizations (self, text):
         """Obscure procedure to split organizations by semicolon."""

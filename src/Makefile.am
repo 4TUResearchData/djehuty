@@ -58,7 +58,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/review/published.html                \
     djehuty/web/resources/html_templates/search.html                          \
     djehuty/web/resources/metadata_templates/bibtex.bib                       \
-    djehuty/web/resources/metadata_templates/dc.xml                           \
     djehuty/web/resources/metadata_templates/endnote.enw                      \
     djehuty/web/resources/metadata_templates/nlm.xml                          \
     djehuty/web/resources/metadata_templates/refman.ris                       \

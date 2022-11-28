@@ -1,6 +1,6 @@
 """
 This module implements constructing XML trees for rendering the DataCite
-XML format.
+and other XML formats.
 """
 
 import xml.etree.ElementTree as ET
@@ -14,22 +14,23 @@ class ElementMaker:
     enabling tree construction using prefixes instead of full namespaces
     in element and attribute names. Default namespace is also obeyed.
     '''
-    def __init__ (self, namespace=None):
-        self.namespace = namespace
-        if self.namespace is None:
-            self.namespace = {}
+    def __init__ (self, namespaces=None):
+        self.namespaces = namespaces
+        if self.namespaces is None:
+            self.namespaces = {}
 
-        for prefix, uri in namespace.items():
+        for prefix, uri in namespaces.items():
             ET.register_namespace(prefix, uri)
 
     def resolve (self, name, is_element=True):
         """Procedure to translate a prefixed NAME to its full namespace URI."""
         if ':' in name:
             prefix, suffix = name.split(':' ,1)
-            return f'{{{self.namespace[prefix]}}}{suffix}'
+            if prefix != 'xml':
+                return f'{{{self.namespaces[prefix]}}}{suffix}'
 
-        if is_element and '' in self.namespace:
-            return f'{{{self.namespace[""]}}}{name}'
+        if is_element and '' in self.namespaces:
+            return f'{{{self.namespaces[""]}}}{name}'
 
         return name
 
@@ -55,8 +56,15 @@ class ElementMaker:
             return self.child(parent, name, attrib, f"{source[key]}")
         return None
 
-    def root(self, name, attrib=None, text=None):
-        """Procedure to find the ElementTree root."""
+    def root (self, name, attrib=None, schemas=None, text=None):
+        """Procedure to make the ElementTree root."""
+        attrib = attrib if attrib else {}
+        if schemas:
+            self.namespaces['xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
+            ET.register_namespace('xsi', self.namespaces['xsi'])
+            schema_decl = ''.join(
+                [f'{self.namespaces[pr]} {schema}' for pr, schema in schemas.items()])
+            attrib['xsi:schemaLocation'] = schema_decl
         return self.child(None, name, attrib, text)
 
 def serialize_tree_to_string (tree, indent=True):
@@ -65,7 +73,7 @@ def serialize_tree_to_string (tree, indent=True):
         ET.indent(tree)
     return ET.tostring(tree, encoding='utf8', short_empty_elements=True)
 
-def scrub(obj):
+def scrub (obj):
     """Eliminate from construct of dicts and lists all values x for which bool(x)==False."""
     if isinstance(obj, dict):
         scrubbed = {key:scrub(val) for key,val in obj.items() if val}
@@ -77,14 +85,51 @@ def scrub(obj):
 
     return obj
 
+def dublincore_tree (parameters):
+    """Procedure to create a Dublin Core XML tree from PARAMETERS."""
+    parameters = scrub(parameters)
+    namespaces = {'dc' : 'http://purl.org/dc/elements/1.1/',
+                  'oai': 'http://www.openarchives.org/OAI/2.0/oai_dc/'}
+    schemas =    {'oai': 'https://www.openarchives.org/OAI/2.0/oai_dc.xsd'}
+    maker = ElementMaker(namespaces)
+    root = maker.root('oai:dc', schemas=schemas)
+    item = parameters['item']
+    maker.child(root, 'dc:title', {}, item['title'])
+    for creator in parameters['authors']:
+        maker.child_option(root, 'dc:creator', creator, 'full_name')
+    for tag in parameters['tags']:
+        maker.child(root, 'dc:subject', {}, tag)
+    maker.child(root, 'dc:description', {}, item['description'])
+    maker.child(root, 'dc:publisher', {}, value_or(item, 'publisher', '4TU.ResearchData'))
+    if 'contributors' in parameters:
+        for contributor in parameters['contributor']:
+            maker.child(root, 'dc:contributor', {}, contributor['name'])
+    if 'organizations' in parameters:
+        for name in parameters['organizations']:
+            maker.child(root, 'dc:contributor', {}, name)
+    maker.child(root, 'dc:date', {}, parameters['published_date'])
+    maker.child(root, 'dc:type', {}, item['defined_type_name'])
+    maker.child_option(root, 'dc:format', item, 'format')
+    maker.child(root, 'dc:identifier', {}, parameters['doi'])
+    maker.child(root, 'dc:language', {}, value_or(item, 'language', 'en'))
+    if 'recource_doi' in item:
+        maker.child(root, 'dc:relation', {}, f"https://doi.org/{item['recource_doi']}")
+    maker.child_option(root, 'dc:coverage', item, 'geolocation')
+    maker.child_option(root, 'dc:coverage', item, 'time_coverage')
+    maker.child_option(root, 'dc:rights', item, 'license_name')
+    return root
+
+def dublincore (parameters):
+    """Procedure to create a Doblin Core XML string from PARAMETERS."""
+    return serialize_tree_to_string (dublincore_tree (parameters))
+
 def datacite_tree (parameters, debug=False):
     """Procedure to create a DataCite XML tree from PARAMETERS."""
     parameters = scrub(parameters)
-    namespace = {''   : 'http://datacite.org/schema/kernel-4',
-          'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
-    maker = ElementMaker(namespace)
-    schema_url = 'http://schema.datacite.org/meta/kernel-4.4/metadata.xsd'
-    root = maker.root('resource', {'xsi:schemaLocation': f'{namespace[""]} {schema_url}'})
+    namespaces = {'': 'http://datacite.org/schema/kernel-4'}
+    schemas    = {'': 'http://schema.datacite.org/meta/kernel-4.4/metadata.xsd'}
+    maker = ElementMaker(namespaces)
+    root = maker.root('resource', schemas=schemas)
     item = parameters['item']
 
     #01 identifier
@@ -125,7 +170,8 @@ def datacite_tree (parameters, debug=False):
             maker.child(
                 subjects_element,
                 'subject',
-                { 'subjectScheme'     : 'Australian and New Zealand Standard Research Classification (ANZSRC), 2008',
+                { 'subjectScheme'     :
+                  'Australian and New Zealand Standard Research Classification (ANZSRC), 2008',
                   'classificationCode': cat['classification_code'] },
                 cat['title']
             )
@@ -153,10 +199,12 @@ def datacite_tree (parameters, debug=False):
         if has_organizations:
             for name in parameters['organizations']:
                 contributor_element = maker.child(contributors_element, 'contributor', type_att)
-                maker.child(contributor_element, 'contributorName', {'nameType': 'Organizational'}, name)
+                maker.child(contributor_element, 'contributorName',
+                            {'nameType': 'Organizational'}, name)
 
     #09 dates
-    maker.child(maker.child(root, 'dates'), 'date', {'dateType': 'Issued'}, parameters['published_date'])
+    maker.child(maker.child(root, 'dates'), 'date',
+                {'dateType': 'Issued'}, parameters['published_date'])
 
     #10 language
     if 'language' in item:
