@@ -913,7 +913,6 @@ class SparqlInterface:
                         first_online=None,
                         publisher=None,
                         publisher_publication=None,
-                        publisher_acceptance=None,
                         submission=None,
                         posted=None,
                         revision=None,
@@ -965,7 +964,6 @@ class SparqlInterface:
             revision              = revision,
             first_online          = first_online,
             publisher_publication = publisher_publication,
-            publisher_acceptance  = publisher_acceptance,
             posted                = posted,
             submission            = submission
         )
@@ -1188,17 +1186,15 @@ class SparqlInterface:
         return None
 
     def insert_timeline (self, graph, container_uri=None, item_uri=None,
-                         revision=None, first_online=None,
-                         publisher_publication=None, publisher_acceptance=None,
-                         posted=None, submission=None):
+                         revision=None, first_online=None, posted=None,
+                         submission=None, publisher_publication=None):
         """Procedure to add a timeline to the state graph."""
 
-        rdf.add (graph, item_uri, rdf.DJHT["revision"],             revision,     XSD.string)
-        rdf.add (graph, container_uri, rdf.DJHT["firstOnline"],     first_online, XSD.string)
-        rdf.add (graph, item_uri, rdf.DJHT["publisherPublication"], publisher_publication, XSD.string)
-        rdf.add (graph, item_uri, rdf.DJHT["publisherAcceptance"],  publisher_acceptance,  XSD.string)
-        rdf.add (graph, item_uri, rdf.DJHT["posted"],               posted,       XSD.string)
-        rdf.add (graph, item_uri, rdf.DJHT["submission"],           submission,   XSD.string)
+        rdf.add (graph, item_uri, rdf.DJHT["revision_date"],          revision,     XSD.dateTime)
+        rdf.add (graph, container_uri, rdf.DJHT["first_online_date"], first_online, XSD.dateTime)
+        rdf.add (graph, item_uri, rdf.DJHT["posted_date"],            posted,       XSD.dateTime)
+        rdf.add (graph, item_uri, rdf.DJHT["publisher_publication_date"], publisher_publication, XSD.dateTime)
+        rdf.add (graph, item_uri, rdf.DJHT["submission_date"],        submission,   XSD.dateTime)
 
     def delete_associations (self, container_uuid, account_uuid, predicate):
         """Procedure to delete the list of PREDICATE of a dataset or collection."""
@@ -1609,7 +1605,6 @@ class SparqlInterface:
                            group_id=None,
                            first_online=None,
                            publisher_publication=None,
-                           publisher_acceptance=None,
                            submission=None,
                            posted=None,
                            revision=None,
@@ -1641,7 +1636,6 @@ class SparqlInterface:
             revision              = revision,
             first_online          = first_online,
             publisher_publication = publisher_publication,
-            publisher_acceptance  = publisher_acceptance,
             posted                = posted,
             submission            = submission
         )

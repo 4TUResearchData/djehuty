@@ -4,7 +4,7 @@ SELECT DISTINCT ?account_uuid ?resource_id ?resource_doi ?resource_title
                 ?resource_link ?resource_version ?version ?description
                 ?institution_id ?group_id ?is_public
                 ?citation ?custom_fields_id ?modified_date
-                ?created_date ?timeline_posted ?timeline_publisher_acceptance
+                ?created_date ?timeline_posted
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?collection_id ?title
                 ?doi ?handle ?url ?published_date ?container_uri
@@ -45,7 +45,6 @@ WHERE {
     {%- endif %}
 
     OPTIONAL { ?container_uri djht:first_online_date   ?timeline_first_online . }
-    OPTIONAL { ?collection    djht:publisher_acceptance_date ?timeline_publisher_acceptance . }
     OPTIONAL { ?collection    djht:publisher_publication_date ?timeline_publisher_publication . }
     OPTIONAL { ?collection    djht:submission_date     ?timeline_submission . }
     OPTIONAL { ?collection    djht:posted_date         ?timeline_posted . }

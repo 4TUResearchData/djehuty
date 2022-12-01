@@ -2573,7 +2573,6 @@ class ApiServer:
                     # Unpack the 'timeline' object.
                     first_online          = validator.string_value (timeline, "firstOnline",                       False),
                     publisher_publication = validator.string_value (timeline, "publisherPublication",              False),
-                    publisher_acceptance  = validator.string_value (timeline, "publisherAcceptance",               False),
                     submission            = validator.string_value (timeline, "submission",                        False),
                     posted                = validator.string_value (timeline, "posted",                            False),
                     revision              = validator.string_value (timeline, "revision",                          False)
@@ -3785,7 +3784,6 @@ class ApiServer:
                     # Unpack the 'timeline' object.
                     first_online            = validator.string_value (timeline, "firstOnline",                    False),
                     publisher_publication   = validator.string_value (timeline, "publisherPublication",           False),
-                    publisher_acceptance    = validator.string_value (timeline, "publisherAcceptance",            False),
                     submission              = validator.string_value (timeline, "submission",                     False),
                     posted                  = validator.string_value (timeline, "posted",                         False),
                     revision                = validator.string_value (timeline, "revision",                       False))

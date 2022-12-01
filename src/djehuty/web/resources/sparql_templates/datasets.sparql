@@ -12,7 +12,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?is_metadata_record ?license_id ?license_name ?license_url
                 ?metadata_reason ?modified_date ?published_date
                 ?resource_doi ?resource_title ?size ?status ?thumb
-                ?timeline_posted ?timeline_publisher_acceptance
+                ?timeline_posted
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?title ?url
                 ?url_private_api ?url_private_html ?url_public_api
@@ -77,7 +77,6 @@ WHERE {
     OPTIONAL { ?container_uri djht:total_shares         ?total_shares .      }
     OPTIONAL { ?container_uri djht:total_cites          ?total_cites .       }
 
-    OPTIONAL { ?dataset djht:publisher_acceptance_date ?timeline_publisher_acceptance . }
     OPTIONAL { ?dataset djht:publisher_publication_date ?timeline_publisher_publication . }
     OPTIONAL { ?dataset djht:submission_date      ?timeline_submission . }
     OPTIONAL { ?dataset djht:posted_date          ?timeline_posted . }
