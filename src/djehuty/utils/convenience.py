@@ -182,18 +182,16 @@ def add_logging_level (level_name, level_number, method_name=None):
     raise an `AttributeError` if the level name is already an attribute of the
     `logging` module or if the method name is already present.
 
-    Code copied from the following Stack Overflow post:
+    Code copied and adapted from the following Stack Overflow post:
     https://stackoverflow.com/questions/2183233/35804945#35804945
     """
     if not method_name:
         method_name = level_name.lower()
 
-    if hasattr(logging, level_name):
-        raise AttributeError(f"{level_name} already defined in logging module")
-    if hasattr(logging, method_name):
-        raise AttributeError(f"{method_name} already defined in logging module")
-    if hasattr(logging.getLoggerClass(), method_name):
-        raise AttributeError(f"{method_name} already defined in logger class")
+    if (hasattr(logging, level_name) or
+        hasattr(logging, method_name) or
+        hasattr(logging.getLoggerClass(), method_name)):
+        raise AttributeError(f"{level_name} is already defined.")
 
     # This method was inspired by the answers to Stack Overflow post
     # http://stackoverflow.com/q/2183233/2988730, especially
