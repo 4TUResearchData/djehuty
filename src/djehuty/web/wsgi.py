@@ -129,6 +129,14 @@ class ApiServer:
             Rule("/search",                                   endpoint = "ui_search"),
 
             ## ----------------------------------------------------------------
+            ## COMPATIBILITY
+            ## ----------------------------------------------------------------
+            Rule("/articles/dataset/<slug>/<dataset_id>",     endpoint = "ui_compat_dataset"),
+            Rule("/articles/dataset/<slug>/<dataset_id>/<version>", endpoint = "ui_compat_dataset"),
+            Rule("/collections/<slug>/<collection_id>",       endpoint = "ui_compat_collection"),
+            Rule("/collections/<slug>/<collection_id>/<version>", endpoint = "ui_compat_collection"),
+
+            ## ----------------------------------------------------------------
             ## V2 API
             ## ----------------------------------------------------------------
             Rule("/v2/account/applications/authorize",        endpoint = "api_authorize"),
@@ -1817,6 +1825,10 @@ class ApiServer:
 
         return self.error_404 (request)
 
+    def ui_compat_dataset (self, request, slug, dataset_id, version=None):
+        """Implements backward-compatibility landing page URLs for datasets."""
+        return self.ui_dataset (request, dataset_id, version)
+
     def ui_dataset (self, request, dataset_id, version=None, container=None, private_view=False):
         """Implements /datasets/<id>."""
         if self.accepts_html (request):
@@ -1937,6 +1949,10 @@ class ApiServer:
                                            git_repository_url=git_repository_url,
                                            private_view=private_view)
         return self.error_406 ("text/html")
+
+    def ui_compat_collection (self, request, slug, collection_id, version=None):
+        """Implements backward-compatibility landing page URLs for collections."""
+        return self.ui_collection (request, collection_id, version)
 
     def ui_collection (self, request, collection_id, version=None):
         """Implements /collections/<id>."""
