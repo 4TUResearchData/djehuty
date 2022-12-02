@@ -411,6 +411,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if not xml_root:
             return config
 
+        use_x_forwarded_for = bool(int(config_value (xml_root, "use-x-forwarded-for", None, 0)))
+        if use_x_forwarded_for:
+            server.log_access = server.log_access_using_x_forwarded_for
+
         read_orcid_configuration (server, xml_root)
         read_datacite_configuration (server, xml_root)
         read_saml_configuration (server, xml_root)

@@ -70,6 +70,7 @@ class ApiServer:
         self.datacite_id         = None
         self.datacite_password   = None
         self.datacite_prefix     = None
+        self.log_access          = self.log_access_directly
 
         self.menu = []
         self.static_pages = {}
@@ -350,6 +351,7 @@ class ApiServer:
     def __dispatch_request (self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
+            self.log_access (request)
             endpoint, values = adapter.match()
             return getattr(self, endpoint)(request, **values)
         except NotFound:
@@ -673,6 +675,17 @@ class ApiServer:
             return groups
         except (KeyError, IndexError):
             return None
+
+    def log_access_using_x_forwarded_for (self, request):
+        """Log interactions using the X-Forwarded-For header."""
+        try:
+            logging.access("%s requested %s.", request.headers["X-Forwarded-For"], request.full_path)
+        except KeyError:
+            logging.error("Missing X-Forwarded-For header.")
+
+    def log_access_directly (self, request):
+        """Log interactions using the 'remote_addr' property."""
+        logging.access("%s requested %s.", request.remote_addr, request.full_path)
 
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
