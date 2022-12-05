@@ -5044,7 +5044,6 @@ class ApiServer:
                     maximum_file_size     = validator.integer_value (record, "maximum_file_size"),
                     quota                 = validator.integer_value (record, "quota"),
                     modified_date         = validator.string_value  (record, "modified_date", 0, 32),
-                    group_id              = validator.integer_value (record, "group_id"),
                     categories            = categories):
                 return self.respond_204 ()
 

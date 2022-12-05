@@ -1044,7 +1044,7 @@ class SparqlInterface:
                         institution_id=None, pending_quota_request=None,
                         used_quota_public=None, used_quota_private=None,
                         used_quota=None, maximum_file_size=None, quota=None,
-                        modified_date=None, created_date=None, group_id=None,
+                        modified_date=None, created_date=None,
                         location=None, biography=None, categories=None):
         """Procedure to update account settings."""
 
@@ -1069,8 +1069,7 @@ class SparqlInterface:
             "maximum_file_size":     maximum_file_size,
             "quota":                 quota,
             "modified_date":         modified_date,
-            "created_date":          created_date,
-            "group_id":              group_id
+            "created_date":          created_date
         })
 
         self.cache.invalidate_by_prefix ("accounts")
