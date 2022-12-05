@@ -1797,11 +1797,8 @@ class SparqlInterface:
         """Procedure to return group information."""
 
         filters = ""
-        if group_id is not None:
-            filters += rdf.sparql_filter ("id", group_id)
-
-        if parent_id is not None:
-            filters += rdf.sparql_filter ("parent_id", parent_id)
+        filters += rdf.sparql_filter ("id", group_id)
+        filters += rdf.sparql_filter ("parent_id", parent_id)
 
         if name is not None:
             if starts_with:
@@ -1809,8 +1806,7 @@ class SparqlInterface:
             else:
                 filters += rdf.sparql_filter ("name", name, escape=True)
 
-        if association is not None:
-            filters += rdf.sparql_filter ("association", association, escape=True)
+        filters += rdf.sparql_filter ("association", association, escape=True)
 
         query = self.__query_from_template ("group", {
             "filters":     filters
