@@ -12,7 +12,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?is_metadata_record ?license_id ?license_name ?license_url
                 ?metadata_reason ?modified_date ?published_date
                 ?resource_doi ?resource_title ?size ?status ?thumb
-                ?timeline_posted
+                ?timeline_posted ?has_draft
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?title ?url
                 ?url_private_api ?url_private_html ?url_public_api
@@ -30,18 +30,19 @@ WHERE {
     ?container_uri      djht:account              ?account .
     OPTIONAL { ?container_uri djht:dataset_id     ?dataset_id . }
 
-    {%- if is_published %}
     {%- if is_latest %}
     ?container_uri      djht:latest_published_version ?dataset .
-    {%- else %}
+    {%- elif is_published %}
     ?container_uri      djht:published_versions/rdf:rest*/rdf:first ?dataset .
-    {%- endif %}
     {%- else %}
     ?container_uri      djht:draft                ?dataset .
+    {%- endif %}
+
     {%- if private_link_id_string is not none %}
     ?dataset            djht:private_links/rdf:rest*/rdf:first ?private_link .
     ?private_link       djht:id                   ?private_link_id_string .
     {%- endif %}
+
     OPTIONAL {
       ?review           rdf:type                  djht:Review ;
                         djht:dataset              ?dataset .
@@ -50,7 +51,6 @@ WHERE {
       ?review           djht:request_date         ?review_submit_date .
       {%- endif %}
     }
-    {%- endif %}
 
     ?dataset            djht:title                ?title .
     OPTIONAL { ?dataset djht:version              ?version . }
@@ -145,16 +145,15 @@ WHERE {
     BIND(STRAFTER(STR(?dataset), "dataset:")         AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:")         AS ?account_uuid)
     BIND(BOUND(?review) AND !BOUND(?published_date)  AS ?is_under_review)
+    {%- if is_published %}
+    BIND (xsd:boolean (EXISTS { ?container_uri djht:draft ?draft_dataset . }) AS ?has_draft)
+    {%- endif %}
     BIND(((BOUND(?embargo_until_date) AND ?embargo_until_date > NOW()) OR
           (BOUND(?embargo_allow_access_requests))) AS ?is_embargoed)
   }
-{%- if is_under_review is not none %}
 {%- if is_under_review %}
 FILTER (BOUND(?review))
 FILTER (?is_under_review = "true"^^xsd:string)
-{%- else %}
-FILTER (! BOUND(?review))
-{%- endif %}
 {%- endif %}
 {%- if collection_uri is not none %}
 FILTER (?collection = <{{collection_uri}}>)
