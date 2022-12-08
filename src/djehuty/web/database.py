@@ -379,23 +379,31 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query, query, "statistics")
 
-    def dataset_container (self, dataset_id):
-        """Procedure to get dataset container properties (incl shallow statistics)."""
+    def container_uuid_by_id (self, identifier, item_type="dataset"):
+        """Procedure to retrieve container_uuid from Figshare id if necessary"""
 
-        query   = self.__query_from_template ("dataset_container", {
-            "dataset_id":   dataset_id
+        if conv.parses_to_int (identifier):
+            query   = self.__query_from_template ("container_uuid_by_id", {
+                "container_id": identifier,
+                "item_type"   : item_type
+            })
+            result = self.__run_query (query)
+            if result:
+                return result[0]["container_uuid"]
+            else:
+                logging.error("Retrieving uuid for %s failed.", identifier)
+                return None
+        return identifier
+
+    def container (self, container_uuid, item_type="dataset"):
+        """Procedure to get container properties (incl shallow statistics)."""
+
+        query   = self.__query_from_template ("container", {
+            "item_type"     : item_type,
+            "container_uuid": container_uuid
         })
 
-        return self.__run_query (query, query, "dataset_container")
-
-    def collection_container (self, collection_id):
-        """Procedure to get collection container properties (incl shallow statistics)."""
-
-        query   = self.__query_from_template ("collection_container", {
-            "collection_id":   collection_id
-        })
-
-        return self.__run_query (query, query, "collection_container")
+        return self.__run_query (query, query, "container")
 
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
