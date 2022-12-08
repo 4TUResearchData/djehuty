@@ -34,7 +34,7 @@
 #table-unpublished { display: none; border-top: solid 1pt #f49120; }
 #table-published { display: none; border-top: solid 1pt #f49120; }
 #table-review { display: none; border-top: solid 1pt #f49120; }
-#create-new-dataset { margin: auto; }
+#add-new-dataset { margin: auto; }
 </style>
 <script>
 jQuery(document).ready(function () {
@@ -99,7 +99,7 @@ jQuery(document).ready(function () {
 </table>
 {%- else %}
 <p>You don&apos;t have draft datasets (yet).</p>
-<div class="center"><a id="create-new-dataset" href="/my/datasets/new" class="button neutral-button">Create new dataset</a></div>
+<div class="center"><a id="add-new-dataset" href="/my/datasets/new" class="button neutral-button">Add new dataset</a></div>
 {%- endif %}
 {%- if review_datasets: %}
 <h2>Under review</h2>

@@ -332,7 +332,7 @@ def datacite_tree (parameters, debug=False):
 
     return root
 
-def datacite (parameters, indent=False):
+def datacite (parameters, indent=True):
     """Procedure to create a DataCite XML string from PARAMETERS.
        For registration at Datacite, set indent to False"""
     return serialize_tree_to_string (datacite_tree(parameters), indent=indent)

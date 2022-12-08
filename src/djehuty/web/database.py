@@ -379,23 +379,31 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query, query, "statistics")
 
-    def dataset_container (self, dataset_id):
-        """Procedure to get dataset container properties (incl shallow statistics)."""
+    def container_uuid_by_id (self, identifier, item_type="dataset"):
+        """Procedure to retrieve container_uuid from Figshare id if necessary"""
 
-        query   = self.__query_from_template ("dataset_container", {
-            "dataset_id":   dataset_id
+        if conv.parses_to_int (identifier):
+            query   = self.__query_from_template ("container_uuid_by_id", {
+                "container_id": identifier,
+                "item_type"   : item_type
+            })
+            result = self.__run_query (query)
+            if result:
+                return result[0]["container_uuid"]
+            else:
+                logging.error("Retrieving uuid for %s failed.", identifier)
+                return None
+        return identifier
+
+    def container (self, container_uuid, item_type="dataset"):
+        """Procedure to get container properties (incl shallow statistics)."""
+
+        query   = self.__query_from_template ("container", {
+            "item_type"     : item_type,
+            "container_uuid": container_uuid
         })
 
-        return self.__run_query (query, query, "dataset_container")
-
-    def collection_container (self, collection_id):
-        """Procedure to get collection container properties (incl shallow statistics)."""
-
-        query   = self.__query_from_template ("collection_container", {
-            "collection_id":   collection_id
-        })
-
-        return self.__run_query (query, query, "collection_container")
+        return self.__run_query (query, query, "container")
 
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
@@ -913,7 +921,6 @@ class SparqlInterface:
                         first_online=None,
                         publisher=None,
                         publisher_publication=None,
-                        publisher_acceptance=None,
                         submission=None,
                         posted=None,
                         revision=None,
@@ -965,7 +972,6 @@ class SparqlInterface:
             revision              = revision,
             first_online          = first_online,
             publisher_publication = publisher_publication,
-            publisher_acceptance  = publisher_acceptance,
             posted                = posted,
             submission            = submission
         )
@@ -1046,7 +1052,7 @@ class SparqlInterface:
                         institution_id=None, pending_quota_request=None,
                         used_quota_public=None, used_quota_private=None,
                         used_quota=None, maximum_file_size=None, quota=None,
-                        modified_date=None, created_date=None, group_id=None,
+                        modified_date=None, created_date=None,
                         location=None, biography=None, categories=None):
         """Procedure to update account settings."""
 
@@ -1071,8 +1077,7 @@ class SparqlInterface:
             "maximum_file_size":     maximum_file_size,
             "quota":                 quota,
             "modified_date":         modified_date,
-            "created_date":          created_date,
-            "group_id":              group_id
+            "created_date":          created_date
         })
 
         self.cache.invalidate_by_prefix ("accounts")
@@ -1188,17 +1193,15 @@ class SparqlInterface:
         return None
 
     def insert_timeline (self, graph, container_uri=None, item_uri=None,
-                         revision=None, first_online=None,
-                         publisher_publication=None, publisher_acceptance=None,
-                         posted=None, submission=None):
+                         revision=None, first_online=None, posted=None,
+                         submission=None, publisher_publication=None):
         """Procedure to add a timeline to the state graph."""
 
-        rdf.add (graph, item_uri, rdf.DJHT["revision"],             revision,     XSD.string)
-        rdf.add (graph, container_uri, rdf.DJHT["firstOnline"],     first_online, XSD.string)
-        rdf.add (graph, item_uri, rdf.DJHT["publisherPublication"], publisher_publication, XSD.string)
-        rdf.add (graph, item_uri, rdf.DJHT["publisherAcceptance"],  publisher_acceptance,  XSD.string)
-        rdf.add (graph, item_uri, rdf.DJHT["posted"],               posted,       XSD.string)
-        rdf.add (graph, item_uri, rdf.DJHT["submission"],           submission,   XSD.string)
+        rdf.add (graph, item_uri, rdf.DJHT["revision_date"],          revision,     XSD.dateTime)
+        rdf.add (graph, container_uri, rdf.DJHT["first_online_date"], first_online, XSD.dateTime)
+        rdf.add (graph, item_uri, rdf.DJHT["posted_date"],            posted,       XSD.dateTime)
+        rdf.add (graph, item_uri, rdf.DJHT["publisher_publication_date"], publisher_publication, XSD.dateTime)
+        rdf.add (graph, item_uri, rdf.DJHT["submission_date"],        submission,   XSD.dateTime)
 
     def delete_associations (self, container_uuid, account_uuid, predicate):
         """Procedure to delete the list of PREDICATE of a dataset or collection."""
@@ -1609,7 +1612,6 @@ class SparqlInterface:
                            group_id=None,
                            first_online=None,
                            publisher_publication=None,
-                           publisher_acceptance=None,
                            submission=None,
                            posted=None,
                            revision=None,
@@ -1641,7 +1643,6 @@ class SparqlInterface:
             revision              = revision,
             first_online          = first_online,
             publisher_publication = publisher_publication,
-            publisher_acceptance  = publisher_acceptance,
             posted                = posted,
             submission            = submission
         )
@@ -1804,11 +1805,8 @@ class SparqlInterface:
         """Procedure to return group information."""
 
         filters = ""
-        if group_id is not None:
-            filters += rdf.sparql_filter ("id", group_id)
-
-        if parent_id is not None:
-            filters += rdf.sparql_filter ("parent_id", parent_id)
+        filters += rdf.sparql_filter ("id", group_id)
+        filters += rdf.sparql_filter ("parent_id", parent_id)
 
         if name is not None:
             if starts_with:
@@ -1816,8 +1814,7 @@ class SparqlInterface:
             else:
                 filters += rdf.sparql_filter ("name", name, escape=True)
 
-        if association is not None:
-            filters += rdf.sparql_filter ("association", association, escape=True)
+        filters += rdf.sparql_filter ("association", association, escape=True)
 
         query = self.__query_from_template ("group", {
             "filters":     filters

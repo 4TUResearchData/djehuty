@@ -5,6 +5,8 @@ DELETE {
     ?dataset  ?predicate            ?object .
     ?list     djht:index             ?list_index .
     ?list     ?any                  ?list_item .
+
+    ?container djht:draft           ?dataset .
   }
 }
 WHERE {

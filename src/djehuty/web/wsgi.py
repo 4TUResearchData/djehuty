@@ -70,6 +70,7 @@ class ApiServer:
         self.datacite_id         = None
         self.datacite_password   = None
         self.datacite_prefix     = None
+        self.log_access          = self.log_access_directly
 
         self.menu = []
         self.static_pages = {}
@@ -127,6 +128,14 @@ class ApiServer:
             Rule("/collections/<collection_id>/<version>",    endpoint = "ui_collection"),
             Rule("/authors/<author_id>",                      endpoint = "ui_author"),
             Rule("/search",                                   endpoint = "ui_search"),
+
+            ## ----------------------------------------------------------------
+            ## COMPATIBILITY
+            ## ----------------------------------------------------------------
+            Rule("/articles/dataset/<slug>/<dataset_id>",     endpoint = "ui_compat_dataset"),
+            Rule("/articles/dataset/<slug>/<dataset_id>/<version>", endpoint = "ui_compat_dataset"),
+            Rule("/collections/<slug>/<collection_id>",       endpoint = "ui_compat_collection"),
+            Rule("/collections/<slug>/<collection_id>/<version>", endpoint = "ui_compat_collection"),
 
             ## ----------------------------------------------------------------
             ## V2 API
@@ -343,6 +352,7 @@ class ApiServer:
     def __dispatch_request (self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
+            self.log_access (request)
             endpoint, values = adapter.match()
             return getattr(self, endpoint)(request, **values)
         except NotFound:
@@ -666,6 +676,17 @@ class ApiServer:
             return groups
         except (KeyError, IndexError):
             return None
+
+    def log_access_using_x_forwarded_for (self, request):
+        """Log interactions using the X-Forwarded-For header."""
+        try:
+            logging.access("%s requested %s.", request.headers["X-Forwarded-For"], request.full_path)
+        except KeyError:
+            logging.error("Missing X-Forwarded-For header.")
+
+    def log_access_directly (self, request):
+        """Log interactions using the 'remote_addr' property."""
+        logging.access("%s requested %s.", request.remote_addr, request.full_path)
 
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
@@ -1819,6 +1840,10 @@ class ApiServer:
 
         return self.error_404 (request)
 
+    def ui_compat_dataset (self, request, slug, dataset_id, version=None):
+        """Implements backward-compatibility landing page URLs for datasets."""
+        return self.ui_dataset (request, dataset_id, version)
+
     def ui_dataset (self, request, dataset_id, version=None, container=None, private_view=False):
         """Implements /datasets/<id>."""
         if self.accepts_html (request):
@@ -1939,6 +1964,10 @@ class ApiServer:
                                            git_repository_url=git_repository_url,
                                            private_view=private_view)
         return self.error_406 ("text/html")
+
+    def ui_compat_collection (self, request, slug, collection_id, version=None):
+        """Implements backward-compatibility landing page URLs for collections."""
+        return self.ui_collection (request, collection_id, version)
 
     def ui_collection (self, request, collection_id, version=None):
         """Implements /collections/<id>."""
@@ -2575,7 +2604,6 @@ class ApiServer:
                     # Unpack the 'timeline' object.
                     first_online          = validator.string_value (timeline, "firstOnline",                       False),
                     publisher_publication = validator.string_value (timeline, "publisherPublication",              False),
-                    publisher_acceptance  = validator.string_value (timeline, "publisherAcceptance",               False),
                     submission            = validator.string_value (timeline, "submission",                        False),
                     posted                = validator.string_value (timeline, "posted",                            False),
                     revision              = validator.string_value (timeline, "revision",                          False)
@@ -3787,7 +3815,6 @@ class ApiServer:
                     # Unpack the 'timeline' object.
                     first_online            = validator.string_value (timeline, "firstOnline",                    False),
                     publisher_publication   = validator.string_value (timeline, "publisherPublication",           False),
-                    publisher_acceptance    = validator.string_value (timeline, "publisherAcceptance",            False),
                     submission              = validator.string_value (timeline, "submission",                     False),
                     posted                  = validator.string_value (timeline, "posted",                         False),
                     revision                = validator.string_value (timeline, "revision",                       False))
@@ -5019,7 +5046,6 @@ class ApiServer:
                     maximum_file_size     = validator.integer_value (record, "maximum_file_size"),
                     quota                 = validator.integer_value (record, "quota"),
                     modified_date         = validator.string_value  (record, "modified_date", 0, 32),
-                    group_id              = validator.integer_value (record, "group_id"),
                     categories            = categories):
                 return self.respond_204 ()
 
@@ -5113,81 +5139,75 @@ class ApiServer:
     ## EXPORTS
     ## ------------------------------------------------------------------------
 
-    def __metadata_export_parameters (self, request, dataset_id, version=None):
-        container = self.__dataset_by_id_or_uri(
-            dataset_id,
-            is_published=True,
-            is_latest=not bool(version),
-            version=version)
+    def __metadata_export_parameters (self, item_id, version=None, item_type="dataset"):
+        """collect patameters for various export formats"""
 
-        if container is None:
-            return self.error_404(request)
-
-        container_uuid = container['container_uuid']
+        container_uuid = self.db.container_uuid_by_id(item_id)
         container_uri = f'container:{container_uuid}'
-        versions = self.db.dataset_versions(container_uri=container_uri)
+        is_dataset = item_type == "dataset"
+        if is_dataset:
+            versions_function  = self.db.dataset_versions
+            items_function     = self.db.datasets
+        else:
+            versions_function  = self.db.collection_versions
+            items_function     = self.db.collections
+        container = self.db.container(container_uuid, item_type=item_type)
+        versions  = versions_function (container_uri=container_uri)
         versions = [v for v in versions if v['version']]  # exclude version None (still necessary?)
         current_version = version if version else versions[0]['version']
-        dataset = self.db.datasets(container_uuid=container["container_uuid"],
-                                   version=current_version,
-                                   is_published=True)[0]
-        dataset_uri = container['uri']
-        doi = dataset['doi'] if version else container['doi']
-        authors = self.db.authors(item_uri=dataset_uri)
-        tags = self.db.tags(item_uri=dataset_uri)
-        tags = [tag['tag'] for tag in sorted(tags, key=lambda t: t['index'])]
-        published_year = dataset['published_date'][:4]
-        published_date = dataset['published_date'][:10]
-        organizations = self.parse_organizations(value_or(dataset, 'organizations', ''))
-        contributors  = self.parse_contributors (value_or(dataset, 'contributors' , ''))
-        fundings = self.db.fundings(item_uri=dataset_uri)
-        categories = self.db.categories(item_uri=dataset_uri, limit=None)
-        references = self.db.references(item_uri=dataset_uri, limit=None)
-
-        lat = self_or_value_or_none(dataset, 'latitude')
-        lon = self_or_value_or_none(dataset, 'longitude')
+        item = items_function (container_uuid=container_uuid,
+                               version=current_version,
+                               is_published=True)[0]
+        item_uuid = item['uuid']
+        item_uri = f'{item_type}:{item_uuid}'
+        published_date = item['published_date'][:10]
+        lat = self_or_value_or_none(item, 'latitude')
+        lon = self_or_value_or_none(item, 'longitude')
         lat_valid, lon_valid = decimal_coords(lat, lon)
         coordinates = {'lat_valid': lat_valid, 'lon_valid': lon_valid}
-
-        parameters = {'item': dataset,
-                      'doi': doi,
-                      'authors': authors,
-                      'categories': categories,
-                      'tags': tags,
-                      'published_year': published_year,
-                      'published_date': published_date,
-                      'organizations': organizations,
-                      'contributors': contributors,
-                      'references' : references,
-                      'coordinates' : coordinates,
-                      'fundings': fundings}
+        parameters = {
+            'item'          : item,
+            'doi'           : item['doi'],
+            'container_doi' : value_or_none(container, 'doi'),
+            'authors'       : self.db.authors(item_uri=item_uri, item_type=item_type),
+            'categories'    : self.db.categories(item_uri=item_uri, limit=None),
+            'tags'          : [tag['tag'] for tag in self.db.tags(item_uri=item_uri)],
+            'published_year': published_date[:4],
+            'published_date': published_date,
+            'organizations' : self.parse_organizations(value_or(item, 'organizations', '')),
+            'contributors'  : self.parse_contributors (value_or(item, 'contributors' , '')),
+            'references'    : self.db.references(item_uri=item_uri, limit=None),
+            'coordinates'   : coordinates
+            }
+        if is_dataset:
+            parameters['fundings'] = self.db.fundings(item_uri=item_uri)
         return parameters
 
     def ui_export_datacite_dataset (self, request, dataset_id, version=None):
         """Implements /export/datacite/datasets/<id>."""
-        return self.export_datacite(request, dataset_id, version)
+        return self.export_datacite(dataset_id, version, item_type="dataset")
 
     def ui_export_datacite_collection (self, request, collection_id, version=None):
         """Implements /export/datacite/collections/<id>."""
-        return self.export_datacite(request, collection_id, version)
+        return self.export_datacite(collection_id, version, item_type="collection")
 
-    def export_datacite (self, request, item_id, version=None):
+    def export_datacite (self, item_id, version=None, item_type="dataset"):
         """export metadata in datacite format"""
-        xml_string = self.format_datacite(request, item_id, version)
+        xml_string = self.format_datacite(item_id, version, item_type=item_type)
         output = Response(xml_string, mimetype="application/xml; charset=utf-8")
         output.headers["Server"] = "4TU.ResearchData API"
         version_string = f'_v{version}' if version else ''
         output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_datacite.xml"
         return output
 
-    def format_datacite(self, request, item_id, version=None):
+    def format_datacite(self, item_id, version=None, item_type="dataset", indent=True):
         """render metadata in datacite format"""
-        parameters = self.__metadata_export_parameters(request, item_id, version)
-        return xml_formatter.datacite(parameters)
+        parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type)
+        return xml_formatter.datacite(parameters, indent=indent)
 
     def ui_export_refworks_dataset (self, request, dataset_id, version=None):
         """export metadata in Refworks format"""
-        parameters = self.__metadata_export_parameters(request, dataset_id, version)
+        parameters = self.__metadata_export_parameters(dataset_id, version)
         xml_string = xml_formatter.refworks(parameters)
         output = Response(xml_string, mimetype="application/xml; charset=utf-8")
         output.headers["Server"] = "4TU.ResearchData API"
@@ -5197,7 +5217,7 @@ class ApiServer:
 
     def ui_export_nlm_dataset (self, request, dataset_id, version=None):
         """export metadata in NLM format"""
-        parameters = self.__metadata_export_parameters(request, dataset_id, version)
+        parameters = self.__metadata_export_parameters(dataset_id, version)
         xml_string = xml_formatter.nlm(parameters)
         output = Response(xml_string, mimetype="application/xml; charset=utf-8")
         output.headers["Server"] = "4TU.ResearchData API"
@@ -5207,7 +5227,7 @@ class ApiServer:
 
     def ui_export_dc_dataset (self, request, dataset_id, version=None):
         """export metadata in Dublin Core format"""
-        parameters = self.__metadata_export_parameters(request, dataset_id, version)
+        parameters = self.__metadata_export_parameters(dataset_id, version)
         xml_string = xml_formatter.dublincore(parameters)
         output = Response(xml_string, mimetype="application/xml; charset=utf-8")
         output.headers["Server"] = "4TU.ResearchData API"
@@ -5218,7 +5238,7 @@ class ApiServer:
     def ui_export_bibtex_dataset (self, request, dataset_id, version=None):
         """export metadata in bibtex format"""
         # collect rendering parameters
-        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
+        parameters = self.__metadata_export_parameters(dataset_id, version=version)
         # adjust rendering parameters
         # turn authors in one string
         parameters["authors_str"] = " and ".join([f"{author['last_name']}, {author['first_name']}" for author in
@@ -5234,7 +5254,7 @@ class ApiServer:
     def ui_export_refman_dataset (self, request, dataset_id, version=None):
         """export metadata in .ris format"""
         # collect rendering parameters
-        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
+        parameters = self.__metadata_export_parameters(dataset_id, version=version)
         # adjust rendering parameters: use / as date separator
         parameters['published_date'] = parameters['published_date'].replace('-', '/')
 
@@ -5246,7 +5266,7 @@ class ApiServer:
     def ui_export_endnote_dataset (self, request, dataset_id, version=None):
         """export metadata in .enw format"""
         # collect rendering parameters
-        parameters = self.__metadata_export_parameters(request, dataset_id, version=version)
+        parameters = self.__metadata_export_parameters(dataset_id, version=version)
         # adjust rendering parameters
         # prepare Reference Type (Tag %0)
         parameters["reference_type"] = "Generic"

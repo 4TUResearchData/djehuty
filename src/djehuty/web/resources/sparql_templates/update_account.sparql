@@ -32,8 +32,6 @@ DELETE {
     ?account          djht:quota                 ?quota .
     {%- endif%}{% if modified_date is not none %}
     ?account          djht:modified_date         ?modified_date .
-    {%- endif%}{% if group_id is not none %}
-    ?account          djht:group_id              ?group_id .
     {%- endif%}
   }
 }
@@ -69,8 +67,6 @@ INSERT {
     ?account          djht:quota               {{quota}} .
     {%- endif%}{% if modified_date is not none %}
     ?account          djht:modified_date       "{{modified_date | safe}}"^^xsd:string .
-    {%- endif%}{% if group_id is not none %}
-    ?account          djht:group_id            {{group_id}} .
     {%- endif%}
   }
 }
@@ -93,7 +89,6 @@ WHERE {
     OPTIONAL { ?account   djht:maximum_file_size     ?maximum_file_size . }
     OPTIONAL { ?account   djht:quota                 ?quota . }
     OPTIONAL { ?account   djht:modified_date         ?modified_date . }
-    OPTIONAL { ?account   djht:group_id              ?group_id . }
   }
   FILTER (?account = <account:{{account_uuid}}>)
 }

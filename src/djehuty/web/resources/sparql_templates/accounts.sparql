@@ -16,7 +16,6 @@ WHERE {
     OPTIONAL { ?account  djht:created_date          ?created_date . }
     OPTIONAL { ?account  djht:email                 ?email . }
     OPTIONAL { ?account  djht:first_name            ?first_name . }
-    OPTIONAL { ?account  djht:group_id              ?group_id . }
     OPTIONAL { ?account  djht:institution_id        ?institution_id . }
     OPTIONAL { ?account  djht:institution_user_id   ?institution_user_id . }
     OPTIONAL { ?account  djht:last_name             ?last_name . }
@@ -27,6 +26,12 @@ WHERE {
     OPTIONAL { ?account  djht:used_quota            ?used_quota . }
     OPTIONAL { ?account  djht:used_quota_private    ?used_quota_private . }
     OPTIONAL { ?account  djht:used_quota_public     ?used_quota_public . }
+    OPTIONAL {
+      ?group             rdf:type                   djht:InstitutionGroup ;
+                         djht:association_criteria  ?domain ;
+                         djht:id                    ?group_id .
+      ?account           djht:domain                ?domain .
+    }
   }
   BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
 

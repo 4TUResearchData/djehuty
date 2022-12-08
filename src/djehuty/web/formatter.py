@@ -50,7 +50,6 @@ def format_dataset_record (record):
             "posted":              conv.value_or_none(record, "timeline_posted"),
             "firstOnline":         conv.value_or_none(record, "timeline_first_online"),
             "revision":            conv.value_or_none(record, "timeline_revision"),
-            "publisherAcceptance": conv.value_or_none(record, "timeline_publisher_acceptance"),
         },
         "resource_title":          conv.value_or_none(record, "resource_title"),
         "resource_doi":            conv.value_or_none(record, "resource_doi")
@@ -236,7 +235,6 @@ def format_dataset_details_record (dataset, authors, files, custom_fields,
             "submission":    conv.value_or_none(dataset, "timeline_submission"),
             "firstOnline":   conv.value_or_none(dataset, "timeline_first_online"),
             "publisherPublication": conv.value_or_none(dataset, "timeline_publisher_publication"),
-            "publisherAcceptance": conv.value_or_none(dataset, "timeline_publisher_acceptance"),
         },
         "resource_title":    conv.value_or(dataset, "resource_title", ""),
         "resource_doi":      conv.value_or(dataset, "resource_doi", ""),
@@ -294,7 +292,6 @@ def format_collection_record (record):
             "revision":      conv.value_or_none(record, "timeline_revision"),
             "firstOnline":   conv.value_or_none(record, "timeline_first_online"),
             "publisherPublication": conv.value_or_none(record, "timeline_publisher_publication"),
-            "publisherAcceptance": conv.value_or_none(record, "timeline_publisher_acceptance"),
         },
         "published_date":    conv.value_or_none(record, "published_date"),
     }
@@ -336,7 +333,6 @@ def format_collection_details_record (collection, funding, categories,
             "posted":               conv.value_or_none(collection, "timeline_posted"),
             "firstOnline":          conv.value_or_none(collection, "timeline_first_online"),
             "revision":             conv.value_or_none(collection, "timeline_revision"),
-            "publisherAcceptance":  conv.value_or_none(collection, "timeline_publisher_acceptance"),
             "submission":           conv.value_or_none(collection, "timeline_submission"),
             "publisherPublication": conv.value_or_none(collection, "timeline_publisher_publication")
         }

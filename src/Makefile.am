@@ -74,16 +74,15 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/authors.sparql                     \
     djehuty/web/resources/sparql_templates/categories.sparql                  \
     djehuty/web/resources/sparql_templates/category_by_id.sparql              \
-    djehuty/web/resources/sparql_templates/collection_container.sparql        \
     djehuty/web/resources/sparql_templates/collection_datasets.sparql         \
     djehuty/web/resources/sparql_templates/collection_datasets_count.sparql   \
     djehuty/web/resources/sparql_templates/collection_versions.sparql         \
     djehuty/web/resources/sparql_templates/collections.sparql                 \
     djehuty/web/resources/sparql_templates/collections_by_account.sparql      \
     djehuty/web/resources/sparql_templates/collections_from_dataset.sparql    \
+    djehuty/web/resources/sparql_templates/container.sparql                   \
     djehuty/web/resources/sparql_templates/container_items.sparql             \
     djehuty/web/resources/sparql_templates/custom_fields.sparql               \
-    djehuty/web/resources/sparql_templates/dataset_container.sparql           \
     djehuty/web/resources/sparql_templates/dataset_files.sparql               \
     djehuty/web/resources/sparql_templates/dataset_statistics.sparql          \
     djehuty/web/resources/sparql_templates/dataset_statistics_timeline.sparql \
