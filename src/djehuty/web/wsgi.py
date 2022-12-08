@@ -996,7 +996,6 @@ class ApiServer:
         ## --------------------------------------------------------------------
         if self.identity_provider == "orcid":
             orcid_record = self.authenticate_using_orcid (request)
-            logging.access(f"{orcid_record}") # pylint: disable=no-member
             if orcid_record is None:
                 return self.error_403 (request)
 
