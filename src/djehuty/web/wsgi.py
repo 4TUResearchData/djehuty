@@ -322,6 +322,7 @@ class ApiServer:
             "in_production":   self.in_production,
             "identity_provider": self.identity_provider,
             "orcid_client_id": self.orcid_client_id,
+            "orcid_endpoint":  self.orcid_endpoint,
             "session_token":   self.token_from_request (request),
             "is_logged_in":    self.db.is_logged_in (token),
             "is_reviewing":    self.db.may_review (impersonator_token),
@@ -960,7 +961,7 @@ class ApiServer:
             return redirect ("/login", code=302)
 
         if self.identity_provider == "orcid":
-            return redirect (("https://orcid.org/oauth/authorize?client_id="
+            return redirect ((f"{self.orchid_endpoint}/authorize?client_id="
                               f"{self.orcid_client_id}&response_type=code"
                               "&scope=/authenticate&redirect_uri="
                               f"{self.base_url}/login"), 302)
@@ -974,6 +975,7 @@ class ApiServer:
         ## --------------------------------------------------------------------
         if self.identity_provider == "orcid":
             orcid_record = self.authenticate_using_orcid (request)
+            logging.access(f"{orcid_record}") # pylint: disable=no-member
             if orcid_record is None:
                 return self.error_403 (request)
 
