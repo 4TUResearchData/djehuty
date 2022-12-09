@@ -4,7 +4,7 @@ import logging
 import os
 import shutil
 import json
-import defusedxml.ElementTree as ET
+from defusedxml import ElementTree
 from werkzeug.serving import run_simple
 from djehuty.web import wsgi
 from djehuty.utils import convenience
@@ -374,7 +374,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
     try:
         config   = {}
         xml_root = None
-        tree = ET.parse(config_file)
+        tree = ElementTree.parse(config_file)
 
         if config_file is not None and not inside_reload:
             logging.info ("Reading config file: %s", config_file)
@@ -462,7 +462,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if not inside_reload:
             logging.error ("%s does not look like a Djehuty configuration file.",
                            config_file)
-    except ET.ParseError:
+    except ElementTree.ParseError:
         if not inside_reload:
             logging.error ("%s does not contain valid XML.", config_file)
     except FileNotFoundError as error:

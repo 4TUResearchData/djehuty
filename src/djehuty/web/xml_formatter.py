@@ -3,7 +3,7 @@ This module implements constructing XML trees for rendering the DataCite
 and other XML formats.
 """
 
-import xml.etree.ElementTree as ET
+from xml.etree import ElementTree
 from djehuty.utils.convenience import value_or, value_or_none
 
 class ElementMaker:
@@ -20,7 +20,7 @@ class ElementMaker:
             self.namespaces = {}
 
         for prefix, uri in self.namespaces.items():
-            ET.register_namespace(prefix, uri)
+            ElementTree.register_namespace(prefix, uri)
 
     def resolve (self, name, is_element=True):
         """Procedure to translate a prefixed NAME to its full namespace URI."""
@@ -37,9 +37,9 @@ class ElementMaker:
     def child (self, parent, name, attrib=None, text=None):
         """Procedure to process a child element including attributes."""
         if parent is not None:
-            element = ET.SubElement(parent, self.resolve(name))
+            element = ElementTree.SubElement(parent, self.resolve(name))
         else:
-            element = ET.Element(self.resolve(name))
+            element = ElementTree.Element(self.resolve(name))
 
         if attrib is not None:
             for attname, val in attrib.items():
@@ -61,7 +61,7 @@ class ElementMaker:
         attrib = attrib if attrib else {}
         if schemas:
             self.namespaces['xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
-            ET.register_namespace('xsi', self.namespaces['xsi'])
+            ElementTree.register_namespace('xsi', self.namespaces['xsi'])
             schema_decl = ''.join(
                 [f'{self.namespaces[pr]} {schema}' for pr, schema in schemas.items()])
             attrib['xsi:schemaLocation'] = schema_decl
@@ -70,8 +70,8 @@ class ElementMaker:
 def serialize_tree_to_string (tree, indent=True):
     """Procedure to turn the ElementTree into a string."""
     if indent:
-        ET.indent(tree)
-    return ET.tostring(tree, encoding='utf8', short_empty_elements=True)
+        ElementTree.indent(tree)
+    return ElementTree.tostring(tree, encoding='utf8', short_empty_elements=True)
 
 def scrub (obj):
     """Eliminate from construct of dicts and lists all values x for which bool(x)==False."""
@@ -328,7 +328,7 @@ def datacite_tree (parameters, debug=False):
     #debug
     if debug:
         param_strings = [f'{key:<15}: {val}' for key, val in parameters.items()]
-        root.insert(0, ET.Comment('DEBUG\n' + '\n'.join(param_strings)))
+        root.insert(0, ElementTree.Comment('DEBUG\n' + '\n'.join(param_strings)))
 
     return root
 

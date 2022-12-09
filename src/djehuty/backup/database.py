@@ -8,7 +8,7 @@ from threading import Lock
 from secrets import token_urlsafe
 import json
 import time
-import defusedxml.ElementTree as ET
+from defusedxml import ElementTree
 from rdflib import Graph, Literal, RDF, RDFS, XSD, URIRef
 import requests
 from requests.utils import requote_uri
@@ -77,7 +77,7 @@ class DatabaseInterface:
             return total_filesize
 
         namespaces  = { "c": "http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0" }
-        xml_root    = ET.fromstring(metadata)
+        xml_root    = ElementTree.fromstring(metadata)
         references  = xml_root.findall(".//c:catalogRef", namespaces)
 
         ## Recursively handle directories.
