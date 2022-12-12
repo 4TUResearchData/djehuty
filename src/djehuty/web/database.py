@@ -1967,6 +1967,18 @@ class SparqlInterface:
 
         return self.default_quota
 
+    def __account_with_privileges_and_quotas (self, account):
+        """Returns an account record with privileges and quotas."""
+
+        try:
+            privileges = self.privileges[account["email"]]
+            quota      = self.account_quota (account["email"], account["domain"])
+            account    = { **account, **privileges, "quota": quota }
+        except (TypeError, KeyError):
+            pass
+
+        return account
+
     def account_by_session_token (self, session_token):
         """Returns an account record or None."""
 
@@ -1974,17 +1986,11 @@ class SparqlInterface:
             "token":       session_token
         })
 
-        try:
-            results = self.__run_query (query)
-            account = results[0]
-            privileges = self.privileges[account["email"]]
-            quota   = self.account_quota (account["email"], account["domain"])
-            account = { **account, **privileges, "quota": quota }
-            return account
-        except IndexError:
-            return None
-        except KeyError:
-            return account
+        results = self.__run_query (query)
+        if results:
+            return self.__account_with_privileges_and_quotas (results[0])
+
+        return None
 
     def accounts (self, account_uuid=None, order=None, order_direction=None,
                   limit=None, offset=None, is_active=None, email=None,
@@ -2005,17 +2011,11 @@ class SparqlInterface:
     def account_by_uuid (self, account_uuid):
         """Returns an account record or None."""
 
-        try:
-            results    = self.accounts(account_uuid)
-            account    = results[0]
-            privileges = self.privileges[account["email"]]
-            quota      = self.account_quota (account["email"], account["domain"])
-            account    = { **account, **privileges, "quota": quota }
-            return account
-        except IndexError:
-            return None
-        except KeyError:
-            return account
+        results    = self.accounts(account_uuid)
+        if results:
+            return self.__account_with_privileges_and_quotas (results[0])
+
+        return None
 
     def account_by_email (self, email):
         """Returns the account matching EMAIL."""
@@ -2024,17 +2024,11 @@ class SparqlInterface:
             "email":  email
         })
 
-        try:
-            results    = self.__run_query (query)
-            account    = results[0]
-            privileges = self.privileges[email]
-            quota      = self.account_quota (account["email"], account["domain"])
-            account    = { **account, **privileges, "quota": quota }
-            return account
-        except IndexError:
-            return None
-        except KeyError:
-            return account
+        results = self.__run_query (query)
+        if results:
+            return self.__account_with_privileges_and_quotas (results[0])
+
+        return None
 
     def initialize_privileged_accounts (self):
         """Ensures privileged accounts are present in the database."""
