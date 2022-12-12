@@ -330,11 +330,8 @@ class SparqlInterface:
         prefix  = item_type.capitalize()
         filters = ""
 
-        if category_ids is not None:
-            filters += rdf.sparql_in_filter ("category_id", category_ids)
-
-        if group_ids is not None:
-            filters += rdf.sparql_in_filter ("group_id", group_ids)
+        filters += rdf.sparql_in_filter ("category_id", category_ids)
+        filters += rdf.sparql_in_filter ("group_id", group_ids)
 
         query   = self.__query_from_template ("dataset_statistics", {
             "category_ids":  category_ids,
@@ -359,14 +356,8 @@ class SparqlInterface:
         item_class  = item_type.capitalize()
         filters = ""
 
-        if dataset_id is not None:
-            filters += rdf.sparql_filter("dataset_id", dataset_id)
-
-        if category_ids is not None:
-            filters += f"FILTER (?category_id={category_ids[0]}"
-            for category_id in category_ids[1:]:
-                filters += f" OR ?category_id={category_id}"
-            filters += ")\n"
+        filters += rdf.sparql_filter ("dataset_id", dataset_id)
+        filters += rdf.sparql_in_filter ("category_id", category_ids)
 
         query   = self.__query_from_template ("dataset_statistics_timeline", {
             "category_ids":  category_ids,
