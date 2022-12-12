@@ -15,6 +15,7 @@ from requests.utils import requote_uri
 from djehuty.utils.convenience import value_or, value_or_none
 from djehuty.utils.convenience import custom_field_name, opendap_sizes_to_bytes
 from djehuty.utils import rdf
+import re
 
 class DatabaseInterface:
     """
@@ -450,10 +451,12 @@ class DatabaseInterface:
             self.insert_custom_field_value (uri, name, value, field_type)
 
     def fix_doi (self, record, item_id, version, item_type):
-        '''Fix doi if needed'''
+        '''Fix doi if needed: handle Fedora/Figshare history and fix Figshare bug'''
         extra_dois = [extra['doi'] for extra in self.extra_dois[item_type] if extra['id']==item_id and extra['version']==version]
         if extra_dois:
             record['doi'] = extra_dois[0]
+        elif version and re.findall(r'^10\.4121/\d+$', doi):
+            record['doi'] += f'.v{version}'
 
     def handle_custom_fields (self, record, uri, item_id, version, item_type):
         '''Handle custom fields and fix special cases'''
