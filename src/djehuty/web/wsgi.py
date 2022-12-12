@@ -1174,9 +1174,11 @@ class ApiServer:
         account      = self.db.account_by_uuid (account_uuid)
         storage_used = self.db.account_storage_used (account_uuid)
 
+        account_quota   = 0
         percentage_used = 0
         try:
-            percentage_used = round(storage_used / account["quota"] * 100, 2)
+            account_quota   = account["quota"]
+            percentage_used = round(storage_used / account_quota * 100, 2)
         except (TypeError, KeyError):
             pass
 
@@ -1184,7 +1186,7 @@ class ApiServer:
         return self.__render_template (
             request, "depositor/dashboard.html",
             storage_used = pretty_print_size (storage_used),
-            quota        = pretty_print_size (account["quota"]),
+            quota        = pretty_print_size (account_quota),
             percentage_used = percentage_used,
             sessions     = sessions)
 
