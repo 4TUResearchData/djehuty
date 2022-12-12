@@ -455,7 +455,7 @@ class DatabaseInterface:
         extra_dois = [extra['doi'] for extra in self.extra_dois[item_type] if extra['id']==item_id and extra['version']==version]
         if extra_dois:
             record['doi'] = extra_dois[0]
-        elif version and re.findall(r'^10\.4121/\d+$', doi):
+        elif version and re.findall(r'^10\.4121/(c.)?\d+$', doi):
             record['doi'] += f'.v{version}'
 
     def handle_custom_fields (self, record, uri, item_id, version, item_type):
