@@ -1973,7 +1973,8 @@ class SparqlInterface:
 
         try:
             privileges = self.privileges[account["email"]]
-            quota      = self.account_quota (account["email"], account["domain"])
+            domain     = conv.value_or (account, "domain", "")
+            quota      = self.account_quota (account["email"], domain)
             account    = { **account, **privileges, "quota": quota }
         except (TypeError, KeyError):
             pass
