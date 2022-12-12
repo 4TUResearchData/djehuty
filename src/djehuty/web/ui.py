@@ -60,6 +60,39 @@ def config_value (xml_root, path, command_line=None, fallback=None):
     ## Fall back to the fallback value.
     return fallback
 
+def read_quotas_configuration (server, xml_root):
+    """Read quota information from XML_ROOT."""
+
+    quotas = xml_root.find("quotas")
+    if not quotas:
+        return None
+
+    # Set the default quota for non-members.
+    try:
+        server.db.default_quota = int(quotas.attrib["default"])
+    except (ValueError, TypeError):
+        pass
+
+    # Set specific quotas for member institutions and accounts.
+    for quota_specification in quotas:
+        email  = quota_specification.attrib.get("email")
+        domain = quota_specification.attrib.get("domain")
+        value  = None
+        try:
+            value = int(quota_specification.text)
+        except (ValueError, TypeError):
+            pass
+
+        # Organization-wide quotas
+        if domain is not None:
+            server.db.group_quotas[domain] = value
+
+        # Account-specific quotas
+        elif email is not None:
+            server.db.account_quotas[email] = value
+
+    return None
+
 def read_saml_configuration (server, xml_root):
     """Read the SAML configuration from XML_ROOT."""
 
@@ -419,6 +452,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         read_datacite_configuration (server, xml_root)
         read_saml_configuration (server, xml_root)
         read_privilege_configuration (server, xml_root)
+        read_quotas_configuration (server, xml_root)
 
         for include_element in xml_root.iter('include'):
             include    = include_element.text

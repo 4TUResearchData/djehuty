@@ -31,6 +31,10 @@ class SparqlInterface:
                                          "resources/sparql_templates")),
                                          autoescape=True)
 
+        self.account_quotas = {}
+        self.group_quotas   = {}
+        self.default_quota  = 5000000000
+
         self.sparql      = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)
         self.sparql_is_up = True
@@ -1041,9 +1045,7 @@ class SparqlInterface:
     def update_account (self, account_uuid, active=None, email=None, job_title=None,
                         first_name=None, last_name=None, institution_user_id=None,
                         institution_id=None, pending_quota_request=None,
-                        used_quota_public=None, used_quota_private=None,
-                        used_quota=None, maximum_file_size=None, quota=None,
-                        modified_date=None, created_date=None,
+                        maximum_file_size=None, modified_date=None, created_date=None,
                         location=None, biography=None, categories=None):
         """Procedure to update account settings."""
 
@@ -1062,11 +1064,7 @@ class SparqlInterface:
             "institution_user_id":   institution_user_id,
             "institution_id":        institution_id,
             "pending_quota_request": pending_quota_request,
-            "used_quota_public":     used_quota_public,
-            "used_quota_private":    used_quota_private,
-            "used_quota":            used_quota,
             "maximum_file_size":     maximum_file_size,
-            "quota":                 quota,
             "modified_date":         modified_date,
             "created_date":          created_date
         })
@@ -1955,6 +1953,20 @@ class SparqlInterface:
 
         return None
 
+    def account_quota (self, email, domain):
+        """Return the account's quota in bytes."""
+
+        account_quota = self.account_quotas.get (email)
+        group_quota   = self.group_quotas.get (domain)
+
+        if account_quota:
+            return account_quota
+
+        if group_quota:
+            return group_quota
+
+        return self.default_quota
+
     def account_by_session_token (self, session_token):
         """Returns an account record or None."""
 
@@ -1966,7 +1978,8 @@ class SparqlInterface:
             results = self.__run_query (query)
             account = results[0]
             privileges = self.privileges[account["email"]]
-            account = { **account, **privileges }
+            quota   = self.account_quota (account["email"], account["domain"])
+            account = { **account, **privileges, "quota": quota }
             return account
         except IndexError:
             return None
@@ -1996,7 +2009,8 @@ class SparqlInterface:
             results    = self.accounts(account_uuid)
             account    = results[0]
             privileges = self.privileges[account["email"]]
-            account    = { **account, **privileges }
+            quota      = self.account_quota (account["email"], account["domain"])
+            account    = { **account, **privileges, "quota": quota }
             return account
         except IndexError:
             return None
@@ -2014,7 +2028,8 @@ class SparqlInterface:
             results    = self.__run_query (query)
             account    = results[0]
             privileges = self.privileges[email]
-            account    = { **account, **privileges }
+            quota      = self.account_quota (account["email"], account["domain"])
+            account    = { **account, **privileges, "quota": quota }
             return account
         except IndexError:
             return None

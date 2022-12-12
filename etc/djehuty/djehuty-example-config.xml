@@ -35,4 +35,8 @@
       <may-review>0</may-review>
     </account>
   </privileges>
+  <quotas default="5000000000">
+    <group domain="tudelft.nl">50000000000</group>
+    <account email="you@example.com">25000000000</account>
+  </quotas>
 </djehuty>

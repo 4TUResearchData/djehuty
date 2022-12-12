@@ -2,8 +2,7 @@
 {% block query %}
 SELECT DISTINCT ?role ?active ?created_date ?email ?first_name ?group_id
                 ?uuid ?institution_id ?institution_user_id ?last_name
-                ?maximum_file_size ?modified_date ?pending_quota_request ?quota
-                ?used_quota ?used_quota_private ?used_quota_public
+                ?maximum_file_size ?modified_date ?domain
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account             rdf:type                  djht:Account .
@@ -16,11 +15,6 @@ WHERE {
     OPTIONAL { ?account  djht:last_name             ?last_name . }
     OPTIONAL { ?account  djht:maximum_file_size     ?maximum_file_size . }
     OPTIONAL { ?account  djht:modified_date         ?modified_date . }
-    OPTIONAL { ?account  djht:pending_quota_request ?pending_quota_request . }
-    OPTIONAL { ?account  djht:quota                 ?quota . }
-    OPTIONAL { ?account  djht:used_quota            ?used_quota . }
-    OPTIONAL { ?account  djht:used_quota_private    ?used_quota_private . }
-    OPTIONAL { ?account  djht:used_quota_public     ?used_quota_public . }
     OPTIONAL { ?account  djht:role                  ?role . }
 
     ?session             rdf:type                  djht:Session .
