@@ -1165,11 +1165,16 @@ class SparqlInterface:
 
         graph.add ((account_uri, RDF.type,      rdf.DJHT["Account"]))
 
+        domain = None
+        if email is not None:
+            domain = email.partition("@")[2]
+
         rdf.add (graph, account_uri, rdf.DJHT["active"],     1)
         rdf.add (graph, account_uri, rdf.DJHT["first_name"], first_name, XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["last_name"],  last_name,  XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["full_name"],  full_name,  XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["email"],      email,      XSD.string)
+        rdf.add (graph, account_uri, rdf.DJHT["domain"],     domain,     XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["location"],   location,   XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["biography"],  biography,  XSD.string)
 
