@@ -1170,11 +1170,21 @@ class ApiServer:
             return self.error_403 (request)
 
         account_uuid = self.account_uuid_from_request (request)
+        account      = self.db.account_by_uuid (account_uuid)
         storage_used = self.db.account_storage_used (account_uuid)
+
+        percentage_used = 0
+        try:
+            percentage_used = round(storage_used / account["quota"] * 100, 2)
+        except (TypeError, KeyError):
+            pass
+
         sessions     = self.db.sessions (account_uuid)
         return self.__render_template (
             request, "depositor/dashboard.html",
             storage_used = pretty_print_size (storage_used),
+            quota        = pretty_print_size (account["quota"]),
+            percentage_used = percentage_used,
             sessions     = sessions)
 
     def ui_my_data (self, request):
