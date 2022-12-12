@@ -378,16 +378,17 @@ class SparqlInterface:
         """Procedure to retrieve container_uuid from Figshare id if necessary"""
 
         if conv.parses_to_int (identifier):
-            query   = self.__query_from_template ("container_uuid_by_id", {
-                "container_id": identifier,
-                "item_type"   : item_type
-            })
-            result = self.__run_query (query)
-            if result:
+            try:
+                query = self.__query_from_template ("container_uuid_by_id", {
+                    "container_id": identifier,
+                    "item_type"   : item_type
+                })
+                result = self.__run_query (query)
                 return result[0]["container_uuid"]
-            else:
-                logging.error("Retrieving uuid for %s failed.", identifier)
+            except (IndexError, KeyError):
+                logging.error ("Retrieving uuid for %s failed.", identifier)
                 return None
+
         return identifier
 
     def container (self, container_uuid, item_type="dataset"):
