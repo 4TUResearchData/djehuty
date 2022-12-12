@@ -679,13 +679,17 @@ class ApiServer:
     def log_access_using_x_forwarded_for (self, request):
         """Log interactions using the X-Forwarded-For header."""
         try:
-            logging.access("%s requested %s.", request.headers["X-Forwarded-For"], request.full_path)
+            logging.access ("%s requested %s.",  # pylint: disable=no-member
+                            request.headers["X-Forwarded-For"],
+                            request.full_path)
         except KeyError:
             logging.error("Missing X-Forwarded-For header.")
 
     def log_access_directly (self, request):
         """Log interactions using the 'remote_addr' property."""
-        logging.access("%s requested %s.", request.remote_addr, request.full_path)
+        logging.access ("%s requested %s.",  # pylint: disable=no-member
+                        request.remote_addr,
+                        request.full_path)
 
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
