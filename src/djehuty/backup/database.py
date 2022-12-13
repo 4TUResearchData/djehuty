@@ -455,8 +455,15 @@ class DatabaseInterface:
         extra_dois = [extra['doi'] for extra in self.extra_dois[item_type] if extra['id']==item_id and extra['version']==version]
         if extra_dois:
             record['doi'] = extra_dois[0]
-        elif version and re.findall(r'^10\.4121/(c.)?\d+$', doi):
+        elif version and 'doi' in record and re.findall(r'^10\.4121/(c\.)?\d+$', record['doi']):
             record['doi'] += f'.v{version}'
+
+    def add_container_doi (self, record, container):
+        '''Add doi to container if latest item in container has Figshare-style doi'''
+        if 'doi' in record:
+            groups = re.match(r'^(10\.4121/(c\.)?\d+)(.v\d+)?$', record['doi']).groups()
+            if groups:
+                rdf.add (self.store, container, rdf.DJHT["doi"], groups[0], XSD.string)
 
     def handle_custom_fields (self, record, uri, item_id, version, item_type):
         '''Handle custom fields and fix special cases'''
@@ -577,6 +584,7 @@ class DatabaseInterface:
 
             if is_latest:
                 self.store.add ((container, rdf.DJHT["latest_published_version"], uri))
+                self.add_container_doi (record, container)
                 timeline = value_or_none (record, "timeline")
                 rdf.add (self.store, container, rdf.DJHT["first_online_date"],
                          value_or_none (timeline, "firstOnline"), XSD.dateTime)
@@ -858,6 +866,7 @@ class DatabaseInterface:
 
             if is_latest:
                 self.store.add ((container, rdf.DJHT["latest_published_version"], uri))
+                self.add_container_doi (record, container)
                 timeline = value_or_none (record, "timeline")
                 rdf.add (self.store, container, rdf.DJHT["first_online_date"],
                          value_or_none (timeline, "firstOnline"), XSD.dateTime)
