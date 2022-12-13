@@ -406,6 +406,7 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-sync::before { content: "\f021"; }
 .fa-question-circle::before { content: "\f059"; }
 .fa-link::before { content: "\f0c1"; }
+.fa-plus::before { content: "\f067"; }
 .fa-empty::before {}
 
 ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; font-size: 13pt; }

@@ -94,6 +94,7 @@ class ApiServer:
             Rule("/my/datasets/<dataset_id>/private_link/<private_link_id>/delete", endpoint = "ui_delete_private_link"),
             Rule("/my/datasets/<dataset_id>/private_link/new", endpoint = "ui_new_private_link"),
             Rule("/my/datasets/new",                          endpoint = "ui_new_dataset"),
+            Rule("/my/datasets/<dataset_id>/new-version-draft", endpoint = "ui_new_version_draft_dataset"),
             Rule("/my/datasets/submitted-for-review",         endpoint = "ui_dataset_submitted"),
             Rule("/my/collections",                           endpoint = "ui_my_collections"),
             Rule("/my/collections/<collection_id>/edit",      endpoint = "ui_edit_collection"),
@@ -1275,6 +1276,35 @@ class ApiServer:
             return redirect (f"/my/datasets/{container_uuid}/edit", code=302)
 
         return self.error_500()
+
+    def ui_new_version_draft_dataset (self, request, dataset_id):
+        """Implements /my/datasets/<id>/new-version-draft."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed(request)
+
+        token = self.token_from_cookie (request)
+        if not self.db.is_depositor (token):
+            return self.error_403 (request)
+
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               is_published = True,
+                                               account_uuid = account_uuid)
+
+        if dataset is None:
+            logging.error ("Unable to find dataset '%s'.", dataset_id)
+            return self.error_403 (request)
+
+        container_uuid = dataset["container_uuid"]
+        draft_uuid = self.db.create_draft_from_published_dataset (container_uuid)
+        if draft_uuid is None:
+            logging.info("There is no draft dataset.")
+            return self.error_500()
+
+        return redirect (f"/my/datasets/{container_uuid}/edit", code=302)
 
     def ui_edit_dataset (self, request, dataset_id):
         """Implements /my/datasets/<id>/edit."""

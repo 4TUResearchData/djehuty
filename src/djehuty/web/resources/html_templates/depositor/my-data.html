@@ -137,6 +137,7 @@ jQuery(document).ready(function () {
       <th>Type</th>
       <th>Size</th>
       <th>Created&nbsp;at</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>{% for article in published_datasets: %}
@@ -145,6 +146,7 @@ jQuery(document).ready(function () {
       <td>{{article.defined_type_name | default("undefined", False)}}</td>
       <td>{{article.storage_used}}</td>
       <td>{{article.created_date | truncate(10,False,'')}}</td>
+      <td>{%- if not article.has_draft %}<a href="/my/datasets/{{article.container_uuid}}/new-version-draft" class="fas fa-plus" title="Add new version"></a>{% endif %}</td>
     </tr>
   {% endfor %}</tbody>
 </table>
