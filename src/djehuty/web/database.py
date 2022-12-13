@@ -1462,6 +1462,84 @@ class SparqlInterface:
 
         return False
 
+    def create_draft_from_published_dataset (self, container_uuid):
+        """Procedure to copy a published dataset as draft in its container."""
+
+        latest_uri = None
+        try:
+            latest = self.datasets (container_uuid = container_uuid,
+                                    is_published   = True,
+                                    is_latest      = True,
+                                    limit          = 1)[0]
+
+            latest_uri      = latest["uri"]
+        except (IndexError, TypeError):
+            return None
+
+        ## Derive the new draft from the published version.
+        draft_authors       = self.authors(item_uri=latest_uri, limit=None)
+        draft_files         = self.dataset_files(dataset_uri=latest_uri, limit=None)
+        draft_tags          = self.tags(item_uri=latest_uri, limit=None)
+        draft_categories    = self.categories(item_uri=latest_uri, limit=None)
+        draft_references    = self.references(item_uri=latest_uri, limit=None)
+        draft_derived_from  = self.derived_from(item_uri=latest_uri, limit=None)
+        draft_fundings      = self.fundings(item_uri=latest_uri, limit=None)
+        draft_custom_fields = self.custom_fields (item_uri=latest_uri, item_type="dataset")
+
+        draft_funding_title = None
+        if draft_fundings:
+            draft_funding_title = draft_fundings[0]["title"]
+
+        ## Insert dataset
+        # We don't insert the DOI because the draft will get a new DOI.
+        container_uuid, draft_uuid = self.insert_dataset (
+                title                 = conv.value_or_none (latest, "title"),
+                account_uuid          = conv.value_or_none (latest, "account_uuid"),
+                container_uuid        = container_uuid,
+                description           = conv.value_or_none (latest, "description"),
+                defined_type          = conv.value_or_none (latest, "defined_type"),
+                defined_type_name     = conv.value_or_none (latest, "defined_type_name"),
+                funding               = draft_funding_title,
+                license_url           = conv.value_or_none (latest, "license_url"),
+                language              = conv.value_or_none (latest, "language"),
+                resource_doi          = conv.value_or_none (latest, "resource_doi"),
+                resource_title        = conv.value_or_none (latest, "resource_title"),
+                first_online          = conv.value_or_none (latest, "timeline_first_online"),
+                publisher_publication = conv.value_or_none (latest, "timeline_publisher_publication"),
+                submission            = conv.value_or_none (latest, "timeline_submission"),
+                posted                = conv.value_or_none (latest, "timeline_posted"),
+                revision              = conv.value_or_none (latest, "timeline_revision"),
+                group_id              = conv.value_or_none (latest, "group_id"),
+                publisher             = conv.value_or_none (latest, "publisher"),
+                funding_list          = draft_fundings,
+                tags                  = draft_tags,
+                references            = draft_references,
+                categories            = draft_categories,
+                authors               = draft_authors,
+                custom_fields         = draft_custom_fields,
+                private_links         = None,
+                files                 = draft_files,
+                embargo_type          = conv.value_or_none (latest, "embargo_type"),
+                embargo_until_date    = conv.value_or_none (latest, "embargo_until_date"),
+                embargo_title         = conv.value_or_none (latest, "embargo_title"),
+                embargo_reason        = conv.value_or_none (latest, "embargo_reason"),
+                git_uuid              = rdf.escape_string_value (str (uuid.uuid4())),
+                is_public             = 0,
+                is_active             = 1,
+                is_latest             = 0,
+                is_editable           = 1,
+                version               = None)
+
+        graph         = Graph()
+        container_uri = URIRef(rdf.uuid_to_uri (container_uuid, "container"))
+        draft_uri     = URIRef(rdf.uuid_to_uri (draft_uuid, "dataset"))
+        rdf.add (graph, container_uri, rdf.DJHT["draft"], draft_uri, "uri")
+
+        if self.add_triples_from_graph (graph):
+            return draft_uuid
+
+        return None
+
     def update_dataset (self, container_uuid, account_uuid, title=None,
                         description=None, resource_doi=None, doi=None,
                         resource_title=None, license_url=None, group_id=None,
