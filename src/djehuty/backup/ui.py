@@ -31,13 +31,22 @@ def process_datasets_for_account (endpoint, account):
     for dataset_index, dataset in enumerate (datasets):
         logging.info ("Processing dataset %d of %d.",
                       dataset_index + 1, number_of_datasets)
-        if endpoint.rdf_store.insert_dataset (dataset):
-            datasets_written += 1
-        else:
-            datasets_failed  += 1
 
         versions = value_or (dataset, "versions", [])
+
+        # Only insert the draft dataset when it has changed since the last
+        # publication, which we check by modified_date.
+        try:
+            if not (versions and versions[-1]["modified_date"] == dataset["modified_date"]):
+                if endpoint.rdf_store.insert_dataset (dataset):
+                    datasets_written += 1
+                else:
+                    datasets_failed  += 1
+        except (KeyError, IndexError):
+            pass
+
         for version in versions:
+            version["account_uri"] = dataset["account_uri"]
             if not endpoint.rdf_store.insert_dataset (version):
                 logging.error("Inserting a version of %s failed.", dataset['id'])
 
