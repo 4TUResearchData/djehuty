@@ -47,7 +47,7 @@ Available subcommands and options:
   --version              -v  Show versioning information.\n""")
     sys.exit(0)
 
-def main ():
+def main_inner ():
     """The main entry point of the program."""
 
     logging.basicConfig(format='[ %(levelname)s ] %(asctime)s: %(message)s',
@@ -118,3 +118,11 @@ def main ():
 
     elif len(sys.argv) == 1:
         print("Try --help for usage options.")
+
+def main ():
+    """Wrapper to catch KeyboardInterrupts for main_inner."""
+    try:
+        main_inner()
+    except KeyboardInterrupt:
+        logging.info("Received shutdown signal.  Goodbye!")
+    sys.exit(0)
