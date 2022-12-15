@@ -264,6 +264,8 @@ class ApiServer:
             Rule("/export/nlm/datasets/<dataset_id>/<version>",            endpoint = "ui_export_nlm_dataset"),
             Rule("/export/dc/datasets/<dataset_id>",                       endpoint = "ui_export_dc_dataset"),
             Rule("/export/dc/datasets/<dataset_id>/<version>",             endpoint = "ui_export_dc_dataset"),
+            Rule("/export/cff/datasets/<dataset_id>",                      endpoint = "ui_export_cff_dataset"),
+            Rule("/export/cff/datasets/<dataset_id>/<version>",            endpoint = "ui_export_cff_dataset"),
 
            ])
 
@@ -5317,6 +5319,15 @@ class ApiServer:
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.enw"}
         return self.__render_export_format(template_name="endnote.enw",
+                                           mimetype="text/plain; charset=utf-8",
+                                           headers=headers, **parameters)
+
+    def ui_export_cff_dataset (self, request, dataset_id, version=None):
+        """export metadata in citation file format"""
+        # collect rendering parameters
+        parameters = self.__metadata_export_parameters(dataset_id, version=version)
+        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_citation.cff"}
+        return self.__render_export_format(template_name="citation.cff",
                                            mimetype="text/plain; charset=utf-8",
                                            headers=headers, **parameters)
 

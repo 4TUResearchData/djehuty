@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+abstract: "{{ item.description.replace('\\n', '\n') | safe}}"
+authors:
+{%- for author in authors %}
+  - family-names: {{ author.last_name }}
+    given-names: {{ author.first_name }}
+    {%- if author.orcid_id: %}
+    orcid: "https://orcid.org/{{ author.orcid_id }}"
+    {%- endif %}
+{%- endfor %}
+title: "{{ item.title }}"
+keywords:
+{%- for keyword in keywords %}
+  - "{{ keyword }}"
+{%- endfor %}
+version: {{ item.version }}
+identifiers:
+  - type: doi
+    value: {{ item.doi }}
+license: {{ item.license_name }}
+date-released: {{ item.published_date | truncate(10,False,'')}}

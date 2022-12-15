@@ -60,6 +60,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/metadata_templates/bibtex.bib                       \
     djehuty/web/resources/metadata_templates/endnote.enw                      \
     djehuty/web/resources/metadata_templates/refman.ris                       \
+    djehuty/web/resources/metadata_templates/citation.cff                     \
     djehuty/web/resources/robots.txt                                          \
     djehuty/web/resources/sparql_templates/account_by_email.sparql            \
     djehuty/web/resources/sparql_templates/account_by_session_token.sparql    \
