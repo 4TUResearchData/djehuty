@@ -570,6 +570,8 @@ def main (address=None, port=None, state_graph=None, storage=None,
                     raise MissingConfigurationError
 
             if initialize:
+                logging.info("Invalidating caches ...")
+                server.db.cache.invalidate_all ()
                 logging.info("Initializing RDF store ...")
                 rdf_store = backup_database.DatabaseInterface()
 
