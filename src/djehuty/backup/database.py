@@ -8,6 +8,7 @@ from threading import Lock
 from secrets import token_urlsafe
 import json
 import time
+import re
 from defusedxml import ElementTree
 from rdflib import Graph, Literal, RDF, RDFS, XSD, URIRef
 import requests
@@ -15,7 +16,6 @@ from requests.utils import requote_uri
 from djehuty.utils.convenience import value_or, value_or_none
 from djehuty.utils.convenience import custom_field_name, opendap_sizes_to_bytes
 from djehuty.utils import rdf
-import re
 
 class DatabaseInterface:
     """
@@ -460,10 +460,14 @@ class DatabaseInterface:
 
     def add_container_doi (self, record, container):
         '''Add doi to container if latest item in container has Figshare-style doi'''
-        if 'doi' in record:
+        try:
             groups = re.match(r'^(10\.4121/(c\.)?\d+)(.v\d+)?$', record['doi']).groups()
             if groups:
                 rdf.add (self.store, container, rdf.DJHT["doi"], groups[0], XSD.string)
+        except (IndexError, AttributeError):
+            logging.warning ("Failed to regexp match the DOI for <%s>.", container)
+        except KeyError:
+            pass # No DOI in record.
 
     def handle_custom_fields (self, record, uri, item_id, version, item_type):
         '''Handle custom fields and fix special cases'''
