@@ -1852,8 +1852,6 @@ class ApiServer:
             offset, limit = validator.paging_to_offset_and_limit ({
                 "page":      page,
                 "page_size": page_size,
-                "limit":     None,
-                "offset":    None
             })
         except validator.ValidationException:
             pass
