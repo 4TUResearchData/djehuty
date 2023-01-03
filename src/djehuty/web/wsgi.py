@@ -244,6 +244,7 @@ class ApiServer:
             ## SAML 2.0
             ## ----------------------------------------------------------------
             Rule("/saml/metadata",                            endpoint = "saml_metadata"),
+            Rule("/saml/login",                               endpoint = "ui_login"),
 
             ## ----------------------------------------------------------------
             ## EXPORT
