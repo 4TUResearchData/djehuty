@@ -11,6 +11,7 @@ import secrets
 import re
 import requests
 import pygit2
+import base64
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
@@ -5212,10 +5213,12 @@ class ApiServer:
         lon = self_or_value_or_none(item, 'longitude')
         lat_valid, lon_valid = decimal_coords(lat, lon)
         coordinates = {'lat_valid': lat_valid, 'lon_valid': lon_valid}
+        doi = item['doi']
+        if not version and 'doi' in container:
+            doi = container['doi']
         parameters = {
             'item'          : item,
-            'doi'           : item['doi'],
-            'container_doi' : value_or_none(container, 'doi'),
+            'doi'           : doi,
             'authors'       : self.db.authors(item_uri=item_uri, item_type=item_type),
             'categories'    : self.db.categories(item_uri=item_uri, limit=None),
             'tags'          : [tag['tag'] for tag in self.db.tags(item_uri=item_uri)],

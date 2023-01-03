@@ -399,7 +399,12 @@ class SparqlInterface:
             "container_uuid": container_uuid
         })
 
-        return self.__run_query (query, query, "container")
+        result = self.__run_query (query, query, "container")
+        if result:
+            return result[0]
+        else:
+            logging.error ("Retrieving container for %s failed.", container_uuid)
+            return None
 
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
