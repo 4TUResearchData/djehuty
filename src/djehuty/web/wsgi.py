@@ -1891,124 +1891,128 @@ class ApiServer:
 
     def ui_dataset (self, request, dataset_id, version=None, container=None, private_view=False):
         """Implements /datasets/<id>."""
-        if self.accepts_html (request):
-            my_collections = []
-            account_uuid = self.account_uuid_from_request (request)
-            if account_uuid:
-                my_collections = self.db.collections_by_account (account_uuid = account_uuid)
 
-            if container is None:
-                container     = self.__dataset_by_id_or_uri (
-                    dataset_id,
-                    is_published = True,
-                    is_latest    = not bool(version),
-                    version      = version)
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
 
-            if container is None:
-                return self.error_404 (request)
-            versions      = self.db.dataset_versions(container_uri=container["container_uri"])
-            if not versions:
-                versions = [{"version": 1}]
-            versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
-            current_version = version if version else versions[0]['version']
+        my_collections = []
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid:
+            my_collections = self.db.collections_by_account (account_uuid = account_uuid)
 
-            dataset       = None
-            try:
-                if private_view:
-                    dataset = self.db.datasets (container_uuid = container["container_uuid"],
-                                                is_published   = False)[0]
-                else:
-                    dataset = self.db.datasets (container_uuid= container["container_uuid"],
-                                                version       = current_version,
-                                                is_published  = True)[0]
-            except IndexError:
-                return self.error_403 (request)
+        if container is None:
+            container = self.__dataset_by_id_or_uri (
+                dataset_id,
+                is_published = True,
+                is_latest    = not bool(version),
+                version      = version)
 
-            dataset_uri   = container['uri']
-            authors       = self.db.authors(item_uri=dataset_uri, limit=None)
-            files         = self.db.dataset_files(dataset_uri=dataset_uri, limit=None)
-            tags          = self.db.tags(item_uri=dataset_uri, limit=None)
-            categories    = self.db.categories(item_uri=dataset_uri, limit=None)
-            references    = self.db.references(item_uri=dataset_uri, limit=None)
-            derived_from  = self.db.derived_from(item_uri=dataset_uri, limit=None)
-            fundings      = self.db.fundings(item_uri=dataset_uri, limit=None)
-            collections   = self.db.collections_from_dataset(container["container_uuid"])
-            statistics    = {'downloads': value_or(container, 'total_downloads', 0),
-                             'views'    : value_or(container, 'total_views'    , 0),
-                             'shares'   : value_or(container, 'total_shares'   , 0),
-                             'cites'    : value_or(container, 'total_cites'    , 0)}
-            statistics    = {key:val for (key,val) in statistics.items() if val > 0}
-            member = value_or(group_to_member, value_or_none (dataset, "group_id"), 'other')
-            member_url_name = member_url_names[member]
-            tags = { t['tag'] for t in tags }
-            dataset['timeline_first_online'] = value_or_none (container, 'timeline_first_online')
-            dates = self.__pretty_print_dates_for_item (dataset)
+        if container is None:
+            return self.error_404 (request)
 
-            id_version = f'{dataset_id}/{version}' if version else f'{dataset_id}'
+        versions      = self.db.dataset_versions(container_uri=container["container_uri"])
+        if not versions:
+            versions = [{"version": 1}]
+        versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
+        current_version = version if version else versions[0]['version']
 
-            posted_date = value_or_none (dataset, "timeline_posted")
-            if posted_date is not None:
-                posted_date = posted_date[:4]
+        dataset       = None
+        try:
+            if private_view:
+                dataset = self.db.datasets (container_uuid = container["container_uuid"],
+                                            is_published   = False)[0]
             else:
-                posted_date = "unpublished"
+                dataset = self.db.datasets (container_uuid= container["container_uuid"],
+                                            version       = current_version,
+                                            is_published  = True)[0]
+        except IndexError:
+            return self.error_403 (request)
 
-            citation = make_citation(authors, posted_date, dataset['title'],
-                                     value_or (dataset, 'version', 0),
-                                     value_or (dataset, 'defined_type_name', 'undefined'),
-                                     value_or (dataset, 'doi', 'unavailable'))
+        dataset_uri   = container['uri']
+        authors       = self.db.authors(item_uri=dataset_uri, limit=None)
+        files         = self.db.dataset_files(dataset_uri=dataset_uri, limit=None)
+        tags          = self.db.tags(item_uri=dataset_uri, limit=None)
+        categories    = self.db.categories(item_uri=dataset_uri, limit=None)
+        references    = self.db.references(item_uri=dataset_uri, limit=None)
+        derived_from  = self.db.derived_from(item_uri=dataset_uri, limit=None)
+        fundings      = self.db.fundings(item_uri=dataset_uri, limit=None)
+        collections   = self.db.collections_from_dataset(container["container_uuid"])
+        statistics    = {'downloads': value_or(container, 'total_downloads', 0),
+                         'views'    : value_or(container, 'total_views'    , 0),
+                         'shares'   : value_or(container, 'total_shares'   , 0),
+                         'cites'    : value_or(container, 'total_cites'    , 0)}
+        statistics    = {key:val for (key,val) in statistics.items() if val > 0}
+        member = value_or (group_to_member, value_or_none (dataset, "group_id"), 'other')
+        member_url_name = member_url_names[member]
+        tags = { t['tag'] for t in tags }
+        dataset['timeline_first_online'] = value_or_none (container, 'timeline_first_online')
+        dates = self.__pretty_print_dates_for_item (dataset)
 
-            lat = self_or_value_or_none(dataset, 'latitude')
-            lon = self_or_value_or_none(dataset, 'longitude')
-            lat_valid, lon_valid = decimal_coords(lat, lon)
-            coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
+        id_version = f'{dataset_id}/{version}' if version else f'{dataset_id}'
 
-            odap_files = [(f, is_opendap_url(value_or_none(f, "download_url"))) for f in files]
-            opendap = [value_or_none(f, "download_url") for (f, odap) in odap_files if odap]
-            files_services = [(f, f['is_link_only']) for (f, odap) in odap_files if not odap]
-            services = [value_or_none(f, "download_url") for (f, link) in files_services if link]
-            files = [f for (f, link) in files_services if not link]
-            if 'data_link' in dataset:
-                url = dataset['data_link']
-                if url.split('/')[2]=='opendap.4tu.nl':
-                    opendap.append(url)
-                    del dataset['data_link']
-            contributors = self.parse_contributors(value_or(dataset, 'contributors', ''))
+        posted_date = value_or_none (dataset, "timeline_posted")
+        if posted_date is not None:
+            posted_date = posted_date[:4]
+        else:
+            posted_date = "unpublished"
 
-            git_repository_url = None
-            if "defined_type_name" in dataset and dataset["defined_type_name"] == "software":
-                try:
-                    git_directory  = f"{self.db.storage}/{dataset['git_uuid']}.git"
-                    if os.path.exists (git_directory):
-                        git_repository_url = f"{self.base_url}/v3/datasets/{dataset['git_uuid']}.git"
-                except KeyError:
-                    pass
+        citation = make_citation(authors, posted_date, dataset['title'],
+                                 value_or (dataset, 'version', 0),
+                                 value_or (dataset, 'defined_type_name', 'undefined'),
+                                 value_or (dataset, 'doi', 'unavailable'))
 
-            return self.__render_template (request, "dataset.html",
-                                           item=dataset,
-                                           version=version,
-                                           versions=versions,
-                                           citation=citation,
-                                           my_collections = my_collections,
-                                           authors=authors,
-                                           contributors = contributors,
-                                           files=files,
-                                           services=services,
-                                           tags=tags,
-                                           categories=categories,
-                                           fundings=fundings,
-                                           references=references,
-                                           derived_from=derived_from,
-                                           collections=collections,
-                                           dates=dates,
-                                           coordinates=coordinates,
-                                           member=member,
-                                           member_url_name=member_url_name,
-                                           id_version = id_version,
-                                           opendap=opendap,
-                                           statistics=statistics,
-                                           git_repository_url=git_repository_url,
-                                           private_view=private_view)
-        return self.error_406 ("text/html")
+        lat = self_or_value_or_none(dataset, 'latitude')
+        lon = self_or_value_or_none(dataset, 'longitude')
+        lat_valid, lon_valid = decimal_coords(lat, lon)
+        coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
+
+        odap_files = [(f, is_opendap_url(value_or_none(f, "download_url"))) for f in files]
+        opendap = [value_or_none(f, "download_url") for (f, odap) in odap_files if odap]
+        files_services = [(f, f['is_link_only']) for (f, odap) in odap_files if not odap]
+        services = [value_or_none(f, "download_url") for (f, link) in files_services if link]
+        files = [f for (f, link) in files_services if not link]
+        if 'data_link' in dataset:
+            url = dataset['data_link']
+            if url.split('/')[2]=='opendap.4tu.nl':
+                opendap.append(url)
+                del dataset['data_link']
+        contributors = self.parse_contributors(value_or(dataset, 'contributors', ''))
+
+        git_repository_url = None
+        if "defined_type_name" in dataset and dataset["defined_type_name"] == "software":
+            try:
+                git_directory  = f"{self.db.storage}/{dataset['git_uuid']}.git"
+                if os.path.exists (git_directory):
+                    git_repository_url = f"{self.base_url}/v3/datasets/{dataset['git_uuid']}.git"
+            except KeyError:
+                pass
+
+        return self.__render_template (request, "dataset.html",
+                                       item=dataset,
+                                       version=version,
+                                       versions=versions,
+                                       citation=citation,
+                                       my_collections = my_collections,
+                                       authors=authors,
+                                       contributors = contributors,
+                                       files=files,
+                                       services=services,
+                                       tags=tags,
+                                       categories=categories,
+                                       fundings=fundings,
+                                       references=references,
+                                       derived_from=derived_from,
+                                       collections=collections,
+                                       dates=dates,
+                                       coordinates=coordinates,
+                                       member=member,
+                                       member_url_name=member_url_name,
+                                       id_version = id_version,
+                                       opendap=opendap,
+                                       statistics=statistics,
+                                       git_repository_url=git_repository_url,
+                                       private_view=private_view)
 
     def ui_compat_collection (self, request, slug, collection_id, version=None):
         """Implements backward-compatibility landing page URLs for collections."""
