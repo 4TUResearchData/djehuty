@@ -4518,7 +4518,7 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        if self.db.publish_dataset (dataset["container_uuid"]):
+        if self.db.publish_dataset (dataset["container_uuid"], account_uuid):
             return self.respond_201 ({
                 "location": f"{self.base_url}/review/published/{dataset_id}"
             })

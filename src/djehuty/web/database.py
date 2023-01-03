@@ -1425,8 +1425,12 @@ class SparqlInterface:
 
         return result
 
-    def publish_dataset (self, container_uuid):
+    def publish_dataset (self, container_uuid, account_uuid):
         """Procedure to publish a draft dataset."""
+
+        # Prevent caches from playing a role.
+        self.cache.invalidate_by_prefix (f"dataset_{container_uuid}")
+        self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
 
         draft = None
         try:
@@ -1458,6 +1462,7 @@ class SparqlInterface:
         if self.__run_query (query):
             self.cache.invalidate_by_prefix ("reviews")
             self.cache.invalidate_by_prefix (f"dataset_{container_uuid}")
+            self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
             return True
 
         return False
