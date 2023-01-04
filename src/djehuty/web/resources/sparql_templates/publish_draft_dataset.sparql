@@ -4,6 +4,7 @@ DELETE {
   GRAPH <{{state_graph}}> {
     {%- if not first_publication %}
     ?container     djht:latest_published_version ?latest_published_version .
+    ?append_node   rdf:rest                      ?nil_value .
     {%- endif %}
     ?container     djht:draft                    ?draft_dataset .
     ?draft_dataset djht:is_latest                ?is_latest .
@@ -24,13 +25,15 @@ INSERT {
                    djht:published_date           ?now ;
                    djht:posted_date              ?now ;
                    djht:version                  {{version}} .
-    ?review        djht:status                   "accepted"^^xsd:string .
+    # Leaving the type of the string-value implicit is done deliberately
+    # because Virtuoso doesn't seem handle explicitely-defined 'xsd:string's
+    # properly.
+    ?review        djht:status                   "accepted" .
 
     {%- if first_publication %}
     ?container     djht:published_versions       <{{blank_node}}> .
     {%- else %}
     ?append_node   rdf:rest                      <{{blank_node}}> .
-    <{{blank_node}}> djht:index                  {{version}} .
     {%- endif %}
   }
 }
@@ -44,7 +47,10 @@ WHERE {
 
     {%- if not first_publication %}
     ?container     djht:published_versions/rdf:rest* ?append_node .
-    ?append_node   rdf:rest                      rdf:nil .
+    # Working around a bug in Virtuoso.  Check whether this can be
+    # simplified to: ?append_node rdf:rest rdf:nil .
+    ?append_node   rdf:rest ?nil_value .
+    FILTER (STR(?nil_value) = STR(rdf:nil))
     {%- endif %}
 
     OPTIONAL { ?container djht:latest_published_version ?latest_published_version . }
