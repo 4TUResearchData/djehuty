@@ -151,9 +151,12 @@ WHERE {
     BIND(((BOUND(?embargo_until_date) AND ?embargo_until_date > NOW()) OR
           (BOUND(?embargo_allow_access_requests))) AS ?is_embargoed)
   }
-{%- if is_under_review %}
-FILTER (BOUND(?review))
-FILTER (?is_under_review = "true"^^xsd:string)
+{%- if is_under_review is not none: %}
+{%- if is_under_review: %}
+FILTER (?is_under_review = "true"^^xsd:boolean)
+{%- else %}
+FILTER (?is_under_review = "false"^^xsd:boolean)
+{%- endif %}
 {%- endif %}
 {%- if collection_uri is not none %}
 FILTER (?collection = <{{collection_uri}}>)
