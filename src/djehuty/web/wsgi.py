@@ -1660,10 +1660,13 @@ class ApiServer:
         unassigned = self.db.reviews (limit = 10000, assigned_to = None)
         assigned   = self.db.reviews (assigned_to = account_uuid,
                                       limit       = 10000)
-
+        published  = self.db.reviews (assigned_to = account_uuid,
+                                      limit       = 10,
+                                      status      = "accepted")
         return self.__render_template (request, "review/dashboard.html",
                                        assigned_reviews   = assigned,
-                                       unassigned_reviews = unassigned)
+                                       unassigned_reviews = unassigned,
+                                       published_reviews  = published)
 
 
     def ui_review_assign_to_me (self, request, dataset_id):

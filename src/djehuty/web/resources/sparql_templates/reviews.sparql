@@ -3,6 +3,7 @@
 SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to ?status
                 ?account_uuid ?dataset_uuid ?dataset_title ?group_name
                 ?submitter_first_name ?submitter_last_name ?submitter_email
+                ?published_date ?container_uuid ?dataset_version
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review             rdf:type                 djht:Review ;
@@ -15,6 +16,8 @@ WHERE {
 
     ?dataset            djht:container            ?container_uri ;
                         djht:title                ?dataset_title .
+    OPTIONAL { ?dataset djht:published_date       ?published_date . }
+    OPTIONAL { ?dataset djht:version              ?dataset_version . }
 
     ?container_uri      djht:account              ?account .
 
@@ -30,11 +33,11 @@ WHERE {
     OPTIONAL { ?account djht:last_name            ?submitter_last_name . }
     OPTIONAL { ?account djht:institution_id       ?institution_id . }
 
+    BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?dataset), "dataset:")  AS ?dataset_uuid)
     BIND(STRAFTER(STR(?account), "account:")  AS ?account_uuid)
     BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)
   }
-  FILTER NOT EXISTS { ?dataset djht:published_date ?published_date . }
 {%- if assigned_to is not none %}
   FILTER (?assigned_to = <account:{{assigned_to}}>)
 {%- if review_uuid is not none: %}
@@ -43,7 +46,9 @@ WHERE {
 {%- else %}
   FILTER (! BOUND(?assigned_to))
 {%- endif %}{% if status is not none %}
-  FILTER (?status = {{status}})
+  FILTER (?status = {{status | safe}})
+{%- else %}
+  FILTER NOT EXISTS { ?dataset djht:published_date ?published_date . }
 {%- endif %}
 }
 {% endblock %}

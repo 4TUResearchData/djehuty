@@ -107,4 +107,34 @@
 {%- else %}
 <p>There are no pending review requests.</p>
 {%- endif %}
+<h2>Recently published datasets</h2>
+{%- if published_reviews %}
+<table id="published-table" class="reviewer-table branded-table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Submitter</th>
+      <th>Affiliation</th>
+      <th>E-mail address</th>
+      <th>Requested date</th>
+      <th>Published date</th>
+    </tr>
+  </thead>
+  <tbody>{% for review in published_reviews: %}
+    <tr>
+      <td><a href="/datasets/{{review.container_uuid}}">{{review.dataset_title}}</a> (version {{review.dataset_version}})</td>
+      <td>
+        {{review.submitter_first_name | default("", False)}}
+        {{review.submitter_last_name | default("", False)}}
+      </td>
+      <td>{{review.group_name | default("Unknown", False)}}</td>
+      <td>{{review.submitter_email}}</td>
+      <td>{{review.request_date}}</td>
+      <td>{{review.published_date}}</td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
+{%- else %}
+<p>There are no recently published datasets.</p>
+{%- endif %}
 {% endblock %}
