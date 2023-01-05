@@ -1909,16 +1909,14 @@ class ApiServer:
             my_collections = self.db.collections_by_account (account_uuid = account_uuid)
 
         if container is None:
-            container = self.__dataset_by_id_or_uri (
-                dataset_id,
-                is_published = True,
-                is_latest    = not bool(version),
-                version      = version)
+            container_uuid = self.db.container_uuid_by_id(dataset_id)
+            container_uri = f'container:{container_uuid}'
+            container = self.db.container (container_uuid, item_type='dataset')
 
         if container is None:
             return self.error_404 (request)
 
-        versions      = self.db.dataset_versions(container_uri=container["container_uri"])
+        versions      = self.db.dataset_versions(container_uri=container_uri)
         if not versions:
             versions = [{"version": 1}]
         versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
@@ -1927,16 +1925,16 @@ class ApiServer:
         dataset       = None
         try:
             if private_view:
-                dataset = self.db.datasets (container_uuid = container["container_uuid"],
+                dataset = self.db.datasets (container_uuid = container_uuid,
                                             is_published   = False)[0]
             else:
-                dataset = self.db.datasets (container_uuid= container["container_uuid"],
+                dataset = self.db.datasets (container_uuid= container_uuid,
                                             version       = current_version,
                                             is_published  = True)[0]
         except IndexError:
             return self.error_403 (request)
 
-        dataset_uri   = container['uri']
+        dataset_uri   = f"dataset:{dataset['uuid']}"
         authors       = self.db.authors(item_uri=dataset_uri, limit=None)
         files         = self.db.dataset_files(dataset_uri=dataset_uri, limit=None)
         tags          = self.db.tags(item_uri=dataset_uri, limit=None)
@@ -1944,7 +1942,7 @@ class ApiServer:
         references    = self.db.references(item_uri=dataset_uri, limit=None)
         derived_from  = self.db.derived_from(item_uri=dataset_uri, limit=None)
         fundings      = self.db.fundings(item_uri=dataset_uri, limit=None)
-        collections   = self.db.collections_from_dataset(container["container_uuid"])
+        collections   = self.db.collections_from_dataset(container_uuid)
         statistics    = {'downloads': value_or(container, 'total_downloads', 0),
                          'views'    : value_or(container, 'total_views'    , 0),
                          'shares'   : value_or(container, 'total_shares'   , 0),
@@ -2000,6 +1998,7 @@ class ApiServer:
                                        version=version,
                                        versions=versions,
                                        citation=citation,
+                                       container_doi=value_or_none(container, 'doi'),
                                        my_collections = my_collections,
                                        authors=authors,
                                        contributors = contributors,
@@ -2027,21 +2026,18 @@ class ApiServer:
 
     def ui_collection (self, request, collection_id, version=None):
         """Implements /collections/<id>."""
-        #This function is copied from ui_dataset and slightly adapted as a start. It will not yet work properly.
         if self.accepts_html (request):
-            container     = self.__collection_by_id_or_uri (
-                collection_id,
-                is_published = True,
-                is_latest    = not bool(version),
-                version      = version)
+            container_uuid = self.db.container_uuid_by_id(collection_id)
+            container_uri = f'container:{container_uuid}'
+            container = self.db.container (container_uuid, item_type='collection')
 
             if container is None:
                 return self.error_404 (request)
 
-            versions      = self.db.collection_versions(collection_id=container["collection_id"])
+            versions      = self.db.collection_versions(container_uri=container_uri)
             versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
             current_version = version if version else versions[0]['version']
-            collection    = self.db.collections (collection_id = container["collection_id"],
+            collection    = self.db.collections (container_uuid= container_uuid,
                                                  version       = current_version,
                                                  is_published  = True)[0]
             collection_uri = collection['uri']
@@ -2058,7 +2054,7 @@ class ApiServer:
             member = value_or(group_to_member, collection["group_id"], 'other')
             member_url_name = member_url_names[member]
             tags = { t['tag'] for t in tags }
-            collection['timeline_first_online'] = container['timeline_first_online']
+            collection['timeline_first_online'] = container['first_online_date']
             dates = self.__pretty_print_dates_for_item (collection)
             citation = make_citation(authors, collection['timeline_posted'][:4], collection['title'],
                                      collection['version'], 'collection', collection['doi'])
@@ -2077,6 +2073,7 @@ class ApiServer:
                                            version=version,
                                            versions=versions,
                                            citation=citation,
+                                           container_doi=value_or_none(container, 'doi'),
                                            authors=authors,
                                            contributors = contributors,
                                            tags=tags,

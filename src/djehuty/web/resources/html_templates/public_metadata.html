@@ -5,8 +5,18 @@
 <p>This {{item_type}} is under embargo until {{item.embargo_until_date}}.</p>
 {% else: %}
 
+{% set thisversion = item.version %}
+{% set latest = versions[0].version %}
+{% set old = thisversion < latest %}
+
 <div id="metadata">
-    <div id="doi"><span>doi:</span> <a href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{doi}}</a></div>
+    <div id="doi"><span>doi:</span> <a href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{doi}}</a>
+{% if container_doi and not old %}
+        <div id="container_doi">The doi above is for this specific version of this {{item_type}}, which is currently the latest. Newer versions may be published in the future.
+            For a link that will allways point to the latest version, please use<br />
+            <span>doi:</span> <a href="https://doi.org/{{container_doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{container_doi}}</a></div>
+{% endif %}
+    </div>
     <button id="cite_show" class="neutral-button" onclick='document.getElementById("cite").style.display="block"' title="Show citation.">Cite</button>
 {% if my_collections %}
     <button id="collect_show" class="neutral-button" onclick='document.getElementById("collect").style.display="block"' title="Add this {{item.defined_type_name}} to one of your collections.">Collect</button>
@@ -37,9 +47,6 @@
         <div id="type">{{ dtype }}</div>
 {% if versions[1:2] %}
 {# test 12763700 #}
-    {% set thisversion = item.version %}
-    {% set latest = versions[0].version %}
-    {% set old = thisversion < latest %}
         <button id="versions_show" onclick="document.getElementById('versions').style.display='block'" title="Choose another version."
             {% if old %}style="background-color: #ff0"{% endif %}>version {{thisversion}}
             {% if old %} (old){% endif %}⮟</button>
