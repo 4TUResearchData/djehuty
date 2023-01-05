@@ -60,5 +60,7 @@ function render_categories_for_profile () {
 
 function activate () {
     render_categories_for_profile ();
+    install_sticky_header();
+    install_touchable_help_icons();
     jQuery("#save").on("click", function () { save_profile (); });
 }
