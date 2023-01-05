@@ -42,3 +42,16 @@ function install_touchable_help_icons () {
         }
     });
 }
+
+function toggle_categories () {
+    let expanded_categories = jQuery("#expanded-categories");
+    if (expanded_categories.is(":visible")) {
+        jQuery("#expanded-categories").slideUp(250, function() {
+            jQuery("#expand-categories-button").text("Select categories");
+        });
+    } else {
+        jQuery("#expanded-categories").slideDown(250, function() {
+            jQuery("#expand-categories-button").text("Hide categories");
+        });
+    }
+}

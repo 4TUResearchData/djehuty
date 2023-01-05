@@ -544,19 +544,6 @@ function autocomplete_funding (event, dataset_uuid) {
     }
 }
 
-function toggle_categories () {
-    let expanded_categories = jQuery("#expanded-categories");
-    if (expanded_categories.is(":visible")) {
-        jQuery("#expanded-categories").slideUp(250, function() {
-            jQuery("#expand-categories-button").text("Select categories");
-        });
-    } else {
-        jQuery("#expanded-categories").slideDown(250, function() {
-            jQuery("#expand-categories-button").text("Hide categories");
-        });
-    }
-}
-
 function toggle_record_type () {
     if (jQuery("#metadata_record_only").prop("checked")) {
         jQuery(".record-type-field").hide();
