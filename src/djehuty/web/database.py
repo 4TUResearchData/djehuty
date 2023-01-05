@@ -289,8 +289,8 @@ class SparqlInterface:
         if not return_count:
             query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
-        cache_key = f"datasets_{account_uuid}" if account_uuid is not None else "datasets"
-        return self.__run_query (query, query, cache_key)
+        cache_prefix = f"datasets_{account_uuid}" if account_uuid is not None else "datasets"
+        return self.__run_query (query, query, cache_prefix)
 
     def repository_statistics (self):
         """Procedure to retrieve repository-wide statistics."""
