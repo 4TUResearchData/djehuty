@@ -1425,7 +1425,6 @@ class SparqlInterface:
         result = self.__run_query (query)
         self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
         self.cache.invalidate_by_prefix (f"container:{container_uuid}_dataset_storage")
-        self.cache.invalidate_by_prefix (f"dataset_{container_uuid}")
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
 
         return result
@@ -1434,7 +1433,6 @@ class SparqlInterface:
         """Procedure to publish a draft dataset."""
 
         # Prevent caches from playing a role.
-        self.cache.invalidate_by_prefix (f"dataset_{container_uuid}")
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
 
         draft = None
@@ -1466,7 +1464,6 @@ class SparqlInterface:
 
         if self.__run_query (query):
             self.cache.invalidate_by_prefix ("reviews")
-            self.cache.invalidate_by_prefix (f"dataset_{container_uuid}")
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
             return True
 
@@ -1608,7 +1605,6 @@ class SparqlInterface:
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
-        self.cache.invalidate_by_prefix (f"dataset_{container_uuid}")
         results = self.__run_query (query)
         if results:
             items = []
