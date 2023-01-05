@@ -14,6 +14,12 @@ DELETE {
     ?account          djht:last_name             ?last_name .
     {%- endif%}{% if location is not none %}
     ?account          djht:location              ?location .
+    {%- endif%}{% if twitter is not none %}
+    ?account          djht:twitter               ?twitter .
+    {%- endif%}{% if linkedin is not none %}
+    ?account          djht:linkedin              ?linkedin .
+    {%- endif%}{% if website is not none %}
+    ?account          djht:website               ?website .
     {%- endif%}{% if biography is not none %}
     ?account          djht:biography             ?biography .
     {%- endif%}{% if institution_user_id is not none %}
@@ -41,6 +47,12 @@ INSERT {
     ?account          djht:last_name           "{{last_name | safe}}"^^xsd:string .
     {%- endif%}{% if location is not none %}
     ?account          djht:location            "{{location | safe}}"^^xsd:string .
+    {%- endif%}{% if twitter is not none %}
+    ?account          djht:twitter             "{{twitter | safe}}"^^xsd:string .
+    {%- endif%}{% if linkedin is not none %}
+    ?account          djht:linkedin            "{{linkedin | safe}}"^^xsd:string .
+    {%- endif%}{% if website is not none %}
+    ?account          djht:website             "{{website | safe}}"^^xsd:string .
     {%- endif%}{% if biography is not none %}
     ?account          djht:biography           "{{biography | safe}}"^^xsd:string .
     {%- endif%}{% if institution_user_id is not none %}
@@ -64,6 +76,9 @@ WHERE {
     OPTIONAL { ?account   djht:first_name            ?first_name . }
     OPTIONAL { ?account   djht:last_name             ?last_name . }
     OPTIONAL { ?account   djht:location              ?location . }
+    OPTIONAL { ?account   djht:twitter               ?twitter . }
+    OPTIONAL { ?account   djht:linkedin              ?linkedin . }
+    OPTIONAL { ?account   djht:website               ?website . }
     OPTIONAL { ?account   djht:biography             ?biography . }
     OPTIONAL { ?account   djht:institution_user_id   ?institution_user_id . }
     OPTIONAL { ?account   djht:institution_id        ?institution_id . }

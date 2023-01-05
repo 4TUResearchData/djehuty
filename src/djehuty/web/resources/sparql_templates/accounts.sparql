@@ -3,7 +3,7 @@
 SELECT DISTINCT ?active ?created_date ?email ?first_name ?group_id ?biography
                 ?uuid ?institution_id ?institution_user_id ?last_name
                 ?maximum_file_size ?modified_date ?job_title ?location
-                ?account_id ?domain
+                ?account_id ?domain ?twitter ?linkedin ?website
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account             rdf:type                   djht:Account .
@@ -11,6 +11,9 @@ WHERE {
     OPTIONAL { ?account  djht:active                ?active . }
     OPTIONAL { ?account  djht:job_title             ?job_title . }
     OPTIONAL { ?account  djht:location              ?location . }
+    OPTIONAL { ?account  djht:twitter               ?twitter . }
+    OPTIONAL { ?account  djht:linkedin              ?linkedin . }
+    OPTIONAL { ?account  djht:website               ?website . }
     OPTIONAL { ?account  djht:biography             ?biography . }
     OPTIONAL { ?account  djht:created_date          ?created_date . }
     OPTIONAL { ?account  djht:email                 ?email . }

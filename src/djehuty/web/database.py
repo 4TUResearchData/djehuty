@@ -1058,7 +1058,8 @@ class SparqlInterface:
                         first_name=None, last_name=None, institution_user_id=None,
                         institution_id=None, pending_quota_request=None,
                         maximum_file_size=None, modified_date=None, created_date=None,
-                        location=None, biography=None, categories=None):
+                        location=None, biography=None, categories=None, twitter=None,
+                        linkedin=None, website=None):
         """Procedure to update account settings."""
 
         if modified_date is None:
@@ -1072,6 +1073,9 @@ class SparqlInterface:
             "first_name":            first_name,
             "last_name":             last_name,
             "location":              location,
+            "twitter":               twitter,
+            "linkedin":              linkedin,
+            "website":               website,
             "biography":             biography,
             "institution_user_id":   institution_user_id,
             "institution_id":        institution_id,

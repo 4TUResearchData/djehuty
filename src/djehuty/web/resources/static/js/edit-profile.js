@@ -14,6 +14,9 @@ function save_profile () {
         "job_title":      or_null(jQuery("#job_title").val()),
         "location":       or_null(jQuery("#location").val()),
         "biography":      or_null(jQuery("#biography").val()),
+        "twitter":        or_null(jQuery("#twitter").val()),
+        "linkedin":       or_null(jQuery("#linkedin").val()),
+        "website":        or_null(jQuery("#website").val()),
         "categories":     category_ids
     }
 
@@ -33,8 +36,9 @@ function save_profile () {
                 jQuery("#message").removeClass("success").empty();
             });
         }, 5000);
-        console.log("Form was saved.");
-    }).fail(function () { console.log("Failed to save form."); });
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to save your profile. Please try again at a later time.</p>");
+    });
 }
 
 function render_categories_for_profile () {
