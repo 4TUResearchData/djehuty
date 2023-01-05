@@ -955,6 +955,8 @@ class SparqlInterface:
         private_links   = [] if private_links   is None else private_links
         files           = [] if files           is None else files
 
+        tags            = list(map(lambda tag: tag["tag"], tags))
+
         graph           = Graph()
         uri             = rdf.unique_node ("dataset")
         container_uri   = None
@@ -977,15 +979,19 @@ class SparqlInterface:
             submission            = submission
         )
 
-        self.insert_item_list   (graph, uri, references, "references")
-        self.insert_item_list   (graph, uri, tags, "tags")
-        categories = rdf.uris_from_records (categories, "category")
-        self.insert_item_list (graph, uri, categories, "categories")
-        self.insert_record_list (graph, uri, authors, "authors", self.insert_author)
-        self.insert_record_list (graph, uri, files, "files", self.insert_file)
-        self.insert_record_list (graph, uri, funding_list, "funding_list", self.insert_funding)
-        self.insert_record_list (graph, uri, private_links, "private_links", self.insert_private_link)
+        authors       = rdf.uris_from_records (authors, "author", "uuid")
+        categories    = rdf.uris_from_records (categories, "category", "uuid")
+        files         = rdf.uris_from_records (files, "file", "uuid")
+        funding_list  = rdf.uris_from_records (funding_list, "file", "uuid")
+        private_links = rdf.uris_from_records (private_links, "private_link", "uuid")
 
+        self.insert_item_list (graph, uri, authors, "authors")
+        self.insert_item_list (graph, uri, categories, "categories")
+        self.insert_item_list (graph, uri, references, "references")
+        self.insert_item_list (graph, uri, tags, "tags")
+        self.insert_item_list (graph, uri, files, "files")
+        self.insert_item_list (graph, uri, funding_list, "funding_list")
+        self.insert_item_list (graph, uri, private_links, "private_links")
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
