@@ -1689,6 +1689,7 @@ class ApiServer:
             return self.error_403 (request)
 
         if self.db.update_review (dataset["review_uri"],
+                                  author_account_uuid = dataset["account_uuid"],
                                   assigned_to = account_uuid,
                                   status      = "assigned"):
             return redirect ("/review/dashboard", code=302)
@@ -1715,6 +1716,7 @@ class ApiServer:
             return self.error_403 (request)
 
         if self.db.update_review (dataset["review_uri"],
+                                  author_account_uuid = dataset["account_uuid"],
                                   assigned_to = None,
                                   status      = "unassigned"):
             return redirect ("/review/dashboard", code=302)

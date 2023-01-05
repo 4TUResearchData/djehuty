@@ -2018,7 +2018,8 @@ class SparqlInterface:
         return None
 
     def update_review (self, review_uri, dataset_uri=None, assigned_to=None,
-                       status=None, reminder_date=None):
+                       status=None, reminder_date=None,
+                       author_account_uuid=None):
         """Procedure to update a review."""
 
         query        = self.__query_from_template ("update_review", {
@@ -2029,6 +2030,7 @@ class SparqlInterface:
             "reminder_date":         reminder_date
         })
 
+        self.cache.invalidate_by_prefix (f"datasets_{author_account_uuid}")
         self.cache.invalidate_by_prefix ("reviews")
         return self.__run_query (query)
 
