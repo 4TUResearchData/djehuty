@@ -1434,12 +1434,15 @@ class SparqlInterface:
 
         # Prevent caches from playing a role.
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
 
         draft = None
         try:
             draft = self.datasets (container_uuid = container_uuid,
                                    is_published   = False)[0]
         except IndexError:
+            logging.error ("Attempted to publish without a draft <container:%s>.",
+                           container_uuid)
             return False
 
         new_version_number = 1
@@ -1450,7 +1453,7 @@ class SparqlInterface:
                                     is_latest      = True)[0]
             new_version_number = latest["version"] + 1
         except IndexError:
-            pass
+            logging.error ("No latest version for <container:%s>.", container_uuid)
 
         dataset_uuid = draft["uuid"]
         blank_node   = self.wrap_dataset_in_blank_node (dataset_uuid)
