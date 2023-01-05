@@ -1499,6 +1499,8 @@ class SparqlInterface:
 
         ## Insert dataset
         # We don't insert the DOI because the draft will get a new DOI.
+        # We also don't copy posted, published, and submission dates because
+        # these are yet-to-be-determined.
         container_uuid, draft_uuid = self.insert_dataset (
                 title                 = conv.value_or_none (latest, "title"),
                 account_uuid          = conv.value_or_none (latest, "account_uuid"),
@@ -1512,9 +1514,6 @@ class SparqlInterface:
                 resource_doi          = conv.value_or_none (latest, "resource_doi"),
                 resource_title        = conv.value_or_none (latest, "resource_title"),
                 first_online          = conv.value_or_none (latest, "timeline_first_online"),
-                publisher_publication = conv.value_or_none (latest, "timeline_publisher_publication"),
-                submission            = conv.value_or_none (latest, "timeline_submission"),
-                posted                = conv.value_or_none (latest, "timeline_posted"),
                 revision              = conv.value_or_none (latest, "timeline_revision"),
                 group_id              = conv.value_or_none (latest, "group_id"),
                 publisher             = conv.value_or_none (latest, "publisher"),
