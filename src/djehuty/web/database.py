@@ -399,10 +399,9 @@ class SparqlInterface:
             "container_uuid": container_uuid
         })
 
-        result = self.__run_query (query, query, "container")
-        if result:
-            return result[0]
-        else:
+        try:
+            return self.__run_query (query, query, "container")[0]
+        except (TypeError, IndexError):
             logging.error ("Retrieving container for %s failed.", container_uuid)
             return None
 
