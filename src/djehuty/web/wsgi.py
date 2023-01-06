@@ -1661,7 +1661,9 @@ class ApiServer:
                                       limit       = 10000)
         published  = self.db.reviews (assigned_to = account_uuid,
                                       limit       = 10,
-                                      status      = "accepted")
+                                      status      = "accepted",
+                                      order       = "published_date",
+                                      order_direction = "desc")
         return self.__render_template (request, "review/dashboard.html",
                                        assigned_reviews   = assigned,
                                        unassigned_reviews = unassigned,
