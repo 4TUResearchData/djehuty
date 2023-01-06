@@ -103,6 +103,9 @@ jQuery(document).ready(function (){
 <ul>
   <li class="active">Profile
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save</a>
+{%- if account.author_uuid != "unknown" %}
+  <li class="hide-for-javascript"><a id="show-public-profile" href="/authors/{{account.author_uuid}}">Public profile</a>
+{%- endif %}
 </ul>
 {% endblock %}
 {% block body %}
