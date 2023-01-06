@@ -11,7 +11,6 @@ import secrets
 import re
 import requests
 import pygit2
-import base64
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
