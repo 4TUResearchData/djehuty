@@ -3,7 +3,7 @@
 SELECT DISTINCT ?active ?created_date ?email ?first_name ?group_id ?biography
                 ?uuid ?institution_id ?institution_user_id ?last_name
                 ?maximum_file_size ?modified_date ?job_title ?location
-                ?account_id ?domain ?twitter ?linkedin ?website
+                ?account_id ?domain ?twitter ?linkedin ?website ?author_uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account             rdf:type                   djht:Account .
@@ -29,8 +29,13 @@ WHERE {
                          djht:id                    ?group_id .
       ?account           djht:domain                ?domain .
     }
+    OPTIONAL {
+      ?author            rdf:type                   djht:Author ;
+                         djht:account               ?account .
+    }
   }
   BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
+  BIND(COALESCE (STRAFTER(STR(?author), "author:"), "unknown") AS ?author_uuid)
 
   {%- if account_uuid is not none %}
   FILTER (?account = <account:{{account_uuid}}>)
