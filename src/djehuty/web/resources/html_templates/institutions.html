@@ -91,11 +91,8 @@ var group_ids = "{% for item in sub_groups: %}{{item.group_id}}{{ ',' if not loo
 {% endblock %}
 {% block body %}
 <h1>{{group.group_name}}</h1>
-<ul class="subcategories">{% for item in sub_groups %}
-  <li><button>{{item.group_name}}</button></li>
-{% endfor %}</ul>
 
-    <h2>Top datasets</h2>
+<h2>Top datasets</h2>
 <div id="top-buttons" class="tabs">
   <ul>
     <li class="top-downloads"><a href="#" onclick="top_datasets('downloads'); return false">Downloads</a></li>
