@@ -357,7 +357,7 @@ class ApiServer:
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             self.log_access (request)
-            endpoint, values = adapter.match()
+            endpoint, values = adapter.match() #  pylint: disable=unpacking-non-sequence
             return getattr(self, endpoint)(request, **values)
         except NotFound:
             if request.path in self.static_pages:
