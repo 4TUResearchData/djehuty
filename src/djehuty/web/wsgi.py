@@ -556,22 +556,30 @@ class ApiServer:
         except IndexError:
             return None
 
-    def __file_by_id_or_uri (self, identifier,
-                             account_uuid=None,
-                             dataset_uri=None):
+    def __files_by_id_or_uri (self, identifier=None,
+                              account_uuid=None,
+                              dataset_uri=None):
         try:
             file = None
             if parses_to_int (identifier):
                 file = self.db.dataset_files (file_id     = int(identifier),
                                               dataset_uri = dataset_uri,
-                                              account_uuid = account_uuid)[0]
+                                              account_uuid = account_uuid)
             elif validator.is_valid_uuid (identifier):
                 file = self.db.dataset_files (file_uuid   = identifier,
                                               dataset_uri = dataset_uri,
-                                              account_uuid = account_uuid)[0]
+                                              account_uuid = account_uuid)
 
             return file
 
+        except IndexError:
+            return None
+
+    def __file_by_id_or_uri (self, identifier,
+                             account_uuid=None,
+                             dataset_uri=None):
+        try:
+            return self.__files_by_id_or_uri (identifier, account_uuid, dataset_uri)[0]
         except IndexError:
             return None
 
