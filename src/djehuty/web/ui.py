@@ -428,6 +428,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         server.in_production    = bool(int(config_value (xml_root, "production", None,
                                                          server.in_production)))
         server.db.storage       = config_value (xml_root, "storage-root", storage)
+        server.db.secondary_storage = config_value (xml_root, "secondary-storage-root")
         server.db.cache.storage = config_value (xml_root, "cache-root", cache,
                                                 f"{server.db.storage}/cache")
         server.db.endpoint      = config_value (xml_root, "rdf-store/sparql-uri")

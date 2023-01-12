@@ -22,6 +22,7 @@ class SparqlInterface:
     def __init__ (self):
 
         self.storage     = None
+        self.secondary_storage = None
         self.endpoint    = "http://127.0.0.1:8890/sparql"
         self.state_graph = "https://data.4tu.nl/portal/self-test"
         self.privileges  = {}

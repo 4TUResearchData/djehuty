@@ -2226,7 +2226,7 @@ class ApiServer:
             metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
             file_paths = []
             for file_info in metadata:
-                filesystem_location = f"{self.db.storage}/{file_info['id']}/{file_info['name']}"
+                filesystem_location = f"{self.db.secondary_storage}/{file_info['id']}/{file_info['name']}"
                 if "filesystem_location" in file_info:
                     filesystem_location = file_info["filesystem_location"]
                 file_paths.append ({
@@ -2270,7 +2270,10 @@ class ApiServer:
             metadata = self.__file_by_id_or_uri (file_id,
                                                  dataset_uri = dataset["uri"])
 
-            file_path = metadata["filesystem_location"]
+            file_path = f"{self.db.secondary_storage}/{file_info['id']}/{file_info['name']}"
+            if "filesystem_location" in metadata:
+                file_path = metadata["filesystem_location"]
+
             if file_path is None:
                 logging.error ("File download failed due to missing metadata.")
                 return self.error_500 ()
