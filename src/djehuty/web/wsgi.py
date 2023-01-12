@@ -11,6 +11,7 @@ import secrets
 import re
 import requests
 import pygit2
+import zipfly
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
@@ -129,6 +130,7 @@ class ApiServer:
             Rule("/collections/<collection_id>/<version>",    endpoint = "ui_collection"),
             Rule("/authors/<author_id>",                      endpoint = "ui_author"),
             Rule("/search",                                   endpoint = "ui_search"),
+            Rule("/ndownloader/items/<dataset_id>/versions/<version>", endpoint = "ui_download_all_files"),
 
             ## ----------------------------------------------------------------
             ## COMPATIBILITY
@@ -2200,6 +2202,52 @@ class ApiServer:
         return self.response (json.dumps({
             "message": "This page is meant for humans only."
         }))
+
+    def ui_download_all_files (self, request, dataset_id, version):
+        """Implements /ndownloader/items/<id>/versions/<version>"""
+        try:
+            ## Check whether a public dataset can be found.
+            dataset  = self.__dataset_by_id_or_uri (dataset_id, version=version)
+
+            ## When downloading a file from a dataset that isn't published,
+            ## we need to authorize it first.
+            if dataset is None and version == "draft":
+                account_uuid = self.account_uuid_from_request (request)
+                if account_uuid is not None:
+                    dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                           account_uuid = account_uuid,
+                                                           is_published = False)
+
+            ## Check again whether a private dataset has been found.
+            if dataset is None:
+                logging.error("Download-all for %s failed: Dataset not found.", dataset_id)
+                return self.error_404 (request)
+
+            metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
+            file_paths = []
+            for file_info in metadata:
+                filesystem_location = f"{self.db.storage}/{file_info['id']}/{file_info['name']}"
+                if "filesystem_location" in file_info:
+                    filesystem_location = file_info["filesystem_location"]
+                file_paths.append ({
+                    "fs": filesystem_location,
+                    "n":  file_info["name"]
+                })
+
+            if not file_paths:
+                logging.error("Download-all for %s failed: No files associated with this dataset.",
+                              dataset_id)
+                return self.error_404 (request)
+
+            zipfly_object = zipfly.ZipFly(paths = file_paths)
+            writer = zipfly_object.generator()
+            return self.response (writer, mimetype="application/zip")
+
+        except (KeyError, IndexError, TypeError, FileNotFoundError) as error:
+            logging.error("File download for %s failed due to: %s.", dataset_id, error)
+            return self.error_404 (request)
+
+        return self.error_500 ()
 
     def ui_download_file (self, request, dataset_id, file_id):
         """Implements /file/<id>/<fid>."""
