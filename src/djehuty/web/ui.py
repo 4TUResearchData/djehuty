@@ -428,7 +428,6 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         server.in_production    = bool(int(config_value (xml_root, "production", None,
                                                          server.in_production)))
         server.db.storage       = config_value (xml_root, "storage-root", storage)
-        server.db.secondary_storage = config_value (xml_root, "secondary-storage-root")
         server.db.cache.storage = config_value (xml_root, "cache-root", cache,
                                                 f"{server.db.storage}/cache")
         server.db.endpoint      = config_value (xml_root, "rdf-store/sparql-uri")
@@ -444,6 +443,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         if not xml_root:
             return config
+
+        secondary_storage = config_value (xml_root, "secondary-storage-root")
+        if secondary_storage:
+            server.db.secondary_storage = secondary_storage
 
         use_x_forwarded_for = bool(int(config_value (xml_root, "use-x-forwarded-for", None, 0)))
         if use_x_forwarded_for:
@@ -559,6 +562,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
             logging.info("State graph:  %s.", server.db.state_graph)
             logging.info("Storage path: %s.", server.db.storage)
+            logging.info("Secondary storage path: %s.", server.db.secondary_storage)
             logging.info("Cache storage path: %s.", server.db.cache.storage)
             logging.info("Running on %s", server.base_url)
 
