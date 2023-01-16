@@ -18,7 +18,16 @@ EXTRA_DIST              =                   \
   guix.scm                                  \
   requirements.txt                          \
   setup.cfg                                 \
-  setup.py
+  setup.py                                  \
+  pyproject.toml                            \
+  main.py                                   \
+  tests/admin_panel.py                      \
+  tests/create_article.py                   \
+  tests/create_collection.py                \
+  tests/depositor_panel.py                  \
+  tests/run_backup.py                       \
+  tests/ui_pages.py                         \
+  tests/validators.py
 
 dist-rpm: dist
 	mkdir -p rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}

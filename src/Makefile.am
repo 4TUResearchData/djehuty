@@ -83,6 +83,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/collections_from_dataset.sparql    \
     djehuty/web/resources/sparql_templates/container.sparql                   \
     djehuty/web/resources/sparql_templates/container_items.sparql             \
+    djehuty/web/resources/sparql_templates/container_uuid_by_id.sparql        \
     djehuty/web/resources/sparql_templates/custom_fields.sparql               \
     djehuty/web/resources/sparql_templates/dataset_files.sparql               \
     djehuty/web/resources/sparql_templates/dataset_statistics.sparql          \
