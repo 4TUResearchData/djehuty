@@ -2,7 +2,7 @@
 {% block query %}
 SELECT DISTINCT ?account_uuid ?resource_id ?resource_doi ?resource_title
                 ?resource_link ?resource_version ?version ?description
-                ?institution_id ?group_id ?is_public
+                ?institution_id ?group_id ?is_public ?language
                 ?citation ?custom_fields_id ?modified_date
                 ?created_date ?timeline_posted
                 ?timeline_publisher_publication ?timeline_first_online
@@ -70,6 +70,7 @@ WHERE {
     OPTIONAL { ?collection   djht:geolocation          ?geolocation . }
     OPTIONAL { ?collection   djht:latitude             ?latitude . }
     OPTIONAL { ?collection   djht:longitude            ?longitude . }
+    OPTIONAL { ?collection   djht:language             ?language . }
     OPTIONAL { ?collection   djht:published_date       ?published_date . }
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)

@@ -157,6 +157,7 @@ function gather_form_data () {
         "latitude":       or_null(jQuery("#latitude").val()),
         "organizations":  or_null(jQuery("#organizations").val()),
         "publisher":      or_null(jQuery("#publisher").val()),
+        "language":       or_null(jQuery("#language").val()),
         "group_id":       group_id,
         "categories":     category_ids
     }

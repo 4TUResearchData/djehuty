@@ -2817,7 +2817,7 @@ class ApiServer:
                     group_id        = validator.integer_value (record, "group_id",       0, pow(2, 63)),
                     time_coverage   = validator.string_value  (record, "time_coverage",  0, 512),
                     publisher       = validator.string_value  (record, "publisher",      0, 10000),
-                    language        = validator.string_value  (record, "language",       0, 10),
+                    language        = validator.string_value  (record, "language",       0, 8),
                     contributors    = validator.string_value  (record, "contributors",   0, 10000),
                     license_remarks = validator.string_value  (record, "license_remarks",0, 10000),
                     geolocation     = validator.string_value  (record, "geolocation",    0, 255),

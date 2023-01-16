@@ -278,6 +278,9 @@ jQuery(document).ready(function () {
   <tbody></tbody>
 </table>
 <h3>Findability</h3>
+<label for="language">Language</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select a language from the list.</span></div><span class="required-field">&#8727;</span>
+{% set item = collection %}
+{% include 'depositor/language-selector.html' %}
 <label>Geolocation</label>
 <div id="geolocation-wrapper">
   <label for="geolocation">Name</label><div class="fas fa-question-circle help-icon"><span class="help-text">The geographic area to which the data in the collection refer (e.g. municipality, town/city, region, country)</span></div>
