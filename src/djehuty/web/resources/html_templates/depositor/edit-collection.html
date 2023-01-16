@@ -203,7 +203,11 @@ jQuery(document).ready(function () {
 {% endblock %}
 {% block body %}
 <div class="collection-content">
+{%- if collection.title == "Untitled collection" %}
+<h1>Add new collection</h1>
+{%- else %}
 <h1>Edit collection</h1>
+{%- endif %}
 <noscript>
   <p class="no-script">Sorry, this page requires JavaScript to work correctly.</p>
 </noscript>
