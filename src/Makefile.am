@@ -43,6 +43,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/depositor/edit-collection.html       \
     djehuty/web/resources/html_templates/depositor/edit-dataset.html          \
     djehuty/web/resources/html_templates/depositor/edit-session.html          \
+    djehuty/web/resources/html_templates/depositor/language-selector.html     \
     djehuty/web/resources/html_templates/depositor/my-collections.html        \
     djehuty/web/resources/html_templates/depositor/my-data.html               \
     djehuty/web/resources/html_templates/depositor/private-links.html         \
