@@ -136,10 +136,7 @@ function delete_collection (collection_id) {
     }
 }
 
-function save_collection (collection_id) {
-    event.preventDefault();
-    event.stopPropagation();
-
+function gather_form_data () {
     let categories   = jQuery("input[name='categories']:checked");
     let category_ids = []
     for (let category of categories) {
@@ -163,7 +160,15 @@ function save_collection (collection_id) {
         "group_id":       group_id,
         "categories":     category_ids
     }
-    
+
+    return form_data;
+}
+
+function save_collection (collection_id) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    form_data = gather_form_data();
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}`,
         type:        "PUT",
