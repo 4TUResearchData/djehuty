@@ -211,6 +211,13 @@ jQuery(document).ready(function () {
 <h2>Collection details</h2>
 <label for="title">Title</label>
 <input type="text" id="title" name="title" value="{{collection["title"]}}" />
+<label for="authors">Authors</label><input type="text" id="authors" name="authors" />
+<table class="branded-table" id="authors-list">
+  <thead>
+    <tr><th>Author</th><th>Actions</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
 <label>Description</label>
 <div id="description" class="texteditor">
   {{collection["description"] | default("", True) | replace("\\n", "<br>") | safe }}
@@ -232,14 +239,6 @@ jQuery(document).ready(function () {
 {%- endfor %}
   </div>
 </div>
-<h3>Authors</h3>
-<label for="authors">Authors</label><input type="text" id="authors" name="authors" />
-<table class="branded-table" id="authors-list">
-  <thead>
-    <tr><th>Author</th><th>Actions</th></tr>
-  </thead>
-  <tbody></tbody>
-</table>
 <label>Group</label>
 <div id="groups-wrapper" class="options-wrapper">
 {%- for group in groups: %}
