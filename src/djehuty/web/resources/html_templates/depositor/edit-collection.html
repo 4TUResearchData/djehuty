@@ -46,6 +46,7 @@ jQuery(document).ready(function () {
     max-width: 572pt;
 }
 .files td { text-align: left; }
+#expanded-categories { display: none; }
 #content-wrapper h3:first-child { margin-top: 0em; }
 #content-wrapper h3 {
     font-size: 1.75em;
@@ -216,6 +217,9 @@ jQuery(document).ready(function () {
 </div>
 <label>Categories</label>
 <div id="categories-wrapper" class="options-wrapper">
+  <a id="expand-categories-button" href="#" onclick="javascript:toggle_categories(); return false;">Select categories</a>
+  <div class="expand-categories"></div>
+  <div id="expanded-categories">
 {%- for root in categories: %}
 <input type="checkbox" name="categories" value="{{root.uuid}}" id="category_{{root.uuid}}"><!--
 --><label class="item-label" for="category_{{root.uuid}}">{{root.title}}</label><br>
@@ -226,6 +230,7 @@ jQuery(document).ready(function () {
 {%- endfor %}
 </div>
 {%- endfor %}
+  </div>
 </div>
 <h3>Authors</h3>
 <label for="authors">Authors</label><input type="text" id="authors" name="authors" />
