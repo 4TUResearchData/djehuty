@@ -60,6 +60,7 @@ jQuery(document).ready(function () {
 </noscript>
 <div class="hide-for-javascript">
 <h1>Collections</h1>
+{% if collections %}
 <div id="table-collections-loader" class="loader"></div>
 <table id="table-collections" class="branded-table ">
   <thead>
@@ -74,7 +75,7 @@ jQuery(document).ready(function () {
     <tr>
       <td>
         <a href="/my/collections/{{collection.container_uuid}}/edit">{{collection.title}}</a>
-        <span class="number-of-articles">({{collection.number_of_articles}})</span></td>
+        <span class="number-of-articles">({{collection.number_of_articles | default("0", False)}})</span></td>
       <td class="center">
         <span class="fas {% if collection.is_public == 1: %}fa-users{% else: %}fa-lock{% endif %}">
           <span class="hidden">{{collection.is_public}}</span>
@@ -86,4 +87,8 @@ jQuery(document).ready(function () {
   {% endfor %}</tbody>
 </table>
 </div>
+{% else %}
+<p>You don&apos;t have any collections (yet).</p>
+<div class="center"><a id="add-new-collection" href="/my/collections/new" class="button neutral-button">Create new collection</a></div>
+{% endif %}
 {% endblock %}
