@@ -3634,6 +3634,34 @@ class ApiServer:
 
         return self.error_500 ()
 
+    def __datacite_reserve_doi (self):
+        """
+        Reserve a DOI at DataCite and return its API response on success or
+        None on failure.
+        """
+
+        headers = {
+            "Accept": "application/vnd.api+json",
+            "Content-Type": "application/vnd.api+json"
+        }
+        json_data = { "data": { "type": "dois", "attributes": { "prefix": self.datacite_prefix } } }
+
+        try:
+            response = requests.post(f"{self.datacite_url}/dois",
+                                     headers = headers,
+                                     auth    = (self.datacite_id,
+                                                self.datacite_password),
+                                     timeout = 10,
+                                     json    = json_data)
+            data = None
+            if response.status_code == 201:
+                data = response.json()
+            return data
+        except requests.exceptions.ConnectionError:
+            logging.error("Failed to reserve a DOI due to a connection error.")
+
+        return self.error_500 ()
+
     def api_private_dataset_reserve_doi (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/reserve_doi."""
         handler = self.default_error_handling (request, "POST", "application/json")
@@ -3651,37 +3679,23 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        try:
-            headers = {
-                "Accept": "application/vnd.api+json",
-                "Content-Type": "application/vnd.api+json"
-            }
-            json_data = { "data": { "type": "dois", "attributes": { "prefix": self.datacite_prefix } } }
-            response = requests.post(f"{self.datacite_url}/dois",
-                                     headers = headers,
-                                     auth    = (self.datacite_id,
-                                                self.datacite_password),
-                                     timeout = 10,
-                                     json    = json_data)
+        data = self.__datacite_reserve_doi ()
+        if data is None:
+            logging.error("DataCite responded with %s", response.status_code)
+            return self.error_500 ()
 
-            if response.status_code == 201:
-                data = response.json()
-                reserved_doi = data["data"]["id"]
-                if self.db.update_dataset (
-                        dataset["container_uuid"],
-                        account_uuid,
-                        doi                         = reserved_doi,
-                        agreed_to_deposit_agreement = value_or (dataset, "agreed_to_deposit_agreement", False),
-                        agreed_to_publish           = value_or (dataset, "agreed_to_publish", False),
-                        is_metadata_record          = value_or (dataset, "is_metadata_record", False)):
-                    return self.response (json.dumps({ "doi": reserved_doi }))
+        reserved_doi = data["data"]["id"]
+        if self.db.update_dataset (
+                dataset["container_uuid"],
+                account_uuid,
+                doi                         = reserved_doi,
+                agreed_to_deposit_agreement = value_or (dataset, "agreed_to_deposit_agreement", False),
+                agreed_to_publish           = value_or (dataset, "agreed_to_publish", False),
+                is_metadata_record          = value_or (dataset, "is_metadata_record", False)):
+            return self.response (json.dumps({ "doi": reserved_doi }))
 
-                logging.error("Updating the dataset %s for reserving DOI %s failed.",
-                              dataset_id, reserved_doi)
-            else:
-                logging.error("DataCite responded with %s", response.status_code)
-        except requests.exceptions.ConnectionError:
-            logging.error("Failed to reserve a DOI due to a connection error.")
+        logging.error("Updating the dataset %s for reserving DOI %s failed.",
+                      dataset_id, reserved_doi)
 
         return self.error_500()
 
