@@ -1818,20 +1818,20 @@ class SparqlInterface:
         query   = self.__query_from_template ("update_collection", {
             "account_uuid":      account_uuid,
             "container_uri":     rdf.uuid_to_uri (container_uuid, "container"),
-            "contributors":      contributors,
-            "description":       description,
-            "geolocation":       geolocation,
-            "language":          language,
-            "latitude":          latitude,
+            "contributors":      rdf.escape_string_value (contributors),
+            "description":       rdf.escape_string_value (description),
+            "geolocation":       rdf.escape_string_value (geolocation),
+            "language":          rdf.escape_string_value (language),
+            "latitude":          rdf.escape_string_value (latitude),
             "group_id":          group_id,
-            "longitude":         longitude,
-            "modified_date":     datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S"),
-            "organizations":     organizations,
-            "publisher":         publisher,
-            "resource_doi":      resource_doi,
-            "resource_title":    resource_title,
-            "time_coverage":     time_coverage,
-            "title":             title
+            "longitude":         rdf.escape_string_value (longitude),
+            "modified_date":     datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ"),
+            "organizations":     rdf.escape_string_value (organizations),
+            "publisher":         rdf.escape_string_value (publisher),
+            "resource_doi":      rdf.escape_string_value (resource_doi),
+            "resource_title":    rdf.escape_string_value (resource_title),
+            "time_coverage":     rdf.escape_string_value (time_coverage),
+            "title":             rdf.escape_string_value (title)
         })
 
         self.cache.invalidate_by_prefix ("collection")
