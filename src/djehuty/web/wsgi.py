@@ -12,6 +12,7 @@ import re
 import requests
 import pygit2
 import zipfly
+import base64
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
@@ -27,7 +28,7 @@ from djehuty.web import database
 from djehuty.utils.convenience import pretty_print_size, decimal_coords
 from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
-from djehuty.utils.convenience import make_citation, is_opendap_url
+from djehuty.utils.convenience import make_citation, is_opendap_url, landing_page_url
 from djehuty.utils.constants import group_to_member, member_url_names
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 
@@ -3684,6 +3685,51 @@ class ApiServer:
 
         return self.error_500()
 
+    def public_item_register_doi (self, request, item_id, version=None, item_type="dataset"):
+        """ Procedure to register a new doi, to be called AFTER publication of the item """
+
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        doi, xml = self.format_datacite_for_registration(item_id, version, item_type)
+        encoded_bytes = base64.b64encode(xml.encode("utf-8"))
+        encoded_str = str(encoded_bytes, "utf-8")
+        url = landing_page_url(item_id, version, item_type)
+
+        try:
+            headers = {
+                "Accept": "application/vnd.api+json",
+                "Content-Type": "application/vnd.api+json"
+            }
+            json_data = {
+                "data": {
+                    "id": doi,
+                    "type": "dois",
+                    "attributes": {
+                        "event": "publish",
+                        "doi": doi,
+                        "url": url,
+                        "xml": encoded_str
+                    }
+                }
+            }
+            response = requests.post(f"{self.datacite_url}/dois",
+                                     headers = headers,
+                                     auth    = (self.datacite_id,
+                                                self.datacite_password),
+                                     timeout = 10,
+                                     json    = json_data)
+
+            if response.status_code == 201:
+                pass #do something here?
+            else:
+                logging.error("DataCite responded with %s", response.status_code)
+        except requests.exceptions.ConnectionError:
+            logging.error("Failed to register a DOI due to a connection error.")
+
+        return self.error_500()
+
     def api_private_datasets_search (self, request):
         """Implements /v2/account/articles/search."""
         handler = self.default_error_handling (request, "POST", "application/json")
@@ -5319,6 +5365,11 @@ class ApiServer:
         """render metadata in datacite format"""
         parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type)
         return xml_formatter.datacite(parameters, indent=indent)
+
+    def format_datacite_for_registration(self, item_id, version=None, item_type="dataset"):
+        """return doi and un-indented datacite xml separately"""
+        parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type)
+        return parameters["doi"], datacite(parameters, indent=False)
 
     def ui_export_refworks_dataset (self, request, dataset_id, version=None):
         """export metadata in Refworks format"""
