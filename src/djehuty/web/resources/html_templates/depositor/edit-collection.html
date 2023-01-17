@@ -281,6 +281,8 @@ jQuery(document).ready(function () {
 <label for="language">Language</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select a language from the list.</span></div><span class="required-field">&#8727;</span>
 {% set item = collection %}
 {% include 'depositor/language-selector.html' %}
+<label for="time_coverage">Time coverage</label><div class="fas fa-question-circle help-icon"><span class="help-text">Indicate the dates to which the data in the collection refer. Enter the year, or the beginning and ending date.</span></div>
+<input type="text" id="time_coverage" name="time_coverage" value="{{collection["time_coverage"] | default("", True)}}" />
 <label>Geolocation</label>
 <div id="geolocation-wrapper">
   <label for="geolocation">Name</label><div class="fas fa-question-circle help-icon"><span class="help-text">The geographic area to which the data in the collection refer (e.g. municipality, town/city, region, country)</span></div>
