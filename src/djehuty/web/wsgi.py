@@ -4950,9 +4950,8 @@ class ApiServer:
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
-    def api_v3_dataset_tags (self, request, dataset_id):
-        """Implements /v3/datasets/<id>/tags."""
-
+    def __api_v3_item_tags (self, request, item_id, item_by_id_procedure):
+        """Implements handling tags for both datasets and collections."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
@@ -4966,12 +4965,12 @@ class ApiServer:
             return self.error_405 (["GET", "POST", "DELETE"])
 
         try:
-            dataset  = self.__dataset_by_id_or_uri (dataset_id,
-                                                    account_uuid=account_uuid,
-                                                    is_published=False)
+            item  = item_by_id_procedure (item_id,
+                                          account_uuid=account_uuid,
+                                          is_published=False)
 
             tags = self.db.tags (
-                item_uri        = dataset["uri"],
+                item_uri        = item["uri"],
                 account_uuid    = account_uuid,
                 limit           = validator.integer_value (request.args, "limit"),
                 order           = validator.integer_value (request.args, "order"),
@@ -4986,7 +4985,7 @@ class ApiServer:
                 tag_encoded = validator.string_value (request.args, "tag", 0, 1024, True)
                 tag         = requests.utils.unquote(tag_encoded)
                 tags.remove (next (filter (lambda item: item == tag, tags)))
-                if not self.db.update_item_list (dataset["container_uuid"],
+                if not self.db.update_item_list (item["container_uuid"],
                                                  account_uuid,
                                                  tags,
                                                  "tags"):
@@ -5005,7 +5004,7 @@ class ApiServer:
                 new_tags.append(validator.string_value (tags, index, 0, 512, True))
 
             if request.method == 'POST':
-                existing_tags = self.db.tags (item_uri   = dataset["uri"],
+                existing_tags = self.db.tags (item_uri   = item["uri"],
                                               account_uuid = account_uuid,
                                               limit      = 10000)
 
@@ -5015,7 +5014,7 @@ class ApiServer:
                 # Remove duplicates.
                 tags = deduplicate_list(existing_tags + new_tags)
 
-            if not self.db.update_item_list (dataset["container_uuid"],
+            if not self.db.update_item_list (item["container_uuid"],
                                              account_uuid,
                                              tags,
                                              "tags"):
@@ -5031,6 +5030,10 @@ class ApiServer:
             return self.error_400 (request, "Expected a 'tags' field.", "NoTagsField")
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
+
+    def api_v3_dataset_tags (self, request, dataset_id):
+        """Implements /v3/datasets/<id>/tags."""
+        return self.__api_v3_item_tags (request, dataset_id, self.__dataset_by_id_or_uri)
 
     def api_v3_groups (self, request):
         """Implements /v3/groups."""
