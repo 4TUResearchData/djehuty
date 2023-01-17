@@ -65,6 +65,24 @@ function render_authors_for_collection (collection_id, authors = null) {
     }
 }
 
+function render_tags_for_collection (collection_id) {
+    jQuery.ajax({
+        url:         `/v3/collections/${collection_id}/tags`,
+        data:        { "limit": 10000 },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (tags) {
+        jQuery("#tags-list").empty();
+        for (let tag of tags) {
+            let row = `<li>${tag} &nbsp; <a href="#" class="fas fa-trash-can"`;
+            row += ` onclick="javascript:remove_tag('${tag}', `;
+            row += `'${collection_id}'); return false;"></a></li>`;
+            jQuery("#tags-list").append(row);
+        }
+        jQuery("#tags-list").show();
+    }).fail(function () { show_message ("failure", "<p>Failed to retrieve tags.</p>"); });
+}
+
 function add_author (author_id, collection_id) {
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/authors`,
@@ -97,6 +115,22 @@ function add_dataset (dataset_id, collection_id) {
     });
 }
 
+function add_tag (collection_id) {
+    let tag = jQuery.trim(jQuery("#tag").val());
+    if (tag == "") { return 0; }
+
+    jQuery.ajax({
+        url:         `/v3/collections/${collection_id}/tags`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({ "tags": [tag] }),
+    }).done(function () {
+        render_tags_for_collection (collection_id);
+        jQuery("#tag").val("");
+    }).fail(function () { show_message ("failure", `<p>Failed to add ${tag}.</p>`); });
+}
+
 function remove_author (author_id, collection_id) {
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/authors/${author_id}`,
@@ -118,6 +152,15 @@ function remove_dataset (dataset_id, collection_id) {
     }).fail(function () {
         show_message ("failure",`<p>Failed to remove ${dataset_id}.</p>`);
     });
+}
+
+function remove_tag (tag, collection_id) {
+    jQuery.ajax({
+        url:         `/v3/collections/${collection_id}/tags?tag=${tag}`,
+        type:        "DELETE",
+        accept:      "application/json",
+    }).done(function () { render_tags_for_collection (collection_id); })
+      .fail(function () { show_message ("failure", `<p>Failed to remove ${tag}.</p>`); });
 }
 
 function delete_collection (collection_id) {
@@ -332,10 +375,16 @@ function activate (collection_id) {
         render_categories_for_collection (collection_id, data["categories"]);
         render_authors_for_collection (collection_id, data["authors"]);
         render_datasets_for_collection (collection_id);
+        render_tags_for_collection (collection_id);
 
         if (data["group_id"] != null) {
             jQuery(`#group_${data["group_id"]}`).prop("checked", true);
-        }        
+        }
+
+        jQuery("#tag").on("keypress", function(e){
+            if(e.which == 13) { add_tag(collection_id); }
+        });
+
     }).fail(function () {
         show_message ("failure","<p>Failed to retrieve collection.</p>");
     });

@@ -227,6 +227,7 @@ class ApiServer:
             Rule("/v3/file/<file_id>",                        endpoint = "api_v3_file"),
             Rule("/v3/datasets/<dataset_id>/references",      endpoint = "api_v3_dataset_references"),
             Rule("/v3/datasets/<dataset_id>/tags",            endpoint = "api_v3_dataset_tags"),
+            Rule("/v3/collections/<collection_id>/tags",      endpoint = "api_v3_collection_tags"),
             Rule("/v3/groups",                                endpoint = "api_v3_groups"),
             Rule("/v3/profile",                               endpoint = "api_v3_profile"),
             Rule("/v3/profile/categories",                    endpoint = "api_v3_profile_categories"),
@@ -5030,6 +5031,10 @@ class ApiServer:
             return self.error_400 (request, "Expected a 'tags' field.", "NoTagsField")
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
+
+    def api_v3_collection_tags (self, request, collection_id):
+        """Implements /v3/collections/<id>/tags."""
+        return self.__api_v3_item_tags (request, collection_id, self.__collection_by_id_or_uri)
 
     def api_v3_dataset_tags (self, request, dataset_id):
         """Implements /v3/datasets/<id>/tags."""
