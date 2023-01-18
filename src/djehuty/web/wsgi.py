@@ -222,6 +222,7 @@ class ApiServer:
             Rule("/v3/datasets/top/<item_type>",              endpoint = "api_v3_datasets_top"),
             Rule("/v3/datasets/<dataset_id>/submit-for-review", endpoint = "api_v3_dataset_submit"),
             Rule("/v3/datasets/<dataset_id>/publish",         endpoint = "api_v3_dataset_publish"),
+            Rule("/v3/collections/<collection_id>/publish",   endpoint = "api_v3_collection_publish"),
             Rule("/v3/datasets/timeline/<item_type>",         endpoint = "api_v3_datasets_timeline"),
             Rule("/v3/datasets/<dataset_id>/upload",          endpoint = "api_v3_dataset_upload_file"),
             Rule("/v3/datasets/<dataset_id>.git/files",       endpoint = "api_v3_dataset_git_files"),
@@ -4681,6 +4682,78 @@ class ApiServer:
         if self.db.publish_dataset (dataset["container_uuid"], account_uuid):
             return self.respond_201 ({
                 "location": f"{self.base_url}/review/published/{dataset_id}"
+            })
+
+        return self.error_500 ()
+
+    def api_v3_collection_publish (self, request, collection_id):
+        """Implements /v3/collections/<id>/publish."""
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        collection = self.__collection_by_id_or_uri (collection_id,
+                                                     account_uuid = account_uuid,
+                                                     is_published = False)
+
+        if collection is None:
+            return self.error_403 (request)
+
+        ## Do strict metadata validation.
+        errors = []
+
+        validator.string_value  (collection, "title",          3, 1000,  True, errors)
+        validator.string_value  (collection, "description",    0, 10000, True, errors)
+        validator.integer_value (collection, "group_id",       0, pow(2, 63), True, errors)
+        validator.string_value  (collection, "time_coverage",  0, 512,   False, errors)
+        validator.string_value  (collection, "publisher",      0, 10000, True, errors)
+        validator.string_value  (collection, "language",       0, 10,    True, errors)
+
+        authors = self.db.authors (item_uri  = collection["uri"],
+                                   item_type = "collection")
+        if not authors:
+            errors.append({
+                "field_name": "authors",
+                "message": "The collection must have at least one author."})
+
+        tags = self.db.tags (item_uri     = collection["uri"],
+                             account_uuid = account_uuid)
+        if not tags:
+            errors.append({
+                "field_name": "tag",
+                "message": "The collection must have at least one keyword."})
+
+
+        categories = self.db.categories (item_uri = collection["uri"],
+                                         account_uuid = account_uuid,
+                                         is_published = False)
+
+        if not categories:
+            errors.append({
+                "field_name": "categories",
+                "message": "Please specify at least one category."})
+
+        ## resource_doi and resource_title are not required, but if one of
+        ## the two is provided, the other must be provided as well.
+        resource_doi =   validator.string_value  (collection, "resource_doi",   0, 255,   False, errors)
+        resource_title = validator.string_value  (collection, "resource_title", 0, 255,   False, errors)
+
+        if resource_doi is not None:
+            validator.string_value  (collection, "resource_title", 0, 255,   True, errors)
+        if resource_title is not None:
+            validator.string_value  (collection, "resource_doi",   0, 255,   True, errors)
+
+        if errors:
+            return self.error_400_list (request, errors)
+
+        ## Only continue publishing when validation went fine.
+        if self.db.publish_collection (collection["container_uuid"], account_uuid):
+            return self.respond_201 ({
+                "location": f"{self.base_url}/published/{collection_id}"
             })
 
         return self.error_500 ()
