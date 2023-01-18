@@ -48,6 +48,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/depositor/my-data.html               \
     djehuty/web/resources/html_templates/depositor/private-links.html         \
     djehuty/web/resources/html_templates/depositor/profile.html               \
+    djehuty/web/resources/html_templates/depositor/published-collection.html  \
     djehuty/web/resources/html_templates/depositor/submitted-for-review.html  \
     djehuty/web/resources/html_templates/home.html                            \
     djehuty/web/resources/html_templates/institutions.html                    \

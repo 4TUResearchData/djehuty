@@ -129,6 +129,7 @@ class ApiServer:
             Rule("/file/<dataset_id>/<file_id>",              endpoint = "ui_download_file"),
             Rule("/collections/<collection_id>",              endpoint = "ui_collection"),
             Rule("/collections/<collection_id>/<version>",    endpoint = "ui_collection"),
+            Rule("/my/collections/published/<collection_id>", endpoint = "ui_collection_published"),
             Rule("/authors/<author_id>",                      endpoint = "ui_author"),
             Rule("/search",                                   endpoint = "ui_search"),
             Rule("/ndownloader/items/<dataset_id>/versions/<version>", endpoint = "ui_download_all_files"),
@@ -1259,6 +1260,22 @@ class ApiServer:
                                        draft_datasets     = draft_datasets,
                                        review_datasets    = review_datasets,
                                        published_datasets = published_datasets)
+
+    def ui_collection_published (self, request, collection_id):
+        """Implements /my/collections/published/<id>."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        token = self.token_from_cookie (request)
+        if not self.db.is_depositor (token):
+            return self.error_404 (request)
+
+        return self.__render_template (request, "depositor/published-collection.html",
+                                       collection_id = collection_id)
 
     def ui_dataset_submitted (self, request):
         """Implements /my/datasets/submitted-for-review."""

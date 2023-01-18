@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block submenu %}
+<ul>
+  <li><a href="/my/collections">&#8592; Go back</a>
+  <li class="active">Edit collection
+</ul>
+{% endblock %}
+{% block body %}
+<h1>Your collection has been published</h1>
+<p>Thank you for publishing your collection to 4TU.ResearchData.</p>
+<p><a href="/collections/{{collection_id}}">Click here to view the publication page</a>.</p>
+<div class="center">
+  <a href="/my/collections" class="button neutral-button">Go to collections overview</a>
+</div>
+{% endblock %}
