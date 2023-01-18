@@ -881,13 +881,13 @@ class SparqlInterface:
         """Adds an RDF list with indexes for ITEMS to GRAPH."""
         return self.insert_record_list (graph, uri, items, items_name, None)
 
-    def wrap_dataset_in_blank_node (self, dataset_uuid):
+    def wrap_in_blank_node (self, item_uuid, item_type="dataset"):
         """Returns the blank node URI for the rdf:List node for a dataset."""
 
         rdf_store  = Graph ()
         blank_node = rdf.blank_node ()
-        dataset_uri = rdf.uuid_to_uri (dataset_uuid, "dataset")
-        rdf.add (rdf_store, blank_node, RDF.first, URIRef(dataset_uri), "url")
+        item_uri   = rdf.uuid_to_uri (item_uuid, item_type)
+        rdf.add (rdf_store, blank_node, RDF.first, URIRef(item_uri), "url")
         rdf.add (rdf_store, blank_node, RDF.rest, RDF.nil)
 
         if self.add_triples_from_graph (rdf_store):
@@ -1466,7 +1466,7 @@ class SparqlInterface:
             logging.error ("No latest version for <container:%s>.", container_uuid)
 
         dataset_uuid = draft["uuid"]
-        blank_node   = self.wrap_dataset_in_blank_node (dataset_uuid)
+        blank_node   = self.wrap_in_blank_node (dataset_uuid, "dataset")
         query        = self.__query_from_template ("publish_draft_dataset", {
             "blank_node":        blank_node,
             "version":           new_version_number,
