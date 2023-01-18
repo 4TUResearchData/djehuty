@@ -1439,6 +1439,40 @@ class SparqlInterface:
 
         return result
 
+    def publish_collection (self, container_uuid, account_uuid):
+        """Procedure to publish a collection."""
+
+        draft = None
+        try:
+            draft = self.collections (container_uuid = container_uuid,
+                                      is_published = False)[0]
+        except IndexError:
+            logging.error ("Attempted to publish without a draft <container:%s>.",
+                           container_uuid)
+            return False
+
+        new_version_number = 1
+        latest             = None
+        try:
+            latest = self.collections (container_uuid = container_uuid,
+                                       is_published   = True,
+                                       is_latest      = True)[0]
+            new_version_number = latest["version"] + 1
+        except IndexError:
+            logging.error ("No latest version for <container:%s>.", container_uuid)
+
+        collection_uuid = draft["uuid"]
+        blank_node   = self.wrap_in_blank_node (collection_uuid, "collection")
+        query        = self.__query_from_template ("publish_draft_collection", {
+            "blank_node":        blank_node,
+            "version":           new_version_number,
+            "container_uuid":    container_uuid,
+            "collection_uuid":   collection_uuid,
+            "first_publication": not latest
+        })
+
+        return bool(self.__run_query (query))
+
     def publish_dataset (self, container_uuid, account_uuid):
         """Procedure to publish a draft dataset."""
 

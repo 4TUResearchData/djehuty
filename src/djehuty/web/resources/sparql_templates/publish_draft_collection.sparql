@@ -1,0 +1,57 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    {%- if not first_publication %}
+    ?container     djht:latest_published_version ?latest_published_version .
+    ?append_node   rdf:rest                      ?nil_value .
+    {%- endif %}
+    ?container        djht:draft                 ?draft_collection .
+    ?draft_collection djht:is_latest             ?is_latest .
+    ?draft_collection djht:is_public             ?is_public .
+    ?draft_collection djht:is_editable           ?is_editable .
+    ?draft_collection djht:version               ?version .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?container     djht:latest_published_version <collection:{{collection_uuid}}> .
+
+    ?draft_collection djht:is_latest             "true"^^xsd:boolean ;
+                      djht:is_public             "true"^^xsd:boolean ;
+                      djht:is_editable           "false"^^xsd:boolean ;
+                      djht:published_date        ?now ;
+                      djht:posted_date           ?now ;
+                      djht:version               {{version}} .
+
+    {%- if first_publication %}
+    ?container     djht:published_versions       <{{blank_node}}> .
+    {%- else %}
+    ?append_node   rdf:rest                      <{{blank_node}}> .
+    {%- endif %}
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container     rdf:type                      djht:CollectionContainer ;
+                   djht:draft                    ?draft_collection .
+
+    {%- if not first_publication %}
+    ?container     djht:published_versions/rdf:rest* ?append_node .
+    # Working around a bug in Virtuoso.  Check whether this can be
+    # simplified to: ?append_node rdf:rest rdf:nil .
+    ?append_node   rdf:rest ?nil_value .
+    FILTER (STR(?nil_value) = STR(rdf:nil))
+    {%- endif %}
+
+    OPTIONAL { ?container djht:latest_published_version ?latest_published_version . }
+    OPTIONAL { ?draft_collection djht:is_latest     ?is_latest . }
+    OPTIONAL { ?draft_collection djht:is_public     ?is_public . }
+    OPTIONAL { ?draft_collection djht:is_editable   ?is_editable . }
+    OPTIONAL { ?draft_collection djht:version       ?version . }
+
+    BIND(NOW() AS ?now)
+  }
+  FILTER (?container = <container:{{container_uuid}}>)
+}
+{% endblock %}
