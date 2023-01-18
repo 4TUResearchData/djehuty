@@ -209,7 +209,7 @@ function gather_form_data () {
     return form_data;
 }
 
-function save_collection (collection_id) {
+function save_collection (collection_id, event, notify=true) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -225,13 +225,47 @@ function save_collection (collection_id) {
             .addClass("success")
             .append("<p>Saved changed.</p>")
             .fadeIn(250);
-        setTimeout(function() {
-            jQuery("#message").fadeOut(500, function() {
-                jQuery("#message").removeClass("success").empty();
-            });
-        }, 5000);
+        if (notify) {
+            show_message ("success", "<p>Saved changes.</p>");
+        }
     }).fail(function () {
-        show_message ("failure", "<p>Failed to save form.</p>");
+        if (notify) {
+            show_message ("failure", "<p>Failed to save form.</p>");
+        }
+    });
+}
+
+function publish_collection (collection_id, event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    save_collection (collection_id, event, false);
+    jQuery.ajax({
+        url:         `/v3/collections/${collection_id}/publish`,
+        type:        "POST",
+        accept:      "application/json",
+    }).done(function () {
+        window.location.replace(`/my/collections/published/${collection_id}`);
+    }).fail(function (response, text_status, error_code) {
+        jQuery(".missing-required").removeClass("missing-required");
+        let error_messages = jQuery.parseJSON (response.responseText);
+        let error_message = "<p>Please fill in all required fields.</p>";
+        if (error_messages.length > 0) {
+            error_message = "<p>Please fill in all required fields.</p>";
+            for (let message of error_messages) {
+                if (message.field_name == "license_id") {
+                    jQuery("#license_open").addClass("missing-required");
+                    jQuery("#license_embargoed").addClass("missing-required");
+                } else if (message.field_name == "group_id") {
+                    jQuery("#groups-wrapper").addClass("missing-required");
+                } else if (message.field_name == "categories") {
+                    jQuery("#categories-wrapper").addClass("missing-required");
+                } else {
+                    jQuery(`#${message.field_name}`).addClass("missing-required");
+                }
+            }
+        }
+        show_message ("failure", `${error_message}`);
     });
 }
 
@@ -368,7 +402,7 @@ function activate (collection_id) {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery("#delete").on("click", function () { delete_collection (collection_id); });
     jQuery("#save").on("click", function ()   { save_collection (collection_id); });
-
+    jQuery("#publish").on("click", function (event) { publish_collection (collection_id, event); });
     // Initialize Quill to provide the WYSIWYG editor.
     new Quill('#description', { theme: '4tu' });
     install_sticky_header();
