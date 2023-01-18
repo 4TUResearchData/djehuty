@@ -1808,7 +1808,7 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def update_collection (self, container_uuid, account_uuid, title=None,
-                           description=None, resource_doi=None,
+                           description=None, resource_doi=None, doi=None,
                            resource_title=None, group_id=None, datasets=None,
                            time_coverage=None, publisher=None, language=None,
                            contributors=None, geolocation=None, longitude=None,
@@ -1820,6 +1820,7 @@ class SparqlInterface:
             "container_uri":     rdf.uuid_to_uri (container_uuid, "container"),
             "contributors":      rdf.escape_string_value (contributors),
             "description":       rdf.escape_string_value (description),
+            "doi":               rdf.escape_string_value (doi),
             "geolocation":       rdf.escape_string_value (geolocation),
             "language":          rdf.escape_string_value (language),
             "latitude":          rdf.escape_string_value (latitude),

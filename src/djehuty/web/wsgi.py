@@ -204,6 +204,7 @@ class ApiServer:
             Rule("/v2/account/collections/<collection_id>/categories", endpoint = "api_private_collection_categories"),
             Rule("/v2/account/collections/<collection_id>/articles", endpoint = "api_private_collection_datasets"),
             Rule("/v2/account/collections/<collection_id>/articles/<dataset_id>", endpoint = "api_private_collection_dataset_delete"),
+            Rule("/v2/account/collections/<collection_id>/reserve_doi", endpoint = "api_private_collection_reserve_doi"),
 
             ## Private authors
             Rule("/v2/account/authors/search",                endpoint = "api_private_authors_search"),
@@ -3660,6 +3661,39 @@ class ApiServer:
             return data
         except requests.exceptions.ConnectionError:
             logging.error("Failed to reserve a DOI due to a connection error.")
+
+        return self.error_500 ()
+
+    def api_private_collection_reserve_doi (self, request, collection_id):
+        """Implements /v2/account/collections/<id>/reserve_doi."""
+
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed(request)
+
+        collection = self.__collection_by_id_or_uri (collection_id,
+                                                     is_published = False,
+                                                     account_uuid = account_uuid)
+        if collection is None:
+            return self.error_403 (request)
+
+        data = self.__datacite_reserve_doi ()
+        if data is None:
+            logging.error("DataCite responded with %s", response.status_code)
+            return self.error_500 ()
+
+        reserved_doi = data["data"]["id"]
+        if self.db.update_collection (collection["container_uuid"],
+                                      account_uuid,
+                                      doi = reserved_doi):
+            return self.response (json.dumps({ "doi": reserved_doi }))
+
+        logging.error("Updating the dataset %s for reserving DOI %s failed.",
+                      dataset_id, reserved_doi)
 
         return self.error_500 ()
 

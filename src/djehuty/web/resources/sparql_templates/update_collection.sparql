@@ -6,6 +6,8 @@ DELETE {
     ?collection           djht:title                ?title .
     {%- endif%}{% if description is not none %}
     ?collection           djht:description          ?description .
+    {%- endif%}{% if doi is not none %}
+    ?collection           djht:doi                  ?doi .
     {%- endif%}{% if resource_doi is not none %}
     ?collection           djht:resource_doi         ?resource_doi .
     {%- endif%}{% if resource_title is not none %}
@@ -38,6 +40,8 @@ INSERT {
     ?collection           djht:title                {{title | safe}} .
     {%- endif%}{% if description is not none %}
     ?collection           djht:description          {{description | safe}} .
+    {%- endif%}{% if doi is not none %}
+    ?collection           djht:doi                  {{doi | safe}} .
     {%- endif%}{% if resource_doi is not none %}
     ?collection           djht:resource_doi         {{resource_doi | safe}} .
     {%- endif%}{% if resource_title is not none %}
@@ -74,6 +78,7 @@ WHERE {
 
     OPTIONAL { ?collection djht:title                ?title . }
     OPTIONAL { ?collection djht:description          ?description . }
+    OPTIONAL { ?collection djht:doi                  ?doi . }
     OPTIONAL { ?collection djht:group_id             ?group_id . }
     OPTIONAL { ?collection djht:resource_doi         ?resource_doi . }
     OPTIONAL { ?collection djht:resource_title       ?resource_title . }
