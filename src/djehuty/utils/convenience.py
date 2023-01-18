@@ -209,8 +209,8 @@ def add_logging_level (level_name, level_number, method_name=None):
     setattr(logging, method_name, log_to_root)
 
 def landing_page_url (item_id, version=None, item_type="dataset"):
+    """Returns (a version-specific) URL to an item's landing page."""
     url = f"https://data.4tu.nl/{item_type}s/{item_id}"
     if version:
         url += f"/{version}"
     return url
-
