@@ -9,10 +9,10 @@ import hashlib
 import subprocess
 import secrets
 import re
+import base64
 import requests
 import pygit2
 import zipfly
-import base64
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
@@ -2268,10 +2268,8 @@ class ApiServer:
             if dataset is None:
                 return self.error_404 (request)
 
-            metadata = self.__file_by_id_or_uri (file_id,
-                                                 dataset_uri = dataset["uri"])
-
-            file_path = f"{self.db.secondary_storage}/{file_info['id']}/{file_info['name']}"
+            metadata  = self.__file_by_id_or_uri (file_id, dataset_uri = dataset["uri"])
+            file_path = f"{self.db.secondary_storage}/{metadata['id']}/{metadata['name']}"
             if "filesystem_location" in metadata:
                 file_path = metadata["filesystem_location"]
 
@@ -3656,6 +3654,8 @@ class ApiServer:
             data = None
             if response.status_code == 201:
                 data = response.json()
+            else:
+                logging.error("DataCite responded with %s", response.status_code)
             return data
         except requests.exceptions.ConnectionError:
             logging.error("Failed to reserve a DOI due to a connection error.")
@@ -3681,7 +3681,6 @@ class ApiServer:
 
         data = self.__datacite_reserve_doi ()
         if data is None:
-            logging.error("DataCite responded with %s", response.status_code)
             return self.error_500 ()
 
         reserved_doi = data["data"]["id"]
@@ -3690,8 +3689,8 @@ class ApiServer:
                                       doi = reserved_doi):
             return self.response (json.dumps({ "doi": reserved_doi }))
 
-        logging.error("Updating the dataset %s for reserving DOI %s failed.",
-                      dataset_id, reserved_doi)
+        logging.error("Updating the collection %s for reserving DOI %s failed.",
+                      collection_id, reserved_doi)
 
         return self.error_500 ()
 
@@ -3714,7 +3713,6 @@ class ApiServer:
 
         data = self.__datacite_reserve_doi ()
         if data is None:
-            logging.error("DataCite responded with %s", response.status_code)
             return self.error_500 ()
 
         reserved_doi = data["data"]["id"]
@@ -5408,7 +5406,7 @@ class ApiServer:
     def format_datacite_for_registration(self, item_id, version=None, item_type="dataset"):
         """return doi and un-indented datacite xml separately"""
         parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type)
-        return parameters["doi"], datacite(parameters, indent=False)
+        return parameters["doi"], xml_formatter.datacite(parameters, indent=False)
 
     def ui_export_refworks_dataset (self, request, dataset_id, version=None):
         """export metadata in Refworks format"""
