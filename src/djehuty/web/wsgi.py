@@ -1004,7 +1004,7 @@ class ApiServer:
             return redirect ("/login", code=302)
 
         if self.identity_provider == "orcid":
-            return redirect ((f"{self.orchid_endpoint}/authorize?client_id="
+            return redirect ((f"{self.orcid_endpoint}/authorize?client_id="
                               f"{self.orcid_client_id}&response_type=code"
                               "&scope=/authenticate&redirect_uri="
                               f"{self.base_url}/login"), 302)
@@ -2249,8 +2249,6 @@ class ApiServer:
         except (KeyError, IndexError, TypeError, FileNotFoundError) as error:
             logging.error("File download for %s failed due to: %s.", dataset_id, error)
             return self.error_404 (request)
-
-        return self.error_500 ()
 
     def ui_download_file (self, request, dataset_id, file_id):
         """Implements /file/<id>/<fid>."""
