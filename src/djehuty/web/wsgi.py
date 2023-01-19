@@ -2059,80 +2059,79 @@ class ApiServer:
 
     def ui_collection (self, request, collection_id, version=None):
         """Implements /collections/<id>."""
-        if self.accepts_html (request):
-            container_uuid = self.db.container_uuid_by_id(collection_id)
-            container_uri = f'container:{container_uuid}'
-            container = self.db.container (container_uuid, item_type='collection')
 
-            if container is None:
-                return self.error_404 (request)
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
 
-            versions      = self.db.collection_versions(container_uri=container_uri)
-            if not versions:
-                versions = [{"version":1}]
-            versions      = [v for v in versions if v['version']]
-            current_version = version if version else versions[0]['version']
-            collection    = self.db.collections (container_uuid= container_uuid,
-                                                 version       = current_version,
-                                                 is_published  = True)[0]
-            collection_uri = collection['uri']
-            authors       = self.db.authors(item_uri=collection_uri, item_type='collection', limit=None)
-            tags          = self.db.tags(item_uri=collection_uri, limit=None)
-            categories    = self.db.categories(item_uri=collection_uri, limit=None)
-            references    = self.db.references(item_uri=collection_uri, limit=None)
-            fundings      = self.db.fundings(item_uri=collection_uri, limit=None)
-            statistics    = {'downloads': value_or(container, 'total_downloads', 0),
-                             'views'    : value_or(container, 'total_views'    , 0),
-                             'shares'   : value_or(container, 'total_shares'   , 0),
-                             'cites'    : value_or(container, 'total_cites'    , 0)}
-            statistics    = {key:val for (key,val) in statistics.items() if val > 0}
-            member = value_or(group_to_member, value_or_none (collection, "group_id"), 'other')
-            member_url_name = member_url_names[member]
-            tags = { t['tag'] for t in tags }
-            collection['timeline_first_online'] = value_or_none (container, 'first_online_date')
-            dates = self.__pretty_print_dates_for_item (collection)
+        container_uuid = self.db.container_uuid_by_id(collection_id)
+        container_uri = f'container:{container_uuid}'
+        container = self.db.container (container_uuid, item_type='collection')
+        if container is None:
+            return self.error_404 (request)
 
-            posted_date = value_or_none (collection, "timeline_posted")
-            if posted_date is not None:
-                posted_date = posted_date[:4]
-            else:
-                posted_date = "unpublished"
+        versions      = self.db.collection_versions(container_uri=container_uri)
+        if not versions:
+            versions = [{"version":1}]
+        versions      = [v for v in versions if v['version']]
+        current_version = version if version else versions[0]['version']
+        collection    = self.db.collections (container_uuid= container_uuid,
+                                             version       = current_version,
+                                             is_published  = True)[0]
+        collection_uri = collection['uri']
+        authors       = self.db.authors(item_uri=collection_uri, item_type='collection', limit=None)
+        tags          = self.db.tags(item_uri=collection_uri, limit=None)
+        categories    = self.db.categories(item_uri=collection_uri, limit=None)
+        references    = self.db.references(item_uri=collection_uri, limit=None)
+        fundings      = self.db.fundings(item_uri=collection_uri, limit=None)
+        statistics    = {'downloads': value_or(container, 'total_downloads', 0),
+                         'views'    : value_or(container, 'total_views'    , 0),
+                         'shares'   : value_or(container, 'total_shares'   , 0),
+                         'cites'    : value_or(container, 'total_cites'    , 0)}
+        statistics    = {key:val for (key,val) in statistics.items() if val > 0}
+        member = value_or(group_to_member, value_or_none (collection, "group_id"), 'other')
+        member_url_name = member_url_names[member]
+        tags = { t['tag'] for t in tags }
+        collection['timeline_first_online'] = value_or_none (container, 'first_online_date')
+        dates = self.__pretty_print_dates_for_item (collection)
 
-            citation = make_citation(authors, posted_date, collection['title'],
-                                     value_or (collection, 'version', 0),
-                                     'collection',
-                                     value_or (collection, 'doi', 'unavailable'))
+        posted_date = value_or_none (collection, "timeline_posted")
+        if posted_date is not None:
+            posted_date = posted_date[:4]
+        else:
+            posted_date = "unpublished"
 
-            lat = self_or_value_or_none(collection, 'latitude')
-            lon = self_or_value_or_none(collection, 'longitude')
-            lat_valid, lon_valid = decimal_coords(lat, lon)
-            coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
+        citation = make_citation(authors, posted_date, collection['title'],
+                                 value_or (collection, 'version', 0),
+                                 'collection',
+                                 value_or (collection, 'doi', 'unavailable'))
 
-            contributors = self.parse_contributors(value_or(collection, 'contributors', ''))
+        lat = self_or_value_or_none(collection, 'latitude')
+        lon = self_or_value_or_none(collection, 'longitude')
+        lat_valid, lon_valid = decimal_coords(lat, lon)
+        coordinates = {'lat': lat, 'lon': lon, 'lat_valid': lat_valid, 'lon_valid': lon_valid}
 
-            datasets = self.db.collection_datasets(collection_uri)
+        contributors = self.parse_contributors(value_or(collection, 'contributors', ''))
+        datasets     = self.db.collection_datasets(collection_uri)
 
-            return self.__render_template (request, "collection.html",
-                                           item=collection,
-                                           version=version,
-                                           versions=versions,
-                                           citation=citation,
-                                           container_doi=value_or_none(container, 'doi'),
-                                           authors=authors,
-                                           contributors = contributors,
-                                           tags=tags,
-                                           categories=categories,
-                                           fundings=fundings,
-                                           references=references,
-                                           dates=dates,
-                                           coordinates=coordinates,
-                                           member=member,
-                                           member_url_name=member_url_name,
-                                           datasets=datasets,
-                                           statistics=statistics)
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        return self.__render_template (request, "collection.html",
+                                       item=collection,
+                                       version=version,
+                                       versions=versions,
+                                       citation=citation,
+                                       container_doi=value_or_none(container, 'doi'),
+                                       authors=authors,
+                                       contributors = contributors,
+                                       tags=tags,
+                                       categories=categories,
+                                       fundings=fundings,
+                                       references=references,
+                                       dates=dates,
+                                       coordinates=coordinates,
+                                       member=member,
+                                       member_url_name=member_url_name,
+                                       datasets=datasets,
+                                       statistics=statistics)
 
     def ui_author (self, request, author_id):
         """Implements /authors/<id>."""
