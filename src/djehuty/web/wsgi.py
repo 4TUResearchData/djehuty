@@ -2068,7 +2068,9 @@ class ApiServer:
                 return self.error_404 (request)
 
             versions      = self.db.collection_versions(container_uri=container_uri)
-            versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
+            if not versions:
+                versions = [{"version":1}]
+            versions      = [v for v in versions if v['version']]
             current_version = version if version else versions[0]['version']
             collection    = self.db.collections (container_uuid= container_uuid,
                                                  version       = current_version,
@@ -2084,13 +2086,22 @@ class ApiServer:
                              'shares'   : value_or(container, 'total_shares'   , 0),
                              'cites'    : value_or(container, 'total_cites'    , 0)}
             statistics    = {key:val for (key,val) in statistics.items() if val > 0}
-            member = value_or(group_to_member, collection["group_id"], 'other')
+            member = value_or(group_to_member, value_or_none (collection, "group_id"), 'other')
             member_url_name = member_url_names[member]
             tags = { t['tag'] for t in tags }
-            collection['timeline_first_online'] = container['first_online_date']
+            collection['timeline_first_online'] = value_or_none (container, 'first_online_date')
             dates = self.__pretty_print_dates_for_item (collection)
-            citation = make_citation(authors, collection['timeline_posted'][:4], collection['title'],
-                                     collection['version'], 'collection', collection['doi'])
+
+            posted_date = value_or_none (collection, "timeline_posted")
+            if posted_date is not None:
+                posted_date = posted_date[:4]
+            else:
+                posted_date = "unpublished"
+
+            citation = make_citation(authors, posted_date, collection['title'],
+                                     value_or (collection, 'version', 0),
+                                     'collection',
+                                     value_or (collection, 'doi', 'unavailable'))
 
             lat = self_or_value_or_none(collection, 'latitude')
             lon = self_or_value_or_none(collection, 'longitude')
