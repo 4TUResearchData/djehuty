@@ -2,7 +2,6 @@
 
 import logging
 import smtplib
-from email.message import EmailMessage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -56,14 +55,14 @@ class EmailInterface:
             return False
         except (smtplib.SMTPHeloError,
                 smtplib.SMTPNotSupportedError, smtplib.SMTPException) as error:
-            logging.error ("Authenticating to the e-mail server failed: ", error)
+            logging.error ("Authenticating to the e-mail server failed: %s", error)
             return False
 
         try:
             connection.sendmail (self.from_address, to, message.as_string())
         except (smtplib.SMTPRecipientsRefused, smtplib.SMTPHeloError, smtplib.SMTPSenderRefused,
                 smtplib.SMTPDataError, smtplib.SMTPNotSupportedError) as error:
-            logging.error ("Sending e-mail failed: ", error)
+            logging.error ("Sending e-mail failed: %s", error)
             return False
 
         connection.close()

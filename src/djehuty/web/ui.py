@@ -404,16 +404,14 @@ def read_email_configuration (server, xml_root):
     if email:
         try:
             server.email.smtp_port = int(config_value (email, "port"))
+            server.email.smtp_server = config_value (email, "server")
+            server.email.from_address = config_value (email, "from")
+            server.email.smtp_username = config_value (email, "username")
+            server.email.smtp_password = config_value (email, "password")
+            server.email.do_starttls = bool(int(config_value (email, "starttls", None, 0)))
         except ValueError:
             logging.error ("Could not configure the email subsystem:")
             logging.error ("The email port should be a numeric value.")
-            return None
-
-        server.email.smtp_server = config_value (email, "server")
-        server.email.from_address = config_value (email, "from")
-        server.email.smtp_username = config_value (email, "username")
-        server.email.smtp_password = config_value (email, "password")
-        server.email.do_starttls = bool(int(config_value (email, "starttls", None, 0)))
 
 def read_configuration_file (server, config_file, address, port, state_graph,
                              storage, cache, base_url, use_debugger,
