@@ -357,6 +357,19 @@ class ApiServer:
         return self.response (template.render({ **context, **parameters }),
                               mimetype='text/html; charset=utf-8')
 
+    def __render_email_templates (self, template_name, **context):
+        """Render a plaintext and an HTML body for sending in an e-mail."""
+
+        html_template = self.jinja.get_template (f"{template_name}.html")
+        text_template = self.jinja.get_template (f"{template_name}.txt")
+
+        parameters    = { "base_url": self.base_url }
+
+        html_response = html_template.render({ **context, **parameters })
+        text_response = text_template.render({ **context, **parameters })
+
+        return text_response, html_response
+
     def __render_export_format (self, mimetype, template_name, **context):
         template      = self.metadata_jinja.get_template (template_name)
         return self.response (template.render( **context ),
@@ -399,6 +412,16 @@ class ApiServer:
         request  = Request(environ)
         response = self.__dispatch_request(request)
         return response(environ, start_response)
+
+    def __send_email_to_reviewers (self, subject, template_name, **context):
+        """Procedure to send an email to all accounts configured with 'may_review' privileges."""
+
+        reviewer_accounts = self.db.reviewer_email_addresses()
+        for reviewer_email in reviewer_accounts:
+            text, html = self.__render_email_templates (f"email/{template_name}", **context)
+            self.email.send_email (reviewer_email, subject, text, html)
+
+        logging.info ("Sent e-mail to %d reviewer(s): %s", len(reviewer_accounts), subject)
 
     def token_from_cookie (self, request, cookie_key=None):
         """Procedure to gather an access token from a HTTP cookie."""
@@ -4709,6 +4732,9 @@ class ApiServer:
             return self.error_403 (request)
 
         if self.db.publish_dataset (dataset["container_uuid"], account_uuid):
+            subject = f"Dataset published: {dataset['container_uuid']}"
+            self.__send_email_to_reviewers (subject, "published_dataset_notification",
+                                            dataset=dataset)
             return self.respond_201 ({
                 "location": f"{self.base_url}/review/published/{dataset_id}"
             })
@@ -4917,6 +4943,9 @@ class ApiServer:
                 return self.error_500()
 
             if self.db.insert_review (dataset["uri"]) is not None:
+                subject = f"Request for review: {dataset['container_uuid']}"
+                self.__send_email_to_reviewers (subject, "submitted_for_review_notification",
+                                                dataset=dataset)
                 return self.respond_204 ()
 
         except validator.ValidationException as error:

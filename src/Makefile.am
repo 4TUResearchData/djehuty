@@ -51,6 +51,10 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/depositor/profile.html               \
     djehuty/web/resources/html_templates/depositor/published-collection.html  \
     djehuty/web/resources/html_templates/depositor/submitted-for-review.html  \
+    djehuty/web/resources/html_templates/email/published_dataset_notification.html \
+    djehuty/web/resources/html_templates/email/published_dataset_notification.txt \
+    djehuty/web/resources/html_templates/email/submitted_for_review_notification.html \
+    djehuty/web/resources/html_templates/email/submitted_for_review_notification.txt \
     djehuty/web/resources/html_templates/home.html                            \
     djehuty/web/resources/html_templates/institutions.html                    \
     djehuty/web/resources/html_templates/layout.html                          \

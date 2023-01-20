@@ -1,0 +1,5 @@
+Request for review of {{dataset.uuid}}
+
+Visit the reviewer dashboard[1] to review this dataset.
+
+[1] {{base_url}}/review/dashboard
