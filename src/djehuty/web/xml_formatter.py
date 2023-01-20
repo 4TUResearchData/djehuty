@@ -156,19 +156,19 @@ def refworks (parameters):
     ref  = maker.child(root, 'reference')
     item    = parameters['item']
     authors = parameters['authors']
-    for i, author in enumerate(authors):
+    for index, author in enumerate(authors):
         name = author['full_name']
         if 'last_name' in author and 'first_name' in author:
             name = f"{author['last_name']}, {author['first_name']}"
-        maker.child(ref, f'a{i+1}', {}, name)
+        maker.child(ref, f'a{index+1}', {}, name)
     maker.child(ref, 't1', {}, item['title'])
     maker.child(ref, 'sn')
     maker.child(ref, 'op')
     maker.child(ref, 'vo')
     maker.child(ref, 'ab', {}, item['description'])
     maker.child(ref, 'la', {}, value_or(item, 'language', 'en'))
-    for i, tag in enumerate(parameters['tags']):
-        maker.child(ref, f'k{i+1}', {}, tag)
+    for index, tag in enumerate(parameters['tags']):
+        maker.child(ref, f'k{index+1}', {}, tag)
     maker.child(ref, 'pb')
     maker.child(ref, 'pp')
     maker.child(ref, 'yr', {}, parameters['published_year'])
