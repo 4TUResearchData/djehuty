@@ -13,6 +13,7 @@ PYTHON_FILES =                                                                \
     djehuty/utils/rdf.py                                                      \
     djehuty/web/cache.py                                                      \
     djehuty/web/database.py                                                   \
+    djehuty/web/email.py                                                      \
     djehuty/web/formatter.py                                                  \
     djehuty/web/ui.py                                                         \
     djehuty/web/validator.py                                                  \
