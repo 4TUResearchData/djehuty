@@ -34,7 +34,8 @@ INSERT {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container     rdf:type                      djht:CollectionContainer ;
-                   djht:draft                    ?draft_collection .
+                   djht:draft                    ?draft_collection ;
+                   djht:account                  ?account .
 
     {%- if not first_publication %}
     ?container     djht:published_versions/rdf:rest* ?append_node .
@@ -53,5 +54,6 @@ WHERE {
     BIND(NOW() AS ?now)
   }
   FILTER (?container = <container:{{container_uuid}}>)
+  FILTER (?account = <account:{{account_uuid}}>)
 }
 {% endblock %}

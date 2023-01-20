@@ -1464,6 +1464,7 @@ class SparqlInterface:
         collection_uuid = draft["uuid"]
         blank_node   = self.wrap_in_blank_node (collection_uuid, "collection")
         query        = self.__query_from_template ("publish_draft_collection", {
+            "account_uuid":      account_uuid,
             "blank_node":        blank_node,
             "version":           new_version_number,
             "container_uuid":    container_uuid,
