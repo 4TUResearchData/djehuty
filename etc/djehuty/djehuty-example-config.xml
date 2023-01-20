@@ -28,6 +28,14 @@
       <endpoint>https://orcid.org/oauth</endpoint>
     </orcid>
   </authentication>
+  <email>
+    <server>smtp.example.com</server>
+    <port>587</port>
+    <starttls>1</starttls>
+    <username>address</username>
+    <password>password</password>
+    <from>noreply@example.com</from>
+  </email>
   <privileges>
     <account email="you@example.com" orcid="0000-0000-0000-0001">
       <may-administer>1</may-administer>

@@ -398,6 +398,23 @@ def read_orcid_configuration (server, xml_root):
         server.orcid_endpoint      = config_value (orcid, "endpoint")
         server.identity_provider   = "orcid"
 
+def read_email_configuration (server, xml_root):
+    """Procedure to parse and set the email server configuration."""
+    email = xml_root.find("email")
+    if email:
+        try:
+            server.email.smtp_port = int(config_value (email, "port"))
+        except ValueError:
+            logging.error ("Could not configure the email subsystem:")
+            logging.error ("The email port should be a numeric value.")
+            return None
+
+        server.email.smtp_server = config_value (email, "server")
+        server.email.from_address = config_value (email, "from")
+        server.email.smtp_username = config_value (email, "username")
+        server.email.smtp_password = config_value (email, "password")
+        server.email.do_starttls = bool(int(config_value (email, "starttls", None, 0)))
+
 def read_configuration_file (server, config_file, address, port, state_graph,
                              storage, cache, base_url, use_debugger,
                              use_reloader):
@@ -454,6 +471,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         read_orcid_configuration (server, xml_root)
         read_datacite_configuration (server, xml_root)
+        read_email_configuration (server, xml_root)
         read_saml_configuration (server, xml_root)
         read_privilege_configuration (server, xml_root)
         read_quotas_configuration (server, xml_root)

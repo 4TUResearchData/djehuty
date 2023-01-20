@@ -25,6 +25,7 @@ from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import xml_formatter
 from djehuty.web import database
+from djehuty.web import email
 from djehuty.utils.convenience import pretty_print_size, decimal_coords
 from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
@@ -54,6 +55,7 @@ class ApiServer:
     def __init__ (self, address="127.0.0.1", port=8080):
         self.base_url         = f"http://{address}:{port}"
         self.db               = database.SparqlInterface()
+        self.email            = email.EmailInterface()
         self.cookie_key       = "djehuty_session"
         self.impersonator_cookie_key = f"impersonator_{self.cookie_key}"
         self.file_list_lock  = Lock()
