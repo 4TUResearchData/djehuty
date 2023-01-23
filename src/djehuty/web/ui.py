@@ -590,6 +590,10 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 if server.in_production:
                     raise MissingConfigurationError
 
+            if not server.email.is_properly_configured ():
+                logging.warning ("Sending notification e-mails has been disabled.")
+                logging.warning ("Please configure a mail server to enable it.")
+
             if initialize:
                 logging.info("Invalidating caches ...")
                 server.db.cache.invalidate_all ()

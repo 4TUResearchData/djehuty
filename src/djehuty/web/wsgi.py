@@ -416,12 +416,16 @@ class ApiServer:
     def __send_email_to_reviewers (self, subject, template_name, **context):
         """Procedure to send an email to all accounts configured with 'may_review' privileges."""
 
+        if not self.email.is_properly_configured ():
+            return False
+
         reviewer_accounts = self.db.reviewer_email_addresses()
         for reviewer_email in reviewer_accounts:
             text, html = self.__render_email_templates (f"email/{template_name}", **context)
             self.email.send_email (reviewer_email, subject, text, html)
 
         logging.info ("Sent e-mail to %d reviewer(s): %s", len(reviewer_accounts), subject)
+        return True
 
     def token_from_cookie (self, request, cookie_key=None):
         """Procedure to gather an access token from a HTTP cookie."""
