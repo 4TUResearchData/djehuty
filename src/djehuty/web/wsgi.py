@@ -3064,8 +3064,9 @@ class ApiServer:
         except (IndexError, KeyError):
             return self.error_500 ()
 
-    def api_private_dataset_funding (self, request, dataset_id):
-        """Implements /v2/account/articles/<id>/funding."""
+    def __api_private_item_funding (self, request, item_id, item_type,
+                                    item_by_id_procedure):
+        """Implements handling funding for both datasets and collections."""
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -3076,19 +3077,23 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
+        accepted_methods = ["GET", "POST", "PUT"]
+        if request.method not in accepted_methods:
+            return self.error_405 (accepted_methods)
+
         if request.method == 'GET':
             try:
-                dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_uuid=account_uuid,
-                                                       is_published=False)
+                item = item_by_id_procedure (item_id,
+                                             account_uuid=account_uuid,
+                                             is_published=False)
 
-                if dataset is None:
+                if item is None:
                     return self.error_403 (request)
 
-                funding = self.db.fundings (item_uri     = dataset["uri"],
+                funding = self.db.fundings (item_uri     = item["uri"],
                                             account_uuid = account_uuid,
                                             is_published = False,
-                                            item_type    = "dataset",
+                                            item_type    = item_type,
                                             limit        = 10000)
 
                 return self.default_list_response (funding, formatter.format_funding_record)
@@ -3103,11 +3108,11 @@ class ApiServer:
             parameters = request.get_json()
 
             try:
-                dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_uuid=account_uuid,
-                                                       is_published=False)
+                item = item_by_id_procedure (item_id,
+                                             account_uuid=account_uuid,
+                                             is_published=False)
 
-                if dataset is None:
+                if item is None:
                     return self.error_403 (request)
 
                 new_fundings = []
@@ -3133,9 +3138,9 @@ class ApiServer:
                 existing_fundings = []
                 if request.method == 'POST':
                     existing_fundings = self.db.fundings (
-                        item_uri     = dataset["uri"],
+                        item_uri     = item["uri"],
                         account_uuid = account_uuid,
-                        item_type    = "dataset",
+                        item_type    = item_type,
                         is_published = False,
                         limit        = 10000)
 
@@ -3143,7 +3148,7 @@ class ApiServer:
                                                  existing_fundings))
 
                 fundings = existing_fundings + new_fundings
-                if not self.db.update_item_list (dataset["container_uuid"],
+                if not self.db.update_item_list (item["container_uuid"],
                                                  account_uuid,
                                                  fundings,
                                                  "funding_list"):
@@ -3159,7 +3164,12 @@ class ApiServer:
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
 
-        return self.error_405 ("GET")
+        return self.error_500 ()
+
+    def api_private_dataset_funding (self, request, dataset_id):
+        """Implements /v2/account/articles/<id>/funding."""
+        return self.__api_private_item_funding (request, dataset_id, "dataset",
+                                                self.__dataset_by_id_or_uri)
 
     def api_private_dataset_funding_delete (self, request, dataset_id, funding_id):
         """Implements /v2/account/articles/<id>/funding/<fid>."""
