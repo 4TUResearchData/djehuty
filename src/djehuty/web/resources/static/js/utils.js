@@ -55,3 +55,73 @@ function toggle_categories () {
         });
     }
 }
+
+function autocomplete_author (event, item_id) {
+    let current_text = jQuery.trim(jQuery("#authors").val());
+    if (current_text == "") {
+        jQuery("#authors-ac").remove();
+        jQuery("#authors").removeClass("input-for-ac");
+    } else if (current_text.length > 2) {
+        jQuery.ajax({
+            url:         `/v2/account/authors/search`,
+            type:        "POST",
+            contentType: "application/json",
+            accept:      "application/json",
+            data:        JSON.stringify({ "search": current_text }),
+            dataType:    "json"
+        }).done(function (data) {
+            jQuery("#authors-ac").remove();
+            let html = "<ul>";
+            for (let item of data) {
+                html += `<li><a href="#" `;
+                html += `onclick="javascript:add_author('${item["uuid"]}', `;
+                html += `'${item_id}'); return false;">${item["full_name"]}`;
+                if (item["orcid_id"] != null && item["orcid_id"] != "") {
+                    html += ` (${item["orcid_id"]})`;
+                }
+                html += "</a>";
+            }
+            html += "</ul>";
+
+            html += `<div id="new-author" class="a-button"><a href="#" `
+            html += `onclick="javascript:new_author('${item_id}'); `
+            html += `return false;">Create new author record</a></div>`;
+            jQuery("#authors")
+                .addClass("input-for-ac")
+                .after(`<div id="authors-ac" class="autocomplete">${html}</div>`);
+        });
+    }
+}
+
+function autocomplete_funding (event, item_id) {
+    let current_text = jQuery.trim(jQuery("#funding").val());
+    if (current_text == "") {
+        jQuery("#funding-ac").remove();
+        jQuery("#funding").removeClass("input-for-ac");
+    } else if (current_text.length > 2) {
+        jQuery.ajax({
+            url:         `/v2/account/funding/search`,
+            type:        "POST",
+            contentType: "application/json",
+            accept:      "application/json",
+            data:        JSON.stringify({ "search": current_text }),
+            dataType:    "json"
+        }).done(function (data) {
+            jQuery("#funding-ac").remove();
+            let html = "<ul>";
+            for (let item of data) {
+                html += `<li><a href="#" `;
+                html += `onclick="javascript:add_funding('${item["uuid"]}', `;
+                html += `'${item_id}'); return false;">${item["title"]}</a>`;
+            }
+            html += "</ul>";
+
+            html += `<div id="new-funding" class="a-button"><a href="#" `
+            html += `onclick="javascript:new_funding('${item_id}'); `
+            html += `return false;">Create funding record</a></div>`;
+            jQuery("#funding")
+                .addClass("input-for-ac")
+                .after(`<div id="funding-ac" class="autocomplete">${html}</div>`);
+        });
+    }
+}
