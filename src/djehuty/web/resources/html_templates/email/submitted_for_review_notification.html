@@ -1,8 +1,5 @@
-<html>
-  <head></head>
-  <body>
-    <img style="text-align: center" src="http://localhost:8080/static/images/logo.png" alt="4TU.ResearchData logo" />
+{% extends "email/layout.html" %}
+{% block body %}
     <h1>Request for review of {{dataset.uuid}}</h1>
     <p>Visit <a href="{{base_url}}/review/dashboard">the reviewer dashboard</a> to review this dataset.</p>
-  </body>
-</html>
+{% endblock %}
