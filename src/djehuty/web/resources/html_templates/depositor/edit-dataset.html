@@ -42,20 +42,20 @@ jQuery(document).ready(function (){
 .upload-container p { font-size: 1.2em; }
 #file { display: none; }
 #expanded-categories { display: none; }
-.branded-table {
+.inside-form-table {
     width: 100%;
     max-width: 880pt;
     border: solid 2pt #ccc;
     border-radius: .5em;
     margin-bottom: 1em;
 }
-.branded-table thead tr { background: #ccc; border-radius: .5em .5em 0em 0em; }
-.branded-table thead tr th { color: #000; text-align: left; padding: .5em; z-index: 50; border-top: none; }
-.branded-table thead tr th:last-child { text-align: right; }
-.branded-table tbody tr td { padding: .5em; z-index: 50; }
-.branded-table tbody tr:nth-child(even) { background: #fafafa; }
-.branded-table tbody tr td:last-child { text-align: right; width: 130pt; }
-.branded-table tbody tr td:nth-child(1) {
+.inside-form-table thead tr { background: #ccc; border-radius: .5em .5em 0em 0em; }
+.inside-form-table thead tr th { color: #000; text-align: left; padding: .5em; z-index: 50; border-top: none; }
+.inside-form-table thead tr th:last-child { text-align: right; }
+.inside-form-table tbody tr td { padding: .5em; z-index: 50; }
+.inside-form-table tbody tr:nth-child(even) { background: #fafafa; }
+.inside-form-table tbody tr td:last-child { text-align: right; width: 130pt; }
+.inside-form-table tbody tr td:nth-child(1) {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -287,7 +287,7 @@ jQuery(document).ready(function (){
 <input type="text" id="title" name="title" value="{{article["title"]}}" />
 <label for="authors">Authors</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select authors from the list or manually add them by creating a new author record. Hit enter after adding each author and drag and drop names to arrange them in the order you wish.</span></div><span class="required-field">&#8727;</span>
 <input type="text" id="authors" name="authors" />
-<table class="branded-table multi-list" id="authors-list">
+<table class="inside-form-table multi-list" id="authors-list">
   <thead>
     <tr><th>Author</th><th>Actions</th></tr>
   </thead>
@@ -403,7 +403,7 @@ jQuery(document).ready(function (){
 <input type="text" id="publisher" name="publisher" value="{{article["publisher"] | default("4TU.ResearchData", True)}}">
 <label for="funding">Funding</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select from the list by searching for funder name, grant number or grant name or manually add them by creating a new funding record.</span></div>
 <input type="text" id="funding" name="funding" />
-<table class="branded-table multi-list" id="funding-list">
+<table class="inside-form-table multi-list" id="funding-list">
   <thead>
     <tr><th>Name</th><th>Actions</th></tr>
   </thead>
@@ -418,7 +418,7 @@ jQuery(document).ready(function (){
 <p>Add any other relevant URLs or DOIs below.</p>
 <label for="references">References</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add references (links) to any relevant content or external sources that help describe the resource. All links must be full, valid URLs or DOIs in order to function, eg: https://doi.org/10.4233/uuid:35022242-b3ba-48d9-b3f6-c6ab20b8cc19. Hit return to enter new references.</span></div>
 <input type="text" id="references" name="references" value="" />
-<table class="branded-table" id="references-list">
+<table class="inside-form-table" id="references-list">
   <thead>
     <tr><th>Reference</th><th>Actions</th></tr>
   </thead>
@@ -509,7 +509,7 @@ git push 4tu --tags</pre>
   </div>
 </div>
 <div id="files-wrapper" class="record-type-field">
-  <table class="branded-table" id="files">
+  <table class="inside-form-table" id="files">
     <thead>
       <tr><th>Filename</th><th>MD5 Checksum</th><th>Actions</th></tr>
     </thead>
