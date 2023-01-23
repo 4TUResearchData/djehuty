@@ -101,9 +101,8 @@
     {% endfor %}
         </ul>
     </div>
-</div>
 {% endif %}
-
+</div>
 {%- if not in_production: %}
     {% set debug_vars = {"profile": profile,
                          "datasets": datasets,
@@ -116,4 +115,3 @@
     {% include 'debug.html' %}
 {%- endif %}
 {% endblock %}
-
