@@ -3177,8 +3177,10 @@ class ApiServer:
         return self.__api_private_item_funding (request, collection_id, "collection",
                                                 self.__collection_by_id_or_uri)
 
-    def api_private_dataset_funding_delete (self, request, dataset_id, funding_id):
-        """Implements /v2/account/articles/<id>/funding/<fid>."""
+    def __api_private_item_funding_delete (self, request, item_id, item_type,
+                                           item_by_id_procedure, funding_id):
+        """Implements removing funding for both datasets and collections."""
+
         if request.method != 'DELETE':
             return self.error_405 ("DELETE")
 
@@ -3187,23 +3189,23 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         try:
-            dataset   = self.__dataset_by_id_or_uri (dataset_id,
-                                                     account_uuid = account_uuid,
-                                                     is_published = False)
+            item   = item_by_id_procedure (item_id,
+                                           account_uuid = account_uuid,
+                                           is_published = False)
 
-            if dataset is None:
+            if item is None:
                 return self.error_403 (request)
 
-            fundings = self.db.fundings (item_uri     = dataset["uri"],
+            fundings = self.db.fundings (item_uri     = item["uri"],
                                          account_uuid = account_uuid,
                                          is_published = False,
-                                         item_type    = "dataset",
+                                         item_type    = item_type,
                                          limit        = 10000)
 
             fundings.remove (next (filter (lambda item: item['uuid'] == funding_id, fundings)))
 
             fundings = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "funding")), fundings))
-            if self.db.update_item_list (dataset["container_uuid"],
+            if self.db.update_item_list (item["container_uuid"],
                                          account_uuid,
                                          fundings,
                                          "funding_list"):
@@ -3212,6 +3214,12 @@ class ApiServer:
             return self.error_500()
         except (IndexError, KeyError):
             return self.error_500 ()
+
+    def api_private_dataset_funding_delete (self, request, dataset_id, funding_id):
+        """Implements /v2/account/articles/<id>/funding/<fid>."""
+        return self.__api_private_item_funding_delete (request, dataset_id, "dataset",
+                                                       self.__dataset_by_id_or_uri,
+                                                       funding_id)
 
     def api_private_collection_author_delete (self, request, collection_id, author_id):
         """Implements /v2/account/collections/<id>/authors/<a_id>."""
