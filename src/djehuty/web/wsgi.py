@@ -208,6 +208,7 @@ class ApiServer:
             Rule("/v2/account/collections/<collection_id>/articles", endpoint = "api_private_collection_datasets"),
             Rule("/v2/account/collections/<collection_id>/articles/<dataset_id>", endpoint = "api_private_collection_dataset_delete"),
             Rule("/v2/account/collections/<collection_id>/reserve_doi", endpoint = "api_private_collection_reserve_doi"),
+            Rule("/v2/account/collections/<collection_id>/funding", endpoint = "api_private_collection_funding"),
 
             ## Private authors
             Rule("/v2/account/authors/search",                endpoint = "api_private_authors_search"),
@@ -3170,6 +3171,11 @@ class ApiServer:
         """Implements /v2/account/articles/<id>/funding."""
         return self.__api_private_item_funding (request, dataset_id, "dataset",
                                                 self.__dataset_by_id_or_uri)
+
+    def api_private_collection_funding (self, request, collection_id):
+        """Implements /v2/account/collections/<id>/funding."""
+        return self.__api_private_item_funding (request, collection_id, "collection",
+                                                self.__collection_by_id_or_uri)
 
     def api_private_dataset_funding_delete (self, request, dataset_id, funding_id):
         """Implements /v2/account/articles/<id>/funding/<fid>."""
