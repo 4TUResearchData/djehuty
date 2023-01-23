@@ -65,6 +65,28 @@ function render_authors_for_collection (collection_id, authors = null) {
     }
 }
 
+function render_funding_for_collection (collection_id) {
+    jQuery.ajax({
+        url:         `/v2/account/collections/${collection_id}/funding`,
+        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (funders) {
+        jQuery("#funding-list tbody").empty();
+        for (let funding of funders) {
+            let row = `<tr><td>${funding.title}</td>`;
+            row += `<td><a href="#" `;
+            row += `onclick="javascript:remove_funding('${funding.uuid}', `;
+            row += `'${collection_id}'); return false;" class="fas fa-trash-can" `;
+            row += `title="Remove"></a></td></tr>`;
+            jQuery("#funding-list tbody").append(row);
+        }
+        jQuery("#funding-list").show();
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to retrieve funding details.</p>");
+    });
+}
+
 function render_tags_for_collection (collection_id) {
     jQuery.ajax({
         url:         `/v3/collections/${collection_id}/tags`,
@@ -97,6 +119,20 @@ function add_author (author_id, collection_id) {
     }).fail(function () {
         show_message ("failure",`<p>Failed to add ${author_id}.</p>`);
     });
+}
+
+function add_funding (funding_uuid, collection_id) {
+    jQuery.ajax({
+        url:         `/v2/account/collections/${collection_id}/funding`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({ "funders": [{ "uuid": funding_uuid }] }),
+    }).done(function () {
+        render_funding_for_collection (collection_id);
+        jQuery("#funding").val("");
+        autocomplete_funding(null, collection_id);
+    }).fail(function () { show_message ("failure", `<p>Failed to add ${funding_uuid}.</p>`); });
 }
 
 function add_dataset (dataset_id, collection_id) {
@@ -140,6 +176,15 @@ function remove_author (author_id, collection_id) {
       .fail(function () {
           show_message ("failure",`<p>Failed to remove ${author_id}</p>`);
       });
+}
+
+function remove_funding (funding_id, collection_id) {
+    jQuery.ajax({
+        url:         `/v2/account/collections/${collection_id}/funding/${funding_id}`,
+        type:        "DELETE",
+        accept:      "application/json",
+    }).done(function () { render_funding_for_collection (collection_id); })
+      .fail(function () { show_message ("failure", `<p>Failed to remove ${funding_id}.</p>`); });
 }
 
 function remove_dataset (dataset_id, collection_id) {
@@ -372,6 +417,25 @@ function new_author (collection_id) {
     jQuery("#authors-ac").append(html);
 }
 
+function new_funding (collection_id) {
+    let html = `<div id="new-funding-form">`;
+    html += `<label for="funding_title">Title</label>`;
+    html += `<input type="text" id="funding_title" name="funding_title">`;
+    html += `<label for="funding_grant_code">Grant code</label>`;
+    html += `<input type="text" id="funding_grant_code" name="funding_grant_code">`;
+    html += `<label for="funding_funder_name">Funder name</label>`;
+    html += `<input type="text" id="funding_funder_name" name="funding_funder_name">`;
+    html += `<label for="funding_url">URL</label>`;
+    html += `<input type="text" id="funding_url" name="funding_url">`;
+    html += `<div id="new-funding" class="a-button">`;
+    html += `<a href="#" onclick="javascript:submit_new_funding('${collection_id}'); `;
+    html += `return false;">Add funding</a></div>`;
+    html += `</div>`;
+    jQuery("#funding-ac ul").remove();
+    jQuery("#new-funding").remove();
+    jQuery("#funding-ac").append(html);
+}
+
 function submit_new_author (collection_id) {
     let first_name = jQuery("#author_first_name").val();
     let last_name = jQuery("#author_last_name").val();
@@ -398,6 +462,27 @@ function submit_new_author (collection_id) {
     });
 }
 
+function submit_new_funding (collection_id) {
+    jQuery.ajax({
+        url:         `/v2/account/collections/${collection_id}/funding`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({
+            "funders": [{
+                "title":       jQuery("#funding_title").val(),
+                "grant_code":  jQuery("#funding_grant_code").val(),
+                "funder_name": jQuery("#funding_funder_name").val(),
+                "url":         jQuery("#funding_url").val()
+            }]
+        }),
+    }).done(function () {
+        jQuery("#funding-ac").remove();
+        jQuery("#funding").removeClass("input-for-ac");
+        render_funding_for_collection (collection_id);
+    }).fail(function () { show_message ("failure", `<p>Failed to add funding.</p>`); });
+}
+
 function activate (collection_id) {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery("#delete").on("click", function () { delete_collection (collection_id); });
@@ -410,6 +495,9 @@ function activate (collection_id) {
 
     jQuery("#authors").on("input", function (event) {
         return autocomplete_author (event, collection_id);
+    });
+    jQuery("#funding").on("input", function (event) {
+        return autocomplete_funding (event, collection_id);
     });
     jQuery("#article-search").on("input", function (event) {
         return autocomplete_dataset (event, collection_id);
@@ -424,6 +512,7 @@ function activate (collection_id) {
         render_authors_for_collection (collection_id, data["authors"]);
         render_datasets_for_collection (collection_id);
         render_tags_for_collection (collection_id);
+        render_funding_for_collection (collection_id);
 
         if (data["group_id"] != null) {
             jQuery(`#group_${data["group_id"]}`).prop("checked", true);

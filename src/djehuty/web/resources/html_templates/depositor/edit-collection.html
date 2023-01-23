@@ -140,11 +140,14 @@ jQuery(document).ready(function () {
     cursor: pointer;
     user-select: none;
 }
+.multi-list { display: none; border: none; }
+.multi-list thead { display: none; }
 #authors-list { display: none; border: none; }
 #authors-list thead { display: none; }
 #articles-list { display: none; border: none; }
 #articles-list thead { display: none; }
 #new-author { text-align: center; line-height: 3.5em; height: 3.5em; }
+#new-funding { text-align: center; line-height: 3.5em; height: 3.5em; }
 .a-button a {
     text-decoration: none;
     color: #fff;
@@ -155,9 +158,15 @@ jQuery(document).ready(function () {
 }
 .a-button a:hover { background: #18b76d; }
 .a-button a:active { background: #107a48; }
+#new-funding { text-align: center; line-height: 3.5em; height: 3.5em; }
+#new-funding-form label { background: #eee; }
+#new-funding-form input[type="text"] { width: 800pt; }
 #new-author-form { padding: 1em; }
 #new-author-form label { background: #eee; }
 #new-author-form input[type="text"] { width: 800pt; }
+#new-funding-form { padding: 1em; }
+#new-funding-form label { background: #eee; }
+#new-funding-form input[type="text"] { width: 800pt; }
 #references-list { display: none; border: none; }
 #references-list thead { display: none; }
 #record-type-wrapper input[type="radio"],
@@ -273,6 +282,14 @@ jQuery(document).ready(function () {
 </div>
 <label for="publisher">Publisher</label>
 <input type="text" id="publisher" name="publisher" value="{{collection["publisher"] | default("4TU.ResearchData", True)}}">
+<label for="funding">Funding</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select from the list by searching for funder name, grant number or grant name or manually add them by creating a new funding record.</span></div>
+<input type="text" id="funding" name="funding" />
+<table class="inside-form-table multi-list" id="funding-list">
+  <thead>
+    <tr><th>Name</th><th>Actions</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
 <h3>Linked resource &amp; references</h3>
 <p>If the collection is published as part of a scientific paper, add its title and DOI here.</p>
 <label for="resource_title">Resource title</label><div class="fas fa-question-circle help-icon"><span class="help-text">Please add the title of the peer-reviewed article/paper or research you want to link back to. This will appear on the public page as the link title. If you add the Resource title, you will need to complete the Resource DOI field.</span></div>
