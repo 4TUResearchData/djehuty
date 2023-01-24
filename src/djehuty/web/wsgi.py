@@ -1599,9 +1599,7 @@ class ApiServer:
                     "depositor/edit-session.html",
                     session = session)
 
-            return self.response (json.dumps({
-                "message": "This page is meant for humans only."
-            }))
+            return self.error_406 ("text/html")
 
         if request.method == 'PUT':
             try:
@@ -1710,9 +1708,7 @@ class ApiServer:
     def ui_review_dashboard (self, request):
         """Implements /review/dashboard."""
         if not self.accepts_html (request):
-            return self.response (json.dumps({
-                "message": "This page is meant for humans only."
-            }))
+            return self.error_406 ("text/html")
 
         token = self.token_from_cookie (request)
         if not self.db.may_review (token):
@@ -2261,9 +2257,7 @@ class ApiServer:
                                            dois=dois,
                                            referrer=referrer)
 
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        return self.error_406 ("text/html")
 
     def ui_download_all_files (self, request, dataset_id, version):
         """Implements /ndownloader/items/<id>/versions/<version>"""
@@ -2430,9 +2424,7 @@ class ApiServer:
                                            dataset_count=dataset_count,
                                            message=message,
                                            display_terms=display_list)
-        return self.response (json.dumps({
-            "message": "This page is meant for humans only."
-        }))
+        return self.error_406 ("text/html")
 
     def api_authorize (self, request):
         """Implements /v2/account/applications/authorize."""
