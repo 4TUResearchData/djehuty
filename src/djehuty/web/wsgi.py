@@ -3864,7 +3864,10 @@ class ApiServer:
         return self.error_500()
 
     def public_item_update_doi (self, request, item_id, version=None, item_type="dataset"):
-        """ Procedure to modify metadata of an existing doi, to be called AFTER publication of the changes """
+        """
+        Procedure to modify metadata of an existing doi, to be called after
+        publication of the changes.
+        """
 
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
