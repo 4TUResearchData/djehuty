@@ -47,9 +47,7 @@ WHERE {
       ?review           rdf:type                  djht:Review ;
                         djht:dataset              ?dataset .
       OPTIONAL { ?review  djht:status             ?review_status . }
-      {%- if is_under_review %}
       ?review           djht:request_date         ?review_submit_date .
-      {%- endif %}
     }
 
     ?dataset            djht:title                ?title .
