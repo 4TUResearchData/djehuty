@@ -1715,9 +1715,12 @@ class ApiServer:
             return self.error_403 (request)
 
         account_uuid = self.account_uuid_from_request (request)
-        unassigned = self.db.reviews (limit = 10000, assigned_to = None)
+        unassigned = self.db.reviews (limit       = 10000,
+                                      assigned_to = None,
+                                      status      = "unassigned")
         assigned   = self.db.reviews (assigned_to = account_uuid,
-                                      limit       = 10000)
+                                      limit       = 10000,
+                                      status      = "assigned")
         published  = self.db.reviews (assigned_to = account_uuid,
                                       limit       = 10,
                                       status      = "accepted",
