@@ -109,6 +109,7 @@ class ApiServer:
             Rule("/my/sessions/new",                          endpoint = "ui_new_session"),
             Rule("/my/profile",                               endpoint = "ui_profile"),
             Rule("/review/dashboard",                         endpoint = "ui_review_dashboard"),
+            Rule("/review/overview",                          endpoint = "ui_review_overview"),
             Rule("/review/goto-dataset/<dataset_id>",         endpoint = "ui_review_impersonate_to_dataset"),
             Rule("/review/assign-to-me/<dataset_id>",         endpoint = "ui_review_assign_to_me"),
             Rule("/review/unassign/<dataset_id>",             endpoint = "ui_review_unassign"),
@@ -1734,6 +1735,23 @@ class ApiServer:
                                        unassigned_reviews = unassigned,
                                        published_reviews  = published)
 
+    def ui_review_overview (self, request):
+        """Implements /review/overview."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_review (token):
+            return self.error_403 (request)
+
+        account_uuid = self.account_uuid_from_request (request)
+        reviewers = self.db.reviewer_accounts ()
+        reviews = self.db.reviews (limit           = 10000,
+                                   order           = "request_date",
+                                   order_direction = "desc")
+        return self.__render_template (request, "review/overview.html",
+                                       reviewers = reviewers,
+                                       reviews = reviews)
 
     def ui_review_assign_to_me (self, request, dataset_id):
         """Implements /review/assign-to-me/<id>."""

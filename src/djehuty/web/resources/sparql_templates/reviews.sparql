@@ -4,6 +4,7 @@ SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to ?status
                 ?account_uuid ?dataset_uuid ?dataset_title ?group_name
                 ?submitter_first_name ?submitter_last_name ?submitter_email
                 ?published_date ?container_uuid ?dataset_version
+                ?reviewer_email ?reviewer_first_name ?reviewer_last_name
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review             rdf:type                 djht:Review ;
@@ -11,7 +12,6 @@ WHERE {
 
     OPTIONAL { ?review  djht:request_date         ?request_date . }
     OPTIONAL { ?review  djht:reminder_date        ?reminder_date . }
-    OPTIONAL { ?review  djht:assigned_to          ?assigned_to . }
     OPTIONAL { ?review  djht:status               ?status . }
 
     ?dataset            djht:container            ?container_uri ;
@@ -32,6 +32,17 @@ WHERE {
     OPTIONAL { ?account djht:first_name           ?submitter_first_name . }
     OPTIONAL { ?account djht:last_name            ?submitter_last_name . }
     OPTIONAL { ?account djht:institution_id       ?institution_id . }
+
+    OPTIONAL {
+      ?review  djht:assigned_to          ?assigned_to .
+
+      # OPTIONAL within OPTIONAL because if ?assigned_to is unbound,
+      # the following OPTIONAL bindings shouldn't just bind freely to anything
+      # with these predicates.
+      OPTIONAL { ?assigned_to djht:email            ?reviewer_email . }
+      OPTIONAL { ?assigned_to djht:first_name       ?reviewer_first_name . }
+      OPTIONAL { ?assigned_to djht:last_name        ?reviewer_last_name . }
+    }
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?dataset), "dataset:")  AS ?dataset_uuid)

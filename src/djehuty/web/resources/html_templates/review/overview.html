@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/utils.js"></script>
+<script src="/static/js/review-overview.js"></script>
+<script>
+jQuery(document).ready(function (){
+    activate ();
+});
+</script>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/review/dashboard">Dashboard</a>
+  <li class="active">Overview
+</ul>
+{% endblock %}
+{% block body %}
+<h1>Overview</h1>
+<p></p>
+{%- if reviews %}
+<table id="overview-table" class="reviewer-table branded-table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Submitter</th>
+      <th>E-mail address</th>
+      <th>Affiliation</th>
+      <th>Status</th>
+      <th>Date</th>
+      <th>Accepted</th>
+      <th>Reviewer</th>
+    </tr>
+  </thead>
+  <tbody>{% for review in reviews: %}
+    <tr>
+      <td>
+        <a href="/review/goto-dataset/{{review.dataset_uuid}}">{{review.dataset_title}}</a>
+        {%- if review.status == "unassigned": %}
+        (v{{review.dataset_version}})
+        {%- endif %}
+      </td>
+      <td>
+        {{review.submitter_first_name | default("", False)}}
+        {{review.submitter_last_name | default("", False)}}
+      </td>
+      <td>{{review.submitter_email}}</td>
+      <td>{{review.group_name | default("Unknown", False)}}</td>
+      <td>{{review.status | default("unassigned", False)}}</td>
+      <td>{{review.request_date | truncate(10,False,'')}}</td>
+      <td>{{review.published_date | truncate(10,False,'')}}</td>
+      <td>
+        {%- if review.status == "accepted" %}
+        {{review.submitter_first_name | default("", False)}}
+        {{review.submitter_last_name | default("", False)}}
+        {%- else %}
+        <select class="reviewer-selector">
+          <option value="" hidden>Unassigned</option>
+          {%- for reviewer in reviewers: %}
+          <option value="{{review.dataset_uuid}}:{{reviewer.uuid}}" {% if review.reviewer_email == reviewer.email %}selected{% endif %}>
+            {{reviewer.first_name | default("", False)}}
+            {{reviewer.last_name | default("", False)}}
+          </option>
+          {%- endfor %}
+        </select>
+        {%- endif %}
+      </td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
+{%- else %}
+<p>There are no reviews.</p>
+{%- endif %}
+{% endblock %}

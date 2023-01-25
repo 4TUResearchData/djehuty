@@ -63,6 +63,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/portal.html                          \
     djehuty/web/resources/html_templates/public_metadata.html                 \
     djehuty/web/resources/html_templates/review/dashboard.html                \
+    djehuty/web/resources/html_templates/review/overview.html                 \
     djehuty/web/resources/html_templates/review/published.html                \
     djehuty/web/resources/html_templates/search.html                          \
     djehuty/web/resources/metadata_templates/bibtex.bib                       \
@@ -226,6 +227,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/js/jquery.dataTables.min.js                  \
     djehuty/web/resources/static/js/jquery-3.6.0.min.js                       \
     djehuty/web/resources/static/js/quill.min.js                              \
+    djehuty/web/resources/static/js/review-overview.js                        \
     djehuty/web/resources/static/js/ranking.js                                \
     djehuty/web/resources/static/js/utils.js
 
