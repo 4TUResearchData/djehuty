@@ -244,6 +244,9 @@ class ApiServer:
             Rule("/v3/explore/properties",                    endpoint = "api_v3_explore_properties"),
             Rule("/v3/explore/property_value_types",          endpoint = "api_v3_explore_property_types"),
 
+            # Reviewer
+            Rule("/v3/datasets/<dataset_uuid>/assign-reviewer/<reviewer_uuid>", endpoint = "api_v3_datasets_assign_reviewer"),
+
             ## ----------------------------------------------------------------
             ## GIT HTTP API
             ## ----------------------------------------------------------------
@@ -5534,6 +5537,38 @@ class ApiServer:
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
+
+    def api_v3_datasets_assign_reviewer (self, request, dataset_uuid, reviewer_uuid):
+        """Implements /v3/datasets/<id>/assign-reviewer/<rid>."""
+
+        if request.method != "PUT":
+            return self.error_405 ("PUT")
+
+        account_uuid = self.account_uuid_from_request (request)
+        token = self.token_from_cookie (request)
+        if not self.db.may_review (token):
+            logging.error ("Account %d attempted a reviewer action.", account_uuid)
+            return self.error_403 (request)
+
+        reviewer = self.db.account_by_uuid (reviewer_uuid)
+        dataset  = None
+        try:
+            dataset = self.db.datasets (dataset_uuid    = dataset_uuid,
+                                        is_published    = False,
+                                        is_under_review = True)[0]
+        except (IndexError, TypeError):
+            pass
+
+        if dataset is None or reviewer is None:
+            return self.error_403 (request)
+
+        if self.db.update_review (dataset["review_uri"],
+                                  author_account_uuid = dataset["account_uuid"],
+                                  assigned_to = reviewer["uuid"],
+                                  status      = "assigned"):
+            return self.respond_204 ()
+
+        return self.error_500()
 
     ## ------------------------------------------------------------------------
     ## EXPORTS
