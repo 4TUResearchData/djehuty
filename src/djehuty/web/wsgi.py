@@ -1170,7 +1170,7 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        # Add a secundary cookie to go back to at one point.
+        # Add a secondary cookie to go back to at one point.
         response = redirect (f"/my/datasets/{dataset['container_uuid']}/edit", code=302)
         response.set_cookie (key    = self.impersonator_cookie_key,
                              value  = token,
@@ -1196,7 +1196,7 @@ class ApiServer:
         if not self.db.may_impersonate (token):
             return self.error_403 (request)
 
-        # Add a secundary cookie to go back to at one point.
+        # Add a secondary cookie to go back to at one point.
         response = redirect ("/my/dashboard", code=302)
         response.set_cookie (key    = self.impersonator_cookie_key,
                              value  = token,
