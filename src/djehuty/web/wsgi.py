@@ -3712,7 +3712,7 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def __datacite_reserve_doi (self):
+    def __datacite_reserve_doi (self, doi=None):
         """
         Reserve a DOI at DataCite and return its API response on success or
         None on failure.
@@ -3722,7 +3722,8 @@ class ApiServer:
             "Accept": "application/vnd.api+json",
             "Content-Type": "application/vnd.api+json"
         }
-        json_data = { "data": { "type": "dois", "attributes": { "prefix": self.datacite_prefix } } }
+        attributes = { "doi": doi } if doi else { "prefix": self.datacite_prefix }
+        json_data = { "data": { "type": "dois", "attributes": attributes } }
 
         try:
             response = requests.post(f"{self.datacite_url}/dois",
