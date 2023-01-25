@@ -2134,7 +2134,7 @@ class SparqlInterface:
         return None
 
     def reviewer_email_addresses (self):
-        """Returns the accounts with 'may_review' privileges."""
+        """Returns the e-mail addresses of accounts with 'may_review' privileges."""
 
         addresses = []
         ## The privileges are stored by e-mail address, so we can use
@@ -2145,6 +2145,17 @@ class SparqlInterface:
                 addresses.append(email_address)
 
         return addresses
+
+    def reviewer_accounts (self):
+        """Returns the accounts with 'may_review' privileges."""
+
+        email_addresses = self.reviewer_email_addresses ()
+        accounts = []
+        for email_address in email_addresses:
+            account = self.account_by_email (email_address)
+            accounts.append (account)
+
+        return accounts
 
     def accounts (self, account_uuid=None, order=None, order_direction=None,
                   limit=None, offset=None, is_active=None, email=None,
