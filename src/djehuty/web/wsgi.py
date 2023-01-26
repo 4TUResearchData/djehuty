@@ -1343,6 +1343,15 @@ class ApiServer:
         container_uuid, _ = self.db.insert_dataset(title = "Untitled item",
                                                    account_uuid = account_uuid)
         if container_uuid is not None:
+            # Add oneself as author but don't bail if that doesn't work.
+            try:
+                account    = self.db.account_by_uuid (account_uuid)
+                author_uri = URIRef(uuid_to_uri(account["author_uuid"], "author"))
+                self.db.update_item_list (container_uuid, account_uuid,
+                                          [author_uri], "authors")
+            except (TypeError, KeyError):
+                logging.warning ("No author record for account %s.", account_uuid)
+
             return redirect (f"/my/datasets/{container_uuid}/edit", code=302)
 
         return self.error_500()
