@@ -419,19 +419,26 @@ class ApiServer:
         response = self.__dispatch_request(request)
         return response(environ, start_response)
 
-    def __send_email_to_reviewers (self, subject, template_name, **context):
-        """Procedure to send an email to all accounts configured with 'may_review' privileges."""
+    def __send_templated_email (self, email_addresses, subject, template_name, **context):
+        """Procedure to send an email according to a template to the list of EMAIL_ADDRESSES."""
 
         if not self.email.is_properly_configured ():
             return False
 
-        reviewer_accounts = self.db.reviewer_email_addresses()
-        for reviewer_email in reviewer_accounts:
-            text, html = self.__render_email_templates (f"email/{template_name}", **context)
-            self.email.send_email (reviewer_email, subject, text, html)
+        if not email_addresses:
+            return False
 
-        logging.info ("Sent e-mail to %d reviewer(s): %s", len(reviewer_accounts), subject)
+        for email_address in email_addresses:
+            text, html = self.__render_email_templates (f"email/{template_name}", **context)
+            self.email.send_email (email_address, subject, text, html)
+
+        logging.info ("Sent e-mail to %d address(es): %s", len(email_addresses), subject)
         return True
+
+    def __send_email_to_reviewers (self, subject, template_name, **context):
+        """Procedure to send an email to all accounts configured with 'may_review' privileges."""
+        addresses = self.db.reviewer_email_addresses()
+        return self.__send_templated_email (addresses, subject, template_name, **context)
 
     def token_from_cookie (self, request, cookie_key=None):
         """Procedure to gather an access token from a HTTP cookie."""
