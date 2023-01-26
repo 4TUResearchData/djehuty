@@ -12,7 +12,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?is_metadata_record ?license_id ?license_name ?license_url
                 ?metadata_reason ?modified_date ?published_date
                 ?resource_doi ?resource_title ?size ?status ?thumb
-                ?timeline_posted ?has_draft
+                ?timeline_posted ?has_draft ?is_draft
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?title ?url
                 ?url_private_api ?url_private_html ?url_public_api
@@ -30,7 +30,9 @@ WHERE {
     ?container_uri      djht:account              ?account .
     OPTIONAL { ?container_uri djht:dataset_id     ?dataset_id . }
 
-    {%- if is_latest %}
+    {%- if is_draft %}
+    ?container_uri      djht:draft                ?dataset .
+    {%- elif is_latest %}
     ?container_uri      djht:latest_published_version ?dataset .
     {%- elif is_published %}
     ?container_uri      djht:published_versions/rdf:rest*/rdf:first ?dataset .

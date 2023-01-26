@@ -5610,7 +5610,7 @@ class ApiServer:
     ## EXPORTS
     ## ------------------------------------------------------------------------
 
-    def __metadata_export_parameters (self, item_id, version=None, item_type="dataset"):
+    def __metadata_export_parameters (self, item_id, version=None, item_type="dataset", from_draft=True):
         """collect patameters for various export formats"""
 
         container_uuid = self.db.container_uuid_by_id(item_id)
@@ -5623,15 +5623,23 @@ class ApiServer:
             versions_function  = self.db.collection_versions
             items_function     = self.db.collections
         container = self.db.container(container_uuid, item_type=item_type)
-        versions  = versions_function (container_uri=container_uri)
-        versions = [v for v in versions if v['version']]  # exclude version None (still necessary?)
-        current_version = version if version else versions[0]['version']
-        item = items_function (container_uuid=container_uuid,
-                               version=current_version,
-                               is_published=True)[0]
+        if from_draft:
+            try:
+                item = items_function (container_uuid=container_uuid,
+                                       is_draft=True)[0]
+            except IndexError:
+                return None
+            published_date = date.today().isoformat()
+        else:
+            versions  = versions_function (container_uri=container_uri)
+            versions = [v for v in versions if v['version']]  # exclude version None (still necessary?)
+            current_version = version if version else versions[0]['version']
+            item = items_function (container_uuid=container_uuid,
+                                   version=current_version,
+                                   is_published=True)[0]
+            published_date = item['published_date'][:10]
         item_uuid = item['uuid']
         item_uri = f'{item_type}:{item_uuid}'
-        published_date = item['published_date'][:10]
         lat = self_or_value_or_none(item, 'latitude')
         lon = self_or_value_or_none(item, 'longitude')
         lat_valid, lon_valid = decimal_coords(lat, lon)
@@ -5680,7 +5688,7 @@ class ApiServer:
 
     def format_datacite_for_registration(self, item_id, version=None, item_type="dataset"):
         """return doi and un-indented datacite xml separately"""
-        parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type)
+        parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type, from_draft=True)
         return parameters["doi"], xml_formatter.datacite(parameters, indent=False)
 
     def ui_export_refworks_dataset (self, request, dataset_id, version=None):

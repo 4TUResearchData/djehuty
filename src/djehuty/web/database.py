@@ -238,7 +238,7 @@ class SparqlInterface:
                   offset=None, order=None, order_direction=None, published_since=None,
                   resource_doi=None, return_count=False, search_for=None, search_format=False,
                   version=None, is_published=True, is_under_review=None, git_uuid=None,
-                  private_link_id_string=None):
+                  private_link_id_string=None, is_draft=False):
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -291,6 +291,7 @@ class SparqlInterface:
             query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
         cache_prefix = f"datasets_{account_uuid}" if account_uuid is not None else "datasets"
+
         return self.__run_query (query, query, cache_prefix)
 
     def repository_statistics (self):
