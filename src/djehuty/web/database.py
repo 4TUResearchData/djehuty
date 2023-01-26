@@ -699,7 +699,7 @@ class SparqlInterface:
                      resource_doi=None, resource_id=None, doi=None, handle=None,
                      account_uuid=None, search_for=None, collection_id=None,
                      version=None, container_uuid=None, is_latest=False,
-                     is_published=True):
+                     is_published=True, is_draft=False):
         """Procedure to retrieve collections."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)

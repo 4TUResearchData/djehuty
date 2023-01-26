@@ -5652,7 +5652,7 @@ class ApiServer:
     ## EXPORTS
     ## ------------------------------------------------------------------------
 
-    def __metadata_export_parameters (self, item_id, version=None, item_type="dataset", from_draft=True):
+    def __metadata_export_parameters (self, item_id, version=None, item_type="dataset", from_draft=False):
         """collect patameters for various export formats"""
 
         container_uuid = self.db.container_uuid_by_id(item_id)
