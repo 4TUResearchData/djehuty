@@ -294,6 +294,7 @@ def read_privilege_configuration (server, xml_root):
                 "may_administer":  bool(int(config_value (account, "may-administer", None, False))),
                 "may_impersonate": bool(int(config_value (account, "may-impersonate", None, False))),
                 "may_review":      bool(int(config_value (account, "may-review", None, False))),
+                "may_review_quotas": bool(int(config_value (account, "may-review-quotas", None, False))),
                 "orcid":           orcid
             }
         except KeyError as error:

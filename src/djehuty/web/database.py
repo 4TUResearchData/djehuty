@@ -2161,6 +2161,10 @@ class SparqlInterface:
 
         return accounts
 
+    def quota_reviewer_email_addresses (self):
+        """Returns the e-mail addresses of accounts with 'may_review_quotas' privileges."""
+        return self.__privileged_role_email_addresses ("may_review_quotas")
+
     def accounts (self, account_uuid=None, order=None, order_direction=None,
                   limit=None, offset=None, is_active=None, email=None,
                   id_lte=None, id_gte=None, institution_user_id=None):
@@ -2328,6 +2332,10 @@ class SparqlInterface:
     def may_impersonate (self, session_token):
         """Returns True when the session's account may impersonate other accounts."""
         return self.__may_execute_role (session_token, "impersonate")
+
+    def may_review_quotas (self, session_token):
+        """Returns True when the session's account may handle storage requests."""
+        return self.__may_execute_role (session_token, "review_quotas")
 
     def is_depositor (self, session_token):
         """Returns True when the account linked to the session is a depositor, False otherwise"""
