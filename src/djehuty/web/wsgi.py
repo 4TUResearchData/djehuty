@@ -1550,12 +1550,21 @@ class ApiServer:
         if not self.db.is_depositor (token):
             return self.error_403 (request)
 
-        collection_id = self.db.insert_collection(
+        container_uuid = self.db.insert_collection(
             title = "Untitled collection",
             account_uuid = account_uuid)
 
-        if collection_id is not None:
-            return redirect (f"/my/collections/{collection_id}/edit", code=302)
+        if container_uuid is not None:
+            # Add oneself as author but don't bail if that doesn't work.
+            try:
+                account    = self.db.account_by_uuid (account_uuid)
+                author_uri = URIRef(uuid_to_uri(account["author_uuid"], "author"))
+                self.db.update_item_list (container_uuid, account_uuid,
+                                          [author_uri], "authors")
+            except (TypeError, KeyError):
+                logging.warning ("No author record for account %s.", account_uuid)
+
+            return redirect (f"/my/collections/{container_uuid}/edit", code=302)
 
         return self.error_500()
 
