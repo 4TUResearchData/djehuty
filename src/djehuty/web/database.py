@@ -2134,18 +2134,21 @@ class SparqlInterface:
 
         return None
 
-    def reviewer_email_addresses (self):
-        """Returns the e-mail addresses of accounts with 'may_review' privileges."""
-
+    def __privileged_role_email_addresses (self, privilege):
+        """Returns e-mail addresses of accounts with PRIVILEGE."""
         addresses = []
         ## The privileges are stored by e-mail address, so we can use
         ## this to look up the email addresses without accessing the
         ## SPARQL endpoint.
         for email_address in self.privileges:
-            if self.privileges[email_address]['may_review']:
+            if self.privileges[email_address][privilege]:
                 addresses.append(email_address)
 
         return addresses
+
+    def reviewer_email_addresses (self):
+        """Returns the e-mail addresses of accounts with 'may_review' privileges."""
+        return self.__privileged_role_email_addresses ("may_review")
 
     def reviewer_accounts (self):
         """Returns the accounts with 'may_review' privileges."""
