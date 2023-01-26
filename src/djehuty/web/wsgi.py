@@ -239,6 +239,7 @@ class ApiServer:
             Rule("/v3/groups",                                endpoint = "api_v3_groups"),
             Rule("/v3/profile",                               endpoint = "api_v3_profile"),
             Rule("/v3/profile/categories",                    endpoint = "api_v3_profile_categories"),
+            Rule("/v3/profile/quota-request",                 endpoint = "api_v3_profile_quota_request"),
 
             # Data model exploratory
             Rule("/v3/explore/types",                         endpoint = "api_v3_explore_types"),
@@ -438,6 +439,11 @@ class ApiServer:
     def __send_email_to_reviewers (self, subject, template_name, **context):
         """Procedure to send an email to all accounts configured with 'may_review' privileges."""
         addresses = self.db.reviewer_email_addresses()
+        return self.__send_templated_email (addresses, subject, template_name, **context)
+
+    def __send_email_to_quota_reviewers (self, subject, template_name, **context):
+        """Procedure to send an email to all accounts configured with 'may_review' privileges."""
+        addresses = self.db.quota_reviewer_email_addresses()
         return self.__send_templated_email (addresses, subject, template_name, **context)
 
     def token_from_cookie (self, request, cookie_key=None):
@@ -5513,6 +5519,35 @@ class ApiServer:
 
         categories = self.db.account_categories (account_uuid)
         return self.default_list_response (categories, formatter.format_category_record)
+
+    def api_v3_profile_quota_request (self, request):
+        """Implements /v3/profile/quota-request."""
+
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed(request)
+
+        try:
+            parameters = request.get_json()
+            new_quota  = validator.integer_value (parameters, "new-quota", required=True)
+            reason     = validator.string_value (parameters, "reason", 0, 10000, required=True)
+            account    = self.db.account_by_uuid (account_uuid)
+            self.__send_email_to_quota_reviewers (
+                f"Quota request for {account_uuid}",
+                "quota_request",
+                email     = account['email'],
+                new_quota = new_quota,
+                reason    = reason)
+
+            return self.respond_204 ()
+        except (validator.ValidationException, KeyError):
+            pass
+
+        return self.error_500 ()
 
     def api_v3_explore_types (self, request):
         """Implements /v3/explore/types."""

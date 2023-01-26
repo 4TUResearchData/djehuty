@@ -1,0 +1,10 @@
+{% extends "email/layout.html" %}
+{% block body %}
+<h1>Quota request for {{email}}</h1>
+<p>The user with e-mail address "{{email}}" has requested a change in account quota.</p>
+<p><strong>Requested quota:</strong> {{new_quota}} gigabytes</p>
+<p><strong>Reason:</strong></p>
+<hr>
+{{reason | safe}}
+<hr>
+{% endblock %}

@@ -1,0 +1,9 @@
+Quota request for {{email}}
+==========
+
+The user with e-mail address "{{email}}" has requested a change in account quota.
+Requested quota: {{new_quota}} gigabytes.
+Reason:
+==========
+{{reason | safe}}
+==========

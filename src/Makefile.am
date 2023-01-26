@@ -54,6 +54,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/email/layout.html                    \
     djehuty/web/resources/html_templates/email/published_dataset_notification.html \
     djehuty/web/resources/html_templates/email/published_dataset_notification.txt \
+    djehuty/web/resources/html_templates/email/quota_request.html             \
+    djehuty/web/resources/html_templates/email/quota_request.txt              \
     djehuty/web/resources/html_templates/email/submitted_for_review_notification.html \
     djehuty/web/resources/html_templates/email/submitted_for_review_notification.txt \
     djehuty/web/resources/html_templates/home.html                            \
@@ -220,6 +222,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/portal/wageningen.jpg                 \
     djehuty/web/resources/static/js/d3.v7.min.js                              \
     djehuty/web/resources/static/js/dataset_landing_page.js                   \
+    djehuty/web/resources/static/js/depositor-dashboard.js                    \
     djehuty/web/resources/static/js/edit-collection.js                        \
     djehuty/web/resources/static/js/edit-dataset.js                           \
     djehuty/web/resources/static/js/edit-profile.js                           \
