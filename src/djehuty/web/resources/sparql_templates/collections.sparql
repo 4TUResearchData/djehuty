@@ -4,7 +4,7 @@ SELECT DISTINCT ?account_uuid ?resource_id ?resource_doi ?resource_title
                 ?resource_link ?resource_version ?version ?description
                 ?institution_id ?group_id ?is_public ?language ?time_coverage
                 ?citation ?custom_fields_id ?modified_date ?publisher
-                ?created_date ?timeline_posted ?is_draft
+                ?created_date ?timeline_posted
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?collection_id ?title
                 ?doi ?handle ?url ?published_date ?container_uri
@@ -21,14 +21,12 @@ WHERE {
     OPTIONAL { ?container_uri djht:total_shares   ?total_shares .     }
     OPTIONAL { ?container_uri djht:total_cites    ?total_cites .      }
 
-    {%- if is_draft %}
-    ?container_uri      djht:draft                ?collection .
-    {%- elif is_published %}
-        {%- if is_latest %}
+    {%- if is_published %}
+    {%- if is_latest %}
     ?container_uri      djht:latest_published_version ?collection .
-        {%- else %}
+    {%- else %}
     ?container_uri      djht:published_versions/rdf:rest*/rdf:first ?collection .
-        {%- endif %}
+    {%- endif %}
     {%- else %}
     ?container_uri      djht:draft               ?collection .
     {%- endif %}

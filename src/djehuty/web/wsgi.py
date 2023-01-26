@@ -5668,7 +5668,7 @@ class ApiServer:
         if from_draft:
             try:
                 item = items_function (container_uuid=container_uuid,
-                                       is_draft=True)[0]
+                                       is_published=False)[0]
             except IndexError:
                 return None
             published_date = date.today().isoformat()
