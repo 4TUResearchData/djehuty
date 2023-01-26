@@ -1775,7 +1775,6 @@ class ApiServer:
         if not self.db.may_review (token):
             return self.error_403 (request)
 
-        account_uuid = self.account_uuid_from_request (request)
         reviewers = self.db.reviewer_accounts ()
         reviews = self.db.reviews (limit           = 10000,
                                    order           = "request_date",
