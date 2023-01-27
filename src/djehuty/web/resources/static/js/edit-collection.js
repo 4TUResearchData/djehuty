@@ -6,6 +6,28 @@ function render_categories_for_collection (dataset_uuid, categories) {
     }
 }
 
+function render_references_for_collection (collection_id) {
+    jQuery.ajax({
+        url:         `/v3/collections/${collection_id}/references`,
+        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (references) {
+        jQuery("#references-list tbody").empty();
+        for (let url of references) {
+            let row = `<tr><td><a target="_blank" href="${encodeURIComponent(url)}">`;
+            row += `${url}</a></td><td><a href="#" `;
+            row += `onclick="javascript:remove_reference('${encodeURIComponent(url)}', `;
+            row += `'${collection_id}'); return false;" class="fas fa-trash-can" `;
+            row += `title="Remove"></a></td></tr>`;
+            jQuery("#references-list tbody").append(row);
+        }
+        jQuery("#references-list").show();
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to retrieve references.</p>");
+    });
+}
+
 function render_datasets_for_collection (collection_id) {
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/articles`,
@@ -151,6 +173,22 @@ function add_dataset (dataset_id, collection_id) {
     });
 }
 
+function add_reference (collection_id) {
+    let url = jQuery.trim(jQuery("#references").val());
+    if (url != "") {
+        jQuery.ajax({
+            url:         `/v3/collections/${collection_id}/references`,
+            type:        "POST",
+            contentType: "application/json",
+            accept:      "application/json",
+            data:        JSON.stringify({ "references": [{ "url": url }] }),
+        }).done(function () {
+            render_references_for_collection (collection_id);
+            jQuery("#references").val("");
+        }).fail(function () { show_message ("failure", `<p>Failed to add ${url}.</p>`); });
+    }
+}
+
 function add_tag (collection_id) {
     let tag = jQuery.trim(jQuery("#tag").val());
     if (tag == "") { return 0; }
@@ -185,6 +223,15 @@ function remove_funding (funding_id, collection_id) {
         accept:      "application/json",
     }).done(function () { render_funding_for_collection (collection_id); })
       .fail(function () { show_message ("failure", `<p>Failed to remove ${funding_id}.</p>`); });
+}
+
+function remove_reference (url, collection_id) {
+    jQuery.ajax({
+        url:         `/v3/collections/${collection_id}/references?url=${url}`,
+        type:        "DELETE",
+        accept:      "application/json",
+    }).done(function () { render_references_for_collection (collection_id); })
+      .fail(function () { show_message ("failure", `<p>Failed to remove ${url}</p>`); });
 }
 
 function remove_dataset (dataset_id, collection_id) {
@@ -495,6 +542,11 @@ function activate (collection_id) {
     jQuery("#funding").on("input", function (event) {
         return autocomplete_funding (event, collection_id);
     });
+    jQuery("#references").on("keypress", function(e){
+        if(e.which == 13){
+            add_reference(collection_id);
+        }
+    });
     jQuery("#article-search").on("input", function (event) {
         return autocomplete_dataset (event, collection_id);
     });
@@ -506,6 +558,7 @@ function activate (collection_id) {
     }).done(function (data) {
         render_categories_for_collection (collection_id, data["categories"]);
         render_authors_for_collection (collection_id, data["authors"]);
+        render_references_for_collection (collection_id);
         render_datasets_for_collection (collection_id);
         render_tags_for_collection (collection_id);
         render_funding_for_collection (collection_id);
