@@ -234,6 +234,7 @@ class ApiServer:
             Rule("/v3/datasets/<dataset_id>.git/files",       endpoint = "api_v3_dataset_git_files"),
             Rule("/v3/file/<file_id>",                        endpoint = "api_v3_file"),
             Rule("/v3/datasets/<dataset_id>/references",      endpoint = "api_v3_dataset_references"),
+            Rule("/v3/collections/<collection_id>/references", endpoint = "api_v3_collection_references"),
             Rule("/v3/datasets/<dataset_id>/tags",            endpoint = "api_v3_dataset_tags"),
             Rule("/v3/collections/<collection_id>/tags",      endpoint = "api_v3_collection_tags"),
             Rule("/v3/groups",                                endpoint = "api_v3_groups"),
@@ -5244,6 +5245,19 @@ class ApiServer:
                                                is_published=False)
 
         return self.__api_v3_item_references (request, dataset)
+
+    def api_v3_collection_references (self, request, collection_id):
+        """Implements /v3/datasets/<id>/references."""
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed(request)
+
+        collection = self.__collection_by_id_or_uri (collection_id,
+                                                     account_uuid=account_uuid,
+                                                     is_published=False)
+
+        return self.__api_v3_item_references (request, collection)
 
     def __api_v3_item_tags (self, request, item_id, item_by_id_procedure):
         """Implements handling tags for both datasets and collections."""
