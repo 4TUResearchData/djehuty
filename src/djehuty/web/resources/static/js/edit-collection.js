@@ -208,7 +208,7 @@ function remove_tag (tag, collection_id) {
       .fail(function () { show_message ("failure", `<p>Failed to remove ${tag}.</p>`); });
 }
 
-function delete_collection (collection_id) {
+function delete_collection (collection_id, event) {
     event.preventDefault();
     event.stopPropagation();
     if (confirm("Deleting this draft collection is unrecoverable. "+
@@ -485,8 +485,8 @@ function submit_new_funding (collection_id) {
 
 function activate (collection_id) {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
-    jQuery("#delete").on("click", function () { delete_collection (collection_id); });
-    jQuery("#save").on("click", function ()   { save_collection (collection_id); });
+    jQuery("#delete").on("click", function (event) { delete_collection (collection_id, event); });
+    jQuery("#save").on("click", function (event)   { save_collection (collection_id, event); });
     jQuery("#publish").on("click", function (event) { publish_collection (collection_id, event); });
     // Initialize Quill to provide the WYSIWYG editor.
     new Quill('#description', { theme: '4tu' });
