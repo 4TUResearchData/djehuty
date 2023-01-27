@@ -147,6 +147,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/update_review.sparql               \
     djehuty/web/resources/sparql_templates/update_session.sparql              \
     djehuty/web/resources/static/css/jquery.dataTables.min.css                \
+    djehuty/web/resources/static/css/form.css                                 \
     djehuty/web/resources/static/css/main.css                                 \
     djehuty/web/resources/static/css/pub.css                                  \
     djehuty/web/resources/static/css/quill.4tu.css                            \

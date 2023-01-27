@@ -9,8 +9,6 @@
   box-sizing: border-box;
   font-family: 'SourceSans', sans-serif;
   font-size: 14pt;
-  margin: 0em;
-  width: 900pt;
 }
 .ql-container.ql-disabled .ql-tooltip { visibility: hidden; }
 .ql-container.ql-disabled .ql-editor ul[data-checked] > li::before { pointer-events: none; }
