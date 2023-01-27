@@ -266,10 +266,6 @@ function save_collection (collection_id, event, notify=true) {
         accept:      "application/json",
         data:        JSON.stringify(form_data),
     }).done(function () {
-        jQuery("#message")
-            .addClass("success")
-            .append("<p>Saved changed.</p>")
-            .fadeIn(250);
         if (notify) {
             show_message ("success", "<p>Saved changes.</p>");
         }
