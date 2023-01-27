@@ -5166,8 +5166,8 @@ class ApiServer:
         except KeyError:
             return self.error_500()
 
-    def api_v3_dataset_references (self, request, dataset_id):
-        """Implements /v3/datasets/<id>/references."""
+    def __api_v3_item_references (self, request, item):
+        """Implements getting/setting references for datasets and collections."""
 
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
@@ -5182,11 +5182,7 @@ class ApiServer:
             return self.error_405 (["GET", "POST", "DELETE"])
 
         try:
-            dataset        = self.__dataset_by_id_or_uri (dataset_id,
-                                                          account_uuid=account_uuid,
-                                                          is_published=False)
-
-            references     = self.db.references (item_uri   = dataset["uri"],
+            references     = self.db.references (item_uri     = item["uri"],
                                                  account_uuid = account_uuid)
 
             if request.method == 'GET':
@@ -5198,7 +5194,7 @@ class ApiServer:
                 url_encoded = validator.string_value (request.args, "url", 0, 1024, True)
                 url         = requests.utils.unquote(url_encoded)
                 references.remove (next (filter (lambda item: item == url, references)))
-                if not self.db.update_item_list (dataset["container_uuid"],
+                if not self.db.update_item_list (item["container_uuid"],
                                                  account_uuid,
                                                  references,
                                                  "references"):
@@ -5214,12 +5210,12 @@ class ApiServer:
             records        = parameters["references"]
             new_references = []
             for record in records:
-                new_references.append(validator.string_value (record, "url", 0, 512, True))
+                new_references.append(validator.string_value (record, "url", 0, 1024, True))
 
             if request.method == 'POST':
                 references = references + new_references
 
-            if not self.db.update_item_list (dataset["container_uuid"],
+            if not self.db.update_item_list (item["container_uuid"],
                                              account_uuid,
                                              references,
                                              "references"):
@@ -5235,6 +5231,19 @@ class ApiServer:
             return self.error_400 (request, "Expected a 'references' field.", "NoReferencesField")
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
+
+    def api_v3_dataset_references (self, request, dataset_id):
+        """Implements /v3/datasets/<id>/references."""
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed(request)
+
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               account_uuid=account_uuid,
+                                               is_published=False)
+
+        return self.__api_v3_item_references (request, dataset)
 
     def __api_v3_item_tags (self, request, item_id, item_by_id_procedure):
         """Implements handling tags for both datasets and collections."""
