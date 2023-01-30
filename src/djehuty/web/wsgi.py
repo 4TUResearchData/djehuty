@@ -2349,6 +2349,13 @@ class ApiServer:
             file_paths = []
             for file_info in metadata:
                 filesystem_location = f"{self.db.secondary_storage}/{file_info['id']}/{file_info['name']}"
+
+                ## Data stored before Djehuty went into production requires a few tweaks.
+                ## Only apply these quirks when enabled.
+                if self.secondary_storage_quirks:
+                    transformed_name = file_info['name'].replace(" ", "").replace("-", "")
+                    filesystem_location = f"{self.db.secondary_storage}/{file_info['id']}/{transformed_name}"
+
                 if "filesystem_location" in file_info:
                     filesystem_location = file_info["filesystem_location"]
                 file_paths.append ({

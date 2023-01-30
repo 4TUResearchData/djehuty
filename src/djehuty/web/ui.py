@@ -460,9 +460,18 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if not xml_root:
             return config
 
-        secondary_storage = config_value (xml_root, "secondary-storage-root")
-        if secondary_storage:
-            server.db.secondary_storage = secondary_storage
+        secondary_storage = xml_root.find ("secondary-storage-root")
+        if secondary_storage is not None:
+            server.db.secondary_storage = secondary_storage.text
+            try:
+                quirks = secondary_storage.attrib.get("quirks")
+                server.db.secondary_storage_quirks = bool(int(quirks))
+            except ValueError:
+                logging.warning ("Invalid value for the 'quirks' attribute in 'secondary-storage-root'.")
+                logging.warning ("Quirks-mode is disabled; Use either '1' to enable, or '0' to disable.")
+                server.db.secondary_storage_quirks = False
+            except TypeError:
+                server.db.secondary_storage_quirks = False
 
         use_x_forwarded_for = bool(int(config_value (xml_root, "use-x-forwarded-for", None, 0)))
         if use_x_forwarded_for:
