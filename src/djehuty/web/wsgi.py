@@ -1541,7 +1541,7 @@ class ApiServer:
         if error_response is not None:
             return error_response
 
-        container_uuid = self.db.insert_collection(
+        container_uuid, _ = self.db.insert_collection(
             title = "Untitled collection",
             account_uuid = account_uuid)
 
@@ -4145,7 +4145,7 @@ class ApiServer:
                 if not tags:
                     tags = validator.array_value (record, "keywords", False)
                 timeline   = validator.object_value (record, "timeline", False)
-                collection_id = self.db.insert_collection (
+                collection_id, _ = self.db.insert_collection (
                     title                   = validator.string_value  (record, "title",            3, 1000,       True),
                     account_uuid            = account_uuid,
                     funding                 = validator.string_value  (record, "funding",          0, 255,        False),

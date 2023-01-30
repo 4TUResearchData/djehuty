@@ -1716,6 +1716,7 @@ class SparqlInterface:
     def insert_collection (self, title,
                            account_uuid,
                            collection_id=None,
+                           container_uuid=None,
                            funding=None,
                            funding_list=None,
                            description=None,
@@ -1730,6 +1731,7 @@ class SparqlInterface:
                            doi=None,
                            handle=None,
                            url=None,
+                           language=None,
                            resource_id=None,
                            resource_doi=None,
                            resource_link=None,
@@ -1737,11 +1739,17 @@ class SparqlInterface:
                            resource_version=None,
                            group_id=None,
                            first_online=None,
+                           publisher=None,
                            publisher_publication=None,
                            submission=None,
                            posted=None,
                            revision=None,
-                           private_links=None):
+                           private_links=None,
+                           is_public=0,
+                           is_active=1,
+                           is_latest=0,
+                           is_editable=1,
+                           version=None):
         """Procedure to insert a collection to the state graph."""
 
         funding_list            = [] if funding_list            is None else funding_list
@@ -1755,9 +1763,15 @@ class SparqlInterface:
         private_links           = [] if private_links           is None else private_links
         datasets                = [] if datasets                is None else datasets
 
+        tags                    = list(map(lambda tag: tag["tag"], tags))
+
         graph                   = Graph()
         uri                     = rdf.unique_node ("collection")
-        container               = self.container_uri (graph, None, "collection", account_uuid)
+        container_uri           = None
+        if container_uuid is not None:
+            container_uri = URIRef(rdf.uuid_to_uri (container_uuid, "container"))
+
+        container               = self.container_uri (graph, container_uri, "collection", account_uuid)
         account_uri             = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
 
         ## TIMELINE
@@ -1773,14 +1787,17 @@ class SparqlInterface:
             submission            = submission
         )
 
-        self.insert_item_list   (graph, uri, references, "references")
-        self.insert_item_list   (graph, uri, tags, "tags")
+        authors       = rdf.uris_from_records (authors, "author", "uuid")
+        categories    = rdf.uris_from_records (categories, "category", "uuid")
+        funding_list  = rdf.uris_from_records (funding_list, "funding", "uuid")
+        private_links = rdf.uris_from_records (private_links, "private_link", "uuid")
 
-        categories = rdf.uris_from_records (categories, "category")
+        self.insert_item_list (graph, uri, authors, "authors")
         self.insert_item_list (graph, uri, categories, "categories")
-        self.insert_record_list (graph, uri, authors, "authors", self.insert_author)
-        self.insert_record_list (graph, uri, funding_list, "funding_list", self.insert_funding)
-        self.insert_record_list (graph, uri, private_links, "private_links", self.insert_private_link)
+        self.insert_item_list (graph, uri, references, "references")
+        self.insert_item_list (graph, uri, tags, "tags")
+        self.insert_item_list (graph, uri, funding_list, "funding_list")
+        self.insert_item_list (graph, uri, private_links, "private_links")
 
         ## DATASETS
         ## --------------------------------------------------------------------
@@ -1809,17 +1826,23 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["doi"],            doi,            XSD.string)
         rdf.add (graph, uri, rdf.DJHT["handle"],         handle,         XSD.string)
         rdf.add (graph, uri, rdf.DJHT["url"],            url,            XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["language"],       language,       XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_id"],    resource_id,    XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_doi"],   resource_doi,   XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_link"],  resource_link,  XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_title"], resource_title, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["resource_version"], resource_version)
         rdf.add (graph, uri, rdf.DJHT["group_id"],       group_id)
+        rdf.add (graph, uri, rdf.DJHT["publisher"],      publisher,      XSD.string)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.string)
-        rdf.add (graph, uri, rdf.DJHT["is_public"],      0)
+        rdf.add (graph, uri, rdf.DJHT["is_public"],      is_public)
+        rdf.add (graph, uri, rdf.DJHT["is_active"],      is_active)
+        rdf.add (graph, uri, rdf.DJHT["is_latest"],      is_latest)
+        rdf.add (graph, uri, rdf.DJHT["is_editable"],    is_editable)
+        rdf.add (graph, uri, rdf.DJHT["version"],        version)
 
         # Add the collection to its container.
         graph.add ((container, rdf.DJHT["draft"],       uri))
@@ -1828,7 +1851,7 @@ class SparqlInterface:
         if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
             logging.info ("Inserted collection %s", container_uuid)
-            return container_uuid
+            return (container_uuid, rdf.uri_to_uuid (uri))
 
         return None
 
