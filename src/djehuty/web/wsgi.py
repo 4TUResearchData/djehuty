@@ -104,6 +104,7 @@ class ApiServer:
             Rule("/my/collections/<collection_id>/edit",      endpoint = "ui_edit_collection"),
             Rule("/my/collections/<collection_id>/delete",    endpoint = "ui_delete_collection"),
             Rule("/my/collections/new",                       endpoint = "ui_new_collection"),
+            Rule("/my/collections/<collection_id>/new-version-draft", endpoint = "ui_new_version_draft_collection"),
             Rule("/my/sessions/<session_uuid>/edit",          endpoint = "ui_edit_session"),
             Rule("/my/sessions/<session_uuid>/delete",        endpoint = "ui_delete_session"),
             Rule("/my/sessions/new",                          endpoint = "ui_new_session"),
@@ -1561,6 +1562,31 @@ class ApiServer:
             return redirect (f"/my/collections/{container_uuid}/edit", code=302)
 
         return self.error_500()
+
+    def ui_new_version_draft_collection (self, request, collection_id):
+        """Implements /my/collections/<id>/new-version-draft."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
+
+        collection = self.__collection_by_id_or_uri (collection_id,
+                                                     is_published = True,
+                                                     account_uuid = account_uuid)
+
+        if collection is None:
+            logging.error ("Unable to find collection '%s'.", collection_id)
+            return self.error_403 (request)
+
+        container_uuid = collection["container_uuid"]
+        draft_uuid = self.db.create_draft_from_published_collection (container_uuid)
+        if draft_uuid is None:
+            logging.info("There is no draft collection.")
+            return self.error_500()
+
+        return redirect (f"/my/collections/{container_uuid}/edit", code=302)
 
     def ui_delete_collection (self, request, collection_id):
         """Implements /my/collections/<id>/delete."""
