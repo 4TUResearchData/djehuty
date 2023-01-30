@@ -997,6 +997,23 @@ class ApiServer:
 
         return uuid
 
+    def __depositor_account_uuid (self, request):
+        """
+        Returns two values: the account_uuid and None on success, or
+        the account_uuid and a response on failure.
+        """
+
+        error_response = None
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            error_response = self.error_authorization_failed(request)
+
+        token = self.token_from_cookie (request)
+        if not self.db.is_depositor (token):
+            error_response = self.error_403 (request)
+
+        return account_uuid, error_response
+
     def default_list_response (self, records, format_function):
         """Procedure to respond a list of items."""
         output     = []
@@ -1235,11 +1252,10 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_403 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
-        account_uuid = self.account_uuid_from_request (request)
         account      = self.db.account_by_uuid (account_uuid)
         storage_used = self.db.account_storage_used (account_uuid)
 
@@ -1264,13 +1280,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
-
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_403 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
         draft_datasets = self.db.datasets (account_uuid = account_uuid,
                                            limit        = 10000,
@@ -1315,13 +1327,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed (request)
-
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_404 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
         return self.__render_template (request, "depositor/published-collection.html",
                                        collection_id = collection_id)
@@ -1331,13 +1339,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed (request)
-
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_404 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
         return self.__render_template (request, "depositor/submitted-for-review.html")
 
@@ -1346,13 +1350,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
-
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_403 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
         container_uuid, _ = self.db.insert_dataset(title = "Untitled item",
                                                    account_uuid = account_uuid)
@@ -1375,13 +1375,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
-
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_403 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                is_published = True,
@@ -1404,13 +1400,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
-
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_403 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id,
@@ -1441,13 +1433,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
-
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_403 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id,
@@ -1498,13 +1486,10 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_404 (request)
 
         collections = self.db.collections (account_uuid   = account_uuid,
                                            is_published = False,
@@ -1522,13 +1507,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
-
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_403 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
         try:
             collection = self.__collection_by_id_or_uri(
@@ -1556,13 +1537,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
-
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_403 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
         container_uuid = self.db.insert_collection(
             title = "Untitled collection",
@@ -1587,13 +1564,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
-
-        token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
-            return self.error_403 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
         try:
             collection = self.__collection_by_id_or_uri(
