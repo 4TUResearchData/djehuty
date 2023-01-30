@@ -1922,7 +1922,7 @@ class SparqlInterface:
 
         return None
 
-    def delete_collection (self, container_uuid, account_uuid):
+    def delete_collection_draft (self, container_uuid, account_uuid):
         """Procedure to remove a collection from the state graph."""
 
         query   = self.__query_from_template ("delete_collection_draft", {

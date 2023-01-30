@@ -1579,7 +1579,7 @@ class ApiServer:
             if collection is None:
                 return self.error_403 (request)
 
-            result = self.db.delete_collection (
+            result = self.db.delete_collection_draft (
                 container_uuid = collection["container_uuid"],
                 account_uuid   = account_uuid)
 
@@ -4262,7 +4262,7 @@ class ApiServer:
                 if collection is None:
                     return self.error_404 (request)
 
-                if self.db.delete_collection (
+                if self.db.delete_collection_draft (
                         container_uuid = collection["container_uuid"],
                         account_uuid   = account_uuid):
                     return self.respond_204()
