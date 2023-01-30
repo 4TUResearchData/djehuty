@@ -3,6 +3,7 @@
 from datetime import date
 from threading import Lock
 import os.path
+import os
 import logging
 import json
 import hashlib
@@ -5138,6 +5139,8 @@ class ApiServer:
 
             file_data.save (output_filename)
             file_data.close()
+            if os.name != 'nt':
+                os.chmod (output_filename, 0o400)
 
             file_size = 0
             file_size = os.path.getsize (output_filename)
