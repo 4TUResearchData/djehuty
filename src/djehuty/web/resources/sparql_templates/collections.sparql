@@ -4,7 +4,7 @@ SELECT DISTINCT ?account_uuid ?resource_id ?resource_doi ?resource_title
                 ?resource_link ?resource_version ?version ?description
                 ?institution_id ?group_id ?is_public ?language ?time_coverage
                 ?citation ?custom_fields_id ?modified_date ?publisher
-                ?created_date ?timeline_posted
+                ?created_date ?timeline_posted ?has_draft
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?collection_id ?title
                 ?doi ?handle ?url ?published_date ?container_uri
@@ -78,6 +78,7 @@ WHERE {
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?collection), "collection:") AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:") AS ?account_uuid)
+    BIND (xsd:boolean (EXISTS { ?container_uri djht:draft ?draft_collection . }) AS ?has_draft)
   }
 {%- if account_uuid is not none: %}
 FILTER (?account = <account:{{account_uuid}}>)
