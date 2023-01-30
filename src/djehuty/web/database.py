@@ -982,7 +982,7 @@ class SparqlInterface:
         authors       = rdf.uris_from_records (authors, "author", "uuid")
         categories    = rdf.uris_from_records (categories, "category", "uuid")
         files         = rdf.uris_from_records (files, "file", "uuid")
-        funding_list  = rdf.uris_from_records (funding_list, "file", "uuid")
+        funding_list  = rdf.uris_from_records (funding_list, "funding", "uuid")
         private_links = rdf.uris_from_records (private_links, "private_link", "uuid")
 
         self.insert_item_list (graph, uri, authors, "authors")
