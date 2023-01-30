@@ -1517,6 +1517,9 @@ class ApiServer:
                 account_uuid = account_uuid,
                 is_published = False)
 
+            if collection is None:
+                return self.error_403 (request)
+
             categories = self.db.categories_tree ()
             account    = self.db.account_by_uuid (account_uuid)
             groups     = self.__groups_for_account (account)
