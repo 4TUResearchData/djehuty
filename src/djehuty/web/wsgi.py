@@ -1491,17 +1491,26 @@ class ApiServer:
         if error_response is not None:
             return error_response
 
+        drafts = self.db.collections (account_uuid = account_uuid,
+                                      is_published = False,
+                                      limit        = 10000)
 
-        collections = self.db.collections (account_uuid   = account_uuid,
-                                           is_published = False,
-                                           limit        = 10000)
+        for collection in drafts:
+            count = self.db.collections_dataset_count(collection["uri"])
+            collection["number_of_datasets"] = count
 
-        for collection in collections:
+        published = self.db.collections (account_uuid = account_uuid,
+                                         is_published = True,
+                                         is_latest    = True,
+                                         limit        = 10000)
+
+        for collection in published:
             count = self.db.collections_dataset_count(collection["uri"])
             collection["number_of_datasets"] = count
 
         return self.__render_template (request, "depositor/my-collections.html",
-                                       collections = collections)
+                                       draft_collections     = drafts,
+                                       published_collections = published)
 
     def ui_edit_collection (self, request, collection_id):
         """Implements /my/collections/<id>/edit."""

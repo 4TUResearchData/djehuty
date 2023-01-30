@@ -17,7 +17,8 @@ jQuery(document).ready(function () {
         columnDefs: [{ orderable: false,  targets: 3 }]
     });
     jQuery("#table-collections").show();
-    jQuery("#table-collections-loader").remove();
+    jQuery("#table-unpublished-collections-loader").remove();
+    jQuery("#table-published-collections-loader").remove();
 });
 </script>
 {% endblock %}
@@ -35,35 +36,52 @@ jQuery(document).ready(function () {
 </noscript>
 <div class="hide-for-javascript">
 <h1>Collections</h1>
-{% if collections %}
-<div id="table-collections-loader" class="loader"></div>
-<table id="table-collections" class="branded-table ">
+<h2>Drafts</h2>
+{% if draft_collections %}
+<div id="table-unpublished-collections-loader" class="loader"></div>
+<table id="table-unpublished-collections" class="branded-table">
   <thead>
     <tr>
       <th>Collection</th>
-      <th>Status</th>
       <th>Created&nbsp;at</th>
       <th>Actions</th>
     </tr>
   </thead>
-  <tbody>{% for collection in collections: %}
+  <tbody>{% for collection in draft_collections: %}
     <tr>
       <td>
         <a href="/my/collections/{{collection.container_uuid}}/edit">{{collection.title}}</a>
         <span class="number-of-articles">({{collection.number_of_articles | default("0", False)}})</span></td>
-      <td class="center">
-        <span class="fas {% if collection.is_public == 1: %}fa-users{% else: %}fa-lock{% endif %}">
-          <span class="hidden">{{collection.is_public}}</span>
-        </span>
-      </td>
       <td>{{collection.created_date | truncate(10,False,'')}}</td>
       <td>{% if not collection.is_public %}<a href="/my/collections/{{collection.container_uuid}}/delete" class="fas fa-trash-can" title="Remove"></a>{% endif %}</td>
     </tr>
   {% endfor %}</tbody>
 </table>
 {% else %}
-<p>You don&apos;t have any collections (yet).</p>
+<p>You don&apos;t have any unpublished collections (yet).</p>
 <div class="center"><a id="add-new-collection" href="/my/collections/new" class="button neutral-button">Create new collection</a></div>
+{% endif %}
+{% if published_collections %}
+<h2>Published</h2>
+<div id="table-published-collections-loader" class="loader"></div>
+<table id="table-published-collections" class="branded-table">
+  <thead>
+    <tr>
+      <th>Collection</th>
+      <th>Published date</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>{% for collection in published_collections: %}
+    <tr>
+      <td>
+        <a href="/collections/{{collection.container_uuid}}">{{collection.title}}</a>
+        <span class="number-of-articles">({{collection.number_of_articles | default("0", False)}})</span></td>
+      <td>{{collection.published_date | truncate(10,False,'')}}</td>
+      <td>{% if not collection.has_draft %}<a href="/my/collections/{{collection.container_uuid}}/new-version-draft" class="fas fa-plus" title="Add new version"></a>{% endif %}</td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
 {% endif %}
 </div>
 {% endblock %}
