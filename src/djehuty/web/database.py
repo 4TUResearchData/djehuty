@@ -563,7 +563,7 @@ class SparqlInterface:
     def categories (self, title=None, order=None, order_direction=None,
                     limit=10, item_uri=None, account_uuid=None,
                     is_published=True):
-        """Procedure to retrieve categories of a dataset."""
+        """Procedure to retrieve categories of a dataset or collection."""
 
         filters = rdf.sparql_filter ("title", title, escape=True)
         query   = self.__query_from_template ("categories", {
