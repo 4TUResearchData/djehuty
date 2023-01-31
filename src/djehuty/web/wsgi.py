@@ -2243,6 +2243,10 @@ class ApiServer:
             collaborators = self.db.author_collaborators(author_uri)
             member = value_or(group_to_member, value_or_none(profile, 'group_id'), 'other')
             member_url_name = member_url_names[member]
+            categories = None
+            if 'categories' in profile:
+                account_uuid = profile['account'].split(':', 1)[1]
+                categories = self.db.account_categories (account_uuid)
             statistics = { metric: sum(value_or (dataset, metric, 0) for dataset in datasets)
                            for metric in ('downloads', 'views', 'shares', 'cites') }
             statistics = { key:val for (key,val) in statistics.items() if val > 0 }
@@ -2253,6 +2257,7 @@ class ApiServer:
                                            collaborators=collaborators,
                                            member=member,
                                            member_url_name=member_url_name,
+                                           categories=categories,
                                            statistics=statistics)
         except IndexError:
             return self.error_404 (request)

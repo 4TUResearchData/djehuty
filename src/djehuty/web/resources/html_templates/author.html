@@ -48,6 +48,40 @@
             No. <div class="small">{{profile.full_name}} does not have an account at 4TU.ResearchData.</div>
 {% endif %}</div>
     </div>
+{% if profile.location %}
+    <div id="location">
+        <div class="label">location</div>
+        <div>{{profile.location}}</div>
+    </div>
+{% endif %}
+{% if profile.website %}
+    <div id="location">
+        <div class="label">website</div>
+        <div><a href="{{profile.website}}" target="_blank">{{profile.website}}</a></div>
+    </div>
+{% endif %}
+{% if profile.location %}
+    <div id="linkedin">
+        <div class="label">linkedin</div>
+        <div><a href="{{profile.linkedin}}" target="_blank">{{profile.linkedin}}</a></div>
+    </div>
+{% endif %}
+{% if profile.twitter %}
+    <div id="location">
+        <div class="label">twitter</div>
+        <div><a href="{{profile.twitter}}" target="_blank">{{profile.twitter}}</a></div>
+    </div>
+{% endif %}
+{% if categories %}
+    <div id="categories">
+        <div class="label">categories</div>
+        <ul>
+{% for cat in categories %}
+            <li><a href="/categories/{{cat.id}}">{{cat.title}}</a></li>
+{% endfor %}
+        </ul>
+    </div>
+{% endif %}
 </div>
 
 <div id="left_column">
