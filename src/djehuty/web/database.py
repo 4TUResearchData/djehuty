@@ -1391,7 +1391,7 @@ class SparqlInterface:
         rdf.add (graph, link_uri, rdf.DJHT["id"],           id_string,    XSD.string)
         rdf.add (graph, link_uri, rdf.DJHT["read_only"],    read_only)
         rdf.add (graph, link_uri, rdf.DJHT["is_active"],    is_active)
-        rdf.add (graph, link_uri, rdf.DJHT["expires_date"], expires_date, XSD.string)
+        rdf.add (graph, link_uri, rdf.DJHT["expires_date"], expires_date, XSD.dateTime)
 
         if self.add_triples_from_graph (graph):
             dataset_uri    = rdf.uuid_to_uri (dataset_uuid, "dataset")
@@ -1905,8 +1905,8 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["publisher"],      publisher,      XSD.string)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
-        rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.string)
-        rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["is_public"],      is_public)
         rdf.add (graph, uri, rdf.DJHT["is_active"],      is_active)
         rdf.add (graph, uri, rdf.DJHT["is_latest"],      is_latest)
