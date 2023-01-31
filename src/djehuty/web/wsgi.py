@@ -2035,6 +2035,8 @@ class ApiServer:
         if account_uuid:
             my_collections = self.db.collections_by_account (account_uuid = account_uuid)
 
+        container_uuid = None
+        container_uri = None
         if container is None:
             container_uuid = self.db.container_uuid_by_id(dataset_id)
             container_uri = f'container:{container_uuid}'
