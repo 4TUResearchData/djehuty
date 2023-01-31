@@ -5713,10 +5713,8 @@ class ApiServer:
         if version:
             current_version = version
         else:
-            versions  = versions_function (container_uri=container_uri)
-            versions = [v for v in versions if v['version']]  # exclude version None (still necessary?)
-            current_version = versions[0]['version'] if versions else 0 #can only be 0 if from_draft
-            if from_draft: #next version number after the latest currently published
+            current_version = value_or(container, 'latest_published_version_number', 0)
+            if from_draft:
                 current_version += 1
         if from_draft:
             try:
@@ -5724,10 +5722,10 @@ class ApiServer:
                                        is_published=False)[0]
                 item['version'] = current_version
             except IndexError:
+                logging.warning ("No draft for %s.", item_id)
                 return None
             published_date = date.today().isoformat()
         else:
-            current_version = version if version else versions[0]['version']
             item = items_function (container_uuid=container_uuid,
                                    version=current_version,
                                    is_published=True)[0]
