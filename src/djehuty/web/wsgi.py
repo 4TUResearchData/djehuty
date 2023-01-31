@@ -1329,7 +1329,7 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid, error_response = self.__depositor_account_uuid (request)
+        _, error_response = self.__depositor_account_uuid (request)
         if error_response is not None:
             return error_response
 
@@ -1341,7 +1341,7 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid, error_response = self.__depositor_account_uuid (request)
+        _, error_response = self.__depositor_account_uuid (request)
         if error_response is not None:
             return error_response
 
@@ -2777,7 +2777,6 @@ class ApiServer:
             response.status_code = 404
             return response
 
-
     def api_private_datasets (self, request):
         """Implements /v2/account/articles."""
         if not self.accepts_json(request):
@@ -2810,7 +2809,6 @@ class ApiServer:
 
         if request.method == 'POST':
             record = request.get_json()
-
             try:
                 tags = validator.array_value (record, "tags", False)
                 if not tags:
