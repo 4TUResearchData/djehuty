@@ -79,6 +79,7 @@ function gather_form_data () {
         form_data["embargo_until_date"] = null;
         form_data["embargo_title"]  = "Restricted access";
         form_data["embargo_reason"] = or_null(jQuery("#restricted_access_reason .ql-editor").html());
+        form_data["eula"]           = or_null(jQuery("#restricted_access_eula .ql-editor").html());
         form_data["embargo_options"] = [{ "id": 1000, "type": "restricted_access" }]
     } else if (is_closed) {
         form_data["license_id"]     = 149;
@@ -506,6 +507,7 @@ function toggle_access_level () {
     } else if (jQuery("#restricted_access").prop("checked")) {
         if (jQuery("#restricted_access_reason.ql-container").length === 0) {
             new Quill('#restricted_access_reason', { theme: '4tu' });
+            new Quill('#restricted_access_eula', { theme: '4tu' });
         }
         jQuery("#restricted_access_form").show();
     } else if (jQuery("#closed_access").prop("checked")) {

@@ -60,6 +60,8 @@ DELETE {
     ?dataset           djht:embargo_title        ?embargo_title .
     {%- endif%}{% if embargo_reason is not none or not is_embargoed %}
     ?dataset           djht:embargo_reason       ?embargo_reason .
+    {%- endif%}{% if eula is not none or not is_embargoed %}
+    ?dataset           djht:eula                 ?eula .
     {%- endif%}{% if embargo_allow_access_requests is not none or not is_embargoed %}
     ?dataset  djht:embargo_allow_access_requests ?embargo_allow_access_requests .
     {%- endif%}{% if agreed_to_deposit_agreement is not none %}
@@ -130,6 +132,8 @@ INSERT {
     ?dataset           djht:embargo_title        {{embargo_title | safe}} .
     {%- endif%}{% if embargo_reason is not none and is_embargoed %}
     ?dataset           djht:embargo_reason       {{embargo_reason | safe}} .
+    {%- endif%}{% if eula is not none and is_embargoed %}
+    ?dataset           djht:eula                 {{eula | safe}} .
     {%- endif%}{% if embargo_allow_access_requests is not none and is_embargoed %}
     ?dataset  djht:embargo_allow_access_requests {{embargo_allow_access_requests | safe}} .
     {%- endif%}{% if agreed_to_deposit_agreement is not none %}
@@ -178,6 +182,7 @@ WHERE {
     OPTIONAL { ?dataset djht:embargo_type          ?embargo_type . }
     OPTIONAL { ?dataset djht:embargo_title         ?embargo_title . }
     OPTIONAL { ?dataset djht:embargo_reason        ?embargo_reason . }
+    OPTIONAL { ?dataset djht:eula                  ?eula . }
     OPTIONAL { ?dataset djht:embargo_allow_access_requests ?embargo_allow_access_requests . }
     OPTIONAL { ?dataset djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
     OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }

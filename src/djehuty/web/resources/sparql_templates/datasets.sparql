@@ -7,7 +7,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?created_date ?custom_fields_id ?defined_type ?defined_type_name
                 ?description ?doi ?embargo_until_date ?embargo_allow_access_requests
                 ?embargo_reason ?embargo_title ?embargo_type ?figshare_url
-                ?funding ?group_id ?has_linked_file ?dataset_id
+                ?funding ?group_id ?has_linked_file ?dataset_id ?eula
                 ?institution_id ?is_active ?is_confidential ?is_embargoed
                 ?is_metadata_record ?license_id ?license_name ?license_url
                 ?metadata_reason ?modified_date ?published_date
@@ -101,6 +101,7 @@ WHERE {
     OPTIONAL { ?dataset djht:embargo_title         ?embargo_title . }
     OPTIONAL { ?dataset djht:embargo_reason        ?embargo_reason . }
     OPTIONAL { ?dataset djht:embargo_allow_access_requests ?embargo_allow_access_requests . }
+    OPTIONAL { ?dataset djht:eula                  ?eula . }
     OPTIONAL { ?dataset djht:figshare_url          ?figshare_url . }
     OPTIONAL { ?dataset djht:funding               ?funding . }
     OPTIONAL { ?dataset djht:group_id              ?group_id . }

@@ -205,9 +205,13 @@ jQuery(document).ready(function (){
       conditions under which you grant users access to your data files,
       and add the reason why your dataset is restricted.
     </p>
-    <label class="inner-head">EULA</label><span class="required-field"> &#8727;</span>
+    <label class="inner-head">Reason</label><span class="required-field"> &#8727;</span>
     <div id="restricted_access_reason" class="texteditor">
       {{article["embargo_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
+    </div>
+    <label class="inner-head">EULA</label><span class="required-field"> &#8727;</span>
+    <div id="restricted_access_eula" class="texteditor">
+      {{article["eula"] | default("", True) | replace("\\n", "<br>") | safe }}
     </div>
     <!--
         * Upload box for EULA document.
