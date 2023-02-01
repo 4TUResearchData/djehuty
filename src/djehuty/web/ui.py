@@ -578,10 +578,10 @@ def main (address=None, port=None, state_graph=None, storage=None,
             server.using_uwsgi = True
             return server
 
+        server.db.setup_sparql_endpoint ()
         if inside_reload:
             logging.info("Reloaded.")
         else:
-            server.db.setup_sparql_endpoint ()
             if not server.menu:
                 logging.warning ("No menu structure provided.")
 
