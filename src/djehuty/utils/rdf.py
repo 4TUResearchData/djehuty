@@ -112,7 +112,7 @@ def insert_query (state_graph, rdflib_graph):
     if isinstance(body, bytes):
         body = body.decode('utf-8')
 
-    query = f"INSERT {{ GRAPH <{state_graph}> {{ {body} }} }}"
+    query = f"INSERT DATA {{ GRAPH <{state_graph}> {{ {body} }} }}"
 
     return query
 
