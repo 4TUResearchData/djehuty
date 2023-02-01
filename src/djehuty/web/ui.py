@@ -446,11 +446,14 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         server.db.storage       = config_value (xml_root, "storage-root", storage)
         server.db.cache.storage = config_value (xml_root, "cache-root", cache,
                                                 f"{server.db.storage}/cache")
-        server.db.endpoint      = config_value (xml_root, "rdf-store/sparql-uri")
         server.db.state_graph   = config_value (xml_root, "rdf-store/state-graph", state_graph)
         config["use_reloader"]  = config_value (xml_root, "live-reload", use_reloader)
         config["use_debugger"]  = config_value (xml_root, "debug-mode", use_debugger)
         config["maximum_workers"] = int(config_value (xml_root, "maximum-workers", None, 1))
+
+        endpoint = config_value (xml_root, "rdf-store/sparql-uri")
+        if endpoint:
+            server.db.endpoint = endpoint
 
         if config["use_reloader"]:
             config["use_reloader"] = bool(int(config["use_reloader"]))
@@ -586,6 +589,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 if server.in_production:
                     raise DependencyNotAvailable
 
+            logging.info("SPARQL endpoint:  %s.", server.db.endpoint)
             logging.info("State graph:  %s.", server.db.state_graph)
             logging.info("Storage path: %s.", server.db.storage)
             logging.info("Secondary storage path: %s.", server.db.secondary_storage)
