@@ -28,13 +28,16 @@
         <div id="header-left"><a href="/portal"><img id="logo" src="/static/images/logo.png" alt="4TU.ResearchData portal"></a></div>
         <div id="header-middle">
           <div id="search-box-wrapper">
+            {%- if not maintenance_mode %}
             <form method="get" action="/search?search=">
               <input id="search-box" aria-label="Search" title="Search" name="search" type="text" placeholder="Search..." value="{{search_for}}"><!--
               --><input type="submit" class="search-submit-btn fa-search" value="&#xf002;">
             </form>
+            {%- endif %}
           </div>
         </div>
         <div id="header-right">
+          {%- if not maintenance_mode %}
           {%- if not is_logged_in %}
           {%- if identity_provider == "orcid" %}
           <a href="{{orcid_endpoint}}/authorize?client_id={{orcid_client_id}}&response_type=code&scope=/authenticate&redirect_uri={{base_url}}/login"><div class="button" id="login-button">Log in</div></a>
@@ -53,8 +56,10 @@
           <a href="/logout"><div class="button" id="logout-button">Log out</div></a>
           <a id="profile-button" title="My profile" class="fas fa-user-circle" href="/my/profile"><span class="hidden">My profile</span></a>
           {%- endif %}
+          {%- endif %}
         </div>
       </div>
+      {%- if not maintenance_mode %}
       <nav id="site-navigation">
         <div id="primary-menu-wrapper">
         <ul id="primary-menu" class="primary-menu">
@@ -71,6 +76,7 @@
         </div>
       </nav>
       {% if self.submenu() %}<div id="submenu"><div id="submenu-wrapper">{% block submenu %}{% endblock %}</div></div>{% endif %}
+      {%- endif %}
       <div id="content">
         <div id="content-wrapper">
           <div id="message"></div>

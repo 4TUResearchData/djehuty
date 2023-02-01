@@ -455,6 +455,13 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if endpoint:
             server.db.endpoint = endpoint
 
+        maintenance_mode = config_value (xml_root, "maintenance-mode")
+        if maintenance_mode:
+            try:
+                server.maintenance_mode = bool(int(maintenance_mode))
+            except (ValueError, TypeError):
+                server.maintenance_mode = False
+
         if config["use_reloader"]:
             config["use_reloader"] = bool(int(config["use_reloader"]))
         if config["use_debugger"]:

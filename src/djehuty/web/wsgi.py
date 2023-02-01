@@ -62,6 +62,7 @@ class ApiServer:
         self.file_list_lock  = Lock()
         self.in_production    = False
         self.using_uwsgi      = False
+        self.maintenance_mode = False
 
         self.orcid_client_id     = None
         self.orcid_client_secret = None
@@ -352,6 +353,7 @@ class ApiServer:
             "base_url":        self.base_url,
             "path":            request.path,
             "in_production":   self.in_production,
+            "maintenance_mode": self.maintenance_mode,
             "identity_provider": self.identity_provider,
             "orcid_client_id": self.orcid_client_id,
             "orcid_endpoint":  self.orcid_endpoint,
@@ -389,6 +391,8 @@ class ApiServer:
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             self.log_access (request)
+            if self.maintenance_mode:
+                return self.ui_maintenance (request)
             endpoint, values = adapter.match() #  pylint: disable=unpacking-non-sequence
             return getattr(self, endpoint)(request, **values)
         except NotFound:
@@ -1059,6 +1063,16 @@ class ApiServer:
             return redirect ("/portal", code=301)
 
         return self.response (json.dumps({ "status": "OK" }))
+
+    def ui_maintenance (self, request):
+        """Implements a maintenance page."""
+        if not self.maintenance_mode:
+            self.error_404 (request)
+
+        if self.accepts_html (request):
+            return self.__render_template (request, "maintenance.html")
+
+        return self.response (json.dumps({ "status": "maintenance" }))
 
     def ui_account_home (self, request):
         """Implements /account/home."""

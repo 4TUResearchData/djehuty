@@ -61,6 +61,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/home.html                            \
     djehuty/web/resources/html_templates/institutions.html                    \
     djehuty/web/resources/html_templates/layout.html                          \
+    djehuty/web/resources/html_templates/maintenance.html                     \
     djehuty/web/resources/html_templates/opendap_to_doi.html                  \
     djehuty/web/resources/html_templates/portal.html                          \
     djehuty/web/resources/html_templates/public_metadata.html                 \
