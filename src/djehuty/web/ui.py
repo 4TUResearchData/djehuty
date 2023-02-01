@@ -581,6 +581,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
         if inside_reload:
             logging.info("Reloaded.")
         else:
+            server.db.setup_sparql_endpoint ()
             if not server.menu:
                 logging.warning ("No menu structure provided.")
 

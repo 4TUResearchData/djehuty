@@ -32,12 +32,17 @@ class SparqlInterface:
                             os.path.join(os.path.dirname(__file__),
                                          "resources/sparql_templates")),
                                          autoescape=True)
+        self.sparql       = None
+        self.sparql_is_up = False
 
         self.account_quotas = {}
         self.group_quotas   = {}
         self.default_quota  = 5000000000
 
-        self.sparql      = SPARQLWrapper(self.endpoint)
+    def setup_sparql_endpoint (self):
+        """Procedure to be called after setting the 'endpoint' member."""
+
+        self.sparql = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)
         self.sparql_is_up = True
 
