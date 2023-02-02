@@ -64,14 +64,22 @@ def process_collections_for_account (endpoint, account):
     for collection_index, collection in enumerate (collections):
         logging.info ("Processing collection %d of %d.",
                       collection_index + 1, number_of_collections)
-        if endpoint.rdf_store.insert_collection (collection,
-                                                 account["id"],
-                                                 account["uri"]):
-            collections_written += 1
-        else:
-            collections_failed += 1
 
         versions = value_or (collection, "versions", [])
+
+        # Only insert the draft collection when it has changed since the last
+        # publication, which we check by modified_date.
+        try:
+            if not (versions and versions[-1]["modified_date"] == dataset["modified_date"]):
+                if endpoint.rdf_store.insert_collection (collection,
+                                                         account["id"],
+                                                         account["uri"]):
+                    collections_written += 1
+                else:
+                    collections_failed += 1
+        except (KeyError, IndexError):
+            pass
+
         for version in versions:
             if not endpoint.rdf_store.insert_collection (version,
                                                          account["id"],
