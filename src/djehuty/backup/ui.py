@@ -70,7 +70,7 @@ def process_collections_for_account (endpoint, account):
         # Only insert the draft collection when it has changed since the last
         # publication, which we check by modified_date.
         try:
-            if not (versions and versions[-1]["modified_date"] == dataset["modified_date"]):
+            if not (versions and versions[-1]["modified_date"] == collection["modified_date"]):
                 if endpoint.rdf_store.insert_collection (collection,
                                                          account["id"],
                                                          account["uri"]):
