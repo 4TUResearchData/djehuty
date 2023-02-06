@@ -3912,7 +3912,7 @@ class ApiServer:
         return self.error_500()
 
     def public_item_register_doi (self, request, item_id, version=None, item_type="dataset"):
-        """ Procedure to register a new doi, to be called AFTER publication of the item """
+        """Procedure to register a new doi, to be called AFTER publication of the item."""
 
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
