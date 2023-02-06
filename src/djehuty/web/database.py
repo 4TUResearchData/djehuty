@@ -42,8 +42,8 @@ class SparqlInterface:
     def setup_sparql_endpoint (self):
         """Procedure to be called after setting the 'endpoint' member."""
 
-        self.sparql = SPARQLWrapper(self.endpoint)
-        self.sparql.setReturnFormat(JSON)
+        self.sparql = SPARQLWrapper(self.endpoint, returnFormat=JSON)
+        self.sparql.setOnlyConneg (True)
         self.sparql_is_up = True
 
     ## ------------------------------------------------------------------------
