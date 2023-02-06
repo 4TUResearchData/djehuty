@@ -112,9 +112,14 @@ class SparqlInterface:
         self.sparql.setQuery(query)
         results = []
         try:
-            query_results = self.sparql.query().convert()
-            results = list(map(self.__normalize_binding,
-                               query_results["results"]["bindings"]))
+            if self.sparql.isSparqlUpdateRequest():
+                self.sparql.query().convert()
+                ## Upon failure, an exception is thrown.
+                results = True
+            else:
+                query_results = self.sparql.query().convert()
+                results = list(map(self.__normalize_binding,
+                                   query_results["results"]["bindings"]))
 
             if cache_key_string is not None:
                 self.cache.cache_value (prefix, cache_key, results, query)
