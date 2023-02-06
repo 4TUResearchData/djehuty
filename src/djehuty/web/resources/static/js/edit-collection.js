@@ -301,7 +301,7 @@ function gather_form_data () {
     return form_data;
 }
 
-function save_collection (collection_id, event, notify=true) {
+function save_collection (collection_id, event, notify=true, on_success=jQuery.noop) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -316,6 +316,7 @@ function save_collection (collection_id, event, notify=true) {
         if (notify) {
             show_message ("success", "<p>Saved changes.</p>");
         }
+        on_success ();
     }).fail(function () {
         if (notify) {
             show_message ("failure", "<p>Failed to save form.</p>");
@@ -327,33 +328,34 @@ function publish_collection (collection_id, event) {
     event.preventDefault();
     event.stopPropagation();
 
-    save_collection (collection_id, event, false);
-    jQuery.ajax({
-        url:         `/v3/collections/${collection_id}/publish`,
-        type:        "POST",
-        accept:      "application/json",
-    }).done(function () {
-        window.location.replace(`/my/collections/published/${collection_id}`);
-    }).fail(function (response, text_status, error_code) {
-        jQuery(".missing-required").removeClass("missing-required");
-        let error_messages = jQuery.parseJSON (response.responseText);
-        let error_message = "<p>Please fill in all required fields.</p>";
-        if (error_messages.length > 0) {
-            error_message = "<p>Please fill in all required fields.</p>";
-            for (let message of error_messages) {
-                if (message.field_name == "license_id") {
-                    jQuery("#license_open").addClass("missing-required");
-                    jQuery("#license_embargoed").addClass("missing-required");
-                } else if (message.field_name == "group_id") {
-                    jQuery("#groups-wrapper").addClass("missing-required");
-                } else if (message.field_name == "categories") {
-                    jQuery("#categories-wrapper").addClass("missing-required");
-                } else {
-                    jQuery(`#${message.field_name}`).addClass("missing-required");
+    save_collection (collection_id, event, false, function() {
+        jQuery.ajax({
+            url:         `/v3/collections/${collection_id}/publish`,
+            type:        "POST",
+            accept:      "application/json",
+        }).done(function () {
+            window.location.replace(`/my/collections/published/${collection_id}`);
+        }).fail(function (response, text_status, error_code) {
+            jQuery(".missing-required").removeClass("missing-required");
+            let error_messages = jQuery.parseJSON (response.responseText);
+            let error_message = "<p>Please fill in all required fields.</p>";
+            if (error_messages.length > 0) {
+                error_message = "<p>Please fill in all required fields.</p>";
+                for (let message of error_messages) {
+                    if (message.field_name == "license_id") {
+                        jQuery("#license_open").addClass("missing-required");
+                        jQuery("#license_embargoed").addClass("missing-required");
+                    } else if (message.field_name == "group_id") {
+                        jQuery("#groups-wrapper").addClass("missing-required");
+                    } else if (message.field_name == "categories") {
+                        jQuery("#categories-wrapper").addClass("missing-required");
+                    } else {
+                        jQuery(`#${message.field_name}`).addClass("missing-required");
+                    }
                 }
             }
-        }
-        show_message ("failure", `${error_message}`);
+            show_message ("failure", `${error_message}`);
+        });
     });
 }
 
