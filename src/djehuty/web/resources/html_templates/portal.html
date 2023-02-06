@@ -60,11 +60,11 @@
 <div id="portal-summary">
   <table>
     <tbody>
-      <tr><td>{{"{:,}".format(summary_data["datasets"])}}</td><td>datasets</td></tr>
-      <tr><td>{{"{:,}".format(summary_data["authors"])}}</td><td>authors</td></tr>
-      <tr><td>{{"{:,}".format(summary_data["collections"])}}</td><td>collections</td></tr>
-      <tr><td>{{"{:,}".format(summary_data["files"])}}</td><td>files</td></tr>
-      <tr><td>{{"{:,}".format(summary_data["bytes"] | default(0, True))}}</td><td>bytes</td></tr>
+      <tr><td>{{summary_data["datasets"]}}</td><td>datasets</td></tr>
+      <tr><td>{{summary_data["authors"]}}</td><td>authors</td></tr>
+      <tr><td>{{summary_data["collections"]}}</td><td>collections</td></tr>
+      <tr><td>{{summary_data["files"]}}</td><td>files</td></tr>
+      <tr><td>{{summary_data["bytes"]}}</td><td>bytes</td></tr>
     </tbody>
   </table>
 </div>

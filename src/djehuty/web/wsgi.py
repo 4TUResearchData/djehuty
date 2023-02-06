@@ -1954,6 +1954,12 @@ class ApiServer:
             return self.error_406 ("text/html")
 
         summary_data = self.db.repository_statistics()
+        try:
+            for key in summary_data:
+                summary_data[key] = "{:,}".format(int(summary_data[key]))
+        except ValueError:
+            summary_data = { "datasets": 0, "authors": 0, "collections": 0, "files": 0, "bytes": 0 }
+
         rgb_shift = ((244,32), (145,145), (32,244)) # begin and end values of r,g,b
         opa_min = 0.3                               # minimum opacity
         rgb_opa_days = (7., 21.)                    # fading times (days) for color and opacity
