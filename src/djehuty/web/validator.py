@@ -249,6 +249,19 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None, req
 
     return value
 
+def url_value (record, field_name, required=False, error_list=None):
+    """Validation procedure for URL values."""
+
+    value   = string_value (record, field_name, required=required, error_list=error_list)
+    pattern = "^https?://[a-zA-Z0-9@:%._\\+~#?&//=]{2,256}.[a-z]{2,6}$"
+    if re.match(pattern, value) is None:
+        return raise_or_return_error (error_list,
+                    InvalidValueType(
+                        field_name = field_name,
+                        message = f"Expected a URL for '{field_name}'.",
+                        code    = "WrongValueFormat"))
+    return value
+
 def date_value (record, field_name, required=False, error_list=None):
     """Validation procedure for date values."""
 

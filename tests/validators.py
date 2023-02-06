@@ -220,3 +220,16 @@ class TestValidatorFunctionality(unittest.TestCase):
         self.assertFalse (validator.is_valid_uuid (123456789))
         self.assertFalse (validator.is_valid_uuid ("00514bea-360d-4955-ac171-629168e04e61"))
         self.assertTrue  (validator.is_valid_uuid ("0013272c-d233-4be7-8864-2426ac792e6a"))
+
+    def test_url (self):
+        """Tests the URL values validator."""
+
+        url = "https://data.4tu.nl"
+        record = { "1": url, "2": 123, "3": "javascript:onclick('alert()')" }
+        self.assertEqual (url, validator.url_value (record, "1"))
+
+        with self.assertRaises (validator.InvalidValueType):
+            validator.url_value (record, "2")
+
+        with self.assertRaises (validator.InvalidValueType):
+            validator.url_value (record, "3")
