@@ -56,7 +56,7 @@ WHERE {
 {%- endif %}
 {%- endif %}
 {%- if status == '"unassigned"^^<http://www.w3.org/2001/XMLSchema#string>': %}
-  FILTER (!BOUND(?status) OR STR(?status) = STR({{status | safe}}))
+  FILTER (!BOUND(?status) || STR(?status) = STR({{status | safe}}))
 {%- else %}
 {%- if status is not none %}
   ## The wrapping in STR() is another Virtuoso bug.

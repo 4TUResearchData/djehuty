@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT STRAFTER(STR(?collaborator), ":") AS ?collaborator_uuid 
+SELECT DISTINCT (STRAFTER(STR(?collaborator), ":") AS ?collaborator_uuid)
                 ?full_name ?is_active
 WHERE {
   GRAPH <{{state_graph}}> {

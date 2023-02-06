@@ -1,7 +1,7 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
 SELECT DISTINCT ?account_uuid ?container_uuid ?version ?container_uri
-                ?item_uri AS ?uri ?uuid
+                (?item_uri AS ?uri) ?uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri       rdf:type/rdfs:subClassOf djht:Container .

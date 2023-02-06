@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT COUNT(DISTINCT ?datasets) AS ?datasets
+SELECT (COUNT(DISTINCT ?datasets) AS ?datasets)
 
 WHERE {
   GRAPH <{{state_graph}}> {

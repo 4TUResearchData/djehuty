@@ -1,8 +1,8 @@
 {# Find for each item the latest version authored by a given author. #}
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT (?item_type = <https://ontologies.data.4tu.nl/djehuty/0.0.1/Dataset>) AS ?is_dataset
-                STRAFTER(STR(?container), ":") AS ?container_uuid
+SELECT DISTINCT ((?item_type = <https://ontologies.data.4tu.nl/djehuty/0.0.1/Dataset>) AS ?is_dataset)
+                (STRAFTER(STR(?container), ":") AS ?container_uuid)
                 ?version ?posted_date ?title
                 ?downloads ?views ?shares ?cites
 WHERE {

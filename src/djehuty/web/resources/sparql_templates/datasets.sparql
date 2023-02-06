@@ -14,11 +14,11 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?is_metadata_record ?license_id ?license_name ?license_url
                 ?metadata_reason ?modified_date ?published_date
                 ?resource_doi ?resource_title ?size ?status ?thumb
-                ?timeline_posted ?has_draft STR(?publisher) AS ?publisher
+                ?timeline_posted ?has_draft (STR(?publisher) AS ?publisher)
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?title ?url
                 ?url_private_api ?url_private_html ?url_public_api
-                ?url_public_html ?version STR(?language) AS ?language ?time_coverage
+                ?url_public_html ?version (STR(?language) AS ?language) ?time_coverage
                 ?geolocation ?longitude ?latitude ?format ?organizations
                 ?data_link ?derived_from ?same_as ?contributors ?review_status
                 ?license_remarks ?container_uri ?dataset AS ?uri ?uuid
@@ -145,11 +145,11 @@ WHERE {
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?dataset), "dataset:")         AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:")         AS ?account_uuid)
-    BIND(BOUND(?review) AND !BOUND(?published_date)  AS ?is_under_review)
+    BIND(BOUND(?review) && !BOUND(?published_date)  AS ?is_under_review)
     {%- if is_published %}
     BIND (xsd:boolean (EXISTS { ?container_uri djht:draft ?draft_dataset . }) AS ?has_draft)
     {%- endif %}
-    BIND(((BOUND(?embargo_until_date) AND ?embargo_until_date > NOW()) OR
+    BIND(((BOUND(?embargo_until_date) && ?embargo_until_date > NOW()) ||
           (BOUND(?embargo_allow_access_requests))) AS ?is_embargoed)
   }
 {%- if is_under_review is not none: %}

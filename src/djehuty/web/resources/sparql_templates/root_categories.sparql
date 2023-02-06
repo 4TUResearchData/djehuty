@@ -11,7 +11,7 @@ WHERE {
     OPTIONAL { ?row         djht:taxonomy_id      ?taxonomy_id . }
   }
   BIND(STRAFTER(STR(?row), "category:") AS ?uuid)
-  FILTER (! BOUND(?parent_id) OR ?parent_id = 0)
+  FILTER (! BOUND(?parent_id) || ?parent_id = 0)
 {%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}

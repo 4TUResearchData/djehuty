@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?id_string ?is_active ?expires_date ?uuid ?link as ?uri
+SELECT DISTINCT ?id_string ?is_active ?expires_date ?uuid (?link AS ?uri)
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container         rdf:type/rdfs:subClassOf djht:Container ;
