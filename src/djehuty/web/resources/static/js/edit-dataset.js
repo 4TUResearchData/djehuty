@@ -805,17 +805,18 @@ function publish_dataset (dataset_uuid, event) {
     event.preventDefault();
     event.stopPropagation();
 
-    save_dataset (dataset_uuid, event, false);
-    jQuery.ajax({
-        url:         `/v3/datasets/${dataset_uuid}/publish`,
-        type:        "POST",
-        accept:      "application/json",
-    }).done(function () {
-        window.location.replace("/logout");
-    }).fail(function (response, text_status, error_code) {
-        show_message ("failure",
-                      `<p>Could not publish due to error ` +
-                      `<code>${error_code}</code>.</p>`);
+    save_dataset (dataset_uuid, event, false, function() {
+        jQuery.ajax({
+            url:         `/v3/datasets/${dataset_uuid}/publish`,
+            type:        "POST",
+            accept:      "application/json",
+        }).done(function () {
+            window.location.replace("/logout");
+        }).fail(function (response, text_status, error_code) {
+            show_message ("failure",
+                          `<p>Could not publish due to error ` +
+                          `<code>${error_code}</code>.</p>`);
+        });
     });
 }
 
