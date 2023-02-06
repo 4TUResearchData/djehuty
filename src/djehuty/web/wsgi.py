@@ -3841,7 +3841,7 @@ class ApiServer:
         except requests.exceptions.ConnectionError:
             logging.error("Failed to reserve a DOI due to a connection error.")
 
-        return self.error_500 ()
+        return None
 
     def api_private_collection_reserve_doi (self, request, collection_id):
         """Implements /v2/account/collections/<id>/reserve_doi."""
