@@ -5731,13 +5731,11 @@ class ApiServer:
         """collect patameters for various export formats"""
 
         container_uuid = self.db.container_uuid_by_id(item_id)
-        container_uri = f'container:{container_uuid}'
         is_dataset = item_type == "dataset"
+        items_function = None
         if is_dataset:
-            versions_function  = self.db.dataset_versions
             items_function     = self.db.datasets
         else:
-            versions_function  = self.db.collection_versions
             items_function     = self.db.collections
         container = self.db.container(container_uuid, item_type=item_type)
         if version:
