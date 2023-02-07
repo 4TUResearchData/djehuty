@@ -5807,8 +5807,7 @@ class ApiServer:
     def export_datacite (self, item_id, version=None, item_type="dataset"):
         """export metadata in datacite format"""
         xml_string = self.format_datacite(item_id, version, item_type=item_type)
-        output = Response(xml_string, mimetype="application/xml; charset=utf-8")
-        output.headers["Server"] = "4TU.ResearchData API"
+        output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
         version_string = f'_v{version}' if version else ''
         output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_datacite.xml"
         return output
@@ -5827,8 +5826,7 @@ class ApiServer:
         """export metadata in Refworks format"""
         parameters = self.__metadata_export_parameters(dataset_id, version)
         xml_string = xml_formatter.refworks(parameters)
-        output = Response(xml_string, mimetype="application/xml; charset=utf-8")
-        output.headers["Server"] = "4TU.ResearchData API"
+        output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
         version_string = f'_v{version}' if version else ''
         output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_refworks.xml"
         return output
@@ -5837,8 +5835,7 @@ class ApiServer:
         """export metadata in NLM format"""
         parameters = self.__metadata_export_parameters(dataset_id, version)
         xml_string = xml_formatter.nlm(parameters)
-        output = Response(xml_string, mimetype="application/xml; charset=utf-8")
-        output.headers["Server"] = "4TU.ResearchData API"
+        output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
         version_string = f'_v{version}' if version else ''
         output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_nlm.xml"
         return output
@@ -5847,8 +5844,7 @@ class ApiServer:
         """export metadata in Dublin Core format"""
         parameters = self.__metadata_export_parameters(dataset_id, version)
         xml_string = xml_formatter.dublincore(parameters)
-        output = Response(xml_string, mimetype="application/xml; charset=utf-8")
-        output.headers["Server"] = "4TU.ResearchData API"
+        output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
         version_string = f'_v{version}' if version else ''
         output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_dublincore.xml"
         return output
