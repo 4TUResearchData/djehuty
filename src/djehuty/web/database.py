@@ -7,6 +7,7 @@ import uuid
 import secrets
 import os.path
 import logging
+import warnings
 from datetime import datetime
 from urllib.error import URLError, HTTPError
 from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
@@ -113,7 +114,9 @@ class SparqlInterface:
         results = []
         try:
             if self.sparql.isSparqlUpdateRequest():
-                self.sparql.query().convert()
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    self.sparql.query().convert()
                 ## Upon failure, an exception is thrown.
                 results = True
             else:
