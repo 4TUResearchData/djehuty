@@ -2423,7 +2423,8 @@ class ApiServer:
                 return self.error_404 (request)
 
             metadata  = self.__file_by_id_or_uri (file_id, dataset_uri = dataset["uri"])
-            file_path = f"{self.db.secondary_storage}/{metadata['id']}/{metadata['name']}"
+            if "id" in metadata:
+                file_path = f"{self.db.secondary_storage}/{metadata['id']}/{metadata['name']}"
             if "filesystem_location" in metadata:
                 file_path = metadata["filesystem_location"]
 
