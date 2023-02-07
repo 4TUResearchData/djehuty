@@ -5,34 +5,36 @@
 <p>This {{item_type}} is under embargo until {{item.embargo_until_date}}.</p>
 {% else: %}
 
-{% set thisversion = item.version %}
-{% set latest = versions[0].version %}
-{% set old = thisversion < latest %}
+{% if not private_view: %}
+    {% set thisversion = item.version %}
+    {% set latest = versions[0].version %}
+    {% set old = thisversion < latest %}
+{% endif %}
 
 <div id="metadata">
+{% if private_view %}
+  {% if doi %}
+<div id="doi"><span>doi:</span> {{doi}}</a></div>
+  {% endif %}
+{% else %}
     <div id="doi"><span>doi:</span> <a href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{doi}}</a>
-{% if container_doi and not old %}
+  {% if container_doi and not old %}
         <div id="container_doi">The doi above is for this specific version of this {{item_type}}, which is currently the latest. Newer versions may be published in the future.
             For a link that will always point to the latest version, please use<br />
             <span>doi:</span> <a href="https://doi.org/{{container_doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{container_doi}}</a></div>
-{% endif %}
+  {% endif %}
     </div>
     <button id="cite_show" class="neutral-button" onclick='document.getElementById("cite").style.display="block"' title="Show citation.">Cite</button>
-{% if my_collections %}
+  {% if my_collections %}
     <button id="collect_show" class="neutral-button" onclick='document.getElementById("collect").style.display="block"' title="Add this {{item.defined_type_name}} to one of your collections.">Collect</button>
-{% endif %}
+  {% endif %}
     <div id="cite">
         <button id="cite_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
         Datacite citation style:
         <div id="citation">{{citation}}</div>
         <a href="https://doi.datacite.org/dois/{{item.doi|replace('/','%2F')}}" target="_blank" rel="noopener noreferrer" title="opens in new window">Other citation styles (APA, Harvard, MLA, Vancouver, Chicago, IEEE) available at Datacite</a>
     </div>
-{% if item_type == "dataset" %}
-    {% set dtype = item.defined_type_name|capitalize %}
-{% else %}
-    {% set dtype = "Collection" %}
-{% endif %}
-{% if my_collections %}
+  {% if my_collections %}
     <div id="collect">
         <button id="collect_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
         Add to collection:
@@ -42,10 +44,16 @@
     {% endfor %}
         </ul>
     </div>
+  {% endif %}
+{% endif %}
+{% if item_type == "dataset" %}
+    {% set dtype = item.defined_type_name|capitalize %}
+{% else %}
+    {% set dtype = "Collection" %}
 {% endif %}
     <div id="type_versions">
         <div id="type">{{ dtype }}</div>
-{% if versions[1:2] %}
+{% if not private_view and versions[1:2] %}
 {# test 12763700 #}
         <button id="versions_show" onclick="document.getElementById('versions').style.display='block'" title="Choose another version."
             {% if old %}style="background-color: #ff0"{% endif %}>version {{thisversion}}
@@ -163,6 +171,7 @@
             </ul>
         </div>
     {% endif %}
+    {% if not private_view %}
         <div id="export">
             <div class="label">export as...</div>
             <a href="/export/refworks/datasets/{{id_version}}">RefWorks</a>,
@@ -174,6 +183,7 @@
             <a href="/export/dc/datasets/{{id_version}}">DC</a>,
             <a href="/export/cff/datasets/{{id_version}}">CFF</a>
         </div>
+    {% endif %}
 {% endif %}
     </div>
     
