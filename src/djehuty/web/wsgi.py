@@ -3968,32 +3968,25 @@ class ApiServer:
 
         return self.error_500()
 
-    def public_item_update_doi (self, request, item_id, version=None, item_type="dataset"):
-        """
-        Procedure to modify metadata of an existing doi, to be called after
-        publication of the changes.
-        """
+    def __update_item_doi (self, item_id, version=None, item_type="dataset"):
+        """Procedure to modify metadata of an existing doi."""
 
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
-
-        doi, xml = self.format_datacite_for_registration(item_id, version, item_type)
+        doi, xml = self.format_datacite_for_registration (item_id, version, item_type)
         encoded_bytes = base64.b64encode(xml.encode("utf-8"))
         encoded_str = str(encoded_bytes, "utf-8")
+        headers = {
+            "Accept": "application/vnd.api+json",
+            "Content-Type": "application/vnd.api+json"
+        }
+        json_data = {
+            "data": {
+                "id": doi,
+                "type": "dois",
+                "attributes": {"xml": encoded_str}
+            }
+        }
 
         try:
-            headers = {
-                "Accept": "application/vnd.api+json",
-                "Content-Type": "application/vnd.api+json"
-            }
-            json_data = {
-                "data": {
-                    "id": doi,
-                    "type": "dois",
-                    "attributes": {"xml": encoded_str}
-                }
-            }
             response = requests.put(f"{self.datacite_url}/dois/{doi}",
                                     headers = headers,
                                     auth    = (self.datacite_id,
@@ -4002,13 +3995,13 @@ class ApiServer:
                                     json    = json_data)
 
             if response.status_code == 201:
-                pass #do something here?
-            else:
-                logging.error("DataCite responded with %s", response.status_code)
+                return True
+
+            logging.error("DataCite responded with %s", response.status_code)
         except requests.exceptions.ConnectionError:
             logging.error("Failed to update a DOI due to a connection error.")
 
-        return self.error_500()
+        return False
 
     def api_private_datasets_search (self, request):
         """Implements /v2/account/articles/search."""
