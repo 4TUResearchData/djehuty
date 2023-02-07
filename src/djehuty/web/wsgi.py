@@ -3973,8 +3973,7 @@ class ApiServer:
         """Procedure to modify metadata of an existing doi."""
 
         doi, xml = self.format_datacite_for_registration (item_id, version, item_type)
-        encoded_bytes = base64.b64encode(xml.encode("utf-8"))
-        encoded_str = str(encoded_bytes, "utf-8")
+        encoded_bytes = base64.b64encode(xml)
         headers = {
             "Accept": "application/vnd.api+json",
             "Content-Type": "application/vnd.api+json"
@@ -3983,7 +3982,7 @@ class ApiServer:
             "data": {
                 "id": doi,
                 "type": "dois",
-                "attributes": {"xml": encoded_str}
+                "attributes": {"xml": str(encoded_bytes, "utf-8")}
             }
         }
 
@@ -4907,8 +4906,20 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        if self.db.publish_dataset (dataset["container_uuid"], account_uuid):
-            subject = f"Dataset published: {dataset['container_uuid']}"
+        container_uuid = dataset["container_uuid"]
+        if "doi" not in dataset:
+            reserved_doi = self.__reserve_and_save_dataset_doi (account_uuid, dataset)
+            if not reserved_doi:
+                logging.error ("Reserving a DOI for %s failed.", container_uuid)
+                return self.error_500()
+
+            if not self.__update_item_doi (container_uuid, item_type="dataset"):
+                logging.error ("Updating the DOI for publication of %s failed.",
+                               container_uuid)
+                return self.error_500()
+
+        if self.db.publish_dataset (container_uuid, account_uuid):
+            subject = f"Dataset published: {container_uuid}"
             self.__send_email_to_reviewers (subject, "published_dataset_notification",
                                             dataset=dataset)
             return self.respond_201 ({
