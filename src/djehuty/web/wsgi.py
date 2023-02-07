@@ -2055,17 +2055,16 @@ class ApiServer:
         if account_uuid:
             my_collections = self.db.collections_by_account (account_uuid = account_uuid)
 
-        container_uuid = None
-        container_uri = None
         if container is None:
             container_uuid = self.db.container_uuid_by_id(dataset_id)
-            container_uri = f'container:{container_uuid}'
             container = self.db.container (container_uuid, item_type='dataset')
 
         if container is None:
             return self.error_404 (request)
 
-        versions      = self.db.dataset_versions(container_uri=container_uri)
+        container_uuid = container["container_uuid"]
+        container_uri  = f"container:{container_uuid}"
+        versions       = self.db.dataset_versions(container_uri=container_uri)
         if not versions:
             versions = [{"version": 1}]
         versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
