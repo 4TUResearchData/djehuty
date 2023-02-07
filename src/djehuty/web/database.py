@@ -1185,8 +1185,7 @@ class SparqlInterface:
         return None
 
     def insert_account (self, email=None, first_name=None, last_name=None,
-                        full_name=None, location=None, biography=None,
-                        categories=None):
+                        full_name=None, location=None, biography=None):
         """Procedure to create an account."""
 
         graph       = Graph()
