@@ -3875,6 +3875,31 @@ class ApiServer:
 
         return self.error_500 ()
 
+    def __reserve_and_save_dataset_doi (self, account_uuid, dataset):
+        """Returns the reserved DOI on success or False otherwise."""
+
+        if dataset is None or account_uuid is None:
+            return False
+
+        data = self.__datacite_reserve_doi ()
+        if data is None:
+            return False
+
+        reserved_doi = data["data"]["id"]
+        if self.db.update_dataset (
+                dataset["container_uuid"],
+                account_uuid,
+                doi                         = reserved_doi,
+                agreed_to_deposit_agreement = value_or (dataset, "agreed_to_deposit_agreement", False),
+                agreed_to_publish           = value_or (dataset, "agreed_to_publish", False),
+                is_metadata_record          = value_or (dataset, "is_metadata_record", False)):
+            return reserved_doi
+
+        logging.error("Updating the dataset %s for reserving DOI %s failed.",
+                      dataset["container_uuid"], reserved_doi)
+
+        return False
+
     def api_private_dataset_reserve_doi (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/reserve_doi."""
         handler = self.default_error_handling (request, "POST", "application/json")
@@ -3892,22 +3917,9 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        data = self.__datacite_reserve_doi ()
-        if data is None:
-            return self.error_500 ()
-
-        reserved_doi = data["data"]["id"]
-        if self.db.update_dataset (
-                dataset["container_uuid"],
-                account_uuid,
-                doi                         = reserved_doi,
-                agreed_to_deposit_agreement = value_or (dataset, "agreed_to_deposit_agreement", False),
-                agreed_to_publish           = value_or (dataset, "agreed_to_publish", False),
-                is_metadata_record          = value_or (dataset, "is_metadata_record", False)):
+        reserved_doi = self.__reserve_and_save_dataset_doi (account_uuid, dataset)
+        if reserved_doi:
             return self.response (json.dumps({ "doi": reserved_doi }))
-
-        logging.error("Updating the dataset %s for reserving DOI %s failed.",
-                      dataset_id, reserved_doi)
 
         return self.error_500()
 
