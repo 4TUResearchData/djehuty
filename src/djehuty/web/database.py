@@ -56,14 +56,17 @@ class SparqlInterface:
 
     def __normalize_binding (self, record):
         for item in record:
-            if record[item]["type"] == "typed-literal":
+            if "datatype" in record[item]:
                 datatype = record[item]["datatype"]
                 if datatype == "http://www.w3.org/2001/XMLSchema#integer":
                     record[item] = int(float(record[item]["value"]))
                 elif datatype == "http://www.w3.org/2001/XMLSchema#decimal":
                     record[item] = int(float(record[item]["value"]))
                 elif datatype == "http://www.w3.org/2001/XMLSchema#boolean":
-                    record[item] = bool(int(record[item]["value"]))
+                    try:
+                        record[item] = bool(int(record[item]["value"]))
+                    except ValueError:
+                        record[item] = record[item]["value"].lower() == "true"
                 elif datatype == "http://www.w3.org/2001/XMLSchema#dateTime":
                     time_value = record[item]["value"].partition(".")[0]
                     if time_value[-1] == 'Z':
@@ -77,15 +80,7 @@ class SparqlInterface:
                     else:
                         record[item] = record[item]["value"]
             elif record[item]["type"] == "literal":
-                if (record[item]['value'].startswith("Modify ") or
-                    record[item]['value'].startswith("Insert into ") or
-                    record[item]['value'].startswith("Delete from ")):
-                    # The 'store' member has been dynamically added in the 'ui' module.
-                    logging.store ("%s", record[item]['value']) #  pylint: disable=no-member
-                    return record[item]["value"]
-
                 record[item] = record[item]["value"]
-
             elif record[item]["type"] == "uri":
                 record[item] = str(record[item]["value"])
             else:
