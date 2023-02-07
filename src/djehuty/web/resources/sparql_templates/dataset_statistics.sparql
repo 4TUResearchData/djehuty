@@ -22,4 +22,5 @@ WHERE {
   }
 {% if filters is not none %}{{ filters | safe }}{% endif %}
 }
+GROUP BY ?container_uuid ?dataset_id ?{{item_type}} ?title ?figshare_url
 {% endblock %}
