@@ -384,8 +384,8 @@ def object_value (value, field_name, required=False, error_list=None):
     """Validation procedure for object values."""
     return __typed_value (value, field_name, dict, "object", required, error_list)
 
-def is_valid_uuid (value):
-    """Returns True when VALUE looks like a UUID, False otherwise."""
+def string_fits_pattern (value, max_length, pattern):
+    """Returns True when VALUE is a string and not longer than MAX_LENGTH."""
 
     ## Accept strings only.
     if not isinstance(value, str):
@@ -393,18 +393,20 @@ def is_valid_uuid (value):
 
     ## Don't process input that is too long.
     try:
-        if value[36]:
+        if value[max_length]:
             return False
     except IndexError:
         pass
 
     ## Check its form.
-    pattern = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
     if re.match(pattern, value) is None:
         return False
 
     return True
 
+def is_valid_uuid (value):
+    """Returns True when VALUE looks like a UUID, False otherwise."""
+    return string_fits_pattern (value, 36, "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
 dataset_types = [
     "figure", "online resource", "preprint", "book",
     "conference contribution", "media", "dataset",
