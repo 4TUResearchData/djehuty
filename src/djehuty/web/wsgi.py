@@ -1491,7 +1491,7 @@ class ApiServer:
                                            account_uuid = account_uuid)
 
             return self.__render_template (request,
-                                           "depositor/private-links.html",
+                                           "depositor/dataset-private-links.html",
                                            dataset       = dataset,
                                            private_links = links)
 

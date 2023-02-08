@@ -41,13 +41,13 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/dataset.html                         \
     djehuty/web/resources/html_templates/debug.html                           \
     djehuty/web/resources/html_templates/depositor/dashboard.html             \
+    djehuty/web/resources/html_templates/depositor/dataset-private-links.html \
     djehuty/web/resources/html_templates/depositor/edit-collection.html       \
     djehuty/web/resources/html_templates/depositor/edit-dataset.html          \
     djehuty/web/resources/html_templates/depositor/edit-session.html          \
     djehuty/web/resources/html_templates/depositor/language-selector.html     \
     djehuty/web/resources/html_templates/depositor/my-collections.html        \
     djehuty/web/resources/html_templates/depositor/my-data.html               \
-    djehuty/web/resources/html_templates/depositor/private-links.html         \
     djehuty/web/resources/html_templates/depositor/profile.html               \
     djehuty/web/resources/html_templates/depositor/published-collection.html  \
     djehuty/web/resources/html_templates/depositor/submitted-for-review.html  \
