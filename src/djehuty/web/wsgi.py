@@ -1722,7 +1722,7 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        self.db.insert_private_link (dataset["uuid"], account_uuid)
+        self.db.insert_private_link (dataset["uuid"], account_uuid, item_type="dataset")
         return redirect (f"/my/datasets/{dataset_id}/private_links", code=302)
 
     def ui_delete_private_link (self, request, dataset_id, private_link_id):
@@ -3721,6 +3721,7 @@ class ApiServer:
                 link_uri  = self.db.insert_private_link (
                     dataset["uuid"],
                     account_uuid,
+                    item_type    = "dataset",
                     expires_date = validator.string_value (parameters, "expires_date", 0, 255, False),
                     read_only    = validator.boolean_value (parameters, "read_only", False),
                     id_string    = id_string,

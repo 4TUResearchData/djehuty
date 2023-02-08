@@ -1383,12 +1383,12 @@ class SparqlInterface:
 
         return None
 
-    def insert_private_link (self, dataset_uuid, account_uuid,
+    def insert_private_link (self, item_uuid, account_uuid, item_type=None,
                              read_only=True, id_string=None,
                              is_active=True, expires_date=None):
         """Procedure to add a private link to the state graph."""
 
-        if dataset_uuid is None:
+        if item_uuid is None:
             return None
 
         if id_string is None:
@@ -1405,8 +1405,8 @@ class SparqlInterface:
         rdf.add (graph, link_uri, rdf.DJHT["expires_date"], expires_date, XSD.dateTime)
 
         if self.add_triples_from_graph (graph):
-            dataset_uri    = rdf.uuid_to_uri (dataset_uuid, "dataset")
-            existing_links = self.private_links (item_uri=dataset_uri, account_uuid=account_uuid)
+            item_uri    = rdf.uuid_to_uri (item_uuid, item_type)
+            existing_links = self.private_links (item_uri=item_uri, account_uuid=account_uuid)
             existing_links = list(map (lambda item: URIRef(rdf.uuid_to_uri(item["uuid"], "private_link")),
                                                existing_links))
 
