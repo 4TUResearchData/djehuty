@@ -701,16 +701,17 @@ class SparqlInterface:
         except KeyError:
             return 0
 
-    def collections (self, limit=10, offset=None, order=None,
+    def collections (self, limit=10, offset=None, order=None, collection_uuid=None,
                      order_direction=None, institution=None, categories=None,
                      published_since=None, modified_since=None, group=None,
                      resource_doi=None, resource_id=None, doi=None, handle=None,
                      account_uuid=None, search_for=None, collection_id=None,
                      version=None, container_uuid=None, is_latest=False,
-                     is_published=True):
+                     is_published=True, private_link_id_string=None):
         """Procedure to retrieve collections."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
+        filters += rdf.sparql_filter ("collection",     rdf.uuid_to_uri (collection_uuid, "collection"), is_uri=True)
         filters += rdf.sparql_filter ("institution_id", institution)
         filters += rdf.sparql_filter ("group_id",       group)
         filters += rdf.sparql_filter ("collection_id",  collection_id)
@@ -719,6 +720,7 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("resource_id",    resource_id,  escape=True)
         filters += rdf.sparql_filter ("doi",            doi,          escape=True)
         filters += rdf.sparql_filter ("handle",         handle,       escape=True)
+        filters += rdf.sparql_filter ("private_link_id_string", private_link_id_string, escape=True)
 
         if categories is not None:
             filters += f"FILTER ((?category_id IN ({','.join(map(str, categories))})) OR "
@@ -744,7 +746,9 @@ class SparqlInterface:
             "categories":   categories,
             "filters":      filters,
             "is_latest":    is_latest,
-            "is_published": is_published
+            "is_published": is_published,
+            "private_link_id_string": private_link_id_string,
+
         })
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
 

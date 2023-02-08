@@ -33,6 +33,11 @@ WHERE {
     ?container_uri      djht:draft               ?collection .
     {%- endif %}
 
+    {%- if private_link_id_string is not none %}
+    ?collection         djht:private_links/rdf:rest*/rdf:first ?private_link .
+    ?private_link       djht:id                   ?private_link_id_string .
+    {%- endif %}
+
     OPTIONAL {
       ?account          rdf:type                 djht:Account .
       ?account          djht:institution_id      ?institution_id .
