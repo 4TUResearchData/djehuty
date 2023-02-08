@@ -105,6 +105,9 @@ class ApiServer:
             Rule("/my/collections",                           endpoint = "ui_my_collections"),
             Rule("/my/collections/<collection_id>/edit",      endpoint = "ui_edit_collection"),
             Rule("/my/collections/<collection_id>/delete",    endpoint = "ui_delete_collection"),
+            Rule("/my/collections/<collection_id>/private_links", endpoint = "ui_collection_private_links"),
+            Rule("/my/collections/<collection_id>/private_link/<private_link_id>/delete", endpoint = "ui_collection_delete_private_link"),
+            Rule("/my/collections/<collection_id>/private_link/new", endpoint = "ui_collection_new_private_link"),
             Rule("/my/collections/new",                       endpoint = "ui_new_collection"),
             Rule("/my/collections/<collection_id>/new-version-draft", endpoint = "ui_new_version_draft_collection"),
             Rule("/my/sessions/<session_uuid>/edit",          endpoint = "ui_edit_session"),
@@ -132,6 +135,7 @@ class ApiServer:
             Rule("/datasets/<dataset_id>",                    endpoint = "ui_dataset"),
             Rule("/datasets/<dataset_id>/<version>",          endpoint = "ui_dataset"),
             Rule("/private_datasets/<private_link_id>",       endpoint = "ui_private_dataset"),
+            Rule("/private_collections/<private_link_id>",    endpoint = "ui_private_collection"),
             Rule("/file/<dataset_id>/<file_id>",              endpoint = "ui_download_file"),
             Rule("/collections/<collection_id>",              endpoint = "ui_collection"),
             Rule("/collections/<collection_id>/<version>",    endpoint = "ui_collection"),
@@ -1497,6 +1501,32 @@ class ApiServer:
 
         return self.error_500()
 
+    def ui_collection_private_links (self, request, collection_id):
+        """Implements /my/collections/<id>/private_links."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        if request.method == 'GET':
+            collection = self.__collection_by_id_or_uri (collection_id,
+                                                         account_uuid = account_uuid,
+                                                         is_published = False)
+            if not collection:
+                return self.error_404 (request)
+
+            links = self.db.private_links (item_uri     = collection["uri"],
+                                           account_uuid = account_uuid)
+
+            return self.__render_template (request,
+                                           "depositor/collection-private-links.html",
+                                           collection    = collection,
+                                           private_links = links)
+
+        return self.error_500()
+
     def ui_my_collections (self, request):
         """Implements /my/collections."""
         if not self.accepts_html (request):
@@ -1725,6 +1755,24 @@ class ApiServer:
         self.db.insert_private_link (dataset["uuid"], account_uuid, item_type="dataset")
         return redirect (f"/my/datasets/{dataset_id}/private_links", code=302)
 
+    def ui_collection_new_private_link (self, request, collection_id):
+        """Implements /my/collections/<id>/private_link/new."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        collection  = self.__collection_by_id_or_uri (collection_id,
+                                                account_uuid = account_uuid,
+                                                is_published = False)
+        if collection is None:
+            return self.error_403 (request)
+
+        self.db.insert_private_link (collection["uuid"], account_uuid, item_type="collection")
+        return redirect (f"/my/collections/{collection_id}/private_links", code=302)
+
     def __delete_private_link (self, request, item, account_uuid, private_link_id):
         """Deletes the private link for ITEM and responds appropriately."""
         if not item:
@@ -1753,6 +1801,20 @@ class ApiServer:
 
         return self.__delete_private_link (request, dataset, account_uuid, private_link_id)
 
+    def ui_collection_delete_private_link (self, request, collection_id, private_link_id):
+        """Implements /my/collections/<id>/private_link/<pid>/delete."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        collection = self.__collection_by_id_or_uri (collection_id,
+                                                     account_uuid = account_uuid,
+                                                     is_published = False)
+
+        return self.__delete_private_link (request, collection, account_uuid, private_link_id)
 
     def ui_profile (self, request):
         """Implements /my/profile."""
@@ -2040,6 +2102,22 @@ class ApiServer:
                                         is_published           = False)[0]
             return self.ui_dataset (request, dataset["container_uuid"],
                                     container=dataset, private_view=True)
+        except IndexError:
+            pass
+
+        return self.error_404 (request)
+
+    def ui_private_collection (self, request, private_link_id):
+        """Implements /private_collections/<id>."""
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
+
+        try:
+            collection = self.db.collections (private_link_id_string = private_link_id,
+                                              is_published           = False)[0]
+            return self.ui_collection (request, collection["container_uuid"],
+                                       container=collection, private_view=True)
         except IndexError:
             pass
 

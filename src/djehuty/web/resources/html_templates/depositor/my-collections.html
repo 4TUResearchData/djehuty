@@ -53,7 +53,7 @@ jQuery(document).ready(function () {
         <a href="/my/collections/{{collection.container_uuid}}/edit">{{collection.title}}</a>
         <span class="number-of-articles">({{collection.number_of_articles | default("0", False)}})</span></td>
       <td>{{collection.created_date | truncate(10,False,'')}}</td>
-      <td>{% if not collection.is_public %}<a href="/my/collections/{{collection.container_uuid}}/delete" class="fas fa-trash-can" title="Remove"></a>{% endif %}</td>
+      <td><a href="/my/collections/{{collection.container_uuid}}/private_links" class="fas fa-link" title="Private links"></a>{% if not collection.is_public %}&nbsp;<a href="/my/collections/{{collection.container_uuid}}/delete" class="fas fa-trash-can" title="Remove"></a>{% endif %}</td>
     </tr>
   {% endfor %}</tbody>
 </table>
