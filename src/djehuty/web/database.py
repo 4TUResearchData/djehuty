@@ -1411,12 +1411,20 @@ class SparqlInterface:
                                                existing_links))
 
             new_links    = existing_links + [URIRef(link_uri)]
-            dataset      = self.datasets (dataset_uuid = dataset_uuid,
-                                          account_uuid = account_uuid,
-                                          is_published = False,
-                                          limit        = 1)[0]
 
-            if self.update_item_list (dataset["container_uuid"],
+            item = None
+            if item_type == "dataset":
+                item      = self.datasets (dataset_uuid = item_uuid,
+                                           account_uuid = account_uuid,
+                                           is_published = False,
+                                           limit        = 1)[0]
+            elif item_type == "collection":
+                item      = self.collections (collection_uuid = item_uuid,
+                                              account_uuid = account_uuid,
+                                              is_published = False,
+                                              limit        = 1)[0]
+
+            if self.update_item_list (item["container_uuid"],
                                       account_uuid,
                                       new_links,
                                       "private_links"):
