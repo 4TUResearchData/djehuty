@@ -97,8 +97,8 @@ class ApiServer:
             Rule("/my/datasets/<dataset_id>/edit",            endpoint = "ui_edit_dataset"),
             Rule("/my/datasets/<dataset_id>/delete",          endpoint = "ui_delete_dataset"),
             Rule("/my/datasets/<dataset_id>/private_links",   endpoint = "ui_dataset_private_links"),
-            Rule("/my/datasets/<dataset_id>/private_link/new", endpoint = "ui_new_private_link"),
             Rule("/my/datasets/<dataset_id>/private_link/<private_link_id>/delete", endpoint = "ui_dataset_delete_private_link"),
+            Rule("/my/datasets/<dataset_id>/private_link/new", endpoint = "ui_dataset_new_private_link"),
             Rule("/my/datasets/new",                          endpoint = "ui_new_dataset"),
             Rule("/my/datasets/<dataset_id>/new-version-draft", endpoint = "ui_new_version_draft_dataset"),
             Rule("/my/datasets/submitted-for-review",         endpoint = "ui_dataset_submitted"),
@@ -1707,7 +1707,7 @@ class ApiServer:
         self.db.delete_session_by_uuid (account_uuid, session_uuid)
         return response
 
-    def ui_new_private_link (self, request, dataset_id):
+    def ui_dataset_new_private_link (self, request, dataset_id):
         """Implements /my/datasets/<id>/private_link/new."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
