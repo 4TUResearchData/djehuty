@@ -2,7 +2,7 @@
 {% block query %}
 SELECT ?account_uuid ?draft ?doi ?latest_published_version ?first_online_date
        ?totals_created_at ?total_downloads ?total_views ?total_shares ?total_cites
-       ?latest_published_version_number
+       ?latest_published_version_number ?container_uuid
 
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -20,6 +20,7 @@ WHERE {
     OPTIONAL { ?latest_published_version djht:version   ?latest_published_version_number . }
 
     BIND(STRAFTER(STR(?account), "account:") AS ?account_uuid)
+    BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
   }
   FILTER(?container = <container:{{container_uuid}}>)
 }
