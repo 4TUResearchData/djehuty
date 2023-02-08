@@ -2172,27 +2172,42 @@ class ApiServer:
         """Implements backward-compatibility landing page URLs for collections."""
         return self.ui_collection (request, collection_id, version)
 
-    def ui_collection (self, request, collection_id, version=None):
+    def ui_collection (self, request, collection_id, version=None,
+                       container=None, private_view=False):
         """Implements /collections/<id>."""
 
         handler = self.default_error_handling (request, "GET", "text/html")
         if handler is not None:
             return handler
 
-        container_uuid = self.db.container_uuid_by_id(collection_id)
-        container_uri = f'container:{container_uuid}'
-        container = self.db.container (container_uuid, item_type='collection')
+        if container is None:
+            container_uuid = self.db.container_uuid_by_id(collection_id)
+            container = self.db.container (container_uuid, item_type='collection')
+
         if container is None:
             return self.error_404 (request)
+
+        container_uuid = container["container_uuid"]
+        container_uri  = f"container:{container_uuid}"
 
         versions      = self.db.collection_versions(container_uri=container_uri)
         if not versions:
             versions = [{"version":1}]
         versions      = [v for v in versions if v['version']]
         current_version = version if version else versions[0]['version']
-        collection    = self.db.collections (container_uuid= container_uuid,
-                                             version       = current_version,
-                                             is_published  = True)[0]
+
+        collection    = None
+        try:
+            if private_view:
+                collection = self.db.collections (container_uuid = container_uuid,
+                                                  is_published   = False)[0]
+            else:
+                collection = self.db.collections (container_uuid = container_uuid,
+                                                  version        = current_version,
+                                                  is_published   = True)[0]
+        except IndexError:
+            return self.error_403 (request)
+
         collection_uri = collection['uri']
         authors       = self.db.authors(item_uri=collection_uri, item_type='collection', limit=None)
         tags          = self.db.tags(item_uri=collection_uri, limit=None)
@@ -2246,7 +2261,8 @@ class ApiServer:
                                        member=member,
                                        member_url_name=member_url_name,
                                        datasets=datasets,
-                                       statistics=statistics)
+                                       statistics=statistics,
+                                       private_view=private_view)
 
     def ui_author (self, request, author_id):
         """Implements /authors/<id>."""
