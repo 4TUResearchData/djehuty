@@ -97,8 +97,8 @@ class ApiServer:
             Rule("/my/datasets/<dataset_id>/edit",            endpoint = "ui_edit_dataset"),
             Rule("/my/datasets/<dataset_id>/delete",          endpoint = "ui_delete_dataset"),
             Rule("/my/datasets/<dataset_id>/private_links",   endpoint = "ui_dataset_private_links"),
-            Rule("/my/datasets/<dataset_id>/private_link/<private_link_id>/delete", endpoint = "ui_delete_private_link"),
             Rule("/my/datasets/<dataset_id>/private_link/new", endpoint = "ui_new_private_link"),
+            Rule("/my/datasets/<dataset_id>/private_link/<private_link_id>/delete", endpoint = "ui_dataset_delete_private_link"),
             Rule("/my/datasets/new",                          endpoint = "ui_new_dataset"),
             Rule("/my/datasets/<dataset_id>/new-version-draft", endpoint = "ui_new_version_draft_dataset"),
             Rule("/my/datasets/submitted-for-review",         endpoint = "ui_dataset_submitted"),
@@ -1725,7 +1725,20 @@ class ApiServer:
         self.db.insert_private_link (dataset["uuid"], account_uuid, item_type="dataset")
         return redirect (f"/my/datasets/{dataset_id}/private_links", code=302)
 
-    def ui_delete_private_link (self, request, dataset_id, private_link_id):
+    def __delete_private_link (self, request, item, account_uuid, private_link_id):
+        """Deletes the private link for ITEM and responds appropriately."""
+        if not item:
+            return self.error_403 (request)
+
+        response = redirect (request.referrer, code=302)
+        if self.db.delete_private_links (item["container_uuid"],
+                                         account_uuid,
+                                         private_link_id) is None:
+            return self.error_500()
+
+        return response
+
+    def ui_dataset_delete_private_link (self, request, dataset_id, private_link_id):
         """Implements /my/datasets/<id>/private_link/<pid>/delete."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
@@ -1737,16 +1750,9 @@ class ApiServer:
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                account_uuid = account_uuid,
                                                is_published = False)
-        if not dataset:
-            return self.error_403 (request)
 
-        response = redirect (request.referrer, code=302)
-        if self.db.delete_private_links (dataset["container_uuid"],
-                                         account_uuid,
-                                         private_link_id) is None:
-            return self.error_500()
+        return self.__delete_private_link (request, dataset, account_uuid, private_link_id)
 
-        return response
 
     def ui_profile (self, request):
         """Implements /my/profile."""
