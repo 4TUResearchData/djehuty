@@ -252,15 +252,15 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None, req
 def url_value (record, field_name, required=False, error_list=None):
     """Validation procedure for URL values."""
 
-    value   = string_value (record, field_name, required=required, error_list=error_list)
-    pattern = "^https?://[a-zA-Z0-9@:%._\\+~#?&//=]{2,256}.[a-z]{2,6}$"
-    if re.match(pattern, value) is None:
-        return raise_or_return_error (error_list,
-                    InvalidValueType(
-                        field_name = field_name,
-                        message = f"Expected a URL for '{field_name}'.",
-                        code    = "WrongValueFormat"))
-    return value
+    value = string_value (record, field_name, required=required, error_list=error_list)
+    if is_valid_url (value):
+        return value
+
+    return raise_or_return_error (error_list,
+                InvalidValueType(
+                    field_name = field_name,
+                    message = f"Expected a URL for '{field_name}'.",
+                    code    = "WrongValueFormat"))
 
 def date_value (record, field_name, required=False, error_list=None):
     """Validation procedure for date values."""
@@ -407,6 +407,11 @@ def string_fits_pattern (value, max_length, pattern):
 def is_valid_uuid (value):
     """Returns True when VALUE looks like a UUID, False otherwise."""
     return string_fits_pattern (value, 36, "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
+
+def is_valid_url (value):
+    """Returns True when VALUE looks like a URL, False otherwise."""
+    return string_fits_pattern (value, 1024, "^(https?|ftps?)://[-a-zA-Z0-9@:%._\\+~#?&//=]{2,1024}$")
+
 dataset_types = [
     "figure", "online resource", "preprint", "book",
     "conference contribution", "media", "dataset",
