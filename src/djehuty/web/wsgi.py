@@ -1027,6 +1027,9 @@ class ApiServer:
     def __depositor_account_uuid (self, request):
         return self.__account_uuid_for_privilege (request, self.db.is_depositor)
 
+    def __reviewer_account_uuid (self, request):
+        return self.__account_uuid_for_privilege (request, self.db.may_review)
+
     def default_list_response (self, records, format_function):
         """Procedure to respond a list of items."""
         output     = []
@@ -1842,11 +1845,10 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        token = self.token_from_cookie (request)
-        if not self.db.may_review (token):
-            return self.error_403 (request)
+        account_uuid, error_response = self.__reviewer_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
-        account_uuid = self.account_uuid_from_request (request)
         unassigned = self.db.reviews (limit       = 10000,
                                       assigned_to = None,
                                       status      = "unassigned")
@@ -1882,11 +1884,11 @@ class ApiServer:
 
     def ui_review_assign_to_me (self, request, dataset_id):
         """Implements /review/assign-to-me/<id>."""
-        account_uuid = self.account_uuid_from_request (request)
-        token = self.token_from_cookie (request)
-        if not self.db.may_review (token):
+
+        account_uuid, error_response = self.__reviewer_account_uuid (request)
+        if error_response is not None:
             logging.error ("Account %d attempted a reviewer action.", account_uuid)
-            return self.error_403 (request)
+            return error_response
 
         dataset    = None
         try:
@@ -1909,11 +1911,10 @@ class ApiServer:
 
     def ui_review_unassign (self, request, dataset_id):
         """Implements /review/unassign/<id>."""
-        account_uuid = self.account_uuid_from_request (request)
-        token = self.token_from_cookie (request)
-        if not self.db.may_review (token):
-            logging.error ("Account %s attempted a reviewer action.", account_uuid)
-            return self.error_403 (request)
+        account_uuid, error_response = self.__reviewer_account_uuid (request)
+        if error_response is not None:
+            logging.error ("Account %d attempted a reviewer action.", account_uuid)
+            return error_response
 
         dataset = None
         try:
@@ -1936,11 +1937,10 @@ class ApiServer:
 
     def ui_review_published (self, request, dataset_id):
         """Implements /review/published/<id>."""
-        account_uuid = self.account_uuid_from_request (request)
-        token = self.token_from_cookie (request)
-        if not self.db.may_review (token):
+        account_uuid, error_response = self.__reviewer_account_uuid (request)
+        if error_response is not None:
             logging.error ("Account %d attempted a reviewer action.", account_uuid)
-            return self.error_403 (request)
+            return error_response
 
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                is_published = True,
