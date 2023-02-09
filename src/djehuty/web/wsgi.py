@@ -1822,18 +1822,17 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        token = self.token_from_cookie (request)
-        if self.db.is_depositor (token):
-            try:
-                account_uuid = self.account_uuid_from_request (request)
-                return self.__render_template (
-                    request, "depositor/profile.html",
-                    account = self.db.accounts (account_uuid=account_uuid)[0],
-                    categories = self.db.categories_tree ())
-            except IndexError:
-                return self.error_403 (request)
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
 
-        return self.error_403 (request)
+        try:
+            return self.__render_template (
+                request, "depositor/profile.html",
+                account = self.db.accounts (account_uuid=account_uuid)[0],
+                categories = self.db.categories_tree ())
+        except IndexError:
+            return self.error_403 (request)
 
     def ui_review_dashboard (self, request):
         """Implements /review/dashboard."""
