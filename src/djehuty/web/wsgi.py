@@ -1007,7 +1007,7 @@ class ApiServer:
 
         return uuid
 
-    def __depositor_account_uuid (self, request):
+    def __account_uuid_for_privilege (self, request, privilege_test):
         """
         Returns two values: the account_uuid and None on success, or
         the account_uuid and a response on failure.
@@ -1019,10 +1019,13 @@ class ApiServer:
             error_response = self.error_authorization_failed(request)
 
         token = self.token_from_cookie (request)
-        if not self.db.is_depositor (token):
+        if not privilege_test (token):
             error_response = self.error_403 (request)
 
         return account_uuid, error_response
+
+    def __depositor_account_uuid (self, request):
+        return self.__account_uuid_for_privilege (request, self.db.is_depositor)
 
     def default_list_response (self, records, format_function):
         """Procedure to respond a list of items."""
