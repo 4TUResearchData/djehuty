@@ -1,0 +1,11 @@
+Access request from {{requester_email}}
+==========
+
+The user with e-mail address "{{requester_email}}" has requested access to the data of dataset:
+https://doi.org/{{doi}}
+{{title | safe}}
+
+Reason:
+==========
+{{reason | striptags}}
+==========

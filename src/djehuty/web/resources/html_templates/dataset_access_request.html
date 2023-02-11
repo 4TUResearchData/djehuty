@@ -1,0 +1,25 @@
+{% block dataset_access_request %}
+<div id = "content-wrapper">
+<p><a id="access-request" href="#">Request access to data.</a></p>
+<div id="access-request-wrapper">
+  <label for="access-request-email">email</label>
+  <input type="text" id="access-request-email" name="email"
+{% if my_email %}
+    value="{{my_email}}"
+{% else %}
+    placeholder="your email address"
+{% endif %}
+   />
+  <input type="text" id="access-request-doi" name="doi" value="{{item.doi}}" style="display:none" />
+  <input type="text" id="access-request-dataset-id" name="dataset_id" value="{{item.container_uuid}}" type="hidden" style="display:none" />
+  <input type="text" id="access-request-version" name="version" value="{{item.version}}" type="hidden" style="display:none" />
+  <input type="text" id="access-request-title" name="title" value="{{item.title | safe}}" type="hidden" style="display:none" />
+  <label for="access-request-reason">Reason</label>
+  <div id="access-request-reason" class="texteditor"></div>
+  <p>Your request will be sent to the owner of the dataset.</p>
+  <div class="center">
+    <div id="submit-access-request" class="button neutral-button">Send request for access to data</div>
+  </div>
+</div>
+</div>
+{% endblock %}

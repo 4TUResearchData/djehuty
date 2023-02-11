@@ -13,3 +13,46 @@ function add_dataset_to_collection (dataset_id, collection_id) {
         window.alert('Failed to add dataset to collection');
     });
 }
+
+function toggle_access_request (event) {
+    let access_request_div = jQuery("#access-request-wrapper");
+    if (access_request_div.is(":visible")) {
+        jQuery("#access-request-wrapper").slideUp(150, function (){
+            jQuery("#access-request").text("Request access to data.");
+        });
+    } else {
+       jQuery("#access-request-wrapper").slideDown(150, function (){
+            jQuery("#access-request").text("Cancel access request.");
+        });
+    }
+}
+
+function submit_access_request (event) {
+    let data = {
+        "email":      or_null(jQuery("#access-request-email").val()),
+        "dataset_id": or_null(jQuery("#access-request-dataset-id").val()),
+        "version":    or_null(jQuery("#access-request-version").val()),
+        "doi":        or_null(jQuery("#access-request-doi").val()),
+        "title":      or_null(jQuery("#access-request-title").val()),
+        "reason":     or_null(jQuery("#access-request-reason .ql-editor").html())
+    }
+    jQuery.ajax({
+        url:         `/data_access_request`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify(data),
+        dataType:    "json"
+    }).done(function () {
+        show_message ("success", "<p>Access request has been sent.</p>");
+        toggle_access_request(null);
+    }).fail(function () {
+        show_message ("failure", "<p>Access request could not be sent.</p>");
+    });
+}
+
+jQuery(document).ready(function (){
+    new Quill("#access-request-reason", { theme: "4tu" });
+    jQuery("#access-request").on("click", toggle_access_request);
+    jQuery("#submit-access-request").on("click", submit_access_request);
+});

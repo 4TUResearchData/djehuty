@@ -1,11 +1,43 @@
 {% extends "layout.html" %}
 {% block headers %}
-{# TODO:
-   file previews (for which file types?)
-   versioned and unversioned doi on latest version, explained #}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/dataset_landing_page.js"></script>
+<script src="/static/js/quill.min.js"></script>
+<script src="/static/js/utils.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/pub.css" />
+<link href="/static/css/quill.4tu.css" rel="stylesheet">
+<style>
+#access-request-wrapper { display: none; }
+#content-wrapper {padding: 0}
+#content-wrapper input[type="text"],
+#content-wrapper input[type="datetime-local"],
+#content-wrapper input[type="date"],
+#content-wrapper textarea, .texteditor {
+    display: block;
+    padding: .7em;
+    border: solid 1pt #aaa;
+    border-radius: 0em .5em .5em .5em;
+    width: 832pt;
+    margin-top: 0em;
+    margin-bottom: 1em;
+    font-size: 13pt;
+}
+.texteditor {
+    padding: 0em !important;
+    border-radius: 0em 0em .5em .5em !important;
+    resize: vertical;
+    font-size: 1.0em;
+    width: 852pt;
+}
+#content-wrapper label {
+    display: inline-block;
+    background: #ffeecc;
+    color: #000;
+    padding: .5em .5em .25em .5em;
+    border-radius: .5em .5em 0em 0em;
+    font-weight: bold;
+}
+</style>
 {% endblock %}
 
 {% block body %}
@@ -28,10 +60,8 @@
   #}
         <div id="embargo_notice">
             <p>The files in this dataset are under embargo{% if item.embargo_until_date %} until {{item.embargo_until_date}}{% endif %}.</p>
-    {% if embargo_allow_access_requests %}
-            <a href="#">request access</a> {# not yet clear where the link should go #}
-    {% endif %}
         </div>
+        {% include 'dataset_access_request.html' %}
 {% elif item.is_metadata_record %}
 {# test 18586031 #}
         <div id="metadata_only">
@@ -50,6 +80,7 @@
             Data is confidential.
     {% endif %}
         </div>
+        {% include 'dataset_access_request.html' %}
 {% else %}
 {% if services %}
 {# test 12717890 #}
@@ -109,7 +140,8 @@
 {% set debug_vars = {"item":item, "version":version, "versions":versions, "citation":citation, "authors":authors, "contributors":contributors,
                      "files":files, "services":services, "tags":tags, "categories":categories, "fundings":fundings,
                      "references": references, "derived_from":derived_from, "collections":collections, "my_collections":my_collections,
-                     "dates":dates, "coordinates":coordinates, "id_version":id_version, "opendap":opendap, "statistics":statistics} %}
+                     "dates":dates, "coordinates":coordinates, "id_version":id_version, "opendap":opendap, "statistics":statistics,
+                     "my_email":my_email, "private_view":private_view} %}
 {% set djehuty_API   = "/v2/articles/"~pid %}
 {% set figshare_html = "https://data.4tu.nl/articles/_/"~pid %}
 {% set figshare_API = "https://api.figshare.com/v2/articles/"~pid %}

@@ -38,6 +38,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/categories.html                      \
     djehuty/web/resources/html_templates/category.html                        \
     djehuty/web/resources/html_templates/collection.html                      \
+    djehuty/web/resources/html_templates/data_access_request.html             \
     djehuty/web/resources/html_templates/dataset.html                         \
     djehuty/web/resources/html_templates/debug.html                           \
     djehuty/web/resources/html_templates/depositor/collection-private-links.html \
@@ -52,6 +53,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/depositor/profile.html               \
     djehuty/web/resources/html_templates/depositor/published-collection.html  \
     djehuty/web/resources/html_templates/depositor/submitted-for-review.html  \
+    djehuty/web/resources/html_templates/email/data_access_request.html       \
+    djehuty/web/resources/html_templates/email/data_access_request.txt        \
     djehuty/web/resources/html_templates/email/layout.html                    \
     djehuty/web/resources/html_templates/email/published_dataset_notification.html \
     djehuty/web/resources/html_templates/email/published_dataset_notification.txt \
@@ -120,6 +123,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/funding.sparql                     \
     djehuty/web/resources/sparql_templates/group.sparql                       \
     djehuty/web/resources/sparql_templates/group_by_name.sparql               \
+    djehuty/web/resources/sparql_templates/contact_info_from_container.sparql \
     djehuty/web/resources/sparql_templates/latest_datasets_portal.sparql      \
     djehuty/web/resources/sparql_templates/licenses.sparql                    \
     djehuty/web/resources/sparql_templates/opendap_to_doi.sparql              \

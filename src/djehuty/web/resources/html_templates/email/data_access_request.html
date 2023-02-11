@@ -1,0 +1,10 @@
+{% extends "email/layout.html" %}
+{% block body %}
+<h1>Access request from {{requester_email}}</h1>
+<p>The user with e-mail address "{{requester_email}}" has requested access to the data of dataset:<br />
+    <a href="https://doi.org/{{doi}}">{{title | safe}}</a>.</p>
+<p><strong>Reason:</strong></p>
+<hr>
+{{reason | safe}}
+<hr>
+{% endblock %}

@@ -662,6 +662,18 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def contact_info_from_container (self, container_uuid):
+        """Procedure to retrieve contact info from container ."""
+        query   = self.__query_from_template ("contact_info_from_container", {
+            "container_uuid": container_uuid
+        })
+        try:
+            return self.__run_query(query)[0]
+        except (TypeError, IndexError):
+            logging.error ("Retrieving contact info for container %s failed.",
+                           container_uuid)
+            return None
+
     ## ------------------------------------------------------------------------
     ## COLLECTIONS
     ## ------------------------------------------------------------------------

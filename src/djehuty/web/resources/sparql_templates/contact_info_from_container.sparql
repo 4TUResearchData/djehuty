@@ -1,0 +1,14 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+PREFIX this: <container:{{container_uuid}}>
+
+SELECT DISTINCT ?account ?email ?first_name ?last_name
+WHERE {
+  GRAPH <{{state_graph}}> {
+    this:               djht:account     ?account .
+    ?account            djht:email       ?email   .
+    OPTIONAL {?account  djht:first_name  ?first_name .}
+    OPTIONAL {?account  djht:last_name   ?last_name  .}
+  }
+}
+{% endblock %}
