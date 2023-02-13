@@ -297,6 +297,16 @@ def read_privilege_configuration (server, xml_root):
                 "may_review_quotas": bool(int(config_value (account, "may-review-quotas", None, False))),
                 "orcid":           orcid
             }
+
+            ## The "needs_2fa" property is set to True when the user has any
+            ## extra privilege.
+            server.db.privileges[email]["needs_2fa"] = (
+                server.db.privileges[email]["may_administer"] or
+                server.db.privileges[email]["may_impersonate"] or
+                server.db.privileges[email]["may_review"] or
+                server.db.privileges[email]["may_review_quotas"]
+            )
+
         except KeyError as error:
             logging.error ("Missing %s attribute for a privilege configuration.", error)
         except ValueError as error:
@@ -615,6 +625,13 @@ def main (address=None, port=None, state_graph=None, storage=None,
             if not server.email.is_properly_configured ():
                 logging.warning ("Sending notification e-mails has been disabled.")
                 logging.warning ("Please configure a mail server to enable it.")
+                if server.in_production:
+                    logging.error ("An e-mail server must be configured for production-mode.")
+                    raise MissingConfigurationError
+
+            for email_address in server.db.privileges:
+                if server.db.privileges[email_address]["needs_2fa"]:
+                    logging.info ("Enabled 2FA for %s.", email_address)
 
             if initialize:
                 logging.info("Invalidating caches ...")
