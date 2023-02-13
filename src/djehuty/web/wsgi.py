@@ -2104,7 +2104,7 @@ class ApiServer:
             dataset = self.db.datasets (private_link_id_string = private_link_id,
                                         is_published           = False)[0]
             return self.ui_dataset (request, dataset["container_uuid"],
-                                    container=dataset, private_view=True)
+                                    dataset=dataset, private_view=True)
         except IndexError:
             pass
 
@@ -2130,12 +2130,21 @@ class ApiServer:
         """Implements backward-compatibility landing page URLs for datasets."""
         return self.ui_dataset (request, dataset_id, version)
 
-    def ui_dataset (self, request, dataset_id, version=None, container=None, private_view=False):
+    def ui_dataset (self, request, dataset_id, version=None, dataset=None, private_view=False):
         """Implements /datasets/<id>."""
 
         handler = self.default_error_handling (request, "GET", "text/html")
         if handler is not None:
             return handler
+
+        if dataset is None:
+            if version is not None:
+                dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=True, version=version)
+            else:
+                dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=True, is_latest=True)
+
+            if dataset is None:
+                return self.error_404 (request)
 
         my_collections = []
         my_email = None
@@ -2152,54 +2161,31 @@ class ApiServer:
             except IndexError:
                 logging.warning ("No email found for account %s.", account_uuid)
 
-        if container is None:
-            container_uuid = self.db.container_uuid_by_id(dataset_id)
-            container = self.db.container (container_uuid, item_type='dataset')
-
-        if container is None:
-            return self.error_404 (request)
-
-        container_uuid = container["container_uuid"]
-        container_uri  = f"container:{container_uuid}"
-        versions       = self.db.dataset_versions(container_uri=container_uri)
+        versions      = self.db.dataset_versions (container_uri=dataset["container_uri"])
         if not versions:
             versions = [{"version": 1}]
-        versions      = [v for v in versions if v['version']] # exclude version None (still necessary?)
+        versions      = [v for v in versions if v["version"]]
         current_version = version if version else versions[0]['version']
+        id_version    = f"{dataset_id}/{version}" if version else f"{dataset_id}"
 
-        dataset       = None
-        try:
-            if private_view:
-                dataset = self.db.datasets (container_uuid = container_uuid,
-                                            is_published   = False)[0]
-            else:
-                dataset = self.db.datasets (container_uuid= container_uuid,
-                                            version       = current_version,
-                                            is_published  = True)[0]
-        except IndexError:
-            return self.error_403 (request)
-
-        dataset_uri   = f"dataset:{dataset['uuid']}"
-        authors       = self.db.authors(item_uri=dataset_uri, limit=None)
-        files         = self.db.dataset_files(dataset_uri=dataset_uri, limit=None)
-        tags          = self.db.tags(item_uri=dataset_uri, limit=None)
-        categories    = self.db.categories(item_uri=dataset_uri, limit=None)
-        references    = self.db.references(item_uri=dataset_uri, limit=None)
-        derived_from  = self.db.derived_from(item_uri=dataset_uri, limit=None)
-        fundings      = self.db.fundings(item_uri=dataset_uri, limit=None)
-        collections   = self.db.collections_from_dataset(container_uuid)
-        statistics    = {'downloads': value_or(container, 'total_downloads', 0),
-                         'views'    : value_or(container, 'total_views'    , 0),
-                         'shares'   : value_or(container, 'total_shares'   , 0),
-                         'cites'    : value_or(container, 'total_cites'    , 0)}
+        authors       = self.db.authors(item_uri=dataset["uri"], limit=None)
+        files         = self.db.dataset_files(dataset_uri=dataset["uri"], limit=None)
+        tags          = self.db.tags(item_uri=dataset["uri"], limit=None)
+        categories    = self.db.categories(item_uri=dataset["uri"], limit=None)
+        references    = self.db.references(item_uri=dataset["uri"], limit=None)
+        derived_from  = self.db.derived_from(item_uri=dataset["uri"], limit=None)
+        fundings      = self.db.fundings(item_uri=dataset["uri"], limit=None)
+        collections   = self.db.collections_from_dataset(dataset["container_uuid"])
+        statistics    = {'downloads': value_or(dataset, 'total_downloads', 0),
+                         'views'    : value_or(dataset, 'total_views'    , 0),
+                         'shares'   : value_or(dataset, 'total_shares'   , 0),
+                         'cites'    : value_or(dataset, 'total_cites'    , 0)}
         statistics    = {key:val for (key,val) in statistics.items() if val > 0}
         member = value_or (group_to_member, value_or_none (dataset, "group_id"), 'other')
         member_url_name = member_url_names[member]
         tags = { t['tag'] for t in tags }
-        dataset['timeline_first_online'] = value_or_none (container, 'timeline_first_online')
+        dataset["timeline_first_online"] = value_or_none (dataset, "timeline_first_online")
         dates = self.__pretty_print_dates_for_item (dataset)
-
-        id_version = f'{dataset_id}/{version}' if version else f'{dataset_id}'
 
         posted_date = value_or_none (dataset, "timeline_posted")
         if posted_date is not None:
@@ -2243,7 +2229,7 @@ class ApiServer:
                                        version=version,
                                        versions=versions,
                                        citation=citation,
-                                       container_doi=value_or_none(container, 'doi'),
+                                       container_doi=value_or_none(dataset, "container_doi"),
                                        my_collections = my_collections,
                                        authors=authors,
                                        contributors = contributors,

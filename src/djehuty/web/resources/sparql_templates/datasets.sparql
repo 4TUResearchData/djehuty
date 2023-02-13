@@ -12,7 +12,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?funding ?group_id ?has_linked_file ?dataset_id ?eula
                 ?institution_id ?is_active ?is_confidential ?is_embargoed
                 ?is_metadata_record ?license_id ?license_name ?license_url
-                ?metadata_reason ?modified_date ?published_date
+                ?metadata_reason ?modified_date ?published_date ?container_doi
                 ?resource_doi ?resource_title ?size ?status ?thumb
                 ?timeline_posted ?has_draft (STR(?publisher) AS ?publisher)
                 ?timeline_publisher_publication ?timeline_first_online
@@ -76,6 +76,7 @@ WHERE {
     OPTIONAL { ?container_uri djht:total_views          ?total_views .       }
     OPTIONAL { ?container_uri djht:total_shares         ?total_shares .      }
     OPTIONAL { ?container_uri djht:total_cites          ?total_cites .       }
+    OPTIONAL { ?container_uri djht:doi                  ?container_doi .     }
 
     OPTIONAL { ?dataset djht:publisher_publication_date ?timeline_publisher_publication . }
     OPTIONAL { ?dataset djht:submission_date      ?timeline_submission . }
