@@ -2139,12 +2139,16 @@ class ApiServer:
 
         my_collections = []
         my_email = None
+        my_name  = None
         account_uuid = self.account_uuid_from_request (request)
         if account_uuid:
             my_collections = self.db.collections_by_account (account_uuid = account_uuid)
             try:
                 my_account = self.db.accounts (account_uuid = account_uuid)[0]
                 my_email = my_account['email']
+                first_name = value_or(my_account, 'first_name', '')
+                last_name  = value_or(my_account, 'last_name' , '')
+                my_name = f'{first_name} {last_name}'.strip()
             except IndexError:
                 logging.warning ("No email found for account %s.", account_uuid)
 
@@ -2260,7 +2264,8 @@ class ApiServer:
                                        statistics=statistics,
                                        git_repository_url=git_repository_url,
                                        private_view=private_view,
-                                       my_email=my_email)
+                                       my_email=my_email,
+                                       my_name=my_name)
 
     def ui_data_access_request (self, request):
         """Implements /data_access_request."""
@@ -2272,6 +2277,7 @@ class ApiServer:
         try:
             parameters = request.get_json()
             email      = validator.string_value (parameters, "email", required=True)
+            name       = validator.string_value (parameters, "name", required=True)
             dataset_id = validator.string_value (parameters, "dataset_id", required=True)
             version    = validator.string_value (parameters, "version", required=True)
             doi        = validator.string_value (parameters, "doi", required=True)
@@ -2279,15 +2285,17 @@ class ApiServer:
             reason     = validator.string_value (parameters, "reason", 0, 10000, required=True)
             contact_info = self.db.contact_info_from_container(dataset_id)
             addresses = self.db.reviewer_email_addresses()
+            owner_email = None
             if contact_info:
-                addresses.append(contact_info['email'])
+                owner_email = contact_info['email']
+                addresses.append(owner_email)
             self.__send_templated_email (
                 addresses,
-                f"Request for data access to {doi}",
+                f"Request from {name} for data access to {doi}",
                 "data_access_request",
                 requester_email = email,
-                dataset_id      = dataset_id,
-                version         = version,
+                requester_name  = name,
+                owner_email     = owner_email,
                 doi             = doi,
                 title           = title,
                 reason          = reason)

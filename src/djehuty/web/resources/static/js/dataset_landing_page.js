@@ -30,6 +30,7 @@ function toggle_access_request (event) {
 function submit_access_request (event) {
     let data = {
         "email":      or_null(jQuery("#access-request-email").val()),
+        "name" :      or_null(jQuery("#access-request-name").val()),
         "dataset_id": or_null(jQuery("#access-request-dataset-id").val()),
         "version":    or_null(jQuery("#access-request-version").val()),
         "doi":        or_null(jQuery("#access-request-doi").val()),

@@ -1,7 +1,7 @@
-Access request from {{requester_email}}
+Request for access to dataset.
 ==========
 
-The user with e-mail address "{{requester_email}}" has requested access to the data of dataset:
+{{requester_name}} ({{requester_email}}) has requested access to the data of dataset:
 https://doi.org/{{doi}}
 {{title | safe}}
 
@@ -9,3 +9,6 @@ Reason:
 ==========
 {{reason | striptags}}
 ==========
+{% if owner_email %}
+(This message was sent to {{owner_email}})
+{% endif %}
