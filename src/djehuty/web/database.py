@@ -223,7 +223,7 @@ class SparqlInterface:
                         if '"' in value:
                             value = value.replace('"', '\\\"')
                         filter_list.append(f" CONTAINS(LCASE(?{key}), \"{value.lower()}\") \n")
-                    filters += "(" + " OR\n".join(filter_list) + ") \n"
+                    filters += "(" + " ||\n".join(filter_list) + ") \n"
             filters += ")"
         else:
             filter_list = []
@@ -236,7 +236,7 @@ class SparqlInterface:
                 if search_format:
                     filter_list.append(f"       CONTAINS(LCASE(?format),         \"{search_term_lower}\")")
             if len(filter_list) > 0:
-                filters += "FILTER(\n" + " OR\n".join(filter_list) + ')'
+                filters += "FILTER(\n" + " ||\n".join(filter_list) + ')'
 
         return filters
 
@@ -266,7 +266,7 @@ class SparqlInterface:
         filters += self.__search_query_to_sparql_filters (search_for, search_format)
 
         if categories is not None:
-            filters += f"FILTER ((?category_id IN ({','.join(map(str, categories))})) OR "
+            filters += f"FILTER ((?category_id IN ({','.join(map(str, categories))})) || "
             filters += f"(?parent_category_id IN ({','.join(map(str, categories))})))\n"
 
 
@@ -439,9 +439,9 @@ class SparqlInterface:
 
         if search_for is not None:
             escaped = rdf.escape_string_value (search_for.lower())
-            filters += (f"FILTER (CONTAINS(LCASE(?first_name), {escaped}) OR\n"
-                        f"        CONTAINS(LCASE(?last_name),  {escaped}) OR\n"
-                        f"        CONTAINS(LCASE(?full_name),  {escaped}) OR\n"
+            filters += (f"FILTER (CONTAINS(LCASE(?first_name), {escaped}) ||\n"
+                        f"        CONTAINS(LCASE(?last_name),  {escaped}) ||\n"
+                        f"        CONTAINS(LCASE(?full_name),  {escaped}) ||\n"
                         f"        CONTAINS(LCASE(?orcid_id),   {escaped}))")
 
         query = self.__query_from_template ("authors", {
@@ -735,14 +735,14 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("private_link_id_string", private_link_id_string, escape=True)
 
         if categories is not None:
-            filters += f"FILTER ((?category_id IN ({','.join(map(str, categories))})) OR "
+            filters += f"FILTER ((?category_id IN ({','.join(map(str, categories))})) || "
             filters += f"(?parent_category_id IN ({','.join(map(str, categories))})))\n"
 
         if search_for is not None:
             escaped = rdf.escape_string_value (search_for)
-            filters += (f"FILTER (CONTAINS(STR(?title),          {escaped}) OR\n"
-                        f"        CONTAINS(STR(?resource_title), {escaped}) OR\n"
-                        f"        CONTAINS(STR(?description),    {escaped}) OR\n"
+            filters += (f"FILTER (CONTAINS(STR(?title),          {escaped}) ||\n"
+                        f"        CONTAINS(STR(?resource_title), {escaped}) ||\n"
+                        f"        CONTAINS(STR(?description),    {escaped}) ||\n"
                         f"        CONTAINS(STR(?citation),       {escaped}))")
 
         if published_since is not None:
@@ -785,9 +785,9 @@ class SparqlInterface:
         filters = rdf.sparql_filter ("title", title, escape=True)
         if search_for is not None:
             escaped  = rdf.escape_string_value (search_for.lower())
-            filters += (f"FILTER (CONTAINS(LCASE(?title),       {escaped}) OR\n"
-                        f"        CONTAINS(LCASE(?grant_code),  {escaped}) OR\n"
-                        f"        CONTAINS(LCASE(?funder_name), {escaped}) OR\n"
+            filters += (f"FILTER (CONTAINS(LCASE(?title),       {escaped}) ||\n"
+                        f"        CONTAINS(LCASE(?grant_code),  {escaped}) ||\n"
+                        f"        CONTAINS(LCASE(?funder_name), {escaped}) ||\n"
                         f"        CONTAINS(LCASE(?url),         {escaped}))")
 
         query   = self.__query_from_template ("funding", {
@@ -2117,7 +2117,7 @@ class SparqlInterface:
             if isinstance(startswith, list):
                 filters += f"FILTER ((STRSTARTS(STR(?data_url), \"{ startswith[0] }\"))"
                 for filter_item in startswith[1:]:
-                    filters += f" OR (STRSTARTS(STR(?data_url), \"{filter_item}\"))"
+                    filters += f" || (STRSTARTS(STR(?data_url), \"{filter_item}\"))"
                 filters += ")\n"
             elif isinstance(startswith, str):
                 filters += f"FILTER (STRSTARTS(STR(?data_url), \"{ startswith }\"))\n"
