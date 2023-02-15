@@ -451,8 +451,6 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         config["port"]          = int(config_value (xml_root, "port", port, 8080))
         server.base_url         = config_value (xml_root, "base-url", base_url,
                                                 f"http://{config['address']}:{config['port']}")
-        server.in_production    = bool(int(config_value (xml_root, "production", None,
-                                                         server.in_production)))
         server.db.storage       = config_value (xml_root, "storage-root", storage)
         server.db.cache.storage = config_value (xml_root, "cache-root", cache,
                                                 f"{server.db.storage}/cache")
@@ -479,6 +477,18 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         if not xml_root:
             return config
+
+        production_mode = xml_root.find ("production")
+        if production_mode is not None:
+            server.in_production = bool(int(production_mode.text))
+            try:
+                pre_production = production_mode.attrib.get("pre-production")
+                if pre_production is not None:
+                    server.in_preproduction = bool(int(pre_production))
+            except (ValueError, TypeError):
+                logging.warning ("Invalid value for the 'pre-production' attribute in 'production'.")
+                logging.warning ("Pre-production mode is enabled; Use either '1' to enable, or '0' to disable.")
+                server.in_preproduction = True
 
         secondary_storage = xml_root.find ("secondary-storage-root")
         if secondary_storage is not None:

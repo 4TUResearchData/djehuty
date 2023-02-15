@@ -61,6 +61,7 @@ class ApiServer:
         self.impersonator_cookie_key = f"impersonator_{self.cookie_key}"
         self.file_list_lock  = Lock()
         self.in_production    = False
+        self.in_preproduction = False
         self.using_uwsgi      = False
         self.maintenance_mode = False
 
@@ -2311,10 +2312,13 @@ class ApiServer:
             reason     = validator.string_value (parameters, "reason", 0, 10000, required=True)
             contact_info = self.db.contact_info_from_container(dataset_id)
             addresses = self.db.reviewer_email_addresses()
+
+            # When in pre-production state, don't send e-mails to depositors.
             owner_email = None
-            if contact_info:
+            if contact_info and self.in_production and not self.in_preproduction:
                 owner_email = contact_info['email']
                 addresses.append(owner_email)
+
             self.__send_templated_email (
                 addresses,
                 f"Request from {name} for data access to {doi}",
