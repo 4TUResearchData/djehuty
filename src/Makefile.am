@@ -30,6 +30,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/400.html                             \
     djehuty/web/resources/html_templates/403.html                             \
     djehuty/web/resources/html_templates/404.html                             \
+    djehuty/web/resources/html_templates/activate_2fa_session.html            \
     djehuty/web/resources/html_templates/admin/dashboard.html                 \
     djehuty/web/resources/html_templates/admin/exploratory.html               \
     djehuty/web/resources/html_templates/admin/maintenance.html               \
@@ -53,6 +54,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/depositor/profile.html               \
     djehuty/web/resources/html_templates/depositor/published-collection.html  \
     djehuty/web/resources/html_templates/depositor/submitted-for-review.html  \
+    djehuty/web/resources/html_templates/email/2fa_token.html                 \
+    djehuty/web/resources/html_templates/email/2fa_token.txt                  \
     djehuty/web/resources/html_templates/email/data_access_request.html       \
     djehuty/web/resources/html_templates/email/data_access_request.txt        \
     djehuty/web/resources/html_templates/email/layout.html                    \

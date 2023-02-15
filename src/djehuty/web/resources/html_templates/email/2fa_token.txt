@@ -1,0 +1,7 @@
+Two-factor authentication token
+==========
+
+Here is your two-factor authentication token:
+==========
+{{token | safe}}
+==========

@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block headers %}
+<link href="/static/css/form.css" rel="stylesheet">
+<style>
+#submit-mfa-token {
+    background: #f39000;
+    color: #fff;
+    border: none !important;
+}
+#submit-mfa-token:hover {
+    border: none;
+    background: #d26000;
+    cursor: pointer;
+    color: #fff;
+    text-decoration: none;
+}
+#submit-mfa-token:active {
+    border: none !important;
+    background: #9d4800 !important;
+    cursor: pointer;
+    color: #fff;
+    text-decoration: none;
+}
+input[type="submit"]:active {
+    color: green;
+}
+</style>
+{% endblock %}
+{% block body %}
+<h1>Enter your token</h1>
+<p>We sent an e-mail with a numeric token.  Please enter it here.</p>
+<label for="mfa-token">Token</label>
+<form action="/my/sessions/{{session_uuid}}/activate" method="post">
+<input type="text" id="mfa-token" name="mfa-token" placeholder="e.g. 123456" />
+<div class="center">
+  <input type="submit" id="submit-mfa-token" class="button neutral-button" value="Activate session">
+</div>
+</form>
+{% endblock %}

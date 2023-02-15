@@ -1,0 +1,8 @@
+{% extends "email/layout.html" %}
+{% block body %}
+<h1>Two-factor authentication token.</h1>
+<p>Here is your two-factor authentication token:</p>
+<hr>
+{{token | safe}}
+<hr>
+{% endblock %}

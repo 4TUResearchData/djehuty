@@ -112,6 +112,7 @@ class ApiServer:
             Rule("/my/collections/<collection_id>/new-version-draft", endpoint = "ui_new_version_draft_collection"),
             Rule("/my/sessions/<session_uuid>/edit",          endpoint = "ui_edit_session"),
             Rule("/my/sessions/<session_uuid>/delete",        endpoint = "ui_delete_session"),
+            Rule("/my/sessions/<session_uuid>/activate",      endpoint = "ui_activate_session"),
             Rule("/my/sessions/new",                          endpoint = "ui_new_session"),
             Rule("/my/profile",                               endpoint = "ui_profile"),
             Rule("/review/dashboard",                         endpoint = "ui_review_dashboard"),
@@ -1109,6 +1110,8 @@ class ApiServer:
     def ui_login (self, request):
         """Implements /login."""
 
+        account_uuid = None
+
         ## ORCID authentication
         ## --------------------------------------------------------------------
         if self.identity_provider == "orcid":
@@ -1119,23 +1122,15 @@ class ApiServer:
             if not self.accepts_html (request):
                 return self.error_406 ("text/html")
 
-            response     = redirect ("/my/dashboard", code=302)
             account_uuid = self.db.account_uuid_by_orcid (orcid_record['orcid'])
             logging.access ("Account %s logged in via ORCID.", account_uuid) #  pylint: disable=no-member
 
             if account_uuid is None:
                 return self.error_403 (request)
 
-            token, session_uuid = self.db.insert_session (account_uuid, name="Website login")
-            logging.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
-
-            response.set_cookie (key=self.cookie_key, value=token,
-                                 secure=self.in_production)
-            return response
-
         ## SAML 2.0 authentication
         ## --------------------------------------------------------------------
-        if self.identity_provider == "saml":
+        elif self.identity_provider == "saml":
 
             ## Initiate the login procedure.
             if request.method == "GET":
@@ -1158,8 +1153,7 @@ class ApiServer:
                     if "email" not in saml_record:
                         return self.error_400 (request, "Invalid request", "MissingEmailProperty")
 
-                    response = redirect ("/my/dashboard", code=302)
-                    account  = self.db.account_by_email (saml_record["email"])
+                    account = self.db.account_by_email (saml_record["email"])
                     account_uuid = None
                     if account:
                         account_uuid = account["uuid"]
@@ -1172,14 +1166,29 @@ class ApiServer:
                         )
                         logging.access ("Account %s created via SAML.", account_uuid) #  pylint: disable=no-member
 
-                    token, session_uuid = self.db.insert_session (account_uuid, name="Website login")
-                    logging.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
-                    response.set_cookie (key=self.cookie_key, value=token,
-                                         secure=self.in_production)
-
-                    return response
                 except TypeError:
                     pass
+        else:
+            logging.error ("Unknown identity provider '%s'", self.identity_provider)
+            return self.error_500()
+
+        if account_uuid is not None:
+            token, mfa_token, session_uuid = self.db.insert_session (account_uuid, name="Website login")
+            logging.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
+
+            if mfa_token is None:
+                return redirect ("/my/dashboard", code=302)
+
+            ## Send e-mail
+            account = self.db.account_by_uuid (account_uuid)
+            self.__send_templated_email (
+                [account["email"]],
+                "Two-factor authentication log-in token",
+                "2fa_token", token = mfa_token)
+
+            response = redirect (f"/my/sessions/{session_uuid}/activate", code=302)
+            response.set_cookie (key=self.cookie_key, value=token, secure=self.in_production)
+            return response
 
         return self.error_500 ()
 
@@ -1730,6 +1739,37 @@ class ApiServer:
             return redirect (f"/my/sessions/{session_uuid}/edit", code=302)
 
         return self.error_500()
+
+    def ui_activate_session (self, request, session_uuid):
+        """Implements /my/sessions/<id>/activate"""
+
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        if request.method == "GET":
+            return self.__render_template (request, "activate_2fa_session.html",
+                                           session_uuid=session_uuid)
+
+        if request.method == "POST":
+            token     = self.token_from_cookie (request)
+            mfa_token = request.form.get("mfa-token")
+            if not parses_to_int (mfa_token):
+                return self.error_403 (request)
+            account   = self.db.account_by_session_token (token, mfa_token=mfa_token)
+            if account is None or "uuid" not in account:
+                return self.error_authorization_failed(request)
+
+            session = self.db.sessions (account["uuid"],
+                                        session_uuid = session_uuid,
+                                        mfa_token    = mfa_token)
+
+            if session is None:
+                return self.error_403 (request)
+
+            if self.db.update_session (account["uuid"], session_uuid, active=True):
+                return redirect ("/my/dashboard", code=302)
+
+        return self.error_405 (["GET", "POST"])
 
     def ui_delete_session (self, request, session_uuid):
         """Implements /my/sessions/<id>/delete."""
