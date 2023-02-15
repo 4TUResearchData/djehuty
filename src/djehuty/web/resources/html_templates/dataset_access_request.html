@@ -8,10 +8,8 @@
   <label for="access-request-name">name</label>
   <input type="text" id="access-request-name" name="name" {% if my_name %}value="{{my_name}}"{% else %}placeholder="Your name"{% endif %}
    />
-  <input type="hidden" id="access-request-doi" name="doi" value="{{item.doi}}" />
   <input type="hidden" id="access-request-dataset-id" name="dataset_id" value="{{item.container_uuid}}" />
   <input type="hidden" id="access-request-version" name="version" value="{{item.version}}"  />
-  <input type="hidden" id="access-request-title" name="title" value="{{item.title | safe}}"  />
   <label for="access-request-reason">Reason</label>
   <div id="access-request-reason" class="texteditor"></div>
   <p>Your request will be sent to the owner of the dataset.</p>

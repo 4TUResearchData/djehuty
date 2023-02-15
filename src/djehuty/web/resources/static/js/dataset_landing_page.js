@@ -33,8 +33,6 @@ function submit_access_request (event) {
         "name" :      or_null(jQuery("#access-request-name").val()),
         "dataset_id": or_null(jQuery("#access-request-dataset-id").val()),
         "version":    or_null(jQuery("#access-request-version").val()),
-        "doi":        or_null(jQuery("#access-request-doi").val()),
-        "title":      or_null(jQuery("#access-request-title").val()),
         "reason":     or_null(jQuery("#access-request-reason .ql-editor").html())
     }
     jQuery.ajax({

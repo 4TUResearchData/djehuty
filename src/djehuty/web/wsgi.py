@@ -2193,14 +2193,16 @@ class ApiServer:
         account_uuid = self.account_uuid_from_request (request)
         if account_uuid:
             my_collections = self.db.collections_by_account (account_uuid = account_uuid)
-            try:
-                my_account = self.db.accounts (account_uuid = account_uuid)[0]
-                my_email = my_account['email']
-                first_name = value_or(my_account, 'first_name', '')
-                last_name  = value_or(my_account, 'last_name' , '')
-                my_name = f'{first_name} {last_name}'.strip()
-            except IndexError:
-                logging.warning ("No email found for account %s.", account_uuid)
+            # Name and email may be needed to request access to data with restricted access.
+            if value_or_none(dataset, 'is_confidential'):
+                try:
+                    my_account = self.db.accounts (account_uuid = account_uuid)[0]
+                    my_email = my_account['email']
+                    first_name = value_or(my_account, 'first_name', '')
+                    last_name  = value_or(my_account, 'last_name' , '')
+                    my_name = f'{first_name} {last_name}'.strip()
+                except IndexError:
+                    logging.warning ("No email found for account %s.", account_uuid)
 
         versions      = self.db.dataset_versions (container_uri=dataset["container_uri"])
         if not versions:
@@ -2307,9 +2309,16 @@ class ApiServer:
             name       = validator.string_value (parameters, "name", required=True)
             dataset_id = validator.string_value (parameters, "dataset_id", required=True)
             version    = validator.string_value (parameters, "version", required=True)
-            doi        = validator.string_value (parameters, "doi", required=True)
-            title      = validator.string_value (parameters, "title", required=True)
             reason     = validator.string_value (parameters, "reason", 0, 10000, required=True)
+
+            dataset = self.db.datasets (container_uuid=dataset_id, version=version)[0]
+
+            if not value_or_none(dataset, 'is_confidential'):
+                logging.warning("Not allowed. Dataset %s is not confidential", dataset_id)
+                return self.error_403 (request)
+
+            doi = dataset['doi']
+            title = dataset['title']
             contact_info = self.db.contact_info_from_container(dataset_id)
             addresses = self.db.reviewer_email_addresses()
 
