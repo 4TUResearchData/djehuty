@@ -7,7 +7,7 @@
 <hr>
 {{reason | safe}}
 <hr>
-{% if owner_email %}
+{% if owner_email and recipient_email != owner_email %}
 <p><i>This message was sent to {{owner_email}}</i></></p>
 {% endif %}
 {% endblock %}

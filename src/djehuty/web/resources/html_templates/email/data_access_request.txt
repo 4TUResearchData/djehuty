@@ -9,6 +9,6 @@ Reason:
 ==========
 {{reason | striptags}}
 ==========
-{% if owner_email %}
+{% if owner_email and recipient_email != owner_email %}
 (This message was sent to {{owner_email}})
 {% endif %}

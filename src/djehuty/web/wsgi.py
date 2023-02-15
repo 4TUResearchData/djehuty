@@ -444,7 +444,9 @@ class ApiServer:
             return False
 
         for email_address in email_addresses:
-            text, html = self.__render_email_templates (f"email/{template_name}", **context)
+            text, html = self.__render_email_templates (f"email/{template_name}",
+                                                        recipient_email=email_address,
+                                                        **context)
             self.email.send_email (email_address, subject, text, html)
 
         logging.info ("Sent e-mail to %d address(es): %s", len(email_addresses), subject)
