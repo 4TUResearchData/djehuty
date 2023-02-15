@@ -1242,8 +1242,8 @@ class ApiServer:
                              secure = self.in_production)
 
         # Create a new session for the user to be impersonated as.
-        new_token, _ = self.db.insert_session (dataset["account_uuid"],
-                                               name="Reviewer")
+        new_token, _, _ = self.db.insert_session (dataset["account_uuid"],
+                                                  name="Reviewer")
         response.set_cookie (key    = self.cookie_key,
                              value  = new_token,
                              secure = self.in_production)
@@ -1268,7 +1268,7 @@ class ApiServer:
                              secure = self.in_production)
 
         # Create a new session for the user to be impersonated as.
-        new_token, _ = self.db.insert_session (account_uuid, name="Impersonation")
+        new_token, _, _ = self.db.insert_session (account_uuid, name="Impersonation")
         response.set_cookie (key    = self.cookie_key,
                              value  = new_token,
                              secure = self.in_production)
@@ -1723,9 +1723,9 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        _, session_uuid = self.db.insert_session (account_uuid,
-                                                  name     = "Untitled",
-                                                  editable = True)
+        _, _, session_uuid = self.db.insert_session (account_uuid,
+                                                     name     = "Untitled",
+                                                     editable = True)
         if session_uuid is not None:
             return redirect (f"/my/sessions/{session_uuid}/edit", code=302)
 

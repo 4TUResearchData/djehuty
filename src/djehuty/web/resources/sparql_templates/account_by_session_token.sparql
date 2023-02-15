@@ -20,6 +20,12 @@ WHERE {
     ?session             rdf:type                  djht:Session .
     ?session             djht:account               ?account .
     ?session             djht:token                 ?token .
+    {%- if mfa_token is none %}
+    ?session             djht:active                "true"^^xsd:boolean .
+    {%- else %}
+    ?session             djht:active                "false"^^xsd:boolean .
+    ?session             djht:mfa_token             {{mfa_token}} .
+    {%- endif %}
 
     OPTIONAL {
       ?group             rdf:type                   djht:InstitutionGroup ;

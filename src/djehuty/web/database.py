@@ -2243,11 +2243,12 @@ class SparqlInterface:
 
         return account
 
-    def account_by_session_token (self, session_token):
+    def account_by_session_token (self, session_token, mfa_token=None):
         """Returns an account record or None."""
 
         query = self.__query_from_template ("account_by_session_token", {
-            "token":       session_token
+            "token":       session_token,
+            "mfa_token":   mfa_token
         })
 
         results = self.__run_query (query)
@@ -2361,7 +2362,11 @@ class SparqlInterface:
         """Procedure to add a session token for an account_uuid."""
 
         if account_uuid is None:
-            return None, None
+            return None, None, None
+
+        account = self.account_by_uuid (account_uuid)
+        if account is None:
+            return None, None, None
 
         if token is None:
             token = secrets.token_hex (64)
@@ -2379,18 +2384,31 @@ class SparqlInterface:
         graph.add ((link_uri, rdf.DJHT["token"],      Literal(token, datatype=XSD.string)))
         graph.add ((link_uri, rdf.DJHT["editable"],   Literal(editable, datatype=XSD.boolean)))
 
+        mfa_token = None
+        try:
+            if self.privileges[account["email"]]["needs_2fa"]:
+                mfa_token = secrets.randbelow (1000000)
+                graph.add ((link_uri, rdf.DJHT["mfa_token"], Literal(mfa_token, datatype=XSD.integer)))
+                graph.add ((link_uri, rdf.DJHT["mfa_tries"], Literal(0, datatype=XSD.integer)))
+                graph.add ((link_uri, rdf.DJHT["active"],     Literal(False, datatype=XSD.boolean)))
+            else:
+                graph.add ((link_uri, rdf.DJHT["active"],     Literal(True, datatype=XSD.boolean)))
+        except (KeyError):
+            pass
+
         if self.add_triples_from_graph (graph):
-            return token, rdf.uri_to_uuid (link_uri)
+            return token, mfa_token, rdf.uri_to_uuid (link_uri)
 
-        return None, None
+        return None, None, None
 
-    def update_session (self, account_uuid, session_uuid, name):
+    def update_session (self, account_uuid, session_uuid, name=None, active=None):
         """Procedure to edit a session."""
 
         query = self.__query_from_template ("update_session", {
             "account_uuid":  account_uuid,
             "session_uuid":  session_uuid,
-            "name":          name
+            "name":          name,
+            "active":        rdf.escape_boolean_value (active)
         })
 
         return self.__run_query (query)
@@ -2423,12 +2441,13 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def sessions (self, account_uuid, session_uuid=None):
+    def sessions (self, account_uuid, session_uuid=None, mfa_token=None):
         """Returns the sessions for an account."""
 
         query = self.__query_from_template ("account_sessions", {
             "account_uuid":  account_uuid,
-            "session_uuid":  session_uuid
+            "session_uuid":  session_uuid,
+            "mfa_token":     mfa_token
         })
 
         return self.__run_query (query)

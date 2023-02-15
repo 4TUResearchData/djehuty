@@ -6,6 +6,7 @@ WHERE {
     ?session             rdf:type                  djht:Session .
     ?session             djht:account              ?account .
     ?session             djht:token                ?token .
+    OPTIONAL { ?session  djht:mfa_token            ?mfa_token . }
     OPTIONAL { ?session  djht:name                 ?name . }
     OPTIONAL { ?session  djht:created_date         ?created_date . }
     OPTIONAL { ?session  djht:editable             ?editable . }
@@ -13,6 +14,8 @@ WHERE {
   FILTER (?account = <account:{{account_uuid}}>)
   {%- if session_uuid is not none: %}
   FILTER (?session = <session:{{session_uuid}}>)
+  {%- endif %}{% if mfa_token is not none: %}
+  FILTER (?mfa_token = {{mfa_token}})
   {%- endif %}
 
   BIND (STRAFTER(STR(?session), "session:") AS ?uuid)
