@@ -14,11 +14,11 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?is_metadata_record ?license_id ?license_name ?license_url
                 ?metadata_reason ?modified_date ?published_date ?container_doi
                 ?resource_doi ?resource_title ?size ?status ?thumb
-                ?timeline_posted ?has_draft (STR(?publisher) AS ?publisher)
+                ?timeline_posted ?has_draft (STR(?publisher_ut) AS ?publisher)
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?title ?url
                 ?url_private_api ?url_private_html ?url_public_api
-                ?url_public_html ?version (STR(?language) AS ?language) ?time_coverage
+                ?url_public_html ?version (STR(?language_ut) AS ?language) ?time_coverage
                 ?geolocation ?longitude ?latitude ?format ?organizations
                 ?data_link ?derived_from ?same_as ?contributors ?review_status
                 ?license_remarks ?container_uri (?dataset AS ?uri) ?uuid
@@ -127,8 +127,8 @@ WHERE {
     OPTIONAL { ?dataset djht:url_public_api        ?url_public_api . }
     OPTIONAL { ?dataset djht:url_public_html       ?url_public_html . }
     {#- Custom fields. #}
-    OPTIONAL { ?dataset djht:publisher             ?publisher . }
-    OPTIONAL { ?dataset djht:language              ?language . }
+    OPTIONAL { ?dataset djht:publisher             ?publisher_ut . }
+    OPTIONAL { ?dataset djht:language              ?language_ut . }
     OPTIONAL { ?dataset djht:time_coverage         ?time_coverage . }
     OPTIONAL { ?dataset djht:geolocation           ?geolocation . }
     OPTIONAL { ?dataset djht:longitude             ?longitude . }

@@ -4,8 +4,8 @@
 # non-typed and one row for a typed literal.
 SELECT DISTINCT ?account_uuid ?resource_id ?resource_doi ?resource_title
                 ?resource_link ?resource_version ?version ?description
-                ?institution_id ?group_id ?is_public (STR(?language) AS ?language) ?time_coverage
-                ?citation ?custom_fields_id ?modified_date (STR(?publisher) AS ?publisher)
+                ?institution_id ?group_id ?is_public (STR(?language_ut) AS ?language) ?time_coverage
+                ?citation ?custom_fields_id ?modified_date (STR(?publisher_ut) AS ?publisher)
                 ?created_date ?timeline_posted ?has_draft
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?collection_id ?title
@@ -77,8 +77,8 @@ WHERE {
     OPTIONAL { ?collection   djht:geolocation          ?geolocation . }
     OPTIONAL { ?collection   djht:latitude             ?latitude . }
     OPTIONAL { ?collection   djht:longitude            ?longitude . }
-    OPTIONAL { ?collection   djht:language             ?language . }
-    OPTIONAL { ?collection   djht:publisher            ?publisher . }
+    OPTIONAL { ?collection   djht:language             ?language_ut . }
+    OPTIONAL { ?collection   djht:publisher            ?publisher_ut . }
     OPTIONAL { ?collection   djht:time_coverage        ?time_coverage . }
     OPTIONAL { ?collection   djht:published_date       ?published_date . }
 
