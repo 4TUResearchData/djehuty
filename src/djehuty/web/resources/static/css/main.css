@@ -242,8 +242,6 @@ nav { display: block; }
 #footer p { padding: 0.5em 0em 0em 0em; margin: 0em; }
 #footer a { color: #ffffff; }
 #footer a:hover { color: #cccccc; }
-a { color: #000000; }
-a:hover { color: #555555; }
 h1 {
     margin: 5px;
     color: #000000;
