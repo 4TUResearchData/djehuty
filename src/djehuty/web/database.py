@@ -2358,7 +2358,8 @@ class SparqlInterface:
             logging.info ("Linked account of %s to ORCID: %s.", email, orcid)
             return None
 
-    def insert_session (self, account_uuid, name=None, token=None, editable=False):
+    def insert_session (self, account_uuid, name=None, token=None, editable=False,
+                        is_impersonation=False):
         """Procedure to add a session token for an account_uuid."""
 
         if account_uuid is None:
@@ -2386,14 +2387,14 @@ class SparqlInterface:
 
         mfa_token = None
         try:
-            if self.privileges[account["email"]]["needs_2fa"]:
+            if self.privileges[account["email"]]["needs_2fa"] and not is_impersonation:
                 mfa_token = secrets.randbelow (1000000)
                 graph.add ((link_uri, rdf.DJHT["mfa_token"], Literal(mfa_token, datatype=XSD.integer)))
                 graph.add ((link_uri, rdf.DJHT["mfa_tries"], Literal(0, datatype=XSD.integer)))
                 graph.add ((link_uri, rdf.DJHT["active"],     Literal(False, datatype=XSD.boolean)))
             else:
                 graph.add ((link_uri, rdf.DJHT["active"],     Literal(True, datatype=XSD.boolean)))
-        except (KeyError):
+        except KeyError:
             pass
 
         if self.add_triples_from_graph (graph):

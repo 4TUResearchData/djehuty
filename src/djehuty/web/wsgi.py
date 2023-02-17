@@ -1255,7 +1255,8 @@ class ApiServer:
 
         # Create a new session for the user to be impersonated as.
         new_token, _, _ = self.db.insert_session (dataset["account_uuid"],
-                                                  name="Reviewer")
+                                                  name="Reviewer",
+                                                  is_impersonation=True)
         response.set_cookie (key    = self.cookie_key,
                              value  = new_token,
                              secure = self.in_production)
@@ -1280,7 +1281,9 @@ class ApiServer:
                              secure = self.in_production)
 
         # Create a new session for the user to be impersonated as.
-        new_token, _, _ = self.db.insert_session (account_uuid, name="Impersonation")
+        new_token, _, _ = self.db.insert_session (account_uuid,
+                                                  name="Impersonation",
+                                                  is_impersonation=True)
         response.set_cookie (key    = self.cookie_key,
                              value  = new_token,
                              secure = self.in_production)
