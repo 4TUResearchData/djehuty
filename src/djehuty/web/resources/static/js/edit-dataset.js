@@ -35,7 +35,6 @@ function gather_form_data () {
     let is_closed     = jQuery("#closed_access").prop("checked");
     let agreed_to_da  = jQuery("#deposit_agreement").prop("checked");
     let agreed_to_publish = jQuery("#publish_agreement").prop("checked");
-    let is_metadata_record = jQuery("#metadata_record_only").prop("checked");
 
     let form_data = {
         "title":          or_null(jQuery("#title").val()),
@@ -53,10 +52,10 @@ function gather_form_data () {
         "publisher":      or_null(jQuery("#publisher").val()),
         "time_coverage":  or_null(jQuery("#time_coverage").val()),
         "language":       or_null(jQuery("#language").val()),
-        "is_metadata_record": is_metadata_record,
-        "metadata_reason": or_null(jQuery("#metadata_only_reason").val()),
+        "is_metadata_record": false,
+        "metadata_reason": null,
         "defined_type":   defined_type_name,
-        "is_embargoed":   is_embargoed || is_restricted || is_closed,
+        "is_embargoed":   is_embargoed || is_restricted,
         "group_id":       group_id,
         "agreed_to_deposit_agreement": agreed_to_da,
         "agreed_to_publish": agreed_to_publish,
@@ -82,11 +81,8 @@ function gather_form_data () {
         form_data["eula"]           = or_null(jQuery("#restricted_access_eula .ql-editor").html());
         form_data["embargo_options"] = [{ "id": 1000, "type": "restricted_access" }]
     } else if (is_closed) {
-        form_data["license_id"]     = 149;
-        form_data["embargo_until_date"] = null;
-        form_data["embargo_title"]  = "Closed access";
-        form_data["embargo_reason"] = or_null(jQuery("#closed_access_reason .ql-editor").html());
-        form_data["embargo_options"] = [{ "id": 1001, "type": "closed_access" }]
+        form_data["metadata_reason"] = or_null(jQuery("#closed_access_reason .ql-editor").html());
+        form_data["is_metadata_record"] = true;
     } else {
         form_data["license_id"]     = or_null(jQuery("#license_open").val());
     }
@@ -476,10 +472,7 @@ function new_funding (dataset_uuid) {
 }
 
 function toggle_record_type () {
-    if (jQuery("#metadata_record_only").prop("checked")) {
-        jQuery(".record-type-field").hide();
-        jQuery("#metadata_reason_field").show();
-    } else if (jQuery("#external_link").prop("checked")) {
+    if (jQuery("#external_link").prop("checked")) {
         jQuery(".record-type-field").hide();
         jQuery("#external_link_field").show();
         jQuery("#files-wrapper").show();
@@ -492,11 +485,14 @@ function toggle_record_type () {
         jQuery("#software_upload_field").show();
         jQuery("#file_upload_field").show();
         jQuery("#files-wrapper").show();
+    } else {
+        jQuery("#upload_files").prop("checked", true);
     }
 }
 
 function toggle_access_level () {
     jQuery(".access_level").hide();
+    jQuery("#file-chooser-wrapper").show();
     if (jQuery("#open_access").prop("checked")) {
         jQuery("#open_access_form").show();
     } else if (jQuery("#embargoed_access").prop("checked")) {
@@ -514,6 +510,7 @@ function toggle_access_level () {
         if (jQuery("#closed_access_reason.ql-container").length === 0) {
             new Quill('#closed_access_reason', { theme: '4tu' });
         }
+        jQuery("#file-chooser-wrapper").hide();
         jQuery("#closed_access_form").show();
     }
 }
@@ -524,6 +521,9 @@ function activate (dataset_uuid) {
     install_sticky_header();
     install_touchable_help_icons();
 
+    jQuery(".article-content").hide();
+    jQuery(".article-content-loader").show();
+    jQuery(".article-content-loader").addClass("loader");
     jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}`,
         type:        "GET",
@@ -568,7 +568,7 @@ function activate (dataset_uuid) {
         });
 
         if (data["is_metadata_record"]) {
-            jQuery("#metadata_record_only").prop("checked", true);
+            jQuery("#closed_access").prop("checked", true);
         } else if (data["has_linked_file"]) {
             jQuery("#external_link").prop("checked", true);
         } else if (data["defined_type_name"] == "software") {
@@ -623,6 +623,9 @@ function activate (dataset_uuid) {
         jQuery("#configure_embargo").on("click", toggle_embargo_options);
         jQuery("#embargo_until_forever").on("change", toggle_embargo_until);
         jQuery("#cancel_embargo").on("click", toggle_embargo_options);
+
+        jQuery(".article-content-loader").hide();
+        jQuery(".article-content").fadeIn(200);
     }).fail(function () { show_message ("failure", `<p>Failed to retrieve article ${dataset_uuid}.</p>`); });
 }
 

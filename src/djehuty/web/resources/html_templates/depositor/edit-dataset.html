@@ -102,7 +102,7 @@ jQuery(document).ready(function (){
     user-select: none;
 }
 #groups-wrapper h4:nth-child(1) { margin: 0em; }
-#metadata_reason_field, #external_link_field, #file_upload_field { display: none; }
+#external_link_field, #file_upload_field { display: none; }
 #git-files { margin: 0em; padding: 0em; }
 #git-files li { list-style-type: none; margin: 0em; padding: .5em; }
 #git-files li:nth-child(even) { background: #fafafa; }
@@ -111,6 +111,7 @@ jQuery(document).ready(function (){
 .publish-button a { background: #f49120 !important; }
 .publish-button a:hover { background: #f7ad58 !important; }
 #doi-wrapper p { margin: 0pt; }
+.article-content-loader { display: none; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -128,6 +129,7 @@ jQuery(document).ready(function (){
 </ul>
 {% endblock %}
 {% block body %}
+<div class="article-content-loader"></div>
 <div class="article-content">
 {%- if article.title == "Untitled item" %}
 <h1>Add new dataset</h1>
@@ -220,9 +222,9 @@ jQuery(document).ready(function (){
   </div>
   <div class="access_level" id="closed_access_form">
     <p>
-      The dataset is inaccessible and there is no process in place to allow others to apply for access to it. We strongly encourage considering publishing as <em>restricted access</em>
-      instead. Therefore, please provide a detailed reason for why closed access is applied.
+      When publishing a closed-access dataset, there is no process in place to allow others to access the data.  Therefore, we do not store the data for this type of access.  We strongly encourage considering publishing as <em>restricted access</em> instead.
     </p>
+    <p>Please provide a reason below for not making data available.</p>
     <label class="inner-head">Reason</label>
     <div id="closed_access_reason" class="texteditor">
       {{article["embargo_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
@@ -317,23 +319,16 @@ jQuery(document).ready(function (){
 <ul id="tags-list"></ul>
 <label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resource. Separate different names with a semicolon (;)</span></div>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{article["organizations"] | default("", True) }}</textarea>
+<div id="file-chooser-wrapper">
 <h3>Files</h3>
 <label>Type</label>
 <div id="record-type-wrapper" class="options-wrapper">
-<input type="radio" name="record_type" id="metadata_record_only" value="meta" /><!--
---><label for="metadata_record_only" class="no-head">Metadata-only record</label><!--
---><input type="radio" name="record_type" id="external_link" value="link" /><!--
+<input type="radio" name="record_type" id="external_link" value="link" /><!--
 --><label for="external_link" class="no-head">External link</label><!--
 --><input type="radio" name="record_type" id="upload_files" value="files" /><!--
 --><label for="upload_files" class="no-head">File deposit</label><!--
 --><input type="radio" name="record_type" id="upload_software" value="software" /><!--
 --><label for="upload_software" class="no-head">Software deposit</label>
-</div>
-<div id="metadata_reason_field" class="record-type-field">
-  <p>Only use this option when there are no files to attach.  Enter the reason
-    for creating a metadata only record and why the files cannot be shared.</p>
-  <label for="metadata_only_reason">Reason</label>
-  <input type="text" name="metadata_only_reason" id="metadata_only_reason" value="{{article["metadata_reason"]}}"/>
 </div>
 <div id="external_link_field" class="record-type-field">
   <p>Only use when no files can be attached. Add the URL where your files can
@@ -376,6 +371,7 @@ git push 4tu --tags</pre>
     </thead>
     <tbody></tbody>
   </table>
+</div>
 </div>
 </div>
 <h3>Terms and agreement</h3>
