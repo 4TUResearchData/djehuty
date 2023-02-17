@@ -2420,6 +2420,15 @@ class SparqlInterface:
         query = self.__query_from_template ("delete_sessions")
         return self.__run_query (query)
 
+    def delete_inactive_session_by_uuid (self, session_uuid):
+        """Procedure to remove an inactive session by its UUID alone."""
+
+        query = self.__query_from_template ("delete_inactive_session_by_uuid", {
+            "session_uuid": session_uuid
+        })
+
+        return self.__run_query (query)
+
     def delete_session_by_uuid (self, account_uuid, session_uuid):
         """Procedure to remove a session from the state graph."""
 

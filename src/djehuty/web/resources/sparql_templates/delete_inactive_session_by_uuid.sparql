@@ -1,0 +1,17 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?session  ?predicate     ?object .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?session    rdf:type       djht:Session .
+    ?session    djht:active    "false"^^xsd:boolean .
+    ?session    ?predicate     ?object .
+
+    FILTER (?session = <session:{{session_uuid}}>)
+  }
+}
+{% endblock %}

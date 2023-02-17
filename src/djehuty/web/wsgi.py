@@ -1746,6 +1746,14 @@ class ApiServer:
 
         return self.error_500()
 
+    def __remove_session_due_to_2fa_mismatch (self, session_uuid):
+        """Procedure to log and delete session upon 2FA mismatch."""
+        if self.db.delete_inactive_session_by_uuid (session_uuid):
+            logging.access ("Removed session %s due to 2FA mismatch.", #  pylint: disable=no-member
+                            session_uuid)
+        else:
+            logging.error ("Failed to remove session %s to protect 2FA.", session_uuid)
+
     def ui_activate_session (self, request, session_uuid):
         """Implements /my/sessions/<id>/activate"""
 
@@ -1758,18 +1766,25 @@ class ApiServer:
 
         if request.method == "POST":
             token     = self.token_from_cookie (request)
+            if not validator.is_valid_uuid (session_uuid):
+                return self.error_403 (request)
+
             mfa_token = request.form.get("mfa-token")
             if not parses_to_int (mfa_token):
+                self.__remove_session_due_to_2fa_mismatch (session_uuid)
                 return self.error_403 (request)
+
             account   = self.db.account_by_session_token (token, mfa_token=mfa_token)
             if account is None or "uuid" not in account:
-                return self.error_authorization_failed(request)
+                self.__remove_session_due_to_2fa_mismatch (session_uuid)
+                return self.error_authorization_failed (request)
 
             session = self.db.sessions (account["uuid"],
                                         session_uuid = session_uuid,
                                         mfa_token    = mfa_token)
 
             if session is None:
+                self.__remove_session_due_to_2fa_mismatch (session_uuid)
                 return self.error_403 (request)
 
             if self.db.update_session (account["uuid"], session_uuid, active=True):
