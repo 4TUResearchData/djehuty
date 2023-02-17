@@ -1126,10 +1126,10 @@ class ApiServer:
                 return self.error_406 ("text/html")
 
             account_uuid = self.db.account_uuid_by_orcid (orcid_record['orcid'])
-            logging.access ("Account %s logged in via ORCID.", account_uuid) #  pylint: disable=no-member
-
             if account_uuid is None:
                 return self.error_403 (request)
+
+            logging.access ("Account %s logged in via ORCID.", account_uuid) #  pylint: disable=no-member
 
         ## SAML 2.0 authentication
         ## --------------------------------------------------------------------
