@@ -1697,14 +1697,19 @@ class ApiServer:
 
         if request.method == 'GET':
             if self.accepts_html (request):
-                session = self.db.sessions (account_uuid, session_uuid=session_uuid)[0]
-                if not session["editable"]:
-                    return self.error_403 (request)
+                try:
+                    session = self.db.sessions (account_uuid, session_uuid=session_uuid)[0]
+                    if not session["editable"]:
+                        return self.error_403 (request)
 
-                return self.__render_template (
-                    request,
-                    "depositor/edit-session.html",
-                    session = session)
+                    return self.__render_template (
+                        request,
+                        "depositor/edit-session.html",
+                        session = session)
+                except IndexError:
+                    logging.error ("Unable to edit session %s for account %s.",
+                                   session_uuid, account_uuid)
+                    return self.error_403 (request)
 
             return self.error_406 ("text/html")
 
