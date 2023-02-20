@@ -13,7 +13,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?institution_id ?is_active ?is_confidential ?is_embargoed
                 ?is_metadata_record ?license_id ?license_name ?license_url
                 ?metadata_reason ?modified_date ?published_date ?container_doi
-                ?resource_doi ?resource_title ?size ?status ?thumb
+                ?resource_doi ?resource_title ?size ?status ?thumb ?declined_date
                 ?timeline_posted ?has_draft (STR(?publisher_ut) AS ?publisher)
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?title ?url
@@ -116,6 +116,7 @@ WHERE {
     OPTIONAL { ?dataset djht:metadata_reason       ?metadata_reason . }
     OPTIONAL { ?dataset djht:modified_date         ?modified_date . }
     OPTIONAL { ?dataset djht:published_date        ?published_date . }
+    OPTIONAL { ?dataset djht:declined_date         ?declined_date . }
     OPTIONAL { ?dataset djht:resource_doi          ?resource_doi . }
     OPTIONAL { ?dataset djht:resource_title        ?resource_title . }
     OPTIONAL { ?dataset djht:size                  ?size . }

@@ -1,0 +1,31 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?review        djht:status                   ?review_status .
+    ?draft_dataset djht:is_under_review          ?is_under_review .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    # Leaving the type of the string-value implicit is done deliberately
+    # because Virtuoso doesn't seem handle explicitely-defined 'xsd:string's
+    # properly.
+    ?review        djht:status                   "declined" .
+    ?draft_dataset djht:is_under_review          "false"^^xsd:boolean ;
+                   djht:declined_date            ?now .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container     rdf:type                      djht:DatasetContainer ;
+                   djht:draft                    ?draft_dataset .
+    ?draft_dataset djht:is_under_review          ?is_under_review .
+    ?review        rdf:type                      djht:Review ;
+                   djht:dataset                  ?draft_dataset ;
+                   djht:status                   ?review_status .
+    BIND(NOW() AS ?now)
+  }
+  FILTER (?container = <container:{{container_uuid}}>)
+}
+{% endblock %}

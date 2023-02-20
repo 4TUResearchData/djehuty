@@ -1616,6 +1616,34 @@ class SparqlInterface:
 
         return False
 
+    def decline_dataset (self, container_uuid, account_uuid):
+        """Procedure to decline a draft dataset."""
+
+        # Prevent caches from playing a role.
+        self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
+
+        draft = None
+        try:
+            draft = self.datasets (container_uuid = container_uuid,
+                                   is_published   = False)[0]
+        except IndexError:
+            logging.error ("Attempted to decline without a draft <container:%s>.",
+                           container_uuid)
+            return False
+
+        query = self.__query_from_template ("decline_draft_dataset", {
+            "container_uuid": container_uuid,
+        })
+
+        if self.__run_query (query):
+            self.cache.invalidate_by_prefix ("reviews")
+            self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+            return True
+
+        logging.error ("Failed to decline dataset %s", container_uuid)
+        return False
+
     def create_draft_from_published_dataset (self, container_uuid):
         """Procedure to copy a published dataset as draft in its container."""
 

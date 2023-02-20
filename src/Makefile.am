@@ -58,6 +58,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/email/2fa_token.txt                  \
     djehuty/web/resources/html_templates/email/data_access_request.html       \
     djehuty/web/resources/html_templates/email/data_access_request.txt        \
+    djehuty/web/resources/html_templates/email/declined_dataset_notification.html \
+    djehuty/web/resources/html_templates/email/declined_dataset_notification.txt \
     djehuty/web/resources/html_templates/email/layout.html                    \
     djehuty/web/resources/html_templates/email/published_dataset_notification.html \
     djehuty/web/resources/html_templates/email/published_dataset_notification.txt \
@@ -109,6 +111,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/dataset_storage_used.sparql        \
     djehuty/web/resources/sparql_templates/dataset_versions.sparql            \
     djehuty/web/resources/sparql_templates/datasets.sparql                    \
+    djehuty/web/resources/sparql_templates/decline_draft_dataset.sparql       \
     djehuty/web/resources/sparql_templates/delete_account_list.sparql         \
     djehuty/web/resources/sparql_templates/delete_associations.sparql         \
     djehuty/web/resources/sparql_templates/delete_collection_draft.sparql     \

@@ -107,4 +107,35 @@
 {%- else %}
 <p>There are no recently published datasets.</p>
 {%- endif %}
+<h2>Recently declined datasets</h2>
+{%- if declined_reviews %}
+<table id="declined-table" class="reviewer-table branded-table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Submitter</th>
+      <th>Affiliation</th>
+      <th>E-mail address</th>
+      <th>Requested date</th>
+      <th>Declined date</th>
+    </tr>
+  </thead>
+  <tbody>{% for review in declined_reviews: %}
+    <tr>
+      <td>{{review.dataset_title}}</td>
+      <td>
+        {{review.submitter_first_name | default("", False)}}
+        {{review.submitter_last_name | default("", False)}}
+      </td>
+      <td>{{review.group_name | default("Unknown", False)}}</td>
+      <td>{{review.submitter_email}}</td>
+      <td>{{review.request_date}}</td>
+      <td>{{review.declined_date}}</td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
+{%- else %}
+<p>There are no recently declined datasets.</p>
+{%- endif %}
+
 {% endblock %}

@@ -12,6 +12,25 @@ function delete_dataset (dataset_uuid, event) {
     }
 }
 
+function decline_dataset (dataset_uuid, event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    save_dataset (dataset_uuid, event, false, function() {
+        jQuery.ajax({
+            url:         `/v3/datasets/${dataset_uuid}/decline`,
+            type:        "POST",
+            accept:      "application/json",
+        }).done(function () {
+            window.location.replace("/logout");
+        }).fail(function (response, text_status, error_code) {
+            show_message ("failure",
+                          `<p>Could not decline due to error ` +
+                          `<code>${error_code}</code>.</p>`);
+        });
+    });
+}
+
 function gather_form_data () {
     let categories   = jQuery("input[name='categories']:checked");
     let category_ids = []
@@ -616,6 +635,7 @@ function activate (dataset_uuid) {
         jQuery("#save").on("click", function (event)   { save_dataset (dataset_uuid, event); });
         jQuery("#submit").on("click", function (event) { submit_dataset (dataset_uuid, event); });
         jQuery("#publish").on("click", function (event) { publish_dataset (dataset_uuid, event); });
+        jQuery("#decline").on("click", function (event) { decline_dataset (dataset_uuid, event); });
         jQuery("#refresh-git-files").on("click", function (event) {
             render_git_files_for_dataset (dataset_uuid, event);
         });
