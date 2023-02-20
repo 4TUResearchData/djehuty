@@ -2176,6 +2176,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["reminder_date"],  reminder_date, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["assigned_to"],    assigned_to,   XSD.integer)
         rdf.add (graph, uri, rdf.DJHT["status"],         status,        XSD.string)
+        rdf.add (graph, dataset_uri, rdf.DJHT["is_under_review"], True, XSD.boolean)
 
         if self.add_triples_from_graph (graph):
             self.cache.invalidate_by_prefix ("reviews")

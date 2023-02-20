@@ -143,10 +143,12 @@ WHERE {
     OPTIONAL { ?dataset djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
     OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }
 
+    OPTIONAL { ?dataset djht:is_under_review       ?is_under_review_tmp . }
+    BIND(COALESCE(?is_under_review_tmp, "false"^^xsd:boolean) AS ?is_under_review)
+
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?dataset), "dataset:")         AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:")         AS ?account_uuid)
-    BIND(BOUND(?review) && !BOUND(?published_date)  AS ?is_under_review)
     {%- if is_published %}
     BIND (xsd:boolean (EXISTS { ?container_uri djht:draft ?draft_dataset . }) AS ?has_draft)
     {%- endif %}

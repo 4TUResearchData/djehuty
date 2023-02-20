@@ -11,6 +11,7 @@ DELETE {
     ?draft_dataset djht:is_public                ?is_public .
     ?draft_dataset djht:is_editable              ?is_editable .
     ?draft_dataset djht:version                  ?version .
+    ?draft_dataset djht:is_under_review          ?is_under_review .
 
     ?review        djht:status                   ?review_status .
   }
@@ -22,6 +23,7 @@ INSERT {
     ?draft_dataset djht:is_latest                "true"^^xsd:boolean ;
                    djht:is_public                "true"^^xsd:boolean ;
                    djht:is_editable              "false"^^xsd:boolean ;
+                   djht:is_under_review          "false"^^xsd:boolean ;
                    djht:published_date           ?now ;
                    djht:posted_date              ?now ;
                    djht:version                  {{version}} .
@@ -57,6 +59,7 @@ WHERE {
     OPTIONAL { ?draft_dataset djht:is_latest     ?is_latest . }
     OPTIONAL { ?draft_dataset djht:is_public     ?is_public . }
     OPTIONAL { ?draft_dataset djht:is_editable   ?is_editable . }
+    OPTIONAL { ?draft_dataset djht:is_under_review ?is_under_review . }
     OPTIONAL { ?draft_dataset djht:version       ?version . }
 
     BIND(NOW() AS ?now)
