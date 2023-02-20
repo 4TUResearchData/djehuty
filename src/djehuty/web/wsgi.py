@@ -1317,6 +1317,14 @@ class ApiServer:
             percentage_used = percentage_used,
             sessions     = sessions)
 
+    def __datasets_with_storage_usage (self, datasets):
+        for dataset in datasets:
+            used = 0
+            if not value_or (dataset, "is_metadata_record", False):
+                used = self.db.dataset_storage_used (dataset["container_uri"])
+            dataset["storage_used"] = pretty_print_size (used)
+        return datasets
+
     def ui_my_data (self, request):
         """Implements /my/datasets."""
         if not self.accepts_html (request):
@@ -1326,38 +1334,22 @@ class ApiServer:
         if error_response is not None:
             return error_response
 
-        draft_datasets = self.db.datasets (account_uuid = account_uuid,
-                                           limit        = 10000,
-                                           is_published = False,
-                                           is_under_review = False)
+        draft_datasets     = self.db.datasets (account_uuid = account_uuid,
+                                               limit           = 10000,
+                                               is_published    = False,
+                                               is_under_review = False)
+        review_datasets    = self.db.datasets (account_uuid    = account_uuid,
+                                               limit           = 10000,
+                                               is_published    = False,
+                                               is_under_review = True)
+        published_datasets = self.db.datasets (account_uuid    = account_uuid,
+                                               limit           = 10000,
+                                               is_latest       = True,
+                                               is_under_review = False)
 
-        for draft_dataset in draft_datasets:
-            used = 0
-            if not value_or (draft_dataset, "is_metadata_record", False):
-                used = self.db.dataset_storage_used (draft_dataset["container_uri"])
-            draft_dataset["storage_used"] = pretty_print_size (used)
-
-        review_datasets = self.db.datasets (account_uuid    = account_uuid,
-                                            limit           = 10000,
-                                            is_published    = False,
-                                            is_under_review = True)
-
-        for review_dataset in review_datasets:
-            used = 0
-            if not value_or (review_dataset, "is_metadata_record", False):
-                used = self.db.dataset_storage_used (review_dataset["container_uri"])
-            review_dataset["storage_used"] = pretty_print_size (used)
-
-        published_datasets = self.db.datasets (account_uuid = account_uuid,
-                                               is_latest  = True,
-                                               is_under_review = False,
-                                               limit      = 10000)
-
-        for published_dataset in published_datasets:
-            used = 0
-            if not value_or (published_dataset, "is_metadata_record", False):
-                used = self.db.dataset_storage_used (published_dataset["container_uri"])
-            published_dataset["storage_used"] = pretty_print_size (used)
+        draft_datasets     = self.__datasets_with_storage_usage (draft_datasets)
+        review_datasets    = self.__datasets_with_storage_usage (review_datasets)
+        published_datasets = self.__datasets_with_storage_usage (published_datasets)
 
         return self.__render_template (request, "depositor/my-data.html",
                                        draft_datasets     = draft_datasets,
