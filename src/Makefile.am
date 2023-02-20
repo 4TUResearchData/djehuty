@@ -158,6 +158,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/update_private_link.sparql         \
     djehuty/web/resources/sparql_templates/update_review.sparql               \
     djehuty/web/resources/sparql_templates/update_session.sparql              \
+    djehuty/web/resources/static/css/dropzone.min.css                         \
     djehuty/web/resources/static/css/jquery.dataTables.min.css                \
     djehuty/web/resources/static/css/form.css                                 \
     djehuty/web/resources/static/css/main.css                                 \
@@ -236,6 +237,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/js/d3.v7.min.js                              \
     djehuty/web/resources/static/js/dataset_landing_page.js                   \
     djehuty/web/resources/static/js/depositor-dashboard.js                    \
+    djehuty/web/resources/static/js/dropzone.min.js                           \
     djehuty/web/resources/static/js/edit-collection.js                        \
     djehuty/web/resources/static/js/edit-dataset.js                           \
     djehuty/web/resources/static/js/edit-profile.js                           \

@@ -292,13 +292,16 @@ function render_git_files_for_dataset (dataset_uuid, event) {
         show_message ("failure", "<p>Failed to retrieve Git file details.</p>");
     });
 }
-function render_files_for_dataset (dataset_uuid) {
+function render_files_for_dataset (dataset_uuid, fileUploader) {
     jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/files`,
         data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
     }).done(function (files) {
+        if (fileUploader !== null) {
+            fileUploader.removeAllFiles();
+        }
         jQuery("#files tbody").empty();
         if (files.length > 0) {
             jQuery("input[name='record_type']").attr('disabled', true);
@@ -369,7 +372,7 @@ function submit_external_link (dataset_uuid) {
     }).done(function () {
         jQuery("#external_url").val("");
         jQuery("#external_link_field").hide();
-        render_files_for_dataset (dataset_uuid);
+        render_files_for_dataset (dataset_uuid, null);
     }).fail(function () { show_message ("failure", `<p>Failed to add ${url}.</p>`); });
 }
 
@@ -570,7 +573,7 @@ function activate (dataset_uuid) {
                 add_tag(dataset_uuid);
             }
         });
-        render_files_for_dataset (dataset_uuid);
+        render_files_for_dataset (dataset_uuid, null);
         if (data["defined_type_name"] != null) {
             jQuery(`#type-${data["defined_type_name"]}`).prop("checked", true);
         }
@@ -580,7 +583,26 @@ function activate (dataset_uuid) {
         jQuery(`#article_${dataset_uuid}`).removeClass("loader");
         jQuery(`#article_${dataset_uuid}`).show();
         new Quill('#description', { theme: '4tu' });
-        activate_drag_and_drop (dataset_uuid);
+
+        var fileUploader = new Dropzone("#dropzone-field", {
+            url:               `/v3/datasets/${dataset_uuid}/upload`,
+            paramName:         "file",
+            maxFilesize:       10000,
+            maxFiles:          1000000,
+            parallelUploads:   1000000,
+            ignoreHiddenFiles: false,
+            disablePreviews:   false,
+            init: function() { this.hiddenFileInput.setAttribute("webkitdirectory", true); },
+            accept: function(file, done) {
+                done();
+                render_files_for_dataset (dataset_uuid, fileUploader);
+            }
+        });
+
+        fileUploader.on("complete", function(file) {
+            render_files_for_dataset (dataset_uuid, fileUploader);
+            fileUploader.removeFile(file);
+        });
 
         jQuery("input[name='record_type']").change(function () {
             toggle_record_type ();
@@ -715,7 +737,7 @@ function perform_upload (files, current_file, dataset_uuid) {
         contentType: false
     }).done(function () {
         jQuery("#file-upload h4").text("Drag files here");
-        render_files_for_dataset (dataset_uuid);
+        render_files_for_dataset (dataset_uuid, null);
         if (current_file < total_files) {
             return perform_upload (files, current_file + 1, dataset_uuid);
         }
@@ -730,7 +752,7 @@ function remove_file (file_id, dataset_uuid) {
         type:        "DELETE",
         accept:      "application/json",
     }).done(function () {
-        render_files_for_dataset (dataset_uuid);
+        render_files_for_dataset (dataset_uuid, null);
         if (jQuery("#external_link").prop("checked")) {
             jQuery("#external_link_field").show();
         }
@@ -840,92 +862,5 @@ function publish_dataset (dataset_uuid, event) {
                           `<p>Could not publish due to error ` +
                           `<code>${error_code}</code>.</p>`);
         });
-    });
-}
-
-function process_file_tree (item, prefix, dataset_uuid) {
-    if (item.isFile) {
-        item.file(function(file) {
-            perform_upload ([file], 1, dataset_uuid);
-        });
-    } else if (item.isDirectory) {
-        var reader = item.createReader();
-        reader.readEntries(function(items) {
-            for (var index = 0; index < items.length; index++) {
-                let filepath = prefix + item.name + "/";
-                process_file_tree (items[index], filepath, dataset_uuid);
-            }
-        });
-    }
-}
-
-function activate_drag_and_drop (dataset_uuid) {
-    // Drag and drop handling for the entire window.
-    jQuery("html").on("dragover", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        jQuery(".upload-container").css("background", "#eeeeee")
-        jQuery("#file-upload h4").text("Drag here");
-    });
-    jQuery("html").on("drop", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    });
-
-    // Drag and drop handling for the upload area.
-    jQuery('#file-upload').on('dragenter', function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-        jQuery("#file-upload h4").text("Drop here");
-    });
-    jQuery('#file-upload').on('dragover', function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-        jQuery("#file-upload h4").text("Drop here");
-    });
-    jQuery('#file-upload').on('dragleave', function () {
-        jQuery(".upload-container").css("background", "#f9f9f9");
-        jQuery("#file-upload h4").text("Drag files here");
-    });
-    jQuery('#file-upload').on('drop', function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-
-        jQuery("#file-upload h4").text("Uploading ...");
-        try {
-            let items = event.originalEvent.dataTransfer.items;
-            if (items.length > 0) {
-                for (var index = 0; index < items.length; index++) {
-                    let item = items[index].webkitGetAsEntry();
-                    if (item == null) {
-                        if (items[index].hasOwnProperty("getAsEntry")) {
-                            item = items[index].getAsEntry();
-                        }
-                        perform_upload (items, index + 1, dataset_uuid);
-                    } else {
-                        process_file_tree (item, "", dataset_uuid);
-                    }
-                }
-            } else {
-                console.log("Using fallback file uploader.");
-                let files = event.originalEvent.dataTransfer.files;
-                if (files) {
-                    perform_upload (files, 1, dataset_uuid);
-                }
-            }
-        } catch (error) {
-            show_message ("failure", "<p>Something went wrong. Please retry the file upload.</p>");
-        }
-    });
-
-    // Open file selector on div click
-    jQuery("#file-upload").click(function () {
-        jQuery("#file").click();
-    });
-
-    // file selected
-    jQuery("#file").change(function () {
-        let files = jQuery('#file')[0].files;
-        perform_upload (files, 1, dataset_uuid);
     });
 }

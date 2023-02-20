@@ -4,7 +4,9 @@
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js"></script>
 <script src="/static/js/edit-dataset.js"></script>
+<script src="/static/js/dropzone.min.js"></script>
 <script>
+Dropzone.autoDiscover = false;
 jQuery(document).ready(function (){
     root_categories = []
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
@@ -25,6 +27,7 @@ jQuery(document).ready(function (){
 });
 </script>
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
+<link href="/static/css/dropzone.min.css" rel="stylesheet">
 <link href="/static/css/form.css" rel="stylesheet">
 <style>
 .upload-wrapper { text-align: center; }
@@ -358,13 +361,11 @@ git push 4tu --tags</pre>
     produced by a build system. If applicable, upload them as files below.
   </p>
 </div>
-<div id="file_upload_field" class="upload-wrapper record-type-field">
-  <input type="file" name="file" id="file" aria-label="Upload file" multiple="">
-  <div class="upload-container" id="file-upload">
-    <h4>Drag files here</h4>
-    <p>Or click to open a file dialog.</p>
+<form id="dropzone-field" class="upload-container dropzone" action="/v3/datasets/{{container_uuid}}/upload" method="post">
+  <div class="fallback">
+    <input type="file" name="file" id="file" aria-label="Upload file" multiple="">
   </div>
-</div>
+</form>
 <div id="files-wrapper" class="record-type-field">
   <table class="inside-form-table" id="files">
     <thead>
