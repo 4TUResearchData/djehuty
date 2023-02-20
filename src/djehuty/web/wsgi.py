@@ -1907,19 +1907,29 @@ class ApiServer:
 
         unassigned = self.db.reviews (limit       = 10000,
                                       assigned_to = None,
-                                      status      = "unassigned")
+                                      status      = "unassigned",
+                                      order       = "review_submit_date",
+                                      order_direction = "desc")
         assigned   = self.db.reviews (assigned_to = account_uuid,
                                       limit       = 10000,
-                                      status      = "assigned")
+                                      status      = "assigned",
+                                      order       = "review_submit_date",
+                                      order_direction = "desc")
         published  = self.db.reviews (assigned_to = account_uuid,
                                       limit       = 10,
                                       status      = "accepted",
                                       order       = "published_date",
                                       order_direction = "desc")
+        declined   = self.db.reviews (assigned_to = account_uuid,
+                                      limit       = 10,
+                                      status      = "declined",
+                                      order       = "declined_date",
+                                      order_direction = "desc")
         return self.__render_template (request, "review/dashboard.html",
                                        assigned_reviews   = assigned,
                                        unassigned_reviews = unassigned,
-                                       published_reviews  = published)
+                                       published_reviews  = published,
+                                       declined_reviews   = declined)
 
     def ui_review_overview (self, request):
         """Implements /review/overview."""
