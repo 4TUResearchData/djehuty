@@ -1256,7 +1256,7 @@ class ApiServer:
         # Create a new session for the user to be impersonated as.
         new_token, _, _ = self.db.insert_session (dataset["account_uuid"],
                                                   name="Reviewer",
-                                                  is_impersonation=True)
+                                                  override_mfa=True)
         response.set_cookie (key    = self.cookie_key,
                              value  = new_token,
                              secure = self.in_production)
@@ -1283,7 +1283,7 @@ class ApiServer:
         # Create a new session for the user to be impersonated as.
         new_token, _, _ = self.db.insert_session (account_uuid,
                                                   name="Impersonation",
-                                                  is_impersonation=True)
+                                                  override_mfa=True)
         response.set_cookie (key    = self.cookie_key,
                              value  = new_token,
                              secure = self.in_production)
@@ -1740,7 +1740,8 @@ class ApiServer:
 
         _, _, session_uuid = self.db.insert_session (account_uuid,
                                                      name     = "Untitled",
-                                                     editable = True)
+                                                     editable = True,
+                                                     override_mfa = True)
         if session_uuid is not None:
             return redirect (f"/my/sessions/{session_uuid}/edit", code=302)
 

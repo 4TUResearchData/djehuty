@@ -2359,7 +2359,7 @@ class SparqlInterface:
             return None
 
     def insert_session (self, account_uuid, name=None, token=None, editable=False,
-                        is_impersonation=False):
+                        override_mfa=False):
         """Procedure to add a session token for an account_uuid."""
 
         if account_uuid is None:
@@ -2387,7 +2387,7 @@ class SparqlInterface:
 
         mfa_token = None
         try:
-            if self.privileges[account["email"]]["needs_2fa"] and not is_impersonation:
+            if self.privileges[account["email"]]["needs_2fa"] and not override_mfa:
                 mfa_token = secrets.randbelow (1000000)
                 graph.add ((link_uri, rdf.DJHT["mfa_token"], Literal(mfa_token, datatype=XSD.integer)))
                 graph.add ((link_uri, rdf.DJHT["mfa_tries"], Literal(0, datatype=XSD.integer)))
