@@ -2493,6 +2493,10 @@ class SparqlInterface:
 
     def __may_execute_role (self, session_token, task):
         """Returns True when the sessions' account may perform 'task'."""
+
+        if session_token is None:
+            return False
+
         account = self.account_by_session_token (session_token)
         try:
             return account[f"may_{task}"]
@@ -2524,6 +2528,10 @@ class SparqlInterface:
 
     def is_logged_in (self, session_token):
         """Returns True when the session_token is valid, False otherwise."""
+
+        if session_token is None:
+            return False
+
         account = self.account_by_session_token (session_token)
         return account is not None
 
