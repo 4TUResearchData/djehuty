@@ -346,12 +346,12 @@ class ApiServer:
 
     def __impersonating_account (self, request):
         admin_token = self.token_from_cookie (request, self.impersonator_cookie_key)
-        if admin_token:
-            user_token = self.token_from_cookie (request)
-            account = self.db.account_by_session_token (user_token)
-            return account
+        if admin_token is None:
+            return None
 
-        return None
+        user_token = self.token_from_cookie (request)
+        account = self.db.account_by_session_token (user_token)
+        return account
 
     def __render_template (self, request, template_name, **context):
         template      = self.jinja.get_template (template_name)
