@@ -379,8 +379,7 @@ def read_static_pages (static_pages, server, inside_reload, config_dir):
 
             server.static_pages[uri_path] = {"filesystem-path": filesystem_path}
             if not inside_reload:
-                logging.info ("Added static page: %s -> %s", uri_path, filesystem_path)
-                logging.info("Related filesystem path: %s", filesystem_path)
+                logging.info ("Loaded static page: %s -> %s", uri_path, filesystem_path)
 
         if uri_path is not None and redirect_to is not None:
             code = 302
@@ -388,8 +387,7 @@ def read_static_pages (static_pages, server, inside_reload, config_dir):
                 code = int(redirect_to.attrib["code"])
             server.static_pages[uri_path] = {"redirect-to": redirect_to.text, "code": code}
             if not inside_reload:
-                logging.info ("Added static page: %s", uri_path)
-                logging.info ("Related redirect-to (%i) page: %s ", code, redirect_to.text)
+                logging.info ("Loaded redirect (%i): %s -> %s", code, uri_path, redirect_to.text)
 
 def read_datacite_configuration (server, xml_root):
     """Procedure to parse and set the DataCite API configuration."""
