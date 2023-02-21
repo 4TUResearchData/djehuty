@@ -1181,7 +1181,9 @@ class ApiServer:
             logging.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
 
             if mfa_token is None:
-                return redirect ("/my/dashboard", code=302)
+                response = redirect ("/my/dashboard", code=302)
+                response.set_cookie (key=self.cookie_key, value=token, secure=self.in_production)
+                return response
 
             ## Send e-mail
             account = self.db.account_by_uuid (account_uuid)

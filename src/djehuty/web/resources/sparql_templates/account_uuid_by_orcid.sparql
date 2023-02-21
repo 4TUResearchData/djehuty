@@ -4,9 +4,11 @@ SELECT DISTINCT ?uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     ?author     rdf:type             djht:Author ;
-                djht:orcid_id        {{orcid | safe}} ;
+                djht:orcid_id        ?orcid_string ;
                 djht:account         ?account .
   }
   BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
+  ## Wrap in STR for compatibility with Virtuoso.
+  FILTER (STR(?orcid_string) = {{orcid | safe}})
 }
 {% endblock %}
