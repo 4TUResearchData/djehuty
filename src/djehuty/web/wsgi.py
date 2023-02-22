@@ -657,6 +657,15 @@ class ApiServer:
         except IndexError:
             return None
 
+    def __paging_offset_and_limit (self, request):
+        """Return the OFFSET and LIMIT from paging parameters."""
+        return validator.paging_to_offset_and_limit ({
+            "page":      self.get_parameter (request, "page"),
+            "page_size": self.get_parameter (request, "page_size"),
+            "limit":     self.get_parameter (request, "limit"),
+            "offset":    self.get_parameter (request, "offset")
+        })
+
     def __default_dataset_api_parameters (self, request):
 
         record = {}
@@ -672,13 +681,7 @@ class ApiServer:
         record["handle"]          = self.get_parameter (request, "handle")
         record["search_for"]      = self.get_parameter (request, "search_for")
 
-        offset, limit = validator.paging_to_offset_and_limit ({
-                "page":      self.get_parameter (request, "page"),
-                "page_size": self.get_parameter (request, "page_size"),
-                "limit":     self.get_parameter (request, "limit"),
-                "offset":    self.get_parameter (request, "offset")
-            })
-
+        offset, limit = self.__paging_offset_and_limit (request)
         record["offset"] = offset
         record["limit"]  = limit
 
@@ -3044,13 +3047,7 @@ class ApiServer:
 
         if request.method == 'GET':
             try:
-                offset, limit = validator.paging_to_offset_and_limit ({
-                    "page":      self.get_parameter (request, "page"),
-                    "page_size": self.get_parameter (request, "page_size"),
-                    "limit":     self.get_parameter (request, "limit"),
-                    "offset":    self.get_parameter (request, "offset")
-                })
-
+                offset, limit = self.__paging_offset_and_limit (request)
                 records = self.db.datasets (limit=limit,
                                             offset=offset,
                                             is_published = False,
@@ -4298,13 +4295,7 @@ class ApiServer:
         handle          = self.get_parameter (request, "handle")
 
         try:
-            offset, limit = validator.paging_to_offset_and_limit ({
-                "page":      self.get_parameter (request, "page"),
-                "page_size": self.get_parameter (request, "page_size"),
-                "limit":     self.get_parameter (request, "limit"),
-                "offset":    self.get_parameter (request, "offset")
-            })
-
+            offset, limit = self.__paging_offset_and_limit (request)
             validator.order_direction ({"order_direction": order_direction}, "order_direction")
             validator.institution (institution)
             validator.group (group)
@@ -4408,12 +4399,7 @@ class ApiServer:
         if request.method == 'GET':
             ## Parameters
             ## ----------------------------------------------------------------
-            offset, limit = validator.paging_to_offset_and_limit ({
-                "page":      self.get_parameter (request, "page"),
-                "page_size": self.get_parameter (request, "page_size"),
-                "limit":     self.get_parameter (request, "limit"),
-                "offset":    self.get_parameter (request, "offset")
-            })
+            offset, limit = self.__paging_offset_and_limit (request)
             order           = self.get_parameter (request, "order")
             order_direction = self.get_parameter (request, "order_direction")
 
@@ -5027,13 +5013,7 @@ class ApiServer:
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
-        offset, limit = validator.paging_to_offset_and_limit ({
-                "page":      self.get_parameter (request, "page"),
-                "page_size": self.get_parameter (request, "page_size"),
-                "limit":     self.get_parameter (request, "limit"),
-                "offset":    self.get_parameter (request, "offset")
-            })
-
+        offset, limit = self.__paging_offset_and_limit (request)
         if ("group_ids" in record
             and record["group_ids"] is not None
             and record["group_ids"] != ""):
