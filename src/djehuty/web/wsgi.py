@@ -252,6 +252,7 @@ class ApiServer:
             Rule("/v3/profile",                               endpoint = "api_v3_profile"),
             Rule("/v3/profile/categories",                    endpoint = "api_v3_profile_categories"),
             Rule("/v3/profile/quota-request",                 endpoint = "api_v3_profile_quota_request"),
+            Rule("/v3/tags/search",                           endpoint = "api_v3_tags_search"),
 
             # Data model exploratory
             Rule("/v3/explore/types",                         endpoint = "api_v3_explore_types"),
@@ -5888,6 +5889,24 @@ class ApiServer:
 
             return self.respond_204 ()
         except (validator.ValidationException, KeyError):
+            pass
+
+        return self.error_500 ()
+
+    def api_v3_tags_search (self, request):
+        """Implements /v3/tags/search."""
+
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        try:
+            parameters = request.get_json()
+            search = validator.string_value (parameters, "search_for", 0, 32, required=True)
+            tags = self.db.previously_used_tags (search)
+            tags = list(map (lambda item: item["tag"], tags))
+            return self.response (json.dumps (tags))
+        except (validator.ValidationException, KeyError) as error:
             pass
 
         return self.error_500 ()

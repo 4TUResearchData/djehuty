@@ -1,0 +1,14 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?tag
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container  rdf:type/rdfs:subClassOf djht:Container .
+    ?item_uri   djht:container            ?container .
+    ?item_uri   djht:tags/rdf:rest*/rdf:first ?tag .
+  }
+{# If it has a version, it must be a published item. #}
+FILTER EXISTS { ?item_uri djht:version ?version . }
+{%- if filters is not none %}{{ filters | safe }}{% endif %}
+}
+{% endblock %}

@@ -552,6 +552,17 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def previously_used_tags (self, search_for, order=None, order_direction=None, limit=10):
+        """Procedure to get tags unrelated to their datasets."""
+        filters = ""
+        if search_for is not None:
+            escaped = rdf.escape_string_value (search_for.upper())
+            filters += f"FILTER (CONTAINS(UCASE(STR(?tag)), {escaped}))"
+
+        query = self.__query_from_template ("search_tags", { "filters": filters })
+        query += rdf.sparql_suffix (order, order_direction, limit, None)
+        return self.__run_query (query)
+
     def tags (self, order=None, order_direction=None, limit=10,
               item_uri=None, account_uuid=None):
         """Procedure to get tags for a dataset or a collection."""
