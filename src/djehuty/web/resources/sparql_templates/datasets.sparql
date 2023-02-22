@@ -1,7 +1,7 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
 {%- if return_count %}
-SELECT COUNT(DISTINCT ?dataset) AS ?datasets
+SELECT (COUNT(DISTINCT ?dataset) AS ?datasets)
 {%- else %}
 # The wrapping in STR() is added because Virtuoso outputs one row for
 # non-typed and one row for a typed literal.

@@ -88,7 +88,7 @@
 
 <ul class="search-terms">{% for item in display_terms %}
   {% if item is mapping %}
-  <li><button>{{ item.operator }}</button></li>
+  <li><button>{{ item.operator | replace("||", "OR") }}</button></li>
   {% elif " " in item and not item.startswith(":") and not item.startswith("\"") %}
   <li><a href='/search?search="{{item}}"'><button id="login-button">{{item}}</button></a></li>
   {% else %}
