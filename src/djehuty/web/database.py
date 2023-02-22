@@ -2420,11 +2420,10 @@ class SparqlInterface:
                 mfa_token = secrets.randbelow (1000000)
                 graph.add ((link_uri, rdf.DJHT["mfa_token"], Literal(mfa_token, datatype=XSD.integer)))
                 graph.add ((link_uri, rdf.DJHT["mfa_tries"], Literal(0, datatype=XSD.integer)))
-                graph.add ((link_uri, rdf.DJHT["active"],     Literal(False, datatype=XSD.boolean)))
-            else:
-                graph.add ((link_uri, rdf.DJHT["active"],     Literal(True, datatype=XSD.boolean)))
         except KeyError:
             pass
+
+        graph.add ((link_uri, rdf.DJHT["active"], Literal((mfa_token is None), datatype=XSD.boolean)))
 
         if self.add_triples_from_graph (graph):
             return token, mfa_token, rdf.uri_to_uuid (link_uri)
