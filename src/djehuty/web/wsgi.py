@@ -2689,6 +2689,8 @@ class ApiServer:
 
             search_list = list(filter(None, [s.strip() for s in search_list]))
 
+            ## Unpacking this construction to replace AND and OR for &&
+            ## and || results in a query where && is stripped out.
             if has_operators:
                 search_list = [{"operator": element.upper()} if (element.upper() in operators) else element for element in search_list]
             elif has_fieldsearch:
@@ -2705,7 +2707,7 @@ class ApiServer:
                 # add OR operators
                 index = -1
                 while len(search_list) + index > 0:
-                    search_list.insert(index, {"operator": "OR"})
+                    search_list.insert(index, {"operator": "||"})
                     index = index - 2
 
             display_list = search_list[:]
