@@ -922,6 +922,11 @@ class ApiServer:
         """Procedure to check whether the client accepts HTML."""
         return self.accepts_content_type (request, "text/html")
 
+    def accepts_plain_text (self, request):
+        """Procedure to check whether the client accepts plain text."""
+        return (self.accepts_content_type (request, "text/plain") or
+                self.accepts_content_type (request, "*/*"))
+
     def accepts_xml (self, request):
         """Procedure to check whether the client accepts XML."""
         return (self.accepts_content_type (request, "application/xml") or
@@ -5887,7 +5892,7 @@ class ApiServer:
             tags = self.db.previously_used_tags (search)
             tags = list(map (lambda item: item["tag"], tags))
             return self.response (json.dumps (tags))
-        except (validator.ValidationException, KeyError) as error:
+        except (validator.ValidationException, KeyError):
             pass
 
         return self.error_500 ()
@@ -6054,10 +6059,16 @@ class ApiServer:
 
     def ui_export_datacite_dataset (self, request, dataset_id, version=None):
         """Implements /export/datacite/datasets/<id>."""
+        if not self.accepts_xml (request):
+            return self.error_406 ("application/xml")
+
         return self.export_datacite(dataset_id, version, item_type="dataset")
 
     def ui_export_datacite_collection (self, request, collection_id, version=None):
         """Implements /export/datacite/collections/<id>."""
+        if not self.accepts_xml (request):
+            return self.error_406 ("application/xml")
+
         return self.export_datacite(collection_id, version, item_type="collection")
 
     def export_datacite (self, item_id, version=None, item_type="dataset"):
@@ -6080,6 +6091,9 @@ class ApiServer:
 
     def ui_export_refworks_dataset (self, request, dataset_id, version=None):
         """export metadata in Refworks format"""
+        if not self.accepts_xml (request):
+            return self.error_406 ("application/xml")
+
         parameters = self.__metadata_export_parameters(dataset_id, version)
         xml_string = xml_formatter.refworks(parameters)
         output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
@@ -6089,6 +6103,9 @@ class ApiServer:
 
     def ui_export_nlm_dataset (self, request, dataset_id, version=None):
         """export metadata in NLM format"""
+        if not self.accepts_xml (request):
+            return self.error_406 ("application/xml")
+
         parameters = self.__metadata_export_parameters(dataset_id, version)
         xml_string = xml_formatter.nlm(parameters)
         output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
@@ -6098,6 +6115,9 @@ class ApiServer:
 
     def ui_export_dc_dataset (self, request, dataset_id, version=None):
         """export metadata in Dublin Core format"""
+        if not self.accepts_xml (request):
+            return self.error_406 ("application/xml")
+
         parameters = self.__metadata_export_parameters(dataset_id, version)
         xml_string = xml_formatter.dublincore(parameters)
         output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
@@ -6107,6 +6127,9 @@ class ApiServer:
 
     def ui_export_bibtex_dataset (self, request, dataset_id, version=None):
         """export metadata in bibtex format"""
+        if not self.accepts_plain_text (request):
+            return self.error_406 ("text/plain")
+
         # collect rendering parameters
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
         # adjust rendering parameters
@@ -6123,6 +6146,9 @@ class ApiServer:
 
     def ui_export_refman_dataset (self, request, dataset_id, version=None):
         """export metadata in .ris format"""
+        if not self.accepts_plain_text (request):
+            return self.error_406 ("text/plain")
+
         # collect rendering parameters
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
         # adjust rendering parameters: use / as date separator
@@ -6135,6 +6161,9 @@ class ApiServer:
 
     def ui_export_endnote_dataset (self, request, dataset_id, version=None):
         """export metadata in .enw format"""
+        if not self.accepts_plain_text (request):
+            return self.error_406 ("text/plain")
+
         # collect rendering parameters
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
         # adjust rendering parameters
@@ -6150,6 +6179,9 @@ class ApiServer:
 
     def ui_export_cff_dataset (self, request, dataset_id, version=None):
         """export metadata in citation file format"""
+        if not self.accepts_plain_text (request):
+            return self.error_406 ("text/plain")
+
         # collect rendering parameters
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_citation.cff"}
