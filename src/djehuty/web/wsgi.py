@@ -1,4 +1,4 @@
-"""This module implements the API server."""
+"""This module implements the entire HTTP interface for users."""
 
 from datetime import date
 from threading import Lock
@@ -48,10 +48,7 @@ except ModuleNotFoundError:
     pass
 
 class ApiServer:
-    """This class implements the API server."""
-
-    ## INITIALISATION
-    ## ------------------------------------------------------------------------
+    """This class implements the HTTP interface for users."""
 
     def __init__ (self, address="127.0.0.1", port=8080):
         self.base_url         = f"http://{address}:{port}"
@@ -82,7 +79,7 @@ class ApiServer:
         self.menu = []
         self.static_pages = {}
 
-        ## Routes to all API calls.
+        ## Routes to all reachable pages and API calls.
         ## --------------------------------------------------------------------
 
         self.url_map = Map([
@@ -147,8 +144,33 @@ class ApiServer:
             Rule("/ndownloader/items/<dataset_id>/versions/<version>", endpoint = "ui_download_all_files"),
             Rule("/data_access_request",                      endpoint = "ui_data_access_request"),
 
+            ## Export formats
             ## ----------------------------------------------------------------
-            ## COMPATIBILITY
+            Rule("/export/datacite/datasets/<dataset_id>",                 endpoint = "ui_export_datacite_dataset"),
+            Rule("/export/datacite/datasets/<dataset_id>/<version>",       endpoint = "ui_export_datacite_dataset"),
+            Rule("/export/datacite/collections/<collection_id>",           endpoint = "ui_export_datacite_collection"),
+            Rule("/export/datacite/collections/<collection_id>/<version>", endpoint = "ui_export_datacite_collection"),
+            Rule("/export/refworks/datasets/<dataset_id>",                 endpoint = "ui_export_refworks_dataset"),
+            Rule("/export/refworks/datasets/<dataset_id>/<version>",       endpoint = "ui_export_refworks_dataset"),
+            Rule("/export/bibtex/datasets/<dataset_id>",                   endpoint = "ui_export_bibtex_dataset"),
+            Rule("/export/bibtex/datasets/<dataset_id>/<version>",         endpoint = "ui_export_bibtex_dataset"),
+            Rule("/export/refman/datasets/<dataset_id>",                   endpoint = "ui_export_refman_dataset"),
+            Rule("/export/refman/datasets/<dataset_id>/<version>",         endpoint = "ui_export_refman_dataset"),
+            Rule("/export/endnote/datasets/<dataset_id>",                  endpoint = "ui_export_endnote_dataset"),
+            Rule("/export/endnote/datasets/<dataset_id>/<version>",        endpoint = "ui_export_endnote_dataset"),
+            Rule("/export/nlm/datasets/<dataset_id>",                      endpoint = "ui_export_nlm_dataset"),
+            Rule("/export/nlm/datasets/<dataset_id>/<version>",            endpoint = "ui_export_nlm_dataset"),
+            Rule("/export/dc/datasets/<dataset_id>",                       endpoint = "ui_export_dc_dataset"),
+            Rule("/export/dc/datasets/<dataset_id>/<version>",             endpoint = "ui_export_dc_dataset"),
+            Rule("/export/cff/datasets/<dataset_id>",                      endpoint = "ui_export_cff_dataset"),
+            Rule("/export/cff/datasets/<dataset_id>/<version>",            endpoint = "ui_export_cff_dataset"),
+
+            ## SAML 2.0
+            ## ----------------------------------------------------------------
+            Rule("/saml/metadata",                            endpoint = "saml_metadata"),
+            Rule("/saml/login",                               endpoint = "ui_login"),
+
+            ## Compatibility
             ## ----------------------------------------------------------------
             Rule("/articles/dataset/<slug>/<dataset_id>",     endpoint = "ui_compat_dataset"),
             Rule("/articles/dataset/<slug>/<dataset_id>/<version>", endpoint = "ui_compat_dataset"),
@@ -223,6 +245,7 @@ class ApiServer:
             Rule("/v2/account/collections/<collection_id>/funding/<funding_id>", endpoint = "api_private_collection_funding_delete"),
 
             ## Private authors
+            ## ----------------------------------------------------------------
             Rule("/v2/account/authors/search",                endpoint = "api_private_authors_search"),
             Rule("/v2/account/authors/<author_id>",           endpoint = "api_private_author_details"),
 
@@ -254,12 +277,14 @@ class ApiServer:
             Rule("/v3/profile/quota-request",                 endpoint = "api_v3_profile_quota_request"),
             Rule("/v3/tags/search",                           endpoint = "api_v3_tags_search"),
 
-            # Data model exploratory
+            ## Data model exploratory
+            ## ----------------------------------------------------------------
             Rule("/v3/explore/types",                         endpoint = "api_v3_explore_types"),
             Rule("/v3/explore/properties",                    endpoint = "api_v3_explore_properties"),
             Rule("/v3/explore/property_value_types",          endpoint = "api_v3_explore_property_types"),
 
-            # Reviewer
+            ## Reviewer
+            ## ----------------------------------------------------------------
             Rule("/v3/datasets/<dataset_uuid>/assign-reviewer/<reviewer_uuid>", endpoint = "api_v3_datasets_assign_reviewer"),
 
             ## ----------------------------------------------------------------
@@ -268,36 +293,7 @@ class ApiServer:
             Rule("/v3/datasets/<git_uuid>.git/info/refs",   endpoint = "api_v3_private_dataset_git_refs"),
             Rule("/v3/datasets/<git_uuid>.git/git-upload-pack", endpoint = "api_v3_private_dataset_git_upload_or_receive_pack"),
             Rule("/v3/datasets/<git_uuid>.git/git-receive-pack", endpoint = "api_v3_private_dataset_git_upload_or_receive_pack"),
-
-            ## ----------------------------------------------------------------
-            ## SAML 2.0
-            ## ----------------------------------------------------------------
-            Rule("/saml/metadata",                            endpoint = "saml_metadata"),
-            Rule("/saml/login",                               endpoint = "ui_login"),
-
-            ## ----------------------------------------------------------------
-            ## EXPORT
-            ## ----------------------------------------------------------------
-            Rule("/export/datacite/datasets/<dataset_id>",                 endpoint = "ui_export_datacite_dataset"),
-            Rule("/export/datacite/datasets/<dataset_id>/<version>",       endpoint = "ui_export_datacite_dataset"),
-            Rule("/export/datacite/collections/<collection_id>",           endpoint = "ui_export_datacite_collection"),
-            Rule("/export/datacite/collections/<collection_id>/<version>", endpoint = "ui_export_datacite_collection"),
-            Rule("/export/refworks/datasets/<dataset_id>",                 endpoint = "ui_export_refworks_dataset"),
-            Rule("/export/refworks/datasets/<dataset_id>/<version>",       endpoint = "ui_export_refworks_dataset"),
-            Rule("/export/bibtex/datasets/<dataset_id>",                   endpoint = "ui_export_bibtex_dataset"),
-            Rule("/export/bibtex/datasets/<dataset_id>/<version>",         endpoint = "ui_export_bibtex_dataset"),
-            Rule("/export/refman/datasets/<dataset_id>",                   endpoint = "ui_export_refman_dataset"),
-            Rule("/export/refman/datasets/<dataset_id>/<version>",         endpoint = "ui_export_refman_dataset"),
-            Rule("/export/endnote/datasets/<dataset_id>",                  endpoint = "ui_export_endnote_dataset"),
-            Rule("/export/endnote/datasets/<dataset_id>/<version>",        endpoint = "ui_export_endnote_dataset"),
-            Rule("/export/nlm/datasets/<dataset_id>",                      endpoint = "ui_export_nlm_dataset"),
-            Rule("/export/nlm/datasets/<dataset_id>/<version>",            endpoint = "ui_export_nlm_dataset"),
-            Rule("/export/dc/datasets/<dataset_id>",                       endpoint = "ui_export_dc_dataset"),
-            Rule("/export/dc/datasets/<dataset_id>/<version>",             endpoint = "ui_export_dc_dataset"),
-            Rule("/export/cff/datasets/<dataset_id>",                      endpoint = "ui_export_cff_dataset"),
-            Rule("/export/cff/datasets/<dataset_id>/<version>",            endpoint = "ui_export_cff_dataset"),
-
-           ])
+        ])
 
         ## Static resources and HTML templates.
         ## --------------------------------------------------------------------
