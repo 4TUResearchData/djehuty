@@ -4106,15 +4106,18 @@ class ApiServer:
         if data is None:
             return False
 
-        reserved_doi = data["data"]["id"]
-        if self.db.update_dataset (
-                dataset["container_uuid"],
-                account_uuid,
-                doi                         = reserved_doi,
-                agreed_to_deposit_agreement = value_or (dataset, "agreed_to_deposit_agreement", False),
-                agreed_to_publish           = value_or (dataset, "agreed_to_publish", False),
-                is_metadata_record          = value_or (dataset, "is_metadata_record", False)):
-            return reserved_doi
+        try:
+            reserved_doi = data["data"]["id"]
+            if self.db.update_dataset (
+                    dataset["container_uuid"],
+                    account_uuid,
+                    doi                         = reserved_doi,
+                    agreed_to_deposit_agreement = value_or (dataset, "agreed_to_deposit_agreement", False),
+                    agreed_to_publish           = value_or (dataset, "agreed_to_publish", False),
+                    is_metadata_record          = value_or (dataset, "is_metadata_record", False)):
+                return reserved_doi
+        except KeyError:
+            pass
 
         logging.error("Updating the dataset %s for reserving DOI %s failed.",
                       dataset["container_uuid"], reserved_doi)
