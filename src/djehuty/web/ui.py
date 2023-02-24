@@ -642,19 +642,27 @@ def main (address=None, port=None, state_graph=None, storage=None,
                     logging.info ("Enabled 2FA for %s.", email_address)
 
             if initialize:
-                logging.info("Invalidating caches ...")
-                server.db.cache.invalidate_all ()
-                logging.info("Initializing RDF store ...")
-                rdf_store = backup_database.DatabaseInterface()
+                lock_file = os.path.abspath (".djehuty-initialized")
+                try:
+                    open (lock_file, "x").close()
 
-                if not rdf_store.insert_static_triplets ():
-                    logging.error ("Failed to gather static triplets")
+                    logging.info("Invalidating caches ...")
+                    server.db.cache.invalidate_all ()
+                    logging.info("Initializing RDF store ...")
+                    rdf_store = backup_database.DatabaseInterface()
 
-                if server.db.add_triples_from_graph (rdf_store.store):
-                    logging.info("Initialization completed.")
+                    if not rdf_store.insert_static_triplets ():
+                        logging.error ("Failed to gather static triplets")
 
-                server.db.initialize_privileged_accounts ()
-                initialize = False
+                    if server.db.add_triples_from_graph (rdf_store.store):
+                        logging.info("Initialization completed.")
+
+                    server.db.initialize_privileged_accounts ()
+                    initialize = False
+                except FileExistsError:
+                    logging.warning (("Skipping initialization of the database "
+                                      "because it has been initialized before."))
+                    logging.warning ("Remove '%s' and restart to initialize the database.", lock_file)
 
         run_simple (config["address"], config["port"], server,
                     threaded=(config["maximum_workers"] <= 1),
