@@ -574,7 +574,14 @@ def main (address=None, port=None, state_graph=None, storage=None,
     try:
         convenience.add_logging_level ("ACCESS", logging.INFO + 5)
         convenience.add_logging_level ("STORE", logging.INFO + 4)
-        logger = logging.getLogger (__name__)
+
+        ## Differentiate the logger name for uWSGI vs built-in.
+        logger = None
+        if run_internal_server:
+            logger = logging.getLogger (__name__)
+        else:
+            logger = logging.getLogger ("uwsgi:djehuty.web.ui")
+
         server = wsgi.ApiServer ()
         config = read_configuration_file (server, config_file, address, port,
                                           state_graph, storage, None, base_url,
@@ -682,8 +689,9 @@ def application (env, start_response):
 
     logging.basicConfig(format='[%(levelname)s] %(asctime)s - %(name)s: %(message)s',
                         level=logging.INFO)
-    convenience.add_logging_level ("ACCESS", logging.INFO + 5)
-    convenience.add_logging_level ("STORE", logging.INFO + 4)
+
+    ## Suppress start-up info messages.
+    logging.getLogger("uwsgi:djehuty.web.ui").setLevel(logging.WARNING)
 
     if not UWSGI_DEPENDENCY_LOADED:
         start_response('500 Internal Server Error', [('Content-Type','text/html')])
