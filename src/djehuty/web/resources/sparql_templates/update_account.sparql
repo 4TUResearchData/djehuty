@@ -10,8 +10,12 @@ DELETE {
     ?account          djht:job_title             ?job_title .
     {%- endif%}{% if first_name is not none %}
     ?account          djht:first_name            ?first_name .
+    ?author           djht:first_name            ?author_first_name .
     {%- endif%}{% if last_name is not none %}
     ?account          djht:last_name             ?last_name .
+    ?author           djht:last_name             ?author_last_name .
+    {%- endif%}{% if first_name is not none and last_name is not none %}
+    ?author           djht:full_name             ?author_full_name .
     {%- endif%}{% if location is not none %}
     ?account          djht:location              ?location .
     {%- endif%}{% if twitter is not none %}
@@ -43,8 +47,12 @@ INSERT {
     ?account          djht:job_title           "{{job_title | safe}}"^^xsd:string .
     {%- endif%}{% if first_name is not none %}
     ?account          djht:first_name          "{{first_name | safe}}"^^xsd:string .
+    ?author           djht:first_name          "{{first_name | safe}}"^^xsd:string .
     {%- endif%}{% if last_name is not none %}
     ?account          djht:last_name           "{{last_name | safe}}"^^xsd:string .
+    ?author           djht:last_name           "{{last_name | safe}}"^^xsd:string .
+    {%- endif%}{% if first_name is not none and last_name is not none %}
+    ?author           djht:full_name           "{{first_name | safe}} {{last_name | safe}}"^^xsd:string .
     {%- endif%}{% if location is not none %}
     ?account          djht:location            "{{location | safe}}"^^xsd:string .
     {%- endif%}{% if twitter is not none %}
@@ -84,6 +92,15 @@ WHERE {
     OPTIONAL { ?account   djht:institution_id        ?institution_id . }
     OPTIONAL { ?account   djht:maximum_file_size     ?maximum_file_size . }
     OPTIONAL { ?account   djht:modified_date         ?modified_date . }
+
+    OPTIONAL {
+      ?author            rdf:type                   djht:Author ;
+                         djht:account               ?account .
+      OPTIONAL { ?author djht:first_name            ?author_first_name . }
+      OPTIONAL { ?author djht:last_name             ?author_last_name . }
+      OPTIONAL { ?author djht:full_name             ?author_full_name . }
+    }
+
   }
   FILTER (?account = <account:{{account_uuid}}>)
 }
