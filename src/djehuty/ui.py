@@ -3,6 +3,7 @@ This module contains the entry point for the program.
 """
 
 import argparse
+import signal
 import sys
 import logging
 import os
@@ -47,8 +48,16 @@ Available subcommands and options:
   --version              -v  Show versioning information.\n""")
     sys.exit(0)
 
+def sigint_handler (sig, frame):
+    """Signal handler for SIGINT."""
+    logger = logging.getLogger(__name__)
+    logger.info ("Received shutdown signal.  Goodbye!")
+    sys.exit(0)
+
 def main_inner ():
     """The main entry point of the program."""
+
+    signal.signal(signal.SIGINT, sigint_handler)
 
     logging.basicConfig(format='[%(levelname)s] %(asctime)s - %(name)s: %(message)s',
                         level=logging.INFO)
@@ -124,5 +133,6 @@ def main ():
     try:
         main_inner()
     except KeyboardInterrupt:
-        logging.info("Received shutdown signal.  Goodbye!")
+        sigint_handler (None, None)
+
     sys.exit(0)
