@@ -2636,7 +2636,7 @@ class ApiServer:
     def ui_download_file (self, request, dataset_id, file_id):
         """Implements /file/<id>/<fid>."""
         try:
-            dataset  = self.__dataset_by_id_or_uri (dataset_id)
+            dataset = self.__dataset_by_id_or_uri (dataset_id)
 
             ## When downloading a file from a dataset that isn't published,
             ## we need to authorize it first.
@@ -2647,7 +2647,23 @@ class ApiServer:
                                                            account_uuid = account_uuid,
                                                            is_published = False)
 
-            ## Check again whether a private dataset has been found.
+            ## Check whether a download is requested from a private link.
+            if dataset is None:
+                try:
+                    referer       = request.headers.get ("Referer")
+                    referer_begin = f"{self.base_url}/private_datasets/"
+                    if referer.startswith (referer_begin):
+                        private_link_id = referer.partition (referer_begin)[2]
+                        self.log.info ("Looks like private viewing (%s).", private_link_id)
+                        dataset = self.db.datasets (private_link_id_string = private_link_id,
+                                                    is_published           = False,
+                                                    limit                  = 1)[0]
+                except (AttributeError, IndexError):
+                    pass
+
+            ## If no dataset has been found that means the file is not
+            ## publically accessible, the file isn't of the user and the user
+            ## isn't coming from a private link viewing.
             if dataset is None:
                 return self.error_404 (request)
 
