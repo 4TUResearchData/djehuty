@@ -48,7 +48,7 @@ Available subcommands and options:
   --version              -v  Show versioning information.\n""")
     sys.exit(0)
 
-def sigint_handler (sig, frame):
+def sigint_handler (sig, frame):  # pylint: disable=unused-argument
     """Signal handler for SIGINT and SIGTERM."""
     logger = logging.getLogger(__name__)
     logger.info ("Received shutdown signal.  Goodbye!")

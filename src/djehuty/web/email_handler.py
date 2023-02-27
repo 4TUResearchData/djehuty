@@ -24,7 +24,7 @@ class EmailInterface:
                 self.smtp_username is not None and
                 self.smtp_password is not None)
 
-    def send_email (self, to, subject, plaintext, html):
+    def send_email (self, recipient, subject, plaintext, html):
         """Procedure to send an email."""
 
         if not self.is_properly_configured ():
@@ -33,7 +33,7 @@ class EmailInterface:
 
         message = MIMEMultipart ("alternative")
         message["From"] = self.from_address
-        message["To"] = to
+        message["To"] = recipient
         message["Subject"] = subject
 
         message.attach (MIMEText (plaintext, "plain"))
@@ -59,7 +59,7 @@ class EmailInterface:
             return False
 
         try:
-            connection.sendmail (self.from_address, to, message.as_string())
+            connection.sendmail (self.from_address, recipient, message.as_string())
         except (smtplib.SMTPRecipientsRefused, smtplib.SMTPHeloError, smtplib.SMTPSenderRefused,
                 smtplib.SMTPDataError, smtplib.SMTPNotSupportedError) as error:
             self.log.error ("Sending e-mail failed: %s", error)

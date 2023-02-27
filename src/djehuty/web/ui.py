@@ -339,7 +339,7 @@ def configure_file_logging (log_file, inside_reload, logger):
             log.removeHandler(handler)
         log.addHandler(file_handler)
 
-def read_menu_configuration (xml_root, server, inside_reload):
+def read_menu_configuration (xml_root, server):
     """Procedure to parse the menu configuration from XML_ROOT."""
     menu = xml_root.find("menu")
     if not menu:
@@ -530,7 +530,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                                                   logger)
             config = { **config, **new_config }
 
-        read_menu_configuration (xml_root, server, inside_reload)
+        read_menu_configuration (xml_root, server)
 
         static_pages = xml_root.find("static-pages")
         if not static_pages:
@@ -649,7 +649,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
             if initialize:
                 lock_file = os.path.abspath (".djehuty-initialized")
                 try:
-                    open (lock_file, "x").close()
+                    open (lock_file, "x", encoding="utf-8").close()
 
                     logger.info ("Invalidating caches ...")
                     server.db.cache.invalidate_all ()
