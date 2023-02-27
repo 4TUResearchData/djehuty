@@ -2710,16 +2710,12 @@ class ApiServer:
                               as_attachment=True,
                               download_name=metadata["name"])
 
-        except IndexError:
-            return self.error_404 (request)
-        except TypeError as error:
+        except (IndexError, TypeError) as error:
             self.log.error ("File download failed due to: %s", error)
-            return self.error_404 (request)
         except FileNotFoundError:
             self.log.error ("File download failed due to missing file: '%s'.", file_path)
-            return self.error_404 (request)
 
-        return self.error_500 ()
+        return self.error_404 (request)
 
     def ui_search (self, request):
         """Implements /search."""
