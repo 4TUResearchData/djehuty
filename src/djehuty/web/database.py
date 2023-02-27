@@ -273,12 +273,14 @@ class SparqlInterface:
 
 
         if published_since is not None:
+            published_since_safe = rdf.escape_datetime_value (published_since)
             filters += rdf.sparql_bound_filter ("published_date")
-            filters += f"FILTER (?published_date > \"{published_since}\"^^xsd:dateTime)\n"
+            filters += f"FILTER (?published_date > {published_since_safe})\n"
 
         if modified_since is not None:
+            modified_since_safe = rdf.escape_datetime_value (modified_since)
             filters += rdf.sparql_bound_filter ("modified_date")
-            filters += f"FILTER (?modified_date > \"{modified_since}\"^^xsd:dateTime)\n"
+            filters += f"FILTER (?modified_date > {modified_since_safe})\n"
 
         query = self.__query_from_template ("datasets", {
             "categories":     categories,
@@ -759,12 +761,14 @@ class SparqlInterface:
                         f"        CONTAINS(STR(?citation),       {escaped}))")
 
         if published_since is not None:
+            published_since_safe = rdf.escape_datetime_value (published_since)
             filters += rdf.sparql_bound_filter ("published_date")
-            filters += f"FILTER (?published_date > \"{published_since}\"^^xsd:dateTime)\n"
+            filters += f"FILTER (?published_date > {published_since_safe})\n"
 
         if modified_since is not None:
+            modified_since_safe = rdf.escape_datetime_value (modified_since)
             filters += rdf.sparql_bound_filter ("modified_date")
-            filters += f"FILTER (?modified_date > \"{modified_since}\"^^xsd:dateTime)\n"
+            filters += f"FILTER (?modified_date > {modified_since_safe})\n"
 
         query   = self.__query_from_template ("collections", {
             "account_uuid": account_uuid,
@@ -2101,7 +2105,8 @@ class SparqlInterface:
 
         if name is not None:
             if starts_with:
-                filters += f"FILTER (STRSTARTS(STR(?name), \"{name}\"))"
+                escaped_name = rdf.escape_string_value (name)
+                filters += f"FILTER (STRSTARTS(STR(?name), {escaped_name}))"
             else:
                 filters += rdf.sparql_filter ("name", name, escape=True)
 
@@ -2156,17 +2161,21 @@ class SparqlInterface:
 
         if startswith is not None:
             if isinstance(startswith, list):
-                filters += f"FILTER ((STRSTARTS(STR(?data_url), \"{ startswith[0] }\"))"
+                escaped_startswith = rdf.escape_string_value (startswith[0])
+                filters += f"FILTER ((STRSTARTS(STR(?data_url), {escaped_startswith}))"
                 for filter_item in startswith[1:]:
-                    filters += f" || (STRSTARTS(STR(?data_url), \"{filter_item}\"))"
+                    escaped_item = rdf.escape_string_value (filter_item)
+                    filters += f" || (STRSTARTS(STR(?data_url), {escaped_item}))"
                 filters += ")\n"
             elif isinstance(startswith, str):
-                filters += f"FILTER (STRSTARTS(STR(?data_url), \"{ startswith }\"))\n"
+                escaped_startswith = rdf.escape_string_value (startswith)
+                filters += f"FILTER (STRSTARTS(STR(?data_url), {escaped_startswith}))\n"
             else:
                 self.log.error ("startswith of type %s is not supported", type(startswith))
 
         if endswith is not None:
-            filters += f"FILTER (STRENDS(STR(?data_url), \"{ endswith }\"))\n"
+            escaped_endswith = rdf.escape_string_value (endswith)
+            filters += f"FILTER (STRENDS(STR(?data_url), {escaped_endswith}))\n"
 
         query = self.__query_from_template ("opendap_to_doi", {
             "filters": filters

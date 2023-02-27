@@ -59,6 +59,10 @@ def escape_date_value (value):
     """Returns VALUE wrapped in double quotes and annotated as xsd:date."""
     return escape_value (value, datatype=XSD.date)
 
+def escape_datetime_value (value):
+    """Returns VALUE wrapped in double quotes and annotated as xsd:dateTime."""
+    return escape_value (value, datatype=XSD.dateTime)
+
 def escape_boolean_value (value):
     """Returns VALUE wrapped in double quotes and annotated as xsd:date."""
     return escape_value (value, datatype=XSD.boolean)
