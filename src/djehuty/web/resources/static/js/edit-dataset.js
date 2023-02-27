@@ -31,6 +31,39 @@ function decline_dataset (dataset_uuid, event) {
     });
 }
 
+function preview_dataset (dataset_uuid, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    let current_date = new Date();
+    let year  = current_date.getFullYear();
+    let month = current_date.getMonth();
+    let day   = current_date.getDate() + 1;
+    if (month < 10) { month = `0${month}`; }
+    if (day < 10) { day = `0${day}`; }
+
+    save_dataset (dataset_uuid, event, false, function() {
+        jQuery.ajax({
+            url:         `/v2/account/articles/${dataset_uuid}/private_links`,
+            type:        "POST",
+            contentType: "application/json",
+            accept:      "application/json",
+            data:        JSON.stringify({ "expires_date": `${year}-${month}-${day} 00:00:00` }),
+        }).done(function (data) {
+            let preview_window = window.open(data["location"], '_blank');
+            if (preview_window) { preview_window.focus(); }
+            else {
+                show_message ("failure",
+                              "<p>Cannot open preview window because your " +
+                              "browser disabled pop-ups.</p>");
+            }
+        }).fail(function (response, text_status, error_code) {
+            show_message ("failure",
+                          `<p>Could not create a private link due to error ` +
+                          `<code>${error_code}</code>.</p>`);
+        });
+    });
+}
+
 function gather_form_data () {
     let categories   = jQuery("input[name='categories']:checked");
     let category_ids = []
@@ -658,6 +691,7 @@ function activate (dataset_uuid) {
         jQuery("#submit").on("click", function (event) { submit_dataset (dataset_uuid, event); });
         jQuery("#publish").on("click", function (event) { publish_dataset (dataset_uuid, event); });
         jQuery("#decline").on("click", function (event) { decline_dataset (dataset_uuid, event); });
+        jQuery("#preview").on("click", function (event) { preview_dataset (dataset_uuid, event); });
         jQuery("#refresh-git-files").on("click", function (event) {
             render_git_files_for_dataset (dataset_uuid, event);
         });

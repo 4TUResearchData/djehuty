@@ -113,6 +113,8 @@ jQuery(document).ready(function (){
 #refresh-git-files { font-size: .75em; }
 .publish-button a { background: #f49120 !important; }
 .publish-button a:hover { background: #f7ad58 !important; }
+.preview-button a { background: #736f53 !important; }
+.preview-button a:hover { background: #96937e !important; }
 #doi-wrapper p { margin: 0pt; }
 .article-content-loader { display: none; }
 </style>
@@ -130,6 +132,7 @@ jQuery(document).ready(function (){
   <li class="hide-for-javascript decline-button"><a id="decline" href="#">Decline</a>
   {%- endif %}
   <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
+  <li class="hide-for-javascript preview-button"><a id="preview" href="#">Preview</a>
 </ul>
 {% endblock %}
 {% block body %}
