@@ -225,7 +225,7 @@ class SparqlInterface:
                             value = value.replace('"', '\\\"')
                         escaped_value = rdf.escape_string_value (value.lower())
                         filter_list.append(f" CONTAINS(LCASE(?{key}), {escaped_value}) \n")
-                    filters += f"({' ||\n'.join(filter_list)}) \n"
+                    filters += f"({' || '.join(filter_list)}) "
             filters += ")"
         else:
             filter_list = []
@@ -238,7 +238,7 @@ class SparqlInterface:
                 if search_format:
                     filter_list.append(f"       CONTAINS(LCASE(?format),         {search_term_safe})")
             if len(filter_list) > 0:
-                filters += f"FILTER({' ||\n'.join(filter_list)})"
+                filters += f"FILTER({' || '.join(filter_list)})"
 
         return filters
 
