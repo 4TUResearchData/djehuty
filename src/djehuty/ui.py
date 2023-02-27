@@ -49,7 +49,7 @@ Available subcommands and options:
     sys.exit(0)
 
 def sigint_handler (sig, frame):
-    """Signal handler for SIGINT."""
+    """Signal handler for SIGINT and SIGTERM."""
     logger = logging.getLogger(__name__)
     logger.info ("Received shutdown signal.  Goodbye!")
     sys.exit(0)
@@ -58,6 +58,7 @@ def main_inner ():
     """The main entry point of the program."""
 
     signal.signal(signal.SIGINT, sigint_handler)
+    signal.signal(signal.SIGTERM, sigint_handler)
 
     logging.basicConfig(format='[%(levelname)s] %(asctime)s - %(name)s: %(message)s',
                         level=logging.INFO)
