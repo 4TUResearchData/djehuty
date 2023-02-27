@@ -223,21 +223,22 @@ class SparqlInterface:
                     for key, value in element.items():
                         if '"' in value:
                             value = value.replace('"', '\\\"')
-                        filter_list.append(f" CONTAINS(LCASE(?{key}), \"{value.lower()}\") \n")
-                    filters += "(" + " ||\n".join(filter_list) + ") \n"
+                        escaped_value = rdf.escape_string_value (value.lower())
+                        filter_list.append(f" CONTAINS(LCASE(?{key}), {escaped_value}) \n")
+                    filters += f"({' ||\n'.join(filter_list)}) \n"
             filters += ")"
         else:
             filter_list = []
             for search_term in search_for:
-                search_term_lower = search_term.lower()
-                filter_list.append(f"       CONTAINS(LCASE(?title),          \"{search_term_lower}\")")
-                filter_list.append(f"       CONTAINS(LCASE(?resource_title), \"{search_term_lower}\")")
-                filter_list.append(f"       CONTAINS(LCASE(?description),    \"{search_term_lower}\")")
-                filter_list.append(f"       CONTAINS(LCASE(?citation),       \"{search_term_lower}\")")
+                search_term_safe = rdf.escape_string_value (search_term.lower())
+                filter_list.append(f"       CONTAINS(LCASE(?title),          {search_term_safe})")
+                filter_list.append(f"       CONTAINS(LCASE(?resource_title), {search_term_safe})")
+                filter_list.append(f"       CONTAINS(LCASE(?description),    {search_term_safe})")
+                filter_list.append(f"       CONTAINS(LCASE(?citation),       {search_term_safe})")
                 if search_format:
-                    filter_list.append(f"       CONTAINS(LCASE(?format),         \"{search_term_lower}\")")
+                    filter_list.append(f"       CONTAINS(LCASE(?format),         {search_term_safe})")
             if len(filter_list) > 0:
-                filters += "FILTER(\n" + " ||\n".join(filter_list) + ')'
+                filters += f"FILTER({' ||\n'.join(filter_list)})"
 
         return filters
 
