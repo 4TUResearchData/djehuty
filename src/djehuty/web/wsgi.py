@@ -31,6 +31,7 @@ from djehuty.utils.convenience import pretty_print_size, decimal_coords
 from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
 from djehuty.utils.convenience import make_citation, is_opendap_url, landing_page_url
+from djehuty.utils.convenience import split_author_name
 from djehuty.utils.constants import group_to_member, member_url_names
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 
@@ -6148,6 +6149,7 @@ class ApiServer:
             return self.error_406 ("application/xml")
 
         parameters = self.__metadata_export_parameters(dataset_id, version)
+        self.add_names_to_authors(parameters["authors"])
         xml_string = xml_formatter.nlm(parameters)
         output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
         version_string = f'_v{version}' if version else ''
@@ -6175,6 +6177,7 @@ class ApiServer:
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
         # adjust rendering parameters
         # turn authors in one string
+        self.add_names_to_authors(parameters["authors"])
         parameters["authors_str"] = " and ".join([f"{author['last_name']}, {author['first_name']}" for author in
                                                  parameters["authors"]])
         # turn tags into one comma delimited string
@@ -6209,6 +6212,7 @@ class ApiServer:
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
         # adjust rendering parameters
         # prepare Reference Type (Tag %0)
+        self.add_names_to_authors(parameters["authors"])
         parameters["reference_type"] = "Generic"
         if parameters["item"]["defined_type_name"] == "software":
             parameters["reference_type"] = "Computer Program"
@@ -6225,6 +6229,7 @@ class ApiServer:
 
         # collect rendering parameters
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
+        self.add_names_to_authors(parameters["authors"])
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_citation.cff"}
         return self.__render_export_format(template_name="citation.cff",
                                            mimetype="text/plain; charset=utf-8",
@@ -6245,3 +6250,14 @@ class ApiServer:
                     contr_dict['orcid'] = parts[1][:-1]
                 contributors.append(contr_dict)
         return contributors
+
+    def add_names_to_authors(self, authors):
+        """ Procedure to add missing first_name and last_name to author dict """
+        for author in authors:
+            if not('full_name' in author):
+                author['full_name'] = ''
+                self.log.warning ("full_name is missing for author $s.", author['uuid'])
+            if not('first_name' in author or 'last_name' in author):
+                parts = split_author_name(author['full_name'])
+                author['first_name'] = parts[0]
+                author['last_name' ] = parts[1]

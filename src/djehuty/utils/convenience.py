@@ -213,3 +213,24 @@ def landing_page_url (item_id, version=None, item_type="dataset"):
     if version:
         url += f"/{version}"
     return url
+
+def split_author_name(name):
+    """ Procedure to split name of author into first and last name.
+        Works for often occurring name patterns:
+        * first_name (initials) last_name
+        * first_name I.N.I.T. last_name
+        * first_name last_name
+        * last_name """
+    name = re.sub(r'\s+', ' ', name)
+    if (')') in name:
+        parts = name.split(')', 1)
+        parts[0] += ')'
+    elif ('.') in name:
+        parts = name[::-1].split('.', 1)
+        parts = [part[::-1] for part in parts][::-1]
+        parts[0] += '.'
+    else:
+        parts = name.split(' ', 1)
+    parts = [part.strip() for part in parts]
+    parts = ([''] + parts)[-2:]
+    return parts
