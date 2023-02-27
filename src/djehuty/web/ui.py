@@ -20,7 +20,6 @@ try:
 except (ImportError, ModuleNotFoundError):
     SAML2_DEPENDENCY_LOADED = False
 
-
 # The 'uwsgi' module only needs to be available when deploying using uwsgi.
 # To catch potential run-time problems early on in the situation that the
 # uwsgi module is required, we set UWSGI_DEPENDENCY_LOADED here without
@@ -93,7 +92,7 @@ def read_quotas_configuration (server, xml_root):
 
     return None
 
-def read_saml_configuration (server, xml_root):
+def read_saml_configuration (server, xml_root, logger):
     """Read the SAML configuration from XML_ROOT."""
 
     saml = xml_root.find("authentication/saml")
@@ -105,7 +104,7 @@ def read_saml_configuration (server, xml_root):
         saml_version = saml.attrib["version"]
 
     if saml_version != "2.0":
-        logging.error ("Only SAML 2.0 is supported.")
+        logger.error ("Only SAML 2.0 is supported.")
         raise UnsupportedSAMLProtocol
 
     saml_strict = bool(int(config_value (saml, "strict", None, True)))
@@ -114,7 +113,7 @@ def read_saml_configuration (server, xml_root):
     ## Service Provider settings
     service_provider     = saml.find ("service-provider")
     if service_provider is None:
-        logging.error ("Missing service-provider information for SAML.")
+        logger.error ("Missing service-provider information for SAML.")
 
     saml_sp_x509         = config_value (service_provider, "x509-certificate")
     saml_sp_private_key  = config_value (service_provider, "private-key")
@@ -122,28 +121,28 @@ def read_saml_configuration (server, xml_root):
     ## Service provider metadata
     sp_metadata          = service_provider.find ("metadata")
     if sp_metadata is None:
-        logging.error ("Missing service provider's metadata for SAML.")
+        logger.error ("Missing service provider's metadata for SAML.")
 
     organization_name    = config_value (sp_metadata, "display-name")
     organization_url     = config_value (sp_metadata, "url")
 
     sp_tech_contact      = sp_metadata.find ("./contact[@type='technical']")
     if sp_tech_contact is None:
-        logging.error ("Missing technical contact information for SAML.")
+        logger.error ("Missing technical contact information for SAML.")
     sp_tech_email        = config_value (sp_tech_contact, "email")
     if sp_tech_email is None:
         sp_tech_email = "-"
 
     sp_admin_contact     = sp_metadata.find ("./contact[@type='administrative']")
     if sp_admin_contact is None:
-        logging.error ("Missing administrative contact information for SAML.")
+        logger.error ("Missing administrative contact information for SAML.")
     sp_admin_email        = config_value (sp_admin_contact, "email")
     if sp_admin_email is None:
         sp_admin_email = "-"
 
     sp_support_contact   = sp_metadata.find ("./contact[@type='support']")
     if sp_support_contact is None:
-        logging.error ("Missing support contact information for SAML.")
+        logger.error ("Missing support contact information for SAML.")
     sp_support_email        = config_value (sp_support_contact, "email")
     if sp_support_email is None:
         sp_support_email = "-"
@@ -151,14 +150,14 @@ def read_saml_configuration (server, xml_root):
     ## Identity Provider settings
     identity_provider    = saml.find ("identity-provider")
     if identity_provider is None:
-        logging.error ("Missing identity-provider information for SAML.")
+        logger.error ("Missing identity-provider information for SAML.")
 
     saml_idp_entity_id   = config_value (identity_provider, "entity-id")
     saml_idp_x509        = config_value (identity_provider, "x509-certificate")
 
     sso_service          = identity_provider.find ("single-signon-service")
     if sso_service is None:
-        logging.error ("Missing SSO information of the identity-provider for SAML.")
+        logger.error ("Missing SSO information of the identity-provider for SAML.")
 
     saml_idp_sso_url     = config_value (sso_service, "url")
     saml_idp_sso_binding = config_value (sso_service, "binding")
@@ -244,7 +243,7 @@ def read_saml_configuration (server, xml_root):
     del saml_sp_private_key
     return None
 
-def setup_saml_service_provider (server):
+def setup_saml_service_provider (server, logger):
     """Write the SAML configuration file to disk and set up its metadata."""
     ## python3-saml wants to read its configuration from a file,
     ## but unfortunately we can only indicate the directory for that
@@ -252,8 +251,8 @@ def setup_saml_service_provider (server):
     ## for this purpose and place the file in that directory.
     if server.identity_provider == "saml":
         if not SAML2_DEPENDENCY_LOADED:
-            logging.error ("Missing python3-saml dependency.")
-            logging.error ("Cannot initiate authentication with SAML.")
+            logger.error ("Missing python3-saml dependency.")
+            logger.error ("Cannot initiate authentication with SAML.")
             raise DependencyNotAvailable
 
         saml_cache_dir = os.path.join(server.db.cache.storage, "saml-config")
@@ -275,9 +274,9 @@ def setup_saml_service_provider (server):
                 json.dump(server.saml_config, file_stream)
             server.saml_config_path = saml_cache_dir
         else:
-            logging.error ("Failed to create '%s'.", saml_cache_dir)
+            logger.error ("Failed to create '%s'.", saml_cache_dir)
 
-def read_privilege_configuration (server, xml_root):
+def read_privilege_configuration (server, xml_root, logger):
     """Read the privileges configureation from XML_ROOT."""
     privileges = xml_root.find("privileges")
     if not privileges:
@@ -308,13 +307,13 @@ def read_privilege_configuration (server, xml_root):
             )
 
         except KeyError as error:
-            logging.error ("Missing %s attribute for a privilege configuration.", error)
+            logger.error ("Missing %s attribute for a privilege configuration.", error)
         except ValueError as error:
-            logging.error ("Privilege configuration error: %s", error)
+            logger.error ("Privilege configuration error: %s", error)
 
     return None
 
-def configure_file_logging (log_file, inside_reload):
+def configure_file_logging (log_file, inside_reload, logger):
     """Procedure to set up logging to a file."""
     is_writeable = False
     log_file     = os.path.abspath (log_file)
@@ -326,19 +325,19 @@ def configure_file_logging (log_file, inside_reload):
 
     if not is_writeable:
         if not inside_reload:
-            logging.warning ("Cannot write to '%s'.", log_file)
+            logger.warning ("Cannot write to '%s'.", log_file)
     else:
         file_handler = logging.FileHandler (log_file, 'a')
         if not inside_reload:
-            logging.info ("Writing further messages to '%s'.", log_file)
+            logger.info ("Writing further messages to '%s'.", log_file)
 
-        formatter    = logging.Formatter('[ %(levelname)s ] %(asctime)s: %(message)s')
+        formatter    = logging.Formatter('[%(levelname)s] %(asctime)s - %(name)s: %(message)s')
         file_handler.setFormatter(formatter)
         file_handler.setLevel(logging.INFO)
-        logger       = logging.getLogger()
-        for handler in logger.handlers[:]:
-            logger.removeHandler(handler)
-        logger.addHandler(file_handler)
+        log          = logging.getLogger()
+        for handler in log.handlers[:]:
+            log.removeHandler(handler)
+        log.addHandler(file_handler)
 
 def read_menu_configuration (xml_root, server, inside_reload):
     """Procedure to parse the menu configuration from XML_ROOT."""
@@ -360,12 +359,9 @@ def read_menu_configuration (xml_root, server, inside_reload):
             "submenu": submenu
         })
 
-    if not inside_reload:
-        logging.info("Menu structure loaded")
-
     return None
 
-def read_static_pages (static_pages, server, inside_reload, config_dir):
+def read_static_pages (static_pages, server, inside_reload, config_dir, logger):
     """Procedure to parse and register static pages."""
     for page in static_pages:
         uri_path        = config_value (page, "uri-path")
@@ -379,7 +375,7 @@ def read_static_pages (static_pages, server, inside_reload, config_dir):
 
             server.static_pages[uri_path] = {"filesystem-path": filesystem_path}
             if not inside_reload:
-                logging.info ("Loaded static page: %s -> %s", uri_path, filesystem_path)
+                logger.info ("Loaded page: %s -> %s", uri_path, filesystem_path)
 
         if uri_path is not None and redirect_to is not None:
             code = 302
@@ -387,7 +383,7 @@ def read_static_pages (static_pages, server, inside_reload, config_dir):
                 code = int(redirect_to.attrib["code"])
             server.static_pages[uri_path] = {"redirect-to": redirect_to.text, "code": code}
             if not inside_reload:
-                logging.info ("Loaded redirect (%i): %s -> %s", code, uri_path, redirect_to.text)
+                logger.info ("Loaded redirect (%i): %s -> %s", code, uri_path, redirect_to.text)
 
 def read_datacite_configuration (server, xml_root):
     """Procedure to parse and set the DataCite API configuration."""
@@ -407,7 +403,7 @@ def read_orcid_configuration (server, xml_root):
         server.orcid_endpoint      = config_value (orcid, "endpoint")
         server.identity_provider   = "orcid"
 
-def read_email_configuration (server, xml_root):
+def read_email_configuration (server, xml_root, logger):
     """Procedure to parse and set the email server configuration."""
     email = xml_root.find("email")
     if email:
@@ -419,12 +415,12 @@ def read_email_configuration (server, xml_root):
             server.email.smtp_password = config_value (email, "password")
             server.email.do_starttls = bool(int(config_value (email, "starttls", None, 0)))
         except ValueError:
-            logging.error ("Could not configure the email subsystem:")
-            logging.error ("The email port should be a numeric value.")
+            logger.error ("Could not configure the email subsystem:")
+            logger.error ("The email port should be a numeric value.")
 
 def read_configuration_file (server, config_file, address, port, state_graph,
                              storage, cache, base_url, use_debugger,
-                             use_reloader):
+                             use_reloader, logger):
     """Procedure to parse a configuration file."""
 
     inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
@@ -434,7 +430,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         tree = ElementTree.parse(config_file)
 
         if config_file is not None and not inside_reload:
-            logging.info ("Reading config file: %s", config_file)
+            logger.info ("Reading config file: %s", config_file)
 
         xml_root = tree.getroot()
         if xml_root.tag != "djehuty":
@@ -443,7 +439,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         config_dir = os.path.dirname(config_file)
         log_file = config_value (xml_root, "log-file", None, None)
         if log_file is not None:
-            configure_file_logging (log_file, inside_reload)
+            configure_file_logging (log_file, inside_reload, logger)
 
         config["address"]       = config_value (xml_root, "bind-address", address, "127.0.0.1")
         config["port"]          = int(config_value (xml_root, "port", port, 8080))
@@ -484,8 +480,8 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                 if pre_production is not None:
                     server.in_preproduction = bool(int(pre_production))
             except (ValueError, TypeError):
-                logging.warning ("Invalid value for the 'pre-production' attribute in 'production'.")
-                logging.warning ("Pre-production mode is enabled; Use either '1' to enable, or '0' to disable.")
+                logger.warning ("Invalid value for the 'pre-production' attribute in 'production'.")
+                logger.warning ("Pre-production mode is enabled; Use either '1' to enable, or '0' to disable.")
                 server.in_preproduction = True
 
         secondary_storage = xml_root.find ("secondary-storage-root")
@@ -495,8 +491,8 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                 quirks = secondary_storage.attrib.get("quirks")
                 server.db.secondary_storage_quirks = bool(int(quirks))
             except ValueError:
-                logging.warning ("Invalid value for the 'quirks' attribute in 'secondary-storage-root'.")
-                logging.warning ("Quirks-mode is disabled; Use either '1' to enable, or '0' to disable.")
+                logger.warning ("Invalid value for the 'quirks' attribute in 'secondary-storage-root'.")
+                logger.warning ("Quirks-mode is disabled; Use either '1' to enable, or '0' to disable.")
                 server.db.secondary_storage_quirks = False
             except TypeError:
                 server.db.secondary_storage_quirks = False
@@ -507,9 +503,9 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         read_orcid_configuration (server, xml_root)
         read_datacite_configuration (server, xml_root)
-        read_email_configuration (server, xml_root)
-        read_saml_configuration (server, xml_root)
-        read_privilege_configuration (server, xml_root)
+        read_email_configuration (server, xml_root, logger)
+        read_saml_configuration (server, xml_root, logger)
+        read_privilege_configuration (server, xml_root, logger)
         read_quotas_configuration (server, xml_root)
 
         for include_element in xml_root.iter('include'):
@@ -530,7 +526,8 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                                                   server.db.cache.storage,
                                                   server.base_url,
                                                   config["use_debugger"],
-                                                  config["use_reloader"])
+                                                  config["use_reloader"],
+                                                  logger)
             config = { **config, **new_config }
 
         read_menu_configuration (xml_root, server, inside_reload)
@@ -544,22 +541,22 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             # take resources_root relative to config_dir and turn into absolute path
             resources_root = os.path.abspath(os.path.join(config_dir, resources_root))
         if (server.add_static_root ("/s", resources_root) and not inside_reload):
-            logging.info ("Added static root: %s", resources_root)
+            logger.info ("Added static root: %s", resources_root)
 
-        read_static_pages (static_pages, server, inside_reload, config_dir)
+        read_static_pages (static_pages, server, inside_reload, config_dir, logger)
 
         return config
 
     except ConfigFileNotFound:
         if not inside_reload:
-            logging.error ("%s does not look like a Djehuty configuration file.",
+            logger.error ("%s does not look like a Djehuty configuration file.",
                            config_file)
     except ElementTree.ParseError:
         if not inside_reload:
-            logging.error ("%s does not contain valid XML.", config_file)
+            logger.error ("%s does not contain valid XML.", config_file)
     except FileNotFoundError as error:
         if not inside_reload:
-            logging.error ("Could not open '%s'.", config_file)
+            logger.error ("Could not open '%s'.", config_file)
         raise SystemExit from error
     except UnsupportedSAMLProtocol as error:
         raise SystemExit from error
@@ -577,26 +574,27 @@ def main (address=None, port=None, state_graph=None, storage=None,
     try:
         convenience.add_logging_level ("ACCESS", logging.INFO + 5)
         convenience.add_logging_level ("STORE", logging.INFO + 4)
+        logger = logging.getLogger (__name__)
         server = wsgi.ApiServer ()
         config = read_configuration_file (server, config_file, address, port,
                                           state_graph, storage, None, base_url,
-                                          use_debugger, use_reloader)
+                                          use_debugger, use_reloader, logger)
 
         inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
 
         if not server.db.cache.cache_is_ready() and not inside_reload:
-            logging.error("Failed to set up cache layer.")
+            logger.error ("Failed to set up cache layer.")
 
-        setup_saml_service_provider (server)
+        setup_saml_service_provider (server, logger)
 
         if not server.in_production and not inside_reload:
-            logging.warning ("Assuming to run in a non-production environment.")
-            logging.warning (("Set <production> to 1 in your configuration "
-                              "file for hardened security settings."))
+            logger.warning ("Assuming to run in a non-production environment.")
+            logger.warning (("Set <production> to 1 in your configuration "
+                             "file for hardened security settings."))
 
         if server.in_production and not os.path.isdir (server.db.storage):
-            logging.error ("The storage directory '%s' does not exist.",
-                           server.db.storage)
+            logger.error ("The storage directory '%s' does not exist.",
+                          server.db.storage)
             raise FileNotFoundError
 
         if not run_internal_server:
@@ -605,64 +603,64 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
         server.db.setup_sparql_endpoint ()
         if inside_reload:
-            logging.info("Reloaded.")
+            logger.info ("Reloaded.")
         else:
             if not server.menu:
-                logging.warning ("No menu structure provided.")
+                logger.warning ("No menu structure provided.")
 
             if shutil.which ("git") is None:
-                logging.error("Cannot find the 'git' executable.  Please install it.")
+                logger.error ("Cannot find the 'git' executable.  Please install it.")
                 if server.in_production:
                     raise DependencyNotAvailable
 
-            logging.info("SPARQL endpoint:  %s.", server.db.endpoint)
-            logging.info("State graph:  %s.", server.db.state_graph)
-            logging.info("Storage path: %s.", server.db.storage)
-            logging.info("Secondary storage path: %s.", server.db.secondary_storage)
-            logging.info("Cache storage path: %s.", server.db.cache.storage)
-            logging.info("Running on %s", server.base_url)
+            logger.info ("SPARQL endpoint:  %s.", server.db.endpoint)
+            logger.info ("State graph:  %s.", server.db.state_graph)
+            logger.info ("Storage path: %s.", server.db.storage)
+            logger.info ("Secondary storage path: %s.", server.db.secondary_storage)
+            logger.info ("Cache storage path: %s.", server.db.cache.storage)
+            logger.info ("Running on %s", server.base_url)
 
             if server.identity_provider is not None:
-                logging.info ("Using %s as identity provider.",
-                              server.identity_provider.upper())
+                logger.info ("Using %s as identity provider.",
+                             server.identity_provider.upper())
             else:
-                logging.error ("Missing identity provider configuration.")
+                logger.error ("Missing identity provider configuration.")
                 if server.in_production:
                     raise MissingConfigurationError
 
             if not server.email.is_properly_configured ():
-                logging.warning ("Sending notification e-mails has been disabled.")
-                logging.warning ("Please configure a mail server to enable it.")
+                logger.warning ("Sending notification e-mails has been disabled.")
+                logger.warning ("Please configure a mail server to enable it.")
                 if server.in_production:
-                    logging.error ("An e-mail server must be configured for production-mode.")
+                    logger.error ("An e-mail server must be configured for production-mode.")
                     raise MissingConfigurationError
 
             for email_address in server.db.privileges:
                 if server.db.privileges[email_address]["needs_2fa"]:
-                    logging.info ("Enabled 2FA for %s.", email_address)
+                    logger.info ("Enabled 2FA for %s.", email_address)
 
             if initialize:
                 lock_file = os.path.abspath (".djehuty-initialized")
                 try:
                     open (lock_file, "x").close()
 
-                    logging.info("Invalidating caches ...")
+                    logger.info ("Invalidating caches ...")
                     server.db.cache.invalidate_all ()
-                    logging.info("Initializing RDF store ...")
+                    logger.info ("Initializing RDF store ...")
                     rdf_store = backup_database.DatabaseInterface()
 
                     if not rdf_store.insert_static_triplets ():
-                        logging.error ("Failed to gather static triplets")
+                        logger.error ("Failed to gather static triplets")
 
                     if server.db.add_triples_from_graph (rdf_store.store):
-                        logging.info("Initialization completed.")
+                        logger.info ("Initialization completed.")
 
                     server.db.initialize_privileged_accounts ()
                     initialize = False
                 except FileExistsError:
-                    logging.warning (("Skipping initialization of the database "
-                                      "because it has been initialized before."))
-                    logging.warning ("Remove '%s' and restart to initialize the database.", lock_file)
+                    logger.warning (("Skipping initialization of the database "
+                                     "because it has been initialized before."))
+                    logger.warning ("Remove '%s' and restart to initialize the database.", lock_file)
 
         run_simple (config["address"], config["port"], server,
                     threaded=(config["maximum_workers"] <= 1),
@@ -682,7 +680,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
 def application (env, start_response):
     """The main entry point for the WSGI."""
 
-    logging.basicConfig(format='[ %(levelname)s ] %(asctime)s: %(message)s',
+    logging.basicConfig(format='[%(levelname)s] %(asctime)s - %(name)s: %(message)s',
                         level=logging.INFO)
     convenience.add_logging_level ("ACCESS", logging.INFO + 5)
     convenience.add_logging_level ("STORE", logging.INFO + 4)

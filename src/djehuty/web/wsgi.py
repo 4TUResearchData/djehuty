@@ -75,7 +75,7 @@ class ApiServer:
         self.datacite_password   = None
         self.datacite_prefix     = None
         self.log_access          = self.log_access_directly
-
+        self.log                 = logging.getLogger(__name__)
         self.menu = []
         self.static_pages = {}
 
@@ -406,25 +406,23 @@ class ApiServer:
                 if "filesystem-path" in page:
                     # Handle static pages.
                     try:
-                        logging.debug("Attempting to render static page.")
                         return self.__render_template(request, page["filesystem-path"])
                     except TemplateNotFound:
-                        logging.error("Couldn't find template '%s'.", page["filesystem-path"])
+                        self.log.error ("Couldn't find template '%s'.", page["filesystem-path"])
                 elif "redirect-to" in page:
                     # Handle redirect
-                    logging.debug("Attempting to redirect.")
                     return redirect(location=page["redirect-to"], code=page["code"])
                 else:
-                    logging.debug("Static page nor redirect found in entry.")
+                    self.log.debug ("Static page nor redirect found in entry.")
             else:
-                logging.debug ("No static page entry for '%s'.", request.path)
+                self.log.debug ("No static page entry for '%s'.", request.path)
 
             return self.error_404 (request)
         except BadRequest as error:
-            logging.error("Received bad request: %s", error)
+            self.log.error ("Received bad request: %s", error)
             return self.error_400 (request, error.description, 400)
         except HTTPException as error:
-            logging.error("Unknown error in dispatch_request: %s", error)
+            self.log.error ("Unknown error in dispatch_request: %s", error)
             return error
 
     def __respond (self, environ, start_response):
@@ -447,7 +445,7 @@ class ApiServer:
                                                         **context)
             self.email.send_email (email_address, subject, text, html)
 
-        logging.info ("Sent e-mail to %d address(es): %s", len(email_addresses), subject)
+        self.log.info ("Sent e-mail to %d address(es): %s", len(email_addresses), subject)
         return True
 
     def __send_email_to_reviewers (self, subject, template_name, **context):
@@ -765,15 +763,15 @@ class ApiServer:
     def log_access_using_x_forwarded_for (self, request):
         """Log interactions using the X-Forwarded-For header."""
         try:
-            logging.access ("%s requested %s.",  # pylint: disable=no-member
+            self.log.access ("%s requested %s.",  # pylint: disable=no-member
                             request.headers["X-Forwarded-For"],
                             request.full_path)
         except KeyError:
-            logging.error("Missing X-Forwarded-For header.")
+            self.log.error ("Missing X-Forwarded-For header.")
 
     def log_access_directly (self, request):
         """Log interactions using the 'remote_addr' property."""
-        logging.access ("%s requested %s.",  # pylint: disable=no-member
+        self.log.access ("%s requested %s.",  # pylint: disable=no-member
                         request.remote_addr,
                         request.full_path)
 
@@ -804,11 +802,11 @@ class ApiServer:
             if response.status_code == 200:
                 return response.json()
 
-            logging.error("ORCID response was %d", response.status_code)
+            self.log.error ("ORCID response was %d", response.status_code)
             return None
 
         except validator.ValidationException:
-            logging.error("ORCID parameter validation error")
+            self.log.error ("ORCID parameter validation error")
             return None
 
     def __request_to_saml_request (self, request):
@@ -841,19 +839,19 @@ class ApiServer:
             saml_auth.process_response ()
         except OneLogin_Saml2_Error as error:
             if error.code == OneLogin_Saml2_Error.SAML_RESPONSE_NOT_FOUND:
-                logging.error ("Missing SAMLResponse in POST data.")
+                self.log.error ("Missing SAMLResponse in POST data.")
             else:
-                logging.error ("SAML error %d occured.", error.code)
+                self.log.error ("SAML error %d occured.", error.code)
             return None
 
         errors = saml_auth.get_errors()
         if errors:
-            logging.error("Errors in the SAML authentication:")
-            logging.error("%s", ", ".join(errors))
+            self.log.error ("Errors in the SAML authentication:")
+            self.log.error ("%s", ", ".join(errors))
             return None
 
         if not saml_auth.is_authenticated():
-            logging.error("SAML authentication failed.")
+            self.log.error ("SAML authentication failed.")
             return None
 
         ## Gather SAML session information.
@@ -874,7 +872,7 @@ class ApiServer:
         record["common_name"] = attributes["urn:mace:dir:attribute-def:cn"][0]
 
         if not record["email"]:
-            logging.error("Didn't receive required fields in SAMLResponse.")
+            self.log.error ("Didn't receive required fields in SAMLResponse.")
             return None
 
         return record
@@ -895,8 +893,8 @@ class ApiServer:
         if len(errors) == 0:
             return self.response (metadata, mimetype="text/xml")
 
-        logging.error ("SAML SP Metadata validation failed.")
-        logging.error ("Errors: %s", ", ".join(errors))
+        self.log.error ("SAML SP Metadata validation failed.")
+        self.log.error ("Errors: %s", ", ".join(errors))
         return self.error_500 ()
 
     ## CONVENIENCE PROCEDURES
@@ -993,7 +991,7 @@ class ApiServer:
                         id_lte=impersonate,
                         id_gte=impersonate)[0]
                     impersonate = impersonated_account["uuid"]
-                    logging.access ("Account %s impersonating account %s.", #  pylint: disable=no-member
+                    self.log.access ("Account %s impersonating account %s.", #  pylint: disable=no-member
                                     account["uuid"], impersonate)
                     return impersonate
 
@@ -1014,7 +1012,7 @@ class ApiServer:
             if account is not None:
                 uuid = self.impersonated_account_uuid (request, account)
         except KeyError:
-            logging.error("Attempt to authenticate with %s failed.", token)
+            self.log.error ("Attempt to authenticate with %s failed.", token)
 
         return uuid
 
@@ -1047,7 +1045,7 @@ class ApiServer:
         try:
             output = list(map (format_function, records))
         except TypeError:
-            logging.error("%s: A TypeError occurred.", format_function)
+            self.log.error ("%s: A TypeError occurred.", format_function)
 
         return self.response (json.dumps(output))
 
@@ -1135,7 +1133,7 @@ class ApiServer:
             if account_uuid is None:
                 return self.error_403 (request)
 
-            logging.access ("Account %s logged in via ORCID.", account_uuid) #  pylint: disable=no-member
+            self.log.access ("Account %s logged in via ORCID.", account_uuid) #  pylint: disable=no-member
 
         ## SAML 2.0 authentication
         ## --------------------------------------------------------------------
@@ -1166,24 +1164,24 @@ class ApiServer:
                     account_uuid = None
                     if account:
                         account_uuid = account["uuid"]
-                        logging.access ("Account %s logged in via SAML.", account_uuid) #  pylint: disable=no-member
+                        self.log.access ("Account %s logged in via SAML.", account_uuid) #  pylint: disable=no-member
                     else:
                         account_uuid = self.db.insert_account (
                             email      = saml_record["email"],
                             first_name = value_or_none (saml_record, "first_name"),
                             last_name  = value_or_none (saml_record, "last_name")
                         )
-                        logging.access ("Account %s created via SAML.", account_uuid) #  pylint: disable=no-member
+                        self.log.access ("Account %s created via SAML.", account_uuid) #  pylint: disable=no-member
 
                 except TypeError:
                     pass
         else:
-            logging.error ("Unknown identity provider '%s'", self.identity_provider)
+            self.log.error ("Unknown identity provider '%s'", self.identity_provider)
             return self.error_500()
 
         if account_uuid is not None:
             token, mfa_token, session_uuid = self.db.insert_session (account_uuid, name="Website login")
-            logging.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
+            self.log.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
 
             if mfa_token is None:
                 response = redirect ("/my/dashboard", code=302)
@@ -1406,7 +1404,7 @@ class ApiServer:
                 self.db.update_item_list (container_uuid, account_uuid,
                                           [author_uri], "authors")
             except (TypeError, KeyError):
-                logging.warning ("No author record for account %s.", account_uuid)
+                self.log.warning ("No author record for account %s.", account_uuid)
 
             return redirect (f"/my/datasets/{container_uuid}/edit", code=302)
 
@@ -1426,13 +1424,13 @@ class ApiServer:
                                                account_uuid = account_uuid)
 
         if dataset is None:
-            logging.error ("Unable to find dataset '%s'.", dataset_id)
+            self.log.error ("Unable to find dataset '%s'.", dataset_id)
             return self.error_403 (request)
 
         container_uuid = dataset["container_uuid"]
         draft_uuid = self.db.create_draft_from_published_dataset (container_uuid)
         if draft_uuid is None:
-            logging.info("There is no draft dataset.")
+            self.log.info ("There is no draft dataset.")
             return self.error_500()
 
         return redirect (f"/my/datasets/{container_uuid}/edit", code=302)
@@ -1633,7 +1631,7 @@ class ApiServer:
                 self.db.update_item_list (container_uuid, account_uuid,
                                           [author_uri], "authors")
             except (TypeError, KeyError):
-                logging.warning ("No author record for account %s.", account_uuid)
+                self.log.warning ("No author record for account %s.", account_uuid)
 
             return redirect (f"/my/collections/{container_uuid}/edit", code=302)
 
@@ -1653,13 +1651,13 @@ class ApiServer:
                                                      account_uuid = account_uuid)
 
         if collection is None:
-            logging.error ("Unable to find collection '%s'.", collection_id)
+            self.log.error ("Unable to find collection '%s'.", collection_id)
             return self.error_403 (request)
 
         container_uuid = collection["container_uuid"]
         draft_uuid = self.db.create_draft_from_published_collection (container_uuid)
         if draft_uuid is None:
-            logging.info("There is no draft collection.")
+            self.log.info ("There is no draft collection.")
             return self.error_500()
 
         return redirect (f"/my/collections/{container_uuid}/edit", code=302)
@@ -1714,7 +1712,7 @@ class ApiServer:
                         "depositor/edit-session.html",
                         session = session)
                 except IndexError:
-                    logging.error ("Unable to edit session %s for account %s.",
+                    self.log.error ("Unable to edit session %s for account %s.",
                                    session_uuid, account_uuid)
                     return self.error_403 (request)
 
@@ -1755,10 +1753,10 @@ class ApiServer:
     def __remove_session_due_to_2fa_mismatch (self, session_uuid):
         """Procedure to log and delete session upon 2FA mismatch."""
         if self.db.delete_inactive_session_by_uuid (session_uuid):
-            logging.access ("Removed session %s due to 2FA mismatch.", #  pylint: disable=no-member
+            self.log.access ("Removed session %s due to 2FA mismatch.", #  pylint: disable=no-member
                             session_uuid)
         else:
-            logging.error ("Failed to remove session %s to protect 2FA.", session_uuid)
+            self.log.error ("Failed to remove session %s to protect 2FA.", session_uuid)
 
     def ui_activate_session (self, request, session_uuid):
         """Implements /my/sessions/<id>/activate"""
@@ -1965,7 +1963,7 @@ class ApiServer:
 
         account_uuid, error_response = self.__reviewer_account_uuid (request)
         if error_response is not None:
-            logging.error ("Account %d attempted a reviewer action.", account_uuid)
+            self.log.error ("Account %d attempted a reviewer action.", account_uuid)
             return error_response
 
         dataset    = None
@@ -1991,7 +1989,7 @@ class ApiServer:
         """Implements /review/unassign/<id>."""
         account_uuid, error_response = self.__reviewer_account_uuid (request)
         if error_response is not None:
-            logging.error ("Account %d attempted a reviewer action.", account_uuid)
+            self.log.error ("Account %d attempted a reviewer action.", account_uuid)
             return error_response
 
         dataset = None
@@ -2017,7 +2015,7 @@ class ApiServer:
         """Implements /review/published/<id>."""
         account_uuid, error_response = self.__reviewer_account_uuid (request)
         if error_response is not None:
-            logging.error ("Account %d attempted a reviewer action.", account_uuid)
+            self.log.error ("Account %d attempted a reviewer action.", account_uuid)
             return error_response
 
         dataset = self.__dataset_by_id_or_uri (dataset_id,
@@ -2080,7 +2078,7 @@ class ApiServer:
         """Implements /admin/maintenance/clear-cache."""
         token = self.token_from_cookie (request)
         if self.db.may_administer (token):
-            logging.info("Invalidating caches.")
+            self.log.info ("Invalidating caches.")
             self.db.cache.invalidate_all ()
             return self.respond_204 ()
 
@@ -2090,7 +2088,7 @@ class ApiServer:
         """Implements /admin/maintenance/clear-sessions."""
         token = self.token_from_cookie (request)
         if self.db.may_administer (token):
-            logging.info("Invalidating sessions.")
+            self.log.info ("Invalidating sessions.")
             self.db.delete_all_sessions ()
             return redirect ("/", code=302)
 
@@ -2238,7 +2236,7 @@ class ApiServer:
                     last_name  = value_or(my_account, 'last_name' , '')
                     my_name = f'{first_name} {last_name}'.strip()
                 except IndexError:
-                    logging.warning ("No email found for account %s.", account_uuid)
+                    self.log.warning ("No email found for account %s.", account_uuid)
 
         versions      = self.db.dataset_versions (container_uri=dataset["container_uri"])
         if not versions:
@@ -2350,7 +2348,7 @@ class ApiServer:
             dataset = self.db.datasets (container_uuid=dataset_id, version=version)[0]
 
             if not value_or_none(dataset, 'is_confidential'):
-                logging.warning("Not allowed. Dataset %s is not confidential", dataset_id)
+                self.log.warning ("Not allowed. Dataset %s is not confidential", dataset_id)
                 return self.error_403 (request)
 
             doi = dataset['doi']
@@ -2598,7 +2596,7 @@ class ApiServer:
 
             ## Check again whether a private dataset has been found.
             if dataset is None:
-                logging.error("Download-all for %s failed: Dataset not found.", dataset_id)
+                self.log.error ("Download-all for %s failed: Dataset not found.", dataset_id)
                 return self.error_404 (request)
 
             metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
@@ -2620,8 +2618,8 @@ class ApiServer:
                 })
 
             if not file_paths:
-                logging.error("Download-all for %s failed: No files associated with this dataset.",
-                              dataset_id)
+                self.log.error ("Download-all for %s failed: No files associated with this dataset.",
+                                dataset_id)
                 return self.error_404 (request)
 
             zipfly_object = zipfly.ZipFly(paths = file_paths)
@@ -2629,7 +2627,7 @@ class ApiServer:
             return self.response (writer, mimetype="application/zip")
 
         except (KeyError, IndexError, TypeError, FileNotFoundError) as error:
-            logging.error("File download for %s failed due to: %s.", dataset_id, error)
+            self.log.error ("File download for %s failed due to: %s.", dataset_id, error)
             return self.error_404 (request)
 
     def ui_download_file (self, request, dataset_id, file_id):
@@ -2657,7 +2655,7 @@ class ApiServer:
                 file_path = metadata["filesystem_location"]
 
             if file_path is None:
-                logging.error ("File download failed due to missing metadata.")
+                self.log.error ("File download failed due to missing metadata.")
                 return self.error_500 ()
 
             return send_file (file_path,
@@ -2669,10 +2667,10 @@ class ApiServer:
         except IndexError:
             return self.error_404 (request)
         except TypeError as error:
-            logging.error("File download failed due to: %s", error)
+            self.log.error ("File download failed due to: %s", error)
             return self.error_404 (request)
         except FileNotFoundError:
-            logging.error ("File download failed due to missing file.")
+            self.log.error ("File download failed due to missing file.")
 
         return self.error_500 ()
 
@@ -3302,7 +3300,7 @@ class ApiServer:
                             is_public  = True,
                             created_by = account_uuid)
                         if author_uuid is None:
-                            logging.error("Adding a single author failed.")
+                            self.log.error ("Adding a single author failed.")
                             return self.error_500()
                     new_authors.append(URIRef(uuid_to_uri (author_uuid, "author")))
 
@@ -3330,7 +3328,7 @@ class ApiServer:
                                                  account_uuid,
                                                  authors,
                                                  "authors"):
-                    logging.error("Adding a single author failed.")
+                    self.log.error ("Adding a single author failed.")
                     return self.error_500()
 
                 return self.respond_205()
@@ -3447,7 +3445,7 @@ class ApiServer:
                             url         = validator.string_value (record, "url", 0, 512, False),
                             account_uuid = account_uuid)
                         if funder_uuid is None:
-                            logging.error("Adding a single funder failed.")
+                            self.log.error ("Adding a single funder failed.")
                             return self.error_500()
                     new_fundings.append(URIRef(uuid_to_uri (funder_uuid, "funding")))
 
@@ -3471,7 +3469,7 @@ class ApiServer:
                                                  account_uuid,
                                                  fundings,
                                                  "funding_list"):
-                    logging.error("Adding a single funder failed.")
+                    self.log.error ("Adding a single funder failed.")
                     return self.error_500()
 
                 return self.respond_205()
@@ -3953,7 +3951,7 @@ class ApiServer:
                     is_active    = True)
 
                 if link_uri is None:
-                    logging.error ("Creating a private link failed for %s",
+                    self.log.error ("Creating a private link failed for %s",
                                    dataset["uuid"])
                     return self.error_500()
 
@@ -3966,8 +3964,8 @@ class ApiServer:
                                                  account_uuid,
                                                  links,
                                                  "private_links"):
-                    logging.error("Updating private links failed for %s.",
-                                  dataset["container_uuid"])
+                    self.log.error ("Updating private links failed for %s.",
+                                    dataset["container_uuid"])
 
                     return self.error_500()
 
@@ -4062,10 +4060,10 @@ class ApiServer:
             if response.status_code == 201:
                 data = response.json()
             else:
-                logging.error("DataCite responded with %s", response.status_code)
+                self.log.error ("DataCite responded with %s", response.status_code)
             return data
         except requests.exceptions.ConnectionError:
-            logging.error("Failed to reserve a DOI due to a connection error.")
+            self.log.error ("Failed to reserve a DOI due to a connection error.")
 
         return None
 
@@ -4096,8 +4094,8 @@ class ApiServer:
                                       doi = reserved_doi):
             return self.response (json.dumps({ "doi": reserved_doi }))
 
-        logging.error("Updating the collection %s for reserving DOI %s failed.",
-                      collection_id, reserved_doi)
+        self.log.error ("Updating the collection %s for reserving DOI %s failed.",
+                        collection_id, reserved_doi)
 
         return self.error_500 ()
 
@@ -4124,8 +4122,8 @@ class ApiServer:
         except KeyError:
             pass
 
-        logging.error("Updating the dataset %s for reserving DOI %s failed.",
-                      dataset["container_uuid"], reserved_doi)
+        self.log.error ("Updating the dataset %s for reserving DOI %s failed.",
+                        dataset["container_uuid"], reserved_doi)
 
         return False
 
@@ -4191,9 +4189,9 @@ class ApiServer:
             if response.status_code == 201:
                 pass #do something here?
             else:
-                logging.error("DataCite responded with %s", response.status_code)
+                self.log.error ("DataCite responded with %s", response.status_code)
         except requests.exceptions.ConnectionError:
-            logging.error("Failed to register a DOI due to a connection error.")
+            self.log.error ("Failed to register a DOI due to a connection error.")
 
         return self.error_500()
 
@@ -4225,9 +4223,9 @@ class ApiServer:
             if response.status_code == 201:
                 return True
 
-            logging.error("DataCite responded with %s", response.status_code)
+            self.log.error ("DataCite responded with %s", response.status_code)
         except requests.exceptions.ConnectionError:
-            logging.error("Failed to update a DOI due to a connection error.")
+            self.log.error ("Failed to update a DOI due to a connection error.")
 
         return False
 
@@ -4655,7 +4653,7 @@ class ApiServer:
                             is_public  = True,
                             created_by = account_uuid)
                         if author_uuid is None:
-                            logging.error("Adding a single author failed.")
+                            self.log.error ("Adding a single author failed.")
                             return self.error_500()
                     new_authors.append(URIRef(uuid_to_uri (author_uuid, "author")))
 
@@ -4683,7 +4681,7 @@ class ApiServer:
                                                  account_uuid,
                                                  authors,
                                                  "authors"):
-                    logging.error("Adding a single author failed.")
+                    self.log.error ("Adding a single author failed.")
                     return self.error_500()
 
                 return self.respond_205()
@@ -5153,7 +5151,7 @@ class ApiServer:
         if "doi" not in dataset:
             reserved_doi = self.__reserve_and_save_dataset_doi (account_uuid, dataset)
             if not reserved_doi:
-                logging.error ("Reserving a DOI for %s failed.", container_uuid)
+                self.log.error ("Reserving a DOI for %s failed.", container_uuid)
                 return self.error_500()
 
             if not self.__update_item_doi (container_uuid, item_type="dataset"):
@@ -5449,7 +5447,7 @@ class ApiServer:
             return self.response (json.dumps({ "location": f"{self.base_url}/v3/file/{file_uuid}" }))
 
         except OSError:
-            logging.error ("Writing %s to disk failed.", output_filename)
+            self.log.error ("Writing %s to disk failed.", output_filename)
             return self.error_500 ()
         except (IndexError, KeyError):
             pass
@@ -5507,7 +5505,7 @@ class ApiServer:
                                                  account_uuid,
                                                  references,
                                                  "references"):
-                    logging.error("Deleting a reference failed.")
+                    self.log.error ("Deleting a reference failed.")
                     return self.error_500()
 
                 return self.respond_204()
@@ -5528,7 +5526,7 @@ class ApiServer:
                                              account_uuid,
                                              references,
                                              "references"):
-                logging.error("Updating references failed.")
+                self.log.error ("Updating references failed.")
                 return self.error_500()
 
             return self.respond_205()
@@ -5536,7 +5534,7 @@ class ApiServer:
         except IndexError:
             return self.error_500 ()
         except KeyError as error:
-            logging.error ("KeyError: %s", error)
+            self.log.error ("KeyError: %s", error)
             return self.error_400 (request, "Expected a 'references' field.", "NoReferencesField")
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
@@ -5606,7 +5604,7 @@ class ApiServer:
                                                  account_uuid,
                                                  tags,
                                                  "tags"):
-                    logging.error("Deleting a tag failed.")
+                    self.log.error ("Deleting a tag failed.")
                     return self.error_500()
 
                 return self.respond_204()
@@ -5635,7 +5633,7 @@ class ApiServer:
                                              account_uuid,
                                              tags,
                                              "tags"):
-                logging.error("Updating tags failed.")
+                self.log.error ("Updating tags failed.")
                 return self.error_500()
 
             return self.respond_205()
@@ -5643,7 +5641,7 @@ class ApiServer:
         except IndexError:
             return self.error_500 ()
         except KeyError as error:
-            logging.error ("KeyError: %s", error)
+            self.log.error ("KeyError: %s", error)
             return self.error_400 (request, "Expected a 'tags' field.", "NoTagsField")
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
@@ -5688,10 +5686,10 @@ class ApiServer:
                                encoding = "utf-8") as config:
                         config.write ("\n[http]\n  receivepack = true\n")
                 except FileNotFoundError:
-                    logging.error ("%s/.git/config does not exist.", git_directory)
+                    self.log.error ("%s/.git/config does not exist.", git_directory)
                     return False
                 except OSError:
-                    logging.error ("Could not open %s/.git/config", git_directory)
+                    self.log.error ("Could not open %s/.git/config", git_directory)
                     return False
             else:
                 return False
@@ -5757,8 +5755,8 @@ class ApiServer:
             return output
 
         except subprocess.CalledProcessError as error:
-            logging.error ("Proxying to Git failed with exit code %d", error.returncode)
-            logging.error ("The command was:\n---\n%s\n---", error.cmd)
+            self.log.error ("Proxying to Git failed with exit code %d", error.returncode)
+            self.log.error ("The command was:\n---\n%s\n---", error.cmd)
             return self.error_500()
 
     def api_v3_private_dataset_git_refs (self, request, git_uuid):
@@ -5775,7 +5773,7 @@ class ApiServer:
         if service == "git-receive-pack":
             return self.api_v3_private_dataset_git_upload_or_receive_pack (request, git_uuid)
 
-        logging.error ("Unsupported Git service command: %s", service)
+        self.log.error ("Unsupported Git service command: %s", service)
         return self.error_500 ()
 
     def api_v3_private_dataset_git_upload_or_receive_pack (self, request, git_uuid):
@@ -5973,7 +5971,7 @@ class ApiServer:
         account_uuid = self.account_uuid_from_request (request)
         token = self.token_from_cookie (request)
         if not self.db.may_review (token):
-            logging.error ("Account %d attempted a reviewer action.", account_uuid)
+            self.log.error ("Account %d attempted a reviewer action.", account_uuid)
             return self.error_403 (request)
 
         reviewer = self.db.account_by_uuid (reviewer_uuid)
@@ -6023,7 +6021,7 @@ class ApiServer:
                                        is_published=False)[0]
                 item['version'] = current_version
             except IndexError:
-                logging.warning ("No draft for %s.", item_id)
+                self.log.warning ("No draft for %s.", item_id)
                 return None
             published_date = date.today().isoformat()
         else:

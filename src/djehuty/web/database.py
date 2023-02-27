@@ -28,6 +28,7 @@ class SparqlInterface:
         self.endpoint    = "http://127.0.0.1:8890/sparql"
         self.state_graph = "https://data.4tu.nl/portal/self-test"
         self.privileges  = {}
+        self.log         = logging.getLogger(__name__)
         self.cache       = cache.CacheLayer(None)
         self.jinja       = Environment(loader = FileSystemLoader(
                             os.path.join(os.path.dirname(__file__),
@@ -52,7 +53,7 @@ class SparqlInterface:
     ## ------------------------------------------------------------------------
 
     def __log_query (self, query):
-        logging.info ("Query:\n---\n%s\n---", query)
+        self.log.info ("Query:\n---\n%s\n---", query)
 
     def __normalize_binding (self, record):
         for item in record:
@@ -84,7 +85,7 @@ class SparqlInterface:
             elif record[item]["type"] == "uri":
                 record[item] = str(record[item]["value"])
             else:
-                logging.info("Not a typed-literal: %s", record[item]['type'])
+                self.log.info ("Not a typed-literal: %s", record[item]['type'])
         return record
 
     def __query_from_template (self, name, args=None):
@@ -123,27 +124,27 @@ class SparqlInterface:
                 self.cache.cache_value (prefix, cache_key, results, query)
 
             if not self.sparql_is_up:
-                logging.info("Connection to the SPARQL endpoint seems up again.")
+                self.log.info ("Connection to the SPARQL endpoint seems up again.")
                 self.sparql_is_up = True
 
         except HTTPError as error:
-            logging.error("SPARQL endpoint returned %d:\n---\n%s\n---",
-                          error.code, error.message)
+            self.log.error ("SPARQL endpoint returned %d:\n---\n%s\n---",
+                            error.code, error.message)
             return []
         except (URLError, SPARQLExceptions.EndPointNotFound):
             if self.sparql_is_up:
-                logging.error("Connection to the SPARQL endpoint seems down.")
+                self.log.error ("Connection to the SPARQL endpoint seems down.")
                 self.sparql_is_up = False
                 return []
         except SPARQLExceptions.QueryBadFormed:
-            logging.error("Badly formed SPARQL query:")
+            self.log.error ("Badly formed SPARQL query:")
             self.__log_query (query)
         except SPARQLExceptions.EndPointInternalError as error:
-            logging.error("SPARQL internal error: %s", error)
+            self.log.error ("SPARQL internal error: %s", error)
             return []
         except Exception as error:
-            logging.error("SPARQL query failed.")
-            logging.error("Exception: %s", type(error))
+            self.log.error ("SPARQL query failed.")
+            self.log.error ("Exception: %s", type(error))
             self.__log_query (query)
             return []
 
@@ -396,7 +397,7 @@ class SparqlInterface:
                 result = self.__run_query (query)
                 return result[0]["container_uuid"]
             except (IndexError, KeyError):
-                logging.error ("Retrieving uuid for %s failed.", identifier)
+                self.log.error ("Retrieving uuid for %s failed.", identifier)
                 return None
 
         return identifier
@@ -412,7 +413,7 @@ class SparqlInterface:
         try:
             return self.__run_query (query, query, "container")[0]
         except (TypeError, IndexError):
-            logging.error ("Retrieving container for %s failed.", container_uuid)
+            self.log.error ("Retrieving container for %s failed.", container_uuid)
             return None
 
     def authors (self, first_name=None, full_name=None, group_id=None,
@@ -681,8 +682,8 @@ class SparqlInterface:
         try:
             return self.__run_query(query)[0]
         except (TypeError, IndexError):
-            logging.error ("Retrieving contact info for container %s failed.",
-                           container_uuid)
+            self.log.error ("Retrieving contact info for container %s failed.",
+                            container_uuid)
             return None
 
     ## ------------------------------------------------------------------------
@@ -1084,7 +1085,7 @@ class SparqlInterface:
 
         if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
-            logging.info ("Inserted dataset %s", container_uuid)
+            self.log.info ("Inserted dataset %s", container_uuid)
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
             return (container_uuid, rdf.uri_to_uuid (uri))
 
@@ -1135,8 +1136,8 @@ class SparqlInterface:
                                        "categories")
 
                 if not self.add_triples_from_graph (graph):
-                    logging.error("Updating categories for account %d failed.",
-                                  account_uuid)
+                    self.log.error ("Updating categories for account %d failed.",
+                                    account_uuid)
                     return None
 
         return results
@@ -1157,15 +1158,15 @@ class SparqlInterface:
                                        predicate)
 
                 if not self.add_triples_from_graph (graph):
-                    logging.error ("%s insert query failed for %s",
-                                   predicate, container_uuid)
+                    self.log.error ("%s insert query failed for %s",
+                                    predicate, container_uuid)
                     return False
 
             return True
 
         except IndexError:
-            logging.error ("Could not insert %s items for %s",
-                           predicate, container_uuid)
+            self.log.error ("Could not insert %s items for %s",
+                            predicate, container_uuid)
 
         return False
 
@@ -1460,7 +1461,7 @@ class SparqlInterface:
         """Procedure to add a custom field value to the state graph."""
 
         if name is None or value is None or item_uri is None or graph is None:
-            logging.error ("insert_custom_field_value was passed None parameters.")
+            self.log.error ("insert_custom_field_value was passed None parameters.")
             return False
 
         name = conv.custom_field_name (name)
@@ -1490,7 +1491,7 @@ class SparqlInterface:
             draft = self.collections (container_uuid = container_uuid,
                                       is_published = False)[0]
         except IndexError:
-            logging.error ("Attempted to publish without a draft <container:%s>.",
+            self.log.error ("Attempted to publish without a draft <container:%s>.",
                            container_uuid)
             return False
 
@@ -1502,7 +1503,7 @@ class SparqlInterface:
                                        is_latest      = True)[0]
             new_version_number = latest["version"] + 1
         except IndexError:
-            logging.error ("No latest version for <container:%s>.", container_uuid)
+            self.log.error ("No latest version for <container:%s>.", container_uuid)
 
         collection_uuid = draft["uuid"]
         blank_node   = self.wrap_in_blank_node (collection_uuid, "collection")
@@ -1596,7 +1597,7 @@ class SparqlInterface:
             draft = self.datasets (container_uuid = container_uuid,
                                    is_published   = False)[0]
         except IndexError:
-            logging.error ("Attempted to publish without a draft <container:%s>.",
+            self.log.error ("Attempted to publish without a draft <container:%s>.",
                            container_uuid)
             return False
 
@@ -1608,7 +1609,7 @@ class SparqlInterface:
                                     is_latest      = True)[0]
             new_version_number = latest["version"] + 1
         except IndexError:
-            logging.error ("No latest version for <container:%s>.", container_uuid)
+            self.log.error ("No latest version for <container:%s>.", container_uuid)
 
         dataset_uuid = draft["uuid"]
         blank_node   = self.wrap_in_blank_node (dataset_uuid, "dataset")
@@ -1639,8 +1640,8 @@ class SparqlInterface:
             draft = self.datasets (container_uuid = container_uuid,
                                    is_published   = False)[0]
         except IndexError:
-            logging.error ("Attempted to decline without a draft <container:%s>.",
-                           container_uuid)
+            self.log.error ("Attempted to decline without a draft <container:%s>.",
+                            container_uuid)
             return False
 
         query = self.__query_from_template ("decline_draft_dataset", {
@@ -1652,7 +1653,7 @@ class SparqlInterface:
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
             return True
 
-        logging.error ("Failed to decline dataset %s", container_uuid)
+        self.log.error ("Failed to decline dataset %s", container_uuid)
         return False
 
     def create_draft_from_published_dataset (self, container_uuid):
@@ -1989,7 +1990,7 @@ class SparqlInterface:
 
         if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
-            logging.info ("Inserted collection %s", container_uuid)
+            self.log.info ("Inserted collection %s", container_uuid)
             return (container_uuid, rdf.uri_to_uuid (uri))
 
         return None
@@ -2161,7 +2162,7 @@ class SparqlInterface:
             elif isinstance(startswith, str):
                 filters += f"FILTER (STRSTARTS(STR(?data_url), \"{ startswith }\"))\n"
             else:
-                logging.error("startswith of type %s is not supported", type(startswith))
+                self.log.error ("startswith of type %s is not supported", type(startswith))
 
         if endswith is not None:
             filters += f"FILTER (STRENDS(STR(?data_url), \"{ endswith }\"))\n"
@@ -2219,7 +2220,7 @@ class SparqlInterface:
 
         if self.add_triples_from_graph (graph):
             self.cache.invalidate_by_prefix ("reviews")
-            logging.info ("Inserted review for dataset %s", dataset_uri)
+            self.log.info ("Inserted review for dataset %s", dataset_uri)
             return uri
 
         return None
@@ -2373,15 +2374,15 @@ class SparqlInterface:
         for email in privileged_accounts:
             account = self.account_by_email (email)
             if account is not None:
-                logging.info ("Account for %s already exists.", email)
+                self.log.info ("Account for %s already exists.", email)
                 return None
 
             account_uuid = self.insert_account (email=email)
             if not account_uuid:
-                logging.error ("Creating account for %s failed.", email)
+                self.log.error ("Creating account for %s failed.", email)
                 return None
 
-            logging.info ("Created account for %s.", email)
+            self.log.info ("Created account for %s.", email)
 
             orcid = self.privileges[email]["orcid"]
             if orcid is None:
@@ -2392,10 +2393,10 @@ class SparqlInterface:
                 account_uuid = account_uuid,
                 orcid_id     = orcid)
             if not author_uuid:
-                logging.warning ("Failed to link author to account for %s.", email)
+                self.log.warning ("Failed to link author to account for %s.", email)
                 return None
 
-            logging.info ("Linked account of %s to ORCID: %s.", email, orcid)
+            self.log.info ("Linked account of %s to ORCID: %s.", email, orcid)
             return None
 
     def insert_session (self, account_uuid, name=None, token=None, editable=False,
@@ -2601,7 +2602,7 @@ class SparqlInterface:
         if processing_complete:
             return True
 
-        logging.error ("Inserting triples from a graph failed.")
+        self.log.error ("Inserting triples from a graph failed.")
         self.__log_query (query)
 
         return False

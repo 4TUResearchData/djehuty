@@ -15,6 +15,7 @@ class EmailInterface:
         self.smtp_password = None
         self.smtp_port = 587
         self.do_starttls = True
+        self.log = logging.getLogger(__name__)
 
     def is_properly_configured (self):
         """Procedure to bail early on a misconfigured instance of this class."""
@@ -27,7 +28,7 @@ class EmailInterface:
         """Procedure to send an email."""
 
         if not self.is_properly_configured ():
-            logging.error ("E-mail server not properly configured.")
+            self.log.error ("E-mail server not properly configured.")
             return False
 
         message = MIMEMultipart ("alternative")
@@ -43,25 +44,25 @@ class EmailInterface:
         if self.do_starttls:
             connection.starttls ()
         else:
-            logging.error ("The e-mail interface hasn't been tested without STARTTLS.")
-            logging.error ("Please review the code before continuing.")
+            self.log.error ("The e-mail interface hasn't been tested without STARTTLS.")
+            self.log.error ("Please review the code before continuing.")
             return False
 
         try:
             connection.login (self.smtp_username, self.smtp_password)
         except smtplib.SMTPAuthenticationError:
-            logging.error ("Wrong credentials for authenticating to the e-mail server.")
+            self.log.error ("Wrong credentials for authenticating to the e-mail server.")
             return False
         except (smtplib.SMTPHeloError,
                 smtplib.SMTPNotSupportedError, smtplib.SMTPException) as error:
-            logging.error ("Authenticating to the e-mail server failed: %s", error)
+            self.log.error ("Authenticating to the e-mail server failed: %s", error)
             return False
 
         try:
             connection.sendmail (self.from_address, to, message.as_string())
         except (smtplib.SMTPRecipientsRefused, smtplib.SMTPHeloError, smtplib.SMTPSenderRefused,
                 smtplib.SMTPDataError, smtplib.SMTPNotSupportedError) as error:
-            logging.error ("Sending e-mail failed: %s", error)
+            self.log.error ("Sending e-mail failed: %s", error)
             return False
 
         connection.close()

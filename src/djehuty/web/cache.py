@@ -16,6 +16,7 @@ class CacheLayer:
 
     def __init__ (self, storage_path):
         self.storage     = storage_path
+        self.log         = logging.getLogger(__name__)
 
     def make_key (self, input_string):
         """Procedure to turn 'input_string' into a short, unique identifier."""
@@ -48,11 +49,11 @@ class CacheLayer:
                       encoding = "utf-8") as cache_file:
                 cached = cache_file.read()
                 data   = json.loads(cached)
-                logging.debug("Cache hit for %s.", key)
+                self.log.debug ("Cache hit for %s.", key)
         except OSError:
-            logging.debug("No cached response for %s.", key)
+            self.log.debug ("No cached response for %s.", key)
         except json.decoder.JSONDecodeError:
-            logging.error ("Possible cache corruption at %s.", filename)
+            self.log.error ("Possible cache corruption at %s.", filename)
 
         return data
 
@@ -74,7 +75,7 @@ class CacheLayer:
                     if os.name != 'nt':
                         os.fchmod (query_fd, 0o400)
         except OSError:
-            logging.error("Failed to save cache for %s.", key)
+            self.log.error ("Failed to save cache for %s.", key)
 
         return value
 
@@ -84,7 +85,7 @@ class CacheLayer:
         try:
             os.remove(file_path)
         except FileNotFoundError:
-            logging.error ("Trying to remove %s multiple times.", file_path)
+            self.log.error ("Trying to remove %s multiple times.", file_path)
 
         return True
 
@@ -94,19 +95,19 @@ class CacheLayer:
             try:
                 os.remove(file_path)
             except FileNotFoundError:
-                logging.error ("Trying to remove %s multiple times.", file_path)
+                self.log.error ("Trying to remove %s multiple times.", file_path)
 
         return True
 
     def invalidate_all (self):
         """Procedure to remove all cache items."""
         files = glob.glob(f"{self.storage}/*[!.sparql]")
-        logging.info("Removing %d files.", len(files))
+        self.log.info ("Removing %d files.", len(files))
         for file_path in files:
             try:
                 os.remove(file_path)
             except FileNotFoundError:
-                logging.error ("Trying to remove %s multiple times.", file_path)
+                self.log.error ("Trying to remove %s multiple times.", file_path)
             except IsADirectoryError:
                 pass
 

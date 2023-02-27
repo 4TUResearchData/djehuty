@@ -50,7 +50,7 @@ Available subcommands and options:
 def main_inner ():
     """The main entry point of the program."""
 
-    logging.basicConfig(format='[ %(levelname)s ] %(asctime)s: %(message)s',
+    logging.basicConfig(format='[%(levelname)s] %(asctime)s - %(name)s: %(message)s',
                         level=logging.INFO)
 
     ## COMMAND-LINE ARGUMENTS
