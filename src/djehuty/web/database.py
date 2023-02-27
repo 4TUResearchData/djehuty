@@ -1205,7 +1205,7 @@ class SparqlInterface:
         rdf.add (graph, author_uri, rdf.DJHT["created_by"],     rdf.uuid_to_uri (created_by, "account"), "uri")
         if account_uuid is not None:
             account_uri = URIRef(rdf.uuid_to_uri(account_uuid, "account"))
-            rdf.add (graph, author_uri, rdf.DJHT["account"], account_uri)
+            rdf.add (graph, author_uri, rdf.DJHT["account"], account_uri, "uri")
 
         if self.add_triples_from_graph (graph):
             return rdf.uri_to_uuid (author_uri)
