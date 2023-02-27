@@ -2598,11 +2598,35 @@ class ApiServer:
 
         return dataset
 
+    def __filesystem_location (self, file_info):
+        """Procedure to gather the filesystem location from file metadata."""
+
+        file_path = None
+
+        ## The filesystem_location property was introduced in Djehuty.
+        ## It isn't set for files deposited before Djehuty went into production.
+        if "filesystem_location" in file_info:
+            file_path = file_info["filesystem_location"]
+
+        ## Files deposited pre-Djehuty have a numeric identifier (id)
+        elif "id" in file_info:
+            file_path = f"{self.db.secondary_storage}/{file_info['id']}/{file_info['name']}"
+
+            ## Data stored before Djehuty went into production requires a few tweaks.
+            ## Only apply these quirks when enabled.
+            if self.db.secondary_storage_quirks:
+                transformed_name = file_info['name'].replace(" ", "").replace("-", "")
+                file_path = f"{self.db.secondary_storage}/{file_info['id']}/{transformed_name}"
+
+        return file_path
+
     def ui_download_all_files (self, request, dataset_id, version):
         """Implements /ndownloader/items/<id>/versions/<version>"""
         try:
             ## Check whether a public dataset can be found.
-            dataset  = self.__dataset_by_id_or_uri (dataset_id, version=version)
+            dataset = None
+            if version != "draft":
+                dataset  = self.__dataset_by_id_or_uri (dataset_id, version=version)
 
             ## When downloading a file from a dataset that isn't published,
             ## we need to authorize it first.
@@ -2625,18 +2649,8 @@ class ApiServer:
             metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
             file_paths = []
             for file_info in metadata:
-                filesystem_location = f"{self.db.secondary_storage}/{file_info['id']}/{file_info['name']}"
-
-                ## Data stored before Djehuty went into production requires a few tweaks.
-                ## Only apply these quirks when enabled.
-                if self.db.secondary_storage_quirks:
-                    transformed_name = file_info['name'].replace(" ", "").replace("-", "")
-                    filesystem_location = f"{self.db.secondary_storage}/{file_info['id']}/{transformed_name}"
-
-                if "filesystem_location" in file_info:
-                    filesystem_location = file_info["filesystem_location"]
                 file_paths.append ({
-                    "fs": filesystem_location,
+                    "fs": self.__filesystem_location (file_info),
                     "n":  file_info["name"]
                 })
 
@@ -2647,7 +2661,13 @@ class ApiServer:
 
             zipfly_object = zipfly.ZipFly(paths = file_paths)
             writer = zipfly_object.generator()
-            return self.response (writer, mimetype="application/zip")
+            response = self.response (writer, mimetype="application/zip")
+
+            if version is None:
+                version = "draft"
+            filename = f"{dataset['container_uuid']}_{version}_all.zip"
+            response.headers["Content-disposition"] = f"attachment; filename={filename}"
+            return response
 
         except (KeyError, IndexError, TypeError, FileNotFoundError) as error:
             self.log.error ("File download for %s failed due to: %s.", dataset_id, error)
@@ -2655,6 +2675,7 @@ class ApiServer:
 
     def ui_download_file (self, request, dataset_id, file_id):
         """Implements /file/<id>/<fid>."""
+        file_path = None
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id)
 
@@ -2678,11 +2699,7 @@ class ApiServer:
                 return self.error_404 (request)
 
             metadata  = self.__file_by_id_or_uri (file_id, dataset_uri = dataset["uri"])
-            if "id" in metadata:
-                file_path = f"{self.db.secondary_storage}/{metadata['id']}/{metadata['name']}"
-            if "filesystem_location" in metadata:
-                file_path = metadata["filesystem_location"]
-
+            file_path = self.__filesystem_location (metadata)
             if file_path is None:
                 self.log.error ("File download failed due to missing metadata.")
                 return self.error_500 ()
@@ -2699,7 +2716,8 @@ class ApiServer:
             self.log.error ("File download failed due to: %s", error)
             return self.error_404 (request)
         except FileNotFoundError:
-            self.log.error ("File download failed due to missing file.")
+            self.log.error ("File download failed due to missing file: '%s'.", file_path)
+            return self.error_404 (request)
 
         return self.error_500 ()
 
