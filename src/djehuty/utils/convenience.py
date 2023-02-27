@@ -179,8 +179,7 @@ def add_logging_level (level_name, level_number, method_name=None):
     used.
 
     To avoid accidental clobberings of existing attributes, this method will
-    raise an `AttributeError` if the level name is already an attribute of the
-    `logging` module or if the method name is already present.
+    not overwrite existing attributes.
 
     Code copied and adapted from the following Stack Overflow post:
     https://stackoverflow.com/questions/2183233/35804945#35804945
@@ -191,7 +190,7 @@ def add_logging_level (level_name, level_number, method_name=None):
     if (hasattr(logging, level_name) or
         hasattr(logging, method_name) or
         hasattr(logging.getLoggerClass(), method_name)):
-        raise AttributeError(f"{level_name} is already defined.")
+        return
 
     # This method was inspired by the answers to Stack Overflow post
     # http://stackoverflow.com/q/2183233/2988730, especially

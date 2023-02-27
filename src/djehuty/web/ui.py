@@ -597,11 +597,11 @@ def main (address=None, port=None, state_graph=None, storage=None,
                           server.db.storage)
             raise FileNotFoundError
 
+        server.db.setup_sparql_endpoint ()
         if not run_internal_server:
             server.using_uwsgi = True
             return server
 
-        server.db.setup_sparql_endpoint ()
         if inside_reload:
             logger.info ("Reloaded.")
         else:
