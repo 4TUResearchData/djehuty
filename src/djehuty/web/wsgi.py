@@ -2157,6 +2157,9 @@ class ApiServer:
             pass
 
         category      = self.db.category_by_id (category_id)
+        if category is None:
+            return self.error_404 (request)
+
         subcategories = self.db.subcategories_for_category (category["uuid"])
         datasets      = self.db.datasets (categories = [category["id"]],
                                           limit      = limit,
