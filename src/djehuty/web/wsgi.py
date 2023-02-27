@@ -2582,6 +2582,22 @@ class ApiServer:
 
         return self.error_406 ("text/html")
 
+    def __dataset_by_referer (self, request):
+        dataset = None
+        try:
+            referer       = request.headers.get ("Referer")
+            referer_begin = f"{self.base_url}/private_datasets/"
+            if referer.startswith (referer_begin):
+                private_link_id = referer.partition (referer_begin)[2]
+                self.log.info ("Looks like private viewing (%s).", private_link_id)
+                dataset = self.db.datasets (private_link_id_string = private_link_id,
+                                            is_published           = False,
+                                            limit                  = 1)[0]
+        except (AttributeError, IndexError):
+            pass
+
+        return dataset
+
     def ui_download_all_files (self, request, dataset_id, version):
         """Implements /ndownloader/items/<id>/versions/<version>"""
         try:
@@ -2596,6 +2612,10 @@ class ApiServer:
                     dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                            account_uuid = account_uuid,
                                                            is_published = False)
+
+            ## Check whether the download is requested from a private link.
+            if dataset is None:
+                dataset = self.__dataset_by_referer (request)
 
             ## Check again whether a private dataset has been found.
             if dataset is None:
@@ -2649,17 +2669,7 @@ class ApiServer:
 
             ## Check whether a download is requested from a private link.
             if dataset is None:
-                try:
-                    referer       = request.headers.get ("Referer")
-                    referer_begin = f"{self.base_url}/private_datasets/"
-                    if referer.startswith (referer_begin):
-                        private_link_id = referer.partition (referer_begin)[2]
-                        self.log.info ("Looks like private viewing (%s).", private_link_id)
-                        dataset = self.db.datasets (private_link_id_string = private_link_id,
-                                                    is_published           = False,
-                                                    limit                  = 1)[0]
-                except (AttributeError, IndexError):
-                    pass
+                dataset = self.__dataset_by_referer (request)
 
             ## If no dataset has been found that means the file is not
             ## publically accessible, the file isn't of the user and the user
