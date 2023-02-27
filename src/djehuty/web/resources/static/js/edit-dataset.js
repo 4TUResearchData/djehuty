@@ -592,7 +592,7 @@ function activate (dataset_uuid) {
             parallelUploads:   1000000,
             ignoreHiddenFiles: false,
             disablePreviews:   false,
-            init: function() { this.hiddenFileInput.setAttribute("webkitdirectory", true); },
+            init: function() {},
             accept: function(file, done) {
                 done();
                 render_files_for_dataset (dataset_uuid, fileUploader);
