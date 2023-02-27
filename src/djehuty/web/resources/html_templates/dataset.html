@@ -121,11 +121,11 @@
                     <span>md5</span>
                     <input readonly value="{{file.computed_md5}}"> </input>
                 </span>
-                <a href="{{file.download_url}}">{{file.name}}</a>
+                <a href="/file/{{uuid}}/{{file.uuid}}">{{file.name}}</a>
             </li>
     {% endfor %}
     {% if files|length > 1 %}
-            <li class="zip"><a href="/ndownloader/items/{{pid}}/versions/{{item.version}}">download all files (zip)</a></li>
+            <li class="zip"><a href="/ndownloader/items/{{uuid}}/versions/{{item.version | default('draft', False)}}">download all files (zip)</a></li>
     {% endif %}
         </ul>
     </div>
