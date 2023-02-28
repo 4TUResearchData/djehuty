@@ -507,10 +507,18 @@ img { user-select: none; }
     color: #fff;
     text-align: center;
 }
-#pre-header p { padding: .5em; line-height: 2em; font-size: 1.25em; margin: auto; }
-#pre-header a { color: #fff; }
-#pre-header a:hover { color: #ccc; }
-#pre-header a:active { color: #999; }
+#pre-header-for-reviewer {
+    display: block;
+    width: 100%;
+    background: #333333;
+    height: 3.75em;
+    color: #fff;
+    text-align: center;
+}
+.pre-header p { padding: .5em; line-height: 2em; font-size: 1.25em; margin: auto; }
+.pre-header a { color: #fff; }
+.pre-header a:hover { color: #ccc; }
+.pre-header a:active { color: #999; }
 .sticky { position: fixed !important; top: 0px; width: 100% }
 .sticky-message { position: fixed !important; top: 70px; }
 .sticky-margin { margin-top: 60px; }

@@ -14,13 +14,18 @@
   <body>
     <div id="wrapper" {%- if path == "/portal" %} class="footer1"{% else %} class="footer2"{% endif %}>
       {%- if impersonating_account %}
+      {%- if is_reviewing %}
+      <div id="pre-header-for-reviewer" class="pre-header">
+        <p>Reviewing dataset for <strong>{{impersonating_account.first_name}} {{impersonating_account.last_name}}</strong>. <a href="/logout">Click here</a> to stop reviewing.</p>
+      </div>
+      {% else: %}
       <div id="pre-header">
-        <p>Impersonating as <strong>{{impersonating_account.first_name}} {{impersonating_account.last_name}}</strong>.
-          <a href="/logout">Click here</a> to stop impersonating.</p>
+        <p>Impersonating as <strong>{{impersonating_account.first_name}} {{impersonating_account.last_name}}</strong>. <a href="/logout">Click here</a> to stop impersonating.</p>
       </div>
       {%- endif %}
-      {%- if private_view %}
-      <div id="pre-header">
+      {%- endif %}
+      {%- if private_view and not is_reviewing %}
+      <div id="pre-header" class="pre-header">
         <p>You are viewing a pre-publication item. It hasn't been reviewed or published.</p>
       </div>
       {%- endif %}
