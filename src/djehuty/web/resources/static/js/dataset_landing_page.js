@@ -51,7 +51,9 @@ function submit_access_request (event) {
 }
 
 jQuery(document).ready(function (){
-    new Quill("#access-request-reason", { theme: "4tu" });
+    if (document.getElementById ("access-request-reason") !== null) {
+        new Quill("#access-request-reason", { theme: "4tu" });
+    }
     jQuery("#access-request").on("click", toggle_access_request);
     jQuery("#submit-access-request").on("click", submit_access_request);
 });
