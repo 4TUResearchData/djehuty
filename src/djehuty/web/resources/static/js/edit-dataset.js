@@ -47,7 +47,7 @@ function preview_dataset (dataset_uuid, event) {
             type:        "POST",
             contentType: "application/json",
             accept:      "application/json",
-            data:        JSON.stringify({ "expires_date": `${year}-${month}-${day} 00:00:00` }),
+            data:        JSON.stringify({ "expires_date": `${year}-${month}-${day}` }),
         }).done(function (data) {
             let preview_window = window.open(data["location"], '_blank');
             if (preview_window) { preview_window.focus(); }
