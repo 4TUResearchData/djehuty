@@ -2723,7 +2723,8 @@ class ApiServer:
         if self.accepts_html (request):
             search_for = self.get_parameter(request, "search")
             search_for = search_for.strip()
-            operators = ("(", ")", "AND", "OR")
+            operators_mapping = {"(":"(", ")":")", "AND":"&&", "OR":"||"}
+            operators = operators_mapping.keys()
             has_operators = any((operator in search_for) for operator in operators)
 
             fields = ["title", "resource_title", "description", "citation", "format"]
@@ -2738,7 +2739,8 @@ class ApiServer:
             ## Unpacking this construction to replace AND and OR for &&
             ## and || results in a query where && is stripped out.
             if has_operators:
-                search_list = [{"operator": element.upper()} if (element.upper() in operators) else element for element in search_list]
+                search_list = [{"operator": operators_mapping[element.upper()]} if (element.upper() in operators)
+                               else element for element in search_list]
             elif has_fieldsearch:
                 pass
             else:
