@@ -490,6 +490,16 @@ img { user-select: none; }
     background-repeat: no-repeat;
     z-index: 100;
 }
+.loader-top {
+    display: block;
+    width: auto;
+    min-height: 100px;
+    background-color: rgba(255, 255, 255, 0.5);
+    background-image: url('/static/images/loader.svg');
+    background-position: top;
+    background-repeat: no-repeat;
+    z-index: 100;
+}
 .no-script { background: #cc0000; color: #ffffff; padding: 1em; }
 .hide-for-javascript { display: none !important; }
 #message { display: none; color: #ffffff; border-radius: .5em; padding: 0em; margin: 0em;  }
