@@ -16,6 +16,8 @@ function decline_dataset (dataset_uuid, event) {
     event.preventDefault();
     event.stopPropagation();
 
+    jQuery("#content").addClass("loader-top");
+    jQuery("#content-wrapper").css('opacity', '0.15');
     save_dataset (dataset_uuid, event, false, function() {
         jQuery.ajax({
             url:         `/v3/datasets/${dataset_uuid}/decline`,
@@ -27,6 +29,8 @@ function decline_dataset (dataset_uuid, event) {
             show_message ("failure",
                           `<p>Could not decline due to error ` +
                           `<code>${error_code}</code>.</p>`);
+            jQuery("#content-wrapper").css('opacity', '1.0');
+            jQuery("#content").removeClass("loader-top");
         });
     });
 }
