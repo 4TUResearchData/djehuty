@@ -488,7 +488,7 @@ class DatabaseInterface:
                 urls = field['value']
                 urls = [url.replace('https://opendap.tudelft.nl/', 'https://opendap.4tu.nl/') for url in urls]
                 field['value'] = urls
-                data_link_size = sum([self.__get_file_size_for_catalog(url) for url in urls])
+                data_link_size = sum(self.__get_file_size_for_catalog(url) for url in urls)
                 if data_link_size:
                     rdf.add (self.store, uri, rdf.DJHT["data_link_size"], data_link_size, XSD.integer)
 
