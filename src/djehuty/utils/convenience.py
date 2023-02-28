@@ -222,10 +222,10 @@ def split_author_name(name):
         * first_name last_name
         * last_name """
     name = re.sub(r'\s+', ' ', name)
-    if (')') in name:
+    if ')' in name:
         parts = name.split(')', 1)
         parts[0] += ')'
-    elif ('.') in name:
+    elif '.' in name:
         parts = name[::-1].split('.', 1)
         parts = [part[::-1] for part in parts][::-1]
         parts[0] += '.'

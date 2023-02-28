@@ -6254,10 +6254,10 @@ class ApiServer:
     def add_names_to_authors(self, authors):
         """ Procedure to add missing first_name and last_name to author dict """
         for author in authors:
-            if not('full_name' in author):
+            if 'full_name' not in author:
                 author['full_name'] = ''
-                self.log.warning ("full_name is missing for author $s.", author['uuid'])
-            if not('first_name' in author or 'last_name' in author):
+                self.log.warning ("full_name is missing for author %s.", author['uuid'])
+            if not ('first_name' in author or 'last_name' in author):
                 parts = split_author_name(author['full_name'])
                 author['first_name'] = parts[0]
                 author['last_name' ] = parts[1]
