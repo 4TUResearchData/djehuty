@@ -39,6 +39,9 @@ class DatabaseInterface:
             item_type: { pid: dict(versions) for pid, versions in extra[item_type] }
             for item_type in extra
         }
+        with open(f'{script_path}/resources/public_collections.json', 'r',
+                  encoding = 'utf-8') as coll_file:
+            self.public_collection_datasets = json.load(coll_file)
 
     def __get_from_url (self, url: str, headers, parameters):
         """Procedure to perform a GET request to a Figshare-compatible endpoint."""
@@ -546,7 +549,9 @@ class DatabaseInterface:
 
             self.handle_custom_fields (record, uri, collection_id, version, 'collections')
 
-            datasets = value_or (record, "datasets", [])
+            datasets = value_or (record, "datasets",
+                                 value_or (self.public_collection_datatsets,
+                                           f"{collection_id}_{version}", []))
             if datasets:
                 for index, dataset_id in enumerate (datasets):
                     dataset_uri = self.record_uri ("DatasetContainer", "dataset_id", dataset_id)
