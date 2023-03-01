@@ -26,6 +26,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/backup/resources/groups.json                                      \
     djehuty/backup/resources/languages.json                                   \
     djehuty/backup/resources/licenses.json                                    \
+    djehuty/backup/resources/public_collections.json                          \
     djehuty/backup/resources/root_categories.json                             \
     djehuty/web/resources/html_templates/400.html                             \
     djehuty/web/resources/html_templates/403.html                             \
