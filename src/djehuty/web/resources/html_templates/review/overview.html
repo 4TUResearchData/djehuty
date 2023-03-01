@@ -2,9 +2,30 @@
 {% block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/utils.js"></script>
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
 <script src="/static/js/review-overview.js"></script>
 <script>
 jQuery(document).ready(function (){
+    jQuery("#overview-table").DataTable({
+        paging: false,
+        orderable: false,
+        info: false,
+        initComplete: function (settings, json) {
+            jQuery("#overview-table_filter").append(
+                `<label style="margin-left: 1em;">Reviewer: ` +
+                `<select class="reviewer-filter">` +
+                `<option value="all">All reviewers</option>` +
+                `<option value="unassigned">Unassigned</option>` +
+                {%- for reviewer in reviewers: %}
+                `<option value="{{reviewer.uuid}}">` +
+                    `{{reviewer.first_name | default("", False)}} ` +
+                    `{{reviewer.last_name | default("", False)}}` +
+                `</option>` +
+                {%- endfor %}
+                `</select></label>`);
+        }
+    });
     activate ();
 });
 </script>
@@ -27,7 +48,8 @@ jQuery(document).ready(function (){
       <th>E-mail address</th>
       <th>Affiliation</th>
       <th>Status</th>
-      <th>Date</th>
+      <th>Request date</th>
+      <th>Last modified</th>
       <th>Accepted</th>
       <th>Reviewer</th>
     </tr>
@@ -48,6 +70,7 @@ jQuery(document).ready(function (){
       <td>{{review.group_name | default("Unknown", False)}}</td>
       <td>{{review.status | default("unassigned", False)}}</td>
       <td>{{review.request_date}}</td>
+      <td>{{review.modified_date}}</td>
       <td>{{review.published_date | truncate(10,False,'')}}</td>
       <td>
         {%- if review.status == "accepted" %}
