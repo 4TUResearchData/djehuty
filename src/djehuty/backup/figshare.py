@@ -261,6 +261,10 @@ class FigshareEndpoint:
             versions = self.get_dataset_versions (dataset_id, account_id,
                                                   latest=current_version)
             record["versions"] = versions
+        else:
+            reviews = self.get_dataset_reviews (dataset_id)
+            if reviews:
+                record["review"] = reviews[0]
 
         ## Statistics
         ## --------------------------------------------------------------------
