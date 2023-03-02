@@ -550,7 +550,7 @@ class DatabaseInterface:
             self.handle_custom_fields (record, uri, collection_id, version, 'collections')
 
             datasets = value_or (record, "datasets",
-                                 value_or (self.public_collection_datatsets,
+                                 value_or (self.public_collection_datasets,
                                            f"{collection_id}_{version}", []))
             if datasets:
                 for index, dataset_id in enumerate (datasets):
