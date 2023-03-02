@@ -38,7 +38,8 @@ def sparql_filter (name, value, escape=False, is_uri=False):
     if is_uri:
         query  += f"FILTER (?{name} = {urify_value(value)})\n"
     else:
-        literal = escape_value (value, XSD.string) if escape else value
+        # Wrapping the xsd:string in STR ensures compatibility with Virtuoso.
+        literal = f"STR({escape_value (value, XSD.string)})" if escape else value
         symbol  = f"STR(?{name})" if escape else f"?{name}"
         query  += f"FILTER ({symbol}={literal})\n"
 
