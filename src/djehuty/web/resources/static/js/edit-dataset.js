@@ -844,6 +844,8 @@ function submit_dataset (dataset_uuid, event) {
     event.preventDefault();
     event.stopPropagation();
 
+    jQuery("#content").addClass("loader-top");
+    jQuery("#content-wrapper").css('opacity', '0.15');
     save_dataset (dataset_uuid, event, false, function() {
         form_data = gather_form_data();
         jQuery.ajax({
@@ -880,6 +882,8 @@ function submit_dataset (dataset_uuid, event) {
                 }
             }
             show_message ("failure", `${error_message}`);
+            jQuery("#content-wrapper").css('opacity', '1.0');
+            jQuery("#content").removeClass("loader-top");
         });
     });
 }
