@@ -928,11 +928,11 @@ class DatabaseInterface:
         self.store.add ((rdf.DJHT["CollectionContainer"], RDFS.subClassOf, rdf.DJHT["Container"]))
 
         ## Review states from Figshare.
-        self.store.add ((rdf.DJHT["ReviewApproved"],   RDF.type,   rdf.DJHT["ReviewApproved"]))
+        self.store.add ((rdf.DJHT["ReviewApproved"],   RDF.type,   rdf.DJHT["ReviewType"]))
         self.store.add ((rdf.DJHT["ReviewApproved"],   RDFS.label, Literal("approved", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["ReviewRejected"],   RDF.type,   rdf.DJHT["ReviewRejected"]))
+        self.store.add ((rdf.DJHT["ReviewRejected"],   RDF.type,   rdf.DJHT["ReviewType"]))
         self.store.add ((rdf.DJHT["ReviewRejected"],   RDFS.label, Literal("rejected", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["ReviewClosed"],     RDF.type,   rdf.DJHT["ReviewClosed"]))
+        self.store.add ((rdf.DJHT["ReviewClosed"],     RDF.type,   rdf.DJHT["ReviewType"]))
         self.store.add ((rdf.DJHT["ReviewClosed"],     RDFS.label, Literal("closed", datatype=XSD.string)))
 
         ## We split "pending" into "assigned" and "unassigned" in Djehuty.
