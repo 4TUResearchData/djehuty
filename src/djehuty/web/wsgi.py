@@ -4082,6 +4082,13 @@ class ApiServer:
 
         return self.error_500 ()
 
+    def standard_doi (self, container_uuid, version=None):
+        """ Standard doi for new datasets/collections """
+        suffix = container_uuid
+        if version:
+            suffix += f'.v{version}'
+        return f'{self.datacite_prefix}/{suffix}'
+
     def __datacite_reserve_doi (self, doi=None):
         """
         Reserve a DOI at DataCite and return its API response on success or
@@ -4130,7 +4137,7 @@ class ApiServer:
         if collection is None:
             return self.error_403 (request)
 
-        data = self.__datacite_reserve_doi ()
+        data = self.__datacite_reserve_doi (self.standard_doi(collection_id))
         if data is None:
             return self.error_500 ()
 
@@ -4151,7 +4158,7 @@ class ApiServer:
         if dataset is None or account_uuid is None:
             return False
 
-        data = self.__datacite_reserve_doi ()
+        data = self.__datacite_reserve_doi (self.standard_doi(dataset["container_uuid"]))
         if data is None:
             return False
 
