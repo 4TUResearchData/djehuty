@@ -36,6 +36,7 @@ WHERE {
 
     BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
   }
-  FILTER (STR(?token) = "{{token | safe}}")
+  ## Wrap in STR for compatibility with Virtuoso.
+  FILTER (STR(?token) = STR({{token | safe}}))
 }
 {% endblock %}

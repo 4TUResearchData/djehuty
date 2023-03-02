@@ -2302,7 +2302,7 @@ class SparqlInterface:
         """Returns an account record or None."""
 
         query = self.__query_from_template ("account_by_session_token", {
-            "token":       session_token,
+            "token":       rdf.escape_string_value (session_token),
             "mfa_token":   mfa_token
         })
 
@@ -2372,7 +2372,7 @@ class SparqlInterface:
         """Returns the account matching EMAIL."""
 
         query = self.__query_from_template ("account_by_email", {
-            "email":  email
+            "email":  rdf.escape_string_value (email)
         })
 
         results = self.__run_query (query)
