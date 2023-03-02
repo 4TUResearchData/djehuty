@@ -4,7 +4,7 @@
   <port>8080</port>
   <base-url>http://localhost:8080</base-url>
   <storage-root>/data</storage-root>
-  <cache-root>/data/cache</cache-root>
+  <cache-root clear-on-start="1">/data/cache</cache-root>
   <live-reload>1</live-reload>
   <!-- <log-file>/var/log/djehuty.log</log-file> -->
   <debug-mode>1</debug-mode>

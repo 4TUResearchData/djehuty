@@ -446,8 +446,6 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         server.base_url         = config_value (xml_root, "base-url", base_url,
                                                 f"http://{config['address']}:{config['port']}")
         server.db.storage       = config_value (xml_root, "storage-root", storage)
-        server.db.cache.storage = config_value (xml_root, "cache-root", cache,
-                                                f"{server.db.storage}/cache")
         server.db.state_graph   = config_value (xml_root, "rdf-store/state-graph", state_graph)
         config["use_reloader"]  = config_value (xml_root, "live-reload", use_reloader)
         config["use_debugger"]  = config_value (xml_root, "debug-mode", use_debugger)
@@ -471,6 +469,21 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         if not xml_root:
             return config
+
+        cache_root = xml_root.find ("cache-root")
+        if cache_root is not None:
+            server.db.cache.storage = cache_root.text
+            try:
+                clear_on_start = cache_root.attrib.get("clear-on-start")
+                config["clear-cache-on-start"] = bool(int(clear_on_start))
+            except ValueError:
+                logger.warning ("Invalid value for the 'clear-on-start' attribute in 'cache-root'.")
+                logger.warning ("Will not clear cache on start; Use '1' to enable, or '0' to disable.")
+                config["clear-cache-on-start"] = False
+            except TypeError:
+                config["clear-cache-on-start"] = False
+        elif server.db.cache.storage is None:
+            server.db.cache.storage = f"{server.db.storage}/cache"
 
         production_mode = xml_root.find ("production")
         if production_mode is not None:
@@ -591,6 +604,12 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
         if not server.db.cache.cache_is_ready() and not inside_reload:
             logger.error ("Failed to set up cache layer.")
+
+        if ("clear-cache-on-start" in config and
+            config["clear-cache-on-start"] and
+            not inside_reload):
+            logger.info ("Clearing cache.")
+            server.db.cache.invalidate_all ()
 
         setup_saml_service_provider (server, logger)
 
