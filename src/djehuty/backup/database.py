@@ -873,6 +873,32 @@ class DatabaseInterface:
                     self.store.remove ((blank_node, RDF.rest, RDF.nil))
                     self.store.add    ((blank_node, RDF.rest, new_blank_node))
 
+                ## Insert the review state for the record.
+                review = value_or_none (record, "review")
+                if review:
+                    logging.info ("Adding review for dataset %s v%s.", uri, version)
+                    review_uri  = rdf.unique_node ("review")
+                    status      = value_or (review, "status", "pending")
+                    assigned_to = value_or_none (review, "assigned_to")
+                    status_uri  = None
+                    if assigned_to is not None and status == "pending":
+                        status_uri = rdf.DJHT["ReviewAssigned"]
+                    elif assigned_to is None and status == "pending":
+                        status_uri = rdf.DJHT["ReviewUnassigned"]
+                    elif isinstance(status, str):
+                        status_uri = rdf.DJHT["Review" + status.capitalize()]
+                    else:
+                        status_uri = rdf.DJHT["ReviewUnassigned"]
+
+                    rdf.add (self.store, review_uri, RDF.type, rdf.DJHT["Review"], datatype="uri")
+                    rdf.add (self.store, review_uri, rdf.DJHT["dataset"], uri, datatype="uri")
+                    rdf.add (self.store, review_uri, rdf.DJHT["request_date"], value_or_none (review, "created_date"),  XSD.dateTime)
+                    rdf.add (self.store, review_uri, rdf.DJHT["modified_by_reviewer"], value_or_none (review, "modified_date"), XSD.dateTime)
+                    rdf.add (self.store, review_uri, rdf.DJHT["assigned_to"], value_or_none (review, "assigned_to"),   XSD.integer)
+                    rdf.add (self.store, review_uri, rdf.DJHT["status"], status_uri, datatype="uri")
+                else:
+                    logging.warning ("No review record found for dataset %s version %s", uri, version)
+
             if is_latest:
                 self.store.add ((container, rdf.DJHT["latest_published_version"], uri))
                 self.add_container_doi (record, container)
@@ -902,6 +928,20 @@ class DatabaseInterface:
 
         self.store.add ((rdf.DJHT["DatasetContainer"],    RDFS.subClassOf, rdf.DJHT["Container"]))
         self.store.add ((rdf.DJHT["CollectionContainer"], RDFS.subClassOf, rdf.DJHT["Container"]))
+
+        ## Review states from Figshare.
+        self.store.add ((rdf.DJHT["ReviewApproved"],   RDF.type,   rdf.DJHT["ReviewApproved"]))
+        self.store.add ((rdf.DJHT["ReviewApproved"],   RDFS.label, Literal("approved", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["ReviewRejected"],   RDF.type,   rdf.DJHT["ReviewRejected"]))
+        self.store.add ((rdf.DJHT["ReviewRejected"],   RDFS.label, Literal("rejected", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["ReviewClosed"],     RDF.type,   rdf.DJHT["ReviewClosed"]))
+        self.store.add ((rdf.DJHT["ReviewClosed"],     RDFS.label, Literal("closed", datatype=XSD.string)))
+
+        ## We split "pending" into "assigned" and "unassigned" in Djehuty.
+        self.store.add ((rdf.DJHT["ReviewAssigned"],   RDF.type,   rdf.DJHT["ReviewType"]))
+        self.store.add ((rdf.DJHT["ReviewAssigned"],   RDFS.label, Literal("assigned", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["ReviewUnassigned"], RDF.type,   rdf.DJHT["ReviewType"]))
+        self.store.add ((rdf.DJHT["ReviewUnassigned"], RDFS.label, Literal("unassigned", datatype=XSD.string)))
 
         languages = self.__load_resource_file("languages.json")
         for language in languages:

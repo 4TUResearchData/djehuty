@@ -430,6 +430,7 @@ class FigshareEndpoint:
         headers  = self.__request_headers ()
         versions = self.get (f"/articles/{dataset_id}/versions", headers, {})
         output   = []
+        reviews  = self.get_dataset_reviews (dataset_id)
 
         for item in versions:
             version = item["version"]
@@ -438,6 +439,7 @@ class FigshareEndpoint:
                 record["account_id"] = account_id
                 record["is_latest"]  = 0
                 record["is_editable"]= 0
+                record["review"] = next((item for item in reviews if item["version"] == int(version)), None)
 
                 if  latest is not None and version == latest:
                     record["is_latest"] = 1
@@ -480,6 +482,13 @@ class FigshareEndpoint:
                              "id_lte": account_id,
                              "id_gte": account_id
                          })
+
+    def get_dataset_reviews (self, dataset_id):
+        """Procedure to get review information of datasets."""
+        return self.get ("/account/institution/reviews", self.__request_headers (), {
+            "article_id": dataset_id,
+            "limit": 10
+        })
 
     def get_author_details_by_id (self, author_id, account_id):
         """Procedure to get a detailed author record."""
