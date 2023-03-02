@@ -9,6 +9,6 @@ WHERE {
   }
   BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
   ## Wrap in STR for compatibility with Virtuoso.
-  FILTER (STR(?orcid_string) = {{orcid | safe}})
+  FILTER (STR(?orcid_string) = STR({{orcid | safe}}))
 }
 {% endblock %}
