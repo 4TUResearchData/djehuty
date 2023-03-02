@@ -1933,7 +1933,7 @@ class ApiServer:
                                       order_direction = "desc")
         declined   = self.db.reviews (assigned_to = account_uuid,
                                       limit       = 10,
-                                      status      = "declined",
+                                      status      = "rejected",
                                       order       = "declined_date",
                                       order_direction = "desc")
         return self.__render_template (request, "review/dashboard.html",

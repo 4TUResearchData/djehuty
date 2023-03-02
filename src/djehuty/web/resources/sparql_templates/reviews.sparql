@@ -13,7 +13,7 @@ WHERE {
 
     OPTIONAL { ?review  djht:request_date         ?request_date . }
     OPTIONAL { ?review  djht:reminder_date        ?reminder_date . }
-    OPTIONAL { ?review  djht:status               ?status . }
+    OPTIONAL { ?review  djht:status/rdfs:label    ?status . }
 
     ?dataset            djht:container            ?container_uri ;
                         djht:title                ?dataset_title .
@@ -58,12 +58,11 @@ WHERE {
   FILTER (?review = <review:{{review_uuid}}>)
 {%- endif %}
 {%- endif %}
-{%- if status == '"unassigned"^^<http://www.w3.org/2001/XMLSchema#string>': %}
-  FILTER (!BOUND(?status) || STR(?status) = STR({{status | safe}}))
+{%- if status == 'Unassigned': %}
+  FILTER (!BOUND(?status) || ?status = <djht:Review{{status | safe}}>)
 {%- else %}
 {%- if status is not none %}
-  ## The wrapping in STR() is another Virtuoso bug.
-  FILTER (STR(?status) = STR({{status | safe}}))
+  FILTER (?status = <djht:Review{{status | safe}}>)
 {%- endif %}
 {%- endif %}
 }

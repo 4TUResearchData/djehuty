@@ -27,10 +27,7 @@ INSERT {
                    djht:published_date           ?now ;
                    djht:posted_date              ?now ;
                    djht:version                  {{version}} .
-    # Leaving the type of the string-value implicit is done deliberately
-    # because Virtuoso doesn't seem handle explicitely-defined 'xsd:string's
-    # properly.
-    ?review        djht:status                   "accepted" .
+    ?review        djht:status                   djht:ReviewAccepted .
 
     {%- if first_publication %}
     ?container     djht:published_versions       <{{blank_node}}> .

@@ -8,10 +8,7 @@ DELETE {
 }
 INSERT {
   GRAPH <{{state_graph}}> {
-    # Leaving the type of the string-value implicit is done deliberately
-    # because Virtuoso doesn't seem handle explicitely-defined 'xsd:string's
-    # properly.
-    ?review        djht:status                   "declined" .
+    ?review        djht:status                   djht:ReviewRejected .
     ?draft_dataset djht:is_under_review          "false"^^xsd:boolean ;
                    djht:declined_date            ?now .
   }

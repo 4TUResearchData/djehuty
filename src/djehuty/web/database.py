@@ -2199,7 +2199,7 @@ class SparqlInterface:
             "account_uuid":   account_uuid,
             "assigned_to":    assigned_to,
             "review_uuid":    review_uuid,
-            "status":         rdf.escape_string_value (status),
+            "status":         status.capitalize() if status is not None else status,
             "filters":        filters,
         })
 
@@ -2222,10 +2222,14 @@ class SparqlInterface:
         graph.add ((uri, RDF.type,                      rdf.DJHT["Review"]))
         graph.add ((uri, rdf.DJHT["dataset"],            dataset_uri))
 
+        status_uri = None
+        if status is not None:
+            status_uri = rdf.DJHT["Review" + status.capitalize()]
+
         rdf.add (graph, uri, rdf.DJHT["request_date"],   request_date,  XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["reminder_date"],  reminder_date, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["assigned_to"],    assigned_to,   XSD.integer)
-        rdf.add (graph, uri, rdf.DJHT["status"],         status,        XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["status"],         status_uri,    "uri")
         rdf.add (graph, dataset_uri, rdf.DJHT["is_under_review"], True, XSD.boolean)
 
         if self.add_triples_from_graph (graph):
@@ -2244,7 +2248,7 @@ class SparqlInterface:
             "review_uri":            review_uri,
             "dataset_uri":           dataset_uri,
             "assigned_to":           assigned_to,
-            "status":                status,
+            "status":                status.capitalize() if status is not None else status,
             "reminder_date":         reminder_date
         })
 

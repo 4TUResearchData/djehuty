@@ -48,7 +48,7 @@ WHERE {
     OPTIONAL {
       ?review           rdf:type                  djht:Review ;
                         djht:dataset              ?dataset .
-      OPTIONAL { ?review  djht:status             ?review_status . }
+      OPTIONAL { ?review  djht:status/rdfs:label  ?review_status . }
       ?review           djht:request_date         ?review_submit_date .
     }
 
