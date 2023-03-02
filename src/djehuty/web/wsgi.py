@@ -3987,11 +3987,17 @@ class ApiServer:
                     return self.error_404 (request)
 
                 id_string = secrets.token_urlsafe()
+                expires_date = validator.date_value (parameters, "expires_date", False)
+
+                # expires_date validates to YYYY-MM-DD but we need a full timestamp.
+                if expires_date:
+                    expires_date = expires_date + "T00:00:00Z"
+
                 link_uri  = self.db.insert_private_link (
                     dataset["uuid"],
                     account_uuid,
                     item_type    = "dataset",
-                    expires_date = validator.date_value (parameters, "expires_date", False),
+                    expires_date = expires_date,
                     read_only    = validator.boolean_value (parameters, "read_only", False),
                     id_string    = id_string,
                     is_active    = True)
