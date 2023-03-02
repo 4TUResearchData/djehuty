@@ -142,7 +142,7 @@ class SparqlInterface:
         except SPARQLExceptions.EndPointInternalError as error:
             self.log.error ("SPARQL internal error: %s", error)
             return []
-        except Exception as error:
+        except Exception as error:  # pylint: disable=broad-exception-caught
             self.log.error ("SPARQL query failed.")
             self.log.error ("Exception: %s", type(error))
             self.__log_query (query)
