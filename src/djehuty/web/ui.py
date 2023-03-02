@@ -419,8 +419,8 @@ def read_email_configuration (server, xml_root, logger):
             logger.error ("The email port should be a numeric value.")
 
 def read_configuration_file (server, config_file, address, port, state_graph,
-                             storage, cache, base_url, use_debugger,
-                             use_reloader, logger):
+                             storage, base_url, use_debugger, use_reloader,
+                             logger):
     """Procedure to parse a configuration file."""
 
     inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
@@ -536,7 +536,6 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                                                   config["port"],
                                                   server.db.state_graph,
                                                   server.db.storage,
-                                                  server.db.cache.storage,
                                                   server.base_url,
                                                   config["use_debugger"],
                                                   config["use_reloader"],
@@ -597,7 +596,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
         server = wsgi.ApiServer ()
         config = read_configuration_file (server, config_file, address, port,
-                                          state_graph, storage, None, base_url,
+                                          state_graph, storage, base_url,
                                           use_debugger, use_reloader, logger)
 
         inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
