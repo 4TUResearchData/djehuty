@@ -8,7 +8,7 @@ function delete_dataset (dataset_uuid, event) {
             url:         `/v2/account/articles/${dataset_uuid}`,
             type:        "DELETE",
         }).done(function () { window.location.pathname = '/my/datasets' })
-          .fail(function () { show_message ("failure", "<p>Failed to retrieve licenses.</p>"); });
+          .fail(function () { show_message ("failure", "<p>Failed to remove dataset.</p>"); });
     }
 }
 
