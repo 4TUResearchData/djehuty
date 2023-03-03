@@ -148,6 +148,8 @@ def format_license_record (record):
         "value":         conv.value_or_none(record, "id"),
         "name":          conv.value_or_none(record, "name"),
         "url":           conv.value_or_none(record, "url"),
+        # Extension for Djehuty.
+        "type":          conv.value_or_none(record, "type"),
     }
 
 def format_dataset_details_record (dataset, authors, files, custom_fields,

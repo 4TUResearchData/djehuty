@@ -655,16 +655,16 @@ class DatabaseInterface:
             self.store.add ((license_uri, rdf.DJHT["id"],
                              Literal(license_id, datatype=XSD.integer)))
 
+            license_type_uri = None
             if license_type == "software":
-                license_type = rdf.DJHT["SoftwareLicense"]
+                license_type_uri = rdf.DJHT["SoftwareLicense"]
             elif license_type == "data":
-                license_type = rdf.DJHT["DataLicense"]
+                license_type_uri = rdf.DJHT["DataLicense"]
             elif license_type == "legacy":
-                license_type = rdf.DJHT["LegacyLicense"]
-            else:
-                license_type = None
+                license_type_uri = rdf.DJHT["LegacyLicense"]
 
-            rdf.add (self.store, license_uri, rdf.DJHT["type"], license_type, "url")
+            rdf.add (self.store, license_uri, rdf.DJHT["type"], license_type_uri, "url")
+            rdf.add (self.store, license_type_uri, RDFS.label,  license_type, XSD.string)
 
         ## Insert the link between URI and the license.
         if uri is not None:

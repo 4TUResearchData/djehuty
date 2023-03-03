@@ -5,7 +5,7 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?url             rdf:type                 djht:License ;
                      djht:id                   ?id ;
-                     djht:type                 ?type ;
+                     djht:type/rdfs:label      ?type ;
                      djht:name                 ?name .
   }
   {%- if license_id is defined: %}
