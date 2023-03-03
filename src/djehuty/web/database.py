@@ -2301,6 +2301,9 @@ class SparqlInterface:
     def account_by_session_token (self, session_token, mfa_token=None):
         """Returns an account record or None."""
 
+        if session_token is None:
+            return None
+
         query = self.__query_from_template ("account_by_session_token", {
             "token":       rdf.escape_string_value (session_token),
             "mfa_token":   mfa_token
