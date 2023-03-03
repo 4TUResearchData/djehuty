@@ -4,6 +4,10 @@
 <script src="/static/js/utils.js"></script>
 <script src="/static/js/jquery.dataTables.min.js"></script>
 <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
+<style>
+#content { max-width: 100% !important; }
+#content-wrapper { display: none; }
+</style>
 <script src="/static/js/review-overview.js"></script>
 <script>
 jQuery(document).ready(function (){
@@ -23,6 +27,14 @@ jQuery(document).ready(function (){
                     `{{reviewer.last_name | default("", False)}}` +
                 `</option>` +
                 {%- endfor %}
+                `</select></label>`).append(
+                `<label style="margin-left: 1em;">Status: ` +
+                `<select class="status-filter">` +
+                `<option value="all">All</option>` +
+                `<option value="approved">Approved</option>` +
+                `<option value="rejected">Rejected</option>` +
+                `<option value="assigned">Assigned</option>` +
+                `<option value="unassigned">Unassigned</option>` +
                 `</select></label>`);
         }
     });
