@@ -1928,7 +1928,7 @@ class ApiServer:
                                       order_direction = "desc")
         published  = self.db.reviews (assigned_to = account_uuid,
                                       limit       = 10,
-                                      status      = "accepted",
+                                      status      = "approved",
                                       order       = "published_date",
                                       order_direction = "desc")
         declined   = self.db.reviews (assigned_to = account_uuid,

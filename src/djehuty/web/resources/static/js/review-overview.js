@@ -28,7 +28,7 @@ function filter_reviewer (event) {
         else if (reviewer_element.length > 0 && reviewer_element.val().split(":").pop() == value) {
             jQuery(element).show();
         }
-        else if (status == "accepted") {
+        else if (status == "approved") {
             let reviewer = jQuery(element).find(`td:nth-child(9)`).text();
             let reviewer_name = reviewer.split("\n").map(function (item){ return item.trim(); }).join(" ").trim();
             if (reviewer_name == name) { jQuery(element).show(); }
