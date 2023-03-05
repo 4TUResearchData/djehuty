@@ -12,7 +12,7 @@ SELECT DISTINCT ?account_uuid ?resource_id ?resource_doi ?resource_title
                 ?doi ?handle ?url ?published_date ?container_uri
                 ?container_uuid (?collection AS ?uri) ?uuid
                 ?geolocation ?latitude ?longitude ?total_downloads
-                ?total_views ?total_shares ?total_cites
+                ?total_views ?total_shares ?total_cites ?container_doi
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri      rdf:type                 djht:CollectionContainer .
@@ -22,6 +22,7 @@ WHERE {
     OPTIONAL { ?container_uri djht:total_views    ?total_views .      }
     OPTIONAL { ?container_uri djht:total_shares   ?total_shares .     }
     OPTIONAL { ?container_uri djht:total_cites    ?total_cites .      }
+    OPTIONAL { ?container_uri djht:doi            ?container_doi .    }
 
     {%- if is_published %}
     {%- if is_latest %}

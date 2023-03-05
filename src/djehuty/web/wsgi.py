@@ -4088,12 +4088,15 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def standard_doi (self, container_uuid, version=None):
+    def standard_doi (self, container_uuid, version=None, container_doi=None):
         """ Standard doi for new datasets/collections """
-        suffix = container_uuid
+
+        if not container_doi:
+            container_doi = f'{self.datacite_prefix}/{container_uuid}'
+        doi = container_doi
         if version:
-            suffix += f'.v{version}'
-        return f'{self.datacite_prefix}/{suffix}'
+            doi += f'.v{version}'
+        return doi
 
     def __datacite_reserve_doi (self, doi=None):
         """
@@ -4158,31 +4161,58 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def __reserve_and_save_dataset_doi (self, account_uuid, dataset):
-        """Returns the reserved DOI on success or False otherwise."""
+    def __reserve_and_save_doi (self, account_uuid, item, versioned=False,
+                                item_type="dataset"):
+        """
+        Returns the reserved DOI on success or False otherwise.
+        versioned = True/False reserves DOI for dataset/container.
+        Trying to reserve an already reserved DOI just returns the DOI.
+        """
 
-        if dataset is None or account_uuid is None:
+        if item is None or account_uuid is None:
             return False
 
-        data = self.__datacite_reserve_doi (self.standard_doi(dataset["container_uuid"]))
+        item_uuid = item["container_uuid"]
+        new_version = None
+        if versioned:
+            container = self.db.container(container_uuid)
+            new_version = value_or(container, 'latest_published_version_number', 0) + 1
+        doi = self.standard_doi(container_uuid, new_version,
+                                value_or_none(dataset, "container_doi"))
+
+        if doi.split(":")[0] != self.datacite_prefix:
+            self.log.error ("Doi %s of $s has wrong prefix", doi, container_uuid)
+            return False
+
+        if self.doi_exists(doi):
+            self.log.warning ("Doi %s already reserved", doi)
+            return doi
+
+        data = self.__datacite_reserve_doi (doi)
         if data is None:
             return False
 
         try:
-            reserved_doi = data["data"]["id"]
-            if self.db.update_dataset (
-                    dataset["container_uuid"],
-                    account_uuid,
-                    doi                         = reserved_doi,
-                    agreed_to_deposit_agreement = value_or (dataset, "agreed_to_deposit_agreement", False),
-                    agreed_to_publish           = value_or (dataset, "agreed_to_publish", False),
-                    is_metadata_record          = value_or (dataset, "is_metadata_record", False)):
-                return reserved_doi
+            reserved_doi = data["data"]["id"] #should be equal to doi
+            doi_type = "doi" if versioned else "container_doi"
+            doi_parm = {doi_type: reserved_doi}
+            if item_type == "dataset":
+                if self.db.update_dataset (
+                        container_uuid,
+                        account_uuid,
+                        agreed_to_deposit_agreement = value_or (item, "agreed_to_deposit_agreement", False),
+                        agreed_to_publish           = value_or (item, "agreed_to_publish", False),
+                        is_metadata_record          = value_or (item, "is_metadata_record", False),
+                        **doi_parm ):
+                    return reserved_doi
+            else:
+                if self.db.update_collection ( container_uuid, account_uuid, **doi_parm ):
+                    return reserved_doi
         except KeyError:
             pass
 
-        self.log.error ("Updating the dataset %s for reserving DOI %s failed.",
-                        dataset["container_uuid"], reserved_doi)
+        self.log.error ("Updating the %s %s for reserving DOI %s failed.",
+                        item_type, item["container_uuid"], reserved_doi)
 
         return False
 
@@ -4203,56 +4233,24 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        reserved_doi = self.__reserve_and_save_dataset_doi (account_uuid, dataset)
+        reserved_doi = self.__reserve_and_save_doi (account_uuid, dataset)
         if reserved_doi:
             return self.response (json.dumps({ "doi": reserved_doi }))
 
         return self.error_500()
 
-    def public_item_register_doi (self, request, item_id, version=None, item_type="dataset"):
-        """Procedure to register a new doi, to be called AFTER publication of the item."""
-
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
-
-        doi, xml = self.format_datacite_for_registration(item_id, version, item_type)
-        encoded_bytes = base64.b64encode(xml.encode("utf-8"))
-        encoded_str = str(encoded_bytes, "utf-8")
-        url = landing_page_url(item_id, version, item_type)
+    def doi_exists (self, doi):
+        """Procedure to check if doi is registered at Datacite"""
 
         try:
-            headers = {
-                "Accept": "application/vnd.api+json",
-                "Content-Type": "application/vnd.api+json"
-            }
-            json_data = {
-                "data": {
-                    "id": doi,
-                    "type": "dois",
-                    "attributes": {
-                        "event": "publish",
-                        "doi": doi,
-                        "url": url,
-                        "xml": encoded_str
-                    }
-                }
-            }
-            response = requests.post(f"{self.datacite_url}/dois",
-                                     headers = headers,
-                                     auth    = (self.datacite_id,
-                                                self.datacite_password),
-                                     timeout = 10,
-                                     json    = json_data)
+            response = requests.post(f"{self.datacite_url}/dois/{doi}")
+            return response.ok
 
-            if response.status_code == 201:
-                pass #do something here?
-            else:
-                self.log.error ("DataCite responded with %s", response.status_code)
         except requests.exceptions.ConnectionError:
-            self.log.error ("Failed to register a DOI due to a connection error.")
+            self.log.error ("Failed to connect with Datacite.")
 
         return self.error_500()
+
 
     def __update_item_doi (self, item_id, version=None, item_type="dataset"):
         """Procedure to modify metadata of an existing doi."""
@@ -4265,9 +4263,11 @@ class ApiServer:
         }
         json_data = {
             "data": {
-                "id": doi,
-                "type": "dois",
-                "attributes": {"xml": str(encoded_bytes, "utf-8")}
+                "attributes": {
+                    "event": "publish", #does no harm when already published
+                    "url": landing_page_url(item_id, version),
+                    "xml": str(encoded_bytes, "utf-8")
+                }
             }
         }
 
@@ -5187,6 +5187,7 @@ class ApiServer:
 
     def api_v3_dataset_publish (self, request, dataset_id):
         """Implements /v3/datasets/<id>/publish."""
+
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
@@ -5207,15 +5208,18 @@ class ApiServer:
             return self.error_403 (request)
 
         container_uuid = dataset["container_uuid"]
-        if "doi" not in dataset:
-            reserved_doi = self.__reserve_and_save_dataset_doi (account_uuid, dataset)
+        for versioned in (True, False):
+            reserved_doi = self.__reserve_and_save_doi (account_uuid, dataset,
+                                                        versioned=versioned)
             if not reserved_doi:
-                self.log.error ("Reserving a DOI for %s failed.", container_uuid)
+                self.log.error ("Reserving DOI %s for %s failed.",
+                                reserved_doi, container_uuid)
                 return self.error_500()
 
-            if not self.__update_item_doi (container_uuid, item_type="dataset"):
-                logging.error ("Updating the DOI for publication of %s failed.",
-                               container_uuid)
+            if not self.__update_item_doi (container_uuid, item_type="dataset",
+                                           versioned=versioned):
+                logging.error ("Updating DOI %s for publication of %s failed.",
+                               reserved_doi, container_uuid)
                 return self.error_500()
 
         if self.db.publish_dataset (container_uuid, account_uuid):
@@ -5230,6 +5234,7 @@ class ApiServer:
 
     def api_v3_collection_publish (self, request, collection_id):
         """Implements /v3/collections/<id>/publish."""
+
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
@@ -5293,6 +5298,23 @@ class ApiServer:
             return self.error_400_list (request, errors)
 
         ## Only continue publishing when validation went fine.
+
+        ## Register/update dois
+        container_uuid = collection["container_uuid"]
+        for versioned in (True, False):
+            reserved_doi = self.__reserve_and_save_doi (account_uuid, collection,
+                                                        versioned=versioned, item_type="collection")
+            if not reserved_doi:
+                self.log.error ("Reserving DOI %s for %s failed.",
+                                reserved_doi, container_uuid)
+                return self.error_500()
+
+            if not self.__update_item_doi (container_uuid, versioned=versioned,
+                                           item_type="collection"):
+                logging.error ("Updating DOI %s for publication of %s failed.",
+                               reserved_doi, container_uuid)
+                return self.error_500()
+
         if self.db.publish_collection (collection["container_uuid"], account_uuid):
             return self.respond_201 ({
                 "location": f"{self.base_url}/published/{collection_id}"
@@ -6094,9 +6116,8 @@ class ApiServer:
         lon = self_or_value_or_none(item, 'longitude')
         lat_valid, lon_valid = decimal_coords(lat, lon)
         coordinates = {'lat_valid': lat_valid, 'lon_valid': lon_valid}
-        doi = item['doi']
-        if not version and 'doi' in container:
-            doi = container['doi']
+        doi = value_or(item, 'doi', standard_doi(container_uuid, version,
+                                                 value_or_none(container, "doi")))
         parameters = {
             'item'          : item,
             'doi'           : doi,

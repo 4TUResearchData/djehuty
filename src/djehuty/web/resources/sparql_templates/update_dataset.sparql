@@ -68,6 +68,8 @@ DELETE {
     ?dataset           djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement .
     {%- endif%}{% if agreed_to_publish is not none %}
     ?dataset           djht:agreed_to_publish    ?agreed_to_publish .
+    {%- endif%}{% if container_doi is not none %}
+    ?container         djht:doi                  ?container_doi .
     {%- endif%}
     ?dataset           djht:modified_date        ?modified_date .
   }
@@ -140,6 +142,8 @@ INSERT {
     ?dataset           djht:agreed_to_deposit_agreement {{agreed_to_deposit_agreement | safe}} .
     {%- endif%}{% if agreed_to_publish is not none %}
     ?dataset           djht:agreed_to_publish    {{agreed_to_publish | safe}} .
+    {%- endif%}{% if container_doi is not none %}
+    ?container         djht:doi                  {{container_doi | safe}} .
     {%- endif%}
     ?dataset           djht:modified_date        "{{modified_date | safe}}"^^xsd:dateTime .
   }
@@ -186,6 +190,7 @@ WHERE {
     OPTIONAL { ?dataset djht:embargo_allow_access_requests ?embargo_allow_access_requests . }
     OPTIONAL { ?dataset djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
     OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }
+    OPTIONAL { ?container djht:doi                 ?container_doi . }
   }
 {%- if account_uuid is not none: %}
   FILTER (?account = <account:{{account_uuid | safe}}>)

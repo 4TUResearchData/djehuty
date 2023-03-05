@@ -30,6 +30,8 @@ DELETE {
     ?collection           djht:latitude             ?latitude .
     {%- endif%}{% if organizations is not none %}
     ?collection           djht:organizations        ?organizations .
+    {%- endif%}{% if container_doi is not none %}
+    ?container            djht:doi                  ?container_doi .
     {%- endif%}
     ?collection           djht:modified_date        ?modified_date .
   }
@@ -64,6 +66,8 @@ INSERT {
     ?collection           djht:latitude             {{latitude | safe}} .
     {%- endif%}{% if organizations is not none %}
     ?collection           djht:organizations        {{organizations | safe}} .
+    {%- endif%}{% if container_doi is not none %}
+    ?container            djht:doi                  {{container_doi | safe}} .
     {%- endif%}
     ?collection           djht:modified_date        "{{modified_date | safe}}"^^xsd:dateTime .
   }
@@ -91,6 +95,7 @@ WHERE {
     OPTIONAL { ?collection djht:latitude             ?latitude . }
     OPTIONAL { ?collection djht:organizations        ?organizations . }
     OPTIONAL { ?collection djht:contributors         ?contributors . }
+    OPTIONAL { ?container  djht:doi                  ?container_doi . }
   }
 {%- if account_uuid is not none: %}
   FILTER (?account = <account:{{account_uuid}}>)

@@ -1751,7 +1751,8 @@ class SparqlInterface:
                         embargo_title=None, embargo_reason=None, eula=None,
                         embargo_allow_access_requests=None, is_embargoed=False,
                         agreed_to_deposit_agreement=False, agreed_to_publish=False,
-                        is_metadata_record=False, metadata_reason=None):
+                        is_metadata_record=False, metadata_reason=None,
+                        container_doi=None):
         """Procedure to overwrite parts of a dataset."""
 
         query   = self.__query_from_template ("update_dataset", {
@@ -1794,6 +1795,7 @@ class SparqlInterface:
             "agreed_to_deposit_agreement":
                                rdf.escape_boolean_value (agreed_to_deposit_agreement),
             "agreed_to_publish": rdf.escape_boolean_value (agreed_to_publish),
+            "container_doi":   rdf.escape_string_value (container_doi)
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
@@ -2015,7 +2017,8 @@ class SparqlInterface:
                            resource_title=None, group_id=None, datasets=None,
                            time_coverage=None, publisher=None, language=None,
                            contributors=None, geolocation=None, longitude=None,
-                           latitude=None, organizations=None, categories=None):
+                           latitude=None, organizations=None, categories=None,
+                           container_doi=None):
         """Procedure to overwrite parts of a collection."""
 
         query   = self.__query_from_template ("update_collection", {
@@ -2035,8 +2038,8 @@ class SparqlInterface:
             "resource_doi":      rdf.escape_string_value (resource_doi),
             "resource_title":    rdf.escape_string_value (resource_title),
             "time_coverage":     rdf.escape_string_value (time_coverage),
-            "title":             rdf.escape_string_value (title)
-        })
+            "title":             rdf.escape_string_value (title),
+            "container_doi":     rdf.escape_string_value (container_doi)        })
 
         self.cache.invalidate_by_prefix ("collection")
         self.cache.invalidate_by_prefix (f"{container_uuid}_collection")
