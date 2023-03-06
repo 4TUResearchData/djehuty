@@ -876,17 +876,19 @@ class DatabaseInterface:
             ## Insert the review state for the record.
             review = value_or_none (record, "review")
             if review:
-                logging.info ("Adding review for dataset %s v%s.", uri, version)
+                logging.info ("Adding review for dataset %s v%s.", uri, "0" if version is None else version)
                 review_uri  = rdf.unique_node ("review")
                 status      = value_or (review, "status", "pending")
                 assigned_to = value_or_none (review, "assigned_to")
                 assigned_to_url = None
                 status_uri  = None
-                if assigned_to is not None and status == "pending":
+                if assigned_to is None:
+                    status_uri = rdf.DJHT["ReviewUnassigned"]
+                elif int(assigned_to) == 0:
+                    status_uri = rdf.DJHT["ReviewUnassigned"]
+                elif isinstance(status, str) and status == "pending":
                     status_uri = rdf.DJHT["ReviewAssigned"]
                     assigned_to_uri = self.record_uri ("Account", "id", assigned_to)
-                elif assigned_to is None and status == "pending":
-                    status_uri = rdf.DJHT["ReviewUnassigned"]
                 elif isinstance(status, str):
                     status_uri = rdf.DJHT["Review" + status.capitalize()]
                     assigned_to_uri = self.record_uri ("Account", "id", assigned_to)
