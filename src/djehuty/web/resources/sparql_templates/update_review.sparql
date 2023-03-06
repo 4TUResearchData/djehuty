@@ -15,7 +15,7 @@ INSERT {
     {%- if assigned_to is not none %}
     ?review          djht:assigned_to          <account:{{assigned_to | safe}}> .
     {%- endif%}{% if status is not none %}
-    ?review          djht:status               <djht:Review{{status | safe}}> .
+    ?review          djht:status               djht:Review{{status | safe}} .
     {%- endif%}{% if reminder_date is not none %}
     ?review          djht:reminder_date        "{{reminder_date | safe}}"^^xsd:dateTime .
     {%- endif%}

@@ -1,11 +1,11 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to ?status
+SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to
                 ?account_uuid ?dataset_uuid ?dataset_title ?group_name
                 ?submitter_first_name ?submitter_last_name ?submitter_email
                 ?published_date ?container_uuid ?dataset_version ?declined_date
                 ?reviewer_email ?reviewer_first_name ?reviewer_last_name
-                ?modified_date
+                ?modified_date (?status_label AS ?status)
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review             rdf:type                 djht:Review ;
@@ -13,7 +13,10 @@ WHERE {
 
     OPTIONAL { ?review  djht:request_date         ?request_date . }
     OPTIONAL { ?review  djht:reminder_date        ?reminder_date . }
-    OPTIONAL { ?review  djht:status/rdfs:label    ?status . }
+    OPTIONAL {
+      ?review           djht:status               ?status_uri .
+      ?status_uri       rdfs:label                ?status_label .
+    }
 
     ?dataset            djht:container            ?container_uri ;
                         djht:title                ?dataset_title .
@@ -58,12 +61,8 @@ WHERE {
   FILTER (?review = <review:{{review_uuid}}>)
 {%- endif %}
 {%- endif %}
-{%- if status == 'Unassigned': %}
-  FILTER (!BOUND(?status) || ?status = <djht:Review{{status | safe}}>)
-{%- else %}
 {%- if status is not none %}
-  FILTER (?status = <djht:Review{{status | safe}}>)
-{%- endif %}
+  FILTER (?status_uri = djht:Review{{status | safe}})
 {%- endif %}
 }
 {% endblock %}
