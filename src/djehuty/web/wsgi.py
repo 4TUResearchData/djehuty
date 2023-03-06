@@ -3216,6 +3216,9 @@ class ApiServer:
                                                        account_uuid = account_uuid,
                                                        is_published = False)
 
+                if dataset is None:
+                    return self.error_403 (request)
+
                 is_embargoed = validator.boolean_value (record, "is_embargoed", when_none=False)
                 embargo_options = validator.array_value (record, "embargo_options")
                 embargo_option  = value_or_none (embargo_options, 0)
