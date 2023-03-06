@@ -880,6 +880,7 @@ class DatabaseInterface:
                 assigned_to = value_or_none (review, "assigned_to")
                 assigned_to_uri = None
                 status_uri  = None
+                is_under_review = True
                 if assigned_to is None:
                     status_uri = rdf.DJHT["ReviewUnassigned"]
                 elif int(assigned_to) == 0:
@@ -890,9 +891,11 @@ class DatabaseInterface:
                 elif isinstance(status, str):
                     status_uri = rdf.DJHT["Review" + status.capitalize()]
                     assigned_to_uri = self.record_uri ("Account", "id", assigned_to)
+                    is_under_review = False
                 else:
                     status_uri = rdf.DJHT["ReviewUnassigned"]
 
+                rdf.add (self.store, uri, rdf.DJHT["is_under_review"], is_under_review, XSD.boolean)
                 rdf.add (self.store, review_uri, RDF.type, rdf.DJHT["Review"], datatype="uri")
                 rdf.add (self.store, review_uri, rdf.DJHT["dataset"], uri, datatype="uri")
                 rdf.add (self.store, review_uri, rdf.DJHT["request_date"], value_or_none (review, "created_date"),  XSD.dateTime)
