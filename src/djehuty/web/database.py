@@ -2229,9 +2229,12 @@ class SparqlInterface:
         if status is not None:
             status_uri = rdf.DJHT["Review" + status.capitalize()]
 
+        if assigned_to is not None:
+            assigned_to = rdf.uuid_to_uri (assigned_to, "account")
+
         rdf.add (graph, uri, rdf.DJHT["request_date"],   request_date,  XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["reminder_date"],  reminder_date, XSD.dateTime)
-        rdf.add (graph, uri, rdf.DJHT["assigned_to"],    assigned_to,   XSD.integer)
+        rdf.add (graph, uri, rdf.DJHT["assigned_to"],    assigned_to,   "uri")
         rdf.add (graph, uri, rdf.DJHT["status"],         status_uri,    "uri")
         rdf.add (graph, dataset_uri, rdf.DJHT["is_under_review"], True, XSD.boolean)
 
