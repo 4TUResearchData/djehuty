@@ -42,15 +42,16 @@
    (arguments
     `(#:tests? #f))
    (propagated-inputs
-    `(("git" ,git)
-      ("python-defusedxml" ,python-defusedxml)
-      ("python-jinja2" ,python-jinja2)
-      ("python-rdflib" ,python-rdflib)
-      ("python-pygit2" ,python-pygit2)
-      ("python-requests" ,python-requests)
-      ("python-sparqlwrapper" ,python-sparqlwrapper)
-      ("python-urllib3" ,python-urllib3)
-      ("python-werkzeug" ,python-werkzeug)))
+    (list git
+          python-defusedxml
+          python-jinja2
+          python-rdflib
+          python-pygit2
+          python-requests
+          python-sparqlwrapper
+          python-urllib3
+          python-werkzeug
+          python-zipfly))
    (home-page "https://github.com/4TUResearchData/djehuty")
    (synopsis "Data repository for 4TU.ResearchData")
    (description "This packge contains the implementation of the data
