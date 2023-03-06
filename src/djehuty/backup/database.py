@@ -878,7 +878,7 @@ class DatabaseInterface:
                 review_uri  = rdf.unique_node ("review")
                 status      = value_or (review, "status", "pending")
                 assigned_to = value_or_none (review, "assigned_to")
-                assigned_to_url = None
+                assigned_to_uri = None
                 status_uri  = None
                 if assigned_to is None:
                     status_uri = rdf.DJHT["ReviewUnassigned"]
