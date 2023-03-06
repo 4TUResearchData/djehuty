@@ -4172,7 +4172,7 @@ class ApiServer:
         if item is None or account_uuid is None:
             return False
 
-        item_uuid = item["container_uuid"]
+        container_uuid = item["container_uuid"]
         new_version = None
         if versioned:
             container = self.db.container(container_uuid)
@@ -4181,7 +4181,7 @@ class ApiServer:
                                 value_or_none(dataset, "container_doi"))
 
         if doi.split(":")[0] != self.datacite_prefix:
-            self.log.error ("Doi %s of $s has wrong prefix", doi, container_uuid)
+            self.log.error ("Doi %s of %s has wrong prefix", doi, container_uuid)
             return False
 
         if self.doi_exists(doi):
