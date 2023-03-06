@@ -13,6 +13,7 @@
 jQuery(document).ready(function (){
     jQuery("#overview-table").DataTable({
         paging: false,
+        order: [[6, 'desc']],
         orderable: false,
         info: false,
         initComplete: function (settings, json) {
@@ -86,8 +87,8 @@ jQuery(document).ready(function (){
       <td>{{review.published_date | truncate(10,False,'')}}</td>
       <td>
         {%- if review.status == "approved" %}
-        {{review.submitter_first_name | default("", False)}}
-        {{review.submitter_last_name | default("", False)}}
+        {{review.reviewer_first_name | default("", False)}}
+        {{review.reviewer_last_name | default("", False)}}
         {%- else %}
         <select class="reviewer-selector">
           <option value="" hidden>Unassigned</option>
