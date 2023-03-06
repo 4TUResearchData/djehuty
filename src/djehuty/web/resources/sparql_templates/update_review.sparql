@@ -2,9 +2,8 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    {%- if assigned_to is not none %}
     ?review          djht:assigned_to           ?assigned_to .
-    {%- endif%}{% if status is not none %}
+    {% if status is not none %}
     ?review          djht:status                ?status .
     {%- endif%}{% if reminder_date is not none %}
     ?review          djht:reminder_date         ?reminder_date .
