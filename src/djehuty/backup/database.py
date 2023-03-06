@@ -467,10 +467,8 @@ class DatabaseInterface:
             groups = re.match(r'^(10\.4121/(c\.)?\d+)(.v\d+)?$', record['doi']).groups()
             if groups:
                 rdf.add (self.store, container, rdf.DJHT["doi"], groups[0], XSD.string)
-        except (IndexError, AttributeError):
-            logging.warning ("Failed to regexp match the DOI for <%s>.", container)
-        except KeyError:
-            pass # No DOI in record.
+        except (KeyError, IndexError, AttributeError):
+            pass # No DOI in record or unnecessary to add to the container.
 
     def handle_custom_fields (self, record, uri, item_id, version, item_type):
         '''Handle custom fields and fix special cases'''

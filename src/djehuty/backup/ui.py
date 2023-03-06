@@ -113,6 +113,9 @@ def show_if_relevant (score, suffix, prefix):
 def main (figshare_token, figshare_stats_auth, account_id, api_url):
     """The main entry point for the 'backup' subcommand."""
 
+    # Get rid of "Connection pool is full" messages.
+    logging.getLogger("urllib3.connectionpool").setLevel(logging.ERROR)
+
     workers                 = min (os.cpu_count() * 4, 8)
     logging.info("Using a maximum of %d simultaneous connections.", workers)
 
