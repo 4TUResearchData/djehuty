@@ -6,6 +6,7 @@ import base64
 import gc
 import logging
 import time
+import sys
 import os
 
 import concurrent.futures
@@ -19,7 +20,6 @@ def process_datasets_for_account (endpoint, account):
     datasets_written = 0
     datasets_failed  = 0
 
-    account["uri"] = endpoint.rdf_store.insert_account (account)
     if not account["uri"]:
         # When processing the account fails, don't attempt to
         # process collections and datasets from this account.
@@ -138,9 +138,26 @@ def main (figshare_token, figshare_stats_auth, account_id, api_url):
     if not endpoint.rdf_store.insert_static_triplets ():
         logging.error ("Failed to insert static triplets")
 
-    accounts                = endpoint.get_institutional_accounts (account_id)
+    accounts                = endpoint.get_institutional_accounts ()
     number_of_accounts      = len(accounts)
-    logging.info("Found %d institutional accounts.", number_of_accounts)
+    logging.info("Inserting %d institutional accounts.", number_of_accounts)
+    for account in accounts:
+        account["uri"] = endpoint.rdf_store.insert_account (account)
+
+    if account_id is not None:
+        account_id = int(account_id)
+        new_accounts = None
+        for account in accounts:
+            if account["id"] == account_id:
+                new_accounts = [account]
+                break
+        if new_accounts is None:
+            logging.error("Unable to find account %s", account_id)
+            sys.exit (0)
+
+        accounts = new_accounts
+        logging.info("Limiting scope to account %d", account_id)
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as runner:
         results = [runner.submit(process_datasets_for_account, endpoint, account)
                    for account in accounts]

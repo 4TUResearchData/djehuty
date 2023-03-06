@@ -880,13 +880,16 @@ class DatabaseInterface:
                 review_uri  = rdf.unique_node ("review")
                 status      = value_or (review, "status", "pending")
                 assigned_to = value_or_none (review, "assigned_to")
+                assigned_to_url = None
                 status_uri  = None
                 if assigned_to is not None and status == "pending":
                     status_uri = rdf.DJHT["ReviewAssigned"]
+                    assigned_to_uri = self.record_uri ("Account", "id", assigned_to)
                 elif assigned_to is None and status == "pending":
                     status_uri = rdf.DJHT["ReviewUnassigned"]
                 elif isinstance(status, str):
                     status_uri = rdf.DJHT["Review" + status.capitalize()]
+                    assigned_to_uri = self.record_uri ("Account", "id", assigned_to)
                 else:
                     status_uri = rdf.DJHT["ReviewUnassigned"]
 
@@ -894,7 +897,7 @@ class DatabaseInterface:
                 rdf.add (self.store, review_uri, rdf.DJHT["dataset"], uri, datatype="uri")
                 rdf.add (self.store, review_uri, rdf.DJHT["request_date"], value_or_none (review, "created_date"),  XSD.dateTime)
                 rdf.add (self.store, review_uri, rdf.DJHT["modified_by_reviewer"], value_or_none (review, "modified_date"), XSD.dateTime)
-                rdf.add (self.store, review_uri, rdf.DJHT["assigned_to"], value_or_none (review, "assigned_to"),   XSD.integer)
+                rdf.add (self.store, review_uri, rdf.DJHT["assigned_to"], assigned_to_uri, datatype="uri")
                 rdf.add (self.store, review_uri, rdf.DJHT["status"], status_uri, datatype="uri")
 
             if is_latest:
