@@ -40,7 +40,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/categories.html                      \
     djehuty/web/resources/html_templates/category.html                        \
     djehuty/web/resources/html_templates/collection.html                      \
-    djehuty/web/resources/html_templates/data_access_request.html             \
+    djehuty/web/resources/html_templates/dataset_access_request.html          \
     djehuty/web/resources/html_templates/dataset.html                         \
     djehuty/web/resources/html_templates/debug.html                           \
     djehuty/web/resources/html_templates/depositor/collection-private-links.html \
