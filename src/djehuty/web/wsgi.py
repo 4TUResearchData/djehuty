@@ -87,7 +87,9 @@ class ApiServer:
             ## ----------------------------------------------------------------
             ## UI
             ## ----------------------------------------------------------------
-            Rule("/",                                         endpoint = "ui_home"),
+            # The / used to redirect to /portal, but here we reversed it.
+            Rule("/",                                         endpoint = "ui_portal"),
+            Rule("/portal",                                   endpoint = "ui_home"),
             Rule("/login",                                    endpoint = "ui_login"),
             Rule("/account/home",                             endpoint = "ui_account_home"),
             Rule("/logout",                                   endpoint = "ui_logout"),
@@ -127,7 +129,6 @@ class ApiServer:
             Rule("/admin/maintenance",                        endpoint = "ui_admin_maintenance"),
             Rule("/admin/maintenance/clear-cache",            endpoint = "ui_admin_clear_cache"),
             Rule("/admin/maintenance/clear-sessions",         endpoint = "ui_admin_clear_sessions"),
-            Rule("/portal",                                   endpoint = "ui_portal"),
             Rule("/categories/<category_id>",                 endpoint = "ui_categories"),
             Rule("/category",                                 endpoint = "ui_category"),
             Rule("/institutions/<institution_name>",          endpoint = "ui_institution"),
@@ -1080,7 +1081,7 @@ class ApiServer:
     def ui_home (self, request):
         """Implements /."""
         if self.accepts_html (request):
-            return redirect ("/portal", code=301)
+            return redirect ("/", code=301)
 
         return self.response (json.dumps({ "status": "OK" }))
 
