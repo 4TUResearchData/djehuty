@@ -2247,7 +2247,6 @@ class ApiServer:
         if not versions:
             versions = [{"version": 1}]
         versions      = [v for v in versions if v["version"]]
-        current_version = version if version else versions[0]['version']
         id_version    = f"{dataset_id}/{version}" if version else f"{dataset_id}"
 
         authors       = self.db.authors(item_uri=dataset["uri"], limit=None)
@@ -4123,7 +4122,7 @@ class ApiServer:
                                      timeout = 10,
                                      json    = json_data)
             data = None
-            if response.status_code == 201:
+            if response.status_code in (201, 422): #422:already reserved
                 data = response.json()
             else:
                 self.log.error ("DataCite responded with %s", response.status_code)
@@ -4165,11 +4164,11 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def __reserve_and_save_doi (self, account_uuid, item, versioned=False,
+    def __reserve_and_save_doi (self, account_uuid, item, version=None,
                                 item_type="dataset"):
         """
         Returns the reserved DOI on success or False otherwise.
-        versioned = True/False reserves DOI for dataset/container.
+        version = None/<integer> reserves DOI for dataset/container.
         Trying to reserve an already reserved DOI just returns the DOI.
         """
 
@@ -4177,29 +4176,21 @@ class ApiServer:
             return False
 
         container_uuid = item["container_uuid"]
-        new_version = None
-        if versioned:
-            container = self.db.container(container_uuid)
-            new_version = value_or(container, 'latest_published_version_number', 0) + 1
-        doi = self.standard_doi(container_uuid, new_version,
-                                value_or_none(dataset, "container_doi"))
-
-        if doi.split(":")[0] != self.datacite_prefix:
+        doi = self.standard_doi(container_uuid, version,
+                                value_or_none(item, "container_doi"))
+        if doi.split("/")[0] != self.datacite_prefix:
             self.log.error ("Doi %s of %s has wrong prefix", doi, container_uuid)
             return False
 
-        if self.doi_exists(doi):
-            self.log.warning ("Doi %s already reserved", doi)
-            return doi
-
         data = self.__datacite_reserve_doi (doi)
+        if value_or_none(data, 'errors'): # doi has already been reserved
+            return doi
         if data is None:
             return False
 
         try:
-            reserved_doi = data["data"]["id"] #should be equal to doi
-            doi_type = "doi" if versioned else "container_doi"
-            doi_parm = {doi_type: reserved_doi}
+            doi_type = "doi" if version else "container_doi"
+            doi_parm = {doi_type: doi}
             if item_type == "dataset":
                 if self.db.update_dataset (
                         container_uuid,
@@ -4208,15 +4199,15 @@ class ApiServer:
                         agreed_to_publish           = value_or (item, "agreed_to_publish", False),
                         is_metadata_record          = value_or (item, "is_metadata_record", False),
                         **doi_parm ):
-                    return reserved_doi
+                    return doi
             else:
                 if self.db.update_collection ( container_uuid, account_uuid, **doi_parm ):
-                    return reserved_doi
+                    return doi
         except KeyError:
             pass
 
         self.log.error ("Updating the %s %s for reserving DOI %s failed.",
-                        item_type, item["container_uuid"], reserved_doi)
+                        item_type, item["container_uuid"], doi)
 
         return False
 
@@ -4247,7 +4238,7 @@ class ApiServer:
         """Procedure to check if doi is registered at Datacite"""
 
         try:
-            response = requests.post(f"{self.datacite_url}/dois/{doi}")
+            response = requests.get(f"{self.datacite_url}/dois/{doi}", timeout = 10)
             return response.ok
 
         except requests.exceptions.ConnectionError:
@@ -4260,7 +4251,9 @@ class ApiServer:
         """Procedure to modify metadata of an existing doi."""
 
         doi, xml = self.format_datacite_for_registration (item_id, version, item_type)
-        encoded_bytes = base64.b64encode(xml)
+
+        encoded_bytes = base64.b64encode(xml.encode("utf-8"))
+
         headers = {
             "Accept": "application/vnd.api+json",
             "Content-Type": "application/vnd.api+json"
@@ -4284,6 +4277,9 @@ class ApiServer:
                                     json    = json_data)
 
             if response.status_code == 201:
+                return True
+            if response.status_code == 200:
+                self.log.warning ("Doi %s already active, updated", doi)
                 return True
 
             self.log.error ("DataCite responded with %s", response.status_code)
@@ -5212,16 +5208,18 @@ class ApiServer:
             return self.error_403 (request)
 
         container_uuid = dataset["container_uuid"]
-        for versioned in (True, False):
+        container = self.db.container(container_uuid)
+        new_version = value_or(container, 'latest_published_version_number', 0) + 1
+        for version in (None, new_version):
             reserved_doi = self.__reserve_and_save_doi (account_uuid, dataset,
-                                                        versioned=versioned)
+                                                        version=version)
             if not reserved_doi:
                 self.log.error ("Reserving DOI %s for %s failed.",
                                 reserved_doi, container_uuid)
                 return self.error_500()
 
             if not self.__update_item_doi (container_uuid, item_type="dataset",
-                                           versioned=versioned):
+                                           version=version):
                 logging.error ("Updating DOI %s for publication of %s failed.",
                                reserved_doi, container_uuid)
                 return self.error_500()
@@ -5305,15 +5303,17 @@ class ApiServer:
 
         ## Register/update dois
         container_uuid = collection["container_uuid"]
-        for versioned in (True, False):
+        container = self.db.container(container_uuid)
+        new_version = value_or(container, 'latest_published_version_number', 0) + 1
+        for version in (None, new_version):
             reserved_doi = self.__reserve_and_save_doi (account_uuid, collection,
-                                                        versioned=versioned, item_type="collection")
+                                                        version=version, item_type="collection")
             if not reserved_doi:
                 self.log.error ("Reserving DOI %s for %s failed.",
                                 reserved_doi, container_uuid)
                 return self.error_500()
 
-            if not self.__update_item_doi (container_uuid, versioned=versioned,
+            if not self.__update_item_doi (container_uuid, version=version,
                                            item_type="collection"):
                 logging.error ("Updating DOI %s for publication of %s failed.",
                                reserved_doi, container_uuid)
@@ -6120,8 +6120,8 @@ class ApiServer:
         lon = self_or_value_or_none(item, 'longitude')
         lat_valid, lon_valid = decimal_coords(lat, lon)
         coordinates = {'lat_valid': lat_valid, 'lon_valid': lon_valid}
-        doi = value_or(item, 'doi', standard_doi(container_uuid, version,
-                                                 value_or_none(container, "doi")))
+        doi = value_or(item, 'doi', self.standard_doi(container_uuid, version,
+                                                      value_or_none(container, "doi")))
         parameters = {
             'item'          : item,
             'doi'           : doi,
@@ -6169,7 +6169,9 @@ class ApiServer:
     def format_datacite_for_registration(self, item_id, version=None, item_type="dataset"):
         """return doi and un-indented datacite xml separately"""
         parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type, from_draft=True)
-        return parameters["doi"], xml_formatter.datacite(parameters, indent=False)
+        xml = str(xml_formatter.datacite(parameters, indent=False), encoding='utf-8')
+        xml = '<?xml version="1.0" encoding="UTF-8"?>' + xml.split('?>', 1)[1] #Datacite is very choosy about this
+        return parameters["doi"], xml
 
     def ui_export_refworks_dataset (self, request, dataset_id, version=None):
         """export metadata in Refworks format"""
