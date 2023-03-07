@@ -13,7 +13,7 @@
 jQuery(document).ready(function (){
     jQuery("#overview-table").DataTable({
         paging: false,
-        order: [[6, 'desc']],
+        order: [[7, 'desc']],
         orderable: false,
         info: false,
         initComplete: function (settings, json) {
@@ -57,6 +57,7 @@ jQuery(document).ready(function (){
   <thead>
     <tr>
       <th>Title</th>
+      <th>Version</th>
       <th>Submitter</th>
       <th>E-mail address</th>
       <th>Affiliation</th>
@@ -71,10 +72,8 @@ jQuery(document).ready(function (){
     <tr>
       <td>
         <a href="/review/goto-dataset/{{review.dataset_uuid}}">{{review.dataset_title}}</a>
-        {%- if review.status == "unassigned": %}
-        (v{{review.dataset_version}})
-        {%- endif %}
       </td>
+      <td>{{review.dataset_version | default("0", False)}}</td>
       <td>
         {{review.submitter_first_name | default("", False)}}
         {{review.submitter_last_name | default("", False)}}
@@ -82,13 +81,13 @@ jQuery(document).ready(function (){
       <td>{{review.submitter_email}}</td>
       <td>{{review.group_name | default("Unknown", False)}}</td>
       {% if review.status == "assigned": %}
-      <td><span class="fas fa-glasses" title="Assigned to reviewer"><span style="display:none">assigned</span></span></td>
+      <td><span class="fas fa-glasses" title="Assigned to reviewer"><span style="font-size:0pt">assigned</span></span></td>
       {% elif review.status == "approved": %}
-      <td><span class="fas fa-check-double" title="Approved by reviewer"><span style="display:none">approved</span></span></td>
+      <td><span class="fas fa-check-double" title="Approved by reviewer"><span style="font-size:0pt">approved</span></span></td>
       {% elif review.status == "rejected": %}
-      <td><span class="fas fa-times" title="Declined by reviewer"><span style="display:none">declined</span></span></td>
+      <td><span class="fas fa-times" title="Declined by reviewer"><span style="font-size:0pt">declined</span></span></td>
       {% else: %}
-      <td><span class="fas fa-hourglass" title="Unassigned"><span style="display:none">unassigned</span></span></td>
+      <td><span class="fas fa-hourglass" title="Unassigned"><span style="font-size:0pt">unassigned</span></span></td>
       {% endif %}
       <td>{{review.request_date}}</td>
       <td>{{review.modified_date}}</td>
