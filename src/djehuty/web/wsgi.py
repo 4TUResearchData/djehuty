@@ -1965,7 +1965,7 @@ class ApiServer:
 
         account_uuid, error_response = self.__reviewer_account_uuid (request)
         if error_response is not None:
-            self.log.error ("Account %d attempted a reviewer action.", account_uuid)
+            self.log.error ("Account %s attempted a reviewer action.", account_uuid)
             return error_response
 
         dataset    = None
