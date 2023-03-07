@@ -406,6 +406,10 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-question-circle::before { content: "\f059"; }
 .fa-link::before { content: "\f0c1"; }
 .fa-plus::before { content: "\f067"; }
+.fa-hourglass::before { content: "\f254"; }
+.fa-times::before { content: "\f00d"; }
+.fa-glasses::before { content: "\f530"; }
+.fa-check-double::before { content: "\f560"; }
 .fa-empty::before {}
 
 ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; font-size: 13pt; }
