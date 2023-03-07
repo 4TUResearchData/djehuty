@@ -71,7 +71,6 @@ jQuery(document).ready(function (){
 #access-wrapper .texteditor { width: 832pt !important; }
 #embargoed_access_form { display: none }
 #restricted_access_form { display: none; }
-#closed_access_form { display: none; }
 #file-upload h4 { font-size: 1.5em; padding: 0em; margin: .75em 0em .75em 0em; }
 #categories-wrapper .subitem-checkbox { margin-left: 3em; }
 #new-author { text-align: center; line-height: 3.5em; height: 3.5em; }
@@ -105,7 +104,7 @@ jQuery(document).ready(function (){
     user-select: none;
 }
 #groups-wrapper h4:nth-child(1) { margin: 0em; }
-#external_link_field, #file_upload_field { display: none; }
+#metadata_reason_field, #external_link_field, #file_upload_field { display: none; }
 #git-files { margin: 0em; padding: 0em; }
 #git-files li { list-style-type: none; margin: 0em; padding: .5em; }
 #git-files li:nth-child(even) { background: #fafafa; }
@@ -173,9 +172,7 @@ jQuery(document).ready(function (){
 --><input type="radio" name="access_type" id="embargoed_access" value="embargoed" /><!--
 --><label for="embargoed_access" class="no-head">Embargoed access</label><!--
 --><input type="radio" name="access_type" id="restricted_access" value="restricted" /><!--
---><label for="restricted_access" class="no-head">Restricted access</label><!--
---><input type="radio" name="access_type" id="closed_access" value="closed" /><!--
---><label for="closed_access" class="no-head">Closed access</label>
+--><label for="restricted_access" class="no-head">Restricted access</label>
   </div>
   <div class="access_level" id="open_access_form">
     <p>
@@ -228,16 +225,6 @@ jQuery(document).ready(function (){
         * Upload box for EULA document.
         * Reason for restricted access field.
       -->
-  </div>
-  <div class="access_level" id="closed_access_form">
-    <p>
-      When publishing a closed-access dataset, there is no process in place to allow others to access the data.  Therefore, we do not store the data for this type of access.  We strongly encourage considering publishing as <em>restricted access</em> instead.
-    </p>
-    <p>Please provide a reason below for not making data available.</p>
-    <label class="inner-head">Reason</label>
-    <div id="closed_access_reason" class="texteditor">
-      {{article["embargo_reason"] | default("", True) | replace("\\n", "<br>") | safe }}
-    </div>
   </div>
 </div>
 <label>Categories</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select one or multiple categories that this research best correlates with.</span></div><span class="required-field">&#8727;</span>
@@ -328,16 +315,23 @@ jQuery(document).ready(function (){
 <ul id="tags-list"></ul>
 <label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resource. Separate different names with a semicolon (;)</span></div>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{article["organizations"] | default("", True) }}</textarea>
-<div id="file-chooser-wrapper">
 <h3>Files</h3>
 <label>Type</label>
 <div id="record-type-wrapper" class="options-wrapper">
-<input type="radio" name="record_type" id="external_link" value="link" /><!--
+<input type="radio" name="record_type" id="metadata_record_only" value="meta" /><!--
+--><label for="metadata_record_only" class="no-head">Metadata-only record</label><!--
+--><input type="radio" name="record_type" id="external_link" value="link" /><!--
 --><label for="external_link" class="no-head">External link</label><!--
 --><input type="radio" name="record_type" id="upload_files" value="files" /><!--
 --><label for="upload_files" class="no-head">File deposit</label><!--
 --><input type="radio" name="record_type" id="upload_software" value="software" /><!--
 --><label for="upload_software" class="no-head">Software deposit</label>
+</div>
+<div id="metadata_reason_field" class="record-type-field">
+  <p>Only use this option when there are no files to attach.  Enter the reason
+    for creating a metadata only record and why the files cannot be shared.</p>
+  <label for="metadata_only_reason">Reason</label>
+  <input type="text" name="metadata_only_reason" id="metadata_only_reason" value="{{article["metadata_reason"]}}"/>
 </div>
 <div id="external_link_field" class="record-type-field">
   <p>Only use when no files can be attached. Add the URL where your files can
@@ -366,11 +360,13 @@ git push 4tu --tags</pre>
     produced by a build system. If applicable, upload them as files below.
   </p>
 </div>
+<div id="file_upload_field" class="upload-wrapper record-type-field">
 <form id="dropzone-field" class="upload-container dropzone" action="/v3/datasets/{{container_uuid}}/upload" method="post">
   <div class="fallback">
     <input type="file" name="file" id="file" aria-label="Upload file" multiple="">
   </div>
 </form>
+</div>
 <div id="files-wrapper" class="record-type-field">
   <table class="inside-form-table" id="files">
     <thead>
@@ -380,12 +376,12 @@ git push 4tu --tags</pre>
   </table>
 </div>
 </div>
-</div>
 <h3>Terms and agreement</h3>
 <input type="checkbox" name="deposit_agreement" id="deposit_agreement">
 <label class="no-head" for="deposit_agreement">I agree with the <a target="_blank" rel="noopener noreferrer" href="https://data.4tu.nl/info/fileadmin/user_upload/Documenten/4TU.Research_Data_-_Deposit_agreement.pdf">Deposit Agreement</a>.</label><span class="required-field">&#8727;</span><br />
 <input type="checkbox" name="publish_agreement" id="publish_agreement">
 <label class="no-head" for="publish_agreement">I agree that my dataset will be published once
   the review is complete.</label><span class="required-field">&#8727;</span>
+</div>
 </div>
 {% endblock %}

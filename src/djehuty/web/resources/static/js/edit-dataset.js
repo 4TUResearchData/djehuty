@@ -88,9 +88,9 @@ function gather_form_data () {
 
     let is_embargoed  = jQuery("#embargoed_access").prop("checked");
     let is_restricted = jQuery("#restricted_access").prop("checked");
-    let is_closed     = jQuery("#closed_access").prop("checked");
     let agreed_to_da  = jQuery("#deposit_agreement").prop("checked");
     let agreed_to_publish = jQuery("#publish_agreement").prop("checked");
+    let is_metadata_record = jQuery("#metadata_record_only").prop("checked");
 
     let form_data = {
         "title":          or_null(jQuery("#title").val()),
@@ -108,8 +108,8 @@ function gather_form_data () {
         "publisher":      or_null(jQuery("#publisher").val()),
         "time_coverage":  or_null(jQuery("#time_coverage").val()),
         "language":       or_null(jQuery("#language").val()),
-        "is_metadata_record": false,
-        "metadata_reason": null,
+        "is_metadata_record": is_metadata_record,
+        "metadata_reason": or_null(jQuery("#metadata_only_reason").val()),
         "defined_type":   defined_type_name,
         "is_embargoed":   is_embargoed || is_restricted,
         "group_id":       group_id,
@@ -136,9 +136,6 @@ function gather_form_data () {
         form_data["embargo_reason"] = or_null(jQuery("#restricted_access_reason .ql-editor").html());
         form_data["eula"]           = or_null(jQuery("#restricted_access_eula .ql-editor").html());
         form_data["embargo_options"] = [{ "id": 1000, "type": "restricted_access" }]
-    } else if (is_closed) {
-        form_data["metadata_reason"] = or_null(jQuery("#closed_access_reason .ql-editor").html());
-        form_data["is_metadata_record"] = true;
     } else {
         form_data["license_id"]     = or_null(jQuery("#license_open").val());
     }
@@ -543,6 +540,9 @@ function toggle_record_type () {
         jQuery(".record-type-field").hide();
         jQuery("#external_link_field").show();
         jQuery("#files-wrapper").show();
+    } else if (jQuery("#metadata_record_only").prop("checked")) {
+        jQuery(".record-type-field").hide();
+        jQuery("#metadata_reason_field").show();
     } else if (jQuery("#upload_files").prop("checked")) {
         jQuery(".record-type-field").hide();
         jQuery("#file_upload_field").show();
@@ -559,7 +559,6 @@ function toggle_record_type () {
 
 function toggle_access_level () {
     jQuery(".access_level").hide();
-    jQuery("#file-chooser-wrapper").show();
     if (jQuery("#open_access").prop("checked")) {
         jQuery("#open_access_form").show();
     } else if (jQuery("#embargoed_access").prop("checked")) {
@@ -573,12 +572,6 @@ function toggle_access_level () {
             new Quill('#restricted_access_eula', { theme: '4tu' });
         }
         jQuery("#restricted_access_form").show();
-    } else if (jQuery("#closed_access").prop("checked")) {
-        if (jQuery("#closed_access_reason.ql-container").length === 0) {
-            new Quill('#closed_access_reason', { theme: '4tu' });
-        }
-        jQuery("#file-chooser-wrapper").hide();
-        jQuery("#closed_access_form").show();
     }
 }
 
@@ -654,7 +647,7 @@ function activate (dataset_uuid) {
         });
 
         if (data["is_metadata_record"]) {
-            jQuery("#closed_access").prop("checked", true);
+            jQuery("#metadata_record_only").prop("checked", true);
         } else if (data["has_linked_file"]) {
             jQuery("#external_link").prop("checked", true);
         } else if (data["defined_type_name"] == "software") {
@@ -671,8 +664,6 @@ function activate (dataset_uuid) {
 
             if (access_type === 1000) {
                 jQuery("#restricted_access").prop("checked", true);
-            } else if (access_type === 1001) {
-                jQuery("#closed_access").prop("checked", true);
             } else {
                 jQuery("#embargoed_access").prop("checked", true);
                 if (data["embargo_type"] == "file") {
