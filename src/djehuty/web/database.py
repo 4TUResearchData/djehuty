@@ -1134,7 +1134,7 @@ class SparqlInterface:
             if categories:
                 graph = Graph()
                 items = rdf.uris_from_records (categories, "category")
-                self.delete_account_list (account_uuid, "categories")
+                self.delete_account_property (account_uuid, "categories")
                 self.insert_item_list (graph,
                                        URIRef(rdf.uuid_to_uri (account_uuid, "account")),
                                        items,
@@ -1265,10 +1265,10 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def delete_account_list (self, account_uuid, predicate):
-        """Procedure to delete the list of PREDICATE of an account."""
+    def delete_account_property (self, account_uuid, predicate):
+        """Procedure to delete the PREDICATE of an account."""
 
-        query = self.__query_from_template ("delete_account_list", {
+        query = self.__query_from_template ("delete_account_property", {
             "predicate":     predicate,
             "account_uuid":  account_uuid,
         })

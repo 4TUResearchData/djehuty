@@ -2,13 +2,13 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?account     djht:{{predicate}}   ?item_list .
+    ?account     djht:{{predicate}}   ?object .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account    rdf:type             djht:Account ;
-                djht:{{predicate}}    ?item_list .
+                djht:{{predicate}}    ?object .
   }
   FILTER (?account = <account:{{account_uuid}}>)
 }
