@@ -1141,7 +1141,7 @@ class SparqlInterface:
                                        "categories")
 
                 if not self.add_triples_from_graph (graph):
-                    self.log.error ("Updating categories for account %d failed.",
+                    self.log.error ("Updating categories for account %s failed.",
                                     account_uuid)
                     return None
 
