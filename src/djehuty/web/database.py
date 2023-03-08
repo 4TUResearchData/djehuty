@@ -1275,6 +1275,7 @@ class SparqlInterface:
             "account_uuid":  account_uuid,
         })
 
+        self.cache.invalidate_by_prefix ("accounts")
         return self.__run_query(query)
 
     def delete_item_categories (self, item_id, account_uuid, category_id=None,
