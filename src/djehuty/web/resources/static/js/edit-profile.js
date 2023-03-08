@@ -1,6 +1,4 @@
-function save_profile (on_success=jQuery.noop) {
-    event.preventDefault();
-    event.stopPropagation();
+function save_profile (notify=true, on_success=jQuery.noop) {
 
     let categories   = jQuery("input[name='categories']:checked");
     let category_ids = []
@@ -27,10 +25,12 @@ function save_profile (on_success=jQuery.noop) {
         accept:      "application/json",
         data:        JSON.stringify(form_data),
     }).done(function () {
-        show_message ("success", "<p>Saved changes.</p>");
+        if (notify) { show_message ("success", "<p>Saved changes.</p>"); }
         on_success ();
     }).fail(function () {
-        show_message ("failure", "<p>Failed to save your profile. Please try again at a later time.</p>");
+        if (notify) {
+            show_message ("failure", "<p>Failed to save your profile. Please try again at a later time.</p>");
+        }
     });
 }
 
@@ -88,9 +88,11 @@ function activate () {
         error: function(file, response, xhr) {
             show_message ("failure", `<p>${response.message}</p>`);
         },
+        success: function (file, response) {
+            save_profile (notify=false, function () { location.reload(); });
+        },
         accept: function(file, done) {
             done();
-            save_profile (function () { location.reload(); });
         }
     });
 
