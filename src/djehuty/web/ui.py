@@ -485,6 +485,12 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         elif server.db.cache.storage is None:
             server.db.cache.storage = f"{server.db.storage}/cache"
 
+        profile_images_root = xml_root.find ("profile-images-root")
+        if profile_images_root is not None:
+            server.db.profile_images_storage = profile_images_root.text
+        elif server.db.profile_images_storage is None:
+            server.db.profile_images_storage = f"{server.db.storage}/profile-images"
+
         production_mode = xml_root.find ("production")
         if production_mode is not None:
             server.in_production = bool(int(production_mode.text))
@@ -621,6 +627,15 @@ def main (address=None, port=None, state_graph=None, storage=None,
             logger.error ("The storage directory '%s' does not exist.",
                           server.db.storage)
             raise FileNotFoundError
+
+        if server.db.profile_images_storage is not None and not inside_reload:
+            try:
+                os.makedirs (server.db.profile_images_storage, mode=0o700, exist_ok=True)
+            except PermissionError:
+                logger.error ("Cannot create %s directory.",
+                              server.db.profile_images_storage)
+                server.db.profile_images_storage = f"{server.db.storage}/profile-images"
+                logger.error ("Falling back to %s.", server.db.profile_images_storage)
 
         server.db.setup_sparql_endpoint ()
         if not run_internal_server:
