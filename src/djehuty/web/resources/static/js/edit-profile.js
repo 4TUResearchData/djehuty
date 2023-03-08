@@ -1,4 +1,4 @@
-function save_profile () {
+function save_profile (on_success=jQuery.noop) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -27,15 +27,8 @@ function save_profile () {
         accept:      "application/json",
         data:        JSON.stringify(form_data),
     }).done(function () {
-        jQuery("#message")
-            .addClass("success")
-            .append("<p>Saved changes.</p>")
-            .fadeIn(250);
-        setTimeout(function() {
-            jQuery("#message").fadeOut(500, function() {
-                jQuery("#message").removeClass("success").empty();
-            });
-        }, 5000);
+        show_message ("success", "<p>Saved changes.</p>");
+        on_success ();
     }).fail(function () {
         show_message ("failure", "<p>Failed to save your profile. Please try again at a later time.</p>");
     });
