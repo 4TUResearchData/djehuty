@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT ?account_uuid ?draft ?doi ?latest_published_version ?first_online_date
+SELECT DISTINCT ?account_uuid ?draft ?doi ?latest_published_version ?first_online_date
        ?totals_created_at ?total_downloads ?total_views ?total_shares ?total_cites
        ?latest_published_version_number ?container_uuid
 
@@ -17,7 +17,9 @@ WHERE {
     OPTIONAL { ?container djht:total_views              ?total_views .       }
     OPTIONAL { ?container djht:total_shares             ?total_shares .      }
     OPTIONAL { ?container djht:total_cites              ?total_cites .       }
-    OPTIONAL { ?latest_published_version djht:version   ?latest_published_version_number . }
+    OPTIONAL { ?container djht:latest_published_version ?latest_published_version .
+               OPTIONAL { ?latest_published_version djht:version   ?latest_published_version_number . }
+             }
 
     BIND(STRAFTER(STR(?account), "account:") AS ?account_uuid)
     BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)

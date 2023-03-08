@@ -6161,12 +6161,12 @@ class ApiServer:
         output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_datacite.xml"
         return output
 
-    def format_datacite(self, item_id, version=None, item_type="dataset", indent=True):
+    def format_datacite (self, item_id, version=None, item_type="dataset", indent=True):
         """render metadata in datacite format"""
         parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type)
         return xml_formatter.datacite(parameters, indent=indent)
 
-    def format_datacite_for_registration(self, item_id, version=None, item_type="dataset"):
+    def format_datacite_for_registration (self, item_id, version=None, item_type="dataset"):
         """return doi and un-indented datacite xml separately"""
         parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type, from_draft=True)
         xml = str(xml_formatter.datacite(parameters, indent=False), encoding='utf-8')
@@ -6293,7 +6293,7 @@ class ApiServer:
                 contributors.append(contr_dict)
         return contributors
 
-    def add_names_to_authors(self, authors):
+    def add_names_to_authors (self, authors):
         """ Procedure to add missing first_name and last_name to author dict """
         for author in authors:
             if 'full_name' not in author:
