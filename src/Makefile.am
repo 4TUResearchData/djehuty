@@ -113,7 +113,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/dataset_versions.sparql            \
     djehuty/web/resources/sparql_templates/datasets.sparql                    \
     djehuty/web/resources/sparql_templates/decline_draft_dataset.sparql       \
-    djehuty/web/resources/sparql_templates/delete_account_list.sparql         \
+    djehuty/web/resources/sparql_templates/delete_account_property.sparql     \
     djehuty/web/resources/sparql_templates/delete_associations.sparql         \
     djehuty/web/resources/sparql_templates/delete_collection_draft.sparql     \
     djehuty/web/resources/sparql_templates/delete_dataset_draft.sparql        \
