@@ -22,6 +22,7 @@ from werkzeug.exceptions import HTTPException, NotFound, BadRequest
 from rdflib import URIRef
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
+from PIL import Image
 from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import xml_formatter
@@ -277,6 +278,7 @@ class ApiServer:
             Rule("/v3/profile",                               endpoint = "api_v3_profile"),
             Rule("/v3/profile/categories",                    endpoint = "api_v3_profile_categories"),
             Rule("/v3/profile/quota-request",                 endpoint = "api_v3_profile_quota_request"),
+            Rule("/v3/profile/picture",                       endpoint = "api_v3_profile_picture"),
             Rule("/v3/tags/search",                           endpoint = "api_v3_tags_search"),
 
             ## Data model exploratory
@@ -5470,6 +5472,89 @@ class ApiServer:
             pass
 
         return self.error_500 ()
+
+    def __image_mimetype (self, file_path):
+        """Returns the mimetype and file extension for FILE_PATH."""
+        mimetype = None
+        with Image.open (file_path) as image:
+            mimetype = image.get_format_mimetype()
+        return mimetype
+
+    def api_v3_profile_picture (self, request):
+        """Implements /v3/profile/picture."""
+
+        token   = self.token_from_cookie (request)
+        account = self.db.account_by_session_token (token)
+        if account is None:
+            return self.error_authorization_failed (request)
+
+        if request.method == "GET":
+            try:
+                file_path = account["profile_image"]
+                mimetype = self.__image_mimetype (file_path)
+                if mimetype is not None:
+                    return send_file (file_path, request.environ, mimetype)
+                return self.error_403 (request)
+
+            except (KeyError, FileNotFoundError) as error:
+                self.log.error ("Failed to send profile image due to: %s", error)
+                return self.error_404 (request)
+
+        if request.method == "DELETE":
+            try:
+                if "profile_image" in account:
+                    os.remove (account["profile_image"])
+                if self.db.delete_account_property (account["uuid"], "profile_image"):
+                    self.log.info ("Removed profile image for account %s", account["uuid"])
+                else:
+                    self.log.error ("Failed to remove profile image for %s", account["uuid"])
+            except (KeyError, FileNotFoundError) as error:
+                self.log.error ("Failed to remove profile image for %s due to: %s",
+                                account["uuid"], error)
+
+            return self.respond_204 ()
+
+        if request.method == "POST":
+            if not self.accepts_json(request):
+                return self.error_406 ("application/json")
+
+            handler = self.default_error_handling (request, "POST", "application/json")
+            if handler is not None:
+                return handler
+
+            try:
+                file_data       = request.files['file']
+                name, extension = os.path.splitext (file_data.filename)
+                output_filename = f"{self.db.profile_images_storage}/{account['uuid']}"
+
+                if not (extension.lower() == ".jpg" or extension.lower() == ".png"):
+                    return self.error_400 (request, "Only JPG and PNG images are supported.",
+                                           "InvalidImageFormat")
+
+                file_data.save (output_filename)
+                file_data.close ()
+                if os.name != 'nt':
+                    os.chmod (output_filename, 0o600)
+
+                image = Image.open (output_filename)
+                width, height = image.size
+                if width > 800 or height > 800:
+                    self.log.warning ("Account %s uploaded an image of %d by %d pixels.",
+                                      account["uuid"], width, height)
+                    image.close ()
+                    os.remove (output_filename)
+                    return self.error_400 (request, "The maximum image dimensions are 800 by 800 pixels.", "ImageTooLarge")
+
+                if self.db.update_account (account["uuid"], profile_image=output_filename):
+                    self.log.info ("Updated profile image for account %s", account["uuid"])
+                    return self.response (json.dumps({ "location": f"{self.base_url}/v3/profile/picture" }))
+
+            except OSError:
+                self.log.error ("Writing %s to disk failed.", output_filename)
+            except (IndexError, KeyError) as error:
+                self.log.error ("Uploading profile image failed with error: %s", error)
+
+        return self.error_405 (["GET", "POST", "DELETE"])
 
     def api_v3_dataset_upload_file (self, request, dataset_id):
         """Implements /v3/datasets/<id>/upload."""

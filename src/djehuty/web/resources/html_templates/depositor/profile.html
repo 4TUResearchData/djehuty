@@ -1,9 +1,12 @@
 {% extends "layout.html" %}
 {% block headers %}
+<meta http-equiv="Cache-control" content="no-cache">
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/utils.js"></script>
 <script src="/static/js/edit-profile.js"></script>
+<script src="/static/js/dropzone.min.js"></script>
 <script>
+Dropzone.autoDiscover = false;
 jQuery(document).ready(function (){
     root_categories = []
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
@@ -23,10 +26,36 @@ jQuery(document).ready(function (){
     activate ('{{account.account_uuid}}');
 });
 </script>
+<link href="/static/css/dropzone.min.css" rel="stylesheet">
 <link href="/static/css/form.css" rel="stylesheet">
 <style>
 #expanded-categories { display: none; }
 #categories-wrapper .subitem-checkbox { margin-left: 3em; }
+.upload-container {
+    display: block;
+    width: 200px;
+    height: 200px;
+    border: 2pt dashed #ccc;
+    background: #f9f9f9;
+    border-radius: .5em;
+    margin: auto auto 1em auto;
+    vertical-align: middle;
+    text-align: center;
+    color: #333;
+}
+.upload-container:hover { cursor: pointer; }
+.upload-container p { font-size: 1.0em; line-height: .5em; }
+    .dz-button { line-height: 1.5em !important; font-size: 15pt !important; font-weight: normal !important;{% if account.profile_image: %} display: none;{% endif %} }
+.small-text { text-align: center; font-size: small; }
+.small-text a { color: #cc0000; }
+.small-text a:hover { color: #ff0000; }
+.profile-image {
+    {%- if account.profile_image %}
+    background: url('/v3/profile/picture');
+    {%- endif %}
+    background-size: contain;
+    background-repeat: none;
+}
 </style>
 {% endblock %}
 {% block submenu %}
@@ -41,6 +70,16 @@ jQuery(document).ready(function (){
 {% endblock %}
 {% block body %}
 <h1>Profile</h1>
+<h2>Profile picture</h2>
+    <form id="upload-profile-image" class="upload-container dropzone {% if account.profile_image: %}profile-image{% endif%}" action="/v3/profile/picture" method="post" enctype="multipart/form-data">
+  <div class="fallback">
+    <input type="file" name="file" id="file" aria-label="Upload your profile picture">
+  </div>
+</form>
+{%- if account.profile_image: %}
+<p class="small-text"><a id="remove-image" href="#">Remove profile image</a></p>
+{%- endif %}
+<p class="small-text">Upload a JPG or PNG image of (ideally) 800 by 800 pixels.</p>
 
 <h2>Professional details</h2>
 

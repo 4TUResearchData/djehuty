@@ -46,6 +46,7 @@
           python-defusedxml
           python-jinja2
           python-rdflib
+          python-pillow
           python-pygit2
           python-requests
           python-sparqlwrapper

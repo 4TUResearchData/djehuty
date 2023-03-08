@@ -47,7 +47,23 @@ function render_categories_for_profile () {
             jQuery(`#subcategories_${category["parent_uuid"]}`).show();
         }
     }).fail(function () {
-        console.log("Failed to retrieve categories.");
+        show_message ("failure", "Failed to retrieve categories.");
+    });
+}
+
+function remove_profile_image () {
+    event.preventDefault();
+    event.stopPropagation();
+
+    jQuery.ajax({
+        url:         "/v3/profile/picture",
+        type:        "DELETE",
+        accept:      "application/json"
+    }).done (function () {
+        jQuery("#upload-profile-image").removeClass("profile-image");
+        jQuery(".dz-button").show();
+    }).fail (function () {
+        show_message ("failure", "<p>Failed to remove profile image.</p>");
     });
 }
 
@@ -56,4 +72,30 @@ function activate () {
     install_sticky_header();
     install_touchable_help_icons();
     jQuery("#save").on("click", function () { save_profile (); });
+    jQuery("#remove-image").on("click", function () { remove_profile_image (); });
+
+    var fileUploader = new Dropzone("#upload-profile-image", {
+        url:               "/v3/profile/picture",
+        dictDefaultMessage: "Upload your profile picture",
+        paramName:         "file",
+        maxFilesize:       10000,
+        maxFiles:          1,
+        parallelUploads:   1,
+        ignoreHiddenFiles: false,
+        createImageThumbnails: false,
+        disablePreviews:   true,
+        init: function() {},
+        error: function(file, response, xhr) {
+            show_message ("failure", `<p>${response.message}</p>`);
+        },
+        accept: function(file, done) {
+            done();
+            save_profile (function () { location.reload(); });
+        }
+    });
+
+    fileUploader.on("complete", function(file) {
+        fileUploader.removeFile(file);
+    });
+
 }
