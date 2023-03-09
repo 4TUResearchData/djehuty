@@ -32,6 +32,8 @@ DELETE {
     ?collection           djht:organizations        ?organizations .
     {%- endif%}{% if container_doi is not none %}
     ?container            djht:doi                  ?container_doi .
+    {%- endif%}{% if first_online_date is not none %}
+    ?container            djht:first_online_date    ?first_online_date .
     {%- endif%}
     ?collection           djht:modified_date        ?modified_date .
   }
@@ -68,6 +70,8 @@ INSERT {
     ?collection           djht:organizations        {{organizations | safe}} .
     {%- endif%}{% if container_doi is not none %}
     ?container            djht:doi                  {{container_doi | safe}} .
+    {%- endif%}{% if first_online_date is not none %}
+    ?container            djht:first_online_date    "{{first_online_date | safe}}"^^xsd:dateTime .
     {%- endif%}
     ?collection           djht:modified_date        "{{modified_date | safe}}"^^xsd:dateTime .
   }
@@ -96,6 +100,7 @@ WHERE {
     OPTIONAL { ?collection djht:organizations        ?organizations . }
     OPTIONAL { ?collection djht:contributors         ?contributors . }
     OPTIONAL { ?container  djht:doi                  ?container_doi . }
+    OPTIONAL { ?container  djht:first_online_date    ?first_online_date . }
   }
 {%- if account_uuid is not none: %}
   FILTER (?account = <account:{{account_uuid}}>)

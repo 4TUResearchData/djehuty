@@ -1755,8 +1755,11 @@ class SparqlInterface:
                         embargo_allow_access_requests=None, is_embargoed=False,
                         agreed_to_deposit_agreement=False, agreed_to_publish=False,
                         is_metadata_record=False, metadata_reason=None,
-                        container_doi=None):
+                        container_doi=None, is_first_online=False):
         """Procedure to overwrite parts of a dataset."""
+
+        modified_date_str = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        first_online_date_str = modified_date_str if is_first_online else None
 
         query   = self.__query_from_template ("update_dataset", {
             "account_uuid":    account_uuid,
@@ -1777,7 +1780,7 @@ class SparqlInterface:
             "group_id":        group_id,
             "license_remarks": rdf.escape_string_value (license_remarks),
             "longitude":       rdf.escape_string_value (longitude),
-            "modified_date":   datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ"),
+            "modified_date":   modified_date_str,
             "organizations":   rdf.escape_string_value (organizations),
             "publisher":       rdf.escape_string_value (publisher),
             "resource_doi":    rdf.escape_string_value (resource_doi),
@@ -1798,7 +1801,8 @@ class SparqlInterface:
             "agreed_to_deposit_agreement":
                                rdf.escape_boolean_value (agreed_to_deposit_agreement),
             "agreed_to_publish": rdf.escape_boolean_value (agreed_to_publish),
-            "container_doi":   rdf.escape_string_value (container_doi)
+            "container_doi":   rdf.escape_string_value (container_doi),
+            "first_online_date": first_online_date_str
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
@@ -2021,8 +2025,11 @@ class SparqlInterface:
                            time_coverage=None, publisher=None, language=None,
                            contributors=None, geolocation=None, longitude=None,
                            latitude=None, organizations=None, categories=None,
-                           container_doi=None):
+                           container_doi=None, is_first_online=False):
         """Procedure to overwrite parts of a collection."""
+
+        modified_date_str = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        first_online_date_str = modified_date_str if is_first_online else None
 
         query   = self.__query_from_template ("update_collection", {
             "account_uuid":      account_uuid,
@@ -2035,14 +2042,16 @@ class SparqlInterface:
             "latitude":          rdf.escape_string_value (latitude),
             "group_id":          group_id,
             "longitude":         rdf.escape_string_value (longitude),
-            "modified_date":     datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ"),
+            "modified_date":     modified_date_str,
             "organizations":     rdf.escape_string_value (organizations),
             "publisher":         rdf.escape_string_value (publisher),
             "resource_doi":      rdf.escape_string_value (resource_doi),
             "resource_title":    rdf.escape_string_value (resource_title),
             "time_coverage":     rdf.escape_string_value (time_coverage),
             "title":             rdf.escape_string_value (title),
-            "container_doi":     rdf.escape_string_value (container_doi)        })
+            "container_doi":     rdf.escape_string_value (container_doi),
+            "first_online_date": first_online_date_str
+        })
 
         self.cache.invalidate_by_prefix ("collection")
         self.cache.invalidate_by_prefix (f"{container_uuid}_collection")

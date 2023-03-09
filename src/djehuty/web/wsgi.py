@@ -4194,7 +4194,8 @@ class ApiServer:
 
         try:
             doi_type = "doi" if version else "container_doi"
-            doi_parm = {doi_type: doi}
+            more_parm = {doi_type: doi,
+                         "is_first_online": not "timeline_first_online" in item}
             if item_type == "dataset":
                 if self.db.update_dataset (
                         container_uuid,
@@ -4202,10 +4203,10 @@ class ApiServer:
                         agreed_to_deposit_agreement = value_or (item, "agreed_to_deposit_agreement", False),
                         agreed_to_publish           = value_or (item, "agreed_to_publish", False),
                         is_metadata_record          = value_or (item, "is_metadata_record", False),
-                        **doi_parm ):
+                        **more_parm ):
                     return doi
             else:
-                if self.db.update_collection ( container_uuid, account_uuid, **doi_parm ):
+                if self.db.update_collection ( container_uuid, account_uuid, **more_parm ):
                     return doi
         except KeyError:
             pass
