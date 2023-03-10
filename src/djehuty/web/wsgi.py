@@ -2126,7 +2126,7 @@ class ApiServer:
         summary_data = self.db.repository_statistics()
         try:
             for key in summary_data:
-                summary_data[key] = "{:,}".format(int(summary_data[key]))
+                summary_data[key] = "{:,}".format(int(summary_data[key]))  # pylint: disable=consider-using-f-string
         except ValueError:
             summary_data = { "datasets": 0, "authors": 0, "collections": 0, "files": 0, "bytes": 0 }
 
