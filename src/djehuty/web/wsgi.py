@@ -279,6 +279,7 @@ class ApiServer:
             Rule("/v3/profile/categories",                    endpoint = "api_v3_profile_categories"),
             Rule("/v3/profile/quota-request",                 endpoint = "api_v3_profile_quota_request"),
             Rule("/v3/profile/picture",                       endpoint = "api_v3_profile_picture"),
+            Rule("/v3/profile/picture/<account_uuid>",        endpoint = "api_v3_profile_picture_for_account"),
             Rule("/v3/tags/search",                           endpoint = "api_v3_tags_search"),
 
             ## Data model exploratory
@@ -5494,6 +5495,26 @@ class ApiServer:
         with Image.open (file_path) as image:
             mimetype = image.get_format_mimetype()
         return mimetype
+
+    def api_v3_profile_picture_for_account (self, request, account_uuid):
+        """Implements /v3/profile/picture/<account_uuid>."""
+
+        if not validator.is_valid_uuid (account_uuid):
+            return self.error_404 (request)
+
+        if request.method != "GET":
+            return self.error_405 ("GET")
+
+        try:
+            account   = self.db.account_by_uuid (account_uuid)
+            file_path = account["profile_image"]
+            mimetype  = self.__image_mimetype (file_path)
+            if mimetype is not None:
+                return send_file (file_path, request.environ, mimetype)
+            return self.error_403 (request)
+
+        except (KeyError, FileNotFoundError) as error:
+            return self.error_404 (request)
 
     def api_v3_profile_picture (self, request):
         """Implements /v3/profile/picture."""
