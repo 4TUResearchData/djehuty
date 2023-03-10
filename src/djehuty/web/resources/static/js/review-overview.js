@@ -44,7 +44,7 @@ function filter_status (event) {
     let value = jQuery(".status-filter option:selected").val();
     jQuery('#overview-table tr').each(function(index, element) {
         let reviewer_element = jQuery(element).find(`td .reviewer-selector option:selected`);
-        let status = jQuery(element).find(`td:nth-child(5)`).text();
+        let status = jQuery(element).find(`td:nth-child(6)`).text();
         if (jQuery(element).find("th").length > 0) {} // Skip the header.
         else if (value == "all") { jQuery(element).show(); }
         else if (value == status) { jQuery(element).show(); }
@@ -53,8 +53,19 @@ function filter_status (event) {
 }
 
 function activate() {
-    jQuery(".reviewer-selector").change(assign_reviewer);
-    jQuery(".reviewer-filter").change(filter_reviewer);
-    jQuery(".status-filter").change(filter_status);
-    jQuery("#content-wrapper").show();
+    jQuery(document).ready(function (){
+        jQuery("#overview-table").DataTable({
+            paging: false,
+            order: [[7, 'desc']],
+            orderable: false,
+            info: false,
+            initComplete: function (settings, json) {
+            }
+        });
+
+        jQuery(".reviewer-selector").change(assign_reviewer);
+        jQuery(".reviewer-filter").change(filter_reviewer);
+        jQuery(".status-filter").change(filter_status);
+        jQuery("#content-wrapper").show();
+    });
 }

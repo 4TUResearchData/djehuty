@@ -10,43 +10,31 @@
 </style>
 <script src="/static/js/review-overview.js"></script>
 <script>
-jQuery(document).ready(function (){
-    jQuery("#overview-table").DataTable({
-        paging: false,
-        order: [[7, 'desc']],
-        orderable: false,
-        info: false,
-        initComplete: function (settings, json) {
-            jQuery("#overview-table_filter").append(
-                `<label style="margin-left: 1em;">Reviewer: ` +
-                `<select class="reviewer-filter">` +
-                `<option value="all">All reviewers</option>` +
-                `<option value="unassigned">Unassigned</option>` +
-                {%- for reviewer in reviewers: %}
-                `<option value="{{reviewer.uuid}}">` +
-                    `{{reviewer.first_name | default("", False)}} ` +
-                    `{{reviewer.last_name | default("", False)}}` +
-                `</option>` +
-                {%- endfor %}
-                `</select></label>`).append(
-                `<label style="margin-left: 1em;">Status: ` +
-                `<select class="status-filter">` +
-                `<option value="all">All</option>` +
-                `<option value="approved">Approved</option>` +
-                `<option value="rejected">Rejected</option>` +
-                `<option value="assigned">Assigned</option>` +
-                `<option value="unassigned">Unassigned</option>` +
-                `</select></label>`);
-        }
-    });
-    activate ();
-});
+activate ();
 </script>
 {% endblock %}
 {% block submenu %}
 <ul>
-  <li><a href="/review/dashboard">Dashboard</a>
-  <li class="active">Overview
+  <li style="padding: 2pt 6pt .5em 6pt !important" class="active">Overview
+  <li><label style="text-transform: none;">Reviewer
+      <select class="reviewer-filter">
+        <option value="all">All reviewers</option>
+        <option value="unassigned">Unassigned</option>
+        {%- for reviewer in reviewers: %}
+        <option value="{{reviewer.uuid}}">
+          {{reviewer.first_name | default("", False)}}
+          {{reviewer.last_name | default("", False)}}
+          </option>
+        {%- endfor %}
+    </select></label>
+  <li><label style="text-transform: none;">Status
+      <select class="status-filter">
+        <option value="all">All</option>
+        <option value="approved">Approved</option>
+        <option value="declined">Declined</option>
+        <option value="assigned">Assigned</option>
+        <option value="unassigned">Unassigned</option>
+    </select></label>
 </ul>
 {% endblock %}
 {% block body %}
