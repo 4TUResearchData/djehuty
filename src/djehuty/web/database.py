@@ -1251,7 +1251,6 @@ class SparqlInterface:
         """Procedure to add a timeline to the state graph."""
 
         rdf.add (graph, item_uri, rdf.DJHT["revision_date"],          revision,     XSD.dateTime)
-        rdf.add (graph, container_uri, rdf.DJHT["first_online_date"], first_online, XSD.dateTime)
         rdf.add (graph, item_uri, rdf.DJHT["posted_date"],            posted,       XSD.dateTime)
         rdf.add (graph, item_uri, rdf.DJHT["publisher_publication_date"], publisher_publication, XSD.dateTime)
         rdf.add (graph, item_uri, rdf.DJHT["submission_date"],        submission,   XSD.dateTime)
