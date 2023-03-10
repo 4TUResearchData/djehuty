@@ -4284,7 +4284,7 @@ class ApiServer:
             "data": {
                 "attributes": {
                     "event": "publish", #does no harm when already published
-                    "url": landing_page_url(item_id, version),
+                    "url": landing_page_url(item_id, version, item_type=item_type),
                     "xml": str(encoded_bytes, "utf-8")
                 }
             }
@@ -5275,7 +5275,6 @@ class ApiServer:
 
         ## Do strict metadata validation.
         errors = []
-
         validator.string_value  (collection, "title",          3, 1000,  True, errors)
         validator.string_value  (collection, "description",    0, 10000, True, errors)
         validator.integer_value (collection, "group_id",       0, pow(2, 63), True, errors)
@@ -5296,7 +5295,6 @@ class ApiServer:
             errors.append({
                 "field_name": "tag",
                 "message": "The collection must have at least one keyword."})
-
 
         categories = self.db.categories (item_uri = collection["uri"],
                                          account_uuid = account_uuid,
@@ -5324,7 +5322,7 @@ class ApiServer:
 
         ## Register/update dois
         container_uuid = collection["container_uuid"]
-        container = self.db.container(container_uuid)
+        container = self.db.container(container_uuid, "collection")
         new_version = value_or(container, 'latest_published_version_number', 0) + 1
         for version in (None, new_version):
             reserved_doi = self.__reserve_and_save_doi (account_uuid, collection,
