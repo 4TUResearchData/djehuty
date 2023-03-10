@@ -1093,9 +1093,9 @@ class SparqlInterface:
             container_uuid = rdf.uri_to_uuid (container)
             self.log.info ("Inserted dataset %s", container_uuid)
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
-            return (container_uuid, rdf.uri_to_uuid (uri))
+            return container_uuid, rdf.uri_to_uuid (uri)
 
-        return None
+        return None, None
 
     def update_account (self, account_uuid, active=None, email=None, job_title=None,
                         first_name=None, last_name=None, institution_user_id=None,
@@ -2005,9 +2005,9 @@ class SparqlInterface:
         if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
             self.log.info ("Inserted collection %s", container_uuid)
-            return (container_uuid, rdf.uri_to_uuid (uri))
+            return container_uuid, rdf.uri_to_uuid (uri)
 
-        return None
+        return None, None
 
     def delete_collection_draft (self, container_uuid, account_uuid):
         """Procedure to remove a collection from the state graph."""
