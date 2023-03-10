@@ -8,11 +8,11 @@ DELETE {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container    rdf:type/rdfs:subClassOf djht:Container ;
-                  djht:account              ?account ;
-                  djht:draft                ?item .
-    ?item         djht:{{predicate}}        ?item_list .
+                  djht:account             ?account .
+    ?item         djht:container           ?container ;
+                  djht:{{predicate}}       ?item_list .
   }
   FILTER (?account = <account:{{account_uuid}}>)
-  FILTER (?container  = <{{container_uri}}>)
+  FILTER (STRAFTER(STR(?item), ":") = STR("{{item_uuid}}"))
 }
 {% endblock %}

@@ -7,7 +7,9 @@ WHERE {
     ?container_uri       rdf:type/rdfs:subClassOf djht:Container .
     ?container_uri       djht:account             ?account .
 
-    {%- if is_published %}
+    {%- if is_published is none and is_latest is none %}
+    ?item_uri            djht:container           ?container_uri .
+    {%- elif is_published %}
     {%- if is_latest %}
     ?container_uri       djht:latest_published_version ?item_uri .
     {%- else %}
@@ -27,6 +29,9 @@ FILTER (?account = <account:{{account_uuid}}>)
 {%- endif %}
 {%- if container_uri is not none: %}
 FILTER (?container_uri = <{{container_uri}}>)
+{%- endif %}
+{%- if item_uri is not none %}
+FILTER (?item_uri = <{{item_uri}}>)
 {%- endif %}
 }
 {% endblock %}

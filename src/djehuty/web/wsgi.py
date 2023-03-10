@@ -98,9 +98,9 @@ class ApiServer:
             Rule("/my/datasets",                              endpoint = "ui_my_data"),
             Rule("/my/datasets/<dataset_id>/edit",            endpoint = "ui_edit_dataset"),
             Rule("/my/datasets/<dataset_id>/delete",          endpoint = "ui_delete_dataset"),
-            Rule("/my/datasets/<dataset_id>/private_links",   endpoint = "ui_dataset_private_links"),
-            Rule("/my/datasets/<dataset_id>/private_link/<private_link_id>/delete", endpoint = "ui_dataset_delete_private_link"),
-            Rule("/my/datasets/<dataset_id>/private_link/new", endpoint = "ui_dataset_new_private_link"),
+            Rule("/my/datasets/<dataset_uuid>/private_links", endpoint = "ui_dataset_private_links"),
+            Rule("/my/datasets/<dataset_uuid>/private_link/<private_link_id>/delete", endpoint = "ui_dataset_delete_private_link"),
+            Rule("/my/datasets/<dataset_uuid>/private_link/new", endpoint = "ui_dataset_new_private_link"),
             Rule("/my/datasets/new",                          endpoint = "ui_new_dataset"),
             Rule("/my/datasets/<dataset_id>/new-version-draft", endpoint = "ui_new_version_draft_dataset"),
             Rule("/my/datasets/submitted-for-review",         endpoint = "ui_dataset_submitted"),
@@ -1400,14 +1400,14 @@ class ApiServer:
         if error_response is not None:
             return error_response
 
-        container_uuid, _ = self.db.insert_dataset(title = "Untitled item",
-                                                   account_uuid = account_uuid)
-        if container_uuid is not None:
+        container_uuid, dataset_uuid = self.db.insert_dataset(title = "Untitled item",
+                                                              account_uuid = account_uuid)
+        if container_uuid is not None and dataset_uuid is not None:
             # Add oneself as author but don't bail if that doesn't work.
             try:
                 account    = self.db.account_by_uuid (account_uuid)
                 author_uri = URIRef(uuid_to_uri(account["author_uuid"], "author"))
-                self.db.update_item_list (container_uuid, account_uuid,
+                self.db.update_item_list (dataset_uuid, account_uuid,
                                           [author_uri], "authors")
             except (TypeError, KeyError):
                 self.log.warning ("No author record for account %s.", account_uuid)
@@ -1501,8 +1501,8 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def ui_dataset_private_links (self, request, dataset_id):
-        """Implements /my/datasets/<id>/private_links."""
+    def ui_dataset_private_links (self, request, dataset_uuid):
+        """Implements /my/datasets/<uuid>/private_links."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1511,9 +1511,15 @@ class ApiServer:
             return self.error_authorization_failed (request)
 
         if request.method == 'GET':
-            dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                   account_uuid = account_uuid,
-                                                   is_published = False)
+            if not validator.is_valid_uuid (dataset_uuid):
+                return self.error_404 (request)
+
+            dataset = self.db.datasets (dataset_uuid = dataset_uuid,
+                                        account_uuid = account_uuid,
+                                        is_published = None,
+                                        is_latest    = None,
+                                        limit        = 1)[0]
+
             if not dataset:
                 return self.error_404 (request)
 
@@ -1625,16 +1631,16 @@ class ApiServer:
         if error_response is not None:
             return error_response
 
-        container_uuid, _ = self.db.insert_collection(
+        container_uuid, collection_uuid = self.db.insert_collection(
             title = "Untitled collection",
             account_uuid = account_uuid)
 
-        if container_uuid is not None:
+        if container_uuid is not None and collection_uuid is not None:
             # Add oneself as author but don't bail if that doesn't work.
             try:
                 account    = self.db.account_by_uuid (account_uuid)
                 author_uri = URIRef(uuid_to_uri(account["author_uuid"], "author"))
-                self.db.update_item_list (container_uuid, account_uuid,
+                self.db.update_item_list (collection_uuid, account_uuid,
                                           [author_uri], "authors")
             except (TypeError, KeyError):
                 self.log.warning ("No author record for account %s.", account_uuid)
@@ -1815,8 +1821,8 @@ class ApiServer:
         self.db.delete_session_by_uuid (account_uuid, session_uuid)
         return response
 
-    def ui_dataset_new_private_link (self, request, dataset_id):
-        """Implements /my/datasets/<id>/private_link/new."""
+    def ui_dataset_new_private_link (self, request, dataset_uuid):
+        """Implements /my/datasets/<uuid>/private_link/new."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1824,14 +1830,20 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        dataset  = self.__dataset_by_id_or_uri (dataset_id,
-                                                account_uuid = account_uuid,
-                                                is_published = False)
+        if not validator.is_valid_uuid (dataset_uuid):
+            return self.error_404 (request)
+
+        dataset = self.db.datasets (dataset_uuid = dataset_uuid,
+                                    account_uuid = account_uuid,
+                                    is_published = None,
+                                    is_latest    = None,
+                                    limit        = 1)[0]
+
         if dataset is None:
             return self.error_403 (request)
 
         self.db.insert_private_link (dataset["uuid"], account_uuid, item_type="dataset")
-        return redirect (f"/my/datasets/{dataset_id}/private_links", code=302)
+        return redirect (f"/my/datasets/{dataset_uuid}/private_links", code=302)
 
     def ui_collection_new_private_link (self, request, collection_id):
         """Implements /my/collections/<id>/private_link/new."""
@@ -1864,8 +1876,8 @@ class ApiServer:
 
         return response
 
-    def ui_dataset_delete_private_link (self, request, dataset_id, private_link_id):
-        """Implements /my/datasets/<id>/private_link/<pid>/delete."""
+    def ui_dataset_delete_private_link (self, request, dataset_uuid, private_link_id):
+        """Implements /my/datasets/<uuid>/private_link/<pid>/delete."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1873,9 +1885,14 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                               account_uuid = account_uuid,
-                                               is_published = False)
+        if not validator.is_valid_uuid (dataset_uuid):
+            return self.error_404 (request)
+
+        dataset = self.db.datasets (dataset_uuid = dataset_uuid,
+                                    account_uuid = account_uuid,
+                                    is_published = None,
+                                    is_latest    = None,
+                                    limit        = 1)[0]
 
         return self.__delete_private_link (request, dataset, account_uuid, private_link_id)
 
@@ -3232,7 +3249,7 @@ class ApiServer:
                 license_id  = validator.integer_value (record, "license_id", 0, pow(2, 63))
                 license_url = self.db.license_url_by_id (license_id)
 
-                result = self.db.update_dataset (dataset["container_uuid"],
+                result = self.db.update_dataset (dataset["uuid"],
                     account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000),
@@ -3377,7 +3394,7 @@ class ApiServer:
                                                  existing_authors))
 
                 authors = existing_authors + new_authors
-                if not self.db.update_item_list (dataset["container_uuid"],
+                if not self.db.update_item_list (dataset["uuid"],
                                                  account_uuid,
                                                  authors,
                                                  "authors"):
@@ -3424,7 +3441,7 @@ class ApiServer:
                 authors.remove (next (filter (lambda item: item['uuid'] == author_id, authors)))
 
             authors = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "author")), authors))
-            if self.db.update_item_list (dataset["container_uuid"],
+            if self.db.update_item_list (dataset["uuid"],
                                          account_uuid,
                                          authors,
                                          "authors"):
@@ -3518,7 +3535,7 @@ class ApiServer:
                                                  existing_fundings))
 
                 fundings = existing_fundings + new_fundings
-                if not self.db.update_item_list (item["container_uuid"],
+                if not self.db.update_item_list (item["uuid"],
                                                  account_uuid,
                                                  fundings,
                                                  "funding_list"):
@@ -3574,7 +3591,7 @@ class ApiServer:
             fundings.remove (next (filter (lambda item: item['uuid'] == funding_id, fundings)))
 
             fundings = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "funding")), fundings))
-            if self.db.update_item_list (item["container_uuid"],
+            if self.db.update_item_list (item["uuid"],
                                          account_uuid,
                                          fundings,
                                          "funding_list"):
@@ -3627,7 +3644,7 @@ class ApiServer:
             authors = list(map(lambda item: URIRef(uuid_to_uri(item["uuid"], "author")),
                                 authors))
 
-            if self.db.update_item_list (uri_to_uuid (collection["container_uri"]),
+            if self.db.update_item_list (collection["uuid"],
                                          account_uuid,
                                          authors,
                                          "authors"):
@@ -3661,7 +3678,7 @@ class ApiServer:
             datasets = list(map(lambda item: URIRef(uuid_to_uri(item["container_uuid"], "container")),
                                 datasets))
 
-            if self.db.update_item_list (collection["container_uuid"],
+            if self.db.update_item_list (collection["uuid"],
                                          account_uuid,
                                          datasets,
                                          "datasets"):
@@ -3733,7 +3750,7 @@ class ApiServer:
                     categories = list(dict.fromkeys(existing_categories + categories))
 
                 categories = uris_from_records (categories, "category")
-                if self.db.update_item_list (dataset["container_uuid"],
+                if self.db.update_item_list (dataset["uuid"],
                                              account_uuid,
                                              categories,
                                              "categories"):
@@ -3936,7 +3953,7 @@ class ApiServer:
                 files = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "file")),
                                            files))
 
-                if self.db.update_item_list (dataset["container_uuid"],
+                if self.db.update_item_list (dataset["uuid"],
                                              account_uuid,
                                              files,
                                              "files"):
@@ -4019,7 +4036,7 @@ class ApiServer:
                 links    = list(map (lambda item: URIRef(item["uri"]), links))
                 links    = links + [ URIRef(link_uri) ]
 
-                if not self.db.update_item_list (dataset["container_uuid"],
+                if not self.db.update_item_list (dataset["uuid"],
                                                  account_uuid,
                                                  links,
                                                  "private_links"):
@@ -4158,7 +4175,7 @@ class ApiServer:
             return self.error_500 ()
 
         reserved_doi = data["data"]["id"]
-        if self.db.update_collection (collection["container_uuid"],
+        if self.db.update_collection (collection["uuid"],
                                       account_uuid,
                                       doi = reserved_doi):
             return self.response (json.dumps({ "doi": reserved_doi }))
@@ -4198,7 +4215,7 @@ class ApiServer:
                          "is_first_online": not "timeline_first_online" in item}
             if item_type == "dataset":
                 if self.db.update_dataset (
-                        container_uuid,
+                        item["uuid"],
                         account_uuid,
                         agreed_to_deposit_agreement = value_or (item, "agreed_to_deposit_agreement", False),
                         agreed_to_publish           = value_or (item, "agreed_to_publish", False),
@@ -4206,7 +4223,7 @@ class ApiServer:
                         **more_parm ):
                     return doi
             else:
-                if self.db.update_collection ( container_uuid, account_uuid, **more_parm ):
+                if self.db.update_collection (item["uuid"], account_uuid, **more_parm):
                     return doi
         except KeyError:
             pass
@@ -4579,8 +4596,7 @@ class ApiServer:
                 collection     = self.__collection_by_id_or_uri (collection_id,
                                                                  account_uuid = account_uuid,
                                                                  is_published = False)
-                container_uuid = collection["container_uuid"]
-                result = self.db.update_collection (container_uuid, account_uuid,
+                result = self.db.update_collection (collection["uuid"], account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
@@ -4741,7 +4757,7 @@ class ApiServer:
                                                  existing_authors))
 
                 authors = existing_authors + new_authors
-                if not self.db.update_item_list (uri_to_uuid (collection["container_uri"]),
+                if not self.db.update_item_list (collection["uuid"],
                                                  account_uuid,
                                                  authors,
                                                  "authors"):
@@ -4846,7 +4862,7 @@ class ApiServer:
 
                     datasets[index] = URIRef(dataset["container_uri"])
 
-                if self.db.update_item_list (collection["container_uuid"],
+                if self.db.update_item_list (collection["uuid"],
                                              account_uuid,
                                              datasets,
                                              "datasets"):
@@ -5417,7 +5433,7 @@ class ApiServer:
             license_id = validator.integer_value (record, "license_id", 0, pow(2, 63), True, errors)
             license_url = self.db.license_url_by_id (license_id)
             parameters = {
-                "container_uuid":     dataset["container_uuid"],
+                "dataset_uuid":       dataset["uuid"],
                 "account_uuid":       account_uuid,
                 "title":              validator.string_value  (record, "title",          3, 1000,  True, errors),
                 "description":        validator.string_value  (record, "description",    0, 10000, True, errors),
@@ -5674,7 +5690,7 @@ class ApiServer:
                 url_encoded = validator.string_value (request.args, "url", 0, 1024, True)
                 url         = requests.utils.unquote(url_encoded)
                 references.remove (next (filter (lambda item: item == url, references)))
-                if not self.db.update_item_list (item["container_uuid"],
+                if not self.db.update_item_list (item["uuid"],
                                                  account_uuid,
                                                  references,
                                                  "references"):
@@ -5695,7 +5711,7 @@ class ApiServer:
             if request.method == 'POST':
                 references = references + new_references
 
-            if not self.db.update_item_list (item["container_uuid"],
+            if not self.db.update_item_list (item["uuid"],
                                              account_uuid,
                                              references,
                                              "references"):
@@ -5773,7 +5789,7 @@ class ApiServer:
                 tag_encoded = validator.string_value (request.args, "tag", 0, 1024, True)
                 tag         = requests.utils.unquote(tag_encoded)
                 tags.remove (next (filter (lambda item: item == tag, tags)))
-                if not self.db.update_item_list (item["container_uuid"],
+                if not self.db.update_item_list (item["uuid"],
                                                  account_uuid,
                                                  tags,
                                                  "tags"):
@@ -5802,7 +5818,7 @@ class ApiServer:
                 # Remove duplicates.
                 tags = deduplicate_list(existing_tags + new_tags)
 
-            if not self.db.update_item_list (item["container_uuid"],
+            if not self.db.update_item_list (item["uuid"],
                                              account_uuid,
                                              tags,
                                              "tags"):

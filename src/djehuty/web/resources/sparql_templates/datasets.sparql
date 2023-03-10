@@ -32,7 +32,9 @@ WHERE {
     ?container_uri      djht:account              ?account .
     OPTIONAL { ?container_uri djht:dataset_id     ?dataset_id . }
 
-    {%- if is_latest %}
+    {%- if is_published is none and is_latest is none: %}
+    ?dataset            djht:container            ?container_uri .
+    {%- elif is_latest %}
     ?container_uri      djht:latest_published_version ?dataset .
     {%- elif is_published %}
     ?container_uri      djht:published_versions/rdf:rest*/rdf:first ?dataset .

@@ -200,6 +200,6 @@ WHERE {
 {%- if account_uuid is not none: %}
   FILTER (?account = <account:{{account_uuid | safe}}>)
 {%- endif %}
-  FILTER (?container = <{{container_uri | safe}}>)
+  FILTER (?dataset = <{{dataset_uri | safe}}>)
 }
 {% endblock %}

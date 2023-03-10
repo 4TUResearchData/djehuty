@@ -272,7 +272,6 @@ class SparqlInterface:
             filters += f"FILTER ((?category_id IN ({','.join(map(str, categories))})) || "
             filters += f"(?parent_category_id IN ({','.join(map(str, categories))})))\n"
 
-
         if published_since is not None:
             published_since_safe = rdf.escape_datetime_value (published_since)
             filters += rdf.sparql_bound_filter ("published_date")
@@ -1149,31 +1148,32 @@ class SparqlInterface:
 
         return results
 
-    def update_item_list (self, container_uuid, account_uuid, items, predicate):
+    def update_item_list (self, item_uuid, account_uuid, items, predicate):
         """Procedure to modify a list property of a container item."""
         try:
             graph   = Graph()
-            dataset = self.container_items (container_uuid = container_uuid,
-                                            is_published   = False,
-                                            account_uuid   = account_uuid)[0]
+            item = self.container_items (item_uuid      = item_uuid,
+                                         is_published   = None,
+                                         is_latest      = None,
+                                         account_uuid   = account_uuid)[0]
 
-            self.delete_associations (container_uuid, account_uuid, predicate)
+            self.delete_associations (item_uuid, account_uuid, predicate)
             if items:
                 self.insert_item_list (graph,
-                                       URIRef(dataset["uri"]),
+                                       URIRef(item["uri"]),
                                        items,
                                        predicate)
 
                 if not self.add_triples_from_graph (graph):
                     self.log.error ("%s insert query failed for %s",
-                                    predicate, container_uuid)
+                                    predicate, item_uuid)
                     return False
 
             return True
 
         except IndexError:
             self.log.error ("Could not insert %s items for %s",
-                            predicate, container_uuid)
+                            predicate, item_uuid)
 
         return False
 
@@ -1256,11 +1256,11 @@ class SparqlInterface:
         rdf.add (graph, item_uri, rdf.DJHT["publisher_publication_date"], publisher_publication, XSD.dateTime)
         rdf.add (graph, item_uri, rdf.DJHT["submission_date"],        submission,   XSD.dateTime)
 
-    def delete_associations (self, container_uuid, account_uuid, predicate):
+    def delete_associations (self, item_uuid, account_uuid, predicate):
         """Procedure to delete the list of PREDICATE of a dataset or collection."""
 
         query = self.__query_from_template ("delete_associations", {
-            "container_uri": rdf.uuid_to_uri (container_uuid, "container"),
+            "item_uuid":     item_uuid,
             "predicate":     predicate,
             "account_uuid":  account_uuid,
         })
@@ -1371,7 +1371,7 @@ class SparqlInterface:
             container_uri = f"container:{dataset['container_uuid']}"
             self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
             self.cache.invalidate_by_prefix (f"{container_uri}_dataset_storage")
-            if self.update_item_list (dataset["container_uuid"],
+            if self.update_item_list (dataset["uuid"],
                                       account_uuid,
                                       new_files,
                                       "files"):
@@ -1448,15 +1448,26 @@ class SparqlInterface:
             if item_type == "dataset":
                 item      = self.datasets (dataset_uuid = item_uuid,
                                            account_uuid = account_uuid,
-                                           is_published = False,
+                                           # Ignoring is_published and is_latest
+                                           # enabled both published and draft
+                                           # datasets to be found via the
+                                           # dataset -> container relationship.
+                                           is_published = None,
+                                           is_latest    = None,
                                            limit        = 1)[0]
             elif item_type == "collection":
                 item      = self.collections (collection_uuid = item_uuid,
                                               account_uuid = account_uuid,
-                                              is_published = False,
+                                              # See above.
+                                              is_published = None,
+                                              is_latest    = None,
                                               limit        = 1)[0]
 
-            if self.update_item_list (item["container_uuid"],
+            if item is None:
+                self.log.error ("Could not find item to insert a private link for.")
+                return None
+
+            if self.update_item_list (item["uuid"],
                                       account_uuid,
                                       new_links,
                                       "private_links"):
@@ -1741,7 +1752,7 @@ class SparqlInterface:
 
         return None
 
-    def update_dataset (self, container_uuid, account_uuid, title=None,
+    def update_dataset (self, dataset_uuid, account_uuid, title=None,
                         description=None, resource_doi=None, doi=None,
                         resource_title=None, license_url=None, group_id=None,
                         time_coverage=None, publisher=None, language=None,
@@ -1763,7 +1774,7 @@ class SparqlInterface:
 
         query   = self.__query_from_template ("update_dataset", {
             "account_uuid":    account_uuid,
-            "container_uri":   rdf.uuid_to_uri (container_uuid, "container"),
+            "dataset_uri":     rdf.uuid_to_uri (dataset_uuid, "dataset"),
             "contributors":    rdf.escape_string_value (contributors),
             "data_link":       rdf.escape_string_value (data_link),
             "defined_type":    defined_type,
@@ -1811,7 +1822,7 @@ class SparqlInterface:
             items = []
             if categories:
                 items = rdf.uris_from_records (categories, "category")
-            self.update_item_list (container_uuid, account_uuid, items, "categories")
+            self.update_item_list (dataset_uuid, account_uuid, items, "categories")
         else:
             return False
 
@@ -2019,7 +2030,7 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def update_collection (self, container_uuid, account_uuid, title=None,
+    def update_collection (self, collection_uuid, account_uuid, title=None,
                            description=None, resource_doi=None, doi=None,
                            resource_title=None, group_id=None, datasets=None,
                            time_coverage=None, publisher=None, language=None,
@@ -2033,7 +2044,7 @@ class SparqlInterface:
 
         query   = self.__query_from_template ("update_collection", {
             "account_uuid":      account_uuid,
-            "container_uri":     rdf.uuid_to_uri (container_uuid, "container"),
+            "collection_uri":    rdf.uuid_to_uri (collection_uuid, "collection"),
             "contributors":      rdf.escape_string_value (contributors),
             "description":       rdf.escape_string_value (description),
             "doi":               rdf.escape_string_value (doi),
@@ -2054,16 +2065,16 @@ class SparqlInterface:
         })
 
         self.cache.invalidate_by_prefix ("collection")
-        self.cache.invalidate_by_prefix (f"{container_uuid}_collection")
+        self.cache.invalidate_by_prefix (f"{collection_uuid}_collection")
 
-        results = self.__run_query (query, query, f"{container_uuid}_collection")
+        results = self.__run_query (query, query, f"{collection_uuid}_collection")
         if results and categories:
             items = rdf.uris_from_records (categories, "category")
-            self.update_item_list (container_uuid, account_uuid, items, "categories")
+            self.update_item_list (collection_uuid, account_uuid, items, "categories")
 
         if results and datasets:
             items = rdf.uris_from_records (datasets, "dataset")
-            self.update_item_list (container_uuid, account_uuid, items, "datasets")
+            self.update_item_list (collection_uuid, account_uuid, items, "datasets")
 
         return results
 
