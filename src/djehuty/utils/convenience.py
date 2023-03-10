@@ -131,7 +131,7 @@ def make_citation (authors, year, title, version, item_type, doi,
         citation = '; '.join([
             (f"{author['last_name']}, {author['first_name']}" if
              not {'first_name','last_name'}-set(author)
-             else value_or_none (author, 'full_name', "Unknown")) for author in auths[:max_cited_authors]])
+             else value_or (author, 'full_name', "Unknown")) for author in auths[:max_cited_authors]])
         if authors[max_cited_authors:max_cited_authors+1]:
             citation += ' et. al.'
         citation += f' ({year}): {title}'
