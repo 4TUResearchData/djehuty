@@ -30,8 +30,8 @@ FILTER (?account = <account:{{account_uuid}}>)
 {%- if container_uri is not none: %}
 FILTER (?container_uri = <{{container_uri}}>)
 {%- endif %}
-{%- if item_uri is not none %}
-FILTER (?item_uri = <{{item_uri}}>)
+{%- if item_uuid is not none %}
+FILTER (STRAFTER(STR(?item_uri), ":") = STR("{{item_uuid}}"))
 {%- endif %}
 }
 {% endblock %}

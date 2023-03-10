@@ -185,15 +185,13 @@ class SparqlInterface:
         return self.__run_query (query)
 
     def container_items (self, account_uuid=None, container_uuid=None,
-                         item_uuid=None, item_type="dataset", is_published=True,
-                         is_latest=False):
+                         item_uuid=None, is_published=True, is_latest=False):
         """Returns datasets or collections filtered by its parameters."""
 
         query = self.__query_from_template ("container_items", {
             "account_uuid":   account_uuid,
             "container_uri":  rdf.uuid_to_uri (container_uuid, "container"),
-            "item_uri":       rdf.uuid_to_uri (item_uuid, item_type),
-            "item_type":      item_type,
+            "item_uuid":      item_uuid,
             "is_latest":      is_latest,
             "is_published":   is_published
         })
