@@ -145,3 +145,33 @@
 .multi-list thead { display: none; }
 .list-resource ul { margin: 0em; padding: 0em; }
 .list-resource li { list-style-type: none; margin: 0em; padding: .5em; }
+.form-button {
+    margin: 0px;
+    display: inline-block;
+    padding: .5em;
+    border-radius: .5em;
+    text-transform: uppercase;
+    font-size: 14pt;
+    user-select: none;
+}
+.input-with-button {
+    display:flex;
+    flex-direction:row;
+    padding: 0px;
+}
+.input-with-button input[type="text"] {
+    border: none;
+    margin-bottom: 0px;
+    border-radius: 0em 0em 0em .5em  !important;
+}
+.input-with-button a {
+    white-space: nowrap;
+    background: #666666;
+    color: #fff;
+    border-radius: .5em;
+    margin: 0em 0em 0em 0em;
+    vertical-align: middle;
+    height: 1.5em;
+    border-radius: 0em .5em .5em 0em !important;
+}
+.input-with-button a:hover { background: #999999; }

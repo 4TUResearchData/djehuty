@@ -311,7 +311,10 @@ jQuery(document).ready(function (){
 <label for="same_as">Same As</label><div class="fas fa-question-circle help-icon"><span class="help-text">URL of exactly the same data. This can be a copy in another location or an alternative URL that redirects to the current item.</span></div>
 <input type="text" id="same_as" name="same_as" value="{{article["same_as"] | default("", True)}}" />
 <label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add keywords that will help make your research more discoverable. Hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
-<input type="text" id="tag" name="tag" value="" />
+<div class="input-with-button">
+  <input type="text" id="tag" name="tag" value="" />
+  <a id="add-keyword-button" class="form-button neutral-button" href="#">Add keyword</a>
+</div>
 <ul id="tags-list"></ul>
 <label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resource. Separate different names with a semicolon (;)</span></div>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{article["organizations"] | default("", True) }}</textarea>

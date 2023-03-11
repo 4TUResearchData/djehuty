@@ -606,6 +606,11 @@ function activate (dataset_uuid) {
                 add_reference(dataset_uuid);
             }
         });
+        jQuery("#add-keyword-button").on("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            add_tag (dataset_uuid);
+        });
         jQuery("#tag").on("keypress", function(e){
             if(e.which == 13){
                 add_tag(dataset_uuid);
