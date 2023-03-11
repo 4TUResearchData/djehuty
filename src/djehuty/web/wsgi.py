@@ -679,6 +679,7 @@ class ApiServer:
         record["doi"]             = self.get_parameter (request, "doi")
         record["handle"]          = self.get_parameter (request, "handle")
         record["search_for"]      = self.get_parameter (request, "search_for")
+        record["is_latest"]       = self.get_parameter (request, "is_latest")
 
         offset, limit = self.__paging_offset_and_limit (request)
         record["offset"] = offset

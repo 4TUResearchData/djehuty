@@ -384,7 +384,7 @@ function autocomplete_dataset (event, collection_id) {
             type:        "POST",
             contentType: "application/json",
             accept:      "application/json",
-            data:        JSON.stringify({ "search_for": current_text }),
+            data:        JSON.stringify({ "search_for": current_text, "is_latest": true }),
             dataType:    "json"
         }).done(function (data) {
             jQuery("#articles-ac").remove();
