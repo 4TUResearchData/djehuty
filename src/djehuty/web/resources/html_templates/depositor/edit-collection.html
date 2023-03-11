@@ -201,7 +201,10 @@ jQuery(document).ready(function () {
   <input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{collection["latitude"] | default("", True)}}" />
 </div>
 <label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add keywords that will help make your research more discoverable. Hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
-<input type="text" id="tag" name="tag" value="" />
+<div class="input-with-button">
+  <input type="text" id="tag" name="tag" value="" />
+  <a id="add-keyword-button" class="form-button neutral-button" href="#">Add keyword</a>
+</div>
 <ul id="tags-list"></ul>
 <label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resources in the collection. Separate different names with a semicolon (;)</span></div>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{collection["organizations"] | default("", True) }}</textarea>

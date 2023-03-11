@@ -573,7 +573,11 @@ function activate (collection_id) {
                 `<p>Reserved DOI is: <strong>${data["doi"]}</strong>.</p>`
             );
         }
-
+        jQuery("#add-keyword-button").on("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            add_tag (collection_id);
+        });
         jQuery("#tag").on("keypress", function(e){
             if(e.which == 13) { add_tag(collection_id); }
         });
