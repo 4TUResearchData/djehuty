@@ -1263,7 +1263,7 @@ class ApiServer:
                              value  = token,
                              secure = self.in_production)
         response.set_cookie (key    = "redirect_to",
-                             value  = "/review/dashboard",
+                             value  = "/review/overview",
                              secure = self.in_production)
 
         # Create a new session for the user to be impersonated as.
@@ -2005,7 +2005,7 @@ class ApiServer:
                                   author_account_uuid = dataset["account_uuid"],
                                   assigned_to = account_uuid,
                                   status      = "assigned"):
-            return redirect ("/review/dashboard", code=302)
+            return redirect ("/review/overview", code=302)
 
         return self.error_500()
 
@@ -2031,7 +2031,7 @@ class ApiServer:
                                   author_account_uuid = dataset["account_uuid"],
                                   assigned_to = None,
                                   status      = "unassigned"):
-            return redirect ("/review/dashboard", code=302)
+            return redirect ("/review/overview", code=302)
 
         return self.error_500()
 
@@ -5202,7 +5202,7 @@ class ApiServer:
             self.__send_email_to_reviewers (subject, "declined_dataset_notification",
                                             dataset=dataset)
             return self.respond_201 ({
-                "location": f"{self.base_url}/review/dashboard"
+                "location": f"{self.base_url}/review/overview"
             })
 
         return self.error_500 ()
