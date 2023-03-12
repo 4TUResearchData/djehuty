@@ -17,11 +17,19 @@
     #orcid img    { height: 20px }
     .is_active    { font-weight: bold }
     #has-account  { clear: both }
+    #profile_image img { max-width: 200px; max-height: 200px; border-radius: 20px }
 </style>
 {% endblock %}
 {% block body %}
 
 <div id="right_column">
+
+{% if profile.image %}
+    <div id="profile_image">
+        <img src="/v3/profile/picture/{{profile.account_uuid}}" />
+    </div>
+{% endif %}
+
 {% if member != "other" %}
     <div id="member">
         <a href="/institutions/{{member_url_name}}"><img src="/static/images/logo-{{member}}.png" alt="{{member_url_name.replace('_',' ')}} logo" /></a>
@@ -48,6 +56,7 @@
             No. <div class="small">{{profile.full_name}} does not have an account at 4TU.ResearchData.</div>
 {% endif %}</div>
     </div>
+
 {% if profile.location %}
     <div id="location">
         <div class="label">location</div>

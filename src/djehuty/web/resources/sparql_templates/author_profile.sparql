@@ -5,6 +5,7 @@ SELECT DISTINCT ?id         ?full_name       ?first_name  ?last_name
                 ?group_id   ?institution_id  ?is_active   ?is_public
                 ?job_title  ?orcid_id        ?account     ?categories
                 ?location   ?twitter         ?linkedin    ?website
+                ?image      ?account_uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     author:            djht:is_active           ?is_active ;
@@ -18,12 +19,15 @@ WHERE {
     OPTIONAL { author: djht:institution_id      ?institution_id . }
     OPTIONAL { author: djht:job_title           ?job_title . }
     OPTIONAL { author: djht:orcid_id            ?orcid_id . }
-    OPTIONAL { author: djht:account             ?account . }
-    OPTIONAL { ?account djht:location           ?location . }
-    OPTIONAL { ?account djht:twitter            ?twitter . }
-    OPTIONAL { ?account djht:linkedin           ?linkedin . }
-    OPTIONAL { ?account djht:website            ?website . }
-    OPTIONAL { ?account djht:categories         ?categories . }
+    OPTIONAL { author: djht:account             ?account .
+               OPTIONAL { ?account djht:location           ?location . }
+               OPTIONAL { ?account djht:twitter            ?twitter . }
+               OPTIONAL { ?account djht:linkedin           ?linkedin . }
+               OPTIONAL { ?account djht:website            ?website . }
+               OPTIONAL { ?account djht:categories         ?categories . }
+               OPTIONAL { ?account djht:profile_image      ?image . }
+               BIND(STRAFTER(STR(?account), ":") AS        ?account_uuid)
+    }
   }
 }
 {% endblock %}
