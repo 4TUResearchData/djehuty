@@ -105,6 +105,6 @@ WHERE {
 {%- if account_uuid is not none: %}
   FILTER (?account = <account:{{account_uuid}}>)
 {%- endif %}
-  FILTER (?container = <{{container_uri}}>)
+  FILTER (?collection = <{{collection_uri | safe}}>)
 }
 {% endblock %}
