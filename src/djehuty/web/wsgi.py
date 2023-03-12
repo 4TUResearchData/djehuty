@@ -4823,7 +4823,7 @@ class ApiServer:
                 if collection is None:
                     return self.error_404 (request)
 
-                datasets   = self.db.datasets (collection_uri = collection["uri"])
+                datasets   = self.db.datasets (collection_uri = collection["uri"], is_latest=True)
 
                 return self.default_list_response (datasets, formatter.format_dataset_record)
             except (IndexError, KeyError):
@@ -4839,7 +4839,7 @@ class ApiServer:
                 if collection is None:
                     return self.error_404 (request)
 
-                existing_datasets = self.db.datasets(collection_uri=collection["uri"])
+                existing_datasets = self.db.datasets(collection_uri=collection["uri"], is_latest=True) #EG
                 if existing_datasets:
                     existing_datasets = list(map(lambda item: item["container_uuid"],
                                                  existing_datasets))
