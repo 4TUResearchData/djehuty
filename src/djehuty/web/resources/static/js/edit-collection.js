@@ -328,6 +328,8 @@ function publish_collection (collection_id, event) {
     event.preventDefault();
     event.stopPropagation();
 
+    jQuery("#content").addClass("loader-top");
+    jQuery("#content-wrapper").css('opacity', '0.15');
     save_collection (collection_id, event, false, function() {
         jQuery.ajax({
             url:         `/v3/collections/${collection_id}/publish`,
@@ -355,6 +357,8 @@ function publish_collection (collection_id, event) {
                 }
             }
             show_message ("failure", `${error_message}`);
+            jQuery("#content-wrapper").css('opacity', '1.0');
+            jQuery("#content").removeClass("loader-top");
         });
     });
 }
@@ -529,14 +533,19 @@ function submit_new_funding (collection_id) {
 }
 
 function activate (collection_id) {
+    install_sticky_header();
+    install_touchable_help_icons();
+
+    jQuery(".collection-content").hide();
+    jQuery(".collection-content-loader").show();
+    jQuery(".collection-content-loader").addClass("loader");
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
+
     jQuery("#delete").on("click", function (event) { delete_collection (collection_id, event); });
     jQuery("#save").on("click", function (event)   { save_collection (collection_id, event); });
     jQuery("#publish").on("click", function (event) { publish_collection (collection_id, event); });
     // Initialize Quill to provide the WYSIWYG editor.
     new Quill('#description', { theme: '4tu' });
-    install_sticky_header();
-    install_touchable_help_icons();
 
     jQuery("#authors").on("input", function (event) {
         return autocomplete_author (event, collection_id);
@@ -582,6 +591,8 @@ function activate (collection_id) {
             if(e.which == 13) { add_tag(collection_id); }
         });
 
+        jQuery(".collection-content-loader").hide();
+        jQuery(".collection-content").fadeIn(200);
     }).fail(function () {
         show_message ("failure","<p>Failed to retrieve collection.</p>");
     });

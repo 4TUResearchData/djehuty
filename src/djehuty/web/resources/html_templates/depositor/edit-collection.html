@@ -87,6 +87,7 @@ jQuery(document).ready(function () {
   background: #eee;
 }
 #doi-wrapper p { margin: 0pt; }
+.collection-content-loader { display: none; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -99,6 +100,7 @@ jQuery(document).ready(function () {
 </ul>
 {% endblock %}
 {% block body %}
+<div class="collection-content-loader"></div>
 <div class="collection-content">
 {%- if collection.title == "Untitled collection" %}
 <h1>Add new collection</h1>
