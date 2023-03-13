@@ -4837,6 +4837,23 @@ class ApiServer:
                 collection = self.__collection_by_id_or_uri (collection_id, is_published=False, account_uuid=account_uuid)
 
                 if collection is None:
+                    # Attempt to automatically create draft for published collection.
+                    collection = self.__collection_by_id_or_uri (collection_id,
+                                                                 is_published = True,
+                                                                 account_uuid = account_uuid)
+                    if collection is None:
+                        return self.error_404 (request)
+
+                    container_uuid = collection["container_uuid"]
+                    draft_uuid = self.db.create_draft_from_published_collection (container_uuid)
+                    if draft_uuid is None:
+                        return self.error_404 (request)
+
+                    collection = self.__collection_by_id_or_uri (container_uuid,
+                                                                 is_published = False,
+                                                                 account_uuid = account_uuid)
+
+                if collection is None:
                     return self.error_404 (request)
 
                 existing_datasets = self.db.datasets(collection_uri=collection["uri"], is_latest=True) #EG
