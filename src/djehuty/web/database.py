@@ -248,7 +248,7 @@ class SparqlInterface:
                   offset=None, order=None, order_direction=None, published_since=None,
                   resource_doi=None, return_count=False, search_for=None, search_format=False,
                   version=None, is_published=True, is_under_review=None, git_uuid=None,
-                  private_link_id_string=None):
+                  private_link_id_string=None, use_cache=True):
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -301,8 +301,11 @@ class SparqlInterface:
         if not return_count:
             query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
-        cache_prefix = f"datasets_{account_uuid}" if account_uuid is not None else "datasets"
-        return self.__run_query (query, query, cache_prefix)
+        if use_cache:
+            cache_prefix = f"datasets_{account_uuid}" if account_uuid is not None else "datasets"
+            return self.__run_query (query, query, cache_prefix)
+
+        return self.__run_query (query)
 
     def repository_statistics (self):
         """Procedure to retrieve repository-wide statistics."""
@@ -1611,7 +1614,8 @@ class SparqlInterface:
         draft = None
         try:
             draft = self.datasets (container_uuid = container_uuid,
-                                   is_published   = False)[0]
+                                   is_published   = False,
+                                   use_cache      = False)[0]
         except IndexError:
             self.log.error ("Attempted to publish without a draft <container:%s>.",
                            container_uuid)
@@ -1622,7 +1626,8 @@ class SparqlInterface:
         try:
             latest = self.datasets (container_uuid = container_uuid,
                                     is_published   = True,
-                                    is_latest      = True)[0]
+                                    is_latest      = True,
+                                    use_cache      = False)[0]
             new_version_number = latest["version"] + 1
         except IndexError:
             self.log.error ("No latest version for <container:%s>.", container_uuid)
@@ -1680,6 +1685,7 @@ class SparqlInterface:
             latest = self.datasets (container_uuid = container_uuid,
                                     is_published   = True,
                                     is_latest      = True,
+                                    use_cache      = False,
                                     limit          = 1)[0]
 
             latest_uri      = latest["uri"]
