@@ -241,6 +241,7 @@ class SparqlInterface:
 
         return filters
 
+
     def datasets (self, account_uuid=None, categories=None, collection_uri=None,
                   container_uuid=None, dataset_id=None, dataset_uuid=None, doi=None,
                   exclude_ids=None, groups=None, handle=None, institution=None,
@@ -832,6 +833,16 @@ class SparqlInterface:
             "account_uuid":   account_uuid,
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
+
+        return self.__run_query(query)
+
+    def collection_dataset_containers (self, collection_uri, limit=10):
+        """Procedure to retrieve dataset containers in a collection."""
+
+        query   = self.__query_from_template ("collection_dataset_containers", {
+            "collection_uri":  collection_uri
+        })
+        query += rdf.sparql_suffix (order="index", order_direction="ASC", limit=limit)
 
         return self.__run_query(query)
 
@@ -1559,6 +1570,8 @@ class SparqlInterface:
         draft_derived_from  = self.derived_from(item_uri=latest_uri, item_type="collection", limit=None)
         draft_fundings      = self.fundings(item_uri=latest_uri, item_type="collection", limit=None)
         draft_custom_fields = self.custom_fields (item_uri=latest_uri, item_type="collection")
+        draft_datasets      = self.collection_dataset_containers(collection_uri=latest_uri, limit=None)
+        draft_dataset_uris  = [URIRef(container['container_uri']) for container in draft_datasets]
 
         draft_funding_title = None
         if draft_fundings:
@@ -1587,6 +1600,7 @@ class SparqlInterface:
                 categories            = draft_categories,
                 authors               = draft_authors,
                 custom_fields         = draft_custom_fields,
+                datasets              = draft_dataset_uris,
                 private_links         = None,
                 is_public             = 0,
                 is_active             = 1,
@@ -1966,10 +1980,11 @@ class SparqlInterface:
         self.insert_item_list (graph, uri, tags, "tags")
         self.insert_item_list (graph, uri, funding_list, "funding_list")
         self.insert_item_list (graph, uri, private_links, "private_links")
+        self.insert_item_list (graph, uri, datasets, "datasets")
 
         ## DATASETS
         ## --------------------------------------------------------------------
-        # ...
+        self.insert_item_list (graph, uri, datasets, "datasets")
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
