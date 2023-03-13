@@ -1,11 +1,12 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT (COUNT(DISTINCT ?collection_id) AS ?collections)
+SELECT (COUNT(DISTINCT ?container) AS ?collections)
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?collection     rdf:type            djht:Collection .
-    ?collection     djht:collection_id   ?collection_id .
-    ?collection     djht:is_public       "true"^^xsd:boolean .
+    ?container  rdf:type                      djht:CollectionContainer ;
+                djht:latest_published_version ?collection .
+    ?collection rdf:type                      djht:Collection ;
+                djht:is_public                "true"^^xsd:boolean .
   }
 {%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
