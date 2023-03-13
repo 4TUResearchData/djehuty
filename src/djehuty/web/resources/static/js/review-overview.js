@@ -56,6 +56,10 @@ function activate() {
     jQuery(document).ready(function (){
         jQuery("#overview-table").DataTable({
             paging: false,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search..."
+            },
             order: [[7, 'desc']],
             orderable: false,
             info: false,
