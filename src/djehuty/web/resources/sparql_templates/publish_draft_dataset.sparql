@@ -27,7 +27,7 @@ INSERT {
                    djht:published_date           ?now ;
                    djht:posted_date              ?now ;
                    djht:version                  {{version}} .
-    ?review        djht:status                   djht:ReviewAccepted .
+    ?review        djht:status                   djht:ReviewApproved .
 
     {%- if first_publication %}
     ?container     djht:published_versions       <{{blank_node}}> .
