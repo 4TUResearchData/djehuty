@@ -1966,8 +1966,6 @@ class SparqlInterface:
         private_links           = [] if private_links           is None else private_links
         datasets                = [] if datasets                is None else datasets
 
-        tags                    = list(map(lambda tag: tag["tag"], tags))
-
         graph                   = Graph()
         uri                     = rdf.unique_node ("collection")
         container_uri           = None
@@ -1990,6 +1988,8 @@ class SparqlInterface:
 
         authors       = rdf.uris_from_records (authors, "author", "uuid")
         categories    = rdf.uris_from_records (categories, "category", "uuid")
+        references    = list(map(lambda reference: reference["url"], references))
+        tags          = list(map(lambda tag: tag["tag"], tags))
         funding_list  = rdf.uris_from_records (funding_list, "funding", "uuid")
         private_links = rdf.uris_from_records (private_links, "private_link", "uuid")
 
