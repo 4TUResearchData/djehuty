@@ -16,7 +16,6 @@
     .metric .number { font-size: 24px; font-weight: bold }
     #orcid img    { height: 20px }
     .is_active    { font-weight: bold }
-    #has-account  { clear: both }
     #profile_image img { max-width: 200px; max-height: 200px; border-radius: 20px }
 </style>
 {% endblock %}
@@ -47,15 +46,6 @@
     {% endfor %}
     </div>
 {% endif %}
-    <div id="has-account">
-        <div class="label">account?</div>
-        <div>
-{% if profile.is_active %}
-            Yes. <div class="small">{{profile.full_name}} has an account at 4TU.ResearchData.</div>
-{% else %}
-            No. <div class="small">{{profile.full_name}} does not have an account at 4TU.ResearchData.</div>
-{% endif %}</div>
-    </div>
 
 {% if profile.location %}
     <div id="location">
