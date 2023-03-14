@@ -2481,7 +2481,9 @@ class SparqlInterface:
             author_uuid = self.insert_author (
                 email        = email,
                 account_uuid = account_uuid,
-                orcid_id     = orcid)
+                orcid_id     = orcid,
+                is_active    = True,
+                is_public    = True)
             if not author_uuid:
                 self.log.warning ("Failed to link author to account for %s.", email)
                 return None
