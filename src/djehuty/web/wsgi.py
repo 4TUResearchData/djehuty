@@ -3163,7 +3163,6 @@ class ApiServer:
                     publisher      = validator.string_value  (record, "publisher",      0, 255,                    False),
                     custom_fields  = validator.object_value  (record, "custom_fields",                             False),
                     # Unpack the 'timeline' object.
-                    first_online          = validator.string_value (timeline, "firstOnline",                       False),
                     publisher_publication = validator.string_value (timeline, "publisherPublication",              False),
                     submission            = validator.string_value (timeline, "submission",                        False),
                     posted                = validator.string_value (timeline, "posted",                            False),
@@ -4550,7 +4549,6 @@ class ApiServer:
                     resource_version        = validator.integer_value (record, "resource_version", 0, pow(2, 63), False),
                     group_id                = validator.integer_value (record, "group_id",         0, pow(2, 63), False),
                     # Unpack the 'timeline' object.
-                    first_online            = validator.string_value (timeline, "firstOnline",                    False),
                     publisher_publication   = validator.string_value (timeline, "publisherPublication",           False),
                     submission              = validator.string_value (timeline, "submission",                     False),
                     posted                  = validator.string_value (timeline, "posted",                         False),
