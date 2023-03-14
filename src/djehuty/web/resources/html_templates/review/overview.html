@@ -77,15 +77,17 @@ activate ();
       </td>
       <td>{{review.submitter_email}}</td>
       <td>{{review.group_name | default("Unknown", False)}}</td>
+      <td id="{{review.dataset_uuid}}_status">
       {% if review.status == "assigned": %}
-      <td><span class="fas fa-glasses" title="Assigned to reviewer"><span style="font-size:0pt">assigned</span></span></td>
+      <span class="fas fa-glasses" title="Assigned to reviewer"><span style="font-size:0pt">assigned</span></span>
       {% elif review.status == "approved": %}
-      <td><span class="fas fa-check-double" title="Approved by reviewer"><span style="font-size:0pt">approved</span></span></td>
+      <span class="fas fa-check-double" title="Approved by reviewer"><span style="font-size:0pt">approved</span></span>
       {% elif review.status == "rejected": %}
-      <td><span class="fas fa-times" title="Declined by reviewer"><span style="font-size:0pt">declined</span></span></td>
+      <span class="fas fa-times" title="Declined by reviewer"><span style="font-size:0pt">declined</span></span>
       {% else: %}
-      <td><span class="fas fa-hourglass" title="Unassigned"><span style="font-size:0pt">unassigned</span></span></td>
+      <span class="fas fa-hourglass" title="Unassigned"><span style="font-size:0pt">unassigned</span></span>
       {% endif %}
+      </td>
       <td>{{review.request_date}}</td>
       <td>{{review.modified_date}}</td>
       <td>{{review.published_date | truncate(10,False,'')}}</td>

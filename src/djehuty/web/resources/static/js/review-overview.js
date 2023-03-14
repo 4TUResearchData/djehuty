@@ -9,6 +9,11 @@ function assign_reviewer (event) {
         url:         `/v3/datasets/${dataset_uuid}/assign-reviewer/${reviewer_uuid}`,
         type:        "PUT",
         accept:      "application/json"
+    }).done(function (response) {
+        jQuery(`#${dataset_uuid}_status .fa-hourglass`)
+            .replaceWith('<span class="fas fa-glasses" title="Assigned to ' +
+                         'reviewer"><span style="font-size:0pt">assigned</span>' +
+                         '</span>');
     }).fail(function (response) {
         show_message ("failure", "<p>Failed to assign reviewer.</p>");
     });
