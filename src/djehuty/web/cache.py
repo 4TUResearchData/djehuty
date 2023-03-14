@@ -105,7 +105,7 @@ class CacheLayer:
         if not isinstance(self.storage, str):
             return False
 
-        if self.storage == "" or self.storage == "/":
+        if self.storage in ("", "/"):
             return False
 
         files = glob.glob(f"{self.storage}/*")
