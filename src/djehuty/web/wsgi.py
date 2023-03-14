@@ -1516,11 +1516,14 @@ class ApiServer:
             if not validator.is_valid_uuid (dataset_uuid):
                 return self.error_404 (request)
 
-            dataset = self.db.datasets (dataset_uuid = dataset_uuid,
-                                        account_uuid = account_uuid,
-                                        is_published = None,
-                                        is_latest    = None,
-                                        limit        = 1)[0]
+            try:
+                dataset = self.db.datasets (dataset_uuid = dataset_uuid,
+                                            account_uuid = account_uuid,
+                                            is_published = None,
+                                            is_latest    = None,
+                                            limit        = 1)[0]
+            except IndexError:
+                return self.error_403 (request)
 
             if not dataset:
                 return self.error_404 (request)
