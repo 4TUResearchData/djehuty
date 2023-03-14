@@ -1098,6 +1098,8 @@ class SparqlInterface:
         graph.add ((container, rdf.DJHT["draft"],       uri))
         graph.add ((container, rdf.DJHT["account"],     account_uri))
 
+        self.cache.invalidate_by_prefix ("datasets")
+
         if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
             self.log.info ("Inserted dataset %s", container_uuid)
@@ -1361,7 +1363,10 @@ class SparqlInterface:
         rdf.add (graph, file_uri, rdf.DJHT["upload_url"],    upload_url,    XSD.string)
         rdf.add (graph, file_uri, rdf.DJHT["upload_token"],  upload_token,  XSD.string)
 
-        self.cache.invalidate_by_prefix ("dataset")
+        self.cache.invalidate_by_prefix ("datasets")
+        if account_uuid:
+            self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+
         if self.add_triples_from_graph (graph):
             existing_files = self.dataset_files (dataset_uri  = dataset_uri,
                                                  limit        = None,
@@ -1831,6 +1836,7 @@ class SparqlInterface:
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
         results = self.__run_query (query)
         if results:
             items = []
@@ -1850,6 +1856,9 @@ class SparqlInterface:
             "dataset_uri":  dataset_uri
         })
 
+        self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
+
         return self.__run_query(query)
 
     def delete_private_links (self, container_uuid, account_uuid, link_id):
@@ -1861,6 +1870,8 @@ class SparqlInterface:
             "id_string":      link_id
         })
 
+        self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
         return self.__run_query(query)
 
     def update_private_link (self, item_uri, account_uuid, link_id,
@@ -1877,6 +1888,8 @@ class SparqlInterface:
             "read_only":    read_only
         })
 
+        self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
         return self.__run_query(query)
 
     def dataset_update_thumb (self, dataset_id, version, account_uuid, file_id):
@@ -1890,6 +1903,8 @@ class SparqlInterface:
             "filters":     filters
         })
 
+        self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
         return self.__run_query(query)
 
     def insert_collection (self, title,
