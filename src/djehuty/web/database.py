@@ -970,6 +970,7 @@ class SparqlInterface:
                         description=None,
                         defined_type=None,
                         defined_type_name=None,
+                        derived_from=None,
                         funding=None,
                         license_url=None,
                         language=None,
@@ -1076,6 +1077,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["resource_title"], resource_title, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["group_id"],       group_id)
         rdf.add (graph, uri, rdf.DJHT["publisher"],      publisher,      XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["derived_from"],   derived_from,   XSD.string)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
@@ -1729,6 +1731,12 @@ class SparqlInterface:
         draft_fundings      = self.fundings(item_uri=latest_uri, limit=None)
         draft_custom_fields = self.custom_fields (item_uri=latest_uri, item_type="dataset")
 
+        if isinstance (draft_derived_from, list):
+            try:
+                draft_derived_from = draft_derived_from[0]
+            except IndexError:
+                draft_derived_from = None
+
         draft_funding_title = None
         if draft_fundings:
             draft_funding_title = draft_fundings[0]["title"]
@@ -1744,6 +1752,7 @@ class SparqlInterface:
                 description           = conv.value_or_none (latest, "description"),
                 defined_type          = conv.value_or_none (latest, "defined_type"),
                 defined_type_name     = conv.value_or_none (latest, "defined_type_name"),
+                derived_from          = draft_derived_from,
                 funding               = draft_funding_title,
                 license_url           = conv.value_or_none (latest, "license_url"),
                 language              = conv.value_or_none (latest, "language"),

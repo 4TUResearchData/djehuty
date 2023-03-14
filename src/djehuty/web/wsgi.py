@@ -1464,6 +1464,16 @@ class ApiServer:
             account    = self.db.account_by_uuid (account_uuid)
             groups     = self.__groups_for_account (account)
 
+            try:
+                # Historically, some datasets have multiple values for
+                # 'derived_from'.  Going forward, we only allow a single
+                # value for 'derived_from'.  Therefore, we pick the first
+                # (and only) value from the 'derived_from' list.
+                derived_from = self.db.derived_from (dataset["uri"], limit=1)[0]
+                dataset["derived_from"] = derived_from
+            except IndexError:
+                pass  # No value for derived_from.
+
             return self.__render_template (
                 request,
                 "depositor/edit-dataset.html",
