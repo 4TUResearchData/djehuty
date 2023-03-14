@@ -1,10 +1,9 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?file_id ?bytes
+SELECT DISTINCT ?file ?bytes
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file           rdf:type            djht:File .
-    ?file           djht:id              ?file_id .
     ?file           djht:size            ?bytes .
   }
 {%- if filters is not none %}{{ filters | safe }}{% endif %}
