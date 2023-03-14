@@ -142,7 +142,7 @@ class ApiServer:
             Rule("/collections/<collection_id>",              endpoint = "ui_collection"),
             Rule("/collections/<collection_id>/<version>",    endpoint = "ui_collection"),
             Rule("/my/collections/published/<collection_id>", endpoint = "ui_collection_published"),
-            Rule("/authors/<author_id>",                      endpoint = "ui_author"),
+            Rule("/authors/<author_uuid>",                    endpoint = "ui_author"),
             Rule("/search",                                   endpoint = "ui_search"),
             Rule("/ndownloader/items/<dataset_id>/versions/<version>", endpoint = "ui_download_all_files"),
             Rule("/data_access_request",                      endpoint = "ui_data_access_request"),
@@ -2505,12 +2505,15 @@ class ApiServer:
                                        statistics=statistics,
                                        private_view=private_view)
 
-    def ui_author (self, request, author_id):
+    def ui_author (self, request, author_uuid):
         """Implements /authors/<id>."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        author_uri = f'author:{author_id}'
+        if not validator.is_valid_uuid (author_uuid):
+            return self.error_403 (request)
+
+        author_uri = f'author:{author_uuid}'
         try:
             profile = self.db.author_profile (author_uri)[0]
             public_items = self.db.author_public_items(author_uri)
