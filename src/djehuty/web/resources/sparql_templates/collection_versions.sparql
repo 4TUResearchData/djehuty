@@ -7,10 +7,10 @@ WHERE {
     ?collection_uri rdf:type            djht:Collection ;
                     djht:container      ?container_uri ;
                     djht:version        ?version ;
-                    djht:url            ?url ;
                     djht:posted_date    ?posted_date .
     OPTIONAL { ?collection_uri djht:url_public_api ?url_public_api . }
-    OPTIONAL { ?container_uri djht:collection_id ?collection_id . }
+    OPTIONAL { ?container_uri  djht:collection_id  ?collection_id . }
+    OPTIONAL { ?url            djht:url            ?url . }
   }
 {%- if filters is not none %}{{ filters | safe }}{% endif %}
 }

@@ -846,7 +846,7 @@ class SparqlInterface:
         query   = self.__query_from_template ("collection_dataset_containers", {
             "collection_uri":  collection_uri
         })
-        query += rdf.sparql_suffix (order="index", order_direction="ASC", limit=limit)
+        query += rdf.sparql_suffix (None, None, limit)
 
         return self.__run_query(query)
 
@@ -1585,7 +1585,7 @@ class SparqlInterface:
         draft_fundings      = self.fundings(item_uri=latest_uri, item_type="collection", limit=None)
         draft_custom_fields = self.custom_fields (item_uri=latest_uri, item_type="collection")
         draft_datasets      = self.collection_dataset_containers(collection_uri=latest_uri, limit=None)
-        draft_dataset_uris  = [URIRef(container['container_uri']) for container in draft_datasets]
+        draft_dataset_uris  = list({URIRef(container['container_uri']) for container in draft_datasets})
 
         draft_funding_title = None
         if draft_fundings:

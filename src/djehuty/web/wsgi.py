@@ -4859,7 +4859,7 @@ class ApiServer:
                 if collection is None:
                     return self.error_404 (request)
 
-                existing_datasets = self.db.datasets(collection_uri=collection["uri"], is_latest=True) #EG
+                existing_datasets = self.db.datasets(collection_uri=collection["uri"], is_latest=True)
                 if existing_datasets:
                     existing_datasets = list(map(lambda item: item["container_uuid"],
                                                  existing_datasets))
