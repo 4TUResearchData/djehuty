@@ -101,6 +101,8 @@ The RPMs will be available under `rpmbuild/RPMS/noarch`.
 djehuty web --config-file=config.xml
 ```
 
+An example of a configuration file can be found in [etc/djehuty/djehuty-example-config.xml](./etc/djehuty/djehuty-example-config.xml).
+
 Use the `maximum-workers` configuration option to use forking rather than threading.
 
 ### Using `uwsgi`:
