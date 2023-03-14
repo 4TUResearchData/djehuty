@@ -5535,7 +5535,7 @@ class ApiServer:
                 return send_file (file_path, request.environ, mimetype)
             return self.error_403 (request)
 
-        except (KeyError, FileNotFoundError) as error:
+        except (KeyError, FileNotFoundError):
             return self.error_404 (request)
 
     def api_v3_profile_picture (self, request):
@@ -5582,7 +5582,7 @@ class ApiServer:
 
             try:
                 file_data       = request.files['file']
-                name, extension = os.path.splitext (file_data.filename)
+                _, extension = os.path.splitext (file_data.filename)
                 output_filename = f"{self.db.profile_images_storage}/{account['uuid']}"
 
                 if not (extension.lower() == ".jpg" or extension.lower() == ".png"):
