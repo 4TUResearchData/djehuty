@@ -318,10 +318,10 @@ class SparqlInterface:
 
         row = { "datasets": 0, "authors": 0, "collections": 0, "files": 0, "bytes": 0 }
         try:
-            datasets    = self.__run_query (datasets_query, datasets_query, "statistics")
-            authors     = self.__run_query (authors_query, authors_query, "statistics")
-            collections = self.__run_query (collections_query, collections_query, "statistics")
-            files       = self.__run_query (files_query, files_query, "statistics")
+            datasets    = self.__run_query (datasets_query, datasets_query, "repository_statistics")
+            authors     = self.__run_query (authors_query, authors_query, "repository_statistics")
+            collections = self.__run_query (collections_query, collections_query, "repository_statistics")
+            files       = self.__run_query (files_query, files_query, "repository_statistics")
             number_of_files = 0
             number_of_bytes = 0
             for entry in files:
@@ -1518,6 +1518,7 @@ class SparqlInterface:
     def publish_collection (self, container_uuid, account_uuid):
         """Procedure to publish a collection."""
 
+        self.cache.invalidate_by_prefix ("repository_statistics")
         draft = None
         try:
             draft = self.collections (container_uuid = container_uuid,
@@ -1659,6 +1660,7 @@ class SparqlInterface:
         })
 
         if self.__run_query (query):
+            self.cache.invalidate_by_prefix ("repository_statistics")
             self.cache.invalidate_by_prefix ("reviews")
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
             return True
