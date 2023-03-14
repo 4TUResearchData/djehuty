@@ -946,7 +946,7 @@ class SparqlInterface:
         blank_node = rdf.blank_node ()
         item_uri   = rdf.uuid_to_uri (item_uuid, item_type)
         rdf.add (rdf_store, blank_node, RDF.first, URIRef(item_uri), "url")
-        rdf.add (rdf_store, blank_node, RDF.rest, RDF.nil)
+        rdf.add (rdf_store, blank_node, RDF.rest, RDF.nil, "url")
 
         if self.add_triples_from_graph (rdf_store):
             return blank_node
