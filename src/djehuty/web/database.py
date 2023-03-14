@@ -736,7 +736,7 @@ class SparqlInterface:
                      resource_doi=None, resource_id=None, doi=None, handle=None,
                      account_uuid=None, search_for=None, collection_id=None,
                      version=None, container_uuid=None, is_latest=False,
-                     is_published=True, private_link_id_string=None):
+                     is_published=True, private_link_id_string=None, use_cache=True):
         """Procedure to retrieve collections."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -783,7 +783,11 @@ class SparqlInterface:
         })
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
-        return self.__run_query(query)
+        if use_cache:
+            cache_prefix = f"collections_{account_uuid}" if account_uuid is not None else "collections"
+            return self.__run_query (query, query, cache_prefix)
+
+        return self.__run_query (query)
 
     def collections_by_account (self, account_uuid=None, limit=100, offset=None,
                                 order=None, order_direction=None):
@@ -1518,11 +1522,16 @@ class SparqlInterface:
     def publish_collection (self, container_uuid, account_uuid):
         """Procedure to publish a collection."""
 
+        # Prevent caches from playing a role.
+        self.cache.invalidate_by_prefix (f"collections_{account_uuid}")
+        self.cache.invalidate_by_prefix ("collections")
         self.cache.invalidate_by_prefix ("repository_statistics")
+
         draft = None
         try:
             draft = self.collections (container_uuid = container_uuid,
-                                      is_published = False)[0]
+                                      is_published = False,
+                                      use_cache = False)[0]
         except IndexError:
             self.log.error ("Attempted to publish without a draft <container:%s>.",
                            container_uuid)
@@ -1533,7 +1542,8 @@ class SparqlInterface:
         try:
             latest = self.collections (container_uuid = container_uuid,
                                        is_published   = True,
-                                       is_latest      = True)[0]
+                                       is_latest      = True,
+                                       use_cache      = False)[0]
             new_version_number = latest["version"] + 1
         except IndexError:
             self.log.error ("No latest version for <container:%s>.", container_uuid)
@@ -1559,6 +1569,7 @@ class SparqlInterface:
             latest = self.collections (container_uuid = container_uuid,
                                        is_published   = True,
                                        is_latest      = True,
+                                       use_cache      = False,
                                        limit          = 1)[0]
 
             latest_uri      = latest["uri"]
@@ -2058,6 +2069,8 @@ class SparqlInterface:
             "container_uri":  rdf.uuid_to_uri (container_uuid, "container")
         })
 
+        self.cache.invalidate_by_prefix (f"collections_{account_uuid}")
+        self.cache.invalidate_by_prefix ("collections")
         return self.__run_query(query)
 
     def update_collection (self, collection_uuid, account_uuid, title=None,
@@ -2094,8 +2107,9 @@ class SparqlInterface:
             "first_online_date": first_online_date_str
         })
 
-        self.cache.invalidate_by_prefix ("collection")
         self.cache.invalidate_by_prefix (f"{collection_uuid}_collection")
+        self.cache.invalidate_by_prefix (f"collections_{account_uuid}")
+        self.cache.invalidate_by_prefix ("collections")
 
         results = self.__run_query (query, query, f"{collection_uuid}_collection")
         if results and categories:
