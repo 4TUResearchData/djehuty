@@ -2218,7 +2218,8 @@ class ApiServer:
 
         try:
             dataset = self.db.datasets (private_link_id_string = private_link_id,
-                                        is_published           = False)[0]
+                                        is_published = None,
+                                        is_latest    = None)[0]
             return self.ui_dataset (request, dataset["container_uuid"],
                                     dataset=dataset, private_view=True)
         except IndexError:
