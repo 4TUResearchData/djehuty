@@ -1024,10 +1024,8 @@ class SparqlInterface:
         ## --------------------------------------------------------------------
         self.insert_timeline (
             graph                 = graph,
-            container_uri         = container,
             item_uri              = uri,
             revision              = revision,
-            first_online          = first_online,
             publisher_publication = publisher_publication,
             posted                = posted,
             submission            = submission
@@ -1257,8 +1255,7 @@ class SparqlInterface:
 
         return None
 
-    def insert_timeline (self, graph, container_uri=None, item_uri=None,
-                         revision=None, first_online=None, posted=None,
+    def insert_timeline (self, graph, item_uri=None, revision=None, posted=None,
                          submission=None, publisher_publication=None):
         """Procedure to add a timeline to the state graph."""
 
@@ -1960,10 +1957,8 @@ class SparqlInterface:
         ## --------------------------------------------------------------------
         self.insert_timeline (
             graph                 = graph,
-            container_uri         = container,
             item_uri              = uri,
             revision              = revision,
-            first_online          = first_online,
             publisher_publication = publisher_publication,
             posted                = posted,
             submission            = submission
