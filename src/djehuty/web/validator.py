@@ -317,6 +317,9 @@ def boolean_value (record, field_name, required=False, when_none=None, error_lis
                             code    = "MissingRequiredField"))
         return when_none
 
+    if value in (0, 1):
+        value = bool(value)
+
     if isinstance(value, str):
         if value.lower() == "true":
             value = True

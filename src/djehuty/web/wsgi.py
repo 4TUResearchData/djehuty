@@ -700,6 +700,7 @@ class ApiServer:
         validator.string_value  (record, "doi",             maximum_length=255)
         validator.string_value  (record, "handle",          maximum_length=255)
         validator.string_value  (record, "search_for",      maximum_length=1024)
+        validator.boolean_value (record, "is_latest")
 
         # Rewrite the group parameter to match the database's plural form.
         record["groups"]  = [record["group"]] if record["group"] is not None else None
