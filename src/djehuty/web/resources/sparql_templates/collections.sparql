@@ -24,12 +24,12 @@ WHERE {
     OPTIONAL { ?container_uri djht:total_cites    ?total_cites .      }
     OPTIONAL { ?container_uri djht:doi            ?container_doi .    }
 
-    {%- if is_published %}
-    {%- if is_latest %}
+    {%- if is_published is none and is_latest is none: %}
+    ?collection         djht:container            ?container_uri .
+    {%- elif is_latest %}
     ?container_uri      djht:latest_published_version ?collection .
-    {%- else %}
+    {%- elif is_published %}
     ?container_uri      djht:published_versions/rdf:rest*/rdf:first ?collection .
-    {%- endif %}
     {%- else %}
     ?container_uri      djht:draft               ?collection .
     {%- endif %}

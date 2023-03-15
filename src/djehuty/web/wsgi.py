@@ -107,9 +107,9 @@ class ApiServer:
             Rule("/my/collections",                           endpoint = "ui_my_collections"),
             Rule("/my/collections/<collection_id>/edit",      endpoint = "ui_edit_collection"),
             Rule("/my/collections/<collection_id>/delete",    endpoint = "ui_delete_collection"),
-            Rule("/my/collections/<collection_id>/private_links", endpoint = "ui_collection_private_links"),
-            Rule("/my/collections/<collection_id>/private_link/<private_link_id>/delete", endpoint = "ui_collection_delete_private_link"),
-            Rule("/my/collections/<collection_id>/private_link/new", endpoint = "ui_collection_new_private_link"),
+            Rule("/my/collections/<collection_uuid>/private_links", endpoint = "ui_collection_private_links"),
+            Rule("/my/collections/<collection_uuid>/private_link/<private_link_id>/delete", endpoint = "ui_collection_delete_private_link"),
+            Rule("/my/collections/<collection_uuid>/private_link/new", endpoint = "ui_collection_new_private_link"),
             Rule("/my/collections/new",                       endpoint = "ui_new_collection"),
             Rule("/my/collections/<collection_id>/new-version-draft", endpoint = "ui_new_version_draft_collection"),
             Rule("/my/sessions/<session_uuid>/edit",          endpoint = "ui_edit_session"),
@@ -1553,8 +1553,8 @@ class ApiServer:
 
         return self.error_500()
 
-    def ui_collection_private_links (self, request, collection_id):
-        """Implements /my/collections/<id>/private_links."""
+    def ui_collection_private_links (self, request, collection_uuid):
+        """Implements /my/collections/<uuid>/private_links."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -1563,9 +1563,19 @@ class ApiServer:
             return self.error_authorization_failed (request)
 
         if request.method == 'GET':
-            collection = self.__collection_by_id_or_uri (collection_id,
-                                                         account_uuid = account_uuid,
-                                                         is_published = False)
+            if not validator.is_valid_uuid (collection_uuid):
+                return self.error_404 (request)
+
+            try:
+                collection = self.db.collections (collection_uuid = collection_uuid,
+                                                  account_uuid = account_uuid,
+                                                  is_published = None,
+                                                  is_latest    = None,
+                                                  use_cache    = False,
+                                                  limit        = 1)[0]
+            except IndexError:
+                return self.error_403 (request)
+
             if not collection:
                 return self.error_404 (request)
 
@@ -1865,7 +1875,7 @@ class ApiServer:
         self.db.insert_private_link (dataset["uuid"], account_uuid, item_type="dataset")
         return redirect (f"/my/datasets/{dataset_uuid}/private_links", code=302)
 
-    def ui_collection_new_private_link (self, request, collection_id):
+    def ui_collection_new_private_link (self, request, collection_uuid):
         """Implements /my/collections/<id>/private_link/new."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
@@ -1874,14 +1884,20 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        collection  = self.__collection_by_id_or_uri (collection_id,
-                                                account_uuid = account_uuid,
-                                                is_published = False)
+        if not validator.is_valid_uuid (collection_uuid):
+            return self.error_404 (request)
+
+        collection = self.db.collections (collection_uuid = collection_uuid,
+                                          account_uuid = account_uuid,
+                                          is_published = None,
+                                          is_latest    = None,
+                                          limit        = 1)[0]
+
         if collection is None:
             return self.error_403 (request)
 
         self.db.insert_private_link (collection["uuid"], account_uuid, item_type="collection")
-        return redirect (f"/my/collections/{collection_id}/private_links", code=302)
+        return redirect (f"/my/collections/{collection_uuid}/private_links", code=302)
 
     def __delete_private_link (self, request, item, account_uuid, private_link_id):
         """Deletes the private link for ITEM and responds appropriately."""
@@ -1916,7 +1932,7 @@ class ApiServer:
 
         return self.__delete_private_link (request, dataset, account_uuid, private_link_id)
 
-    def ui_collection_delete_private_link (self, request, collection_id, private_link_id):
+    def ui_collection_delete_private_link (self, request, collection_uuid, private_link_id):
         """Implements /my/collections/<id>/private_link/<pid>/delete."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
@@ -1925,9 +1941,14 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        collection = self.__collection_by_id_or_uri (collection_id,
-                                                     account_uuid = account_uuid,
-                                                     is_published = False)
+        if not validator.is_valid_uuid (collection_uuid):
+            return self.error_404 (request)
+
+        collection = self.db.collections (collection_uuid = collection_uuid,
+                                          account_uuid = account_uuid,
+                                          is_published = None,
+                                          is_latest    = None,
+                                          limit        = 1)[0]
 
         return self.__delete_private_link (request, collection, account_uuid, private_link_id)
 
@@ -2240,9 +2261,10 @@ class ApiServer:
 
         try:
             collection = self.db.collections (private_link_id_string = private_link_id,
-                                              is_published           = False)[0]
+                                              is_published = None,
+                                              is_latest    = None)[0]
             return self.ui_collection (request, collection["container_uuid"],
-                                       container=collection, private_view=True)
+                                       collection=collection, private_view=True)
         except IndexError:
             pass
 
@@ -2430,21 +2452,23 @@ class ApiServer:
         return self.ui_collection (request, collection_id, version)
 
     def ui_collection (self, request, collection_id, version=None,
-                       container=None, private_view=False):
+                       collection=None, private_view=False):
         """Implements /collections/<id>."""
 
         handler = self.default_error_handling (request, "GET", "text/html")
         if handler is not None:
             return handler
 
-        if container is None:
-            container_uuid = self.db.container_uuid_by_id(collection_id)
-            container = self.db.container (container_uuid, item_type='collection')
+        if collection is None:
+            if version is not None:
+                collection = self.__collection_by_id_or_uri (collection_id, is_published=True, version=version)
+            else:
+                collection = self.__collection_by_id_or_uri (collection_id, is_published=True, is_latest=True)
 
-        if container is None:
+        if collection is None:
             return self.error_404 (request)
 
-        container_uuid = container["container_uuid"]
+        container_uuid = collection["container_uuid"]
         container_uri  = f"container:{container_uuid}"
 
         versions      = self.db.collection_versions(container_uri=container_uri)
@@ -2453,33 +2477,21 @@ class ApiServer:
         versions      = [v for v in versions if v['version']]
         current_version = version if version else versions[0]['version']
 
-        collection    = None
-        try:
-            if private_view:
-                collection = self.db.collections (container_uuid = container_uuid,
-                                                  is_published   = False)[0]
-            else:
-                collection = self.db.collections (container_uuid = container_uuid,
-                                                  version        = current_version,
-                                                  is_published   = True)[0]
-        except IndexError:
-            return self.error_403 (request)
-
         collection_uri = collection['uri']
         authors       = self.db.authors(item_uri=collection_uri, item_type='collection', limit=None)
         tags          = self.db.tags(item_uri=collection_uri, limit=None)
         categories    = self.db.categories(item_uri=collection_uri, limit=None)
         references    = self.db.references(item_uri=collection_uri, limit=None)
         fundings      = self.db.fundings(item_uri=collection_uri, limit=None)
-        statistics    = {'downloads': value_or(container, 'total_downloads', 0),
-                         'views'    : value_or(container, 'total_views'    , 0),
-                         'shares'   : value_or(container, 'total_shares'   , 0),
-                         'cites'    : value_or(container, 'total_cites'    , 0)}
+        statistics    = {'downloads': value_or(collection, 'total_downloads', 0),
+                         'views'    : value_or(collection, 'total_views'    , 0),
+                         'shares'   : value_or(collection, 'total_shares'   , 0),
+                         'cites'    : value_or(collection, 'total_cites'    , 0)}
         statistics    = {key:val for (key,val) in statistics.items() if val > 0}
         member = value_or(group_to_member, value_or_none (collection, "group_id"), 'other')
         member_url_name = member_url_names[member]
         tags = { t['tag'] for t in tags }
-        collection['timeline_first_online'] = value_or_none (container, 'first_online_date')
+        collection['timeline_first_online'] = value_or_none (collection, 'timeline_first_online')
         dates = self.__pretty_print_dates_for_item (collection)
 
         posted_date = value_or_none (collection, "timeline_posted")
@@ -2488,7 +2500,7 @@ class ApiServer:
         else:
             posted_date = "unpublished"
 
-        citation = make_citation(authors, posted_date, collection['title'],
+        citation = make_citation(authors, posted_date, value_or (collection, 'title', 'Untitled'),
                                  value_or (collection, 'version', 0),
                                  'collection',
                                  value_or (collection, 'doi', 'unavailable'))
@@ -2506,7 +2518,7 @@ class ApiServer:
                                        version=version,
                                        versions=versions,
                                        citation=citation,
-                                       container_doi=value_or_none(container, 'doi'),
+                                       container_doi=value_or_none(collection, 'container_doi'),
                                        authors=authors,
                                        contributors = contributors,
                                        tags=tags,
