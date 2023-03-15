@@ -68,7 +68,11 @@ activate ();
   <tbody>{% for review in reviews: %}
     <tr>
       <td>
+        {%- if review.status == "approved": %}
+        <a href="/datasets/{{review.container_uuid}}/{{review.dataset_version}}">{{review.dataset_title}}</a>
+        {%- else %}
         <a href="/review/goto-dataset/{{review.dataset_uuid}}">{{review.dataset_title}}</a>
+        {%- endif %}
       </td>
       <td>{{review.dataset_version | default("0", False)}}</td>
       <td>
