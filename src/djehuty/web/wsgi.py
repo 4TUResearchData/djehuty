@@ -175,10 +175,14 @@ class ApiServer:
 
             ## Compatibility
             ## ----------------------------------------------------------------
-            Rule("/articles/dataset/<slug>/<dataset_id>",     endpoint = "ui_compat_dataset"),
-            Rule("/articles/dataset/<slug>/<dataset_id>/<version>", endpoint = "ui_compat_dataset"),
-            Rule("/collections/<slug>/<collection_id>",       endpoint = "ui_compat_collection"),
-            Rule("/collections/<slug>/<collection_id>/<version>", endpoint = "ui_compat_collection"),
+            Rule("/articles/<slug>/<dataset_id>",                    endpoint = "ui_compat_dataset"),
+            Rule("/articles/<slug>/<dataset_id>/<version>",          endpoint = "ui_compat_dataset"),
+            Rule("/articles/dataset/<slug>/<dataset_id>",            endpoint = "ui_compat_dataset"),
+            Rule("/articles/dataset/<slug>/<dataset_id>/<version>",  endpoint = "ui_compat_dataset"),
+            Rule("/articles/software/<slug>/<dataset_id>",           endpoint = "ui_compat_dataset"),
+            Rule("/articles/software/<slug>/<dataset_id>/<version>", endpoint = "ui_compat_dataset"),
+            Rule("/collections/<slug>/<collection_id>",              endpoint = "ui_compat_collection"),
+            Rule("/collections/<slug>/<collection_id>/<version>",    endpoint = "ui_compat_collection"),
 
             ## ----------------------------------------------------------------
             ## V2 API
