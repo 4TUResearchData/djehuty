@@ -2924,7 +2924,8 @@ class ApiServer:
 
         try:
             record  = self.__default_dataset_api_parameters (request)
-            records = self.db.datasets (**record, is_latest = 1)
+            record["is_latest"] = 1
+            records = self.db.datasets (**record)
             return self.default_list_response (records, formatter.format_dataset_record)
 
         except validator.ValidationException as error:
