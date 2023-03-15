@@ -1864,7 +1864,7 @@ class SparqlInterface:
             items = []
             if categories:
                 items = rdf.uris_from_records (categories, "category")
-            self.update_item_list (dataset_uuid, account_uuid, items, "categories")
+                self.update_item_list (dataset_uuid, account_uuid, items, "categories")
         else:
             return False
 
