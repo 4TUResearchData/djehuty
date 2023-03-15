@@ -996,6 +996,7 @@ class SparqlInterface:
                         embargo_until_date=None,
                         embargo_title=None,
                         embargo_reason=None,
+                        data_link=None,
                         is_public=0,
                         is_active=1,
                         is_latest=0,
@@ -1078,6 +1079,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["group_id"],       group_id)
         rdf.add (graph, uri, rdf.DJHT["publisher"],      publisher,      XSD.string)
         rdf.add (graph, uri, rdf.DJHT["derived_from"],   derived_from,   XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["data_link"],      data_link,      XSD.string)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
@@ -1761,6 +1763,7 @@ class SparqlInterface:
                 revision              = conv.value_or_none (latest, "timeline_revision"),
                 group_id              = conv.value_or_none (latest, "group_id"),
                 publisher             = conv.value_or_none (latest, "publisher"),
+                data_link             = conv.value_or_none (latest, "data_link"),
                 funding_list          = draft_fundings,
                 tags                  = draft_tags,
                 references            = draft_references,
