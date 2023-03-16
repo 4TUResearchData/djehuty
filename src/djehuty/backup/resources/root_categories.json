@@ -1717,5 +1717,11 @@
   "parent_id": 13551,
   "title": "Atmospheric Sciences",
   "classification_code": "0401"
+ },
+ {
+  "id": 13528,
+  "parent_id": 13524,
+  "title": "Leather Products, Fibre Processing and Textiles",
+  "classification_code": "8604"
  }
 ]
