@@ -202,7 +202,7 @@ def format_dataset_details_record (dataset, authors, files, custom_fields,
         "has_linked_file":   bool(conv.value_or_none(dataset, "has_linked_file")),
         "citation":          conv.value_or_none(dataset, "citation"),
 #        "is_active":         conv.value_or_none(dataset, "is_active"),
-        "is_embargoed":      bool(conv.value_or_none(dataset, "is_embargoed")),
+        "is_embargoed":      bool(is_embargoed or is_restricted),
         "embargo_date":      conv.value_or_none(dataset, "embargo_until_date"),
         "embargo_type":      conv.value_or_none(dataset, "embargo_type"),
         "embargo_title":     conv.value_or(dataset, "embargo_title", ""),
@@ -245,15 +245,23 @@ def format_dataset_embargo_option_record (record):
 
 def format_dataset_embargo_record (dataset):
     """Record formatter for embargos."""
+
+    is_embargoed = bool(conv.value_or (dataset, "is_embargoed", False))
+    is_restricted = bool(conv.value_or (dataset, "is_restricted", False))
+
+    embargo_options = []
+    if is_restricted:
+        embargo_options = [{ "id": 1000, "type": "restricted_access" }]
+
     return {
-        "is_embargoed":      bool(conv.value_or_none(dataset, "is_embargoed")),
+        "is_embargoed":      bool(is_embargoed or is_restricted),
         "embargo_date":      conv.value_or_none(dataset, "embargo_until"),
         "embargo_type":      conv.value_or(dataset, "embargo_type", "file"),
         "embargo_title":     conv.value_or(dataset, "embargo_title", ""),
         "embargo_reason":    conv.value_or(dataset, "embargo_reason", ""),
 
         # Embargo options are irrelevant outside of Figshare.
-        "embargo_options":   [],
+        "embargo_options":   embargo_options,
     }
 
 def format_dataset_confidentiality_record (dataset):
