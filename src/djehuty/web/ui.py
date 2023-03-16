@@ -305,7 +305,6 @@ def read_privilege_configuration (server, xml_root, logger):
                 server.db.privileges[email]["may_review"] or
                 server.db.privileges[email]["may_review_quotas"]
             )
-            server.db.privileges[email]["needs_2fa"] = False
 
         except KeyError as error:
             logger.error ("Missing %s attribute for a privilege configuration.", error)
