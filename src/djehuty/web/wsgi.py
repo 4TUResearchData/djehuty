@@ -3285,6 +3285,9 @@ class ApiServer:
                 license_id  = validator.integer_value (record, "license_id", 0, pow(2, 63))
                 license_url = self.db.license_url_by_id (license_id)
 
+                if is_restricted or is_closed:
+                    record["embargo_type"] = "file"
+
                 result = self.db.update_dataset (dataset["uuid"],
                     account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
@@ -5433,6 +5436,9 @@ class ApiServer:
             is_temporary_embargo = is_embargoed and not is_restricted and not is_closed
             agreed_to_deposit_agreement = validator.boolean_value (record, "agreed_to_deposit_agreement", True, False, errors)
             agreed_to_publish = validator.boolean_value (record, "agreed_to_publish", True, False, errors)
+
+            if is_restricted or is_closed:
+                record["embargo_type"] = "file"
 
             if not agreed_to_deposit_agreement:
                 errors.append({
