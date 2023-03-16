@@ -305,6 +305,7 @@ def read_privilege_configuration (server, xml_root, logger):
                 server.db.privileges[email]["may_review"] or
                 server.db.privileges[email]["may_review_quotas"]
             )
+            server.db.privileges[email]["needs_2fa"] = False
 
         except KeyError as error:
             logger.error ("Missing %s attribute for a privilege configuration.", error)
@@ -675,14 +676,16 @@ def main (address=None, port=None, state_graph=None, storage=None,
                     logger.error ("An e-mail server must be configured for production-mode.")
                     raise MissingConfigurationError
 
-            for email_address in server.db.privileges:
+            for email_address in server.db.privileges:  # pylint: disable=consider-using-dict-items
                 if server.db.privileges[email_address]["needs_2fa"]:
                     logger.info ("Enabled 2FA for %s.", email_address)
 
             if initialize:
                 lock_file = os.path.abspath (".djehuty-initialized")
                 try:
-                    open (lock_file, "x", encoding="utf-8").close()
+                    # We only create a file, so using the 'with' construct
+                    # seems unnecessarily complex.
+                    open (lock_file, "x", encoding="utf-8").close()  # pylint: disable=consider-using-with
 
                     logger.info ("Invalidating caches ...")
                     server.db.cache.invalidate_all ()
