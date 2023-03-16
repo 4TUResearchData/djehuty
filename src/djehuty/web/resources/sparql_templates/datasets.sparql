@@ -10,7 +10,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?description ?doi ?embargo_until_date ?embargo_allow_access_requests
                 ?embargo_reason ?embargo_title ?embargo_type ?figshare_url
                 ?funding ?group_id ?has_linked_file ?dataset_id ?eula
-                ?institution_id ?is_active ?is_confidential ?is_embargoed
+                ?institution_id ?is_active ?is_confidential ?is_embargoed ?is_restricted
                 ?is_metadata_record ?license_id ?license_name ?license_url
                 ?metadata_reason ?modified_date ?published_date ?container_doi
                 ?resource_doi ?resource_title ?size ?status ?thumb ?declined_date
@@ -154,8 +154,8 @@ WHERE {
     {%- if is_published %}
     BIND (xsd:boolean (EXISTS { ?container_uri djht:draft ?draft_dataset . }) AS ?has_draft)
     {%- endif %}
-    BIND(((BOUND(?embargo_until_date) && ?embargo_until_date > NOW()) ||
-          (BOUND(?embargo_allow_access_requests))) AS ?is_embargoed)
+    BIND((BOUND(?embargo_until_date)  && ?embargo_until_date > NOW()) AS ?is_embargoed)
+    BIND((!BOUND(?embargo_until_date) && BOUND(?embargo_type)) AS ?is_restricted)
   }
 {%- if is_under_review is not none: %}
 {%- if is_under_review: %}
