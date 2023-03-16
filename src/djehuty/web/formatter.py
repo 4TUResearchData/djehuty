@@ -158,7 +158,8 @@ def format_dataset_details_record (dataset, authors, files, custom_fields,
     """Detailed record formatter for datasets."""
 
     is_embargoed = bool(conv.value_or (dataset, "is_embargoed", False))
-    if (is_embargoed and
+    is_restricted = bool(conv.value_or (dataset, "is_restricted", False))
+    if ((is_embargoed or is_restricted) and
         conv.value_or (dataset, "embargo_type", "") == "article" and
         not is_private):
         return {
@@ -168,19 +169,9 @@ def format_dataset_details_record (dataset, authors, files, custom_fields,
             "embargo_reason":    conv.value_or(dataset, "embargo_reason", ""),
         }
 
-    embargo_until_date = conv.value_or_none(dataset, "embargo_until_date")
-    embargo_allow_access_requests = conv.value_or (dataset, "embargo_allow_access_requests", False)
     embargo_option = None
-
-    if (is_embargoed and
-        embargo_allow_access_requests and
-        embargo_until_date is None):
+    if is_restricted:
         embargo_option = { "id": 1000, "type": "restricted_access" }
-
-    if (is_embargoed and
-        not embargo_allow_access_requests and
-        embargo_until_date is None):
-        embargo_option = { "id": 1001, "type": "closed_access" }
 
     return {
         "files":             list (map (format_file_for_dataset_record, files)),
