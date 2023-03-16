@@ -2475,7 +2475,6 @@ class ApiServer:
         if not versions:
             versions = [{"version":1}]
         versions      = [v for v in versions if v['version']]
-        current_version = version if version else versions[0]['version']
 
         collection_uri = collection['uri']
         authors       = self.db.authors(item_uri=collection_uri, item_type='collection', limit=None)
