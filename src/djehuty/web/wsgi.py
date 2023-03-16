@@ -2297,7 +2297,7 @@ class ApiServer:
         if account_uuid:
             my_collections = self.db.collections_by_account (account_uuid = account_uuid)
             # Name and email may be needed to request access to data with restricted access.
-            if value_or_none(dataset, 'is_confidential'):
+            if value_or_none(dataset, 'is_restricted'):
                 try:
                     my_account = self.db.accounts (account_uuid = account_uuid)[0]
                     my_email = my_account['email']

@@ -52,9 +52,39 @@
 
 {% if item.is_embargoed %}
     <h3>DATA - under embargo</h3>
-        <div id="embargo_notice">
+        <div id="limited_access">
             <p>The files in this dataset are under embargo{% if item.embargo_until_date %} until {{item.embargo_until_date}}{% endif %}.</p>
+    {% if item.embargo_reason or item.confidential_reason %}
+            <h4>Reason</h4>
+        {% autoescape false %}
+        {% if item.embargo_reason %}
+            {{item.embargo_reason}}
+        {% else %}
+            {{item.confidential_reason}}
+        {% endif %}
+        {% endautoescape %}
+    {% endif %}
+       </div>
+{% elif item.is_restricted %}
+    <h3>DATA - restricted access</h3>
+{# test 12999575 #}
+        <div id="limited_access">
+            <h4>Reason</h4>
+    {% autoescape false %}
+    {% if item.embargo_reason %}
+            {{item.embargo_reason}}
+    {% elif item.confidential_reason %}
+            {{item.confidential_reason}}
+    {% else %}
+            Data is confidential.
+    {% endif %}
+    {% if item.eula %}
+            <h4>End User Licence Agreement</h4>
+            {{item.eula}}
+    {% endif %}
+    {% endautoescape %}
         </div>
+        {% include 'dataset_access_request.html' %}
 {% elif item.is_metadata_record %}
 {# test 18586031 #}
     <h3>DATA - not available</h3>
@@ -65,17 +95,6 @@
             Data is undisclosed.
     {% endif %}
         </div>
-{% elif item.is_confidential %}
-    <h3>DATA - restricted access</h3>
-{# test 12999575 #}
-        <div id="confidential">
-    {% if item.confidential_reason %}
-            {{item.confidential_reason}}
-    {% else %}
-            Data is confidential.
-    {% endif %}
-        </div>
-        {% include 'dataset_access_request.html' %}
 {% else %}
     <h3>DATA</h3>
 {% if services %}
