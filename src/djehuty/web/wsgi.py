@@ -732,7 +732,7 @@ class ApiServer:
             uri = collection["uri"]
             datasets_count = self.db.collections_dataset_count (collection_uri = uri)
             fundings       = self.db.fundings (item_uri = uri, item_type="collection")
-            categories     = self.db.categories (item_uri = uri)
+            categories     = self.db.categories (item_uri = uri, limit = None)
             references     = self.db.references (item_uri = uri)
             custom_fields  = self.db.custom_fields (item_uri = uri, item_type="collection")
             tags           = self.db.tags (item_uri = uri)
@@ -2978,7 +2978,7 @@ class ApiServer:
             files           = self.db.dataset_files(dataset_uri=dataset_uri)
             custom_fields   = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
             tags            = self.db.tags(item_uri=dataset_uri)
-            categories      = self.db.categories(item_uri=dataset_uri)
+            categories      = self.db.categories(item_uri=dataset_uri, limit=None)
             references      = self.db.references(item_uri=dataset_uri)
             funding_list    = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
             total         = formatter.format_dataset_details_record (dataset,
@@ -3032,7 +3032,7 @@ class ApiServer:
             files         = self.db.dataset_files(dataset_uri=dataset_uri)
             custom_fields = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
             tags          = self.db.tags(item_uri=dataset_uri)
-            categories    = self.db.categories(item_uri=dataset_uri)
+            categories    = self.db.categories(item_uri=dataset_uri, limit=None)
             references    = self.db.references(item_uri=dataset_uri)
             fundings      = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
             total         = formatter.format_dataset_details_record (dataset,
@@ -3231,7 +3231,7 @@ class ApiServer:
                 files           = self.db.dataset_files(dataset_uri=dataset_uri, account_uuid=account_uuid)
                 custom_fields   = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
                 tags            = self.db.tags(item_uri=dataset_uri)
-                categories      = self.db.categories(item_uri=dataset_uri)
+                categories      = self.db.categories(item_uri=dataset_uri, limit=None)
                 references      = self.db.references(item_uri=dataset_uri)
                 funding_list    = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
                 total           = formatter.format_dataset_details_record (dataset,
@@ -3745,7 +3745,8 @@ class ApiServer:
 
                 categories    = self.db.categories (item_uri   = dataset["uri"],
                                                     account_uuid = account_uuid,
-                                                    is_published = False)
+                                                    is_published = False,
+                                                    limit        = None)
 
                 return self.default_list_response (categories, formatter.format_category_record)
 
@@ -3779,7 +3780,7 @@ class ApiServer:
                     existing_categories = self.db.categories (item_uri     = dataset["uri"],
                                                               account_uuid = account_uuid,
                                                               is_published = False,
-                                                              limit        = 10000)
+                                                              limit        = None)
 
                     existing_categories = list(map(lambda category: category["uuid"], existing_categories))
 
@@ -4831,7 +4832,8 @@ class ApiServer:
                 return self.error_404 (request)
 
             categories = self.db.categories(item_uri   = collection["uri"],
-                                            account_uuid = account_uuid)
+                                            account_uuid = account_uuid,
+                                            limit        = None)
 
             return self.default_list_response (categories, formatter.format_category_record)
         except (IndexError, KeyError):
@@ -5351,7 +5353,8 @@ class ApiServer:
 
         categories = self.db.categories (item_uri = collection["uri"],
                                          account_uuid = account_uuid,
-                                         is_published = False)
+                                         is_published = False,
+                                         limit        = None)
 
         if not categories:
             errors.append({
@@ -5467,7 +5470,8 @@ class ApiServer:
 
             categories = self.db.categories (item_uri = dataset["uri"],
                                              account_uuid = account_uuid,
-                                             is_published = False)
+                                             is_published = False,
+                                             limit        = None)
 
             if not categories:
                 errors.append({
