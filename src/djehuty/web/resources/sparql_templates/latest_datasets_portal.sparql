@@ -6,7 +6,7 @@ WHERE {
     ?dataset_container rdf:type                       djht:DatasetContainer ;
                        djht:latest_published_version  ?dataset .
     ?dataset           rdf:type                       djht:Dataset ;
-                       djht:published_date            ?published_date ;
+                       djht:posted_date               ?published_date ;
                        djht:title                     ?title .
 
     BIND(STRAFTER(STR(?dataset_container), "container:") AS ?container_uuid)
