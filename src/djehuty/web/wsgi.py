@@ -2272,7 +2272,7 @@ class ApiServer:
 
         return self.error_404 (request)
 
-    def ui_compat_dataset (self, request, slug, dataset_id, version):
+    def ui_compat_dataset (self, request, slug, dataset_id, version):  # pylint: disable=unused-argument
         """Implements backward-compatibility landing page URLs for datasets."""
         return self.ui_dataset (request, dataset_id, version)
 
@@ -2449,7 +2449,7 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def ui_compat_collection (self, request, slug, collection_id, version=None):
+    def ui_compat_collection (self, request, slug, collection_id, version=None):  # pylint: disable=unused-argument
         """Implements backward-compatibility landing page URLs for collections."""
         return self.ui_collection (request, collection_id, version)
 
@@ -2465,10 +2465,10 @@ class ApiServer:
         if collection_id is not None and version is not None:
             normal_pattern = False
             try:
-                v = int(version)
-                if v < 10000:
+                version_number = int(version)
+                if version_number < 10000:
                     normal_pattern = True
-            except:
+            except ValueError:
                 pass
             if not normal_pattern:
                 return self.ui_collection(request, version)

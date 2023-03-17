@@ -2412,7 +2412,7 @@ class SparqlInterface:
         ## The privileges are stored by e-mail address, so we can use
         ## this to look up the email addresses without accessing the
         ## SPARQL endpoint.
-        for email_address in self.privileges:
+        for email_address in self.privileges:  # pylint: disable=consider-using-dict-items
             if self.privileges[email_address][privilege]:
                 addresses.append(email_address)
 
