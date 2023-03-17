@@ -4250,6 +4250,8 @@ class ApiServer:
                         agreed_to_deposit_agreement = value_or (item, "agreed_to_deposit_agreement", False),
                         agreed_to_publish           = value_or (item, "agreed_to_publish", False),
                         is_metadata_record          = value_or (item, "is_metadata_record", False),
+                        is_embargoed                = value_or (item, "is_embargoed", False),
+                        is_restricted               = value_or (item, "is_restricted", False),
                         **more_parm ):
                     return doi
             else:
