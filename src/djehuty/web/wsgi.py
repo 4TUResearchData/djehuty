@@ -176,7 +176,7 @@ class ApiServer:
             Rule("/articles/dataset/<slug>/<dataset_id>/<version>",  endpoint = "ui_compat_dataset"),
             Rule("/articles/software/<slug>/<dataset_id>",           endpoint = "ui_compat_dataset"),
             Rule("/articles/software/<slug>/<dataset_id>/<version>", endpoint = "ui_compat_dataset"),
-            Rule("/collections/<slug>/<collection_id>",              endpoint = "ui_compat_collection"),
+            #    "/collections/<slug>/<collection_id>" is handled by "/collections/<collection_id>/<version>"
             Rule("/collections/<slug>/<collection_id>/<version>",    endpoint = "ui_compat_collection"),
 
             ## ----------------------------------------------------------------
@@ -2272,7 +2272,7 @@ class ApiServer:
 
         return self.error_404 (request)
 
-    def ui_compat_dataset (self, request, slug, dataset_id, version=None):
+    def ui_compat_dataset (self, request, slug, dataset_id, version):
         """Implements backward-compatibility landing page URLs for datasets."""
         return self.ui_dataset (request, dataset_id, version)
 
@@ -2460,6 +2460,18 @@ class ApiServer:
         handler = self.default_error_handling (request, "GET", "text/html")
         if handler is not None:
             return handler
+
+        #handle abnormal pattern /collection/<slug>/<collection_id> instead of /collection/<collection_id>/<version>
+        if collection_id is not None and version is not None:
+            normal_pattern = False
+            try:
+                v = int(version)
+                if v < 10000:
+                    normal_pattern = True
+            except:
+                pass
+            if not normal_pattern:
+                return self.ui_collection(request, version)
 
         if collection is None:
             if version is not None:
@@ -5273,7 +5285,6 @@ class ApiServer:
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                account_uuid = account_uuid,
                                                is_published = False)
-
         if dataset is None:
             return self.error_403 (request)
 
