@@ -28,6 +28,7 @@ from djehuty.web import formatter
 from djehuty.web import xml_formatter
 from djehuty.web import database
 from djehuty.web import email_handler
+from djehuty.web import locks
 from djehuty.utils.convenience import pretty_print_size, decimal_coords
 from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
@@ -58,7 +59,6 @@ class ApiServer:
         self.email            = email_handler.EmailInterface()
         self.cookie_key       = "djehuty_session"
         self.impersonator_cookie_key = f"impersonator_{self.cookie_key}"
-        self.file_list_lock  = Lock()
         self.in_production    = False
         self.in_preproduction = False
         self.using_uwsgi      = False
@@ -78,6 +78,7 @@ class ApiServer:
         self.datacite_prefix     = None
         self.log_access          = self.log_access_directly
         self.log                 = logging.getLogger(__name__)
+        self.locks               = locks.Locks()
         self.menu = []
         self.static_pages = {}
 
@@ -3979,11 +3980,7 @@ class ApiServer:
                 if dataset is None:
                     return self.error_403 (request)
 
-                if self.using_uwsgi:
-                    uwsgi.lock()
-                else:
-                    self.file_list_lock.acquire(timeout=60000)
-
+                self.locks.lock (locks.LockTypes.FILE_LIST)
                 files = self.db.dataset_files (dataset_uri  = dataset["uri"],
                                                limit        = None,
                                                account_uuid = account_uuid)
@@ -3995,21 +3992,14 @@ class ApiServer:
                                              account_uuid,
                                              files,
                                              "files"):
-                    if self.using_uwsgi:
-                        uwsgi.unlock()
-                    else:
-                        self.file_list_lock.release()
 
+                    self.locks.unlock (locks.LockTypes.FILE_LIST)
                     return self.respond_204()
 
             except (IndexError, KeyError, StopIteration):
                 pass
 
-            if self.using_uwsgi:
-                uwsgi.unlock()
-            else:
-                self.file_list_lock.release()
-
+            self.locks.unlock (locks.LockTypes.FILE_LIST)
             return self.error_500()
 
         return self.error_405 (["GET", "POST", "DELETE"])
@@ -5668,10 +5658,7 @@ class ApiServer:
                 return self.error_403 (request)
 
             file_data = request.files['file']
-            if self.using_uwsgi:
-                uwsgi.lock()
-            else:
-                self.file_list_lock.acquire(timeout=60000)
+            self.locks.lock (locks.LockTypes.FILE_LIST)
 
             file_uuid = self.db.insert_file (
                 name          = file_data.filename,
@@ -5681,10 +5668,7 @@ class ApiServer:
                 upload_token  = self.token_from_request (request),
                 dataset_uri   = dataset["uri"],
                 account_uuid  = account_uuid)
-            if self.using_uwsgi:
-                uwsgi.unlock()
-            else:
-                self.file_list_lock.release()
+            self.locks.unlock (locks.LockTypes.FILE_LIST)
 
             output_filename = f"{self.db.storage}/{dataset_id}_{file_uuid}"
 

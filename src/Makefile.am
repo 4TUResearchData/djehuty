@@ -15,6 +15,7 @@ PYTHON_FILES =                                                                \
     djehuty/web/database.py                                                   \
     djehuty/web/email_handler.py                                              \
     djehuty/web/formatter.py                                                  \
+    djehuty/web/locks.py                                                      \
     djehuty/web/ui.py                                                         \
     djehuty/web/validator.py                                                  \
     djehuty/web/wsgi.py                                                       \

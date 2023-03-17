@@ -640,6 +640,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
         server.db.setup_sparql_endpoint ()
         if not run_internal_server:
             server.using_uwsgi = True
+            server.locks.using_uwsgi = True
             return server
 
         if inside_reload:
