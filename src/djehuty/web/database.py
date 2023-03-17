@@ -996,6 +996,7 @@ class SparqlInterface:
                         embargo_until_date=None,
                         embargo_title=None,
                         embargo_reason=None,
+                        eula=None,
                         data_link=None,
                         is_public=0,
                         is_active=1,
@@ -1094,6 +1095,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["embargo_until_date"], embargo_until_date, XSD.date)
         rdf.add (graph, uri, rdf.DJHT["embargo_title"], embargo_title, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["embargo_reason"], embargo_reason, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["eula"],           eula, XSD.string)
 
         # Reserve a UUID for a Git repository.
         if git_uuid is None:
@@ -1782,6 +1784,7 @@ class SparqlInterface:
                 embargo_until_date    = conv.value_or_none (latest, "embargo_until_date"),
                 embargo_title         = conv.value_or_none (latest, "embargo_title"),
                 embargo_reason        = conv.value_or_none (latest, "embargo_reason"),
+                eula                  = conv.value_or_none (latest, "eula"),
                 git_uuid              = rdf.escape_string_value (str (uuid.uuid4())),
                 is_public             = 0,
                 is_active             = 1,
