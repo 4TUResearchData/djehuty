@@ -1,7 +1,6 @@
 """This module implements the entire HTTP interface for users."""
 
 from datetime import date
-from threading import Lock
 import os.path
 import os
 import logging
