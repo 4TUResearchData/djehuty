@@ -1,5 +1,8 @@
 {% extends "email/layout.html" %}
 {% block body %}
-    <h1>Request for review of {{dataset.uuid}}</h1>
-    <p>Visit <a href="{{base_url}}/review/overview">the reviewer dashboard</a> to review this dataset.</p>
+<h1>Request for review</h1>
+<p>{{account.first_name | default("", False)}} {{account.last_name | default("", False)}} sent a dataset for your review.</p>
+<p>The dataset is titled <strong>{{dataset.title}}</strong>.</p>
+<p>Its unique identifier is <code>{{dataset.uuid}}</code>.</p>
+<p>Visit <a href="{{base_url}}/review/overview">the reviewer dashboard</a> to review this dataset.</p>
 {% endblock %}

@@ -1,4 +1,9 @@
-Request for review of {{dataset.uuid}}
+Request for review
+
+{{account.first_name | default("", False)}} {{account.last_name | default("", False)}} sent a dataset for your review.
+
+The dataset is titled '{{dataset.title}}'.
+Its unique identifier is '{{dataset.uuid}}'.
 
 Visit the reviewer dashboard[1] to review this dataset.
 

@@ -5534,6 +5534,10 @@ class ApiServer:
             if errors:
                 return self.error_400_list (request, errors)
 
+            account = self.db.account_by_uuid (dataset["account_uuid"])
+            if not account:
+                return self.error_500()
+
             result = self.db.update_dataset (**parameters)
             if not result:
                 return self.error_500()
@@ -5541,7 +5545,18 @@ class ApiServer:
             if self.db.insert_review (dataset["uri"]) is not None:
                 subject = f"Request for review: {dataset['container_uuid']}"
                 self.__send_email_to_reviewers (subject, "submitted_for_review_notification",
-                                                dataset=dataset)
+                                                dataset=dataset,
+                                                account=account)
+
+                # When in pre-production state, don't send e-mails to depositors.
+                if self.in_production and not self.in_preproduction and "email" in account:
+                    self.__send_templated_email (
+                        [account["email"]],
+                        f"Submission of {dataset['title']}.",
+                        "dataset_submitted",
+                        dataset = dataset,
+                        account = account)
+
                 return self.respond_204 ()
 
         except validator.ValidationException as error:

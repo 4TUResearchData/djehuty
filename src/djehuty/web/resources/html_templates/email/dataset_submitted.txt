@@ -1,0 +1,7 @@
+Dear {{account.first_name | default("", False)}} {{account.last_name | default("", False)}},
+
+Thank you for submitting your dataset '{{dataset.title}}' to 4TU.ResearchData.
+We hereby confirm we have received your dataset submission.
+
+A reviewer will contact you about publishing it in the 4TU.ResearchData repository.
+This is an automated message.  If you have any questions, please contact researchdata@4tu.nl.
