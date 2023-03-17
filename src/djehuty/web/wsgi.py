@@ -4316,7 +4316,7 @@ class ApiServer:
             "data": {
                 "attributes": {
                     "event": "publish", #does no harm when already published
-                    "url": landing_page_url(item_id, version, item_type=item_type),
+                    "url": landing_page_url(item_id, version, item_type=item_type, base_url=self.base_url),
                     "xml": str(encoded_bytes, "utf-8")
                 }
             }
