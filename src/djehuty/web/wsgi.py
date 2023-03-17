@@ -5523,7 +5523,9 @@ class ApiServer:
             }
 
             if not parameters["is_metadata_record"]:
-                files = self.db.dataset_files (dataset_uri=dataset["uri"])
+                files = self.db.dataset_files (account_uuid = account_uuid,
+                                               dataset_uri  = dataset["uri"],
+                                               limit        = 1)
                 if not files:
                     errors.append({
                         "field_name": "files",
