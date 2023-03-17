@@ -44,11 +44,6 @@ try:
 except (ImportError, ModuleNotFoundError):
     pass
 
-try:
-    import uwsgi
-except ModuleNotFoundError:
-    pass
-
 class ApiServer:
     """This class implements the HTTP interface for users."""
 
