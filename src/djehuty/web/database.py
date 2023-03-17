@@ -1810,7 +1810,7 @@ class SparqlInterface:
                         defined_type=None, defined_type_name=None,
                         embargo_until_date=None, embargo_type=None,
                         embargo_title=None, embargo_reason=None, eula=None,
-                        is_embargoed=False,
+                        is_embargoed=False, is_restricted=False,
                         agreed_to_deposit_agreement=False, agreed_to_publish=False,
                         is_metadata_record=False, metadata_reason=None,
                         container_doi=None, is_first_online=False):
@@ -1847,6 +1847,7 @@ class SparqlInterface:
             "time_coverage":   rdf.escape_string_value (time_coverage),
             "title":           rdf.escape_string_value (title),
             "is_embargoed":    int(is_embargoed),
+            "is_restricted":   int(is_restricted),
             "is_metadata_record": rdf.escape_boolean_value (is_metadata_record),
             "metadata_reason": rdf.escape_string_value (metadata_reason),
             "embargo_until_date": rdf.escape_date_value (embargo_until_date),
