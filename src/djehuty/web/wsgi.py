@@ -5524,6 +5524,13 @@ class ApiServer:
                 "categories":         validator.array_value   (record, "categories", True, errors)
             }
 
+            if not parameters["is_metadata_record"]:
+                files = self.db.dataset_files (dataset_uri=dataset["uri"])
+                if not files:
+                    errors.append({
+                        "field_name": "files",
+                        "message": "Upload at least one file, or choose metadata-only record."})
+
             if errors:
                 return self.error_400_list (request, errors)
 
