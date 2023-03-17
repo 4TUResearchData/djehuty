@@ -1694,10 +1694,9 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
 
-        draft = None
         try:
-            draft = self.datasets (container_uuid = container_uuid,
-                                   is_published   = False)[0]
+            self.datasets (container_uuid = container_uuid,
+                           is_published   = False)[0]
         except IndexError:
             self.log.error ("Attempted to decline without a draft <container:%s>.",
                             container_uuid)
