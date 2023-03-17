@@ -1590,6 +1590,12 @@ class SparqlInterface:
         draft_datasets      = self.collection_dataset_containers(collection_uri=latest_uri, limit=None)
         draft_dataset_uris  = list({URIRef(container['container_uri']) for container in draft_datasets})
 
+        if isinstance (draft_derived_from, list):
+            try:
+                draft_derived_from = draft_derived_from[0]
+            except IndexError:
+                draft_derived_from = None
+
         draft_funding_title = None
         if draft_fundings:
             draft_funding_title = draft_fundings[0]["title"]
@@ -1603,6 +1609,7 @@ class SparqlInterface:
                 account_uuid          = conv.value_or_none (latest, "account_uuid"),
                 container_uuid        = container_uuid,
                 description           = conv.value_or_none (latest, "description"),
+                derived_from          = draft_derived_from,
                 funding               = draft_funding_title,
                 language              = conv.value_or_none (latest, "language"),
                 resource_doi          = conv.value_or_none (latest, "resource_doi"),
@@ -1934,6 +1941,7 @@ class SparqlInterface:
                            funding=None,
                            funding_list=None,
                            description=None,
+                           derived_from=None,
                            datasets=None,
                            authors=None,
                            categories=None,
@@ -2034,6 +2042,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["collection_id"],  collection_id)
         rdf.add (graph, uri, rdf.DJHT["account"],        account_uri)
         rdf.add (graph, uri, rdf.DJHT["description"],    description,    XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["derived_from"],   derived_from,   XSD.string)
         rdf.add (graph, uri, rdf.DJHT["funding"],        funding,        XSD.string)
         rdf.add (graph, uri, rdf.DJHT["doi"],            doi,            XSD.string)
         rdf.add (graph, uri, rdf.DJHT["handle"],         handle,         XSD.string)
