@@ -1873,7 +1873,9 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
+        self.locks.lock (locks.LockTypes.PRIVATE_LINKS)
         self.db.insert_private_link (dataset["uuid"], account_uuid, item_type="dataset")
+        self.locks.unlock (locks.LockTypes.PRIVATE_LINKS)
         return redirect (f"/my/datasets/{dataset_uuid}/private_links", code=302)
 
     def ui_collection_new_private_link (self, request, collection_uuid):
@@ -1897,7 +1899,9 @@ class ApiServer:
         if collection is None:
             return self.error_403 (request)
 
+        self.locks.lock (locks.LockTypes.PRIVATE_LINKS)
         self.db.insert_private_link (collection["uuid"], account_uuid, item_type="collection")
+        self.locks.unlock (locks.LockTypes.PRIVATE_LINKS)
         return redirect (f"/my/collections/{collection_uuid}/private_links", code=302)
 
     def __delete_private_link (self, request, item, account_uuid, private_link_id):
@@ -1906,11 +1910,14 @@ class ApiServer:
             return self.error_403 (request)
 
         response = redirect (request.referrer, code=302)
+        self.locks.lock (locks.LockTypes.PRIVATE_LINKS)
         if self.db.delete_private_links (item["container_uuid"],
                                          account_uuid,
                                          private_link_id) is None:
+            self.locks.unlock (locks.LockTypes.PRIVATE_LINKS)
             return self.error_500()
 
+        self.locks.unlock (locks.LockTypes.PRIVATE_LINKS)
         return response
 
     def ui_dataset_delete_private_link (self, request, dataset_uuid, private_link_id):
