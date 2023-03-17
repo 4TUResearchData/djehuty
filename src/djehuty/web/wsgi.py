@@ -2272,7 +2272,7 @@ class ApiServer:
 
         return self.error_404 (request)
 
-    def ui_compat_dataset (self, request, slug, dataset_id, version):  # pylint: disable=unused-argument
+    def ui_compat_dataset (self, request, slug, dataset_id, version=None):  # pylint: disable=unused-argument
         """Implements backward-compatibility landing page URLs for datasets."""
         return self.ui_dataset (request, dataset_id, version)
 
