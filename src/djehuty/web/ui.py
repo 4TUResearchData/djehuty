@@ -294,6 +294,7 @@ def read_privilege_configuration (server, xml_root, logger):
                 "may_impersonate": bool(int(config_value (account, "may-impersonate", None, False))),
                 "may_review":      bool(int(config_value (account, "may-review", None, False))),
                 "may_review_quotas": bool(int(config_value (account, "may-review-quotas", None, False))),
+                "may_process_feedback": bool(int(config_value (account, "may-process-feedback", None, False))),
                 "orcid":           orcid
             }
 
@@ -303,6 +304,7 @@ def read_privilege_configuration (server, xml_root, logger):
                 server.db.privileges[email]["may_administer"] or
                 server.db.privileges[email]["may_impersonate"] or
                 server.db.privileges[email]["may_review"] or
+                server.db.privileges[email]["may_process_feedback"] or
                 server.db.privileges[email]["may_review_quotas"]
             )
 

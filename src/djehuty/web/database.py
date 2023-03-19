@@ -2437,6 +2437,10 @@ class SparqlInterface:
         """Returns the e-mail addresses of accounts with 'may_review_quotas' privileges."""
         return self.__privileged_role_email_addresses ("may_review_quotas")
 
+    def feedback_reviewer_email_addresses (self):
+        """Returns the e-mail addresses of accounts with 'may_process_feedback' privileges."""
+        return self.__privileged_role_email_addresses ("may_process_feedback")
+
     def accounts (self, account_uuid=None, order=None, order_direction=None,
                   limit=None, offset=None, is_active=None, email=None,
                   id_lte=None, id_gte=None, institution_user_id=None):
