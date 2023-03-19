@@ -64,6 +64,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/email/dataset_submitted.txt          \
     djehuty/web/resources/html_templates/email/declined_dataset_notification.html \
     djehuty/web/resources/html_templates/email/declined_dataset_notification.txt \
+    djehuty/web/resources/html_templates/email/feedback.html                  \
+    djehuty/web/resources/html_templates/email/feedback.txt                   \
     djehuty/web/resources/html_templates/email/layout.html                    \
     djehuty/web/resources/html_templates/email/published_dataset_notification.html \
     djehuty/web/resources/html_templates/email/published_dataset_notification.txt \
@@ -71,6 +73,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/email/quota_request.txt              \
     djehuty/web/resources/html_templates/email/submitted_for_review_notification.html \
     djehuty/web/resources/html_templates/email/submitted_for_review_notification.txt \
+    djehuty/web/resources/html_templates/feedback.html                        \
     djehuty/web/resources/html_templates/institutions.html                    \
     djehuty/web/resources/html_templates/layout.html                          \
     djehuty/web/resources/html_templates/maintenance.html                     \

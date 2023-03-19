@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/quill.min.js"></script>
+<script src="/static/js/utils.js"></script>
+<link href="/static/css/quill.4tu.css" rel="stylesheet">
+<link href="/static/css/form.css" rel="stylesheet">
+<style>
+.info { margin-left: 5pt; color: #555; }
+#submit-feedback {
+    background: #f39000;
+    color: #fff;
+    border: none !important;
+}
+#submit-feedback:hover {
+    border: none;
+    background: #d26000;
+    cursor: pointer;
+    color: #fff;
+    text-decoration: none;
+}
+#submit-feedback:active {
+    border: none !important;
+    background: #9d4800 !important;
+    cursor: pointer;
+    color: #fff;
+    text-decoration: none;
+}
+input[type="submit"]:active { color: green; }
+.ql-toolbar.ql-4tu, .texteditor { width: 852pt !important; }
+.texteditor { border-radius: 0em 0em .5em .5em !important; border-top: none !important; }
+#description { height: 500px !important; }
+</style>
+<script>
+jQuery(document).ready(function () {
+    new Quill('#description', { theme: '4tu' });
+    {%- if error_message %}
+    show_message ("failure", "<p>{{error_message}}</p>");
+    {%- endif %}{% if success_message %}
+    show_message ("success", "<p>{{success_message}}</p>");
+    {%- endif %}
+
+    jQuery("#submit-feedback").on("click", function (event) {
+      jQuery("#content").addClass("loader-top");
+      jQuery("#content-wrapper").css('opacity', '0.15');
+    });
+    jQuery("#description").on("keyup", function(event) {
+        jQuery("#description_html").val(jQuery("#description .ql-editor").html());
+    });
+});
+</script>
+{% endblock %}
+{% block body %}
+<h1>Feedback</h1>
+<p></p>
+<form action="/feedback" method="post">
+<label for="email">E-mail</label><span class="info">By entering your e-mail address we will be able to get in touch.</span>
+<input type="text" id="email" name="email" value="{%if email is not none %}{{email}}{% endif %}" placeholder="Your e-mail address" />
+<label>Type</label>
+<div id="feedback-type-wrapper" class="options-wrapper">
+<input type="radio" name="feedback_type" id="bug" value="bug" /><!--
+--><label for="bug" class="no-head">Bug / broken functionality</label><!--
+--><input type="radio" name="feedback_type" id="missing_functionality" value="missing" /><!--
+--><label for="missing_functionality" class="no-head">Missing functionality</label><!--
+--><input type="radio" name="feedback_type" id="other" value="other" /><!--
+--><label for="other" class="no-head">Other</label>
+</div>
+<input type="hidden" id="description_html" name="description" />
+<label>Description</label><span class="info">Please try to be as detailed as possible.</span>
+<div id="description" class="texteditor"></div>
+<div class="center"><input type="submit" id="submit-feedback" class="button neutral-button" value="Send feedback" /></div>
+</form>
+{% endblock %}

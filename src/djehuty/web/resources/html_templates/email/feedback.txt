@@ -1,0 +1,10 @@
+{{title}}
+==========
+
+Someone sent feedback:
+
+==========
+E-mail: {{email_address}}
+==========
+{{description | safe}}
+==========

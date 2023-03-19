@@ -141,6 +141,7 @@ class ApiServer:
             Rule("/search",                                   endpoint = "ui_search"),
             Rule("/ndownloader/items/<dataset_id>/versions/<version>", endpoint = "ui_download_all_files"),
             Rule("/data_access_request",                      endpoint = "ui_data_access_request"),
+            Rule("/feedback",                                 endpoint = "ui_feedback"),
 
             ## Export formats
             ## ----------------------------------------------------------------
@@ -2159,6 +2160,69 @@ class ApiServer:
             return redirect ("/", code=302)
 
         return self.error_403 (request)
+
+    def __email_from_request (self, request):
+        """Attempts to find the e-mail address associated with REQUEST."""
+        email = None
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid:
+            try:
+                account = self.db.accounts (account_uuid = account_uuid)[0]
+                email   = account['email']
+            except IndexError:
+                self.log.warning ("No email found for account %s.", account_uuid)
+
+        return email
+
+    def ui_feedback (self, request):
+        """Implement /feedback."""
+
+        addresses = self.db.feedback_reviewer_email_addresses()
+        if not addresses:
+            return self.error_404 (request)
+
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        if request.method == "GET":
+            email = self.__email_from_request (request)
+            return self.__render_template (request, "feedback.html", email=email)
+
+        if request.method == "POST":
+            record = {
+                "email":       request.form.get("email"),
+                "type":        request.form.get("feedback_type"),
+                "description": request.form.get("description")
+            }
+            self.log.info("Received from feedback form: %s", record)
+            try:
+                validator.string_value (record, "email", 5, 255, False)
+                validator.options_value (record, "type", ["bug", "missing", "other"], True)
+                validator.string_value (record, "description", 10, 4096, True)
+            except validator.ValidationException as error:
+                email = self.__email_from_request (request)
+                return self.__render_template (request, "feedback.html",
+                                               email = email,
+                                               error_message = error.message)
+
+            subject = "Feedback for Djehuty"
+            if record["type"] == "bug":
+                subject = "Bug report for Djehuty"
+            elif record["type"] == "missing":
+                subject = "Missing feature report for Djehuty"
+
+            self.__send_templated_email (
+                addresses,
+                subject,
+                "feedback",
+                title         = subject,
+                email_address = record["email"],
+                report_type   = record["type"],
+                description   = record["description"])
+
+            return self.__render_template (request, "feedback.html",
+                                           email = record["email"],
+                                           success_message = "Thank you! Your feedback has been sent.")
 
     def ui_portal (self, request):
         """Implements /portal."""

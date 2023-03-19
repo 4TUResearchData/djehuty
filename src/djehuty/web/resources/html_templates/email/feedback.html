@@ -1,0 +1,10 @@
+{% extends "email/layout.html" %}
+{% block body %}
+<h1>{{title}}</h1>
+<p>Someone sent feedback:</p>
+<hr>
+<strong>E-mail:</strong> <code>{{email_address}}</code>
+<hr>
+{{description | safe}}
+<hr>
+{% endblock %}
