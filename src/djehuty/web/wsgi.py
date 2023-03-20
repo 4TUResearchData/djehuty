@@ -580,6 +580,9 @@ class ApiServer:
                                 is_published=True, is_latest=False,
                                 is_under_review=None, version = None):
         try:
+            if version is not None and not parses_to_int (version):
+                return None
+
             dataset = None
             if parses_to_int (identifier):
                 dataset = self.db.datasets (dataset_id   = int(identifier),
@@ -607,6 +610,9 @@ class ApiServer:
                                    is_published=True, is_latest=False,
                                    version = None):
         try:
+            if version is not None and not parses_to_int (version):
+                return None
+
             collection = None
             if parses_to_int (identifier):
                 collection = self.db.collections (collection_id = int(identifier),
