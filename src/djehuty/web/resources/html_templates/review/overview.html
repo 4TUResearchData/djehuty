@@ -15,6 +15,7 @@
   font-size: 13pt;
   width: 500pt;
 }
+#table-count { text-transform: lowercase; }
 </style>
 <script src="/static/js/review-overview.js"></script>
 <script>
@@ -44,6 +45,7 @@ activate ();
         <option value="assigned">Assigned</option>
         <option value="unassigned">Unassigned</option>
     </select></label>
+   <li><div id="table-count"></div>
 </ul>
 {% endblock %}
 {% block body %}

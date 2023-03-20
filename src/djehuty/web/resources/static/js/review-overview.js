@@ -2,6 +2,9 @@ function cleanup_name(name) {
     return name.split("\n").map(function (item){ return item.trim(); }).join(" ").trim();
 }
 
+function update_item_count () {
+    jQuery("#table-count").text(`${jQuery("#overview-table tbody tr:visible").length} items`);
+}
 function assign_reviewer (event) {
 
     let event_local = this;
@@ -29,6 +32,7 @@ function apply_filters (event) {
     });
     filter_reviewer (event);
     filter_status (event);
+    update_item_count ();
 }
 
 function filter_reviewer (event) {
@@ -80,5 +84,6 @@ function activate() {
         jQuery(".reviewer-filter").change(apply_filters);
         jQuery(".status-filter").change(apply_filters);
         jQuery("#content-wrapper").show();
+        update_item_count ();
     });
 }
