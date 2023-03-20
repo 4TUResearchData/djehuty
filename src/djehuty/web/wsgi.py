@@ -2863,8 +2863,7 @@ class ApiServer:
         if self.accepts_html (request):
             search_for = self.get_parameter(request, "search")
             if search_for is None:
-                return self.__render_template (request, "search.html", search_for="",
-                                               articles=[], dataset_count=0, display_terms=[])
+                search_for = ""
 
             search_for = search_for.strip()
             operators_mapping = {"(":"(", ")":")", "AND":"&&", "OR":"||"}
