@@ -2531,7 +2531,7 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        #handle abnormal pattern /collection/<slug>/<collection_id> instead of /collection/<collection_id>/<version>
+        #handle abnormal pattern /collections/<slug>/<collection_id> instead of /collections/<collection_id>/<version>
         if collection_id is not None and version is not None:
             normal_pattern = False
             try:
