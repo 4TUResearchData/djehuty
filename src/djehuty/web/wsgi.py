@@ -2266,9 +2266,14 @@ class ApiServer:
         except (IndexError, KeyError):
             pass
 
+        show_feedback_form_notice = False
+        if self.db.feedback_reviewer_email_addresses():
+            show_feedback_form_notice = True
+
         return self.__render_template (request, "portal.html",
                                        summary_data=summary_data,
-                                       latest = latest)
+                                       latest = latest,
+                                       show_feedback_form_notice = show_feedback_form_notice)
 
     def ui_categories (self, request, category_id):
         """Implements /categories/<id>."""
