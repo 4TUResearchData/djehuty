@@ -353,7 +353,7 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
                 if (file.name === null) {
                     file.name = file.download_url;
                 }
-                let html = `<tr><td><a href="${file.download_url}">${file.name}</a> (${prettify_size(file.size)})</td>`;
+                let html = `<tr><td><a href="/file/${dataset_uuid}/${file.uuid}">${file.name}</a> (${prettify_size(file.size)})</td>`;
                 html += `<td>${render_in_form(file["computed_md5"])}</td>`;
                 html += `<td><a href="#" onclick="javascript:remove_file('${file.uuid}',`;
                 html += ` '${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
