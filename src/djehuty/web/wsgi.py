@@ -2750,7 +2750,7 @@ class ApiServer:
             ## Data stored before Djehuty went into production requires a few tweaks.
             ## Only apply these quirks when enabled.
             if self.db.secondary_storage_quirks:
-                transformed_name = file_info['name'].replace(" ", "").replace("-", "")
+                transformed_name = file_info['name'].replace(" ", "").replace("-", "").replace(",", "").replace("(", "").replace(")", "")
                 file_path = f"{self.db.secondary_storage}/{file_info['id']}/{transformed_name}"
 
         return file_path
