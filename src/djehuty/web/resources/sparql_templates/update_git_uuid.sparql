@@ -14,7 +14,7 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?container            rdf:type             djht:DatasetContainer ;
                           djht:draft           ?dataset .
-    ?dataset              djht:git_uuid        ?git_uuid .
+    OPTIONAL { ?dataset   djht:git_uuid        ?git_uuid . }
   }
   FILTER (?dataset = <dataset:{{dataset_uuid}}>)
 }

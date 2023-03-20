@@ -5294,6 +5294,14 @@ class ApiServer:
         if dataset is None:
             return self.error_404 (request)
 
+        # Pre-Djehuty datasets may not have a Git UUID. We therefore
+        # assign one when needed.
+        if "git_uuid" not in dataset:
+            self.db.update_dataset_git_uuid (dataset["uuid"], account_uuid)
+            dataset = self.db.datasets (account_uuid = account_uuid,
+                                        dataset_uuid = dataset["uuid"],
+                                        is_published = False)
+
         git_directory  = f"{self.db.storage}/{dataset['git_uuid']}.git"
         if not os.path.exists (git_directory):
             return self.response ("[]")
