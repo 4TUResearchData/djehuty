@@ -732,6 +732,7 @@ class ApiServer:
         """Gathers a complete collection record and formats it."""
         try:
             uri = collection["uri"]
+            collection["base_url"] = self.base_url
             datasets_count = self.db.collections_dataset_count (collection_uri = uri)
             fundings       = self.db.fundings (item_uri = uri, item_type="collection")
             categories     = self.db.categories (item_uri = uri, limit = None)
@@ -1054,11 +1055,12 @@ class ApiServer:
     def __reviewer_account_uuid (self, request):
         return self.__account_uuid_for_privilege (request, self.db.may_review)
 
-    def default_list_response (self, records, format_function):
+    def default_list_response (self, records, format_function, **parameters):
         """Procedure to respond a list of items."""
         output     = []
         try:
-            output = list(map (format_function, records))
+            for record in records:
+                output.append(format_function ({ **parameters, **record}))
         except TypeError:
             self.log.error ("%s: A TypeError occurred.", format_function)
 
@@ -3030,7 +3032,8 @@ class ApiServer:
             record  = self.__default_dataset_api_parameters (request)
             record["is_latest"] = 1
             records = self.db.datasets (**record)
-            return self.default_list_response (records, formatter.format_dataset_record)
+            return self.default_list_response (records, formatter.format_dataset_record,
+                                               base_url = self.base_url)
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
@@ -3044,7 +3047,8 @@ class ApiServer:
         try:
             record  = self.__default_dataset_api_parameters (request.get_json())
             records = self.db.datasets (**record)
-            return self.default_list_response (records, formatter.format_dataset_record)
+            return self.default_list_response (records, formatter.format_dataset_record,
+                                               base_url = self.base_url)
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
@@ -3065,6 +3069,10 @@ class ApiServer:
 
         try:
             dataset         = self.__dataset_by_id_or_uri (dataset_id, account_uuid=None, is_latest=True)
+
+            # Passing along the base_url here to generate the API links.
+            dataset["base_url"] = self.base_url
+
             dataset_uri     = dataset["uri"]
             authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
             files           = self.db.dataset_files(dataset_uri=dataset_uri)
@@ -3106,7 +3114,8 @@ class ApiServer:
             return self.error_404 (request)
 
         versions  = self.db.dataset_versions (container_uri=container["container_uri"])
-        return self.default_list_response (versions, formatter.format_version_record)
+        return self.default_list_response (versions, formatter.format_dataset_version_record,
+                                           base_url = self.base_url)
 
     def api_dataset_version_details (self, request, dataset_id, version):
         """Implements /v2/articles/<id>/versions/<version>."""
@@ -3118,6 +3127,9 @@ class ApiServer:
             dataset       = self.__dataset_by_id_or_uri (dataset_id,
                                                          is_published = True,
                                                          version = version)
+
+            # Passing along the base_url here to generate the API links.
+            dataset["base_url"] = self.base_url
 
             dataset_uri   = dataset["uri"]
             authors       = self.db.authors(item_uri=dataset_uri, item_type="dataset")
@@ -3247,7 +3259,8 @@ class ApiServer:
                                             is_published = False,
                                             account_uuid=account_uuid)
 
-                return self.default_list_response (records, formatter.format_dataset_record)
+                return self.default_list_response (records, formatter.format_dataset_record,
+                                                   base_url = self.base_url)
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
@@ -4472,7 +4485,8 @@ class ApiServer:
                 is_published    = False
             )
 
-            return self.default_list_response (records, formatter.format_dataset_record)
+            return self.default_list_response (records, formatter.format_dataset_record,
+                                               base_url = self.base_url)
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
@@ -4517,7 +4531,8 @@ class ApiServer:
                                            doi=doi,
                                            handle=handle)
 
-            return self.default_list_response (records, formatter.format_collection_record)
+            return self.default_list_response (records, formatter.format_collection_record,
+                                               base_url = self.base_url)
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
@@ -4544,7 +4559,8 @@ class ApiServer:
             search_for      = value_or_none (parameters, "search_for")
         )
 
-        return self.default_list_response (records, formatter.format_collection_record)
+        return self.default_list_response (records, formatter.format_collection_record,
+                                           base_url = self.base_url)
 
     def api_collection_details (self, request, collection_id):
         """Implements /v2/collections/<id>."""
@@ -4575,7 +4591,8 @@ class ApiServer:
             uri      = uuid_to_uri (collection_id, "container")
             versions = self.db.collection_versions (container_uri = uri)
 
-        return self.default_list_response (versions, formatter.format_version_record)
+        return self.default_list_response (versions, formatter.format_collection_version_record,
+                                           base_url = self.base_url)
 
     def api_collection_version_details (self, request, collection_id, version):
         """Implements /v2/collections/<id>/versions/<version>."""
@@ -4630,7 +4647,8 @@ class ApiServer:
                                            handle=handle,
                                            account_uuid=account_uuid)
 
-            return self.default_list_response (records, formatter.format_collection_record)
+            return self.default_list_response (records, formatter.format_collection_record,
+                                               base_url = self.base_url)
 
         if request.method == 'POST':
             record = request.get_json()
@@ -4796,7 +4814,8 @@ class ApiServer:
             account_uuid    = account_uuid
         )
 
-        return self.default_list_response (records, formatter.format_dataset_record)
+        return self.default_list_response (records, formatter.format_dataset_record,
+                                           base_url = self.base_url)
 
     def api_private_collection_authors (self, request, collection_id):
         """Implements /v2/account/collections/<id>/authors."""
@@ -4945,7 +4964,8 @@ class ApiServer:
 
                 datasets   = self.db.datasets (collection_uri = collection["uri"], is_latest=True)
 
-                return self.default_list_response (datasets, formatter.format_dataset_record)
+                return self.default_list_response (datasets, formatter.format_dataset_record,
+                                                   base_url = self.base_url)
             except (IndexError, KeyError):
                 pass
 
@@ -5031,7 +5051,8 @@ class ApiServer:
                 return self.error_404 (request)
 
             datasets   = self.db.datasets (collection_uri = collection["uri"])
-            return self.default_list_response (datasets, formatter.format_dataset_record)
+            return self.default_list_response (datasets, formatter.format_dataset_record,
+                                               base_url = self.base_url)
         except (IndexError, KeyError):
             pass
 
@@ -5174,7 +5195,8 @@ class ApiServer:
         if record["return_count"]:
             return self.response (json.dumps(records[0]))
 
-        return self.default_list_response (records, formatter.format_dataset_record)
+        return self.default_list_response (records, formatter.format_dataset_record,
+                                           base_url = self.base_url)
 
     def __api_v3_datasets_parameters (self, request, item_type):
         record = {}

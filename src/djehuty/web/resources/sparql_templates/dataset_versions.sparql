@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?dataset_uri ?dataset_id ?version ?url ?url_public_api ?posted_date
+SELECT DISTINCT ?dataset_uri ?dataset_id ?version ?url ?url_public_api ?posted_date ?container_uuid ?uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri rdf:type             djht:DatasetContainer .
@@ -12,6 +12,9 @@ WHERE {
     OPTIONAL { ?dataset_uri djht:url             ?url . }
     OPTIONAL { ?dataset_uri djht:url_public_api  ?url_public_api . }
     OPTIONAL { ?container_uri djht:dataset_id ?dataset_id . }
+
+    BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
+    BIND(STRAFTER(STR(?dataset_uri), "dataset:")     AS ?uuid)
   }
 {%- if container_uri is not none %}
   FILTER (?container_uri = <{{container_uri}}>)

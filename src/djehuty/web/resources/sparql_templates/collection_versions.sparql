@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?collection_uri ?collection_id ?version ?url ?url_public_api ?posted_date
+SELECT DISTINCT ?collection_uri ?collection_id ?version ?url ?url_public_api ?posted_date ?container_uuid ?uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri  rdf:type            djht:CollectionContainer .
@@ -11,6 +11,9 @@ WHERE {
     OPTIONAL { ?collection_uri djht:url_public_api ?url_public_api . }
     OPTIONAL { ?container_uri  djht:collection_id  ?collection_id . }
     OPTIONAL { ?url            djht:url            ?url . }
+
+    BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
+    BIND(STRAFTER(STR(?collection_uri), "collection:") AS ?uuid)
   }
 {%- if filters is not none %}{{ filters | safe }}{% endif %}
 }

@@ -18,6 +18,52 @@ def format_account_record (record):
         "orcid_id":       conv.value_or (record, "orcid_id", ""),
     }
 
+def collection_urls (record):
+    """Returns generated variants of public-facing collection URLs when possible."""
+    if "base_url" in record:
+        version = ""
+        if "version" in record:
+            version = f"/{record['version']}"
+
+        return {
+            "url":              f"{record['base_url']}/v2/collections/{record['container_uuid']}",
+            "url_private_api":  f"{record['base_url']}/v2/account/collections/{record['container_uuid']}",
+            "url_public_api":   f"{record['base_url']}/v2/collections/{record['container_uuid']}",
+            "url_private_html": f"{record['base_url']}/my/collections/{record['container_uuid']}/edit",
+            "url_public_html":  f"{record['base_url']}/collections/{record['container_uuid']}{version}"
+        }
+
+    return {
+        "url":              conv.value_or_none(record, "url"),
+        "url_private_api":  conv.value_or_none(record, "url_private_api"),
+        "url_public_api":   conv.value_or_none(record, "url_public_api"),
+        "url_private_html": conv.value_or_none(record, "url_private_html"),
+        "url_public_html":  conv.value_or_none(record, "url_public_html")
+    }
+
+def dataset_urls (record):
+    """Returns generated variants of public-facing dataset URLs when possible."""
+
+    if "base_url" in record:
+        version = ""
+        if "version" in record:
+            version = f"/{record['version']}"
+        return {
+            "url":              f"{record['base_url']}/v2/articles/{record['container_uuid']}",
+            "url_private_api":  f"{record['base_url']}/v2/account/articles/{record['container_uuid']}",
+            "url_public_api":   f"{record['base_url']}/v2/articles/{record['container_uuid']}",
+            "url_private_html": f"{record['base_url']}/my/datasets/{record['container_uuid']}/edit",
+            "url_public_html":  f"{record['base_url']}/datasets/{record['container_uuid']}{version}"
+        }
+
+    return {
+        "url":              conv.value_or_none(record, "url"),
+        "url_private_api":  conv.value_or_none(record, "url_private_api"),
+        "url_public_api":   conv.value_or_none(record, "url_public_api"),
+        "url_private_html": conv.value_or_none(record, "url_private_html"),
+        "url_public_html":  conv.value_or_none(record, "url_public_html")
+    }
+
 def format_dataset_record (record):
     """Record formatter for datasets."""
 
@@ -29,23 +75,23 @@ def format_dataset_record (record):
             "embargo_title":  conv.value_or(record, "embargo_title", ""),
             "embargo_reason": conv.value_or(record, "embargo_reason", ""),
         }
-
+    urls = dataset_urls (record)
     return {
         "id":                      conv.value_or_none(record, "dataset_id"),
         "uuid":                    conv.value_or_none(record, "container_uuid"),
         "title":                   conv.value_or_none(record, "title"),
         "doi":                     conv.value_or_none(record, "doi"),
         "handle":                  conv.value_or_none(record, "handle"),
-        "url":                     conv.value_or_none(record, "url"),
+        "url":                     conv.value_or_none(urls, "url"),
         "published_date":          conv.value_or_none(record, "published_date"),
         "thumb":                   conv.value_or_none(record, "thumb"),
         "defined_type":            conv.value_or_none(record, "defined_type"),
         "defined_type_name":       conv.value_or_none(record, "defined_type_name"),
         "group_id":                conv.value_or_none(record, "group_id"),
-        "url_private_api":         conv.value_or_none(record, "url_private_api"),
-        "url_public_api":          conv.value_or_none(record, "url_public_api"),
-        "url_private_html":        conv.value_or_none(record, "url_private_html"),
-        "url_public_html":         conv.value_or_none(record, "url_public_html"),
+        "url_private_api":         conv.value_or_none(urls, "url_private_api"),
+        "url_public_api":          conv.value_or_none(urls, "url_public_api"),
+        "url_private_html":        conv.value_or_none(urls, "url_private_html"),
+        "url_public_html":         conv.value_or_none(urls, "url_public_html"),
         "timeline": {
             "posted":              conv.value_or_none(record, "timeline_posted"),
             "firstOnline":         conv.value_or_none(record, "timeline_first_online"),
@@ -173,6 +219,7 @@ def format_dataset_details_record (dataset, authors, files, custom_fields,
     if is_restricted:
         embargo_option = { "id": 1000, "type": "restricted_access" }
 
+    urls = dataset_urls (dataset)
     return {
         "files":             list (map (format_file_for_dataset_record, files)),
         "custom_fields":     list (map (format_custom_field_record, custom_fields)),
@@ -212,16 +259,16 @@ def format_dataset_details_record (dataset, authors, files, custom_fields,
         "title":             conv.value_or_none(dataset, "title"),
         "doi":               conv.value_or_none(dataset, "doi"),
         "handle":            conv.value_or(dataset, "handle", ""),
-        "url":               conv.value_or_none(dataset, "url"),
+        "url":               conv.value_or_none(urls, "url"),
         "published_date":    conv.value_or_none(dataset, "published_date"),
         "thumb":             conv.value_or(dataset, "thumb", ""),
         "defined_type":      conv.value_or_none(dataset, "defined_type"),
         "defined_type_name": conv.value_or_none(dataset, "defined_type_name"),
         "group_id":          conv.value_or_none(dataset, "group_id"),
-        "url_private_api":   conv.value_or_none(dataset, "url_private_api"),
-        "url_public_api":    conv.value_or_none(dataset, "url_public_api"),
-        "url_private_html":  conv.value_or_none(dataset, "url_private_html"),
-        "url_public_html":   conv.value_or_none(dataset, "url_public_html"),
+        "url_private_api":   conv.value_or_none(urls, "url_private_api"),
+        "url_public_api":    conv.value_or_none(urls, "url_public_api"),
+        "url_private_html":  conv.value_or_none(urls, "url_private_html"),
+        "url_public_html":   conv.value_or_none(urls, "url_public_html"),
         "timeline": {
             "posted":        conv.value_or_none(dataset, "timeline_posted"),
             "revision":      conv.value_or_none(dataset, "timeline_revision"),
@@ -280,13 +327,14 @@ def format_dataset_version_record (record):
 
 def format_collection_record (record):
     """Record formatter for collections."""
+    urls = collection_urls (record)
     return {
         "id":                conv.value_or_none(record, "collection_id"),
         "uuid":              conv.value_or_none(record, "container_uuid"),
         "title":             conv.value_or_none(record, "title"),
         "doi":               conv.value_or_none(record, "doi"),
         "handle":            conv.value_or(record, "handle", ""),
-        "url":               conv.value_or_none(record, "url"),
+        "url":               conv.value_or_none(urls, "url"),
         "timeline": {
             "posted":        conv.value_or_none(record, "timeline_posted"),
             "submission":    conv.value_or_none(record, "timeline_submission"),
@@ -301,6 +349,7 @@ def format_collection_details_record (collection, funding, categories,
                                       references, tags, authors, custom_fields,
                                       datasets_count):
     """Detailed record formatter for collections."""
+    urls = collection_urls (collection)
     return {
         "version":           conv.value_or_none(collection, "version"),
         "resource_id":       conv.value_or(collection, "resource_id", ""),
@@ -328,7 +377,7 @@ def format_collection_details_record (collection, funding, categories,
         "title":             conv.value_or_none(collection, "title"),
         "doi":               conv.value_or_none(collection, "doi"),
         "handle":            conv.value_or(collection, "handle", ""),
-        "url":               conv.value_or_none(collection, "url"),
+        "url":               conv.value_or_none(urls, "url"),
         "published_date":    conv.value_or_none(collection, "published_date"),
         "timeline": {
             "posted":               conv.value_or_none(collection, "timeline_posted"),
@@ -351,14 +400,22 @@ def format_funding_record (record):
         "url":               conv.value_or_none(record, "url")
     }
 
-def format_version_record (record):
-    """Record formatter for versions."""
+def format_collection_version_record (record):
+    """Record formatter for versions of collections."""
     version = conv.value_or_none (record, "version")
-    url     = conv.value_or_none (record, "url_public_api")
-
+    urls    = collection_urls (record)
     return {
         "version": version,
-        "url": f"{url}/versions/{version}"
+        "url": f"{urls['url_public_api']}/versions/{version}"
+    }
+
+def format_dataset_version_record (record):
+    """Record formatter for versions of datasets."""
+    version = conv.value_or_none (record, "version")
+    urls    = dataset_urls (record)
+    return {
+        "version": version,
+        "url": f"{urls['url_public_api']}/versions/{version}"
     }
 
 def format_private_links_record (record):
