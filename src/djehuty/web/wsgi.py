@@ -3218,9 +3218,12 @@ class ApiServer:
             return handler
 
         dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=True)
-        files   = self.db.dataset_files (dataset_uri=dataset["uri"])
+        if dataset is None:
+            return self.error_404 (request)
 
-        return self.default_list_response (files, formatter.format_file_for_dataset_record)
+        files   = self.db.dataset_files (dataset_uri=dataset["uri"])
+        return self.default_list_response (files, formatter.format_file_for_dataset_record,
+                                           base_url = self.base_url)
 
     def api_dataset_file_details (self, request, dataset_id, file_id):
         """Implements /v2/articles/<id>/files/<fid>."""
@@ -3232,6 +3235,9 @@ class ApiServer:
             dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=True)
             files   = self.__file_by_id_or_uri (file_id,
                                                 dataset_uri = dataset["uri"])
+
+            for item in files:
+                item["base_url"] = self.base_url
 
             results = formatter.format_file_for_dataset_record (files)
             return self.response (json.dumps(results))
@@ -3989,7 +3995,8 @@ class ApiServer:
                     account_uuid = account_uuid,
                     limit      = validator.integer_value (request.args, "limit"))
 
-                return self.default_list_response (files, formatter.format_file_for_dataset_record)
+                return self.default_list_response (files, formatter.format_file_for_dataset_record,
+                                                   base_url = self.base_url)
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
@@ -4069,7 +4076,8 @@ class ApiServer:
                                                     account_uuid = account_uuid,
                                                     dataset_uri = dataset["uri"])
 
-                return self.default_list_response (files, formatter.format_file_details_record)
+                return self.default_list_response (files, formatter.format_file_details_record,
+                                                   base_url = self.base_url)
             except (IndexError, KeyError):
                 pass
 
@@ -5869,6 +5877,7 @@ class ApiServer:
             return self.error_404 (request)
 
         try:
+            metadata["base_url"] = self.base_url
             return self.response (json.dumps (formatter.format_file_details_record (metadata)))
         except KeyError:
             return self.error_500()

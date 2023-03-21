@@ -129,21 +129,31 @@ def format_author_details_record (record):
       "url_name":       conv.value_or_none(record, "url_name")
     }
 
+def file_download_url (record):
+    """Returns a generated download_url or its default."""
+
+    if "base_url" in record and not conv.value_or(record, "is_link_only", False):
+        return f"{record['base_url']}/file/{record['container_uuid']}/{record['uuid']}"
+
+    return conv.value_or_none(record, "download_url")
+
 def format_file_for_dataset_record (record):
     """Record formatter for files."""
+    download_url = file_download_url (record)
     return {
       "id":           conv.value_or_none(record, "id"),
       "uuid":         conv.value_or_none(record, "uuid"),
       "name":         conv.value_or_none(record, "name"),
       "size":         conv.value_or_none(record, "size"),
       "is_link_only": bool(conv.value_or_none(record, "is_link_only")),
-      "download_url": conv.value_or_none(record, "download_url"),
+      "download_url": download_url,
       "supplied_md5": conv.value_or_none(record, "supplied_md5"),
       "computed_md5": conv.value_or_none(record, "computed_md5")
     }
 
 def format_file_details_record (record):
     """Detailed record formatter for files."""
+    download_url = file_download_url (record)
     return {
       "status":        conv.value_or_none(record, "status"),
       "viewer_type":   conv.value_or_none(record, "viewer_type"),
@@ -155,7 +165,7 @@ def format_file_details_record (record):
       "name":          conv.value_or_none(record, "name"),
       "size":          conv.value_or_none(record, "size"),
       "is_link_only":  conv.value_or_none(record, "is_link_only"),
-      "download_url":  conv.value_or_none(record, "download_url"),
+      "download_url":  download_url,
       "supplied_md5":  conv.value_or_none(record, "supplied_md5"),
       "computed_md5":  conv.value_or_none(record, "computed_md5")
     }
@@ -220,6 +230,10 @@ def format_dataset_details_record (dataset, authors, files, custom_fields,
         embargo_option = { "id": 1000, "type": "restricted_access" }
 
     urls = dataset_urls (dataset)
+    if "base_url" in dataset:
+        for item in files:
+            item['base_url'] = dataset['base_url']
+
     return {
         "files":             list (map (format_file_for_dataset_record, files)),
         "custom_fields":     list (map (format_custom_field_record, custom_fields)),
