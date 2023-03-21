@@ -318,13 +318,6 @@ def format_dataset_confidentiality_record (dataset):
         "reason": conv.value_or(dataset, "confidential_reason", ""),
     }
 
-def format_dataset_version_record (record):
-    """Record formatter for dataset versions."""
-    return {
-        "version":           conv.value_or_none(record, "version"),
-        "url":               conv.value_or_none(record, "url")
-    }
-
 def format_collection_record (record):
     """Record formatter for collections."""
     urls = collection_urls (record)
