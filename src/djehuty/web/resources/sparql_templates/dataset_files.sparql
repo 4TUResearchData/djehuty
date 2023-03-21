@@ -5,17 +5,18 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?computed_md5  ?viewer_type   ?preview_state
                 ?status        ?upload_url    ?upload_token
                 ?order_index   ?uuid          ?filesystem_location
+                ?container_uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                djht:File .
     {% if dataset_uri is not none %}
     ?dataset_uri       rdf:type                djht:Dataset ;
+                       djht:container          ?container ;
                        djht:files              ?files .
     ?files             rdf:rest*               ?rest .
     ?rest              rdf:first               ?file ;
                        djht:index              ?order_index .
     {% endif %}{% if account_uuid is not none %}
-    ?dataset_uri       djht:container           ?container .
     ?container         rdf:type/rdfs:subClassOf djht:Container ;
                        djht:account             <account:{{account_uuid}}> .
     {% endif %}
@@ -35,6 +36,7 @@ WHERE {
     OPTIONAL { ?file  djht:upload_token         ?upload_token . }
 
     BIND(STRAFTER(STR(?file), "file:") AS ?uuid)
+    BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
   }
   {%- if account_uuid is none %}
   FILTER (! (BOUND(?embargo_until_date) && ?embargo_until_date > NOW()))
