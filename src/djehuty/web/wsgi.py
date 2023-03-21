@@ -2232,6 +2232,8 @@ class ApiServer:
                                            email = record["email"],
                                            success_message = "Thank you! Your feedback has been sent.")
 
+        return self.error_405 (["GET", "POST"])
+
     def ui_portal (self, request):
         """Implements /portal."""
         if not self.accepts_html (request):
