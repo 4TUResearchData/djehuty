@@ -40,7 +40,7 @@ function latest_datasets () {
                 output += '<li class="datasets-stage datasets-stage-five">';
             }
 
-            output += '<a href="/datasets/'+ data[index].id +'">';
+            output += '<a href="/datasets/'+ data[index].container_uuid +'">';
             output += data[index].title + '</a></li>';
 
             num_items += 1;
