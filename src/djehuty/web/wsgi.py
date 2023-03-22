@@ -3375,6 +3375,9 @@ class ApiServer:
                     return self.response ("[]")
 
                 dataset_uri     = dataset["uri"]
+                dataset["doi"]  = self.__standard_doi (dataset["container_uuid"],
+                                                       version = None,
+                                                       container_doi = value_or_none (dataset, "container_doi"))
                 authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
                 files           = self.db.dataset_files(dataset_uri=dataset_uri, account_uuid=account_uuid)
                 custom_fields   = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
