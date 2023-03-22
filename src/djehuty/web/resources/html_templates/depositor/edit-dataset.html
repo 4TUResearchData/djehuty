@@ -122,7 +122,11 @@ jQuery(document).ready(function (){
 {% endblock %}
 {% block submenu %}
 <ul>
+  {%- if article.is_under_review and is_reviewing %}
+  <li><a href="/logout">&#8592; Go back</a>
+  {%- else %}
   <li><a href="/my/datasets">&#8592; Go back</a>
+  {%- endif %}
   <li class="active">Edit dataset
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save draft</a>
   {%- if not article.is_under_review %}
