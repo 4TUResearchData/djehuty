@@ -1482,7 +1482,8 @@ class ApiServer:
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                    is_published = False,
-                                                   account_uuid = account_uuid)
+                                                   account_uuid = account_uuid,
+                                                   use_cache    = False)
 
             if dataset is None:
                 return self.error_403 (request)
