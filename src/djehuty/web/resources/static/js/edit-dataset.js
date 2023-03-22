@@ -630,7 +630,7 @@ function activate (dataset_uuid) {
         var fileUploader = new Dropzone("#dropzone-field", {
             url:               `/v3/datasets/${dataset_uuid}/upload`,
             paramName:         "file",
-            maxFilesize:       10000,
+            maxFilesize:       1000000,
             maxFiles:          1000000,
             parallelUploads:   1000000,
             ignoreHiddenFiles: false,
