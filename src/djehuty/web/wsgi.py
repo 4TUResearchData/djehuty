@@ -576,6 +576,16 @@ class ApiServer:
     ## GENERAL HELPERS
     ## ----------------------------------------------------------------------------
 
+    def __standard_doi (self, container_uuid, version=None, container_doi=None):
+        """Standard doi for datasets/collections."""
+
+        if not container_doi:
+            container_doi = f'{self.datacite_prefix}/{container_uuid}'
+        doi = container_doi
+        if version:
+            doi += f'.v{version}'
+        return doi
+
     def __dataset_by_id_or_uri (self, identifier, account_uuid=None,
                                 is_published=True, is_latest=False,
                                 is_under_review=None, version=None,
@@ -4280,16 +4290,6 @@ class ApiServer:
 
         return self.error_500 ()
 
-    def standard_doi (self, container_uuid, version=None, container_doi=None):
-        """ Standard doi for new datasets/collections """
-
-        if not container_doi:
-            container_doi = f'{self.datacite_prefix}/{container_uuid}'
-        doi = container_doi
-        if version:
-            doi += f'.v{version}'
-        return doi
-
     def __datacite_reserve_doi (self, doi=None):
         """
         Reserve a DOI at DataCite and return its API response on success or
@@ -4338,7 +4338,7 @@ class ApiServer:
         if collection is None:
             return self.error_403 (request)
 
-        data = self.__datacite_reserve_doi (self.standard_doi(collection_id))
+        data = self.__datacite_reserve_doi (self.__standard_doi (collection_id))
         if data is None:
             return self.error_500 ()
 
@@ -4365,8 +4365,8 @@ class ApiServer:
             return False
 
         container_uuid = item["container_uuid"]
-        doi = self.standard_doi(container_uuid, version,
-                                value_or_none(item, "container_doi"))
+        doi = self.__standard_doi (container_uuid, version,
+                                   value_or_none (item, "container_doi"))
         if doi.split("/")[0] != self.datacite_prefix:
             self.log.error ("Doi %s of %s has wrong prefix", doi, container_uuid)
             return False
@@ -6479,8 +6479,8 @@ class ApiServer:
         lon = self_or_value_or_none(item, 'longitude')
         lat_valid, lon_valid = decimal_coords(lat, lon)
         coordinates = {'lat_valid': lat_valid, 'lon_valid': lon_valid}
-        doi = value_or(item, 'doi', self.standard_doi(container_uuid, version,
-                                                      value_or_none(container, "doi")))
+        doi = value_or (item, 'doi', self.__standard_doi (container_uuid, version,
+                                                          value_or_none (container, "doi")))
         parameters = {
             'item'          : item,
             'doi'           : doi,
