@@ -794,6 +794,21 @@ class ApiServer:
                          request.method,
                          request.full_path)
 
+    def __add_or_update_git_uuid_for_dataset (self, dataset, account_uuid):
+        """Adds or updates the Git UUID for DATASET."""
+        if "uuid" not in dataset:
+            self.log.error ("Refusing to update Git UUID for dataset without UUID.")
+            return False
+
+        succeeded, git_uuid = self.db.update_dataset_git_uuid (dataset["uuid"], account_uuid)
+        if not succeeded:
+            self.log.error ("Updating the Git UUID of '%s' failed.", dataset["uuid"])
+            return False
+
+        self.log.info ("Updated the Git UUID of '%s'.", dataset["uuid"])
+        dataset["git_uuid"] = git_uuid
+        return True
+
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
 
@@ -1471,6 +1486,12 @@ class ApiServer:
 
             if dataset is None:
                 return self.error_403 (request)
+
+            # Pre-Djehuty datasets may not have a Git UUID. We therefore
+            # assign one when needed.
+            if "git_uuid" not in dataset:
+                if not self.__add_or_update_git_uuid_for_dataset (dataset, account_uuid):
+                    return self.error_500 ()
 
             categories = self.db.categories_tree ()
             account    = self.db.account_by_uuid (account_uuid)
@@ -5332,10 +5353,8 @@ class ApiServer:
         # Pre-Djehuty datasets may not have a Git UUID. We therefore
         # assign one when needed.
         if "git_uuid" not in dataset:
-            self.db.update_dataset_git_uuid (dataset["uuid"], account_uuid)
-            dataset = self.db.datasets (account_uuid = account_uuid,
-                                        dataset_uuid = dataset["uuid"],
-                                        is_published = False)
+            if not self.__add_or_update_git_uuid_for_dataset (dataset, account_uuid):
+                return self.error_500 ()
 
         git_directory  = f"{self.db.storage}/{dataset['git_uuid']}.git"
         if not os.path.exists (git_directory):
