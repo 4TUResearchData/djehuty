@@ -578,7 +578,8 @@ class ApiServer:
 
     def __dataset_by_id_or_uri (self, identifier, account_uuid=None,
                                 is_published=True, is_latest=False,
-                                is_under_review=None, version = None):
+                                is_under_review=None, version=None,
+                                use_cache=True):
         try:
             if version is not None and not parses_to_int (version):
                 return None
@@ -591,6 +592,7 @@ class ApiServer:
                                             is_under_review = is_under_review,
                                             version      = version,
                                             account_uuid = account_uuid,
+                                            use_cache    = use_cache,
                                             limit        = 1)[0]
             elif validator.is_valid_uuid (identifier):
                 dataset = self.db.datasets (container_uuid = identifier,
@@ -599,6 +601,7 @@ class ApiServer:
                                             is_under_review = is_under_review,
                                             version        = version,
                                             account_uuid   = account_uuid,
+                                            use_cache      = use_cache,
                                             limit          = 1)[0]
 
             return dataset
