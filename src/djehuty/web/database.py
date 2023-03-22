@@ -956,15 +956,19 @@ class SparqlInterface:
     def update_dataset_git_uuid (self, dataset_uuid, account_uuid):
         """Procedure to update the Git UUID of a draft dataset."""
 
+        new_git_uuid = str(uuid.uuid4())
         query = self.__query_from_template ("update_git_uuid", {
             "dataset_uuid": dataset_uuid,
-            "git_uuid":     rdf.escape_string_value (str (uuid.uuid4()))
+            "git_uuid":     rdf.escape_string_value (new_git_uuid)
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
 
-        return self.__run_query (query)
+        if self.__run_query (query):
+            return True, new_git_uuid
+
+        return False, None
 
     def insert_dataset (self,
                         title,
