@@ -2099,7 +2099,7 @@ class ApiServer:
         """Implements /review/unassign/<id>."""
         account_uuid, error_response = self.__reviewer_account_uuid (request)
         if error_response is not None:
-            self.log.error ("Account %d attempted a reviewer action.", account_uuid)
+            self.log.error ("Account %s attempted a reviewer action.", account_uuid)
             return error_response
 
         dataset = None
@@ -2125,7 +2125,7 @@ class ApiServer:
         """Implements /review/published/<id>."""
         account_uuid, error_response = self.__reviewer_account_uuid (request)
         if error_response is not None:
-            self.log.error ("Account %d attempted a reviewer action.", account_uuid)
+            self.log.error ("Account %s attempted a reviewer action.", account_uuid)
             return error_response
 
         dataset = self.__dataset_by_id_or_uri (dataset_id,
@@ -6425,7 +6425,7 @@ class ApiServer:
         account_uuid = self.account_uuid_from_request (request)
         token = self.token_from_cookie (request)
         if not self.db.may_review (token):
-            self.log.error ("Account %d attempted a reviewer action.", account_uuid)
+            self.log.error ("Account %s attempted a reviewer action.", account_uuid)
             return self.error_403 (request)
 
         reviewer = self.db.account_by_uuid (reviewer_uuid)
