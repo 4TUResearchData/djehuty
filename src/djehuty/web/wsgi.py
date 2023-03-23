@@ -257,6 +257,7 @@ class ApiServer:
             Rule("/v2/account/funding/search",                endpoint = "api_private_funding_search"),
             Rule("/v2/licenses",                              endpoint = "api_licenses"),
             Rule("/v2/categories",                            endpoint = "api_categories"),
+            Rule("/v2/account",                               endpoint = "api_account"),
 
             ## ----------------------------------------------------------------
             ## V3 API
@@ -3107,6 +3108,19 @@ class ApiServer:
 
         records = self.db.categories(limit=None)
         return self.default_list_response (records, formatter.format_category_record)
+
+    def api_account (self, request):
+        """Implements /v2/account."""
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
+
+        token   = self.token_from_request (request)
+        account = self.db.account_by_session_token (token)
+        if account is None:
+            return self.error_authorization_failed (request)
+
+        return self.response (json.dumps(formatter.format_account_record (account)))
 
     def api_dataset_details (self, request, dataset_id):
         """Implements /v2/articles/<id>."""
