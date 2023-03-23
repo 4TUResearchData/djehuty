@@ -10,9 +10,7 @@ def value_or (record, key, other):
     """Return the value of KEY or OTHER."""
     try:
         return record[key]
-    except KeyError:
-        return other
-    except TypeError:
+    except (KeyError, TypeError):
         return other
 
 def value_or_none (record, key):
