@@ -5432,6 +5432,13 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
+        reviewer_account = self.db.account_by_session_token (token)
+        if not self.db.update_review (dataset["review_uri"],
+                                      author_account_uuid = dataset["account_uuid"],
+                                      assigned_to = reviewer_account["uuid"],
+                                      status      = "assigned"):
+            self.log.error ("Unable to assign reviewer before publishing for %s.", dataset_id)
+
         container_uuid = dataset["container_uuid"]
         container = self.db.container(container_uuid)
         new_version = value_or(container, 'latest_published_version_number', 0) + 1
