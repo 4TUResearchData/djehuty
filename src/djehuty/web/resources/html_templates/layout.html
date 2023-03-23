@@ -12,7 +12,7 @@
     {% block headers %}{% endblock %}
   </head>
   <body>
-    <div id="wrapper" {%- if path == "/portal" %} class="footer1"{% else %} class="footer2"{% endif %}>
+    <div id="wrapper" {%- if path == "/" %} class="footer1"{% else %} class="footer2"{% endif %}>
       {%- if impersonating_account %}
       {%- if is_reviewing %}
       <div id="pre-header-for-reviewer" class="pre-header">
@@ -30,7 +30,7 @@
       </div>
       {%- endif %}
       <div id="header">
-        <div id="header-left"><a href="/portal"><img id="logo" src="/static/images/logo.png" alt="4TU.ResearchData portal"></a></div>
+        <div id="header-left"><a href="/"><img id="logo" src="/static/images/logo.png" alt="4TU.ResearchData portal"></a></div>
         <div id="header-middle">
           <div id="search-box-wrapper">
             {%- if not maintenance_mode %}
@@ -87,7 +87,7 @@
           <div id="message"></div>
           {% block body %}{% endblock %}
         </div>
-        {%- if path == "/portal" %}<div id="content-spacer">{% else %}<div id="content-spacer2">{% endif %}</div>
+        {%- if path == "/" %}<div id="content-spacer">{% else %}<div id="content-spacer2">{% endif %}</div>
       </div>
     </div>
     <div id="footer">
@@ -103,7 +103,7 @@
             <img src="/static/images/logosleft-white-wageningen.png" alt="4TU Wageningen"></a>
         </div>
       </div>
-      {% if path == "/portal" %}
+      {% if path == "/" %}
       <div id="footer-wrapper">
       <div class="footer-column">
         <h2>About 4TU.ResearchData</h2>
