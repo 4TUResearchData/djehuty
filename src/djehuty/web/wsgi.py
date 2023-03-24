@@ -5911,21 +5911,20 @@ class ApiServer:
 
             output_filename = f"{self.db.storage}/{dataset_id}_{file_uuid}"
 
-            file_data.save (output_filename)
-            file_data.close()
-            if os.name != 'nt':
-                os.chmod (output_filename, 0o400)
-
-            file_size = 0
-            file_size = os.path.getsize (output_filename)
-
             computed_md5 = None
             md5 = hashlib.new ("md5", usedforsecurity=False)
-            with open(output_filename, "rb") as stream:
-                for chunk in iter(lambda: stream.read(4096), b""):
+            file_size = 0
+            destination_fd = os.open (output_filename, os.O_WRONLY | os.O_CREAT, 0o600)
+            with open (destination_fd, "wb") as destination_stream:
+                for chunk in iter(lambda: file_data.read(4096), b""):
                     md5.update(chunk)
-                    computed_md5 = md5.hexdigest()
+                    file_size += destination_stream.write (chunk)
 
+                # Make the file read-only from here on.
+                if os.name != 'nt':
+                    os.fchmod (destination_fd, 0o400)
+
+            computed_md5 = md5.hexdigest()
             download_url = f"{self.base_url}/file/{dataset_id}/{file_uuid}"
             self.db.update_file (account_uuid, file_uuid,
                                  computed_md5 = computed_md5,
