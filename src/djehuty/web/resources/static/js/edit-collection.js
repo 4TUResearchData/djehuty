@@ -119,7 +119,7 @@ function render_tags_for_collection (collection_id) {
         jQuery("#tags-list").empty();
         for (let tag of tags) {
             let row = `<li>${tag} &nbsp; <a href="#" class="fas fa-trash-can"`;
-            row += ` onclick="javascript:remove_tag('${tag}', `;
+            row += ` onclick="javascript:remove_tag('${encodeURIComponent(tag)}', `;
             row += `'${collection_id}'); return false;"></a></li>`;
             jQuery("#tags-list").append(row);
         }
