@@ -261,6 +261,14 @@ a:hover {
     color: #666666;
     text-decoration: underline;
 }
+#description pre {
+    border: none;
+    background: #f9f9f9;
+    padding: 0em;
+    margin: 0em auto 0em auto;
+    white-space: normal;
+}
+#description pre code { padding: 0em; }
 pre {
     border: 2pt dashed #ccc;
     background: #f9f9f9;
