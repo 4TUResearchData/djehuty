@@ -370,7 +370,7 @@ function reserve_doi (collection_id) {
         accept:      "application/json",
     }).done(function (record) {
         jQuery("#doi-wrapper p").replaceWith(
-            `<p>Reserved DOI is: <strong>${record["doi"]}</strong>.</p>`
+            `<p>The DOI of your collection will be: <strong>${record["doi"]}</strong></p>`
         );
     }).fail(function () {
         show_message ("failure", "<p>Failed to reserve DOI. Please try again later.</p>")
@@ -579,7 +579,7 @@ function activate (collection_id) {
         }
         if (data["doi"]) {
             jQuery("#doi-wrapper p").replaceWith(
-                `<p>Reserved DOI is: <strong>${data["doi"]}</strong>.</p>`
+                `<p>The DOI of your collection will be: <strong>${data["doi"]}</strong></p>`
             );
         }
         jQuery("#add-keyword-button").on("click", function(event) {

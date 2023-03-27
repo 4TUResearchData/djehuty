@@ -173,7 +173,7 @@ function reserve_doi (dataset_uuid) {
         accept:      "application/json",
     }).done(function (record) {
         jQuery("#doi-wrapper p").replaceWith(
-            `<p>Reserved DOI is: <strong>${record["doi"]}</strong>.</p>`
+            `<p>The DOI of your dataset will be: <strong>${record["doi"]}</strong></p>`
         );
     }).fail(function () {
         show_message ("failure", "<p>Failed to reserve DOI. Please try again later.</p>")
@@ -681,7 +681,7 @@ function activate (dataset_uuid) {
 
         if (data["doi"]) {
             jQuery("#doi-wrapper p").replaceWith(
-                `<p>Reserved DOI is: <strong>${data["doi"]}</strong>.</p>`
+                `<p>The DOI of your dataset will be: <strong>${data["doi"]}</strong></p>`
             );
         }
         if (data["agreed_to_deposit_agreement"]) {
