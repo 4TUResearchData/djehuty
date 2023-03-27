@@ -4781,6 +4781,9 @@ class ApiServer:
                 if collection is None:
                     return self.error_403 (request)
 
+                collection["doi"] = self.__standard_doi (collection["container_uuid"],
+                                                         version = None,
+                                                         container_doi = value_or_none (collection, "container_doi"))
                 total = self.__formatted_collection_record (collection)
                 return self.response (json.dumps(total))
 
