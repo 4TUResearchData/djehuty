@@ -76,7 +76,11 @@ activate ();
         <a href="/review/goto-dataset/{{review.dataset_uuid}}">{{review.dataset_title}}</a>
         {%- endif %}
       </td>
-      <td>{{review.dataset_version | default("0", False)}}</td>
+      {%- if review.has_published_version %}
+      <td>{{review.dataset_version | default("update", False)}}</td>
+      {%- else %}
+      <td>{{review.dataset_version | default("new", False)}}</td>
+      {% endif %}
       <td>
         {{review.submitter_first_name | default("", False)}}
         {{review.submitter_last_name | default("", False)}}

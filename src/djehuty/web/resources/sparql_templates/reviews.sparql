@@ -5,7 +5,7 @@ SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to
                 ?submitter_first_name ?submitter_last_name ?submitter_email
                 ?published_date ?container_uuid ?dataset_version ?declined_date
                 ?reviewer_email ?reviewer_first_name ?reviewer_last_name
-                ?modified_date (?status_label AS ?status)
+                ?modified_date (?status_label AS ?status) ?has_published_version
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review             rdf:type                 djht:Review ;
@@ -27,6 +27,7 @@ WHERE {
 
     ?container_uri      djht:account              ?account .
 
+    OPTIONAL { ?container_uri djht:latest_published_version ?published_version . }
     OPTIONAL {
       ?group            rdf:type                 djht:InstitutionGroup ;
                         djht:id                   ?group_id ;
@@ -54,6 +55,7 @@ WHERE {
     BIND(STRAFTER(STR(?dataset), "dataset:")  AS ?dataset_uuid)
     BIND(STRAFTER(STR(?account), "account:")  AS ?account_uuid)
     BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)
+    BIND(BOUND(?published_version)            AS ?has_published_version)
   }
 {%- if assigned_to is not none %}
   FILTER (?assigned_to = <account:{{assigned_to}}>)
