@@ -2862,8 +2862,12 @@ class ApiServer:
 
     def ui_download_file (self, request, dataset_id, file_id):
         """Implements /file/<id>/<fid>."""
-        file_path = None
         try:
+            metadata = self.__file_by_id_or_uri (file_id)
+            if metadata is None:
+                self.log.error ("Cannot find file metadata for %s.", file_id)
+                return self.error_404 (request)
+
             dataset = self.__dataset_by_id_or_uri (dataset_id)
 
             ## When downloading a file from a dataset that isn't published,
@@ -2871,7 +2875,7 @@ class ApiServer:
             if dataset is None:
                 account_uuid = self.account_uuid_from_request (request)
                 if account_uuid is not None:
-                    dataset = self.__dataset_by_id_or_uri (dataset_id,
+                    dataset = self.__dataset_by_id_or_uri (metadata["container_uuid"],
                                                            account_uuid = account_uuid,
                                                            is_published = False)
 
@@ -2885,7 +2889,9 @@ class ApiServer:
             if dataset is None:
                 return self.error_404 (request)
 
-            metadata  = self.__file_by_id_or_uri (file_id, dataset_uri = dataset["uri"])
+            if dataset["container_uuid"] != metadata["container_uuid"]:
+                return self.error_403 (request)
+
             file_path = self.__filesystem_location (metadata)
             if file_path is None:
                 self.log.error ("File download failed due to missing metadata.")
@@ -5914,8 +5920,8 @@ class ApiServer:
 
             return self.response (json.dumps({ "location": f"{self.base_url}/v3/file/{file_uuid}" }))
 
-        except OSError:
-            self.log.error ("Writing %s to disk failed.", output_filename)
+        except OSError as error:
+            self.log.error ("Writing %s to disk failed: %s", output_filename, error)
             return self.error_500 ()
         except (IndexError, KeyError):
             pass
