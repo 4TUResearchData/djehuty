@@ -502,7 +502,6 @@
   visibility: hidden;
 }
 .ql-4tu .ql-tooltip {
-  position: absolute;
   transform: translateY(10px);
 }
 .ql-4tu .ql-tooltip a {
