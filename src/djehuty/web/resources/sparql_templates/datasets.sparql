@@ -7,7 +7,7 @@ SELECT (COUNT(DISTINCT ?dataset) AS ?datasets)
 # non-typed and one row for a typed literal.
 SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?created_date ?custom_fields_id ?defined_type ?defined_type_name
-                ?description ?doi ?embargo_until_date
+                ?description ?doi ?embargo_until_date ?is_public
                 ?embargo_reason ?embargo_title ?embargo_type ?figshare_url
                 ?funding ?group_id ?has_linked_file ?dataset_id ?eula
                 ?institution_id ?is_active ?is_confidential ?is_embargoed ?is_restricted
@@ -112,6 +112,7 @@ WHERE {
     OPTIONAL { ?dataset djht:handle                ?handle . }
     OPTIONAL { ?dataset djht:has_linked_file       ?has_linked_file . }
     OPTIONAL { ?dataset djht:is_active             ?is_active . }
+    OPTIONAL { ?dataset djht:is_public             ?is_public . }
     OPTIONAL { ?dataset djht:is_confidential       ?is_confidential . }
     OPTIONAL { ?dataset djht:is_metadata_record    ?is_metadata_record . }
     OPTIONAL { ?dataset djht:metadata_reason       ?metadata_reason . }

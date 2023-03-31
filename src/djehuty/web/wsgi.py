@@ -525,6 +525,17 @@ class ApiServer:
         response.status_code = 405
         return response
 
+    def error_410 (self, request):
+        """Procedure to respond with HTTP 410."""
+        if self.accepts_html (request):
+            response = self.__render_template (request, "410.html")
+        else:
+            response = self.response (json.dumps({
+                "message": "This resource is gone."
+            }))
+        response.status_code = 410
+        return response
+
     def error_415 (self, allowed_types):
         """Procedure to respond with HTTP 415."""
         response = self.response (f"Supported Content-Types: {allowed_types}",
@@ -2405,7 +2416,11 @@ class ApiServer:
             else:
                 dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=True, is_latest=True)
 
+            ## For retracted datasets we display a different error page.
             if dataset is None:
+                dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=None, is_latest=None)
+                if dataset is not None and dataset["is_public"] == 0:
+                    return self.error_410 (request)
                 return self.error_404 (request)
 
         my_collections = []
