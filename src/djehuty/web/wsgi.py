@@ -6527,9 +6527,13 @@ class ApiServer:
                 return None
             published_date = date.today().isoformat()
         else:
-            item = items_function (container_uuid=container_uuid,
-                                   version=current_version,
-                                   is_published=True)[0]
+            try:
+                item = items_function (container_uuid=container_uuid,
+                                       version=current_version,
+                                       is_published=True)[0]
+            except IndexError:
+                self.log.error("Nothing found for %s %s version %s.", item_type, item_id, current_version)
+                return self.error_500 ()
             published_date = item['published_date'][:10]
         item_uuid = item['uuid']
         item_uri = f'{item_type}:{item_uuid}'
