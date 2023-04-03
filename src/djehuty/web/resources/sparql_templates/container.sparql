@@ -10,7 +10,6 @@ WHERE {
     OPTIONAL { ?container djht:account                  ?account .           }
     OPTIONAL { ?container djht:draft                    ?draft .             }
     OPTIONAL { ?container djht:doi                      ?doi .               }
-    OPTIONAL { ?container djht:latest_published_version ?latest_published_version . }
     OPTIONAL { ?container djht:first_online_date        ?first_online_date . }
     OPTIONAL { ?container djht:totals_created_at        ?totals_created_at . }
     OPTIONAL { ?container djht:total_downloads          ?total_downloads .   }
