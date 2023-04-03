@@ -30,5 +30,5 @@ WHERE {
     }
   }
 }
-ORDER BY DESC(?posted_date)
+ORDER BY ASC(?title) DESC(?posted_date)
 {% endblock %}

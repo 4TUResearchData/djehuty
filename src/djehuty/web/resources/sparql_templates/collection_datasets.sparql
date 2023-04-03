@@ -16,5 +16,5 @@ WHERE {
     BIND(STRAFTER(STR(?dataset), "dataset:")             AS ?dataset_uuid)
   }
 }
-ORDER BY DESC(?date) DESC(?title)
+ORDER BY ASC(?title) DESC(?date)
 {% endblock %}
