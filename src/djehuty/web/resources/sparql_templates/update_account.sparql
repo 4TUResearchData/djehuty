@@ -14,7 +14,7 @@ DELETE {
     {%- endif%}{% if last_name is not none %}
     ?account          djht:last_name             ?last_name .
     ?author           djht:last_name             ?author_last_name .
-    {%- endif%}{% if first_name is not none and last_name is not none %}
+    {%- endif%}{% if full_name is not none %}
     ?author           djht:full_name             ?author_full_name .
     {%- endif%}{% if location is not none %}
     ?account          djht:location              ?location .
@@ -44,27 +44,27 @@ INSERT {
     {%- if is_active is not none %}
     ?account          djht:is_active           {{is_active}} .
     {%- endif%}{% if email is not none %}
-    ?account          djht:email               "{{email | safe}}"^^xsd:string .
+    ?account          djht:email               {{email | safe}} .
     {%- endif%}{% if job_title is not none %}
-    ?account          djht:job_title           "{{job_title | safe}}"^^xsd:string .
+    ?account          djht:job_title           {{job_title | safe}} .
     {%- endif%}{% if first_name is not none %}
-    ?account          djht:first_name          "{{first_name | safe}}"^^xsd:string .
-    ?author           djht:first_name          "{{first_name | safe}}"^^xsd:string .
+    ?account          djht:first_name          {{first_name | safe}} .
+    ?author           djht:first_name          {{first_name | safe}} .
     {%- endif%}{% if last_name is not none %}
-    ?account          djht:last_name           "{{last_name | safe}}"^^xsd:string .
-    ?author           djht:last_name           "{{last_name | safe}}"^^xsd:string .
-    {%- endif%}{% if first_name is not none and last_name is not none %}
-    ?author           djht:full_name           "{{first_name | safe}} {{last_name | safe}}"^^xsd:string .
+    ?account          djht:last_name           {{last_name | safe}} .
+    ?author           djht:last_name           {{last_name | safe}} .
+    {%- endif%}{% if full_name is not none %}
+    ?author           djht:full_name           {{full_name | safe}} .
     {%- endif%}{% if location is not none %}
-    ?account          djht:location            "{{location | safe}}"^^xsd:string .
+    ?account          djht:location            {{location | safe}} .
     {%- endif%}{% if twitter is not none %}
-    ?account          djht:twitter             "{{twitter | safe}}"^^xsd:string .
+    ?account          djht:twitter             {{twitter | safe}} .
     {%- endif%}{% if linkedin is not none %}
-    ?account          djht:linkedin            "{{linkedin | safe}}"^^xsd:string .
+    ?account          djht:linkedin            {{linkedin | safe}} .
     {%- endif%}{% if website is not none %}
-    ?account          djht:website             "{{website | safe}}"^^xsd:string .
+    ?account          djht:website             {{website | safe}} .
     {%- endif%}{% if biography is not none %}
-    ?account          djht:biography           "{{biography | safe}}"^^xsd:string .
+    ?account          djht:biography           {{biography | safe}} .
     {%- endif%}{% if institution_user_id is not none %}
     ?account          djht:institution_user_id {{institution_user_id}} .
     {%- endif%}{% if institution_id is not none %}
@@ -74,7 +74,7 @@ INSERT {
     {%- endif%}{% if maximum_file_size is not none %}
     ?account          djht:maximum_file_size   {{maximum_file_size}} .
     {%- endif%}{% if modified_date is not none %}
-    ?account          djht:modified_date       "{{modified_date | safe}}"^^xsd:string .
+    ?account          djht:modified_date       "{{modified_date | safe}}"^^xsd:dateTime .
     {%- endif%}
   }
 }

@@ -1135,18 +1135,23 @@ class SparqlInterface:
         if modified_date is None:
             modified_date = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
 
+        full_name = None
+        if first_name is not None and last_name is not None:
+            full_name = f"{first_name} {last_name}"
+
         query        = self.__query_from_template ("update_account", {
             "account_uuid":          account_uuid,
             "is_active":             active,
-            "job_title":             job_title,
-            "email":                 email,
-            "first_name":            first_name,
-            "last_name":             last_name,
-            "location":              location,
-            "twitter":               twitter,
-            "linkedin":              linkedin,
-            "website":               website,
-            "biography":             biography,
+            "job_title":             rdf.escape_string_value (job_title),
+            "email":                 rdf.escape_string_value (email),
+            "first_name":            rdf.escape_string_value (first_name),
+            "last_name":             rdf.escape_string_value (last_name),
+            "full_name":             rdf.escape_string_value (full_name),
+            "location":              rdf.escape_string_value (location),
+            "twitter":               rdf.escape_string_value (twitter),
+            "linkedin":              rdf.escape_string_value (linkedin),
+            "website":               rdf.escape_string_value (website),
+            "biography":             rdf.escape_string_value (biography),
             "institution_user_id":   institution_user_id,
             "institution_id":        institution_id,
             "pending_quota_request": pending_quota_request,
