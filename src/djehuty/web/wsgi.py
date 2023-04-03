@@ -5901,12 +5901,78 @@ class ApiServer:
             if dataset is None:
                 return self.error_403 (request)
 
-            file_data = request.files['file']
-            self.locks.lock (locks.LockTypes.FILE_LIST)
+            content_type = value_or (request.headers, "Content-Type", "")
+            if not content_type.startswith ("multipart/form-data"):
+                return self.error_415 (["multipart/form-data"])
 
+            boundary = None
+            try:
+                boundary = content_type.split ("boundary=")[1]
+                boundary = boundary.split(";")[0]
+            except IndexError:
+                self.log.error ("File upload failed due to missing boundary.")
+                return self.error_400 (
+                    request,
+                    "Missing boundary for multipart/form-data.",
+                    "MissingBoundary")
+
+            bytes_to_read = request.content_length
+            if bytes_to_read is None:
+                self.log.error ("File upload failed due to missing Content-Length.")
+                return self.error_400 (
+                    request,
+                    "Missing Content-Length header.",
+                    "MissingContentLength")
+
+            input_stream = request.stream
+
+            # Read the boundary, plus '--', plus CR/LF.
+            read_ahead_bytes = len(boundary) + 4
+            boundary_scan  = input_stream.read (read_ahead_bytes)
+            expected_begin = f"--{boundary}\r\n".encode("utf-8")
+            expected_end   = f"\r\n--{boundary}--\r\n".encode("utf-8")
+            if not boundary_scan == expected_begin:
+                self.log.error ("File upload failed due to unexpected read while parsing.")
+                self.log.error ("Scanned:  '%s'", boundary_scan)
+                self.log.error ("Expected: '%s'", expected_begin)
+                return self.error_400 (request,
+                                       "Expected stream to start with boundary.",
+                                       "MalformedRequest")
+
+            # Read the multi-part headers
+            line = None
+            header_line_count = 0
+            part_headers = ""
+            while line != b"\r\n" and header_line_count < 10:
+                line = input_stream.readline (4096)
+                part_headers += line.decode("utf-8")
+                header_line_count += 1
+
+            if "Content-Disposition: form-data" not in part_headers:
+                self.log.error ("File upload failed due to missing Content-Disposition.")
+                return self.error_400 (request,
+                                       "Expected Content-Disposition: form-data",
+                                       "MalformedRequest")
+
+            filename = None
+            try:
+                # Extract filename.
+                filename = part_headers.split("filename=")[1].split(";")[0].split("\r\n")[0]
+                # Remove quotes from the filename.
+                if filename[0] == "\"" and filename[-1] == "\"":
+                    filename = filename[1:-1]
+            except IndexError:
+                pass
+
+            headers_len        = len(part_headers)
+            computed_file_size = request.content_length - read_ahead_bytes - headers_len - len(expected_end)
+            bytes_to_read      = bytes_to_read - read_ahead_bytes - headers_len
+            content_to_read    = bytes_to_read - len(expected_end)
+
+            self.locks.lock (locks.LockTypes.FILE_LIST)
             file_uuid = self.db.insert_file (
-                name          = file_data.filename,
-                size          = file_data.content_length,
+                name          = filename,
+                size          = computed_file_size,
                 is_link_only  = 0,
                 upload_url    = f"/article/{dataset_id}/upload",
                 upload_token  = self.token_from_request (request),
@@ -5920,14 +5986,37 @@ class ApiServer:
             md5 = hashlib.new ("md5", usedforsecurity=False)
             file_size = 0
             destination_fd = os.open (output_filename, os.O_WRONLY | os.O_CREAT, 0o600)
-            with open (destination_fd, "wb") as destination_stream:
-                for chunk in iter(lambda: file_data.read(4096), b""):
-                    md5.update(chunk)
-                    file_size += destination_stream.write (chunk)
+            with open (destination_fd, "wb") as output_stream:
+                file_size = 0
+                while content_to_read > 4096:
+                    chunk = input_stream.read (4096)
+                    content_to_read -= 4096
+                    file_size += output_stream.write (chunk)
+                    md5.update (chunk)
+
+                chunk = input_stream.read (content_to_read)
+                file_size += output_stream.write (chunk)
+                md5.update (chunk)
+                content_to_read = 0
 
                 # Make the file read-only from here on.
                 if os.name != 'nt':
                     os.fchmod (destination_fd, 0o400)
+
+            if computed_file_size != file_size:
+                self.log.error ("Computed file size (%d) and actual file size (%d) for uploaded file mismatch.",
+                                computed_file_size, file_size)
+                return self.error_500 ()
+
+            bytes_to_read -= file_size
+            if bytes_to_read != len(expected_end):
+                self.log.error ("Expected different length after file contents (%d vs %d).",
+                                bytes_to_read, len(expected_end))
+
+            ending = input_stream.read (bytes_to_read)
+            if ending != expected_end:
+                self.log.error ("Expected different end after file contents: '%s' vs '%s'.",
+                                ending, expected_end)
 
             computed_md5 = md5.hexdigest()
             download_url = f"{self.base_url}/file/{dataset_id}/{file_uuid}"
