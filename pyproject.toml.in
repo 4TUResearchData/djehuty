@@ -1,0 +1,25 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel"
+]
+build-backend   = "setuptools.build_meta"
+
+[project]
+name            = "djehuty"
+version         = "@VERSION@"
+authors         = [{ name="Roel Janssen", email="r.r.e.janssen@tudelft.nl" }]
+description     = "The 4TU.ResearchData repository system"
+readme          = "README.md"
+requires-python = ">=3.7"
+classifiers     = [
+    "Programming Language :: Python :: 3",
+    "Environment :: Web Environment",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage"      = "https://data.4tu.nl"
+"Source Code"   = "https://github.com/4TUResearchData/djehuty"
+"Bug Tracker"   = "https://github.com/4TUResearchData/djehuty/issues"

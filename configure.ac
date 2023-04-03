@@ -1,10 +1,10 @@
-AC_INIT(djehuty, 0.0.1)
+AC_INIT(djehuty, 0.0.2)
 AM_INIT_AUTOMAKE([foreign tar-ustar])
-AM_PATH_PYTHON([3.6])
+AM_PATH_PYTHON([3.7])
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
-  setup.cfg
+  pyproject.toml
   rpmbuild/SPECS/djehuty.spec
 ])
 

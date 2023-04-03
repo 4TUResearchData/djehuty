@@ -16,7 +16,7 @@ config.log
 config.status
 Makefile
 Makefile.in
-setup.cfg
+pyproject.toml
 missing
 install-sh
 .DS_Store
