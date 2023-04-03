@@ -1057,7 +1057,7 @@ class ApiServer:
 
         return account["uuid"]
 
-    def account_uuid_from_request (self, request):
+    def account_uuid_from_request (self, request, allow_impersonation=True):
         """Procedure to the account UUID for a HTTP request."""
         uuid  = None
         token = self.token_from_request (request)
@@ -1066,8 +1066,10 @@ class ApiServer:
         ## exist, we cannot authenticate.
         try:
             account    = self.db.account_by_session_token (token)
-            if account is not None:
+            if account is not None and allow_impersonation:
                 uuid = self.impersonated_account_uuid (request, account)
+            elif not allow_impersonation:
+                uuid = account["uuid"]
         except KeyError:
             self.log.error ("Attempt to authenticate with %s failed.", token)
 
@@ -5885,7 +5887,10 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        account_uuid = self.account_uuid_from_request (request)
+        ## Impersonation requires reading the request's content, which means that
+        ## the body has to be read entirely, negating the ability to stream the
+        ## requests's body.
+        account_uuid = self.account_uuid_from_request (request, allow_impersonation=False)
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
