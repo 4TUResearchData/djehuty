@@ -94,6 +94,12 @@
 {% if profile.job_title %}
     <div>{{profile.job_title}}</div>
 {% endif %}
+{% if profile.biography %}
+    <div id="biography">
+        <div class="label">Biography</div>
+        <div>{{profile.biography|safe}}</div>
+    </div>
+{% endif %}
 {% if datasets %}
     <div id="datasets">
         <div class="label">Datasets</div>

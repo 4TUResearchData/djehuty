@@ -5,7 +5,7 @@ SELECT DISTINCT ?id         ?full_name       ?first_name  ?last_name
                 ?group_id   ?institution_id  ?is_active   ?is_public
                 ?job_title  ?orcid_id        ?account     ?categories
                 ?location   ?twitter         ?linkedin    ?website
-                ?image      ?account_uuid
+                ?image      ?account_uuid    ?biography
 WHERE {
   GRAPH <{{state_graph}}> {
     author:            djht:is_active           ?is_active ;
@@ -25,6 +25,7 @@ WHERE {
                OPTIONAL { ?account djht:linkedin           ?linkedin . }
                OPTIONAL { ?account djht:website            ?website . }
                OPTIONAL { ?account djht:categories         ?categories . }
+               OPTIONAL { ?account djht:biography          ?biography . }
                OPTIONAL { ?account djht:profile_image      ?image . }
                BIND(STRAFTER(STR(?account), ":") AS        ?account_uuid)
     }
