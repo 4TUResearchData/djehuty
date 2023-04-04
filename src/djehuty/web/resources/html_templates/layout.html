@@ -13,6 +13,11 @@
   </head>
   <body>
     <div id="wrapper" {%- if path == "/" %} class="footer1"{% else %} class="footer2"{% endif %}>
+      {%- if sandbox_message %}
+      <div id="sandbox-message" class="pre-header">
+        <p>{{sandbox_message}}</p>
+      </div>
+      {%- endif %}
       {%- if impersonating_account %}
       {%- if is_reviewing %}
       <div id="pre-header-for-reviewer" class="pre-header">

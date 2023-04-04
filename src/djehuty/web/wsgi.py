@@ -57,6 +57,7 @@ class ApiServer:
         self.in_preproduction = False
         self.using_uwsgi      = False
         self.maintenance_mode = False
+        self.sandbox_message  = False
 
         self.orcid_client_id     = None
         self.orcid_client_secret = None
@@ -366,6 +367,7 @@ class ApiServer:
             "path":            request.path,
             "in_production":   self.in_production,
             "maintenance_mode": self.maintenance_mode,
+            "sandbox_message": self.sandbox_message,
             "identity_provider": self.identity_provider,
             "orcid_client_id": self.orcid_client_id,
             "orcid_endpoint":  self.orcid_endpoint,

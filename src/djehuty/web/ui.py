@@ -522,6 +522,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if use_x_forwarded_for:
             server.log_access = server.log_access_using_x_forwarded_for
 
+        sandbox_message = config_value (xml_root, "sandbox-message", None, None)
+        if sandbox_message:
+            server.sandbox_message = sandbox_message
+
         read_orcid_configuration (server, xml_root)
         read_datacite_configuration (server, xml_root)
         read_email_configuration (server, xml_root, logger)
