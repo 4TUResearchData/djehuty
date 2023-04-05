@@ -300,7 +300,7 @@ def read_privilege_configuration (server, xml_root, logger):
 
             ## The "needs_2fa" property is set to True when the user has any
             ## extra privilege.
-            server.db.privileges[email]["needs_2fa"] = (
+            server.db.privileges[email]["needs_2fa"] = (not server.disable_2fa) and (
                 server.db.privileges[email]["may_administer"] or
                 server.db.privileges[email]["may_impersonate"] or
                 server.db.privileges[email]["may_review"] or
@@ -463,6 +463,13 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                 server.maintenance_mode = bool(int(maintenance_mode))
             except (ValueError, TypeError):
                 server.maintenance_mode = False
+
+        disable_2fa = config_value (xml_root, "disable-2fa")
+        if disable_2fa:
+            try:
+                server.disable_2fa = bool(int(disable_2fa))
+            except (ValueError, TypeError):
+                server.disable_2fa = False
 
         if config["use_reloader"]:
             config["use_reloader"] = bool(int(config["use_reloader"]))
