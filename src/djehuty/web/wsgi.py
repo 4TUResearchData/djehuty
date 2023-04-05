@@ -58,6 +58,7 @@ class ApiServer:
         self.using_uwsgi      = False
         self.maintenance_mode = False
         self.sandbox_message  = False
+        self.disable_2fa      = False
 
         self.orcid_client_id     = None
         self.orcid_client_secret = None
