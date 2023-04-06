@@ -29,6 +29,7 @@ endif
 
 EXTRA_DIST              = $(doc_TEX) $(doc_STYLE)                  \
                           introduction.tex                         \
+                          contributing.tex                         \
                           knowledge-graph.tex                      \
                           references.bib                           \
                           figures/account.pdf                      \

@@ -1,0 +1,110 @@
+\chapter{Contributing}
+
+This chapter outlines how to set up an instance of \t{djehuty} with the goal
+of modifying its source code.  Or in other words: this is the developer setup.
+
+\section{Setting up a development environment}
+
+First, we need to obtain the latest version of the source code:
+\begin{lstlisting}[language=bash]
+$ git clone https://github.com/4TUResearchData/djehuty.git
+\end{lstlisting}
+
+Next, we need to create a somewhat isolated Python environment:
+\begin{lstlisting}[language=bash]
+$ python -m venv djehuty-env
+$ . djehuty-env/bin/activate
+[env]$ cd djehuty
+[env]$ pip install -r requirements.txt
+\end{lstlisting}
+
+And finally, we can install \t{djehuty} in the virtual environment to make
+the \t{djehuty} command available:
+\begin{lstlisting}[language=bash]
+[env]$ cp pyproject.toml.in pyproject.toml
+[env]$ sed -i 's/@VERSION@/0.0.1/g' pyproject.toml
+[env]$ pip install --editable .
+\end{lstlisting}
+
+If all went well, we will now be able to run \t{djehuty}:
+\begin{lstlisting}[language=bash]
+[env]$ djehuty --help
+\end{lstlisting}
+
+\section{Configuring \t{djehuty}}
+
+Invoking \t{djehuty web} starts the web interface of \t{djehuty}.  On what
+port it makes itself available can be configured in its configuration file.
+An example of a configuration file can be found in
+\file{etc/djehuty/djehuty-example-config.xml}.  We will use the example
+configuration as the basis to configure it for the development environment.
+
+\begin{lstlisting}[language=bash]
+[env]$ cp etc/djehuty/djehuty-example-config.xml config.xml
+\end{lstlisting}
+
+In the remainder of the chapter we will assume a value of \t{127.0.0.1} for
+\t{bind-address} and a value of \t{8080} for \t{port}.
+
+\subsection{Modifications to the example configuration for developers}
+
+\subsubsection{Live reload}
+
+The \t{djehuty} program can be configured to automatically reload itself when
+a change is detected by setting \t{live-reload} to \t{1}.
+
+\subsubsection{Configuring authentication with ORCID}
+
+The \t{djehuty} program does not have Identity Provider (IdP) capabilities,
+so in order to log into the system we must configure an external IdP.  With
+an \href{https://orcid.org}{ORCID} account comes the ability to set up an OAuth
+endpoint.  Go to \href{https://orcid.org/developer-tools}{developer-tools} at
+\href{https://orcid.org}{orcid.org}.  When setting up the OAuth at ORCID,
+choose \t{http://127.0.0.1:8080/login} as redirect URI.
+
+Modify the following bits to reflect the settings obtained from ORCID.
+\begin{lstlisting}[language=xml]
+  <authentication>
+    <orcid>
+      <client-id>APP-XXXXXXXXXXXXXXXX</client-id>
+      <client-secret>XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</client-secret>
+      <endpoint>https://orcid.org/oauth</endpoint>
+    </orcid>
+  </authentication>
+\end{lstlisting}
+
+To limit who can log into a development system, accounts are not automatically
+created for ORCID as IdP.  So we need to configure who can log in by creating
+a record in the \t{privileges} section of the configuration file.
+
+This is also a good moment to configure additional privileges for your account.
+In the following snippet, configure the ORCID with which you will log into
+the system in the \t{orcid} argument.
+
+\begin{lstlisting}[language=xml]
+  <privileges>
+    <account email="you@example.com" orcid="0000-0000-0000-0001">
+      <may-administer>1</may-administer>
+      <may-impersonate>1</may-impersonate>
+      <may-review>1</may-review>
+    </account>
+  </privileges>
+\end{lstlisting}
+
+\subsection{Invoking \t{djehuty}}
+
+Once we've configured \t{djehuty} for development use, we can start the web
+interface by running:
+
+\begin{lstlisting}[language=bash]
+[env]$ djehuty web --initialize --config-file=config.xml
+\end{lstlisting}
+
+The \t{-{}-initialize} option creates the internal account record and
+associates the specified ORCID with it.  We only need to run \t{djehuty}
+with the \t{-{}-initialize} option once.
+
+By now, we should be able to visit \t{djehuty} through a web browser at
+\href{http://127.0.0.1:8080}{localhost:8080}, unless configured differently.
+We should be able to log in through ORCID, and access all features of
+\t{djehuty}.
