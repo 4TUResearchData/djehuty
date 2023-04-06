@@ -141,6 +141,7 @@
 \usepackage[colorlinks=true,linkcolor=LinkGray,urlcolor=LinkGray,citecolor=CiteColor,plainpages=false,pdfpagelabels]{hyperref}
 
 % Alternative to \verbatim that allows escaping.
+\usepackage{textcomp}
 \usepackage{listings}
 \lstset{escapeinside={(@*}{*@)}}
 
@@ -178,7 +179,8 @@
     showtabs=false,
     tabsize=2,
     xleftmargin=5pt,
-    xrightmargin=5pt
+    xrightmargin=5pt,
+    upquote=true
 }
 
 \lstset{style=codestyle}
