@@ -407,7 +407,7 @@ class SparqlInterface:
 
         return identifier
 
-    def container (self, container_uuid, item_type="dataset"):
+    def container (self, container_uuid, item_type="dataset", use_cache=True):
         """Procedure to get container properties (incl shallow statistics)."""
 
         query   = self.__query_from_template ("container", {
@@ -416,7 +416,10 @@ class SparqlInterface:
         })
 
         try:
-            return self.__run_query (query, query, "container")[0]
+            if use_cache:
+                return self.__run_query (query, query, "container")[0]
+            else:
+                return self.__run_query (query)[0]
         except (TypeError, IndexError):
             self.log.error ("Retrieving container for %s failed.", container_uuid)
             return None

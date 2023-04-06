@@ -6606,7 +6606,7 @@ class ApiServer:
             items_function     = self.db.datasets
         else:
             items_function     = self.db.collections
-        container = self.db.container(container_uuid, item_type=item_type)
+        container = self.db.container(container_uuid, item_type=item_type, use_cache=bool(version))
         if version:
             current_version = version
         else:
