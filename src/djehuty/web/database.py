@@ -418,8 +418,7 @@ class SparqlInterface:
         try:
             if use_cache:
                 return self.__run_query (query, query, "container")[0]
-            else:
-                return self.__run_query (query)[0]
+            return self.__run_query (query)[0]
         except (TypeError, IndexError):
             self.log.error ("Retrieving container for %s failed.", container_uuid)
             return None
