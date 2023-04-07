@@ -1390,7 +1390,7 @@ class ApiServer:
         for dataset in datasets:
             used = 0
             if not value_or (dataset, "is_metadata_record", False):
-                used = self.db.dataset_storage_used (dataset["container_uri"])
+                used = self.db.dataset_storage_used (dataset["uuid"])
             dataset["storage_used"] = pretty_print_size (used)
         return datasets
 
@@ -1566,7 +1566,7 @@ class ApiServer:
                 return self.error_403 (request)
 
             container_uuid = dataset["container_uuid"]
-            if self.db.delete_dataset_draft (container_uuid, account_uuid):
+            if self.db.delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid):
                 return redirect ("/my/datasets", code=303)
 
             return self.error_404 (request)
@@ -3544,7 +3544,7 @@ class ApiServer:
                                                            is_published=False)
 
                 container_uuid = dataset["container_uuid"]
-                if self.db.delete_dataset_draft (container_uuid, account_uuid):
+                if self.db.delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid):
                     return self.respond_204()
             except (IndexError, KeyError):
                 pass
@@ -4197,6 +4197,7 @@ class ApiServer:
                                              "files"):
 
                     self.locks.unlock (locks.LockTypes.FILE_LIST)
+                    self.db.cache.invalidate_by_prefix (f"{dataset['uuid']}_dataset_storage")
                     return self.respond_204()
 
             except (IndexError, KeyError, StopIteration):
@@ -6023,7 +6024,7 @@ class ApiServer:
 
             computed_md5 = md5.hexdigest()
             download_url = f"{self.base_url}/file/{dataset_id}/{file_uuid}"
-            self.db.update_file (account_uuid, file_uuid, dataset["container_uri"],
+            self.db.update_file (account_uuid, file_uuid, dataset["uuid"],
                                  computed_md5 = computed_md5,
                                  download_url = download_url,
                                  filesystem_location = output_filename,

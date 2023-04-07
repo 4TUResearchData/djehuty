@@ -158,14 +158,14 @@ class SparqlInterface:
     ## GET METHODS
     ## ------------------------------------------------------------------------
 
-    def dataset_storage_used (self, container_uri):
+    def dataset_storage_used (self, dataset_uuid):
         """Returns the number of bytes used by a dataset."""
 
         query = self.__query_from_template ("dataset_storage_used", {
-            "container_uri": container_uri
+            "dataset_uuid": dataset_uuid
         })
 
-        results = self.__run_query (query, query, f"{container_uri}_dataset_storage")
+        results = self.__run_query (query, query, f"{dataset_uuid}_dataset_storage")
         try:
             return results[0]["bytes"]
         except (IndexError, KeyError):
@@ -1404,10 +1404,10 @@ class SparqlInterface:
                                           is_published = False,
                                           limit        = 1)[0]
 
-            container_uri = f"container:{dataset['container_uuid']}"
+            dataset_uuid = dataset["uuid"]
             self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
-            self.cache.invalidate_by_prefix (f"{container_uri}_dataset_storage")
-            if self.update_item_list (dataset["uuid"],
+            self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
+            if self.update_item_list (dataset_uuid,
                                       account_uuid,
                                       new_files,
                                       "files"):
@@ -1415,7 +1415,7 @@ class SparqlInterface:
 
         return None
 
-    def update_file (self, account_uuid, file_uuid, container_uri, download_url=None,
+    def update_file (self, account_uuid, file_uuid, dataset_uuid, download_url=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
                      file_size=None, status=None, filesystem_location=None):
         """Procedure to update file metadata."""
@@ -1433,7 +1433,7 @@ class SparqlInterface:
         })
 
         self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
-        self.cache.invalidate_by_prefix (f"{container_uri}_dataset_storage")
+        self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
         return self.__run_query(query)
 
     def insert_license (self, license_id, name=None, url=None):
@@ -1525,7 +1525,7 @@ class SparqlInterface:
         rdf.add (graph, item_uri, rdf.DJHT[name], value)
         return True
 
-    def delete_dataset_draft (self, container_uuid, account_uuid):
+    def delete_dataset_draft (self, container_uuid, dataset_uuid, account_uuid):
         """Remove the draft dataset from a container in the state graph."""
 
         query   = self.__query_from_template ("delete_dataset_draft", {
@@ -1535,7 +1535,7 @@ class SparqlInterface:
 
         result = self.__run_query (query)
         self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
-        self.cache.invalidate_by_prefix (f"container:{container_uuid}_dataset_storage")
+        self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
 
         return result

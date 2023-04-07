@@ -3,16 +3,10 @@
 SELECT (SUM(?bytes) AS ?bytes)
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container_uri  rdf:type                      djht:DatasetContainer .
-    ?container_uri  djht:draft                     ?draft .
-    OPTIONAL { ?container_uri djht:published_versions ?published . }
-    {
-      ?published    djht:files/rdf:rest*/rdf:first ?file .
-    } UNION {
-      ?draft        djht:files/rdf:rest*/rdf:first ?file .
-    }
+    ?dataset        rdf:type                       djht:Dataset .
+    ?dataset        djht:files/rdf:rest*/rdf:first ?file .
     ?file           djht:size                      ?bytes .
-    FILTER (?container_uri = <{{container_uri}}>)
+    FILTER (?dataset = <dataset:{{dataset_uuid}}>)
   }
 }
 {% endblock %}
