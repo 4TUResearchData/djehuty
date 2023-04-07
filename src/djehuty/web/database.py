@@ -1415,7 +1415,7 @@ class SparqlInterface:
 
         return None
 
-    def update_file (self, account_uuid, file_uuid, download_url=None,
+    def update_file (self, account_uuid, file_uuid, container_uri, download_url=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
                      file_size=None, status=None, filesystem_location=None):
         """Procedure to update file metadata."""
@@ -1432,6 +1432,8 @@ class SparqlInterface:
             "status":        status
         })
 
+        self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
+        self.cache.invalidate_by_prefix (f"{container_uri}_dataset_storage")
         return self.__run_query(query)
 
     def insert_license (self, license_id, name=None, url=None):

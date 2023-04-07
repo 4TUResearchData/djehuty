@@ -6023,7 +6023,7 @@ class ApiServer:
 
             computed_md5 = md5.hexdigest()
             download_url = f"{self.base_url}/file/{dataset_id}/{file_uuid}"
-            self.db.update_file (account_uuid, file_uuid,
+            self.db.update_file (account_uuid, file_uuid, dataset["container_uri"],
                                  computed_md5 = computed_md5,
                                  download_url = download_url,
                                  filesystem_location = output_filename,
