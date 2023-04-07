@@ -2396,7 +2396,10 @@ class SparqlInterface:
         """Returns an account record with privileges and quotas."""
 
         try:
-            privileges = self.privileges[account["email"]]
+            privileges = {}
+            if account["email"] in self.privileges:
+                privileges = self.privileges[account["email"]]
+
             domain     = conv.value_or (account, "domain", "")
             quota      = self.account_quota (account["email"], domain)
             account    = { **account, **privileges, "quota": quota }
