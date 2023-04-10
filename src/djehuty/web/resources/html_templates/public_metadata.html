@@ -68,7 +68,7 @@
         {% if v == thisversion %}
             <div>{{label}}</div>
         {% else %}
-            <a href="/{{item_type}}s/{{uuid}}/{{v}}">{{label}}</a>
+            <a href="/{{item_type}}s/{{item.container_uuid}}/{{v}}">{{label}}</a>
         {% endif %}
     {% endfor %}
         </div>
