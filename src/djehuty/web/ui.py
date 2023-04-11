@@ -457,6 +457,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if endpoint:
             server.db.endpoint = endpoint
 
+        update_endpoint = config_value (xml_root, "rdf-store/sparql-update-uri")
+        if update_endpoint:
+            server.db.update_endpoint = update_endpoint
+
         maintenance_mode = config_value (xml_root, "maintenance-mode")
         if maintenance_mode:
             try:
@@ -668,6 +672,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
                     raise DependencyNotAvailable
 
             logger.info ("SPARQL endpoint:  %s.", server.db.endpoint)
+            logger.info ("SPARQL update_endpoint:  %s.", server.db.update_endpoint)
             logger.info ("State graph:  %s.", server.db.state_graph)
             logger.info ("Storage path: %s.", server.db.storage)
             logger.info ("Secondary storage path: %s.", server.db.secondary_storage)

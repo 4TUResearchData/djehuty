@@ -26,6 +26,7 @@ class SparqlInterface:
         self.secondary_storage = None
         self.secondary_storage_quirks = False
         self.endpoint    = "http://127.0.0.1:8890/sparql"
+        self.update_endpoint = None
         self.state_graph = "https://data.4tu.nl/portal/self-test"
         self.privileges  = {}
         self.profile_images_storage = None
@@ -43,9 +44,9 @@ class SparqlInterface:
         self.default_quota  = 5000000000
 
     def setup_sparql_endpoint (self):
-        """Procedure to be called after setting the 'endpoint' member."""
+        """Procedure to be called after setting the 'endpoint' members."""
 
-        self.sparql = SPARQLWrapper(self.endpoint, returnFormat=JSON)
+        self.sparql = SPARQLWrapper(endpoint=self.endpoint, updateEndpoint=self.update_endpoint, returnFormat=JSON)
         self.sparql.setOnlyConneg (True)
         self.sparql_is_up = True
 
