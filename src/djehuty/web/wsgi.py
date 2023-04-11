@@ -2631,7 +2631,7 @@ class ApiServer:
         tags          = self.db.tags(item_uri=collection_uri, limit=None)
         categories    = self.db.categories(item_uri=collection_uri, limit=None)
         references    = self.db.references(item_uri=collection_uri, limit=None)
-        fundings      = self.db.fundings(item_uri=collection_uri, limit=None)
+        fundings      = self.db.fundings(item_uri=collection_uri, item_type='collection', limit=None)
         statistics    = {'downloads': value_or(collection, 'total_downloads', 0),
                          'views'    : value_or(collection, 'total_views'    , 0),
                          'shares'   : value_or(collection, 'total_shares'   , 0),
