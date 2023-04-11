@@ -131,7 +131,7 @@ class SparqlInterface:
 
         except HTTPError as error:
             self.log.error ("SPARQL endpoint returned %d:\n---\n%s\n---",
-                            error.code, error.message)
+                            error.code, error.reason)
             return []
         except (URLError, SPARQLExceptions.EndPointNotFound):
             if self.sparql_is_up:
