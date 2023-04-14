@@ -6,11 +6,11 @@ function add_dataset_to_collection (dataset_id, collection_id) {
         accept:      "application/json",
         data:        JSON.stringify({ "articles": [dataset_id] }),
     }).done(function () {
-        window.alert('Dataset succesfully added to collection');
+        show_message ("success", "<p>Dataset succesfully added to collection.</p>");
         document.getElementById("collect").style.display="none"
     }).fail(function () {
         console.log (`Failed to add ${dataset_id}`);
-        window.alert('Failed to add dataset to collection');
+        show_message ("failure", "<p>Failed to add dataset to collection.</p>");
     });
 }
 
