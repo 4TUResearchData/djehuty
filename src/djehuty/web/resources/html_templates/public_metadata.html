@@ -40,7 +40,7 @@
         Add to collection:
         <ul>
     {% for collection in my_collections %}
-            <li><a href="#" onclick="javascript:add_dataset_to_collection('{{uuid}}','{{collection.container_uuid}}'); return false">{{collection.title}}</a></li>
+            <li><a href="#" onclick="javascript:add_dataset_to_collection('{{item.container_uuid}}','{{collection.container_uuid}}'); return false">{{collection.title}}</a></li>
     {% endfor %}
         </ul>
     </div>
