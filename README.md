@@ -17,8 +17,7 @@ pip install -r requirements.txt
 
 To get an interactive development environment, use:
 ```python
-cp pyproject.toml.in pyproject.toml
-sed -i 's/@VERSION@/0.0.1/g' pyproject.toml
+sed -e 's/@VERSION@/0.0.1/g' pyproject.toml.in > pyproject.toml
 pip install --editable .
 djehuty web -d -r
 ```
