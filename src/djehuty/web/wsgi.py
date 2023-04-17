@@ -2817,13 +2817,14 @@ class ApiServer:
 
         ## Files deposited pre-Djehuty have a numeric identifier (id)
         elif "id" in file_info:
-            file_path = f"{self.db.secondary_storage}/{file_info['id']}/{file_info['name']}"
+            name = file_info['name']
 
             ## Data stored before Djehuty went into production requires a few tweaks.
             ## Only apply these quirks when enabled.
             if self.db.secondary_storage_quirks:
-                transformed_name = file_info['name'].replace(" ", "").replace("-", "").replace(",", "").replace("(", "").replace(")", "").replace(";", "").replace("&", "")
-                file_path = f"{self.db.secondary_storage}/{file_info['id']}/{transformed_name}"
+                for char in " -,();:":
+                    name = name.replace(char, "")
+            file_path = f"{self.db.secondary_storage}/{file_info['id']}/{name}"
 
         return file_path
 
