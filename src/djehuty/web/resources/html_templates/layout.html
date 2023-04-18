@@ -34,7 +34,7 @@
         <p>You are viewing a pre-publication item. It hasn't been reviewed or published.</p>
       </div>
       {%- endif %}
-      <div id="header">
+      <div id="header" class="corporate-identity-header">
         <div id="header-left"><a href="/"><img id="logo" src="/static/images/logo.png" alt="4TU.ResearchData portal"></a></div>
         <div id="header-middle">
           <div id="search-box-wrapper">
@@ -57,10 +57,10 @@
           {%- endif %}
           {%- else %}
           {%- if may_review %}
-          <a href="/review/overview" class="button fas fa-clipboard-check" title="Reviewer dashboard"><span class="hidden">Reviewer dashboard</span></a>
+          <a href="/review/overview" class="button fas fa-clipboard-check corporate-identity-privilege-button" title="Reviewer dashboard"><span class="hidden">Reviewer dashboard</span></a>
           {%- endif %}
           {%- if may_administer %}
-          <a href="/admin/dashboard" class="button fas fa-gear" title="Administrator dashboard"><span class="hidden">Administration dashboard</span></a>
+          <a href="/admin/dashboard" class="button fas fa-gear corporate-identity-privilege-button" title="Administrator dashboard"><span class="hidden">Administration dashboard</span></a>
           {%- endif %}
           {%- if not path.startswith("/my") %}<a href="/my/dashboard"><div class="button" id="dashboard-button">Dashboard</div></a>{% endif %}
           <a href="/logout"><div class="button" id="logout-button">Log out</div></a>
@@ -95,8 +95,8 @@
         {%- if path == "/" %}<div id="content-spacer">{% else %}<div id="content-spacer2">{% endif %}</div>
       </div>
     </div>
-    <div id="footer">
-      <div class="logos">
+    <div id="footer" class="corporate-identity-footer">
+      <div class="logos corporate-identity-background">
         <div id="whitelogos">
           <a href="http://www.tudelft.nl" target="_blank" rel="noopener noreferrer">
             <img src="/static/images/logosleft-white-tudelft.png" alt="4TU Delft"></a>

@@ -3,7 +3,6 @@
 <style>
 #portal-summary { padding: .5em .5em .5em 0em; text-align: center; margin: 0 auto; }
 #portal-summary table { text-align: left; display: inline-block; }
-#portal-summary table tbody tr:hover { opacity: 0.5; }
 #portal-summary table tbody td:nth-child(1) {
     text-align: right;
     font-size: 2em;
@@ -66,7 +65,7 @@
   </p>
 </div>
 {%- endif %}
-<h1>Summary</h1>
+<h1 class="corporate-identity-h1">Summary</h1>
 <div id="portal-summary">
   <table>
     <tbody>
@@ -79,7 +78,7 @@
   </table>
 </div>
 
-<h1>Institutions</h1>
+<h1 class="corporate-identity-h1">Institutions</h1>
 <div class="tiles-wrapper">
   <ul class="tiles">
     <li>
@@ -120,7 +119,7 @@
   </ul>
 </div>
 
-<h1>Subjects <span class="h1-suffix">[<a href="/category">All</a>]</span></h1>
+<h1 class="corporate-identity-h1">Subjects <span class="h1-suffix">[<a href="/category">All</a>]</span></h1>
 <div class="tiles-wrapper">
   <ul class="tiles">
     <li>
@@ -364,7 +363,7 @@
 </ul>
 </div>
 
-<h1>Latest datasets <span class="h1-suffix">[<a href="/search">All</a>]</span></h1>
+<h1 class="corporate-identity-h1">Latest datasets <span class="h1-suffix">[<a href="/search">All</a>]</span></h1>
 <div id="latest-datasets">
   <ul>
     {% for (url,title,pub_date,ago,rgba) in latest %}

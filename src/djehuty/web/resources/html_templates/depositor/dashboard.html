@@ -44,7 +44,7 @@
 {% endblock %}
 {% block submenu %}
 <ul>
-  <li class="active">Dashboard
+  <li class="active corporate-identity-submenu-active">Dashboard
   <li class="create-button"><a href="/my/sessions/new">Create API token</a>
   <li><a href="/my/datasets">My Datasets</a>
   <li><a href="/my/collections">My Collections</a>
@@ -54,8 +54,8 @@
 <h1>Dashboard</h1>
 <h2>Quick actions</h2>
 <div class="center">
-  <a id="create-new-dataset" href="/my/datasets/new" class="button neutral-button">Add new dataset</a>
-  <a id="create-new-collection" href="/my/collections/new" class="button neutral-button">Create new collection</a>
+  <a id="create-new-dataset" href="/my/datasets/new" class="button corporate-identity-standard-button">Add new dataset</a>
+  <a id="create-new-collection" href="/my/collections/new" class="button corporate-identity-standard-button">Create new collection</a>
 </div>
 <h2>Storage usage</h2>
 <p>Using {{storage_used}} of {{quota}} ({{percentage_used}}%). <a id="request-more-storage" href="#">Request more storage.</a></p>
@@ -66,7 +66,7 @@
   <div id="quota-reason" class="texteditor"></div>
   <p>Your request will be reviewed by our team and you will be contacted by e-mail about its status.</p>
   <div class="center">
-    <div id="submit-storage-request" class="button neutral-button">Send request for more storage</div>
+    <div id="submit-storage-request" class="button corporate-identity-standard-button">Send request for more storage</div>
   </div>
 </div>
 <h2>Sessions and API tokens</h2>

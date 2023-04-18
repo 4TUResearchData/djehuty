@@ -102,7 +102,7 @@
         <div class="label">data service</div>
         <ul>
     {% for url in services %}
-            <li><a href="{{url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{url}}</a></li>
+            <li><a class="corporate-identity" href="{{url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{url}}</a></li>
     {% endfor %}
         </ul>
     </div>
@@ -114,8 +114,8 @@
         <ul>
     {% for url in opendap %}
             <li>
-                <a href="{{url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{url}}</a>
-                [<a href="{{url|replace('.html','.xml')}}" target="_blank" rel="noopener noreferrer">xml</a>]
+                <a class="corporate-identity" href="{{url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{url}}</a>
+                [<a class="corporate-identity" href="{{url|replace('.html','.xml')}}" target="_blank" rel="noopener noreferrer">xml</a>]
             </li>
     {% endfor %}
         </ul>
@@ -134,16 +134,13 @@
         <ul>
     {% for file in files %}
             <li>
-                <span class="size">{{'{:,}'.format(file.size)}} bytes</span>
-                <span class="md5">
-                    <span>md5</span>
-                    <input readonly value="{{file.computed_md5}}"> </input>
-                </span>
-                <a href="/file/{{item.container_uuid}}/{{file.uuid}}">{{file.name}}</a>
+              <span class="size">{{'{:,}'.format(file.size)}} bytes</span><!--
+              --><span class="md5">MD5:<code>{{file.computed_md5}}</code></span>
+              <a class="corporate-identity" href="/file/{{item.container_uuid}}/{{file.uuid}}">{{file.name}}</a>
             </li>
     {% endfor %}
     {% if files|length > 1 %}
-            <li class="zip"><a href="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}">download all files (zip)</a></li>
+            <li class="zip"><a class="corporate-identity" href="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}">download all files (zip)</a></li>
     {% endif %}
         </ul>
     </div>

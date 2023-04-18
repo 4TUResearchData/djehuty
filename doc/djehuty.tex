@@ -88,23 +88,23 @@ body,html{
 .likechapterHead, .chapterHead {
   margin: 0pt;
   padding: 10pt;
-  background-color: #d26000;
-  color: #ffffff;
+  background-color: #fce3bf;
+  color: #000000;
   -webkit-border-radius: 4pt 4pt 0pt 0pt;
   -moz-border-radius: 4pt 4pt 0pt 0pt;
   border-radius: 4pt 4pt 0pt 0pt;
-  border: solid 1pt #d26000;
+  border: solid 1pt #fce3bf;
 }
 table {
   margin: auto 10pt 10pt 10pt;
   width: 100%;
   max-width: 830pt;
   border-collapse: collapse;
-  border: solid 2pt #f49120;
+  border: solid 2pt #707070;
   line-height: 1em;
 }
 table tr:nth-child(even) { background: #f9f9f9; }
-table tr:first-child { background: #f49120; color: #ffffff; }
+table tr:first-child { background: #707070; color: #ffffff; }
 hr { margin: 5pt 10pt 5pt 10pt; }
 td { font-size: 12pt; padding-left: 10pt; }
 .tableofcontents { padding: 10pt; }
@@ -219,6 +219,14 @@ div.caption {
 \end{html}
 \fi
 \input{knowledge-graph}
+
+\ifdefined\HCode
+\begin{html}
+</div></div><div class="chapter"><div class="chapwrap">
+\end{html}
+\fi
+
+\input{contributing}
 
 \ifdefined\HCode
 \begin{html}

@@ -61,7 +61,7 @@ jQuery(document).ready(function (){
 {% block submenu %}
 <ul>
   <li class="hide-for-javascript"><a id="dashboard" href="/my/dashboard">Dashboard</a>
-  <li class="active">Profile
+  <li class="active corporate-identity-submenu-active">Profile
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save</a>
 {%- if account.author_uuid != "unknown" %}
   <li class="hide-for-javascript"><a id="show-public-profile" href="/authors/{{account.author_uuid}}">Public profile</a>

@@ -51,7 +51,6 @@ jQuery(document).ready(function (){
     font-size: 1.25em;
     margin: .75em 0em .25em 0em;
     font-weight: bold;
-    border-bottom: 2px dotted #f49120;
 }
 #access-wrapper #access-type-wrapper {
     border: none;
@@ -127,7 +126,7 @@ jQuery(document).ready(function (){
   {%- else %}
   <li><a href="/my/datasets">&#8592; Go back</a>
   {%- endif %}
-  <li class="active">Edit dataset
+  <li class="active corporate-identity-submenu-active">Edit dataset
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save draft</a>
   {%- if not article.is_under_review %}
   <li class="hide-for-javascript submit-button"><a id="submit" href="#">Submit for review</a>
@@ -272,7 +271,7 @@ jQuery(document).ready(function (){
   </thead>
   <tbody></tbody>
 </table>
-<h3>Linked resource &amp; references</h3>
+<h3 class="corporate-identity-h3">Linked resource &amp; references</h3>
 <p>If the dataset is published as part of a scientific paper, add its title and DOI here.</p>
 <label for="resource_title">Resource title</label><div class="fas fa-question-circle help-icon"><span class="help-text">Please add the title of the peer-reviewed article/paper or research you want to link back to. This will appear on the public page as the link title. If you add the Resource title, you will need to complete the Resource DOI field.</span></div>
 <input type="text" id="resource_title" name="resource_title" value="{{article["resource_title"] | default("", True)}}" />
@@ -291,7 +290,7 @@ jQuery(document).ready(function (){
 <div id="doi-wrapper" class="options-wrapper">
   <p><a href="#" onclick="javascript:reserve_doi('{{article["container_uuid"]}}'); return false;">Reserve DOI</a>.</p>
 </div>
-<h3>Findability</h3>
+<h3 class="corporate-identity-h3">Findability</h3>
 <label for="language">Language</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select a language from the list.</span></div><span class="required-field">&#8727;</span>
 {% set item = article %}
 {% include 'depositor/language-selector.html' %}
@@ -317,12 +316,12 @@ jQuery(document).ready(function (){
 <label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add keywords that will help make your research more discoverable. Hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
 <div class="input-with-button">
   <input type="text" id="tag" name="tag" value="" />
-  <a id="add-keyword-button" class="form-button neutral-button" href="#">Add keyword</a>
+  <a id="add-keyword-button" class="form-button corporate-identity-standard-button" href="#">Add keyword</a>
 </div>
 <ul id="tags-list"></ul>
 <label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resource. Separate different names with a semicolon (;)</span></div>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{article["organizations"] | default("", True) }}</textarea>
-<h3>Files</h3>
+<h3 class="corporate-identity-h3">Files</h3>
 <label>Type</label>
 <div id="record-type-wrapper" class="options-wrapper">
 <input type="radio" name="record_type" id="metadata_record_only" value="meta" /><!--
@@ -351,7 +350,7 @@ jQuery(document).ready(function (){
   </div>
 </div>
 <div id="software_upload_field" class="record-type-field">
-  <h4>Publish source code through Git</h4>
+  <h4 class="corporate-identity-h4">Publish source code through Git</h4>
   <p>To publish from a Git repository, push a branch to the <code>4tu</code> remote.</p>
   <p>First, add the <code>4tu</code> remote:</p>
   <pre>git remote add 4tu {{base_url}}/v3/datasets/{{article.git_uuid}}.git</pre>
@@ -359,9 +358,9 @@ jQuery(document).ready(function (){
   <pre>
 git push 4tu --all
 git push 4tu --tags</pre>
-  <h4>Repository file tree<span class="no-select"> &nbsp;<a id="refresh-git-files" href="#" class="fas fa-sync"></a></span></h4>
+  <h4 class="corporate-identity-h4">Repository file tree<span class="no-select"> &nbsp;<a id="refresh-git-files" href="#" class="fas fa-sync"></a></span></h4>
   <ul id="git-files"></ul>
-  <h4>Distribution artefacts</h4>
+  <h4 class="corporate-identity-h4">Distribution artefacts</h4>
   <p>
     Software packages oftentimes have separate distribution tarballs
     produced by a build system. If applicable, upload them as files below.
@@ -383,7 +382,7 @@ git push 4tu --tags</pre>
   </table>
 </div>
 </div>
-<h3>Terms and agreement</h3>
+<h3 class="corporate-identity-h3">Terms and agreement</h3>
 <input type="checkbox" name="deposit_agreement" id="deposit_agreement">
 <label class="no-head" for="deposit_agreement">I agree with the <a target="_blank" rel="noopener noreferrer" href="/s/docs/deposit-agreement.pdf">Deposit Agreement</a>.</label><span class="required-field">&#8727;</span><br />
 <input type="checkbox" name="publish_agreement" id="publish_agreement">

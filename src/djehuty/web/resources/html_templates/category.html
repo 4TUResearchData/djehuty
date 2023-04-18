@@ -30,7 +30,6 @@
     margin: 0 auto;
     user-select: none;
 }
-.tile-title a:hover { color: #df7e0e; }
 .subcategories { text-align: center; }
 .subcategories li { display: inline-block; list-style: none; }
 .subcategories li button {
@@ -44,8 +43,6 @@
 }
 .subcategories li button:hover { background: #eeeeee; }
 .subcategories li button:active { background: #e9e9e9; }
-.more a { font-size: 1.10em; color: #f49120; }
-.more a:hover { color: #df7e0e; }
 </style>
 {% endblock %}
 {% block body %}
@@ -65,6 +62,6 @@
   </div>
 </div>
 {% endfor %}
-<p class="more"><a href="/categories/{{category.id}}">View all datasets of {{category.title}} &rarr;</a></p>
+<p class="corporate-identity"><a class="corporate-identity" href="/categories/{{category.id}}">View all datasets of {{category.title}} &rarr;</a></p>
 {% endfor %}
 {% endblock %}

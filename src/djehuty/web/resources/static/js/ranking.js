@@ -28,19 +28,7 @@ function latest_datasets () {
         let output = '<ul class="latest-datasets">';
         let num_items = 0;
         jQuery.each (data, function(index) {
-            if (num_items < 3) {
-                output += '<li class="datasets-stage datasets-stage-one">';
-            } else if (num_items < 8) {
-                output += '<li class="datasets-stage datasets-stage-two">';
-            } else if (num_items < 13) {
-                output += '<li class="datasets-stage datasets-stage-three">';
-            } else if (num_items < 22) {
-                output += '<li class="datasets-stage datasets-stage-four">';
-            } else {
-                output += '<li class="datasets-stage datasets-stage-five">';
-            }
-
-            output += '<a href="/datasets/'+ data[index].uuid +'">';
+            output += '<li><a class="corporate-identity" href="/datasets/'+ data[index].uuid +'">';
             output += data[index].title + '</a></li>';
 
             num_items += 1;
@@ -65,7 +53,7 @@ function top_datasets (item_type) {
     jQuery.get("/v3/datasets/top/" + item_type, parameters, function() {
     }).done(function(data) {
         let output = '<table id="top-datasets"><thead>';
-        output += '<tr><th>Dataset</th><th># '+ capitalize(item_type) +'</th></tr>';
+        output += '<tr class="corporate-identity-background"><th>Dataset</th><th># '+ capitalize(item_type) +'</th></tr>';
         output += '</thead><tbody>';
         jQuery.each (data, function(index) {
             output += '<tr><td>';

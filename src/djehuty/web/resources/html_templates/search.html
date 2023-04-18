@@ -30,7 +30,6 @@
     margin: 0 auto;
     user-select: none;
 }
-.tile-title a:hover { color: #df7e0e; }
 .search-terms { text-align: center; }
 .search-terms li { display: inline-block; list-style: none; }
 .search-terms li button {
@@ -56,8 +55,6 @@
     user-select: none;
     border-radius: .5em .5em 0em 0em;
 }
-.tabs li.active { background: #f49120; }
-.tabs li.active a { color: #ffffff; text-decoration: none; }
 .loader {
     display: block;
     width: 100%;
@@ -68,20 +65,6 @@
     background-repeat: no-repeat;
     z-index: 100;
 }
-#top-datasets th { text-align: left; white-space: nowrap; color: #ffffff; padding: .5em; }
-#top-datasets-wrapper table { width: 100%; max-width: 880pt; border: solid 2pt #f49120; }
-#top-datasets thead tr { background: #f49120; }
-#top-datasets tbody tr td { padding: .5em; z-index: 50; }
-#top-datasets tbody tr:nth-child(odd) { background: #fafafa; }
-#top-datasets tbody tr td:last-child { text-align: right; width: 130pt; }
-#top-datasets thead tr th:last-child { text-align: right; }
-#top-datasets tbody tr td:nth-child(1) {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    max-width: 750pt;
-}
-#top-datasets td { text-align: left; }
 </style>
 {% endblock %}
 {% block body %}

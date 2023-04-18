@@ -1,4 +1,4 @@
-#wrapper #content a             { color: #f49120; text-decoration: none }
+#wrapper #content a             { text-decoration: none }
 #wrapper #content a:hover       { text-decoration: underline }
 #wrapper #content #doi          { margin-bottom: 20px; width: 500px }
 #wrapper #content #doi span     { color: #fff; background-color: #000; padding: 0px 5px 0px 5px }
@@ -17,9 +17,7 @@
 #wrapper #content #funding ul   { list-style-type: square; margin-left: 20px }
 #wrapper #content #funding .funder_name { display: block; color: #999 }
 #wrapper #content #files .size   { display: inline-block; width:120px; font-size:12px; color: #999; text-align:right; margin-right:5px }
-#wrapper #content #files .md5       span   { font-size: 75%; background-color: #f49120; color: #fff }
-#wrapper #content #files .md5       input  { display: none }
-#wrapper #content #files .md5:hover input  { display: inline; width:240px; border:none }
+#wrapper #content #files .md5   { font-size: 75%;  color: #333; font-family: monospace; margin: auto 1em auto 1em; }
 #wrapper #content #metadata #left_column  { width: 65%; margin-bottom:10px }
 #wrapper #content #metadata #right_column { float: right; width: 33%; margin-bottom:10px }
 #wrapper #content .warning      { background-color: #ff0 }
