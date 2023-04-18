@@ -67,14 +67,14 @@
 .corporate-identity-standard-button:hover { background: #d26000; cursor: pointer; color: #fff; text-decoration: none; }
 .corporate-identity-standard-button:active { background: #9d4800; cursor: pointer; color: #fff; text-decoration: none; }
 
-.corporate-identity {
+.corporate-identity-table {
     width: 100%;
     max-width: 880pt;
     border: solid 2pt #f49120;
     border-radius: .5em;
 }
-.corporate-identity thead tr { background: #f49120; border-radius: .5em .5em 0em 0em; }
-.corporate-identity thead tr th {
+.corporate-identity-table thead tr { background: #f49120; border-radius: .5em .5em 0em 0em; }
+.corporate-identity-table thead tr th {
     color: #000;
     text-align: left;
     padding: .5em;
@@ -83,11 +83,11 @@
     white-space: nowrap;
     min-width: 60pt;
 }
-.corporate-identity tbody tr td { padding: .5em; z-index: 50; white-space: nowrap; }
-.corporate-identity thead tr th:last-child { text-align: right; }
-.corporate-identity tbody tr:nth-child(even) { background: #fafafa; }
-.corporate-identity tbody tr td:last-child { text-align: right; width: 130pt; }
-.corporate-identity tbody tr td:nth-child(1) {
+.corporate-identity-table tbody tr td { padding: .5em; z-index: 50; white-space: nowrap; }
+.corporate-identity-table thead tr th:last-child { text-align: right; }
+.corporate-identity-table tbody tr:nth-child(even) { background: #fafafa; }
+.corporate-identity-table tbody tr td:last-child { text-align: right; width: 130pt; }
+.corporate-identity-table tbody tr td:nth-child(1) {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -96,6 +96,7 @@
 }
 
 #corporate-identity-logo { content: url("/static/images/logo.png"); height: 60px; }
+#logo { height: 60px; } /* Backward compatibility: Remove after a week. */
 
 body,html {
     width: 100%;
