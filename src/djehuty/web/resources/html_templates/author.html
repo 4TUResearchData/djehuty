@@ -133,8 +133,8 @@
         <ul>
     {% for collaborator in collaborators %}
             <li>
-                <a class="corporate-identity" {% if collaborator.is_active %}class="is_active"{%endif%}
-                   href="/authors/{{collaborator.   collaborator_uuid}}"
+                <a class="corporate-identity {% if collaborator.is_active %}is_active{% endif %}"
+                   href="/authors/{{collaborator.collaborator_uuid}}"
                    title="">{{collaborator.full_name}}</a>
             </li>
     {% endfor %}
