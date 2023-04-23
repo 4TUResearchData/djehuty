@@ -633,18 +633,24 @@ function activate (dataset_uuid) {
             maxFilesize:       1000000,
             maxFiles:          1000000,
             parallelUploads:   1000000,
+            autoProcessQueue:  false,
+            autoQueue:         true,
             ignoreHiddenFiles: false,
             disablePreviews:   false,
             init: function() {},
             accept: function(file, done) {
                 done();
-                render_files_for_dataset (dataset_uuid, fileUploader);
+                fileUploader.processQueue();
+            },
+            complete: function (file) {
+                if (fileUploader.getUploadingFiles().length === 0 &&
+                    fileUploader.getQueuedFiles().length === 0) {
+                    render_files_for_dataset (dataset_uuid, fileUploader);
+                } else {
+                    fileUploader.processQueue();
+                }
+                fileUploader.removeFile(file);
             }
-        });
-
-        fileUploader.on("complete", function(file) {
-            render_files_for_dataset (dataset_uuid, fileUploader);
-            fileUploader.removeFile(file);
         });
 
         jQuery("input[name='record_type']").change(function () {
@@ -779,9 +785,10 @@ function perform_upload (files, current_file, dataset_uuid) {
         contentType: false
     }).done(function () {
         jQuery("#file-upload h4").text("Drag files here");
-        render_files_for_dataset (dataset_uuid, null);
         if (current_file < total_files) {
             return perform_upload (files, current_file + 1, dataset_uuid);
+        } else {
+            render_files_for_dataset (dataset_uuid, null);
         }
     }).fail(function () {
         show_message ("failure", "<p>Uploading file(s) failed.</p>");
