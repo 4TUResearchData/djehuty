@@ -15,8 +15,10 @@ function add_dataset_to_collection (dataset_id, collection_id) {
 }
 
 function toggle_access_request (event) {
-    event.preventDefault();
-    event.stopPropagation();
+    if (event !== null) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
     let access_request_div = jQuery("#access-request-wrapper");
     if (access_request_div.is(":visible")) {
         jQuery("#access-request-wrapper").slideUp(150, function (){
