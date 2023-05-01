@@ -60,11 +60,10 @@ def decimal_coord(raw_input, axis, digits=5):
     '''
     pattern = r"""^(-?\d+)º\s*(\d+)[’']\s*((\d+)(\.\d?)?)((’’)|('')|")\s*([NESW]?)$"""
     if raw_input is not None:
-        raw_input = str(raw_input) #fix for cases where raw_input is already numerical (bug)
-        raw_input = raw_input.strip()
         try:
             deg = float(raw_input)
         except ValueError:
+            raw_input = str(raw_input).strip()
             match = re.search(pattern, raw_input)
             if match:
                 components = match.groups()
