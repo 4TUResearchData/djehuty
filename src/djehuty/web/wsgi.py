@@ -574,7 +574,8 @@ class ApiServer:
 
     def default_error_handling (self, request, method, content_type):
         """Procedure to handle both method and content type mismatches."""
-        if request.method != method:
+        if (request.method != method and
+            (not (method == "GET" and request.method == "HEAD"))):
             return self.error_405 (method)
 
         if not self.accepts_content_type (request, content_type, strict=False):
