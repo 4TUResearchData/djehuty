@@ -645,6 +645,12 @@ function activate (dataset_uuid) {
             complete: function (file) {
                 if (fileUploader.getUploadingFiles().length === 0 &&
                     fileUploader.getQueuedFiles().length === 0) {
+                    let rejected_files = fileUploader.getRejectedFiles();
+                    for (rejected of rejected_files) {
+                        if (rejected.status == "error") {
+                            show_message ("failure", `<p>Failed to upload '${rejected.upload.filename}'.</p>`);
+                        }
+                    }
                     render_files_for_dataset (dataset_uuid, fileUploader);
                 } else {
                     fileUploader.processQueue();
