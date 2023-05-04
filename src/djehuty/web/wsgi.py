@@ -3,6 +3,7 @@
 from datetime import date
 import os.path
 import os
+import getpass
 import logging
 import json
 import hashlib
@@ -6315,6 +6316,10 @@ class ApiServer:
             ## in the .git directory of the repository.  The following
             ## environment variable overrides this behavior.
             "GIT_HTTP_EXPORT_ALL": "1",
+
+            ## Git's http-backend checks for whether the REMOTE_USER matches
+            ## the local user.  We match it to the user of the running process.
+            "REMOTE_USER": getpass.getuser(),
 
             ## Passthrough some HTTP information.
             "GIT_PROTOCOL":        git_protocol,
