@@ -5976,16 +5976,21 @@ class ApiServer:
             bytes_to_read      = bytes_to_read - read_ahead_bytes - headers_len
             content_to_read    = bytes_to_read - len(expected_end)
 
-            self.locks.lock (locks.LockTypes.FILE_LIST)
-            file_uuid = self.db.insert_file (
-                name          = filename,
-                size          = computed_file_size,
-                is_link_only  = 0,
-                upload_url    = f"/article/{dataset_id}/upload",
-                upload_token  = self.token_from_request (request),
-                dataset_uri   = dataset["uri"],
+            try:
+                self.locks.lock (locks.LockTypes.FILE_LIST)
+                file_uuid = self.db.insert_file (
+                    name          = filename,
+                    size          = computed_file_size,
+                    is_link_only  = 0,
+                    upload_url    = f"/article/{dataset_id}/upload",
+                    upload_token  = self.token_from_request (request),
+                    dataset_uri   = dataset["uri"],
                 account_uuid  = account_uuid)
-            self.locks.unlock (locks.LockTypes.FILE_LIST)
+                self.locks.unlock (locks.LockTypes.FILE_LIST)
+            except RuntimeError as error:
+                self.log.error ("Failed to create file metadata for %s:",
+                                dataset_id, error)
+                self.error_500 ()
 
             output_filename = f"{self.db.storage}/{dataset_id}_{file_uuid}"
 
