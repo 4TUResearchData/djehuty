@@ -2433,8 +2433,11 @@ class ApiServer:
         my_collections = []
         my_email = None
         my_name  = None
+        is_own_item = False
         account_uuid = self.account_uuid_from_request (request)
         if account_uuid:
+            dataset_account_uuid = value_or_none(dataset, 'account_uuid')
+            is_own_item = dataset_account_uuid == account_uuid
             my_collections = self.db.collections_by_account (account_uuid = account_uuid)
             # Name and email may be needed to request access to data with restricted access.
             if value_or_none(dataset, 'is_restricted'):
@@ -2454,7 +2457,10 @@ class ApiServer:
         id_version    = f"{dataset_id}/{version}" if version else f"{dataset_id}"
 
         authors       = self.db.authors(item_uri=dataset["uri"], limit=None)
-        files         = self.db.dataset_files(dataset_uri=dataset["uri"], limit=None)
+        files_params  = {'dataset_uri': dataset['uri'], 'limit': None}
+        if is_own_item:
+            files_params['account_uuid'] = account_uuid
+        files         = self.db.dataset_files(**files_params)
         tags          = self.db.tags(item_uri=dataset["uri"], limit=None)
         categories    = self.db.categories(item_uri=dataset["uri"], limit=None)
         references    = self.db.references(item_uri=dataset["uri"], limit=None)
@@ -2536,7 +2542,8 @@ class ApiServer:
                                        git_repository_url=git_repository_url,
                                        private_view=private_view,
                                        my_email=my_email,
-                                       my_name=my_name)
+                                       my_name=my_name,
+                                       is_own_item=is_own_item)
 
     def ui_data_access_request (self, request):
         """Implements /data_access_request."""
@@ -2838,14 +2845,27 @@ class ApiServer:
             if version != "draft":
                 dataset  = self.__dataset_by_id_or_uri (dataset_id, version=version)
 
+            account_uuid = self.account_uuid_from_request (request)
+            unlock_account_uuid = None
+
+            ## If there is some form of access restriction, check if the user
+            ## is the owner of the dataset
+            if account_uuid is not None and dataset is not None:
+                is_embargoed = validator.boolean_value (dataset, "is_embargoed", when_none=False)
+                embargo_options = validator.array_value (dataset, "embargo_options")
+                embargo_option  = value_or_none (embargo_options, 0)
+                is_restricted   = value_or (embargo_option, "id", 0) == 1000
+                is_closed       = value_or (embargo_option, "id", 0) == 1001
+                if is_embargoed or is_restricted or is_closed:
+                    if value_or_none(dataset, 'account_uuid') == account_uuid:
+                        unlock_account_uuid = account_uuid
+
             ## When downloading a file from a dataset that isn't published,
             ## we need to authorize it first.
-            if dataset is None and version == "draft":
-                account_uuid = self.account_uuid_from_request (request)
-                if account_uuid is not None:
-                    dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                           account_uuid = account_uuid,
-                                                           is_published = False)
+            if dataset is None and account_uuid is not None and version == "draft":
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                       account_uuid = account_uuid,
+                                                       is_published = False)
 
             ## Check whether the download is requested from a private link.
             if dataset is None:
@@ -2856,7 +2876,7 @@ class ApiServer:
                 self.log.error ("Download-all for %s failed: Dataset not found.", dataset_id)
                 return self.error_404 (request)
 
-            metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
+            metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"], account_uuid=unlock_account_uuid)
             file_paths = []
             for file_info in metadata:
                 file_paths.append ({
@@ -2886,21 +2906,34 @@ class ApiServer:
     def ui_download_file (self, request, dataset_id, file_id):
         """Implements /file/<id>/<fid>."""
         try:
-            metadata = self.__file_by_id_or_uri (file_id)
+            dataset = self.__dataset_by_id_or_uri (dataset_id)
+            account_uuid = self.account_uuid_from_request (request)
+            unlock_account_uuid = None
+
+            ## If there is some form of access restriction, check if the user
+            ## is the owner of the dataset
+            if account_uuid is not None and dataset is not None:
+                is_embargoed = validator.boolean_value (dataset, "is_embargoed", when_none=False)
+                embargo_options = validator.array_value (dataset, "embargo_options")
+                embargo_option  = value_or_none (embargo_options, 0)
+                is_restricted   = value_or (embargo_option, "id", 0) == 1000
+                is_closed       = value_or (embargo_option, "id", 0) == 1001
+                if is_embargoed or is_restricted or is_closed:
+                    if value_or_none(dataset, 'account_uuid') == account_uuid:
+                        unlock_account_uuid = account_uuid
+
+            metadata = self.__file_by_id_or_uri (file_id, account_uuid=unlock_account_uuid)
+
             if metadata is None:
                 self.log.error ("Cannot find file metadata for %s.", file_id)
                 return self.error_404 (request)
 
-            dataset = self.__dataset_by_id_or_uri (dataset_id)
-
             ## When downloading a file from a dataset that isn't published,
             ## we need to authorize it first.
-            if dataset is None:
-                account_uuid = self.account_uuid_from_request (request)
-                if account_uuid is not None:
-                    dataset = self.__dataset_by_id_or_uri (metadata["container_uuid"],
-                                                           account_uuid = account_uuid,
-                                                           is_published = False)
+            if dataset is None and account_uuid is not None:
+                dataset = self.__dataset_by_id_or_uri (metadata["container_uuid"],
+                                                       account_uuid = account_uuid,
+                                                       is_published = False)
 
             ## Check whether a download is requested from a private link.
             if dataset is None:

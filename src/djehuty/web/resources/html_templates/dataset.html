@@ -94,8 +94,14 @@
             Data is undisclosed.
     {% endif %}
         </div>
-{% else %}
+{% endif %}
+{% if is_own_item and (item.is_restricted or item.is_embargoed) %}
+    <div id="is_own_item">As the owner of this dataset, you have access to the data files.</div>
+{% endif %}
+{% if not(item.is_restricted or item.is_embargoed) %}
     <h3>DATA</h3>
+{% endif %}
+{% if is_own_item or not(item.is_restricted or item.is_embargoed) %}
 {% if services %}
 {# test 12717890 #}
     <div id="services">
@@ -152,7 +158,7 @@
                      "files":files, "services":services, "tags":tags, "categories":categories, "fundings":fundings,
                      "references": references, "derived_from":derived_from, "collections":collections, "my_collections":my_collections,
                      "dates":dates, "coordinates":coordinates, "id_version":id_version, "opendap":opendap, "statistics":statistics,
-                     "my_email":my_email, "my_name":my_name, "private_view":private_view} %}
+                     "my_email":my_email, "my_name":my_name, "private_view":private_view, "is_own_item":is_own_item} %}
 {% set djehuty_API   = "/v2/articles/"~pid %}
 {% set figshare_html = "https://data.4tu.nl/articles/_/"~pid %}
 {% set figshare_API = "https://api.figshare.com/v2/articles/"~pid %}

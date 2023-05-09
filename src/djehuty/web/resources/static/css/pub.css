@@ -42,4 +42,5 @@
 #wrapper #content #has-account  { margin-top: 80px; clear: both }
 #wrapper #content #limited_access p { margin-top: 5px; margin-bottom: 5px }
 #wrapper #content #limited_access h4 { margin-top: 10px; margin-bottom: 0px }
+#wrapper #content #is_own_item  { padding:5px; border-radius:5px; background-color: #ffeeaa }
 
