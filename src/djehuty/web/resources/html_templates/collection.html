@@ -17,7 +17,7 @@
     <ul>
 {% for dataset in datasets %}
         <li>
-            [{{dataset.type}}] <a href="/datasets/{{dataset.container_uuid}}" title="first online {{dataset.date[:10]}}">{{dataset.title}}</a>
+            [{{dataset.type}}] <a class="corporate-identity" href="/datasets/{{dataset.container_uuid}}" title="first online {{dataset.date[:10]}}">{{dataset.title}}</a>
         </li>
 {% endfor %}
     </ul>
