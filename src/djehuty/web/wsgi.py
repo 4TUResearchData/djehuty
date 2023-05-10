@@ -128,6 +128,7 @@ class ApiServer:
             Rule("/admin/maintenance",                        endpoint = "ui_admin_maintenance"),
             Rule("/admin/maintenance/clear-cache",            endpoint = "ui_admin_clear_cache"),
             Rule("/admin/maintenance/clear-sessions",         endpoint = "ui_admin_clear_sessions"),
+            Rule("/admin/maintenance/repair-md5s/<container_uuid>", endpoint = "ui_admin_repair_md5s"),
             Rule("/categories/<category_id>",                 endpoint = "ui_categories"),
             Rule("/category",                                 endpoint = "ui_category"),
             Rule("/institutions/<institution_name>",          endpoint = "ui_institution"),
@@ -2223,6 +2224,38 @@ class ApiServer:
             return redirect ("/", code=302)
 
         return self.error_403 (request)
+
+    def ui_admin_repair_md5s (self, request, container_uuid):
+        """Attempts to repair the MD5 checksums for DATASET_ID."""
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        account_uuid = None
+        try:
+            dataset = self.db.datasets (container_uuid = container_uuid, is_published=False)[0]
+            account_uuid = dataset["account_uuid"]
+        except (IndexError, KeyError) as error:
+            self.log.error ("Cannot find dataset or account UUID: %s", error)
+            return self.error_500 ()
+
+        files = self.db.missing_checksummed_files_for_container (container_uuid)
+        for row in files:
+            file_uuid = row["file_uuid"]
+            computed_md5 = None
+            md5 = hashlib.new ("md5", usedforsecurity=False)
+            filename = f"{self.db.storage}/{container_uuid}_{file_uuid}"
+            with open(filename, "rb") as stream:
+                for chunk in iter(lambda: stream.read(4096), b""):
+                    md5.update(chunk)
+                computed_md5 = md5.hexdigest()
+
+                self.log.info ("Generated %s for %s", computed_md5, file_uuid)
+                self.db.update_file (account_uuid, file_uuid, dataset["uuid"],
+                                     computed_md5 = computed_md5,
+                                     filesystem_location = filename)
+
+        return self.respond_201 ({ "message": "The MD5 sums have been regenerated."})
 
     def __email_from_request (self, request):
         """Attempts to find the e-mail address associated with REQUEST."""

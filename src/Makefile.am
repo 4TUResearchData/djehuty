@@ -142,6 +142,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/contact_info_from_container.sparql \
     djehuty/web/resources/sparql_templates/latest_datasets_portal.sparql      \
     djehuty/web/resources/sparql_templates/licenses.sparql                    \
+    djehuty/web/resources/sparql_templates/missing_checksummed_files_for_container.sparql \
     djehuty/web/resources/sparql_templates/opendap_to_doi.sparql              \
     djehuty/web/resources/sparql_templates/prefixes.sparql                    \
     djehuty/web/resources/sparql_templates/private_links.sparql               \

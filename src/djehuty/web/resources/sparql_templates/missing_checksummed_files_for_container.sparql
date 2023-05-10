@@ -1,0 +1,16 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?file_uuid ?dataset_uuid
+WHERE {
+  GRAPH <https://data.4tu.nl> {
+    ?container        rdf:type        djht:DatasetContainer .
+    ?dataset          rdf:type        djht:Dataset .
+    ?dataset          djht:container  ?container .
+    ?dataset          djht:files/rdf:rest*/rdf:first ?file .
+    FILTER NOT EXISTS { ?file djht:computed_md5 ?computer_md5 . }
+    BIND (STRAFTER(STR(?file), "file:") AS ?file_uuid)
+    BIND (STRAFTER(STR(?dataset), "dataset:") AS ?dataset_uuid)
+    FILTER (?container  = <container:{{container_uuid}}>)
+  }
+}
+{% endblock %}

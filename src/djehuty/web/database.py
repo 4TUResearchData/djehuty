@@ -2499,6 +2499,17 @@ class SparqlInterface:
 
         return None
 
+    def missing_checksummed_files_for_container (self, container_uuid):
+        """
+        Returns a list of file UUIDs and paths of files without checksums
+        for CONTAINER_UUID.
+        """
+
+        query = self.__query_from_template ("missing_checksummed_files_for_container", {
+            "container_uuid": container_uuid
+        })
+        return self.__run_query (query)
+
     def initialize_privileged_accounts (self):
         """Ensures privileged accounts are present in the database."""
 
