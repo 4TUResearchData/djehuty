@@ -2457,7 +2457,7 @@ class ApiServer:
         id_version    = f"{dataset_id}/{version}" if version else f"{dataset_id}"
 
         authors       = self.db.authors(item_uri=dataset["uri"], limit=None)
-        files_params  = {'dataset_uri': dataset['uri'], 'limit': None}
+        files_params  = {'dataset_uri': dataset['uri'], 'limit': None, 'order': 'order_name'}
         if is_own_item:
             files_params['account_uuid'] = account_uuid
         files         = self.db.dataset_files(**files_params)
