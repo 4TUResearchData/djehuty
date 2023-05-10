@@ -6,7 +6,7 @@
     <meta name="keywords" content="figshare, api, 4tu, 4tu.researchdata">
     <meta name="author" content="4TU.ResearchData">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' api.figshare.com ndownloader.figshare.com s3-eu-west-1.amazonaws.com 'unsafe-inline'">
-    <title>4TU.ResearchData</title>
+    <title>{% if page_title %}{{page_title|safe}}{% else %}4TU.ResearchData{% endif %}</title>
     <link rel='shortcut icon' type='image/x-icon' href='/static/images/favicon.ico'>
     <link rel="stylesheet" type="text/css" href="/static/css/main.css">
     {% block headers %}{% endblock %}

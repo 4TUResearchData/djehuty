@@ -2543,7 +2543,8 @@ class ApiServer:
                                        private_view=private_view,
                                        my_email=my_email,
                                        my_name=my_name,
-                                       is_own_item=is_own_item)
+                                       is_own_item=is_own_item,
+                                       page_title=f"{dataset['title']} ({dataset['defined_type_name']})")
 
     def ui_data_access_request (self, request):
         """Implements /data_access_request."""
@@ -2689,7 +2690,8 @@ class ApiServer:
                                        member_url_name=member_url_name,
                                        datasets=datasets,
                                        statistics=statistics,
-                                       private_view=private_view)
+                                       private_view=private_view,
+                                       page_title=f"{collection['title']} (collection)")
 
     def ui_author (self, request, author_uuid):
         """Implements /authors/<id>."""
@@ -2723,7 +2725,8 @@ class ApiServer:
                                            member=member,
                                            member_url_name=member_url_name,
                                            categories=categories,
-                                           statistics=statistics)
+                                           statistics=statistics,
+                                           page_title=f"{value_or(profile, 'full_name', 'unknown')} (profile)")
         except IndexError:
             return self.error_404 (request)
 
@@ -3050,7 +3053,8 @@ class ApiServer:
                                            articles=datasets,
                                            dataset_count=dataset_count,
                                            message=message,
-                                           display_terms=display_list)
+                                           display_terms=display_list,
+                                           page_title=f"{search_for} (search)")
         return self.error_406 ("text/html")
 
     def api_authorize (self, request):
