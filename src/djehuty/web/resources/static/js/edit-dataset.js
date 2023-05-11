@@ -632,7 +632,7 @@ function activate (dataset_uuid) {
             paramName:         "file",
             maxFilesize:       1000000,
             maxFiles:          1000000,
-            parallelUploads:   1000000,
+            parallelUploads:   1,
             autoProcessQueue:  false,
             autoQueue:         true,
             ignoreHiddenFiles: false,
