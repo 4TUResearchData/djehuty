@@ -6060,7 +6060,7 @@ class ApiServer:
                 account_uuid  = account_uuid)
                 self.locks.unlock (locks.LockTypes.FILE_LIST)
             except RuntimeError as error:
-                self.log.error ("Failed to create file metadata for %s:",
+                self.log.error ("Failed to create file metadata for %s: %s",
                                 dataset_id, error)
                 self.error_500 ()
 
