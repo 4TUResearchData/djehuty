@@ -19,10 +19,10 @@ class Locks:
     ## Only ever allow one instance of this class to exist,
     ## so that we prevent re-initializing locks.
     _instance = None
-    def __new__ (self):
-        if self._instance is None:
-            self._instance = super().__new__(self)
-        return self._instance
+    def __new__ (cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     def __init__ (self):
         self.locks = {
