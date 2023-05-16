@@ -2246,7 +2246,7 @@ class ApiServer:
             md5 = hashlib.new ("md5", usedforsecurity=False)
             filename = f"{self.db.storage}/{container_uuid}_{file_uuid}"
             with open(filename, "rb") as stream:
-                for chunk in iter(lambda: stream.read(4096), b""):
+                for chunk in iter(lambda: stream.read(4096), b""): # pylint: disable=cell-var-from-loop
                     md5.update(chunk)
                 computed_md5 = md5.hexdigest()
 
