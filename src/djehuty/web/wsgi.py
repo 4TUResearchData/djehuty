@@ -1587,7 +1587,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             if not validator.is_valid_uuid (dataset_uuid):
                 return self.error_404 (request)
 
@@ -1622,7 +1622,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             if not validator.is_valid_uuid (collection_uuid):
                 return self.error_404 (request)
 
@@ -1802,7 +1802,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             if self.accepts_html (request):
                 try:
                     session = self.db.sessions (account_uuid, session_uuid=session_uuid)[0]
@@ -2280,7 +2280,7 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             email = self.__email_from_request (request)
             return self.__render_template (request, "feedback.html", email=email)
 
@@ -3419,7 +3419,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             try:
                 offset, limit = self.__paging_offset_and_limit (request)
                 records = self.db.datasets (limit=limit,
@@ -3490,7 +3490,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             try:
                 dataset     = self.__dataset_by_id_or_uri (dataset_id,
                                                            account_uuid=account_uuid,
@@ -3640,7 +3640,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             try:
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                        account_uuid=account_uuid,
@@ -3782,7 +3782,7 @@ class ApiServer:
         if request.method not in accepted_methods:
             return self.error_405 (accepted_methods)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             try:
                 item = item_by_id_procedure (item_id,
                                              account_uuid=account_uuid,
@@ -4014,7 +4014,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             try:
                 dataset       = self.__dataset_by_id_or_uri (dataset_id,
                                                              account_uuid=account_uuid,
@@ -4109,7 +4109,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                    account_uuid = account_uuid,
                                                    is_published = False)
@@ -4145,7 +4145,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             try:
                 dataset       = self.__dataset_by_id_or_uri (dataset_id,
                                                              account_uuid=account_uuid,
@@ -4229,7 +4229,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             try:
                 dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                        account_uuid = account_uuid,
@@ -4294,7 +4294,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
 
             dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                    account_uuid = account_uuid,
@@ -4379,7 +4379,7 @@ class ApiServer:
         if dataset is None:
             return self.error_404 (request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             links = self.db.private_links (
                         item_uri   = dataset["uri"],
                         id_string  = link_id,
@@ -4782,7 +4782,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             ## Parameters
             ## ----------------------------------------------------------------
             offset, limit = self.__paging_offset_and_limit (request)
@@ -4875,7 +4875,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             try:
                 collection    = self.__collection_by_id_or_uri (collection_id,
                                                                 account_uuid = account_uuid,
@@ -4996,7 +4996,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             try:
                 collection = self.__collection_by_id_or_uri (collection_id,
                                                              account_uuid = account_uuid,
@@ -5120,7 +5120,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             try:
                 collection = self.__collection_by_id_or_uri (collection_id,
                                                              is_published = False,
@@ -5892,7 +5892,7 @@ class ApiServer:
         if account is None:
             return self.error_authorization_failed (request)
 
-        if request.method == "GET" or request.method == "HEAD":
+        if request.method in ("GET", "HEAD"):
             try:
                 file_path = account["profile_image"]
                 mimetype = self.__image_mimetype (file_path)
@@ -6159,7 +6159,7 @@ class ApiServer:
             references     = self.db.references (item_uri     = item["uri"],
                                                  account_uuid = account_uuid)
 
-            if request.method == "GET" or request.method == "HEAD":
+            if request.method in ("GET", "HEAD"):
                 return self.default_list_response (references, formatter.format_reference_record)
 
             references     = list(map(lambda reference: reference["url"], references))
@@ -6258,7 +6258,7 @@ class ApiServer:
                 order           = validator.integer_value (request.args, "order"),
                 order_direction = validator.order_direction (request.args, "order_direction"))
 
-            if request.method == "GET" or request.method == "HEAD":
+            if request.method in ("GET", "HEAD"):
                 return self.default_list_response (tags, formatter.format_tag_record)
 
             tags     = list(map(lambda tag: tag["tag"], tags))
