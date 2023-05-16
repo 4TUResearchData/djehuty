@@ -3658,7 +3658,7 @@ class ApiServer:
 
             return self.error_500 ()
 
-        if request.method in ['POST', 'PUT']:
+        if request.method in ('POST', 'PUT'):
             ## The 'parameters' will be a dictionary containing a key "authors",
             ## which can contain multiple dictionaries of author records.
             parameters = request.get_json()
@@ -3803,7 +3803,7 @@ class ApiServer:
 
             return self.error_500 ()
 
-        if request.method in ['POST', 'PUT']:
+        if request.method in ('POST', 'PUT'):
             ## The 'parameters' will be a dictionary containing a key "funders",
             ## which can contain multiple dictionaries of funding records.
             parameters = request.get_json()
@@ -5014,7 +5014,7 @@ class ApiServer:
 
             return self.error_500 ()
 
-        if request.method in ['POST', 'PUT']:
+        if request.method in ('POST', 'PUT'):
             ## The 'parameters' will be a dictionary containing a key "authors",
             ## which can contain multiple dictionaries of author records.
             parameters = request.get_json()
@@ -6152,7 +6152,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method not in ['GET', 'POST', 'DELETE']:
+        if request.method not in ('GET', 'POST', 'DELETE'):
             return self.error_405 (["GET", "POST", "DELETE"])
 
         try:
@@ -6243,7 +6243,7 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if request.method not in ['GET', 'POST', 'DELETE']:
+        if request.method not in ('GET', 'POST', 'DELETE'):
             return self.error_405 (["GET", "POST", "DELETE"])
 
         try:
