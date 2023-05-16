@@ -145,11 +145,9 @@
               <a class="corporate-identity" href="/file/{{item.container_uuid}}/{{file.uuid}}">{{file.name}}</a>
             </li>
     {% endfor %}
-    {% if files|length > 1 %}
             <li class="zip"><a class="corporate-identity" href="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}">download all files (zip)</a>
                 <div id="total_size">{{'{:,}'.format(files_size)}} bytes unzipped</div>
             </li>
-    {% endif %}
         </ul>
     </div>
 {% endif %}
