@@ -3583,7 +3583,7 @@ class ApiServer:
                     data_link       = validator.string_value  (record, "data_link",      0, 255),
                     derived_from    = validator.string_value  (record, "derived_from",   0, 255),
                     same_as         = validator.string_value  (record, "same_as",        0, 255),
-                    organizations   = validator.string_value  (record, "organizations",  0, 512),
+                    organizations   = validator.string_value  (record, "organizations",  0, 2048),
                     is_embargoed    = is_embargoed,
                     is_restricted   = is_restricted,
                     is_metadata_record = validator.boolean_value (record, "is_metadata_record", when_none=False),
@@ -4915,7 +4915,7 @@ class ApiServer:
                     geolocation     = validator.string_value  (record, "geolocation",    0, 255),
                     longitude       = validator.string_value  (record, "longitude",      0, 64),
                     latitude        = validator.string_value  (record, "latitude",       0, 64),
-                    organizations   = validator.string_value  (record, "organizations",  0, 512),
+                    organizations   = validator.string_value  (record, "organizations",  0, 2048),
                     categories      = validator.array_value   (record, "categories"),
                 )
                 if result is None:
@@ -5796,7 +5796,7 @@ class ApiServer:
                 "data_link":          validator.string_value  (record, "data_link",      0, 255,   False, errors),
                 "derived_from":       validator.string_value  (record, "derived_from",   0, 255,   False, errors),
                 "same_as":            validator.string_value  (record, "same_as",        0, 255,   False, errors),
-                "organizations":      validator.string_value  (record, "organizations",  0, 512,   False, errors),
+                "organizations":      validator.string_value  (record, "organizations",  0, 2048,   False, errors),
                 "is_embargoed":       is_embargoed,
                 "is_restricted":      is_restricted,
                 "is_metadata_record": validator.boolean_value (record, "is_metadata_record", when_none=False),
