@@ -117,6 +117,7 @@ jQuery(document).ready(function (){
 .preview-button a:hover { background: #96937e !important; }
 #doi-wrapper p { margin: 0pt; }
 .article-content-loader { display: none; }
+#files-table-actions { text-align: right; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -374,6 +375,12 @@ git push 4tu --tags</pre>
 </form>
 </div>
 <div id="files-wrapper" class="record-type-field">
+  <div id="files-table-actions">
+    {%- if may_administer %}
+    <a id="repair-md5s" href="/admin/maintenance/repair-md5s/{{container_uuid}}" target="_blank">Repair MD5 sums</a>
+    {%- endif %}
+    <a id="remove-all-files" href="#">Remove all files</a>
+  </div>
   <table class="inside-form-table" id="files">
     <thead>
       <tr><th>Filename</th><th>MD5 Checksum</th><th>Actions</th></tr>

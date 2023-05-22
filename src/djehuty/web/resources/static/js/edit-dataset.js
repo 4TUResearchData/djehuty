@@ -166,6 +166,35 @@ function save_dataset (dataset_uuid, event, notify=true, on_success=jQuery.noop)
     });
 }
 
+function delete_all_files (dataset_uuid) {
+    jQuery.ajax({
+        url:         `/v2/account/articles/${dataset_uuid}/files`,
+        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (files) {
+        for (let index in files) {
+            let file = files[index];
+            remove_file (file.uuid, dataset_uuid, rerender=false);
+        }
+        jQuery("#files tbody").empty();
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to remove files.</p>");
+    });
+}
+
+function repair_md5_sums (dataset_uuid) {
+    jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}/repair_md5s`,
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (record) {
+        location.reload();
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to repair MD5 checksums.</p>")
+    });
+}
+
 function reserve_doi (dataset_uuid) {
     jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/reserve_doi`,
@@ -361,9 +390,11 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
                 jQuery("#files tbody").append(html);
             }
             jQuery("#files").show();
+            jQuery("#files-table-actions").show();
         }
         else {
             jQuery("#files").hide();
+            jQuery("#files-table-actions").hide();
             jQuery("input[name='record_type']").attr('disabled', false);
         }
     }).fail(function () {
@@ -606,6 +637,16 @@ function activate (dataset_uuid) {
                 add_reference(dataset_uuid);
             }
         });
+        jQuery("#repair-md5s").on("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            repair_md5_sums (dataset_uuid);
+        });
+        jQuery("#remove-all-files").on("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            delete_all_files (dataset_uuid);
+        });
         jQuery("#add-keyword-button").on("click", function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -801,15 +842,17 @@ function perform_upload (files, current_file, dataset_uuid) {
     });
 }
 
-function remove_file (file_id, dataset_uuid) {
+function remove_file (file_id, dataset_uuid, rerender=true) {
     jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/files/${file_id}`,
         type:        "DELETE",
         accept:      "application/json",
     }).done(function () {
-        render_files_for_dataset (dataset_uuid, null);
-        if (jQuery("#external_link").prop("checked")) {
-            jQuery("#external_link_field").show();
+        if (rerender) {
+            render_files_for_dataset (dataset_uuid, null);
+            if (jQuery("#external_link").prop("checked")) {
+                jQuery("#external_link_field").show();
+            }
         }
     }).fail(function () { show_message ("failure", `<p>Failed to remove ${file_id}.</p>`); });
 }
