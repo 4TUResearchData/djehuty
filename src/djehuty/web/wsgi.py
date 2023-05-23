@@ -675,12 +675,14 @@ class ApiServer:
             if parses_to_int (identifier):
                 file = self.db.dataset_files (file_id     = int(identifier),
                                               dataset_uri = dataset_uri,
-                                              account_uuid = account_uuid)
+                                              account_uuid = account_uuid,
+                                              limit = None)
             elif (validator.is_valid_uuid (identifier) or
                   validator.is_valid_uuid (uri_to_uuid (dataset_uri))):
                 file = self.db.dataset_files (file_uuid   = identifier,
                                               dataset_uri = dataset_uri,
-                                              account_uuid = account_uuid)
+                                              account_uuid = account_uuid,
+                                              limit = None)
 
             return file
 
