@@ -2465,7 +2465,7 @@ class ApiServer:
         if is_own_item:
             files_params['account_uuid'] = account_uuid
         files         = self.db.dataset_files(**files_params)
-        files_size    = sum([value_or(f,'size',0) for f in files])
+        files_size    = sum(value_or(f,'size',0) for f in files)
         tags          = self.db.tags(item_uri=dataset["uri"], limit=None)
         categories    = self.db.categories(item_uri=dataset["uri"], limit=None)
         references    = self.db.references(item_uri=dataset["uri"], limit=None)
