@@ -136,7 +136,7 @@
 {% if files %}
 {# test 16545714 #}
     <div id="files">
-        <div class="label">files</div>
+        <div class="label">files ({{files|length}})</div>
         <ul>
     {% for file in files %}
             <li>
