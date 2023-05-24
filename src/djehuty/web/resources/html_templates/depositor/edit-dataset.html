@@ -376,7 +376,7 @@ git push 4tu --tags</pre>
 </div>
 <div id="files-wrapper" class="record-type-field">
   <div id="files-table-actions">
-    {%- if may_administer %}
+    {%- if is_reviewing %}
     <a id="repair-md5s" href="/admin/maintenance/repair-md5s/{{container_uuid}}" target="_blank">Repair MD5 sums</a>
     {%- endif %}
     <a id="remove-all-files" href="#">Remove all files</a>
