@@ -183,15 +183,17 @@ function delete_all_files (dataset_uuid) {
     });
 }
 
-function repair_md5_sums (dataset_uuid) {
-    jQuery.ajax({
-        url:         `/v3/datasets/${dataset_uuid}/repair_md5s`,
-        type:        "GET",
-        accept:      "application/json",
-    }).done(function (record) {
-        location.reload();
-    }).fail(function () {
-        show_message ("failure", "<p>Failed to repair MD5 checksums.</p>")
+function repair_md5_sums (dataset_uuid, event) {
+    save_dataset (dataset_uuid, event, false, function() {
+        jQuery.ajax({
+            url:         `/v3/datasets/${dataset_uuid}/repair_md5s`,
+            type:        "GET",
+            accept:      "application/json",
+        }).done(function (record) {
+            location.reload();
+        }).fail(function () {
+            show_message ("failure", "<p>Failed to repair MD5 checksums.</p>")
+        });
     });
 }
 
@@ -640,7 +642,7 @@ function activate (dataset_uuid) {
         jQuery("#repair-md5s").on("click", function(event) {
             event.preventDefault();
             event.stopPropagation();
-            repair_md5_sums (dataset_uuid);
+            repair_md5_sums (dataset_uuid, event);
         });
         jQuery("#remove-all-files").on("click", function(event) {
             event.preventDefault();
