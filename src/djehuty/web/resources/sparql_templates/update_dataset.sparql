@@ -6,13 +6,13 @@ DELETE {
     ?dataset           djht:title                ?title .
     {%- endif%}{% if description is not none %}
     ?dataset           djht:description          ?description .
-    {%- endif%}{% if resource_doi is not none %}
-    ?dataset           djht:resource_doi         ?resource_doi .
-    {%- endif%}{% if doi is not none %}
+    {%- endif%}
+    {% if doi is not none %}
     ?dataset           djht:doi                  ?doi .
-    {%- endif%}{% if resource_title is not none %}
+    {%- endif%}
+    ?dataset           djht:resource_doi         ?resource_doi .
     ?dataset           djht:resource_title       ?resource_title .
-    {%- endif%}{% if license_url is not none %}
+    {% if license_url is not none %}
     ?dataset           djht:license              ?license .
     {%- endif%}{% if group_id is not none %}
     ?dataset           djht:group_id             ?group_id .
