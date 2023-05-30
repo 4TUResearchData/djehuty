@@ -4485,6 +4485,8 @@ class ApiServer:
                 if self.db.update_dataset (
                         item["uuid"],
                         account_uuid,
+                        resource_title              = value_or_none (item, "resource_title"),
+                        resource_doi                = value_or_none (item, "resource_doi"),
                         agreed_to_deposit_agreement = value_or (item, "agreed_to_deposit_agreement", False),
                         agreed_to_publish           = value_or (item, "agreed_to_publish", False),
                         is_metadata_record          = value_or (item, "is_metadata_record", False),
