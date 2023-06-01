@@ -294,6 +294,7 @@ class ApiServer:
             Rule("/v3/explore/types",                         endpoint = "api_v3_explore_types"),
             Rule("/v3/explore/properties",                    endpoint = "api_v3_explore_properties"),
             Rule("/v3/explore/property_value_types",          endpoint = "api_v3_explore_property_types"),
+            Rule("/v3/explore/clear-cache",                   endpoint = "api_v3_explore_clear_cache"),
 
             ## Reviewer
             ## ----------------------------------------------------------------
@@ -6617,6 +6618,24 @@ class ApiServer:
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
+
+    def api_v3_explore_clear_cache (self, request):
+        """Implements /v3/explore/clear-cache."""
+
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        self.log.info ("Invalidating explorer caches.")
+        self.db.cache.invalidate_by_prefix ("explorer_properties")
+        self.db.cache.invalidate_by_prefix ("explorer_types")
+        self.db.cache.invalidate_by_prefix ("explorer_property_types")
+
+        return self.respond_204 ()
 
     def api_v3_datasets_assign_reviewer (self, request, dataset_uuid, reviewer_uuid):
         """Implements /v3/datasets/<id>/assign-reviewer/<rid>."""

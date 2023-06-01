@@ -142,7 +142,26 @@ function node_mousedown () {
     });
 }
 
+function clear_exploratory_cache (event) {
+    if (event !== null) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    jQuery.ajax({
+        url:         "/v3/explore/clear-cache",
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function () {
+        location.reload();
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to clear the exploratory cache.</p>");
+    });
+}
+
 jQuery(document).ready(function () {
+    jQuery("#remove-cache").on("click", function (event) {
+        clear_exploratory_cache (event);
+    });
     jQuery.ajax({
         url:         "/v3/explore/types",
         type:        "GET",
