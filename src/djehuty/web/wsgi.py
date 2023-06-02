@@ -4409,7 +4409,7 @@ class ApiServer:
                                      headers = headers,
                                      auth    = (self.datacite_id,
                                                 self.datacite_password),
-                                     timeout = 10,
+                                     timeout = 60,
                                      json    = json_data)
             data = None
             if response.status_code in (201, 422): #422:already reserved
@@ -4533,7 +4533,7 @@ class ApiServer:
         """Procedure to check if doi is registered at Datacite"""
 
         try:
-            response = requests.get(f"{self.datacite_url}/dois/{doi}", timeout = 10)
+            response = requests.get(f"{self.datacite_url}/dois/{doi}", timeout = 60)
             return response.ok
 
         except requests.exceptions.ConnectionError:
@@ -4568,7 +4568,7 @@ class ApiServer:
                                     headers = headers,
                                     auth    = (self.datacite_id,
                                                self.datacite_password),
-                                    timeout = 10,
+                                    timeout = 60,
                                     json    = json_data)
 
             if response.status_code == 201:
