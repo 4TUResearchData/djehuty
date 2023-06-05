@@ -58,7 +58,7 @@ def decimal_coord(raw_input, axis, digits=5):
     axis is 'N' or 'E'
     5 digits is accuracy (RMS) of 40 cm.
     '''
-    pattern = r"""^(-?\d+)º\s*(\d+)[’']\s*((\d+)(\.\d?)?)((’’)|('')|")\s*([NESW]?)$"""
+    pattern = r"""^(-?\d+)[º°]\s*(\d+)[’']\s*((\d+)(\.\d?)?)((’’)|('')|"|”)\s*([NESW]?)$"""
     if raw_input is not None:
         try:
             deg = float(raw_input)
@@ -71,7 +71,7 @@ def decimal_coord(raw_input, axis, digits=5):
                 direction = components[-1] #direction may be N,E,S,W, axis N,E.
                 if (direction == 'S' and axis == 'N') or (direction == 'W' and axis == 'E'):
                     deg = -deg
-                elif direction != axis:
+                elif not direction in (axis, ''):
                     return None #something is wrong, probably mixed up lat and lon
             else:
                 return None #something is wrong, undecipherable gibberish
