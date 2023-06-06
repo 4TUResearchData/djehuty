@@ -2812,7 +2812,6 @@ class ApiServer:
             referer_begin = f"{self.base_url}/private_datasets/"
             if referer.startswith (referer_begin):
                 private_link_id = referer.partition (referer_begin)[2]
-                self.log.info ("Looks like private viewing (%s).", private_link_id)
                 dataset = self.db.datasets (private_link_id_string = private_link_id,
                                             is_published           = False,
                                             limit                  = 1)[0]
