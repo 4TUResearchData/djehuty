@@ -57,13 +57,8 @@
 </style>
 {% endblock %}
 {% block body %}
-{%- if show_feedback_form_notice %}
-<div id="new-notice">
-  <p>
-    Dear users, we have launched <a href="https://github.com/4TUResearchData/djehuty">a new repository system</a>.
-    If you found a bug, missing functionality, or if you are having difficulty with the website, please <a href="/feedback">let us know</a>.
-  </p>
-</div>
+{%- if notice_message %}
+<div id="new-notice"><p>{{notice_message|safe}}</p></div>
 {%- endif %}
 <h1 class="corporate-identity-h1">Summary</h1>
 <div id="portal-summary">

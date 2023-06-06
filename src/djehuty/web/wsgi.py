@@ -59,6 +59,7 @@ class ApiServer:
         self.using_uwsgi      = False
         self.maintenance_mode = False
         self.sandbox_message  = False
+        self.notice_message   = False
         self.disable_2fa      = False
 
         self.orcid_client_id     = None
@@ -2330,14 +2331,10 @@ class ApiServer:
         except (IndexError, KeyError):
             pass
 
-        show_feedback_form_notice = False
-        if self.db.feedback_reviewer_email_addresses():
-            show_feedback_form_notice = True
-
         return self.__render_template (request, "portal.html",
                                        summary_data=summary_data,
                                        latest = latest,
-                                       show_feedback_form_notice = show_feedback_form_notice)
+                                       notice_message = self.notice_message)
 
     def ui_categories (self, request, category_id):
         """Implements /categories/<id>."""

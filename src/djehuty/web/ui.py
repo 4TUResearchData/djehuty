@@ -558,6 +558,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if sandbox_message:
             server.sandbox_message = sandbox_message
 
+        notice_message = read_raw_xml (xml_root, "notice-message")
+        if notice_message:
+            server.notice_message = notice_message
+
         read_orcid_configuration (server, xml_root)
         read_datacite_configuration (server, xml_root)
         read_email_configuration (server, xml_root, logger)
