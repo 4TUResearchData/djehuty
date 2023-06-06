@@ -1802,7 +1802,6 @@ class SparqlInterface:
                 embargo_title         = conv.value_or_none (latest, "embargo_title"),
                 embargo_reason        = conv.value_or_none (latest, "embargo_reason"),
                 eula                  = conv.value_or_none (latest, "eula"),
-                git_uuid              = rdf.escape_string_value (str (uuid.uuid4())),
                 is_public             = 0,
                 is_active             = 1,
                 is_latest             = 0,
