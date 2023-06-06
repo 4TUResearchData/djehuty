@@ -43,7 +43,7 @@ class DependencyNotAvailable(Exception):
 class MissingConfigurationError(Exception):
     """Raised when a crucial piece of configuration is missing."""
 
-def config_value (xml_root, path, command_line=None, fallback=None):
+def config_value (xml_root, path, command_line=None, fallback=None, return_node=False):
     """Procedure to get the value a config item should have at run-time."""
 
     ## Prefer command-line arguments.
@@ -54,10 +54,31 @@ def config_value (xml_root, path, command_line=None, fallback=None):
     if xml_root:
         item = xml_root.find(path)
         if item is not None:
+            if return_node:
+                return item
             return item.text
 
     ## Fall back to the fallback value.
     return fallback
+
+def read_raw_xml (xml_root, path, default_value=None):
+    """
+    Return the inner XML for PATH in XML_ROOT as a string or
+    DEFAULT_VALUE upon failure.
+    """
+    try:
+        length = len(path) + 2 # Add two for the < and >.
+        node = config_value (xml_root, path, None, None, return_node=True)
+        if node is not None:
+            # Get the raw XML so it can be used verbatim.
+            text = ElementTree.tostring (node, encoding="unicode")
+            # Strip the <path></path> bits and surrounding whitespace.
+            text = text.strip()[length:(-1 * (length + 1))].strip()
+            return text
+    except TypeError:
+        pass
+
+    return default_value
 
 def read_quotas_configuration (server, xml_root):
     """Read quota information from XML_ROOT."""
@@ -533,7 +554,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if use_x_forwarded_for:
             server.log_access = server.log_access_using_x_forwarded_for
 
-        sandbox_message = config_value (xml_root, "sandbox-message", None, None)
+        sandbox_message = read_raw_xml (xml_root, "sandbox-message")
         if sandbox_message:
             server.sandbox_message = sandbox_message
 
