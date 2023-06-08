@@ -2504,7 +2504,7 @@ class ApiServer:
         files = [f for (f, link) in files_services if not link]
         if 'data_link' in dataset:
             url = dataset['data_link']
-            if url.split('/')[2]=='opendap.4tu.nl':
+            if is_opendap_url (url):
                 opendap.append(url)
                 del dataset['data_link']
         contributors = self.parse_contributors(value_or(dataset, 'contributors', ''))
