@@ -2837,8 +2837,8 @@ class ApiServer:
             ## Data stored before Djehuty went into production requires a few tweaks.
             ## Only apply these quirks when enabled.
             if self.db.secondary_storage_quirks:
-                for char in " -,();:":
-                    name = name.replace(char, "")
+                allowed_chars = ".0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
+                name = ''.join(char for char in name if char in allowed_chars)
             file_path = f"{self.db.secondary_storage}/{file_info['id']}/{name}"
 
         return file_path
