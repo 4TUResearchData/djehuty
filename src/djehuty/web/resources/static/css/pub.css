@@ -7,6 +7,7 @@
 #wrapper #content #type         { text-transform: uppercase; font-weight: bold }
 #wrapper #content #metadata #versions { margin-top: 0px }
 #wrapper #content #description  { margin-top: 10px; padding:10px; border: 1px solid #666; border-radius: 10px }
+#wrapper #content #description p { margin-top: 0; margin-bottom:0 }
 #wrapper #content #authors img, #contributors img  { height: 15px }
 #wrapper #content .metric       { float: left; margin:5px; text-align: center }
 #wrapper #content .metric .number { font-size: 24px; font-weight: bold }
