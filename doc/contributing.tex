@@ -21,8 +21,7 @@ $ . djehuty-env/bin/activate
 And finally, we can install \t{djehuty} in the virtual environment to make
 the \t{djehuty} command available:
 \begin{lstlisting}[language=bash]
-[env]$ cp pyproject.toml.in pyproject.toml
-[env]$ sed -i 's/@VERSION@/0.0.1/g' pyproject.toml
+[env]$ sed -e 's/@VERSION@/0.0.1/g' pyproject.toml.in > pyproject.toml
 [env]$ pip install --editable .
 \end{lstlisting}
 
