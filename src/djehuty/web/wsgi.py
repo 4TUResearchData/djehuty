@@ -439,6 +439,10 @@ class ApiServer:
         except HTTPException as error:
             self.log.error ("Unknown error in dispatch_request: %s", error)
             return error
+        # Broad catch-all to improve logging/debugging of such situations.
+        except Exception as error:
+            self.log.error ("In request: %s", request.environ)
+            raise error
 
     def __respond (self, environ, start_response):
         request  = Request(environ)
