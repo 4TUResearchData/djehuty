@@ -16,6 +16,7 @@ class EmailInterface:
         self.smtp_port = 587
         self.do_starttls = True
         self.log = logging.getLogger(__name__)
+        self.subject_prefix = None
 
     def is_properly_configured (self):
         """Procedure to bail early on a misconfigured instance of this class."""
@@ -34,7 +35,10 @@ class EmailInterface:
         message = MIMEMultipart ("alternative")
         message["From"] = self.from_address
         message["To"] = recipient
-        message["Subject"] = subject
+        if self.subject_prefix:
+            message["Subject"] = f"{self.subject_prefix} {subject}"
+        else:
+            message["Subject"] = subject
 
         message.attach (MIMEText (plaintext, "plain"))
         message.attach (MIMEText (html, "html"))
