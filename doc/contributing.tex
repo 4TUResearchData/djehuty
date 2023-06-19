@@ -107,3 +107,58 @@ By now, we should be able to visit \t{djehuty} through a web browser at
 \href{http://127.0.0.1:8080}{localhost:8080}, unless configured differently.
 We should be able to log in through ORCID, and access all features of
 \t{djehuty}.
+
+\section{Navigating the source code}
+
+In this section, we trace the path from invoking \t{djehuty} to responding
+to a HTTP request.
+
+\subsection{Starting point}
+Because \t{djehuty} is installable as a Python package, we can find the
+starting point for running \t{djehuty} in \t{setup.cfg}.  It reads:
+\begin{lstlisting}
+[options.entry_points]
+console_scripts =
+    djehuty = djehuty.ui:main
+\end{lstlisting}
+
+So, we start our tour at \file{src/djehuty/ui.py} in the procedure called \t{main}.
+
+\subsection{How \t{djehuty} initializes}
+
+The \t{main} procedure calls \t{main\_inner}, which handles the command-line
+arguments.  When invoking \t{djehuty}, we usually invoke
+\t{djehuty \textbf{web}}, which is handled by the following snippet:
+\begin{lstlisting}[language=python]
+import djehuty.web.ui as web_ui
+...
+if args.command == "web":
+    web_ui.main (args.address, args.port, args.state_graph, args.storage,
+                 args.base_url, args.config_file, args.debug,
+                 args.dev_reload, True, args.initialize)
+\end{lstlisting}
+
+So, the entry-point for the \t{web} subcommand is found in
+\t{src/djehuty/web/ui.py} at the \t{main} procedure.
+
+This procedure essentially sets up an instance of \t{ApiServer} (found in
+\t{src/djehuty/web/wsgi.py} and uses \t{werkzeug}'s \t{run\_simple} to start
+the web server.
+
+\subsection{Translating URI paths to internal procedures}
+
+An instance of the \t{ApiServer} is passed along in werkzeug's \t{run\_simple}
+procedure.  Werkzeug calls the instance directly, which is handled by the
+\t{\_\_call\_\_} procedure of the \t{ApiServer} class.  The \t{\_\_call\_\_} procedure
+invokes its \t{wsgi} instance, which is configured as following:
+\begin{lstlisting}[language=python]
+self.wsgi = SharedDataMiddleware(self.__respond, self.static_roots)
+\end{lstlisting}
+
+The \t{\_\_respond} procedure calls \t{\_\_dispatch\_request}
+
+In \t{\_\_dispatch\_request}, the requested URI is translated into the procedure
+name using the \t{url\_map}.  So, except for static resources in the
+\t{src/djehuty/web/resources} folder and pre-configured static pages, URIs are
+handled by a procedure in the \t{ApiServer} instance.
+
