@@ -177,6 +177,7 @@ function delete_all_files (dataset_uuid) {
             let file = files[index];
             remove_file (file.uuid, dataset_uuid, rerender=false);
         }
+        jQuery("#remove-all-files").text(`Remove all files.`);
         jQuery("#files tbody").empty();
     }).fail(function () {
         show_message ("failure", "<p>Failed to remove files.</p>");
@@ -379,6 +380,7 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
         if (files.length > 0) {
             jQuery("input[name='record_type']").attr('disabled', true);
 
+            let number_of_files = 0;
             for (let index in files) {
                 let file = files[index];
                 if (file.name === null) {
@@ -390,7 +392,9 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
                 html += ` '${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
                 html += `title="Remove"></a></td></tr>`;
                 jQuery("#files tbody").append(html);
+                number_of_files += 1;
             }
+            jQuery("#remove-all-files").text(`Remove all ${number_of_files} files.`);
             jQuery("#files").show();
             jQuery("#files-table-actions").show();
         }
