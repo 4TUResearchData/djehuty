@@ -12,6 +12,7 @@ class LockTypes(Enum):
     FILE_LIST     = 1
     PRIVATE_LINKS = 2
     AUTHORS       = 3
+    SUBMIT_DATASET = 4
 
 class Locks:
     """This class implements multiple locks"""
@@ -28,7 +29,8 @@ class Locks:
         self.locks = {
             LockTypes.FILE_LIST: Lock(),
             LockTypes.PRIVATE_LINKS: Lock(),
-            LockTypes.AUTHORS: Lock()
+            LockTypes.AUTHORS: Lock(),
+            LockTypes.SUBMIT_DATASET: Lock()
         }
 
         self.using_uwsgi = False

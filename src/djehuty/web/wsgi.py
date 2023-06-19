@@ -5670,11 +5670,14 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
+        self.locks.lock (locks.LockTypes.SUBMIT_DATASET)
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                account_uuid = account_uuid,
-                                               is_published = False)
+                                               is_published = False,
+                                               is_under_review = False)
 
         if dataset is None:
+            self.locks.unlock (locks.LockTypes.SUBMIT_DATASET)
             return self.error_404 (request)
 
         record = request.get_json()
@@ -5797,14 +5800,17 @@ class ApiServer:
                         "message": "Upload at least one file, or choose metadata-only record."})
 
             if errors:
+                self.locks.unlock (locks.LockTypes.SUBMIT_DATASET)
                 return self.error_400_list (request, errors)
 
             account = self.db.account_by_uuid (dataset["account_uuid"])
             if not account:
+                self.locks.unlock (locks.LockTypes.SUBMIT_DATASET)
                 return self.error_500()
 
             result = self.db.update_dataset (**parameters)
             if not result:
+                self.locks.unlock (locks.LockTypes.SUBMIT_DATASET)
                 return self.error_500()
 
             if self.db.insert_review (dataset["uri"]) is not None:
@@ -5822,13 +5828,16 @@ class ApiServer:
                         dataset = dataset,
                         account = account)
 
+                self.locks.unlock (locks.LockTypes.SUBMIT_DATASET)
                 return self.respond_204 ()
 
         except validator.ValidationException as error:
+            self.locks.unlock (locks.LockTypes.SUBMIT_DATASET)
             return self.error_400 (request, error.message, error.code)
         except (IndexError, KeyError):
             pass
 
+        self.locks.unlock (locks.LockTypes.SUBMIT_DATASET)
         return self.error_500 ()
 
     def __image_mimetype (self, file_path):
