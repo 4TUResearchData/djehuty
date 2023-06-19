@@ -98,7 +98,7 @@ class SparqlInterface:
 
         return template.render ({ **args, **parameters })
 
-    def __run_query (self, query, cache_key_string=None, prefix=None):
+    def __run_query (self, query, cache_key_string=None, prefix=None, retries=5):
 
         cache_key = None
         if cache_key_string is not None:
@@ -130,6 +130,15 @@ class SparqlInterface:
                 self.sparql_is_up = True
 
         except HTTPError as error:
+            if error.code == 503:
+                if retries > 0:
+                    self.log.warning ("Retrying SPARQL request due to service unavailability (%s)",
+                                      retries)
+                    return self.__run_query (query, cache_key_string=cache_key_string,
+                                             prefix=prefix, retries=retries-1)
+
+                self.log.warning ("Giving up on retrying SPARQL request.")
+
             self.log.error ("SPARQL endpoint returned %d:\n---\n%s\n---",
                             error.code, error.reason)
             return []
