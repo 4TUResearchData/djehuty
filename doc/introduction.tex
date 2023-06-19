@@ -27,7 +27,7 @@ download/(@*\djehutyversion{}*@)/djehuty-(@*\djehutyversion{}*@).tar.gz
   After obtaining the tarball, it can be unpacked using the \t{tar}
   command:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 tar zxvf djehuty-(@*\djehutyversion{}*@).tar.gz
 \end{lstlisting}
 
@@ -60,14 +60,14 @@ tar zxvf djehuty-(@*\djehutyversion{}*@).tar.gz
 
   The first step involves installing system-wide packages for Python and Git.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 yum install python39 git
 \end{lstlisting}
 
   The second step involves using Python's \t{venv} module to
   install the Python packages in a virtual environment:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 python3.9 -m venv djehuty-env
 . djehuty-env/bin/activate
 cd /path/to/the/repository/checkout/root
@@ -80,7 +80,7 @@ pip install -r requirements.txt
   and installing the required tools (see section \refer{sec:prerequisites}),
   building involves running the following commands:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 cd djehuty-(@*\djehutyversion{}*@)
 autoreconf -vif # Only needed if the "./configure" step does not work.
 ./configure
