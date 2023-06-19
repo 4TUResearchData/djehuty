@@ -910,6 +910,17 @@ function submit_dataset (dataset_uuid, event) {
     jQuery("#content-wrapper").css('opacity', '0.15');
     save_dataset (dataset_uuid, event, false, function() {
         form_data = gather_form_data();
+        let is_open_access = jQuery("#open_access").prop("checked");
+        if (form_data["license_id"] == "98") {
+            jQuery("#license_open").addClass("missing-required");
+            jQuery("#license_embargoed").addClass("missing-required");
+            show_message ("failure", "<p>The '4TU General Terms Of Use' is deprecated.  We selected 'CC0' instead.  Submit again to accept this change.</p>");
+            if (is_open_access) {
+                jQuery("#license_open").val("2");
+            } else {
+                jQuery("#license_embargoed").val("2");
+            }
+        }
         jQuery.ajax({
             url:         `/v3/datasets/${dataset_uuid}/submit-for-review`,
             type:        "PUT",
