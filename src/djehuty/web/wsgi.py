@@ -6041,12 +6041,13 @@ class ApiServer:
                     upload_token  = self.token_from_request (request),
                     dataset_uri   = dataset["uri"],
                 account_uuid  = account_uuid)
-                self.locks.unlock (locks.LockTypes.FILE_LIST)
             except RuntimeError as error:
+                self.locks.unlock (locks.LockTypes.FILE_LIST)
                 self.log.error ("Failed to create file metadata for %s: %s",
                                 dataset_id, error)
                 self.error_500 ()
 
+            self.locks.unlock (locks.LockTypes.FILE_LIST)
             output_filename = f"{self.db.storage}/{dataset_id}_{file_uuid}"
 
             computed_md5 = None
