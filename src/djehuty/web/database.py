@@ -1463,9 +1463,9 @@ class SparqlInterface:
 
         return None
 
-    def insert_private_link (self, item_uuid, account_uuid, item_type=None,
+    def insert_private_link (self, item_uuid, account_uuid, whom=None, purpose=None, item_type=None,
                              read_only=True, id_string=None,
-                             is_active=True, expires_date=None):
+                             is_active=True, expires_date=None ):
         """Procedure to add a private link to the state graph."""
 
         if item_uuid is None:
@@ -1478,11 +1478,13 @@ class SparqlInterface:
         link_uri = rdf.unique_node ("private_link")
 
         graph.add ((link_uri, RDF.type,      rdf.DJHT["PrivateLink"]))
-
+        rdf.escape_string_value(str(uuid.uuid4()))
         rdf.add (graph, link_uri, rdf.DJHT["id"],           id_string,    XSD.string)
         rdf.add (graph, link_uri, rdf.DJHT["read_only"],    read_only)
         rdf.add (graph, link_uri, rdf.DJHT["is_active"],    is_active)
         rdf.add (graph, link_uri, rdf.DJHT["expires_date"], expires_date, XSD.dateTime)
+        rdf.add (graph, link_uri, rdf.DJHT["whom"], whom,  XSD.string)
+        rdf.add (graph, link_uri, rdf.DJHT["purpose"], purpose,  XSD.string)
 
         if self.add_triples_from_graph (graph):
             item_uri    = rdf.uuid_to_uri (item_uuid, item_type)
@@ -2740,6 +2742,7 @@ class SparqlInterface:
             insertable_graph.add ((subject, predicate, noun))
             if counter >= 250:
                 query = self.__insert_query_for_graph (insertable_graph)
+                self.log.info("Check new variables: %s", query)
                 if not self.__run_query (query):
                     processing_complete = False
                     break
@@ -2749,6 +2752,8 @@ class SparqlInterface:
                 counter = 0
 
         query = self.__insert_query_for_graph (insertable_graph)
+        self.log.info("Check new variables: %s", query)
+
         if not self.__run_query (query):
             processing_complete = False
 

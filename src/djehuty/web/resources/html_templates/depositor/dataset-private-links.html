@@ -13,11 +13,14 @@
   restricted access, or closed access settings.</p>
 {%- if private_links %}
 <table id="private-links-table" class="corporate-identity-table">
-  <thead><tr><th>Private link</th><th>Actions</th></tr></thead>
+  <thead><tr><th>Private link</th><th>Purpose</th><th>Shared with</th><th>Expire date</th><th>Actions</th></tr></thead>
   <tbody>
     {%- for link in private_links: %}
     <tr>
       <td><a href="/private_datasets/{{link.id_string}}">{{link.id_string}}</a></td>
+      <td>{{link.purpose}}</td>
+      <td>{{link.whom}}</td>
+      <td>{{link.expires_date}}</td>
       <td><a href="/my/datasets/{{dataset.uuid}}/private_link/{{link.id_string}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
     </tr>
     {%- endfor %}

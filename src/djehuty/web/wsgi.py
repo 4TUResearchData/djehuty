@@ -1,6 +1,6 @@
 """This module implements the entire HTTP interface for users."""
 
-from datetime import date
+from datetime import date, datetime, timedelta
 import os.path
 import os
 import getpass
@@ -1941,10 +1941,38 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        self.locks.lock (locks.LockTypes.PRIVATE_LINKS)
-        self.db.insert_private_link (dataset["uuid"], account_uuid, item_type="dataset")
-        self.locks.unlock (locks.LockTypes.PRIVATE_LINKS)
-        return redirect (f"/my/datasets/{dataset_uuid}/private_links", code=302)
+        if request.method in ("GET", "HEAD"):
+            return self.__render_template (request, "depositor/new_private_link.html", dataset_uuid=dataset_uuid)
+
+
+        if request.method == "POST":
+            self.locks.lock (locks.LockTypes.PRIVATE_LINKS)
+            whom = self.get_parameter(request, "whom")
+            purpose = self.get_parameter(request, "purpose")
+            # wat is nu de tijd
+            current_time = datetime.now()
+            self.log.info("Huidige tijd:%s", current_time)
+            options=["Day", "Week", "Month", "Forever"]
+            expires_date = validator.options_value(request.form, "expires_date", options)
+            if expires_date == "Day":
+                feed_expire_time = timedelta(days=1)
+            elif expires_date == "Week":
+                feed_expire_time = timedelta(days=7)
+            elif expires_date == "Month":
+                feed_expire_time = timedelta(days=30)
+            elif expires_date == "Forever":
+                feed_expire_time = timedelta(days=488339)
+            delta = current_time + feed_expire_time
+            # link expiren (niet weggooien) in datasets.sparql - 'if private_link_id_string is not none'
+            self.log.info("De delta:%s", delta)
+
+            self.db.insert_private_link (dataset["uuid"], account_uuid, whom=whom, purpose=purpose, expires_date=delta, item_type="dataset")
+            self.locks.unlock (locks.LockTypes.PRIVATE_LINKS)
+            self.log.info("Form parameters:%s", request.form)
+
+           # return self.error_500()
+            return redirect (f"/my/datasets/{dataset_uuid}/private_links", code=302)
+
 
     def ui_collection_new_private_link (self, request, collection_uuid):
         """Implements /my/collections/<id>/private_link/new."""
@@ -4158,12 +4186,15 @@ class ApiServer:
                         is_link_only       = True,
                         download_url       = link)
 
+
                     if file_id is None:
                         return self.error_500()
 
                     return self.respond_201({
                         "location": f"{self.base_url}/v2/account/articles/{dataset_id}/files/{file_id}"
                     })
+
+                whom = "whom2"
 
                 file_id = self.db.insert_file (
                     dataset_uri   = dataset["uri"],

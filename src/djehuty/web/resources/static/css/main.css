@@ -45,32 +45,32 @@
        url("/static/fonts/fa-brands-400.ttf") format("truetype");
 }
 
-.corporate-identity { color: #f49120; }
-.corporate-identity:hover { color: #d26000; }
+.corporate-identity { color: #e6223d; }
+.corporate-identity:hover { color: #e9495f; }
 
-.corporate-identity-h1 { border-bottom: 4px dotted #f49120;}
-.corporate-identity-h3 { border-bottom: 4px dotted #f49120; }
-.corporate-identity-h4 { border-bottom: 2px dotted #f49120; }
+.corporate-identity-h1 { border-bottom: 4px dotted #e6223d;}
+.corporate-identity-h3 { border-bottom: 4px dotted #e6223d; }
+.corporate-identity-h4 { border-bottom: 2px dotted #e6223d; }
 
-.corporate-identity li.active { background: #f49120; }
+.corporate-identity li.active { background: #e6223d; }
 .corporate-identity li.active a { color: #ffffff; text-decoration: none; }
-.corporate-identity-submenu-active { border-bottom: solid .25em #f49120; }
+.corporate-identity-submenu-active { border-bottom: solid .25em #e6223d; }
 
-.corporate-identity-background { background: #f49120; }
+.corporate-identity-background { background: #e6223d; }
 
-.corporate-identity-border { border: solid 2pt #f49120; }
-.corporate-identity-header { border-top: 4px solid #f49120; }
-.corporate-identity-footer { color: #ffffff; background: #707070; border-bottom: 3px solid #f49120; }
+.corporate-identity-border { border: solid 2pt #e6223d; }
+.corporate-identity-header { border-top: 4px solid #e6223d; }
+.corporate-identity-footer { color: #ffffff; background: #00223d; border-bottom: 3px solid #e6223d; }
 
-.corporate-identity-privilege-button { background: #fce3bf; }
-.corporate-identity-standard-button { background: #f49120; color: #fff; font-weight: bold; text-decoration: none; }
-.corporate-identity-standard-button:hover { background: #d26000; cursor: pointer; color: #fff; text-decoration: none; }
-.corporate-identity-standard-button:active { background: #9d4800; cursor: pointer; color: #fff; text-decoration: none; }
+.corporate-identity-privilege-button { background: #f07f8f; }
+.corporate-identity-standard-button { background: #e6223d; color: #fff; font-weight: bold; text-decoration: none; }
+.corporate-identity-standard-button:hover { background: #e9495f; cursor: pointer; color: #fff; text-decoration: none; }
+.corporate-identity-standard-button:active { background: #a11024; cursor: pointer; color: #fff; text-decoration: none; }
 
 .corporate-identity-table {
     width: 100%;
     max-width: 880pt;
-    border: solid 2pt #f49120;
+    border: solid 2pt #e6223d;
     border-radius: .5em;
 }
 .corporate-identity-table thead tr { background: #f49120; border-radius: .5em .5em 0em 0em; }
@@ -95,8 +95,7 @@
     max-width: 572pt;
 }
 
-#corporate-identity-logo { content: url("/static/images/logo.png"); height: 60px; }
-#logo { height: 60px; } /* Backward compatibility: Remove after a week. */
+#corporate-identity-logo { content: url("/static/images/logosleft-white-nikhef.png"); height: 60px; }
 
 body,html {
     width: 100%;
@@ -500,9 +499,9 @@ table {
     line-height: 1.75em;
     border-radius: 4pt;
 }
-#submenu li.create-button a { background: #925713; color: #ffffff; }
-#submenu li.create-button a:hover { background: #b76d18; }
-#submenu li.create-button a:active { background: #7a4810; }
+#submenu li.create-button a { background: #e6223d; color: #ffffff; }
+#submenu li.create-button a:hover { background: #e6223d; }
+#submenu li.create-button a:active { background: #e6223d; }
 #submenu li.save-button a { background: #139257; color: #ffffff; }
 #submenu li.save-button a:hover { background: #18b76d; }
 #submenu li.save-button a:active { background: #107a48; }

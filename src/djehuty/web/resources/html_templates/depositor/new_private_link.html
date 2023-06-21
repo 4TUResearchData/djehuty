@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block headers %}
+<link href="/static/css/form.css" rel="stylesheet">-
+{% endblock %}
+{% block body %}
+<h1>Create new private link</h1>
+<p></p>
+<form action="/my/datasets/{{dataset_uuid}}/private_link/new" method="post">
+    <label for="expires_date"> How long does the link need to be valid: </label>
+       <div id="expires_date"  class="options-wrapper">
+        <input list="private_link_validity_period" name="expires_date" required/>
+          <datalist id="private_link_validity_period">
+            <option value="1 day">
+            <option value="7 days">
+            <option value="30 days">
+            <option value="1337 years">
+          </datalist>
+       </div>
+
+    <div>
+        <label for="purpose">Purpose of the link:</label>
+            <input type="text" id="purpose" name="purpose" value="" placeholder="Purpose" required/>
+    </div>
+        <p></p>
+    <div>
+        <label for="whom">For whom is the link:</label>
+            <input type="text" id="whom" name="whom" value="" placeholder="Company/person" required/>
+    </div>
+
+    <div class="center"><input type="submit" id="submit-feedback" class="button corporate-identity-standard-button" value="Create link" /></div>
+</form>
+{% endblock %}
