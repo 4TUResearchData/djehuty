@@ -2423,6 +2423,8 @@ class ApiServer:
             dataset = self.db.datasets (private_link_id_string = private_link_id,
                                         is_published = None,
                                         is_latest    = None)[0]
+            if not value_or (dataset, "private_link_is_expired", False):
+                return self.__render_template (request, "private_link_is_expired.html")
 
             return self.ui_dataset (request, dataset["container_uuid"],
                                     dataset=dataset, private_view=True)
