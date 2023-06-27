@@ -1614,6 +1614,11 @@ class ApiServer:
 
             links = self.db.private_links (item_uri     = dataset["uri"],
                                            account_uuid = account_uuid)
+            #
+            for link in links:
+                if datetime.fromisoformat(link["expires_date"]) < datetime.now():
+                    link["is_expired"] = True
+                else: link["is_expired"] = False
 
             return self.__render_template (request,
                                            "depositor/dataset-private-links.html",
@@ -1947,25 +1952,27 @@ class ApiServer:
 
         if request.method == "POST":
             self.locks.lock (locks.LockTypes.PRIVATE_LINKS)
-            whom = self.get_parameter(request, "whom")
-            purpose = self.get_parameter(request, "purpose")
+            whom = validator.string_value(request.form, "whom")
+            purpose = validator.string_value(request.form, "purpose")
             # wat is nu de tijd
             current_time = datetime.now()
             self.log.info("Huidige tijd:%s", current_time)
-            options=["Day", "Week", "Month", "Forever"]
+            options=["1 minuut", "1 day", "7 days", "30 days", "1337 years"]
             expires_date = validator.options_value(request.form, "expires_date", options)
-            if expires_date == "Day":
+            if expires_date == "1 day":
                 feed_expire_time = timedelta(days=1)
-            elif expires_date == "Week":
+            # test instance voor daadwerkelijk expiren link (weghalen na testen)
+            elif expires_date == "1 minuut":
+                feed_expire_time = timedelta(minutes=1)
+            elif expires_date == "7 days":
                 feed_expire_time = timedelta(days=7)
-            elif expires_date == "Month":
+            elif expires_date == "30 days":
                 feed_expire_time = timedelta(days=30)
-            elif expires_date == "Forever":
+            elif expires_date == "1337 years":
                 feed_expire_time = timedelta(days=488339)
             delta = current_time + feed_expire_time
             # link expiren (niet weggooien) in datasets.sparql - 'if private_link_id_string is not none'
             self.log.info("De delta:%s", delta)
-
             self.db.insert_private_link (dataset["uuid"], account_uuid, whom=whom, purpose=purpose, expires_date=delta, item_type="dataset")
             self.locks.unlock (locks.LockTypes.PRIVATE_LINKS)
             self.log.info("Form parameters:%s", request.form)
@@ -2416,6 +2423,7 @@ class ApiServer:
             dataset = self.db.datasets (private_link_id_string = private_link_id,
                                         is_published = None,
                                         is_latest    = None)[0]
+
             return self.ui_dataset (request, dataset["container_uuid"],
                                     dataset=dataset, private_view=True)
         except IndexError:

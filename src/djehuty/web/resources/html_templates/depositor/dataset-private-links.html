@@ -20,7 +20,7 @@
       <td><a href="/private_datasets/{{link.id_string}}">{{link.id_string}}</a></td>
       <td>{{link.purpose}}</td>
       <td>{{link.whom}}</td>
-      <td>{{link.expires_date}}</td>
+      <td>{{"Expired" if link.is_expired else link.expires_date }}</td>
       <td><a href="/my/datasets/{{dataset.uuid}}/private_link/{{link.id_string}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
     </tr>
     {%- endfor %}

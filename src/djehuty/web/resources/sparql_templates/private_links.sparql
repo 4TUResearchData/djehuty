@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?id_string ?is_active ?whom ?purpose ?expires_date ?uuid (?link AS ?uri)
+SELECT DISTINCT ?id_string ?is_active ?whom ?purpose ?expires_date ?uuid(?link AS ?uri)
 WHERE {
   GRAPH <{{state_graph}}> {
     ?item_uri          djht:private_links/rdf:rest*/rdf:first ?link .
