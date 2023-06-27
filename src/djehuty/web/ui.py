@@ -497,6 +497,13 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             except (ValueError, TypeError):
                 server.disable_2fa = False
 
+        enable_query_audit_log = config_value (xml_root, "enable-query-audit-log")
+        if enable_query_audit_log:
+            try:
+                server.db.enable_query_audit_log = bool(int(enable_query_audit_log))
+            except (ValueError, TypeError):
+                server.db.enable_query_audit_log = False
+
         if config["use_reloader"]:
             config["use_reloader"] = bool(int(config["use_reloader"]))
         if config["use_debugger"]:

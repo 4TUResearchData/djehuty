@@ -38,7 +38,7 @@ class SparqlInterface:
                                          autoescape=True)
         self.sparql       = None
         self.sparql_is_up = False
-
+        self.enable_query_audit_log = False
         self.account_quotas = {}
         self.group_quotas   = {}
         self.default_quota  = 5000000000
@@ -54,8 +54,8 @@ class SparqlInterface:
     ## Private methods
     ## ------------------------------------------------------------------------
 
-    def __log_query (self, query):
-        self.log.info ("Query:\n---\n%s\n---", query)
+    def __log_query (self, query, prefix="Query"):
+        self.log.info ("%s:\n---\n%s\n---", prefix, query)
 
     def __normalize_binding (self, record):
         for item in record:
@@ -162,6 +162,10 @@ class SparqlInterface:
         return results
 
     def __insert_query_for_graph (self, graph):
+        if self.enable_query_audit_log:
+            query = rdf.insert_query (self.state_graph, graph)
+            self.__log_query (query, "Query Audit Log")
+            return query
         return rdf.insert_query (self.state_graph, graph)
 
     ## ------------------------------------------------------------------------
@@ -977,6 +981,9 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
 
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         if self.__run_query (query):
             return True, new_git_uuid
 
@@ -1174,6 +1181,10 @@ class SparqlInterface:
         })
 
         self.cache.invalidate_by_prefix ("accounts")
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         results = self.__run_query (query)
         if results and categories:
 
@@ -1308,6 +1319,9 @@ class SparqlInterface:
             "account_uuid":  account_uuid,
         })
 
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         return self.__run_query(query)
 
     def delete_account_property (self, account_uuid, predicate):
@@ -1317,6 +1331,9 @@ class SparqlInterface:
             "predicate":     predicate,
             "account_uuid":  account_uuid,
         })
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
 
         self.cache.invalidate_by_prefix ("accounts")
         return self.__run_query(query)
@@ -1333,6 +1350,9 @@ class SparqlInterface:
             "account_uuid": account_uuid,
             "category_id": category_id
         })
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
 
         return self.__run_query(query)
 
@@ -1444,6 +1464,10 @@ class SparqlInterface:
 
         self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
         self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         return self.__run_query(query)
 
     def insert_license (self, license_id, name=None, url=None):
@@ -1542,6 +1566,9 @@ class SparqlInterface:
             "account_uuid":        account_uuid,
             "container_uri":       rdf.uuid_to_uri (container_uuid, "container")
         })
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
 
         result = self.__run_query (query)
         self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
@@ -1892,6 +1919,10 @@ class SparqlInterface:
 
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         results = self.__run_query (query)
         if results:
             items = []
@@ -1914,6 +1945,9 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
 
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         return self.__run_query(query)
 
     def delete_private_links (self, container_uuid, account_uuid, link_id):
@@ -1927,6 +1961,10 @@ class SparqlInterface:
 
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         return self.__run_query(query)
 
     def update_private_link (self, item_uri, account_uuid, link_id,
@@ -1945,6 +1983,10 @@ class SparqlInterface:
 
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         return self.__run_query(query)
 
     def dataset_update_thumb (self, dataset_id, version, account_uuid, file_id):
@@ -2114,6 +2156,10 @@ class SparqlInterface:
 
         self.cache.invalidate_by_prefix (f"collections_{account_uuid}")
         self.cache.invalidate_by_prefix ("collections")
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         return self.__run_query(query)
 
     def update_collection (self, collection_uuid, account_uuid, title=None,
@@ -2153,6 +2199,9 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"{collection_uuid}_collection")
         self.cache.invalidate_by_prefix (f"collections_{account_uuid}")
         self.cache.invalidate_by_prefix ("collections")
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
 
         results = self.__run_query (query, query, f"{collection_uuid}_collection")
         if results and categories:
@@ -2370,6 +2419,10 @@ class SparqlInterface:
 
         self.cache.invalidate_by_prefix (f"datasets_{author_account_uuid}")
         self.cache.invalidate_by_prefix ("reviews")
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         return self.__run_query (query)
 
     def account_uuid_by_orcid (self, orcid):
@@ -2605,12 +2658,17 @@ class SparqlInterface:
             "active":        rdf.escape_boolean_value (active)
         })
 
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         return self.__run_query (query)
 
     def delete_all_sessions (self):
         """Procedure to delete all sessions."""
 
         query = self.__query_from_template ("delete_sessions")
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
         return self.__run_query (query)
 
     def delete_inactive_session_by_uuid (self, session_uuid):
@@ -2619,6 +2677,8 @@ class SparqlInterface:
         query = self.__query_from_template ("delete_inactive_session_by_uuid", {
             "session_uuid": session_uuid
         })
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
 
         return self.__run_query (query)
 
@@ -2629,6 +2689,8 @@ class SparqlInterface:
             "session_uuid":  session_uuid,
             "account_uuid":  account_uuid
         })
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
 
         return self.__run_query (query)
 
@@ -2641,6 +2703,8 @@ class SparqlInterface:
         query   = self.__query_from_template ("delete_session", {
             "token":       token
         })
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
 
         return self.__run_query(query)
 
