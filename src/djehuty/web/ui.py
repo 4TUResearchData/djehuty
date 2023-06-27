@@ -444,7 +444,7 @@ def read_email_configuration (server, xml_root, logger):
 
 def read_configuration_file (server, config_file, address, port, state_graph,
                              storage, base_url, use_debugger, use_reloader,
-                             logger):
+                             logger, config_files):
     """Procedure to parse a configuration file."""
 
     inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
@@ -453,8 +453,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         xml_root = None
         tree = ElementTree.parse(config_file)
 
-        if config_file is not None and not inside_reload:
-            logger.info ("Reading config file: %s", config_file)
+        if config_file is not None:
+            config_files.add (config_file)
+            if not inside_reload:
+                logger.info ("Reading config file: %s", config_file)
 
         xml_root = tree.getroot()
         if xml_root.tag != "djehuty":
@@ -595,7 +597,8 @@ def read_configuration_file (server, config_file, address, port, state_graph,
                                                   server.base_url,
                                                   config["use_debugger"],
                                                   config["use_reloader"],
-                                                  logger)
+                                                  logger,
+                                                  config_files)
             config = { **config, **new_config }
 
         read_menu_configuration (xml_root, server)
@@ -651,9 +654,11 @@ def main (address=None, port=None, state_graph=None, storage=None,
             logger = logging.getLogger ("uwsgi:djehuty.web.ui")
 
         server = wsgi.ApiServer ()
+        config_files = set()
         config = read_configuration_file (server, config_file, address, port,
                                           state_graph, storage, base_url,
-                                          use_debugger, use_reloader, logger)
+                                          use_debugger, use_reloader, logger,
+                                          config_files)
 
         inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
 
@@ -759,6 +764,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
         run_simple (config["address"], config["port"], server,
                     threaded=(config["maximum_workers"] <= 1),
                     processes=config["maximum_workers"],
+                    extra_files=list(config_files),
                     use_debugger=config["use_debugger"],
                     use_reloader=config["use_reloader"])
 
