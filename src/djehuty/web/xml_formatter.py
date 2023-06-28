@@ -95,18 +95,16 @@ def dublincore_tree (parameters):
     root = maker.root('oai:dc', schemas=schemas)
     item = parameters['item']
     maker.child(root, 'dc:title', {}, item['title'])
-    for creator in parameters['authors']:
+    for creator in value_or (parameters, 'authors', []):
         maker.child_option(root, 'dc:creator', creator, 'full_name')
-    for tag in parameters['tags']:
+    for tag in value_or (parameters, 'tags', []):
         maker.child(root, 'dc:subject', {}, tag)
     maker.child(root, 'dc:description', {}, item['description'])
     maker.child(root, 'dc:publisher', {}, value_or(item, 'publisher', '4TU.ResearchData'))
-    if 'contributors' in parameters:
-        for contributor in parameters['contributor']:
-            maker.child(root, 'dc:contributor', {}, contributor['name'])
-    if 'organizations' in parameters:
-        for name in parameters['organizations']:
-            maker.child(root, 'dc:contributor', {}, name)
+    for contributor in value_or (parameters, 'contributor', []):
+        maker.child(root, 'dc:contributor', {}, contributor['name'])
+    for name in value_or (parameters, 'organizations', []):
+        maker.child(root, 'dc:contributor', {}, name)
     maker.child(root, 'dc:date', {}, parameters['published_date'])
     maker.child(root, 'dc:type', {}, item['defined_type_name'])
     maker.child_option(root, 'dc:format', item, 'format')
