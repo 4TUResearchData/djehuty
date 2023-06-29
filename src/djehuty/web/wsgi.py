@@ -1,6 +1,6 @@
 """This module implements the entire HTTP interface for users."""
 
-from datetime import date
+from datetime import date, datetime, timedelta
 import os.path
 import os
 import getpass
@@ -1614,6 +1614,12 @@ class ApiServer:
 
             links = self.db.private_links (item_uri     = dataset["uri"],
                                            account_uuid = account_uuid)
+
+            for link in links:
+                link["is_expired"] = False
+                if "expires_date" in link:
+                    if datetime.fromisoformat(link["expires_date"]) < datetime.now():
+                        link["is_expired"] = True
 
             return self.__render_template (request,
                                            "depositor/dataset-private-links.html",
