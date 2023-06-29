@@ -54,6 +54,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/depositor/language-selector.html     \
     djehuty/web/resources/html_templates/depositor/my-collections.html        \
     djehuty/web/resources/html_templates/depositor/my-data.html               \
+    djehuty/web/resources/html_templates/depositor/new_private_link.html      \
     djehuty/web/resources/html_templates/depositor/profile.html               \
     djehuty/web/resources/html_templates/depositor/published-collection.html  \
     djehuty/web/resources/html_templates/depositor/submitted-for-review.html  \
@@ -80,6 +81,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/maintenance.html                     \
     djehuty/web/resources/html_templates/opendap_to_doi.html                  \
     djehuty/web/resources/html_templates/portal.html                          \
+    djehuty/web/resources/html_templates/private_link_is_expired.html         \
     djehuty/web/resources/html_templates/public_metadata.html                 \
     djehuty/web/resources/html_templates/review/dashboard.html                \
     djehuty/web/resources/html_templates/review/overview.html                 \

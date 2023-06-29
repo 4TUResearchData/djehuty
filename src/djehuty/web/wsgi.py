@@ -1947,10 +1947,38 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        self.locks.lock (locks.LockTypes.PRIVATE_LINKS)
-        self.db.insert_private_link (dataset["uuid"], account_uuid, item_type="dataset")
-        self.locks.unlock (locks.LockTypes.PRIVATE_LINKS)
-        return redirect (f"/my/datasets/{dataset_uuid}/private_links", code=302)
+        if request.method in ("GET", "HEAD"):
+            return self.__render_template (request, "depositor/new_private_link.html",
+                                           dataset_uuid=dataset_uuid)
+
+        if request.method == "POST":
+            try:
+                whom = validator.string_value (request.form, "whom")
+                purpose = validator.string_value (request.form, "purpose")
+                current_time = datetime.now()
+                options=["1 day", "7 days", "30 days", "1337 years"]
+                expires_date = validator.options_value (request.form, "expires_date", options)
+                if expires_date == "1 day":
+                    feed_expire_time = timedelta(days=1)
+                elif expires_date == "7 days":
+                    feed_expire_time = timedelta(days=7)
+                elif expires_date == "30 days":
+                    feed_expire_time = timedelta(days=30)
+                elif expires_date == "1337 years":
+                    feed_expire_time = timedelta(days=488339)
+
+                delta = current_time + feed_expire_time
+
+                self.locks.lock (locks.LockTypes.PRIVATE_LINKS)
+                self.db.insert_private_link (dataset["uuid"], account_uuid, whom=whom,
+                                             purpose=purpose, expires_date=delta,
+                                             item_type="dataset")
+                self.locks.unlock (locks.LockTypes.PRIVATE_LINKS)
+                return redirect (f"/my/datasets/{dataset_uuid}/private_links", code=302)
+            except validator.ValidationException as error:
+                return self.error_400 (request, error.message, error.code)
+
+        return self.error_405 (["GET", "HEAD", "POST"])
 
     def ui_collection_new_private_link (self, request, collection_uuid):
         """Implements /my/collections/<id>/private_link/new."""
@@ -2393,7 +2421,11 @@ class ApiServer:
         try:
             dataset = self.db.datasets (private_link_id_string = private_link_id,
                                         is_published = None,
-                                        is_latest    = None)[0]
+                                        is_latest    = None,
+                                        use_cache    = False)[0]
+            if value_or (dataset, "private_link_is_expired", False):
+                return self.__render_template (request, "private_link_is_expired.html")
+
             return self.ui_dataset (request, dataset["container_uuid"],
                                     dataset=dataset, private_view=True)
         except IndexError:
