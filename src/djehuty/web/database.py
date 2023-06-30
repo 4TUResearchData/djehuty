@@ -1619,6 +1619,9 @@ class SparqlInterface:
             "first_publication": not latest
         })
 
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
         return bool(self.__run_query (query))
 
     def create_draft_from_published_collection (self, container_uuid):
@@ -1737,6 +1740,8 @@ class SparqlInterface:
         })
 
         if self.__run_query (query):
+            if self.enable_query_audit_log:
+                self.__log_query (query, "Query Audit Log")
             self.cache.invalidate_by_prefix ("repository_statistics")
             self.cache.invalidate_by_prefix ("reviews")
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
@@ -1764,6 +1769,8 @@ class SparqlInterface:
         })
 
         if self.__run_query (query):
+            if self.enable_query_audit_log:
+                self.__log_query (query, "Query Audit Log")
             self.cache.invalidate_by_prefix ("reviews")
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
             return True
