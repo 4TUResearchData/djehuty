@@ -1,6 +1,7 @@
 """This module contains the command-line interface for the 'web' subcommand."""
 
 import logging
+import sys
 import os
 import shutil
 import json
@@ -465,6 +466,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         config_dir = os.path.dirname(config_file)
         log_file = config_value (xml_root, "log-file", None, None)
         if log_file is not None:
+            config["log-file"] = log_file
             configure_file_logging (log_file, inside_reload, logger)
 
         config["address"]       = config_value (xml_root, "bind-address", address, "127.0.0.1")
@@ -640,7 +642,8 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
 def main (address=None, port=None, state_graph=None, storage=None,
           base_url=None, config_file=None, use_debugger=False,
-          use_reloader=False, run_internal_server=True, initialize=True):
+          use_reloader=False, run_internal_server=True, initialize=True,
+          extract_transactions_from_log=False):
     """The main entry point for the 'web' subcommand."""
     try:
         convenience.add_logging_level ("ACCESS", logging.INFO + 5)
@@ -653,12 +656,49 @@ def main (address=None, port=None, state_graph=None, storage=None,
         else:
             logger = logging.getLogger ("uwsgi:djehuty.web.ui")
 
+        ## Be less verbose when only extracting Query Audit Logs.
+        if extract_transactions_from_log:
+            logger = logging.getLogger (__name__)
+            logger.setLevel(logging.ERROR)
+
         server = wsgi.ApiServer ()
         config_files = set()
         config = read_configuration_file (server, config_file, address, port,
                                           state_graph, storage, base_url,
                                           use_debugger, use_reloader, logger,
                                           config_files)
+
+        ## Handle extracting Query Audit Logs early on.
+        if extract_transactions_from_log:
+            if "log-file" not in config:
+                print("No log file found to extract queries from.", file=sys.stderr)
+                sys.exit (1)
+            filename = config["log-file"]
+            print (f"Reading '{filename}'.", file=sys.stderr)
+            with open (filename, "r", encoding = "utf-8") as log_file:
+                lines        = log_file.readlines()
+                count        = 0
+                state_output = 0
+                query        = ""
+                for line in lines:
+                    if state_output == 2:
+                        if line == "---\n":
+                            state_output = 0
+                            with open (f"transaction_{count:08d}.sparql", "w",
+                                       encoding="utf-8") as output_file:
+                                output_file.write (query)
+                            query = ""
+                        else:
+                            query += line
+                    elif state_output == 1 and  line == "---\n":
+                        state_output = 2
+                    elif "Query Audit Log" in line:
+                        query += f"# {line}"
+                        count += 1
+                        state_output = 1
+                print (f"Extracted {count} items", file=sys.stderr)
+
+            return None
 
         inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
 

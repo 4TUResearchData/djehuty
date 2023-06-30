@@ -42,6 +42,7 @@ Available subcommands and options:
     --debug              -d Enable debugging.
     --dev-reload         -r Enable active reloading.
     --initialize         -i Populate the RDF store with default triples.
+    --extract-transactions-from-log -e Extract transactions from the log file.
 
   Global options:
   --help                 -h  Show this message.
@@ -92,6 +93,7 @@ def main_inner ():
     web_parser.add_argument('--debug',      '-d', action='store_true')
     web_parser.add_argument('--dev-reload', '-r', action='store_true')
     web_parser.add_argument('--initialize', '-i', action='store_true')
+    web_parser.add_argument('--extract-transactions-from-log', '-e', action='store_true')
 
     ### GLOBAL ARGUMENTS
     ### -----------------------------------------------------------------------
@@ -124,7 +126,8 @@ def main_inner ():
     if args.command == "web":
         web_ui.main (args.address, args.port, args.state_graph, args.storage,
                      args.base_url, args.config_file, args.debug,
-                     args.dev_reload, True, args.initialize)
+                     args.dev_reload, True, args.initialize,
+                     args.extract_transactions_from_log)
 
     elif len(sys.argv) == 1:
         print("Try --help for usage options.")
