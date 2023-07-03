@@ -3506,10 +3506,10 @@ class ApiServer:
                                                            account_uuid=account_uuid,
                                                            is_published=False)
 
-                if not dataset:
+                dataset_uri     = value_or_none (dataset, "uri")
+                if dataset_uri is None:
                     return self.response ("[]")
 
-                dataset_uri     = dataset["uri"]
                 dataset["doi"]  = self.__standard_doi (dataset["container_uuid"],
                                                        version = None,
                                                        container_doi = value_or_none (dataset, "container_doi"))
@@ -3536,7 +3536,8 @@ class ApiServer:
                                 "value": self.db.derived_from(item_uri=dataset_uri)} )
                 total['custom_fields'] = custom
                 return self.response (json.dumps(total))
-            except (IndexError, KeyError):
+            except (IndexError, KeyError) as error:
+                self.log.error ("Failed to retrieve dataset due to: %s", error)
                 response = self.response (json.dumps({
                     "message": "This dataset cannot be found."
                 }))
