@@ -234,8 +234,12 @@ def format_dataset_details_record (dataset, authors, files, custom_fields,
         for item in files:
             item['base_url'] = dataset['base_url']
 
+    files_shown = []
+    if not (is_embargoed or is_restricted):
+        files_shown = list (map (format_file_for_dataset_record, files))
+
     return {
-        "files":             list (map (format_file_for_dataset_record, files)),
+        "files":             files_shown,
         "custom_fields":     list (map (format_custom_field_record, custom_fields)),
         "authors":           list (map (format_author_record, authors)),
         "figshare_url":      conv.value_or_none(dataset, "figshare_url"),

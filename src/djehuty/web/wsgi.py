@@ -3393,7 +3393,12 @@ class ApiServer:
         if dataset is None:
             return self.error_404 (request)
 
-        files   = self.db.dataset_files (dataset_uri=dataset["uri"])
+        is_embargoed  = value_or (dataset, "is_embargoed", False)
+        is_restricted = value_or (dataset, "is_restricted", False)
+        files         = []
+        if not (is_embargoed or is_restricted):
+            files = self.db.dataset_files (dataset_uri=dataset["uri"])
+
         return self.default_list_response (files, formatter.format_file_for_dataset_record,
                                            base_url = self.base_url)
 
