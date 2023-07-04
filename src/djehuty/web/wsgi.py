@@ -1081,10 +1081,12 @@ class ApiServer:
         ## exist, we cannot authenticate.
         try:
             account    = self.db.account_by_session_token (token)
-            if account is not None and allow_impersonation:
+            if account is None:
+                return None
+            if allow_impersonation:
                 uuid = self.impersonated_account_uuid (request, account)
-            elif not allow_impersonation:
-                uuid = account["uuid"]
+            else:
+                uuid = value_or_none (account, "uuid")
         except KeyError:
             self.log.error ("Attempt to authenticate with %s failed.", token)
 
