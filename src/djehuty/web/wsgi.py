@@ -2953,49 +2953,62 @@ class ApiServer:
 
     def ui_download_file (self, request, dataset_id, file_id):
         """Implements /file/<id>/<fid>."""
+
+        ## Access control
+        ## --------------------------------------------------------------------
+        metadata = None
+
+        ## Check whether a download is requested from a private link.
+        dataset = self.__dataset_by_referer (request)
+        if dataset is not None:
+            self.log.info ("File %s accessed through private link.", file_id)
+            metadata = self.__file_by_id_or_uri (file_id)
+        else:
+            # Published datasets
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                   is_published = True,
+                                                   use_cache    = False)
+            if dataset is not None:
+                is_embargoed  = value_or (dataset, "is_embargoed", False)
+                is_restricted = value_or (dataset, "is_restricted", False)
+                if is_embargoed or is_restricted:
+                    # The uploader of the dataset may download it.
+                    account_uuid = self.account_uuid_from_request (request)
+                    if value_or_none (dataset, "account_uuid") == account_uuid:
+                        metadata = self.__file_by_id_or_uri (file_id, account_uuid = account_uuid)
+                        if metadata is not None:
+                            self.log.info ("File %s accessed by owner or reviewer.", file_id)
+
+            # Draft datasets
+            else:
+                # The uploader of the dataset may download it.
+                account_uuid = self.account_uuid_from_request (request)
+                if account_uuid is not None:
+                    dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                           is_published = False,
+                                                           account_uuid = account_uuid,
+                                                           use_cache    = False)
+                    metadata = self.__file_by_id_or_uri (file_id, account_uuid = account_uuid)
+
+        ## If no dataset has been found that means the file is not
+        ## publically accessible, the file isn't of the user and the user
+        ## isn't coming from a private link viewing.
+        if dataset is None or metadata is None:
+            return self.error_403 (request)
+
+        if "container_uuid" not in dataset or "container_uuid" not in metadata:
+            self.log.error ("Missing container UUID for dataset %s or file %s",
+                            dataset_id, file_id)
+            return self.error_403 (request)
+
+        if dataset["container_uuid"] != metadata["container_uuid"]:
+            self.log.error ("Found a mismatch between container UUID for dataset %s and file %s.",
+                            dataset["container_uuid"], metadata["container_uuid"])
+            return self.error_403 (request)
+
+        ## Filesystem interaction
+        ## --------------------------------------------------------------------
         try:
-            dataset = self.__dataset_by_id_or_uri (dataset_id)
-            account_uuid = self.account_uuid_from_request (request)
-            unlock_account_uuid = None
-
-            ## If there is some form of access restriction, check if the user
-            ## is the owner of the dataset
-            if account_uuid is not None and dataset is not None:
-                is_embargoed = validator.boolean_value (dataset, "is_embargoed", when_none=False)
-                embargo_options = validator.array_value (dataset, "embargo_options")
-                embargo_option  = value_or_none (embargo_options, 0)
-                is_restricted   = value_or (embargo_option, "id", 0) == 1000
-                is_closed       = value_or (embargo_option, "id", 0) == 1001
-                if is_embargoed or is_restricted or is_closed:
-                    if value_or_none(dataset, 'account_uuid') == account_uuid:
-                        unlock_account_uuid = account_uuid
-
-            metadata = self.__file_by_id_or_uri (file_id, account_uuid=unlock_account_uuid)
-
-            if metadata is None:
-                self.log.error ("Cannot find file metadata for %s.", file_id)
-                return self.error_404 (request)
-
-            ## When downloading a file from a dataset that isn't published,
-            ## we need to authorize it first.
-            if dataset is None and account_uuid is not None:
-                dataset = self.__dataset_by_id_or_uri (metadata["container_uuid"],
-                                                       account_uuid = account_uuid,
-                                                       is_published = False)
-
-            ## Check whether a download is requested from a private link.
-            if dataset is None:
-                dataset = self.__dataset_by_referer (request)
-
-            ## If no dataset has been found that means the file is not
-            ## publically accessible, the file isn't of the user and the user
-            ## isn't coming from a private link viewing.
-            if dataset is None:
-                return self.error_404 (request)
-
-            if dataset["container_uuid"] != metadata["container_uuid"]:
-                return self.error_403 (request)
-
             file_path = self.__filesystem_location (metadata)
             if file_path is None:
                 self.log.error ("File download failed due to missing metadata.")
@@ -3006,9 +3019,6 @@ class ApiServer:
                               "application/octet-stream",
                               as_attachment=True,
                               download_name=metadata["name"])
-
-        except (IndexError, TypeError) as error:
-            self.log.error ("File download failed due to: %s", error)
         except FileNotFoundError:
             self.log.error ("File download failed due to missing file: '%s'.", file_path)
 
