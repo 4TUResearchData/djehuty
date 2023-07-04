@@ -2951,7 +2951,7 @@ class ApiServer:
             self.log.error ("File download for %s failed due to: %s.", dataset_id, error)
             return self.error_404 (request)
 
-    def ui_download_file (self, request, dataset_id, file_id):
+    def __accessible_files_for_dataset (self, request, dataset_id, file_id=None, version=None):
         """Implements /file/<id>/<fid>."""
 
         ## Access control
@@ -2961,12 +2961,17 @@ class ApiServer:
         ## Check whether a download is requested from a private link.
         dataset = self.__dataset_by_referer (request)
         if dataset is not None:
-            self.log.info ("File %s accessed through private link.", file_id)
-            metadata = self.__file_by_id_or_uri (file_id)
+            if file_id is None:
+                self.log.info ("Files for %s accessed through private link.", dataset_id)
+                metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
+            else:
+                self.log.info ("File %s accessed through private link.", file_id)
+                metadata = self.__file_by_id_or_uri (file_id)
         else:
             # Published datasets
             dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                    is_published = True,
+                                                   version      = version,
                                                    use_cache    = False)
             if dataset is not None:
                 is_embargoed  = value_or (dataset, "is_embargoed", False)
@@ -2975,7 +2980,12 @@ class ApiServer:
                     # The uploader of the dataset may download it.
                     account_uuid = self.account_uuid_from_request (request)
                     if value_or_none (dataset, "account_uuid") == account_uuid:
-                        metadata = self.__file_by_id_or_uri (file_id, account_uuid = account_uuid)
+                        if file_id is None:
+                            self.log.info ("Files for %s accessed by owner or reviewer.", dataset_id)
+                            metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
+                        else:
+                            self.log.info ("File %s accessed by owner or reviewer.", file_id)
+                            metadata = self.__file_by_id_or_uri (file_id)
                         if metadata is not None:
                             self.log.info ("File %s accessed by owner or reviewer.", file_id)
 
@@ -2988,7 +2998,19 @@ class ApiServer:
                                                            is_published = False,
                                                            account_uuid = account_uuid,
                                                            use_cache    = False)
-                    metadata = self.__file_by_id_or_uri (file_id, account_uuid = account_uuid)
+                    if file_id is None:
+                        self.log.info ("Files for %s accessed through private link.", dataset_id)
+                        metadata = self.__files_by_id_or_uri (dataset_uri  = dataset["uri"],
+                                                              account_uuid = account_uuid)
+                    else:
+                        self.log.info ("File %s accessed through private link.", file_id)
+                        metadata = self.__file_by_id_or_uri (file_id, account_uuid = account_uuid)
+
+        return dataset, metadata
+
+    def ui_download_file (self, request, dataset_id, file_id):
+        """Implements /file/<id>/<fid>."""
+        dataset, metadata = self.__accessible_files_for_dataset (request, dataset_id, file_id)
 
         ## If no dataset has been found that means the file is not
         ## publically accessible, the file isn't of the user and the user
