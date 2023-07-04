@@ -1,32 +1,48 @@
 {% extends "layout.html" %}
 {% block headers %}
 <link href="/static/css/form.css" rel="stylesheet">
+<style>
+#submit-button-label {
+    display: inline-block;
+    color: #ffffff;
+    background: #925713;
+    padding: 2pt 6pt 2pt 6pt;
+    text-decoration: none;
+    line-height: 1.75em;
+    border-radius: 4pt;
+    cursor: pointer;
+}
+#submit-button-label:hover { background: #b76d18; }
+#submit-button-label:active { background: #7a4810; }
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/my/datasets">&#8592; Go back</a>
+  <li class="create-button"><label id="submit-button-label" for="submit-feedback">Create new private link</a>
+</ul>
 {% endblock %}
 {% block body %}
 <h1>Create new private link</h1>
-<p></p>
+<p>Fields marked with <span class="required-field">&#8727;</span> are required.</p>
 <form action="/my/datasets/{{dataset_uuid}}/private_link/new" method="post">
-    <label for="expires_date">How long does the link need to be valid: </label>
-       <div id="expires_date" class="options-wrapper">
-        <input list="private_link_validity_period" name="expires_date" required/>
-          <datalist id="private_link_validity_period">
-            <option value="1 day">
-            <option value="7 days">
-            <option value="30 days">
-            <option value="1337 years">
-          </datalist>
-       </div>
+  <label for="expires_date">Longevity</label><span class="required-field">&#8727;</span>
+  <div id="expires_date" class="options-wrapper">
+    <input type="radio" name="expires_date" id="days1" value="1 day" checked="checked" /><!--
+--><label for="days1" class="no-head">1 day</label><!--
+--><input type="radio" name="expires_date" id="days7" value="7 days" /><!--
+--><label for="days7" class="no-head">7 days</label><!--
+--><input type="radio" name="expires_date" id="days30" value="30 days" /><!--
+--><label for="days30" class="no-head">30 days</label><!--
+--><input type="radio" name="expires_date" id="years1337" value="1337 years" /><!--
+--><label for="years1337" class="no-head">1337 years</label>
+  </div>
 
-    <div>
-        <label for="purpose">Purpose of the link:</label>
-            <input type="text" id="purpose" name="purpose" value="" placeholder="Purpose" required/>
-    </div>
-        <p></p>
-    <div>
-        <label for="whom">For whom is the link:</label>
-            <input type="text" id="whom" name="whom" value="" placeholder="Company/person" required/>
-    </div>
+  <label for="purpose">Purpose of the link:</label>
+  <input type="text" id="purpose" name="purpose" value="" placeholder="Example: Share with manuscript reviewer" />
 
-    <div class="center"><input type="submit" id="submit-feedback" class="button corporate-identity-standard-button" value="Create link" /></div>
+  <label for="whom">For whom is the link:</label>
+  <input type="text" id="whom" name="whom" value="" placeholder="Example: Peer-reviewers of a journal" />
+  <input type="submit" id="submit-feedback" style="display: none;" value="Create link" />
 </form>
 {% endblock %}

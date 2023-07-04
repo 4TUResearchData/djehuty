@@ -1953,11 +1953,12 @@ class ApiServer:
 
         if request.method == "POST":
             try:
-                whom = validator.string_value (request.form, "whom")
-                purpose = validator.string_value (request.form, "purpose")
+                whom         = validator.string_value (request.form, "whom", 3, 128)
+                purpose      = validator.string_value (request.form, "purpose", 3, 128)
                 current_time = datetime.now()
-                options=["1 day", "7 days", "30 days", "1337 years"]
-                expires_date = validator.options_value (request.form, "expires_date", options)
+                options      = ["1 day", "7 days", "30 days", "1337 years"]
+                expires_date = validator.options_value (request.form, "expires_date",
+                                                        options, required=True)
                 if expires_date == "1 day":
                     feed_expire_time = timedelta(days=1)
                 elif expires_date == "7 days":
