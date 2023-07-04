@@ -2885,72 +2885,6 @@ class ApiServer:
 
         return file_path
 
-    def ui_download_all_files (self, request, dataset_id, version):
-        """Implements /ndownloader/items/<id>/versions/<version>"""
-        try:
-            ## Check whether a public dataset can be found.
-            dataset = None
-            if version != "draft":
-                dataset  = self.__dataset_by_id_or_uri (dataset_id, version=version)
-
-            account_uuid = self.account_uuid_from_request (request)
-            unlock_account_uuid = None
-
-            ## If there is some form of access restriction, check if the user
-            ## is the owner of the dataset
-            if account_uuid is not None and dataset is not None:
-                is_embargoed = validator.boolean_value (dataset, "is_embargoed", when_none=False)
-                embargo_options = validator.array_value (dataset, "embargo_options")
-                embargo_option  = value_or_none (embargo_options, 0)
-                is_restricted   = value_or (embargo_option, "id", 0) == 1000
-                is_closed       = value_or (embargo_option, "id", 0) == 1001
-                if is_embargoed or is_restricted or is_closed:
-                    if value_or_none(dataset, 'account_uuid') == account_uuid:
-                        unlock_account_uuid = account_uuid
-
-            ## When downloading a file from a dataset that isn't published,
-            ## we need to authorize it first.
-            if dataset is None and account_uuid is not None and version == "draft":
-                dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_uuid = account_uuid,
-                                                       is_published = False)
-
-            ## Check whether the download is requested from a private link.
-            if dataset is None:
-                dataset = self.__dataset_by_referer (request)
-
-            ## Check again whether a private dataset has been found.
-            if dataset is None:
-                self.log.error ("Download-all for %s failed: Dataset not found.", dataset_id)
-                return self.error_404 (request)
-
-            metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"], account_uuid=unlock_account_uuid)
-            file_paths = []
-            for file_info in metadata:
-                file_paths.append ({
-                    "fs": self.__filesystem_location (file_info),
-                    "n":  file_info["name"]
-                })
-
-            if not file_paths:
-                self.log.error ("Download-all for %s failed: No files associated with this dataset.",
-                                dataset_id)
-                return self.error_404 (request)
-
-            zipfly_object = zipfly.ZipFly(paths = file_paths)
-            writer = zipfly_object.generator()
-            response = self.response (writer, mimetype="application/zip")
-
-            if version is None:
-                version = "draft"
-            filename = f"{dataset['container_uuid']}_{version}_all.zip"
-            response.headers["Content-disposition"] = f"attachment; filename={filename}"
-            return response
-
-        except (KeyError, IndexError, TypeError, FileNotFoundError) as error:
-            self.log.error ("File download for %s failed due to: %s.", dataset_id, error)
-            return self.error_404 (request)
-
     def __accessible_files_for_dataset (self, request, dataset_id, file_id=None, version=None):
         """Implements /file/<id>/<fid>."""
 
@@ -3045,6 +2979,42 @@ class ApiServer:
             self.log.error ("File download failed due to missing file: '%s'.", file_path)
 
         return self.error_404 (request)
+
+    def ui_download_all_files (self, request, dataset_id, version):
+        """Implements /ndownloader/items/<id>/versions/<version>"""
+
+        dataset, metadata = self.__accessible_files_for_dataset (request, dataset_id, version=version)
+        if dataset is None or metadata is None:
+            return self.error_403 (request)
+
+        try:
+            file_paths = []
+            for file_info in metadata:
+                file_paths.append ({
+                    "fs": self.__filesystem_location (file_info),
+                    "n":  file_info["name"]
+                })
+
+            if not file_paths:
+                self.log.error ("Download-all for %s failed: %s.",
+                                dataset_id,
+                                "No files associated with this dataset")
+                return self.error_404 (request)
+
+            zipfly_object = zipfly.ZipFly(paths = file_paths)
+            writer = zipfly_object.generator()
+            response = self.response (writer, mimetype="application/zip")
+
+            if version is None:
+                version = "draft"
+            filename = f"{dataset['container_uuid']}_{version}_all.zip"
+
+            response.headers["Content-disposition"] = f"attachment; filename={filename}"
+            return response
+
+        except (FileNotFoundError, KeyError, IndexError, TypeError) as error:
+            self.log.error ("Files download for %s failed due to: %s.", dataset_id, error)
+            return self.error_404 (request)
 
     def ui_search (self, request):
         """Implements /search."""
