@@ -2904,44 +2904,52 @@ class ApiServer:
             else:
                 self.log.info ("File %s accessed through private link.", file_id)
                 metadata = self.__file_by_id_or_uri (file_id)
-        else:
-            # Published datasets
-            dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                   is_published = True,
-                                                   version      = version,
-                                                   use_cache    = False)
-            if dataset is not None:
-                is_embargoed  = value_or (dataset, "is_embargoed", False)
-                is_restricted = value_or (dataset, "is_restricted", False)
-                if is_embargoed or is_restricted:
-                    # The uploader of the dataset may download it.
-                    account_uuid = self.account_uuid_from_request (request)
-                    if value_or_none (dataset, "account_uuid") == account_uuid:
-                        if file_id is None:
-                            self.log.info ("Files for %s accessed by owner or reviewer.", dataset_id)
-                            metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
-                        else:
-                            self.log.info ("File %s accessed by owner or reviewer.", file_id)
-                            metadata = self.__file_by_id_or_uri (file_id)
-                        if metadata is not None:
-                            self.log.info ("File %s accessed by owner or reviewer.", file_id)
 
-            # Draft datasets
-            else:
+            return dataset, metadata
+
+        # Published datasets
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               is_published = True,
+                                               version      = version,
+                                               use_cache    = False)
+        if dataset is not None:
+            is_embargoed  = value_or (dataset, "is_embargoed", False)
+            is_restricted = value_or (dataset, "is_restricted", False)
+            if is_embargoed or is_restricted:
                 # The uploader of the dataset may download it.
                 account_uuid = self.account_uuid_from_request (request)
-                if account_uuid is not None:
-                    dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                           is_published = False,
-                                                           account_uuid = account_uuid,
-                                                           use_cache    = False)
+                if value_or_none (dataset, "account_uuid") == account_uuid:
                     if file_id is None:
-                        self.log.info ("Files for %s accessed through private link.", dataset_id)
-                        metadata = self.__files_by_id_or_uri (dataset_uri  = dataset["uri"],
-                                                              account_uuid = account_uuid)
+                        self.log.info ("Files for %s accessed by owner or reviewer.", dataset_id)
+                        metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
                     else:
-                        self.log.info ("File %s accessed through private link.", file_id)
-                        metadata = self.__file_by_id_or_uri (file_id, account_uuid = account_uuid)
+                        self.log.info ("File %s accessed by owner or reviewer.", file_id)
+                        metadata = self.__file_by_id_or_uri (file_id)
+            else:
+                if file_id is None:
+                    self.log.info ("Files for %s accessed through published dataset.", dataset_id)
+                    metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
+                else:
+                    self.log.info ("File %s accessed through published dataset.", file_id)
+                    metadata = self.__file_by_id_or_uri (file_id)
+
+            return dataset, metadata
+
+        # Draft datasets
+        # The uploader of the dataset may download it.
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is not None:
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                   is_published = False,
+                                                   account_uuid = account_uuid,
+                                                   use_cache    = False)
+            if file_id is None:
+                self.log.info ("Files for draft %s accessed by owner or reviewer.", dataset_id)
+                metadata = self.__files_by_id_or_uri (dataset_uri  = dataset["uri"],
+                                                      account_uuid = account_uuid)
+            else:
+                self.log.info ("File %s for draft accessed by owner or reviewer.", file_id)
+                metadata = self.__file_by_id_or_uri (file_id, account_uuid = account_uuid)
 
         return dataset, metadata
 
@@ -2953,6 +2961,7 @@ class ApiServer:
         ## publically accessible, the file isn't of the user and the user
         ## isn't coming from a private link viewing.
         if dataset is None or metadata is None:
+            self.log.info ("Denied access to file %s in dataset %s.", dataset_id, file_id)
             return self.error_403 (request)
 
         if "container_uuid" not in dataset or "container_uuid" not in metadata:
