@@ -40,7 +40,7 @@ function preview_dataset (dataset_uuid, event) {
     event.stopPropagation();
     let current_date = new Date();
     let year  = current_date.getFullYear();
-    let month = current_date.getMonth();
+    let month = current_date.getMonth() + 1; // getMonth is zero-indexed.
     let day   = current_date.getDate() + 1;
     if (month < 10) { month = `0${month}`; }
     if (day < 10) { day = `0${day}`; }
