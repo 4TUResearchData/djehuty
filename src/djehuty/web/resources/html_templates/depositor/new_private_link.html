@@ -18,8 +18,8 @@
 {% endblock %}
 {% block submenu %}
 <ul>
-  <li><a href="/my/datasets">&#8592; Go back</a>
-  <li class="create-button"><label id="submit-button-label" for="submit-feedback">Create new private link</a>
+  <li><a href="/my/datasets/{{dataset_uuid}}/private_links">&#8592; Go back</a>
+  <li class="create-button"><label id="submit-button-label" for="submit-link">Activate private link</a>
 </ul>
 {% endblock %}
 {% block body %}
@@ -43,6 +43,6 @@
 
   <label for="whom">For whom is the link:</label>
   <input type="text" id="whom" name="whom" value="" placeholder="Example: Peer-reviewers of a journal" />
-  <input type="submit" id="submit-feedback" style="display: none;" value="Create link" />
+  <input type="submit" id="submit-link" style="display: none;" value="Create link" />
 </form>
 {% endblock %}
