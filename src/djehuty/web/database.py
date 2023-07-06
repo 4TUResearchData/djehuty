@@ -1204,6 +1204,19 @@ class SparqlInterface:
 
         return results
 
+    def update_orcid_for_account (self, account_uuid, orcid):
+        """Procedure to change the ORCID in the author record associated with an account."""
+
+        query = self.__query_from_template ("update_orcid_for_account", {
+            "account_uuid":  account_uuid,
+            "orcid":         orcid,
+        })
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
+        return self.__run_query (query)
+
     def update_item_list (self, item_uuid, account_uuid, items, predicate):
         """Procedure to modify a list property of a container item."""
         try:

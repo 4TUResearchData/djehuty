@@ -116,6 +116,7 @@ class ApiServer:
             Rule("/my/sessions/<session_uuid>/activate",      endpoint = "ui_activate_session"),
             Rule("/my/sessions/new",                          endpoint = "ui_new_session"),
             Rule("/my/profile",                               endpoint = "ui_profile"),
+            Rule("/my/profile/connect-with-orcid",            endpoint = "ui_profile_connect_with_orcid"),
             Rule("/review/dashboard",                         endpoint = "ui_review_dashboard"),
             Rule("/review/overview",                          endpoint = "ui_review_overview"),
             Rule("/review/goto-dataset/<dataset_id>",         endpoint = "ui_review_impersonate_to_dataset"),
@@ -850,7 +851,7 @@ class ApiServer:
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
 
-    def authenticate_using_orcid (self, request):
+    def authenticate_using_orcid (self, request, redirect_path="/login"):
         """Returns a record upon success, None upon failure."""
 
         record = { "code": self.get_parameter (request, "code") }
@@ -859,7 +860,7 @@ class ApiServer:
                 "client_id":     self.orcid_client_id,
                 "client_secret": self.orcid_client_secret,
                 "grant_type":    "authorization_code",
-                "redirect_uri":  f"{self.base_url}/login",
+                "redirect_uri":  f"{self.base_url}{redirect_path}",
                 "code":          validator.string_value (record, "code", 0, 10, required=True)
             }
             headers = {
@@ -2082,6 +2083,66 @@ class ApiServer:
                 categories = self.db.categories_tree ())
         except IndexError:
             return self.error_403 (request)
+
+    def ui_profile_connect_with_orcid (self, request):
+        """Implements /my/profile/connect-with-orcid."""
+
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
+
+        # Start the authentication process for ORCID.
+        if self.get_parameter (request, "code") is None:
+            return redirect ((f"{self.orcid_endpoint}/authorize?client_id="
+                              f"{self.orcid_client_id}&response_type=code"
+                              "&scope=/authenticate&redirect_uri="
+                              f"{self.base_url}/my/profile/connect-with-orcid"), 302)
+
+        # Catch the response of the authentication process of ORCID.
+        orcid_record = self.authenticate_using_orcid (
+            request,
+            redirect_path="/my/profile/connect-with-orcid")
+
+        if orcid_record is None:
+            return self.error_403 (request)
+
+        orcid        = value_or_none (orcid_record, "orcid")
+        full_name    = value_or_none (orcid_record, "name")
+        first_name   = None
+        last_name    = None
+
+        # Attempt to split the full_name into first and last names.
+        try:
+            name_split = full_name.split (" ", 1)
+            first_name = name_split[0]
+            last_name  = name_split[1]
+        except (AttributeError, IndexError):
+            first_name = None
+            last_name = None
+
+        account_uuid = self.account_uuid_from_request (request)
+        if orcid is None or account_uuid is None:
+            self.log.error ("Failed to authenticate %s with ORCID.", account_uuid)
+            return self.error_403 (request)
+
+        authors = self.db.authors (account_uuid=account_uuid, limit = 1)
+        if not value_or (authors, 0, True):
+            author_uuid = self.db.insert_author (
+                account_uuid = account_uuid,
+                orcid_id     = orcid,
+                first_name   = first_name,
+                last_name    = last_name,
+                full_name    = full_name,
+                is_active    = True,
+                is_public    = True)
+            self.log.info ("Created author record %s for account %s.",
+                           author_uuid, account_uuid)
+
+        if not self.db.update_orcid_for_account (account_uuid, orcid):
+            self.log.error ("Failed to update ORCID for %s", account_uuid)
+            return self.error_500 ()
+
+        return redirect ("/my/profile", 302)
 
     def ui_review_dashboard (self, request):
         """Implements /review/dashboard."""

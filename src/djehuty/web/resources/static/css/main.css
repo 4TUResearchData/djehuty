@@ -443,6 +443,7 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-times::before { content: "\f00d"; }
 .fa-glasses::before { content: "\f530"; }
 .fa-check-double::before { content: "\f560"; }
+.fa-orcid::before { content: "\f8d2"; }
 .fa-empty::before {}
 
 ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; font-size: 13pt; }
@@ -500,6 +501,9 @@ table {
     line-height: 1.75em;
     border-radius: 4pt;
 }
+#submenu li.orcid-button a { background: #a6ce39; color: #ffffff; }
+#submenu li.orcid-button a:hover { background: #c6e080; color: #ffffff; }
+#submenu li.orcid-button a:active { background: #739022; color: #ffffff; }
 #submenu li.create-button a { background: #925713; color: #ffffff; }
 #submenu li.create-button a:hover { background: #b76d18; }
 #submenu li.create-button a:active { background: #7a4810; }

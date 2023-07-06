@@ -1,0 +1,28 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?author    djht:orcid_id             ?orcid_id .
+    ?account   djht:modified_date        ?modified_date .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?author    djht:orcid_id             "{{orcid}}"^^xsd:string .
+    ?account   djht:modified_date        ?now .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?account              rdf:type                  djht:Account .
+    OPTIONAL { ?account   djht:modified_date        ?modified_date . }
+    OPTIONAL {
+      ?author            rdf:type                   djht:Author ;
+                         djht:account               ?account .
+      OPTIONAL { ?author djht:orcid_id              ?orcid_id . }
+    }
+    BIND(NOW() AS ?now)
+  }
+  FILTER (?account = <account:{{account_uuid}}>)
+}
+{% endblock %}
