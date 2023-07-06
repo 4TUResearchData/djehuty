@@ -643,6 +643,11 @@ function activate (dataset_uuid) {
                 add_reference(dataset_uuid);
             }
         });
+        jQuery("#add-reference-button").on("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            add_reference (dataset_uuid);
+        });
         jQuery("#repair-md5s").on("click", function(event) {
             event.preventDefault();
             event.stopPropagation();
