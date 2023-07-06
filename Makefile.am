@@ -64,3 +64,6 @@ uninstall-local:
 lint:
 	@pylint src/djehuty/* > pylint.log || true
 	@printf "Wrote 'pylint.log'.\n"
+
+coverity-report:
+	@cov-build --dir cov-int --no-command --fs-capture-search .
