@@ -160,7 +160,10 @@ WHERE {
 
     {%- if private_link_id_string is not none %}
     OPTIONAL { ?private_link djht:expires_date     ?private_link_expires_date . }
-    BIND((BOUND(?private_link_expires_date) && ?private_link_expires_date < NOW()) AS ?private_link_is_expired)
+    # Wrapping the xsd:dateTime in strings is needed because Virtuoso seems to
+    # return 1 for 2023-07-07 < 2023-07-06. String comparison works because the
+    # xsd:dateTime format is YYYY-MM-DD.
+    BIND((BOUND(?private_link_expires_date) && STR(?private_link_expires_date) < STR(NOW())) AS ?private_link_is_expired)
     {%- else %}
     BIND("false"^^xsd:boolean AS ?private_link_is_expired)
     {%- endif %}
