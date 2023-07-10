@@ -495,7 +495,7 @@ function submit_new_author (dataset_uuid) {
         "first_name": first_name,
         "last_name":  last_name,
         "email":      jQuery("#author_email").val(),
-        "orcid":      jQuery("#author_orcid").val()
+        "orcid_id":   jQuery("#author_orcid").val()
     }];
 
     jQuery.ajax({
