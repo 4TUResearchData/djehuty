@@ -16,6 +16,12 @@
   width: 500pt;
 }
 #table-count { text-transform: lowercase; }
+#overview-table tbody tr td:nth-child(1), #overview-table thead tr th:nth-child(1){
+    max-width: 8px !important;
+    min-width: 8px !important;
+    padding-right: 0px;
+    user-select: none;
+}
 </style>
 <script src="/static/js/review-overview.js"></script>
 <script>
@@ -55,6 +61,7 @@ activate ();
 <table id="overview-table" class="reviewer-table corporate-identity-table">
   <thead>
     <tr>
+      <th></th>
       <th>Title</th>
       <th>Version</th>
       <th>Submitter</th>
@@ -69,6 +76,7 @@ activate ();
   </thead>
   <tbody>{% for review in reviews: %}
     <tr>
+      <td><a id="copy-btn-{{review.uuid}}" class="fas fa-copy" href="#" onclick="javascript:copy_row('{{review.uuid}}','{{review.dataset_title}}\t{% if review.has_published_version %}{{review.dataset_version | default("update", False)}}{% else %}{{review.dataset_version | default("new", False)}}{% endif %}\t{{review.submitter_first_name | default("", False)}} {{review.submitter_last_name | default("", False)}}\t{{review.submitter_email}}\t{{review.group_name | default("Unknown", False)}}\t\t{{review.request_date}}\t{{review.modified_date}}\t{{review.published_date}}'); return false"></a></td>
       <td>
         {%- if review.status == "approved": %}
         <a href="/datasets/{{review.container_uuid}}/{{review.dataset_version}}">{{review.dataset_title}}</a>

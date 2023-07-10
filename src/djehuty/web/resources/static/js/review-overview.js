@@ -40,13 +40,13 @@ function filter_reviewer (event) {
     let name  = cleanup_name(jQuery(".reviewer-filter option:selected").text());
     jQuery('#overview-table tr').each(function(index, element) {
         let reviewer_element = jQuery(element).find(`td .reviewer-selector option:selected`);
-        let status = jQuery(element).find(`td:nth-child(6)`).text().trim();
+        let status = jQuery(element).find(`td:nth-child(7)`).text().trim();
         if (jQuery(element).find("th").length > 0) {} // Skip the header.
         else if (value == "all") {}
         else if (value == "unassigned" && reviewer_element.length > 0 && reviewer_element.val() == "") {}
         else if (reviewer_element.length > 0 && reviewer_element.val().split(":").pop() == value) {}
         else if (status == "approved") {
-            let reviewer = jQuery(element).find(`td:nth-child(10)`).text()
+            let reviewer = jQuery(element).find(`td:nth-child(11)`).text()
             let reviewer_name = cleanup_name(reviewer);
             if (reviewer_name != name) { jQuery(element).hide(); }
         }
@@ -57,7 +57,7 @@ function filter_reviewer (event) {
 function filter_status (event) {
     let value = jQuery(".status-filter option:selected").val();
     jQuery('#overview-table tr').each(function(index, element) {
-        let status = jQuery(element).find(`td:nth-child(6)`).text().trim();
+        let status = jQuery(element).find(`td:nth-child(7)`).text().trim();
         if (jQuery(element).find("th").length > 0) {} // Skip the header.
         else if (value == "all") { /*jQuery(element).show();*/ }
         else if (value == status) { /*jQuery(element).show();*/ }
@@ -73,6 +73,7 @@ function activate() {
                 search: "_INPUT_",
                 searchPlaceholder: "Search..."
             },
+            columnDefs: [{ orderable: false, targets: 0 }],
             order: [[7, 'desc']],
             orderable: false,
             info: false,
@@ -86,4 +87,16 @@ function activate() {
         jQuery("#content-wrapper").show();
         update_item_count ();
     });
+}
+
+function copy_row (uuid, text) {
+    navigator.clipboard.writeText(text);
+    jQuery(`#copy-btn-${uuid}`)
+        .removeClass("fa-copy")
+        .addClass("fa-check-double");
+    setTimeout(function() {
+        jQuery(`#copy-btn-${uuid}`)
+            .removeClass("fa-check-double")
+            .addClass("fa-copy");
+    }, 3000);
 }

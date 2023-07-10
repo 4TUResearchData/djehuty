@@ -433,6 +433,7 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-user-secret::before { content: "\f21b"; }
 .fa-user-circle::before { content: "\f2bd"; }
 .fa-clipboard-check::before { content: "\f46c"; }
+.fa-copy::before { content: "\f0c5"; }
 .fa-angle-double-up::before { content: "\f102"; }
 .fa-angle-double-down::before { content: "\f103"; }
 .fa-sync::before { content: "\f021"; }
