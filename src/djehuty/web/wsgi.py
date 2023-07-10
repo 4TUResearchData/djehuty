@@ -1959,19 +1959,20 @@ class ApiServer:
                 whom         = validator.string_value (request.form, "whom", 0, 128)
                 purpose      = validator.string_value (request.form, "purpose", 0, 128)
                 current_time = datetime.now()
-                options      = ["1 day", "7 days", "30 days", "1337 years"]
+                options      = ["1 day", "7 days", "30 days", "indefinitely"]
                 expires_date = validator.options_value (request.form, "expires_date",
                                                         options, required=True)
+                delta        = None
+                feed_expire_time = None
                 if expires_date == "1 day":
                     feed_expire_time = timedelta(days=1)
                 elif expires_date == "7 days":
                     feed_expire_time = timedelta(days=7)
                 elif expires_date == "30 days":
                     feed_expire_time = timedelta(days=30)
-                elif expires_date == "1337 years":
-                    feed_expire_time = timedelta(days=488339)
 
-                delta = current_time + feed_expire_time
+                if feed_expire_time is not None:
+                    delta = current_time + feed_expire_time
 
                 self.locks.lock (locks.LockTypes.PRIVATE_LINKS)
                 self.db.insert_private_link (dataset["uuid"], account_uuid, whom=whom,
