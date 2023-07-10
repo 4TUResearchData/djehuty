@@ -1500,10 +1500,19 @@ class ApiServer:
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                is_published = True,
                                                account_uuid = account_uuid)
+        container_uuid = value_or_none (dataset, "container_uuid")
 
-        if dataset is None:
+        if dataset is None or container_uuid is None:
             self.log.error ("Unable to find dataset '%s'.", dataset_id)
             return self.error_403 (request)
+
+        existing_draft = self.__dataset_by_id_or_uri (container_uuid,
+                                                      is_published = False,
+                                                      account_uuid = account_uuid,
+                                                      use_cache    = False)
+        if existing_draft is not None:
+            self.log.info ("Refusing to create two drafts for one dataset.")
+            return redirect (f"/my/datasets/{container_uuid}/edit", code=302)
 
         container_uuid = dataset["container_uuid"]
         draft_uuid = self.db.create_draft_from_published_dataset (container_uuid)
