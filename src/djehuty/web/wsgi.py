@@ -648,7 +648,7 @@ class ApiServer:
 
     def __collection_by_id_or_uri (self, identifier, account_uuid=None,
                                    is_published=True, is_latest=False,
-                                   version = None):
+                                   version=None, use_cache=True):
         try:
             if version is not None and not parses_to_int (version):
                 return None
@@ -660,6 +660,7 @@ class ApiServer:
                                                   is_latest     = is_latest,
                                                   version       = version,
                                                   account_uuid  = account_uuid,
+                                                  use_cache     = use_cache,
                                                   limit         = 1)[0]
             elif validator.is_valid_uuid (identifier):
                 collection = self.db.collections (container_uuid = identifier,
@@ -667,6 +668,7 @@ class ApiServer:
                                                   is_latest      = is_latest,
                                                   version        = version,
                                                   account_uuid   = account_uuid,
+                                                  use_cache      = use_cache,
                                                   limit          = 1)[0]
 
             return collection
