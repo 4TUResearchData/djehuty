@@ -91,7 +91,7 @@ function activate() {
 
 function copy_row (uuid, dataset_uuid, title, version, first_name, last_name,
                    email, group_name, request_date, modified_date, published_date) {
-    let text = `=HYPERLINK("${window.location.origin}/review/goto-dataset/${dataset_uuid}", "${title}")\t${version}\t${first_name} ${last_name}\t${email}\t${group_name}\t\t${request_date}\t${modified_date}\t${published_date}\n`;
+    let text = `=HYPERLINK("${window.location.origin}/review/goto-dataset/${dataset_uuid}"; "${title}")\t${version}\t${first_name} ${last_name}\t${email}\t${group_name}\t\t${request_date}\t${modified_date}\t${published_date}\n`;
     navigator.clipboard.writeText(text);
     jQuery(`#copy-btn-${uuid}`)
         .removeClass("fa-copy")
