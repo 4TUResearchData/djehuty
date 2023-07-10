@@ -40,13 +40,13 @@ function filter_reviewer (event) {
     let name  = cleanup_name(jQuery(".reviewer-filter option:selected").text());
     jQuery('#overview-table tr').each(function(index, element) {
         let reviewer_element = jQuery(element).find(`td .reviewer-selector option:selected`);
-        let status = jQuery(element).find(`td:nth-child(7)`).text().trim();
+        let status = jQuery(element).find(`td:nth-child(6)`).text().trim();
         if (jQuery(element).find("th").length > 0) {} // Skip the header.
         else if (value == "all") {}
         else if (value == "unassigned" && reviewer_element.length > 0 && reviewer_element.val() == "") {}
         else if (reviewer_element.length > 0 && reviewer_element.val().split(":").pop() == value) {}
         else if (status == "approved") {
-            let reviewer = jQuery(element).find(`td:nth-child(11)`).text()
+            let reviewer = jQuery(element).find(`td:nth-child(10)`).text()
             let reviewer_name = cleanup_name(reviewer);
             if (reviewer_name != name) { jQuery(element).hide(); }
         }
@@ -57,7 +57,7 @@ function filter_reviewer (event) {
 function filter_status (event) {
     let value = jQuery(".status-filter option:selected").val();
     jQuery('#overview-table tr').each(function(index, element) {
-        let status = jQuery(element).find(`td:nth-child(7)`).text().trim();
+        let status = jQuery(element).find(`td:nth-child(6)`).text().trim();
         if (jQuery(element).find("th").length > 0) {} // Skip the header.
         else if (value == "all") { /*jQuery(element).show();*/ }
         else if (value == status) { /*jQuery(element).show();*/ }
@@ -73,7 +73,7 @@ function activate() {
                 search: "_INPUT_",
                 searchPlaceholder: "Search..."
             },
-            columnDefs: [{ orderable: false, targets: 0 }],
+            columnDefs: [{ orderable: false, targets: 10 }],
             order: [[7, 'desc']],
             orderable: false,
             info: false,
@@ -89,7 +89,9 @@ function activate() {
     });
 }
 
-function copy_row (uuid, text) {
+function copy_row (uuid, dataset_uuid, title, version, first_name, last_name,
+                   email, group_name, request_date, modified_date, published_date) {
+    let text = `=HYPERLINK("${window.location.origin}/review/goto-dataset/${dataset_uuid}", "${title}")\t${version}\t${first_name} ${last_name}\t${email}\t${group_name}\t\t${request_date}\t${modified_date}\t${published_date}\n`;
     navigator.clipboard.writeText(text);
     jQuery(`#copy-btn-${uuid}`)
         .removeClass("fa-copy")
