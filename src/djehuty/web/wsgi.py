@@ -1516,7 +1516,6 @@ class ApiServer:
             self.log.info ("Refusing to create two drafts for one dataset.")
             return redirect (f"/my/datasets/{container_uuid}/edit", code=302)
 
-        container_uuid = dataset["container_uuid"]
         draft_uuid = self.db.create_draft_from_published_dataset (container_uuid)
         if draft_uuid is None:
             self.log.info ("There is no draft dataset.")
@@ -1780,12 +1779,20 @@ class ApiServer:
         collection = self.__collection_by_id_or_uri (collection_id,
                                                      is_published = True,
                                                      account_uuid = account_uuid)
+        container_uuid = value_or_none (collection, "container_uuid")
 
-        if collection is None:
+        if collection is None or container_uuid is None:
             self.log.error ("Unable to find collection '%s'.", collection_id)
             return self.error_403 (request)
 
-        container_uuid = collection["container_uuid"]
+        existing_draft = self.__collection_by_id_or_uri (collection_id,
+                                                         is_published = False,
+                                                         account_uuid = account_uuid,
+                                                         use_cache    = False)
+        if existing_draft is not None:
+            self.log.info ("Refusing to create two drafts for one collection.")
+            return redirect (f"/my/collections/{container_uuid}/edit", code=302)
+
         draft_uuid = self.db.create_draft_from_published_collection (container_uuid)
         if draft_uuid is None:
             self.log.info ("There is no draft collection.")
