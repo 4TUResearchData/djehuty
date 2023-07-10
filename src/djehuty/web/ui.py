@@ -425,7 +425,10 @@ def read_orcid_configuration (server, xml_root):
         server.orcid_client_id     = config_value (orcid, "client-id")
         server.orcid_client_secret = config_value (orcid, "client-secret")
         server.orcid_endpoint      = config_value (orcid, "endpoint")
-        server.identity_provider   = "orcid"
+
+        # SAML takes precedence over ORCID authentication.
+        if server.identity_provider != "saml":
+            server.identity_provider   = "orcid"
 
 def read_email_configuration (server, xml_root, logger):
     """Procedure to parse and set the email server configuration."""
