@@ -2601,18 +2601,18 @@ class SparqlInterface:
             account = self.account_by_email (email)
             if account is not None:
                 self.log.info ("Account for %s already exists.", email)
-                return None
+                continue
 
             account_uuid = self.insert_account (email=email)
             if not account_uuid:
                 self.log.error ("Creating account for %s failed.", email)
-                return None
+                continue
 
             self.log.info ("Created account for %s.", email)
 
             orcid = self.privileges[email]["orcid"]
             if orcid is None:
-                return None
+                continue
 
             author_uuid = self.insert_author (
                 email        = email,
@@ -2622,10 +2622,10 @@ class SparqlInterface:
                 is_public    = True)
             if not author_uuid:
                 self.log.warning ("Failed to link author to account for %s.", email)
-                return None
+                continue
 
             self.log.info ("Linked account of %s to ORCID: %s.", email, orcid)
-            return None
+            continue
 
     def insert_session (self, account_uuid, name=None, token=None, editable=False,
                         override_mfa=False):
