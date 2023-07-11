@@ -1451,20 +1451,40 @@ class SparqlInterface:
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
 
         if self.add_triples_from_graph (graph):
+            dataset_uuid   = rdf.uri_to_uuid (dataset_uri)
             existing_files = self.dataset_files (dataset_uri  = dataset_uri,
                                                  limit        = None,
                                                  account_uuid = account_uuid)
-            existing_files = list(map (lambda item: URIRef(rdf.uuid_to_uri(item["uuid"], "file")),
-                                         existing_files))
 
-            new_files    = existing_files + [URIRef(file_uri)]
-            dataset_uuid = rdf.uri_to_uuid (dataset_uri)
-            dataset      = self.datasets (dataset_uuid = dataset_uuid,
-                                          account_uuid = account_uuid,
-                                          is_published = False,
-                                          limit        = 1)[0]
+            # In the case where there are already files in the dataset,
+            # we can append to the last blank node.
+            if existing_files:
+                last_file = existing_files[-1]
+                new_index = conv.value_or (last_file, "order_index", 0) + 1
+                if new_index < 1:
+                    self.log.error ("Expected larger index for to-be-appended file.")
 
-            dataset_uuid = dataset["uuid"]
+                last_node = conv.value_or_none (last_file, "originating_blank_node")
+                new_node  = self.wrap_in_blank_node (file_uri, index=new_index)
+                if new_node is None:
+                    self.log.error ("Failed preparation to append %s.", file_uri)
+                    return None
+
+                self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
+                self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
+
+                if self.append_to_list (last_node, new_node):
+                    return rdf.uri_to_uuid (file_uri)
+
+                self.log.error ("Failed to append %s to the file list.", file_uri)
+                return None
+
+            new_files = existing_files + [URIRef(file_uri)]
+            dataset   = self.datasets (dataset_uuid = dataset_uuid,
+                                       account_uuid = account_uuid,
+                                       is_published = False,
+                                       limit        = 1)[0]
+
             self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
             self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
             if self.update_item_list (dataset_uuid,
