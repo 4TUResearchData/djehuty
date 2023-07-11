@@ -1401,6 +1401,19 @@ class SparqlInterface:
 
         return None
 
+    def append_to_list (self, node_to_be_appended_to, node_to_append):
+        """Procedure to append a blank node to an existing list."""
+
+        query = self.__query_from_template ("append_to_list", {
+            "last_blank_node":   node_to_be_appended_to,
+            "append_blank_node": node_to_append
+        })
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
+        return self.__run_query (query)
+
     def insert_file (self, file_id=None, name=None, size=None,
                      is_link_only=None, download_url=None, supplied_md5=None,
                      computed_md5=None, viewer_type=None, preview_state=None,

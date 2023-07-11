@@ -1,0 +1,19 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?last_blank_node rdf:rest ?nil_value .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?last_blank_node rdf:rest <{{append_blank_node}}> .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?last_blank_node rdf:rest ?nil_value .
+  }
+  FILTER (?last_blank_node = <{{last_blank_node}}>)
+}
+{% endblock %}

@@ -99,6 +99,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/account_storage_used.sparql        \
     djehuty/web/resources/sparql_templates/account_uuid_by_orcid.sparql       \
     djehuty/web/resources/sparql_templates/accounts.sparql                    \
+    djehuty/web/resources/sparql_templates/append_to_list.sparql              \
     djehuty/web/resources/sparql_templates/author_collaborators.sparql        \
     djehuty/web/resources/sparql_templates/author_profile.sparql              \
     djehuty/web/resources/sparql_templates/author_public_items.sparql         \
