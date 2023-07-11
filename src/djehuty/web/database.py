@@ -955,14 +955,18 @@ class SparqlInterface:
         """Adds an RDF list with indexes for ITEMS to GRAPH."""
         return self.insert_record_list (graph, uri, items, items_name, None)
 
-    def wrap_in_blank_node (self, item_uuid, item_type="dataset"):
+    def wrap_in_blank_node (self, item, item_type="dataset", index=None):
         """Returns the blank node URI for the rdf:List node for a dataset."""
 
         rdf_store  = Graph ()
         blank_node = rdf.blank_node ()
-        item_uri   = rdf.uuid_to_uri (item_uuid, item_type)
+
+        item_uri = item if isinstance (item, URIRef) else rdf.uuid_to_uri (item_uuid, item_type)
+
         rdf.add (rdf_store, blank_node, RDF.first, URIRef(item_uri), "url")
         rdf.add (rdf_store, blank_node, RDF.rest, RDF.nil, "url")
+        if index is not None:
+            rdf.add (rdf_store, blank_node, rdf.DJHT["index"], index, XSD.integer)
 
         if self.add_triples_from_graph (rdf_store):
             return blank_node
