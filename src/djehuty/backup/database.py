@@ -947,6 +947,18 @@ class DatabaseInterface:
         self.store.add ((rdf.DJHT["ReviewUnassigned"], RDF.type,   rdf.DJHT["ReviewType"]))
         self.store.add ((rdf.DJHT["ReviewUnassigned"], RDFS.label, Literal("unassigned", datatype=XSD.string)))
 
+        ## Log event types.
+        self.store.add ((rdf.DJHT["LogEntryCite"],     RDF.type,   rdf.DJHT["LogEntryType"]))
+        self.store.add ((rdf.DJHT["LogEntryCite"],     RDFS.label, Literal("cite", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["LogEntryDownload"], RDF.type,   rdf.DJHT["LogEntryType"]))
+        self.store.add ((rdf.DJHT["LogEntryDownload"], RDFS.label, Literal("download", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["LogEntryShare"],    RDF.type,   rdf.DJHT["LogEntryType"]))
+        self.store.add ((rdf.DJHT["LogEntryShare"],    RDFS.label, Literal("share", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["LogEntryView"],     RDF.type,   rdf.DJHT["LogEntryType"]))
+        self.store.add ((rdf.DJHT["LogEntryView"],     RDFS.label, Literal("view", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["LogEntryPrivateView"], RDF.type,   rdf.DJHT["LogEntryType"]))
+        self.store.add ((rdf.DJHT["LogEntryPrivateView"], RDFS.label, Literal("private_view", datatype=XSD.string)))
+
         languages = self.__load_resource_file("languages.json")
         for language in languages:
             uri = rdf.unique_node ("language")
