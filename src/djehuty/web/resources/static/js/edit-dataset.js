@@ -379,6 +379,8 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
         jQuery("#files tbody").empty();
         if (files.length > 0) {
             jQuery("input[name='record_type']").attr('disabled', true);
+            jQuery("#upload_software").attr('disabled', false);
+            jQuery("#upload_files").attr('disabled', false);
 
             let number_of_files = 0;
             for (let index in files) {
