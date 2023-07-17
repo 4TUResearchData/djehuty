@@ -1479,18 +1479,10 @@ class SparqlInterface:
                 self.log.error ("Failed to append %s to the file list.", file_uri)
                 return None
 
-            new_files = existing_files + [URIRef(file_uri)]
-            dataset   = self.datasets (dataset_uuid = dataset_uuid,
-                                       account_uuid = account_uuid,
-                                       is_published = False,
-                                       limit        = 1)[0]
-
-            self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
-            self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
-            if self.update_item_list (dataset_uuid,
-                                      account_uuid,
-                                      new_files,
-                                      "files"):
+            files = [URIRef(file_uri)]
+            if self.update_item_list (dataset_uuid, account_uuid, files, "files"):
+                self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
+                self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
                 return rdf.uri_to_uuid (file_uri)
 
         return None
