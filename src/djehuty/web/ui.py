@@ -577,6 +577,14 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if notice_message:
             server.notice_message = notice_message
 
+        site_name = xml_root.find ("site-name")
+        if site_name is not None:
+            server.site_name = site_name.text
+
+        site_description = xml_root.find ("site-description")
+        if site_description is not None:
+            server.site_description = site_description.text
+
         read_orcid_configuration (server, xml_root)
         read_datacite_configuration (server, xml_root)
         read_email_configuration (server, xml_root, logger)

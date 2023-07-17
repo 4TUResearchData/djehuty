@@ -50,6 +50,8 @@ class ApiServer:
 
     def __init__ (self, address="127.0.0.1", port=8080):
         self.base_url         = f"http://{address}:{port}"
+        self.site_name        = ""
+        self.site_description = ""
         self.db               = database.SparqlInterface()  # pylint: disable=invalid-name
         self.email            = email_handler.EmailInterface()
         self.cookie_key       = "djehuty_session"
@@ -371,6 +373,8 @@ class ApiServer:
         impersonator_token = self.__impersonator_token (request)
         parameters    = {
             "base_url":        self.base_url,
+            "site_name":       self.site_name,
+            "site_description": self.site_description,
             "path":            request.path,
             "in_production":   self.in_production,
             "maintenance_mode": self.maintenance_mode,
