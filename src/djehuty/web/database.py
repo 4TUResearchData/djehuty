@@ -1512,6 +1512,27 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def insert_log_entry (self, created_date, ip_address, item_uuid,
+                          item_type="dataset", event_type="view"):
+        """Procedure to register a djht:LogEntry."""
+        if not isinstance (event_type, str):
+            self.log.error ("Invalid event_type passed to 'insert_log_entry'.")
+            return False
+
+        graph       = Graph()
+        entry_uri   = rdf.unique_node ("log-entry")
+        type_suffix = f"LogEntry{event_type.capitalize()}"
+
+        graph.add ((entry_uri, RDF.type, rdf.DJHT["LogEntry"]))
+        rdf.add (graph, entry_uri, rdf.DJHT["ip_address"], ip_address, XSD.string)
+        rdf.add (graph, entry_uri, rdf.DJHT["created"], created_date, XSD.dateTime)
+        rdf.add (graph, entry_uri, rdf.DJHT[f"{item_type}_uuid"], item_uuid, XSD.string)
+        rdf.add (graph, entry_uri, rdf.DJHT["event_type"], rdf.DJHT[f"{type_suffix}"], "url")
+        if self.add_triples_from_graph (graph):
+            return True
+
+        return False
+
     def insert_license (self, license_id, name=None, url=None):
         """Procedure to add an license to the state graph."""
 
