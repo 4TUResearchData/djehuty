@@ -4,8 +4,10 @@ SELECT DISTINCT ?collection_id ?container_uuid ?title
 WHERE {
   GRAPH <{{state_graph}}> {
     ?collection_container rdf:type                                          djht:CollectionContainer ;
-                          djht:collection_id                                ?collection_id ;
                           djht:latest_published_version                     ?collection .
+
+    OPTIONAL { ?collection_container djht:collection_id  ?collection_id . }
+
     ?collection           rdf:type                                          djht:Collection ;
                           djht:title                                        ?title ;
                           djht:datasets/rdf:rest*/rdf:first                 <container:{{dataset_container_uuid}}> .
