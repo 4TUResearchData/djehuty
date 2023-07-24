@@ -1,15 +1,15 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT (STRAFTER(STR(?collaborator), ":") AS ?collaborator_uuid)
+SELECT DISTINCT (STRAFTER(STR(?associated_author), ":") AS ?associated_author_uuid)
                 ?full_name ?is_active
 WHERE {
   GRAPH <{{state_graph}}> {
     ?item          djht:is_public                    true ;
                    djht:authors/rdf:rest*/rdf:first  <{{author_uri}}> ,
-                                                     ?collaborator .
-    ?collaborator  djht:full_name                    ?full_name ;
+                                                     ?associated_author .
+    ?associated_author djht:full_name                ?full_name ;
                    djht:is_active                    ?is_active .
-    FILTER (?collaborator != <{{author_uri}}>)
+    FILTER (?associated_author != <{{author_uri}}>)
   }
 }
 ORDER BY (?full_name)

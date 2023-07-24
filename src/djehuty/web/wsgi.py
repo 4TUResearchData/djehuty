@@ -2840,7 +2840,7 @@ class ApiServer:
             public_items = self.db.author_public_items(author_uri)
             datasets    = [pi for pi in public_items if pi['is_dataset']]
             collections = [pi for pi in public_items if not pi['is_dataset']]
-            collaborators = self.db.author_collaborators(author_uri)
+            associated_authors = self.db.associated_authors (author_uri)
             member = value_or(group_to_member, value_or_none(profile, 'group_id'), 'other')
             member_url_name = member_url_names[member]
             categories = None
@@ -2854,7 +2854,7 @@ class ApiServer:
                                            profile=profile,
                                            datasets=datasets,
                                            collections=collections,
-                                           collaborators=collaborators,
+                                           associated_authors=associated_authors,
                                            member=member,
                                            member_url_name=member_url_name,
                                            categories=categories,

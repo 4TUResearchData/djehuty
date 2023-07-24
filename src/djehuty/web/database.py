@@ -492,9 +492,9 @@ class SparqlInterface:
         })
         return self.__run_query(query)
 
-    def author_collaborators (self, author_uri):
+    def associated_authors (self, author_uri):
         """Returns collaborating authors for a given AUTHOR_URI."""
-        query = self.__query_from_template ("author_collaborators", {
+        query = self.__query_from_template ("associated_authors", {
             "author_uri": author_uri
         })
         return self.__run_query(query)

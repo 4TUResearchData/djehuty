@@ -4,7 +4,7 @@
 <style>
     #content a    { text-decoration: none }
     #content a:hover { text-decoration: underline }
-    #datasets, #collections, #member, #usage, #collaborators
+    #datasets, #collections, #member, #usage, #associated-authors
                   { margin-top: 10px }
     #has-account  { margin-top: 80px }
     #left_column  { width: 65%; margin-bottom:10px }
@@ -126,16 +126,16 @@
         </ul>
     </div>
 {% endif %}
-{% if collaborators %}
-    <div id="collaborators">
+{% if associated_authors %}
+    <div id="associated-authors">
         <div class="label">Co-authors</div>
         <div class="small">Co-authors of {{profile.full_name}}'s datasets/collections. Bold: authors with a 4TU.ResearchData account.</div>
         <ul>
-    {% for collaborator in collaborators %}
+    {% for associated_author in associated_authors %}
             <li>
-                <a class="corporate-identity {% if collaborator.is_active %}is_active{% endif %}"
-                   href="/authors/{{collaborator.collaborator_uuid}}"
-                   title="">{{collaborator.full_name}}</a>
+                <a class="corporate-identity {% if associated_author.is_active %}is_active{% endif %}"
+                   href="/authors/{{associated_author.associated_author_uuid}}"
+                   title="">{{associated_author.full_name}}</a>
             </li>
     {% endfor %}
         </ul>
@@ -146,7 +146,7 @@
     {% set debug_vars = {"profile": profile,
                          "datasets": datasets,
                          "collections": collections,
-                         "collaborators": collaborators,
+                         "associated_authors": associated_authors,
                          "member": member,
                          "member_url_name": member_url_name,
                          "statistics": statistics} %}
