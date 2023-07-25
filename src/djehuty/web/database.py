@@ -1522,11 +1522,12 @@ class SparqlInterface:
         graph       = Graph()
         entry_uri   = rdf.unique_node ("log-entry")
         type_suffix = f"LogEntry{event_type.capitalize()}"
+        item_uri    = rdf.uuid_to_uri (item_uuid, "container")
 
         graph.add ((entry_uri, RDF.type, rdf.DJHT["LogEntry"]))
         rdf.add (graph, entry_uri, rdf.DJHT["ip_address"], ip_address, XSD.string)
         rdf.add (graph, entry_uri, rdf.DJHT["created"], created_date, XSD.dateTime)
-        rdf.add (graph, entry_uri, rdf.DJHT[f"{item_type}_uuid"], item_uuid, XSD.string)
+        rdf.add (graph, entry_uri, rdf.DJHT[f"{item_type}"], item_uri, "url")
         rdf.add (graph, entry_uri, rdf.DJHT["event_type"], rdf.DJHT[f"{type_suffix}"], "url")
         if self.add_triples_from_graph (graph):
             return True
