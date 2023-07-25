@@ -699,6 +699,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 count        = 0
                 state_output = 0
                 query        = ""
+                timestamp_line = None
                 for line in lines:
                     if state_output == 2:
                         if line == "---\n":
@@ -708,10 +709,23 @@ def main (address=None, port=None, state_graph=None, storage=None,
                                 output_file.write (query)
                             query = ""
                         else:
+                            now_statement = "    BIND(NOW() AS ?now)\n"
+                            if now_statement == line:
+                                try:
+                                    components = timestamp_line.split(" ")
+                                    date       = components[1]
+                                    time       = components[2].partition(",")[0]
+                                    replacement = (f'    BIND("{date}T{time}Z"'
+                                                   '^^xsd:dateTime AS ?now)\n')
+                                    line = line.replace (now_statement, replacement)
+                                except IndexError:
+                                    print (f"Failed to read '{timestamp_line}'.",
+                                           file=sys.stderr)
                             query += line
                     elif state_output == 1 and  line == "---\n":
                         state_output = 2
                     elif "Query Audit Log" in line:
+                        timestamp_line = line
                         query += f"# {line}"
                         count += 1
                         state_output = 1
