@@ -63,6 +63,13 @@ class ApiServer:
         self.sandbox_message  = False
         self.notice_message   = False
         self.disable_2fa      = False
+        self.small_footer     = (
+            '<div id="footer-wrapper2"><p>This repository is powered by '
+            '<a href="https://github.com/4TUResearchData/djehuty">djehuty</a> '
+            'built for <a href="https://data.4tu.nl">4TU.ResearchData</a>.'
+            '</p></div>'
+        )
+        self.large_footer     = self.small_footer
 
         self.orcid_client_id     = None
         self.orcid_client_secret = None
@@ -375,6 +382,8 @@ class ApiServer:
             "base_url":        self.base_url,
             "site_name":       self.site_name,
             "site_description": self.site_description,
+            "small_footer":    self.small_footer,
+            "large_footer":    self.large_footer,
             "path":            request.path,
             "in_production":   self.in_production,
             "maintenance_mode": self.maintenance_mode,

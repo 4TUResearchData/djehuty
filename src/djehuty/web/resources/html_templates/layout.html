@@ -92,7 +92,6 @@
           <div id="message"></div>
           {% block body %}{% endblock %}
         </div>
-        {%- if path == "/" %}<div id="content-spacer">{% else %}<div id="content-spacer2">{% endif %}</div>
       </div>
     </div>
     <div id="footer" class="corporate-identity-footer">
@@ -108,51 +107,10 @@
             <img src="/static/images/logosleft-white-wageningen.png" alt="4TU Wageningen"></a>
         </div>
       </div>
-      {% if path == "/" %}
-      <div id="footer-wrapper">
-      <div class="footer-column">
-        <h2>About 4TU.ResearchData</h2>
-        <p>4TU.ResearchData is an international data repository for science,
-          engineering and design. We offer research dataset curation, sharing,
-          long-term access and preservation services to anyone, anywhere.</p>
-        <p>Our training and community engagement resources are available to
-          research and research-support professionals working to make their
-          research data findable, accessible, interoperable and reproducible
-          (FAIR).</p>
-        <p>We are a <a href="https://www.4tu.nl/">4TU.Federation</a> institute.</p>
-      </div>
-      <div class="footer-column">
-        <h2>4TU.ResearchData Newsletter</h2>
-        <p><a href="https://m7.mailplus.nl/wpmY6EeZdyiQ-1051-370649-test-1">Sign up for the 4TU.ResearchData newsletter</a></p>
-        <p>We typically send one monthly newsletter and occasional emails about upcoming events and opportunities.</p>
-        <p><a href="https://community.data.4tu.nl/feed">RSS news</a></p>
-        <p class="cts"><img class="cts" src="/static/images/CoreTrustSeal.png" alt="CoreTrustSeal"></p>
-      </div>
-      <div class="footer-column">
-        <p><a class="navbar-brand" href="https://data.4tu.nl/info">
-            <img width="200" src="/static/images/logo-gray.svg" alt="4TU.ResearchData"></a>
-        </p>
-        <p>
-          <a class="far fa-envelope fa-2x" href="mailto:researchdata@4tu.nl"><span class="hidden">E-mail us</span></a>
-          <a class="fab fa-twitter fa-2x" href="https://twitter.com/4turesearchdata"><span class="hidden">Twitter</span></a>
-          <a class="fab fa-linkedin-in fa-2x" href="https://nl.linkedin.com/company/4tu-researchdata"><span class="hidden">LinkedIn</span></a>
-          <a class="fab fa-github fa-2x" href="https://github.com/4TUResearchData/djehuty"><span class="hidden">Source code</span></a>
-        </p>
-        <p>
-          <span class="fas fa-map-marker-alt" aria-hidden="true"></span> 4TU.ResearchData<br>
-          <span class="fas fa-empty" aria-hidden="true"></span>TU Delft Library<br>
-          <span class="fas fa-empty" aria-hidden="true"></span>Prometheusplein 1<br>
-          <span class="fas fa-empty" aria-hidden="true"></span>2628 ZC Delft<br>
-        </p>
-        <p>
-          <span class="fas fa-phone" aria-hidden="true"></span>+31 (0)15 27 88 600<br>
-        </p>
-        <p><span class="fas fa-copyright" aria-hidden="true"></span> 2022</p>
-      </div>
-      </div>
+      {%- if path == "/" %}
+      {{large_footer | safe}}
       {%- else %}
-      <div id="footer-wrapper2">
-        <p><a href="/info/en/about-your-data/getting-started">Getting started</a> | <a href="/info/en/about-4turesearchdata/contact">Contact</a> | <a href="/s/docs/data-collection-policy.pdf">Data Collection Policy</a> | <a href="/s/docs/privacy-policy.pdf">Privacy Policy</a> | <a href="/s/docs/terms-of-use.pdf">Terms of Use</a> | <a href="https://github.com/4TUResearchData/djehuty">Source code</a><p></div>
+      {{small_footer | safe}}
       {%- endif %}
     </div>
   </body>

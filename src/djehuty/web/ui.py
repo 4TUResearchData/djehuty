@@ -577,6 +577,14 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if notice_message:
             server.notice_message = notice_message
 
+        large_footer = read_raw_xml (xml_root, "large-footer")
+        if large_footer:
+            server.large_footer = large_footer
+
+        small_footer = read_raw_xml (xml_root, "small-footer")
+        if small_footer:
+            server.small_footer = small_footer
+
         site_name = xml_root.find ("site-name")
         if site_name is not None:
             server.site_name = site_name.text

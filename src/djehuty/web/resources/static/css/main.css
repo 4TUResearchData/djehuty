@@ -115,8 +115,6 @@ body,html {
     margin: 0em auto auto auto;
     border: none;
 }
-#wrapper.footer1 { margin-bottom: -420px; }
-#wrapper.footer2 { margin-bottom: -123px; }
 #content {
     max-width: 880pt;
     min-height: 200mm;
@@ -125,8 +123,6 @@ body,html {
     color: #000000;
 }
 #content-wrapper { padding: 5mm; }
-#content-spacer { min-height: 420px; }
-#content-spacer2 { min-height: 123px; }
 #header img {
     padding: 15px 0px 25px 15px;
     margin: 0em;
