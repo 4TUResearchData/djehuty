@@ -699,7 +699,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 count        = 0
                 state_output = 0
                 query        = ""
-                timestamp_line = None
+                timestamp_line = ""
                 for line in lines:
                     if state_output == 2:
                         if line == "---\n":
