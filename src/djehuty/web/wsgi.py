@@ -500,6 +500,20 @@ class ApiServer:
         except KeyError:
             return None
 
+    def __log_event (self, request, item_uuid, item_type, event_type):
+        """Records a view or download event."""
+        try:
+            timestamp  = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+            ip_address = request.remote_addr
+            if self.log_access == self.log_access_using_x_forwarded_for:
+                ip_address = request.headers["X-Forwarded-For"]
+
+            return self.db.insert_log_entry (timestamp, ip_address, item_uuid,
+                                             item_type=item_type,
+                                             event_type=event_type)
+        except KeyError as error:
+            self.log.error ("Failed to capture log event due to: %s", repr(error))
+
     ## ERROR HANDLERS
     ## ------------------------------------------------------------------------
 
@@ -3075,6 +3089,7 @@ class ApiServer:
                 self.log.error ("File download failed due to missing metadata.")
                 return self.error_500 ()
 
+            self.__log_event (request, dataset["container_uuid"], "dataset", "download")
             return send_file (file_path,
                               request.environ,
                               "application/octet-stream",
@@ -3115,6 +3130,7 @@ class ApiServer:
             filename = f"{dataset['container_uuid']}_{version}_all.zip"
 
             response.headers["Content-disposition"] = f"attachment; filename={filename}"
+            self.__log_event (request, dataset["container_uuid"], "dataset", "download")
             return response
 
         except (FileNotFoundError, KeyError, IndexError, TypeError) as error:
