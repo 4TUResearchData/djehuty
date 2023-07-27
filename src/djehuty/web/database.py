@@ -503,7 +503,7 @@ class SparqlInterface:
                        file_uuid=None, download_url=None, supplied_md5=None,
                        computed_md5=None, viewer_type=None, preview_state=None,
                        status=None, upload_url=None, upload_token=None,
-                       order="order_index", order_direction="asc", limit=10,
+                       order="order_index", order_direction="asc", limit=None,
                        dataset_uri=None, account_uuid=None, file_id=None):
         """Procedure to retrieve files of a dataset."""
 

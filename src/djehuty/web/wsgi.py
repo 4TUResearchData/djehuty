@@ -713,14 +713,12 @@ class ApiServer:
             if parses_to_int (identifier):
                 file = self.db.dataset_files (file_id     = int(identifier),
                                               dataset_uri = dataset_uri,
-                                              account_uuid = account_uuid,
-                                              limit = None)
+                                              account_uuid = account_uuid)
             elif (validator.is_valid_uuid (identifier) or
                   validator.is_valid_uuid (uri_to_uuid (dataset_uri))):
                 file = self.db.dataset_files (file_uuid   = identifier,
                                               dataset_uri = dataset_uri,
-                                              account_uuid = account_uuid,
-                                              limit = None)
+                                              account_uuid = account_uuid)
 
             return file
 
@@ -2614,7 +2612,7 @@ class ApiServer:
         id_version    = f"{dataset_id}/{version}" if version else f"{dataset_id}"
 
         authors       = self.db.authors(item_uri=dataset["uri"], limit=None)
-        files_params  = {'dataset_uri': dataset['uri'], 'limit': None, 'order': 'order_name'}
+        files_params  = {'dataset_uri': dataset['uri'], 'order': 'order_name'}
         if is_own_item:
             files_params['account_uuid'] = account_uuid
         files         = self.db.dataset_files(**files_params)
@@ -4405,7 +4403,6 @@ class ApiServer:
 
                 self.locks.lock (locks.LockTypes.FILE_LIST)
                 files = self.db.dataset_files (dataset_uri  = dataset["uri"],
-                                               limit        = None,
                                                account_uuid = account_uuid)
                 files.remove (next (filter (lambda item: item["uuid"] == file_id, files)))
                 files = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "file")),
