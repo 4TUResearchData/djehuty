@@ -514,6 +514,8 @@ class ApiServer:
         except KeyError as error:
             self.log.error ("Failed to capture log event due to: %s", repr(error))
 
+        return False
+
     ## ERROR HANDLERS
     ## ------------------------------------------------------------------------
 
