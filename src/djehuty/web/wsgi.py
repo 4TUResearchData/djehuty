@@ -2556,6 +2556,8 @@ class ApiServer:
                                               is_latest    = None)[0]
             if value_or (collection, "private_link_is_expired", False):
                 return self.__render_template (request, "private_link_is_expired.html")
+
+            self.__log_event (request, collection["container_uuid"], "collection", "view")
             return self.ui_collection (request, collection["container_uuid"],
                                        collection=collection, private_view=True)
         except IndexError:
@@ -2833,6 +2835,9 @@ class ApiServer:
 
         contributors = self.parse_contributors(value_or(collection, 'contributors', ''))
         datasets     = self.db.collection_datasets(collection_uri)
+
+        if not private_view:
+            self.__log_event (request, container_uuid, "collection", "view")
 
         return self.__render_template (request, "collection.html",
                                        item=collection,
