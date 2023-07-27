@@ -2536,6 +2536,7 @@ class ApiServer:
             if value_or (dataset, "private_link_is_expired", False):
                 return self.__render_template (request, "private_link_is_expired.html")
 
+            self.__log_event (request, dataset["container_uuid"], "dataset", "privateView")
             return self.ui_dataset (request, dataset["container_uuid"],
                                     dataset=dataset, private_view=True)
         except IndexError:
@@ -2669,6 +2670,9 @@ class ApiServer:
                     git_repository_url = f"{self.base_url}/v3/datasets/{dataset['git_uuid']}.git"
             except KeyError:
                 pass
+
+        if not private_view:
+            self.__log_event (request, dataset["container_uuid"], "dataset", "view")
 
         return self.__render_template (request, "dataset.html",
                                        item=dataset,
