@@ -13,6 +13,7 @@ SELECT DISTINCT ?account_uuid ?resource_id ?resource_doi ?resource_title
                 ?container_uuid (?collection AS ?uri) ?uuid
                 ?geolocation ?latitude ?longitude ?total_downloads
                 ?total_views ?total_shares ?total_cites ?container_doi
+                ?private_link_is_expired
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri      rdf:type                 djht:CollectionContainer .
@@ -87,6 +88,15 @@ WHERE {
     BIND(STRAFTER(STR(?collection), "collection:") AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:") AS ?account_uuid)
     BIND (xsd:boolean (EXISTS { ?container_uri djht:draft ?draft_collection . }) AS ?has_draft)
+    {%- if private_link_id_string is not none %}
+    OPTIONAL { ?private_link djht:expires_date     ?private_link_expires_date . }
+    # Wrapping the xsd:dateTime in strings is needed because Virtuoso seems to
+    # return 1 for 2023-07-07 < 2023-07-06. String comparison works because the
+    # xsd:dateTime format is YYYY-MM-DD.
+    BIND((BOUND(?private_link_expires_date) && STR(?private_link_expires_date) < STR(NOW())) AS ?private_link_is_expired)
+    {%- else %}
+    BIND("false"^^xsd:boolean AS ?private_link_is_expired)
+    {%- endif %}
   }
 {%- if account_uuid is not none: %}
 FILTER (?account = <account:{{account_uuid}}>)

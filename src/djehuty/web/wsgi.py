@@ -2554,6 +2554,8 @@ class ApiServer:
             collection = self.db.collections (private_link_id_string = private_link_id,
                                               is_published = None,
                                               is_latest    = None)[0]
+            if value_or (collection, "private_link_is_expired", False):
+                return self.__render_template (request, "private_link_is_expired.html")
             return self.ui_collection (request, collection["container_uuid"],
                                        collection=collection, private_view=True)
         except IndexError:
