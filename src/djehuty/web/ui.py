@@ -1,7 +1,6 @@
 """This module contains the command-line interface for the 'web' subcommand."""
 
 import logging
-from re import L
 import sys
 import os
 import shutil
