@@ -1,6 +1,7 @@
 """This module contains the command-line interface for the 'web' subcommand."""
 
 import logging
+from re import L
 import sys
 import os
 import shutil
@@ -662,7 +663,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 def main (address=None, port=None, state_graph=None, storage=None,
           base_url=None, config_file=None, use_debugger=False,
           use_reloader=False, run_internal_server=True, initialize=True,
-          extract_transactions_from_log=False):
+          extract_transactions_from_log=None):
     """The main entry point for the 'web' subcommand."""
     try:
         convenience.add_logging_level ("ACCESS", logging.INFO + 5)
@@ -675,10 +676,12 @@ def main (address=None, port=None, state_graph=None, storage=None,
         else:
             logger = logging.getLogger ("uwsgi:djehuty.web.ui")
 
+        since_datetime = None
         ## Be less verbose when only extracting Query Audit Logs.
-        if extract_transactions_from_log:
+        if extract_transactions_from_log is not None:
             logger = logging.getLogger (__name__)
             logger.setLevel(logging.ERROR)
+            since_datetime = extract_transactions_from_log
 
         server = wsgi.ApiServer ()
         config_files = set()
@@ -688,7 +691,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
                                           config_files)
 
         ## Handle extracting Query Audit Logs early on.
-        if extract_transactions_from_log:
+        if extract_transactions_from_log is not None:
             if "log-file" not in config:
                 print("No log file found to extract queries from.", file=sys.stderr)
                 sys.exit (1)
@@ -722,10 +725,17 @@ def main (address=None, port=None, state_graph=None, storage=None,
                                     print (f"Failed to read '{timestamp_line}'.",
                                            file=sys.stderr)
                             query += line
-                    elif state_output == 1 and  line == "---\n":
+                    elif state_output == 1 and line == "---\n":
                         state_output = 2
                     elif "Query Audit Log" in line:
                         timestamp_line = line
+
+                        if since_datetime:
+                            # [INFO] 2023-07-28 20:58:35,089 -
+                            log_datetime = " ".join(line.split(" ")[1:3])
+                            if log_datetime < since_datetime:
+                                continue
+
                         query += f"# {line}"
                         count += 1
                         state_output = 1
