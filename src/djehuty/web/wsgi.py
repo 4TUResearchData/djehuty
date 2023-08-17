@@ -3079,7 +3079,7 @@ class ApiServer:
         ## publically accessible, the file isn't of the user and the user
         ## isn't coming from a private link viewing.
         if dataset is None or metadata is None:
-            self.log.info ("Denied access to file %s in dataset %s.", dataset_id, file_id)
+            self.log.info ("Denied access to file %s in dataset %s.", file_id, dataset_id)
             return self.error_403 (request)
 
         if "container_uuid" not in dataset or "container_uuid" not in metadata:
