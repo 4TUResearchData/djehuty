@@ -3039,10 +3039,12 @@ class ApiServer:
                 if value_or_none (dataset, "account_uuid") == account_uuid:
                     if file_id is None:
                         self.log.info ("Files for %s accessed by owner or reviewer.", dataset_id)
-                        metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
+                        metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"],
+                                                              account_uuid = account_uuid)
                     else:
                         self.log.info ("File %s accessed by owner or reviewer.", file_id)
-                        metadata = self.__file_by_id_or_uri (file_id)
+                        metadata = self.__file_by_id_or_uri (file_id,
+                                                             account_uuid = account_uuid)
             else:
                 if file_id is None:
                     self.log.info ("Files for %s accessed through published dataset.", dataset_id)
