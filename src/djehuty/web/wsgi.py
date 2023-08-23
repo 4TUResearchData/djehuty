@@ -707,18 +707,21 @@ class ApiServer:
 
     def __files_by_id_or_uri (self, identifier=None,
                               account_uuid=None,
-                              dataset_uri=None):
+                              dataset_uri=None,
+                              private_view=False):
         try:
             file = None
             if parses_to_int (identifier):
                 file = self.db.dataset_files (file_id     = int(identifier),
                                               dataset_uri = dataset_uri,
-                                              account_uuid = account_uuid)
+                                              account_uuid = account_uuid,
+                                              private_view = private_view)
             elif (validator.is_valid_uuid (identifier) or
                   validator.is_valid_uuid (uri_to_uuid (dataset_uri))):
                 file = self.db.dataset_files (file_uuid   = identifier,
                                               dataset_uri = dataset_uri,
-                                              account_uuid = account_uuid)
+                                              account_uuid = account_uuid,
+                                              private_view = private_view)
 
             return file
 
@@ -727,9 +730,11 @@ class ApiServer:
 
     def __file_by_id_or_uri (self, identifier,
                              account_uuid=None,
-                             dataset_uri=None):
+                             dataset_uri=None,
+                             private_view=False):
         try:
-            return self.__files_by_id_or_uri (identifier, account_uuid, dataset_uri)[0]
+            return self.__files_by_id_or_uri (identifier, account_uuid,
+                                              dataset_uri, private_view)[0]
         except IndexError:
             return None
 
@@ -2619,6 +2624,8 @@ class ApiServer:
         files_params  = {'dataset_uri': dataset['uri'], 'order': 'order_name'}
         if is_own_item:
             files_params['account_uuid'] = account_uuid
+        elif private_view:
+            files_params['private_view'] = True
         files         = self.db.dataset_files(**files_params)
         files_size    = sum(value_or(f,'size',0) for f in files)
         tags          = self.db.tags(item_uri=dataset["uri"], limit=None)
@@ -2975,9 +2982,16 @@ class ApiServer:
             referer_begin = f"{self.base_url}/private_datasets/"
             if referer.startswith (referer_begin):
                 private_link_id = referer.partition (referer_begin)[2]
+
                 dataset = self.db.datasets (private_link_id_string = private_link_id,
-                                            is_published           = False,
-                                            limit                  = 1)[0]
+                                            is_published = None,
+                                            is_latest    = None,
+                                            use_cache    = False,
+                                            limit        = 1)[0]
+
+                if value_or (dataset, "private_link_is_expired", False):
+                    dataset = None
+
         except (AttributeError, IndexError):
             pass
 
@@ -3018,10 +3032,12 @@ class ApiServer:
         if dataset is not None:
             if file_id is None:
                 self.log.info ("Files for %s accessed through private link.", dataset_id)
-                metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"])
+                metadata = self.__files_by_id_or_uri (dataset_uri = dataset["uri"],
+                                                      private_view=True)
             else:
                 self.log.info ("File %s accessed through private link.", file_id)
-                metadata = self.__file_by_id_or_uri (file_id)
+                metadata = self.__file_by_id_or_uri (file_id,
+                                                     private_view=True)
 
             return dataset, metadata
 

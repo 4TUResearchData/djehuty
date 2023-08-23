@@ -38,7 +38,7 @@ WHERE {
     BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
     BIND(CONCAT(STR(!CONTAINS(LCASE(?name), "readme")), LCASE(?name)) AS ?order_name)
   }
-  {%- if account_uuid is none %}
+  {%- if account_uuid is none and (private_view is not true) %}
   FILTER (! (BOUND(?embargo_until_date) && ?embargo_until_date > NOW()))
   {%- endif %}
 {%- if dataset_uri is not none %}

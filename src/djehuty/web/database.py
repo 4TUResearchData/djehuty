@@ -504,7 +504,8 @@ class SparqlInterface:
                        computed_md5=None, viewer_type=None, preview_state=None,
                        status=None, upload_url=None, upload_token=None,
                        order="order_index", order_direction="asc", limit=None,
-                       dataset_uri=None, account_uuid=None, file_id=None):
+                       dataset_uri=None, account_uuid=None, file_id=None,
+                       private_view=None):
         """Procedure to retrieve files of a dataset."""
 
         filters  = rdf.sparql_filter ("size",          size)
@@ -523,6 +524,7 @@ class SparqlInterface:
         query = self.__query_from_template ("dataset_files", {
             "dataset_uri":         dataset_uri,
             "account_uuid":        account_uuid,
+            "private_view":        private_view,
             "file_uuid":           file_uuid,
             "filters":             filters
         })
