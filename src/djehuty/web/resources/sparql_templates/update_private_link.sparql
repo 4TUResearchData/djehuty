@@ -26,7 +26,7 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?container       rdf:type/rdfs:subClassOf djht:Container ;
                      djht:account              ?account ;
-                     djht:draft                ?item_uri .
+                     ?container_predicate      ?item_uri .
 
     ?item_uri        djht:private_links/rdf:rest*/rdf:first ?link .
 
@@ -37,6 +37,7 @@ WHERE {
     OPTIONAL { ?link djht:expires_date     ?expires_date . }
     OPTIONAL { ?link djht:read_only        ?read_only . }
   }
+  FILTER (?container_predicate = djht:draft || ?container_predicate = djht:latest_published_version)
   FILTER (?item_uri   = <{{item_uri}}>)
   FILTER (?account    = <account:{{account_uuid}}>)
   {%- if id_string is not none %}
