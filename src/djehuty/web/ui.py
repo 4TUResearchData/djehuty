@@ -71,15 +71,32 @@ def read_raw_xml (xml_root, path, default_value=None):
         length = len(path) + 2 # Add two for the < and >.
         node = config_value (xml_root, path, None, None, return_node=True)
         if node is not None:
+            # Attributes are rendered in the raw XML. We need to
+            # remove it to get the inner XML.
+            attributes = node.attrib
+            attributes_rendered_length = 0
+            for key in attributes.keys():
+                # Account for the key length and the '='.
+                attributes_rendered_length += len(key) + 1
+                # Account for the length of the value.
+                value = attributes.get(key)
+                attributes_rendered_length += len(value)
+                # Account for the quotes.
+                if isinstance(value, str):
+                    attributes_rendered_length += 2
+            # Account for the closing '>'.
+            if attributes_rendered_length > 0:
+                attributes_rendered_length += 1
+
             # Get the raw XML so it can be used verbatim.
             text = ElementTree.tostring (node, encoding="unicode")
             # Strip the <path></path> bits and surrounding whitespace.
-            text = text.strip()[length:(-1 * (length + 1))].strip()
-            return text
+            text = text.strip()[(length + attributes_rendered_length):(-1 * (length + 1))].strip()
+            return text, attributes
     except TypeError:
         pass
 
-    return default_value
+    return default_value, None
 
 def read_quotas_configuration (server, xml_root):
     """Read quota information from XML_ROOT."""
@@ -569,19 +586,20 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if use_x_forwarded_for:
             server.log_access = server.log_access_using_x_forwarded_for
 
-        sandbox_message = read_raw_xml (xml_root, "sandbox-message")
+        sandbox_message, sandbox_message_attributes = read_raw_xml (xml_root, "sandbox-message")
         if sandbox_message:
+            server.sandbox_message_css = sandbox_message_attributes.get("style")
             server.sandbox_message = sandbox_message
 
-        notice_message = read_raw_xml (xml_root, "notice-message")
+        notice_message, _ = read_raw_xml (xml_root, "notice-message")
         if notice_message:
             server.notice_message = notice_message
 
-        large_footer = read_raw_xml (xml_root, "large-footer")
+        large_footer, _ = read_raw_xml (xml_root, "large-footer")
         if large_footer:
             server.large_footer = large_footer
 
-        small_footer = read_raw_xml (xml_root, "small-footer")
+        small_footer, _ = read_raw_xml (xml_root, "small-footer")
         if small_footer:
             server.small_footer = small_footer
 

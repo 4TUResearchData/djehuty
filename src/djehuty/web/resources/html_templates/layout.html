@@ -14,7 +14,7 @@
   <body>
     <div id="wrapper" {%- if path == "/" %} class="footer1"{% else %} class="footer2"{% endif %}>
       {%- if sandbox_message %}
-      <div id="sandbox-message" class="pre-header">
+      <div id="sandbox-message" class="pre-header" {% if sandbox_message_css %}style="{{sandbox_message_css | safe}}"{% endif %}>
         <p>{{sandbox_message | safe}}</p>
       </div>
       {%- endif %}

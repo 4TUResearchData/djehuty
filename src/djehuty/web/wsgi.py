@@ -60,6 +60,7 @@ class ApiServer:
         self.in_preproduction = False
         self.using_uwsgi      = False
         self.maintenance_mode = False
+        self.sandbox_message_css = ""
         self.sandbox_message  = False
         self.notice_message   = False
         self.disable_2fa      = False
@@ -388,6 +389,7 @@ class ApiServer:
             "in_production":   self.in_production,
             "maintenance_mode": self.maintenance_mode,
             "sandbox_message": self.sandbox_message,
+            "sandbox_message_css": self.sandbox_message_css,
             "identity_provider": self.identity_provider,
             "orcid_client_id": self.orcid_client_id,
             "orcid_endpoint":  self.orcid_endpoint,
