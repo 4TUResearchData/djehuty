@@ -100,6 +100,7 @@ class ApiServer:
             # The / used to redirect to /portal, but here we reversed it.
             Rule("/",                                         endpoint = "ui_portal"),
             Rule("/portal",                                   endpoint = "ui_home"),
+            Rule("/browse",                                   endpoint = "ui_home"),
             Rule("/login",                                    endpoint = "ui_login"),
             Rule("/account/home",                             endpoint = "ui_account_home"),
             Rule("/logout",                                   endpoint = "ui_logout"),
