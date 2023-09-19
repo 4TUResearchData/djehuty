@@ -6,6 +6,12 @@
         "type": "software"
     },
     {
+        "url": "https://www.mozilla.org/en-US/MPL/2.0/",
+        "value": 999,
+        "name": "MPL 2.0",
+        "type": "software"
+    },
+    {
         "url": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
         "value": 88,
         "name": "GPL-2.0",
