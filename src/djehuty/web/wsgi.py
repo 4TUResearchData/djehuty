@@ -5639,6 +5639,31 @@ class ApiServer:
 
         return self.response (json.dumps(records))
 
+    def __git_repository_by_dataset_id (self, account_uuid, dataset_id):
+        """Deduplication for api_v3_datasets_git_[branches|files]."""
+
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               account_uuid = account_uuid,
+                                               is_published = False)
+
+        if dataset is None:
+            self.log.error ("No Git repository for dataset %s.", dataset_id)
+            return None
+
+        # Pre-Djehuty datasets may not have a Git UUID. We therefore
+        # assign one when needed.
+        if "git_uuid" not in dataset:
+            if not self.__add_or_update_git_uuid_for_dataset (dataset, account_uuid):
+                self.log.error ("Failed to add 'git_uuid' for dataset.")
+                return None
+
+        git_directory = f"{self.db.storage}/{dataset['git_uuid']}.git"
+        if not os.path.exists (git_directory):
+            self.log.error ("No Git repository at '%s'", git_directory)
+            return None
+
+        return pygit2.Repository(git_directory)
+
     def api_v3_dataset_git_files (self, request, dataset_id):
         """Implements /v3/datasets/<id>.git/files."""
         if request.method != "GET":
@@ -5648,24 +5673,10 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                               account_uuid = account_uuid,
-                                               is_published = False)
-
-        if dataset is None:
+        git_repository = self.__git_repository_by_dataset_id (account_uuid, dataset_id)
+        if git_repository is None:
             return self.error_404 (request)
 
-        # Pre-Djehuty datasets may not have a Git UUID. We therefore
-        # assign one when needed.
-        if "git_uuid" not in dataset:
-            if not self.__add_or_update_git_uuid_for_dataset (dataset, account_uuid):
-                return self.error_500 ()
-
-        git_directory  = f"{self.db.storage}/{dataset['git_uuid']}.git"
-        if not os.path.exists (git_directory):
-            return self.response ("[]")
-
-        git_repository = pygit2.Repository(git_directory)
         branches       = list(git_repository.branches.local)
         files          = []
         if branches:
