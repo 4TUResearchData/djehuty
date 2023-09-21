@@ -289,6 +289,7 @@ class ApiServer:
             Rule("/v3/datasets/timeline/<item_type>",         endpoint = "api_v3_datasets_timeline"),
             Rule("/v3/datasets/<dataset_id>/upload",          endpoint = "api_v3_dataset_upload_file"),
             Rule("/v3/datasets/<dataset_id>.git/files",       endpoint = "api_v3_dataset_git_files"),
+            Rule("/v3/datasets/<dataset_id>.git/branches",    endpoint = "api_v3_dataset_git_branches"),
             Rule("/v3/file/<file_id>",                        endpoint = "api_v3_file"),
             Rule("/v3/datasets/<dataset_id>/references",      endpoint = "api_v3_dataset_references"),
             Rule("/v3/collections/<collection_id>/references", endpoint = "api_v3_collection_references"),
@@ -5663,6 +5664,22 @@ class ApiServer:
             return None
 
         return pygit2.Repository(git_directory)
+
+    def api_v3_dataset_git_branches (self, request, dataset_id):
+        """Implements /v3/datasets/<id>.git/branches."""
+        if request.method != "GET":
+            return self.error_405 ("GET")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed(request)
+
+        git_repository = self.__git_repository_by_dataset_id (account_uuid, dataset_id)
+        if git_repository is None:
+            return self.error_404 (request)
+
+        branches = list(git_repository.branches.local)
+        return self.response (json.dumps (branches))
 
     def api_v3_dataset_git_files (self, request, dataset_id):
         """Implements /v3/datasets/<id>.git/files."""
