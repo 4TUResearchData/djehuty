@@ -600,3 +600,9 @@ img { user-select: none; }
     margin-left: 1em;
     font-size: small;
 }
+.notice-box {
+    border: solid 2pt #ffeecc;
+    background: #fffaea;
+    padding: 0em 0.5em 0em 0.5em;
+    margin: 1em 0em 0em 0em;
+}
