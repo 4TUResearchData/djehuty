@@ -362,8 +362,15 @@ jQuery(document).ready(function (){
   <pre>
 git push 4tu --all
 git push 4tu --tags</pre>
-  <h4 class="corporate-identity-h4">Repository file tree<span class="no-select"> &nbsp;<a id="refresh-git-files" href="#" class="fas fa-sync"></a></span></h4>
-  <ul id="git-files"></ul>
+  <h4 class="corporate-identity-h4">Git repository files and branches <span class="no-select"> &nbsp;<a id="refresh-git-files" href="#" class="fas fa-sync"></a></span></h4>
+  <label>Git default branch</label><div class="fas fa-question-circle help-icon"><span class="help-text">The selected branch will be the branch a user is in after pulling the Git repository.</span></div>
+  <select id="git-branches">
+    <option value="" disabled="disabled">Select branch</option>
+  </select>
+  <label id="git-files-label">Git file list</label>
+  <div id="git-files-wrapper" class="options-wrapper">
+    <ul id="git-files"></ul>
+  </div>
   <h4 class="corporate-identity-h4">Distribution artefacts</h4>
   <p>
     Software packages oftentimes have separate distribution tarballs

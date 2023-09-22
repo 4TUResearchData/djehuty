@@ -347,6 +347,56 @@ function render_funding_for_dataset (dataset_uuid) {
     });
 }
 
+function render_git_branches_for_dataset (dataset_uuid, event) {
+    if (event !== null) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}.git/branches`,
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (data) {
+        branches = data["branches"];
+        jQuery("#git-branches").empty();
+        if (branches !== null && branches.length > 0) {
+            for (let index in branches) {
+                default_branch = data["default-branch"];
+                let selected = "";
+                if (branches[index] == default_branch) {
+                    selected = ' selected="selected"';
+                }
+                jQuery("#git-branches").append(`<option value="${branches[index]}"${selected}>${branches[index]}</option>`);
+            }
+        } else {
+            jQuery("#git-branches").append('<option value="" disabled="disabled" selected="selected">No branches found</option>');
+        }
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to retrieve Git branches.</p>");
+        jQuery("#git-branches").empty();
+        jQuery("#git-branches").append('<option value="" disabled="disabled" selected="selected">No branches found</option>');
+    });
+}
+
+function set_default_git_branch (dataset_uuid, event) {
+    if (event !== null) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    let branch_name = jQuery("#git-branches").val();
+    jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}.git/set-default-branch`,
+        data:        JSON.stringify({ "branch": branch_name }),
+        type:        "PUT",
+        contentType: "application/json",
+        accept:      "application/json",
+    }).done(function () {
+        show_message ("success", `<p>Default Git branch set to <strong>${branch_name}</strong>.</p>`);
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to retrieve Git file details.</p>");
+    });
+}
+
 function render_git_files_for_dataset (dataset_uuid, event) {
     if (event !== null) {
         event.preventDefault();
@@ -362,7 +412,11 @@ function render_git_files_for_dataset (dataset_uuid, event) {
         for (let index in files) {
             jQuery("#git-files").append(`<li>${files[index]}</li>`);
         }
+        jQuery("#git-files-label").show();
+        jQuery("#git-files-wrapper").show();
     }).fail(function () {
+        jQuery("#git-files-label").hide();
+        jQuery("#git-files-wrapper").hide();
         show_message ("failure", "<p>Failed to retrieve Git file details.</p>");
     });
 }
@@ -716,7 +770,9 @@ function activate (dataset_uuid) {
         jQuery("input[name='record_type']").change(function () {
             toggle_record_type ();
         });
-
+        jQuery("#git-branches").on("change", function (event) {
+            set_default_git_branch (dataset_uuid, event);
+        });
         if (data["is_metadata_record"]) {
             jQuery("#metadata_record_only").prop("checked", true);
         } else if (data["has_linked_file"]) {
@@ -724,6 +780,7 @@ function activate (dataset_uuid) {
         } else if (data["defined_type_name"] == "software") {
             jQuery("#upload_software").prop("checked", true);
             render_git_files_for_dataset (dataset_uuid, null);
+            render_git_branches_for_dataset (dataset_uuid, null);
         } else {
             jQuery("#upload_files").prop("checked", true);
         }
@@ -768,6 +825,7 @@ function activate (dataset_uuid) {
         jQuery("#preview").on("click", function (event) { preview_dataset (dataset_uuid, event); });
         jQuery("#refresh-git-files").on("click", function (event) {
             render_git_files_for_dataset (dataset_uuid, event);
+            render_git_branches_for_dataset (dataset_uuid, event);
         });
         jQuery("input[name=access_type]").on("change", toggle_access_level);
         jQuery("#configure_embargo").on("click", toggle_embargo_options);
