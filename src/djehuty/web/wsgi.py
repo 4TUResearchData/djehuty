@@ -5640,6 +5640,33 @@ class ApiServer:
 
         return self.response (json.dumps(records))
 
+    def __git_repository_default_branch_guess (self, git_repository):
+        """Guess the default branch name for a Git repository."""
+
+        branch_name = None
+        # Get a previously set default.
+        head_reference = git_repository.references.get("refs/heads/master")
+        if head_reference is not None:
+            try:
+                target = head_reference.target
+                if target.startswith ("refs/heads/"):
+                    branch_name = target[11:]
+            except AttributeError:
+                pass
+
+        # Guess and set a new default.
+        if branch_name is None:
+            branches = list(git_repository.branches.local)
+            if branches:
+                branch_name = branches[0]
+                if "master" in branches:
+                    branch_name = "master"
+                elif "main" in branches:
+                    branch_name = "main"
+            self.__git_set_default_branch (git_repository, branch_name)
+
+        return branch_name
+
     def __git_repository_by_dataset_id (self, account_uuid, dataset_id):
         """Deduplication for api_v3_datasets_git_[branches|files]."""
 
@@ -5665,6 +5692,29 @@ class ApiServer:
 
         return pygit2.Repository(git_directory)
 
+    def __git_set_default_branch (self, git_repository, branch_name):
+        """Sets the default branch for a git repository."""
+
+        # Remove existing default branch choice.
+        if git_repository.references.get("refs/heads/master") is not None:
+            self.log.info ("Removed default branch for '%s'.", git_repository.path)
+            git_repository.references.delete ("refs/heads/master")
+
+        # Create a default reference.
+        try:
+            git_repository.references.create ("refs/heads/master",
+                                              f"refs/heads/{branch_name}")
+            git_repository.references.compress()
+            self.log.info ("Set default branch to '%s' for %s.",
+                           branch_name, git_repository.path)
+            return True
+        # It seems the way pygit2 loads internally trips up pylint.
+        except pygit2.GitError as error:  # pylint: disable=no-member
+            self.log.error ("Failed to set default branch to '%s' for '%s' due to: '%s'.",
+                            branch_name, git_repository.path, error)
+
+        return False
+
     def api_v3_dataset_git_branches (self, request, dataset_id):
         """Implements /v3/datasets/<id>.git/branches."""
         if request.method != "GET":
@@ -5679,7 +5729,11 @@ class ApiServer:
             return self.error_404 (request)
 
         branches = list(git_repository.branches.local)
-        return self.response (json.dumps (branches))
+        default_branch = self.__git_repository_default_branch_guess (git_repository)
+        return self.response (json.dumps ({
+            "default-branch": default_branch,
+            "branches":       branches
+        }))
 
     def api_v3_dataset_git_files (self, request, dataset_id):
         """Implements /v3/datasets/<id>.git/files."""
