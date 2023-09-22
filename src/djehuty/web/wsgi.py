@@ -5911,7 +5911,7 @@ class ApiServer:
 
         record = request.get_json()
         try:
-            dataset_type = validator.string_value (record, "dataset_type", 0, 512)
+            dataset_type = validator.string_value (record, "defined_type", 0, 16)
             ## These magic numbers are pre-determined by Figshare.
             defined_type = 0
             if dataset_type == "software":
@@ -6023,7 +6023,7 @@ class ApiServer:
                 files = self.db.dataset_files (account_uuid = account_uuid,
                                                dataset_uri  = dataset["uri"],
                                                limit        = 1)
-                if not files:
+                if not files and parameters["defined_type_name"] != "software":
                     errors.append({
                         "field_name": "files",
                         "message": "Upload at least one file, or choose metadata-only record."})
