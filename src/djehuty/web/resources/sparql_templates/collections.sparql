@@ -6,7 +6,7 @@ SELECT DISTINCT ?account_uuid ?resource_id ?resource_doi ?resource_title
                 ?resource_link ?resource_version ?version ?description
                 ?institution_id ?group_id ?is_public (STR(?language_ut) AS ?language) ?time_coverage
                 ?citation ?custom_fields_id ?modified_date (STR(?publisher_ut) AS ?publisher)
-                ?created_date ?timeline_posted ?has_draft
+                ?created_date ?timeline_posted ?has_draft ?organizations
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?collection_id ?title
                 ?doi ?handle ?url ?published_date ?container_uri
@@ -82,6 +82,7 @@ WHERE {
     OPTIONAL { ?collection   djht:language             ?language_ut . }
     OPTIONAL { ?collection   djht:publisher            ?publisher_ut . }
     OPTIONAL { ?collection   djht:time_coverage        ?time_coverage . }
+    OPTIONAL { ?collection   djht:organizations        ?organizations . }
     OPTIONAL { ?collection   djht:published_date       ?published_date . }
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
