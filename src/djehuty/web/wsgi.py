@@ -290,6 +290,7 @@ class ApiServer:
             Rule("/v3/datasets/<dataset_id>/upload",          endpoint = "api_v3_dataset_upload_file"),
             Rule("/v3/datasets/<dataset_id>.git/files",       endpoint = "api_v3_dataset_git_files"),
             Rule("/v3/datasets/<dataset_id>.git/branches",    endpoint = "api_v3_dataset_git_branches"),
+            Rule("/v3/datasets/<dataset_id>.git/set-default-branch", endpoint = "api_v3_datasets_git_set_default_branch"),
             Rule("/v3/file/<file_id>",                        endpoint = "api_v3_file"),
             Rule("/v3/datasets/<dataset_id>/references",      endpoint = "api_v3_dataset_references"),
             Rule("/v3/collections/<collection_id>/references", endpoint = "api_v3_collection_references"),
@@ -5714,6 +5715,31 @@ class ApiServer:
                             branch_name, git_repository.path, error)
 
         return False
+
+    def api_v3_datasets_git_set_default_branch (self, request, dataset_id):
+        """Implements /v3/datasets/<id>.git/set-default-branch."""
+        if request.method != "PUT":
+            return self.error_405 ("PUT")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed(request)
+
+        branch_name = None
+        try:
+            record = request.get_json()
+            branch_name = validator.string_value (record, "branch", 0, 255, True)
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+        git_repository = self.__git_repository_by_dataset_id (account_uuid, dataset_id)
+        if git_repository is None:
+            return self.error_404 (request)
+
+        if self.__git_set_default_branch (git_repository, branch_name):
+            return self.respond_204 ()
+
+        return self.error_500 ()
 
     def api_v3_dataset_git_branches (self, request, dataset_id):
         """Implements /v3/datasets/<id>.git/branches."""
