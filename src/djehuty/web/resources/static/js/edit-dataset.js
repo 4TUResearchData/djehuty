@@ -745,7 +745,17 @@ function activate (dataset_uuid) {
             autoQueue:         true,
             ignoreHiddenFiles: false,
             disablePreviews:   false,
-            init: function() {},
+            init: function() {
+                $(window).on('beforeunload', function() {
+                    if (fileUploader.getUploadingFiles().length > 0 ||
+                        fileUploader.getQueuedFiles().length > 0) {
+                        // Custom message cannot be used in most browsers
+                        // since it was used for scam. Therefore, pop-up message
+                        // depends on user's browser.
+                        return 1;
+                    }
+                });
+            },
             accept: function(file, done) {
                 done();
                 fileUploader.processQueue();
