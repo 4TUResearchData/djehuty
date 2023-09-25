@@ -6,6 +6,8 @@ DELETE {
     ?file              djht:download_url        ?download_url .
     {%- endif%}{% if computed_md5 is not none %}
     ?file              djht:computed_md5        ?computed_md5 .
+    {%- endif%}{% if is_incomplete is not none %}
+    ?file              djht:is_incomplete       ?is_incomplete .
     {%- endif%}{% if viewer_type is not none %}
     ?file              djht:viewer_type         ?viewer_type .
     {%- endif%}{% if preview_state is not none %}
@@ -25,6 +27,8 @@ INSERT {
     ?file              djht:download_url        "{{download_url | safe}}"^^xsd:string .
     {%- endif%}{% if computed_md5 is not none %}
     ?file              djht:computed_md5        "{{computed_md5 | safe}}"^^xsd:string .
+    {%- endif%}{% if is_incomplete is not none %}
+    ?file              djht:is_incomplete       {{is_incomplete}} .
     {%- endif%}{% if viewer_type is not none %}
     ?file              djht:viewer_type         "{{viewer_type | safe}}"^^xsd:string .
     {%- endif%}{% if preview_state is not none %}
@@ -51,6 +55,7 @@ WHERE {
     OPTIONAL { ?file   djht:filesystem_location ?filesystem_location . }
     OPTIONAL { ?file   djht:download_url        ?download_url . }
     OPTIONAL { ?file   djht:computed_md5        ?computed_md5 . }
+    OPTIONAL { ?file   djht:is_incomplete       ?is_incomplete . }
     OPTIONAL { ?file   djht:viewer_type         ?viewer_type . }
     OPTIONAL { ?file   djht:preview_state       ?preview_state . }
     OPTIONAL { ?file   djht:size                ?size . }

@@ -505,7 +505,7 @@ class SparqlInterface:
                        status=None, upload_url=None, upload_token=None,
                        order="order_index", order_direction="asc", limit=None,
                        dataset_uri=None, account_uuid=None, file_id=None,
-                       private_view=None):
+                       private_view=None, is_incomplete=None):
         """Procedure to retrieve files of a dataset."""
 
         filters  = rdf.sparql_filter ("size",          size)
@@ -520,6 +520,7 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("status",        status,        escape=True)
         filters += rdf.sparql_filter ("upload_url",    upload_url,    escape=True)
         filters += rdf.sparql_filter ("upload_token",  upload_token,  escape=True)
+        filters += rdf.sparql_filter ("is_incomplete", is_incomplete)
 
         query = self.__query_from_template ("dataset_files", {
             "dataset_uri":         dataset_uri,
@@ -1491,7 +1492,8 @@ class SparqlInterface:
 
     def update_file (self, account_uuid, file_uuid, dataset_uuid, download_url=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
-                     file_size=None, status=None, filesystem_location=None):
+                     file_size=None, status=None, filesystem_location=None,
+                     is_incomplete=None):
         """Procedure to update file metadata."""
 
         query   = self.__query_from_template ("update_file", {
@@ -1503,6 +1505,7 @@ class SparqlInterface:
             "viewer_type":   viewer_type,
             "preview_state": preview_state,
             "file_size":     file_size,
+            "is_incomplete": is_incomplete,
             "status":        status
         })
 

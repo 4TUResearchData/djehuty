@@ -141,14 +141,15 @@ def format_file_for_dataset_record (record):
     """Record formatter for files."""
     download_url = file_download_url (record)
     return {
-      "id":           conv.value_or_none(record, "id"),
-      "uuid":         conv.value_or_none(record, "uuid"),
-      "name":         conv.value_or_none(record, "name"),
-      "size":         conv.value_or_none(record, "size"),
-      "is_link_only": bool(conv.value_or_none(record, "is_link_only")),
-      "download_url": download_url,
-      "supplied_md5": conv.value_or_none(record, "supplied_md5"),
-      "computed_md5": conv.value_or_none(record, "computed_md5")
+      "id":            conv.value_or_none(record, "id"),
+      "uuid":          conv.value_or_none(record, "uuid"),
+      "name":          conv.value_or_none(record, "name"),
+      "size":          conv.value_or_none(record, "size"),
+      "is_link_only":  bool(conv.value_or_none(record, "is_link_only")),
+      "is_incomplete": bool(conv.value_or_none(record, "is_incomplete")),
+      "download_url":  download_url,
+      "supplied_md5":  conv.value_or_none(record, "supplied_md5"),
+      "computed_md5":  conv.value_or_none(record, "computed_md5")
     }
 
 def format_file_details_record (record):

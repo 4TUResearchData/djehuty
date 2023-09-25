@@ -6363,47 +6363,63 @@ class ApiServer:
             md5 = hashlib.new ("md5", usedforsecurity=False)
             file_size = 0
             destination_fd = os.open (output_filename, os.O_WRONLY | os.O_CREAT, 0o600)
-            with open (destination_fd, "wb") as output_stream:
-                file_size = 0
-                while content_to_read > 4096:
-                    chunk = input_stream.read (4096)
-                    content_to_read -= 4096
-                    file_size += output_stream.write (chunk)
-                    md5.update (chunk)
+            is_incomplete = None
+            try:
+                with open (destination_fd, "wb") as output_stream:
+                    file_size = 0
+                    while content_to_read > 4096:
+                        chunk = input_stream.read (4096)
+                        content_to_read -= 4096
+                        file_size += output_stream.write (chunk)
+                        md5.update (chunk)
 
-                chunk = input_stream.read (content_to_read)
-                file_size += output_stream.write (chunk)
-                md5.update (chunk)
-                content_to_read = 0
+                    if content_to_read > 0:
+                        chunk = input_stream.read (content_to_read)
+                        file_size += output_stream.write (chunk)
+                        md5.update (chunk)
+                        content_to_read = 0
+                    else:
+                        md5.update (bytes(0))
 
-                # Make the file read-only from here on.
-                if os.name != 'nt':
-                    os.fchmod (destination_fd, 0o400)
+                    # Make the file read-only from here on.
+                    if os.name != 'nt':
+                        os.fchmod (destination_fd, 0o400)
+            except BadRequest as error:
+                is_incomplete = 1
+                self.log.error ("Failed to write %s to disk: possible that bad internet connection on user's side or page refreshed/closed during upload.", output_filename)
 
             if computed_file_size != file_size:
+                is_incomplete = 1
                 self.log.error ("Computed file size (%d) and actual file size (%d) for uploaded file mismatch.",
                                 computed_file_size, file_size)
-                return self.error_500 ()
 
             bytes_to_read -= file_size
             if bytes_to_read != len(expected_end):
+                is_incomplete = 1
                 self.log.error ("Expected different length after file contents (%d vs %d).",
                                 bytes_to_read, len(expected_end))
 
-            ending = input_stream.read (bytes_to_read)
-            if ending != expected_end:
-                self.log.error ("Expected different end after file contents: '%s' vs '%s'.",
-                                ending, expected_end)
+            if is_incomplete != 1:
+                ending = input_stream.read (bytes_to_read)
+                if ending != expected_end:
+                    is_incomplete = 1
+                    self.log.error ("Expected different end after file contents: '%s' vs '%s'.",
+                                    ending, expected_end)
 
             computed_md5 = md5.hexdigest()
             download_url = f"{self.base_url}/file/{dataset_id}/{file_uuid}"
             self.db.update_file (account_uuid, file_uuid, dataset["uuid"],
-                                 computed_md5 = computed_md5,
-                                 download_url = download_url,
+                                 computed_md5  = computed_md5,
+                                 download_url  = download_url,
                                  filesystem_location = output_filename,
-                                 file_size    = file_size)
+                                 file_size     = file_size,
+                                 is_incomplete = is_incomplete)
 
-            return self.response (json.dumps({ "location": f"{self.base_url}/v3/file/{file_uuid}" }))
+            response_data = { "location": f"{self.base_url}/v3/file/{file_uuid}" }
+            if is_incomplete:
+                response_data["is_incomplete"] = is_incomplete
+
+            return self.response (json.dumps(response_data))
 
         except OSError as error:
             self.log.error ("Writing %s to disk failed: %s", output_filename, error)

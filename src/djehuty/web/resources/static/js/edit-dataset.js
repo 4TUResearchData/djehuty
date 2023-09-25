@@ -442,11 +442,21 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
                 if (file.name === null) {
                     file.name = file.download_url;
                 }
-                let html = `<tr><td><a href="/file/${dataset_uuid}/${file.uuid}">${file.name}</a> (${prettify_size(file.size)})</td>`;
-                html += `<td>${render_in_form(file["computed_md5"])}</td>`;
+                let html = `<tr>`;
+                let html_filename = `<a href="/file/${dataset_uuid}/${file.uuid}">${file.name}</a> (${prettify_size(file.size)})`;
+                if ("is_incomplete" in file && file["is_incomplete"] == true) {
+                    html_filename += ` <span class="file-incomplete-warning">The file upload was not complete!</span>`;
+                }
+                html += `<td>${html_filename}</td>`;
+                if (file["computed_md5"] === null) {
+                    html += `<td>${render_in_form("Unavailable")}</td>`;
+                } else {
+                    html += `<td>${render_in_form(file["computed_md5"])}</td>`;
+                }
                 html += `<td><a href="#" onclick="javascript:remove_file('${file.uuid}',`;
                 html += ` '${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
-                html += `title="Remove"></a></td></tr>`;
+                html += `title="Remove"></a></td>`;
+                html += `</tr>`;
                 jQuery("#files tbody").append(html);
                 number_of_files += 1;
             }
