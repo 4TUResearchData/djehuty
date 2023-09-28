@@ -3565,13 +3565,10 @@ class ApiServer:
 
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=True)
-            files   = self.__file_by_id_or_uri (file_id,
-                                                dataset_uri = dataset["uri"])
+            record = self.__file_by_id_or_uri (file_id, dataset_uri = dataset["uri"])
+            record["base_url"] = self.base_url
 
-            for item in files:
-                item["base_url"] = self.base_url
-
-            results = formatter.format_file_for_dataset_record (files)
+            results = formatter.format_file_for_dataset_record (record)
             return self.response (json.dumps(results))
         except IndexError:
             response = self.response (json.dumps({
