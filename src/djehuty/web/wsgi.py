@@ -5948,19 +5948,21 @@ class ApiServer:
         container_uuid = collection["container_uuid"]
         container = self.db.container(container_uuid, "collection")
         new_version = value_or(container, 'latest_published_version_number', 0) + 1
-        for version in (None, new_version):
-            reserved_doi = self.__reserve_and_save_doi (account_uuid, collection,
-                                                        version=version, item_type="collection")
-            if not reserved_doi:
-                self.log.error ("Reserving DOI %s for %s failed.",
-                                reserved_doi, container_uuid)
-                return self.error_500()
+        if self.in_production and not self.in_preproduction:
+            for version in (None, new_version):
+                reserved_doi = self.__reserve_and_save_doi (account_uuid, collection,
+                                                            version=version,
+                                                            item_type="collection")
+                if not reserved_doi:
+                    self.log.error ("Reserving DOI %s for %s failed.",
+                                    reserved_doi, container_uuid)
+                    return self.error_500()
 
-            if not self.__update_item_doi (container_uuid, version=version,
-                                           item_type="collection"):
-                logging.error ("Updating DOI %s for publication of %s failed.",
-                               reserved_doi, container_uuid)
-                return self.error_500()
+                if not self.__update_item_doi (container_uuid, version=version,
+                                               item_type="collection"):
+                    logging.error ("Updating DOI %s for publication of %s failed.",
+                                   reserved_doi, container_uuid)
+                    return self.error_500()
 
         if self.db.publish_collection (collection["container_uuid"], account_uuid):
             return self.respond_201 ({
