@@ -173,10 +173,12 @@ def format_file_details_record (record):
 
 def format_custom_field_record (record):
     """Record formatter for custom fields."""
-    return {
-      "name":         conv.value_or_none(record, "name"),
-      "value":        conv.value_or_none(record, "value"),
-    }
+    value = conv.value_or_none (record, "value")
+    name  = conv.value_or_none (record, "name")
+    if name is not None and name == "Data Link":
+        value = [value]
+
+    return { "name": name, "value": value }
 
 def format_category_record (record):
     """Record formatter for categories."""
