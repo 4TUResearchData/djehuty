@@ -5391,11 +5391,16 @@ class ApiServer:
             if collection is None:
                 return self.error_404 (request)
 
-            datasets   = self.db.datasets (collection_uri = collection["uri"])
+            offset, limit = self.__paging_offset_and_limit (request)
+            datasets      = self.db.datasets (collection_uri = collection["uri"],
+                                              limit          = limit,
+                                              offset         = offset)
             return self.default_list_response (datasets, formatter.format_dataset_record,
                                                base_url = self.base_url)
         except (IndexError, KeyError):
             pass
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
 
