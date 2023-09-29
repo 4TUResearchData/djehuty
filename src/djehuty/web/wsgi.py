@@ -5392,7 +5392,8 @@ class ApiServer:
             offset, limit = self.__paging_offset_and_limit (request)
             datasets      = self.db.datasets (collection_uri = collection["uri"],
                                               limit          = limit,
-                                              offset         = offset)
+                                              offset         = offset,
+                                              is_latest      = True)
             return self.default_list_response (datasets, formatter.format_dataset_record,
                                                base_url = self.base_url)
         except (IndexError, KeyError):
