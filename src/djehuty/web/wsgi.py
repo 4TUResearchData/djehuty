@@ -4864,6 +4864,7 @@ class ApiServer:
                                            group=group,
                                            resource_doi=resource_doi,
                                            doi=doi,
+                                           is_latest=True,
                                            handle=handle)
 
             return self.default_list_response (records, formatter.format_collection_record,
@@ -5384,7 +5385,7 @@ class ApiServer:
             return handler
 
         try:
-            collection = self.__collection_by_id_or_uri (collection_id)
+            collection = self.__collection_by_id_or_uri (collection_id, is_latest=True)
             if collection is None:
                 return self.error_404 (request)
 
