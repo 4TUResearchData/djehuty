@@ -1553,7 +1553,8 @@ class ApiServer:
             self.log.info ("Refusing to create two drafts for one dataset.")
             return redirect (f"/my/datasets/{container_uuid}/edit", code=302)
 
-        draft_uuid = self.db.create_draft_from_published_dataset (container_uuid)
+        draft_uuid = self.db.create_draft_from_published_dataset (container_uuid,
+                                                                  account_uuid=account_uuid)
         if draft_uuid is None:
             self.log.info ("There is no draft dataset.")
             return self.error_500()

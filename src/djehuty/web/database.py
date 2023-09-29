@@ -1847,7 +1847,7 @@ class SparqlInterface:
         self.log.error ("Failed to decline dataset %s", container_uuid)
         return False
 
-    def create_draft_from_published_dataset (self, container_uuid):
+    def create_draft_from_published_dataset (self, container_uuid, account_uuid=None):
         """Procedure to copy a published dataset as draft in its container."""
 
         latest_uri = None
@@ -1864,7 +1864,7 @@ class SparqlInterface:
 
         ## Derive the new draft from the published version.
         draft_authors       = self.authors(item_uri=latest_uri, limit=None)
-        draft_files         = self.dataset_files(dataset_uri=latest_uri, limit=None)
+        draft_files         = self.dataset_files(dataset_uri=latest_uri, account_uuid=account_uuid, limit=None)
         draft_tags          = self.tags(item_uri=latest_uri, limit=None)
         draft_categories    = self.categories(item_uri=latest_uri, limit=None)
         draft_references    = self.references(item_uri=latest_uri, limit=None)
