@@ -6397,7 +6397,7 @@ class ApiServer:
                     # Make the file read-only from here on.
                     if os.name != 'nt':
                         os.fchmod (destination_fd, 0o400)
-            except BadRequest as error:
+            except BadRequest:
                 is_incomplete = 1
                 self.log.error ("Failed to write %s to disk: possible that bad internet connection on user's side or page refreshed/closed during upload.", output_filename)
 
