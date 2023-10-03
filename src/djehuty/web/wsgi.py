@@ -4733,19 +4733,6 @@ class ApiServer:
 
         return self.error_500()
 
-    def doi_exists (self, doi):
-        """Procedure to check if doi is registered at Datacite"""
-
-        try:
-            response = requests.get(f"{self.datacite_url}/dois/{doi}", timeout = 60)
-            return response.ok
-
-        except requests.exceptions.ConnectionError:
-            self.log.error ("Failed to connect with Datacite.")
-
-        return self.error_500()
-
-
     def __update_item_doi (self, item_id, version=None, item_type="dataset"):
         """Procedure to modify metadata of an existing doi."""
 

@@ -1539,23 +1539,6 @@ class SparqlInterface:
 
         return False
 
-    def insert_license (self, license_id, name=None, url=None):
-        """Procedure to add an license to the state graph."""
-
-        graph    = Graph()
-        license_uri = rdf.ROW[f"license_{license_id}"]
-
-        graph.add ((license_uri, RDF.type,               rdf.DJHT["License"]))
-        graph.add ((license_uri, rdf.DJHT["id"],          Literal(license_id)))
-
-        rdf.add (graph, license_uri, rdf.DJHT["name"],  name, XSD.string)
-        rdf.add (graph, license_uri, rdf.DJHT["url"],   url,  XSD.string)
-
-        if self.add_triples_from_graph (graph):
-            return license_id
-
-        return None
-
     def insert_private_link (self, item_uuid, account_uuid, whom=None, purpose=None, item_type=None,
                              read_only=True, id_string=None,
                              is_active=True, expires_date=None):
