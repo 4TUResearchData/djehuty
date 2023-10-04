@@ -66,5 +66,6 @@ WHERE {
 {%- if status is not none %}
   FILTER (?status_uri = djht:Review{{status | safe}})
 {%- endif %}
+{% if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}
