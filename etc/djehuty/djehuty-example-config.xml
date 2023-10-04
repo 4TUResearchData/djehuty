@@ -31,6 +31,7 @@
   <!-- <log-file>/var/log/djehuty.log</log-file> -->
   <debug-mode>1</debug-mode>
   <production>0</production>
+  <enable-query-audit-log>1</enable-query-audit-log>
   <disable-2fa>1</disable-2fa>
   <use-x-forwarded-for>0</use-x-forwarded-for>
   <!-- <maximum-workers>4</maximum-workers> -->
