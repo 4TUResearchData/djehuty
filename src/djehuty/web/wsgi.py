@@ -70,6 +70,10 @@ class ApiServer:
         self.sandbox_message_css = ""
         self.sandbox_message  = False
         self.notice_message   = False
+        self.show_portal_summary = True
+        self.show_institutions = True
+        self.show_science_categories = True
+        self.show_latest_datasets = True
         self.disable_2fa      = False
         self.small_footer     = (
             '<div id="footer-wrapper2"><p>This repository is powered by '
@@ -2497,9 +2501,13 @@ class ApiServer:
             pass
 
         return self.__render_template (request, "portal.html",
-                                       summary_data=summary_data,
+                                       summary_data = summary_data,
                                        latest = latest,
-                                       notice_message = self.notice_message)
+                                       notice_message = self.notice_message,
+                                       show_portal_summary = self.show_portal_summary,
+                                       show_institutions = self.show_institutions,
+                                       show_science_categories = self.show_science_categories,
+                                       show_latest_datasets = self.show_latest_datasets)
 
     def ui_categories (self, request, category_id):
         """Implements /categories/<id>."""

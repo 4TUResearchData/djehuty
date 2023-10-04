@@ -31,7 +31,11 @@
   <!-- <log-file>/var/log/djehuty.log</log-file> -->
   <debug-mode>1</debug-mode>
   <production>0</production>
+  <show-portal-summary>1</show-portal-summary>
+  <show-institutions>1</show-institutions>
+  <show-science-categories>1</show-science-categories>
   <enable-query-audit-log>1</enable-query-audit-log>
+  <show-latest-datasets>1</show-latest-datasets>
   <disable-2fa>1</disable-2fa>
   <use-x-forwarded-for>0</use-x-forwarded-for>
   <!-- <maximum-workers>4</maximum-workers> -->

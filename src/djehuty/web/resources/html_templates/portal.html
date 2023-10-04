@@ -60,6 +60,7 @@
 {%- if notice_message %}
 <div id="new-notice"><p>{{notice_message|safe}}</p></div>
 {%- endif %}
+{%- if show_portal_summary %}
 <h1 class="corporate-identity-h1">Summary</h1>
 <div id="portal-summary">
   <table>
@@ -72,7 +73,9 @@
     </tbody>
   </table>
 </div>
+{%- endif %}
 
+{%- if show_institutions %}
 <h1 class="corporate-identity-h1">Institutions</h1>
 <div class="tiles-wrapper">
   <ul class="tiles">
@@ -113,7 +116,9 @@
     </li>
   </ul>
 </div>
+{%- endif %}
 
+{%- if show_science_categories %}
 <h1 class="corporate-identity-h1">Subjects <span class="h1-suffix">[<a href="/category">All</a>]</span></h1>
 <div class="tiles-wrapper">
   <ul class="tiles">
@@ -357,7 +362,9 @@
 </li>
 </ul>
 </div>
+{%- endif %}
 
+{%- if show_latest_datasets %}
 <h1 class="corporate-identity-h1">Latest datasets <span class="h1-suffix">[<a href="/search">All</a>]</span></h1>
 <div id="latest-datasets">
   <ul>
@@ -368,4 +375,5 @@
     {% endfor %}
   </ul>
 </div>
+{%- endif %}
 {% endblock %}

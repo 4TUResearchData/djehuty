@@ -507,26 +507,54 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if update_endpoint:
             server.db.update_endpoint = update_endpoint
 
+        show_portal_summary = config_value(xml_root, "show-portal-summary")
+        if show_portal_summary:
+            try:
+                server.show_portal_summary = bool(int(show_portal_summary))
+            except (ValueError, TypeError):
+                logger.info("Invalid value for show-portal-summary. Ignoring.. assuming 1 (True)")
+
+        show_institutions = config_value(xml_root, "show-institutions")
+        if show_institutions:
+            try:
+                server.show_institutions = bool(int(show_institutions))
+            except (ValueError, TypeError):
+                logger.info("Invalid value for show-institutions. Ignoring.. assuming 1 (True)")
+
+        show_science_categories = config_value(xml_root, "show-science-categories")
+        if show_science_categories:
+            try:
+                server.show_science_categories = bool(int(show_science_categories))
+            except (ValueError, TypeError):
+                logger.info("Invalid value for show-science-categories. Ignoring.. assuming 1 (True)")
+
+        show_latest_datasets = config_value(xml_root, "show-latest-datasets")
+        if show_latest_datasets:
+            try:
+                server.show_latest_datasets = bool(int(show_latest_datasets))
+            except (ValueError, TypeError):
+                logger.info("Invalid value for show-latest-datasets. Ignoring.. assuming 1 (True)")
+
         maintenance_mode = config_value (xml_root, "maintenance-mode")
         if maintenance_mode:
             try:
                 server.maintenance_mode = bool(int(maintenance_mode))
             except (ValueError, TypeError):
-                server.maintenance_mode = False
+                logger.info("Invalid value for maintenance-mode. Ignoring.. assuming 1 (True)")
 
         disable_2fa = config_value (xml_root, "disable-2fa")
         if disable_2fa:
             try:
                 server.disable_2fa = bool(int(disable_2fa))
             except (ValueError, TypeError):
-                server.disable_2fa = False
+                logger.info("Invalid value for disable-2fa. Ignoring.. assuming 1 (True)")
 
         enable_query_audit_log = config_value (xml_root, "enable-query-audit-log")
         if enable_query_audit_log:
             try:
                 server.db.enable_query_audit_log = bool(int(enable_query_audit_log))
             except (ValueError, TypeError):
-                server.db.enable_query_audit_log = False
+                logger.info("Invalid value for enable-query-audit-log. Ignoring.. assuming 1 (True)")
 
         if config["use_reloader"]:
             config["use_reloader"] = bool(int(config["use_reloader"]))
