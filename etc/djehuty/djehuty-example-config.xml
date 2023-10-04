@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <djehuty>
+  <maintenance-mode>0</maintenance-mode>
+  <site-name>Djehuty example instance</site-name>
+  <site-description>Djehuty example instance</site-description>
+  <small-footer>
+    <div id="footer-wrapper2">
+      <p>This repository is powered by <a href="https://github.com/4TUResearchData/djehuty">djehuty</a> built for <a href="https://data.4tu.nl">4TU.ResearchData</a>.
+      </p>
+    </div>
+  </small-footer>
+  <large-footer>
+    <div id="footer-wrapper2">
+      <p>This repository is powered by <a href="https://github.com/4TUResearchData/djehuty">djehuty</a> built for <a href="https://data.4tu.nl">4TU.ResearchData</a>.
+      </p>
+    </div>
+  </large-footer>
+  <sandbox-message style="background: #784421; color: #fff;">
+    This is an instance launched with the example configuration. Please
+    review and modify the configuration file.
+  </sandbox-message>
+  <notice-message>
+    Dear users, if you find a bug, a missing functionality, or if you are having difficulty with the website, please <a href="/feedback">let us know</a>.
+  </notice-message>
   <bind-address>127.0.0.1</bind-address>
   <port>8080</port>
   <base-url>http://localhost:8080</base-url>
