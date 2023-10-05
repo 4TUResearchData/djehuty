@@ -1,7 +1,7 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
 SELECT DISTINCT ?container_uri
-WHERE { GRAPH <https://data.4tu.nl/portal/2023-03-06> {
+WHERE { GRAPH <{{state_graph}}> {
   <{{collection_uri}}>  djht:datasets/rdf:rest*/rdf:first  ?container_uri .
   }
 }
