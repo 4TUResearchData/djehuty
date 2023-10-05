@@ -2,7 +2,7 @@
 {% block query %}
 SELECT ?file_uuid ?dataset_uuid
 WHERE {
-  GRAPH <https://data.4tu.nl> {
+  GRAPH <{{state_graph}}> {
     ?container        rdf:type        djht:DatasetContainer .
     ?dataset          rdf:type        djht:Dataset .
     ?dataset          djht:container  ?container .
