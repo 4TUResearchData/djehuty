@@ -152,6 +152,7 @@ class ApiServer:
             R("/admin/maintenance",                                              self.ui_admin_maintenance),
             R("/admin/maintenance/clear-cache",                                  self.ui_admin_clear_cache),
             R("/admin/maintenance/clear-sessions",                               self.ui_admin_clear_sessions),
+            R("/admin/maintenance/recalculate-statistics",                       self.ui_admin_recalculate_statistics),
             R("/categories/<category_id>",                                       self.ui_categories),
             R("/category",                                                       self.ui_category),
             R("/institutions/<institution_name>",                                self.ui_institution),
@@ -2386,6 +2387,19 @@ class ApiServer:
             self.log.info ("Invalidating caches.")
             self.db.cache.invalidate_all ()
             return self.respond_204 ()
+
+        return self.error_403 (request)
+
+    def ui_admin_recalculate_statistics (self, request):
+        """Implements /admin/maintenance/recalculate-statistics."""
+        token = self.token_from_cookie (request)
+        if self.db.may_administer (token):
+            if self.db.update_view_and_download_counts ():
+                self.log.info ("Recalculated statistics.")
+                return self.respond_204 ()
+
+            self.log.error ("Failed to recalculate statistics.")
+            return self.error_500 ()
 
         return self.error_403 (request)
 

@@ -1,0 +1,50 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?container djht:total_downloads ?total_downloads .
+    ?container djht:total_views ?total_views .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?container djht:total_downloads ?downloads .
+    ?container djht:total_views ?views .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container rdf:type djht:DatasetContainer .
+    ?container djht:published_versions/rdf:rest*/rdf:first ?dataset .
+    OPTIONAL { ?container djht:total_downloads    ?total_downloads . }
+    OPTIONAL { ?container djht:total_views        ?total_views . }
+    OPTIONAL { ?dataset   djht:embargo_until_date ?embargo_until_date . }
+    OPTIONAL { ?dataset   djht:embargo_type       ?embargo_type . }
+    {
+      SELECT ?container (COUNT(?view) AS ?views)
+      WHERE {
+        GRAPH <{{state_graph}}> {
+          ?view     rdf:type        djht:LogEntry .
+          ?view     djht:event_type djht:LogEntryView .
+          ?view     djht:dataset    ?container .
+        }
+      }
+    }
+    {
+      SELECT ?container (COUNT(?download) AS ?downloads)
+      WHERE {
+        GRAPH <{{state_graph}}> {
+          ?download rdf:type        djht:LogEntry .
+          ?download djht:event_type djht:LogEntryDownload .
+          ?download djht:dataset    ?container .
+        }
+      }
+    }
+    BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
+    BIND((BOUND(?embargo_until_date)  && ?embargo_until_date > NOW()) AS ?is_embargoed)
+    BIND((!BOUND(?embargo_until_date) && BOUND(?embargo_type)) AS ?is_restricted)
+  }
+  FILTER (?is_embargoed = "false"^^xsd:boolean)
+  FILTER (?is_restricted = "false"^^xsd:boolean)
+}
+{% endblock %}

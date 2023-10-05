@@ -2686,6 +2686,11 @@ class SparqlInterface:
             self.log.info ("Linked account of %s to ORCID: %s.", email, orcid)
             continue
 
+    def update_view_and_download_counts (self):
+        """Procedure that recalculate views and downloads statistics."""
+        query = self.__query_from_template ("update_view_and_download_counts")
+        return self.__run_query (query)
+
     def insert_session (self, account_uuid, name=None, token=None, editable=False,
                         override_mfa=False):
         """Procedure to add a session token for an account_uuid."""
