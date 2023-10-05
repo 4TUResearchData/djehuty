@@ -1618,6 +1618,17 @@ class SparqlInterface:
         rdf.add (graph, item_uri, rdf.DJHT[name], value)
         return True
 
+    def dataset_is_under_review (self, dataset_uuid):
+        """
+        Returns True when the dataset identified by DATASET_UUID is under
+        review, False otherwise.
+        """
+        query = self.__query_from_template ("dataset_is_under_review", {
+            "dataset_uuid": dataset_uuid
+        })
+
+        return self.__run_query (query)
+
     def delete_dataset_draft (self, container_uuid, dataset_uuid, account_uuid):
         """Remove the draft dataset from a container in the state graph."""
 
@@ -1633,6 +1644,10 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
         self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+
+        is_under_review = self.dataset_is_under_review (dataset_uuid)
+        if is_under_review:
+            self.cache.invalidate_by_prefix ("reviews")
 
         return result
 

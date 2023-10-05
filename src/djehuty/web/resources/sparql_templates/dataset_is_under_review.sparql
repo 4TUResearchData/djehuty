@@ -1,0 +1,11 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+ASK
+{
+  GRAPH <{{state_graph}}> {
+    ?review             rdf:type                 djht:Review ;
+                        djht:dataset             ?dataset .
+  }
+  FILTER (?dataset = <dataset:{{dataset_uuid}}>)
+}
+{% endblock %}
