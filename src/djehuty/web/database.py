@@ -119,8 +119,13 @@ class SparqlInterface:
                 results = True
             else:
                 query_results = self.sparql.query().convert()
-                results = list(map(self.__normalize_binding,
-                                   query_results["results"]["bindings"]))
+                # Almost all query types return 'results'.
+                if "results" in query_results:
+                    results = list(map(self.__normalize_binding,
+                                       query_results["results"]["bindings"]))
+                # ASK queries don't result 'results' but 'boolean' instead.
+                elif "boolean" in query_results:
+                    results = query_results["boolean"]
 
             if cache_key_string is not None:
                 self.cache.cache_value (prefix, cache_key, results, query)
