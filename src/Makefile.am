@@ -224,6 +224,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/logosleft-white-wageningen.png        \
     djehuty/web/resources/static/images/logo-twente.png                       \
     djehuty/web/resources/static/images/logo-wageningen.png                   \
+    djehuty/web/resources/static/images/nikhef-black.svg                      \
     djehuty/web/resources/static/images/orcid.svg                             \
     djehuty/web/resources/static/images/portal/aerospace-engineering.jpg      \
     djehuty/web/resources/static/images/portal/agricultural-and-veterinary-sciences.jpg \
