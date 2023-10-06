@@ -90,6 +90,19 @@ class SparqlInterface:
                 self.log.info ("Not a typed-literal: %s", record[item]['type'])
         return record
 
+    def __normalize_orcid (self, orcid):
+        """Procedure to make storing ORCID identifiers consistent."""
+        # Don't store empty ORCID identifiers.
+        if orcid == "":
+            orcid = None
+        # Strip the URI prefix from ORCID identifiers.
+        elif not isinstance(orcid, str):
+            return None
+        elif orcid.startswith ("https://orcid.org/"):
+            orcid = orcid[18:]
+
+        return orcid
+
     def __query_from_template (self, name, args=None):
         template   = self.jinja.get_template (f"{name}.sparql")
         parameters = { "state_graph": self.state_graph }
@@ -1221,7 +1234,7 @@ class SparqlInterface:
 
         query = self.__query_from_template ("update_orcid_for_account", {
             "account_uuid":  account_uuid,
-            "orcid":         orcid,
+            "orcid":         self.__normalize_orcid (orcid),
         })
 
         if self.enable_query_audit_log:
@@ -1273,13 +1286,7 @@ class SparqlInterface:
 
         graph.add ((author_uri, RDF.type,      rdf.DJHT["Author"]))
 
-        # Don't store empty ORCID identifiers.
-        if orcid_id == "":
-            orcid_id = None
-        # Strip the URI prefix from ORCID identifiers.
-        elif orcid_id.startswith ("https://orcid.org/"):
-            orcid_id = orcid_id[18:]
-
+        orcid_id = self.__normalize_orcid (orcid_id)
         rdf.add (graph, author_uri, rdf.DJHT["id"],             author_id)
         rdf.add (graph, author_uri, rdf.DJHT["institution_id"], institution_id)
         rdf.add (graph, author_uri, rdf.DJHT["group_id"],       group_id)
