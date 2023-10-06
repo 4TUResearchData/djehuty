@@ -1273,6 +1273,13 @@ class SparqlInterface:
 
         graph.add ((author_uri, RDF.type,      rdf.DJHT["Author"]))
 
+        # Don't store empty ORCID identifiers.
+        if orcid_id == "":
+            orcid_id = None
+        # Strip the URI prefix from ORCID identifiers.
+        elif orcid_id.startswith ("https://orcid.org/"):
+            orcid_id = orcid_id[18:]
+
         rdf.add (graph, author_uri, rdf.DJHT["id"],             author_id)
         rdf.add (graph, author_uri, rdf.DJHT["institution_id"], institution_id)
         rdf.add (graph, author_uri, rdf.DJHT["group_id"],       group_id)
