@@ -952,6 +952,8 @@ class DatabaseInterface:
         self.store.add ((rdf.DJHT["LogEntryCite"],     RDFS.label, Literal("cite", datatype=XSD.string)))
         self.store.add ((rdf.DJHT["LogEntryDownload"], RDF.type,   rdf.DJHT["LogEntryType"]))
         self.store.add ((rdf.DJHT["LogEntryDownload"], RDFS.label, Literal("download", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["LogEntryGitDownload"], RDF.type,   rdf.DJHT["LogEntryType"]))
+        self.store.add ((rdf.DJHT["LogEntryGitDownload"], RDFS.label, Literal("git_download", datatype=XSD.string)))
         self.store.add ((rdf.DJHT["LogEntryShare"],    RDF.type,   rdf.DJHT["LogEntryType"]))
         self.store.add ((rdf.DJHT["LogEntryShare"],    RDFS.label, Literal("share", datatype=XSD.string)))
         self.store.add ((rdf.DJHT["LogEntryView"],     RDF.type,   rdf.DJHT["LogEntryType"]))

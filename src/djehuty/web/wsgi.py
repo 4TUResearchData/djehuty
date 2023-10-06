@@ -6806,6 +6806,7 @@ class ApiServer:
                 dataset = self.db.datasets (git_uuid = git_uuid)[0]
 
             if dataset is not None:
+                self.__log_event (request, dataset["container_uuid"], "dataset", "gitDownload")
                 return self.__git_passthrough (request)
         except IndexError:
             pass
