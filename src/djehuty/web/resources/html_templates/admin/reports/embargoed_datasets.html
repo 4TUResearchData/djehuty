@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
+<style>
+#reports-table .fa-user-secret { color: #000; }
+#reports-table .fa-user-secret:hover { color: #666; }
+#reports-table .fa-user-secret:active { color: #999; }
+#reports-table { display: none; }
+#reports-table_wrapper { margin-top: 1em; }
+</style>
+<script>
+jQuery(document).ready(function () {
+    jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
+    jQuery("#reports-table").DataTable({
+        columnDefs: [{ orderable: false,  targets: 0 }],
+        pageLength: 25
+    });
+    jQuery("#reports-table").show();
+});
+</script>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/admin/reports">← Go back</a></li>
+  <li><a href="/admin/dashboard">Dashboard</a>
+  <li><a href="/admin/users">Users</a>
+  <li><a href="/admin/maintenance">Maintenance</a>
+  <li><a href="/admin/exploratory">Exploratory</a>
+  <li class="active corporate-identity-submenu-active">Reports
+</ul>
+{% endblock %}
+{% block body %}
+<noscript>
+  <p class="no-script">Sorry, this page requires JavaScript to function properly.</p>
+</noscript>
+<div class="hide-for-javascript">
+<h1>REPORT: Embargoed Datasets</h1>
+
+{%- if datasets %}
+<p></p>
+Export: <a href="/admin/reports/embargoed_datasets?export=1&format=csv">CSV</a>, <a href="/admin/reports/embargoed_datasets?export=1&format=json">JSON</a>
+<table id="reports-table" class="corporate-identity-table">
+  <thead><tr><th>Report</th><th>Published Date</th><th>Embargo Until Date</th></thead>
+  <tbody>
+{%-   for item in datasets: %}
+    <tr>
+      <td><a href="/datasets/{{item.container_uuid}}">{{item.title}}</a></td>
+{%-     if 'published_date' in item %}
+      <td>{{item.published_date}}</td>
+{%-     else %}
+      <td></td>
+{%-     endif %}
+{%-     if 'embargo_until_date' in item %}
+      <td>{{item.embargo_until_date}}</td>
+{%-     else %}
+      <td></td>
+{%-     endif %}
+    </tr>
+{%-   endfor %}
+  </tbody>
+</table>
+{%- else %}
+No embargoed datasets...
+{%- endif %}
+
+</div>
+{% endblock %}

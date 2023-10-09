@@ -14,6 +14,8 @@ import base64
 import requests
 import pygit2
 import zipfly
+import csv
+from io import StringIO
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
@@ -149,6 +151,9 @@ class ApiServer:
             R("/admin/dashboard",                                                self.ui_admin_dashboard),
             R("/admin/users",                                                    self.ui_admin_users),
             R("/admin/exploratory",                                              self.ui_admin_exploratory),
+            R("/admin/reports",                                                  self.ui_admin_reports),
+            R("/admin/reports/restricted_datasets",                              self.ui_admin_reports_restricted_datasets),
+            R("/admin/reports/embargoed_datasets",                               self.ui_admin_reports_embargoed_datasets),
             R("/admin/impersonate/<account_uuid>",                               self.ui_admin_impersonate),
             R("/admin/maintenance",                                              self.ui_admin_maintenance),
             R("/admin/maintenance/clear-cache",                                  self.ui_admin_clear_cache),
@@ -901,6 +906,41 @@ class ApiServer:
         self.log.info ("Updated the Git UUID of '%s'.", dataset["uuid"])
         dataset["git_uuid"] = git_uuid
         return True
+
+    def __export_report_in_format (self, request, report_name, report_data, report_format):
+        """Exports a report in a given format."""
+        if not report_data:
+            return self.error_400 (request, "Report data is empty", 400)
+
+        if report_format == "csv":
+            if isinstance(report_data, list) and isinstance(report_data[0], dict):
+                # dicts in report_data sometimes have different keys.
+                # Therefore, all keys need to be collected.
+                fieldnames = set()
+                for row in report_data:
+                    fieldnames.update(row.keys())
+                fieldnames = sorted(fieldnames)
+            else:
+                return self.error_400 (request, "Report data's format is unknown", 400)
+
+            inmemory_file = StringIO()
+            writer = csv.DictWriter(inmemory_file, fieldnames=fieldnames)
+            writer.writeheader()
+            for row in report_data:
+                writer.writerow(row)
+
+            report_name = f"{datetime.now().strftime('%Y%m%d%H%M%S')}-{report_name}"
+            output = self.response (inmemory_file.getvalue(), mimetype="text/csv")
+            output.headers["Server"] = "4TU.ResearchData API"
+            output.headers["Content-disposition"] = f"attachment; filename={report_name}.csv"
+            return output
+
+        elif report_format == "json":
+            return self.response (json.dumps(report_data))
+
+        else:
+            self.log.error ("Unknown report format '%s'.", report_format)
+            return self.error_400 (request, "Unknown report format.", 400)
 
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
@@ -2380,6 +2420,55 @@ class ApiServer:
             return self.error_403 (request)
 
         return self.__render_template (request, "admin/exploratory.html")
+
+    def ui_admin_reports (self, request):
+        """Implements /admin/reports."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        return self.__render_template (request, "admin/reports/dashboard.html")
+
+    def ui_admin_reports_restricted_datasets (self, request):
+        """Implements /admin/reports/restricted_datasets."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        restricted_datasets = self.db.datasets(is_restricted=True, limit=10000, is_latest=True, use_cache=False)
+
+        export = self.get_parameter (request, "export")
+        fileformat = self.get_parameter (request, "format")
+
+        if export and fileformat:
+            return self.__export_report_in_format (request, "restricted_datasets", restricted_datasets, fileformat)
+        else:
+            return self.__render_template (request, "admin/reports/restricted_datasets.html", datasets=restricted_datasets)
+
+    def ui_admin_reports_embargoed_datasets (self, request):
+        """Implements /admin/reports/embargoed_datasets."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        embargoed_datasets = self.db.datasets(is_embargoed=True, limit=10000, is_latest=True, use_cache=False)
+
+        export = self.get_parameter (request, "export")
+        fileformat = self.get_parameter (request, "format")
+
+        if export and fileformat:
+            return self.__export_report_in_format (request, "embargoed_datasets", embargoed_datasets, fileformat)
+        else:
+            return self.__render_template (request, "admin/reports/embargoed_datasets.html", datasets=embargoed_datasets)
 
     def ui_admin_maintenance (self, request):
         """Implements /admin/maintenance."""

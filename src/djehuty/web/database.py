@@ -281,7 +281,8 @@ class SparqlInterface:
                   offset=None, order=None, order_direction=None, published_since=None,
                   resource_doi=None, return_count=False, search_for=None, search_format=False,
                   version=None, is_published=True, is_under_review=None, git_uuid=None,
-                  private_link_id_string=None, use_cache=True):
+                  private_link_id_string=None, use_cache=True, is_restricted=None,
+                  is_embargoed=None):
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -294,6 +295,8 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
         filters += rdf.sparql_filter ("doi",            doi,          escape=True)
         filters += rdf.sparql_filter ("handle",         handle,       escape=True)
+        filters += rdf.sparql_filter ("is_restricted",          is_restricted)
+        filters += rdf.sparql_filter ("is_embargoed",           is_embargoed)
         filters += rdf.sparql_filter ("private_link_id_string", private_link_id_string, escape=True)
         filters += rdf.sparql_in_filter ("group_id",    groups)
         filters += rdf.sparql_in_filter ("dataset_id", exclude_ids, negate=True)
