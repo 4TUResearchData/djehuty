@@ -52,7 +52,7 @@
           {%- if identity_provider == "orcid" %}
           <a href="{{orcid_endpoint}}/authorize?client_id={{orcid_client_id}}&response_type=code&scope=/authenticate&redirect_uri={{base_url}}/login"><div class="button" id="login-button">Log in</div></a>
           {%- endif %}
-          {%- if identity_provider == "saml" %}
+          {%- if identity_provider == "saml" or identity_provider == "automatic-login" %}
           <a href="/login"><div class="button" id="login-button">Log in</div></a>
           {%- endif %}
           {%- else %}

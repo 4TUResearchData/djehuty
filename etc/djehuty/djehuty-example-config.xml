@@ -51,6 +51,9 @@
     <prefix>10.5438</prefix>
   </datacite>
   <authentication>
+    <!--
+    <automatic-login-email>you@example.com</automatic-login-email>
+    -->
     <orcid>
       <client-id>APP-XXXXXXXXXXXXXXXX</client-id>
       <client-secret>XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</client-secret>

@@ -75,6 +75,7 @@ class ApiServer:
         self.show_science_categories = True
         self.show_latest_datasets = True
         self.disable_2fa      = False
+        self.automatic_login_email = None
         self.small_footer     = (
             '<div id="footer-wrapper2"><p>This repository is powered by '
             '<a href="https://github.com/4TUResearchData/djehuty">djehuty</a> '
@@ -1249,10 +1250,18 @@ class ApiServer:
         """Implements /login."""
 
         account_uuid = None
+        account      = None
+
+        ## Automatic log in for development purposes only.
+        ## --------------------------------------------------------------------
+        if self.automatic_login_email is not None and not self.in_production:
+            account = self.db.account_by_email (self.automatic_login_email)
+            account_uuid = account["uuid"]
+            self.log.access ("Account %s logged in via auto-login.", account_uuid) #  pylint: disable=no-member
 
         ## ORCID authentication
         ## --------------------------------------------------------------------
-        if self.identity_provider == "orcid":
+        elif self.identity_provider == "orcid":
             orcid_record = self.authenticate_using_orcid (request)
             if orcid_record is None:
                 return self.error_403 (request)
@@ -1292,7 +1301,6 @@ class ApiServer:
                         return self.error_400 (request, "Invalid request", "MissingEmailProperty")
 
                     account = self.db.account_by_email (saml_record["email"])
-                    account_uuid = None
                     if account:
                         account_uuid = account["uuid"]
                         self.log.access ("Account %s logged in via SAML.", account_uuid) #  pylint: disable=no-member
@@ -1320,7 +1328,8 @@ class ApiServer:
                 return response
 
             ## Send e-mail
-            account = self.db.account_by_uuid (account_uuid)
+            if account is None:
+                account = self.db.account_by_uuid (account_uuid)
             self.__send_templated_email (
                 [account["email"]],
                 "Two-factor authentication log-in token",

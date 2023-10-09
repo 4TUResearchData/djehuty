@@ -435,6 +435,15 @@ def read_datacite_configuration (server, xml_root):
         server.datacite_password = config_value (datacite, "password")
         server.datacite_prefix   = config_value (datacite, "prefix")
 
+def read_automatic_login_configuration (server, xml_root):
+    """Procedure to parse and set automatic login for development setups."""
+    automatic_login_email = config_value (xml_root, "authentication/automatic-login-email")
+    if (automatic_login_email is not None
+        and server.orcid_client_id is None
+        and server.saml_config is None):
+        server.identity_provider = "automatic-login"
+        server.automatic_login_email = automatic_login_email
+
 def read_orcid_configuration (server, xml_root):
     """Procedure to parse and set the ORCID API configuration."""
     orcid = xml_root.find("authentication/orcid")
@@ -643,6 +652,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         read_datacite_configuration (server, xml_root)
         read_email_configuration (server, xml_root, logger)
         read_saml_configuration (server, xml_root, logger)
+        read_automatic_login_configuration (server, xml_root)
         read_privilege_configuration (server, xml_root, logger)
         read_quotas_configuration (server, xml_root)
 
