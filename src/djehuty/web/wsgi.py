@@ -1293,6 +1293,8 @@ class ApiServer:
         ## --------------------------------------------------------------------
         if self.automatic_login_email is not None and not self.in_production:
             account = self.db.account_by_email (self.automatic_login_email)
+            if account is None:
+                return self.error_403 (request)
             account_uuid = account["uuid"]
             self.log.access ("Account %s logged in via auto-login.", account_uuid) #  pylint: disable=no-member
 
