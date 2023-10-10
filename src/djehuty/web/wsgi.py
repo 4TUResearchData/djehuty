@@ -731,9 +731,6 @@ class ApiServer:
                               account_uuid=None,
                               dataset_uri=None,
                               private_view=False):
-        if dataset_uri is None:
-            return None
-
         try:
             file = None
             if parses_to_int (identifier):
@@ -760,7 +757,7 @@ class ApiServer:
         try:
             return self.__files_by_id_or_uri (identifier, account_uuid,
                                               dataset_uri, private_view)[0]
-        except (TypeError, IndexError):
+        except IndexError:
             return None
 
     def __paging_offset_and_limit (self, request):
