@@ -1,6 +1,7 @@
 """This module implements the entire HTTP interface for users."""
 
 from datetime import date, datetime, timedelta
+from io import StringIO
 import os.path
 import os
 import getpass
@@ -11,11 +12,10 @@ import subprocess
 import secrets
 import re
 import base64
+import csv
 import requests
 import pygit2
 import zipfly
-import csv
-from io import StringIO
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
@@ -945,12 +945,11 @@ class ApiServer:
             output.headers["Content-disposition"] = f"attachment; filename={report_name}.csv"
             return output
 
-        elif report_format == "json":
+        if report_format == "json":
             return self.response (json.dumps(report_data))
 
-        else:
-            self.log.error ("Unknown report format '%s'.", report_format)
-            return self.error_400 (request, "Unknown report format.", 400)
+        self.log.error ("Unknown report format '%s'.", report_format)
+        return self.error_400 (request, "Unknown report format.", 400)
 
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
@@ -2460,8 +2459,8 @@ class ApiServer:
 
         if export and fileformat:
             return self.__export_report_in_format (request, "restricted_datasets", restricted_datasets, fileformat)
-        else:
-            return self.__render_template (request, "admin/reports/restricted_datasets.html", datasets=restricted_datasets)
+
+        return self.__render_template (request, "admin/reports/restricted_datasets.html", datasets=restricted_datasets)
 
     def ui_admin_reports_embargoed_datasets (self, request):
         """Implements /admin/reports/embargoed_datasets."""
@@ -2479,8 +2478,8 @@ class ApiServer:
 
         if export and fileformat:
             return self.__export_report_in_format (request, "embargoed_datasets", embargoed_datasets, fileformat)
-        else:
-            return self.__render_template (request, "admin/reports/embargoed_datasets.html", datasets=embargoed_datasets)
+
+        return self.__render_template (request, "admin/reports/embargoed_datasets.html", datasets=embargoed_datasets)
 
     def ui_admin_maintenance (self, request):
         """Implements /admin/maintenance."""
