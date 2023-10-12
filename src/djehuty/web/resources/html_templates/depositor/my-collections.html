@@ -45,7 +45,7 @@ jQuery(document).ready(function () {
     <tr>
       <td>
         <a href="/my/collections/{{collection.container_uuid}}/edit">{{collection.title}}</a>
-        <span class="number-of-articles">({{collection.number_of_articles | default("0", False)}})</span></td>
+        <span class="number-of-articles">({{collection.number_of_datasets | default("0", False)}})</span></td>
       <td>{{collection.created_date | truncate(10,False,'')}}</td>
       <td><a href="/my/collections/{{collection.uuid}}/private_links" class="fas fa-link" title="Private links"></a>{% if not collection.is_public %}&nbsp;<a href="/my/collections/{{collection.container_uuid}}/delete" class="fas fa-trash-can" title="Remove"></a>{% endif %}</td>
     </tr>
@@ -70,7 +70,7 @@ jQuery(document).ready(function () {
     <tr>
       <td>
         <a href="/collections/{{collection.container_uuid}}">{{collection.title}}</a>
-        <span class="number-of-articles">({{collection.number_of_articles | default("0", False)}})</span></td>
+        <span class="number-of-articles">({{collection.number_of_datasets | default("0", False)}})</span></td>
       <td>{{collection.published_date | truncate(10,False,'')}}</td>
       <td>{% if not collection.has_draft %}<a href="/my/collections/{{collection.container_uuid}}/new-version-draft" class="fas fa-plus" title="Add new version"></a>{% endif %}<a href="/my/collections/{{collection.uuid}}/private_links" class="fas fa-link" title="Private links"></a></td>
     </tr>
