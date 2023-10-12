@@ -4318,7 +4318,8 @@ class ApiServer:
             if collection is None or dataset is None:
                 return self.error_404 (request)
 
-            datasets = self.db.datasets(collection_uri=collection["uri"], is_latest=True)
+            self.locks.lock (locks.LockTypes.DATASET_LIST)
+            datasets = self.db.datasets(collection_uri=collection["uri"], is_latest=True, limit=10000)
             datasets.remove (next
                              (filter
                               (lambda item: item["container_uuid"] == dataset["container_uuid"],
@@ -4332,10 +4333,12 @@ class ApiServer:
                                          datasets,
                                          "datasets"):
                 self.db.cache.invalidate_by_prefix ("datasets")
+                self.locks.unlock (locks.LockTypes.DATASET_LIST)
                 return self.respond_204()
         except (IndexError, KeyError):
             return self.error_500 ()
 
+        self.locks.unlock (locks.LockTypes.DATASET_LIST)
         return self.error_403 (request)
 
     def api_private_dataset_categories (self, request, dataset_id):
