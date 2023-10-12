@@ -784,6 +784,11 @@ function activate (dataset_uuid) {
                     fileUploader.processQueue();
                 }
                 fileUploader.removeFile(file);
+            },
+            error: function(file, message) {
+                show_message ("failure",
+                              (`<p>Failed to upload ${file.upload.filename}:` +
+                               ` ${message.message}</p>`));
             }
         });
 

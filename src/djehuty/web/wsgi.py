@@ -600,6 +600,19 @@ class ApiServer:
         response.status_code = 410
         return response
 
+    def error_413 (self, request, maximum_length):
+        """Procedure to respond with HTTP 413."""
+        response = None
+        if self.accepts_json (request):
+            response = self.response (json.dumps({
+                "message": f"Maximum upload size is {maximum_length}."
+            }))
+        else:
+            response = self.response (f"Maximum upload size is {maximum_length}.",
+                                      mimetype="text/plain")
+        response.status_code = 413
+        return response
+
     def error_415 (self, allowed_types):
         """Procedure to respond with HTTP 415."""
         response = self.response (f"Supported Content-Types: {allowed_types}",
@@ -6393,6 +6406,16 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
+        account = self.db.account_by_uuid (account_uuid)
+        if "quota" not in account:
+            self.log.error ("Account %s does not have an assigmed quota.", account_uuid)
+            return self.error_403 (request)
+
+        storage_used      = self.db.account_storage_used (account_uuid)
+        storage_available = account["quota"] - storage_used
+        if storage_available < 1:
+            return self.error_413 (request, 0)
+
         try:
             dataset   = self.__dataset_by_id_or_uri (dataset_id,
                                                      account_uuid=account_uuid,
@@ -6422,6 +6445,11 @@ class ApiServer:
                     request,
                     "Missing Content-Length header.",
                     "MissingContentLength")
+
+            # Note that the bytes_to_read contain some overhead of the
+            # multipart headings (~220 bytes per chunk).
+            if storage_available < bytes_to_read:
+                return self.error_413 (request, account["quota"])
 
             input_stream = request.stream
 
