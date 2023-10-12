@@ -1323,14 +1323,27 @@ class ApiServer:
             account_uuid = self.db.account_uuid_by_orcid (orcid_record['orcid'])
             if account_uuid is None:
                 try:
+                    email = f"{orcid_record['orcid']}@orcid"
                     account_uuid = self.db.insert_account (
                         # We don't receive the user's e-mail address,
                         # so we construct an artificial one that doesn't
                         # resolve so no accidental e-mails will be sent.
-                        email      = f"{orcid_record['orcid']}@orcid",
+                        email      = email,
                         full_name  = orcid_record["name"]
                     )
+                    if not account_uuid:
+                        return self.error_500 ()
+
                     self.log.access ("Account %s created via ORCID.", account_uuid) #  pylint: disable=no-member
+                    author_uuid = self.db.insert_author (
+                        email        = email,
+                        account_uuid = account_uuid,
+                        orcid_id     = orcid_record['orcid'],
+                        is_active    = True,
+                        is_public    = True)
+                    if not author_uuid:
+                        self.log.error ("Failed to link author to new account for %s.", email)
+                        return self.error_500 ()
                 except KeyError:
                     self.log.error ("Received an unexpected record from ORCID.")
                     return self.error_403 (request)
