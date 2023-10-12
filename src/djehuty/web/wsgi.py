@@ -1322,9 +1322,20 @@ class ApiServer:
 
             account_uuid = self.db.account_uuid_by_orcid (orcid_record['orcid'])
             if account_uuid is None:
-                return self.error_403 (request)
-
-            self.log.access ("Account %s logged in via ORCID.", account_uuid) #  pylint: disable=no-member
+                try:
+                    account_uuid = self.db.insert_account (
+                        # We don't receive the user's e-mail address,
+                        # so we construct an artificial one that doesn't
+                        # resolve so no accidental e-mails will be sent.
+                        email      = f"{orcid_record['orcid']}@orcid",
+                        full_name  = orcid_record["name"]
+                    )
+                    self.log.access ("Account %s created via ORCID.", account_uuid) #  pylint: disable=no-member
+                except KeyError:
+                    self.log.error ("Received an unexpected record from ORCID.")
+                    return self.error_403 (request)
+            else:
+                self.log.access ("Account %s logged in via ORCID.", account_uuid) #  pylint: disable=no-member
 
         ## SAML 2.0 authentication
         ## --------------------------------------------------------------------
