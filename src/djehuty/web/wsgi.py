@@ -5864,6 +5864,9 @@ class ApiServer:
     def __git_set_default_branch (self, git_repository, branch_name):
         """Sets the default branch for a git repository."""
 
+        if branch_name is None:
+            return False
+
         # Remove existing default branch choice.
         if git_repository.references.get("refs/heads/master") is not None:
             self.log.info ("Removed default branch for '%s'.", git_repository.path)
