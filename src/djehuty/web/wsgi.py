@@ -423,7 +423,7 @@ class ApiServer:
             "menu":            self.menu,
         }
         return self.response (template.render({ **context, **parameters }),
-                              mimetype='text/html; charset=utf-8')
+                              mimetype='text/html')
 
     def __render_email_templates (self, template_name, **context):
         """Render a plaintext and an HTML body for sending in an e-mail."""
@@ -657,7 +657,7 @@ class ApiServer:
 
         return None
 
-    def response (self, content, mimetype='application/json; charset=utf-8'):
+    def response (self, content, mimetype='application/json'):
         """Returns a self.response object with some tweaks."""
 
         output                   = Response(content, mimetype=mimetype)
@@ -7308,7 +7308,7 @@ class ApiServer:
     def export_datacite (self, item_id, version=None, item_type="dataset"):
         """export metadata in datacite format"""
         xml_string = self.format_datacite(item_id, version, item_type=item_type)
-        output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
+        output = self.response (xml_string, mimetype="application/xml")
         version_string = f'_v{version}' if version else ''
         output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_datacite.xml"
         return output
@@ -7332,7 +7332,7 @@ class ApiServer:
 
         parameters = self.__metadata_export_parameters(dataset_id, version)
         xml_string = xml_formatter.refworks(parameters)
-        output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
+        output = self.response (xml_string, mimetype="application/xml")
         version_string = f'_v{version}' if version else ''
         output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_refworks.xml"
         return output
@@ -7345,7 +7345,7 @@ class ApiServer:
         parameters = self.__metadata_export_parameters(dataset_id, version)
         self.add_names_to_authors(parameters["authors"])
         xml_string = xml_formatter.nlm(parameters)
-        output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
+        output = self.response (xml_string, mimetype="application/xml")
         version_string = f'_v{version}' if version else ''
         output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_nlm.xml"
         return output
@@ -7357,7 +7357,7 @@ class ApiServer:
 
         parameters = self.__metadata_export_parameters(dataset_id, version)
         xml_string = xml_formatter.dublincore(parameters)
-        output = self.response (xml_string, mimetype="application/xml; charset=utf-8")
+        output = self.response (xml_string, mimetype="application/xml")
         version_string = f'_v{version}' if version else ''
         output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_dublincore.xml"
         return output
@@ -7379,7 +7379,7 @@ class ApiServer:
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.bib"}
         return self.__render_export_format(template_name="bibtex.bib",
-                                           mimetype="text/plain; charset=utf-8",
+                                           mimetype="text/plain",
                                            headers=headers, **parameters)
 
     def ui_export_refman_dataset (self, request, dataset_id, version=None):
@@ -7394,7 +7394,7 @@ class ApiServer:
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.ris"}
         return self.__render_export_format(template_name="refman.ris",
-                                           mimetype="text/plain; charset=utf-8",
+                                           mimetype="text/plain",
                                            headers=headers, **parameters)
 
     def ui_export_endnote_dataset (self, request, dataset_id, version=None):
@@ -7413,7 +7413,7 @@ class ApiServer:
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.enw"}
         return self.__render_export_format(template_name="endnote.enw",
-                                           mimetype="text/plain; charset=utf-8",
+                                           mimetype="text/plain",
                                            headers=headers, **parameters)
 
     def ui_export_cff_dataset (self, request, dataset_id, version=None):
@@ -7426,7 +7426,7 @@ class ApiServer:
         self.add_names_to_authors(parameters["authors"])
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_citation.cff"}
         return self.__render_export_format(template_name="citation.cff",
-                                           mimetype="text/plain; charset=utf-8",
+                                           mimetype="text/plain",
                                            headers=headers, **parameters)
 
     def parse_organizations (self, text):
