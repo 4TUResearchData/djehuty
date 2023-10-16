@@ -334,6 +334,7 @@ def read_privilege_configuration (server, xml_root, logger):
                 "may_review":      bool(int(config_value (account, "may-review", None, False))),
                 "may_review_quotas": bool(int(config_value (account, "may-review-quotas", None, False))),
                 "may_process_feedback": bool(int(config_value (account, "may-process-feedback", None, False))),
+                "may_receive_email_notifications": bool(int(config_value (account, "may-receive-email-notifications", None, True))),
                 "orcid":           orcid
             }
 

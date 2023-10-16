@@ -495,6 +495,9 @@ class ApiServer:
             return False
 
         for email_address in email_addresses:
+            if not self.db.may_receive_email_notifications (email_address):
+                continue
+
             text, html = self.__render_email_templates (f"email/{template_name}",
                                                         recipient_email=email_address,
                                                         **context)

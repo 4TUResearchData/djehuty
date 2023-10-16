@@ -2836,6 +2836,33 @@ class SparqlInterface:
 
         return False
 
+    def may_receive_email_notifications (self, email):
+        """
+        Returns True when the account identified by EMAIL may receive an
+        e-mail notification.  This procedure assumes True unless False is
+        explicitely specified, so that it can be used in logic where
+        e-mails are sent to accounts that have no preference set.
+        """
+        if email is None:
+            return False
+
+        # When an account was created from an ORCID login, there is no
+        # valid e-mail address known for the user. These addresses end
+        # with just '@orcid'.  This is a safety measure to prevent attempting
+        # to send e-mail to invalid e-mail addresses.
+        if email.endswith("orcid"):
+            return False
+
+        account = self.account_by_email (email)
+        try:
+            return account["may_receive_email_notifications"]
+        except (KeyError, TypeError):
+            pass
+
+        # Assume it's OK to send e-mails unless explicitly specified
+        # not to do so.
+        return True
+
     def may_review (self, session_token):
         """Returns True when the session's account is a reviewer."""
         return self.__may_execute_role (session_token, "review")
