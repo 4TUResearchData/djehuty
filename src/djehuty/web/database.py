@@ -2240,6 +2240,7 @@ class SparqlInterface:
         if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
             self.log.info ("Inserted collection %s", container_uuid)
+            self.cache.invalidate_by_prefix (f"collections_{account_uuid}")
             return container_uuid, rdf.uri_to_uuid (uri)
 
         return None, None
