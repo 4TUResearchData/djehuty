@@ -496,6 +496,7 @@ class ApiServer:
 
         for email_address in email_addresses:
             if not self.db.may_receive_email_notifications (email_address):
+                self.log.info ("Did not send e-mail to '%s' due to settings.", email_address)
                 continue
 
             text, html = self.__render_email_templates (f"email/{template_name}",
