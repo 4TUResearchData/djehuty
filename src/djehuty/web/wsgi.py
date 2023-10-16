@@ -5942,15 +5942,8 @@ class ApiServer:
         if git_repository is None:
             return self.error_404 (request)
 
-        branches       = list(git_repository.branches.local)
-        files          = []
-        if branches:
-            branch_name = branches[0]
-            if "master" in branches:
-                branch_name = "master"
-            elif "main" in branches:
-                branch_name = "main"
-
+        branch_name    = self.__git_repository_default_branch_guess (git_repository)
+        if branch_name:
             files = git_repository.revparse_single(branch_name).tree
             files = [e.name for e in files]
 
