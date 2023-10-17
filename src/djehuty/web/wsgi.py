@@ -4748,7 +4748,8 @@ class ApiServer:
             if response.status_code in (201, 422): #422:already reserved
                 data = response.json()
             else:
-                self.log.error ("DataCite responded with %s", response.status_code)
+                self.log.error ("DataCite responded with %s (%s)",
+                                response.status_code, response.text)
             return data
         except requests.exceptions.ConnectionError:
             self.log.error ("Failed to reserve a DOI due to a connection error.")
@@ -4862,10 +4863,10 @@ class ApiServer:
 
         return self.error_500()
 
-    def __update_item_doi (self, item_id, version=None, item_type="dataset"):
+    def __update_item_doi (self, item_id, version=None, item_type="dataset", from_draft=True):
         """Procedure to modify metadata of an existing doi."""
 
-        doi, xml = self.format_datacite_for_registration (item_id, version, item_type)
+        doi, xml = self.format_datacite_for_registration (item_id, version, item_type, from_draft)
 
         encoded_bytes = base64.b64encode(xml.encode("utf-8"))
 
@@ -4897,7 +4898,8 @@ class ApiServer:
                 self.log.warning ("Doi %s already active, updated", doi)
                 return True
 
-            self.log.error ("DataCite responded with %s", response.status_code)
+            self.log.error ("DataCite responded with %s (%s)",
+                            response.status_code, response.text)
         except requests.exceptions.ConnectionError:
             self.log.error ("Failed to update a DOI due to a connection error.")
 
@@ -7282,9 +7284,9 @@ class ApiServer:
         parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type)
         return xml_formatter.datacite(parameters, indent=indent)
 
-    def format_datacite_for_registration (self, item_id, version=None, item_type="dataset"):
+    def format_datacite_for_registration (self, item_id, version=None, item_type="dataset", from_draft=True):
         """return doi and un-indented datacite xml separately"""
-        parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type, from_draft=True)
+        parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type, from_draft=from_draft)
         xml = str(xml_formatter.datacite(parameters, indent=False), encoding='utf-8')
         xml = '<?xml version="1.0" encoding="UTF-8"?>' + xml.split('?>', 1)[1] #Datacite is very choosy about this
         return parameters["doi"], xml
