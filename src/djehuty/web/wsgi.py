@@ -142,7 +142,6 @@ class ApiServer:
             R("/my/sessions/new",                                                self.ui_new_session),
             R("/my/profile",                                                     self.ui_profile),
             R("/my/profile/connect-with-orcid",                                  self.ui_profile_connect_with_orcid),
-            R("/review/dashboard",                                               self.ui_review_dashboard),
             R("/review/overview",                                                self.ui_review_overview),
             R("/review/goto-dataset/<dataset_id>",                               self.ui_review_impersonate_to_dataset),
             R("/review/assign-to-me/<dataset_id>",                               self.ui_review_assign_to_me),
@@ -2302,41 +2301,6 @@ class ApiServer:
             return self.error_500 ()
 
         return redirect ("/my/profile", 302)
-
-    def ui_review_dashboard (self, request):
-        """Implements /review/dashboard."""
-        if not self.accepts_html (request):
-            return self.error_406 ("text/html")
-
-        account_uuid, error_response = self.__reviewer_account_uuid (request)
-        if error_response is not None:
-            return error_response
-
-        unassigned = self.db.reviews (limit       = 10000,
-                                      assigned_to = None,
-                                      status      = "unassigned",
-                                      order       = "review_submit_date",
-                                      order_direction = "desc")
-        assigned   = self.db.reviews (assigned_to = account_uuid,
-                                      limit       = 10000,
-                                      status      = "assigned",
-                                      order       = "review_submit_date",
-                                      order_direction = "desc")
-        published  = self.db.reviews (assigned_to = account_uuid,
-                                      limit       = 10,
-                                      status      = "approved",
-                                      order       = "published_date",
-                                      order_direction = "desc")
-        declined   = self.db.reviews (assigned_to = account_uuid,
-                                      limit       = 10,
-                                      status      = "rejected",
-                                      order       = "declined_date",
-                                      order_direction = "desc")
-        return self.__render_template (request, "review/dashboard.html",
-                                       assigned_reviews   = assigned,
-                                       unassigned_reviews = unassigned,
-                                       published_reviews  = published,
-                                       declined_reviews   = declined)
 
     def ui_review_overview (self, request):
         """Implements /review/overview."""

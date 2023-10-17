@@ -86,7 +86,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/portal.html                          \
     djehuty/web/resources/html_templates/private_link_is_expired.html         \
     djehuty/web/resources/html_templates/public_metadata.html                 \
-    djehuty/web/resources/html_templates/review/dashboard.html                \
     djehuty/web/resources/html_templates/review/overview.html                 \
     djehuty/web/resources/html_templates/review/published.html                \
     djehuty/web/resources/html_templates/search.html                          \
