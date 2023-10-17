@@ -36,6 +36,9 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/activate_2fa_session.html            \
     djehuty/web/resources/html_templates/admin/dashboard.html                 \
     djehuty/web/resources/html_templates/admin/exploratory.html               \
+    djehuty/web/resources/html_templates/admin/reports/dashboard.html         \
+    djehuty/web/resources/html_templates/admin/reports/embargoed_datasets.html \
+    djehuty/web/resources/html_templates/admin/reports/restricted_datasets.html \
     djehuty/web/resources/html_templates/admin/maintenance.html               \
     djehuty/web/resources/html_templates/admin/users.html                     \
     djehuty/web/resources/html_templates/author.html                          \
