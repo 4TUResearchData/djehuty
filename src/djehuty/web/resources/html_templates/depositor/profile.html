@@ -66,7 +66,7 @@ jQuery(document).ready(function (){
 {%- if account.author_uuid != "unknown" %}
   <li class="hide-for-javascript"><a id="show-public-profile" href="/authors/{{account.author_uuid}}">Public profile</a>
   {%- if orcid_client_id is not none: %}
-    {%- if account.orcid is none or account.orcid == "": %}
+    {%- if "orcid" not in account or account.orcid is none or account.orcid == "": %}
   <li class="hide-for-javascript orcid-button"><a id="connect-with-orcid" href="/my/profile/connect-with-orcid"><span class="fab fa-orcid"></span>Connect ORCID</a>
     {%- else: %}
     <li class="hide-for-javascript orcid-button"><a href="https://orcid.org/{{account.orcid}}"><span class="fab fa-orcid"></span><strong>{{account.orcid}}</strong></a>
