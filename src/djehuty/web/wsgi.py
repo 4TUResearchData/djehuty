@@ -6483,7 +6483,7 @@ class ApiServer:
             except IndexError:
                 pass
 
-            headers_len        = len(part_headers)
+            headers_len        = len(part_headers.encode('utf-8'))
             computed_file_size = request.content_length - read_ahead_bytes - headers_len - len(expected_end)
             bytes_to_read      = bytes_to_read - read_ahead_bytes - headers_len
             content_to_read    = bytes_to_read - len(expected_end)
