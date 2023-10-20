@@ -663,6 +663,19 @@ class ApiServer:
 
         return None
 
+    def default_authenticated_error_handling (self, request, methods, content_type):
+        """Procedure to handle method and content type mismatches as well authentication."""
+
+        handler = self.default_error_handling (request, methods, content_type)
+        if handler is not None:
+            return handler
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        return account_uuid
+
     def response (self, content, mimetype='application/json'):
         """Returns a self.response object with some tweaks."""
 
