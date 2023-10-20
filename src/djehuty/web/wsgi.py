@@ -649,11 +649,14 @@ class ApiServer:
         response.status_code = 403
         return response
 
-    def default_error_handling (self, request, method, content_type):
+    def default_error_handling (self, request, methods, content_type):
         """Procedure to handle both method and content type mismatches."""
-        if (request.method != method and
-            (not (method == "GET" and request.method == "HEAD"))):
-            return self.error_405 (method)
+        if isinstance (methods, str):
+            methods = [methods]
+
+        if (request.method not in methods and
+            (not ("GET" in methods and request.method == "HEAD"))):
+            return self.error_405 (methods)
 
         if not self.accepts_content_type (request, content_type, strict=False):
             return self.error_406 (content_type)
