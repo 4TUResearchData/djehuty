@@ -3418,15 +3418,9 @@ class ApiServer:
 
     def api_private_institution (self, request):
         """Implements /v2/account/institution."""
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
-            return handler
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         ## Our API only contains data from 4TU.ResearchData.
         return self.response (json.dumps({
@@ -3463,15 +3457,9 @@ class ApiServer:
 
     def api_private_institution_account (self, request, account_uuid):
         """Implements /v2/account/institution/users/<id>."""
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
-            return handler
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         account   = self.db.account_by_uuid (account_uuid)
         formatted = formatter.format_account_record(account)
@@ -3728,14 +3716,11 @@ class ApiServer:
 
     def api_private_datasets (self, request):
         """Implements /v2/account/articles."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             try:
@@ -3795,18 +3780,15 @@ class ApiServer:
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
 
-        return self.error_405 (["GET", "POST"])
+        return self.error_500 ()
 
     def api_private_dataset_details (self, request, dataset_id):
         """Implements /v2/account/articles/<id>."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "PUT", "DELETE"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             try:
@@ -3945,19 +3927,16 @@ class ApiServer:
 
             return self.error_500 ()
 
-        return self.error_405 (["GET", "PUT", "DELETE"])
+        return self.error_500 ()
 
     def api_private_dataset_authors (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/authors."""
 
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST", "PUT"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             try:
@@ -4043,7 +4022,7 @@ class ApiServer:
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
 
-        return self.error_405 ("GET")
+        return self.error_500 ()
 
     def api_private_dataset_author_delete (self, request, dataset_id, author_id):
         """Implements /v2/account/articles/<id>/authors/<a_id>."""
@@ -4088,18 +4067,11 @@ class ApiServer:
                                     item_by_id_procedure):
         """Implements handling funding for both datasets and collections."""
 
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
-
-        accepted_methods = ["GET", "POST", "PUT"]
-        if request.method not in accepted_methods:
-            return self.error_405 (accepted_methods)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST", "PUT"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             try:
@@ -4327,14 +4299,11 @@ class ApiServer:
 
     def api_private_dataset_categories (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/categories."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST", "PUT"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             try:
@@ -4402,15 +4371,13 @@ class ApiServer:
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
 
-        return self.error_405 (["GET", "POST", "PUT"])
+        return self.error_500 ()
 
     def api_private_delete_dataset_category (self, request, dataset_id, category_id):
         """Implements /v2/account/articles/<id>/categories/<cid>."""
         if not self.accepts_json(request):
             return self.error_406 ("application/json")
 
-        ## Authorization
-        ## ----------------------------------------------------------------
         account_uuid = self.account_uuid_from_request (request)
         if account_uuid is None:
             return self.error_authorization_failed(request)
@@ -4422,14 +4389,12 @@ class ApiServer:
 
     def api_private_dataset_embargo (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/embargo."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
 
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "DELETE"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             dataset = self.__dataset_by_id_or_uri (dataset_id,
@@ -4454,18 +4419,15 @@ class ApiServer:
 
             return self.error_500 ()
 
-        return self.error_405 (["GET", "DELETE"])
+        return self.error_500 ()
 
     def api_private_dataset_files (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/files."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             try:
@@ -4538,18 +4500,15 @@ class ApiServer:
 
             return self.error_500 ()
 
-        return self.error_405 (["GET", "POST"])
+        return self.error_500 ()
 
     def api_private_dataset_file_details (self, request, dataset_id, file_id):
         """Implements /v2/account/articles/<id>/files/<fid>."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST", "DELETE"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             try:
@@ -4602,18 +4561,16 @@ class ApiServer:
             self.locks.unlock (locks.LockTypes.FILE_LIST)
             return self.error_500()
 
-        return self.error_405 (["GET", "POST", "DELETE"])
+        return self.error_500 ()
 
     def api_private_dataset_private_links (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/private_links."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
 
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
 
@@ -4684,14 +4641,12 @@ class ApiServer:
 
     def api_private_dataset_private_links_details (self, request, dataset_id, link_id):
         """Implements /v2/account/articles/<id>/private_links/<link_id>."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
 
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "PUT", "DELETE"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                account_uuid = account_uuid,
@@ -4775,13 +4730,10 @@ class ApiServer:
     def api_private_collection_reserve_doi (self, request, collection_id):
         """Implements /v2/account/collections/<id>/reserve_doi."""
 
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
-
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         collection = self.__collection_by_id_or_uri (collection_id,
                                                      is_published = False,
@@ -4858,13 +4810,11 @@ class ApiServer:
 
     def api_private_dataset_reserve_doi (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/reserve_doi."""
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                is_published = False,
@@ -4923,15 +4873,10 @@ class ApiServer:
 
     def api_private_datasets_search (self, request):
         """Implements /v2/account/articles/search."""
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         try:
             if not self.contains_json (request):
@@ -5086,14 +5031,12 @@ class ApiServer:
 
     def api_private_collections (self, request):
         """Implements /v2/collections/<id>/versions/<version>."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
 
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             ## Parameters
@@ -5174,19 +5117,16 @@ class ApiServer:
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
 
-        return self.error_405 (["GET", "POST"])
-
+        return self.error_500 ()
 
     def api_private_collection_details (self, request, collection_id):
         """Implements /v2/account/collections/<id>."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
 
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "PUT", "DELETE"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             try:
@@ -5264,15 +5204,11 @@ class ApiServer:
 
     def api_private_collections_search (self, request):
         """Implements /v2/account/collections/search."""
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
 
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         parameters = request.get_json()
         records = self.db.collections(
@@ -5300,14 +5236,11 @@ class ApiServer:
     def api_private_collection_authors (self, request, collection_id):
         """Implements /v2/account/collections/<id>/authors."""
 
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST", "PUT"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             try:
@@ -5393,19 +5326,15 @@ class ApiServer:
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
 
-        return self.error_405 ("GET")
+        return self.error_500 ()
 
     def api_private_collection_categories (self, request, collection_id):
         """Implements /v2/account/collections/<id>/categories."""
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
-            return handler
 
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "GET",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         try:
             collection = self.__collection_by_id_or_uri (collection_id,
@@ -5426,12 +5355,12 @@ class ApiServer:
 
     def api_private_collection_datasets (self, request, collection_id):
         """Implements /v2/account/collections/<id>/articles."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST", "PUT"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         if request.method in ("GET", "HEAD"):
             try:
@@ -5523,7 +5452,7 @@ class ApiServer:
 
             return self.error_500()
 
-        return self.error_405 (["GET", "POST", "PUT"])
+        return self.error_500 ()
 
     def api_collection_datasets (self, request, collection_id):
         """Implements /v2/collections/<id>/articles."""
@@ -5552,13 +5481,11 @@ class ApiServer:
 
     def api_private_authors_search (self, request):
         """Implements /v2/account/authors/search."""
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         try:
             parameters = request.get_json()
@@ -5593,13 +5520,10 @@ class ApiServer:
 
     def api_private_funding_search (self, request):
         """Implements /v2/account/funding/search."""
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
-
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         try:
             parameters = request.get_json()
@@ -6028,13 +5952,10 @@ class ApiServer:
     def api_v3_collection_publish (self, request, collection_id):
         """Implements /v3/collections/<id>/publish."""
 
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
-
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed (request)
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         collection = self.__collection_by_id_or_uri (collection_id,
                                                      account_uuid = account_uuid,
@@ -6120,13 +6041,11 @@ class ApiServer:
 
     def api_v3_dataset_submit (self, request, dataset_id):
         """Implements /v3/datasets/<id>/submit-for-review."""
-        handler = self.default_error_handling (request, "PUT", "application/json")
-        if handler is not None:
-            return handler
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "PUT",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         self.locks.lock (locks.LockTypes.SUBMIT_DATASET)
         dataset = self.__dataset_by_id_or_uri (dataset_id,
@@ -6595,13 +6514,11 @@ class ApiServer:
 
     def api_v3_file (self, request, file_id):
         """Implements /v3/file/<id>."""
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
-            return handler
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "GET",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         metadata = self.__file_by_id_or_uri (file_id, account_uuid = account_uuid)
         if metadata is None:
@@ -6616,17 +6533,11 @@ class ApiServer:
     def __api_v3_item_references (self, request, item):
         """Implements getting/setting references for datasets and collections."""
 
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
-
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
-
-        if request.method not in ('GET', 'POST', 'DELETE'):
-            return self.error_405 (["GET", "POST", "DELETE"])
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST", "DELETE"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         try:
             references     = self.db.references (item_uri     = item["uri"],
@@ -6707,17 +6618,12 @@ class ApiServer:
 
     def __api_v3_item_tags (self, request, item_id, item_by_id_procedure):
         """Implements handling tags for both datasets and collections."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
 
-        ## Authorization
-        ## ----------------------------------------------------------------
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
-
-        if request.method not in ('GET', 'POST', 'DELETE'):
-            return self.error_405 (["GET", "POST", "DELETE"])
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "POST", "DELETE"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         try:
             item  = item_by_id_procedure (item_id,
@@ -6952,13 +6858,10 @@ class ApiServer:
     def api_v3_profile (self, request):
         """Implements /v3/profile."""
 
-        handler = self.default_error_handling (request, "PUT", "application/json")
-        if handler is not None:
-            return handler
-
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "PUT",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         try:
             record = request.get_json()
@@ -6994,13 +6897,10 @@ class ApiServer:
     def api_v3_profile_categories (self, request):
         """Implements /v3/profile/categories."""
 
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
-            return handler
-
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "GET",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         categories = self.db.account_categories (account_uuid)
         return self.default_list_response (categories, formatter.format_category_record)
@@ -7008,13 +6908,10 @@ class ApiServer:
     def api_v3_profile_quota_request (self, request):
         """Implements /v3/profile/quota-request."""
 
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
-
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         try:
             parameters = request.get_json()
