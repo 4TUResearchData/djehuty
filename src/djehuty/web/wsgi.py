@@ -1757,44 +1757,39 @@ class ApiServer:
 
     def ui_dataset_private_links (self, request, dataset_uuid):
         """Implements /my/datasets/<uuid>/private_links."""
-        if not self.accepts_html (request):
-            return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed (request)
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
-        if request.method in ("GET", "HEAD"):
-            if not validator.is_valid_uuid (dataset_uuid):
-                return self.error_404 (request)
+        if not validator.is_valid_uuid (dataset_uuid):
+            return self.error_404 (request)
 
-            try:
-                dataset = self.db.datasets (dataset_uuid = dataset_uuid,
-                                            account_uuid = account_uuid,
-                                            is_published = None,
-                                            is_latest    = None,
-                                            limit        = 1)[0]
-            except IndexError:
-                return self.error_403 (request)
+        try:
+            dataset = self.db.datasets (dataset_uuid = dataset_uuid,
+                                        account_uuid = account_uuid,
+                                        is_published = None,
+                                        is_latest    = None,
+                                        limit        = 1)[0]
+        except IndexError:
+            return self.error_403 (request)
 
-            if not dataset:
-                return self.error_404 (request)
+        if not dataset:
+            return self.error_404 (request)
 
-            links = self.db.private_links (item_uri     = dataset["uri"],
-                                           account_uuid = account_uuid)
+        links = self.db.private_links (item_uri     = dataset["uri"],
+                                       account_uuid = account_uuid)
 
-            for link in links:
-                link["is_expired"] = False
-                if "expires_date" in link:
-                    if datetime.fromisoformat(link["expires_date"]) < datetime.now():
-                        link["is_expired"] = True
+        for link in links:
+            link["is_expired"] = False
+            if "expires_date" in link:
+                if datetime.fromisoformat(link["expires_date"]) < datetime.now():
+                    link["is_expired"] = True
 
-            return self.__render_template (request,
-                                           "depositor/dataset-private-links.html",
-                                           dataset       = dataset,
-                                           private_links = links)
-
-        return self.error_500()
+        return self.__render_template (request,
+                                       "depositor/dataset-private-links.html",
+                                       dataset       = dataset,
+                                       private_links = links)
 
     def ui_collection_private_links (self, request, collection_uuid):
         """Implements /my/collections/<uuid>/private_links."""
