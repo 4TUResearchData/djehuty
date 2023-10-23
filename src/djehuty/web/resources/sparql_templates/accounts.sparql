@@ -45,7 +45,7 @@ WHERE {
   {%- endif %}{% if is_active is not none %}
   FILTER (?active = {{is_active}})
   {%- endif %}{% if email is not none %}
-  FILTER (?email = {{email | safe}})
+  FILTER (LCASE(STR(?email)) = LCASE(STR({{email | safe}})))
   {%- endif %}{% if minimum_account_id is not none %}
   FILTER (?account_id >= {{minimum_account_id}})
   {%- endif %}{% if maximum_account_id is not none %}

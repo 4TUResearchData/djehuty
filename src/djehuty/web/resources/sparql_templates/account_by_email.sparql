@@ -30,6 +30,6 @@ WHERE {
     BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
   }
   ## Wrap in STR for compatibility with Virtuoso.
-  FILTER (STR(?email) = STR({{email | safe}}))
+  FILTER (LCASE(STR(?email)) = LCASE(STR({{email | safe}})))
 }
 {% endblock %}
