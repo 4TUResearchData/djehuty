@@ -2558,11 +2558,12 @@ class SparqlInterface:
 
         try:
             privileges = {}
-            if account["email"] in self.privileges:
-                privileges = self.privileges[account["email"]]
+            email = account["email"].lower()
+            if email in self.privileges:
+                privileges = self.privileges[email]
 
             domain     = conv.value_or (account, "domain", "")
-            quota      = self.account_quota (account["email"], domain)
+            quota      = self.account_quota (email, domain)
             account    = { **account, **privileges, "quota": quota }
         except (TypeError, KeyError):
             pass
@@ -2593,7 +2594,8 @@ class SparqlInterface:
         ## this to look up the email addresses without accessing the
         ## SPARQL endpoint.
         for email_address in self.privileges:  # pylint: disable=consider-using-dict-items
-            if self.privileges[email_address][privilege]:
+            email = email_address.lower()
+            if self.privileges[email][privilege]:
                 addresses.append(email_address)
 
         return addresses
