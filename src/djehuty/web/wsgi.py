@@ -6840,7 +6840,9 @@ class ApiServer:
         try:
             dataset = None
             if validator.is_valid_uuid (git_uuid):
-                dataset = self.db.datasets (git_uuid = git_uuid)[0]
+                dataset = self.db.datasets (git_uuid     = git_uuid,
+                                            is_published = None,
+                                            is_latest    = None)[0]
 
             if dataset is not None:
                 self.__log_event (request, dataset["container_uuid"], "dataset", "gitDownload")
