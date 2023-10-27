@@ -327,8 +327,8 @@ def read_privilege_configuration (server, xml_root, logger):
             orcid = None
             if "orcid" in account.attrib:
                 orcid = account.attrib["orcid"]
-
-            server.db.privileges[email.lower()] = {
+            lowercase_email = email.lower()
+            server.db.privileges[lowercase_email] = {
                 "may_administer":  bool(int(config_value (account, "may-administer", None, False))),
                 "may_impersonate": bool(int(config_value (account, "may-impersonate", None, False))),
                 "may_review":      bool(int(config_value (account, "may-review", None, False))),
@@ -340,12 +340,12 @@ def read_privilege_configuration (server, xml_root, logger):
 
             ## The "needs_2fa" property is set to True when the user has any
             ## extra privilege.
-            server.db.privileges[email.lower()]["needs_2fa"] = (not server.disable_2fa) and (
-                server.db.privileges[email]["may_administer"] or
-                server.db.privileges[email]["may_impersonate"] or
-                server.db.privileges[email]["may_review"] or
-                server.db.privileges[email]["may_process_feedback"] or
-                server.db.privileges[email]["may_review_quotas"]
+            server.db.privileges[lowercase_email]["needs_2fa"] = (not server.disable_2fa) and (
+                server.db.privileges[lowercase_email]["may_administer"] or
+                server.db.privileges[lowercase_email]["may_impersonate"] or
+                server.db.privileges[lowercase_email]["may_review"] or
+                server.db.privileges[lowercase_email]["may_process_feedback"] or
+                server.db.privileges[lowercase_email]["may_review_quotas"]
             )
 
         except KeyError as error:
@@ -876,7 +876,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
                     raise MissingConfigurationError
 
             for email_address in server.db.privileges:  # pylint: disable=consider-using-dict-items
-                if server.db.privileges[email_address]["needs_2fa"]:
+                if server.db.privileges[email_address.lower()]["needs_2fa"]:
                     logger.info ("Enabled 2FA for %s.", email_address)
 
             if initialize:
