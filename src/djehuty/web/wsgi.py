@@ -5716,12 +5716,19 @@ class ApiServer:
 
         branch_name = None
         # Get a previously set default.
-        head_reference = git_repository.references.get("refs/heads/master")
+        head_reference = git_repository.references.get("HEAD")
+        try:
+            head_reference = head_reference.resolve()
+        except pygit2.GitError as error:  # pylint: disable=no-member
+            self.log.error ("Failed to resolve git repository HEAD for '%s': %s",
+                            git_repository.path, error)
+            head_reference = None
+
         if head_reference is not None:
             try:
-                target = head_reference.target
-                if target.startswith ("refs/heads/"):
-                    branch_name = target[11:]
+                name = head_reference.name
+                if name.startswith ("refs/heads/"):
+                    branch_name = name[11:]
             except AttributeError:
                 pass
 
@@ -5769,15 +5776,8 @@ class ApiServer:
         if branch_name is None:
             return False
 
-        # Remove existing default branch choice.
-        if git_repository.references.get("refs/heads/master") is not None:
-            self.log.info ("Removed default branch for '%s'.", git_repository.path)
-            git_repository.references.delete ("refs/heads/master")
-
-        # Create a default reference.
         try:
-            git_repository.references.create ("refs/heads/master",
-                                              f"refs/heads/{branch_name}")
+            git_repository.set_head (f"refs/heads/{branch_name}")
             git_repository.references.compress()
             self.log.info ("Set default branch to '%s' for %s.",
                            branch_name, git_repository.path)
@@ -5848,9 +5848,15 @@ class ApiServer:
             return self.error_404 (request)
 
         branch_name    = self.__git_repository_default_branch_guess (git_repository)
+        files = []
         if branch_name:
-            files = git_repository.revparse_single(branch_name).tree
-            files = [e.name for e in files]
+            try:
+                files = git_repository.revparse_single(branch_name).tree
+                files = [e.name for e in files]
+            except pygit2.GitError as error:  # pylint: disable=no-member
+                self.log.error ("Failed to retrieve Git files for branch '%s' in '%s' due to: '%s'.",
+                                branch_name, git_repository.path, error)
+                return self.error_500 ()
 
         return self.response (json.dumps(files))
 
