@@ -19,7 +19,8 @@ To get an interactive development environment, use:
 ```python
 sed -e 's/@VERSION@/0.0.1/g' pyproject.toml.in > pyproject.toml
 pip install --editable .
-djehuty web -d -r
+cp etc/djehuty/djehuty-example-config.xml djehuty.xml
+djehuty web --config-file djehuty.xml
 ```
 
 #### Keeping your development environment up-to-date
