@@ -28,6 +28,7 @@ function latest_datasets () {
         let output = '<ul class="latest-datasets">';
         let num_items = 0;
         jQuery.each (data, function(index) {
+            if (jQuery.isEmptyObject(data[index])) { return; }
             output += '<li><a class="corporate-identity" href="/datasets/'+ data[index].uuid +'">';
             output += data[index].title + '</a></li>';
 
@@ -56,6 +57,7 @@ function top_datasets (item_type) {
         output += '<tr class="corporate-identity-background"><th>Dataset</th><th># '+ capitalize(item_type) +'</th></tr>';
         output += '</thead><tbody>';
         jQuery.each (data, function(index) {
+            if (jQuery.isEmptyObject(data[index])) { return; }
             output += '<tr><td>';
             output += '<a href="/datasets/'+ data[index].container_uuid +'">';
             output += data[index].title + '</a>';
