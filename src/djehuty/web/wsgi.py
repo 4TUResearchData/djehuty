@@ -2834,6 +2834,7 @@ class ApiServer:
         if not private_view:
             self.__log_event (request, dataset["container_uuid"], "dataset", "view")
 
+        defined_type_name = value_or (dataset, 'defined_type_name', 'dataset')
         return self.__render_template (request, "dataset.html",
                                        item=dataset,
                                        version=version,
@@ -2864,7 +2865,7 @@ class ApiServer:
                                        my_email=my_email,
                                        my_name=my_name,
                                        is_own_item=is_own_item,
-                                       page_title=f"{dataset['title']} ({dataset['defined_type_name']})")
+                                       page_title=f"{dataset['title']} ({defined_type_name})")
 
     def ui_data_access_request (self, request):
         """Implements /data_access_request."""
