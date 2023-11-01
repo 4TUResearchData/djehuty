@@ -5723,6 +5723,10 @@ class ApiServer:
             self.log.error ("Failed to resolve git repository HEAD for '%s': %s",
                             git_repository.path, error)
             head_reference = None
+        except KeyError as error:
+            self.log.error ("HEAD points to non-existing branch for '%s': %s",
+                            git_repository.path, error)
+            head_reference = None
 
         if head_reference is not None:
             try:
