@@ -165,8 +165,9 @@ def refworks (parameters):
     maker.child(ref, 'vo')
     maker.child(ref, 'ab', {}, item['description'])
     maker.child(ref, 'la', {}, value_or(item, 'language', 'en'))
-    for index, tag in enumerate(parameters['tags']):
-        maker.child(ref, f'k{index+1}', {}, tag)
+    if 'tags' in parameters:
+        for index, tag in enumerate(parameters['tags']):
+            maker.child(ref, f'k{index+1}', {}, tag)
     maker.child(ref, 'pb')
     maker.child(ref, 'pp')
     maker.child(ref, 'yr', {}, parameters['published_year'])
