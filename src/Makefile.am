@@ -9,7 +9,6 @@ PYTHON_FILES =                                                                \
     djehuty/backup/ui.py                                                      \
     djehuty/utils/constants.py                                                \
     djehuty/utils/convenience.py                                              \
-    djehuty/utils/html2md.py                                                  \
     djehuty/utils/rdf.py                                                      \
     djehuty/web/cache.py                                                      \
     djehuty/web/database.py                                                   \
