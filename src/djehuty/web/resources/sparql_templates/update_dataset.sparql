@@ -16,33 +16,27 @@ DELETE {
     ?dataset           djht:license              ?license .
     {%- endif%}{% if group_id is not none %}
     ?dataset           djht:group_id             ?group_id .
-    {%- endif%}{% if time_coverage is not none %}
+    {%- endif%}
     ?dataset           djht:time_coverage        ?time_coverage .
-    {%- endif%}{% if publisher is not none %}
+    {% if publisher is not none %}
     ?dataset           djht:publisher            ?publisher .
     {%- endif%}{% if language is not none %}
     ?dataset           djht:language             ?language .
-    {%- endif%}{% if format is not none %}
+    {%- endif%}
     ?dataset           djht:format               ?format .
-    {%- endif%}{% if contributors is not none %}
+    {% if contributors is not none %}
     ?dataset           djht:contributors         ?contributors .
     {%- endif%}{% if license_remarks is not none %}
     ?dataset           djht:license_remarks      ?license_remarks .
-    {%- endif%}{% if geolocation is not none %}
+    {%- endif%}
     ?dataset           djht:geolocation          ?geolocation .
-    {%- endif%}{% if longitude is not none %}
     ?dataset           djht:longitude            ?longitude .
-    {%- endif%}{% if latitude is not none %}
     ?dataset           djht:latitude             ?latitude .
-    {%- endif%}{% if data_link is not none %}
     ?dataset           djht:data_link            ?data_link .
-    {%- endif%}{% if derived_from is not none %}
     ?dataset           djht:derived_from         ?derived_from .
-    {%- endif%}{% if same_as is not none %}
     ?dataset           djht:same_as              ?same_as .
-    {%- endif%}{% if organizations is not none %}
     ?dataset           djht:organizations        ?organizations .
-    {%- endif%}{% if defined_type_name is not none %}
+    {% if defined_type_name is not none %}
     ?dataset           djht:defined_type_name    ?defined_type_name .
     {%- endif%}{% if defined_type is not none %}
     ?dataset           djht:defined_type         ?defined_type .
