@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/ace/ace.js"></script>
+<script src="/static/js/ace/ext-language_tools.js"></script>
+<script src="/static/js/query-editor.js"></script>
+<style>
+#editor { border: solid 1pt #ccc; border-radius: .5em; padding: .5em; font-size: 1.0em; }
+#execute-query-button { background: #009900; }
+#execute-query-button:hover { background: #006600; }
+#execute-query-button:active { background: #003300; }
+#execute-query-button a { color: #fff; text-decoration: none; }
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/admin/dashboard">Dashboard</a>
+  <li><a href="/admin/users">Users</a>
+  <li><a href="/admin/maintenance">Maintenance</a>
+  <li><a href="/admin/exploratory">Exploratory</a>
+  <li><a href="/admin/reports">Reports</a>
+  <li class="active corporate-identity-submenu-active">Query
+</ul>
+{% endblock %}
+{% block body %}
+<h1>SPARQL Query</h1>
+<p>Use <strong>Ctrl + Enter</strong> to execute the query. (<strong>Cmd + Enter</strong> for the unfortunate macOS users.)</p>
+<div id="editor">PREFIX djht: &lt;https://ontologies.data.4tu.nl/djehuty/0.0.1/&gt;
+PREFIX rdf:  &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;
+PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+PREFIX xsd:  &lt;http://www.w3.org/2001/XMLSchema#&gt;
+</div>
+<div id="button-wrapper" class="center">
+  <div id="execute-query-button" class="button"><a href="#">Execute query</a></div>
+</div>
+{% endblock %}

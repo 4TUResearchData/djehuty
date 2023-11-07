@@ -39,6 +39,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/admin/reports/embargoed_datasets.html \
     djehuty/web/resources/html_templates/admin/reports/restricted_datasets.html \
     djehuty/web/resources/html_templates/admin/maintenance.html               \
+    djehuty/web/resources/html_templates/admin/sparql.html                    \
     djehuty/web/resources/html_templates/admin/users.html                     \
     djehuty/web/resources/html_templates/author.html                          \
     djehuty/web/resources/html_templates/categories.html                      \
@@ -253,6 +254,11 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/portal/tueindhoven.jpg                \
     djehuty/web/resources/static/images/portal/utwente.jpg                    \
     djehuty/web/resources/static/images/portal/wageningen.jpg                 \
+    djehuty/web/resources/static/js/ace/ace.js                                \
+    djehuty/web/resources/static/js/ace/ext-language_tools.js                 \
+    djehuty/web/resources/static/js/ace/ext-searchbox.js                      \
+    djehuty/web/resources/static/js/ace/mode-sparql.js                        \
+    djehuty/web/resources/static/js/ace/theme-crimson_editor.js               \
     djehuty/web/resources/static/js/d3.v7.min.js                              \
     djehuty/web/resources/static/js/dataset_landing_page.js                   \
     djehuty/web/resources/static/js/depositor-dashboard.js                    \
@@ -263,6 +269,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/js/exploratory.js                            \
     djehuty/web/resources/static/js/jquery.dataTables.min.js                  \
     djehuty/web/resources/static/js/jquery-3.6.0.min.js                       \
+    djehuty/web/resources/static/js/query-editor.js                           \
     djehuty/web/resources/static/js/quill.min.js                              \
     djehuty/web/resources/static/js/review-overview.js                        \
     djehuty/web/resources/static/js/ranking.js                                \
