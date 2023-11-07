@@ -33,7 +33,9 @@ DELETE {
     ?dataset           djht:longitude            ?longitude .
     ?dataset           djht:latitude             ?latitude .
     ?dataset           djht:data_link            ?data_link .
+    {% if derived_from is not none %}
     ?dataset           djht:derived_from         ?derived_from .
+    {%- endif%}
     ?dataset           djht:same_as              ?same_as .
     ?dataset           djht:organizations        ?organizations .
     {% if defined_type_name is not none %}
