@@ -2961,3 +2961,16 @@ class SparqlInterface:
         self.__log_query (query)
 
         return False
+
+    def run_query (self, query, session_token):
+        """Procedure to run a SPARQL query."""
+
+        if not self.may_query (session_token):
+            return False
+
+        if self.enable_query_audit_log:
+            self.sparql.setQuery (query)
+            if self.sparql.isSparqlUpdateRequest ():
+                self.__log_query (query, "Query Audit Log")
+
+        return self.__run_query (query)

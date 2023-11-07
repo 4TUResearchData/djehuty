@@ -28,6 +28,7 @@ jQuery(document).ready(function () {
   <li><a href="/admin/maintenance">Maintenance</a>
   <li><a href="/admin/exploratory">Exploratory</a>
   <li class="active corporate-identity-submenu-active">Reports
+  {% if may_query %}<li><a href="/admin/sparql">Query</a>{% endif %}
 </ul>
 {% endblock %}
 {% block body %}

@@ -150,6 +150,7 @@ class ApiServer:
             R("/admin/dashboard",                                                self.ui_admin_dashboard),
             R("/admin/users",                                                    self.ui_admin_users),
             R("/admin/exploratory",                                              self.ui_admin_exploratory),
+            R("/admin/sparql",                                                   self.ui_admin_sparql),
             R("/admin/reports",                                                  self.ui_admin_reports),
             R("/admin/reports/restricted_datasets",                              self.ui_admin_reports_restricted_datasets),
             R("/admin/reports/embargoed_datasets",                               self.ui_admin_reports_embargoed_datasets),
@@ -417,6 +418,7 @@ class ApiServer:
             "is_reviewing":    self.db.may_review (impersonator_token),
             "may_review":      self.db.may_review (token),
             "may_administer":  self.db.may_administer (token),
+            "may_query":       self.db.may_query (token),
             "may_impersonate":  self.db.may_impersonate (token),
             "impersonating_account": self.__impersonating_account (request),
             "menu":            self.menu,
@@ -2434,6 +2436,23 @@ class ApiServer:
             return self.error_403 (request)
 
         return self.__render_template (request, "admin/exploratory.html")
+
+    def ui_admin_sparql (self, request):
+        """Implements /admin/sparql."""
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_query (token):
+            return self.error_403 (request)
+
+        if request.method == "GET":
+            return self.__render_template (request, "admin/sparql.html")
+
+        if request.method == "POST":
+            query  = request.get_data().decode("utf-8")
+            output = self.db.run_query (query, token)
+            return self.response (json.dumps(output, indent=True))
+
+        return self.error_500 ()
 
     def ui_admin_reports (self, request):
         """Implements /admin/reports."""
