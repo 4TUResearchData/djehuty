@@ -1,1727 +1,296 @@
 [
- {
-  "id": 13431,
-  "title": "Mathematical Sciences",
-  "classification_code": "01"
- },
- {
-  "id": 13603,
-  "title": "Physical Sciences",
-  "classification_code": "02"
- },
- {
-  "id": 13594,
-  "title": "Chemical Sciences",
-  "classification_code": "03"
- },
- {
-  "id": 13551,
-  "title": "Earth Sciences",
-  "classification_code": "04"
- },
- {
-  "id": 13410,
-  "title": "Environmental Sciences",
-  "classification_code": "05"
- },
- {
-  "id": 13578,
-  "title": "Biological Sciences",
-  "classification_code": "06"
- },
- {
-  "id": 13376,
-  "title": "Agricultural and Veterinary Sciences",
-  "classification_code": "07"
- },
- {
-  "id": 13611,
-  "title": "Information and Computing Sciences",
-  "classification_code": "08"
- },
- {
-  "id": 13630,
-  "title": "Engineering",
-  "classification_code": "09"
- },
- {
-  "id": 13652,
-  "title": "Technology",
-  "classification_code": "10"
- },
- {
-  "id": 13474,
-  "title": "Medical and Health Sciences",
-  "classification_code": "11"
- },
- {
-  "id": 13362,
-  "title": "Built Environment and Design",
-  "classification_code": "12"
- },
- {
-  "id": 13647,
-  "title": "Education",
-  "classification_code": "13"
- },
- {
-  "id": 13566,
-  "title": "Economics",
-  "classification_code": "14"
- },
- {
-  "id": 13500,
-  "title": "Commerce, Management, Tourism and Services",
-  "classification_code": "15"
- },
- {
-  "id": 13464,
-  "title": "Studies in Human Society",
-  "classification_code": "16"
- },
- {
-  "id": 13453,
-  "title": "Psychology and Cognitive Sciences",
-  "classification_code": "17"
- },
- {
-  "id": 13427,
-  "title": "Law and Legal Studies",
-  "classification_code": "18"
- },
- {
-  "id": 13559,
-  "title": "Studies in Creative Arts and Writing",
-  "classification_code": "19"
- },
- {
-  "id": 13517,
-  "title": "Language, Communication and Culture",
-  "classification_code": "20"
- },
- {
-  "id": 13448,
-  "title": "History and Archaeology",
-  "classification_code": "21"
- },
- {
-  "id": 13588,
-  "title": "Philosophy and Religious Studies",
-  "classification_code": "22"
- },
- {
-  "id": 13360,
-  "title": "Defence",
-  "classification_code": "81"
- },
- {
-  "id": 13401,
-  "title": "Plant Production and Plant Primary Products",
-  "classification_code": "82"
- },
- {
-  "id": 13440,
-  "title": "Animal Production and Animal Primary Products",
-  "classification_code": "83"
- },
- {
-  "id": 13421,
-  "title": "Mineral Resources (excl. Energy Resources)",
-  "classification_code": "84"
- },
- {
-  "id": 13620,
-  "title": "Energy",
-  "classification_code": "85"
- },
- {
-  "id": 13524,
-  "title": "Manufacturing",
-  "classification_code": "86"
- },
- {
-  "id": 13509,
-  "title": "Construction",
-  "classification_code": "87"
- },
- {
-  "id": 13661,
-  "title": "Transport",
-  "classification_code": "88"
- },
- {
-  "id": 13544,
-  "title": "Information and Communication Services",
-  "classification_code": "89"
- },
- {
-  "id": 13457,
-  "title": "Commercial Services and Tourism",
-  "classification_code": "90"
- },
- {
-  "id": 13667,
-  "title": "Economic Framework",
-  "classification_code": "91"
- },
- {
-  "id": 13415,
-  "title": "Health",
-  "classification_code": "92"
- },
- {
-  "id": 13571,
-  "title": "Education and Training",
-  "classification_code": "93"
- },
- {
-  "id": 13369,
-  "title": "Law, Politics and Community Services",
-  "classification_code": "94"
- },
- {
-  "id": 13493,
-  "title": "Cultural Understanding",
-  "classification_code": "95"
- },
- {
-  "id": 13385,
-  "title": "Environment",
-  "classification_code": "96"
- },
- {
-  "id": 13438,
-  "title": "Expanding Knowledge",
-  "classification_code": "97"
- },
- {
-  "id": 13539,
-  "parent_id": 13524,
-  "title": "Instrumentation",
-  "classification_code": "8615"
- },
- {
-  "id": 13462,
-  "parent_id": 13457,
-  "title": "Environmentally Sustainable Commercial Services and Tourism",
-  "classification_code": "9098"
- },
- {
-  "id": 13498,
-  "parent_id": 13493,
-  "title": "Understanding Past Societies",
-  "classification_code": "9505"
- },
- {
-  "id": 13561,
-  "parent_id": 13559,
-  "title": "Film, Television and Digital Media",
-  "classification_code": "1902"
- },
- {
-  "id": 13530,
-  "parent_id": 13524,
-  "title": "Industrial Chemicals and Related Products",
-  "classification_code": "8606"
- },
- {
-  "id": 13459,
-  "parent_id": 13457,
-  "title": "Property, Business Support Services and Trade",
-  "classification_code": "9002"
- },
- {
-  "id": 13496,
-  "parent_id": 13493,
-  "title": "Heritage",
-  "classification_code": "9503"
- },
- {
-  "id": 13590,
-  "parent_id": 13588,
-  "title": "History and Philosophy of Specific Fields",
-  "classification_code": "2202"
- },
- {
-  "id": 13497,
-  "parent_id": 13493,
-  "title": "Religion and Ethics",
-  "classification_code": "9504"
- },
- {
-  "id": 13372,
-  "parent_id": 13369,
-  "title": "International Relations",
-  "classification_code": "9403"
- },
- {
-  "id": 13436,
-  "parent_id": 13431,
-  "title": "Mathematical Physics",
-  "classification_code": "0105"
- },
- {
-  "id": 13373,
-  "parent_id": 13369,
-  "title": "Justice and The Law",
-  "classification_code": "9404"
- },
- {
-  "id": 13404,
-  "parent_id": 13401,
-  "title": "Industrial Crops",
-  "classification_code": "8203"
- },
- {
-  "id": 13422,
-  "parent_id": 13421,
-  "title": "Mineral Exploration",
-  "classification_code": "8401"
- },
- {
-  "id": 13526,
-  "parent_id": 13524,
-  "title": "Dairy Products",
-  "classification_code": "8602"
- },
- {
-  "id": 13432,
-  "parent_id": 13431,
-  "title": "Pure Mathematics",
-  "classification_code": "0101"
- },
- {
-  "id": 13494,
-  "parent_id": 13493,
-  "title": "Arts and Leisure",
-  "classification_code": "9501"
- },
- {
-  "id": 13467,
-  "parent_id": 13464,
-  "title": "Demography",
-  "classification_code": "1603"
- },
- {
-  "id": 13672,
-  "parent_id": 13667,
-  "title": "Measurement Standards and Calibration Services",
-  "classification_code": "9105"
- },
- {
-  "id": 13532,
-  "parent_id": 13524,
-  "title": "Human Pharmaceutical Products",
-  "classification_code": "8608"
- },
- {
-  "id": 13425,
-  "parent_id": 13421,
-  "title": "Environmentally Sustainable Mineral Resource Activities",
-  "classification_code": "8498"
- },
- {
-  "id": 13592,
-  "parent_id": 13588,
-  "title": "Religion and Religious Studies",
-  "classification_code": "2204"
- },
- {
-  "id": 13484,
-  "parent_id": 13474,
-  "title": "Nursing",
-  "classification_code": "1110"
- },
- {
-  "id": 13673,
-  "parent_id": 13667,
-  "title": "Other Economic Framework",
-  "classification_code": "9199"
- },
- {
-  "id": 13361,
-  "parent_id": 13360,
-  "title": "Defence",
-  "classification_code": "8101"
- },
- {
-  "id": 13540,
-  "parent_id": 13524,
-  "title": "Computer Hardware and Electronic Equipment",
-  "classification_code": "8616"
- },
- {
-  "id": 13535,
-  "parent_id": 13524,
-  "title": "Basic Metal Products (incl. Smelting, Rolling, Drawing and Extruding)",
-  "classification_code": "8611"
- },
- {
-  "id": 13670,
-  "parent_id": 13667,
-  "title": "International Trade",
-  "classification_code": "9103"
- },
- {
-  "id": 13623,
-  "parent_id": 13620,
-  "title": "Preparation and Production of Energy Sources",
-  "classification_code": "8503"
- },
- {
-  "id": 13423,
-  "parent_id": 13421,
-  "title": "Primary Mining and Extraction of Mineral Resources",
-  "classification_code": "8402"
- },
- {
-  "id": 13593,
-  "parent_id": 13588,
-  "title": "Other Philosophy and Religious Studies",
-  "classification_code": "2299"
- },
- {
-  "id": 13458,
-  "parent_id": 13457,
-  "title": "Financial Services",
-  "classification_code": "9001"
- },
- {
-  "id": 13515,
-  "parent_id": 13509,
-  "title": "Environmentally Sustainable Construction",
-  "classification_code": "8798"
- },
- {
-  "id": 13510,
-  "parent_id": 13509,
-  "title": "Construction Planning",
-  "classification_code": "8701"
- },
- {
-  "id": 13564,
-  "parent_id": 13559,
-  "title": "Visual Arts and Crafts",
-  "classification_code": "1905"
- },
- {
-  "id": 13658,
-  "parent_id": 13652,
-  "title": "Computer Hardware",
-  "classification_code": "1006"
- },
- {
-  "id": 13471,
-  "parent_id": 13464,
-  "title": "Social Work",
-  "classification_code": "1607"
- },
- {
-  "id": 13516,
-  "parent_id": 13509,
-  "title": "Other Construction",
-  "classification_code": "8799"
- },
- {
-  "id": 13669,
-  "parent_id": 13667,
-  "title": "Microeconomics",
-  "classification_code": "9102"
- },
- {
-  "id": 13537,
-  "parent_id": 13524,
-  "title": "Transport Equipment",
-  "classification_code": "8613"
- },
- {
-  "id": 13668,
-  "parent_id": 13667,
-  "title": "Macroeconomics",
-  "classification_code": "9101"
- },
- {
-  "id": 13538,
-  "parent_id": 13524,
-  "title": "Machinery and Equipment",
-  "classification_code": "8614"
- },
- {
-  "id": 13575,
-  "parent_id": 13571,
-  "title": "School/institution",
-  "classification_code": "9304"
- },
- {
-  "id": 13389,
-  "parent_id": 13385,
-  "title": "Control of Pests, Diseases and Exotic Species",
-  "classification_code": "9604"
- },
- {
-  "id": 13409,
-  "parent_id": 13401,
-  "title": "Other Plant Production and Plant Primary Products",
-  "classification_code": "8299"
- },
- {
-  "id": 13466,
-  "parent_id": 13464,
-  "title": "Criminology",
-  "classification_code": "1602"
- },
- {
-  "id": 13479,
-  "parent_id": 13474,
-  "title": "Dentistry",
-  "classification_code": "1105"
- },
- {
-  "id": 13430,
-  "parent_id": 13427,
-  "title": "Other Law and Legal Studies",
-  "classification_code": "1899"
- },
- {
-  "id": 13460,
-  "parent_id": 13457,
-  "title": "Tourism",
-  "classification_code": "9003"
- },
- {
-  "id": 13520,
-  "parent_id": 13517,
-  "title": "Language Studies",
-  "classification_code": "2003"
- },
- {
-  "id": 13563,
-  "parent_id": 13559,
-  "title": "Performing Arts and Creative Writing",
-  "classification_code": "1904"
- },
- {
-  "id": 13543,
-  "parent_id": 13524,
-  "title": "Other Manufacturing",
-  "classification_code": "8699"
- },
- {
-  "id": 13549,
-  "parent_id": 13544,
-  "title": "Environmentally Sustainable Information and Communication Services",
-  "classification_code": "8998"
- },
- {
-  "id": 13506,
-  "parent_id": 13500,
-  "title": "Tourism",
-  "classification_code": "1506"
- },
- {
-  "id": 13523,
-  "parent_id": 13517,
-  "title": "Other Language, Communication and Culture",
-  "classification_code": "2099"
- },
- {
-  "id": 13629,
-  "parent_id": 13620,
-  "title": "Other Energy",
-  "classification_code": "8599"
- },
- {
-  "id": 13449,
-  "parent_id": 13448,
-  "title": "Archaeology",
-  "classification_code": "2101"
- },
- {
-  "id": 13574,
-  "parent_id": 13571,
-  "title": "Curriculum",
-  "classification_code": "9303"
- },
- {
-  "id": 13567,
-  "parent_id": 13566,
-  "title": "Economic Theory",
-  "classification_code": "1401"
- },
- {
-  "id": 13513,
-  "parent_id": 13509,
-  "title": "Construction Processes",
-  "classification_code": "8704"
- },
- {
-  "id": 13451,
-  "parent_id": 13448,
-  "title": "Historical Studies",
-  "classification_code": "2103"
- },
- {
-  "id": 13548,
-  "parent_id": 13544,
-  "title": "Media Services",
-  "classification_code": "8904"
- },
- {
-  "id": 13653,
-  "parent_id": 13652,
-  "title": "Agricultural Biotechnology",
-  "classification_code": "1001"
- },
- {
-  "id": 13519,
-  "parent_id": 13517,
-  "title": "Cultural Studies",
-  "classification_code": "2002"
- },
- {
-  "id": 13511,
-  "parent_id": 13509,
-  "title": "Construction Design",
-  "classification_code": "8702"
- },
- {
-  "id": 13542,
-  "parent_id": 13524,
-  "title": "Environmentally Sustainable Manufacturing",
-  "classification_code": "8698"
- },
- {
-  "id": 13572,
-  "parent_id": 13571,
-  "title": "Learner and Learning",
-  "classification_code": "9301"
- },
- {
-  "id": 13485,
-  "parent_id": 13474,
-  "title": "Nutrition and Dietetics",
-  "classification_code": "1111"
- },
- {
-  "id": 13426,
-  "parent_id": 13421,
-  "title": "Other Mineral Resources (excl. Energy Resources)",
-  "classification_code": "8499"
- },
- {
-  "id": 13521,
-  "parent_id": 13517,
-  "title": "Linguistics",
-  "classification_code": "2004"
- },
- {
-  "id": 13374,
-  "parent_id": 13369,
-  "title": "Work and Institutional Development",
-  "classification_code": "9405"
- },
- {
-  "id": 13383,
-  "parent_id": 13376,
-  "title": "Veterinary Sciences",
-  "classification_code": "0707"
- },
- {
-  "id": 13504,
-  "parent_id": 13500,
-  "title": "Commercial Services",
-  "classification_code": "1504"
- },
- {
-  "id": 13499,
-  "parent_id": 13493,
-  "title": "Other Cultural Understanding",
-  "classification_code": "9599"
- },
- {
-  "id": 13375,
-  "parent_id": 13369,
-  "title": "Other Law, Politics and Community Services",
-  "classification_code": "9499"
- },
- {
-  "id": 13508,
-  "parent_id": 13500,
-  "title": "Other Commerce, Management, Tourism and Services",
-  "classification_code": "1599"
- },
- {
-  "id": 13621,
-  "parent_id": 13620,
-  "title": "Energy Exploration",
-  "classification_code": "8501"
- },
- {
-  "id": 13591,
-  "parent_id": 13588,
-  "title": "Philosophy",
-  "classification_code": "2203"
- },
- {
-  "id": 13437,
-  "parent_id": 13431,
-  "title": "Other Mathematical Sciences",
-  "classification_code": "0199"
- },
- {
-  "id": 13470,
-  "parent_id": 13464,
-  "title": "Political Science",
-  "classification_code": "1606"
- },
- {
-  "id": 13398,
-  "parent_id": 13385,
-  "title": "Remnant Vegetation and Protected Conservation Areas",
-  "classification_code": "9613"
- },
- {
-  "id": 13525,
-  "parent_id": 13524,
-  "title": "Processed Food Products and Beverages (excl. Dairy Products)",
-  "classification_code": "8601"
- },
- {
-  "id": 13402,
-  "parent_id": 13401,
-  "title": "Forestry",
-  "classification_code": "8201"
- },
- {
-  "id": 13443,
-  "parent_id": 13440,
-  "title": "Livestock Raising",
-  "classification_code": "8303"
- },
- {
-  "id": 13514,
-  "parent_id": 13509,
-  "title": "Building Management and Services",
-  "classification_code": "8705"
- },
- {
-  "id": 13397,
-  "parent_id": 13385,
-  "title": "Rehabilitation of Degraded Environments",
-  "classification_code": "9612"
- },
- {
-  "id": 13622,
-  "parent_id": 13620,
-  "title": "Mining and Extraction of Energy Resources",
-  "classification_code": "8502"
- },
- {
-  "id": 13488,
-  "parent_id": 13474,
-  "title": "Paediatrics and Reproductive Medicine",
-  "classification_code": "1114"
- },
- {
-  "id": 13656,
-  "parent_id": 13652,
-  "title": "Medical Biotechnology",
-  "classification_code": "1004"
- },
- {
-  "id": 13501,
-  "parent_id": 13500,
-  "title": "Accounting, Auditing and Accountability",
-  "classification_code": "1501"
- },
- {
-  "id": 13419,
-  "parent_id": 13415,
-  "title": "Specific Population Health",
-  "classification_code": "9205"
- },
- {
-  "id": 13482,
-  "parent_id": 13474,
-  "title": "Medical Microbiology",
-  "classification_code": "1108"
- },
- {
-  "id": 13386,
-  "parent_id": 13385,
-  "title": "Air Quality",
-  "classification_code": "9601"
- },
- {
-  "id": 13627,
-  "parent_id": 13620,
-  "title": "Energy Conservation and Efficiency",
-  "classification_code": "8507"
- },
- {
-  "id": 13577,
-  "parent_id": 13571,
-  "title": "Other Education and Training",
-  "classification_code": "9399"
- },
- {
-  "id": 13444,
-  "parent_id": 13440,
-  "title": "Pasture, Browse and Fodder Crops",
-  "classification_code": "8304"
- },
- {
-  "id": 13495,
-  "parent_id": 13493,
-  "title": "Communication",
-  "classification_code": "9502"
- },
- {
-  "id": 13666,
-  "parent_id": 13661,
-  "title": "Other Transport",
-  "classification_code": "8899"
- },
- {
-  "id": 13649,
-  "parent_id": 13647,
-  "title": "Curriculum and Pedagogy",
-  "classification_code": "1302"
- },
- {
-  "id": 13371,
-  "parent_id": 13369,
-  "title": "Government and Politics",
-  "classification_code": "9402"
- },
- {
-  "id": 13487,
-  "parent_id": 13474,
-  "title": "Ophthalmology and Optometry",
-  "classification_code": "1113"
- },
- {
-  "id": 13655,
-  "parent_id": 13652,
-  "title": "Industrial Biotechnology",
-  "classification_code": "1003"
- },
- {
-  "id": 13476,
-  "parent_id": 13474,
-  "title": "Cardiorespiratory Medicine and Haematology",
-  "classification_code": "1102"
- },
- {
-  "id": 13648,
-  "parent_id": 13647,
-  "title": "Education Systems",
-  "classification_code": "1301"
- },
- {
-  "id": 13428,
-  "parent_id": 13427,
-  "title": "Law",
-  "classification_code": "1801"
- },
- {
-  "id": 13545,
-  "parent_id": 13544,
-  "title": "Communication Networks and Services",
-  "classification_code": "8901"
- },
- {
-  "id": 13380,
-  "parent_id": 13376,
-  "title": "Fisheries Sciences",
-  "classification_code": "0704"
- },
- {
-  "id": 13502,
-  "parent_id": 13500,
-  "title": "Banking, Finance and Investment",
-  "classification_code": "1502"
- },
- {
-  "id": 13644,
-  "parent_id": 13630,
-  "title": "Resources Engineering and Extractive Metallurgy",
-  "classification_code": "0914"
- },
- {
-  "id": 13473,
-  "parent_id": 13464,
-  "title": "Other Studies in Human Society",
-  "classification_code": "1699"
- },
- {
-  "id": 13595,
-  "parent_id": 13594,
-  "title": "Analytical Chemistry",
-  "classification_code": "0301"
- },
- {
-  "id": 13478,
-  "parent_id": 13474,
-  "title": "Complementary and Alternative Medicine",
-  "classification_code": "1104"
- },
- {
-  "id": 13468,
-  "parent_id": 13464,
-  "title": "Human Geography",
-  "classification_code": "1604"
- },
- {
-  "id": 13573,
-  "parent_id": 13571,
-  "title": "Teaching and Instruction",
-  "classification_code": "9302"
- },
- {
-  "id": 13446,
-  "parent_id": 13440,
-  "title": "Environmentally Sustainable Animal Production",
-  "classification_code": "8398"
- },
- {
-  "id": 13439,
-  "parent_id": 13438,
-  "title": "Expanding Knowledge",
-  "classification_code": "9701"
- },
- {
-  "id": 13465,
-  "parent_id": 13464,
-  "title": "Anthropology",
-  "classification_code": "1601"
- },
- {
-  "id": 13663,
-  "parent_id": 13661,
-  "title": "Water Transport",
-  "classification_code": "8802"
- },
- {
-  "id": 13589,
-  "parent_id": 13588,
-  "title": "Applied Ethics",
-  "classification_code": "2201"
- },
- {
-  "id": 13624,
-  "parent_id": 13620,
-  "title": "Energy Transformation",
-  "classification_code": "8504"
- },
- {
-  "id": 13570,
-  "parent_id": 13566,
-  "title": "Other Economics",
-  "classification_code": "1499"
- },
- {
-  "id": 13505,
-  "parent_id": 13500,
-  "title": "Marketing",
-  "classification_code": "1505"
- },
- {
-  "id": 13403,
-  "parent_id": 13401,
-  "title": "Horticultural Crops",
-  "classification_code": "8202"
- },
- {
-  "id": 13671,
-  "parent_id": 13667,
-  "title": "Management and Productivity",
-  "classification_code": "9104"
- },
- {
-  "id": 13518,
-  "parent_id": 13517,
-  "title": "Communication and Media Studies",
-  "classification_code": "2001"
- },
- {
-  "id": 13651,
-  "parent_id": 13647,
-  "title": "Other Education",
-  "classification_code": "1399"
- },
- {
-  "id": 13550,
-  "parent_id": 13544,
-  "title": "Other Information and Communication Services",
-  "classification_code": "8999"
- },
- {
-  "id": 13569,
-  "parent_id": 13566,
-  "title": "Econometrics",
-  "classification_code": "1403"
- },
- {
-  "id": 13616,
-  "parent_id": 13611,
-  "title": "Distributed Computing",
-  "classification_code": "0805"
- },
- {
-  "id": 13384,
-  "parent_id": 13376,
-  "title": "Other Agricultural and Veterinary Sciences",
-  "classification_code": "0799"
- },
- {
-  "id": 13418,
-  "parent_id": 13415,
-  "title": "Public Health (excl. Specific Population Health)",
-  "classification_code": "9204"
- },
- {
-  "id": 13547,
-  "parent_id": 13544,
-  "title": "Information Services",
-  "classification_code": "8903"
- },
- {
-  "id": 13420,
-  "parent_id": 13415,
-  "title": "Other Health",
-  "classification_code": "9299"
- },
- {
-  "id": 13392,
-  "parent_id": 13385,
-  "title": "Environmental Policy, Legislation and Standards",
-  "classification_code": "9607"
- },
- {
-  "id": 13365,
-  "parent_id": 13362,
-  "title": "Design Practice and Management",
-  "classification_code": "1203"
- },
- {
-  "id": 13598,
-  "parent_id": 13594,
-  "title": "Medicinal and Biomolecular Chemistry",
-  "classification_code": "0304"
- },
- {
-  "id": 13638,
-  "parent_id": 13630,
-  "title": "Food Sciences",
-  "classification_code": "0908"
- },
- {
-  "id": 13461,
-  "parent_id": 13457,
-  "title": "Water and Waste Services",
-  "classification_code": "9004"
- },
- {
-  "id": 13481,
-  "parent_id": 13474,
-  "title": "Immunology",
-  "classification_code": "1107"
- },
- {
-  "id": 13665,
-  "parent_id": 13661,
-  "title": "Environmentally Sustainable Transport",
-  "classification_code": "8898"
- },
- {
-  "id": 13615,
-  "parent_id": 13611,
-  "title": "Data Format",
-  "classification_code": "0804"
- },
- {
-  "id": 13435,
-  "parent_id": 13431,
-  "title": "Statistics",
-  "classification_code": "0104"
- },
- {
-  "id": 13576,
-  "parent_id": 13571,
-  "title": "Education and Training Systems",
-  "classification_code": "9305"
- },
- {
-  "id": 13399,
-  "parent_id": 13385,
-  "title": "Soils",
-  "classification_code": "9614"
- },
- {
-  "id": 13396,
-  "parent_id": 13385,
-  "title": "Physical and Chemical Conditions of Water",
-  "classification_code": "9611"
- },
- {
-  "id": 13664,
-  "parent_id": 13661,
-  "title": "Aerospace Transport",
-  "classification_code": "8803"
- },
- {
-  "id": 13512,
-  "parent_id": 13509,
-  "title": "Construction Materials Performance and Processes",
-  "classification_code": "8703"
- },
- {
-  "id": 13650,
-  "parent_id": 13647,
-  "title": "Specialist Studies in Education",
-  "classification_code": "1303"
- },
- {
-  "id": 13393,
-  "parent_id": 13385,
-  "title": "Flora, Fauna and Biodiversity",
-  "classification_code": "9608"
- },
- {
-  "id": 13654,
-  "parent_id": 13652,
-  "title": "Environmental Biotechnology",
-  "classification_code": "1002"
- },
- {
-  "id": 13379,
-  "parent_id": 13376,
-  "title": "Crop and Pasture Production",
-  "classification_code": "0703"
- },
- {
-  "id": 13408,
-  "parent_id": 13401,
-  "title": "Environmentally Sustainable Plant Production",
-  "classification_code": "8298"
- },
- {
-  "id": 13417,
-  "parent_id": 13415,
-  "title": "Health and Support Services",
-  "classification_code": "9202"
- },
- {
-  "id": 13626,
-  "parent_id": 13620,
-  "title": "Energy Storage, Distribution and Supply",
-  "classification_code": "8506"
- },
- {
-  "id": 13602,
-  "parent_id": 13594,
-  "title": "Other Chemical Sciences",
-  "classification_code": "0399"
- },
- {
-  "id": 13483,
-  "parent_id": 13474,
-  "title": "Neurosciences",
-  "classification_code": "1109"
- },
- {
-  "id": 13486,
-  "parent_id": 13474,
-  "title": "Oncology and Carcinogenesis",
-  "classification_code": "1112"
- },
- {
-  "id": 13441,
-  "parent_id": 13440,
-  "title": "Fisheries - Aquaculture",
-  "classification_code": "8301"
- },
- {
-  "id": 13596,
-  "parent_id": 13594,
-  "title": "Inorganic Chemistry",
-  "classification_code": "0302"
- },
- {
-  "id": 13489,
-  "parent_id": 13474,
-  "title": "Pharmacology and Pharmaceutical Sciences",
-  "classification_code": "1115"
- },
- {
-  "id": 13604,
-  "parent_id": 13603,
-  "title": "Astronomical and Space Sciences",
-  "classification_code": "0201"
- },
- {
-  "id": 13597,
-  "parent_id": 13594,
-  "title": "Macromolecular and Materials Chemistry",
-  "classification_code": "0303"
- },
- {
-  "id": 13445,
-  "parent_id": 13440,
-  "title": "Primary Animal Products",
-  "classification_code": "8305"
- },
- {
-  "id": 13382,
-  "parent_id": 13376,
-  "title": "Horticultural Production",
-  "classification_code": "0706"
- },
- {
-  "id": 13442,
-  "parent_id": 13440,
-  "title": "Fisheries - Wild Caught",
-  "classification_code": "8302"
- },
- {
-  "id": 13472,
-  "parent_id": 13464,
-  "title": "Sociology",
-  "classification_code": "1608"
- },
- {
-  "id": 13605,
-  "parent_id": 13603,
-  "title": "Atomic, Molecular, Nuclear, Particle and Plasma Physics",
-  "classification_code": "0202"
- },
- {
-  "id": 13584,
-  "parent_id": 13578,
-  "title": "Physiology",
-  "classification_code": "0606"
- },
- {
-  "id": 13490,
-  "parent_id": 13474,
-  "title": "Medical Physiology",
-  "classification_code": "1116"
- },
- {
-  "id": 13381,
-  "parent_id": 13376,
-  "title": "Forestry Sciences",
-  "classification_code": "0705"
- },
- {
-  "id": 13628,
-  "parent_id": 13620,
-  "title": "Environmentally Sustainable Energy Activities",
-  "classification_code": "8598"
- },
- {
-  "id": 13546,
-  "parent_id": 13544,
-  "title": "Computer Software and Services",
-  "classification_code": "8902"
- },
- {
-  "id": 13640,
-  "parent_id": 13630,
-  "title": "Manufacturing Engineering",
-  "classification_code": "0910"
- },
- {
-  "id": 13400,
-  "parent_id": 13385,
-  "title": "Other Environment",
-  "classification_code": "9699"
- },
- {
-  "id": 13475,
-  "parent_id": 13474,
-  "title": "Medical Biochemistry and Metabolomics",
-  "classification_code": "1101"
- },
- {
-  "id": 13434,
-  "parent_id": 13431,
-  "title": "Numerical and Computational Mathematics",
-  "classification_code": "0103"
- },
- {
-  "id": 13657,
-  "parent_id": 13652,
-  "title": "Communications Technologies",
-  "classification_code": "1005"
- },
- {
-  "id": 13447,
-  "parent_id": 13440,
-  "title": "Other Animal Production and Animal Primary Products",
-  "classification_code": "8399"
- },
- {
-  "id": 13364,
-  "parent_id": 13362,
-  "title": "Building",
-  "classification_code": "1202"
- },
- {
-  "id": 13378,
-  "parent_id": 13376,
-  "title": "Animal Production",
-  "classification_code": "0702"
- },
- {
-  "id": 13492,
-  "parent_id": 13474,
-  "title": "Other Medical and Health Sciences",
-  "classification_code": "1199"
- },
- {
-  "id": 13491,
-  "parent_id": 13474,
-  "title": "Public Health and Health Services",
-  "classification_code": "1117"
- },
- {
-  "id": 13456,
-  "parent_id": 13453,
-  "title": "Other Psychology and Cognitive Sciences",
-  "classification_code": "1799"
- },
- {
-  "id": 13507,
-  "parent_id": 13500,
-  "title": "Transportation and Freight Services",
-  "classification_code": "1507"
- },
- {
-  "id": 13618,
-  "parent_id": 13611,
-  "title": "Library and Information Studies",
-  "classification_code": "0807"
- },
- {
-  "id": 13586,
-  "parent_id": 13578,
-  "title": "Zoology",
-  "classification_code": "0608"
- },
- {
-  "id": 13581,
-  "parent_id": 13578,
-  "title": "Evolutionary Biology",
-  "classification_code": "0603"
- },
- {
-  "id": 13368,
-  "parent_id": 13362,
-  "title": "Other Built Environment and Design",
-  "classification_code": "1299"
- },
- {
-  "id": 13610,
-  "parent_id": 13603,
-  "title": "Other Physical Sciences",
-  "classification_code": "0299"
- },
- {
-  "id": 13587,
-  "parent_id": 13578,
-  "title": "Other Biological Sciences",
-  "classification_code": "0699"
- },
- {
-  "id": 13366,
-  "parent_id": 13362,
-  "title": "Engineering Design",
-  "classification_code": "1204"
- },
- {
-  "id": 13568,
-  "parent_id": 13566,
-  "title": "Applied Economics",
-  "classification_code": "1402"
- },
- {
-  "id": 13599,
-  "parent_id": 13594,
-  "title": "Organic Chemistry",
-  "classification_code": "0305"
- },
- {
-  "id": 13469,
-  "parent_id": 13464,
-  "title": "Policy and Administration",
-  "classification_code": "1605"
- },
- {
-  "id": 13601,
-  "parent_id": 13594,
-  "title": "Theoretical and Computational Chemistry",
-  "classification_code": "0307"
- },
- {
-  "id": 13585,
-  "parent_id": 13578,
-  "title": "Plant Biology",
-  "classification_code": "0607"
- },
- {
-  "id": 13660,
-  "parent_id": 13652,
-  "title": "Other Technology",
-  "classification_code": "1099"
- },
- {
-  "id": 13477,
-  "parent_id": 13474,
-  "title": "Clinical Sciences",
-  "classification_code": "1103"
- },
- {
-  "id": 13646,
-  "parent_id": 13630,
-  "title": "Other Engineering",
-  "classification_code": "0999"
- },
- {
-  "id": 13606,
-  "parent_id": 13603,
-  "title": "Classical Physics",
-  "classification_code": "0203"
- },
- {
-  "id": 13390,
-  "parent_id": 13385,
-  "title": "Ecosystem Assessment and Management",
-  "classification_code": "9605"
- },
- {
-  "id": 13395,
-  "parent_id": 13385,
-  "title": "Natural Hazards",
-  "classification_code": "9610"
- },
- {
-  "id": 13641,
-  "parent_id": 13630,
-  "title": "Maritime Engineering",
-  "classification_code": "0911"
- },
- {
-  "id": 13433,
-  "parent_id": 13431,
-  "title": "Applied Mathematics",
-  "classification_code": "0102"
- },
- {
-  "id": 13659,
-  "parent_id": 13652,
-  "title": "Nanotechnology",
-  "classification_code": "1007"
- },
- {
-  "id": 13480,
-  "parent_id": 13474,
-  "title": "Human Movement and Sports Science",
-  "classification_code": "1106"
- },
- {
-  "id": 13411,
-  "parent_id": 13410,
-  "title": "Ecological Applications",
-  "classification_code": "0501"
- },
- {
-  "id": 13413,
-  "parent_id": 13410,
-  "title": "Soil Sciences",
-  "classification_code": "0503"
- },
- {
-  "id": 13582,
-  "parent_id": 13578,
-  "title": "Genetics",
-  "classification_code": "0604"
- },
- {
-  "id": 13613,
-  "parent_id": 13611,
-  "title": "Computation Theory and Mathematics",
-  "classification_code": "0802"
- },
- {
-  "id": 13363,
-  "parent_id": 13362,
-  "title": "Architecture",
-  "classification_code": "1201"
- },
- {
-  "id": 13553,
-  "parent_id": 13551,
-  "title": "Geochemistry",
-  "classification_code": "0402"
- },
- {
-  "id": 13377,
-  "parent_id": 13376,
-  "title": "Agriculture, Land and Farm Management",
-  "classification_code": "0701"
- },
- {
-  "id": 13619,
-  "parent_id": 13611,
-  "title": "Other Information and Computing Sciences",
-  "classification_code": "0899"
- },
- {
-  "id": 13600,
-  "parent_id": 13594,
-  "title": "Physical Chemistry (incl. Structural)",
-  "classification_code": "0306"
- },
- {
-  "id": 13625,
-  "parent_id": 13620,
-  "title": "Renewable Energy",
-  "classification_code": "8505"
- },
- {
-  "id": 13391,
-  "parent_id": 13385,
-  "title": "Environmental and Natural Resource Evaluation",
-  "classification_code": "9606"
- },
- {
-  "id": 13416,
-  "parent_id": 13415,
-  "title": "Clinical Health (organs, Diseases and Abnormal Conditions)",
-  "classification_code": "9201"
- },
- {
-  "id": 13454,
-  "parent_id": 13453,
-  "title": "Psychology",
-  "classification_code": "1701"
- },
- {
-  "id": 13608,
-  "parent_id": 13603,
-  "title": "Optical Physics",
-  "classification_code": "0205"
- },
- {
-  "id": 13662,
-  "parent_id": 13661,
-  "title": "Ground Transport",
-  "classification_code": "8801"
- },
- {
-  "id": 13583,
-  "parent_id": 13578,
-  "title": "Microbiology",
-  "classification_code": "0605"
- },
- {
-  "id": 13614,
-  "parent_id": 13611,
-  "title": "Computer Software",
-  "classification_code": "0803"
- },
- {
-  "id": 13632,
-  "parent_id": 13630,
-  "title": "Automotive Engineering",
-  "classification_code": "0902"
- },
- {
-  "id": 13455,
-  "parent_id": 13453,
-  "title": "Cognitive Sciences",
-  "classification_code": "1702"
- },
- {
-  "id": 13414,
-  "parent_id": 13410,
-  "title": "Other Environmental Sciences",
-  "classification_code": "0599"
- },
- {
-  "id": 13503,
-  "parent_id": 13500,
-  "title": "Business and Management",
-  "classification_code": "1503"
- },
- {
-  "id": 13634,
-  "parent_id": 13630,
-  "title": "Chemical Engineering",
-  "classification_code": "0904"
- },
- {
-  "id": 13642,
-  "parent_id": 13630,
-  "title": "Materials Engineering",
-  "classification_code": "0912"
- },
- {
-  "id": 13637,
-  "parent_id": 13630,
-  "title": "Environmental Engineering",
-  "classification_code": "0907"
- },
- {
-  "id": 13636,
-  "parent_id": 13630,
-  "title": "Electrical and Electronic Engineering",
-  "classification_code": "0906"
- },
- {
-  "id": 13633,
-  "parent_id": 13630,
-  "title": "Biomedical Engineering",
-  "classification_code": "0903"
- },
- {
-  "id": 13579,
-  "parent_id": 13578,
-  "title": "Biochemistry and Cell Biology",
-  "classification_code": "0601"
- },
- {
-  "id": 13394,
-  "parent_id": 13385,
-  "title": "Land and Water Management",
-  "classification_code": "9609"
- },
- {
-  "id": 13645,
-  "parent_id": 13630,
-  "title": "Interdisciplinary Engineering",
-  "classification_code": "0915"
- },
- {
-  "id": 13556,
-  "parent_id": 13551,
-  "title": "Oceanography",
-  "classification_code": "0405"
- },
- {
-  "id": 13607,
-  "parent_id": 13603,
-  "title": "Condensed Matter Physics",
-  "classification_code": "0204"
- },
- {
-  "id": 13609,
-  "parent_id": 13603,
-  "title": "Quantum Physics",
-  "classification_code": "0206"
- },
- {
-  "id": 13367,
-  "parent_id": 13362,
-  "title": "Urban and Regional Planning",
-  "classification_code": "1205"
- },
- {
-  "id": 13580,
-  "parent_id": 13578,
-  "title": "Ecology",
-  "classification_code": "0602"
- },
- {
-  "id": 13412,
-  "parent_id": 13410,
-  "title": "Environmental Science and Management",
-  "classification_code": "0502"
- },
- {
-  "id": 13558,
-  "parent_id": 13551,
-  "title": "Other Earth Sciences",
-  "classification_code": "0499"
- },
- {
-  "id": 13555,
-  "parent_id": 13551,
-  "title": "Geophysics",
-  "classification_code": "0404"
- },
- {
-  "id": 13612,
-  "parent_id": 13611,
-  "title": "Artificial Intelligence and Image Processing",
-  "classification_code": "0801"
- },
- {
-  "id": 13631,
-  "parent_id": 13630,
-  "title": "Aerospace Engineering",
-  "classification_code": "0901"
- },
- {
-  "id": 13617,
-  "parent_id": 13611,
-  "title": "Information Systems",
-  "classification_code": "0806"
- },
- {
-  "id": 13554,
-  "parent_id": 13551,
-  "title": "Geology",
-  "classification_code": "0403"
- },
- {
-  "id": 13643,
-  "parent_id": 13630,
-  "title": "Mechanical Engineering",
-  "classification_code": "0913"
- },
- {
-  "id": 13635,
-  "parent_id": 13630,
-  "title": "Civil Engineering",
-  "classification_code": "0905"
- },
- {
-  "id": 13557,
-  "parent_id": 13551,
-  "title": "Physical Geography and Environmental Geoscience",
-  "classification_code": "0406"
- },
- {
-  "id": 13387,
-  "parent_id": 13385,
-  "title": "Atmosphere and Weather",
-  "classification_code": "9602"
- },
- {
-  "id": 13639,
-  "parent_id": 13630,
-  "title": "Geomatic Engineering",
-  "classification_code": "0909"
- },
- {
-  "id": 13388,
-  "parent_id": 13385,
-  "title": "Climate and Climate Change",
-  "classification_code": "9603"
- },
- {
-  "id": 13552,
-  "parent_id": 13551,
-  "title": "Atmospheric Sciences",
-  "classification_code": "0401"
- },
- {
-  "id": 13528,
-  "parent_id": 13524,
-  "title": "Leather Products, Fibre Processing and Textiles",
-  "classification_code": "8604"
- }
+    { "id": 13431, "title": "Mathematical Sciences", "classification_code": "01" },
+    { "id": 13603, "title": "Physical Sciences", "classification_code": "02" },
+    { "id": 13594, "title": "Chemical Sciences", "classification_code": "03" },
+    { "id": 13551, "title": "Earth Sciences", "classification_code": "04" },
+    { "id": 13410, "title": "Environmental Sciences", "classification_code": "05" },
+    { "id": 13578, "title": "Biological Sciences", "classification_code": "06" },
+    { "id": 13376, "title": "Agricultural and Veterinary Sciences", "classification_code": "07" },
+    { "id": 13611, "title": "Information and Computing Sciences", "classification_code": "08" },
+    { "id": 13630, "title": "Engineering", "classification_code": "09" },
+    { "id": 13652, "title": "Technology", "classification_code": "10" },
+    { "id": 13474, "title": "Medical and Health Sciences", "classification_code": "11" },
+    { "id": 13362, "title": "Built Environment and Design", "classification_code": "12" },
+    { "id": 13647, "title": "Education", "classification_code": "13" },
+    { "id": 13566, "title": "Economics", "classification_code": "14" },
+    { "id": 13500, "title": "Commerce, Management, Tourism and Services", "classification_code": "15" },
+    { "id": 13464, "title": "Studies in Human Society", "classification_code": "16" },
+    { "id": 13453, "title": "Psychology and Cognitive Sciences", "classification_code": "17" },
+    { "id": 13427, "title": "Law and Legal Studies", "classification_code": "18" },
+    { "id": 13559, "title": "Studies in Creative Arts and Writing", "classification_code": "19" },
+    { "id": 13517, "title": "Language, Communication and Culture", "classification_code": "20" },
+    { "id": 13448, "title": "History and Archaeology", "classification_code": "21" },
+    { "id": 13588, "title": "Philosophy and Religious Studies", "classification_code": "22" },
+    { "id": 13360, "title": "Defence", "classification_code": "81" },
+    { "id": 13401, "title": "Plant Production and Plant Primary Products", "classification_code": "82" },
+    { "id": 13440, "title": "Animal Production and Animal Primary Products", "classification_code": "83" },
+    { "id": 13421, "title": "Mineral Resources (excl. Energy Resources)", "classification_code": "84" },
+    { "id": 13620, "title": "Energy", "classification_code": "85" },
+    { "id": 13524, "title": "Manufacturing", "classification_code": "86" },
+    { "id": 13509, "title": "Construction", "classification_code": "87" },
+    { "id": 13661, "title": "Transport", "classification_code": "88" },
+    { "id": 13544, "title": "Information and Communication Services", "classification_code": "89" },
+    { "id": 13457, "title": "Commercial Services and Tourism", "classification_code": "90" },
+    { "id": 13667, "title": "Economic Framework", "classification_code": "91" },
+    { "id": 13415, "title": "Health", "classification_code": "92" },
+    { "id": 13571, "title": "Education and Training", "classification_code": "93" },
+    { "id": 13369, "title": "Law, Politics and Community Services", "classification_code": "94" },
+    { "id": 13493, "title": "Cultural Understanding", "classification_code": "95" },
+    { "id": 13385, "title": "Environment", "classification_code": "96" },
+    { "id": 13438, "title": "Expanding Knowledge", "classification_code": "97" },
+    { "id": 13539, "parent_id": 13524, "title": "Instrumentation", "classification_code": "8615" },
+    { "id": 13462, "parent_id": 13457, "title": "Environmentally Sustainable Commercial Services and Tourism", "classification_code": "9098"},
+    { "id": 13498, "parent_id": 13493, "title": "Understanding Past Societies", "classification_code": "9505"},
+    { "id": 13561, "parent_id": 13559, "title": "Film, Television and Digital Media", "classification_code": "1902"},
+    { "id": 13530, "parent_id": 13524, "title": "Industrial Chemicals and Related Products", "classification_code": "8606" },
+    { "id": 13459, "parent_id": 13457, "title": "Property, Business Support Services and Trade", "classification_code": "9002" },
+    { "id": 13496, "parent_id": 13493, "title": "Heritage", "classification_code": "9503"},
+    { "id": 13590, "parent_id": 13588, "title": "History and Philosophy of Specific Fields", "classification_code": "2202"},
+    { "id": 13497, "parent_id": 13493, "title": "Religion and Ethics", "classification_code": "9504"},
+    { "id": 13372, "parent_id": 13369, "title": "International Relations", "classification_code": "9403" },
+    { "id": 13436, "parent_id": 13431, "title": "Mathematical Physics", "classification_code": "0105" },
+    { "id": 13373, "parent_id": 13369, "title": "Justice and The Law", "classification_code": "9404" },
+    { "id": 13404, "parent_id": 13401, "title": "Industrial Crops", "classification_code": "8203" },
+    { "id": 13422, "parent_id": 13421, "title": "Mineral Exploration", "classification_code": "8401"},
+    { "id": 13526, "parent_id": 13524, "title": "Dairy Products", "classification_code": "8602" },
+    { "id": 13432, "parent_id": 13431, "title": "Pure Mathematics", "classification_code": "0101" },
+    { "id": 13494, "parent_id": 13493, "title": "Arts and Leisure", "classification_code": "9501" },
+    { "id": 13467, "parent_id": 13464, "title": "Demography", "classification_code": "1603" },
+    { "id": 13672, "parent_id": 13667, "title": "Measurement Standards and Calibration Services", "classification_code": "9105"},
+    { "id": 13532, "parent_id": 13524, "title": "Human Pharmaceutical Products", "classification_code": "8608" },
+    { "id": 13425, "parent_id": 13421, "title": "Environmentally Sustainable Mineral Resource Activities", "classification_code": "8498" },
+    { "id": 13592, "parent_id": 13588, "title": "Religion and Religious Studies", "classification_code": "2204" },
+    { "id": 13484, "parent_id": 13474, "title": "Nursing", "classification_code": "1110"},
+    { "id": 13673, "parent_id": 13667, "title": "Other Economic Framework", "classification_code": "9199"},
+    { "id": 13361, "parent_id": 13360, "title": "Defence", "classification_code": "8101" },
+    { "id": 13540, "parent_id": 13524, "title": "Computer Hardware and Electronic Equipment", "classification_code": "8616" },
+    { "id": 13535, "parent_id": 13524, "title": "Basic Metal Products (incl. Smelting, Rolling, Drawing and Extruding)", "classification_code": "8611" },
+    { "id": 13670, "parent_id": 13667, "title": "International Trade", "classification_code": "9103" },
+    { "id": 13623, "parent_id": 13620, "title": "Preparation and Production of Energy Sources", "classification_code": "8503"},
+    { "id": 13423, "parent_id": 13421, "title": "Primary Mining and Extraction of Mineral Resources", "classification_code": "8402" },
+    { "id": 13593, "parent_id": 13588, "title": "Other Philosophy and Religious Studies", "classification_code": "2299" },
+    { "id": 13458, "parent_id": 13457, "title": "Financial Services", "classification_code": "9001"},
+    { "id": 13515, "parent_id": 13509, "title": "Environmentally Sustainable Construction", "classification_code": "8798" },
+    { "id": 13510, "parent_id": 13509, "title": "Construction Planning", "classification_code": "8701"},
+    { "id": 13564, "parent_id": 13559, "title": "Visual Arts and Crafts", "classification_code": "1905" },
+    { "id": 13658, "parent_id": 13652, "title": "Computer Hardware", "classification_code": "1006" },
+    { "id": 13471, "parent_id": 13464, "title": "Social Work", "classification_code": "1607"},
+    { "id": 13516, "parent_id": 13509, "title": "Other Construction", "classification_code": "8799"},
+    { "id": 13669, "parent_id": 13667, "title": "Microeconomics", "classification_code": "9102"},
+    { "id": 13537, "parent_id": 13524, "title": "Transport Equipment", "classification_code": "8613" },
+    { "id": 13668, "parent_id": 13667, "title": "Macroeconomics", "classification_code": "9101" },
+    { "id": 13538, "parent_id": 13524, "title": "Machinery and Equipment", "classification_code": "8614"},
+    { "id": 13575, "parent_id": 13571, "title": "School/institution", "classification_code": "9304"},
+    { "id": 13389, "parent_id": 13385, "title": "Control of Pests, Diseases and Exotic Species", "classification_code": "9604"},
+    { "id": 13409, "parent_id": 13401, "title": "Other Plant Production and Plant Primary Products", "classification_code": "8299" },
+    { "id": 13466, "parent_id": 13464, "title": "Criminology", "classification_code": "1602" },
+    { "id": 13479, "parent_id": 13474, "title": "Dentistry", "classification_code": "1105"},
+    { "id": 13430, "parent_id": 13427, "title": "Other Law and Legal Studies", "classification_code": "1899"},
+    { "id": 13460, "parent_id": 13457, "title": "Tourism", "classification_code": "9003"},
+    { "id": 13520, "parent_id": 13517, "title": "Language Studies", "classification_code": "2003" },
+    { "id": 13563, "parent_id": 13559, "title": "Performing Arts and Creative Writing", "classification_code": "1904" },
+    { "id": 13543, "parent_id": 13524, "title": "Other Manufacturing", "classification_code": "8699"},
+    { "id": 13549, "parent_id": 13544, "title": "Environmentally Sustainable Information and Communication Services", "classification_code": "8998"},
+    { "id": 13506, "parent_id": 13500, "title": "Tourism", "classification_code": "1506"},
+    { "id": 13523, "parent_id": 13517, "title": "Other Language, Communication and Culture", "classification_code": "2099" },
+    { "id": 13629, "parent_id": 13620, "title": "Other Energy", "classification_code": "8599" },
+    { "id": 13449, "parent_id": 13448, "title": "Archaeology", "classification_code": "2101"},
+    { "id": 13574, "parent_id": 13571, "title": "Curriculum", "classification_code": "9303"},
+    { "id": 13567, "parent_id": 13566, "title": "Economic Theory", "classification_code": "1401"},
+    { "id": 13513, "parent_id": 13509, "title": "Construction Processes", "classification_code": "8704" },
+    { "id": 13451, "parent_id": 13448, "title": "Historical Studies", "classification_code": "2103" },
+    { "id": 13548, "parent_id": 13544, "title": "Media Services", "classification_code": "8904"},
+    { "id": 13653, "parent_id": 13652, "title": "Agricultural Biotechnology", "classification_code": "1001"},
+    { "id": 13519, "parent_id": 13517, "title": "Cultural Studies", "classification_code": "2002"},
+    { "id": 13511, "parent_id": 13509, "title": "Construction Design", "classification_code": "8702" },
+    { "id": 13542, "parent_id": 13524, "title": "Environmentally Sustainable Manufacturing", "classification_code": "8698" },
+    { "id": 13572, "parent_id": 13571, "title": "Learner and Learning", "classification_code": "9301"},
+    { "id": 13485, "parent_id": 13474, "title": "Nutrition and Dietetics", "classification_code": "1111"},
+    { "id": 13426, "parent_id": 13421, "title": "Other Mineral Resources (excl. Energy Resources)", "classification_code": "8499"},
+    { "id": 13521, "parent_id": 13517, "title": "Linguistics", "classification_code": "2004" },
+    { "id": 13374, "parent_id": 13369, "title": "Work and Institutional Development", "classification_code": "9405" },
+    { "id": 13383, "parent_id": 13376, "title": "Veterinary Sciences", "classification_code": "0707"},
+    { "id": 13504, "parent_id": 13500, "title": "Commercial Services", "classification_code": "1504"},
+    { "id": 13499, "parent_id": 13493, "title": "Other Cultural Understanding", "classification_code": "9599"},
+    { "id": 13375, "parent_id": 13369, "title": "Other Law, Politics and Community Services", "classification_code": "9499" },
+    { "id": 13508, "parent_id": 13500, "title": "Other Commerce, Management, Tourism and Services", "classification_code": "1599" },
+    { "id": 13621, "parent_id": 13620, "title": "Energy Exploration", "classification_code": "8501"},
+    { "id": 13591, "parent_id": 13588, "title": "Philosophy", "classification_code": "2203"},
+    { "id": 13437, "parent_id": 13431, "title": "Other Mathematical Sciences", "classification_code": "0199"},
+    { "id": 13470, "parent_id": 13464, "title": "Political Science", "classification_code": "1606" },
+    { "id": 13398, "parent_id": 13385, "title": "Remnant Vegetation and Protected Conservation Areas", "classification_code": "9613" },
+    { "id": 13525, "parent_id": 13524, "title": "Processed Food Products and Beverages (excl. Dairy Products)", "classification_code": "8601"},
+    { "id": 13402, "parent_id": 13401, "title": "Forestry", "classification_code": "8201"},
+    { "id": 13443, "parent_id": 13440, "title": "Livestock Raising", "classification_code": "8303"},
+    { "id": 13514, "parent_id": 13509, "title": "Building Management and Services", "classification_code": "8705" },
+    { "id": 13397, "parent_id": 13385, "title": "Rehabilitation of Degraded Environments", "classification_code": "9612" },
+    { "id": 13622, "parent_id": 13620, "title": "Mining and Extraction of Energy Resources", "classification_code": "8502"},
+    { "id": 13488, "parent_id": 13474, "title": "Paediatrics and Reproductive Medicine", "classification_code": "1114"},
+    { "id": 13656, "parent_id": 13652, "title": "Medical Biotechnology", "classification_code": "1004"},
+    { "id": 13501, "parent_id": 13500, "title": "Accounting, Auditing and Accountability", "classification_code": "1501" },
+    { "id": 13419, "parent_id": 13415, "title": "Specific Population Health", "classification_code": "9205" },
+    { "id": 13482, "parent_id": 13474, "title": "Medical Microbiology", "classification_code": "1108"},
+    { "id": 13386, "parent_id": 13385, "title": "Air Quality", "classification_code": "9601"},
+    { "id": 13627, "parent_id": 13620, "title": "Energy Conservation and Efficiency", "classification_code": "8507"},
+    { "id": 13577, "parent_id": 13571, "title": "Other Education and Training", "classification_code": "9399" },
+    { "id": 13444, "parent_id": 13440, "title": "Pasture, Browse and Fodder Crops", "classification_code": "8304" },
+    { "id": 13495, "parent_id": 13493, "title": "Communication", "classification_code": "9502"},
+    { "id": 13666, "parent_id": 13661, "title": "Other Transport", "classification_code": "8899"},
+    { "id": 13649, "parent_id": 13647, "title": "Curriculum and Pedagogy", "classification_code": "1302"},
+    { "id": 13371, "parent_id": 13369, "title": "Government and Politics", "classification_code": "9402" },
+    { "id": 13487, "parent_id": 13474, "title": "Ophthalmology and Optometry", "classification_code": "1113" },
+    { "id": 13655, "parent_id": 13652, "title": "Industrial Biotechnology", "classification_code": "1003"},
+    { "id": 13476, "parent_id": 13474, "title": "Cardiorespiratory Medicine and Haematology", "classification_code": "1102"},
+    { "id": 13648, "parent_id": 13647, "title": "Education Systems", "classification_code": "1301"},
+    { "id": 13428, "parent_id": 13427, "title": "Law", "classification_code": "1801" },
+    { "id": 13545, "parent_id": 13544, "title": "Communication Networks and Services", "classification_code": "8901" },
+    { "id": 13380, "parent_id": 13376, "title": "Fisheries Sciences", "classification_code": "0704"},
+    { "id": 13502, "parent_id": 13500, "title": "Banking, Finance and Investment", "classification_code": "1502"},
+    { "id": 13644, "parent_id": 13630, "title": "Resources Engineering and Extractive Metallurgy", "classification_code": "0914"},
+    { "id": 13473, "parent_id": 13464, "title": "Other Studies in Human Society", "classification_code": "1699" },
+    { "id": 13595, "parent_id": 13594, "title": "Analytical Chemistry", "classification_code": "0301" },
+    { "id": 13478, "parent_id": 13474, "title": "Complementary and Alternative Medicine", "classification_code": "1104"},
+    { "id": 13468, "parent_id": 13464, "title": "Human Geography", "classification_code": "1604"},
+    { "id": 13573, "parent_id": 13571, "title": "Teaching and Instruction", "classification_code": "9302"},
+    { "id": 13446, "parent_id": 13440, "title": "Environmentally Sustainable Animal Production", "classification_code": "8398" },
+    { "id": 13439, "parent_id": 13438, "title": "Expanding Knowledge", "classification_code": "9701" },
+    { "id": 13465, "parent_id": 13464, "title": "Anthropology", "classification_code": "1601"},
+    { "id": 13663, "parent_id": 13661, "title": "Water Transport", "classification_code": "8802"},
+    { "id": 13589, "parent_id": 13588, "title": "Applied Ethics", "classification_code": "2201"},
+    { "id": 13624, "parent_id": 13620, "title": "Energy Transformation", "classification_code": "8504" },
+    { "id": 13570, "parent_id": 13566, "title": "Other Economics", "classification_code": "1499" },
+    { "id": 13505, "parent_id": 13500, "title": "Marketing", "classification_code": "1505"},
+    { "id": 13403, "parent_id": 13401, "title": "Horticultural Crops", "classification_code": "8202"},
+    { "id": 13671, "parent_id": 13667, "title": "Management and Productivity", "classification_code": "9104"},
+    { "id": 13518, "parent_id": 13517, "title": "Communication and Media Studies", "classification_code": "2001" },
+    { "id": 13651, "parent_id": 13647, "title": "Other Education", "classification_code": "1399" },
+    { "id": 13550, "parent_id": 13544, "title": "Other Information and Communication Services", "classification_code": "8999"},
+    { "id": 13569, "parent_id": 13566, "title": "Econometrics", "classification_code": "1403"},
+    { "id": 13616, "parent_id": 13611, "title": "Distributed Computing", "classification_code": "0805"},
+    { "id": 13384, "parent_id": 13376, "title": "Other Agricultural and Veterinary Sciences", "classification_code": "0799" },
+    { "id": 13418, "parent_id": 13415, "title": "Public Health (excl. Specific Population Health)", "classification_code": "9204" },
+    { "id": 13547, "parent_id": 13544, "title": "Information Services", "classification_code": "8903"},
+    { "id": 13420, "parent_id": 13415, "title": "Other Health", "classification_code": "9299"},
+    { "id": 13392, "parent_id": 13385, "title": "Environmental Policy, Legislation and Standards", "classification_code": "9607"},
+    { "id": 13365, "parent_id": 13362, "title": "Design Practice and Management", "classification_code": "1203" },
+    { "id": 13598, "parent_id": 13594, "title": "Medicinal and Biomolecular Chemistry", "classification_code": "0304" },
+    { "id": 13638, "parent_id": 13630, "title": "Food Sciences", "classification_code": "0908"},
+    { "id": 13461, "parent_id": 13457, "title": "Water and Waste Services", "classification_code": "9004"},
+    { "id": 13481, "parent_id": 13474, "title": "Immunology", "classification_code": "1107"},
+    { "id": 13665, "parent_id": 13661, "title": "Environmentally Sustainable Transport", "classification_code": "8898" },
+    { "id": 13615, "parent_id": 13611, "title": "Data Format", "classification_code": "0804" },
+    { "id": 13435, "parent_id": 13431, "title": "Statistics", "classification_code": "0104"},
+    { "id": 13576, "parent_id": 13571, "title": "Education and Training Systems", "classification_code": "9305"},
+    { "id": 13399, "parent_id": 13385, "title": "Soils", "classification_code": "9614"},
+    { "id": 13396, "parent_id": 13385, "title": "Physical and Chemical Conditions of Water", "classification_code": "9611" },
+    { "id": 13664, "parent_id": 13661, "title": "Aerospace Transport", "classification_code": "8803" },
+    { "id": 13512, "parent_id": 13509, "title": "Construction Materials Performance and Processes", "classification_code": "8703"},
+    { "id": 13650, "parent_id": 13647, "title": "Specialist Studies in Education", "classification_code": "1303"},
+    { "id": 13393, "parent_id": 13385, "title": "Flora, Fauna and Biodiversity", "classification_code": "9608"},
+    { "id": 13654, "parent_id": 13652, "title": "Environmental Biotechnology", "classification_code": "1002" },
+    { "id": 13379, "parent_id": 13376, "title": "Crop and Pasture Production", "classification_code": "0703" },
+    { "id": 13408, "parent_id": 13401, "title": "Environmentally Sustainable Plant Production", "classification_code": "8298"},
+    { "id": 13417, "parent_id": 13415, "title": "Health and Support Services", "classification_code": "9202"},
+    { "id": 13626, "parent_id": 13620, "title": "Energy Storage, Distribution and Supply", "classification_code": "8506"},
+    { "id": 13602, "parent_id": 13594, "title": "Other Chemical Sciences", "classification_code": "0399" },
+    { "id": 13483, "parent_id": 13474, "title": "Neurosciences", "classification_code": "1109" },
+    { "id": 13486, "parent_id": 13474, "title": "Oncology and Carcinogenesis", "classification_code": "1112"},
+    { "id": 13441, "parent_id": 13440, "title": "Fisheries - Aquaculture", "classification_code": "8301"},
+    { "id": 13596, "parent_id": 13594, "title": "Inorganic Chemistry", "classification_code": "0302"},
+    { "id": 13489, "parent_id": 13474, "title": "Pharmacology and Pharmaceutical Sciences", "classification_code": "1115" },
+    { "id": 13604, "parent_id": 13603, "title": "Astronomical and Space Sciences", "classification_code": "0201" },
+    { "id": 13597, "parent_id": 13594, "title": "Macromolecular and Materials Chemistry", "classification_code": "0303"},
+    { "id": 13445, "parent_id": 13440, "title": "Primary Animal Products", "classification_code": "8305"},
+    { "id": 13382, "parent_id": 13376, "title": "Horticultural Production", "classification_code": "0706"},
+    { "id": 13442, "parent_id": 13440, "title": "Fisheries - Wild Caught", "classification_code": "8302" },
+    { "id": 13472, "parent_id": 13464, "title": "Sociology", "classification_code": "1608" },
+    { "id": 13605, "parent_id": 13603, "title": "Atomic, Molecular, Nuclear, Particle and Plasma Physics", "classification_code": "0202"},
+    { "id": 13584, "parent_id": 13578, "title": "Physiology", "classification_code": "0606"},
+    { "id": 13490, "parent_id": 13474, "title": "Medical Physiology", "classification_code": "1116"},
+    { "id": 13381, "parent_id": 13376, "title": "Forestry Sciences", "classification_code": "0705" },
+    { "id": 13628, "parent_id": 13620, "title": "Environmentally Sustainable Energy Activities", "classification_code": "8598" },
+    { "id": 13546, "parent_id": 13544, "title": "Computer Software and Services", "classification_code": "8902"},
+    { "id": 13640, "parent_id": 13630, "title": "Manufacturing Engineering", "classification_code": "0910"},
+    { "id": 13400, "parent_id": 13385, "title": "Other Environment", "classification_code": "9699"},
+    { "id": 13475, "parent_id": 13474, "title": "Medical Biochemistry and Metabolomics", "classification_code": "1101" },
+    { "id": 13434, "parent_id": 13431, "title": "Numerical and Computational Mathematics", "classification_code": "0103" },
+    { "id": 13657, "parent_id": 13652, "title": "Communications Technologies", "classification_code": "1005"},
+    { "id": 13447, "parent_id": 13440, "title": "Other Animal Production and Animal Primary Products", "classification_code": "8399"},
+    { "id": 13364, "parent_id": 13362, "title": "Building", "classification_code": "1202"},
+    { "id": 13378, "parent_id": 13376, "title": "Animal Production", "classification_code": "0702" },
+    { "id": 13492, "parent_id": 13474, "title": "Other Medical and Health Sciences", "classification_code": "1199" },
+    { "id": 13491, "parent_id": 13474, "title": "Public Health and Health Services", "classification_code": "1117"},
+    { "id": 13456, "parent_id": 13453, "title": "Other Psychology and Cognitive Sciences", "classification_code": "1799"},
+    { "id": 13507, "parent_id": 13500, "title": "Transportation and Freight Services", "classification_code": "1507"},
+    { "id": 13618, "parent_id": 13611, "title": "Library and Information Studies", "classification_code": "0807" },
+    { "id": 13586, "parent_id": 13578, "title": "Zoology", "classification_code": "0608" },
+    { "id": 13581, "parent_id": 13578, "title": "Evolutionary Biology", "classification_code": "0603"},
+    { "id": 13368, "parent_id": 13362, "title": "Other Built Environment and Design", "classification_code": "1299"},
+    { "id": 13610, "parent_id": 13603, "title": "Other Physical Sciences", "classification_code": "0299"},
+    { "id": 13587, "parent_id": 13578, "title": "Other Biological Sciences", "classification_code": "0699" },
+    { "id": 13366, "parent_id": 13362, "title": "Engineering Design", "classification_code": "1204" },
+    { "id": 13568, "parent_id": 13566, "title": "Applied Economics", "classification_code": "1402"},
+    { "id": 13599, "parent_id": 13594, "title": "Organic Chemistry", "classification_code": "0305"},
+    { "id": 13469, "parent_id": 13464, "title": "Policy and Administration", "classification_code": "1605"},
+    { "id": 13601, "parent_id": 13594, "title": "Theoretical and Computational Chemistry", "classification_code": "0307" },
+    { "id": 13585, "parent_id": 13578, "title": "Plant Biology", "classification_code": "0607" },
+    { "id": 13660, "parent_id": 13652, "title": "Other Technology", "classification_code": "1099"},
+    { "id": 13477, "parent_id": 13474, "title": "Clinical Sciences", "classification_code": "1103"},
+    { "id": 13646, "parent_id": 13630, "title": "Other Engineering", "classification_code": "0999"},
+    { "id": 13606, "parent_id": 13603, "title": "Classical Physics", "classification_code": "0203" },
+    { "id": 13390, "parent_id": 13385, "title": "Ecosystem Assessment and Management", "classification_code": "9605" },
+    { "id": 13395, "parent_id": 13385, "title": "Natural Hazards", "classification_code": "9610"},
+    { "id": 13641, "parent_id": 13630, "title": "Maritime Engineering", "classification_code": "0911"},
+    { "id": 13433, "parent_id": 13431, "title": "Applied Mathematics", "classification_code": "0102"},
+    { "id": 13659, "parent_id": 13652, "title": "Nanotechnology", "classification_code": "1007" },
+    { "id": 13480, "parent_id": 13474, "title": "Human Movement and Sports Science", "classification_code": "1106" },
+    { "id": 13411, "parent_id": 13410, "title": "Ecological Applications", "classification_code": "0501"},
+    { "id": 13413, "parent_id": 13410, "title": "Soil Sciences", "classification_code": "0503"},
+    { "id": 13582, "parent_id": 13578, "title": "Genetics", "classification_code": "0604"},
+    { "id": 13613, "parent_id": 13611, "title": "Computation Theory and Mathematics", "classification_code": "0802" },
+    { "id": 13363, "parent_id": 13362, "title": "Architecture", "classification_code": "1201" },
+    { "id": 13553, "parent_id": 13551, "title": "Geochemistry", "classification_code": "0402"},
+    { "id": 13377, "parent_id": 13376, "title": "Agriculture, Land and Farm Management", "classification_code": "0701"},
+    { "id": 13619, "parent_id": 13611, "title": "Other Information and Computing Sciences", "classification_code": "0899"},
+    { "id": 13600, "parent_id": 13594, "title": "Physical Chemistry (incl. Structural)", "classification_code": "0306" },
+    { "id": 13625, "parent_id": 13620, "title": "Renewable Energy", "classification_code": "8505" },
+    { "id": 13391, "parent_id": 13385, "title": "Environmental and Natural Resource Evaluation", "classification_code": "9606"},
+    { "id": 13416, "parent_id": 13415, "title": "Clinical Health (organs, Diseases and Abnormal Conditions)", "classification_code": "9201"},
+    { "id": 13454, "parent_id": 13453, "title": "Psychology", "classification_code": "1701"},
+    { "id": 13608, "parent_id": 13603, "title": "Optical Physics", "classification_code": "0205" },
+    { "id": 13662, "parent_id": 13661, "title": "Ground Transport", "classification_code": "8801" },
+    { "id": 13583, "parent_id": 13578, "title": "Microbiology", "classification_code": "0605"},
+    { "id": 13614, "parent_id": 13611, "title": "Computer Software", "classification_code": "0803"},
+    { "id": 13632, "parent_id": 13630, "title": "Automotive Engineering", "classification_code": "0902"},
+    { "id": 13455, "parent_id": 13453, "title": "Cognitive Sciences", "classification_code": "1702" },
+    { "id": 13414, "parent_id": 13410, "title": "Other Environmental Sciences", "classification_code": "0599" },
+    { "id": 13503, "parent_id": 13500, "title": "Business and Management", "classification_code": "1503"},
+    { "id": 13634, "parent_id": 13630, "title": "Chemical Engineering", "classification_code": "0904"},
+    { "id": 13642, "parent_id": 13630, "title": "Materials Engineering", "classification_code": "0912"},
+    { "id": 13637, "parent_id": 13630, "title": "Environmental Engineering", "classification_code": "0907" },
+    { "id": 13636, "parent_id": 13630, "title": "Electrical and Electronic Engineering", "classification_code": "0906" },
+    { "id": 13633, "parent_id": 13630, "title": "Biomedical Engineering", "classification_code": "0903" },
+    { "id": 13579, "parent_id": 13578, "title": "Biochemistry and Cell Biology", "classification_code": "0601"},
+    { "id": 13394, "parent_id": 13385, "title": "Land and Water Management", "classification_code": "9609"},
+    { "id": 13645, "parent_id": 13630, "title": "Interdisciplinary Engineering", "classification_code": "0915" },
+    { "id": 13556, "parent_id": 13551, "title": "Oceanography", "classification_code": "0405" },
+    { "id": 13607, "parent_id": 13603, "title": "Condensed Matter Physics", "classification_code": "0204"},
+    { "id": 13609, "parent_id": 13603, "title": "Quantum Physics", "classification_code": "0206"},
+    { "id": 13367, "parent_id": 13362, "title": "Urban and Regional Planning", "classification_code": "1205"},
+    { "id": 13580, "parent_id": 13578, "title": "Ecology", "classification_code": "0602" },
+    { "id": 13412, "parent_id": 13410, "title": "Environmental Science and Management", "classification_code": "0502" },
+    { "id": 13558, "parent_id": 13551, "title": "Other Earth Sciences", "classification_code": "0499"},
+    { "id": 13555, "parent_id": 13551, "title": "Geophysics", "classification_code": "0404"},
+    { "id": 13612, "parent_id": 13611, "title": "Artificial Intelligence and Image Processing", "classification_code": "0801"},
+    { "id": 13631, "parent_id": 13630, "title": "Aerospace Engineering", "classification_code": "0901" },
+    { "id": 13617, "parent_id": 13611, "title": "Information Systems", "classification_code": "0806" },
+    { "id": 13554, "parent_id": 13551, "title": "Geology", "classification_code": "0403"},
+    { "id": 13643, "parent_id": 13630, "title": "Mechanical Engineering", "classification_code": "0913"},
+    { "id": 13635, "parent_id": 13630, "title": "Civil Engineering", "classification_code": "0905"},
+    { "id": 13557, "parent_id": 13551, "title": "Physical Geography and Environmental Geoscience", "classification_code": "0406" },
+    { "id": 13387, "parent_id": 13385, "title": "Atmosphere and Weather", "classification_code": "9602" },
+    { "id": 13639, "parent_id": 13630, "title": "Geomatic Engineering", "classification_code": "0909"},
+    { "id": 13388, "parent_id": 13385, "title": "Climate and Climate Change", "classification_code": "9603"},
+    { "id": 13552, "parent_id": 13551, "title": "Atmospheric Sciences", "classification_code": "0401"},
+    { "id": 13528, "parent_id": 13524, "title": "Leather Products, Fibre Processing and Textiles", "classification_code": "8604" }
 ]
