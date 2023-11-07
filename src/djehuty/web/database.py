@@ -2874,6 +2874,11 @@ class SparqlInterface:
         """Returns True when the session's account is an administrator."""
         return self.__may_execute_role (session_token, "administer")
 
+    def may_query (self, session_token):
+        """Returns True when the session's account is an administrator and may query."""
+        return (self.__may_execute_role (session_token, "administer") and
+                self.__may_execute_role (session_token, "query"))
+
     def may_impersonate (self, session_token):
         """Returns True when the session's account may impersonate other accounts."""
         return self.__may_execute_role (session_token, "impersonate")

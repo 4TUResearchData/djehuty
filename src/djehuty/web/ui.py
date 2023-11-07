@@ -330,6 +330,7 @@ def read_privilege_configuration (server, xml_root, logger):
             lowercase_email = email.lower()
             server.db.privileges[lowercase_email] = {
                 "may_administer":  bool(int(config_value (account, "may-administer", None, False))),
+                "may_query":       bool(int(config_value (account, "may-run-sparql-queries", None, False))),
                 "may_impersonate": bool(int(config_value (account, "may-impersonate", None, False))),
                 "may_review":      bool(int(config_value (account, "may-review", None, False))),
                 "may_review_quotas": bool(int(config_value (account, "may-review-quotas", None, False))),
@@ -342,6 +343,7 @@ def read_privilege_configuration (server, xml_root, logger):
             ## extra privilege.
             server.db.privileges[lowercase_email]["needs_2fa"] = (not server.disable_2fa) and (
                 server.db.privileges[lowercase_email]["may_administer"] or
+                server.db.privileges[lowercase_email]["may_query"] or
                 server.db.privileges[lowercase_email]["may_impersonate"] or
                 server.db.privileges[lowercase_email]["may_review"] or
                 server.db.privileges[lowercase_email]["may_process_feedback"] or
