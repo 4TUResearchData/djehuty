@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<djehuty>
+  <maintenance-mode>0</maintenance-mode>
+  <site-name>Djehuty example instance</site-name>
+  <site-description>Djehuty example instance</site-description>
+  <small-footer>
+    <div id="footer-wrapper2">
+      <p>This repository is powered by <a href="https://github.com/4TUResearchData/djehuty">djehuty</a> built for <a href="https://data.4tu.nl">4TU.ResearchData</a>.
+      </p>
+    </div>
+  </small-footer>
+  <large-footer>
+    <div id="footer-wrapper2">
+      <p>This repository is powered by <a href="https://github.com/4TUResearchData/djehuty">djehuty</a> built for <a href="https://data.4tu.nl">4TU.ResearchData</a>.
+      </p>
+    </div>
+  </large-footer>
+  <sandbox-message style="background: #784421; color: #fff;">
+    This is an instance launched with the example configuration. Please
+    review and modify the configuration file.
+  </sandbox-message>
+  <notice-message>
+    Dear users, if you find a bug, a missing functionality, or if you are having difficulty with the website, please <a href="/feedback">let us know</a>.
+  </notice-message>
+  <bind-address>127.0.0.1</bind-address>
+  <port>8080</port>
+  <base-url>http://localhost:8080</base-url>
+  <storage-root>/data</storage-root>
+  <cache-root clear-on-start="1">/data/cache</cache-root>
+  <live-reload>1</live-reload>
+  <!-- <log-file>/var/log/djehuty.log</log-file> -->
+  <debug-mode>1</debug-mode>
+  <production>0</production>
+  <show-portal-summary>1</show-portal-summary>
+  <show-institutions>1</show-institutions>
+  <show-science-categories>1</show-science-categories>
+  <enable-query-audit-log>1</enable-query-audit-log>
+  <show-latest-datasets>1</show-latest-datasets>
+  <disable-2fa>1</disable-2fa>
+  <use-x-forwarded-for>0</use-x-forwarded-for>
+  <!-- <maximum-workers>4</maximum-workers> -->
+  <rdf-store>
+    <sparql-uri>http://localhost:8890/sparql</sparql-uri>
+    <sparql-update-uri>http://localhost:8890/sparql</sparql-update-uri>
+    <state-graph>djehuty://local</state-graph>
+  </rdf-store>
+  <datacite>
+    <api-url>https://api.datacite.org</api-url>
+    <repository-id>changeme</repository-id>
+    <password>changeme</password>
+    <prefix>10.5438</prefix>
+  </datacite>
+  <authentication>
+    <!--
+    <automatic-login-email>you@example.com</automatic-login-email>
+    -->
+    <orcid>
+      <client-id>APP-XXXXXXXXXXXXXXXX</client-id>
+      <client-secret>XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</client-secret>
+      <endpoint>https://orcid.org/oauth</endpoint>
+    </orcid>
+  </authentication>
+  <email>
+    <server>smtp.example.com</server>
+    <port>587</port>
+    <starttls>1</starttls>
+    <username>address</username>
+    <password>password</password>
+    <from>noreply@example.com</from>
+  </email>
+  <privileges>
+    <account email="you@example.com" orcid="0000-0000-0000-0001">
+      <may-administer>1</may-administer>
+      <may-impersonate>1</may-impersonate>
+      <may-review>0</may-review>
+    </account>
+  </privileges>
+  <quotas default="5000000000">
+    <group domain="tudelft.nl">50000000000</group>
+    <account email="you@example.com">25000000000</account>
+  </quotas>
+</djehuty>

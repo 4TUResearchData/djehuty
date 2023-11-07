@@ -1,0 +1,22 @@
+version: '3'
+services:
+  djehuty:
+    image: djehuty:latest
+    command: '/home/djehuty/start-djehuty.sh'
+    volumes:
+      - /opt/djehuty/data/:/data/
+      - /opt/djehuty/djehuty-config.xml:/djehuty-config.xml
+    restart: always
+    ports:
+      - 9001:8080
+    depends_on:
+      - sparql
+  sparql:
+    image: openlink/virtuoso-opensource-7
+    volumes:
+      - /container_data/sparql/:/database/
+    expose:
+      - 8890
+      - 1111
+    environment:
+      DBA_PASSWORD: ""
