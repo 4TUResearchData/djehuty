@@ -2891,8 +2891,7 @@ class SparqlInterface:
 
     def is_depositor (self, session_token):
         """Returns True when the account linked to the session is a depositor, False otherwise"""
-        account = self.account_by_session_token (session_token)
-        return account is not None
+        return self.is_logged_in (session_token)
 
     def is_logged_in (self, session_token):
         """Returns True when the session_token is valid, False otherwise."""
