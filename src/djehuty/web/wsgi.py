@@ -1417,6 +1417,10 @@ class ApiServer:
 
         if account_uuid is not None:
             token, mfa_token, session_uuid = self.db.insert_session (account_uuid, name="Website login")
+            if session_uuid is None:
+                self.log.error ("Failed to create a session for account %s.", account_uuid)
+                return self.error_500 ()
+
             self.log.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
 
             if mfa_token is None:
