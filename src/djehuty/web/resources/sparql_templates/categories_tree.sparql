@@ -1,0 +1,17 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?parent_id ?id ?uuid ?title ?source_id ?taxonomy_id
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?category            rdf:type         djht:Category ;
+                         djht:id          ?id ;
+                         djht:title       ?title .
+
+    OPTIONAL { ?category djht:parent_id   ?parent_id . }
+    OPTIONAL { ?category djht:source_id   ?source_id . }
+    OPTIONAL { ?category djht:taxonomy_id ?taxonomy_id . }
+
+    BIND(STRAFTER(STR(?category), "category:") AS ?uuid)
+  }
+}
+{% endblock %}

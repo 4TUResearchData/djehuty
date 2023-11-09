@@ -2349,12 +2349,15 @@ class SparqlInterface:
     def categories_tree (self):
         """Procedure to return a tree of categories."""
 
-        categories = self.root_categories ()
-        for category in categories:
-            subcategories = self.subcategories_for_category (category["uuid"])
-            category["subcategories"] = subcategories
+        query   = self.__query_from_template ("categories_tree")
+        results = self.__run_query (query, query, "categories_tree")
+        roots   = list (filter (lambda category: conv.value_or (category, "parent_id", 0) == 0, results))
+        for root in roots:
+            subcategories = filter (lambda category: conv.value_or_none (category, "parent_id") == root["id"], results)
+            root["subcategories"] = sorted (subcategories, key = lambda field: field["title"])
 
-        return categories
+        roots = sorted (roots, key = lambda field: field["title"])
+        return roots
 
     def group (self, group_id=None, parent_id=None, name=None,
                association=None, limit=None, offset=None,
