@@ -7,11 +7,12 @@ import uuid
 import secrets
 import os.path
 import logging
-import warnings
 from datetime import datetime
 from urllib.error import URLError, HTTPError
-from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
-from rdflib import Graph, Literal, RDF, XSD, URIRef
+from SPARQLWrapper import SPARQLExceptions
+from rdflib import Dataset, Graph, Literal, RDF, XSD, URIRef
+from rdflib.plugins.stores import sparqlstore, memory
+from rdflib.store import VALID_STORE
 from jinja2 import Environment, FileSystemLoader
 from djehuty.web import cache
 from djehuty.utils import rdf
@@ -42,13 +43,48 @@ class SparqlInterface:
         self.account_quotas = {}
         self.group_quotas   = {}
         self.default_quota  = 5000000000
+        self.store          = None
 
     def setup_sparql_endpoint (self):
         """Procedure to be called after setting the 'endpoint' members."""
 
-        self.sparql = SPARQLWrapper(endpoint=self.endpoint, updateEndpoint=self.update_endpoint, returnFormat=JSON)
-        self.sparql.setOnlyConneg (True)
+        # BerkeleyDB as local RDF store.
+        if (isinstance (self.endpoint, str) and self.endpoint.startswith("bdb://")):
+            directory = self.endpoint[6:]
+            self.sparql = Dataset("BerkeleyDB")
+            self.sparql.open (directory, create=True)
+            if self.sparql != VALID_STORE:
+                self.log.error ("'%s' is not a valid BerkeleyDB database.", directory)
+                return None
+            self.log.info ("Using BerkeleyDB RDF store.")
+
+        # In-memory SPARQL endpoint. This does not work when live-reload
+        # is enabled.
+        elif (isinstance (self.endpoint, str) and
+              self.endpoint.startswith ("memory://")):
+            self.store = memory.Memory(identifier = URIRef(self.state_graph))
+            self.sparql = Dataset(store = self.store)
+            self.log.info ("Using in-memory RDF store.")
+
+        # External SPARQL endpoints, like Virtuoso.
+        else:
+            if self.update_endpoint is None:
+                self.update_endpoint = self.endpoint
+
+            self.store = sparqlstore.SPARQLUpdateStore(
+                # Avoid rdflib from wrapping in a blank-node graph by setting
+                # context_aware to False.
+                context_aware   = False,
+                query_endpoint  = self.endpoint,
+                update_endpoint = self.update_endpoint,
+                returnFormat    = "json",
+                method          = "POST")
+            # Set bind_namespaces so rdflib does not inject PREFIXes.
+            self.sparql  = Graph(store = self.store, bind_namespaces = "none")
+            self.log.info ("Using external RDF store.")
+
         self.sparql_is_up = True
+        return None
 
     ## ------------------------------------------------------------------------
     ## Private methods
@@ -57,38 +93,44 @@ class SparqlInterface:
     def __log_query (self, query, prefix="Query"):
         self.log.info ("%s:\n---\n%s\n---", prefix, query)
 
-    def __normalize_binding (self, record):
-        for item in record:
-            if "datatype" in record[item]:
-                datatype = record[item]["datatype"]
-                if datatype == "http://www.w3.org/2001/XMLSchema#integer":
-                    record[item] = int(float(record[item]["value"]))
-                elif datatype == "http://www.w3.org/2001/XMLSchema#decimal":
-                    record[item] = int(float(record[item]["value"]))
-                elif datatype == "http://www.w3.org/2001/XMLSchema#boolean":
+    def __normalize_binding (self, row):
+        output = {}
+        for name in row.keys():
+            if isinstance(row[name], Literal):
+                xsd_type = row[name].datatype
+                if xsd_type == XSD.integer:
+                    output[str(name)] = int(float(row[name]))
+                elif xsd_type == XSD.decimal:
+                    output[str(name)] = int(float(row[name]))
+                elif xsd_type == XSD.boolean:
                     try:
-                        record[item] = bool(int(record[item]["value"]))
+                        output[str(name)] = bool(int(row[name]))
                     except ValueError:
-                        record[item] = record[item]["value"].lower() == "true"
-                elif datatype == "http://www.w3.org/2001/XMLSchema#dateTime":
-                    time_value = record[item]["value"].partition(".")[0]
+                        output[str(name)] = str(row[name]).lower() == "true"
+                elif xsd_type == XSD.dateTime:
+                    time_value = row[name].partition(".")[0]
                     if time_value[-1] == 'Z':
                         time_value = time_value[:-1]
-                    record[item] = time_value
-                elif datatype == "http://www.w3.org/2001/XMLSchema#date":
-                    record[item] = record[item]["value"]
-                elif datatype == "http://www.w3.org/2001/XMLSchema#string":
-                    if record[item]["value"] == "NULL":
-                        record[item] = None
+                    if time_value.endswith("+00:00"):
+                        time_value = time_value[:-6]
+                    output[str(name)] = time_value
+                elif xsd_type == XSD.date:
+                    output[str(name)] = row[name]
+                elif xsd_type == XSD.string:
+                    if row[name] == "NULL":
+                        output[str(name)] = None
                     else:
-                        record[item] = record[item]["value"]
-            elif record[item]["type"] == "literal":
-                record[item] = record[item]["value"]
-            elif record[item]["type"] == "uri":
-                record[item] = str(record[item]["value"])
+                        output[str(name)] = str(row[name])
+                # bindings that were produced with BIND() on Virtuoso
+                # have no XSD type.
+                elif xsd_type is None:
+                    output[str(name)] = str(row[name])
+            elif row[name] is None:
+                output[str(name)] = None
             else:
-                self.log.info ("Not a typed-literal: %s", record[item]['type'])
-        return record
+                output[str(name)] = str(row[name])
+
+        return output
 
     def __normalize_orcid (self, orcid):
         """Procedure to make storing ORCID identifiers consistent."""
@@ -120,25 +162,26 @@ class SparqlInterface:
             if cached is not None:
                 return cached
 
-        self.sparql.method = 'POST'
-        self.sparql.setQuery(query)
         results = []
         try:
-            if self.sparql.isSparqlUpdateRequest():
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    self.sparql.query().convert()
+            execution_type, query_type = rdf.query_type (query)
+            if execution_type == "update":
+                self.sparql.update (query)
+                self.sparql.commit()
                 ## Upon failure, an exception is thrown.
                 results = True
-            else:
-                query_results = self.sparql.query().convert()
-                # Almost all query types return 'results'.
-                if "results" in query_results:
+            elif execution_type == "gather":
+                query_results = self.sparql.query(query)
+                ## ASK queries only return a boolean.
+                if query_type == "ASK":
+                    results = query_results.askAnswer
+                else:
                     results = list(map(self.__normalize_binding,
-                                       query_results["results"]["bindings"]))
-                # ASK queries don't result 'results' but 'boolean' instead.
-                elif "boolean" in query_results:
-                    results = query_results["boolean"]
+                                       query_results.bindings))
+            else:
+                self.log.error ("Invalid query (%s, %s)", execution_type, query_type)
+                self.__log_query (query)
+                return []
 
             if cache_key_string is not None:
                 self.cache.cache_value (prefix, cache_key, results, query)
@@ -171,9 +214,13 @@ class SparqlInterface:
         except SPARQLExceptions.EndPointInternalError as error:
             self.log.error ("SPARQL internal error: %s", error)
             return []
+        except AttributeError as error:
+            self.log.error ("SPARQL query failed.")
+            self.log.error ("Exception: %s", error)
+            self.__log_query (query)
         except Exception as error:  # pylint: disable=broad-exception-caught
             self.log.error ("SPARQL query failed.")
-            self.log.error ("Exception: %s", type(error))
+            self.log.error ("Exception: %s: %s", type(error), error)
             self.__log_query (query)
             return []
 
@@ -2974,8 +3021,8 @@ class SparqlInterface:
             return False
 
         if self.enable_query_audit_log:
-            self.sparql.setQuery (query)
-            if self.sparql.isSparqlUpdateRequest ():
+            execution_type, _ = rdf.query_type (query)
+            if execution_type == "update":
                 self.__log_query (query, "Query Audit Log")
 
         return self.__run_query (query)

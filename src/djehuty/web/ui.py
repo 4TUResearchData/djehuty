@@ -7,6 +7,7 @@ import shutil
 import json
 from defusedxml import ElementTree
 from werkzeug.serving import run_simple
+from rdflib.plugins.stores import berkeleydb
 from djehuty.web import wsgi
 from djehuty.utils import convenience
 import djehuty.backup.database as backup_database
@@ -806,6 +807,14 @@ def main (address=None, port=None, state_graph=None, storage=None,
             return None
 
         inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
+
+        if (isinstance (server.db.endpoint, str) and
+            server.db.endpoint.startswith("bdb://") and
+            not berkeleydb.has_bsddb):
+            logger.error(("Configured a BerkeleyDB database back-end, "
+                          "but BerkeleyDB is not installed on the system "
+                          "or the 'berkeleydb' Python package is missing."))
+            sys.exit (1)
 
         if not server.db.cache.cache_is_ready() and not inside_reload:
             logger.error ("Failed to set up cache layer.")
