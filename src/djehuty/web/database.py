@@ -987,6 +987,7 @@ class SparqlInterface:
 
         item_uri = item if isinstance (item, URIRef) else rdf.uuid_to_uri (item, item_type)
 
+        rdf.add (rdf_store, blank_node, RDF.type, RDF.List, "url")
         rdf.add (rdf_store, blank_node, RDF.first, URIRef(item_uri), "url")
         rdf.add (rdf_store, blank_node, RDF.rest, RDF.nil, "url")
         if index is not None:
