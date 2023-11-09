@@ -398,6 +398,7 @@ class ApiServer:
     def __render_template (self, request, template_name, **context):
         template      = self.jinja.get_template (template_name)
         token         = self.token_from_cookie (request)
+        account       = self.db.account_by_session_token (token)
         impersonator_token = self.__impersonator_token (request)
         parameters    = {
             "base_url":        self.base_url,
@@ -414,12 +415,12 @@ class ApiServer:
             "orcid_client_id": self.orcid_client_id,
             "orcid_endpoint":  self.orcid_endpoint,
             "session_token":   self.token_from_request (request),
-            "is_logged_in":    self.db.is_logged_in (token),
+            "is_logged_in":    account is not None,
             "is_reviewing":    self.db.may_review (impersonator_token),
-            "may_review":      self.db.may_review (token),
-            "may_administer":  self.db.may_administer (token),
-            "may_query":       self.db.may_query (token),
-            "may_impersonate":  self.db.may_impersonate (token),
+            "may_review":      self.db.may_review (token, account),
+            "may_administer":  self.db.may_administer (token, account),
+            "may_query":       self.db.may_query (token, account),
+            "may_impersonate":  self.db.may_impersonate (token, account),
             "impersonating_account": self.__impersonating_account (request),
             "menu":            self.menu,
         }

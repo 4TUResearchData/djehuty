@@ -2826,13 +2826,14 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
-    def __may_execute_role (self, session_token, task):
+    def __may_execute_role (self, session_token, task, account=None):
         """Returns True when the sessions' account may perform 'task'."""
 
         if session_token is None:
             return False
 
-        account = self.account_by_session_token (session_token)
+        if account is None:
+            account = self.account_by_session_token (session_token)
         try:
             return account[f"may_{task}"]
         except (KeyError, TypeError):
@@ -2867,26 +2868,26 @@ class SparqlInterface:
         # not to do so.
         return True
 
-    def may_review (self, session_token):
+    def may_review (self, session_token, account=None):
         """Returns True when the session's account is a reviewer."""
-        return self.__may_execute_role (session_token, "review")
+        return self.__may_execute_role (session_token, "review", account)
 
-    def may_administer (self, session_token):
+    def may_administer (self, session_token, account=None):
         """Returns True when the session's account is an administrator."""
-        return self.__may_execute_role (session_token, "administer")
+        return self.__may_execute_role (session_token, "administer", account)
 
-    def may_query (self, session_token):
+    def may_query (self, session_token, account=None):
         """Returns True when the session's account is an administrator and may query."""
-        return (self.__may_execute_role (session_token, "administer") and
-                self.__may_execute_role (session_token, "query"))
+        return (self.__may_execute_role (session_token, "administer", account) and
+                self.__may_execute_role (session_token, "query", account))
 
-    def may_impersonate (self, session_token):
+    def may_impersonate (self, session_token, account=None):
         """Returns True when the session's account may impersonate other accounts."""
-        return self.__may_execute_role (session_token, "impersonate")
+        return self.__may_execute_role (session_token, "impersonate", account)
 
-    def may_review_quotas (self, session_token):
+    def may_review_quotas (self, session_token, account=None):
         """Returns True when the session's account may handle storage requests."""
-        return self.__may_execute_role (session_token, "review_quotas")
+        return self.__may_execute_role (session_token, "review_quotas", account)
 
     def is_depositor (self, session_token):
         """Returns True when the account linked to the session is a depositor, False otherwise"""
