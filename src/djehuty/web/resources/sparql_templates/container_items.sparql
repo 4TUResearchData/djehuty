@@ -22,7 +22,7 @@ WHERE {
     OPTIONAL { ?item_uri djht:version              ?version . }
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?account), "account:")         AS ?account_uuid)
-    BIND(STRAFTER(STR(?dataset), ":")                AS ?uuid)
+    BIND(STRAFTER(STR(?item_uri), ":")               AS ?uuid)
   }
 {%- if account_uuid is not none: %}
 FILTER (?account = <account:{{account_uuid}}>)
