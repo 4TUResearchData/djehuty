@@ -2,12 +2,46 @@
 This module provides convenience functions for handling RDF.
 """
 
+import re
 import uuid
 from rdflib import Literal, Namespace, URIRef, XSD
 
 BLANK = Namespace("blank:")
 ROW   = Namespace("djehuty:")
 DJHT  = Namespace("https://ontologies.data.4tu.nl/djehuty/0.0.1/")
+
+## Pre-compiled patterns for determining the SPARQL query type.
+COMMENTS_PATTERN = re.compile(r"(^|\n)\s*#.*?\n")
+PREFIX_PATTERN   = re.compile(
+    r"((?P<base>(\s*BASE\s*<.*?>)\s*)|(?P<prefixes>(\s*PREFIX\s+.+:\s*<.*?>)\s*))*"
+)
+QUERY_PATTERN    = re.compile(
+    r"(?P<queryType>(CONSTRUCT|SELECT|ASK|DESCRIBE|INSERT|DELETE|CREATE|CLEAR|DROP|LOAD|COPY|MOVE|ADD))",
+    re.VERBOSE | re.IGNORECASE,
+)
+
+def query_type (query):
+    """
+    Returns two values. The first value is 'update' for state-modifying
+    queries, 'gather' for read-only queries, None when parsing failed.
+    The second value is the more precise query type, like SELECT, INSERT
+    or DELETE, or None when parsing failed.
+
+    The implementation is based on SPARQLWrapper's implementation.
+    """
+
+    query_wo_comments = re.sub(COMMENTS_PATTERN, "\n\n", query)
+    simplified_query  = re.sub(PREFIX_PATTERN, "", query_wo_comments.strip())
+    try:
+        sparql_type = str(QUERY_PATTERN.search(simplified_query).group("queryType").upper())
+        if sparql_type in [ "SELECT", "CONSTRUCT", "ASK" ]:
+            return "gather", sparql_type
+        if sparql_type in [ "INSERT", "DELETE", "CLEAR", "DROP", "LOAD"]:
+            return "update", sparql_type
+    except AttributeError:
+        pass
+
+    return None, None
 
 def add (graph, subject, predicate, value, datatype=None):
     """Adds the triplet SUBJECT PREDICATE VALUE if VALUE is set."""
