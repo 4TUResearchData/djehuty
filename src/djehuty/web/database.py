@@ -9,7 +9,6 @@ import os.path
 import logging
 from datetime import datetime
 from urllib.error import URLError, HTTPError
-from SPARQLWrapper import SPARQLExceptions
 from rdflib import Dataset, Graph, Literal, RDF, XSD, URIRef
 from rdflib.plugins.stores import sparqlstore, memory
 from rdflib.store import VALID_STORE
@@ -175,6 +174,11 @@ class SparqlInterface:
                 ## ASK queries only return a boolean.
                 if query_type == "ASK":
                     results = query_results.askAnswer
+                elif isinstance(query_results, tuple):
+                    self.log.error ("Error executing query (%s): %s",
+                                    query_results[0], query_results[1])
+                    self.__log_query (query)
+                    return []
                 else:
                     results = list(map(self.__normalize_binding,
                                        query_results.bindings))
@@ -203,17 +207,11 @@ class SparqlInterface:
             self.log.error ("SPARQL endpoint returned %d:\n---\n%s\n---",
                             error.code, error.reason)
             return []
-        except (URLError, SPARQLExceptions.EndPointNotFound):
+        except URLError:
             if self.sparql_is_up:
                 self.log.error ("Connection to the SPARQL endpoint seems down.")
                 self.sparql_is_up = False
                 return []
-        except SPARQLExceptions.QueryBadFormed:
-            self.log.error ("Badly formed SPARQL query:")
-            self.__log_query (query)
-        except SPARQLExceptions.EndPointInternalError as error:
-            self.log.error ("SPARQL internal error: %s", error)
-            return []
         except AttributeError as error:
             self.log.error ("SPARQL query failed.")
             self.log.error ("Exception: %s", error)
