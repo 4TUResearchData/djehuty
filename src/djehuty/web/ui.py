@@ -715,6 +715,68 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
     return {}
 
+def extract_transactions (config, since_datetime):
+    """Extract the queries from the audit log and write them as files."""
+
+    if "log-file" not in config:
+        print("No log file found to extract queries from.", file=sys.stderr)
+        sys.exit (1)
+    filename = config["log-file"]
+    try:
+        if "transactions_directory" in config:
+            directory_prefix = config["transactions_directory"]
+            os.makedirs(directory_prefix, mode=0o700, exist_ok=True)
+            if not os.path.isdir(directory_prefix):
+                print (f"Failed to create '{directory_prefix}'.", file=sys.stderr)
+
+        with open (filename, "r", encoding = "utf-8") as log_file:
+            print (f"Reading '{filename}'.", file=sys.stderr)
+            lines        = log_file.readlines()
+            count        = 0
+            state_output = 0
+            query        = ""
+            timestamp_line = ""
+            for line in lines:
+                if state_output == 2:
+                    if line == "---\n":
+                        state_output = 0
+                        with open (f"{directory_prefix}/transaction_{count:08d}.sparql",
+                                   "w", encoding="utf-8") as output_file:
+                            output_file.write (query)
+                        query = ""
+                    else:
+                        now_statement = "    BIND(NOW() AS ?now)\n"
+                        if now_statement == line:
+                            try:
+                                components = timestamp_line.split(" ")
+                                date       = components[1]
+                                time       = components[2].partition(",")[0]
+                                replacement = (f'    BIND("{date}T{time}Z"'
+                                               '^^xsd:dateTime AS ?now)\n')
+                                line = line.replace (now_statement, replacement)
+                            except IndexError:
+                                print (f"Failed to read '{timestamp_line}'.",
+                                       file=sys.stderr)
+                        query += line
+                elif state_output == 1 and line == "---\n":
+                    state_output = 2
+                elif "Query Audit Log" in line:
+                    timestamp_line = line
+
+                    if since_datetime:
+                        # [INFO] 2023-07-28 20:58:35,089 -
+                        log_datetime = " ".join(line.split(" ")[1:3])
+                        if log_datetime < since_datetime:
+                            continue
+
+                    query += f"# {line}"
+                    count += 1
+                    state_output = 1
+            print (f"Extracted {count} items", file=sys.stderr)
+    except FileNotFoundError:
+        print (f"Could not open '{filename}'.", file=sys.stderr)
+        sys.exit (1)
+
 ## ----------------------------------------------------------------------------
 ## Starting point for the command-line program
 ## ----------------------------------------------------------------------------
@@ -751,60 +813,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
         ## Handle extracting Query Audit Logs early on.
         if extract_transactions_from_log is not None:
-            if "log-file" not in config:
-                print("No log file found to extract queries from.", file=sys.stderr)
-                sys.exit (1)
-            filename = config["log-file"]
-            try:
-                with open (filename, "r", encoding = "utf-8") as log_file:
-                    print (f"Reading '{filename}'.", file=sys.stderr)
-                    lines        = log_file.readlines()
-                    count        = 0
-                    state_output = 0
-                    query        = ""
-                    timestamp_line = ""
-                    for line in lines:
-                        if state_output == 2:
-                            if line == "---\n":
-                                state_output = 0
-                                with open (f"transaction_{count:08d}.sparql", "w",
-                                           encoding="utf-8") as output_file:
-                                    output_file.write (query)
-                                query = ""
-                            else:
-                                now_statement = "    BIND(NOW() AS ?now)\n"
-                                if now_statement == line:
-                                    try:
-                                        components = timestamp_line.split(" ")
-                                        date       = components[1]
-                                        time       = components[2].partition(",")[0]
-                                        replacement = (f'    BIND("{date}T{time}Z"'
-                                                       '^^xsd:dateTime AS ?now)\n')
-                                        line = line.replace (now_statement, replacement)
-                                    except IndexError:
-                                        print (f"Failed to read '{timestamp_line}'.",
-                                               file=sys.stderr)
-                                query += line
-                        elif state_output == 1 and line == "---\n":
-                            state_output = 2
-                        elif "Query Audit Log" in line:
-                            timestamp_line = line
-
-                            if since_datetime:
-                                # [INFO] 2023-07-28 20:58:35,089 -
-                                log_datetime = " ".join(line.split(" ")[1:3])
-                                if log_datetime < since_datetime:
-                                    continue
-
-                            query += f"# {line}"
-                            count += 1
-                            state_output = 1
-                    print (f"Extracted {count} items", file=sys.stderr)
-            except FileNotFoundError:
-                print (f"Could not open '{filename}'.", file=sys.stderr)
-                sys.exit (1)
-
-            return None
+            return extract_transactions (config, since_datetime)
 
         inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
 
