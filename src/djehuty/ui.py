@@ -42,10 +42,15 @@ Available subcommands and options:
     --debug              -d Enable debugging.
     --dev-reload         -r Enable active reloading.
     --initialize         -i Populate the RDF store with default triples.
-    --extract-transactions-from-log -e [DATETIME]
-                            Extract transactions from the log file.
-                            (Optional) DATETIME to start from.
-                                       format: YYYY-MM-DD HH:MM:SS
+    --extract-transactions-from-log=ARG
+                         -e Extract transactions from the log file.
+                            The optional argument is a datetime to
+                            start from, in the format of YYYY-MM-DD HH:MM:SS.
+    --apply-transactions=ARG
+                         -A Apply transactions extracted by the -e option above.
+                            The optional argument is the path to the folder that
+                            contains the SPARQL transaction files.  By default
+                            it will look in the current working directory.
 
   Global options:
   --help                 -h  Show this message.
@@ -98,6 +103,8 @@ def main_inner ():
     web_parser.add_argument('--initialize', '-i', action='store_true')
     web_parser.add_argument('--extract-transactions-from-log', '-e', nargs='?',
                             const='', default=None)
+    web_parser.add_argument('--apply-transactions', '-A', nargs='?',
+                            const='', default=None)
 
     ### GLOBAL ARGUMENTS
     ### -----------------------------------------------------------------------
@@ -131,7 +138,8 @@ def main_inner ():
         web_ui.main (args.address, args.port, args.state_graph, args.storage,
                      args.base_url, args.config_file, args.debug,
                      args.dev_reload, True, args.initialize,
-                     args.extract_transactions_from_log)
+                     args.extract_transactions_from_log,
+                     args.apply_transactions)
 
     elif len(sys.argv) == 1:
         print("Try --help for usage options.")

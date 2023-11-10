@@ -562,10 +562,11 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             except (ValueError, TypeError):
                 logger.info("Invalid value for disable-2fa. Ignoring.. assuming 1 (True)")
 
-        enable_query_audit_log = config_value (xml_root, "enable-query-audit-log")
-        if enable_query_audit_log:
+        enable_query_audit_log = xml_root.find ("enable-query-audit-log")
+        if enable_query_audit_log is not None:
+            config["transactions_directory"] = enable_query_audit_log.attrib.get("transactions-directory")
             try:
-                server.db.enable_query_audit_log = bool(int(enable_query_audit_log))
+                server.db.enable_query_audit_log = bool(int(enable_query_audit_log.text))
             except (ValueError, TypeError):
                 logger.info("Invalid value for enable-query-audit-log. Ignoring.. assuming 1 (True)")
 
@@ -777,6 +778,33 @@ def extract_transactions (config, since_datetime):
         print (f"Could not open '{filename}'.", file=sys.stderr)
         sys.exit (1)
 
+def apply_transactions_from_directory (server, config, transactions_directory):
+    """Apply extracted transactions from the query audit log."""
+
+    # Override with the value from the configuration file.
+    directory = transactions_directory
+    if "transactions_directory" in config:
+        directory = config["transactions_directory"]
+
+    print (f"Finding transactions in '{directory}'.")
+    transactions = list(filter(lambda x: (x.startswith("transaction_") and
+                                          x.endswith(".sparql")),
+                               os.listdir(directory)))
+
+    print(f"Applying {len(transactions)} transactions.")
+    try:
+        for transaction_file in transactions:
+            filename = f"{directory}/{transaction_file}"
+            applied_filename = f"{directory}/applied_{transaction_file}"
+            with open(filename, "r", encoding="utf-8") as transaction:
+                query = transaction.read()
+                server.db.sparql.update (query)
+                print(f"Applied {transaction.name}.")
+            os.rename (filename, applied_filename)
+    except Exception as error:  # pylint: disable=broad-exception-caught
+        print ("Applying transaction failed.", file=sys.stderr)
+        print (f"Exception: {type(error)}: {error}", file=sys.stderr)
+
 ## ----------------------------------------------------------------------------
 ## Starting point for the command-line program
 ## ----------------------------------------------------------------------------
@@ -784,7 +812,7 @@ def extract_transactions (config, since_datetime):
 def main (address=None, port=None, state_graph=None, storage=None,
           base_url=None, config_file=None, use_debugger=False,
           use_reloader=False, run_internal_server=True, initialize=True,
-          extract_transactions_from_log=None):
+          extract_transactions_from_log=None, apply_transactions=None):
     """The main entry point for the 'web' subcommand."""
     try:
         convenience.add_logging_level ("ACCESS", logging.INFO + 5)
@@ -803,6 +831,10 @@ def main (address=None, port=None, state_graph=None, storage=None,
             logger = logging.getLogger (__name__)
             logger.setLevel(logging.ERROR)
             since_datetime = extract_transactions_from_log
+
+        if apply_transactions is not None:
+            logger = logging.getLogger (__name__)
+            logger.setLevel(logging.ERROR)
 
         server = wsgi.ApiServer ()
         config_files = set()
@@ -856,6 +888,10 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 logger.error ("Falling back to %s.", server.db.profile_images_storage)
 
         server.db.setup_sparql_endpoint ()
+
+        if apply_transactions is not None:
+            return apply_transactions_from_directory (server, config, apply_transactions)
+
         if not run_internal_server:
             server.using_uwsgi = True
             server.locks.using_uwsgi = True
