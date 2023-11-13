@@ -4536,6 +4536,9 @@ class ApiServer:
                                                        account_uuid = account_uuid,
                                                        is_published = False)
 
+                if dataset is None:
+                    return self.error_404 (request)
+
                 files   = self.__file_by_id_or_uri (file_id,
                                                     account_uuid = account_uuid,
                                                     dataset_uri = dataset["uri"])
