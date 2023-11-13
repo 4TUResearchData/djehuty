@@ -105,7 +105,8 @@ def dublincore_tree (parameters):
         maker.child(root, 'dc:contributor', {}, contributor['name'])
     for name in value_or (parameters, 'organizations', []):
         maker.child(root, 'dc:contributor', {}, name)
-    maker.child(root, 'dc:date', {}, parameters['published_date'])
+    if 'published_date' in parameters:
+        maker.child(root, 'dc:date', {}, parameters['published_date'])
     maker.child(root, 'dc:type', {}, item['defined_type_name'])
     maker.child_option(root, 'dc:format', item, 'format')
     maker.child(root, 'dc:identifier', {}, parameters['doi'])
@@ -141,7 +142,7 @@ def nlm (parameters):
         maker.child_option(name, 'surname', author, 'last_name')
         maker.child_option(name, 'given-name', author, 'first_name')
     maker.child(maker.child(meta, 'pub-date', {'pub-type': 'pub'}),
-                'year', {}, parameters['published_year'])
+                'year', {}, value_or(parameters, 'published_year', None))
     maker.child(meta, 'self-uri', {'xlink:href': f"https:doi.org/{parameters['doi']}"})
     maker.child(front, 'abstract', {}, item['description'])
     return serialize_tree_to_string(root)
@@ -209,7 +210,7 @@ def datacite_tree (parameters, debug=False):
     maker.child(root, 'publisher', {}, value_or(item, 'publisher', '4TU.ResearchData'))
 
     #05 publicationYear
-    maker.child(root, 'publicationYear', {}, parameters['published_year'])
+    maker.child(root, 'publicationYear', {}, value_or(parameters, 'published_year', None))
 
     #06 resourceType
     rtype = value_or(item, 'defined_type_name', 'Collection').capitalize()
@@ -257,8 +258,9 @@ def datacite_tree (parameters, debug=False):
                             {'nameType': 'Organizational'}, name)
 
     #09 dates
-    maker.child(maker.child(root, 'dates'), 'date',
-                {'dateType': 'Issued'}, parameters['published_date'])
+    if 'published_date' in parameters:
+        maker.child(maker.child(root, 'dates'), 'date',
+                    {'dateType': 'Issued'}, parameters['published_date'])
 
     #10 language
     if 'language' in item:

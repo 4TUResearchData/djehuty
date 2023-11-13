@@ -7161,6 +7161,9 @@ class ApiServer:
             current_version = value_or(container, 'latest_published_version_number', 0)
             if from_draft:
                 current_version += 1
+
+        item = None
+        published_date = None
         if from_draft:
             try:
                 item = items_function (container_uuid=container_uuid,
@@ -7168,17 +7171,20 @@ class ApiServer:
                 item['version'] = current_version
             except IndexError:
                 self.log.warning ("No draft for %s.", item_id)
-                return None
             published_date = date.today().isoformat()
         else:
             try:
                 item = items_function (container_uuid=container_uuid,
                                        version=current_version,
                                        is_published=True)[0]
+                if item is not None and "published_date" in item:
+                    published_date = item['published_date'][:10]
             except IndexError:
                 self.log.error("Nothing found for %s %s version %s.", item_type, item_id, current_version)
-                return self.error_500 ()
-            published_date = item['published_date'][:10]
+
+        if item is None:
+            return None
+
         item_uuid = item['uuid']
         item_uri = f'{item_type}:{item_uuid}'
         lat = self_or_value_or_none(item, 'latitude')
@@ -7201,7 +7207,7 @@ class ApiServer:
             'authors'       : self.db.authors(item_uri=item_uri, item_type=item_type),
             'categories'    : self.db.categories(item_uri=item_uri, limit=None),
             'tags'          : [tag['tag'] for tag in self.db.tags(item_uri=item_uri)],
-            'published_year': published_date[:4],
+            'published_year': published_date[:4] if published_date is not None else None,
             'published_date': published_date,
             'organizations' : self.parse_organizations(value_or(item, 'organizations', '')),
             'contributors'  : self.parse_contributors (value_or(item, 'contributors' , '')),
@@ -7264,7 +7270,12 @@ class ApiServer:
             return self.error_406 ("application/xml")
 
         parameters = self.__metadata_export_parameters(dataset_id, version)
-        self.add_names_to_authors(parameters["authors"])
+        if parameters is None:
+            return self.error_404 (request)
+
+        if "authors" in parameters:
+            self.add_names_to_authors(parameters["authors"])
+
         xml_string = xml_formatter.nlm(parameters)
         output = self.response (xml_string, mimetype="application/xml")
         version_string = f'_v{version}' if version else ''
