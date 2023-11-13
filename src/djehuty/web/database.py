@@ -297,8 +297,6 @@ class SparqlInterface:
                 else:
                     filter_list = []
                     for key, value in element.items():
-                        if '"' in value:
-                            value = value.replace('"', '\\\"')
                         escaped_value = rdf.escape_string_value (value.lower())
                         filter_list.append(f" CONTAINS(LCASE(?{key}), {escaped_value}) \n")
                     filters += f"({' || '.join(filter_list)}) "
