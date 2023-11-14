@@ -3404,7 +3404,10 @@ class ApiServer:
                         search_dict[field_name] = search_term
                     search_list[idx] = search_dict
 
-            dataset_count = self.db.datasets (search_for=search_list, is_published=True, return_count=True)
+            dataset_count = self.db.datasets (search_for=search_list,
+                                              is_published=True,
+                                              is_latest=True,
+                                              return_count=True)
             if dataset_count == []:
                 message = "Invalid query"
                 datasets = []
@@ -3412,7 +3415,10 @@ class ApiServer:
             else:
                 message = None
                 dataset_count = dataset_count[0]["datasets"]
-                datasets = self.db.datasets (search_for=search_list, is_published=True, limit=100)
+                datasets = self.db.datasets (search_for=search_list,
+                                             is_published=True,
+                                             is_latest=True,
+                                             limit=100)
             return self.__render_template (request, "search.html",
                                            search_for=search_for,
                                            articles=datasets,
