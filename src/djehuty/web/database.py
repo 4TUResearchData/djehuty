@@ -293,13 +293,21 @@ class SparqlInterface:
                 if (isinstance (element, dict)
                     and len(element.items()) == 1
                     and next(iter(element)) == "operator"):
-                    filters += f" {element['operator'].upper()} "
+                    if element['operator'] == "(":
+                        filters += " || "
+                        continue
+                    if element['operator'] == ")":
+                        continue
+                    filters += f" {element['operator']} "
                 else:
                     filter_list = []
                     for key, value in element.items():
+                        if value != "":
+                            continue
                         escaped_value = rdf.escape_string_value (value.lower())
-                        filter_list.append(f" CONTAINS(LCASE(?{key}), {escaped_value}) \n")
-                    filters += f"({' || '.join(filter_list)}) "
+                        filter_list.append(f"CONTAINS(LCASE(?{key}), {escaped_value})\n")
+                    if filter_list:
+                        filters += (f"({' || '.join(filter_list)})")
             filters += ")"
         else:
             filter_list = []
