@@ -4539,12 +4539,11 @@ class ApiServer:
                 if dataset is None:
                     return self.error_404 (request)
 
-                files   = self.__file_by_id_or_uri (file_id,
-                                                    account_uuid = account_uuid,
-                                                    dataset_uri = dataset["uri"])
-
-                return self.default_list_response (files, formatter.format_file_details_record,
-                                                   base_url = self.base_url)
+                metadata = self.__file_by_id_or_uri (file_id,
+                                                     account_uuid = account_uuid,
+                                                     dataset_uri = dataset["uri"])
+                metadata["base_url"] = self.base_url
+                return self.response (json.dumps (formatter.format_file_details_record (metadata)))
             except (IndexError, KeyError):
                 pass
 
