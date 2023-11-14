@@ -485,10 +485,7 @@ class ApiServer:
     def __send_templated_email (self, email_addresses, subject, template_name, **context):
         """Procedure to send an email according to a template to the list of EMAIL_ADDRESSES."""
 
-        if not self.email.is_properly_configured ():
-            return False
-
-        if not email_addresses:
+        if not email_addresses or not self.email.is_properly_configured ():
             return False
 
         for email_address in email_addresses:
@@ -958,7 +955,6 @@ class ApiServer:
 
             report_name = f"{datetime.now().strftime('%Y%m%d%H%M%S')}-{report_name}"
             output = self.response (inmemory_file.getvalue(), mimetype="text/csv")
-            output.headers["Server"] = "4TU.ResearchData API"
             output.headers["Content-disposition"] = f"attachment; filename={report_name}.csv"
             return output
 
@@ -996,11 +992,10 @@ class ApiServer:
                 return response.json()
 
             self.log.error ("ORCID response was %d", response.status_code)
-            return None
-
         except validator.ValidationException:
             self.log.error ("ORCID parameter validation error")
-            return None
+
+        return None
 
     def __request_to_saml_request (self, request):
         """Turns a werkzeug request into one that python3-saml understands."""
@@ -1189,7 +1184,7 @@ class ApiServer:
                     return impersonate
 
         except (KeyError, IndexError, TypeError):
-            return account["uuid"]
+            pass
 
         return account["uuid"]
 
@@ -1201,7 +1196,7 @@ class ApiServer:
         ## Match the token to an account_uuid.  If the token does not
         ## exist, we cannot authenticate.
         try:
-            account    = self.db.account_by_session_token (token)
+            account  = self.db.account_by_session_token (token)
             if account is None:
                 return None
             if allow_impersonation:
