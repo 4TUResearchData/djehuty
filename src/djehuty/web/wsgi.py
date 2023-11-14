@@ -442,8 +442,7 @@ class ApiServer:
 
     def __render_export_format (self, mimetype, template_name, **context):
         template      = self.metadata_jinja.get_template (template_name)
-        return self.response (template.render( **context ),
-                              mimetype=mimetype)
+        return self.response (template.render(**context), mimetype=mimetype)
 
     def __dispatch_request (self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
@@ -465,10 +464,6 @@ class ApiServer:
                 elif "redirect-to" in page:
                     # Handle redirect
                     return redirect(location=page["redirect-to"], code=page["code"])
-                else:
-                    self.log.debug ("Static page nor redirect found in entry.")
-            else:
-                self.log.debug ("No static page entry for '%s'.", request.path)
 
             return self.error_404 (request)
         except BadRequest as error:
@@ -3210,8 +3205,7 @@ class ApiServer:
                                                       private_view=True)
             else:
                 self.log.info ("File %s accessed through private link.", file_id)
-                metadata = self.__file_by_id_or_uri (file_id,
-                                                     private_view=True)
+                metadata = self.__file_by_id_or_uri (file_id, private_view=True)
 
             return dataset, metadata
 
