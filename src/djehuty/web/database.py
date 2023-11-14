@@ -3019,6 +3019,6 @@ class SparqlInterface:
         if self.enable_query_audit_log:
             execution_type, _ = rdf.query_type (query)
             if execution_type == "update":
-                self.__log_query (query, "Query Audit Log")
+                self.__log_query (query, "Query Audit Log (manual execution)")
 
         return self.__run_query (query)
