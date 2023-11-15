@@ -29,7 +29,7 @@ function execute_query (editor) {
 
             if (data.length == 0) {
                 jQuery("#query-results").after(
-                    "<p id=\"query-output\">The query returned 0 rows.</p>");$
+                    "<p id=\"query-output\">The query returned 0 rows.</p>");
             }
             else {
                 jQuery("#query-results").after(`<pre id="query-output">${JSON.stringify(data)}</pre>`);
