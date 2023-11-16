@@ -783,7 +783,7 @@ def extract_transactions (config, since_datetime):
         print (f"Could not open '{filename}'.", file=sys.stderr)
         sys.exit (1)
 
-def apply_transactions_from_directory (server, config, transactions_directory):
+def apply_transactions_from_directory (logger, server, config, transactions_directory):
     """Apply extracted transactions from the query audit log."""
 
     # Override with the value from the configuration file.
@@ -806,9 +806,18 @@ def apply_transactions_from_directory (server, config, transactions_directory):
                 server.db.sparql.update (query)
                 print(f"Applied {transaction.name}.")
             os.rename (filename, applied_filename)
+
+        with open (applied_filename, "r", encoding="utf-8") as transaction:
+            line           = transaction.readline()
+            last_timestamp = " ".join(line.split(" ")[2:4])
+            logger.setLevel(logging.INFO)
+            logger.info ("Applied transactions up until %s.", last_timestamp)
+        return True
     except Exception as error:  # pylint: disable=broad-exception-caught
         print ("Applying transaction failed.", file=sys.stderr)
         print (f"Exception: {type(error)}: {error}", file=sys.stderr)
+
+    return False
 
 ## ----------------------------------------------------------------------------
 ## Starting point for the command-line program
@@ -895,7 +904,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
         server.db.setup_sparql_endpoint ()
 
         if apply_transactions is not None:
-            return apply_transactions_from_directory (server, config, apply_transactions)
+            return apply_transactions_from_directory (logger, server, config, apply_transactions)
 
         if not run_internal_server:
             server.using_uwsgi = True
