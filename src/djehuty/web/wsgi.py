@@ -4569,6 +4569,7 @@ class ApiServer:
                                              "files"):
 
                     self.locks.unlock (locks.LockTypes.FILE_LIST)
+                    self.db.cache.invalidate_by_prefix (f"{account_uuid}_storage")
                     self.db.cache.invalidate_by_prefix (f"{dataset['uuid']}_dataset_storage")
                     return self.respond_204()
 
