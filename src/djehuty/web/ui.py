@@ -758,7 +758,12 @@ def extract_transactions (config, since_datetime):
                             except IndexError:
                                 print (f"Failed to read '{timestamp_line}'.",
                                        file=sys.stderr)
-                        query += line
+
+                        # Due to a bug (c7204bc), some queries contained the
+                        # following line.  It's safe to re-run the query
+                        # without this line.  It only cleans up some triples.
+                        if line != "{self.default_prefixes}\n":
+                            query += line
                 elif state_output == 1 and line == "---\n":
                     state_output = 2
                 elif "Query Audit Log" in line:
