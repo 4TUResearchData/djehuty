@@ -309,6 +309,11 @@ class SparqlInterface:
                     if filter_list:
                         filters += (f"({' || '.join(filter_list)})")
             filters += ")"
+
+            # Post-construction heuristical query fixing
+            # It's undocumented because it needs to be replaced.
+            filters = filters.replace("FILTER ( || ", "FILTER (")
+            filters = filters.replace(")(", ") || (")
         else:
             filter_list = []
             for search_term in search_for:
