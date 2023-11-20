@@ -795,6 +795,7 @@ def apply_transactions_from_directory (logger, server, config, transactions_dire
     transactions = list(filter(lambda x: (x.startswith("transaction_") and
                                           x.endswith(".sparql")),
                                os.listdir(directory)))
+    transactions = sorted(transactions)
 
     print(f"Applying {len(transactions)} transactions.")
     try:
