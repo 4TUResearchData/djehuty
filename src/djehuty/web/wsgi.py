@@ -3571,7 +3571,7 @@ class ApiServer:
                                                                      funding_list,
                                                                      references)
             # ugly fix for custom field Derived From
-            custom = total['custom_fields']
+            custom = value_or (total, "custom_fields", [])
             custom = [c for c in custom if c['name'] != 'Derived From']
             custom.append( {"name": "Derived From",
                             "value": self.db.derived_from(item_uri=dataset_uri)} )
@@ -3835,7 +3835,7 @@ class ApiServer:
                                                                            references,
                                                                            is_private=True)
                 # ugly fix for custom field Derived From
-                custom = total['custom_fields']
+                custom = value_or (total, "custom_fields", [])
                 custom = [c for c in custom if c['name'] != 'Derived From']
                 custom.append( {"name": "Derived From",
                                 "value": self.db.derived_from(item_uri=dataset_uri)} )
