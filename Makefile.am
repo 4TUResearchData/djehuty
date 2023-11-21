@@ -17,7 +17,6 @@ EXTRA_DIST              =                   \
   etc/djehuty/djehuty-example-config.xml    \
   guix.scm                                  \
   requirements.txt                          \
-  setup.cfg                                 \
   setup.py                                  \
   pyproject.toml                            \
   main.py                                   \
@@ -43,10 +42,10 @@ dist-docker: dist
              glibc-locales tzdata coreutils net-base bash virtuoso-ose
 
 source-dist:
-	@PYTHON@ setup.py sdist --formats=gztar
+	@PYTHON@ setup.py sdist --formats=gztar --owner=root --group=root
 
 binary-dist:
-	@PYTHON@ setup.py bdist --formats=gztar
+	@PYTHON@ setup.py bdist --formats=gztar --owner=root --group=root
 
 all-local:
 	@PYTHON@ setup.py build --build-base $(shell readlink -f $(builddir))/build

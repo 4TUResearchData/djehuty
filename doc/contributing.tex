@@ -115,11 +115,10 @@ to a HTTP request.
 
 \subsection{Starting point}
 Because \t{djehuty} is installable as a Python package, we can find the
-starting point for running \t{djehuty} in \t{setup.cfg}.  It reads:
+starting point for running \t{djehuty} in \t{pyproject.toml}.  It reads:
 \begin{lstlisting}
-[options.entry_points]
-console_scripts =
-    djehuty = djehuty.ui:main
+[project.scripts]
+djehuty = djehuty.ui:main
 \end{lstlisting}
 
 So, we start our tour at \file{src/djehuty/ui.py} in the procedure called \t{main}.
