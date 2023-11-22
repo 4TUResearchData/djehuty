@@ -135,6 +135,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/delete_dataset_embargo.sparql      \
     djehuty/web/resources/sparql_templates/delete_inactive_session_by_uuid.sparql \
     djehuty/web/resources/sparql_templates/delete_item_categories.sparql      \
+    djehuty/web/resources/sparql_templates/delete_item_from_list.sparql       \
     djehuty/web/resources/sparql_templates/delete_private_links.sparql        \
     djehuty/web/resources/sparql_templates/delete_session.sparql              \
     djehuty/web/resources/sparql_templates/delete_session_by_uuid.sparql      \

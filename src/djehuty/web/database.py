@@ -1500,6 +1500,29 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
+    def delete_item_from_list (self, subject, predicate, rdf_first_value, value_type="uri"):
+        """
+        Removes node from list where RDF_FIRST_VALUE is the rdf:first property
+        in the list pointed to by SUBJECT and PREDICATE.
+        """
+
+        first = None
+        if value_type != "uri":
+            first = rdf.escape_value (rdf_first_value, value_type)
+        else:
+            first = URIRef(rdf_first_value).n3()
+
+        query = self.__query_from_template ("delete_item_from_list", {
+            "subject":   subject,
+            "predicate": rdf.DJHT[predicate].n3(),
+            "first":     first
+        })
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
+        return self.__run_query (query)
+
     def insert_file (self, file_id=None, name=None, size=None,
                      is_link_only=None, download_url=None, supplied_md5=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
