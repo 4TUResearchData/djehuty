@@ -15,10 +15,8 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-
     <{{subject}}> {{predicate | safe}}/rdf:rest* ?blank_node .
     ?blank_node rdf:first {{first | safe}} .
-
     {
       ?blank_before rdf:rest ?blank_node .
     } UNION { 
