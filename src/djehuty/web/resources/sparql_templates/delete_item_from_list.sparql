@@ -5,6 +5,7 @@ DELETE {
     ?blank_before rdf:rest ?blank_node .
     ?blank_node   djht:index ?blank_index .
     ?blank_node   rdf:first ?blank_first .
+    ?blank_node   rdf:type  rdf:List .
   }
 }
 INSERT {
