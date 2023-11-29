@@ -364,8 +364,7 @@ class ApiServer:
 
         ## Disable werkzeug logging.
         ## --------------------------------------------------------------------
-        werkzeug_logger = logging.getLogger('werkzeug')
-        werkzeug_logger.setLevel(logging.ERROR)
+        logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
     ## WSGI AND WERKZEUG SETUP.
     ## ------------------------------------------------------------------------
