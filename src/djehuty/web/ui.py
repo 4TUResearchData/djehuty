@@ -483,6 +483,9 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
     inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
     try:
+        if config_file is None:
+            raise FileNotFoundError
+
         config   = {}
         xml_root = None
         tree = ElementTree.parse(config_file)
@@ -709,7 +712,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             logger.error ("%s does not contain valid XML.", config_file)
     except FileNotFoundError as error:
         if not inside_reload:
-            logger.error ("Could not open '%s'.", config_file)
+            if config_file is None:
+                logger.error ("No configuration file specified.")
+            else:
+                logger.error ("Could not open '%s'.", config_file)
         raise SystemExit from error
     except UnsupportedSAMLProtocol as error:
         raise SystemExit from error
