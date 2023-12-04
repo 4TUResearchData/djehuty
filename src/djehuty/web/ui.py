@@ -727,7 +727,8 @@ def extract_transactions (config, since_datetime):
 
     if "log-file" not in config:
         print("No log file found to extract queries from.", file=sys.stderr)
-        sys.exit (1)
+        return False
+
     filename = config["log-file"]
     try:
         if "transactions_directory" in config:
@@ -785,9 +786,10 @@ def extract_transactions (config, since_datetime):
                     count += 1
                     state_output = 1
             print (f"Extracted {count} items", file=sys.stderr)
+            return True
     except FileNotFoundError:
         print (f"Could not open '{filename}'.", file=sys.stderr)
-        sys.exit (1)
+        return False
 
 def apply_transactions_from_directory (logger, server, config, transactions_directory):
     """Apply extracted transactions from the query audit log."""
@@ -876,7 +878,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
             logger.error(("Configured a BerkeleyDB database back-end, "
                           "but BerkeleyDB is not installed on the system "
                           "or the 'berkeleydb' Python package is missing."))
-            sys.exit (1)
+            raise DependencyNotAvailable
 
         if not server.db.cache.cache_is_ready() and not inside_reload:
             logger.error ("Failed to set up cache layer.")
