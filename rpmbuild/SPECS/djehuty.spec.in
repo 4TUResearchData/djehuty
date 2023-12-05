@@ -3,7 +3,7 @@ Version:     @VERSION@
 Release:     1%{?dist}
 Summary:     Repository system for 4TU.ResearchData
 Source0:     %{name}-%{version}.tar.gz
-License:     GPLv3+
+License:     AGPLv3+
 Group:       System Environment/Daemons
 BuildRoot:   %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix:      %{_prefix}
@@ -17,9 +17,11 @@ Requires: python3dist(requests)
 requires: python3dist(jinja2)
 Requires: python3dist(rdflib)
 Requires: python3dist(pygit2)
-Requires: python3dist(sparqlwrapper)
 Requires: python3dist(urllib3)
 Requires: python3dist(werkzeug)
+Requires: python3dist(defusedxml)
+Requires: python3dist(zipfly)
+Requires: python3dist(pillow)
 
 %description
 This package provides the repository system for 4TU.ResearchData.
