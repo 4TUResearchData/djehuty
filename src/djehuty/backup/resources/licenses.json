@@ -84,6 +84,12 @@
         "type": "data"
     },
     {
+        "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/igo/",
+        "value": 998,
+        "name": "CC-BY-NC-SA 3.0 IGO",
+        "type": "data"
+    },
+    {
         "url": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
         "value": 12,
         "name": "CC BY-NC-ND 4.0",
