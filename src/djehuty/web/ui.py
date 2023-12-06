@@ -63,6 +63,17 @@ def config_value (xml_root, path, command_line=None, fallback=None, return_node=
     ## Fall back to the fallback value.
     return fallback
 
+def read_boolean_value (xml_root, path, default_value, logger):
+    """Parses a boolean option and sets DESTINATION if the option is present."""
+    try:
+        parsed = config_value (xml_root, path, None, None)
+        if parsed is not None:
+            return bool(int(parsed))
+    except (ValueError, TypeError):
+        logger.error ("Erroneous value for '%s' - assuming '%s'.", path, default_value)
+
+    return default_value
+
 def read_raw_xml (xml_root, path, default_value=None):
     """
     Return the inner XML for PATH in XML_ROOT as a string or
@@ -523,47 +534,23 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if update_endpoint:
             server.db.update_endpoint = update_endpoint
 
-        show_portal_summary = config_value(xml_root, "show-portal-summary")
-        if show_portal_summary:
-            try:
-                server.show_portal_summary = bool(int(show_portal_summary))
-            except (ValueError, TypeError):
-                logger.info("Invalid value for show-portal-summary. Ignoring.. assuming 1 (True)")
+        server.show_portal_summary = read_boolean_value (xml_root, "show-portal-summary",
+                                                         server.show_portal_summary, logger)
 
-        show_institutions = config_value(xml_root, "show-institutions")
-        if show_institutions:
-            try:
-                server.show_institutions = bool(int(show_institutions))
-            except (ValueError, TypeError):
-                logger.info("Invalid value for show-institutions. Ignoring.. assuming 1 (True)")
+        server.show_institutions = read_boolean_value (xml_root, "show-institutions",
+                                                       server.show_institutions, logger)
 
-        show_science_categories = config_value(xml_root, "show-science-categories")
-        if show_science_categories:
-            try:
-                server.show_science_categories = bool(int(show_science_categories))
-            except (ValueError, TypeError):
-                logger.info("Invalid value for show-science-categories. Ignoring.. assuming 1 (True)")
+        server.show_science_categories = read_boolean_value (xml_root, "show-science-categories",
+                                                             server.show_science_categories, logger)
 
-        show_latest_datasets = config_value(xml_root, "show-latest-datasets")
-        if show_latest_datasets:
-            try:
-                server.show_latest_datasets = bool(int(show_latest_datasets))
-            except (ValueError, TypeError):
-                logger.info("Invalid value for show-latest-datasets. Ignoring.. assuming 1 (True)")
+        server.show_latest_datasets = read_boolean_value (xml_root, "show-latest-datasets",
+                                                          server.show_latest_datasets, logger)
 
-        maintenance_mode = config_value (xml_root, "maintenance-mode")
-        if maintenance_mode:
-            try:
-                server.maintenance_mode = bool(int(maintenance_mode))
-            except (ValueError, TypeError):
-                logger.info("Invalid value for maintenance-mode. Ignoring.. assuming 1 (True)")
+        server.maintenance_mode = read_boolean_value (xml_root, "maintenance-mode",
+                                                      server.maintenance_mode, logger)
 
-        disable_2fa = config_value (xml_root, "disable-2fa")
-        if disable_2fa:
-            try:
-                server.disable_2fa = bool(int(disable_2fa))
-            except (ValueError, TypeError):
-                logger.info("Invalid value for disable-2fa. Ignoring.. assuming 1 (True)")
+        server.disable_2fa = read_boolean_value (xml_root, "disable-2fa",
+                                                 server.disable_2fa, logger)
 
         enable_query_audit_log = xml_root.find ("enable-query-audit-log")
         if enable_query_audit_log is not None:
