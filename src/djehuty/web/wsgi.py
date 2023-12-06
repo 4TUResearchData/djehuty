@@ -65,6 +65,7 @@ class ApiServer:
         self.email            = email_handler.EmailInterface()
         self.cookie_key       = "djehuty_session"
         self.impersonator_cookie_key = f"impersonator_{self.cookie_key}"
+        self.allow_crawlers   = False
         self.in_production    = False
         self.in_preproduction = False
         self.using_uwsgi      = False
@@ -114,6 +115,7 @@ class ApiServer:
             # The / used to redirect to /portal, but here we reversed it.
             R("/",                                                               self.ui_portal),
             R("/portal",                                                         self.ui_home),
+            R("/robots.txt",                                                     self.robots_txt),
             R("/browse",                                                         self.ui_home),
             R("/login",                                                          self.ui_login),
             R("/account/home",                                                   self.ui_account_home),
@@ -344,10 +346,7 @@ class ApiServer:
         ## --------------------------------------------------------------------
 
         resources_path = os.path.dirname(__file__)
-        self.static_roots = {
-            "/robots.txt": os.path.join(resources_path, "resources/robots.txt"),
-            "/static":     os.path.join(resources_path, "resources/static")
-        }
+        self.static_roots = { "/static": os.path.join(resources_path, "resources/static") }
         self.jinja   = Environment(loader = FileSystemLoader(
             [
                 # For internal templates.
@@ -1274,6 +1273,17 @@ class ApiServer:
             return redirect ("/", code=301)
 
         return self.response (json.dumps({ "status": "OK" }))
+
+    def robots_txt (self, request):
+        """Implements /robots.txt."""
+
+        output = "User-agent: *\n"
+        if self.allow_crawlers:
+            output += "Allow: /\n"
+        else:
+            output += "Disallow: /\n"
+
+        return self.response (output, mimetype="text/plain")
 
     def ui_maintenance (self, request):
         """Implements a maintenance page."""

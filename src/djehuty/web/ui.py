@@ -552,6 +552,9 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         server.disable_2fa = read_boolean_value (xml_root, "disable-2fa",
                                                  server.disable_2fa, logger)
 
+        server.allow_crawlers = read_boolean_value (xml_root, "allow-crawlers",
+                                                    server.allow_crawlers, logger)
+
         enable_query_audit_log = xml_root.find ("enable-query-audit-log")
         if enable_query_audit_log is not None:
             config["transactions_directory"] = enable_query_audit_log.attrib.get("transactions-directory")
