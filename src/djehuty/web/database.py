@@ -306,6 +306,7 @@ class SparqlInterface:
                             continue
                         escaped_value = rdf.escape_string_value (value.lower())
                         filter_list.append(f"CONTAINS(LCASE(?{key}), {escaped_value})\n")
+                    filter_list.append(f"LCASE(?tag) = {escaped_value}")
                     if filter_list:
                         filters += (f"({' || '.join(filter_list)})")
             filters += ")"
@@ -322,6 +323,7 @@ class SparqlInterface:
                 filter_list.append(f"       CONTAINS(LCASE(?resource_title), {search_term_safe})")
                 filter_list.append(f"       CONTAINS(LCASE(?description),    {search_term_safe})")
                 filter_list.append(f"       CONTAINS(LCASE(?citation),       {search_term_safe})")
+                filter_list.append(f"       LCASE(?tag) =                    {search_term_safe}")
                 if search_format:
                     filter_list.append(f"       CONTAINS(LCASE(?format),         {search_term_safe})")
             if len(filter_list) > 0:
