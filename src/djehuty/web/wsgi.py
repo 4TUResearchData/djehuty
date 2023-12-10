@@ -3447,10 +3447,7 @@ class ApiServer:
             return account_uuid
 
         ## Our API only contains data from 4TU.ResearchData.
-        return self.response (json.dumps({
-            "id": 898,
-            "name": "4TU.ResearchData"
-        }))
+        return self.response (json.dumps({ "id": 898, "name": "4TU.ResearchData" }))
 
     def api_private_institution_accounts (self, request):
         """Implements /v2/account/institution/accounts."""
@@ -3587,11 +3584,7 @@ class ApiServer:
             total['custom_fields'] = custom
             return self.response (json.dumps(total))
         except (IndexError, TypeError):
-            response = self.response (json.dumps({
-                "message": "This dataset cannot be found."
-            }))
-            response.status_code = 404
-            return response
+            return self.error_404 (request)
 
     def api_dataset_versions (self, request, dataset_id):
         """Implements /v2/articles/<id>/versions."""
@@ -3613,37 +3606,32 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        try:
-            dataset       = self.__dataset_by_id_or_uri (dataset_id,
-                                                         is_published = True,
-                                                         version = version)
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               is_published = True,
+                                               version = version)
+        if dataset is None:
+            return self.error_404 (request)
 
-            # Passing along the base_url here to generate the API links.
-            dataset["base_url"] = self.base_url
+        # Passing along the base_url here to generate the API links.
+        dataset["base_url"] = self.base_url
 
-            dataset_uri   = dataset["uri"]
-            authors       = self.db.authors(item_uri=dataset_uri, item_type="dataset")
-            files         = self.db.dataset_files(dataset_uri=dataset_uri)
-            custom_fields = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
-            tags          = self.db.tags(item_uri=dataset_uri)
-            categories    = self.db.categories(item_uri=dataset_uri, limit=None)
-            references    = self.db.references(item_uri=dataset_uri)
-            fundings      = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
-            total         = formatter.format_dataset_details_record (dataset,
-                                                                     authors,
-                                                                     files,
-                                                                     custom_fields,
-                                                                     tags,
-                                                                     categories,
-                                                                     fundings,
-                                                                     references)
-            return self.response (json.dumps(total))
-        except IndexError:
-            response = self.response (json.dumps({
-                "message": "This dataset cannot be found."
-            }))
-            response.status_code = 404
-            return response
+        dataset_uri   = dataset["uri"]
+        authors       = self.db.authors(item_uri=dataset_uri, item_type="dataset")
+        files         = self.db.dataset_files(dataset_uri=dataset_uri)
+        custom_fields = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
+        tags          = self.db.tags(item_uri=dataset_uri)
+        categories    = self.db.categories(item_uri=dataset_uri, limit=None)
+        references    = self.db.references(item_uri=dataset_uri)
+        fundings      = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
+        total         = formatter.format_dataset_details_record (dataset,
+                                                                 authors,
+                                                                 files,
+                                                                 custom_fields,
+                                                                 tags,
+                                                                 categories,
+                                                                 fundings,
+                                                                 references)
+        return self.response (json.dumps(total))
 
     def api_dataset_version_embargo (self, request, dataset_id, version):
         """Implements /v2/articles/<id>/versions/<version>/embargo."""
@@ -3651,18 +3639,14 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        try:
-            dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                   version      = version,
-                                                   is_published = True)
-            total   = formatter.format_dataset_embargo_record (dataset)
-            return self.response (json.dumps(total))
-        except IndexError:
-            response = self.response (json.dumps({
-                "message": "This dataset cannot be found."
-            }))
-            response.status_code = 404
-            return response
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               version      = version,
+                                               is_published = True)
+        if dataset is None:
+            return self.error_404 (request)
+
+        total   = formatter.format_dataset_embargo_record (dataset)
+        return self.response (json.dumps(total))
 
     def api_dataset_version_confidentiality (self, request, dataset_id, version):
         """Implements /v2/articles/<id>/versions/<version>/confidentiality."""
@@ -3670,18 +3654,14 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        try:
-            dataset       = self.__dataset_by_id_or_uri (dataset_id,
-                                                         version = version,
-                                                         is_published = True)
-            total           = formatter.format_dataset_confidentiality_record (dataset)
-            return self.response (json.dumps(total))
-        except IndexError:
-            response = self.response (json.dumps({
-                "message": "This dataset cannot be found."
-            }))
-            response.status_code = 404
-            return response
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               version = version,
+                                               is_published = True)
+        if dataset is None:
+            return self.error_404 (request)
+
+        total = formatter.format_dataset_confidentiality_record (dataset)
+        return self.response (json.dumps(total))
 
     def api_dataset_version_update_thumb (self, request, dataset_id, version):
         """Implements /v2/articles/<id>/versions/<version>/update_thumb."""
