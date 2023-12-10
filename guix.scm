@@ -49,7 +49,6 @@
           python-pillow
           python-pygit2
           python-requests
-          python-sparqlwrapper
           python-urllib3
           python-werkzeug
           python-zipfly))
