@@ -152,6 +152,14 @@ class SparqlInterface:
 
         return template.render ({ **args, **parameters })
 
+    def __run_logged_query (self, query):
+        """Passthrough for '__run_query' that handles the audit log feature."""
+
+        if self.enable_query_audit_log:
+            self.__log_query (query, "Query Audit Log")
+
+        return self.__run_query (query)
+
     def __run_query (self, query, cache_key_string=None, prefix=None, retries=5):
 
         cache_key = None
@@ -1068,10 +1076,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        if self.__run_query (query):
+        if self.__run_logged_query (query):
             return True, new_git_uuid
 
         return False, None
@@ -1269,10 +1274,7 @@ class SparqlInterface:
 
         self.cache.invalidate_by_prefix ("accounts")
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        results = self.__run_query (query)
+        results = self.__run_logged_query (query)
         if results and categories:
 
             if categories:
@@ -1299,10 +1301,7 @@ class SparqlInterface:
             "orcid":         self.__normalize_orcid (orcid),
         })
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query (query)
+        return self.__run_logged_query (query)
 
     def update_item_list (self, item_uuid, account_uuid, items, predicate):
         """Procedure to modify a list property of a container item."""
@@ -1420,10 +1419,7 @@ class SparqlInterface:
             "account_uuid":  account_uuid,
         })
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query(query)
+        return self.__run_logged_query (query)
 
     def delete_account_property (self, account_uuid, predicate):
         """Procedure to delete the PREDICATE of an account."""
@@ -1433,11 +1429,8 @@ class SparqlInterface:
             "account_uuid":  account_uuid,
         })
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
         self.cache.invalidate_by_prefix ("accounts")
-        return self.__run_query(query)
+        return self.__run_logged_query (query)
 
     def delete_item_categories (self, item_id, account_uuid, category_id=None,
                                 item_type="dataset"):
@@ -1452,10 +1445,7 @@ class SparqlInterface:
             "category_id": category_id
         })
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query(query)
+        return self.__run_logged_query (query)
 
     def delete_dataset_categories (self, dataset_id, account_uuid, category_id=None):
         """Procedure to delete the categories related to a dataset."""
@@ -1497,10 +1487,7 @@ class SparqlInterface:
             "append_blank_node": node_to_append
         })
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query (query)
+        return self.__run_logged_query (query)
 
     def delete_item_from_list (self, subject, predicate, rdf_first_value, value_type="uri"):
         """
@@ -1520,10 +1507,7 @@ class SparqlInterface:
             "first":     first
         })
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query (query)
+        return self.__run_logged_query (query)
 
     def insert_file (self, file_id=None, name=None, size=None,
                      is_link_only=None, download_url=None, supplied_md5=None,
@@ -1616,10 +1600,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
         self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query(query)
+        return self.__run_logged_query (query)
 
     def insert_log_entry (self, created_date, ip_address, item_uuid,
                           item_type="dataset", event_type="view"):
@@ -1736,10 +1717,7 @@ class SparqlInterface:
             "container_uri":       rdf.uuid_to_uri (container_uuid, "container")
         })
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        result = self.__run_query (query)
+        result = self.__run_logged_query (query)
         self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
         self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
@@ -1790,10 +1768,7 @@ class SparqlInterface:
             "first_publication": not latest
         })
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return bool(self.__run_query (query))
+        return bool(self.__run_logged_query (query))
 
     def create_draft_from_published_collection (self, container_uuid):
         """Procedure to copy a published collection as draft in its container."""
@@ -1910,9 +1885,7 @@ class SparqlInterface:
             "first_publication": not latest
         })
 
-        if self.__run_query (query):
-            if self.enable_query_audit_log:
-                self.__log_query (query, "Query Audit Log")
+        if self.__run_logged_query (query):
             self.cache.invalidate_by_prefix ("repository_statistics")
             self.cache.invalidate_by_prefix ("reviews")
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
@@ -1939,9 +1912,7 @@ class SparqlInterface:
             "container_uuid": container_uuid,
         })
 
-        if self.__run_query (query):
-            if self.enable_query_audit_log:
-                self.__log_query (query, "Query Audit Log")
+        if self.__run_logged_query (query):
             self.cache.invalidate_by_prefix ("reviews")
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
             return True
@@ -2100,10 +2071,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        results = self.__run_query (query)
+        results = self.__run_logged_query (query)
         if results:
             items = []
             if categories:
@@ -2125,10 +2093,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query(query)
+        return self.__run_logged_query (query)
 
     def delete_private_links (self, container_uuid, account_uuid, link_id):
         """Procedure to remove private links to a dataset."""
@@ -2142,10 +2107,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query(query)
+        return self.__run_logged_query (query)
 
     def update_private_link (self, item_uri, account_uuid, link_id,
                              is_active=None, expires_date=None,
@@ -2164,10 +2126,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
         self.cache.invalidate_by_prefix ("datasets")
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query(query)
+        return self.__run_logged_query (query)
 
     def dataset_update_thumb (self, dataset_id, version, account_uuid, file_id):
         """Procedure to update the thumbnail of a dataset."""
@@ -2338,10 +2297,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"collections_{account_uuid}")
         self.cache.invalidate_by_prefix ("collections")
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query(query)
+        return self.__run_logged_query (query)
 
     def update_collection (self, collection_uuid, account_uuid, title=None,
                            description=None, resource_doi=None, doi=None,
@@ -2381,10 +2337,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"collections_{account_uuid}")
         self.cache.invalidate_by_prefix ("collections")
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        results = self.__run_query (query, query, f"{collection_uuid}_collection")
+        results = self.__run_logged_query (query)
         if results and categories:
             items = rdf.uris_from_records (categories, "category")
             self.update_item_list (collection_uuid, account_uuid, items, "categories")
@@ -2605,10 +2558,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"datasets_{author_account_uuid}")
         self.cache.invalidate_by_prefix ("reviews")
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query (query)
+        return self.__run_logged_query (query)
 
     def account_uuid_by_orcid (self, orcid):
         """Returns the account ID belonging to an ORCID."""
@@ -2850,18 +2800,13 @@ class SparqlInterface:
             "active":        rdf.escape_boolean_value (active)
         })
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query (query)
+        return self.__run_logged_query (query)
 
     def delete_all_sessions (self):
         """Procedure to delete all sessions."""
 
         query = self.__query_from_template ("delete_sessions")
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-        return self.__run_query (query)
+        return self.__run_logged_query (query)
 
     def delete_inactive_session_by_uuid (self, session_uuid):
         """Procedure to remove an inactive session by its UUID alone."""
@@ -2869,10 +2814,8 @@ class SparqlInterface:
         query = self.__query_from_template ("delete_inactive_session_by_uuid", {
             "session_uuid": session_uuid
         })
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
 
-        return self.__run_query (query)
+        return self.__run_logged_query (query)
 
     def delete_session_by_uuid (self, account_uuid, session_uuid):
         """Procedure to remove a session from the state graph."""
@@ -2881,10 +2824,8 @@ class SparqlInterface:
             "session_uuid":  session_uuid,
             "account_uuid":  account_uuid
         })
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
 
-        return self.__run_query (query)
+        return self.__run_logged_query (query)
 
     def delete_session (self, token):
         """Procedure to remove a session from the state graph."""
@@ -2892,13 +2833,8 @@ class SparqlInterface:
         if token is None:
             return True
 
-        query   = self.__query_from_template ("delete_session", {
-            "token":       token
-        })
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
-        return self.__run_query(query)
+        query = self.__query_from_template ("delete_session", {"token": token})
+        return self.__run_logged_query (query)
 
     def sessions (self, account_uuid, session_uuid=None, mfa_token=None):
         """Returns the sessions for an account."""
