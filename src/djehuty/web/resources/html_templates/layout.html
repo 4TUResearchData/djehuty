@@ -56,13 +56,13 @@
           <a href="/login"><div class="button" id="login-button">Log in</div></a>
           {%- endif %}
           {%- else %}
-          {%- if may_review %}
+          {%- if may_review and path != "/review/overview" %}
           <a href="/review/overview" class="button fas fa-clipboard-check corporate-identity-privilege-button" title="Reviewer dashboard"><span class="hidden">Reviewer dashboard</span></a>
           {%- endif %}
-          {%- if may_administer %}
+          {%- if may_administer and not path.startswith("/admin") %}
           <a href="/admin/dashboard" class="button fas fa-gear corporate-identity-privilege-button" title="Administrator dashboard"><span class="hidden">Administration dashboard</span></a>
           {%- endif %}
-          {%- if not path.startswith("/my") %}<a href="/my/dashboard"><div class="button" id="dashboard-button">Dashboard</div></a>{% endif %}
+          {%- if not path.startswith("/my") %}<a href="/my/dashboard"><div class="button" id="dashboard-button">{% if path.startswith("/admin") or path.startswith("/review") %}Depositor {% endif %}Dashboard</div></a>{% endif %}
           <a href="/logout"><div class="button" id="logout-button">Log out</div></a>
           <a id="profile-button" title="My profile" class="fas fa-user-circle" href="/my/profile"><span class="hidden">My profile</span></a>
           {%- endif %}
