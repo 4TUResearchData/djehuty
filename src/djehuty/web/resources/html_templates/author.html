@@ -142,15 +142,4 @@
     </div>
 {% endif %}
 </div>
-{%- if not in_production: %}
-    {% set debug_vars = {"profile": profile,
-                         "datasets": datasets,
-                         "collections": collections,
-                         "associated_authors": associated_authors,
-                         "member": member,
-                         "member_url_name": member_url_name,
-                         "statistics": statistics} %}
-    {% set figshare_html = "https://data.4tu.nl/authors/_/"~profile.id %}
-    {% include 'debug.html' %}
-{%- endif %}
 {% endblock %}

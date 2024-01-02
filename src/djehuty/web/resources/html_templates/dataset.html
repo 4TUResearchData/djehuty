@@ -155,20 +155,4 @@
 {% endif %}
 {% endif %}
 </div>
-{%- if not in_production: %}
-{% set debug_vars = {"item":item, "version":version, "versions":versions, "citation":citation, "authors":authors, "contributors":contributors,
-                     "files":files, "services":services, "tags":tags, "categories":categories, "fundings":fundings,
-                     "references": references, "derived_from":derived_from, "collections":collections, "my_collections":my_collections,
-                     "dates":dates, "coordinates":coordinates, "id_version":id_version, "opendap":opendap, "statistics":statistics,
-                     "my_email":my_email, "my_name":my_name, "private_view":private_view, "is_own_item":is_own_item} %}
-{% set djehuty_API   = "/v2/articles/"~pid %}
-{% set figshare_html = "https://data.4tu.nl/articles/_/"~pid %}
-{% set figshare_API = "https://api.figshare.com/v2/articles/"~pid %}
-{% if version %}
-    {% set djehuty_API   = djehuty_API~"/versions/"~version %}
-    {% set figshare_html = figshare_html~"/"~version %}
-    {% set figshare_API  = figshare_API~"/versions/"~version %}
-{% endif %}
-{% include 'debug.html' %}
-{%- endif %}
 {% endblock %}

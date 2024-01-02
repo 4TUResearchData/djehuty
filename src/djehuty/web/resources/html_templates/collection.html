@@ -22,18 +22,4 @@
 {% endfor %}
     </ul>
 </div>
-{%- if not in_production: %}
-{% set debug_vars = {"item":item, "version":version, "versions":versions, "citation":citation, "authors":authors, "contributors":contributors,
-                     "tags":tags, "categories":categories, "fundings":fundings, "references": references,
-                     "dates":dates, "coordinates":coordinates, "statistics":statistics, "datasets":datasets} %}
-{% set djehuty_API   = "/v2/collections/"~pid %}
-{% set figshare_html = "https://data.4tu.nl/collections/_/"~pid %}
-{% set figshare_API = "https://api.figshare.com/v2/collections/"~pid %}
-{% if version %}
-    {% set djehuty_API   = djehuty_API~"/versions/"~version %}
-    {% set figshare_html = figshare_html~"/"~version %}
-    {% set figshare_API  = figshare_API~"/versions/"~version %}
-{% endif %}
-{% include 'debug.html' %}
-{%- endif %}
 {% endblock %}
