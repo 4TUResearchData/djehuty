@@ -1274,7 +1274,7 @@ class ApiServer:
 
         return self.response (json.dumps({ "status": "OK" }))
 
-    def robots_txt (self, request):
+    def robots_txt (self, request):  # pylint: disable=unused-argument
         """Implements /robots.txt."""
 
         output = "User-agent: *\n"
@@ -4545,9 +4545,9 @@ class ApiServer:
                     self.db.cache.invalidate_by_prefix (f"{account_uuid}_storage")
                     self.db.cache.invalidate_by_prefix (f"{dataset['uuid']}_dataset_storage")
                     return self.respond_204()
-                else:
-                    self.log.error ("Failed to delete file %s from dataset %s.",
-                                    file_id, dataset_id)
+
+                self.log.error ("Failed to delete file %s from dataset %s.",
+                                file_id, dataset_id)
 
             except (IndexError, KeyError, StopIteration):
                 pass
