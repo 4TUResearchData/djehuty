@@ -1,6 +1,6 @@
 include etc/djehuty.service
 include etc/djehuty/djehuty-example-config.xml
-include doc/djehuty.tex doc/introduction.tex doc/djehuty.sty
+include doc/*.tex doc/djehuty.sty doc/references.bib doc/figures/*.pdf
 include rpmbuild/SPECS/djehuty.spec
 recursive-include src *.py
 recursive-include src/djehuty/web/resources *.txt *.html *.css *.eot *.svg *.ttf *.woff *.woff2 *.js *.sparql *.jpg *.png *.ico
