@@ -24,7 +24,7 @@ from werkzeug.exceptions import HTTPException, NotFound, BadRequest
 from rdflib import URIRef
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import xml_formatter
@@ -6231,8 +6231,11 @@ class ApiServer:
     def __image_mimetype (self, file_path):
         """Returns the mimetype and file extension for FILE_PATH."""
         mimetype = None
-        with Image.open (file_path) as image:
-            mimetype = image.get_format_mimetype()
+        try:
+            with Image.open (file_path) as image:
+                mimetype = image.get_format_mimetype()
+        except (FileNotFoundError, UnidentifiedImageError):
+            pass
         return mimetype
 
     def api_v3_profile_picture_for_account (self, request, account_uuid):
