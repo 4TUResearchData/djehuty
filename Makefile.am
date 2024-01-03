@@ -41,6 +41,9 @@ dist-docker: dist
              -S /bin=bin -S /lib=lib -S /share=share -S /etc=etc -S /var=var \
              glibc-locales tzdata coreutils net-base bash virtuoso-ose
 
+dist-pypi:
+	@python -m build
+
 source-dist:
 	@PYTHON@ setup.py sdist --formats=gztar --owner=root --group=root
 
@@ -66,3 +69,9 @@ lint:
 
 coverity-report:
 	@cov-build --dir cov-int --no-command --fs-capture-search .
+
+publish-pypi: dist-pypi
+	@python -m twine upload --repository pypi dist/djehuty-@VERSION@.tar.gz dist/djehuty-@VERSION@-py3-none-any.whl
+
+publish-test-pypi: dist-pypi
+	@python -m twine upload --repository testpypi dist/djehuty-@VERSION@.tar.gz dist/djehuty-@VERSION@-py3-none-any.whl
