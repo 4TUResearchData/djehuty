@@ -2806,11 +2806,19 @@ class ApiServer:
         derived_from  = self.db.derived_from(item_uri=dataset["uri"], limit=None)
         fundings      = self.db.fundings(item_uri=dataset["uri"], limit=None)
         collections   = self.db.collections_from_dataset(dataset["container_uuid"])
-        statistics    = {'downloads': value_or(dataset, 'total_downloads', 0),
-                         'views'    : value_or(dataset, 'total_views'    , 0),
-                         'shares'   : value_or(dataset, 'total_shares'   , 0),
-                         'cites'    : value_or(dataset, 'total_cites'    , 0)}
-        statistics    = {key:val for (key,val) in statistics.items() if val > 0}
+
+        statistics = {}
+        if (value_or (dataset, "is_public", False) and
+            not (value_or (dataset, "is_restricted", False) or
+                 value_or (dataset, "is_embargoed", False))):
+            statistics = {
+                "downloads": value_or (dataset, "total_downloads", 0),
+                "views"    : value_or (dataset, "total_views"    , 0),
+                "shares"   : value_or (dataset, "total_shares"   , 0),
+                "cites"    : value_or (dataset, "total_cites"    , 0)
+            }
+            statistics = {key:val for (key,val) in statistics.items() if val > 0}
+
         member = value_or (group_to_member, value_or_none (dataset, "group_id"), 'other')
         member_url_name = member_url_names[member]
         tags = { t['tag'] for t in tags }
