@@ -6,7 +6,7 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?status        ?upload_url    ?upload_token
                 ?order_index   ?uuid          ?filesystem_location
                 ?container_uuid ?order_name   (?rest AS ?originating_blank_node)
-                ?is_incomplete
+                ?is_incomplete ?is_image
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                djht:File .
@@ -35,6 +35,7 @@ WHERE {
     OPTIONAL { ?file  djht:upload_url           ?upload_url . }
     OPTIONAL { ?file  djht:upload_token         ?upload_token . }
     OPTIONAL { ?file  djht:is_incomplete        ?is_incomplete . }
+    OPTIONAL { ?file  djht:is_image             ?is_image . }
 
     BIND(STRAFTER(STR(?file), "file:") AS ?uuid)
     BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)

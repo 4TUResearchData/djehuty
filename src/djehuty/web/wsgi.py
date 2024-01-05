@@ -6583,6 +6583,7 @@ class ApiServer:
                                  download_url  = download_url,
                                  filesystem_location = output_filename,
                                  file_size     = file_size,
+                                 is_image      = self.__image_mimetype (output_filename) is not None,
                                  is_incomplete = is_incomplete)
 
             response_data = { "location": f"{self.base_url}/v3/file/{file_uuid}" }
