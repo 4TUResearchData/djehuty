@@ -3722,19 +3722,35 @@ class ApiServer:
 
     def api_dataset_version_update_thumb (self, request, dataset_id, version):
         """Implements /v2/articles/<id>/versions/<version>/update_thumb."""
-        if request.method != 'PUT':
-            return self.error_405 ("PUT")
-
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         parameters = request.get_json()
         file_id    = value_or_none (parameters, "file_id")
-        if not self.db.dataset_update_thumb (dataset_id, version, account_uuid, file_id):
-            return self.respond_205()
+        dataset    = self.__dataset_by_id_or_uri (dataset_id, version = version)
+        if dataset is None:
+            return self.error_404 (request)
 
-        return self.error_500()
+        metadata   = self.__file_by_id_or_uri (file_id,
+                                               dataset_uri  = dataset["uri"],
+                                               account_uuid = account_uuid)
+        if metadata is None:
+            return self.error_404 (request)
+
+        input_filename = self.__filesystem_location (metadata)
+        if input_filename is None:
+            return self.error_404 (request)
+
+        extension = self.__generate_thumbnail (self, input_filename, dataset["uuid"])
+        if extension is None:
+            return self.error_500 ()
+
+        if not self.db.dataset_update_thumb (dataset_id, account_uuid,
+                                             metadata["uuid"], extension, version):
+            return self.error_500()
+
+        return self.respond_205()
 
     def api_dataset_files (self, request, dataset_id):
         """Implements /v2/articles/<id>/files."""

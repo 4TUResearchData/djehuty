@@ -3,28 +3,34 @@
 DELETE {
   GRAPH <{{state_graph}}> {
     ?dataset djht:thumb  ?thumb .
+    ?dataset djht:thumb_origin  ?thumb_origin .
   }
 }
+{%- if file_uuid is not none: %}
 INSERT {
   GRAPH <{{state_graph}}> {
-    ?dataset djht:thumb  "/files/{{file_id}}/preview/{{file_id}}/thumb.png" .
+    ?dataset djht:thumb  "/thumbnails/{{dataset_uuid}}.{{extension}}"^^xsd:string .
+    ?dataset djht:thumb_origin "{{file_uuid}}"^^xsd:string .
   }
 }
+{%- endif %}
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?dataset rdf:type       djht:Dataset .
-    ?dataset djht:dataset_version_id ?dataset_version_id .
-    ?dataset djht:container/djht:account <account:{{account_uuid | safe}}> .
-    ?dataset djht:version    {{version | safe}}.
-    OPTIONAL { ?dataset djht:thumb      ?thumb . }
+    ?dataset rdf:type     djht:Dataset .
+    {%- if version is not none %}
+    ?dataset djht:version {{version | safe}}.
+    {%- endif %}
+    ?dataset djht:container/djht:account <account:{{account_uuid}}> .
+    OPTIONAL { ?dataset djht:thumb ?thumb . }
+    OPTIONAL { ?dataset djht:thumb_origin  ?thumb_origin . }
 
     ?file    rdf:type       djht:File .
-    ?file    djht:id         ?file_id .
+    ?dataset djht:files/rdf:rest*/rdf:first ?file .
 
-    ?link    rdf:type       djht:DatasetFile .
-    ?link    djht:dataset_version_id ?dataset_version_id .
-    ?link    djht:file_id    ?file_id .
+    {%- if file_uuid is not none: %}
+    FILTER (?file = <file:{{file_uuid}}>)
+    {%- endif %}
+    FILTER (?dataset = <dataset:{{dataset_uuid}}>)
   }
-{%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}

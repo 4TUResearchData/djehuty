@@ -2129,15 +2129,19 @@ class SparqlInterface:
 
         return self.__run_logged_query (query)
 
-    def dataset_update_thumb (self, dataset_id, version, account_uuid, file_id):
+    def dataset_update_thumb (self, dataset_uuid, account_uuid, file_uuid,
+                              extension, version=None):
         """Procedure to update the thumbnail of a dataset."""
 
-        filters = rdf.sparql_filter ("file_id", file_id)
-        query   = self.__query_from_template ("update_dataset_thumb", {
+        if file_uuid == "":
+            file_uuid = None
+
+        query = self.__query_from_template ("update_dataset_thumb", {
             "account_uuid": account_uuid,
-            "dataset_id":  dataset_id,
-            "version":     version,
-            "filters":     filters
+            "dataset_uuid": dataset_uuid,
+            "extension":    extension,
+            "file_uuid":    file_uuid,
+            "version":      version
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
