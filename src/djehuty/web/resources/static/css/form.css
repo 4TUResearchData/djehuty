@@ -22,7 +22,7 @@
 #content-wrapper input[type="datetime-local"],
 #content-wrapper input[type="date"],
 #content-wrapper textarea,
-#content-wrapper .options-wrapper, #groups-wrapper, #access-wrapper, #geolocation-wrapper {
+#content-wrapper .options-wrapper, #groups-wrapper, #access-wrapper, #geolocation-wrapper, #thumbnails-wrapper {
     display: block;
     padding: .7em;
     border: solid 1pt #aaa;

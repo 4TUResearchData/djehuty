@@ -464,6 +464,7 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
             jQuery("#remove-all-files").text(`Remove all ${number_of_files} files.`);
             jQuery("#files").show();
             jQuery("#files-table-actions").show();
+            render_files_for_thumbnail (dataset_uuid);
         }
         else {
             jQuery("#files").hide();
@@ -472,6 +473,71 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
         }
     }).fail(function () {
         show_message ("failure", "<p>Failed to retrieve file details.</p>");
+    });
+}
+
+function render_files_for_thumbnail (dataset_uuid) {
+
+    function html_for_thumbnail_tile (img_src, file_uuid, title) {
+        if (initial_thumbnail_file_uuid == null) { initial_thumbnail_file_uuid = ""; }
+        let active = " thumbnail-active";
+        if (file_uuid != initial_thumbnail_file_uuid) { active = " thumbnail-inactive"; }
+        html  = `<div class="thumbnail-item${active}"><label>`;
+        html += `<input type="radio" name="thumbnail" value="${file_uuid}" />`;
+        html += '<div class="thumbnail-item-img-wrapper">';
+        html += `<img src="${img_src}" aria-hidden="true"/></div>`;
+        html += `<div class="thumbnail-item-title"><p>${title}</p></div>`;
+        html += '</label></div>';
+        return html;
+    }
+
+    jQuery.ajax({
+        url: `/v3/datasets/${dataset_uuid}/image-files`,
+        data: { "limit": 10000 },
+        type: "GET",
+        accept: "application/json",
+    }).done(function (files) {
+        jQuery("#thumbnails-wrapper").empty();
+        if (files.length > 0) {
+            jQuery("#thumbnails-wrapper").show();
+            jQuery("#thumbnail-files-wrapper").show();
+            let html = "";
+            html += html_for_thumbnail_tile ("/static/images/dataset-thumb.svg",
+                                             "", "Standard thumbnail");
+
+            for (let index in files) {
+                let file = files[index];
+                html += html_for_thumbnail_tile (`/file/${dataset_uuid}/${file.uuid}`,
+                                                 file.uuid, file.name);
+            }
+
+            jQuery("#thumbnails-wrapper").append(html);
+            jQuery("#thumbnails-wrapper").show();
+
+            // Add event listener to toggle the blue border on selection
+            jQuery('input[name="thumbnail"]').change(function () {
+                jQuery(".thumbnail-item")
+                    .removeClass("thumbnail-active")
+                    .addClass("thumbnail-inactive");
+
+                let selected_thumb = jQuery('input[name="thumbnail"]:checked');
+                selected_thumb.closest('.thumbnail-item').addClass("thumbnail-active");
+                jQuery.ajax({
+                    url: `/v3/datasets/${dataset_uuid}/update-thumbnail`,
+                    type: "PUT",
+                    contentType: "application/json",
+                    accept:      "application/json",
+                    data:        JSON.stringify({ "uuid": `${selected_thumb.val()}` })
+                }).fail(function () {
+                    show_message ("failure", "<p>Failed to set thumbnail.</p>");
+                });
+            })
+        } else {
+            jQuery("#thumbnails-wrapper").hide();
+            jQuery("#thumbnail-files-wrapper").hide();
+        }
+    }).fail(function () {
+        show_message("failure", "<p>Failed to retrieve thumbnail file details.</p>");
     });
 }
 
@@ -860,6 +926,7 @@ function activate (dataset_uuid) {
 
         jQuery(".article-content-loader").hide();
         jQuery(".article-content").fadeIn(200);
+        jQuery("#thumbnail-files-wrapper").hide();
     }).fail(function () { show_message ("failure", `<p>Failed to retrieve article ${dataset_uuid}.</p>`); });
 }
 

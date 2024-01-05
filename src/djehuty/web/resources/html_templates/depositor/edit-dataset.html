@@ -7,6 +7,11 @@
 <script src="/static/js/dropzone.min.js"></script>
 <script>
 Dropzone.autoDiscover = false;
+{%- if not article.thumb_origin %}
+var initial_thumbnail_file_uuid = "";
+{%- else %}
+var initial_thumbnail_file_uuid = "{{article.thumb_origin}}";
+{%- endif %}
 jQuery(document).ready(function (){
     root_categories = []
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
@@ -119,6 +124,16 @@ jQuery(document).ready(function (){
 #doi-wrapper p { margin: 0pt; }
 .article-content-loader { display: none; }
 #files-table-actions { text-align: right; }
+#thumbnails-wrapper input[type="radio"] { display: none; }
+.thumbnail-item { display: inline-block; overflow: hidden; margin: .5em; min-height: 180pt; max-height: 180pt;}
+.thumbnail-item-img-wrapper { display: block; margin: auto; min-height: 150pt; height: 150pt; line-height: 150pt; }
+.thumbnail-item img { overflow: hidden; user-select: none; width: 150pt; height: auto; max-height: 150pt; vertical-align: middle; }
+.thumbnail-item label { background: #fff !important; border: solid 2pt #aaa; border-radius: .5em !important; }
+.thumbnail-item-title { text-overflow: ellipsis; max-width: 150pt; width: fit-content; white-space: nowrap; }
+.thumbnail-item-title p { text-align: center; width: 150pt; margin: 0pt; border-top: 1pt solid #aaa; }
+.thumbnail-item:hover label { cursor: pointer; opacity: 1.0; }
+.thumbnail-inactive label { border: 2pt solid #aaa; opacity: 0.5; }
+.thumbnail-active label { border: 2pt solid #f49120; opacity: 1.0; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -398,6 +413,11 @@ git push 4tu --tags</pre>
     </thead>
     <tbody></tbody>
   </table>
+
+<div id="thumbnail-files-wrapper">
+<label>Thumbnail</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select a file from your file deposit as a thumbnail of your dataset.</span></div>
+<div id="thumbnails-wrapper"></div>
+</div>
 </div>
 </div>
 <h3 class="corporate-identity-h3">Terms and agreement</h3>
