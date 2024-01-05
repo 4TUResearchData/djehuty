@@ -307,6 +307,7 @@ class ApiServer:
             R("/v3/collections/<collection_id>/publish",                         self.api_v3_collection_publish),
             R("/v3/datasets/timeline/<item_type>",                               self.api_v3_datasets_timeline),
             R("/v3/datasets/<dataset_id>/upload",                                self.api_v3_dataset_upload_file),
+            R("/v3/datasets/<dataset_id>/image-files",                           self.api_v3_dataset_image_files),
             R("/v3/datasets/<dataset_id>.git/files",                             self.api_v3_dataset_git_files),
             R("/v3/datasets/<dataset_id>.git/branches",                          self.api_v3_dataset_git_branches),
             R("/v3/datasets/<dataset_id>.git/set-default-branch",                self.api_v3_datasets_git_set_default_branch),
@@ -6596,6 +6597,37 @@ class ApiServer:
             self.log.error ("Writing %s to disk failed: %s", output_filename, error)
             return self.error_500 ()
         except (IndexError, KeyError):
+            pass
+
+        return self.error_500 ()
+
+    def api_v3_dataset_image_files (self, request, dataset_id):
+        """Implements /v3/datasets/<dataset_id>/image-files."""
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        try:
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                   account_uuid=account_uuid,
+                                                   is_published=False)
+            if dataset is None:
+                return self.error_403 (request)
+
+            files = self.db.dataset_files (
+                dataset_uri  = dataset["uri"],
+                account_uuid = account_uuid,
+                limit        = validator.integer_value (request.args, "limit"),
+                order        = validator.integer_value (request.args, "order"),
+                order_direction = validator.order_direction (request.args, "order_direction"),
+                is_image     = True)
+
+            return self.default_list_response (files, formatter.format_file_for_dataset_record,
+                                                base_url = self.base_url)
+
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+        except KeyError:
             pass
 
         return self.error_500 ()
