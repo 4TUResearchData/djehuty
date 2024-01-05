@@ -29,6 +29,7 @@ class SparqlInterface:
         self.update_endpoint = None
         self.state_graph = "https://data.4tu.nl/portal/self-test"
         self.privileges  = {}
+        self.thumbnail_storage = None
         self.profile_images_storage = None
         self.log         = logging.getLogger(__name__)
         self.cache       = cache.CacheLayer(None)

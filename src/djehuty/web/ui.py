@@ -592,6 +592,12 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         elif server.db.profile_images_storage is None:
             server.db.profile_images_storage = f"{server.db.storage}/profile-images"
 
+        thumbnails_root = xml_root.find ("thumbnails-root")
+        if thumbnails_root is not None:
+            server.db.thumbnail_storage = thumbnails_root.text
+        elif server.db.thumbnail_storage is None:
+            server.db.thumbnail_storage = f"{server.db.storage}/thumbnails"
+
         production_mode = xml_root.find ("production")
         if production_mode is not None:
             server.in_production = bool(int(production_mode.text))
@@ -899,6 +905,15 @@ def main (address=None, port=None, state_graph=None, storage=None,
                               server.db.profile_images_storage)
                 server.db.profile_images_storage = f"{server.db.storage}/profile-images"
                 logger.error ("Falling back to %s.", server.db.profile_images_storage)
+
+        if server.db.thumbnail_storage is not None and not inside_reload:
+            try:
+                os.makedirs (server.db.thumbnail_storage, mode=0o700, exist_ok=True)
+            except PermissionError:
+                logger.error ("Cannot create %s directory.", server.db.thumbnail_storage)
+
+        if not server.add_static_root ("/thumbnails", server.db.thumbnail_storage):
+            logger.error ("Failed to setup route for thumbnails.")
 
         server.db.setup_sparql_endpoint ()
 
