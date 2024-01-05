@@ -24,7 +24,7 @@ from werkzeug.exceptions import HTTPException, NotFound, BadRequest
 from rdflib import URIRef
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageSequence, UnidentifiedImageError
 from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import xml_formatter
@@ -392,6 +392,55 @@ class ApiServer:
         user_token = self.token_from_cookie (request)
         account = self.db.account_by_session_token (user_token)
         return account
+
+    def __generate_thumbnail (self, input_filename, dataset_uuid, max_width=175, max_height=175):
+        try:
+            original  = Image.open (input_filename)
+            extension = original.format.lower()
+            output_filename = f"{self.db.thumbnail_storage}/{dataset_uuid}.{extension}"
+
+            # When the image is the exact thumbnail size.
+            if original.width == max_width and original.height == max_height:
+                original.save (output_filename)
+                return None
+
+            # Determine relative scaling.
+            if original.width > original.height:
+                thumb_height = int(original.height * (max_width / original.width))
+                thumb_width = max_width
+            else:
+                thumb_height = max_height
+                thumb_width = int(original.width * (max_height / original.height))
+
+            # Preserve animation in GIFs.
+            if extension == "gif":
+                frames = []
+                for frame in ImageSequence.Iterator(original):
+                    resized_frame = frame.resize ((thumb_width, thumb_height),
+                                                  Image.Resampling.LANCZOS)
+                    frames.append (resized_frame)
+
+                first_frame_size = frames[0].size
+                resized_image = Image.new("RGBA", (first_frame_size[0] * len(frames), first_frame_size[1]))
+
+                for index, frame in enumerate(frames):
+                    resized_image.paste(frame, (index * first_frame_size[0], 0))
+                    frames[index] = resized_image.crop ((index * first_frame_size[0],
+                                                         0,
+                                                         (index + 1) * first_frame_size[0],
+                                                         first_frame_size[1]))
+
+                frames[0].save (output_filename, save_all=True, append_images=frames[1:],loop=0)
+                return extension
+
+            thumbnail = original.resize ((thumb_width, thumb_height))
+            thumbnail.save (output_filename)
+            return extension
+
+        except (FileNotFoundError, UnidentifiedImageError) as error:
+            self.log.error ("Failed to create thumbnail due to %s", error)
+
+        return None
 
     def __render_template (self, request, template_name, **context):
         template      = self.jinja.get_template (template_name)
