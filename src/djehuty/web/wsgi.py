@@ -308,6 +308,7 @@ class ApiServer:
             R("/v3/datasets/timeline/<item_type>",                               self.api_v3_datasets_timeline),
             R("/v3/datasets/<dataset_id>/upload",                                self.api_v3_dataset_upload_file),
             R("/v3/datasets/<dataset_id>/image-files",                           self.api_v3_dataset_image_files),
+            R("/v3/datasets/<dataset_id>/update-thumbnail",                      self.api_v3_datasets_update_thumbnail),
             R("/v3/datasets/<dataset_id>.git/files",                             self.api_v3_dataset_git_files),
             R("/v3/datasets/<dataset_id>.git/branches",                          self.api_v3_dataset_git_branches),
             R("/v3/datasets/<dataset_id>.git/set-default-branch",                self.api_v3_datasets_git_set_default_branch),
@@ -6631,6 +6632,51 @@ class ApiServer:
             pass
 
         return self.error_500 ()
+
+    def api_v3_datasets_update_thumbnail (self, request, dataset_id):
+        """Implements /v3/datasets/<dataset_id>/update-thumbnail."""
+        account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                               account_uuid=account_uuid,
+                                               is_published=False)
+        if dataset is None:
+            return self.error_403 (request)
+
+        try:
+            parameters = request.get_json()
+            file_uuid  = validator.string_value (parameters, "uuid", 0, 36, False)
+
+            if file_uuid == "":
+                if not self.db.dataset_update_thumb (dataset["uuid"], account_uuid,
+                                                     file_uuid, None):
+                    return self.error_500()
+                return self.respond_205()
+
+            if not validator.is_valid_uuid (file_uuid):
+                return self.error_403 (request)
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+        metadata = self.__file_by_id_or_uri (file_uuid, account_uuid = account_uuid)
+        if metadata is None:
+            return self.error_404 (request)
+
+        input_filename = self.__filesystem_location (metadata)
+        if input_filename is None:
+            return self.error_404 (request)
+
+        extension = self.__generate_thumbnail (input_filename, dataset["uuid"])
+        if extension is None:
+            return self.error_500 ()
+
+        if not self.db.dataset_update_thumb (dataset["uuid"], account_uuid,
+                                             file_uuid, extension):
+            return self.error_500()
+
+        return self.respond_205()
 
     def api_v3_file (self, request, file_id):
         """Implements /v3/file/<id>."""
