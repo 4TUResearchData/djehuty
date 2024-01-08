@@ -416,7 +416,7 @@ a.far, a.fab, a.fas { text-decoration: none; }
 }
 .fa-envelope::before { content: "\f0e0"; }
 .fa-linkedin-in::before { content: "\f0e1"; }
-.fa-twitter::before { content: "\f099"; }
+.fa-twitter::before { content: "\e61b"; }
 .fa-github::before { content: "\f09b"; }
 .fa-map-marker-alt::before { content: "\f3c5"; }
 .fa-copyright::before { content: "\f1f9"; }
