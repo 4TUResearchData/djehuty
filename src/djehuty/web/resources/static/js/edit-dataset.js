@@ -173,12 +173,19 @@ function delete_all_files (dataset_uuid) {
         type:        "GET",
         accept:      "application/json",
     }).done(function (files) {
+        let rerender = true;
         for (let index in files) {
             let file = files[index];
-            remove_file (file.uuid, dataset_uuid, rerender=false);
+            rerender = remove_file (file.uuid, dataset_uuid, rerender=false);
+            if (!rerender) { break; }
         }
-        jQuery("#remove-all-files").text(`Remove all files.`);
-        jQuery("#files tbody").empty();
+
+        if (rerender) {
+            jQuery("#remove-all-files").text(`Remove all files.`);
+            render_files_for_dataset (dataset_uuid, null);
+        } else {
+            show_message ("failure", "<p>Failed to remove files.</p>");
+        }
     }).fail(function () {
         show_message ("failure", "<p>Failed to remove files.</p>");
     });
@@ -1018,7 +1025,11 @@ function remove_file (file_id, dataset_uuid, rerender=true) {
                 jQuery("#external_link_field").show();
             }
         }
-    }).fail(function () { show_message ("failure", `<p>Failed to remove ${file_id}.</p>`); });
+        return true;
+    }).fail(function () {
+        show_message ("failure", `<p>Failed to remove ${file_id}.</p>`);
+        return false;
+    });
 }
 
 function remove_author (author_id, dataset_uuid) {
