@@ -23,7 +23,7 @@
     font-style: normal;
 }
 @font-face {
-  font-family: 'Font Awesome 5';
+  font-family: 'Font Awesome 6';
   font-style: normal;
   font-weight: 900;
   font-display: block;
@@ -34,7 +34,7 @@
        url("/static/fonts/fa-solid-900.ttf") format("truetype");
 }
 @font-face {
-  font-family: 'Font Awesome 5 Brands';
+  font-family: 'Font Awesome 6 Brands';
   font-style: normal;
   font-weight: 400;
   font-display: block;
@@ -199,7 +199,7 @@ body,html {
 }
 #primary-menu .menu-item-has-children:not(.hideshow)::after {
     content: '\f0d7';
-    font-family: "Font Awesome 5";
+    font-family: "Font Awesome 6";
     font-weight: 900;
     color: #808080;
 }
@@ -352,14 +352,18 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fab {
     display: inline-block;
     min-width: 1.5em;
-    font-family: "Font Awesome 5 Brands";
+    font-family: "Font Awesome 6 Brands";
     font-weight: 900;
 }
 .fa, .far, .fas {
     display: inline-block;
     min-width: 1.5em;
-    font-family: "Font Awesome 5";
+    font-family: "Font Awesome 6";
     font-weight: 900;
+}
+.fa-lg {
+    .fa;
+    font-size: 1.5em;
 }
 #search-box-wrapper {
     display: block;
@@ -375,7 +379,7 @@ a.far, a.fab, a.fas { text-decoration: none; }
     border-radius: 0em .5em .5em 0em;
     border: solid 2pt #eeeeee;
     display: inline-block;
-    font-family: "Font Awesome 5";
+    font-family: "Font Awesome 6";
     font-size: 14pt;
     font-weight: 900;
     height: 33pt;
