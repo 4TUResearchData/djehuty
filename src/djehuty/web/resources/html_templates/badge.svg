@@ -1,0 +1,46 @@
+{# Versionless UUID DOI: #}
+{%- set doi_length = (doi | length) %}
+{%- if doi_length == 44 %}
+{%- set doi_text_x = 178 %}
+{%- set outer_width = 325 %}
+{# Version-specific UUID DOI: #}
+{%- endif %}{%- if doi_length == 47 %}
+{%- set doi_text_x = 186.5 %}
+{%- set outer_width = 342 %}
+{# Old-style versionless DOI: #}
+{%- endif %}{%- if doi_length == 16 %}
+{%- set doi_text_x = 88.5 %}
+{%- set outer_width = 147 %}
+{# Old-style version-specific DOI: #}
+{%- endif %}{%- if doi_length == 19 %}
+{%- set doi_text_x = 97 %}
+{%- set outer_width = 164 %}
+{%- endif %}
+{%- set left_width = 31.375 %}
+{%- set right_width = outer_width - left_width %}
+<svg xmlns="http://www.w3.org/2000/svg" width="{{outer_width}}" height="20">
+  <linearGradient id="b" x2="0" y2="100%">
+    <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+    <stop offset="1" stop-opacity=".1"/>
+  </linearGradient>
+  <mask id="a" width="{{outer_width}}" height="20">
+    <rect width="{{outer_width}}" height="20" rx="3" fill="#fff"/>
+  </mask>
+  <g mask="url(#a)">
+    <path fill="#555" d="M0 0h{{left_width}}v20H0z" />
+    <path fill="#f49120" d="M{{left_width}} 0h{{right_width}}v20H{{left_width}}z" />
+    <path fill="url(#b)" d="M0 0h{{outer_width}}v20H0z" />
+  </g>
+  <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+    <text x="16.1875" y="15" fill="#010101" fill-opacity=".3">DOI</text>
+    <text x="16.1875" y="14">DOI</text>
+    <text x="{{doi_text_x}}" y="15" fill="#010101" fill-opacity=".3">{{doi}}</text>
+    <text x="{{doi_text_x}}" y="14">{{doi}}</text>
+  </g>
+  <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+    <text x="16.1875" y="15" fill="#010101" fill-opacity=".3">DOI</text>
+    <text x="16.1875" y="14">DOI</text>
+    <text x="{{doi_text_x}}" y="15" fill="#010101" fill-opacity=".3">{{doi}}</text>
+    <text x="{{doi_text_x}}" y="14">{{doi}}</text>
+  </g>
+</svg>

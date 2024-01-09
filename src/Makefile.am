@@ -42,6 +42,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/admin/sparql.html                    \
     djehuty/web/resources/html_templates/admin/users.html                     \
     djehuty/web/resources/html_templates/author.html                          \
+    djehuty/web/resources/html_templates/badge.svg                            \
     djehuty/web/resources/html_templates/categories.html                      \
     djehuty/web/resources/html_templates/category.html                        \
     djehuty/web/resources/html_templates/collection.html                      \

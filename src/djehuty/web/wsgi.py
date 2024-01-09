@@ -304,6 +304,8 @@ class ApiServer:
             R("/v3/datasets/<dataset_id>/publish",                               self.api_v3_dataset_publish),
             R("/v3/datasets/<dataset_id>/decline",                               self.api_v3_dataset_decline),
             R("/v3/datasets/<container_uuid>/repair_md5s",                       self.api_v3_repair_md5s),
+            R("/v3/datasets/<dataset_id>/doi-badge-v<version>.svg",              self.api_v3_doi_badge),
+            R("/v3/datasets/<dataset_id>/doi-badge.svg",                         self.api_v3_doi_badge),
             R("/v3/collections/<collection_id>/publish",                         self.api_v3_collection_publish),
             R("/v3/datasets/timeline/<item_type>",                               self.api_v3_datasets_timeline),
             R("/v3/datasets/<dataset_id>/upload",                                self.api_v3_dataset_upload_file),
@@ -443,6 +445,10 @@ class ApiServer:
             self.log.error ("Failed to create thumbnail due to %s", error)
 
         return None
+
+    def __render_svg_template (self, template_name, **context):
+        template = self.jinja.get_template (template_name)
+        return self.response (template.render (context), mimetype="image/svg+xml")
 
     def __render_template (self, request, template_name, **context):
         template      = self.jinja.get_template (template_name)
@@ -7265,6 +7271,17 @@ class ApiServer:
                                      filesystem_location = filename)
 
         return self.respond_201 ({ "message": "The MD5 sums have been regenerated."})
+
+    def api_v3_doi_badge (self, request, dataset_id, version=None):
+        """Implements /v3/datasets/<id>/doi-badge-v<version>.svg."""
+        try:
+            dataset = self.__dataset_by_id_or_uri (dataset_id, version=version)
+            doi = dataset["container_doi"] if version is None else dataset["doi"]
+            return self.__render_svg_template ("badge.svg", doi=doi, version=version)
+        except KeyError:
+            pass
+
+        return self.error_404 (request)
 
     ## ------------------------------------------------------------------------
     ## EXPORTS
