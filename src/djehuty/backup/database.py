@@ -647,11 +647,16 @@ class DatabaseInterface:
             license_name = value_or_none (record,"name")
             license_type = value_or_none (record,"type")
             license_id   = value_or_none (record,"value")
+            license_spdx = value_or_none (record, "spdx")
             self.store.add ((license_uri, RDF.type, rdf.DJHT["License"]))
             self.store.add ((license_uri, rdf.DJHT["name"],
                              Literal(license_name, datatype=XSD.string)))
             self.store.add ((license_uri, rdf.DJHT["id"],
                              Literal(license_id, datatype=XSD.integer)))
+
+            if license_spdx is not None:
+                self.store.add ((license_uri, rdf.DJHT["spdx"],
+                                 URIRef(license_spdx)))
 
             license_type_uri = None
             if license_type == "software":
