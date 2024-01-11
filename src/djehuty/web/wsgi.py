@@ -4877,6 +4877,7 @@ class ApiServer:
                         is_metadata_record          = value_or (item, "is_metadata_record", False),
                         is_embargoed                = value_or (item, "is_embargoed", False),
                         is_restricted               = value_or (item, "is_restricted", False),
+                        categories                  = None,
                         **more_parm ):
                     return doi
             else:

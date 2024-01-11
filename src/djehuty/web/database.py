@@ -2083,7 +2083,7 @@ class SparqlInterface:
         results = self.__run_logged_query (query)
         if results:
             items = []
-            if categories:
+            if isinstance (categories, list):
                 items = rdf.uris_from_records (categories, "category")
                 self.update_item_list (dataset_uuid, account_uuid, items, "categories")
         else:
