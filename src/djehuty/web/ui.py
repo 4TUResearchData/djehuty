@@ -732,15 +732,16 @@ def extract_transactions (config, since_datetime):
             os.makedirs(directory_prefix, mode=0o700, exist_ok=True)
             if not os.path.isdir(directory_prefix):
                 print (f"Failed to create '{directory_prefix}'.", file=sys.stderr)
+        else:
+            directory_prefix = "."
 
         with open (filename, "r", encoding = "utf-8") as log_file:
             print (f"Reading '{filename}'.", file=sys.stderr)
-            lines        = log_file.readlines()
             count        = 0
             state_output = 0
             query        = ""
             timestamp_line = ""
-            for line in lines:
+            for line in log_file:
                 if state_output == 2:
                     if line == "---\n":
                         state_output = 0
