@@ -372,7 +372,7 @@ class SparqlInterface:
                   resource_doi=None, return_count=False, search_for=None, search_format=False,
                   version=None, is_published=True, is_under_review=None, git_uuid=None,
                   private_link_id_string=None, use_cache=True, is_restricted=None,
-                  is_embargoed=None):
+                  is_embargoed=None, is_software=None):
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -391,6 +391,12 @@ class SparqlInterface:
         filters += rdf.sparql_in_filter ("group_id",    groups)
         filters += rdf.sparql_in_filter ("dataset_id", exclude_ids, negate=True)
         filters += self.__search_query_to_sparql_filters (search_for, search_format)
+
+        if is_software is not None:
+            if is_software:
+                filters += rdf.sparql_filter ("defined_type_name", "software", escape=True)
+            else:
+                filters += rdf.sparql_filter ("defined_type_name", "dataset", escape=True)
 
         if categories is not None:
             filters += f"FILTER ((?category_id IN ({','.join(map(str, categories))})) || "

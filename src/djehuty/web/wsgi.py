@@ -300,6 +300,7 @@ class ApiServer:
             ## V3 API
             ## ----------------------------------------------------------------
             R("/v3/datasets",                                                    self.api_v3_datasets),
+            R("/v3/datasets/codemeta",                                           self.api_v3_datasets_codemeta),
             R("/v3/datasets/top/<item_type>",                                    self.api_v3_datasets_top),
             R("/v3/datasets/<dataset_id>/submit-for-review",                     self.api_v3_dataset_submit),
             R("/v3/datasets/<dataset_id>/publish",                               self.api_v3_dataset_publish),
@@ -5779,6 +5780,31 @@ class ApiServer:
 
         return self.default_list_response (records, formatter.format_dataset_record,
                                            base_url = self.base_url)
+
+    def api_v3_datasets_codemeta (self, request):
+        """Implements /v3/datasets/codemeta."""
+
+        try:
+            offset, limit = self.__paging_offset_and_limit (request)
+            datasets = self.db.datasets (is_published = True,
+                                         is_latest    = True,
+                                         is_software  = True,
+                                         limit        = limit,
+                                         offset       = offset)
+
+            output = []
+            for dataset in datasets:
+                output.append (formatter.format_codemeta_record (
+                    dataset,
+                    git_url = self.__git_repository_url_for_dataset (dataset),
+                    tags = self.db.tags(item_uri=dataset["uri"], limit=None),
+                    authors = self.db.authors (item_uri=dataset["uri"],
+                                               is_published = True,
+                                               item_type = "dataset",
+                                               limit = 10000)))
+            return self.response (json.dumps(output))
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
 
     def __api_v3_datasets_parameters (self, request, item_type):
         record = {}

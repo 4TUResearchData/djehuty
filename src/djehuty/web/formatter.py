@@ -64,6 +64,38 @@ def dataset_urls (record):
         "url_public_html":  conv.value_or_none(record, "url_public_html")
     }
 
+def format_codemeta_author_record (record):
+    """Record formatter for an author as used in CodeMeta."""
+    author = {
+        "@type": "Person",
+        "givenName": conv.value_or_none (record, "first_name"),
+        "familyName": conv.value_or_none (record, "last_name"),
+        "email": conv.value_or_none (record, "email"),
+    }
+
+    orcid = conv.value_or_none (record, "orcid_id")
+    if orcid is not None:
+        author["@id"] = f"https://orcid.org/{orcid}"
+
+    return author
+
+def format_codemeta_record (record, git_url, tags, authors):
+    """Record formatter for the CodeMeta format."""
+
+    return {
+        "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+        "@type": "SoftwareSourceCode",
+        "license": conv.value_or_none (record, "license_spdx"),
+        "codeRepository": git_url,
+        "dateCreated": conv.value_or_none(record, "created_date"),
+        "datePublished": conv.value_or_none(record, "published_date"),
+        "dateModified": conv.value_or_none(record, "modified_date"),
+        "identifier": conv.value_or_none(record, "doi"),
+        "description": conv.value_or_none(record, "description"),
+        "keywords": list (map (format_tag_record, tags)),
+        "author": list (map (format_codemeta_author_record, authors))
+    }
+
 def format_dataset_record (record):
     """Record formatter for datasets."""
 

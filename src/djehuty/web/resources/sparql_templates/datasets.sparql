@@ -11,7 +11,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?embargo_reason ?embargo_title ?embargo_type ?figshare_url
                 ?funding ?group_id ?has_linked_file ?dataset_id ?eula
                 ?institution_id ?is_active ?is_confidential ?is_embargoed ?is_restricted
-                ?is_metadata_record ?license_id ?license_name ?license_url
+                ?is_metadata_record ?license_id ?license_name ?license_url ?license_spdx
                 ?metadata_reason ?modified_date ?published_date ?container_doi
                 ?resource_doi ?resource_title ?size ?status ?thumb ?declined_date
                 ?timeline_posted ?has_draft (STR(?publisher_ut) AS ?publisher)
@@ -90,6 +90,7 @@ WHERE {
       ?dataset          djht:license               ?license_url .
       ?license_url      rdf:type                   djht:License .
       ?license_url      djht:id                    ?license_id .
+      ?license_url      djht:spdx                  ?license_spdx .
       ?license_url      djht:name                  ?license_name .
     }
 
