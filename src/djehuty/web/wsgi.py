@@ -1109,13 +1109,18 @@ class ApiServer:
         record               = {}
         attributes           = saml_auth.get_attributes()
         record["session"]    = session
-        record["email"]      = attributes["urn:mace:dir:attribute-def:mail"][0]
-        record["first_name"] = attributes["urn:mace:dir:attribute-def:givenName"][0]
-        record["last_name"]  = attributes["urn:mace:dir:attribute-def:sn"][0]
-        record["common_name"] = attributes["urn:mace:dir:attribute-def:cn"][0]
+        try:
+            record["email"]      = attributes["urn:mace:dir:attribute-def:mail"][0]
+            record["first_name"] = attributes["urn:mace:dir:attribute-def:givenName"][0]
+            record["last_name"]  = attributes["urn:mace:dir:attribute-def:sn"][0]
+            record["common_name"] = attributes["urn:mace:dir:attribute-def:cn"][0]
+        except (KeyError, IndexError):
+            self.log.error ("Didn't receive expected fields in SAMLResponse.")
+            self.log.error ("Received attributes: %s", attributes)
 
         if not record["email"]:
             self.log.error ("Didn't receive required fields in SAMLResponse.")
+            self.log.error ("Received attributes: %s", attributes)
             return None
 
         return record
