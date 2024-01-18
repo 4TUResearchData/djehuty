@@ -591,6 +591,18 @@ class ApiServer:
 
         return False
 
+    def __git_repository_url_for_dataset (self, dataset):
+        """Returns the Git URL when a repository exists for DATASET or None otherwise."""
+        git_repository_url = None
+        if value_or_none (dataset, "defined_type_name") == "software":
+            try:
+                if os.path.exists (f"{self.db.storage}/{dataset['git_uuid']}.git"):
+                    git_repository_url = f"{self.base_url}/v3/datasets/{dataset['git_uuid']}.git"
+            except KeyError:
+                pass
+
+        return git_repository_url
+
     ## ERROR HANDLERS
     ## ------------------------------------------------------------------------
 
@@ -2914,15 +2926,7 @@ class ApiServer:
                 opendap.append(url)
                 del dataset['data_link']
         contributors = self.parse_contributors(value_or(dataset, 'contributors', ''))
-
-        git_repository_url = None
-        if "defined_type_name" in dataset and dataset["defined_type_name"] == "software":
-            try:
-                git_directory  = f"{self.db.storage}/{dataset['git_uuid']}.git"
-                if os.path.exists (git_directory):
-                    git_repository_url = f"{self.base_url}/v3/datasets/{dataset['git_uuid']}.git"
-            except KeyError:
-                pass
+        git_repository_url = self.__git_repository_url_for_dataset (dataset)
 
         if not private_view:
             self.__log_event (request, dataset["container_uuid"], "dataset", "view")
