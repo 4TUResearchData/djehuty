@@ -1515,6 +1515,19 @@ class SparqlInterface:
 
         return self.__run_logged_query (query)
 
+    def delete_items_all_from_list (self, subject, predicate):
+        """
+        Removes all nodes from list where RDF_FIRST_VALUE is the rdf:first property
+        in the list pointed to by SUBJECT and PREDICATE.
+        """
+
+        query = self.__query_from_template ("delete_items_all_from_list", {
+            "subject":   subject,
+            "predicate": rdf.DJHT[predicate].n3(),
+        })
+
+        return self.__run_logged_query (query)
+
     def insert_file (self, file_id=None, name=None, size=None,
                      is_link_only=None, download_url=None, supplied_md5=None,
                      computed_md5=None, viewer_type=None, preview_state=None,

@@ -13,6 +13,6 @@ WHERE {
                           djht:datasets/rdf:rest*/rdf:first                 <container:{{dataset_container_uuid}}> .
 
     BIND(STRAFTER(STR(?collection_container), "container:") AS ?container_uuid)
-  }   
+  }
 }
 {% endblock %}

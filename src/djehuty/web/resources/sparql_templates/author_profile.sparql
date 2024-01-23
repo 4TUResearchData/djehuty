@@ -9,7 +9,7 @@ SELECT DISTINCT ?id         ?full_name       ?first_name  ?last_name
 WHERE {
   GRAPH <{{state_graph}}> {
     author:            djht:is_active           ?is_active ;
-                       djht:is_public           ?is_public ; 
+                       djht:is_public           ?is_public ;
                        djht:full_name           ?full_name .
     OPTIONAL { author: djht:id                  ?id . }
     OPTIONAL { author: djht:account             ?account . }

@@ -4509,7 +4509,7 @@ class ApiServer:
     def api_private_dataset_files (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/files."""
         account_uuid = self.default_authenticated_error_handling (request,
-                                                                  ["GET", "POST"],
+                                                                  ["GET", "POST", "DELETE"],
                                                                   "application/json")
         if isinstance (account_uuid, Response):
             return account_uuid
@@ -4529,6 +4529,40 @@ class ApiServer:
 
                 return self.default_list_response (files, formatter.format_file_for_dataset_record,
                                                    base_url = self.base_url)
+
+            except validator.ValidationException as error:
+                return self.error_400 (request, error.message, error.code)
+            except (IndexError, KeyError):
+                pass
+
+            return self.error_500 ()
+
+        if request.method == 'DELETE':
+            parameters = request.get_json()
+
+            try:
+                yesno = validator.boolean_value(parameters, "remove_all", when_none=False)
+
+                if yesno is False:
+                    self.log.error ("Failed to delete all files from dataset"
+                                    " %s due to a missing parameter.",
+                                    dataset_id)
+                    return self.error_400 (request, "Expected a 'remove_all' field.", "400")
+
+                dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                       account_uuid=account_uuid,
+                                                       is_published=False)
+
+                if dataset is None:
+                    return self.error_403 (request)
+
+                if self.db.delete_items_all_from_list (dataset["uri"], "files"):
+                    self.db.cache.invalidate_by_prefix (f"{account_uuid}_storage")
+                    self.db.cache.invalidate_by_prefix (f"{dataset['uuid']}_dataset_storage")
+                    return self.respond_204()
+
+                self.log.error ("Failed to delete all files from dataset %s.",
+                                dataset_id)
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)

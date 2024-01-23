@@ -169,23 +169,15 @@ function save_dataset (dataset_uuid, event, notify=true, on_success=jQuery.noop)
 function delete_all_files (dataset_uuid) {
     jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/files`,
-        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
-        type:        "GET",
+        data:        JSON.stringify({ "remove_all": true }),
+        type:        "DELETE",
         accept:      "application/json",
-    }).done(function (files) {
-        let rerender = true;
-        for (let index in files) {
-            let file = files[index];
-            rerender = remove_file (file.uuid, dataset_uuid, rerender=false);
-            if (!rerender) { break; }
-        }
-
-        if (rerender) {
-            jQuery("#remove-all-files").text(`Remove all files.`);
-            render_files_for_dataset (dataset_uuid, null);
-        } else {
-            show_message ("failure", "<p>Failed to remove files.</p>");
-        }
+        contentType: "application/json",
+    }).done(function () {
+        jQuery("#remove-all-files").text(`Remove all files.`);
+        render_files_for_dataset (dataset_uuid, null);
+        jQuery("#thumbnails-wrapper").hide();
+        jQuery("#thumbnail-files-wrapper").hide();
     }).fail(function () {
         show_message ("failure", "<p>Failed to remove files.</p>");
     });
@@ -472,11 +464,11 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
             jQuery("#files").show();
             jQuery("#files-table-actions").show();
             render_files_for_thumbnail (dataset_uuid);
-        }
-        else {
+        } else {
             jQuery("#files").hide();
             jQuery("#files-table-actions").hide();
             jQuery("input[name='record_type']").attr('disabled', false);
+            render_files_for_thumbnail (dataset_uuid);
         }
     }).fail(function () {
         show_message ("failure", "<p>Failed to retrieve file details.</p>");

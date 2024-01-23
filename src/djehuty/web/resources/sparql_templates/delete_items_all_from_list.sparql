@@ -2,23 +2,17 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?blank_before rdf:rest ?blank_node .
     ?blank_node   djht:index ?blank_index .
-    ?blank_node   rdf:first ?blank_first .
-    ?blank_node   rdf:type  rdf:List .
-  }
-}
-INSERT {
-  GRAPH <{{state_graph}}> {
-    ?blank_before rdf:rest ?blank_after .
+    ?blank_node   rdf:first  ?blank_first .
+    ?blank_node   rdf:rest   ?blank_after .
+    ?blank_node   rdf:type   rdf:List .
+    <{{subject}}> {{predicate | safe}} ?blank_node .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    <{{subject}}> {{predicate | safe}}/rdf:rest* ?blank_node .
-    ?blank_node rdf:first {{first | safe}} .
     {
-      ?blank_before rdf:rest ?blank_node .
+      <{{subject}}> {{predicate | safe}}/rdf:rest* ?blank_node .
     } UNION {
       <{{subject}}> {{predicate | safe}} ?blank_node .
     }
