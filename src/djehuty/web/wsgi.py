@@ -397,7 +397,7 @@ class ApiServer:
         account = self.db.account_by_session_token (user_token)
         return account
 
-    def __generate_thumbnail (self, input_filename, dataset_uuid, max_width=175, max_height=175):
+    def __generate_thumbnail (self, input_filename, dataset_uuid, max_width=300, max_height=300):
         try:
             original  = Image.open (input_filename)
             extension = original.format.lower()
@@ -419,6 +419,11 @@ class ApiServer:
             # Preserve animation in GIFs.
             if extension == "gif":
                 frames = []
+                original_durations = []
+                try:
+                    original_durations = [frame.info['duration'] for frame in ImageSequence.Iterator(original)]
+                except KeyError:
+                    original_durations = 50
                 for frame in ImageSequence.Iterator(original):
                     resized_frame = frame.resize ((thumb_width, thumb_height),
                                                   Image.Resampling.LANCZOS)
@@ -433,8 +438,8 @@ class ApiServer:
                                                          0,
                                                          (index + 1) * first_frame_size[0],
                                                          first_frame_size[1]))
-
-                frames[0].save (output_filename, save_all=True, append_images=frames[1:],loop=0)
+                frames[0].save (output_filename, save_all=True, append_images=frames[1:], loop=0,
+                                duration=original_durations)
                 return extension
 
             thumbnail = original.resize ((thumb_width, thumb_height))
