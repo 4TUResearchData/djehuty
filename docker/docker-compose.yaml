@@ -1,6 +1,10 @@
 version: '3'
 services:
   djehuty:
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     image: djehuty:latest
     command: '/home/djehuty/start-djehuty.sh'
     volumes:
@@ -12,7 +16,11 @@ services:
     depends_on:
       - sparql
   sparql:
-    image: openlink/virtuoso-opensource-7
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    image: openlink/virtuoso-opensource-7:7.2.11
     volumes:
       - /container_data/sparql/:/database/
     expose:
