@@ -11,7 +11,7 @@ from datetime import datetime
 from urllib.error import URLError, HTTPError
 from rdflib import Dataset, Graph, Literal, RDF, XSD, URIRef
 from rdflib.plugins.stores import sparqlstore, memory
-from rdflib.store import VALID_STORE
+from rdflib.store import CORRUPTED_STORE, NO_STORE
 from jinja2 import Environment, FileSystemLoader
 from djehuty.web import cache
 from djehuty.utils import rdf
@@ -53,8 +53,13 @@ class SparqlInterface:
             directory = self.endpoint[6:]
             self.sparql = Dataset("BerkeleyDB")
             self.sparql.open (directory, create=True)
-            if self.sparql != VALID_STORE:
-                self.log.error ("'%s' is not a valid BerkeleyDB database.", directory)
+            if not isinstance (self.sparql, Dataset):
+                if self.sparql == CORRUPTED_STORE:
+                    self.log.error ("'%s' is corrupt.", directory)
+                elif self.sparql == NO_STORE:
+                    self.log.error ("'%s' is not a BerkeleyDB store.", directory)
+                else:
+                    self.log.error ("Loading '%s' returned %s.", directory, self.sparql)
                 return None
             self.log.info ("Using BerkeleyDB RDF store.")
 
