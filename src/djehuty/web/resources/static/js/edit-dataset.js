@@ -622,6 +622,16 @@ function add_tag (dataset_uuid) {
 function submit_new_author (dataset_uuid) {
     let first_name = jQuery("#author_first_name").val();
     let last_name = jQuery("#author_last_name").val();
+    jQuery("#author_first_name").removeClass("missing-required") ;
+    jQuery("#author_last_name").removeClass("missing-required") ;
+
+    if (first_name == "" && last_name == "") {
+        let error_message = "<p>You must enter at least one of the first or last names.</p>";
+        jQuery("#author_first_name").addClass("missing-required") ;
+        show_message ("failure", `${error_message}`);
+        return false;
+    }
+
     let authors = [{
         "name":       `${first_name} ${last_name}`,
         "first_name": first_name,
@@ -641,6 +651,7 @@ function submit_new_author (dataset_uuid) {
     }).done(function () {
         jQuery("#authors-ac").remove();
         jQuery("#authors").removeClass("input-for-ac");
+        jQuery("#authors").val("");
         render_authors_for_dataset (dataset_uuid);
     }).fail(function () { show_message ("failure", `<p>Failed to add author.</p>`); });
 }
@@ -667,6 +678,8 @@ function submit_new_funding (dataset_uuid) {
 }
 
 function new_author (dataset_uuid) {
+    let banner = `<br><span id="new-author-description" style='padding: 1em;'><i>Enter the details of the author you want to add.</i></span>`;
+    jQuery("#new-author-description").html(banner);
     let html = `<div id="new-author-form">`;
     html += `<label for="author_first_name">First name</label>`;
     html += `<input type="text" id="author_first_name" name="author_first_name">`;

@@ -72,6 +72,13 @@ function autocomplete_author (event, item_id) {
         }).done(function (data) {
             jQuery("#authors-ac").remove();
             let html = "<ul>";
+            let new_author_description = "";
+            if (data.length == 0) {
+                new_author_description = "Seems like the author is not registered in our system. Click on the button below to add a new author.";
+            } else {
+                new_author_description = "Do you want to create a new author record? Then click on the button below.";
+            }
+
             for (let item of data) {
                 html += `<li><a href="#" `;
                 html += `onclick="javascript:add_author('${item["uuid"]}', `;
@@ -82,6 +89,8 @@ function autocomplete_author (event, item_id) {
                 html += "</a>";
             }
             html += "</ul>";
+
+            html += `<span id="new-author-description" style='padding: 1em;'><i><center>${new_author_description}</center></i></span>`
 
             html += `<div id="new-author" class="a-button"><a href="#" `
             html += `onclick="javascript:new_author('${item_id}'); `
