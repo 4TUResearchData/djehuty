@@ -74,7 +74,7 @@ function activate() {
                 searchPlaceholder: "Search..."
             },
             columnDefs: [{ orderable: false, targets: 10 }],
-            order: [[7, 'desc']],
+            order: [[6, 'desc']],
             orderable: false,
             info: false,
             initComplete: function (settings, json) {
