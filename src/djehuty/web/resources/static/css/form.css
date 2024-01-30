@@ -142,8 +142,6 @@
 }
 .multi-list { display: none; border: none; }
 .multi-list thead { display: none; }
-.list-resource ul { margin: 0em; padding: 0em; }
-.list-resource li { list-style-type: none; margin: 0em; padding: .5em; }
 .form-button {
     margin: 0px;
     display: inline-block;
