@@ -80,6 +80,7 @@ class SparqlInterface:
                 # Avoid rdflib from wrapping in a blank-node graph by setting
                 # context_aware to False.
                 context_aware   = False,
+                autocommit      = False,
                 query_endpoint  = self.endpoint,
                 update_endpoint = self.update_endpoint,
                 returnFormat    = "json",
@@ -220,6 +221,12 @@ class SparqlInterface:
 
             self.log.error ("SPARQL endpoint returned %d:\n---\n%s\n---",
                             error.code, error.reason)
+
+            # Bad request. Usually a syntax error in the query.
+            if error.code == 400:
+                self.sparql.rollback()
+                self.log.error ("Transaction of the failed query has been rolled back.")
+
             return []
         except URLError:
             if self.sparql_is_up:
