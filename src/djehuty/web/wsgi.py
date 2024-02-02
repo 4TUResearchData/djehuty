@@ -670,15 +670,17 @@ class ApiServer:
         response.status_code = 410
         return response
 
-    def error_413 (self, request, maximum_length):
+    def error_413 (self, request, quota_available=0, quota_total=None, quota_used=None, uploading_size=None):
         """Procedure to respond with HTTP 413."""
         response = None
+        message = "Your storage space is insufficient. Please check your storage usage and quota on the dashboard. "
+        message += f"(quota={quota_total}, used={quota_used}, available={quota_available}, your file={uploading_size})."
         if self.accepts_json (request):
             response = self.response (json.dumps({
-                "message": f"Maximum upload size is {maximum_length}."
+                "message": message
             }))
         else:
-            response = self.response (f"Maximum upload size is {maximum_length}.",
+            response = self.response (message,
                                       mimetype="text/plain")
         response.status_code = 413
         return response
@@ -6478,7 +6480,7 @@ class ApiServer:
             return self.error_authorization_failed(request)
 
         account = self.db.account_by_uuid (account_uuid)
-        if "quota" not in account:
+        if account is None or "quota" not in account:
             self.log.error ("Account %s does not have an assigmed quota.", account_uuid)
             return self.error_403 (request)
 
@@ -6520,7 +6522,10 @@ class ApiServer:
             # Note that the bytes_to_read contain some overhead of the
             # multipart headings (~220 bytes per chunk).
             if storage_available < bytes_to_read:
-                return self.error_413 (request, account["quota"])
+                self.log.error ("File upload failed because user's quota limit: "
+                                "quota(%d), used(%d), available(%s), filesize(%d)"
+                                % (account["quota"], storage_used, storage_available, bytes_to_read))
+                return self.error_413 (request, storage_available, account["quota"], storage_used, bytes_to_read)
 
             input_stream = request.stream
 
