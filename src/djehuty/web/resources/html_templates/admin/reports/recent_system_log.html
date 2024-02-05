@@ -15,8 +15,18 @@ jQuery(document).ready(function () {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery("#reports-table").DataTable({
         "order": [],
-        columnDefs: [{ orderable: false,  targets: 0 }],
-        pageLength: 25
+        pageLength: 100,
+        columnDefs: [
+          {
+            targets: -1,
+            className: 'dt-head-left'
+          }
+        ],
+        columns: [
+          {
+            className: 'dt-body-left',
+          }
+        ]
     });
     jQuery("#reports-table").show();
 });
@@ -24,6 +34,7 @@ jQuery(document).ready(function () {
 {% endblock %}
 {% block submenu %}
 <ul>
+  <li><a href="/admin/reports">← Go back</a></li>
   <li><a href="/admin/dashboard">Dashboard</a>
   <li><a href="/admin/users">Users</a>
   <li><a href="/admin/maintenance">Maintenance</a>
@@ -37,24 +48,33 @@ jQuery(document).ready(function () {
   <p class="no-script">Sorry, this page requires JavaScript to function properly.</p>
 </noscript>
 <div class="hide-for-javascript">
-<h1>The List of Reports</h1>
-<table id="reports-table" class="corporate-identity-table">
-  <thead><tr><th>Report</th><th>Remark</th></thead>
-  <tbody>
-    <tr>
-      <td><a href="/admin/reports/restricted_datasets">The list of the current restricted_datasets</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><a href="/admin/reports/embargoed_datasets">The list of the currrent embargoed datasets</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><a href="/admin/reports/recent_system_log?limit_log_size=10000000">Recent System Logs</a></td>
-      <td></td>
-    </tr>
+<h1>REPORT: Recent System Log</h1>
 
+{%- if log_file %}
+<p>log_file: {{log_file}} (based on configuration file)</p>
+{%- endif %}
+
+{%- if limit_log_size %}
+<p>log_limit_size: {{limit_log_size}} bytes (read from the end of the log file. The size doesn't exceed the actual size of the log file)</p>
+{%- endif %}
+
+{%- if records %}
+<p></p>
+Export: <a href="/admin/reports/recent_system_log?export=1&format=csv">CSV</a>, <a href="/admin/reports/recent_system_log?export=1&format=json">JSON</a>
+
+<table id="reports-table" class="corporate-identity-table">
+  <thead><tr><th>Logs</th></thead>
+  <tbody>
+{%-   for record in records: %}
+    <tr>
+      <td>{{record["msg"]}}</td>
+    </tr>
+{%-   endfor %}
   </tbody>
 </table>
+{%- else %}
+No system logs...
+{%- endif %}
+
 </div>
 {% endblock %}

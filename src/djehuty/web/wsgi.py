@@ -156,6 +156,7 @@ class ApiServer:
             R("/admin/reports",                                                  self.ui_admin_reports),
             R("/admin/reports/restricted_datasets",                              self.ui_admin_reports_restricted_datasets),
             R("/admin/reports/embargoed_datasets",                               self.ui_admin_reports_embargoed_datasets),
+            R("/admin/reports/recent_system_log",                                self.ui_admin_reports_recent_system_log),
             R("/admin/impersonate/<account_uuid>",                               self.ui_admin_impersonate),
             R("/admin/maintenance",                                              self.ui_admin_maintenance),
             R("/admin/maintenance/clear-cache",                                  self.ui_admin_clear_cache),
@@ -2587,6 +2588,78 @@ class ApiServer:
             return self.__export_report_in_format (request, "embargoed_datasets", embargoed_datasets, fileformat)
 
         return self.__render_template (request, "admin/reports/embargoed_datasets.html", datasets=embargoed_datasets)
+
+    def __logfile_from_logging_handler (self):
+        """Returns the log filename from the root handler."""
+        if logging.root.hasHandlers() and len(logging.root.handlers) > 0:
+            log_handler = logging.root.handlers[0]
+            if hasattr(log_handler, "baseFilename"):
+                return log_handler.baseFilename
+        else:
+            return None
+
+    def ui_admin_reports_recent_system_log (self, request):
+        """Implements /admin/reports/recent_system_log."""
+
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        export = self.get_parameter (request, "export")
+        fileformat = self.get_parameter (request, "format")
+        limit_log_size = self.get_parameter (request, "limit_log_size")
+
+        if limit_log_size is not None:
+            try:
+                limit_log_size = int(limit_log_size)
+            except ValueError:
+                limit_log_size = None
+
+        if limit_log_size is None:
+            limit_log_size = 1024 * 1024 * 10  # 10 MB
+
+        log_file = self.__logfile_from_logging_handler()
+        if log_file is None:
+            message = "Check configuration if <log-file> is enabled."
+            self.log.error (message)
+            return self.error_400 (request, message, 400)
+
+        try:
+            log_file_size = os.path.getsize(log_file)
+            if log_file_size < limit_log_size:
+                limit_log_size = log_file_size
+        except OSError as e:
+            self.log.error ("Failed to get size of log file: %s", e)
+            return self.error_500()
+
+        records = []
+
+        with open(log_file, 'rb') as f:
+            try:
+                f.seek(-limit_log_size, os.SEEK_END)
+                while f.read(1) != b'\n':
+                    pass
+
+                for line in f:
+                    line = line.decode('utf-8').strip()
+                    if len(line) > 45 and line[33:].startswith("djehuty.ui:"):
+                        records.append({'msg': line})
+
+            except OSError as e:
+                self.log.error ("Failed to open log file %s: %s", log_file, e)
+                return self.error_500()
+
+        records.reverse()
+
+        if export and fileformat:
+            return self.__export_report_in_format (request, "recent_system_log", records, fileformat)
+
+        return self.__render_template (request, "admin/reports/recent_system_log.html",
+                                       records=records, log_file=log_file,
+                                       limit_log_size=limit_log_size)
 
     def ui_admin_maintenance (self, request):
         """Implements /admin/maintenance."""
