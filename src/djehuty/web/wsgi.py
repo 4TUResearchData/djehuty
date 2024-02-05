@@ -2608,9 +2608,11 @@ class ApiServer:
         if not self.db.may_administer (token):
             return self.error_403 (request)
 
-        export = self.get_parameter (request, "export")
-        fileformat = self.get_parameter (request, "format")
-        limit_log_size = self.get_parameter (request, "limit_log_size")
+        export           = self.get_parameter (request, "export")
+        fileformat       = self.get_parameter (request, "format")
+        limit_log_size   = self.get_parameter (request, "limit_log_size")
+        default_limit_log_size = 1024 * 1024 * 100  # 100 MB
+        max_limit_log_size     = 1024 * 1024 * 1000 # 1 GB
 
         if limit_log_size is not None:
             try:
@@ -2619,7 +2621,7 @@ class ApiServer:
                 limit_log_size = None
 
         if limit_log_size is None:
-            limit_log_size = 1024 * 1024 * 100  # 100 MB
+            limit_log_size = default_limit_log_size
 
         log_file = self.__logfile_from_logging_handler()
         if log_file is None:
@@ -2631,6 +2633,9 @@ class ApiServer:
             log_file_size = os.path.getsize(log_file)
             if log_file_size < limit_log_size:
                 limit_log_size = log_file_size
+
+            if limit_log_size > max_limit_log_size:
+                limit_log_size = max_limit_log_size
         except OSError as e:
             self.log.error ("Failed to get size of log file: %s", e)
             return self.error_500()
