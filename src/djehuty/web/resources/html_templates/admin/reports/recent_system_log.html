@@ -58,6 +58,10 @@ jQuery(document).ready(function () {
 <p>log_limit_size: {{limit_log_size}} bytes (read from the end of the log file. The size doesn't exceed the actual size of the log file)</p>
 {%- endif %}
 
+{%- if beginning_of_log %}
+<p>beginning_of_log: {{beginning_of_log}}</p>
+{%- endif %}
+
 {%- if records %}
 <p></p>
 Export: <a href="/admin/reports/recent_system_log?export=1&format=csv">CSV</a>, <a href="/admin/reports/recent_system_log?export=1&format=json">JSON</a>

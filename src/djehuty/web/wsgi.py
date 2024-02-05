@@ -2619,7 +2619,7 @@ class ApiServer:
                 limit_log_size = None
 
         if limit_log_size is None:
-            limit_log_size = 1024 * 1024 * 10  # 10 MB
+            limit_log_size = 1024 * 1024 * 100  # 100 MB
 
         log_file = self.__logfile_from_logging_handler()
         if log_file is None:
@@ -2636,6 +2636,7 @@ class ApiServer:
             return self.error_500()
 
         records = []
+        beginning_of_log = None
 
         with open(log_file, 'rb') as f:
             try:
@@ -2643,8 +2644,14 @@ class ApiServer:
                 while f.read(1) != b'\n':
                     pass
 
+                log_headers = [ "[INFO]", "[WARNING]", "[ERROR]", "[ACCESS]" ]
                 for line in f:
                     line = line.decode('utf-8').strip()
+                    if not beginning_of_log:
+                        for header in log_headers:
+                            if line.startswith(header):
+                                beginning_of_log = line
+                                break
                     if len(line) > 45 and line[33:].startswith("djehuty.ui:"):
                         records.append({'msg': line})
 
@@ -2659,7 +2666,8 @@ class ApiServer:
 
         return self.__render_template (request, "admin/reports/recent_system_log.html",
                                        records=records, log_file=log_file,
-                                       limit_log_size=limit_log_size)
+                                       limit_log_size=limit_log_size,
+                                       beginning_of_log=beginning_of_log)
 
     def ui_admin_maintenance (self, request):
         """Implements /admin/maintenance."""
