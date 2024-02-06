@@ -50,17 +50,13 @@ jQuery(document).ready(function () {
 <div class="hide-for-javascript">
 <h1>REPORT: Recent System Log</h1>
 
-{%- if log_file %}
-<p>log_file: {{log_file}} (based on configuration file)</p>
-{%- endif %}
+<p><b>FILTER_TYPE:</b> {{filter_type}} - <a href="?filter_type=shutdown">shutdown</a> | <a href="?filter_type=warning">warning</a> | <a href="?filter_type=error">error</a></p>
 
-{%- if limit_log_size %}
-<p>log_limit_size: {{limit_log_size}} bytes (read from the end of the log file. The size doesn't exceed the actual size of the log file)</p>
-{%- endif %}
+<p><b>LOG_FILE</b>: {{log_file}} (based on configuration file)</p>
 
-{%- if beginning_of_log %}
-<p>beginning_of_log: {{beginning_of_log}}</p>
-{%- endif %}
+<p><b>LOG_LIMIT_SIZE:</b> {{limit_log_size}} bytes (read from the end of the log file. The size doesn't exceed the actual size of the log file)</p>
+
+<p><b>SEARCH_RANGE:</b> {{timestamp_start}} - {{timestamp_end}}</p>
 
 {%- if records %}
 <p></p>
@@ -71,7 +67,7 @@ Export: <a href="/admin/reports/recent_system_log?export=1&format=csv">CSV</a>, 
   <tbody>
 {%-   for record in records: %}
     <tr>
-      <td>{{record["msg"]}}</td>
+      <td>{{record["log"]}}</td>
     </tr>
 {%-   endfor %}
   </tbody>

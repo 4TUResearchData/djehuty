@@ -2595,8 +2595,8 @@ class ApiServer:
             log_handler = logging.root.handlers[0]
             if hasattr(log_handler, "baseFilename"):
                 return log_handler.baseFilename
-        else:
-            return None
+
+        return None
 
     def ui_admin_reports_recent_system_log (self, request):
         """Implements /admin/reports/recent_system_log."""
@@ -2608,9 +2608,10 @@ class ApiServer:
         if not self.db.may_administer (token):
             return self.error_403 (request)
 
-        export           = self.get_parameter (request, "export")
-        fileformat       = self.get_parameter (request, "format")
-        limit_log_size   = self.get_parameter (request, "limit_log_size")
+        export         = self.get_parameter (request, "export")
+        fileformat     = self.get_parameter (request, "format")
+        filter_type    = self.get_parameter (request, "filter_type")
+        limit_log_size = self.get_parameter (request, "limit_log_size")
         default_limit_log_size = 1024 * 1024 * 100  # 100 MB
         max_limit_log_size     = 1024 * 1024 * 1000 # 1 GB
 
@@ -2619,6 +2620,9 @@ class ApiServer:
                 limit_log_size = int(limit_log_size)
             except ValueError:
                 limit_log_size = None
+
+        if filter_type is None:
+            filter_type = "shutdown"
 
         if limit_log_size is None:
             limit_log_size = default_limit_log_size
@@ -2634,37 +2638,47 @@ class ApiServer:
             if log_file_size < limit_log_size:
                 limit_log_size = log_file_size
 
-            if limit_log_size > max_limit_log_size:
-                limit_log_size = max_limit_log_size
+            limit_log_size = min(limit_log_size, max_limit_log_size)
         except OSError as e:
             self.log.error ("Failed to get size of log file: %s", e)
             return self.error_500()
 
         records = []
-        beginning_of_log = None
+        timestamp_start = None
+        timestamp_end = None
+        log_levels = [ "[INFO]", "[WARNING]", "[ERROR]", "[ACCESS]" ]
+
 
         with open(log_file, 'rb') as f:
             try:
-                f.seek(-limit_log_size, os.SEEK_END)
+                f.seek(-abs(limit_log_size), os.SEEK_END)
                 while f.read(1) != b'\n':
                     pass
 
-                log_headers = [ "[INFO]", "[WARNING]", "[ERROR]", "[ACCESS]" ]
                 for line in f:
                     line = line.decode('utf-8').strip()
-                    if not beginning_of_log:
-                        for header in log_headers:
+                    if not timestamp_start:
+                        for header in log_levels:
                             if line.startswith(header):
-                                beginning_of_log = line
+                                timestamp_start = " ".join(line.split(" ")[1:3])
                                 break
-                    if len(line) > 45 and line[33:].startswith("djehuty.ui:"):
-                        records.append({'msg': line})
+                    if filter_type == "shutdown":
+                        if len(line) > 45 and line[33:].startswith("djehuty.ui:"):
+                            records.append({'log': line})
+                    elif filter_type == "error":
+                        if line.startswith("[ERROR]"):
+                            records.append({'log': line})
+                    elif filter_type == "warning":
+                        if line.startswith("[WARNING]"):
+                            records.append({'log': line})
 
             except OSError as e:
                 self.log.error ("Failed to open log file %s: %s", log_file, e)
                 return self.error_500()
 
         records.reverse()
+        if records:
+            timestamp_end = " ".join(records[0]["log"].split(" ")[1:3])
 
         if export and fileformat:
             return self.__export_report_in_format (request, "recent_system_log", records, fileformat)
@@ -2672,7 +2686,10 @@ class ApiServer:
         return self.__render_template (request, "admin/reports/recent_system_log.html",
                                        records=records, log_file=log_file,
                                        limit_log_size=limit_log_size,
-                                       beginning_of_log=beginning_of_log)
+                                       timestamp_start=timestamp_start,
+                                       timestamp_end=timestamp_end,
+                                       filter_type=filter_type)
+
 
     def ui_admin_maintenance (self, request):
         """Implements /admin/maintenance."""
@@ -6612,9 +6629,7 @@ class ApiServer:
             # Note that the bytes_to_read contain some overhead of the
             # multipart headings (~220 bytes per chunk).
             if storage_available < bytes_to_read:
-                self.log.error ("File upload failed because user's quota limit: "
-                                "quota(%d), used(%d), available(%s), filesize(%d)"
-                                % (account["quota"], storage_used, storage_available, bytes_to_read))
+                self.log.error ("File upload failed because user's quota limit: quota(%d), used(%d), available(%s), filesize(%d)", account["quota"], storage_used, storage_available, bytes_to_read)
                 return self.error_413 (request, storage_available, account["quota"], storage_used, bytes_to_read)
 
             input_stream = request.stream
