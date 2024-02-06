@@ -1415,6 +1415,7 @@ class SparqlInterface:
         rdf.add (graph, account_uri, rdf.DJHT["url_name"],       "_", XSD.string)
 
         if self.add_triples_from_graph (graph):
+            self.cache.invalidate_by_prefix ("accounts")
             return rdf.uri_to_uuid (account_uri)
 
         return None
