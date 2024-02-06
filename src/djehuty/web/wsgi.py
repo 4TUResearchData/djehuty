@@ -3495,7 +3495,11 @@ class ApiServer:
 
             if version is None:
                 version = "draft"
-            filename = f"{dataset['container_uuid']}_{version}_all.zip"
+            if validator.index_exists (dataset["title"], 127):
+                dataset["title"] = f"{dataset['title'][:126]}>"
+
+            safe_title = dataset["title"].replace('"', '')
+            filename = f'"{safe_title}_{version}_all.zip"'
 
             response.headers["Content-disposition"] = f"attachment; filename={filename}"
             self.__log_event (request, dataset["container_uuid"], "dataset", "download")
