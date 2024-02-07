@@ -1909,8 +1909,12 @@ class ApiServer:
         links = self.db.private_links (item_uri     = collection["uri"],
                                        account_uuid = account_uuid)
 
+        show_back = self.get_parameter (request, "go_back")
+        show_back = (show_back is None or show_back != "no")
+
         return self.__render_template (request,
                                        "depositor/collection-private-links.html",
+                                       show_back     = show_back,
                                        collection    = collection,
                                        private_links = links)
 
