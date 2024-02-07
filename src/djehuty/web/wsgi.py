@@ -1885,39 +1885,34 @@ class ApiServer:
 
     def ui_collection_private_links (self, request, collection_uuid):
         """Implements /my/collections/<uuid>/private_links."""
-        if not self.accepts_html (request):
-            return self.error_406 ("text/html")
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed (request)
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
-        if request.method in ("GET", "HEAD"):
-            if not validator.is_valid_uuid (collection_uuid):
-                return self.error_404 (request)
+        if not validator.is_valid_uuid (collection_uuid):
+            return self.error_404 (request)
 
-            try:
-                collection = self.db.collections (collection_uuid = collection_uuid,
-                                                  account_uuid = account_uuid,
-                                                  is_published = None,
-                                                  is_latest    = None,
-                                                  use_cache    = False,
-                                                  limit        = 1)[0]
-            except IndexError:
-                return self.error_403 (request)
+        try:
+            collection = self.db.collections (collection_uuid = collection_uuid,
+                                              account_uuid = account_uuid,
+                                              is_published = None,
+                                              is_latest    = None,
+                                              use_cache    = False,
+                                              limit        = 1)[0]
+        except IndexError:
+            return self.error_403 (request)
 
-            if not collection:
-                return self.error_404 (request)
+        if not collection:
+            return self.error_404 (request)
 
-            links = self.db.private_links (item_uri     = collection["uri"],
-                                           account_uuid = account_uuid)
+        links = self.db.private_links (item_uri     = collection["uri"],
+                                       account_uuid = account_uuid)
 
-            return self.__render_template (request,
-                                           "depositor/collection-private-links.html",
-                                           collection    = collection,
-                                           private_links = links)
-
-        return self.error_500()
+        return self.__render_template (request,
+                                       "depositor/collection-private-links.html",
+                                       collection    = collection,
+                                       private_links = links)
 
     def ui_my_collections (self, request):
         """Implements /my/collections."""
