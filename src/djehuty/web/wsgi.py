@@ -1874,9 +1874,13 @@ class ApiServer:
                 if datetime.fromisoformat(link["expires_date"]) < datetime.now():
                     link["is_expired"] = True
 
+        show_back = self.get_parameter (request, "go_back")
+        show_back = (show_back is None or show_back != "no")
+
         return self.__render_template (request,
                                        "depositor/dataset-private-links.html",
                                        dataset       = dataset,
+                                       show_back     = show_back,
                                        private_links = links)
 
     def ui_collection_private_links (self, request, collection_uuid):

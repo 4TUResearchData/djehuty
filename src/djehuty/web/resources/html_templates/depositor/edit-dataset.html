@@ -121,6 +121,8 @@ jQuery(document).ready(function (){
 .publish-button a:hover { background: #f7ad58 !important; }
 .preview-button a { background: #736f53 !important; }
 .preview-button a:hover { background: #96937e !important; }
+.private-links-button a { background: #53736f !important; }
+.private-links-button a:hover { background: #7e9693 !important; }
 #doi-wrapper p { margin: 0pt; }
 .article-content-loader { display: none; }
 #files-table-actions { text-align: right; }
@@ -154,6 +156,7 @@ jQuery(document).ready(function (){
   {%- endif %}
   <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
   <li class="hide-for-javascript preview-button"><a id="preview" href="#">Preview</a>
+  <li class="hide-for-javascript private-links-button"><a id="private-links" target="_blank" href="/my/datasets/{{article["uuid"]}}/private_links?go_back=no">Private access links</a>
 </ul>
 {% endblock %}
 {% block body %}

@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
 {% block submenu %}
 <ul>
+  {%- if show_back %}
   <li><a href="/my/datasets">&#8592; Go back</a>
+  {%- endif %}
   <li class="create-button"><a href="/my/datasets/{{dataset.uuid}}/private_link/new">Create new private link</a>
 </ul>
 {% endblock %}
