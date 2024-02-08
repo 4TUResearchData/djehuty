@@ -574,12 +574,9 @@ class ApiServer:
 
     def token_from_cookie (self, request, cookie_key=None):
         """Procedure to gather an access token from a HTTP cookie."""
-        try:
-            if cookie_key is None:
-                cookie_key = self.cookie_key
-            return request.cookies[cookie_key]
-        except KeyError:
-            return None
+        if cookie_key is None:
+            cookie_key = self.cookie_key
+        return value_or_none (request.cookies, cookie_key)
 
     def __log_event (self, request, item_uuid, item_type, event_type):
         """Records a view or download event."""
