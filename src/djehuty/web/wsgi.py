@@ -1221,21 +1221,15 @@ class ApiServer:
 
     def token_from_request (self, request):
         """Procedure to get the access token from a HTTP request."""
-        token_string = None
-
-        ## Get the token from the "Authorization" HTTP header.
-        ## If no such header is provided, we cannot authenticate.
         try:
             token_string = self.token_from_cookie (request)
             if token_string is None:
                 token_string = request.environ["HTTP_AUTHORIZATION"]
+            if isinstance(token_string, str) and token_string.startswith("token "):
+                token_string = token_string[6:]
+            return token_string
         except KeyError:
             return None
-
-        if token_string.startswith("token "):
-            token_string = token_string[6:]
-
-        return token_string
 
     def impersonated_account_uuid (self, request, account):
         """Procedure to get the account UUID in the case of impersonation."""
