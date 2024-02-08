@@ -91,19 +91,19 @@
 {% endfor %}</ul>
 
 <script>
-  $(window).on('load', function() {
+  jQuery(document).ready(function() {
 
-    var articles = {{ articles | tojson }};
-    var display_terms = {{ display_terms | tojson }};
+    let articles = {{ articles | tojson }};
+    let display_terms = {{ display_terms | tojson }};
 
     if (display_terms.length === 0) {
       return;
     }
 
     // In fact, articles doesn't have tag field.
-    var fields = ["title", "resource_title", "description", "citation", "format", "tag"]
+    let fields = ["title", "resource_title", "description", "citation", "format", "tag"]
     articles.forEach(function (article, article_index) {
-      var match_fields = [];
+      let match_fields = [];
       display_terms.forEach(function (display_term) {
         // if display_term's type is not string, then skip.
         if (typeof display_term !== "string") {
@@ -118,15 +118,15 @@
           }
         });
       });
-      var div_match = document.getElementById("article_" + (article_index + 1));
-      var match_fields_uniq = match_fields.filter((value, index) => match_fields.indexOf(value) === index);
+      let div_match = document.getElementById(`article_${(article_index + 1)}`);
+      let match_fields_uniq = match_fields.filter((value, index) => match_fields.indexOf(value) === index);
       if (match_fields_uniq.length > 0) {
         match_fields_uniq.forEach(function (match_field) {
-          $('<span class="match-badge">' + match_field + '</span>').appendTo(div_match);
+          jQuery(`<span class="match-badge">${match_field}</span>`).appendTo(div_match);
         });
       } else {
           // If there are no match fields, it will be tagged as 'tag'.
-          $('<span class="match-badge">' + 'tag' + '</span>').appendTo(div_match);
+          jQuery(`<span class="match-badge">${tag}</span>`).appendTo(div_match);
       }
     });
   });
