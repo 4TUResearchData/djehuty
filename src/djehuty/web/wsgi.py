@@ -3531,97 +3531,110 @@ class ApiServer:
 
     def ui_search (self, request):
         """Implements /search."""
-        if self.accepts_html (request):
-            search_for = self.get_parameter(request, "search")
-            if search_for is None:
-                search_for = ""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
 
-            search_for = search_for.strip()
-            operators_mapping = {"(":"(", ")":")", "AND":"&&", "OR":"||"}
-            operators = operators_mapping.keys()
-            has_operators = any((operator in search_for) for operator in operators)
+        search_for = self.get_parameter(request, "search")
+        if search_for is None:
+            search_for = ""
 
-            fields = ["title", "resource_title", "description", "citation", "format"]
-            re_field = ":(" + "|".join(fields+["search_term"]) + "):"
-            has_fieldsearch = re.search(re_field, search_for) is not None
+        search_for = search_for.strip()
+        operators_mapping = {"(":"(", ")":")", "AND":"&&", "OR":"||"}
+        operators = operators_mapping.keys()
 
-            re_operator = r"(\(|\)|AND|OR)"
-            search_list = re.split(re_operator, search_for)
+        fields = ["title", "resource_title", "description", "citation", "format", "tag"]
+        re_field = ":(" + "|".join(fields+["search_term"]) + "):"
 
-            search_list = list(filter(None, [s.strip() for s in search_list]))
+        search_tokens = re.findall(r'[^" ]+|"[^"]+"|\([^)]+\)', search_for)
+        search_tokens = [s.strip('"') for s in search_tokens]
+        has_operators = any((operator in search_for) for operator in operators)
+        has_fieldsearch = re.search(re_field, search_for) is not None
 
-            ## Unpacking this construction to replace AND and OR for &&
-            ## and || results in a query where && is stripped out.
-            if has_operators:
-                search_list = [{"operator": operators_mapping[element.upper()]} if (element.upper() in operators)
-                               else element for element in search_list]
-            elif has_fieldsearch:
-                pass
-            else:
-                # search terms are handled separately (split on spaces) and combined with OR operators
-                # terms in double quotes are seen as one
-                quoted = search_for.split('"')[1::2]
-                not_quoted = [item.split() for item in search_for.split('"')[0::2]]
-                # flatten list
-                not_quoted = sum(not_quoted, [])
-                # combine quoted and non-quoted and strip leading and trailing spaces
-                search_list = [item.strip() for item in quoted + not_quoted]
-                # add OR operators
-                index = -1
-                while len(search_list) + index > 0:
-                    search_list.insert(index, {"operator": "||"})
-                    index = index - 2
+        # Concatenate field name and its following token as one token.
+        for idx, token in enumerate(search_tokens):
+            if token is None:
+                continue
+            if re.search(re_field, token) is not None:
+                matched = re.split(':', token)[1::2][0]
+                if matched in fields:
+                    try:
+                        search_tokens[idx] = f"{token} {search_tokens[idx+1]}"
+                        search_tokens[idx+1] = None
+                    except IndexError:
+                        return self.error_400 (request, "Field name used without search term", 400)
 
-            display_list = search_list[:]
-            for idx, search_term in enumerate(search_list):
-                if isinstance(search_term, dict):
-                    continue
+        search_tokens = [x for x in search_tokens if x is not None]
 
-                if re.search(re_field, search_term) is not None:
-                    field_name = re.split(':', search_term)[1::2][0]
-                    value = list(filter(None, [s.strip() for s in re.split(':', search_term)[0::2]]))[0]
-                    if value.startswith('"') and value.endswith('"'):
-                        display_list[idx] = display_list[idx].replace(value, value.strip('"'))
-                        value = value.strip('"')
-                    if field_name in fields:
-                        search_list[idx] = {field_name: value}
-                    elif field_name == "search_term":
-                        search_dict = {}
-                        for field_name in fields:
-                            search_dict[field_name] = value
-                        search_list[idx] = search_dict
-                elif has_fieldsearch is False:
+        ## Unpacking this construction to replace AND and OR for &&
+        ## and || results in a query where && is stripped out.
+        if has_operators:
+            is_parenthesized = False
+            lparen_count = search_tokens.count("(")
+            rparen_count = search_tokens.count(")")
+            if lparen_count > 0 and lparen_count == rparen_count:
+                is_parenthesized = True
+            for idx, element in enumerate(search_tokens):
+                if element in operators:
+                    if element in ['(', ')'] and not is_parenthesized:
+                        continue
+                    search_tokens[idx] = {"operator": operators_mapping[element]}
+        else:
+            self.log.info("No operators found in search query. Adding OR operators.")
+            # add OR operators
+            index = -1
+            while len(search_tokens) + index > 0:
+                search_tokens.insert(index, {"operator": "||"})
+                index = index - 2
+
+            self.log.info("search_tokens: %s", search_tokens)
+
+        display_list = search_tokens[:]
+        for idx, search_term in enumerate(search_tokens):
+            if isinstance(search_term, dict):
+                continue
+
+            if re.search(re_field, search_term) is not None:
+                field_name = re.split(':', search_term)[1::2][0]
+                value = list(filter(None, [s.strip() for s in re.split(':', search_term)[0::2]]))[0]
+
+                if field_name in fields:
+                    search_tokens[idx] = {field_name: value}
+                elif field_name == "search_term":
                     search_dict = {}
-                    if search_term.startswith('"') and search_term.endswith('"'):
-                        display_list[idx] = search_term.strip('"')
-                        search_term = search_term.strip('"')
                     for field_name in fields:
-                        search_dict[field_name] = search_term
-                    search_list[idx] = search_dict
+                        search_dict[field_name] = value
+                    search_tokens[idx] = search_dict
 
-            dataset_count = self.db.datasets (search_for=search_list,
-                                              is_published=True,
-                                              is_latest=True,
-                                              return_count=True)
-            if dataset_count == []:
-                message = "Invalid query"
-                datasets = []
-                dataset_count = 0
-            else:
-                message = None
-                dataset_count = dataset_count[0]["datasets"]
-                datasets = self.db.datasets (search_for=search_list,
-                                             is_published=True,
-                                             is_latest=True,
-                                             limit=100)
-            return self.__render_template (request, "search.html",
-                                           search_for=search_for,
-                                           articles=datasets,
-                                           dataset_count=dataset_count,
-                                           message=message,
-                                           display_terms=display_list,
-                                           page_title=f"{search_for} (search)")
-        return self.error_406 ("text/html")
+                field_name = None
+
+            elif has_fieldsearch is False:
+                search_dict = {}
+                for field in fields:
+                    search_dict[field] = search_term
+                search_tokens[idx] = search_dict
+
+        dataset_count = self.db.datasets (search_for=search_tokens,
+                                          is_published=True,
+                                          is_latest=True,
+                                          return_count=True)
+        if dataset_count == []:
+            message = "Invalid query"
+            datasets = []
+            dataset_count = 0
+        else:
+            message = None
+            dataset_count = dataset_count[0]["datasets"]
+            datasets = self.db.datasets (search_for=search_tokens,
+                                         is_published=True,
+                                         is_latest=True,
+                                         limit=100)
+        return self.__render_template (request, "search.html",
+                                       search_for=search_for,
+                                       articles=datasets,
+                                       dataset_count=dataset_count,
+                                       message=message,
+                                       display_terms=display_list,
+                                       page_title=f"{search_for} (search)")
 
     def api_authorize (self, request):
         """Implements /v2/account/applications/authorize."""

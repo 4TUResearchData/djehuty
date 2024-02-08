@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
 <style>
 .tile-item {
     display: inline-block;
@@ -12,6 +13,16 @@
 }
 .tile-item:hover { background: #eeeeee; }
 .tile-item:active { background: #e9e9e9; }
+.match-badge {
+  background-color: #f49120;
+  color: white;
+  font-size: 0.8em;
+  padding: 2px;
+  margin: 2px;
+  text-align: center;
+  border-radius: 5px;
+  display:inline-block;
+}
 .tile-title {
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -79,8 +90,54 @@
   {% endif %}
 {% endfor %}</ul>
 
+<script>
+  $(window).on('load', function() {
+
+    var articles = {{ articles | tojson }};
+    var display_terms = {{ display_terms | tojson }};
+
+    if (display_terms.length === 0) {
+      return;
+    }
+
+    // In fact, articles doesn't have tag field.
+    var fields = ["title", "resource_title", "description", "citation", "format", "tag"]
+    articles.forEach(function (article, article_index) {
+      var match_fields = [];
+      display_terms.forEach(function (display_term) {
+        // if display_term's type is not string, then skip.
+        if (typeof display_term !== "string") {
+          return;
+        }
+
+        // if display_term has '^:.+: ' in regular expression, then remove it.
+        display_term = display_term.replace(/^:.+: /, "");
+        fields.forEach(function (field) {
+          if (field in article && article[field].toLowerCase().includes(display_term.toLowerCase())) {
+            match_fields.push(field);
+          }
+        });
+      });
+      var div_match = document.getElementById("article_" + (article_index + 1));
+      var match_fields_uniq = match_fields.filter((value, index) => match_fields.indexOf(value) === index);
+      if (match_fields_uniq.length > 0) {
+        match_fields_uniq.forEach(function (match_field) {
+          $('<span class="match-badge">' + match_field + '</span>').appendTo(div_match);
+        });
+      } else {
+          // If there are no match fields, it will be tagged as 'tag'.
+          $('<span class="match-badge">' + 'tag' + '</span>').appendTo(div_match);
+      }
+    });
+  });
+</script>
+
 {% if message is none %}
 <h2>Found results ({{ dataset_count}}):</h2>
+{% if dataset_count > 100 %}
+<div><i>Please note that only the first 100 records are displayed to avoid overloading the database.</i></div>
+<div>&nbsp;</div>
+{% endif %}
 {% else: %}
 <h2>No results found ({{ message }})</h2>
 {% endif %}
@@ -91,10 +148,10 @@
   {% else: %}
   <img class="tile-preview" src="/static/images/dataset-thumb.svg" aria-hidden="true" alt="thumbnail for {{item.id}}" />
   {% endif %}</a>
+  <div class="tile-matches" id="article_{{loop.index}}"></div>
   <div class="tile-title"><a href="/datasets/{{item.container_uuid}}">{{item.title}}</a></div>
   <div class="tile-date">Posted on {{item.timeline_posted}}</div>
-  <div class="tile-authors">
-  </div>
+  <div class="tile-authors"> </div>
 </div>
 {% endfor %}
 {% endblock %}

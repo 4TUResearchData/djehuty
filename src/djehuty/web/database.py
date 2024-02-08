@@ -310,6 +310,7 @@ class SparqlInterface:
             search_for = [search_for]
         if dict in list(map(type, search_for)):
             filters += "FILTER ("
+            last_used_field = None
             for element in search_for:
                 if (isinstance (element, dict)
                     and len(element.items()) == 1
@@ -320,6 +321,15 @@ class SparqlInterface:
                     if element['operator'] == ")":
                         continue
                     filters += f" {element['operator']} "
+                # This is a case that a search term comes after field search
+                # :tag: maize processing -> tag:maize || tag:processing
+                # :tag: maize AND processing -> tag:maize && tag:processing
+                elif isinstance (element, str):
+                    if last_used_field is None:
+                        continue
+                    escaped_value = rdf.escape_string_value (element.lower())
+                    filters += f"CONTAINS(LCASE(?{last_used_field}), {escaped_value})\n"
+                    continue
                 else:
                     filter_list = []
                     for key, value in element.items():
@@ -327,7 +337,7 @@ class SparqlInterface:
                             continue
                         escaped_value = rdf.escape_string_value (value.lower())
                         filter_list.append(f"CONTAINS(LCASE(?{key}), {escaped_value})\n")
-                    filter_list.append(f"LCASE(?tag) = {escaped_value}")
+                        last_used_field = key
                     if filter_list:
                         filters += (f"({' || '.join(filter_list)})")
             filters += ")"
@@ -340,11 +350,12 @@ class SparqlInterface:
             filter_list = []
             for search_term in search_for:
                 search_term_safe = rdf.escape_string_value (search_term.lower())
-                filter_list.append(f"       CONTAINS(LCASE(?title),          {search_term_safe})")
-                filter_list.append(f"       CONTAINS(LCASE(?resource_title), {search_term_safe})")
-                filter_list.append(f"       CONTAINS(LCASE(?description),    {search_term_safe})")
-                filter_list.append(f"       CONTAINS(LCASE(?citation),       {search_term_safe})")
-                filter_list.append(f"       LCASE(?tag) =                    {search_term_safe}")
+
+                # should be the same as ApiServer.ui_search()'s fields.
+                fields = ["title", "resource_title", "description", "citation", "tag"]
+                for field in fields:
+                    filter_list.append(f"       CONTAINS(LCASE(?{field}),          {search_term_safe})")
+
                 if search_format:
                     filter_list.append(f"       CONTAINS(LCASE(?format),         {search_term_safe})")
             if len(filter_list) > 0:
