@@ -444,6 +444,8 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-times::before { content: "\f00d"; }
 .fa-glasses::before { content: "\f530"; }
 .fa-check-double::before { content: "\f560"; }
+.fa-tile::before { content: "\f84c"; }
+.fa-list::before { content: "\f03a"; }
 .fa-orcid::before { content: "\f8d2"; }
 .fa-empty::before {}
 

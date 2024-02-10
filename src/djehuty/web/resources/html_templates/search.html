@@ -1,6 +1,9 @@
 {% extends "layout.html" %}
 {% block headers %}
+<script src="/static/js/search.js"></script>
 <script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
 <style>
 .tile-item {
     display: inline-block;
@@ -92,43 +95,9 @@
 
 <script>
   jQuery(document).ready(function() {
-
     let articles = {{ articles | tojson }};
     let display_terms = {{ display_terms | tojson }};
-
-    if (display_terms.length === 0) {
-      return;
-    }
-
-    // In fact, articles doesn't have tag field.
-    let fields = ["title", "resource_title", "description", "citation", "format", "tag"]
-    articles.forEach(function (article, article_index) {
-      let match_fields = [];
-      display_terms.forEach(function (display_term) {
-        // if display_term's type is not string, then skip.
-        if (typeof display_term !== "string") {
-          return;
-        }
-
-        // if display_term has '^:.+: ' in regular expression, then remove it.
-        display_term = display_term.replace(/^:.+: /, "");
-        fields.forEach(function (field) {
-          if (field in article && article[field].toLowerCase().includes(display_term.toLowerCase())) {
-            match_fields.push(field);
-          }
-        });
-      });
-      let div_match = document.getElementById(`article_${(article_index + 1)}`);
-      let match_fields_uniq = match_fields.filter((value, index) => match_fields.indexOf(value) === index);
-      if (match_fields_uniq.length > 0) {
-        match_fields_uniq.forEach(function (match_field) {
-          jQuery(`<span class="match-badge">${match_field}</span>`).appendTo(div_match);
-        });
-      } else {
-          // If there are no match fields, it will be tagged as 'tag'.
-          jQuery('<span class="match-badge">tag</span>').appendTo(div_match);
-      }
-    });
+    extra_render_search_page(articles, display_terms);
   });
 </script>
 
@@ -141,6 +110,11 @@
 {% else: %}
 <h2>No results found ({{ message }})</h2>
 {% endif %}
+<div style="text-align: left;">
+  <a href="#"><span class="fas fa-tile fa-lg" id="tile_view_mode" style="color: #f49120"><span class="hidden">Tile View</span></span></a>
+  <a href="#"><span class="fas fa-list fa-lg" id="list_view_mode" style="color: darkgray"><span class="hidden">List View</span></span></a>
+</div>
+<div>&nbsp;</div>
 {% for item in articles %}
 <div class="tile-item">
   <a href="{{item.url_public_html}}">{% if item.thumb | length: %}
@@ -154,4 +128,5 @@
   <div class="tile-authors"> </div>
 </div>
 {% endfor %}
+<div class="list-item"></div>
 {% endblock %}
