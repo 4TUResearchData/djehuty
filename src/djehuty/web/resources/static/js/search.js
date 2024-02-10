@@ -109,8 +109,10 @@ function extra_render_search_page(articles, display_terms) {
 
       jQuery("#search-result").DataTable({
         "order": [[ 1, 'desc' ]],
-        pageLength: 100,
-        lengthChange: false,
+        "bInfo" : false,
+        "paging": false,
+        "searching": false,
+        "lengthChange": false,
       });
 
       jQuery("#search-result").show();
