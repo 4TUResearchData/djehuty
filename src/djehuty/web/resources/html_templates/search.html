@@ -104,8 +104,7 @@
 {% if message is none %}
 <h2>Found results ({{ dataset_count}}):</h2>
 {% if dataset_count > 100 %}
-<div><i>Please note that only the first 100 records are displayed to avoid overloading the database.</i></div>
-<div>&nbsp;</div>
+<p><i>Please note that only the first 100 records are displayed.</i></p>
 {% endif %}
 {% else: %}
 <h2>No results found ({{ message }})</h2>

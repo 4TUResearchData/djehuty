@@ -21,10 +21,6 @@ function extra_render_search_page(articles, display_terms) {
     "tag":            "#9EBA00"
   };
 
-  if (display_terms.length === 0) {
-    return;
-  }
-
   articles.forEach(function (article, article_index) {
     let match_fields = [];
     display_terms.forEach(function (display_term) {
