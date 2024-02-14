@@ -3424,7 +3424,11 @@ class ApiServer:
 
         search_for = self.get_parameter(request, "search")
         if search_for is None:
-            search_for = ""
+            # 'q' is used by visitors from library.tudelft.nl. This can be
+            # removed once the library.tudelft.nl search has been updated.
+            search_for = self.get_parameter(request, "q")
+            if search_for is None:
+                search_for = ""
 
         search_for = search_for.strip()
         operators_mapping = {"(":"(", ")":")", "AND":"&&", "OR":"||"}
@@ -3467,14 +3471,11 @@ class ApiServer:
                         continue
                     search_tokens[idx] = {"operator": operators_mapping[element]}
         else:
-            self.log.info("No operators found in search query. Adding OR operators.")
-            # add OR operators
+            # No operators found in the search query. Adding OR operators.
             index = -1
             while len(search_tokens) + index > 0:
                 search_tokens.insert(index, {"operator": "||"})
                 index = index - 2
-
-            self.log.info("search_tokens: %s", search_tokens)
 
         display_list = search_tokens[:]
         for idx, search_term in enumerate(search_tokens):
