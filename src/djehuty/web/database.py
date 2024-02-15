@@ -1637,7 +1637,7 @@ class SparqlInterface:
             "preview_state": preview_state,
             "file_size":     file_size,
             "is_incomplete": is_incomplete,
-            "is_image":      is_image,
+            "is_image":      rdf.escape_boolean_value (is_image),
             "status":        status
         })
 

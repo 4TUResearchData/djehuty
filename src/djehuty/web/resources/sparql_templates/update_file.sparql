@@ -32,7 +32,7 @@ INSERT {
     {%- endif%}{% if is_incomplete is not none %}
     ?file              djht:is_incomplete       {{is_incomplete}} .
     {%- endif%}{% if is_image is not none %}
-    ?file              djht:is_image            {{is_image}} .
+    ?file              djht:is_image            {{is_image | safe}} .
     {%- endif%}{% if viewer_type is not none %}
     ?file              djht:viewer_type         "{{viewer_type | safe}}"^^xsd:string .
     {%- endif%}{% if preview_state is not none %}
