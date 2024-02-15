@@ -45,9 +45,8 @@ DELETE {
     {%- endif%}{% if has_linked_file is not none %}
     ?dataset           djht:has_linked_file      ?has_linked_file .
     {%- endif%}
-    {%- if is_restricted or (embargo_until_date is not none and is_embargoed) %}
     ?dataset           djht:embargo_until_date   ?embargo_until_date .
-    {%- endif%}{% if is_restricted or (embargo_type is not none and is_embargoed) %}
+    {% if embargo_type is not none or not (is_embargoed or is_restricted) %}
     ?dataset           djht:embargo_type         ?embargo_type .
     {%- endif%}{% if is_metadata_record is not none %}
     ?dataset           djht:is_metadata_record   ?is_metadata_record .
