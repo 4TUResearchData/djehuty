@@ -2787,7 +2787,8 @@ class SparqlInterface:
 
     def accounts (self, account_uuid=None, order=None, order_direction=None,
                   limit=None, offset=None, is_active=None, email=None,
-                  id_lte=None, id_gte=None, institution_user_id=None):
+                  id_lte=None, id_gte=None, institution_user_id=None,
+                  search_for=None):
         """Returns accounts."""
 
         query = self.__query_from_template ("accounts", {
@@ -2795,6 +2796,7 @@ class SparqlInterface:
             "is_active": is_active,
             "email": rdf.escape_string_value(email),
             "institution_user_id": rdf.escape_string_value (institution_user_id),
+            "search_for": rdf.escape_string_value (search_for),
             "minimum_account_id": id_gte,
             "maximum_account_id": id_lte,
         })

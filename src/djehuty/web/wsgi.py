@@ -328,6 +328,7 @@ class ApiServer:
             R("/v3/profile/picture",                                             self.api_v3_profile_picture),
             R("/v3/profile/picture/<account_uuid>",                              self.api_v3_profile_picture_for_account),
             R("/v3/tags/search",                                                 self.api_v3_tags_search),
+            R("/v3/accounts/search",                                             self.api_v3_accounts_search),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -2191,6 +2192,26 @@ class ApiServer:
         response   = redirect (request.referrer, code=302)
         self.db.delete_session_by_uuid (account_uuid, session_uuid)
         return response
+
+    def api_v3_accounts_search (self, request):
+        """Search and autocomplete to add collaborator"""
+        if not self.accepts_json(request):
+            return self.error_406("application/json")
+
+        account_uuid = self.account_uuid_from_request(request)
+        if account_uuid is None:
+            return self.error_authorization_failed(request)
+
+        if request.method != "POST":
+            return self.error_405 ("POST")
+
+        try:
+            parameters = request.get_json()
+            search_for = validator.string_value (parameters, "search_for", 0, 32, required=True)
+            accounts   = self.db.accounts (search_for=search_for, limit=5)
+            return self.default_list_response (accounts, formatter.format_account_details_record)
+        except (validator.ValidationException, KeyError) as error:
+            return self.error_400(request, error.message, error.code)
 
     def ui_dataset_new_private_link (self, request, dataset_uuid):
         """Implements /my/datasets/<uuid>/private_link/new."""
