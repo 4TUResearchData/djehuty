@@ -4,7 +4,7 @@ SELECT DISTINCT ?active ?created_date ?email ?first_name ?group_id ?biography
                 ?uuid ?institution_id ?institution_user_id ?last_name
                 ?maximum_file_size ?modified_date ?job_title ?location
                 ?account_id ?domain ?twitter ?linkedin ?website ?author_uuid
-                ?profile_image ?orcid
+                ?profile_image ?orcid ?full_name
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account             rdf:type                   djht:Account .
@@ -35,6 +35,7 @@ WHERE {
       ?author            rdf:type                   djht:Author ;
                          djht:account               ?account .
       OPTIONAL { ?author djht:orcid_id              ?orcid . }
+      OPTIONAL { ?author djht:full_name             ?full_name . }
     }
   }
   BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
@@ -52,6 +53,14 @@ WHERE {
   FILTER (?account_id <= {{maximum_account_id}})
   {%- endif %}{% if institution_user_id is not none %}
   FILTER (?institution_user_id <= {{institution_user_id | safe}})
+  {%- endif %}
+  {% if filters is not none %}{{filters | safe}}{% endif %}
+
+  {%- if search_for is not none %}
+  FILTER (CONTAINS (UCASE (STR (?email)),      UCASE ({{search_for | safe}})) ||
+          CONTAINS (UCASE (STR (?first_name)), UCASE ({{search_for | safe}})) ||
+          CONTAINS (UCASE (STR (?last_name)),  UCASE ({{search_for | safe}})) ||
+          CONTAINS (UCASE (STR (?orcid)),      UCASE ({{search_for | safe}})))
   {%- endif %}
 }
 {% endblock %}
