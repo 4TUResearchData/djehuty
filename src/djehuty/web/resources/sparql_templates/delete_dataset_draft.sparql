@@ -12,14 +12,19 @@ DELETE {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container rdf:type             djht:DatasetContainer ;
-               djht:account          <account:{{account_uuid}}> ;
                djht:draft            ?dataset .
 
+    {
+      ?container djht:account <account:{{account_uuid}}> .
+    } UNION {
+      ?dataset      djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator djht:account <account:{{account_uuid}}> .
+    }
     ?dataset   ?predicate           ?object ;
                ?list_predicate      ?list .
     OPTIONAL {
       ?list      rdf:type             rdf:List ;
-                 djht:index            ?list_index ;
+                 djht:index           ?list_index ;
                  rdf:rest*/rdf:first  ?list_item .
     }
   }

@@ -19,7 +19,14 @@ WHERE {
     ?item_uri        djht:categories/rdf:rest*/rdf:first ?category .
     {%- if account_uuid is not none %}
     ?container         rdf:type/rdfs:subClassOf         djht:Container .
-    ?container         djht:account                     <account:{{account_uuid}}> .
+    {
+      ?container         djht:account             <account:{{account_uuid}}> .
+    } UNION {
+      ?dataset           djht:container ?container .
+      ?dataset           djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator      djht:account ?account .
+      ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
+    }
     {%- if is_published %}
     ?container         djht:published_versions/rdf:rest*/rdf:first ?item_uri .
     {%- else %}

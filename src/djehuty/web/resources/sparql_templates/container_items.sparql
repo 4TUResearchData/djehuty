@@ -5,7 +5,14 @@ SELECT DISTINCT ?account_uuid ?container_uuid ?version ?container_uri
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri       rdf:type/rdfs:subClassOf djht:Container .
-    ?container_uri       djht:account             ?account .
+    {
+      ?container_uri       djht:account             ?account .
+    } UNION {
+      ?dataset            djht:container ?container_uri .
+      ?dataset            djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator       djht:account ?account .
+      ?collaborator       djht:metadata_read "true"^^xsd:boolean .
+    }
 
     {%- if is_published is none and is_latest is none %}
     ?item_uri            djht:container           ?container_uri .

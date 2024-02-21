@@ -5,7 +5,13 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?container      rdf:type/rdfs:subClassOf djht:Container .
     {%- if account_uuid is not none %}
-    ?container      djht:account              <account:{{account_uuid}}> .
+    {
+      ?container         djht:account             <account:{{account_uuid}}> .
+    } UNION {
+      ?item_uri          djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator      djht:account ?account .
+      ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
+    }
     {%- endif %}
 
     ?item_uri       djht:container            ?container .

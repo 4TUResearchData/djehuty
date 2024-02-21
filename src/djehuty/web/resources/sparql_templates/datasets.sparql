@@ -25,12 +25,12 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?is_under_review (?review AS ?review_uri) ?review_submit_date
                 ?totals_created_at ?total_downloads ?total_views ?total_shares
                 ?total_cites ?git_uuid ?agreed_to_deposit_agreement ?agreed_to_publish
-                ?private_link_is_expired
+                ?private_link_is_expired ?is_shared_with_me ?metadata_read ?metadata_edit
+                ?data_read ?data_edit ?data_remove
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri      rdf:type                  djht:DatasetContainer .
-    ?container_uri      djht:account              ?account .
     OPTIONAL { ?container_uri djht:dataset_id     ?dataset_id . }
 
     {%- if is_published is none and is_latest is none: %}
@@ -149,6 +149,18 @@ WHERE {
     OPTIONAL { ?dataset djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
     OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }
 
+    {
+      ?container_uri      djht:account              ?account .
+    } UNION {
+      ?dataset            djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator       djht:account ?account .
+      ?collaborator       djht:metadata_read  ?metadata_read .
+      ?collaborator       djht:metadata_edit ?metadata_edit .
+      ?collaborator       djht:data_read  ?data_read .
+      ?collaborator       djht:data_edit ?data_edit .
+      ?collaborator       djht:data_remove ?data_remove .
+    }
+
     OPTIONAL { ?dataset djht:is_under_review       ?is_under_review_tmp . }
     BIND(COALESCE(?is_under_review_tmp, "false"^^xsd:boolean) AS ?is_under_review)
 
@@ -170,6 +182,7 @@ WHERE {
     {%- else %}
     BIND("false"^^xsd:boolean AS ?private_link_is_expired)
     {%- endif %}
+    BIND(xsd:boolean(BOUND(?collaborator)) AS ?is_shared_with_me)
   }
 {%- if is_under_review is not none: %}
 {%- if is_under_review: %}

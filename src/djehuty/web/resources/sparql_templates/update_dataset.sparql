@@ -147,7 +147,15 @@ INSERT {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container          rdf:type                 djht:DatasetContainer .
-    ?container          djht:account              ?account .
+    {
+      ?container          djht:account              ?account .
+    } UNION {
+      ?dataset           djht:container ?container .
+      ?dataset           djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator      djht:account ?account .
+      ?collaborator      djht:metadata_edit  "true"^^xsd:boolean .
+    }
+
     ?container          djht:draft                ?dataset .
 
     ?dataset            rdf:type                 djht:Dataset .

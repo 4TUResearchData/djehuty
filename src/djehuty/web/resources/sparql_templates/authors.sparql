@@ -23,7 +23,14 @@ WHERE {
     {%- else %}
     ?container         djht:draft               ?item_uri .
     {%- endif %}
-    ?container         djht:account             <account:{{account_uuid}}> .
+    {
+      ?container         djht:account             <account:{{account_uuid}}> .
+    } UNION {
+      ?dataset           djht:container ?container .
+      ?dataset           djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator      djht:account ?account .
+      ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
+    }
     {%- endif %}
     OPTIONAL { ?author djht:first_name          ?first_name . }
     OPTIONAL { ?author djht:full_name           ?full_name . }

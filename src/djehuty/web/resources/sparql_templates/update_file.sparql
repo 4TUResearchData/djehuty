@@ -52,8 +52,14 @@ WHERE {
 
     {#- Ensure that the account_uuid associated with the ?file can modify its
      #- properties. #}
-    ?dataset           djht:files/rdf:rest*/rdf:first ?file ;
-                       djht:container/djht:account    <account:{{account_uuid | safe}}> .
+    ?dataset           djht:files/rdf:rest*/rdf:first ?file .
+      {
+      ?dataset           djht:container/djht:account    <account:{{account_uuid | safe}}> .
+      } UNION {
+        ?dataset         djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+        ?collaborator    djht:account ?account .
+        ?collaborator    djht:data_edit "true"^^xsd:boolean .
+    }
 
     OPTIONAL { ?file   djht:id                  ?id . }
     OPTIONAL { ?file   djht:filesystem_location ?filesystem_location . }

@@ -6,7 +6,8 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?status        ?upload_url    ?upload_token
                 ?order_index   ?uuid          ?filesystem_location
                 ?container_uuid ?order_name   (?rest AS ?originating_blank_node)
-                ?is_incomplete ?is_image
+                ?is_incomplete ?is_image ?data_read ?data_edit ?data_remove
+                ?is_shared_with_me
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                djht:File .
@@ -17,8 +18,16 @@ WHERE {
     ?rest              rdf:first               ?file ;
                        djht:index              ?order_index .
     {%- if account_uuid is not none %}
-    ?container         rdf:type/rdfs:subClassOf djht:Container ;
-                       djht:account             <account:{{account_uuid}}> .
+    ?container         rdf:type/rdfs:subClassOf djht:Container .
+    {
+      ?container       djht:account              ?account .
+    } UNION {
+      ?dataset_uri        djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator       djht:account ?account .
+      ?collaborator       djht:data_read ?data_read .
+      ?collaborator       djht:data_edit ?data_edit .
+      ?collaborator       djht:data_remove ?data_remove .
+    }
     {%- endif %}
     OPTIONAL { ?dataset_uri djht:embargo_until_date ?embargo_until_date . }
     OPTIONAL { ?file  djht:id                   ?id . }
@@ -40,6 +49,7 @@ WHERE {
     BIND(STRAFTER(STR(?file), "file:") AS ?uuid)
     BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
     BIND(CONCAT(STR(!CONTAINS(LCASE(?name), "readme")), LCASE(?name)) AS ?order_name)
+    BIND(BOUND(?collaborator) AS ?is_shared_with_me)
   }
   {%- if account_uuid is none and (private_view is not true) %}
   FILTER (! (BOUND(?embargo_until_date) && ?embargo_until_date > NOW()))
@@ -49,6 +59,9 @@ WHERE {
 {%- endif %}
 {%- if file_uuid is not none %}
   FILTER (?file = <file:{{file_uuid}}>)
+{%- endif %}
+{%- if account_uuid is not none %}
+  FILTER (?account = <account:{{account_uuid}}>)
 {%- endif %}
 {%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
