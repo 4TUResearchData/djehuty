@@ -1435,7 +1435,7 @@ class ApiServer:
                         # so we construct an artificial one that doesn't
                         # resolve so no accidental e-mails will be sent.
                         email      = email,
-                        full_name  = orcid_record["name"]
+                        common_name = orcid_record["name"]
                     )
                     if not account_uuid:
                         return self.error_500 ()
@@ -1489,7 +1489,8 @@ class ApiServer:
                         account_uuid = self.db.insert_account (
                             email      = saml_record["email"],
                             first_name = value_or_none (saml_record, "first_name"),
-                            last_name  = value_or_none (saml_record, "last_name")
+                            last_name  = value_or_none (saml_record, "last_name"),
+                            common_name = value_or_none (saml_record, "common_name"),
                         )
                         self.log.access ("Account %s created via SAML.", account_uuid) #  pylint: disable=no-member
 

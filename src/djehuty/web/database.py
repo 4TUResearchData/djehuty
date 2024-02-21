@@ -1406,7 +1406,7 @@ class SparqlInterface:
         return None
 
     def insert_account (self, email=None, first_name=None, last_name=None,
-                        full_name=None, location=None, biography=None):
+                        common_name=None, location=None, biography=None):
         """Procedure to create an account."""
 
         graph       = Graph()
@@ -1421,7 +1421,7 @@ class SparqlInterface:
         rdf.add (graph, account_uri, rdf.DJHT["active"],     1)
         rdf.add (graph, account_uri, rdf.DJHT["first_name"], first_name, XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["last_name"],  last_name,  XSD.string)
-        rdf.add (graph, account_uri, rdf.DJHT["full_name"],  full_name,  XSD.string)
+        rdf.add (graph, account_uri, rdf.DJHT["full_name"],  common_name, XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["email"],      email,      XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["domain"],     domain,     XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["location"],   location,   XSD.string)
