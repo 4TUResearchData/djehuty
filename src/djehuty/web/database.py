@@ -1724,6 +1724,18 @@ class SparqlInterface:
             self.log.error("failed to create collaborator list for %s ", collaborator_uri)
         return None
 
+    def remove_collaborator (self, dataset_uuid, collaborator_uuid):
+        "Procedure to remove a collaborator from the state graph."
+
+        query = self.__query_from_template("delete_collaborator", {
+            "dataset_uuid": dataset_uuid,
+            "collaborator_uuid": collaborator_uuid
+        })
+
+        self.cache.invalidate_by_prefix(f"datasets_{dataset_uuid}")
+        self.cache.invalidate_by_prefix("datasets")
+        return self.__run_logged_query (query)
+
     def insert_private_link (self, item_uuid, account_uuid, whom=None, purpose=None, item_type=None,
                              read_only=True, id_string=None,
                              is_active=True, expires_date=None):
