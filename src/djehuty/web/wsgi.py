@@ -328,6 +328,7 @@ class ApiServer:
             R("/v3/profile/picture",                                             self.api_v3_profile_picture),
             R("/v3/profile/picture/<account_uuid>",                              self.api_v3_profile_picture_for_account),
             R("/v3/tags/search",                                                 self.api_v3_tags_search),
+            R("/v3/datasets/<dataset_uuid>/collaborators",                       self.api_v3_dataset_collaborators),
             R("/v3/accounts/search",                                             self.api_v3_accounts_search),
 
             ## Data model exploratory
@@ -2192,6 +2193,81 @@ class ApiServer:
         response   = redirect (request.referrer, code=302)
         self.db.delete_session_by_uuid (account_uuid, session_uuid)
         return response
+
+    def api_v3_dataset_collaborators (self, request, dataset_uuid):
+        """Implements /v3/datasets/dataset_uuid/collaborator"""
+
+        if not self.accepts_json (request):
+            return self.error_406 ("application/json")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        if not validator.is_valid_uuid (dataset_uuid):
+            return self.error_404 (request)
+
+        try:
+            dataset = self.db.datasets (container_uuid=dataset_uuid,
+                                        account_uuid=account_uuid,
+                                        is_published=None,
+                                        is_latest=None,
+                                        limit=1)[0]
+        except IndexError:
+            return self.error_403 (request)
+
+        if dataset is None:
+            return self.error_403 (request)
+
+        if request.method == "GET":
+            if not (not value_or (dataset, "is_shared_with_me", False) or
+                    value_or (dataset, "metadata_read", False)):
+                return self.error_403 (request)
+
+            collaborators = self.db.collaborators (dataset["uuid"])
+            return self.default_list_response (collaborators, formatter.format_collaborator_record)
+
+        if request.method == "POST":
+            if value_or (dataset, "is_shared_with_me", False):
+                return self.error_403 (request)
+
+            try:
+                parameters = request.get_json()
+                metadata = parameters["metadata"]
+                data = parameters["data"]
+                collaborator_account_uuid = validator.string_value (parameters, "account")
+
+                if not validator.is_valid_uuid (collaborator_account_uuid):
+                    raise validator.InvalidValueType(
+                        field_name = "account",
+                        message = "Expected a valid UUID for 'account'",
+                        code = "WrongValueType"
+                    )
+
+            except validator.ValidationException as error:
+                return self.error_400(request, error.message, error.code)
+
+            account = self.db.account_by_uuid (collaborator_account_uuid)
+            if account is None:
+                self.log.error ("Requesting collaborator account uuid failed. ")
+
+            collaborators = self.db.insert_collaborator (dataset["uuid"],
+                                                         collaborator_account_uuid,
+                                                         account_uuid,
+                                                         metadata["read"],
+                                                         metadata["edit"],
+                                                         data["read"],
+                                                         data["edit"],
+                                                         data["remove"],
+                                                         )
+
+            if collaborators is None:
+                self.log.error ("Inserting collaborator failed. ")
+                return self.error_500()
+
+            return self.respond_205()
+
+        return self.error_500 ()
 
     def api_v3_accounts_search (self, request):
         """Search and autocomplete to add collaborator"""
