@@ -1,0 +1,35 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?dataset_uri        ?metadata_read      ?metadata_edit
+                ?data_read          ?data_edit          ?data_remove
+                ?first_name         ?last_name          ?uuid
+                ?email              ?order_index        ?account_uuid
+                (?rest AS ?originating_blank_node)
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?dataset_uri       djht:collaborators       ?collaborators .
+    ?collaborators     rdf:rest*                ?rest .
+    ?rest              rdf:first                ?collaborator_uri .
+    ?rest              djht:index               ?order_index .
+    ?collaborator_uri  rdf:type                 djht:Collaborator .
+    ?collaborator_uri  djht:account             ?account .
+    ?collaborator_uri  djht:metadata_read       ?metadata_read .
+    ?collaborator_uri  djht:metadata_edit       ?metadata_edit .
+    ?collaborator_uri  djht:data_read           ?data_read .
+    ?collaborator_uri  djht:data_edit           ?data_edit .
+    ?collaborator_uri  djht:data_remove         ?data_remove .
+
+    OPTIONAL { ?account           djht:first_name          ?first_name . }
+    OPTIONAL { ?account           djht:last_name           ?last_name . }
+    OPTIONAL { ?account           djht:email               ?email . }
+
+    BIND(STRAFTER(STR(?collaborator_uri), "collaborator:") AS ?uuid)
+    BIND(STRAFTER(STR(?account), "account:") AS ?account_uuid)
+
+  }
+FILTER (?dataset_uri = <dataset:{{dataset_uuid}}>)
+{%- if account_uuid is not none %}
+FILTER (?account = <account:{{account_uuid}}>)
+{%- endif %}
+}
+{% endblock %}

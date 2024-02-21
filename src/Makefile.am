@@ -108,6 +108,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/categories.sparql                  \
     djehuty/web/resources/sparql_templates/categories_tree.sparql             \
     djehuty/web/resources/sparql_templates/category_by_id.sparql              \
+    djehuty/web/resources/sparql_templates/collaborators.sparql               \
     djehuty/web/resources/sparql_templates/collection_dataset_containers.sparql \
     djehuty/web/resources/sparql_templates/collection_datasets.sparql         \
     djehuty/web/resources/sparql_templates/collection_datasets_count.sparql   \

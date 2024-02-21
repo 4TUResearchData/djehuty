@@ -1674,6 +1674,15 @@ class SparqlInterface:
 
         return False
 
+    def collaborators (self, dataset_uuid, account_uuid=None):
+        "Get list of collaborators of a dataset"
+        query = self.__query_from_template("collaborators", {
+            "dataset_uuid": dataset_uuid,
+            "account_uuid": account_uuid,
+        })
+
+        return self.__run_query(query)
+
     def insert_private_link (self, item_uuid, account_uuid, whom=None, purpose=None, item_type=None,
                              read_only=True, id_string=None,
                              is_active=True, expires_date=None):
