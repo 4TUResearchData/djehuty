@@ -78,6 +78,7 @@ class ApiServer:
         self.show_science_categories = True
         self.show_latest_datasets = True
         self.disable_2fa      = False
+        self.disable_collaboration = False
         self.automatic_login_email = None
         self.small_footer     = (
             '<div id="footer-wrapper2"><p>This repository is powered by '
@@ -1819,6 +1820,7 @@ class ApiServer:
                 request,
                 "depositor/edit-dataset.html",
                 container_uuid = dataset["container_uuid"],
+                disable_collaboration = self.disable_collaboration,
                 article    = dataset,
                 account    = account,
                 categories = categories,

@@ -632,6 +632,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if use_x_forwarded_for:
             server.log_access = server.log_access_using_x_forwarded_for
 
+        server.disable_collaboration = read_boolean_value (xml_root, "disable-collaboration",
+                                                           server.disable_collaboration,
+                                                           logger)
+
         sandbox_message, sandbox_message_attributes = read_raw_xml (xml_root, "sandbox-message")
         if sandbox_message:
             server.sandbox_message_css = sandbox_message_attributes.get("style")
