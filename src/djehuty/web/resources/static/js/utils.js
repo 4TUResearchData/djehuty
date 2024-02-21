@@ -56,6 +56,77 @@ function toggle_categories () {
     }
 }
 
+function toggle_collaborators (dataset_uuid, may_edit_metadata, event) {
+
+    function show_collaborators () {
+        jQuery("#expanded-collaborators").slideDown(250, function() {
+            jQuery("#expand-collaborators-button").text("Hide collaborators");
+        });
+    }
+
+    let expanded_collaborators = jQuery("#expanded-collaborators");
+    if (expanded_collaborators.is(":visible")) {
+        jQuery("#expanded-collaborators").slideUp(250, function() {
+            let text = "Show collaborators";
+            if (may_edit_metadata) { text = "Manage collaborators"; }
+            jQuery("#expand-collaborators-button").text(text);
+        });
+    } else {
+        if (jQuery("#add_collaborator").length == 0) {
+            render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, function() {
+                show_collaborators ();
+            });
+        } else { show_collaborators (); }
+    }
+}
+
+function fill_collaborator (email, full_name, account_uuid) {
+    let input_text = `${full_name}, (${email})`;
+    if (full_name == "null") {
+        input_text = `${email}`;
+    }
+    jQuery("#add_collaborator").val(`${input_text}`);
+    jQuery("#account_uuid").val(`${account_uuid}`);
+    jQuery("#collaborator-ac").remove();
+    jQuery("#add_collaborator").removeClass("input-for-ac");
+}
+
+function autocomplete_collaborator (event, item_id) {
+    let current_text = jQuery.trim(jQuery("#add_collaborator").val());
+    if (current_text == "") {
+        jQuery("#collaborator-ac").remove();
+        jQuery("#add_collaborator").removeClass("input-for-ac");
+    } else if (current_text.length > 2) {
+        jQuery.ajax({
+            url:     "/v3/accounts/search",
+            type:    "POST",
+            contentType: "application/json",
+            accept: "application/json",
+            data: JSON.stringify({ "search_for": current_text}),
+            }).done(function (data) {
+                jQuery("#collaborator-ac").remove();
+                let html = "<ul>";
+                for (let item of data) {
+                    let full_name = item["full_name"];
+                    let account_text = `${item["full_name"]}, ${item["email"]}`;
+                    if (full_name == null) {
+                        account_text = `${item["email"]}`;
+                    }
+                    html += `<li><a href="#" `;
+                    html += `onclick="javascript:fill_collaborator('${item["email"]}','${item["full_name"]}','${item["uuid"]}'`;
+                    html += `); return false;">${account_text}`;
+                    html += "</a>";
+                }
+                html += "</ul>";
+
+                jQuery("#add_collaborator")
+                    .addClass("input-for-ac")
+                    .after(`<div id="collaborator-ac" class="autocomplete">${html}</div>`);
+            }).fail(function (response, text_status, error_code) { console.log (`Error code: ${error_code} `);
+        });
+    }
+}
+
 function autocomplete_author (event, item_id) {
     let current_text = jQuery.trim(jQuery("#authors").val());
     if (current_text == "") {

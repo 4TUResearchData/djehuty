@@ -63,11 +63,11 @@ jQuery(document).ready(function () {
   </thead>
   <tbody>{% for article in draft_datasets: %}
     <tr>
-      <td><a href="/my/datasets/{{article.container_uuid}}/edit">{{article.title}}</a></td>
+      <td><a href="/my/datasets/{{article.container_uuid}}/edit">{{article.title}}</a>{% if article.is_shared_with_me %}<span class="active-badge">Shared with me</span>{% endif %}</td>
       <td>{{article.defined_type_name | default("undefined", False)}}</td>
       <td>{{article.storage_used}}</td>
       <td>{{article.created_date | truncate(10,False,'')}}</td>
-      <td><a href="/my/datasets/{{article.uuid}}/private_links" class="fas fa-link" title="Private links"></a>&nbsp;<a href="/my/datasets/{{article.container_uuid}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+      <td>{% if not article.is_shared_with_me %}<a href="/my/datasets/{{article.uuid}}/private_links" class="fas fa-link" title="Private links"></a><a href="/my/datasets/{{article.container_uuid}}/delete" class="fas fa-trash-can" title="Remove"></a>{% endif %}</td>
     </tr>
   {% endfor %}</tbody>
 </table>
@@ -96,7 +96,7 @@ jQuery(document).ready(function () {
       <td>{{article.storage_used}}</td>
       <td>{{article.review_submit_date | truncate(10,False,'')}}</td>
       <td>{{article.review_status | default("unassigned", False)}}</td>
-      <td><a href="/my/datasets/{{article.uuid}}/private_links" class="fas fa-link" title="Private links"></a></td>
+      <td>{% if not article.is_shared_with_me %}<a href="/my/datasets/{{article.uuid}}/private_links" class="fas fa-link" title="Private links"></a>{% endif %}</td>
     </tr>
   {% endfor %}</tbody>
 </table>

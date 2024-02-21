@@ -8,7 +8,13 @@ function delete_dataset (dataset_uuid, event) {
             url:         `/v2/account/articles/${dataset_uuid}`,
             type:        "DELETE",
         }).done(function () { window.location.pathname = '/my/datasets' })
-          .fail(function () { show_message ("failure", "<p>Failed to remove dataset.</p>"); });
+          .fail(function (jqXHR, textStatus, errorThrown) {
+              if (jqXHR.status == 403) {
+                  show_message ("failure", "<p>No permission to remove dataset.</p>");
+              } else {
+                  show_message ("failure", "<p>Failed to remove dataset.</p>");
+              }
+          });
     }
 }
 
@@ -281,6 +287,102 @@ function render_references_for_dataset (dataset_uuid) {
     });
 }
 
+function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, callback=jQuery.noop) {
+    jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}/collaborators`,
+        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (collaborators) {
+        jQuery("#collaborators-form tbody").empty();
+        let row ='<tr>';
+        if (may_edit_metadata) {
+            row += '<td><input type="text" id="add_collaborator" name="add_collaborator" value=""/>';
+            row += '<input type="hidden" id="account_uuid" name="account_uuid" value=""/></td>';
+            row += '<td class="type-begin"><input class="subitem-checkbox-metadata" name="read" type="checkbox" checked="checked" disabled="disabled"></td>';
+            row += '<td class="type-end"><input class="subitem-checkbox-metadata" name="edit" type="checkbox"></td>';
+            row += '<td><input class="subitem-checkbox-data" name="read" type="checkbox"></td>';
+            row += '<td><input class="subitem-checkbox-data" name="edit" type="checkbox"></td>';
+            row += '<td class="type-end"><input class="subitem-checkbox-data" name="remove" type="checkbox"></td>';
+            row += '<td><a id="add-collaborator-button" class="fas fa-plus" href="#" ';
+            row += 'title="Add collaborator"></a></td>';
+            row += '</tr>';
+            jQuery("#collaborators-form tbody").append(row);
+            jQuery("#add-collaborator-button").on("click", function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                add_collaborator(dataset_uuid, may_edit_metadata);
+            });
+        }
+        for (let collaborator of collaborators) {
+            let row = `<tr><td>`;
+            row += `${collaborator.first_name} ${collaborator.last_name} (${collaborator.email})</td>`;
+            row += '<td class="type-begin"><input name="read" type="checkbox" disabled="disabled"';
+            row += collaborator.metadata_read ? ' checked="checked"' : '';
+            row += '></td><td class="type-end"><input name="edit" type="checkbox" disabled="disabled"';
+            row += collaborator.metadata_edit ? ' checked="checked"' : '';
+            row += '></td><td><input name="read" type="checkbox" disabled="disabled"';
+            row += collaborator.data_read ? ' checked="checked"' : '';
+            row += '></td><td><input name="edit" type="checkbox" disabled="disabled"';
+            row += collaborator.data_edit ? ' checked="checked"' : '';
+            row += '></td><td class="type-end"><input name="remove" type="checkbox" disabled="disabled"';
+            row += collaborator.data_remove ? ' checked="checked"' : '';
+            row += '></td><td>';
+
+            if (may_edit_metadata) {
+                row += '<a href="#"';
+                row += `onclick="javascript:remove_collaborator('${encodeURIComponent(collaborator.uuid)}', `;
+                row += `'${dataset_uuid}', '${may_edit_metadata}'); return false;" class="fas fa-trash-can" `;
+                row += `title="Remove"></a>`;
+            }
+            row += '</td></tr>';
+            jQuery("#collaborators-form tbody").prepend(row);
+        }
+        jQuery("#add_collaborator").on("input", function (event) {
+            return autocomplete_collaborator (event, dataset_uuid);
+        });
+        jQuery("#collaborators-form").show();
+        callback ();
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to retrieve collaborators.</p>");
+    });
+}
+
+function add_collaborator (dataset_uuid, may_edit_metadata) {
+    let form_data= {
+            "metadata": {
+                "read": jQuery("input[name='read'].subitem-checkbox-metadata").prop("checked"),
+                "edit": jQuery("input[name='edit'].subitem-checkbox-metadata").prop("checked"),
+            },
+            "data": {
+                "read": jQuery("input[name='read'].subitem-checkbox-data").prop("checked"),
+                "edit": jQuery("input[name='edit'].subitem-checkbox-data").prop("checked"),
+                "remove": jQuery("input[name='remove'].subitem-checkbox-data").prop("checked"),
+            },
+            "account": or_null(jQuery("#account_uuid").val())
+        }
+
+    jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}/collaborators`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify(form_data),
+    }).done(function () {
+        render_collaborators_for_dataset(dataset_uuid, may_edit_metadata);
+        jQuery("#add_collaborator").val("");
+    }).fail(function () { show_message ("failure", `<p>Failed to add collaborator.</p>`); });
+}
+
+function remove_collaborator (collaborator_uuid, dataset_uuid, may_edit_metadata) {
+    jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}/collaborators/${collaborator_uuid}`,
+        type:        "DELETE",
+        accept:      "application/json",
+    }).done(function () { render_collaborators_for_dataset (dataset_uuid, may_edit_metadata); })
+      .fail(function () { show_message ("failure", `<p>Failed to remove ${collaborator_uuid}</p>`); });
+}
+
 function render_tags_for_dataset (dataset_uuid) {
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}/tags`,
@@ -470,8 +572,13 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
             jQuery("input[name='record_type']").attr('disabled', false);
             render_files_for_thumbnail (dataset_uuid);
         }
-    }).fail(function () {
-        show_message ("failure", "<p>Failed to retrieve file details.</p>");
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        if (jqXHR.status == 403) {
+            let html = '<tr class="notice-box"><td colspan="2">You do not have permission to view the files.</td><td></td></tr>';
+            jQuery("#files tbody").empty().append(html);
+        } else {
+            show_message ("failure", "<p>Failed to retrieve file details.</p>");
+        }
     });
 }
 
@@ -757,7 +864,7 @@ function toggle_access_level () {
     }
 }
 
-function activate (dataset_uuid) {
+function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
     var submenu_offset = jQuery("#submenu").offset().top;
 
     install_sticky_header();
@@ -793,16 +900,26 @@ function activate (dataset_uuid) {
             event.stopPropagation();
             add_reference (dataset_uuid);
         });
-        jQuery("#repair-md5s").on("click", function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            repair_md5_sums (dataset_uuid, event);
+         jQuery("#collaborators").on("keypress", function(e){
+            if(e.which == 13){
+                add_collaborator(dataset_uuid, permissions.metadata_edit);
+            }
         });
-        jQuery("#remove-all-files").on("click", function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            delete_all_files (dataset_uuid);
-        });
+
+        if (permissions.data_edit) {
+            jQuery("#repair-md5s").on("click", function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                repair_md5_sums (dataset_uuid, event);
+            });
+        }
+        if (permissions.data_remove) {
+            jQuery("#remove-all-files").on("click", function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                delete_all_files (dataset_uuid);
+            });
+        }
         jQuery("#add-keyword-button").on("click", function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -813,6 +930,43 @@ function activate (dataset_uuid) {
                 add_tag(dataset_uuid);
             }
         });
+        jQuery(".subitem-checkbox-metadata").on("change", function (event) {
+            if (jQuery(".subitem-checkbox-metadata[name='edit']").prop("checked")) {
+                jQuery(".subitem-checkbox-metadata[name='read']").prop("checked", true);
+                jQuery(".subitem-checkbox-metadata[name='read']").attr("disabled", true);
+            } else {
+                jQuery(".subitem-checkbox-metadata[name='read']").attr("disabled", false);
+            }
+         });
+
+         jQuery(".subitem-checkbox-dataset").on("change", function (event) {
+            let read = jQuery(".subitem-checkbox-dataset[name='read']").prop("checked");
+            let edit = jQuery(".subitem-checkbox-dataset[name='edit']").prop("checked");
+            let remove = jQuery(".subitem-checkbox-dataset[name='remove']").prop("checked");
+
+            if (remove) {
+                jQuery(".subitem-checkbox-dataset[name='edit']").prop("checked", true);
+                edit = true;
+                jQuery(".subitem-checkbox-dataset[name='read']").prop("checked", true);
+                read = true;
+            } else if (edit) {
+                jQuery(".subitem-checkbox-dataset[name='read']").prop("checked", true);
+                read = true;
+            }
+            if (remove) {
+                jQuery(".subitem-checkbox-dataset[name='edit']").attr("disabled", true);
+                jQuery(".subitem-checkbox-dataset[name='read']").attr("disabled", true);
+            } else {
+                jQuery(".subitem-checkbox-dataset[name='edit']").attr("disabled", false);
+                jQuery(".subitem-checkbox-dataset[name='read']").attr("disabled", true);
+            }
+            if (edit) {
+                jQuery(".subitem-checkbox-dataset[name='read']").attr("disabled", true);
+            } else {
+                jQuery(".subitem-checkbox-dataset[name='read']").attr("disabled", false);
+            }
+         });
+
         render_files_for_dataset (dataset_uuid, null);
         if (data["defined_type_name"] != null) {
             jQuery(`#type-${data["defined_type_name"]}`).prop("checked", true);
@@ -870,6 +1024,7 @@ function activate (dataset_uuid) {
                                ` ${message.message}</p>`));
             }
         });
+        if (!permissions.data_edit) { fileUploader.disable(); }
 
         jQuery("input[name='record_type']").change(function () {
             toggle_record_type ();
@@ -939,6 +1094,7 @@ function activate (dataset_uuid) {
         jQuery(".article-content-loader").hide();
         jQuery(".article-content").fadeIn(200);
         jQuery("#thumbnail-files-wrapper").hide();
+        callback ();
     }).fail(function () { show_message ("failure", `<p>Failed to retrieve article ${dataset_uuid}.</p>`); });
 }
 
@@ -1019,7 +1175,7 @@ function perform_upload (files, current_file, dataset_uuid) {
 }
 
 function remove_file (file_id, dataset_uuid, rerender=true) {
-    jQuery.ajax({
+    return jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/files/${file_id}`,
         type:        "DELETE",
         accept:      "application/json",

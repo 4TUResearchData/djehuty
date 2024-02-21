@@ -441,6 +441,8 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-link::before { content: "\f0c1"; }
 .fa-plus::before { content: "\f067"; }
 .fa-hourglass::before { content: "\f252"; }
+.fa-eraser::before { content: "\f12d"; }
+.fa-pen::before { content: "\f304"; }
 .fa-times::before { content: "\f00d"; }
 .fa-glasses::before { content: "\f530"; }
 .fa-check-double::before { content: "\f560"; }
@@ -605,6 +607,17 @@ img { user-select: none; }
     padding: .25em;
     margin-left: 1em;
     font-size: small;
+}
+.beta-badge {
+    display: inline-block;
+    background: #009900;
+    color: #fff;
+    font-size: small;
+   text-transform: uppercase;
+    padding: .25em .5em .25em .5em;
+    margin: 0px;
+    border-radius: .5em;
+    border: 0px;
 }
 .notice-box {
     border: solid 2pt #ffeecc;
