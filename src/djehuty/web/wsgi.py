@@ -329,6 +329,7 @@ class ApiServer:
             R("/v3/profile/picture/<account_uuid>",                              self.api_v3_profile_picture_for_account),
             R("/v3/tags/search",                                                 self.api_v3_tags_search),
             R("/v3/datasets/<dataset_uuid>/collaborators",                       self.api_v3_dataset_collaborators),
+            R("/v3/datasets/<dataset_uuid>/collaborators/<collaborator_uuid>",   self.api_v3_dataset_remove_collaborator),
             R("/v3/accounts/search",                                             self.api_v3_accounts_search),
 
             ## Data model exploratory
@@ -2288,6 +2289,39 @@ class ApiServer:
             return self.default_list_response (accounts, formatter.format_account_details_record)
         except (validator.ValidationException, KeyError) as error:
             return self.error_400(request, error.message, error.code)
+
+    def api_v3_dataset_remove_collaborator (self, request, dataset_uuid, collaborator_uuid):
+        """Removes the collaborator from the share section of edit dataset form."""
+        if not self.accepts_json (request):
+            return self.error_406 ("application/json")
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        if (not validator.is_valid_uuid (dataset_uuid) or
+            not validator.is_valid_uuid (collaborator_uuid)):
+            return self.error_404 (request)
+
+        try:
+            dataset = self.db.datasets (container_uuid=dataset_uuid,
+                                        account_uuid=account_uuid,
+                                        is_published=False,
+                                        is_latest=None,
+                                        limit=1)[0]
+
+            if not (not value_or (dataset, "is_shared_with_me", False) or
+                    value_or (dataset, "metadata_edit", False)):
+                return self.error_403 (request)
+
+            if self.db.remove_collaborator (dataset["uuid"], collaborator_uuid) is None:
+                return self.error_500()
+
+            return self.respond_204()
+        except IndexError:
+            pass
+
+        return self.error_403 (request)
 
     def ui_dataset_new_private_link (self, request, dataset_uuid):
         """Implements /my/datasets/<uuid>/private_link/new."""
