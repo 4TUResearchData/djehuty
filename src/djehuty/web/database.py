@@ -1683,6 +1683,47 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def insert_collaborator (self, dataset_uuid, collaborator_uuid,
+                             account_uuid, metadata_read, metadata_edit,
+                             data_read, data_edit, data_remove):
+        """Procedure to add a collaborator to the state graph."""
+
+        graph = Graph()
+        collaborator_uri = rdf.unique_node("collaborator")
+
+        graph.add ((collaborator_uri, RDF.type,      rdf.DJHT["Collaborator"]))
+        rdf.add (graph, collaborator_uri, rdf.DJHT["metadata_read"], metadata_read, XSD.boolean)
+        rdf.add (graph, collaborator_uri, rdf.DJHT["metadata_edit"], metadata_edit, XSD.boolean)
+        rdf.add (graph, collaborator_uri, rdf.DJHT["data_read"],     data_read,     XSD.boolean)
+        rdf.add (graph, collaborator_uri, rdf.DJHT["data_edit"],     data_edit,     XSD.boolean)
+        rdf.add (graph, collaborator_uri, rdf.DJHT["data_remove"],   data_remove,   XSD.boolean)
+        rdf.add (graph, collaborator_uri, rdf.DJHT["account"],       rdf.uuid_to_uri(collaborator_uuid, "account"),  "uri")
+
+        if self.add_triples_from_graph (graph):
+            existing_collaborators = self.collaborators (dataset_uuid)
+            if existing_collaborators:
+                last_collaborator = existing_collaborators [-1]
+                last_node = conv.value_or_none(last_collaborator, "originating_blank_node")
+                new_index = conv.value_or (last_collaborator, "order_index", 0) +1
+                new_node = self.wrap_in_blank_node(collaborator_uri, index=new_index)
+
+                if self.append_to_list(last_node, new_node):
+                    return rdf.uri_to_uuid (collaborator_uri)
+
+                self.log.error ("failed to append %s to list of collaborators ", collaborator_uri)
+                return None
+
+            collaborators = [URIRef(collaborator_uri)]
+            if self.update_item_list (dataset_uuid, account_uuid, collaborators, "collaborators"):
+                collaborators = self.collaborators(dataset_uuid)
+                for collaborator in collaborators:
+                    self.cache.invalidate_by_prefix(f"datasets_{collaborator['account_uuid']}")
+
+                return rdf.uri_to_uuid (collaborator_uri)
+
+            self.log.error("failed to create collaborator list for %s ", collaborator_uri)
+        return None
+
     def insert_private_link (self, item_uuid, account_uuid, whom=None, purpose=None, item_type=None,
                              read_only=True, id_string=None,
                              is_active=True, expires_date=None):
