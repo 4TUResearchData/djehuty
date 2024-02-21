@@ -391,6 +391,12 @@ class ApiServer:
     def __call__ (self, environ, start_response):
         return self.wsgi (environ, start_response)
 
+    def __is_reviewing (self, request):
+        token = self.__impersonator_token (request)
+        if token is None:
+            return False
+        return self.db.may_review (token)
+
     def __impersonator_token (self, request):
         return self.token_from_cookie (request, self.impersonator_cookie_key)
 
@@ -3371,7 +3377,11 @@ class ApiServer:
                 self.log.error ("File download failed due to missing metadata.")
                 return self.error_500 ()
 
-            self.__log_event (request, dataset["container_uuid"], "dataset", "download")
+            if self.__is_reviewing (request):
+                self.__log_event (request, dataset["container_uuid"], "dataset", "reviewerDownload")
+            else:
+                self.__log_event (request, dataset["container_uuid"], "dataset", "download")
+
             return send_file (file_path,
                               request.environ,
                               "application/octet-stream",
@@ -3416,7 +3426,12 @@ class ApiServer:
             filename = f'"{safe_title}_{version}_all.zip"'
 
             response.headers["Content-disposition"] = f"attachment; filename={filename}"
-            self.__log_event (request, dataset["container_uuid"], "dataset", "download")
+
+            if self.__is_reviewing (request):
+                self.__log_event (request, dataset["container_uuid"], "dataset", "reviewerDownload")
+            else:
+                self.__log_event (request, dataset["container_uuid"], "dataset", "download")
+
             return response
 
         except (FileNotFoundError, KeyError, IndexError, TypeError) as error:

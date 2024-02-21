@@ -1655,7 +1655,7 @@ class SparqlInterface:
 
         graph       = Graph()
         entry_uri   = rdf.unique_node ("log-entry")
-        type_suffix = f"LogEntry{event_type.capitalize()}"
+        type_suffix = f"LogEntry{event_type[0].upper()}{event_type[1:]}"
         item_uri    = rdf.uuid_to_uri (item_uuid, "container")
 
         graph.add ((entry_uri, RDF.type, rdf.DJHT["LogEntry"]))
