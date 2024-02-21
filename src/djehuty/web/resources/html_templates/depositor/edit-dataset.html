@@ -13,7 +13,7 @@ var initial_thumbnail_file_uuid = "";
 var initial_thumbnail_file_uuid = "{{article.thumb_origin}}";
 {%- endif %}
 jQuery(document).ready(function (){
-    root_categories = []
+    root_categories = [];
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery(".subcategory-wrapper").hide();
 {%- for category in categories: %}
