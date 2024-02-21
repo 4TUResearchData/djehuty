@@ -99,6 +99,7 @@ class ApiServer:
         self.datacite_id         = None
         self.datacite_password   = None
         self.datacite_prefix     = None
+        self.ssi_psk             = None
         self.log_access          = self.log_access_directly
         self.log                 = logging.getLogger(__name__)
         self.locks               = locks.Locks()
@@ -344,6 +345,11 @@ class ApiServer:
             R("/v3/datasets/<git_uuid>.git/info/refs",                           self.api_v3_private_dataset_git_refs),
             R("/v3/datasets/<git_uuid>.git/git-upload-pack",                     self.api_v3_private_dataset_git_upload_pack),
             R("/v3/datasets/<git_uuid>.git/git-receive-pack",                    self.api_v3_private_dataset_git_receive_pack),
+
+            ## ----------------------------------------------------------------
+            ## SHARED SUBMIT INTERFACE API
+            ## ----------------------------------------------------------------
+            R("/v3/receive-from-ssi",                                            self.api_v3_receive_from_ssi),
         ])
 
         ## Static resources and HTML templates.
@@ -7346,6 +7352,71 @@ class ApiServer:
             pass
 
         return self.error_404 (request)
+
+    def api_v3_receive_from_ssi (self, request):
+        """Implements /v3/receive-from-ssi."""
+        if self.ssi_psk is None:
+            return self.error_404 (request)
+
+        if request.method != "PUT":
+            return self.error_405 ("PUT")
+
+        if not self.accepts_json (request):
+            return self.error_406 ("application/json")
+
+        record = request.get_json()
+        if value_or_none (record, "psk") != self.ssi_psk:
+            return self.error_403 (request)
+
+        errors = []
+        title       = validator.string_value (record, "title", 0, 255, True, errors)
+        email       = validator.string_value (record, "email", 0, 255, True, errors)
+        affiliation = validator.string_value (record, "affiliation", 0, 255, True, errors)
+        domain      = validator.string_value (record, "domain", 0, 255, True, errors)
+        datatype    = validator.string_value (record, "datatype", 0, 255, True, errors)
+
+        if errors:
+            return self.error_400_list (request, errors)
+
+        # Gather account information.
+        account = self.db.account_by_email (email)
+        account_uuid = None
+        if account is None:
+            # Create an account.
+            account_uuid = self.db.insert_account (email=email)
+            if not account_uuid:
+                self.log.error ("Failed to create account for SSI user %s.", email)
+                return self.error_500 ()
+            self.log.access ("Account %s created via SSI.", account_uuid) #  pylint: disable=no-member
+            author_uuid = self.db.insert_author (
+                email        = email,
+                account_uuid = account_uuid,
+                is_active    = True,
+                is_public    = True)
+            if not author_uuid:
+                self.log.error ("Failed to link author to new account for %s.", email)
+                return self.error_500 ()
+
+            return self.error_500()
+        else:
+            account_uuid = account["uuid"]
+
+        token, _, session_uuid = self.db.insert_session (account_uuid, name="Login via SSI")
+        if session_uuid is None:
+            self.log.error ("Failed to create a session for account %s.", account_uuid)
+            return self.error_500 ()
+        self.log.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
+
+        container_uuid, draft_uuid = self.db.insert_dataset (
+            title = title,
+            account_uuid = account_uuid)
+        if container_uuid is None:
+            self.log.error ("Failed to create dataset for account %s.", account_uuid)
+            return self.error_500 ()
+
+        response = redirect (f"/my/datasets/{container_uuid}/edit", code=302)
+        response.set_cookie (key=self.cookie_key, value=token, secure=self.in_production)
+        return response
 
     ## ------------------------------------------------------------------------
     ## EXPORTS
