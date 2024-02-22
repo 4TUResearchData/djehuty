@@ -112,6 +112,15 @@ def format_codemeta_author_record (record):
 def format_codemeta_record (record, git_url, tags, authors):
     """Record formatter for the CodeMeta format."""
 
+    if bool(conv.value_or (record, "is_embargoed", False)):
+        return {
+            "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+            "@type": "SoftwareSourceCode",
+            "dateCreated": conv.value_or_none(record, "created_date"),
+            "datePublished": conv.value_or_none(record, "published_date"),
+            "embargoDate": conv.value_or_none(record, "embargo_until_date")
+        }
+
     return {
         "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
         "@type": "SoftwareSourceCode",
