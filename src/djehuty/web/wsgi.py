@@ -7703,8 +7703,6 @@ class ApiServer:
             if not author_uuid:
                 self.log.error ("Failed to link author to new account for %s.", email)
                 return self.error_500 ()
-
-            return self.error_500()
         else:
             account_uuid = account["uuid"]
 
