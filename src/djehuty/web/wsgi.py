@@ -7678,9 +7678,6 @@ class ApiServer:
         errors = []
         title       = validator.string_value (record, "title", 0, 255, True, errors)
         email       = validator.string_value (record, "email", 0, 255, True, errors)
-        affiliation = validator.string_value (record, "affiliation", 0, 255, True, errors)
-        domain      = validator.string_value (record, "domain", 0, 255, True, errors)
-        datatype    = validator.string_value (record, "datatype", 0, 255, True, errors)
 
         if errors:
             return self.error_400_list (request, errors)
@@ -7712,7 +7709,7 @@ class ApiServer:
             return self.error_500 ()
         self.log.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
 
-        container_uuid, draft_uuid = self.db.insert_dataset (
+        container_uuid, _ = self.db.insert_dataset (
             title = title,
             account_uuid = account_uuid)
         if container_uuid is None:
