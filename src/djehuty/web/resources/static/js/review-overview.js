@@ -6,8 +6,6 @@ function update_item_count () {
     jQuery("#table-count").text(`${jQuery("#overview-table tbody tr:visible").length} items`);
 }
 function assign_reviewer (event) {
-
-    let event_local = this;
     let identifiers = this.value.split(":");
     let dataset_uuid = identifiers[0];
     let reviewer_uuid = identifiers[1];
@@ -59,8 +57,7 @@ function filter_status (event) {
     jQuery('#overview-table tr').each(function(index, element) {
         let status = jQuery(element).find(`td:nth-child(6)`).text().trim();
         if (jQuery(element).find("th").length > 0) {} // Skip the header.
-        else if (value == "all") { /*jQuery(element).show();*/ }
-        else if (value == status) { /*jQuery(element).show();*/ }
+        else if (value == "all" || value == status) {}
         else { jQuery(element).hide(); }
     });
 }
