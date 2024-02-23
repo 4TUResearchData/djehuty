@@ -6021,10 +6021,20 @@ class ApiServer:
         """Implements /v3/datasets/codemeta."""
 
         try:
-            offset, limit = self.__paging_offset_and_limit (request)
+            errors          = []
+            offset, limit   = self.__paging_offset_and_limit (request, error_list=errors)
+            modified_since  = validator.string_value (request.args, "modified_since", 0, 32, False, error_list=errors)
+            order           = validator.string_value (request.args, "order", 0, 255, False, error_list=errors)
+            order_direction = validator.order_direction (request.args, "order_direction", False, error_list=errors)
+            if errors:
+                return self.error_400_list (request, errors)
+
             datasets = self.db.datasets (is_published = True,
                                          is_latest    = True,
                                          is_software  = True,
+                                         modified_since = modified_since,
+                                         order        = order,
+                                         order_direction = order_direction,
                                          limit        = limit,
                                          offset       = offset)
 
