@@ -875,14 +875,14 @@ class ApiServer:
         except IndexError:
             return None
 
-    def __paging_offset_and_limit (self, request):
+    def __paging_offset_and_limit (self, request, error_list=None):
         """Return the OFFSET and LIMIT from paging parameters."""
         return validator.paging_to_offset_and_limit ({
             "page":      self.get_parameter (request, "page"),
             "page_size": self.get_parameter (request, "page_size"),
             "limit":     self.get_parameter (request, "limit"),
             "offset":    self.get_parameter (request, "offset")
-        })
+        }, error_list=error_list)
 
     def __default_dataset_api_parameters (self, request):
 

@@ -166,7 +166,7 @@ def integer_value (record, field_name, minimum_value=None, maximum_value=None, r
 
     return value
 
-def paging_to_offset_and_limit (record):
+def paging_to_offset_and_limit (record, error_list=None):
     """Procedure returns two values: offset and limit."""
 
     # Type and range-check the parameters.
@@ -178,11 +178,12 @@ def paging_to_offset_and_limit (record):
     # Check whether the parameters are mixed.
     if ((page is not None or page_size is not None) and
         (offset is not None or limit is not None)):
-        raise InvalidPagingOptions(
-            field_name = "page_size",
-            message = ("Either use page/page-size or offset/limit. "
-                       "Mixing is not supported."),
-            code    = "InvalidPagingOptions")
+        return raise_or_return_error (error_list,
+            InvalidPagingOptions(
+                field_name = "page_size",
+                message = ("Either use page/page-size or offset/limit. "
+                           "Mixing is not supported."),
+                code    = "InvalidPagingOptions"))
 
     # Translate page/page_size to offset/limit.
     if page is not None and page_size is not None:
