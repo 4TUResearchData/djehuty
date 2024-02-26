@@ -116,7 +116,7 @@
 <div>&nbsp;</div>
 {% for item in articles %}
 <div class="tile-item">
-  <a href="{{item.url_public_html}}">{% if item.thumb | length: %}
+  <a href="{{item.url_public_html}}">{% if item.thumb | length and not item.thumb.startswith("https://ndownloader") %}
   <img class="tile-preview" src="{{item.thumb}}" aria-hidden="true" alt="thumbnail for {{item.id}}" />
   {% else: %}
   <img class="tile-preview" src="/static/images/dataset-thumb.svg" aria-hidden="true" alt="thumbnail for {{item.id}}" />
