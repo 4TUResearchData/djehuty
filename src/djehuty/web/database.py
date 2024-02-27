@@ -210,6 +210,7 @@ class SparqlInterface:
                 self.sparql_is_up = True
 
         except HTTPError as error:
+            self.sparql.rollback()
             if error.code == 503:
                 if retries > 0:
                     self.log.warning ("Retrying SPARQL request due to service unavailability (%s)",
@@ -221,11 +222,6 @@ class SparqlInterface:
 
             self.log.error ("SPARQL endpoint returned %d:\n---\n%s\n---",
                             error.code, error.reason)
-
-            # Bad request. Usually a syntax error in the query.
-            if error.code == 400:
-                self.sparql.rollback()
-                self.log.error ("Transaction of the failed query has been rolled back.")
 
             return []
         except URLError:
