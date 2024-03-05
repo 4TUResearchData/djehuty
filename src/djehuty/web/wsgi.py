@@ -1,6 +1,7 @@
 """This module implements the entire HTTP interface for users."""
 
 from datetime import date, datetime, timedelta
+from urllib.parse import quote
 from io import StringIO
 import os.path
 import os
@@ -16,7 +17,6 @@ import csv
 import requests
 import pygit2
 import zipfly
-from urllib.parse import quote
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
