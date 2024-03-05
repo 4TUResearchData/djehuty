@@ -43,7 +43,12 @@ class EmailInterface:
         message.attach (MIMEText (plaintext, "plain"))
         message.attach (MIMEText (html, "html"))
 
-        connection = smtplib.SMTP (self.smtp_server, self.smtp_port, timeout=10)
+        try:
+            connection = smtplib.SMTP (self.smtp_server, self.smtp_port, timeout=10)
+        except (smtplib.SMTPConnectError, smtplib.SMTPException, ConnectionRefusedError) as error:
+            self.log.error ("Connecting to the e-mail server failed: %s", error)
+            return False
+
         connection.ehlo()
         if self.do_starttls:
             connection.starttls ()

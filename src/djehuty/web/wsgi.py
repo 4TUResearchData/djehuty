@@ -566,6 +566,7 @@ class ApiServer:
         if not email_addresses or not self.email.is_properly_configured ():
             return False
 
+        failure_count = 0
         for email_address in email_addresses:
             if not self.db.may_receive_email_notifications (email_address):
                 self.log.info ("Did not send e-mail to '%s' due to settings.", email_address)
@@ -574,7 +575,12 @@ class ApiServer:
             text, html = self.__render_email_templates (f"email/{template_name}",
                                                         recipient_email=email_address,
                                                         **context)
-            self.email.send_email (email_address, subject, text, html)
+            if not self.email.send_email (email_address, subject, text, html):
+                failure_count += 1
+
+        if failure_count > 0:
+            self.log.info ("Failed to send e-mail to %d out of %d address(es): %s", failure_count, len(email_addresses), subject)
+            return False
 
         self.log.info ("Sent e-mail to %d address(es): %s", len(email_addresses), subject)
         return True
