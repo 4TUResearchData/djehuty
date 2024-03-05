@@ -3138,11 +3138,15 @@ class ApiServer:
 
             dataset = self.db.datasets (container_uuid=dataset_id, version=version)[0]
 
-            if not value_or_none(dataset, 'is_confidential'):
+            if not value_or_none(dataset, 'is_confidential') and not (not value_or_none(dataset, 'embargo_until_date') and value_or_none(dataset, 'embargo_type')):
                 self.log.warning ("Not allowed. Dataset %s is not confidential", dataset_id)
                 return self.error_403 (request)
 
-            doi = dataset['doi']
+            # When in pre-production state, don't mind about DOI.
+            doi = value_or_none(dataset, 'doi')
+            if doi is None and self.in_production and not self.in_preproduction:
+                self.log.error ("Dataset %s does not have a DOI", dataset_id)
+                return self.error_403 (request)
             title = dataset['title']
             contact_info = self.db.contact_info_from_container(dataset_id)
             addresses = self.db.reviewer_email_addresses()
@@ -3167,6 +3171,8 @@ class ApiServer:
             return self.respond_204 ()
         except (validator.ValidationException, KeyError):
             pass
+        except IndexError:
+            return self.error_400 (request, "Dataset does not exist", 400)
 
         return self.error_500 ()
 
