@@ -16,7 +16,7 @@ import csv
 import requests
 import pygit2
 import zipfly
-from werkzeug.urls import url_quote
+from urllib.parse import quote
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
@@ -3573,7 +3573,7 @@ class ApiServer:
                 response.headers["Content-disposition"] = f"attachment; filename={filename}"
             else:
                 filename = f'"{safe_title_ascii}_{version}_all.zip"'
-                filename_utf8 = f"{url_quote(safe_title)}_{version}_all.zip"
+                filename_utf8 = f"{quote(safe_title)}_{version}_all.zip"
                 response.headers["Content-disposition"] = f"attachment; filename={filename}; filename*=UTF-8''{filename_utf8}"
 
             if self.__is_reviewing (request):
