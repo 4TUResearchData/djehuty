@@ -57,7 +57,7 @@ WHERE {
       ?dataset           djht:container/djht:account    <account:{{account_uuid | safe}}> .
       } UNION {
         ?dataset         djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-        ?collaborator    djht:account ?account .
+        ?collaborator    djht:account <account:{{account_uuid | safe}}> .
         ?collaborator    djht:data_edit "true"^^xsd:boolean .
     }
 
