@@ -3580,13 +3580,11 @@ class ApiServer:
 
             safe_title = dataset["title"].replace('"', '')
             safe_title_ascii = safe_title.encode('ascii', 'ignore').decode('ascii')
-            if safe_title == safe_title_ascii:
-                filename = f'"{safe_title}_{version}_all.zip"'
-                response.headers["Content-disposition"] = f"attachment; filename={filename}"
-            else:
-                filename = f'"{safe_title_ascii}_{version}_all.zip"'
+            filename = f'"{safe_title_ascii}_{version}_all.zip"'
+            response.headers["Content-disposition"] = f"attachment; filename={filename}"
+            if safe_title != safe_title_ascii:
                 filename_utf8 = f"{quote(safe_title)}_{version}_all.zip"
-                response.headers["Content-disposition"] = f"attachment; filename={filename}; filename*=UTF-8''{filename_utf8}"
+                response.headers["Content-disposition"] += f"; filename*=UTF-8''{filename_utf8}"
 
             if self.__is_reviewing (request):
                 self.__log_event (request, dataset["container_uuid"], "dataset", "reviewerDownload")
