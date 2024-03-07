@@ -1,7 +1,7 @@
 """This module implements the entire HTTP interface for users."""
 
 from datetime import date, datetime, timedelta
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 from io import StringIO
 import os.path
 import os
@@ -7112,7 +7112,7 @@ class ApiServer:
 
             if request.method == 'DELETE':
                 url_encoded = validator.string_value (request.args, "url", 0, 1024, True)
-                url         = requests.utils.unquote(url_encoded)
+                url         = unquote(url_encoded)
                 references.remove (next (filter (lambda item: item == url, references)))
                 if not self.db.update_item_list (item["uuid"],
                                                  account_uuid,
@@ -7214,7 +7214,7 @@ class ApiServer:
 
             if request.method == 'DELETE':
                 tag_encoded = validator.string_value (request.args, "tag", 0, 1024, True)
-                tag         = requests.utils.unquote(tag_encoded)
+                tag         = unquote(tag_encoded)
                 tags.remove (next (filter (lambda item: item == tag, tags)))
                 if not self.db.update_item_list (item["uuid"],
                                                  account_uuid,
@@ -7558,7 +7558,7 @@ class ApiServer:
             parameters = {}
             parameters["uri"] = self.get_parameter (request, "uri")
             uri        = validator.string_value (parameters, "uri", 0, 255)
-            uri        = requests.utils.unquote(uri)
+            uri        = unquote(uri)
             properties = self.db.properties_for_type (uri)
             properties = list(map (lambda item: item["predicate"], properties))
 
@@ -7584,9 +7584,9 @@ class ApiServer:
             parameters["property"] = self.get_parameter (request, "property")
 
             rdf_type     = validator.string_value (parameters, "type", 0, 255)
-            rdf_type     = requests.utils.unquote(rdf_type)
+            rdf_type     = unquote(rdf_type)
             rdf_property = validator.string_value (parameters, "property", 0, 255)
-            rdf_property = requests.utils.unquote(rdf_property)
+            rdf_property = unquote(rdf_property)
             types        = self.db.types_for_property (rdf_type, rdf_property)
             types        = list(map (lambda item: item["type"], types))
 
