@@ -794,25 +794,22 @@ class ApiServer:
             if version is not None and not parses_to_int (version):
                 return None
 
+            parameters = {
+                "is_published": is_published,
+                "is_latest": is_latest,
+                "is_under_review": is_under_review,
+                "version": version,
+                "account_uuid": account_uuid,
+                "use_cache": use_cache,
+                "limit": 1
+            }
             dataset = None
             if parses_to_int (identifier):
-                dataset = self.db.datasets (dataset_id   = int(identifier),
-                                            is_published = is_published,
-                                            is_latest    = is_latest,
-                                            is_under_review = is_under_review,
-                                            version      = version,
-                                            account_uuid = account_uuid,
-                                            use_cache    = use_cache,
-                                            limit        = 1)[0]
+                dataset = self.db.datasets (dataset_id = int(identifier),
+                                            **parameters)[0]
             elif validator.is_valid_uuid (identifier):
                 dataset = self.db.datasets (container_uuid = identifier,
-                                            is_published   = is_published,
-                                            is_latest      = is_latest,
-                                            is_under_review = is_under_review,
-                                            version        = version,
-                                            account_uuid   = account_uuid,
-                                            use_cache      = use_cache,
-                                            limit          = 1)[0]
+                                            **parameters)[0]
 
             return dataset
 
@@ -826,23 +823,21 @@ class ApiServer:
             if version is not None and not parses_to_int (version):
                 return None
 
+            parameters = {
+                "is_published": is_published,
+                "is_latest": is_latest,
+                "version": version,
+                "account_uuid": account_uuid,
+                "use_cache": use_cache,
+                "limit": 1
+            }
             collection = None
             if parses_to_int (identifier):
                 collection = self.db.collections (collection_id = int(identifier),
-                                                  is_published  = is_published,
-                                                  is_latest     = is_latest,
-                                                  version       = version,
-                                                  account_uuid  = account_uuid,
-                                                  use_cache     = use_cache,
-                                                  limit         = 1)[0]
+                                                  **parameters)[0]
             elif validator.is_valid_uuid (identifier):
                 collection = self.db.collections (container_uuid = identifier,
-                                                  is_published   = is_published,
-                                                  is_latest      = is_latest,
-                                                  version        = version,
-                                                  account_uuid   = account_uuid,
-                                                  use_cache      = use_cache,
-                                                  limit          = 1)[0]
+                                                  **parameters)[0]
 
             return collection
 
@@ -854,18 +849,17 @@ class ApiServer:
                               dataset_uri=None,
                               private_view=False):
         try:
+            parameters = {
+                "dataset_uri": dataset_uri,
+                "account_uuid": account_uuid,
+                "private_view": private_view
+            }
             file = None
             if parses_to_int (identifier):
-                file = self.db.dataset_files (file_id     = int(identifier),
-                                              dataset_uri = dataset_uri,
-                                              account_uuid = account_uuid,
-                                              private_view = private_view)
+                file = self.db.dataset_files (file_id = int(identifier), **parameters)
             elif (validator.is_valid_uuid (identifier) or
                   validator.is_valid_uuid (uri_to_uuid (dataset_uri))):
-                file = self.db.dataset_files (file_uuid   = identifier,
-                                              dataset_uri = dataset_uri,
-                                              account_uuid = account_uuid,
-                                              private_view = private_view)
+                file = self.db.dataset_files (file_uuid = identifier, **parameters)
 
             return file
 
