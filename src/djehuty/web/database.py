@@ -406,7 +406,7 @@ class SparqlInterface:
         if modified_since is not None:
             modified_since_safe = rdf.escape_datetime_value (modified_since)
             filters += rdf.sparql_bound_filter ("modified_date")
-            filters += f"FILTER (?modified_date > {modified_since_safe})\n"
+            filters += f"FILTER (STR(?modified_date) > STR({modified_since_safe}))\n"
 
         query = self.__query_from_template ("datasets", {
             "categories":     categories,
