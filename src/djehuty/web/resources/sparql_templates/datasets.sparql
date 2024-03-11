@@ -148,11 +148,10 @@ WHERE {
     OPTIONAL { ?dataset djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
     OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }
 
-    {
-      ?container_uri      djht:account              ?account .
-    } UNION {
+    ?container_uri      djht:account              ?account .
+    OPTIONAL {
       ?dataset            djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator       djht:account ?account .
+      ?collaborator       djht:account ?collaborator_account .
       ?collaborator       djht:metadata_read  ?metadata_read .
       ?collaborator       djht:metadata_edit ?metadata_edit .
       ?collaborator       djht:data_read  ?data_read .
@@ -181,7 +180,7 @@ WHERE {
     {%- else %}
     BIND("false"^^xsd:boolean AS ?private_link_is_expired)
     {%- endif %}
-    BIND(xsd:boolean(BOUND(?collaborator)) AS ?is_shared_with_me)
+    BIND(xsd:boolean(?collaborator_account = <account:{{account_uuid}}>) AS ?is_shared_with_me)
   }
 {%- if is_under_review is not none: %}
 {%- if is_under_review: %}
@@ -194,7 +193,8 @@ FILTER (?is_under_review = "false"^^xsd:boolean)
 FILTER (?collection = <{{collection_uri}}>)
 {%- endif %}
 {%- if account_uuid is not none: %}
-FILTER (?account = <account:{{account_uuid}}>)
+FILTER (?account = <account:{{account_uuid}}> ||
+        ?collaborator_account = <account:{{account_uuid}}>)
 {%- endif %}
 {% if filters is not none %}{{ filters | safe }}{% endif %}
 }
