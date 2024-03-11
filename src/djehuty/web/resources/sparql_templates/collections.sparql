@@ -5,7 +5,7 @@
 SELECT DISTINCT ?account_uuid ?resource_id ?resource_doi ?resource_title
                 ?resource_link ?resource_version ?version ?description
                 ?institution_id ?group_id ?is_public (STR(?language_ut) AS ?language) ?time_coverage
-                ?citation ?custom_fields_id ?modified_date (STR(?publisher_ut) AS ?publisher)
+                ?citation ?modified_date (STR(?publisher_ut) AS ?publisher)
                 ?created_date ?timeline_posted ?has_draft ?organizations
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?collection_id ?title
@@ -69,7 +69,6 @@ WHERE {
     OPTIONAL { ?collection   djht:group_id             ?group_id . }
     OPTIONAL { ?collection   djht:is_public            ?is_public . }
     OPTIONAL { ?collection   djht:citation             ?citation . }
-    OPTIONAL { ?collection   djht:custom_fields_id     ?custom_fields_id . }
     OPTIONAL { ?collection   djht:modified_date        ?modified_date . }
     OPTIONAL { ?collection   djht:created_date         ?created_date . }
     OPTIONAL { ?collection   djht:title                ?title . }

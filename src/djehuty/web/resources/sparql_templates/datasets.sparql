@@ -6,7 +6,7 @@ SELECT (COUNT(DISTINCT ?dataset) AS ?datasets)
 # The wrapping in STR() is added because Virtuoso outputs one row for
 # non-typed and one row for a typed literal.
 SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
-                ?created_date ?custom_fields_id ?defined_type ?defined_type_name
+                ?created_date ?defined_type ?defined_type_name
                 ?description ?doi ?embargo_until_date ?is_public
                 ?embargo_reason ?embargo_title ?embargo_type ?figshare_url
                 ?funding ?group_id ?has_linked_file ?dataset_id ?eula
@@ -98,7 +98,6 @@ WHERE {
     OPTIONAL { ?dataset djht:citation              ?citation . }
     OPTIONAL { ?dataset djht:confidential_reason   ?confidential_reason . }
     OPTIONAL { ?dataset djht:created_date          ?created_date . }
-    OPTIONAL { ?dataset djht:custom_fields_id      ?custom_fields_id . }
     OPTIONAL { ?dataset djht:defined_type          ?defined_type . }
     OPTIONAL { ?dataset djht:defined_type_name     ?defined_type_name . }
     OPTIONAL { ?dataset djht:description           ?description . }
