@@ -14,12 +14,7 @@ WHERE {
     ?container rdf:type             djht:DatasetContainer ;
                djht:draft            ?dataset .
 
-    {
-      ?container djht:account <account:{{account_uuid}}> .
-    } UNION {
-      ?dataset      djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator djht:account <account:{{account_uuid}}> .
-    }
+    ?container djht:account         <account:{{account_uuid}}> .
     ?dataset   ?predicate           ?object ;
                ?list_predicate      ?list .
     OPTIONAL {
