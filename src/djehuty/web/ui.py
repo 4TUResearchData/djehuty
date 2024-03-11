@@ -161,6 +161,16 @@ def read_saml_configuration (server, xml_root, logger):
     saml_strict = bool(int(config_value (saml, "strict", None, True)))
     saml_debug  = bool(int(config_value (saml, "debug", None, False)))
 
+    ## Attributes expected to receive from the IdP
+    attributes           = saml.find ("attributes")
+    if attributes is None:
+        logger.error ("Missing attributes information for SAML.")
+    else:
+        server.saml_attribute_first_name = config_value (attributes, "first-name")
+        server.saml_attribute_last_name = config_value (attributes, "last-name")
+        server.saml_attribute_common_name = config_value (attributes, "common-name")
+        server.saml_attribute_email = config_value (attributes, "email")
+
     ## Service Provider settings
     service_provider     = saml.find ("service-provider")
     if service_provider is None:

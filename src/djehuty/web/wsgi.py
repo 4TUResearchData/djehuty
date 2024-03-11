@@ -96,6 +96,10 @@ class ApiServer:
 
         self.saml_config_path    = None
         self.saml_config         = None
+        self.saml_attribute_email = "urn:mace:dir:attribute-def:mail"
+        self.saml_attribute_first_name = "urn:mace:dir:attribute-def:givenName"
+        self.saml_attribute_last_name = "urn:mace:dir:attribute-def:sn"
+        self.saml_attribute_common_name = "urn:mace:dir:attribute-def:cn"
 
         self.datacite_url        = None
         self.datacite_id         = None
@@ -1144,10 +1148,10 @@ class ApiServer:
         attributes           = saml_auth.get_attributes()
         record["session"]    = session
         try:
-            record["email"]      = attributes["urn:mace:dir:attribute-def:mail"][0]
-            record["first_name"] = attributes["urn:mace:dir:attribute-def:givenName"][0]
-            record["last_name"]  = attributes["urn:mace:dir:attribute-def:sn"][0]
-            record["common_name"] = attributes["urn:mace:dir:attribute-def:cn"][0]
+            record["email"]      = attributes[self.saml_attribute_email][0]
+            record["first_name"] = attributes[self.saml_attribute_first_name][0]
+            record["last_name"]  = attributes[self.saml_attribute_last_name][0]
+            record["common_name"] = attributes[self.saml_attribute_common_name][0]
         except (KeyError, IndexError):
             self.log.error ("Didn't receive expected fields in SAMLResponse.")
             self.log.error ("Received attributes: %s", attributes)
