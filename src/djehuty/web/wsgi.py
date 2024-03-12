@@ -4616,10 +4616,8 @@ class ApiServer:
 
             self.log.error ("Failed to delete dataset %s from collection %s.",
                             dataset_id, collection_id)
-            return self.error_500 ()
         except (IndexError, KeyError) as error:
             self.log.error ("Failed to delete dataset from collection: %s", error)
-            return self.error_500 ()
 
         return self.error_403 (request)
 
