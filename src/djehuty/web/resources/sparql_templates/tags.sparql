@@ -9,7 +9,7 @@ WHERE {
       ?container         djht:account             <account:{{account_uuid}}> .
     } UNION {
       ?item_uri          djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator      djht:account ?account .
+      ?collaborator      djht:account <account:{{account_uuid}}> .
       ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
     }
     {%- endif %}

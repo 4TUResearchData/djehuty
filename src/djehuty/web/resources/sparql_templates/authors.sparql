@@ -28,7 +28,7 @@ WHERE {
     } UNION {
       ?dataset           djht:container ?container .
       ?dataset           djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator      djht:account ?account .
+      ?collaborator      djht:account <account:{{account_uuid}}> .
       ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
     }
     {%- endif %}
