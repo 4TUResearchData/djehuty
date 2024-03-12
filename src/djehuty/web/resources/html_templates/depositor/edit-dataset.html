@@ -48,6 +48,10 @@ jQuery(document).ready(function (){
     jQuery(".ql-editor").prop("contenteditable", false).css("background", "#EEE");
     jQuery(".upload-container").css("background", "#EEE");
 {%- endif %}
+{%- if article.is_shared_with_me and not article.data_edit %}
+    jQuery(".upload-container").after('<div style="padding: .5em; margin-bottom: 1em; text-align: left" class="notice-box">You do not have permission to upload files.</div>');
+    jQuery(".upload-container").hide();
+{%- endif %}
     });
 });
 </script>
