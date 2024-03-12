@@ -5,7 +5,7 @@ WHERE {
   GRAPH <{{state_graph}}> {
 
     ?container      rdf:type                      djht:DatasetContainer .
-    ?container      djht:account                  ?account .
+    ?container      djht:account                  <account:{{account_uuid}}> .
 
     {
       ?container    djht:draft                    ?dataset .
@@ -16,14 +16,8 @@ WHERE {
     ?dataset        rdf:type                      djht:Dataset .
     ?dataset        djht:files/rdf:rest*/rdf:first ?file .
 
-    ?dataset        djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-    ?collaborator   djht:account ?collaborator_account .
-    ?collaborator   djht:data_edit "true"^^xsd:boolean .
-
     ?file           rdf:type                      djht:File .
     ?file           djht:size                     ?bytes .
   }
-  FILTER (?account = <account:{{account_uuid}}> OR
-          ?collaborator_account = <account:{{account_uuid}}>)
 }
 {% endblock %}
