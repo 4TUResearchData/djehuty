@@ -6971,12 +6971,18 @@ class ApiServer:
 
             computed_md5 = md5.hexdigest()
             download_url = f"{self.base_url}/file/{dataset_id}/{file_uuid}"
+
+            # Set an upper limit on thumbnailable images.
+            is_image = False
+            if file_size < 10000001:
+                is_image = self.__image_mimetype (output_filename) is not None
+
             self.db.update_file (account_uuid, file_uuid, dataset["uuid"],
                                  computed_md5  = computed_md5,
                                  download_url  = download_url,
                                  filesystem_location = output_filename,
                                  file_size     = file_size,
-                                 is_image      = self.__image_mimetype (output_filename) is not None,
+                                 is_image      = is_image,
                                  is_incomplete = is_incomplete)
 
             response_data = { "location": f"{self.base_url}/v3/file/{file_uuid}" }
@@ -7054,6 +7060,12 @@ class ApiServer:
         metadata = self.__file_by_id_or_uri (file_uuid, account_uuid = account_uuid)
         if metadata is None:
             return self.error_404 (request)
+
+        if value_or (metadata, "size", 0) >= 10000000:
+            self.log.error ("Tried to create a thumbnail for a large image.")
+            return self.error_400 (request,
+                message = "Cannot create thumbnails for images larger than 10MB.",
+                code = "ImageTooLarge")
 
         input_filename = self.__filesystem_location (metadata)
         if input_filename is None:
