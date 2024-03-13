@@ -26,7 +26,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?totals_created_at ?total_downloads ?total_views ?total_shares
                 ?total_cites ?git_uuid ?agreed_to_deposit_agreement ?agreed_to_publish
                 ?private_link_is_expired ?is_shared_with_me ?metadata_read ?metadata_edit
-                ?data_read ?data_edit ?data_remove
+                ?data_read ?data_edit ?data_remove ?anonymize
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -46,6 +46,7 @@ WHERE {
     {%- if private_link_id_string is not none %}
     ?dataset            djht:private_links/rdf:rest*/rdf:first ?private_link .
     ?private_link       djht:id                   ?private_link_id_string .
+    OPTIONAL { ?private_link djht:anonymize       ?anonymize . }
     {%- endif %}
 
     OPTIONAL {

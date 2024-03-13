@@ -76,7 +76,7 @@
     </div>
 
     <div id="right_column">
-{% if member != "other" %}
+{% if member != "other" and not anonymize %}
         <div id="member">
             <a class="corporate-identity" href="/institutions/{{member_url_name}}"><img src="/static/images/logo-{{member}}.png" alt="{{member_url_name.replace('_',' ')}} logo" /></a>
         </div>
@@ -188,7 +188,8 @@
     </div>
     
     <div id="left_column">
-        <div id="authors">by
+{%- if not anonymize %}
+      <div id="authors">by
 {% for a in authors %}
             <a class="corporate-identity{% if a.is_active %} is_active{% endif %}" href="/authors/{{a.uuid}}" >{{a.full_name}}</a>
     {%- if a.orcid_id %}
@@ -197,6 +198,7 @@
     {%- if loop.revindex0 %}, {% endif %}
 {% endfor %}
         </div>
+{%- endif %}
         <div id="description">
 {% autoescape false %}
         {%- if item.description %}

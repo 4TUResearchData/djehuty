@@ -1732,7 +1732,8 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix("datasets")
         return self.__run_logged_query (query)
 
-    def insert_private_link (self, item_uuid, account_uuid, whom=None, purpose=None, item_type=None,
+    def insert_private_link (self, item_uuid, account_uuid, whom=None,
+                             purpose=None, item_type=None, anonymize=False,
                              read_only=True, id_string=None,
                              is_active=True, expires_date=None):
         """Procedure to add a private link to the state graph."""
@@ -1753,6 +1754,7 @@ class SparqlInterface:
         rdf.add (graph, link_uri, rdf.DJHT["is_active"],    is_active)
         rdf.add (graph, link_uri, rdf.DJHT["expires_date"], expires_date, XSD.dateTime)
         rdf.add (graph, link_uri, rdf.DJHT["whom"], whom,  XSD.string)
+        rdf.add (graph, link_uri, rdf.DJHT["anonymize"], anonymize,  XSD.boolean)
         rdf.add (graph, link_uri, rdf.DJHT["purpose"], purpose,  XSD.string)
 
         if self.add_triples_from_graph (graph):

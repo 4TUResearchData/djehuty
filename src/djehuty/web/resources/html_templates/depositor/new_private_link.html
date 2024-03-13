@@ -43,6 +43,9 @@
 
   <label for="whom">For whom is the link:</label>
   <input type="text" id="whom" name="whom" value="" placeholder="Example: Peer-reviewers of a journal" />
+
+  <input type="checkbox" name="anonymize_link" id="anonymize_link">
+<label class="no-head" for="anonymize_link">Hide authors and affiliation when accessing the dataset through this private link.</label>
   <input type="submit" id="submit-link" style="display: none;" value="Create link" />
 </form>
 {% endblock %}

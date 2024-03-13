@@ -2368,6 +2368,8 @@ class ApiServer:
             try:
                 whom         = validator.string_value (request.form, "whom", 0, 128)
                 purpose      = validator.string_value (request.form, "purpose", 0, 128)
+                anonymize    = validator.string_value (request.form, "anonymize_link", 0, 2)
+                anonymize    = bool(anonymize == "on")
                 current_time = datetime.now()
                 options      = ["1 day", "7 days", "30 days", "indefinitely"]
                 expires_date = validator.options_value (request.form, "expires_date",
@@ -2387,7 +2389,7 @@ class ApiServer:
                 self.locks.lock (locks.LockTypes.PRIVATE_LINKS)
                 self.db.insert_private_link (dataset["uuid"], account_uuid, whom=whom,
                                              purpose=purpose, expires_date=delta,
-                                             item_type="dataset")
+                                             anonymize=anonymize, item_type="dataset")
                 self.locks.unlock (locks.LockTypes.PRIVATE_LINKS)
                 return redirect (f"/my/datasets/{dataset_uuid}/private_links", code=302)
             except validator.ValidationException as error:
@@ -2951,7 +2953,8 @@ class ApiServer:
 
             self.__log_event (request, dataset["container_uuid"], "dataset", "privateView")
             return self.ui_dataset (request, dataset["container_uuid"],
-                                    dataset=dataset, private_view=True)
+                                    dataset=dataset, private_view=True,
+                                    anonymize=value_or(dataset, "anonymize", False))
         except IndexError:
             pass
 
@@ -2982,7 +2985,7 @@ class ApiServer:
         """Implements backward-compatibility landing page URLs for datasets."""
         return self.ui_dataset (request, dataset_id, version)
 
-    def ui_dataset (self, request, dataset_id, version=None, dataset=None, private_view=False):
+    def ui_dataset (self, request, dataset_id, version=None, dataset=None, private_view=False, anonymize=False):
         """Implements /datasets/<id>."""
 
         handler = self.default_error_handling (request, "GET", "text/html")
@@ -3124,6 +3127,7 @@ class ApiServer:
                                        my_email=my_email,
                                        my_name=my_name,
                                        is_own_item=is_own_item,
+                                       anonymize=anonymize,
                                        page_title=f"{dataset['title']} ({defined_type_name})")
 
     def ui_data_access_request (self, request):
