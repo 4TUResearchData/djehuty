@@ -1,0 +1,23 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?metadata_read ?metadata_edit
+                ?data_read ?data_edit ?data_remove
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?item               rdf:type            djht:{{item_type | capitalize}} .
+    {%- if item_type == "file" %}
+    ?dataset            djht:files/rdf:rest*/rdf:first ?item .
+    ?dataset            djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+    {%- else %}
+    ?item               djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+    {%- endif %}
+    ?collaborator       djht:account        <account:{{account_uuid}}> .
+    ?collaborator       djht:metadata_read  ?metadata_read .
+    ?collaborator       djht:metadata_edit  ?metadata_edit .
+    ?collaborator       djht:data_read      ?data_read .
+    ?collaborator       djht:data_edit      ?data_edit .
+    ?collaborator       djht:data_remove    ?data_remove .
+  }
+  FILTER (?item = <{{item_type}}:{{item_uuid}}>)
+}
+{% endblock %}

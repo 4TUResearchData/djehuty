@@ -6,8 +6,7 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?status        ?upload_url    ?upload_token
                 ?order_index   ?uuid          ?filesystem_location
                 ?container_uuid ?order_name   (?rest AS ?originating_blank_node)
-                ?is_incomplete ?is_image ?data_read ?data_edit ?data_remove
-                ?is_shared_with_me
+                ?is_incomplete ?is_image ?is_shared_with_me
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                djht:File .

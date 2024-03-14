@@ -29,13 +29,7 @@ jQuery(document).ready(function (){
     });
 {%- endfor %}
 {%- if article.is_shared_with_me %}
-    let permissions = {
-        "metadata_read": {{article.metadata_read|tojson}},
-        "metadata_edit": {{article.metadata_edit|tojson}},
-        "data_read": {{article.data_read|tojson}},
-        "data_edit": {{article.data_edit|tojson}},
-        "data_remove": {{article.data_remove|tojson}}
-    };
+    let permissions = {{permissions|tojson}};
 {%- else %}
     let permissions = {
         "metadata_read": true, "metadata_edit": true,
@@ -43,12 +37,12 @@ jQuery(document).ready(function (){
     }
 {%- endif %}
     activate ("{{container_uuid}}", permissions, function() {
-{%- if article.is_shared_with_me and not article.metadata_edit %}
+{%- if article.is_shared_with_me and not permissions.metadata_edit %}
     jQuery("#content-wrapper :input").prop("disabled", "disabled").css("background", "#EEE");
     jQuery(".ql-editor").prop("contenteditable", false).css("background", "#EEE");
     jQuery(".upload-container").css("background", "#EEE");
 {%- endif %}
-{%- if article.is_shared_with_me and not article.data_edit %}
+{%- if article.is_shared_with_me and not permissions.data_edit %}
     jQuery(".upload-container").after('<div style="padding: .5em; margin-bottom: 1em; text-align: left" class="notice-box">You do not have permission to upload files.</div>');
     jQuery(".upload-container").hide();
 {%- endif %}
@@ -194,12 +188,12 @@ jQuery(document).ready(function (){
   {%- else %}
   <li><a href="/my/datasets">&#8592; Go back</a>
   {%- endif %}
-  {%- if article.is_shared_with_me and not article.metadata_edit %}
+  {%- if article.is_shared_with_me and not permissions.metadata_edit %}
   <li class="active corporate-identity-submenu-active">Read-only dataset
   {%- else %}
   <li class="active corporate-identity-submenu-active">Edit dataset
   {%- endif %}
-  {%- if not article.is_shared_with_me or article.metadata_edit %}
+  {%- if not article.is_shared_with_me or permissions.metadata_edit %}
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save draft</a>
   {%- endif %}
   {%- if not article.is_under_review and not article.is_shared_with_me %}
@@ -221,7 +215,7 @@ jQuery(document).ready(function (){
 <div class="article-content">
 {%- if article.title == "Untitled item" %}
 <h1>Add new dataset</h1>
-{%- elif article.is_shared_with_me and not article.metadata_edit %}
+{%- elif article.is_shared_with_me and not permissions.metadata_edit %}
 <h1>Read-only dataset</h1>
 {%- else %}
 <h1>Edit dataset</h1>

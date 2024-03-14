@@ -870,6 +870,34 @@ class ApiServer:
         except IndexError:
             return None
 
+    def __needs_collaborative_permissions (self, account_uuid, request,
+                                           item_type, item, permissions):
+        """Returns a Response when insufficient permissions, None otherwise."""
+        if not value_or (item, "is_shared_with_me", False):
+            return None, None
+
+        if "uuid" not in item:
+            self.log.error ("Expected a 'uuid' property in 'item'. Assuming no permission.")
+            return None, self.error_403 (request)
+
+        record = self.db.item_collaborative_permissions (item_type, item["uuid"], account_uuid)
+        if not permissions:
+            self.log.error ("Could not find permissions for %s on %s",
+                            account_uuid, item["uuid"])
+            return None, self.error_403 (request)
+
+        # Provide syntatic leniency for a single permission
+        if isinstance (permissions, str):
+            permissions = [ permissions ]
+
+        for permission in permissions:
+            if not value_or (record, permission, False):
+                self.log.error ("Account %s attempted action requiring '%s' on %s.",
+                                account_uuid, permission, item["uuid"])
+                return None, self.error_403 (request)
+
+        return record, None
+
     def __file_by_id_or_uri (self, identifier,
                              account_uuid=None,
                              dataset_uri=None,
@@ -1798,9 +1826,10 @@ class ApiServer:
             if dataset is None:
                 return self.error_403 (request)
 
-            if not (not value_or (dataset, "is_shared_with_me", False) or
-                    value_or (dataset, "metadata_read", False)):
-                return self.error_403 (request)
+            permissions, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, "dataset", dataset, "metadata_read")
+            if error_response is not None:
+                return error_response
 
             # Pre-Djehuty datasets may not have a Git UUID. We therefore
             # assign one when needed.
@@ -1828,6 +1857,7 @@ class ApiServer:
                 container_uuid = dataset["container_uuid"],
                 disable_collaboration = self.disable_collaboration,
                 article    = dataset,
+                permissions = permissions,
                 account    = account,
                 categories = categories,
                 groups     = groups)
@@ -1850,10 +1880,6 @@ class ApiServer:
                                                    is_published=False)
 
             if dataset is None:
-                return self.error_403 (request)
-
-            if not (not value_or (dataset, "is_shared_with_me", False) or
-                    value_or (dataset, "metadata_remove", False)):
                 return self.error_403 (request)
 
             container_uuid = dataset["container_uuid"]
@@ -2237,9 +2263,11 @@ class ApiServer:
             return self.error_403 (request)
 
         if request.method == "GET":
-            if not (not value_or (dataset, "is_shared_with_me", False) or
-                    value_or (dataset, "metadata_read", False)):
-                return self.error_403 (request)
+
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, "dataset", dataset, "metadata_read")
+            if error_response is not None:
+                return error_response
 
             collaborators = self.db.collaborators (dataset["uuid"])
             return self.default_list_response (collaborators, formatter.format_collaborator_record)
@@ -2326,9 +2354,10 @@ class ApiServer:
                                         is_latest=None,
                                         limit=1)[0]
 
-            if not (not value_or (dataset, "is_shared_with_me", False) or
-                    value_or (dataset, "metadata_edit", False)):
-                return self.error_403 (request)
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, "dataset", dataset, "metadata_edit")
+            if error_response is not None:
+                return error_response
 
             if self.db.remove_collaborator (dataset["uuid"], collaborator_uuid) is None:
                 return self.error_500()
@@ -3833,10 +3862,6 @@ class ApiServer:
         try:
             dataset         = self.__dataset_by_id_or_uri (dataset_id, account_uuid=None, is_latest=True)
 
-            if not (not value_or (dataset, "is_shared_with_me", False) or
-                    value_or (dataset, "metadata_read", False)):
-                return self.error_403 (request)
-
             # Passing along the base_url here to generate the API links.
             dataset["base_url"] = self.base_url
 
@@ -4100,9 +4125,10 @@ class ApiServer:
                 if dataset_uri is None:
                     return self.response ("[]")
 
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "metadata_read", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "metadata_read")
+                if error_response is not None:
+                    return error_response
 
                 dataset["doi"]  = self.__standard_doi (dataset["container_uuid"],
                                                        version = None,
@@ -4156,9 +4182,10 @@ class ApiServer:
                 if dataset is None:
                     return self.error_403 (request)
 
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "metadata_edit", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "metadata_edit")
+                if error_response is not None:
+                    return error_response
 
                 is_embargoed = validator.boolean_value (record, "is_embargoed", when_none=False)
                 embargo_options = validator.array_value (record, "embargo_options")
@@ -4227,10 +4254,6 @@ class ApiServer:
                                                            account_uuid=account_uuid,
                                                            is_published=False)
 
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "metadata_remove", False)):
-                    return self.error_403 (request)
-
                 container_uuid = dataset["container_uuid"]
                 if self.db.delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid):
                     return self.respond_204()
@@ -4256,9 +4279,10 @@ class ApiServer:
                                                        account_uuid=account_uuid,
                                                        is_published=False)
 
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "metadata_read", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "metadata_read")
+                if error_response is not None:
+                    return error_response
 
                 authors = self.db.authors (item_uri   = dataset["uri"],
                                            account_uuid = account_uuid,
@@ -4285,9 +4309,10 @@ class ApiServer:
                 if dataset is None:
                     return self.error_403 (request)
 
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "metadata_edit", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "metadata_edit")
+                if error_response is not None:
+                    return error_response
 
                 new_authors = []
                 records     = parameters["authors"]
@@ -4364,9 +4389,10 @@ class ApiServer:
             if dataset is None:
                 return self.error_403 (request)
 
-            if not (not value_or (dataset, "is_shared_with_me", False) or
-                    value_or (dataset, "metadata_edit", False)):
-                return self.error_403 (request)
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, "dataset", dataset, "metadata_edit")
+            if error_response is not None:
+                return error_response
 
             authors = self.db.authors (item_uri     = dataset["uri"],
                                        account_uuid = account_uuid,
@@ -4409,9 +4435,10 @@ class ApiServer:
                 if item is None:
                     return self.error_403 (request)
 
-                if not (not value_or (item, "is_shared_with_me", False) or
-                        value_or (item, "metadata_read", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, item_type, item, "metadata_read")
+                if error_response is not None:
+                    return error_response
 
                 funding = self.db.fundings (item_uri     = item["uri"],
                                             account_uuid = account_uuid,
@@ -4438,9 +4465,10 @@ class ApiServer:
                 if item is None:
                     return self.error_403 (request)
 
-                if not (not value_or (item, "is_shared_with_me", False) or
-                        value_or (item, "metadata_edit", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, item_type, item, "metadata_edit")
+                if error_response is not None:
+                    return error_response
 
                 new_fundings = []
                 records     = parameters["funders"]
@@ -4522,9 +4550,10 @@ class ApiServer:
             if item is None:
                 return self.error_403 (request)
 
-            if not (not value_or (item, "is_shared_with_me", False) or
-                    value_or (item, "metadata_remove", False)):
-                return self.error_403 (request)
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, item_type, item, "metadata_edit")
+            if error_response is not None:
+                return error_response
 
             fundings = self.db.fundings (item_uri     = item["uri"],
                                          account_uuid = account_uuid,
@@ -4664,9 +4693,10 @@ class ApiServer:
                                                        account_uuid = account_uuid,
                                                        is_published = False)
 
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "metadata_edit", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "metadata_edit")
+                if error_response is not None:
+                    return error_response
 
                 # First, validate all values passed by the user.
                 # This way, we can be as certain as we can be that performing
@@ -4735,9 +4765,10 @@ class ApiServer:
             if not dataset:
                 return self.response ("[]")
 
-            if not (not value_or (dataset, "is_shared_with_me", False) or
-                    value_or (dataset, "metadata_read", False)):
-                return self.error_403 (request)
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, "dataset", dataset, "metadata_read")
+            if error_response is not None:
+                return error_response
 
             return self.response (json.dumps (formatter.format_dataset_embargo_record (dataset)))
 
@@ -4747,9 +4778,10 @@ class ApiServer:
                                                        account_uuid = account_uuid,
                                                        is_published = False)
 
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "metadata_remove", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "metadata_edit")
+                if error_response is not None:
+                    return error_response
 
                 if self.db.delete_dataset_embargo (dataset_uri = dataset["uri"],
                                                    account_uuid = account_uuid):
@@ -4777,9 +4809,10 @@ class ApiServer:
                 if dataset is None:
                     return self.error_403 (request)
 
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "data_read", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "data_read")
+                if error_response is not None:
+                    return error_response
 
                 files = self.db.dataset_files (
                     dataset_uri = dataset["uri"],
@@ -4841,9 +4874,10 @@ class ApiServer:
                 if dataset is None:
                     return self.error_403 (request)
 
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "data_edit", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "data_edit")
+                if error_response is not None:
+                    return error_response
 
                 if link is not None:
                     file_id = self.db.insert_file (
@@ -4901,9 +4935,10 @@ class ApiServer:
                 if dataset is None:
                     return self.error_404 (request)
 
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "data_read", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "data_read")
+                if error_response is not None:
+                    return error_response
 
                 metadata = self.__file_by_id_or_uri (file_id,
                                                      account_uuid = account_uuid,
@@ -4927,9 +4962,10 @@ class ApiServer:
                 if dataset is None:
                     return self.error_403 (request)
 
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "data_remove", False)):
-                    return self.error_403 (request)
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "data_remove")
+                if error_response is not None:
+                    return error_response
 
                 metadata = self.__file_by_id_or_uri (file_id,
                                                      account_uuid = account_uuid,
@@ -5239,9 +5275,10 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        if not (not value_or (dataset, "is_shared_with_me", False) or
-                value_or (dataset, "metadata_edit", False)):
-            return self.error_403 (request)
+        _, error_response = self.__needs_collaborative_permissions (
+            account_uuid, request, "dataset", dataset, "metadata_edit")
+        if error_response is not None:
+            return error_response
 
         reserved_doi = self.__reserve_and_save_doi (account_uuid, dataset)
         if reserved_doi:
@@ -6220,8 +6257,9 @@ class ApiServer:
             self.log.error ("No Git repository for dataset %s.", dataset_id)
             return None
 
-        if not (not value_or (dataset, "is_shared_with_me", False) or
-                value_or (dataset, f"data_{action}", False)):
+        _, error_response = self.__needs_collaborative_permissions (
+            account_uuid, None, "dataset", dataset, f"data_{action}")
+        if error_response is not None:
             return None
 
         # Pre-Djehuty datasets may not have a Git UUID. We therefore
@@ -6825,9 +6863,10 @@ class ApiServer:
             if dataset is None:
                 return self.error_403 (request)
 
-            if not (not value_or (dataset, "is_shared_with_me", False) or
-                    value_or (dataset, "data_edit", False)):
-                return self.error_403 (request)
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, "dataset", dataset, "data_edit")
+            if error_response is not None:
+                return error_response
 
             content_type = value_or (request.headers, "Content-Type", "")
             if not content_type.startswith ("multipart/form-data"):
@@ -7093,9 +7132,10 @@ class ApiServer:
         if metadata is None:
             return self.error_404 (request)
 
-        if not (not value_or (metadata, "is_shared_with_me", False) or
-                value_or (metadata, "data_read", False)):
-            return self.error_403 (request)
+        _, error_response = self.__needs_collaborative_permissions (
+            account_uuid, request, "file", metadata, "data_read")
+        if error_response is not None:
+            return error_response
 
         try:
             metadata["base_url"] = self.base_url
@@ -7174,9 +7214,10 @@ class ApiServer:
                                                account_uuid=account_uuid,
                                                is_published=False)
 
-        if not (not value_or (dataset, "is_shared_with_me", False) or
-                value_or (dataset, "metadata_read", False)):
-            return self.error_403 (request)
+        _, error_response = self.__needs_collaborative_permissions (
+            account_uuid, request, "dataset", dataset, "metadata_read")
+        if error_response is not None:
+            return error_response
 
         return self.__api_v3_item_references (request, dataset)
 
@@ -7193,7 +7234,7 @@ class ApiServer:
 
         return self.__api_v3_item_references (request, collection)
 
-    def __api_v3_item_tags (self, request, item_id, item_by_id_procedure):
+    def __api_v3_item_tags (self, request, item_type, item_id, item_by_id_procedure):
         """Implements handling tags for both datasets and collections."""
 
         account_uuid = self.default_authenticated_error_handling (request,
@@ -7207,9 +7248,10 @@ class ApiServer:
                                           account_uuid=account_uuid,
                                           is_published=False)
 
-            if not (not value_or (item, "is_shared_with_me", False) or
-                    value_or (item, "metadata_read", False)):
-                return self.error_403 (request)
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, item_type, item, "metadata_read")
+            if error_response is not None:
+                return error_response
 
             tags = self.db.tags (
                 item_uri        = item["uri"],
@@ -7275,11 +7317,11 @@ class ApiServer:
 
     def api_v3_collection_tags (self, request, collection_id):
         """Implements /v3/collections/<id>/tags."""
-        return self.__api_v3_item_tags (request, collection_id, self.__collection_by_id_or_uri)
+        return self.__api_v3_item_tags (request, "collection", collection_id, self.__collection_by_id_or_uri)
 
     def api_v3_dataset_tags (self, request, dataset_id):
         """Implements /v3/datasets/<id>/tags."""
-        return self.__api_v3_item_tags (request, dataset_id, self.__dataset_by_id_or_uri)
+        return self.__api_v3_item_tags (request, "dataset", dataset_id, self.__dataset_by_id_or_uri)
 
     def api_v3_groups (self, request):
         """Implements /v3/groups."""
@@ -7415,9 +7457,6 @@ class ApiServer:
                 dataset = self.db.datasets (git_uuid = git_uuid, is_published=False)[0]
 
             if dataset is not None:
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "data_edit", False)):
-                    return self.error_403 (request)
                 return self.__git_passthrough (request)
         except IndexError:
             pass
@@ -7432,11 +7471,6 @@ class ApiServer:
                 dataset = self.db.datasets (git_uuid     = git_uuid,
                                             is_published = None,
                                             is_latest    = None)[0]
-
-            if dataset is not None:
-                if not (not value_or (dataset, "is_shared_with_me", False) or
-                        value_or (dataset, "data_read", False)):
-                    return self.error_403 (request)
 
                 self.__log_event (request, dataset["container_uuid"], "dataset", "gitDownload")
                 return self.__git_passthrough (request)

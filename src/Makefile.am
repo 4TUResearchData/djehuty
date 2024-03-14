@@ -116,6 +116,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/collections.sparql                 \
     djehuty/web/resources/sparql_templates/collections_by_account.sparql      \
     djehuty/web/resources/sparql_templates/collections_from_dataset.sparql    \
+    djehuty/web/resources/sparql_templates/contact_info_from_container.sparql \
     djehuty/web/resources/sparql_templates/container.sparql                   \
     djehuty/web/resources/sparql_templates/container_items.sparql             \
     djehuty/web/resources/sparql_templates/container_uuid_by_id.sparql        \
@@ -148,7 +149,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/funding.sparql                     \
     djehuty/web/resources/sparql_templates/group.sparql                       \
     djehuty/web/resources/sparql_templates/group_by_name.sparql               \
-    djehuty/web/resources/sparql_templates/contact_info_from_container.sparql \
+    djehuty/web/resources/sparql_templates/item_collaborative_permissions.sparql \
     djehuty/web/resources/sparql_templates/latest_datasets_portal.sparql      \
     djehuty/web/resources/sparql_templates/licenses.sparql                    \
     djehuty/web/resources/sparql_templates/missing_checksummed_files_for_container.sparql \

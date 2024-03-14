@@ -25,8 +25,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?is_under_review (?review AS ?review_uri) ?review_submit_date
                 ?totals_created_at ?total_downloads ?total_views ?total_shares
                 ?total_cites ?git_uuid ?agreed_to_deposit_agreement ?agreed_to_publish
-                ?private_link_is_expired ?is_shared_with_me ?metadata_read ?metadata_edit
-                ?data_read ?data_edit ?data_remove ?anonymize
+                ?private_link_is_expired ?is_shared_with_me ?anonymize
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -153,11 +152,6 @@ WHERE {
     OPTIONAL {
       ?dataset            djht:collaborators/rdf:rest*/rdf:first ?collaborator .
       ?collaborator       djht:account ?collaborator_account .
-      ?collaborator       djht:metadata_read  ?metadata_read .
-      ?collaborator       djht:metadata_edit ?metadata_edit .
-      ?collaborator       djht:data_read  ?data_read .
-      ?collaborator       djht:data_edit ?data_edit .
-      ?collaborator       djht:data_remove ?data_remove .
     }
 
     OPTIONAL { ?dataset djht:is_under_review       ?is_under_review_tmp . }
