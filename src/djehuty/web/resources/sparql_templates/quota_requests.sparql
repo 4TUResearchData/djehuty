@@ -12,8 +12,8 @@ WHERE {
     ?request djht:status         ?status .
 
     ?account djht:email          ?email .
-    ?account djht:first_name     ?first_name .
-    ?account djht:last_name      ?last_name .
+    OPTIONAL { ?account djht:first_name     ?first_name . }
+    OPTIONAL { ?account djht:last_name      ?last_name . }
   }
   BIND (STRAFTER(STR(?request), "quota-request:") AS ?uuid)
   {%- if status is not none: %}
