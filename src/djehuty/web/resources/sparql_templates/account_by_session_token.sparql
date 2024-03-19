@@ -3,6 +3,7 @@
 SELECT DISTINCT ?role ?active ?created_date ?email ?first_name ?group_id
                 ?uuid ?institution_id ?institution_user_id ?last_name
                 ?maximum_file_size ?modified_date ?domain ?profile_image
+                ?quota
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account             rdf:type                  djht:Account .
@@ -17,6 +18,7 @@ WHERE {
     OPTIONAL { ?account  djht:profile_image         ?profile_image . }
     OPTIONAL { ?account  djht:modified_date         ?modified_date . }
     OPTIONAL { ?account  djht:role                  ?role . }
+    OPTIONAL { ?account  djht:quota                 ?quota . }
 
     ?session             rdf:type                  djht:Session .
     ?session             djht:account               ?account .

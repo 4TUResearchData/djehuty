@@ -4,7 +4,7 @@ SELECT DISTINCT ?active ?created_date ?email ?first_name ?group_id ?biography
                 ?uuid ?institution_id ?institution_user_id ?last_name
                 ?maximum_file_size ?modified_date ?job_title ?location
                 ?account_id ?domain ?twitter ?linkedin ?website ?author_uuid
-                ?profile_image ?orcid ?full_name
+                ?profile_image ?orcid ?full_name ?quota
 WHERE {
   GRAPH <{{state_graph}}> {
     ?account             rdf:type                   djht:Account .
@@ -25,6 +25,7 @@ WHERE {
     OPTIONAL { ?account  djht:profile_image         ?profile_image . }
     OPTIONAL { ?account  djht:maximum_file_size     ?maximum_file_size . }
     OPTIONAL { ?account  djht:modified_date         ?modified_date . }
+    OPTIONAL { ?account  djht:quota                 ?quota . }
     OPTIONAL {
       ?group             rdf:type                   djht:InstitutionGroup ;
                          djht:association_criteria  ?domain ;

@@ -20,6 +20,7 @@
   <li><a href="/admin/exploratory">Exploratory</a>
   <li><a href="/admin/reports">Reports</a>
   <li class="active corporate-identity-submenu-active">Query
+  {% if may_review_quotas %}<li><a href="/admin/quota-requests">Quota requests</a>{% endif %}
 </ul>
 {% endblock %}
 {% block body %}

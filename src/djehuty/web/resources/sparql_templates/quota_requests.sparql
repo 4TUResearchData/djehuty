@@ -1,0 +1,24 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?uuid ?account_uuid ?first_name ?last_name ?email ?created_date
+       ?requested_size ?reason
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?request rdf:type            djht:QuotaRequest .
+    ?request djht:account        ?account .
+    ?request djht:requested_size ?requested_size .
+    ?request djht:reason         ?reason .
+    ?request djht:created_date   ?created_date .
+    ?request djht:status         ?status .
+
+    ?account djht:email          ?email .
+    ?account djht:first_name     ?first_name .
+    ?account djht:last_name      ?last_name .
+  }
+  BIND (STRAFTER(STR(?request), "quota-request:") AS ?uuid)
+  {%- if status is not none: %}
+  FILTER (?status = {{status | safe}})
+  {%- endif %}
+}
+ORDER BY DESC(?created_date)
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    {%- if requested_size is not none %}
+    ?request          djht:requested_size        ?requested_size .
+    {%- endif %}{% if reason is not none %}
+    ?request          djht:reason                ?reason .
+    {%- endif %}{% if status is not none %}
+    ?request          djht:status                ?status .
+    {%- if assign_to_account %}
+    ?account          djht:quota                 ?quota .
+    {%- endif %}
+    {%- endif %}
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    {%- if requested_size is not none %}
+    ?request          djht:requested_size        {{requested_size}} .
+    {%- endif %}{% if reason is not none %}
+    ?request          djht:reason                {{reason}} .
+    {%- endif%}{% if status is not none %}
+    ?request          djht:status                {{status | safe}} .
+    {%- if assign_to_account %}
+    {%- if requested_size is not none %}
+    ?account          djht:quota                 {{requested_size}} .
+    {%- else %}
+    ?account          djht:quota                 ?requested_size .
+    {%- endif %}
+    {%- endif %}
+    {%- endif %}
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?request              rdf:type                  djht:QuotaRequest .
+    ?request              djht:account              ?account .
+    OPTIONAL { ?account   djht:quota                ?quota . }
+    OPTIONAL { ?request   djht:requested_size       ?requested_size . }
+    OPTIONAL { ?request   djht:reason               ?reason . }
+    OPTIONAL { ?request   djht:status               ?status . }
+  }
+  FILTER (?request = <quota-request:{{quota_request_uuid}}>)
+}
+{% endblock %}

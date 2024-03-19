@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block headers %}
+<style>
+#quotas-table { margin-top: 1em; }
+.reason { display: none; }
+.comments:hover + .reason {
+  position: absolute;
+  max-width: 700pt;
+  display: block;
+  background: #fffaea;
+  border: solid 2pt #ffeecc;
+  font-family: 'SourceSans', sans-serif;
+  font-size: 12pt;
+  font-weight: normal;
+  padding: .5em;
+  border-radius: .5em;
+  margin-top: 0em;
+  margin-left: 0em;
+}
+.reason p { padding: 0em; margin: 0em; }
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/admin/dashboard">Dashboard</a>
+  <li><a href="/admin/users">Users</a>
+  <li><a href="/admin/maintenance">Maintenance</a>
+  <li><a href="/admin/exploratory">Exploratory</a>
+  <li><a href="/admin/reports">Reports</a>
+  {% if may_query %}<li><a href="/admin/sparql">Query</a>{% endif %}
+  <li class="active corporate-identity-submenu-active">Quota requests
+</ul>
+{% endblock %}
+{% block body %}
+<h1>Quota requests</h1>
+<table id="quotas-table" class="corporate-identity-table">
+  <thead><tr><th>Account</th><th>Requested size</th><th>Date</th><th>Reason</th><th>Status</th></tr></thead>
+  <tbody>
+    {%- for request in quota_requests: %}
+    <tr>
+      <td>{{request.first_name | default("", False)}} {{request.last_name | default("", False)}} ({{request.email | default("-", False)}})</td>
+      <td>{{request.requested_size / 1000000000 | default("-", False)}} GB</td>
+      <td>{{request.created_date | default("-", False)}}</td>
+      <td><span class="fas fa-comments-dots comments"></span><span class="reason">{{request.reason | safe | default("-", False)}}</span></td>
+      {%- if request.status == "approved" %}
+      <td>Approved</td>
+      {%- elif request.status == "denied" %}
+      <td>Denied</td>
+      {%- else %}
+      <td><a href="/admin/approve-quota-request/{{request.uuid}}" class="fas fa-thumbs-up" title="Approve"><span class="hidden">Approve</span></a>
+        <a href="/admin/deny-quota/{{request.uuid}}" class="fas fa-thumbs-down" title="Deny"><span class="hidden">Deny</span></a></td>
+      {%- endif %}
+    </tr>
+    {%- endfor %}
+  </tbody>
+</table>
+{% endblock %}

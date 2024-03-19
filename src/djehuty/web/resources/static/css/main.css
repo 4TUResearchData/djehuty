@@ -449,6 +449,9 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-tile::before { content: "\f84c"; }
 .fa-list::before { content: "\f03a"; }
 .fa-orcid::before { content: "\f8d2"; }
+.fa-thumbs-up::before { content: "\f164"; }
+.fa-thumbs-down::before { content: "\f165"; }
+.fa-comments-dots::before { content: "\f4ad"; }
 .fa-empty::before {}
 
 ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; font-size: 13pt; }
