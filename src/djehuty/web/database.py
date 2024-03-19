@@ -1268,7 +1268,7 @@ class SparqlInterface:
 
     def update_account (self, account_uuid, active=None, email=None, job_title=None,
                         first_name=None, last_name=None, institution_user_id=None,
-                        institution_id=None, pending_quota_request=None,
+                        institution_id=None,
                         maximum_file_size=None, modified_date=None, created_date=None,
                         location=None, biography=None, categories=None, twitter=None,
                         linkedin=None, website=None, profile_image=None):
@@ -1296,7 +1296,6 @@ class SparqlInterface:
             "biography":             rdf.escape_string_value (biography),
             "institution_user_id":   institution_user_id,
             "institution_id":        institution_id,
-            "pending_quota_request": pending_quota_request,
             "maximum_file_size":     maximum_file_size,
             "profile_image":         profile_image,
             "modified_date":         modified_date,

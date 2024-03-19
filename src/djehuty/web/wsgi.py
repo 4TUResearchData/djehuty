@@ -7507,7 +7507,6 @@ class ApiServer:
                     biography             = validator.string_value  (record, "biography", 0, 32768),
                     institution_user_id   = validator.integer_value (record, "institution_user_id"),
                     institution_id        = validator.integer_value (record, "institution_id"),
-                    pending_quota_request = validator.integer_value (record, "pending_quota_request"),
                     maximum_file_size     = validator.integer_value (record, "maximum_file_size"),
                     modified_date         = validator.string_value  (record, "modified_date", 0, 32),
                     categories            = categories):
