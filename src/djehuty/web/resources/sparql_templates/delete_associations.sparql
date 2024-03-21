@@ -9,16 +9,16 @@ WHERE {
   GRAPH <{{state_graph}}> {
     ?container    rdf:type/rdfs:subClassOf djht:Container .
     ?item         djht:container           ?container .
-    {
-      ?container    djht:account             ?account .
-    } UNION {
+    ?container    djht:account             ?account .
+    OPTIONAL {
       ?item         djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator djht:account ?account .
-      ?collaborator djht:metadata_edit  "true"^^xsd:boolean .
+      ?collaborator djht:account           ?collaborator_account .
+      ?collaborator djht:metadata_edit     "true"^^xsd:boolean .
     }
     ?item         djht:{{predicate}}       ?item_list .
   }
-  FILTER (?account = <account:{{account_uuid}}>)
+  FILTER (?account = <account:{{account_uuid}}> ||
+          ?collaborator_account = <account:{{account_uuid}}>)
   FILTER (STRAFTER(STR(?item), ":") = STR("{{item_uuid}}"))
 }
 {% endblock %}
