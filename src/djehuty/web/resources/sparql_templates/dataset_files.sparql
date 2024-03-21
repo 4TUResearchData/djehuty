@@ -18,11 +18,10 @@ WHERE {
                        djht:index              ?order_index .
     {%- if account_uuid is not none %}
     ?container         rdf:type/rdfs:subClassOf djht:Container .
-    {
-      ?container       djht:account              ?account .
-    } UNION {
+    ?container         djht:account            ?account .
+    OPTIONAL {
       ?dataset_uri        djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator       djht:account ?account .
+      ?collaborator       djht:account ?collaborator_account .
       ?collaborator       djht:data_read ?data_read .
       ?collaborator       djht:data_edit ?data_edit .
       ?collaborator       djht:data_remove ?data_remove .
@@ -48,7 +47,7 @@ WHERE {
     BIND(STRAFTER(STR(?file), "file:") AS ?uuid)
     BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
     BIND(CONCAT(STR(!CONTAINS(LCASE(?name), "readme")), LCASE(?name)) AS ?order_name)
-    BIND(BOUND(?collaborator) AS ?is_shared_with_me)
+    BIND(xsd:boolean(?collaborator_account = <account:{{account_uuid}}>) AS ?is_shared_with_me)
   }
   {%- if account_uuid is none and (private_view is not true) %}
   FILTER (! (BOUND(?embargo_until_date) && ?embargo_until_date > NOW()))
@@ -60,7 +59,8 @@ WHERE {
   FILTER (?file = <file:{{file_uuid}}>)
 {%- endif %}
 {%- if account_uuid is not none %}
-  FILTER (?account = <account:{{account_uuid}}>)
+  FILTER (?account = <account:{{account_uuid}}> ||
+          ?collaborator_account = <account:{{account_uuid}}>)
 {%- endif %}
 {%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
