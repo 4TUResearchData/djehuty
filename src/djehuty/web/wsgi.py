@@ -119,11 +119,10 @@ class ApiServer:
             ## ----------------------------------------------------------------
             ## UI
             ## ----------------------------------------------------------------
-            # The / used to redirect to /portal, but here we reversed it.
-            R("/",                                                               self.ui_portal),
-            R("/portal",                                                         self.ui_home),
+            R("/",                                                               self.ui_home),
+            R("/portal",                                                         self.ui_redirect_to_home),
+            R("/browse",                                                         self.ui_redirect_to_home),
             R("/robots.txt",                                                     self.robots_txt),
-            R("/browse",                                                         self.ui_home),
             R("/login",                                                          self.ui_login),
             R("/account/home",                                                   self.ui_account_home),
             R("/logout",                                                         self.ui_logout),
@@ -1394,7 +1393,7 @@ class ApiServer:
     ## API CALLS
     ## ------------------------------------------------------------------------
 
-    def ui_home (self, request):
+    def ui_redirect_to_home (self, request):
         """Implements /."""
         if self.accepts_html (request):
             return redirect ("/", code=301)
@@ -2923,7 +2922,7 @@ class ApiServer:
 
         return self.error_405 (["GET", "POST"])
 
-    def ui_portal (self, request):
+    def ui_home (self, request):
         """Implements /portal."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
