@@ -4,21 +4,24 @@ SELECT DISTINCT ?index ?tag
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container      rdf:type/rdfs:subClassOf djht:Container .
-    {%- if account_uuid is not none %}
-    {
-      ?container         djht:account             <account:{{account_uuid}}> .
-    } UNION {
-      ?item_uri          djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator      djht:account <account:{{account_uuid}}> .
-      ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
-    }
-    {%- endif %}
-
     ?item_uri       djht:container            ?container .
     ?item_uri       djht:tags/rdf:rest*       ?tag_node .
     ?tag_node       rdf:first                 ?tag ;
                     djht:index                ?index .
+
+    {%- if account_uuid is not none %}
+    ?container      djht:account              ?account .
+    OPTIONAL {
+      ?item_uri     djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator djht:account              ?collaborator_account .
+      ?collaborator djht:metadata_read        "true"^^xsd:boolean .
+    }
+    {%- endif %}
   }
+{%- if account_uuid is not none %}
+  FILTER (?account = <account:{{account_uuid}}> ||
+          ?collaborator_account = <account:{{account_uuid}}>)
+{%- endif %}
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)
 {%- endif %}
