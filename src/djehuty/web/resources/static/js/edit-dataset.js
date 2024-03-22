@@ -525,7 +525,7 @@ function render_git_files_for_dataset (dataset_uuid, event) {
 function render_files_for_dataset (dataset_uuid, fileUploader) {
     jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/files`,
-        data:        { "limit": 100000, "order": "asc", "order_direction": "id" },
+        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
         type:        "GET",
         accept:      "application/json",
     }).done(function (files) {
