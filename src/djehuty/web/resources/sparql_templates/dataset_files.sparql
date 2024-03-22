@@ -62,6 +62,6 @@ WHERE {
   FILTER (?account = <account:{{account_uuid}}> ||
           ?collaborator_account = <account:{{account_uuid}}>)
 {%- endif %}
-{%- if filters is not none %}{{ filters | safe }}{% endif %}
+{% if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}
