@@ -7577,15 +7577,15 @@ class ApiServer:
 
         try:
             parameters = request.get_json()
-            new_quota  = validator.integer_value (parameters, "new-quota", required=True)
+            quota_gb   = validator.integer_value (parameters, "new-quota", required=True)
             reason     = validator.string_value (parameters, "reason", 0, 10000, required=True)
 
-            if new_quota < 1:
+            if quota_gb < 1:
                 return self.error_400 (request,
                     "Requested quota must be at least 1 gigabyte.",
                     "QuotaRequestSizeTooSmall")
 
-            new_quota = new_quota * 1000000000
+            new_quota = quota_gb * 1000000000
             quota_uuid = self.db.insert_quota_request (account_uuid, new_quota, reason)
             if quota_uuid is None:
                 return self.error_500 ()
@@ -7595,7 +7595,7 @@ class ApiServer:
                 f"Quota request for {account_uuid}",
                 "quota_request",
                 email     = account['email'],
-                new_quota = new_quota,
+                new_quota = quota_gb,
                 reason    = reason)
 
             return self.respond_204 ()
