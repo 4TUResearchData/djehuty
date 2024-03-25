@@ -12,7 +12,8 @@ WHERE {
     {%- if account_uuid is not none %}
     ?container      djht:account              ?account .
     OPTIONAL {
-      ?item_uri     djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator rdf:type                  djht:Collaborator .
+      ?collaborator djht:item                 ?item_uri .
       ?collaborator djht:account              ?collaborator_account .
       ?collaborator djht:metadata_read        "true"^^xsd:boolean .
     }

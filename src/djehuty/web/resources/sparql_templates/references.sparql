@@ -4,22 +4,25 @@ SELECT DISTINCT ?id ?url
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container      rdf:type/rdfs:subClassOf djht:Container .
-    {%- if account_uuid is not none %}
-    {
-      ?container         djht:account             <account:{{account_uuid}}> .
-    } UNION {
-      ?item_uri          djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator      djht:account <account:{{account_uuid}}> .
-      ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
-    }
-    {%- endif %}
-
     ?item_uri       djht:container            ?container .
     ?item_uri       djht:references/rdf:rest* ?rest .
     ?rest           djht:index                ?id .
     ?rest           rdf:first                ?url .
+    {%- if account_uuid is not none %}
+    ?container      djht:account             ?account .
+    OPTIONAL {
+      ?collaborator      rdf:type            djht:Collaborator .
+      ?collaborator      djht:item           ?item_uri .
+      ?collaborator      djht:account        ?collaborator_account .
+      ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
+    }
+    {%- endif %}
   }
   FILTER (?item_uri = <{{item_uri}}>)
+{%- if account_uuid is not none %}
+  FILTER (?account = <account:{{account_uuid}}> ||
+          ?collaborator = <account:{{account_uuid}}>)
+{%- endif %}
 }
 ORDER BY ASC(?id)
 {% endblock %}

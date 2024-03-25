@@ -147,19 +147,20 @@ INSERT {
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container          rdf:type                 djht:DatasetContainer .
-    {
-      ?container          djht:account              ?account .
-    } UNION {
-      ?dataset           djht:container ?container .
-      ?dataset           djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator      djht:account ?account .
-      ?collaborator      djht:metadata_edit  "true"^^xsd:boolean .
-    }
-
+    ?container          djht:account              ?account .
     ?container          djht:draft                ?dataset .
 
     ?dataset            rdf:type                 djht:Dataset .
     ?dataset            djht:title                ?title .
+
+{%- if account_uuid is not none: %}
+    OPTIONAL {
+      ?collaborator      rdf:type            djht:Collaborator .
+      ?collaborator      djht:item           ?dataset .
+      ?collaborator      djht:account        ?collaborator_account .
+      ?collaborator      djht:metadata_edit  "true"^^xsd:boolean .
+    }
+{%- endif %}
 
     OPTIONAL { ?dataset djht:license              ?license . }
     OPTIONAL { ?dataset djht:description          ?description . }
@@ -197,7 +198,8 @@ WHERE {
     OPTIONAL { ?container djht:first_online_date   ?first_online_date . }
   }
 {%- if account_uuid is not none: %}
-  FILTER (?account = <account:{{account_uuid | safe}}>)
+  FILTER (?account = <account:{{account_uuid}}> ||
+          ?collaborator_account = <account:{{account_uuid}}>)
 {%- endif %}
   FILTER (?dataset = <{{dataset_uri | safe}}>)
 }

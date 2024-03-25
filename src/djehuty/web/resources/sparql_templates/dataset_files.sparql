@@ -20,7 +20,8 @@ WHERE {
     ?container         rdf:type/rdfs:subClassOf djht:Container .
     ?container         djht:account            ?account .
     OPTIONAL {
-      ?dataset_uri        djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator       rdf:type djht:Collaborator .
+      ?collaborator       djht:item ?dataset_uri .
       ?collaborator       djht:account ?collaborator_account .
       ?collaborator       djht:data_read ?data_read .
       ?collaborator       djht:data_edit ?data_edit .

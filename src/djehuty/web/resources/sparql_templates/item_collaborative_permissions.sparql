@@ -7,10 +7,11 @@ WHERE {
     ?item               rdf:type            djht:{{item_type | capitalize}} .
     {%- if item_type == "file" %}
     ?dataset            djht:files/rdf:rest*/rdf:first ?item .
-    ?dataset            djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+    ?collaborator       djht:item           ?dataset .
     {%- else %}
-    ?item               djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+    ?collaborator       djht:item           ?item .
     {%- endif %}
+    ?collaborator       rdf:type            djht:Collaborator .
     ?collaborator       djht:account        <account:{{account_uuid}}> .
     ?collaborator       djht:metadata_read  ?metadata_read .
     ?collaborator       djht:metadata_edit  ?metadata_edit .

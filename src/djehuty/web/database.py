@@ -1769,6 +1769,7 @@ class SparqlInterface:
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_read"],     data_read,     XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_edit"],     data_edit,     XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_remove"],   data_remove,   XSD.boolean)
+        rdf.add (graph, collaborator_uri, rdf.DJHT["item"],          rdf.uuid_to_uri(dataset_uuid, "dataset"), "uri")
         rdf.add (graph, collaborator_uri, rdf.DJHT["account"],       rdf.uuid_to_uri(collaborator_uuid, "account"),  "uri")
 
         if self.add_triples_from_graph (graph):

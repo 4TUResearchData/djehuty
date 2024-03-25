@@ -11,7 +11,8 @@ WHERE {
     ?item         djht:container           ?container .
     ?container    djht:account             ?account .
     OPTIONAL {
-      ?item         djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator rdf:type               djht:Collaborator .
+      ?collaborator djht:item              ?item .
       ?collaborator djht:account           ?collaborator_account .
       ?collaborator djht:metadata_edit     "true"^^xsd:boolean .
     }

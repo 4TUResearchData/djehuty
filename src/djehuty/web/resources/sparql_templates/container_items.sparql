@@ -18,11 +18,14 @@ WHERE {
     ?container_uri       djht:draft                ?item_uri .
     {%- endif %}
 
+{%- if account_uuid is not none: %}
     OPTIONAL {
-      ?item_uri           djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator       djht:account ?collaborator_account .
-      ?collaborator       djht:metadata_read "true"^^xsd:boolean .
+      ?collaborator       rdf:type            djht:Collaborator .
+      ?collaborator       djht:item           ?item_uri .
+      ?collaborator       djht:account        ?collaborator_account .
+      ?collaborator       djht:metadata_read  "true"^^xsd:boolean .
     }
+{%- endif %}
     OPTIONAL { ?item_uri djht:version              ?version . }
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?account), "account:")         AS ?account_uuid)

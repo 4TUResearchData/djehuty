@@ -150,8 +150,9 @@ WHERE {
 
     ?container_uri      djht:account              ?account .
     OPTIONAL {
-      ?dataset            djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator       djht:account ?collaborator_account .
+      ?collaborator       rdf:type            djht:Collaborator .
+      ?collaborator       djht:item           ?dataset .
+      ?collaborator       djht:account        ?collaborator_account .
     }
 
     OPTIONAL { ?dataset djht:is_under_review       ?is_under_review_tmp . }

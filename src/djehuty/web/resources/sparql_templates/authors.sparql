@@ -23,12 +23,13 @@ WHERE {
     {%- else %}
     ?container         djht:draft               ?item_uri .
     {%- endif %}
-    {
-      ?container         djht:account             <account:{{account_uuid}}> .
-    } UNION {
-      ?dataset           djht:container ?container .
-      ?dataset           djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator      djht:account <account:{{account_uuid}}> .
+    ?container         djht:account             ?account .
+
+    OPTIONAL {
+      ?item_uri          djht:container      ?container .
+      ?collaborator      rdf:type            djht:Collaborator .
+      ?collaborator      djht:item           ?item_uri .
+      ?collaborator      djht:account        ?collaborator_account .
       ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
     }
     {%- endif %}
@@ -45,6 +46,10 @@ WHERE {
 
     BIND(STRAFTER(STR(?author), "author:") AS ?uuid)
   }
+{%- if account_uuid is not none %}
+FILTER (?account = <account:{{account_uuid}}> ||
+        ?collaborator_account = <account:{{account_uuid}}>)
+{%- endif %}
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)
 {% endif %}
