@@ -5,15 +5,7 @@ SELECT DISTINCT ?account_uuid ?container_uuid ?version ?container_uri
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container_uri       rdf:type/rdfs:subClassOf djht:Container .
-    {
-      ?container_uri       djht:account             ?account .
-    } UNION {
-      ?dataset            djht:container ?container_uri .
-      ?dataset            djht:collaborators/rdf:rest*/rdf:first ?collaborator .
-      ?collaborator       djht:account ?account .
-      ?collaborator       djht:metadata_read "true"^^xsd:boolean .
-    }
-
+    ?container_uri       djht:account             ?account .
     {%- if is_published is none and is_latest is none %}
     ?item_uri            djht:container           ?container_uri .
     {%- elif is_published %}
@@ -26,13 +18,19 @@ WHERE {
     ?container_uri       djht:draft                ?item_uri .
     {%- endif %}
 
+    OPTIONAL {
+      ?item_uri           djht:collaborators/rdf:rest*/rdf:first ?collaborator .
+      ?collaborator       djht:account ?collaborator_account .
+      ?collaborator       djht:metadata_read "true"^^xsd:boolean .
+    }
     OPTIONAL { ?item_uri djht:version              ?version . }
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?account), "account:")         AS ?account_uuid)
     BIND(STRAFTER(STR(?item_uri), ":")               AS ?uuid)
   }
 {%- if account_uuid is not none: %}
-FILTER (?account = <account:{{account_uuid}}>)
+FILTER (?account = <account:{{account_uuid}}> ||
+        ?collaborator_account = <account:{{account_uuid}}>)
 {%- endif %}
 {%- if container_uri is not none: %}
 FILTER (?container_uri = <{{container_uri}}>)
