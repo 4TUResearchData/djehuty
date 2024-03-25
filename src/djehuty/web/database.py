@@ -44,6 +44,7 @@ class SparqlInterface:
         self.group_quotas   = {}
         self.default_quota  = 5000000000
         self.store          = None
+        self.disable_collaboration = True
 
     def setup_sparql_endpoint (self):
         """Procedure to be called after setting the 'endpoint' members."""
@@ -155,7 +156,10 @@ class SparqlInterface:
 
     def __query_from_template (self, name, args=None):
         template   = self.jinja.get_template (f"{name}.sparql")
-        parameters = { "state_graph": self.state_graph }
+        parameters = {
+            "state_graph":           self.state_graph,
+            "disable_collaboration": self.disable_collaboration
+        }
         if args is None:
             args = {}
 

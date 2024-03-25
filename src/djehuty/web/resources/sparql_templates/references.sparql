@@ -10,6 +10,7 @@ WHERE {
     ?rest           rdf:first                ?url .
     {%- if account_uuid is not none %}
     ?container      djht:account             ?account .
+    {%- if not disable_collaboration %}
     OPTIONAL {
       ?collaborator      rdf:type            djht:Collaborator .
       ?collaborator      djht:item           ?item_uri .
@@ -17,11 +18,16 @@ WHERE {
       ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
     }
     {%- endif %}
+    {%- endif %}
   }
   FILTER (?item_uri = <{{item_uri}}>)
 {%- if account_uuid is not none %}
+  {%- if disable_collaboration %}
+  FILTER (?account = <account:{{account_uuid}}>)
+  {%- else %}
   FILTER (?account = <account:{{account_uuid}}> ||
-          ?collaborator = <account:{{account_uuid}}>)
+          ?collaborator_account = <account:{{account_uuid}}>)
+  {%- endif %}
 {%- endif %}
 }
 ORDER BY ASC(?id)

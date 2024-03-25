@@ -19,6 +19,7 @@ WHERE {
     {%- if account_uuid is not none %}
     ?container         rdf:type/rdfs:subClassOf djht:Container .
     ?container         djht:account            ?account .
+    {%- if not disable_collaboration %}
     OPTIONAL {
       ?collaborator       rdf:type djht:Collaborator .
       ?collaborator       djht:item ?dataset_uri .
@@ -27,6 +28,7 @@ WHERE {
       ?collaborator       djht:data_edit ?data_edit .
       ?collaborator       djht:data_remove ?data_remove .
     }
+    {%- endif %}
     {%- endif %}
     OPTIONAL { ?dataset_uri djht:embargo_until_date ?embargo_until_date . }
     OPTIONAL { ?file  djht:id                   ?id . }
@@ -60,8 +62,12 @@ WHERE {
   FILTER (?file = <file:{{file_uuid}}>)
 {%- endif %}
 {%- if account_uuid is not none %}
+  {%- if disable_collaboration %}
+  FILTER (?account = <account:{{account_uuid}}>)
+  {%- else %}
   FILTER (?account = <account:{{account_uuid}}> ||
           ?collaborator_account = <account:{{account_uuid}}>)
+  {%- endif %}
 {%- endif %}
 {% if filters is not none %}{{ filters | safe }}{% endif %}
 }

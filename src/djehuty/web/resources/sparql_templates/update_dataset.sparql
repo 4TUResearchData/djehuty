@@ -153,7 +153,7 @@ WHERE {
     ?dataset            rdf:type                 djht:Dataset .
     ?dataset            djht:title                ?title .
 
-{%- if account_uuid is not none: %}
+{%- if account_uuid is not none and not disable_collaboration: %}
     OPTIONAL {
       ?collaborator      rdf:type            djht:Collaborator .
       ?collaborator      djht:item           ?dataset .
@@ -198,8 +198,12 @@ WHERE {
     OPTIONAL { ?container djht:first_online_date   ?first_online_date . }
   }
 {%- if account_uuid is not none: %}
+  {%- if disable_collaboration %}
+  FILTER (?account = <account:{{account_uuid}}>)
+  {%- else %}
   FILTER (?account = <account:{{account_uuid}}> ||
           ?collaborator_account = <account:{{account_uuid}}>)
+  {%- endif %}
 {%- endif %}
   FILTER (?dataset = <{{dataset_uri | safe}}>)
 }

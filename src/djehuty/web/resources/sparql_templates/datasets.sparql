@@ -149,11 +149,13 @@ WHERE {
     OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }
 
     ?container_uri      djht:account              ?account .
+    {%- if not disable_collaboration %}
     OPTIONAL {
       ?collaborator       rdf:type            djht:Collaborator .
       ?collaborator       djht:item           ?dataset .
       ?collaborator       djht:account        ?collaborator_account .
     }
+    {%- endif %}
 
     OPTIONAL { ?dataset djht:is_under_review       ?is_under_review_tmp . }
     BIND(COALESCE(?is_under_review_tmp, "false"^^xsd:boolean) AS ?is_under_review)
@@ -189,8 +191,12 @@ FILTER (?is_under_review = "false"^^xsd:boolean)
 FILTER (?collection = <{{collection_uri}}>)
 {%- endif %}
 {%- if account_uuid is not none: %}
+  {%- if disable_collaboration %}
+FILTER (?account = <account:{{account_uuid}}>)
+  {%- else %}
 FILTER (?account = <account:{{account_uuid}}> ||
         ?collaborator_account = <account:{{account_uuid}}>)
+  {%- endif %}
 {%- endif %}
 {% if filters is not none %}{{ filters | safe }}{% endif %}
 }

@@ -10,16 +10,22 @@ WHERE {
     ?container    rdf:type/rdfs:subClassOf djht:Container .
     ?item         djht:container           ?container .
     ?container    djht:account             ?account .
+    {%- if not disable_collaboration %}
     OPTIONAL {
       ?collaborator rdf:type               djht:Collaborator .
       ?collaborator djht:item              ?item .
       ?collaborator djht:account           ?collaborator_account .
       ?collaborator djht:metadata_edit     "true"^^xsd:boolean .
     }
+    {%- endif %}
     ?item         djht:{{predicate}}       ?item_list .
   }
+  {%- if disable_collaboration %}
+  FILTER (?account = <account:{{account_uuid}}>)
+  {%- else %}
   FILTER (?account = <account:{{account_uuid}}> ||
           ?collaborator_account = <account:{{account_uuid}}>)
+  {%- endif %}
   FILTER (STRAFTER(STR(?item), ":") = STR("{{item_uuid}}"))
 }
 {% endblock %}

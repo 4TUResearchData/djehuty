@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?index ?tag
+SELECT DISTINCT ?index ?tag (?tag_node AS ?originating_blank_node)
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container      rdf:type/rdfs:subClassOf djht:Container .
@@ -11,6 +11,7 @@ WHERE {
 
     {%- if account_uuid is not none %}
     ?container      djht:account              ?account .
+    {%- if not disable_collaboration %}
     OPTIONAL {
       ?collaborator rdf:type                  djht:Collaborator .
       ?collaborator djht:item                 ?item_uri .
@@ -18,10 +19,15 @@ WHERE {
       ?collaborator djht:metadata_read        "true"^^xsd:boolean .
     }
     {%- endif %}
+    {%- endif %}
   }
 {%- if account_uuid is not none %}
+  {%- if disable_collaboration %}
+  FILTER (?account = <account:{{account_uuid}}>)
+  {%- else %}
   FILTER (?account = <account:{{account_uuid}}> ||
           ?collaborator_account = <account:{{account_uuid}}>)
+  {%- endif %}
 {%- endif %}
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)

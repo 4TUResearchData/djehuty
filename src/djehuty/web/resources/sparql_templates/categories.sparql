@@ -25,6 +25,7 @@ WHERE {
     {%- else %}
     ?container         djht:draft                        ?item_uri .
     {%- endif %}
+    {%- if not disable_collaboration %}
     OPTIONAL {
       ?collaborator      rdf:type            djht:Collaborator .
       ?collaborator      djht:item           ?item_uri .
@@ -33,12 +34,17 @@ WHERE {
     }
     {%- endif %}
     {%- endif %}
+    {%- endif %}
 
     BIND(STRAFTER(STR(?category), "category:") AS ?uuid)
   }
 {%- if account_uuid is not none %}
+  {%- if disable_collaboration %}
+  FILTER (?account = <account:{{account_uuid}}>)
+  {%- else %}
   FILTER (?account = <account:{{account_uuid}}> ||
           ?collaborator_account = <account:{{account_uuid}}>)
+  {%- endif %}
 {%- endif %}
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)

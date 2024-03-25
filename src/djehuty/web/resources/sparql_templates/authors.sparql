@@ -25,6 +25,7 @@ WHERE {
     {%- endif %}
     ?container         djht:account             ?account .
 
+    {%- if not disable_collaboration %}
     OPTIONAL {
       ?item_uri          djht:container      ?container .
       ?collaborator      rdf:type            djht:Collaborator .
@@ -32,6 +33,7 @@ WHERE {
       ?collaborator      djht:account        ?collaborator_account .
       ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
     }
+    {%- endif %}
     {%- endif %}
     OPTIONAL { ?author djht:first_name          ?first_name . }
     OPTIONAL { ?author djht:full_name           ?full_name . }
@@ -47,8 +49,12 @@ WHERE {
     BIND(STRAFTER(STR(?author), "author:") AS ?uuid)
   }
 {%- if account_uuid is not none %}
+  {%- if disable_collaboration %}
+FILTER (?account = <account:{{account_uuid}}>)
+  {%- else %}
 FILTER (?account = <account:{{account_uuid}}> ||
         ?collaborator_account = <account:{{account_uuid}}>)
+  {%- endif %}
 {%- endif %}
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)

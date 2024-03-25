@@ -55,7 +55,7 @@ WHERE {
     ?dataset           djht:files/rdf:rest*/rdf:first ?file .
     ?dataset           djht:container/djht:account    ?account .
 
-{%- if account_uuid is not none: %}
+{%- if account_uuid is not none and not disable_collaboration: %}
     OPTIONAL {
       ?collaborator      rdf:type            djht:Collaborator .
       ?collaborator      djht:item           ?dataset .
@@ -77,8 +77,12 @@ WHERE {
   }
   FILTER (?file = <file:{{file_uuid | safe}}>)
 {%- if account_uuid is not none: %}
+  {%- if disable_collaboration %}
+  FILTER (?account = <account:{{account_uuid}}>)
+  {%- else %}
   FILTER (?account = <account:{{account_uuid}}> ||
           ?collaborator_account = <account:{{account_uuid}}>)
+  {%- endif %}
 {%- endif %}
 }
 {% endblock %}

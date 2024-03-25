@@ -936,6 +936,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
             logger.error ("Failed to setup route for thumbnails.")
 
         server.db.setup_sparql_endpoint ()
+        server.db.disable_collaboration = server.disable_collaboration
 
         if apply_transactions is not None:
             return apply_transactions_from_directory (logger, server, config, apply_transactions)
