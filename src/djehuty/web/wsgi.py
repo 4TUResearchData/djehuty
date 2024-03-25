@@ -2853,8 +2853,15 @@ class ApiServer:
                                                version    = dataset["version"],
                                                from_draft = False):
                     error_count += 1
-                    logging.error ("Registering DOI for publication of %s failed.",
-                                   dataset["container_uuid"])
+                    self.log.error ("Registering DOI for publication of %s failed.",
+                                    dataset["container_uuid"])
+                    continue
+
+                doi = self.__standard_doi (dataset["container_uuid"],
+                                           version = dataset["version"])
+                if not self.db.dataset_update_doi_after_publishing (dataset["uuid"], doi):
+                    self.log.error ("Updating the DOI '%s' in the database failed for %s.",
+                                    doi, dataset["uuid"])
 
             if error_count == 0:
                 return self.respond_204 ()

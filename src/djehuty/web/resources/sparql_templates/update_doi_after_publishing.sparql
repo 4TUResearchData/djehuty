@@ -1,0 +1,20 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?dataset   djht:doi          ?doi .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?dataset   djht:doi          {{doi | safe}} .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?dataset   rdf:type          djht:Dataset .
+    OPTIONAL { ?dataset djht:doi ?doi . }
+  }
+  FILTER (?dataset = <dataset:{{dataset_uuid}}>)
+}
+{% endblock %}

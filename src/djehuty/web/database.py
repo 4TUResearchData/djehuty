@@ -2343,6 +2343,15 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix ("datasets")
         return self.__run_query(query)
 
+    def dataset_update_doi_after_publishing (self, dataset_uuid, doi):
+        """Procedure to update a DOI after it has been published."""
+
+        query = self.__query_from_template ("update_doi_after_publishing", {
+            "dataset_uuid": dataset_uuid,
+            "doi": rdf.escape_string_value (doi)
+        })
+        return self.__run_logged_query (query)
+
     def insert_collection (self, title,
                            account_uuid,
                            collection_id=None,
