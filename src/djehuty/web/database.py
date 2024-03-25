@@ -1311,11 +1311,8 @@ class SparqlInterface:
             "assign_to_account": status == "approved"
         })
 
-        if self.enable_query_audit_log:
-            self.__log_query (query, "Query Audit Log")
-
         self.cache.invalidate_by_prefix ("accounts")
-        return self.__run_query (query)
+        return self.__run_logged_query (query)
 
     def quota_requests (self, status=None):
         """Procedure to return a list of quota requests."""
