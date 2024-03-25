@@ -169,6 +169,7 @@ class ApiServer:
             R("/admin/maintenance",                                              self.ui_admin_maintenance),
             R("/admin/maintenance/clear-cache",                                  self.ui_admin_clear_cache),
             R("/admin/maintenance/clear-sessions",                               self.ui_admin_clear_sessions),
+            R("/admin/maintenance/repair-doi-registrations",                     self.ui_admin_repair_doi_registrations),
             R("/admin/maintenance/recalculate-statistics",                       self.ui_admin_recalculate_statistics),
             R("/categories/<category_id>",                                       self.ui_categories),
             R("/category",                                                       self.ui_category),
@@ -2822,7 +2823,9 @@ class ApiServer:
         if not self.db.may_administer (token):
             return self.error_403 (request)
 
-        return self.__render_template (request, "admin/maintenance.html")
+        missing_doi_datasets = self.db.datasets_missing_dois ()
+        return self.__render_template (request, "admin/maintenance.html",
+                                       missing_dois = len(missing_doi_datasets))
 
     def ui_admin_clear_cache (self, request):
         """Implements /admin/maintenance/clear-cache."""
@@ -2833,6 +2836,32 @@ class ApiServer:
             return self.respond_204 ()
 
         return self.error_403 (request)
+
+    def ui_admin_repair_doi_registrations (self, request):
+        """Implements /admin/maintenance/repair-doi-registrations."""
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        datasets = self.db.datasets_missing_dois ()
+        if datasets:
+            self.log.info ("Repairing %s missing DOI registrations.", len(datasets))
+            error_count = 0
+            for dataset in datasets:
+                if not self.__update_item_doi (dataset["container_uuid"],
+                                               item_type  = "dataset",
+                                               version    = dataset["version"],
+                                               from_draft = False):
+                    error_count += 1
+                    logging.error ("Registering DOI for publication of %s failed.",
+                                   dataset["container_uuid"])
+
+            if error_count == 0:
+                return self.respond_204 ()
+
+            return self.error_500 ()
+
+        return self.respond_204 ()
 
     def ui_admin_recalculate_statistics (self, request):
         """Implements /admin/maintenance/recalculate-statistics."""

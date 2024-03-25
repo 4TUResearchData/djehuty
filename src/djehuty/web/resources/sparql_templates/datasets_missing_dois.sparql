@@ -1,0 +1,15 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?container_uuid ?uuid ?version ?published_date
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container rdf:type                                    djht:DatasetContainer .
+    ?container djht:published_versions/rdf:rest*/rdf:first ?dataset .
+    ?dataset   djht:version                                ?version .
+    ?dataset   djht:published_date                         ?published_date .
+  }
+  FILTER NOT EXISTS { ?dataset djht:doi ?doi . }
+  BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
+  BIND(STRAFTER(STR(?dataset),   "dataset:")   AS ?uuid)
+}
+{% endblock %}

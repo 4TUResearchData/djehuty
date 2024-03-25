@@ -361,7 +361,6 @@ class SparqlInterface:
 
         return filters
 
-
     def datasets (self, account_uuid=None, categories=None, collection_uri=None,
                   container_uuid=None, dataset_id=None, dataset_uuid=None, doi=None,
                   exclude_ids=None, groups=None, handle=None, institution=None,
@@ -435,6 +434,11 @@ class SparqlInterface:
             cache_prefix = f"datasets_{account_uuid}" if account_uuid is not None else "datasets"
             return self.__run_query (query, query, cache_prefix)
 
+        return self.__run_query (query)
+
+    def datasets_missing_dois (self):
+        """Procedure to retrieve datasets where a DOI registration went wrong."""
+        query = self.__query_from_template ("datasets_missing_dois")
         return self.__run_query (query)
 
     def repository_statistics (self):
