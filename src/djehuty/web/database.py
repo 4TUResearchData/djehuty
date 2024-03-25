@@ -140,14 +140,16 @@ class SparqlInterface:
 
     def __normalize_orcid (self, orcid):
         """Procedure to make storing ORCID identifiers consistent."""
-        # Don't store empty ORCID identifiers.
-        if orcid == "":
-            orcid = None
-        # Strip the URI prefix from ORCID identifiers.
-        elif not isinstance(orcid, str):
+        # Don't process invalid entries
+        if not isinstance(orcid, str):
             return None
-        elif orcid.startswith ("https://orcid.org/"):
-            orcid = orcid[18:]
+        # Don't store empty ORCID identifiers.
+        orcid = orcid.strip()
+        if orcid == "":
+            return None
+        # Strip the URI prefix from ORCID identifiers.
+        if orcid.startswith ("https://orcid.org/"):
+            return orcid[18:]
 
         return orcid
 
