@@ -21,6 +21,7 @@ DELETE {
     {%- endif%}{% if filesystem_location is not none %}
     ?file              djht:filesystem_location ?filesystem_location .
     {%- endif%}
+    ?file              djht:modified_date        ?modified_date .
   }
 }
 INSERT {
@@ -44,6 +45,7 @@ INSERT {
     {%- endif%}{% if filesystem_location is not none %}
     ?file              djht:filesystem_location "{{filesystem_location | safe}}"^^xsd:string .
     {%- endif%}
+    ?file              djht:modified_date        "{{modified_date | safe}}"^^xsd:dateTime .
   }
 }
 WHERE {
@@ -74,6 +76,7 @@ WHERE {
     OPTIONAL { ?file   djht:preview_state       ?preview_state . }
     OPTIONAL { ?file   djht:size                ?size . }
     OPTIONAL { ?file   djht:status              ?status . }
+    OPTIONAL { ?file   djht:modified_date       ?modified_date . }
   }
   FILTER (?file = <file:{{file_uuid | safe}}>)
 {%- if account_uuid is not none: %}

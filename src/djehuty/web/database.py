@@ -1643,6 +1643,10 @@ class SparqlInterface:
         rdf.add (graph, file_uri, rdf.DJHT["upload_url"],    upload_url,    XSD.string)
         rdf.add (graph, file_uri, rdf.DJHT["upload_token"],  upload_token,  XSD.string)
 
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
+        rdf.add (graph, file_uri, rdf.DJHT["created_date"],  current_time,  XSD.dateTime)
+        rdf.add (graph, file_uri, rdf.DJHT["modified_date"], current_time,  XSD.dateTime)
+
         self.cache.invalidate_by_prefix ("datasets")
         if account_uuid:
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
@@ -1690,6 +1694,7 @@ class SparqlInterface:
                      is_incomplete=None, is_image=None):
         """Procedure to update file metadata."""
 
+        modified_date = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
         query   = self.__query_from_template ("update_file", {
             "account_uuid":  account_uuid,
             "file_uuid":     file_uuid,
@@ -1701,6 +1706,7 @@ class SparqlInterface:
             "file_size":     file_size,
             "is_incomplete": is_incomplete,
             "is_image":      rdf.escape_boolean_value (is_image),
+            "modified_date": modified_date,
             "status":        status
         })
 
