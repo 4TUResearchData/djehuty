@@ -318,10 +318,10 @@ class SparqlInterface:
                     and len(element.items()) == 1
                     and next(iter(element)) == "operator"):
                     if element['operator'] == "(":
-                        filters += " || "
+                        filters += " ( "
                         continue
                     if element['operator'] == ")":
-                        continue
+                        filters += " ) "
                     filters += f" {element['operator']} "
                 # This is a case that a search term comes after field search
                 # :tag: maize processing -> tag:maize || tag:processing
@@ -347,14 +347,17 @@ class SparqlInterface:
             # Post-construction heuristical query fixing
             # It's undocumented because it needs to be replaced.
             filters = filters.replace("FILTER ( || ", "FILTER (")
+            filters = filters.replace(")CONTAINS", ") || CONTAINS")
+            filters = filters.replace(")\nCONTAINS", ") || CONTAINS")
             filters = filters.replace(")(", ") || (")
+            filters = filters.replace(")  )", ")")
         else:
             filter_list = []
             for search_term in search_for:
                 search_term_safe = rdf.escape_string_value (search_term.lower())
 
                 # should be the same as ApiServer.ui_search()'s fields.
-                fields = ["title", "resource_title", "description", "citation", "tag"]
+                fields = ["title", "resource_title", "description", "tag", "organizations"]
                 for field in fields:
                     filter_list.append(f"       CONTAINS(LCASE(?{field}),          {search_term_safe})")
 

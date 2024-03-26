@@ -40,7 +40,7 @@
           <div id="search-box-wrapper">
             {%- if not maintenance_mode %}
             <form method="get" action="/search?search=">
-              <input id="search-box" aria-label="Search" title="Search" name="search" type="text" placeholder="Search..." value="{{search_for}}"><!--
+              <input id="search-box" aria-label="Search" title="Search" name="search" type="text" placeholder="Search..." maxlength="255" value="{{search_for}}"><!--
               --><input type="submit" class="search-submit-btn fa-search" value="&#xf002;">
             </form>
             {%- endif %}

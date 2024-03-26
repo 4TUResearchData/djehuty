@@ -229,3 +229,10 @@ def split_author_name(name):
     parts = [part.strip() for part in parts]
     parts = ([''] + parts)[-2:]
     return parts
+
+def split_delimited_string (input_string, delimiter=","):
+    """Returns a list of strings from a delimited string."""
+    if not isinstance(input_string, str) or input_string == "":
+        return None
+
+    return [item.strip() for item in input_string.split(delimiter)]

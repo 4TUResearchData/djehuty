@@ -1,15 +1,13 @@
 {% extends "layout.html" %}
 {% block headers %}
-<script src="/static/js/search.js"></script>
 <script src="/static/js/jquery-3.6.0.min.js"></script>
-<script src="/static/js/jquery.dataTables.min.js"></script>
-<link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
+<script src="/static/js/search.js"></script>
 <style>
 .tile-item {
     display: inline-block;
     margin: 0pt 10pt 10pt 0pt;
-    padding: 10pt;
-    width: 135pt;
+    padding: 0.8em;
+    width: 10.5em;
     border-radius: 10pt;
     cursor: pointer;
     background: #f9f9f9;
@@ -17,14 +15,14 @@
 .tile-item:hover { background: #eeeeee; }
 .tile-item:active { background: #e9e9e9; }
 .match-badge {
-  background-color: #f49120;
-  color: white;
-  font-size: 0.8em;
-  padding: 2px;
-  margin: 2px;
-  text-align: center;
-  border-radius: 5px;
-  display:inline-block;
+    background-color: #f49120;
+    color: white;
+    font-size: 0.8em;
+    padding: 0.4em;
+    margin: 0.4em;
+    text-align: center;
+    border-radius: 1em;
+    display:inline-block;
 }
 .tile-title {
     display: -webkit-box;
@@ -32,15 +30,15 @@
     -webkit-box-orient: vertical;
     text-overflow: ellipsis;
     overflow: hidden;
-    max-width: 150pt;
+    max-width: 10.5em;
     height: 4em;
-    font-size: 1.3em;
+    font-size: 1.1em;
     font-weight: bold;
 }
 .tile-preview {
     overflow: hidden;
     width: 100%;
-    height: 130pt;
+    height: 100pt;
     margin: 0 auto;
     user-select: none;
 }
@@ -69,63 +67,316 @@
     user-select: none;
     border-radius: .5em .5em 0em 0em;
 }
-.loader {
-    display: block;
-    width: 100%;
-    min-height: 100px;
-    background-color: rgba(255, 255, 255, 0.5);
+#search-loader {
     background-image: url('/static/images/loader.svg');
     background-position: center;
     background-repeat: no-repeat;
+    color: darkgrey;
+    display: inline-block;
+    font-size: 2.5em;
+    font-style: italic;
+    padding-top: 5.0em;
+    text-align: center;
+    width: 100%;
     z-index: 100;
+}
+#search-error {
+    color: darkgrey;
+    display: inline-block;
+    font-size: 2.5em;
+    font-style: italic;
+    padding-top: 5.0em;
+    text-align: center;
+    width: 100%;
+    z-index: 100;
+}
+.search-container {
+    min-width: 1100px;
+}
+.search-container::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.search-column {
+    float: left;
+    padding-bottom: 0.5em;
+}
+.search-column.left {
+    width: 24%;
+    padding-right: 2em;
+}
+.search-column.right {
+    width: 73%;
+}
+.search-sidebar, .search-sidebar-container {
+    float: left;
+    display: inline-block;
+    width: 22%;
+}
+.search-filter-row {
+    padding: 0.8em 0.5em 0.5em 1em;
+    border-left: 0.2em solid #f49120;
+    background: #f9f9f9;
+    margin-top: 0.5em;
+}
+.search-filter-title {
+    font-size: 1.05em;
+    font-weight: bold;
+    padding-bottom: 0.5em;
+}
+.search-filter-content {
+    padding-bottom: 0.5em;
+}
+.search-filter-content li {
+    display: flex;
+    flex-direction: row;
+}
+.search-filter-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.search-filter-content input[type="checkbox"] {
+    margin-right: 1em;
+    background: #f49120;
+    accent-color:  #f49120;
+    height: 1.2em;
+}
+.search-filter-content input[type="text"],input[type="date"] {
+    margin-right: 1em;
+    height: 1.2em;
+    display: block;
+    margin-left: 2.4em;
+}
+.search-filter-content label:hover {
+    color: #f49120;
+}
+#show-categories-more, #show-categories-less {
+    color: #f49120;
+    cursor: pointer;
+    text-align: center;
+    background: #f9f9f9;
+}
+.search-filter-apply-button {
+    height: 2.5em;
+    width: 9.5em;
+    padding: 0.5em 3.2em 0.5em 3.2em;
+    border-radius: 0.5em;
+    background: #eeeeee;
+    color: #cccccc;
+    text-decoration: none;
+    border: none;
+}
+.search-filter-apply-button:hover { background: #eeeeee; }
+.search-filter-reset-button {
+    height: 2.5em;
+    width: 9.5em;
+    padding: 0.5em 3.2em 0.5em 3.2em;
+    border-radius: 0.5em;
+    background: #eeeeee;
+    color: #cccccc;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+}
+.filter-button-reset:hover { background: #cccccc; color: #000000; }
+.search-results {
+    clear: right;
+}
+.search-results-pager {
+    display: flex;
+    justify-content: center;
+    flex-flow: row wrap;
+    width: 100%;
+}
+.corporate-identity-table { width: auto !important; max-width: auto !important; }
+.corporate-identity-table thead tr th { color: #fff; }
+.corporate-identity-table tbody tr td:nth-child(1) { max-width: 0; }
+.search-results-pager div {
+    padding: 0.5em 0.5em 0.5em 0.5em;
+}
+.search-results-pager a:hover {
+    color: #f49120;
+}
+#textinput-publisheddate-other-error {
+    display: none;
+    margin-left: 2.4em;
+    color: red;
 }
 </style>
 {% endblock %}
 {% block body %}
 
-<ul class="search-terms">{% for item in display_terms %}
-  {% if item is mapping %}
-  <li><button>{{ item.operator | replace("||", "OR") | replace("&&", "AND") }}</button></li>
-  {% elif " " in item and not item.startswith(":") and not item.startswith("\"") %}
-  <li><a href='/search?search="{{item}}"'><button id="login-button">{{item}}</button></a></li>
-  {% else %}
-  <li><a href='/search?search={{item}}'><button id="login-button">{{item}}</button></a></li>
-  {% endif %}
-{% endfor %}</ul>
-
 <script>
-  jQuery(document).ready(function() {
-    let articles = {{ articles | tojson }};
-    let display_terms = {{ display_terms | tojson }};
-    extra_render_search_page(articles, display_terms);
-  });
+    jQuery(document).ready(function() {
+        init_search_filter_info();
+        toggle_filter_categories_showmore(true);
+        register_event_handlers();
+        load_search_filters_from_url();
+        load_search_preferences();
+        load_search_results();
+    });
 </script>
 
-{% if message is none %}
-<h2>Found results ({{ dataset_count}}):</h2>
-{% if dataset_count > 100 %}
-<p><i>Please note that only the first 100 records are displayed.</i></p>
-{% endif %}
-{% else: %}
-<h2>No results found ({{ message }})</h2>
-{% endif %}
-<div style="text-align: left;">
-  <a href="#"><span class="fas fa-tile fa-lg" id="tile_view_mode" style="color: #f49120"><span class="hidden">Tile View</span></span></a>
-  <a href="#"><span class="fas fa-list fa-lg" id="list_view_mode" style="color: darkgray"><span class="hidden">List View</span></span></a>
+<div class="search-container">
+
+    <!-- Start of Search Sidebar -->
+    <div class="search-column left">
+        <b>Filters</b>
+        <div style="display: flex; justify-content: space-between; padding: 5pt 0pt 5pt 0pt;">
+            <div style="text-align: left; flex: 50%">
+                <button class="search-filter-apply-button disabled" id="search-filter-apply-button">Apply</button>
+            </div>
+            <div style="text-align: right; flex: 50%">
+                <button class="search-filter-reset-button" id="search-filter-reset-button">Reset</button>
+            </div>
+        </div>
+
+        <div class="search-filter-row">
+            <div class="search-filter-title">Institutions</div>
+            <div class="search-filter-content other" id="search-filter-content-institutions">
+                <ul>
+                    <li><input type="checkbox" id="checkbox_institutions_28586" name="checkbox_institutions_28586" value="28586"><label for="checkbox_institutions_28586">TU Delft</label> </li>
+                    <li><input type="checkbox" id="checkbox_institutions_28628" name="checkbox_institutions_28628" value="28628"><label for="checkbox_institutions_28628">TU Delft Students</label> </li>
+                    <li><input type="checkbox" id="checkbox_institutions_28589" name="checkbox_institutions_28589" value="28589"><label for="checkbox_institutions_28589">TU Eindhoven</label> </li>
+                    <li><input type="checkbox" id="checkbox_institutions_28631" name="checkbox_institutions_28631" value="28631"><label for="checkbox_institutions_28631">TU Eindhoven Students</label> </li>
+                    <li><input type="checkbox" id="checkbox_institutions_28592" name="checkbox_institutions_28592" value="28592"><label for="checkbox_institutions_28592">University of Twente</label> </li>
+                    <li><input type="checkbox" id="checkbox_institutions_28634" name="checkbox_institutions_28634" value="28634"><label for="checkbox_institutions_28634">University of Twente Student</label> </li>
+                    <li><input type="checkbox" id="checkbox_institutions_28595" name="checkbox_institutions_28595" value="28595"><label for="checkbox_institutions_28595">Wageningen University</label> </li>
+                    <li><input type="checkbox" id="checkbox_institutions_other" name="checkbox_institutions_other" value="other"><label for="checkbox_institutions_other">Other</label> </li>
+                    <li><input type="text" style="display: none" id="textinput_institutions_other" name="textinput_institutions_other" placeholder="ex) Amsterdam" value="" maxlength="255"> </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="search-filter-row">
+            <div class="search-filter-title">Deposit Types</div>
+            <div class="search-filter-content" id="search-filter-content-datatypes">
+                <ul>
+                    <li> <label for="checkbox_datatypes_3"><input type="checkbox" id="checkbox_datatypes_3" name="dataset" value="3">Dataset</label> </li>
+                    <li> <label for="checkbox_datatypes_9"><input type="checkbox" id="checkbox_datatypes_9" name="software" value="9">Software</label> </li>
+                    <li> <label for="checkbox_datatypes_collection"><input type="checkbox" id="checkbox_datatypes_collection" name="collection" value="collection">Collection</label> </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="search-filter-row">
+            <div class="search-filter-title">Search Scope</div>
+            <div class="search-filter-content multiple" id="search-filter-content-searchscope">
+                <ul>
+                    <li> <label for="checkbox_searchscope_title"><input type="checkbox" id="checkbox_searchscope_title" name="title" value="title">Title</label> </li>
+                    <li> <label for="checkbox_searchscope_description"><input type="checkbox" id="checkbox_searchscope_description" name="description" value="description">Description</label> </li>
+                    <li> <label for="checkbox_searchscope_tag"><input type="checkbox" id="checkbox_searchscope_tag" name="tag" value="tag">Keyword</label> </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="search-filter-row">
+            <div class="search-filter-title">File Types</div>
+            <div class="search-filter-content multiple other" id="search-filter-content-filetypes">
+                <ul>
+                    <li> <label for="checkbox_filetypes_excel"><input type="checkbox" id="checkbox_filetypes_excel" name="excel" value="excel">Excel</label> </li>
+                    <li> <label for="checkbox_filetypes_csv"><input type="checkbox" id="checkbox_filetypes_csv" name="csv" value="csv">CSV</label> </li>
+                    <li> <label for="checkbox_filetypes_txt"><input type="checkbox" id="checkbox_filetypes_txt" name="txt" value="txt">Text</label> </li>
+                    <li> <label for="checkbox_filetypes_netCDF"><input type="checkbox" id="checkbox_filetypes_netCDF" name="netCDF" value="netCDF">netCDF</label> </li>
+                    <li> <label for="checkbox_filetypes_zip"><input type="checkbox" id="checkbox_filetypes_zip" name="zip" value="zip">Zip</label> </li>
+                    <li> <label for="checkbox_filetypes_other"><input type="checkbox" id="checkbox_filetypes_other" name="other" value="other">Other</label> </li>
+                    <li> <div><input type="text" style="display: none" id="textinput_filetypes_other" name="textinput_filtertypes_other" placeholder="ex) application" value="" maxlength="255"></div> </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="search-filter-row">
+            <div class="search-filter-title">Published Date</div>
+            <div class="search-filter-content other" id="search-filter-content-publisheddate">
+                <ul>
+                    <li> <label for="checkbox_publisheddate_0"><input type="checkbox" id="checkbox_publisheddate_0" name="checkbox_publisheddate_0" value="0">This Year</label></li>
+                    <li> <label for="checkbox_publisheddate_1"><input type="checkbox" id="checkbox_publisheddate_1" name="checkbox_publisheddate_1" value="1">Past 1 year</label></li>
+                    <li> <label for="checkbox_publisheddate_2"><input type="checkbox" id="checkbox_publisheddate_2" name="checkbox_publisheddate_2" value="2">Past 2 years</label></li>
+                    <li> <label for="checkbox_publisheddate_3"><input type="checkbox" id="checkbox_publisheddate_3" name="checkbox_publisheddate_3" value="3">Past 3 years</label></li>
+                    <li> <label for="checkbox_publisheddate_other"><input type="checkbox" id="checkbox_publisheddate_other" name="checkbox_publisheddate_other" value="other">Other</label></li>
+                    <li> <input type="date" style="display: none" id="textinput_publisheddate_other" name="textinput_publisheddate_other" placeholder="YYYY-MM-DD" value="" maxlength="10"></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="search-filter-row">
+            <div class="search-filter-title">Categories</div>
+            <div class="search-filter-content multiple" id="search-filter-content-categories">
+                <ul>
+                    {% for category in categories | sort(attribute='title') %}
+                    {% if not "parent_id" in category %}
+                    <li>
+                        <input type="checkbox" id="checkbox_categories_{{category.id}}" name="checkbox_categories_{{category.id}}" value="{{category.id}}" onchange="toggle_checkbox_subcategories({{category.id}})">
+                        <label for="checkbox_categories_{{category.id}}">{{category.title}}</label>
+                    </li>
+
+                    <ul id="subcategories_of_{{category.id}}" style="display: none;">
+                        {% for subcategory in categories %}
+                        {% if subcategory.parent_id == category.id %}
+                        <li style="padding-left: 1em">
+                            <input type="checkbox" id="checkbox_categories_{{subcategory.id}}" name="checkbox_categories_{{subcategory.id}}" value="{{subcategory.id}}">
+                        <label for="checkbox_categories_{{subcategory.id}}">{{subcategory.title}}</label>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <div id="show-categories-more">Show more</div>
+        </div>
+    </div>
+    <!-- End of Search Sidebar -->
+
+    <!-- Start of Search Content -->
+    <div class="search-column right">
+
+        <!-- Sort by select box -->
+        <div style="float: left; height: 4.5em">
+            <div style="text-align: left;">
+                <b>Sort By</b>
+                <div style="justify-content: space-between; padding: 5pt 0pt 5pt 0pt;">
+                    <select id="sort-by" name="sort-by" style="padding: 0.5em 3.2em 0.5em 0.7em; border-radius: 0.5em; border: 1px solid darkgrey; width: 10em; height: 2.5em;">
+                        <option value="date" selected>Date</option>
+                        <option value="title">Title</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result count -->
+        <div style="float: left; height: 4.5em; padding-left: 2em">
+            <div style="text-align: left;">
+                <div style="padding-top: 2em"><span id="search-results-count"></span></div>
+            </div>
+        </div>
+
+        <!-- View mode -->
+        <div style="float: right; text-align: right; margin-right: 1em; height: 4.5em">
+            <b>View</b>
+            <div style="justify-content: space-between; padding: 5pt 0pt 5pt 0pt;">
+                <span class="fas fa-tile fa-lg" id="tile-view-mode" style="color: #f49120; cursor: pointer;"><span class="hidden">Tile View</span></span>
+                <span class="fas fa-list fa-lg disabled" id="list-view-mode" style="color: darkgray; cursor: pointer;"><span class="hidden">List View</span></span>
+            </div>
+        </div>
+
+        <div id="search-loader" style="display: none;">Loading...</div>
+        <div id="search-error" style="display: none;"></div>
+
+        <!-- Search results -->
+        <div class="search-results" id="search-results">
+            <div class="search-results-box" id="search-results-box">
+                <div id="search-results-tile-view"></div>
+                <div id="search-results-list-view" style="display: none"></div>
+                <div class="search-results-pager"></div>
+            </div>
+        </div>
+        <!-- End of Search results -->
+    </div>
+    <!-- End of Search Content -->
 </div>
-<div>&nbsp;</div>
-{% for item in articles %}
-<div class="tile-item">
-  <a href="{{item.url_public_html}}">{% if item.thumb | length and not item.thumb.startswith("https://ndownloader") %}
-  <img class="tile-preview" src="{{item.thumb}}" aria-hidden="true" alt="thumbnail for {{item.id}}" />
-  {% else: %}
-  <img class="tile-preview" src="/static/images/dataset-thumb.svg" aria-hidden="true" alt="thumbnail for {{item.id}}" />
-  {% endif %}</a>
-  <div class="tile-matches" id="article_{{loop.index}}"></div>
-  <div class="tile-title"><a href="/datasets/{{item.container_uuid}}">{{item.title}}</a></div>
-  <div class="tile-date">Posted on {{item.timeline_posted}}</div>
-  <div class="tile-authors"> </div>
-</div>
-{% endfor %}
-<div class="list-item"></div>
+
 {% endblock %}
