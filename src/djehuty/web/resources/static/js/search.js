@@ -310,6 +310,14 @@ function register_event_handlers() {
         toggle_filter_apply_button(true);
         toggle_filter_reset_button(true);
     });
+    jQuery("#textinput_publisheddate_other").keyup(function() {
+        toggle_filter_apply_button(true);
+        toggle_filter_reset_button(true);
+    });
+    jQuery("#textinput_publisheddate_other").change(function() {
+        toggle_filter_apply_button(true);
+        toggle_filter_reset_button(true);
+    });
 
     jQuery('#tile-view-mode').click(function() {
         toggle_view_mode("tile");
