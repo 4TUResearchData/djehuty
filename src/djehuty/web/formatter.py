@@ -116,6 +116,7 @@ def format_codemeta_record (record, git_url, tags, authors):
         return {
             "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
             "@type": "SoftwareSourceCode",
+            "name": conv.value_or_none(record, "title"),
             "dateCreated": conv.value_or_none(record, "created_date"),
             "datePublished": conv.value_or_none(record, "published_date"),
             "embargoDate": conv.value_or_none(record, "embargo_until_date")
@@ -124,6 +125,7 @@ def format_codemeta_record (record, git_url, tags, authors):
     return {
         "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
         "@type": "SoftwareSourceCode",
+        "name": conv.value_or_none (record, "title"),
         "license": conv.value_or_none (record, "license_spdx"),
         "codeRepository": git_url,
         "dateCreated": conv.value_or_none(record, "created_date"),
