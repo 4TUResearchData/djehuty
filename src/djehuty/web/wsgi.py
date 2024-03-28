@@ -359,6 +359,7 @@ class ApiServer:
             R("/v3/datasets/<git_uuid>.git/git-upload-pack",                     self.api_v3_private_dataset_git_upload_pack),
             R("/v3/datasets/<git_uuid>.git/git-receive-pack",                    self.api_v3_private_dataset_git_receive_pack),
             R("/v3/datasets/<git_uuid>.git/languages",                           self.api_v3_dataset_git_languages),
+            R("/v3/datasets/<git_uuid>.git/contributors",                        self.api_v3_dataset_git_contributors),
 
             ## ----------------------------------------------------------------
             ## SHARED SUBMIT INTERFACE API
@@ -7478,6 +7479,52 @@ class ApiServer:
 
         return self.error_403 (request)
 
+    def __git_contributors (self, git_repository):
+        """Returns a list of contributors including their commit statistics."""
+        history = git_repository.walk (git_repository.head.target,
+                                       pygit2.enums.SortMode.REVERSE)
+        commits = list(history)
+        if not commits:
+            return None
+
+        # Accounting for the initial commit.
+        previous_commit = commits[0]
+        stats = self.__git_files_by_type (previous_commit.tree)
+        total_lines = 0
+        for extension in stats:
+            for entry in stats[extension]:
+                total_lines += value_or (entry, "lines", 0)
+
+        contributors = {
+            previous_commit.author.email: {
+                "name": previous_commit.author.name,
+                "email": previous_commit.author.email,
+                "commits": 1,
+                "additions": total_lines,
+                "deletions": 0
+            }
+        }
+
+        # Walk the repository's history.
+        for commit in commits[1:]:
+            stats = git_repository.diff(previous_commit, commit).stats
+            if commit.author.email in contributors:
+                record = contributors[commit.author.email]
+                record["commits"] += 1
+                record["additions"] += stats.insertions
+                record["deletions"] += stats.deletions
+            else:
+                contributors[commit.author.email] = {
+                    "name": commit.author.name,
+                    "email": commit.author.email,
+                    "commits": 1,
+                    "additions": stats.insertions,
+                    "deletions": stats.deletions
+                }
+            previous_commit = commit
+
+        return list(contributors.values())
+
     def __git_files_by_type (self, tree, path="", output=None):
         """
         Returns a dictionary with the file extension as key and the list of
@@ -7523,32 +7570,40 @@ class ApiServer:
 
         return output
 
-    def api_v3_dataset_git_languages (self, request, git_uuid):
-        """Implements /v3/datasets/<id>/languages."""
+    def __git_statistics_error_handling (self, request, git_uuid):
 
         if not validator.is_valid_uuid (git_uuid):
-            return self.error_400 (request, "Invalid UUID.", "InvalidGitUUIError")
+            return self.error_400 (request, "Invalid UUID.", "InvalidGitUUIError"), None
 
         if not self.db.datasets (git_uuid=git_uuid, is_published=None, is_latest=None):
             self.log.error ("No dataset associated with Git repository '%s'.", git_uuid)
-            return self.error_404 (request)
+            return self.error_404 (request), None
 
         git_directory = f"{self.db.storage}/{git_uuid}.git"
         if not os.path.exists (git_directory):
             self.log.error ("No Git repository at '%s'", git_directory)
-            return None
+            return self.error_404 (reuqest), None
 
         git_repository = pygit2.Repository (git_directory)
         if git_repository is None:
             self.log.error ("Could not open Git repository for '%s'.", git_uuid)
-            return self.error_404 (request)
+            return self.error_404 (request), None
 
         default_branch = self.__git_repository_default_branch_guess (git_repository)
         if not default_branch:
             self.log.error ("Expected default branch to be set for '%s'.", git_uuid)
-            return self.error_404 (request)
+            return self.error_404 (request), None
 
-        tree = git_repository.revparse_single(default_branch).tree
+        return git_repository, default_branch
+
+    def api_v3_dataset_git_languages (self, request, git_uuid):
+        """Implements /v3/datasets/<id>/languages."""
+
+        git_repository, branch = self.__git_statistics_error_handling (request, git_uuid)
+        if isinstance (git_repository, Response):
+            return git_repository
+
+        tree = git_repository.revparse_single(branch).tree
         statistics = self.__git_files_by_type (tree)
 
         # Drop the binary count from the statistics, because we only
@@ -7566,6 +7621,18 @@ class ApiServer:
                                      key=lambda item: item[1],
                                      reverse=True))
         return self.response (json.dumps (sorted_summary))
+
+    def api_v3_dataset_git_contributors (self, request, git_uuid):
+
+        git_repository, branch = self.__git_statistics_error_handling (request, git_uuid)
+        if isinstance (git_repository, Response):
+            return git_repository
+
+        contributors = self.__git_contributors (git_repository)
+        if contributors is None:
+            return self.error_404 (request)
+
+        return self.response (json.dumps(contributors))
 
     def api_v3_profile (self, request):
         """Implements /v3/profile."""
