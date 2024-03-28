@@ -7504,7 +7504,12 @@ class ApiServer:
                 continue
 
             # Add line-count information
-            record["lines"] = str(entry.data).count("\\n")
+            record["lines"] = entry.data.count(b'\n')
+
+            # We count newlines, but that would miss out on the last
+            # line without a newline.
+            if entry.data != b'' and entry.data[-1:] != b'\n':
+                record["lines"] += 1
 
             _, extension = os.path.splitext (entry.name)
             extension = "no-extension" if extension == "" else extension.lstrip(".").lower()
