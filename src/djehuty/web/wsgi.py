@@ -7582,7 +7582,7 @@ class ApiServer:
         git_directory = f"{self.db.storage}/{git_uuid}.git"
         if not os.path.exists (git_directory):
             self.log.error ("No Git repository at '%s'", git_directory)
-            return self.error_404 (reuqest), None
+            return self.error_404 (request), None
 
         git_repository = pygit2.Repository (git_directory)
         if git_repository is None:
@@ -7603,7 +7603,7 @@ class ApiServer:
         if isinstance (git_repository, Response):
             return git_repository
 
-        tree = git_repository.revparse_single(branch).tree
+        tree = git_repository.revparse_single(branch).tree # pylint: disable=no-member
         statistics = self.__git_files_by_type (tree)
 
         # Drop the binary count from the statistics, because we only
@@ -7623,8 +7623,9 @@ class ApiServer:
         return self.response (json.dumps (sorted_summary))
 
     def api_v3_dataset_git_contributors (self, request, git_uuid):
+        """Implements /v3/datasets/<id>/contributors."""
 
-        git_repository, branch = self.__git_statistics_error_handling (request, git_uuid)
+        git_repository, _ = self.__git_statistics_error_handling (request, git_uuid)
         if isinstance (git_repository, Response):
             return git_repository
 
