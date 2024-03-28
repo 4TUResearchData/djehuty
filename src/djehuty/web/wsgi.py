@@ -37,7 +37,7 @@ from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
 from djehuty.utils.convenience import make_citation, is_opendap_url, landing_page_url
 from djehuty.utils.convenience import split_author_name, split_delimited_string
-from djehuty.utils.constants import group_to_member, member_url_names
+from djehuty.utils.constants import group_to_member, member_url_names, filetypes_by_extension
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 
 ## Error handling for loading python3-saml is done in 'ui'.
@@ -358,6 +358,7 @@ class ApiServer:
             R("/v3/datasets/<git_uuid>.git/info/refs",                           self.api_v3_private_dataset_git_refs),
             R("/v3/datasets/<git_uuid>.git/git-upload-pack",                     self.api_v3_private_dataset_git_upload_pack),
             R("/v3/datasets/<git_uuid>.git/git-receive-pack",                    self.api_v3_private_dataset_git_receive_pack),
+            R("/v3/datasets/<git_uuid>.git/languages",                           self.api_v3_dataset_git_languages),
 
             ## ----------------------------------------------------------------
             ## SHARED SUBMIT INTERFACE API
@@ -7476,6 +7477,90 @@ class ApiServer:
             pass
 
         return self.error_403 (request)
+
+    def __git_files_by_type (self, tree, path="", output=None):
+        """
+        Returns a dictionary with the file extension as key and the list of
+        file statistics as value for the git repository TREE.
+        """
+        if output is None:
+            output = {}
+
+        for entry in tree:
+            # Walk the directory tree
+            if isinstance (entry, pygit2.Tree):  # pylint: disable=no-member
+                self.__git_files_by_type (list(entry), f"{path}{entry.name}/", output)
+                continue
+
+            record = { "filename": f"{path}{entry.name}", "size": entry.size }
+
+            # Skip over binary files and large files.
+            if entry.is_binary or entry.size > 5000000:
+                extension = "binary" if entry.is_binary else "large-text-file"
+                if extension in output:
+                    output[extension].append(record)
+                else:
+                    output[extension] = [record]
+                continue
+
+            # Add line-count information
+            record["lines"] = str(entry.data).count("\\n")
+
+            _, extension = os.path.splitext (entry.name)
+            extension = "no-extension" if extension == "" else extension.lstrip(".").lower()
+            language = value_or_none (filetypes_by_extension, extension)
+            if language is None:
+                language = "Other"
+            if language in output:
+                output[language].append(record)
+            else:
+                output[language] = [record]
+
+        return output
+
+    def api_v3_dataset_git_languages (self, request, git_uuid):
+        """Implements /v3/datasets/<id>/languages."""
+
+        if not validator.is_valid_uuid (git_uuid):
+            return self.error_400 (request, "Invalid UUID.", "InvalidGitUUIError")
+
+        if not self.db.datasets (git_uuid=git_uuid, is_published=None, is_latest=None):
+            self.log.error ("No dataset associated with Git repository '%s'.", git_uuid)
+            return self.error_404 (request)
+
+        git_directory = f"{self.db.storage}/{git_uuid}.git"
+        if not os.path.exists (git_directory):
+            self.log.error ("No Git repository at '%s'", git_directory)
+            return None
+
+        git_repository = pygit2.Repository (git_directory)
+        if git_repository is None:
+            self.log.error ("Could not open Git repository for '%s'.", git_uuid)
+            return self.error_404 (request)
+
+        default_branch = self.__git_repository_default_branch_guess (git_repository)
+        if not default_branch:
+            self.log.error ("Expected default branch to be set for '%s'.", git_uuid)
+            return self.error_404 (request)
+
+        tree = git_repository.revparse_single(default_branch).tree
+        statistics = self.__git_files_by_type (tree)
+
+        # Drop the binary count from the statistics, because we only
+        # generate a summary with line counts below.
+        statistics.pop("binary", None)
+
+        summary = {}
+        for _, extension in enumerate (statistics):
+            lines = 0
+            for entry in statistics[extension]:
+                lines += value_or (entry, "lines", 0)
+            summary[extension] = lines
+
+        sorted_summary = dict(sorted(summary.items(),
+                                     key=lambda item: item[1],
+                                     reverse=True))
+        return self.response (json.dumps (sorted_summary))
 
     def api_v3_profile (self, request):
         """Implements /v3/profile."""
