@@ -1,11 +1,15 @@
 [Unit]
 Description=Djehuty repository system for 4TU.ResearchData.
+StartLimitIntervalSec=500
+StartLimitBurst=5
 
 [Service]
 ExecStart=/usr/bin/djehuty web --config-file=/etc/djehuty/djehuty.xml
 Environment=LC_ALL=en_US.utf8
 StandardOutput=journal
 StandardError=journal
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
