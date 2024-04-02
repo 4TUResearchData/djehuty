@@ -51,7 +51,7 @@ WHERE {
     OPTIONAL { ?draft_collection djht:is_editable   ?is_editable . }
     OPTIONAL { ?draft_collection djht:version       ?version . }
 
-    BIND(NOW() AS ?now)
+    BIND("{{timestamp}}"^^xsd:dateTime AS ?now)
   }
   FILTER (?container = <container:{{container_uuid}}>)
   FILTER (?account = <account:{{account_uuid}}>)

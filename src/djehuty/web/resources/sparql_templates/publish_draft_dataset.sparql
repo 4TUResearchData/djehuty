@@ -59,7 +59,7 @@ WHERE {
     OPTIONAL { ?draft_dataset djht:is_under_review ?is_under_review . }
     OPTIONAL { ?draft_dataset djht:version       ?version . }
 
-    BIND(NOW() AS ?now)
+    BIND("{{timestamp}}"^^xsd:dateTime AS ?now)
   }
   FILTER (?container = <container:{{container_uuid}}>)
 }

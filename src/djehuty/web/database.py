@@ -1963,12 +1963,14 @@ class SparqlInterface:
 
         collection_uuid = draft["uuid"]
         blank_node   = self.wrap_in_blank_node (collection_uuid, "collection")
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
         query        = self.__query_from_template ("publish_draft_collection", {
             "account_uuid":      account_uuid,
             "blank_node":        blank_node,
             "version":           new_version_number,
             "container_uuid":    container_uuid,
             "collection_uuid":   collection_uuid,
+            "timestamp":         current_time,
             "first_publication": not latest
         })
 
@@ -2081,11 +2083,13 @@ class SparqlInterface:
 
         dataset_uuid = draft["uuid"]
         blank_node   = self.wrap_in_blank_node (dataset_uuid, "dataset")
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
         query        = self.__query_from_template ("publish_draft_dataset", {
             "blank_node":        blank_node,
             "version":           new_version_number,
             "container_uuid":    container_uuid,
             "dataset_uuid":      dataset_uuid,
+            "timestamp":         current_time,
             "first_publication": not latest
         })
 
