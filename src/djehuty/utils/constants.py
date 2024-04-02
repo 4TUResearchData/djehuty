@@ -37,6 +37,7 @@ filetypes_by_extension = {
     "js":         "JavaScript",
     "json":       "JSON",
     "m":          "Matlab",
+    "mat":        "Matlab",
     "md":         "Markdown",
     "mts":        "TypeScript",
     "mysql":      "SQL",
