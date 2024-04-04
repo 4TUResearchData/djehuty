@@ -475,6 +475,14 @@ table {
     line-height: 1.75em;
     border-radius: 4pt;
 }
+#save_bottom {
+    margin: 30px 0px 30px 0px;
+    text-decoration: none;
+}
+
+#save_bottom { background: #139257; color: #ffffff; }
+#save_bottom:hover { background: #18b76d; }
+#save_bottom:active { background: #107a48; }
 #submenu li.orcid-button a { background: #a6ce39; color: #ffffff; }
 #submenu li.orcid-button a:hover { background: #c6e080; color: #ffffff; }
 #submenu li.orcid-button a:active { background: #739022; color: #ffffff; }

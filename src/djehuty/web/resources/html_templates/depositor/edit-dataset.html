@@ -516,5 +516,8 @@ git push {{site_shorttag}} --tags</pre>
 <label class="no-head" for="publish_agreement">I agree that my dataset will be published once
   the review is complete.</label><span class="required-field">&#8727;</span>
 </div>
+{%- if not article.is_shared_with_me or permissions.metadata_edit %}
+<a class="hide-for-javascript save-button button"id="save_bottom" href="#">Save draft</a>
+{%- endif %}
 </div>
 {% endblock %}
