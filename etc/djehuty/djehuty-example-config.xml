@@ -2,6 +2,7 @@
 <djehuty>
   <maintenance-mode>0</maintenance-mode>
   <site-name>Djehuty example instance</site-name>
+  <site-shorttag>example-shorttag</site-shorttag>
   <site-description>Djehuty example instance</site-description>
   <small-footer>
     <div id="footer-wrapper2">

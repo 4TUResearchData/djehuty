@@ -285,7 +285,7 @@ jQuery(document).ready(function (){
   </div>
   <div class="access_level" id="open_access_form">
     <p>
-      Open access is the default setting in 4TU.ResearchData by which your dataset will be directly accessible to others.
+      Open access is the default setting in {{site_name}} by which your dataset will be directly accessible to others.
     </p>
     <label for="license_open" class="inner-head">Licence</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select the appropriate licence from the list. Need to know more? Read our <a target="_blank" rel="noopener noreferrer" href="https://data.4tu.nl/info/en/use/publish-cite/upload-your-data-in-our-data-repository/licencing">guidance</a> for more information on the licence types we offer.</span></div><span class="required-field"> &#8727;</span>
     <select id="license_open" class="license-selector" name="license">
@@ -368,7 +368,7 @@ jQuery(document).ready(function (){
 {%- endfor %}
 </div>
 <label for="publisher">Publisher</label>
-<input type="text" id="publisher" name="publisher" value="{{article["publisher"] | default("4TU.ResearchData", True)}}">
+<input type="text" id="publisher" name="publisher" value="{% if article["publisher"] %}{{article["publisher"]}}{% else %}{{site_name}}{% endif %}">
 <label for="funding">Funding</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select from the list by searching for funder name, grant number or grant name or manually add them by creating a new funding record.</span></div>
 <input type="text" id="funding" name="funding" />
 <table class="inside-form-table multi-list" id="funding-list">
@@ -450,7 +450,7 @@ jQuery(document).ready(function (){
 </div>
 <div id="external_link_field" class="record-type-field">
   <p>Only use when no files can be attached. Add the URL where your files can
-    be found. Note that 4TU.ResearchData is not responsible for maintaining the
+    be found. Note that {{site_name}} is not responsible for maintaining the
     link or for its validity.</p>
   <label for="external_link">External URL</label>
   <input type="text" name="external_url" id="external_url" value="{{article["url"]}}" />
@@ -460,13 +460,13 @@ jQuery(document).ready(function (){
 </div>
 <div id="software_upload_field" class="record-type-field">
   <h4 class="corporate-identity-h4">Publish source code through Git</h4>
-  <p>To publish from a Git repository, push a branch to the <code>4tu</code> remote.</p>
-  <p>First, add the <code>4tu</code> remote:</p>
-  <pre>git remote add 4tu {{base_url}}/v3/datasets/{{article.git_uuid}}.git</pre>
+  <p>To publish from a Git repository, push a branch to the <code>{{site_shorttag}}</code> remote.</p>
+  <p>First, add the <code>{{site_shorttag}}</code> remote:</p>
+  <pre>git remote add {{site_shorttag}} {{base_url}}/v3/datasets/{{article.git_uuid}}.git</pre>
   <p>Then, push the repository to it:</p>
   <pre>
-git push 4tu --all
-git push 4tu --tags</pre>
+git push {{site_shorttag}} --all
+git push {{site_shorttag}} --tags</pre>
   <h4 class="corporate-identity-h4">Git repository files and branches <span class="no-select"> &nbsp;<a id="refresh-git-files" href="#" class="fas fa-sync"></a></span></h4>
   <label>Git default branch</label><div class="fas fa-question-circle help-icon"><span class="help-text">The selected branch will be the branch a user is in after pulling the Git repository.</span></div>
   <select id="git-branches">
