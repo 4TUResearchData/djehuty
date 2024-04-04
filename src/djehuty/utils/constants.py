@@ -30,6 +30,7 @@ filetypes_by_extension = {
     "gohtml":     "Go",
     "h":          "C",
     "hpp":        "C++",
+    "hs":         "Haskell",
     "hxx":        "C++",
     "in":         "Automake",
     "ipynb":      "Jupyter Notebook",
