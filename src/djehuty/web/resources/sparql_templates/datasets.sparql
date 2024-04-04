@@ -90,8 +90,8 @@ WHERE {
       ?dataset          djht:license               ?license_url .
       ?license_url      rdf:type                   djht:License .
       ?license_url      djht:id                    ?license_id .
-      ?license_url      djht:spdx                  ?license_spdx .
       ?license_url      djht:name                  ?license_name .
+      OPTIONAL { ?license_url djht:spdx            ?license_spdx . }
     }
 
     OPTIONAL { ?dataset djht:git_uuid              ?git_uuid . }
