@@ -24,10 +24,9 @@
 #wrapper #content #metadata #right_column { float: right; width: 33%; margin-bottom:10px }
 #wrapper #content .warning      { background-color: #ff0 }
 #wrapper #content .label        { text-transform: uppercase }
-#wrapper #content ul            { list-style-type: none; padding:0; margin:0 }
+#wrapper #content ul            { list-style-type: none; padding:0; margin-top:20px}
 #wrapper #content #data         { clear: right; border-top: 1px solid #000; margin-bottom: 10px }
-#wrapper #content #data ul      { margin-left: 20px }
-#wrapper #content li.zip        { padding: 2px; width: 180px; text-align: center; border: 1px solid #000; border-radius: 10px }
+#wrapper #content li.zip        { margin-top: 20px; padding: 2px; width: 180px; text-align: center; border: 1px solid #000; border-radius: 10px }
 #wrapper #content li.zip a      { font-weight: bold }
 #wrapper #content #collect,      #cite,      #versions      { display: none; border: 3px solid #f39000; padding: 10px; margin-bottom:10px; border-radius: 10px }
 #wrapper #content #collect_show, #cite_show                 { border: none; padding:3px; margin-bottom: 10px; border-radius: 10px; text-aligh: center; width:70px }
