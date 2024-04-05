@@ -36,7 +36,7 @@ filetypes_by_extension = {
     "hpp":        "C++",
     "hs":         "Haskell",
     "html":       "HTML",
-    "html":       "HTML",
+    "htm":        "HTML",
     "hxx":        "C++",
     "in":         "Automake",
     "ipynb":      "Jupyter Notebook",
