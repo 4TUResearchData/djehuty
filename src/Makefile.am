@@ -80,6 +80,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/email/submitted_for_review_notification.html \
     djehuty/web/resources/html_templates/email/submitted_for_review_notification.txt \
     djehuty/web/resources/html_templates/feedback.html                        \
+    djehuty/web/resources/html_templates/git_instructions.html                \
     djehuty/web/resources/html_templates/institutions.html                    \
     djehuty/web/resources/html_templates/layout.html                          \
     djehuty/web/resources/html_templates/maintenance.html                     \

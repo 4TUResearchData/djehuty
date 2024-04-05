@@ -356,6 +356,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             ## GIT HTTP API
             ## ----------------------------------------------------------------
+            R("/v3/datasets/<git_uuid>.git",                                     self.api_v3_private_dataset_git_instructions),
             R("/v3/datasets/<git_uuid>.git/info/refs",                           self.api_v3_private_dataset_git_refs),
             R("/v3/datasets/<git_uuid>.git/git-upload-pack",                     self.api_v3_private_dataset_git_upload_pack),
             R("/v3/datasets/<git_uuid>.git/git-receive-pack",                    self.api_v3_private_dataset_git_receive_pack),
@@ -7433,6 +7434,29 @@ class ApiServer:
             self.log.error ("Proxying to Git failed with exit code %d", error.returncode)
             self.log.error ("The command was:\n---\n%s\n---", error.cmd)
             return self.error_500()
+
+    def api_v3_private_dataset_git_instructions (self, request, git_uuid):
+        """Implements an instruction page for /v3/datasets/<id>.git."""
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
+
+        if not validator.is_valid_uuid (git_uuid):
+            return self.error_404 (request)
+
+        try:
+            # Only consider published datasets to not reveal whether a UUID
+            # is reserved for a Git repository.
+            dataset = self.db.datasets (git_uuid     = git_uuid,
+                                        is_published = True,
+                                        is_latest    = None)[0]
+            git_repository_url = self.__git_repository_url_for_dataset (dataset)
+            return self.__render_template (request, "git_instructions.html",
+                                           git_repository_url = git_repository_url)
+        except IndexError:
+            pass
+
+        return self.error_404 (request)
 
     def api_v3_private_dataset_git_refs (self, request, git_uuid):
         """Implements /v3/datasets/<id>.git/<suffix>."""
