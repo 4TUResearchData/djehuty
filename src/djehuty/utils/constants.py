@@ -64,6 +64,7 @@ filetypes_by_extension = {
     "ts":         "TypeScript",
     "tsx":        "TypeScript",
     "xml":        "XML",
+    "xyz":        "Chemical XYZ",
     "yaml":       "YAML",
     "yml":        "YAML",
 }
