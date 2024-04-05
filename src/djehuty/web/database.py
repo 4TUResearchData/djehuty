@@ -448,11 +448,15 @@ class SparqlInterface:
         query = self.__query_from_template ("datasets_missing_dois")
         return self.__run_query (query)
 
-    def repository_file_statistics (self, extended_properties=False):
+    def repository_file_statistics (self, extended_properties=False, use_cache=False):
         """Returns files and their sizes, and optionally more properties."""
         query = self.__query_from_template ("statistics_files", {
             "extended_properties": extended_properties
         })
+
+        if use_cache:
+            return self.__run_query (query, query, "repository_statistics")
+
         return self.__run_query (query)
 
     def repository_statistics (self):
@@ -467,7 +471,7 @@ class SparqlInterface:
             datasets    = self.__run_query (datasets_query, datasets_query, "repository_statistics")
             authors     = self.__run_query (authors_query, authors_query, "repository_statistics")
             collections = self.__run_query (collections_query, collections_query, "repository_statistics")
-            files       = self.repository_file_statistics ()
+            files       = self.repository_file_statistics (use_cache=True)
             number_of_files = 0
             number_of_bytes = 0
             for entry in files:
