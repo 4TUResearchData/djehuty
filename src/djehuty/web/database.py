@@ -448,20 +448,26 @@ class SparqlInterface:
         query = self.__query_from_template ("datasets_missing_dois")
         return self.__run_query (query)
 
+    def repository_file_statistics (self, extended_properties=False):
+        """Returns files and their sizes, and optionally more properties."""
+        query = self.__query_from_template ("statistics_files", {
+            "extended_properties": extended_properties
+        })
+        return self.__run_query (query)
+
     def repository_statistics (self):
         """Procedure to retrieve repository-wide statistics."""
 
         datasets_query    = self.__query_from_template ("statistics_datasets")
         collections_query = self.__query_from_template ("statistics_collections")
         authors_query     = self.__query_from_template ("statistics_authors")
-        files_query       = self.__query_from_template ("statistics_files")
 
         row = { "datasets": 0, "authors": 0, "collections": 0, "files": 0, "bytes": 0 }
         try:
             datasets    = self.__run_query (datasets_query, datasets_query, "repository_statistics")
             authors     = self.__run_query (authors_query, authors_query, "repository_statistics")
             collections = self.__run_query (collections_query, collections_query, "repository_statistics")
-            files       = self.__run_query (files_query, files_query, "repository_statistics")
+            files       = self.repository_file_statistics ()
             number_of_files = 0
             number_of_bytes = 0
             for entry in files:
@@ -3141,6 +3147,11 @@ class SparqlInterface:
     def may_review_quotas (self, session_token, account=None):
         """Returns True when the session's account may handle storage requests."""
         return self.__may_execute_role (session_token, "review_quotas", account)
+
+    def may_review_integrity (self, session_token, account=None):
+        """Returns True when the session's account may view data integrity information."""
+        return (self.__may_execute_role (session_token, "administer", account) and
+                self.__may_execute_role (session_token, "review_integrity", account))
 
     def is_depositor (self, session_token):
         """Returns True when the account linked to the session is a depositor, False otherwise"""

@@ -1,10 +1,23 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
 SELECT DISTINCT ?file ?bytes
+{%- if extended_properties is defined and extended_properties %}
+                ?name ?filesystem_location ?is_link_only
+                ?supplied_md5 ?computed_md5 ?uuid
+{%- endif %}
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file           rdf:type            djht:File .
-    ?file           djht:size            ?bytes .
+    ?file           djht:size           ?bytes .
+{%- if extended_properties is defined and extended_properties %}
+    OPTIONAL { ?file  djht:id           ?id . }
+    OPTIONAL { ?file  djht:name         ?name . }
+    OPTIONAL { ?file  djht:filesystem_location ?filesystem_location . }
+    OPTIONAL { ?file  djht:is_link_only ?is_link_only . }
+    OPTIONAL { ?file  djht:supplied_md5 ?supplied_md5 . }
+    OPTIONAL { ?file  djht:computed_md5 ?computed_md5 . }
+    BIND (STRAFTER(STR(?file), "file:") AS ?uuid)
+{%- endif %}
   }
 {%- if filters is not none %}{{ filters | safe }}{% endif %}
 }

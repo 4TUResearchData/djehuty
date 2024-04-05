@@ -353,6 +353,10 @@ class ApiServer:
             ## ----------------------------------------------------------------
             R("/v3/datasets/<dataset_uuid>/assign-reviewer/<reviewer_uuid>",     self.api_v3_datasets_assign_reviewer),
 
+            ## Administrative
+            ## ----------------------------------------------------------------
+            R("/v3/admin/files-integrity-statistics",                            self.api_v3_admin_files_integrity_statistics),
+
             ## ----------------------------------------------------------------
             ## GIT HTTP API
             ## ----------------------------------------------------------------
@@ -508,6 +512,7 @@ class ApiServer:
             "is_logged_in":    account is not None,
             "is_reviewing":    self.db.may_review (impersonator_token),
             "may_review":      self.db.may_review (token, account),
+            "may_review_integrity": self.db.may_review_integrity (token, account),
             "may_review_quotas": self.db.may_review_quotas (token, account),
             "may_administer":  self.db.may_administer (token, account),
             "may_query":       self.db.may_query (token, account),
@@ -7347,6 +7352,55 @@ class ApiServer:
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
+
+    def api_v3_admin_files_integrity_statistics (self, request):
+        """Implements /v3/admin/files-integrity-statistics."""
+
+        if not self.accepts_json (request):
+            return self.error_406 ("application/json")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_review_integrity (token):
+            return self.error_403 (request)
+
+        files = self.db.repository_file_statistics (extended_properties=True)
+        number_of_files = 0
+        number_of_inaccessible_files = 0
+        number_of_bytes = 0
+        number_of_links = 0
+        corrupted_metadata = []
+        missing_files = []
+
+        for entry in files:
+            if value_or (entry, "is_link_only", False):
+                number_of_links += 1
+                continue
+
+            number_of_files += 1
+            number_of_bytes += int(float(entry["bytes"]))
+
+            filesystem_location = self.__filesystem_location (entry)
+            if not filesystem_location:
+                number_of_inaccessible_files += 1
+                corrupted_metadata.append (value_or (entry, "uuid", "unknown"))
+                continue
+
+            if not os.path.isfile (filesystem_location):
+                number_of_inaccessible_files += 1
+                missing_files.append (filesystem_location)
+
+        output = {
+            "number_of_links":              number_of_links,
+            "number_of_files":              number_of_files,
+            "number_of_bytes":              number_of_bytes,
+            "number_of_accessible_files":   number_of_files - number_of_inaccessible_files,
+            "number_of_inaccessible_files": number_of_inaccessible_files,
+            "percentage_accessible":        (1.0 - (number_of_inaccessible_files / number_of_files)) * 100,
+            "percentage_inaccessible":      number_of_inaccessible_files / number_of_files * 100,
+            "inaccessible_files":           missing_files
+        }
+
+        return self.response (json.dumps(output))
 
     def __git_create_repository (self, git_uuid):
         git_directory = f"{self.db.storage}/{git_uuid}.git"
