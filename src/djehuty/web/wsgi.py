@@ -7366,9 +7366,10 @@ class ApiServer:
         files = self.db.repository_file_statistics (extended_properties=True)
         number_of_files = 0
         number_of_inaccessible_files = 0
+        number_of_incomplete_metadata = 0
         number_of_bytes = 0
         number_of_links = 0
-        corrupted_metadata = []
+        incomplete_metadata = []
         missing_files = []
 
         for entry in files:
@@ -7381,8 +7382,8 @@ class ApiServer:
 
             filesystem_location = self.__filesystem_location (entry)
             if not filesystem_location:
-                number_of_inaccessible_files += 1
-                corrupted_metadata.append (value_or (entry, "uuid", "unknown"))
+                number_of_incomplete_metadata += 1
+                incomplete_metadata.append (value_or (entry, "uuid", "unknown"))
                 continue
 
             if not os.path.isfile (filesystem_location):
@@ -7395,9 +7396,11 @@ class ApiServer:
             "number_of_bytes":              number_of_bytes,
             "number_of_accessible_files":   number_of_files - number_of_inaccessible_files,
             "number_of_inaccessible_files": number_of_inaccessible_files,
+            "number_of_incomplete_metadata": number_of_incomplete_metadata,
             "percentage_accessible":        (1.0 - (number_of_inaccessible_files / number_of_files)) * 100,
             "percentage_inaccessible":      number_of_inaccessible_files / number_of_files * 100,
-            "inaccessible_files":           missing_files
+            "inaccessible_files":           missing_files,
+            "incomplete_metadata":          incomplete_metadata,
         }
 
         return self.response (json.dumps(output))
