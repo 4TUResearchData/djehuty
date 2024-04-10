@@ -2,6 +2,7 @@
 {% block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/jquery.dataTables.min.js"></script>
+<script src="/static/js/utils.js"></script>
 <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
 <style>
 #users-table .fa-user-secret { color: #000; }
@@ -11,6 +12,20 @@
 #users-table_wrapper { margin-top: 1em; }
 </style>
 <script>
+function clear_accounts_cache (event) {
+    if (event !== null) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    jQuery.ajax({
+        url:         "/v3/admin/accounts/clear-cache",
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function () { location.reload();
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to clear the accounts cache.</p>");
+    });
+}
 jQuery(document).ready(function () {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery("#users-table").DataTable({
@@ -18,6 +33,9 @@ jQuery(document).ready(function () {
         pageLength: 25
     });
     jQuery("#users-table").show();
+    jQuery("#remove-cache").on("click", function (event) {
+        clear_accounts_cache (event);
+    });
 });
 </script>
 {% endblock %}
@@ -37,7 +55,7 @@ jQuery(document).ready(function () {
   <p class="no-script">Sorry, this page requires JavaScript to function properly.</p>
 </noscript>
 <div class="hide-for-javascript">
-<h1>Manage users</h1>
+<h1>Manage users<span class="no-select"> &nbsp;<a id="remove-cache" href="#" class="fas fa-sync"></a></span></h1>
 <table id="users-table" class="corporate-identity-table">
   <thead><tr><th>Name</th><th>E-mail</th><th>Group</th><th>Actions</th></tr></thead>
   <tbody>

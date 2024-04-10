@@ -356,6 +356,7 @@ class ApiServer:
             ## Administrative
             ## ----------------------------------------------------------------
             R("/v3/admin/files-integrity-statistics",                            self.api_v3_admin_files_integrity_statistics),
+            R("/v3/admin/accounts/clear-cache",                                  self.api_v3_admin_accounts_clear_cache),
 
             ## ----------------------------------------------------------------
             ## GIT HTTP API
@@ -7904,6 +7905,22 @@ class ApiServer:
         self.db.cache.invalidate_by_prefix ("explorer_properties")
         self.db.cache.invalidate_by_prefix ("explorer_types")
         self.db.cache.invalidate_by_prefix ("explorer_property_types")
+
+        return self.respond_204 ()
+
+    def api_v3_admin_accounts_clear_cache (self, request):
+        """Implements /v3/admin/accounts/clear-cache."""
+
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        self.log.info ("Invalidating accounts caches.")
+        self.db.cache.invalidate_by_prefix ("accounts")
 
         return self.respond_204 ()
 
