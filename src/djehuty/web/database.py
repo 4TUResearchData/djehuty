@@ -1331,14 +1331,17 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix ("accounts")
         return self.__run_logged_query (query)
 
-    def quota_requests (self, status=None):
+    def quota_requests (self, status=None, quota_request_uuid=None):
         """Procedure to return a list of quota requests."""
 
         status_uri = None
         if status is not None:
             status_uri = rdf.urify_value (rdf.DJHT[f"QuotaRequest{status.capitalize()}"])
 
-        query = self.__query_from_template ("quota_requests", { "status": status_uri })
+        query = self.__query_from_template ("quota_requests", {
+            "status": status_uri,
+            "quota_request_uuid": quota_request_uuid
+        })
         return self.__run_query (query)
 
     def update_account (self, account_uuid, active=None, email=None, job_title=None,

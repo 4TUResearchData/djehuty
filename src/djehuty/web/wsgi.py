@@ -2706,6 +2706,21 @@ class ApiServer:
                                    "InvalidQuotaRequestUUIError")
 
         if self.db.update_quota_request (quota_request_uuid, status = status):
+            if status == "approved":
+                try:
+                    record = self.db.quota_requests (quota_request_uuid=quota_request_uuid)[0]
+                    subject = "Quota request approved"
+                    requested_size = int(record["requested_size"] / 1000000000)
+                    self.__send_templated_email ([record["email"]],
+                                                 subject,
+                                                 "quota_approved",
+                                                 title          = subject,
+                                                 email_address  = record["email"],
+                                                 first_name     = record["first_name"],
+                                                 requested_size = requested_size)
+                except (IndexError, KeyError):
+                    self.log.error ("Unable to send e-mail for quota request %s.",
+                                    quota_request_uuid)
             return redirect ("/admin/quota-requests", code=302)
 
         return self.error_500 ()

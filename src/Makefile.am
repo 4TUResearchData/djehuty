@@ -75,6 +75,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/email/layout.html                    \
     djehuty/web/resources/html_templates/email/published_dataset_notification.html \
     djehuty/web/resources/html_templates/email/published_dataset_notification.txt \
+    djehuty/web/resources/html_templates/email/quota_approved.html            \
+    djehuty/web/resources/html_templates/email/quota_approved.txt             \
     djehuty/web/resources/html_templates/email/quota_request.html             \
     djehuty/web/resources/html_templates/email/quota_request.txt              \
     djehuty/web/resources/html_templates/email/submitted_for_review_notification.html \

@@ -18,6 +18,8 @@ WHERE {
   BIND (STRAFTER(STR(?request), "quota-request:") AS ?uuid)
   {%- if status is not none: %}
   FILTER (?status = {{status | safe}})
+  {%- endif %}{% if quota_request_uuid is not none: %}
+  FILTER (?request = <quota-request:{{quota_request_uuid}}>)
   {%- endif %}
 }
 ORDER BY DESC(?created_date)

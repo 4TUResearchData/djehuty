@@ -1,0 +1,8 @@
+{% extends "email/layout.html" %}
+{% block body %}
+<h1>Quota request approved</h1>
+<p>Dear {{first_name}},</p>
+<p>Your quota request of {{requested_size}} gigabytes has been approved and made to available to you.</p>
+<p></p>
+<p>This is an automated message. For further questions, either use the <a href="https://data.4tu.nl/feedback">feedback form</a> or e-mail us at <a href="mailto:researchdata@4tu.nl">researchdata@4tu.nl</a>.</p>
+{% endblock %}
