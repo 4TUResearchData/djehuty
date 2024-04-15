@@ -7693,10 +7693,17 @@ class ApiServer:
 
         summary = {}
         for _, extension in enumerate (statistics):
-            lines = 0
+            num_bytes_for_extension = 0
             for entry in statistics[extension]:
-                lines += value_or (entry, "lines", 0)
-            summary[extension] = lines
+                num_lines = value_or (entry, "lines", 0)
+                num_bytes = value_or (entry, "size", 0)
+                # Remove minified sources by the heuristic that the average
+                # line length must be smaller than 300 bytes long.  This seems
+                # to come close to how Github reports the statistics.
+                if num_lines > 0 and num_bytes / num_lines < 300:
+                    num_bytes_for_extension += num_bytes
+
+            summary[extension] = num_bytes_for_extension
 
         sorted_summary = dict(sorted(summary.items(),
                                      key=lambda item: item[1],
