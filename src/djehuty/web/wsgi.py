@@ -710,18 +710,15 @@ class ApiServer:
         response.status_code = 410
         return response
 
-    def error_413 (self, request, quota_available=0, quota_total=None, quota_used=None, uploading_size=None):
+    def error_413 (self, request):
         """Procedure to respond with HTTP 413."""
         response = None
-        message = "Your storage space is insufficient. Please check your storage usage and quota on the dashboard. "
-        message += f"(quota={quota_total}, used={quota_used}, available={quota_available}, your file={uploading_size})."
+        message  = "You've reached your storage quota. "
+        message += "<a href=\"/my/dashboard\">Request more storage here</a>."
         if self.accepts_json (request):
-            response = self.response (json.dumps({
-                "message": message
-            }))
+            response = self.response (json.dumps({ "message": message }))
         else:
-            response = self.response (message,
-                                      mimetype="text/plain")
+            response = self.response (message, mimetype="text/plain")
         response.status_code = 413
         return response
 
@@ -6863,7 +6860,7 @@ class ApiServer:
         storage_used      = self.db.account_storage_used (account_uuid)
         storage_available = account["quota"] - storage_used
         if storage_available < 1:
-            return self.error_413 (request, 0)
+            return self.error_413 (request)
 
         try:
             dataset   = self.__dataset_by_id_or_uri (dataset_id,
@@ -6904,7 +6901,7 @@ class ApiServer:
             # multipart headings (~220 bytes per chunk).
             if storage_available < bytes_to_read:
                 self.log.error ("File upload failed because user's quota limit: quota(%d), used(%d), available(%s), filesize(%d)", account["quota"], storage_used, storage_available, bytes_to_read)
-                return self.error_413 (request, storage_available, account["quota"], storage_used, bytes_to_read)
+                return self.error_413 (request)
 
             input_stream = request.stream
 

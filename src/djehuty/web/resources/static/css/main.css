@@ -546,8 +546,10 @@ img { user-select: none; }
 .hide-for-javascript { display: none !important; }
 #message { display: none; color: #ffffff; border-radius: .5em; padding: 0em; margin: 0em;  }
 #message p { padding: 1em; }
+#message a { color: #fff; }
 .success { background: #009900; padding: 0em; margin: 0em; }
 .failure { background: #990000; padding: 0em; margin: 0em; }
+.transparent { background: none; padding: 0em; margin: 0em; user-select: none; }
 .hidden { font-size: 0; user-select: none; }
 .center { text-align: center; }
 .no-select { user-select: none; }
