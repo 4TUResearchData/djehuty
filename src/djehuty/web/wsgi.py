@@ -111,6 +111,13 @@ class ApiServer:
         self.log                 = logging.getLogger(__name__)
         self.locks               = locks.Locks()
         self.menu = []
+        self.colors = {
+            "primary-color":           "#f49120",
+            "primary-color-hover":     "#d26000",
+            "primary-color-active":    "#9d4800",
+            "privilege-button-color":  "#fce3bf",
+            "footer-background-color": "#707070"
+        }
         self.static_pages = {}
 
         ## Routes to all reachable pages and API calls.
@@ -124,6 +131,7 @@ class ApiServer:
             R("/portal",                                                         self.ui_redirect_to_home),
             R("/browse",                                                         self.ui_redirect_to_home),
             R("/robots.txt",                                                     self.robots_txt),
+            R("/theme/colors.css",                                               self.colors_css),
             R("/login",                                                          self.ui_login),
             R("/account/home",                                                   self.ui_account_home),
             R("/logout",                                                         self.ui_logout),
@@ -488,6 +496,10 @@ class ApiServer:
     def __render_svg_template (self, template_name, **context):
         template = self.jinja.get_template (template_name)
         return self.response (template.render (context), mimetype="image/svg+xml")
+
+    def __render_css_template (self, template_name, **context):
+        template = self.jinja.get_template (template_name)
+        return self.response (template.render (context), mimetype="text/css")
 
     def __render_template (self, request, template_name, **context):
         template      = self.jinja.get_template (template_name)
@@ -1430,6 +1442,20 @@ class ApiServer:
             output += "Disallow: /\n"
 
         return self.response (output, mimetype="text/plain")
+
+    def colors_css (self, request):
+        """Implements /theme/colors.css"""
+
+        if not self.accepts_content_type (request, "text/css"):
+            return self.error_406 (request)
+
+        return self.__render_css_template (
+            "colors.css",
+            primary_color           = self.colors['primary-color'],
+            primary_color_hover     = self.colors['primary-color-hover'],
+            primary_color_active    = self.colors['primary-color-active'],
+            footer_background_color = self.colors['footer-background-color'],
+            privilege_button_color  = self.colors['privilege-button-color'])
 
     def ui_maintenance (self, request):
         """Implements a maintenance page."""

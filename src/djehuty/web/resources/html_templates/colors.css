@@ -1,0 +1,23 @@
+.corporate-identity { {{primary_color}}; }
+.corporate-identity:hover { {{primary_color_hover}}; }
+.corporate-identity li.active { background: {{primary_color}}; }
+.corporate-identity li.active a { color: #ffffff; text-decoration: none; }
+.corporate-identity-submenu-active { border-bottom: solid .25em {{primary_color}}; }
+.corporate-identity-h1 { border-bottom: 4px dotted {{primary_color}}; }
+.corporate-identity-h3 { border-bottom: 4px dotted {{primary_color}}; }
+.corporate-identity-h4 { border-bottom: 2px dotted {{primary_color}}; }
+.corporate-identity-background { background: {{primary_color}}; }
+.corporate-identity-header { border-top: 4px solid {{primary_color}}; }
+.corporate-identity-footer { color: #fff; border-bottom: 3px solid {{primary_color}}; background: {{footer_background_color}}; }
+.corporate-identity-border { border: solid 2pt {{primary_color}}; }
+.corporate-identity-table { width: 100%; max-width: 880pt; border: solid 2pt {{primary_color}}; border-radius: .5em; }
+.corporate-identity-table thead tr { background: {{primary_color}}; border-radius: .5em .5em 0em 0em; }
+.corporate-identity-standard-button { background: {{primary_color}}; color: #fff; font-weight: bold; text-decoration: none; }
+.corporate-identity-standard-button:hover { background: {{primary_color_hover}}; cursor: pointer; color: #fff; text-decoration: none; }
+.corporate-identity-standard-button:active { background: {{primary_color_active}}; cursor: pointer; color: #fff; text-decoration: none; }
+.corporate-identity-privilege-button { background: {{privilege_button_color}}; }
+#login-button { margin-right: 25px; background: {{primary_color}}; color: #ffffff; }
+#login-button:hover { background: {{primary_color_hover}}; cursor: pointer; }
+#login-button:active { background: {{primary_color_active}}; cursor: pointer; }
+#primary-menu .menu-item-has-children:hover { color: {{primary_color_hover}}; }
+#primary-menu li a:hover { color: {{primary_color_hover}}; }

@@ -452,6 +452,15 @@ def read_static_pages (static_pages, server, inside_reload, config_dir, logger):
             if not inside_reload:
                 logger.info ("Loaded redirect (%i): %s -> %s", code, uri_path, redirect_to.text)
 
+def read_colors_configuration (server, xml_root):
+    """Procedure to parse and set the color scheme configuration."""
+    colors = xml_root.find("colors")
+    if colors:
+        for color in ["primary-color", "primary-color-hover",
+                      "primary-color-active", "privilege-button-color",
+                      "footer-background-color"]:
+            server.colors[color] = config_value (colors, color, fallback=server.colors[color])
+
 def read_datacite_configuration (server, xml_root):
     """Procedure to parse and set the DataCite API configuration."""
     datacite = xml_root.find("datacite")
@@ -683,6 +692,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         read_automatic_login_configuration (server, xml_root)
         read_privilege_configuration (server, xml_root, logger)
         read_quotas_configuration (server, xml_root)
+        read_colors_configuration (server, xml_root)
 
         for include_element in xml_root.iter('include'):
             include    = include_element.text

@@ -4,6 +4,13 @@
   <site-name>Djehuty example instance</site-name>
   <site-shorttag>example-shorttag</site-shorttag>
   <site-description>Djehuty example instance</site-description>
+  <colors>
+    <primary-color>#f49120</primary-color>
+    <primary-color-hover>#d26000</primary-color-hover>
+    <primary-color-active>#9d4800</primary-color-active>
+    <privilege-button-color>#fce3bf</privilege-button-color>
+    <footer-background-color>#707070</footer-background-color>
+  </colors>
   <small-footer>
     <div id="footer-wrapper2">
       <p>This repository is powered by <a href="https://github.com/4TUResearchData/djehuty">djehuty</a> built for <a href="https://data.4tu.nl">4TU.ResearchData</a>.

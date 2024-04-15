@@ -45,35 +45,6 @@
        url("/static/fonts/fa-brands-400.ttf") format("truetype");
 }
 
-.corporate-identity { color: #f49120; }
-.corporate-identity:hover { color: #d26000; }
-
-.corporate-identity-h1 { border-bottom: 4px dotted #f49120;}
-.corporate-identity-h3 { border-bottom: 4px dotted #f49120; }
-.corporate-identity-h4 { border-bottom: 2px dotted #f49120; }
-
-.corporate-identity li.active { background: #f49120; }
-.corporate-identity li.active a { color: #ffffff; text-decoration: none; }
-.corporate-identity-submenu-active { border-bottom: solid .25em #f49120; }
-
-.corporate-identity-background { background: #f49120; }
-
-.corporate-identity-border { border: solid 2pt #f49120; }
-.corporate-identity-header { border-top: 4px solid #f49120; }
-.corporate-identity-footer { color: #ffffff; background: #707070; border-bottom: 3px solid #f49120; }
-
-.corporate-identity-privilege-button { background: #fce3bf; }
-.corporate-identity-standard-button { background: #f49120; color: #fff; font-weight: bold; text-decoration: none; }
-.corporate-identity-standard-button:hover { background: #d26000; cursor: pointer; color: #fff; text-decoration: none; }
-.corporate-identity-standard-button:active { background: #9d4800; cursor: pointer; color: #fff; text-decoration: none; }
-
-.corporate-identity-table {
-    width: 100%;
-    max-width: 880pt;
-    border: solid 2pt #f49120;
-    border-radius: .5em;
-}
-.corporate-identity-table thead tr { background: #f49120; border-radius: .5em .5em 0em 0em; }
 .corporate-identity-table thead tr th {
     color: #000;
     text-align: left;
@@ -172,9 +143,6 @@ body,html {
     font-weight: bold;
     text-decoration: none;
 }
-#login-button { margin-right: 25px; background: #f39000; color: #ffffff; }
-#login-button:hover { background: #d26000; cursor: pointer; }
-#login-button:active { background: #9d4800; cursor: pointer; }
 #login-button a { color: #ffffff; text-decoration: none; }
 #dashboard-button { margin-left: .5em; background: #505050; color: #ffffff; }
 #dashboard-button:hover { background: #303030; cursor: pointer; }
@@ -215,14 +183,12 @@ body,html {
     text-transform: uppercase;
 }
 #site-navigation ul:first-child { margin-left: 5mm; }
-#primary-menu .menu-item-has-children:hover { color: #f39000; }
 #primary-menu .menu-item-has-children:hover > ul {
     background: #ffffff;
     display: block;
     min-width: 120pt;
 }
 #primary-menu li a { text-decoration: none; }
-#primary-menu li a:hover { color: #f39000; }
 .submenu {
     position: absolute;
     display: none;
