@@ -8051,7 +8051,8 @@ class ApiServer:
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id, version=version)
             doi = dataset["container_doi"] if version is None else dataset["doi"]
-            return self.__render_svg_template ("badge.svg", doi=doi, version=version)
+            return self.__render_svg_template ("badge.svg", doi=doi, version=version,
+                                               color=self.colors["primary-color"])
         except KeyError:
             pass
 

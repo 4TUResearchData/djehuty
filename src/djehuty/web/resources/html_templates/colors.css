@@ -21,3 +21,6 @@
 #login-button:active { background: {{primary_color_active}}; cursor: pointer; }
 #primary-menu .menu-item-has-children:hover { color: {{primary_color_hover}}; }
 #primary-menu li a:hover { color: {{primary_color_hover}}; }
+.publish-button a { background: {{primary_color}} !important; }
+.publish-button a:hover { background: {{primary_color_hover}} !important; }
+.publish-button a:active { background: {{primary_color_active}} !important; }

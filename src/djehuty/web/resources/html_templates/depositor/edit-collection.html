@@ -88,8 +88,6 @@ jQuery(document).ready(function () {
 }
 #doi-wrapper p { margin: 0pt; }
 .collection-content-loader { display: none; }
-.submit-button a { background: #f49120 !important; }
-.submit-button a:hover { background: #f7ad58 !important; }
 .private-links-button a { background: #53736f !important; }
 .private-links-button a:hover { background: #7e9693 !important; }
 </style>
@@ -99,7 +97,7 @@ jQuery(document).ready(function () {
   <li><a href="/my/collections">&#8592; Go back</a>
   <li class="active corporate-identity-submenu-active">Edit collection
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save draft</a>
-  <li class="hide-for-javascript submit-button"><a id="publish" href="#">Publish</a>
+  <li class="hide-for-javascript publish-button"><a id="publish" href="#">Publish</a>
   <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
   <li class="hide-for-javascript private-links-button"><a id="private-links" target="_blank" href="/my/collections/{{collection["uuid"]}}/private_links?go_back=no">Private access</a>
 </ul>
