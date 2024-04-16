@@ -2744,7 +2744,9 @@ class ApiServer:
                                                  title          = subject,
                                                  email_address  = record["email"],
                                                  first_name     = record["first_name"],
-                                                 requested_size = requested_size)
+                                                 requested_size = requested_size,
+                                                 base_url       = self.base_url,
+                                                 support_email  = self.support_email_address)
                 except (IndexError, KeyError):
                     self.log.error ("Unable to send e-mail for quota request %s.",
                                     quota_request_uuid)
