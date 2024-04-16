@@ -86,6 +86,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/git_instructions.html                \
     djehuty/web/resources/html_templates/institutions.html                    \
     djehuty/web/resources/html_templates/layout.html                          \
+    djehuty/web/resources/html_templates/loader.svg                           \
     djehuty/web/resources/html_templates/maintenance.html                     \
     djehuty/web/resources/html_templates/opendap_to_doi.html                  \
     djehuty/web/resources/html_templates/portal.html                          \
@@ -228,7 +229,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/licenses/cc-by-nd.png                 \
     djehuty/web/resources/static/images/licenses/cc-by-sa.png                 \
     djehuty/web/resources/static/images/licenses/gnu-gpl-v3.png               \
-    djehuty/web/resources/static/images/loader.svg                            \
     djehuty/web/resources/static/images/logo.png                              \
     djehuty/web/resources/static/images/logo-delft.png                        \
     djehuty/web/resources/static/images/logo-eindhoven.png                    \

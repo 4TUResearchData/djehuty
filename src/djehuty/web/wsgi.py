@@ -133,6 +133,7 @@ class ApiServer:
             R("/browse",                                                         self.ui_redirect_to_home),
             R("/robots.txt",                                                     self.robots_txt),
             R("/theme/colors.css",                                               self.colors_css),
+            R("/theme/loader.svg",                                               self.loader_svg),
             R("/login",                                                          self.ui_login),
             R("/account/home",                                                   self.ui_account_home),
             R("/logout",                                                         self.ui_logout),
@@ -1445,10 +1446,10 @@ class ApiServer:
         return self.response (output, mimetype="text/plain")
 
     def colors_css (self, request):
-        """Implements /theme/colors.css"""
+        """Implements /theme/colors.css."""
 
-        if not self.accepts_content_type (request, "text/css"):
-            return self.error_406 (request)
+        if not self.accepts_content_type (request, "text/css", strict=False):
+            return self.error_406 ("text/css")
 
         return self.__render_css_template (
             "colors.css",
@@ -1457,6 +1458,15 @@ class ApiServer:
             primary_color_active    = self.colors['primary-color-active'],
             footer_background_color = self.colors['footer-background-color'],
             privilege_button_color  = self.colors['privilege-button-color'])
+
+    def loader_svg (self, request):
+        """Implements /theme/loader.svg."""
+
+        if not self.accepts_content_type (request, "image/svg+xml", strict=False):
+            return self.error_406 ("image/svg+xml")
+
+        return self.__render_svg_template ("loader.svg",
+            primary_color = self.colors["primary-color"])
 
     def ui_maintenance (self, request):
         """Implements a maintenance page."""
