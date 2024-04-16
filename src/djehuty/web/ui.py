@@ -685,6 +685,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if site_shorttag is not None:
             server.site_shorttag = site_shorttag.text
 
+        support_email_address = xml_root.find ("support-email-address")
+        if support_email_address is not None:
+            server.support_email_address = support_email_address.text
+
         read_orcid_configuration (server, xml_root)
         read_datacite_configuration (server, xml_root)
         read_email_configuration (server, xml_root, logger)
