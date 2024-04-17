@@ -6510,6 +6510,24 @@ class ApiServer:
             subject = f"Dataset published: {container_uuid}"
             self.__send_email_to_reviewers (subject, "published_dataset_notification",
                                             dataset=dataset)
+
+            try:
+                # E-mail the datase owner.
+                account = self.db.account_by_uuid (dataset["account_uuid"])
+
+                # Retrieve the dataset again to get the DOIs.
+                dataset = self.db.datasets (dataset_uuid=dataset["uuid"], use_cache=False)[0]
+                self.__send_templated_email ([account["email"]], f"Approved: {dataset['title']}",
+                                             "dataset_approved",
+                                             base_url = self.base_url,
+                                             support_email = self.support_email_address,
+                                             title = dataset["title"],
+                                             container_uuid = dataset["container_uuid"],
+                                             versioned_doi = dataset["doi"],
+                                             container_doi = dataset["container_doi"])
+            except (TypeError, IndexError, KeyError):
+                self.log.error ("Unable to send approval e-mail for dataset: %s.", dataset["uuid"])
+
             return self.respond_201 ({
                 "location": f"{self.base_url}/review/published/{dataset_id}"
             })
