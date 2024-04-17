@@ -69,6 +69,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/email/data_access_request.txt        \
     djehuty/web/resources/html_templates/email/dataset_approved.html          \
     djehuty/web/resources/html_templates/email/dataset_approved.txt           \
+    djehuty/web/resources/html_templates/email/dataset_declined.html          \
+    djehuty/web/resources/html_templates/email/dataset_declined.txt           \
     djehuty/web/resources/html_templates/email/dataset_submitted.html         \
     djehuty/web/resources/html_templates/email/dataset_submitted.txt          \
     djehuty/web/resources/html_templates/email/declined_dataset_notification.html \

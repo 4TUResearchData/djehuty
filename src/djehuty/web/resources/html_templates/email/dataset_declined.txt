@@ -1,0 +1,8 @@
+Dataset declined
+================
+
+Your dataset with title "{{title}}" has been declined for publication.
+
+This is an automated message. For further correspondence, either use the feedback form [1] or contact us by e-mail at {{support_email}}</p>
+
+[1] {{base_url}}/feedback

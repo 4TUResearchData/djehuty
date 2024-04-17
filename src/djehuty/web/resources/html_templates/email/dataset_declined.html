@@ -1,0 +1,8 @@
+{% extends "email/layout.html" %}
+{% block body %}
+<h1>Dataset declined</h1>
+
+<p>Your dataset with title <strong>{{title}}</strong> has been declined for publication.</p>
+
+<p>This is an automated message. For further correspondence, either use the <a href="{{base_url}}/feedback">feedback form</a> or contact us by e-mail at <a href="mailto:{{support_email}}">{{support_email}}</a></p>
+{% endblock %}
