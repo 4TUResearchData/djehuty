@@ -1,7 +1,7 @@
 function render_in_form (text) { return [text].join(''); }
 
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
-
+function or_empty (value) { return (value === undefined || value == null || value == "") ? "" : value;}
 function show_message (type, message) {
     if (jQuery ("#message.transparent").length > 0) {
         jQuery("#message").removeClass("transparent").empty();

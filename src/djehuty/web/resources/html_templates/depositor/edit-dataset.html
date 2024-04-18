@@ -121,11 +121,11 @@ jQuery(document).ready(function (){
 #restricted_access_form { display: none; }
 #file-upload h4 { font-size: 1.5em; padding: 0em; margin: .75em 0em .75em 0em; }
 #categories-wrapper .subitem-checkbox { margin-left: 3em; }
-#new-author { text-align: center; line-height: 3.5em; height: 3.5em; }
+#new-author, #update-author { text-align: center; line-height: 3.5em; height: 3.5em; }
 #new-funding { text-align: center; line-height: 3.5em; height: 3.5em; }
-#new-author-form { padding: 1em; }
-#new-author-form label { background: #eee; }
-#new-author-form input[type="text"] { width: 800pt; }
+#new-author-form, #author-inline-edit-form td { padding: 1em; }
+#new-author-form label, #author-inline-edit-form label { background: #eee; }
+#new-author-form input[type="text"], #author-inline-edit-form input[type="text"] { width: 800pt; }
 #new-funding-form { padding: 1em; }
 #new-funding-form label { background: #eee; }
 #new-funding-form input[type="text"] { width: 800pt; }
@@ -230,7 +230,7 @@ jQuery(document).ready(function (){
 <input type="text" id="authors" name="authors" />
 <table class="inside-form-table multi-list" id="authors-list">
   <thead>
-    <tr><th>Author</th><th>Actions</th></tr>
+    <tr><th>Author</th><th colspan="2">Actions</th></tr>
   </thead>
   <tbody></tbody>
 </table>

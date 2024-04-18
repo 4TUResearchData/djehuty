@@ -401,21 +401,99 @@ function render_tags_for_dataset (dataset_uuid) {
     }).fail(function () { show_message ("failure", "<p>Failed to retrieve tags.</p>"); });
 }
 
+function cancel_edit_author (author_uuid, dataset_uuid) {
+    jQuery("#author-inline-edit-form").remove();
+    jQuery(`#edit-author-${author_uuid}`).attr("onclick",
+      `javascript:edit_author('${author_uuid}', ` +
+      `'${dataset_uuid}'); return false`)
+        .removeClass("fa-times")
+        .removeClass("fa-lg")
+        .addClass("fa-pen");
+}
+
+function update_author (author_uuid, dataset_uuid) {
+    let record = {
+        "first_name": jQuery("#edit_author_first_name").val(),
+        "last_name": jQuery("#edit_author_last_name").val(),
+        "email": jQuery("#edit_author_email").val(),
+        "orcid": jQuery("#edit_author_orcid").val()
+    }
+    jQuery.ajax({
+        url:         `/v3/authors/${author_uuid}`,
+        data:        JSON.stringify(record),
+        type:        "PUT",
+        contentType: "application/json",
+        accept:      "application/json",
+    }).done(function () {
+        cancel_edit_author (author_uuid, dataset_uuid);
+        render_authors_for_dataset (dataset_uuid);
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to update author details.</p>");
+    })
+}
+
+function edit_author (author_uuid, dataset_uuid) {
+    jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}/authors/${author_uuid}`,
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (author) {
+        let html = `<tr id="author-inline-edit-form"><td colspan="3">`;
+        html += `<label for="author_first_name">First name</label>`;
+        html += `<input type="text" id="edit_author_first_name" name="author_first_name" value="${or_empty (author.first_name)}">`;
+        html += `<label for="author_last_name">Last name</label>`;
+        html += `<input type="text" id="edit_author_last_name" name="author_last_name" value="${or_empty (author.last_name)}">`;
+        html += `<label for="author_email">E-mail address</label>`;
+        html += `<input type="text" id="edit_author_email" name="author_email" value="${or_empty (author.email)}">`;
+        html += `<label for="author_orcid">ORCID</label>`;
+        html += `<input type="text" id="edit_author_orcid" name="author_orcid" value="${or_empty (author.orcid)}">`;
+        html += `<div id="update-author" class="a-button">`;
+        html += `<a href="#" onclick="javascript:update_author(`;
+        html += `'${author_uuid}', '${dataset_uuid}'); `;
+        html += `return false;">Update author</a></div>`;
+        html += `</td></tr>`;
+
+        jQuery(`#author-${author_uuid}`).after(html);
+        jQuery(`#edit-author-${author_uuid}`)
+            .removeClass("fa-pen")
+            .addClass("fa-times")
+            .addClass("fa-lg")
+            .attr("onclick",
+              `javascript:cancel_edit_author('${author_uuid}', ` +
+              `'${dataset_uuid}'); return false;`);
+    });
+}
+
 function render_authors_for_dataset (dataset_uuid) {
     jQuery.ajax({
-        url:         `/v2/account/articles/${dataset_uuid}/authors`,
-        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+        url:         `/v3/datasets/${dataset_uuid}/authors`,
+        data:        { "limit": 10000 },
         type:        "GET",
         accept:      "application/json",
     }).done(function (authors) {
         jQuery("#authors-list tbody").empty();
         for (let author of authors) {
-            let row = `<tr><td>${author.full_name}`;
-            if (author.orcid_id != null && author.orcid_id != "") {
-                row += ` (${author.orcid_id})`;
+            let row = `<tr id="author-${author.uuid}"><td>${author.full_name}`;
+            let orcid = null;
+            if (author.orcid_id && author.orcid_id != "") {
+                orcid = author.orcid_id;
+            } else
+            if (author.orcid && author.orcid != "") {
+                orcid = author.orcid;
             }
-            row += `</td><td><a href="#" `;
-            row += `onclick="javascript:remove_author('${author.uuid}', `;
+            if (orcid !== null) {
+                row += ` <a href="https://orcid.org/${orcid}" `;
+                row += `target="_blank" rel="noopener noreferrer"><img `;
+                row += `src="/static/images/orcid.svg" style="height: 15px" `;
+                row += `alt="ORCID" title="ORCID profile (new window)" /></a>`;
+            }
+            if (author.is_editable) {
+                row += `</td><td><a id="edit-author-${author.uuid}" href="#" onclick="javascript:edit_author('${author.uuid}', `;
+                row += `'${dataset_uuid}'); return false" class="fas fa-pen" title="Edit"></a>`;
+            } else {
+                row += "</td><td>";
+            }
+            row += `</td><td><a href="#" onclick="javascript:remove_author('${author.uuid}', `;
             row += `'${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
             jQuery("#authors-list tbody").append(row);

@@ -10,14 +10,15 @@
 .inside-form-table thead tr th:last-child { text-align: right; }
 .inside-form-table tbody tr td { padding: .5em; z-index: 50; }
 .inside-form-table tbody tr:nth-child(even) { background: #fafafa; }
-.inside-form-table tbody tr td:last-child { text-align: right; width: 130pt; }
-.inside-form-table tbody tr td:nth-child(1) {
+.inside-form-table tbody tr td:not(:first-child) { max-width: 15px; }
+.inside-form-table tbody tr td:first-child {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     width: 100%;
     max-width: 572pt;
 }
+#author-inline-edit-form { border: solid 1pt #111; background: #fff; }
 #content-wrapper input[type="text"],
 #content-wrapper input[type="datetime-local"],
 #content-wrapper input[type="date"],
