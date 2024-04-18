@@ -353,6 +353,7 @@ class ApiServer:
             R("/v3/datasets/<dataset_uuid>/collaborators",                       self.api_v3_dataset_collaborators),
             R("/v3/datasets/<dataset_uuid>/collaborators/<collaborator_uuid>",   self.api_v3_dataset_remove_collaborator),
             R("/v3/accounts/search",                                             self.api_v3_accounts_search),
+            R("/v3/authors/<author_uuid>",                                       self.api_v3_author_details),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -6182,6 +6183,47 @@ class ApiServer:
             self.log.error ("Unable to retrieve authors: %s", error)
 
         return self.error_500 ()
+
+    def api_v3_author_details (self, request, author_uuid):
+        """Implements /v3/authors/<author_uuid>."""
+
+        if not validator.is_valid_uuid (author_uuid):
+            return self.error_404 (request)
+
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["GET", "PUT"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if request.method in  ("GET", "HEAD"):
+            try:
+                author = self.db.authors (author_uuid = author_uuid)[0]
+                if author is None:
+                    return self.error_404 (request)
+                return self.response (json.dumps(formatter.format_author_record_v3 (author)))
+            except IndexError:
+                return self.error_404 (request)
+
+        if request.method == "PUT":
+            record = request.get_json()
+            try:
+                parameters = {
+                    "first_name": validator.string_value (record, "first_name", 0, 255),
+                    "last_name":  validator.string_value (record, "last_name", 0, 255),
+                    "email":      validator.string_value (record, "email", 0, 255),
+                    "orcid":      validator.string_value (record, "orcid", 0, 255)
+                }
+
+                if not self.db.update_author (author_uuid, account_uuid, **parameters):
+                    return self.error_500 ()
+
+                return self.respond_204 ()
+
+            except validator.ValidationException as error:
+                return self.error_400 (request, error.message, error.code)
+
+        return self.error_405 (["GET", "PUT"])
 
     def api_v3_datasets_codemeta (self, request):
         """Implements /v3/datasets/codemeta."""

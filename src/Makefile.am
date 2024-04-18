@@ -183,6 +183,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/subcategories_by_category.sparql   \
     djehuty/web/resources/sparql_templates/tags.sparql                        \
     djehuty/web/resources/sparql_templates/update_account.sparql              \
+    djehuty/web/resources/sparql_templates/update_author.sparql               \
     djehuty/web/resources/sparql_templates/update_collection.sparql           \
     djehuty/web/resources/sparql_templates/update_dataset.sparql              \
     djehuty/web/resources/sparql_templates/update_dataset_thumb.sparql        \

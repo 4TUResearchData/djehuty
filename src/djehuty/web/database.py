@@ -2230,6 +2230,27 @@ class SparqlInterface:
 
         return None
 
+    def update_author (self, author_uuid, created_by, first_name, last_name, email, orcid):
+        """Update the author record identified by AUTHOR_UUID, CREATED_BY."""
+
+        full_name = None
+        if first_name is not None and last_name is not None:
+            full_name = f"{first_name} {last_name}"
+
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
+        query = self.__query_from_template ("update_author", {
+            "author_uuid": author_uuid,
+            "created_by": created_by,
+            "full_name": rdf.escape_string_value (full_name),
+            "first_name": rdf.escape_string_value (first_name),
+            "last_name": rdf.escape_string_value (last_name),
+            "email": rdf.escape_string_value (email),
+            "orcid": rdf.escape_string_value (self.__normalize_orcid (orcid)),
+            "modified_date": rdf.escape_datetime_value (current_time)
+        })
+
+        return self.__run_query (query)
+
     def update_dataset (self, dataset_uuid, account_uuid, title=None,
                         description=None, resource_doi=None, doi=None,
                         resource_title=None, license_url=None, group_id=None,
