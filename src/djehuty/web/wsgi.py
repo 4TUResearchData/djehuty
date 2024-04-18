@@ -4344,15 +4344,20 @@ class ApiServer:
                 if error_response is not None:
                     return error_response
 
-                authors = self.db.authors (item_uri   = dataset["uri"],
-                                           account_uuid = account_uuid,
-                                           is_published = False,
-                                           item_type  = "dataset",
-                                           limit      = 10000)
+                authors = self.db.authors (
+                    item_uri     = dataset["uri"],
+                    account_uuid = account_uuid,
+                    is_published = False,
+                    item_type    = "dataset",
+                    limit        = validator.integer_value (request.args, "limit"),
+                    order        = validator.string_value (request.args, "order", 0, 32),
+                    order_direction = validator.order_direction (request.args, "order_direction"))
 
                 return self.default_list_response (authors, formatter.format_author_record)
-            except (IndexError, KeyError, TypeError):
-                pass
+            except (IndexError, KeyError, TypeError) as error:
+                self.log.error ("Unable to retrieve authors: %s", error)
+            except validator.ValidationException as error:
+                return self.error_400 (request, error.message, error.code)
 
             return self.error_500 ()
 
