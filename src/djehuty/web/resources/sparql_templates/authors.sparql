@@ -4,6 +4,7 @@ SELECT DISTINCT ?first_name      ?full_name       ?group_id
                 ?uuid ?id        ?institution_id  ?is_active
                 ?is_public       ?job_title       ?last_name
                 ?orcid_id        ?url_name        ?order_index
+                ?is_editable
 WHERE {
   GRAPH <{{state_graph}}> {
     ?author            rdf:type                 djht:Author .
@@ -46,6 +47,12 @@ WHERE {
     OPTIONAL { ?author djht:orcid_id            ?orcid_id . }
     OPTIONAL { ?author djht:url_name            ?url_name . }
 
+    {%- if account_uuid is not none %}
+    BIND (xsd:boolean (EXISTS { ?author djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)
+    {%- else %}
+    BIND("false"^^xsd:boolean AS ?is_editable)
+    {%- endif %}
+
     BIND(STRAFTER(STR(?author), "author:") AS ?uuid)
   }
 {%- if account_uuid is not none %}
@@ -55,6 +62,9 @@ FILTER (?account = <account:{{account_uuid}}>)
 FILTER (?account = <account:{{account_uuid}}> ||
         ?collaborator_account = <account:{{account_uuid}}>)
   {%- endif %}
+{%- endif %}
+{%- if author_uuid is not none %}
+FILTER (?author = <author:{{author_uuid}}>)
 {%- endif %}
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)

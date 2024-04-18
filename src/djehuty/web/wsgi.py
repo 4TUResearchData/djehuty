@@ -337,6 +337,8 @@ class ApiServer:
             R("/v3/datasets/<dataset_id>.git/branches",                          self.api_v3_dataset_git_branches),
             R("/v3/datasets/<dataset_id>.git/set-default-branch",                self.api_v3_datasets_git_set_default_branch),
             R("/v3/file/<file_id>",                                              self.api_v3_file),
+            R("/v3/datasets/<container_uuid>/authors",                           self.api_v3_dataset_authors),
+            R("/v3/datasets/<container_uuid>/authors/<author_uuid>",             self.api_v3_dataset_authors),
             R("/v3/datasets/<dataset_id>/references",                            self.api_v3_dataset_references),
             R("/v3/collections/<collection_id>/references",                      self.api_v3_collection_references),
             R("/v3/datasets/<dataset_id>/tags",                                  self.api_v3_dataset_tags),
@@ -6135,6 +6137,51 @@ class ApiServer:
 
         return self.default_list_response (records, formatter.format_dataset_record,
                                            base_url = self.base_url)
+
+    def api_v3_dataset_authors (self, request, container_uuid, author_uuid=None):
+        """Implements /v3/datasets/<uuid>/authors[/<author_uuid>]."""
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        if author_uuid is not None and not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        account_uuid = self.default_authenticated_error_handling (request, "GET",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        try:
+            dataset = self.db.datasets (container_uuid = container_uuid,
+                                        account_uuid   = account_uuid,
+                                        is_published   = False,
+                                        is_latest      = False,
+                                        limit          = 1)[0]
+
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, "dataset", dataset, "metadata_read")
+            if error_response is not None:
+                return error_response
+
+            authors = self.db.authors (
+                item_uri     = dataset["uri"],
+                account_uuid = account_uuid,
+                author_uuid  = author_uuid,
+                is_published = False,
+                item_type    = "dataset",
+                limit        = validator.integer_value (request.args, "limit"),
+                order        = validator.string_value (request.args, "order", 0, 32),
+                order_direction = validator.order_direction (request.args, "order_direction"))
+
+            if author_uuid is not None:
+                return self.response (json.dumps(formatter.format_author_record_v3 (authors[0])))
+
+            return self.default_list_response (authors, formatter.format_author_record_v3)
+        except (IndexError, KeyError, TypeError) as error:
+            self.log.error ("Unable to retrieve authors: %s", error)
+
+        return self.error_500 ()
 
     def api_v3_datasets_codemeta (self, request):
         """Implements /v3/datasets/codemeta."""

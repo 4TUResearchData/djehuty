@@ -174,6 +174,17 @@ def format_dataset_record (record):
         "resource_doi":            conv.value_or_none(record, "resource_doi")
     }
 
+def format_author_record_v3 (record):
+    """Record formatter for the v3 authors API output."""
+    return {
+        "uuid":        conv.value_or_none (record, "uuid"),
+        "first_name":  conv.value_or_none(record, "first_name"),
+        "last_name":   conv.value_or_none(record, "last_name"),
+        "full_name":   conv.value_or_none(record, "full_name"),
+        "orcid":       conv.value_or (record, "orcid_id", None),
+        "is_editable": conv.value_or (record, "is_editable", False)
+    }
+
 def format_author_record (record):
     """Record formatter for authors."""
     return {

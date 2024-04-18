@@ -578,7 +578,8 @@ class SparqlInterface:
                  is_public=None, job_title=None, last_name=None,
                  orcid_id=None, url_name=None, limit=10, order="order_index",
                  order_direction="asc", item_uri=None, search_for=None,
-                 account_uuid=None, item_type="dataset", is_published=True):
+                 account_uuid=None, item_type="dataset", is_published=True,
+                 author_uuid=None):
         """Procedure to retrieve authors of a dataset."""
 
         prefix = item_type.capitalize()
@@ -608,6 +609,7 @@ class SparqlInterface:
             "is_published": is_published,
             "item_uri":    item_uri,
             "account_uuid": account_uuid,
+            "author_uuid": author_uuid,
             "filters":     filters
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
