@@ -4,7 +4,7 @@ SELECT DISTINCT ?first_name      ?full_name       ?group_id
                 ?uuid ?id        ?institution_id  ?is_active
                 ?is_public       ?job_title       ?last_name
                 ?orcid_id        ?url_name        ?order_index
-                ?is_editable
+                ?is_editable     ?email
 WHERE {
   GRAPH <{{state_graph}}> {
     ?author            rdf:type                 djht:Author .
@@ -46,6 +46,7 @@ WHERE {
     OPTIONAL { ?author djht:last_name           ?last_name . }
     OPTIONAL { ?author djht:orcid_id            ?orcid_id . }
     OPTIONAL { ?author djht:url_name            ?url_name . }
+    OPTIONAL { ?author djht:email               ?email . }
 
     {%- if account_uuid is not none %}
     BIND (xsd:boolean (EXISTS { ?author djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)

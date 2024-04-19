@@ -181,6 +181,7 @@ def format_author_record_v3 (record):
         "first_name":  conv.value_or_none(record, "first_name"),
         "last_name":   conv.value_or_none(record, "last_name"),
         "full_name":   conv.value_or_none(record, "full_name"),
+        "email":       conv.value_or_none(record, "email"),
         "orcid":       conv.value_or (record, "orcid_id", None),
         "is_editable": conv.value_or (record, "is_editable", False)
     }
