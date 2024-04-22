@@ -6543,10 +6543,6 @@ class ApiServer:
 
         container_uuid = dataset["container_uuid"]
         if self.db.decline_dataset (container_uuid, account_uuid):
-            subject = f"Dataset declined: {container_uuid}"
-            self.__send_email_to_reviewers (subject, "declined_dataset_notification",
-                                            dataset=dataset)
-
             try:
                 # E-mail the datase owner.
                 account = self.db.account_by_uuid (dataset["account_uuid"])
@@ -6556,12 +6552,18 @@ class ApiServer:
                                             is_published=None,
                                             is_latest=None,
                                             use_cache=False)[0]
+                subject = f"Declined: {dataset['title']}"
+                parameters = {
+                    "base_url": self.base_url,
+                    "support_email": self.support_email_address,
+                    "title": dataset["title"]
+                }
+                self.__send_templated_email ([account["email"]], subject,
+                                             "dataset_declined", **parameters)
 
-                self.__send_templated_email ([account["email"]], f"Declined: {dataset['title']}",
-                                             "dataset_declined",
-                                             base_url = self.base_url,
-                                             support_email = self.support_email_address,
-                                             title = dataset["title"])
+                self.__send_email_to_reviewers (subject, "declined_dataset_notification",
+                                                dataset=dataset, account_email = account["email"],
+                                                **parameters)
             except (TypeError, IndexError, KeyError):
                 self.log.error ("Unable to send decline e-mail for dataset: %s.", dataset["uuid"])
 
@@ -6620,26 +6622,31 @@ class ApiServer:
                     return self.error_500 ()
 
         if self.db.publish_dataset (container_uuid, account_uuid):
-            subject = f"Dataset published: {container_uuid}"
-            self.__send_email_to_reviewers (subject, "published_dataset_notification",
-                                            dataset=dataset)
-
             try:
                 # E-mail the datase owner.
                 account = self.db.account_by_uuid (dataset["account_uuid"])
 
                 # Retrieve the dataset again to get the DOIs.
                 dataset = self.db.datasets (dataset_uuid=dataset["uuid"], use_cache=False)[0]
-                self.__send_templated_email ([account["email"]], f"Approved: {dataset['title']}",
-                                             "dataset_approved",
-                                             base_url = self.base_url,
-                                             support_email = self.support_email_address,
-                                             title = dataset["title"],
-                                             container_uuid = dataset["container_uuid"],
-                                             versioned_doi = dataset["doi"],
-                                             container_doi = dataset["container_doi"])
-            except (TypeError, IndexError, KeyError):
-                self.log.error ("Unable to send approval e-mail for dataset: %s.", dataset["uuid"])
+                subject = f"Approved: {dataset['title']}"
+                parameters = {
+                    "base_url": self.base_url,
+                    "support_email": self.support_email_address,
+                    "title": dataset["title"],
+                    "container_uuid": dataset["container_uuid"],
+                    "versioned_doi": value_or_none (dataset, "doi"),
+                    "container_doi": dataset["container_doi"]
+                }
+                self.__send_templated_email ([account["email"]], subject,
+                                             "dataset_approved", **parameters)
+
+                self.__send_email_to_reviewers (subject, "published_dataset_notification",
+                                                dataset=dataset, account_email = account["email"],
+                                                **parameters)
+
+            except (TypeError, IndexError, KeyError) as error:
+                self.log.error ("Unable to send approval e-mail for dataset %s: %s.",
+                                dataset["uuid"], error)
 
             return self.respond_201 ({
                 "location": f"{self.base_url}/review/published/{dataset_id}"

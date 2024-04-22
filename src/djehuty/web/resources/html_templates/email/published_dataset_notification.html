@@ -1,5 +1,10 @@
-{% extends "email/layout.html" %}
-{% block body %}
-<h1>Dataset published: {{dataset.uuid}}</h1>
-<p>Thank you!</p>
+{% extends "email/dataset_approved.html" %}
+{% block prebody %}
+<h1>Dataset published</h1>
+<p>
+  Dataset UUID: <code>{{dataset.uuid}}</code><br />
+  Container UUID: <code>{{dataset.container_uuid}}</code>
+</p>
+<p>The following message was sent to {{account_email}}:</p>
+<hr />
 {% endblock %}

@@ -1,3 +1,6 @@
-Dataset declined: {{dataset.uuid}}
+The following dataset has been declined:
 
-Thank you!
+Dataset UUID: {{dataset.uuid}}
+Container UUID: {{dataset.container_uuid}}
+
+A message was sent to {{account_email}}.

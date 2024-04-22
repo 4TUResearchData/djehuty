@@ -1,3 +1,6 @@
-Dataset published: {{dataset.uuid}}
+The following dataset has been published:
 
-Thank you!
+Dataset UUID: {{dataset.uuid}}
+Container UUID: {{dataset.container_uuid}}
+
+A message was sent to {{account_email}}.
