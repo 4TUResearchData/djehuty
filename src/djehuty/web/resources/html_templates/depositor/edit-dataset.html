@@ -405,7 +405,7 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 {% include 'depositor/language-selector.html' %}
 <label for="time_coverage">Time coverage</label><div class="fas fa-question-circle help-icon"><span class="help-text">Indicate the dates to which the data refer. Enter the year, or the beginning and ending date.</span></div>
 <input type="text" id="time_coverage" name="time_coverage" value="{{article["time_coverage"] | default("", True)}}" />
-<label>Geolocation</label>
+<label>Geolocation</label><div class="fas fa-question-circle help-icon"><span class="help-text">When your dataset covers geographical data, fill in the following section </span></div>
 <div id="geolocation-wrapper">
   <label for="geolocation">Name</label><div class="fas fa-question-circle help-icon"><span class="help-text">The geographic area to which the data refer (e.g. municipality, town/city, region, country)</span></div>
   <input type="text" id="geolocation" name="geolocation" placeholder="Example: Dam Square, Amsterdam" value="{{article["geolocation"] | default("", True)}}" />
