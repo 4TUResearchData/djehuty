@@ -24,3 +24,12 @@
 .publish-button a { background: {{primary_color}} !important; }
 .publish-button a:hover { background: {{primary_color_hover}} !important; }
 .publish-button a:active { background: {{primary_color_active}} !important; }
+ul.latest-datasets li a { color: {{primary_color}}; }
+ul.latest-datasets li a:hover { color: {{primary_color_hover}}; }
+ul.latest-datasets li a:active { color: {{primary_color_active}}; }
+#files ul li a { color: {{primary_color}}; }
+#files ul li a:hover { color: {{primary_color_hover}}; }
+#files ul li a:active { color: {{primary_color_active}}; }
+#files ul li.zip { background: {{primary_color}}; margin-top: 1em; padding: .25em; width: 180px; text-align: center; border-radius: .5em; }
+#files ul li.zip a { font-weight: bold; color: #fff; }
+#total_size { font-size:12px; color: #fff; font-weight: normal; }
