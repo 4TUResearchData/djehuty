@@ -7,10 +7,10 @@ You can view the dataset here [1].
 To refer to your published dataset, we recommend to use the appropriate DOI.
 
 When referring to the specific version of your dataset, we recommend to use:
-  {{versioned_doi}}.
+  https://doi.org/{{versioned_doi}}
 
 When referring to the dataset, or an update of this dataset, we recommend to use:
-  {{container_doi}}.
+  https://doi.org/{{container_doi}}
 
 This is an automated message. For further correspondence, either use the feedback form [2] or contact us by e-mail at {{support_email}}</p>
 
