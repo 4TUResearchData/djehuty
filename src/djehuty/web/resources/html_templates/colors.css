@@ -12,9 +12,9 @@
 .corporate-identity-border { border: solid 2pt {{primary_color}}; }
 .corporate-identity-table { width: 100%; max-width: 880pt; border: solid 2pt {{primary_color}}; border-radius: .5em; }
 .corporate-identity-table thead tr { background: {{primary_color}}; border-radius: .5em .5em 0em 0em; }
-.corporate-identity-standard-button { background: {{primary_color}}; color: #fff; font-weight: bold; text-decoration: none; }
-.corporate-identity-standard-button:hover { background: {{primary_color_hover}}; cursor: pointer; color: #fff; text-decoration: none; }
-.corporate-identity-standard-button:active { background: {{primary_color_active}}; cursor: pointer; color: #fff; text-decoration: none; }
+.corporate-identity-standard-button { background: {{primary_color}} !important; color: #fff; font-weight: bold; text-decoration: none; border: 0 !important; }
+.corporate-identity-standard-button:hover { background: {{primary_color_hover}} !important; cursor: pointer; color: #fff; text-decoration: none; border: 0 !important; }
+.corporate-identity-standard-button:active { background: {{primary_color_active}} !important; cursor: pointer; color: #fff; text-decoration: none; border: 0 !important; }
 .corporate-identity-privilege-button { background: {{privilege_button_color}}; }
 #login-button { margin-right: 25px; background: {{primary_color}}; color: #ffffff; }
 #login-button:hover { background: {{primary_color_hover}}; cursor: pointer; }
