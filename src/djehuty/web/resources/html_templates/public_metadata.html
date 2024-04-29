@@ -54,7 +54,6 @@
     <div id="type_versions">
         <div id="type">{{ dtype }}</div>
 {% if not private_view and versions[1:2] %}
-{# test 12763700 #}
         <button id="versions_show" onclick="document.getElementById('versions').style.display='block'" title="Choose another version."
             {% if old %}style="background-color: #ff0"{% endif %}>version {{thisversion}}
             {% if old %} (old){% endif %} &#x1F53B; </button>
@@ -82,7 +81,6 @@
         </div>
 {% endif %}
 {% if statistics %}
-{# test 12763700 #}
         <div id="usage">
             <div class="label">usage stats</div>
     {% for metric in statistics %}
@@ -114,7 +112,6 @@
 {% set lat = coordinates.lat %}
 {% set lon = coordinates.lon %}
 {% if geo or lat or lon %}
-{# test 12683045 #}
     {% set vlat = coordinates.lat_valid %}
     {% set vlon = coordinates.lon_valid %}
         <div id="geo">
@@ -157,7 +154,6 @@
                 {%- if lic_img %}<img src="/static/images/licenses/{{lic_img}}" alt="{{lic_img}} logo"/>{% endif %}
                 {{item.license_name}}</a>
     {% if item.license_remarks %}
-    {# test 12776162 #}
             <div>{{item.license_remarks}}</div>
     {% endif %}
         </div>
@@ -227,7 +223,6 @@
         </div>
 {% endif %}
 {% if item.resource_doi %}
-{# test 16825843 #}
         <div id="peer">
             <div class="label">associated peer-reviewed publication</div>
             <a class="corporate-identity" href="https://doi.org/{{item.resource_doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{item.resource_title}}</a>
@@ -244,7 +239,6 @@
         </div>
 {% endif %}
 {% if derived_from %}
-{# test 12716117 #}
         <div id="derived_from">
             <div class="label">derived from</div>
             <ul>
@@ -255,21 +249,18 @@
         </div>
 {% endif %}
 {% if item.same_as %}
-{# test 18865355 #}
         <div id="same_as">
             <div class="label">same as</div>
             <a class="corporate-identity" href="{{item.same_as}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{item.same_as}}</a>
         </div>
 {% endif %}
 {% if item.data_link %}
-{# test 14377295 #}
         <div id="data_link">
             <div class="label">data link</div>
             <a class="corporate-identity" href="{{item.data_link}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{item.data_link}}</a>
         </div>
 {% endif %}
 {% if item.language %}
-{# test 17081387 #}
     {% if item.language != 'en' %}
         <div id="language">
             <div class="label">language</div>
@@ -278,7 +269,6 @@
     {% endif %}
 {% endif %}
 {% if fundings %}
-{# test 19114712 #}
         <div id="funding">
             <div class="label">funding</div>
             <ul>
@@ -302,7 +292,6 @@
         </div>
 {% endif %}
 {% if item.organizations %}
-{# test 12705164 #}
     {% autoescape false %}
         <div id="organizations">
             <div class="label">organizations</div>
@@ -311,7 +300,6 @@
     {% endautoescape %}
 {% endif %}
 {% if contributors %}
-{# test 12721421 v1 #}
         <div id="contributors">
             <div class="label">contributors</div>
             <ul>
