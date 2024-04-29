@@ -44,7 +44,7 @@ function filter_reviewer (event) {
         else if (value == "unassigned" && reviewer_element.length > 0 && reviewer_element.val() == "") {}
         else if (reviewer_element.length > 0 && reviewer_element.val().split(":").pop() == value) {}
         else if (status == "approved") {
-            let reviewer = jQuery(element).find(`td:nth-child(10)`).text()
+            let reviewer = jQuery(element).find(`td:nth-child(10)`).text();
             let reviewer_name = cleanup_name(reviewer);
             if (reviewer_name != name) { jQuery(element).hide(); }
         }

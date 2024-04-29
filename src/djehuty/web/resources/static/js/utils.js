@@ -1,4 +1,4 @@
-function render_in_form (text) { return [text].join(''); }
+function render_in_form (text) { return [text].join(""); }
 
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 function or_empty (value) { return (value === undefined || value == null || value == "") ? "" : value;}
@@ -19,9 +19,8 @@ function show_message (type, message) {
 
 function install_sticky_header () {
     var submenu_offset = jQuery("#submenu").offset().top;
-    jQuery(window).on('resize scroll', function() {
-        let scroll_offset  = jQuery(window).scrollTop();
-        if (submenu_offset <= scroll_offset) {
+    jQuery(window).on("resize scroll", function() {
+        if (submenu_offset <= jQuery(window).scrollTop()) {
             jQuery("#submenu").addClass("sticky");
             jQuery("#message").addClass("sticky-message");
             jQuery("h1").addClass("sticky-margin");
@@ -167,10 +166,10 @@ function autocomplete_author (event, item_id) {
             }
             html += "</ul>";
 
-            html += `<span id="new-author-description" style='padding: 1em;'><i><center>${new_author_description}</center></i></span>`
+            html += `<span id="new-author-description" style='padding: 1em;'><i><center>${new_author_description}</center></i></span>`;
 
-            html += `<div id="new-author" class="a-button"><a href="#" `
-            html += `onclick="javascript:new_author('${item_id}'); `
+            html += `<div id="new-author" class="a-button"><a href="#" `;
+            html += `onclick="javascript:new_author('${item_id}'); `;
             html += `return false;">Create new author record</a></div>`;
             jQuery("#authors")
                 .addClass("input-for-ac")
@@ -202,8 +201,8 @@ function autocomplete_funding (event, item_id) {
             }
             html += "</ul>";
 
-            html += `<div id="new-funding" class="a-button"><a href="#" `
-            html += `onclick="javascript:new_funding('${item_id}'); `
+            html += `<div id="new-funding" class="a-button"><a href="#" `;
+            html += `onclick="javascript:new_funding('${item_id}'); `;
             html += `return false;">Create funding record</a></div>`;
             jQuery("#funding")
                 .addClass("input-for-ac")

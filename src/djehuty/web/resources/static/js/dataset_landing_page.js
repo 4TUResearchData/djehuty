@@ -7,7 +7,7 @@ function add_dataset_to_collection (dataset_id, collection_id) {
         data:        JSON.stringify({ "articles": [dataset_id] }),
     }).done(function () {
         show_message ("success", "<p>Dataset succesfully added to collection.</p>");
-        document.getElementById("collect").style.display="none"
+        document.getElementById("collect").style.display = "none";
     }).fail(function () {
         console.log (`Failed to add ${dataset_id}`);
         show_message ("failure", "<p>Failed to add dataset to collection.</p>");
@@ -40,7 +40,7 @@ function submit_access_request (event) {
         "dataset_id": or_null(jQuery("#access-request-dataset-id").val()),
         "version":    or_null(jQuery("#access-request-version").val()),
         "reason":     or_null(jQuery("#access-request-reason .ql-editor").html())
-    }
+    };
     jQuery.ajax({
         url:         `/data_access_request`,
         type:        "POST",

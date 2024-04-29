@@ -262,9 +262,9 @@ function delete_collection (collection_id, event) {
                 "Do you want to continue?"))
     {
         jQuery.ajax({
-            url:         `/v2/account/collections/${collection_id}`,
             type:        "DELETE",
-        }).done(function () { window.location.pathname = '/my/collections' })
+            url:         `/v2/account/collections/${collection_id}`
+        }).done(function () { window.location.pathname = "/my/collections"; })
           .fail(function () {
               show_message ("failure", "<p>Failed to delete collection.</p>");
           });
@@ -273,12 +273,12 @@ function delete_collection (collection_id, event) {
 
 function gather_form_data () {
     let categories   = jQuery("input[name='categories']:checked");
-    let category_ids = []
+    let category_ids = [];
     for (let category of categories) {
         category_ids.push(jQuery(category).val());
     }
 
-    let group_id = jQuery("input[name='groups']:checked")[0]
+    let group_id = jQuery("input[name='groups']:checked")[0];
     if (group_id !== undefined) { group_id = group_id["value"]; }
     else { group_id = null; }
 
@@ -296,7 +296,7 @@ function gather_form_data () {
         "time_coverage":  or_null(jQuery("#time_coverage").val()),
         "group_id":       group_id,
         "categories":     category_ids
-    }
+    };
 
     return form_data;
 }
@@ -373,7 +373,7 @@ function reserve_doi (collection_id) {
             `<p>The DOI of your collection will be: <strong>${record["doi"]}</strong></p>`
         );
     }).fail(function () {
-        show_message ("failure", "<p>Failed to reserve DOI. Please try again later.</p>")
+        show_message ("failure", "<p>Failed to reserve DOI. Please try again later.</p>");
     });
 }
 
@@ -437,8 +437,8 @@ function autocomplete_author (event, collection_id) {
             }
             html += "</ul>";
 
-            html += `<div id="new-author" class="a-button"><a href="#" `
-            html += `onclick="javascript:new_author('${collection_id}'); `
+            html += `<div id="new-author" class="a-button"><a href="#" `;
+            html += `onclick="javascript:new_author('${collection_id}'); `;
             html += `return false;">Create new author record</a></div>`;
             jQuery("#authors")
                 .addClass("input-for-ac")

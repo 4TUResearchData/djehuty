@@ -1,11 +1,11 @@
-const capitalize = (i) => (i[0].toUpperCase() + i.substring(1))
+const capitalize = (i) => (i[0].toUpperCase() + i.substring(1));
 
 function parameters_for_api_calls (order) {
     let parameters = {
         "limit": 10,
         "order_direction": "desc",
         "order": order
-    }
+    };
 
     // This procedure is used by both institutional pages which filter by 'group_ids'
     // and category pages which filter by 'categories'.  So one of these variables
@@ -66,7 +66,7 @@ function top_datasets (item_type) {
         });
 
         output += "</tbody></table>";
-        jQuery("#top-datasets").remove()
+        jQuery("#top-datasets").remove();
         jQuery("#top-datasets-wrapper").removeClass("loader");
         jQuery("#top-datasets-wrapper").append(output);
     }).fail(function() {

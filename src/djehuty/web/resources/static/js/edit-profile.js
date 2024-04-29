@@ -1,7 +1,7 @@
 function save_profile (notify=true, on_success=jQuery.noop) {
 
     let categories   = jQuery("input[name='categories']:checked");
-    let category_ids = []
+    let category_ids = [];
     for (let category of categories) {
         category_ids.push(jQuery(category).val());
     }
@@ -16,7 +16,7 @@ function save_profile (notify=true, on_success=jQuery.noop) {
         "linkedin":       or_null(jQuery("#linkedin").val()),
         "website":        or_null(jQuery("#website").val()),
         "categories":     category_ids
-    }
+    };
 
     jQuery.ajax({
         url:         "/v3/profile",

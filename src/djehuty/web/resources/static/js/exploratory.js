@@ -15,9 +15,9 @@ function draw_grid () {
     let width       = parseInt(explorer.style("width"));
     let height      = parseInt(explorer.style("height"));
 
-    explorer.select("#grid").remove()
-    let grid = explorer.append("g").attr("id", "grid")
-    grid.lower()
+    explorer.select("#grid").remove();
+    let grid = explorer.append("g").attr("id", "grid");
+    grid.lower();
     for (let x = 10; x < width; x += 10) {
         // Vertical lines
         grid.append("line")
@@ -39,14 +39,14 @@ function draw_grid () {
 function draw_column_title (column, value) {
     let translate_x = 20 + column * 290;
     let explorer    = d3.select("#data-model-explorer");
-    explorer.selectAll(`.node-${column}-column-title`).remove()
+    explorer.selectAll(`.node-${column}-column-title`).remove();
     let title_group = explorer.append("g")
         .attr("transform", "translate("+ translate_x +",20)")
         .classed(`node-${column}-column-title`, true);
     title_group
         .append("text").text(value)
         .attr("transform", "translate(0, 11)")
-        .classed("node-column-title", true)
+        .classed("node-column-title", true);
 }
 
 function resize_svg () {

@@ -5,9 +5,9 @@ function delete_dataset (dataset_uuid, event) {
                 "Do you want to continue?"))
     {
         jQuery.ajax({
-            url:         `/v2/account/articles/${dataset_uuid}`,
             type:        "DELETE",
-        }).done(function () { window.location.pathname = '/my/datasets' })
+            url:         `/v2/account/articles/${dataset_uuid}`
+        }).done(function () { window.location.pathname = "/my/datasets"; })
           .fail(function (jqXHR, textStatus, errorThrown) {
               if (jqXHR.status == 403) {
                   show_message ("failure", "<p>No permission to remove dataset.</p>");
@@ -23,19 +23,19 @@ function decline_dataset (dataset_uuid, event) {
     event.stopPropagation();
 
     jQuery("#content").addClass("loader-top");
-    jQuery("#content-wrapper").css('opacity', '0.15');
+    jQuery("#content-wrapper").css("opacity", "0.15");
     save_dataset (dataset_uuid, event, false, function() {
         jQuery.ajax({
-            url:         `/v3/datasets/${dataset_uuid}/decline`,
-            type:        "POST",
             accept:      "application/json",
+            type:        "POST",
+            url:         `/v3/datasets/${dataset_uuid}/decline`
         }).done(function () {
             window.location.replace("/logout");
         }).fail(function (response, text_status, error_code) {
             show_message ("failure",
                           `<p>Could not decline due to error ` +
                           `<code>${error_code}</code>.</p>`);
-            jQuery("#content-wrapper").css('opacity', '1.0');
+            jQuery("#content-wrapper").css("opacity", "1.0");
             jQuery("#content").removeClass("loader-top");
         });
     });
@@ -53,11 +53,11 @@ function preview_dataset (dataset_uuid, event) {
 
     save_dataset (dataset_uuid, event, false, function() {
         jQuery.ajax({
-            url:         `/v2/account/articles/${dataset_uuid}/private_links`,
-            type:        "POST",
-            contentType: "application/json",
             accept:      "application/json",
+            contentType: "application/json",
             data:        JSON.stringify({ "expires_date": `${year}-${month}-${day}` }),
+            type:        "POST",
+            url:         `/v2/account/articles/${dataset_uuid}/private_links`
         }).done(function (data) {
             let preview_window = window.open(data["location"], '_blank');
             if (preview_window) { preview_window.focus(); }
@@ -76,7 +76,7 @@ function preview_dataset (dataset_uuid, event) {
 
 function gather_form_data () {
     let categories   = jQuery("input[name='categories']:checked");
-    let category_ids = []
+    let category_ids = [];
     for (let category of categories) {
         category_ids.push(jQuery(category).val());
     }
@@ -88,7 +88,7 @@ function gather_form_data () {
         defined_type_name = "dataset";
     }
 
-    let group_id = jQuery("input[name='groups']:checked")[0]
+    let group_id = jQuery("input[name='groups']:checked")[0];
     if (group_id !== undefined) { group_id = group_id["value"]; }
     else { group_id = null; }
 
@@ -122,7 +122,7 @@ function gather_form_data () {
         "agreed_to_deposit_agreement": agreed_to_da,
         "agreed_to_publish": agreed_to_publish,
         "categories":     category_ids
-    }
+    };
 
     if (is_embargoed) {
         form_data["embargo_until_date"] = or_null(jQuery("#embargo_until_date").val());
@@ -141,7 +141,7 @@ function gather_form_data () {
         form_data["embargo_title"]  = "Restricted access";
         form_data["embargo_reason"] = or_null(jQuery("#restricted_access_reason .ql-editor").html());
         form_data["eula"]           = or_null(jQuery("#restricted_access_eula .ql-editor").html());
-        form_data["embargo_options"] = [{ "id": 1000, "type": "restricted_access" }]
+        form_data["embargo_options"] = [{ "id": 1000, "type": "restricted_access" }];
     } else {
         form_data["license_id"]     = or_null(jQuery("#license_open").val());
     }
@@ -198,7 +198,7 @@ function repair_md5_sums (dataset_uuid, event) {
         }).done(function (record) {
             location.reload();
         }).fail(function () {
-            show_message ("failure", "<p>Failed to repair MD5 checksums.</p>")
+            show_message ("failure", "<p>Failed to repair MD5 checksums.</p>");
         });
     });
 }
@@ -213,7 +213,7 @@ function reserve_doi (dataset_uuid) {
             `<p>The DOI of your dataset will be: <strong>${record["doi"]}</strong></p>`
         );
     }).fail(function () {
-        show_message ("failure", "<p>Failed to reserve DOI. Please try again later.</p>")
+        show_message ("failure", "<p>Failed to reserve DOI. Please try again later.</p>");
     });
 }
 
@@ -244,7 +244,7 @@ function render_licenses (dataset) {
             jQuery(".license-selector").append(html);
         }
     }).fail(function () {
-        show_message ("failure", "<p>Failed to retrieve license list.</p>")
+        show_message ("failure", "<p>Failed to retrieve license list.</p>");
     });
 }
 
@@ -261,7 +261,7 @@ function render_categories_for_dataset (dataset_uuid) {
             jQuery(`#subcategories_${category["parent_uuid"]}`).show();
         }
     }).fail(function () {
-        show_message ("failure", "<p>Failed to retrieve categories.</p>")
+        show_message ("failure", "<p>Failed to retrieve categories.</p>");
     });
 }
 
@@ -295,7 +295,7 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
         accept:      "application/json",
     }).done(function (collaborators) {
         jQuery("#collaborators-form tbody").empty();
-        let row ='<tr>';
+        let row = "<tr>";
         if (may_edit_metadata) {
             row += '<td><input type="text" id="add_collaborator" name="add_collaborator" value=""/>';
             row += '<input type="hidden" id="account_uuid" name="account_uuid" value=""/></td>';
@@ -306,7 +306,7 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
             row += '<td class="type-end"><input class="subitem-checkbox-data" name="remove" type="checkbox"></td>';
             row += '<td><a id="add-collaborator-button" class="fas fa-plus" href="#" ';
             row += 'title="Add collaborator"></a></td>';
-            row += '</tr>';
+            row += "</tr>";
             jQuery("#collaborators-form tbody").append(row);
             jQuery("#add-collaborator-button").on("click", function(event) {
                 event.preventDefault();
@@ -350,17 +350,17 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
 
 function add_collaborator (dataset_uuid, may_edit_metadata) {
     let form_data= {
-            "metadata": {
-                "read": jQuery("input[name='read'].subitem-checkbox-metadata").prop("checked"),
-                "edit": jQuery("input[name='edit'].subitem-checkbox-metadata").prop("checked"),
-            },
-            "data": {
-                "read": jQuery("input[name='read'].subitem-checkbox-data").prop("checked"),
-                "edit": jQuery("input[name='edit'].subitem-checkbox-data").prop("checked"),
-                "remove": jQuery("input[name='remove'].subitem-checkbox-data").prop("checked"),
-            },
-            "account": or_null(jQuery("#account_uuid").val())
-        }
+        "metadata": {
+            "read": jQuery("input[name='read'].subitem-checkbox-metadata").prop("checked"),
+            "edit": jQuery("input[name='edit'].subitem-checkbox-metadata").prop("checked"),
+        },
+        "data": {
+            "read": jQuery("input[name='read'].subitem-checkbox-data").prop("checked"),
+            "edit": jQuery("input[name='edit'].subitem-checkbox-data").prop("checked"),
+            "remove": jQuery("input[name='remove'].subitem-checkbox-data").prop("checked"),
+        },
+        "account": or_null(jQuery("#account_uuid").val())
+    };
 
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}/collaborators`,
@@ -417,7 +417,7 @@ function update_author (author_uuid, dataset_uuid) {
         "last_name": jQuery("#edit_author_last_name").val(),
         "email": jQuery("#edit_author_email").val(),
         "orcid": jQuery("#edit_author_orcid").val()
-    }
+    };
     jQuery.ajax({
         url:         `/v3/authors/${author_uuid}`,
         data:        JSON.stringify(record),
@@ -429,7 +429,7 @@ function update_author (author_uuid, dataset_uuid) {
         render_authors_for_dataset (dataset_uuid);
     }).fail(function () {
         show_message ("failure", "<p>Failed to update author details.</p>");
-    })
+    });
 }
 
 function edit_author (author_uuid, dataset_uuid) {
@@ -715,7 +715,7 @@ function render_files_for_thumbnail (dataset_uuid) {
                 }).fail(function () {
                     show_message ("failure", "<p>Failed to set thumbnail.</p>");
                 });
-            })
+            });
         } else {
             jQuery("#thumbnails-wrapper").hide();
             jQuery("#thumbnail-files-wrapper").hide();
@@ -1085,7 +1085,7 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
                 if (fileUploader.getUploadingFiles().length === 0 &&
                     fileUploader.getQueuedFiles().length === 0) {
                     let rejected_files = fileUploader.getRejectedFiles();
-                    for (rejected of rejected_files) {
+                    for (let rejected of rejected_files) {
                         if (rejected.status == "error") {
                             show_message ("failure", `<p>Failed to upload '${rejected.upload.filename}'.</p>`);
                         }
