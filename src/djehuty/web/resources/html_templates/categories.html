@@ -5,63 +5,6 @@ var categories = "{% for item in subcategories: %}{{item.id}}{{ ',' if not loop.
 </script>
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/ranking.js"></script>
-<style>
-.tile-item {
-    display: inline-block;
-    margin: 0pt 10pt 10pt 0pt;
-    padding: 10pt;
-    width: 135pt;
-    border-radius: 10pt;
-    cursor: pointer;
-    background: #f9f9f9;
-}
-.tile-item:hover { background: #eeeeee; }
-.tile-item:active { background: #e9e9e9; }
-.tile-title {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    max-width: 150pt;
-    height: 4em;
-    font-size: 1.3em;
-    font-weight: bold;
-}
-.tile-preview {
-    overflow: hidden;
-    width: 100%;
-    height: 130pt;
-    margin: 0 auto;
-    user-select: none;
-}
-.tile-title a:hover { color: #666666; }
-.tabs ul { margin: 0em; padding: 0em; }
-.tabs li {
-    display: inline-block;
-    list-style-type: none;
-    text-decoration: none;
-    color: #000000;
-    font-size: 12pt;
-    padding: .5em .75em .5em .75em;
-    margin: 0pt 5pt 0pt 0pt;
-    user-select: none;
-    border-radius: .5em .5em 0em 0em;
-}
-#top-datasets th { text-align: left; white-space: nowrap; color: #ffffff; padding: .5em; }
-#top-datasets-wrapper table { width: 100%; max-width: 880pt; }
-#top-datasets tbody tr td { padding: .5em; z-index: 50; }
-#top-datasets tbody tr:nth-child(odd) { background: #fafafa; }
-#top-datasets tbody tr td:last-child { text-align: right; width: 130pt; }
-#top-datasets thead tr th:last-child { text-align: right; }
-#top-datasets tbody tr td:nth-child(1) {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    max-width: 750pt;
-}
-#top-datasets td { text-align: left; }
-</style>
 {% endblock %}
 {% block body %}
 <h1>{{category.title}}</h1>
