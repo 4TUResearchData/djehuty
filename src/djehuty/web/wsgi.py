@@ -94,6 +94,7 @@ class ApiServer:
         self.orcid_client_id     = None
         self.orcid_client_secret = None
         self.orcid_endpoint      = None
+        self.orcid_read_public_token = None
         self.identity_provider   = None
 
         self.saml_config_path    = None
@@ -1138,6 +1139,39 @@ class ApiServer:
 
     ## AUTHENTICATION HANDLERS
     ## ------------------------------------------------------------------------
+
+    def obtain_orcid_read_public_token (self):
+        """Requests a read-public token from ORCID."""
+
+        url_parameters = {
+            "client_id":     self.orcid_client_id,
+            "client_secret": self.orcid_client_secret,
+            "grant_type":    "client_credentials",
+            "scope":         "/read-public"
+        }
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+        response = requests.post(f"{self.orcid_endpoint}/token",
+                                 params  = url_parameters,
+                                 headers = headers,
+                                 timeout = 10)
+
+        if response.status_code != 200:
+            self.log.error ("Failed to obtain read-public token from ORCID (%d).",
+                            response.status_code)
+            return False
+
+        record = response.json()
+        token = value_or_none (record, "access_token")
+        if token is not None:
+            self.orcid_read_public_token = token
+            return True
+
+        self.log.error ("Unexpected response for read-public token from ORCID.")
+        self.log.error ("Response was:\n---\n%s\n---", json.dumps(record))
+        return False
 
     def authenticate_using_orcid (self, request, redirect_path="/login"):
         """Returns a record upon success, None upon failure."""

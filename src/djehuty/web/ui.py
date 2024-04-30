@@ -486,6 +486,7 @@ def read_orcid_configuration (server, xml_root):
         server.orcid_client_id     = config_value (orcid, "client-id")
         server.orcid_client_secret = config_value (orcid, "client-secret")
         server.orcid_endpoint      = config_value (orcid, "endpoint")
+        server.orcid_read_public_token = config_value (orcid, "read-public-token")
 
         # SAML takes precedence over ORCID authentication.
         if server.identity_provider != "saml":
@@ -975,6 +976,10 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 logger.error ("Cannot find the 'git' executable.  Please install it.")
                 if server.in_production:
                     raise DependencyNotAvailable
+
+            if server.orcid_client_id is not None and server.orcid_read_public_token is None:
+                if server.obtain_orcid_read_public_token ():
+                    logger.info ("Obtained read-public token from ORCID.")
 
             logger.info ("SPARQL endpoint:  %s.", server.db.endpoint)
             logger.info ("SPARQL update_endpoint:  %s.", server.db.update_endpoint)
