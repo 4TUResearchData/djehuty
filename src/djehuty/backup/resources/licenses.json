@@ -1,5 +1,26 @@
 [
     {
+        "url": "https://opensource.org/license/cern-ohl-s",
+        "value": 996,
+        "name": "CERN-OHL-S-2.0",
+        "spdx": "https://spdx.org/licenses/CERN-OHL-S-2.0",
+        "type": "hardware"
+    },
+    {
+        "url": "https://opensource.org/license/cern-ohl-w",
+        "value": 995,
+        "name": "CERN-OHL-W-2.0",
+        "spdx": "https://spdx.org/licenses/CERN-OHL-W-2.0",
+        "type": "hardware"
+    },
+    {
+        "url": "https://opensource.org/license/cern-ohl-p",
+        "value": 994,
+        "name": "CERN-OHL-P-2.0",
+        "spdx": "https://spdx.org/licenses/CERN-OHL-P-2.0",
+        "type": "hardware"
+    },
+    {
         "url": "https://opensource.org/licenses/EUPL-1.2",
         "value": 99,
         "name": "EUPL-1.2",

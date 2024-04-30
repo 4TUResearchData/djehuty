@@ -661,6 +661,8 @@ class DatabaseInterface:
             license_type_uri = None
             if license_type == "software":
                 license_type_uri = rdf.DJHT["SoftwareLicense"]
+            if license_type == "hardware":
+                license_type_uri = rdf.DJHT["HardwareLicense"]
             elif license_type == "data":
                 license_type_uri = rdf.DJHT["DataLicense"]
             elif license_type == "legacy":
