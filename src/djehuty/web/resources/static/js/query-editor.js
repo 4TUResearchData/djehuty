@@ -1,8 +1,6 @@
 var editor = null;
 
 function execute_query (editor) {
-
-    url = window.location.href;
     jQuery("#button-wrapper").after(
         "<div class=\"query-data-loader\">" +
             "<div class=\"title\">Loading data ...</div>" +
