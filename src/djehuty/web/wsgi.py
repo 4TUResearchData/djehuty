@@ -510,34 +510,44 @@ class ApiServer:
         template      = self.jinja.get_template (template_name)
         token         = self.token_from_cookie (request)
         account       = self.db.account_by_session_token (token)
-        impersonator_token = self.__impersonator_token (request)
         parameters    = {
-            "base_url":        self.base_url,
-            "site_name":       self.site_name,
-            "site_description": self.site_description,
-            "site_shorttag":   self.site_shorttag,
-            "small_footer":    self.small_footer,
-            "large_footer":    self.large_footer,
-            "path":            request.path,
-            "in_production":   self.in_production,
-            "maintenance_mode": self.maintenance_mode,
-            "sandbox_message": self.sandbox_message,
+            "base_url":            self.base_url,
+            "identity_provider":   self.identity_provider,
+            "in_production":       self.in_production,
+            "is_logged_in":        account is not None,
+            "large_footer":        self.large_footer,
+            "maintenance_mode":    self.maintenance_mode,
+            "menu":                self.menu,
+            "orcid_client_id":     self.orcid_client_id,
+            "orcid_endpoint":      self.orcid_endpoint,
+            "path":                request.path,
+            "sandbox_message":     self.sandbox_message,
             "sandbox_message_css": self.sandbox_message_css,
-            "identity_provider": self.identity_provider,
-            "orcid_client_id": self.orcid_client_id,
-            "orcid_endpoint":  self.orcid_endpoint,
-            "session_token":   self.token_from_request (request),
-            "is_logged_in":    account is not None,
-            "is_reviewing":    self.db.may_review (impersonator_token),
-            "may_review":      self.db.may_review (token, account),
-            "may_review_integrity": self.db.may_review_integrity (token, account),
-            "may_review_quotas": self.db.may_review_quotas (token, account),
-            "may_administer":  self.db.may_administer (token, account),
-            "may_query":       self.db.may_query (token, account),
-            "may_impersonate":  self.db.may_impersonate (token, account),
-            "impersonating_account": self.__impersonating_account (request),
-            "menu":            self.menu,
+            "site_description":    self.site_description,
+            "site_name":           self.site_name,
+            "site_shorttag":       self.site_shorttag,
+            "small_footer":        self.small_footer,
         }
+        if account is None:
+            parameters = { **parameters,
+                "session_token": None,
+                "impersonating_account": None,
+                "is_reviewing": None
+            }
+        else:
+            impersonator_token = self.__impersonator_token (request)
+            parameters = { **parameters,
+                "impersonating_account": self.__impersonating_account (request),
+                "is_reviewing":          self.db.may_review (impersonator_token),
+                "may_administer":        self.db.may_administer (token, account),
+                "may_impersonate":       self.db.may_impersonate (token, account),
+                "may_query":             self.db.may_query (token, account),
+                "may_review":            self.db.may_review (token, account),
+                "may_review_integrity":  self.db.may_review_integrity (token, account),
+                "may_review_quotas":     self.db.may_review_quotas (token, account),
+                "session_token":         self.token_from_request (request),
+            }
+
         return self.response (template.render({ **context, **parameters }),
                               mimetype='text/html')
 
