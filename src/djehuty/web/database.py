@@ -1810,10 +1810,18 @@ class SparqlInterface:
         if self.add_triples_from_graph (graph):
             existing_collaborators = self.collaborators (dataset_uuid)
             if existing_collaborators:
-                last_collaborator = existing_collaborators [-1]
+                last_collaborator = self.__last_item_by_order_index (existing_collaborators)
+                if last_collaborator is None:
+                    self.log.error ("Unable to find collaborator to append to (%s)",
+                                    collaborator_uri)
+                    return None
+
                 last_node = conv.value_or_none(last_collaborator, "originating_blank_node")
-                new_index = conv.value_or (last_collaborator, "order_index", 0) +1
+                new_index = conv.value_or (last_collaborator, "order_index", 0) + 1
                 new_node = self.wrap_in_blank_node(collaborator_uri, index=new_index)
+                if new_node is None:
+                    self.log.error ("Failed preparation to append %s.", collaborator_uri)
+                    return None
 
                 if self.append_to_list(last_node, new_node):
                     return rdf.uri_to_uuid (collaborator_uri)
