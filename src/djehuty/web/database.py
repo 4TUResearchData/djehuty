@@ -254,6 +254,12 @@ class SparqlInterface:
             return query
         return rdf.insert_query (self.state_graph, graph)
 
+    def __last_item_by_order_index (self, results):
+        try:
+            return max(results, key = lambda item: item["order_index"])
+        except (ValueError, KeyError):
+            return None
+
     ## ------------------------------------------------------------------------
     ## GET METHODS
     ## ------------------------------------------------------------------------
@@ -1678,11 +1684,12 @@ class SparqlInterface:
             # In the case where there are already files in the dataset,
             # we can append to the last blank node.
             if existing_files:
-                last_file = existing_files[-1]
-                new_index = conv.value_or (last_file, "order_index", 0) + 1
-                if new_index < 1:
-                    self.log.error ("Expected larger index for to-be-appended file.")
+                last_file = self.__last_item_by_order_index (existing_files)
+                if last_file is None:
+                    self.log.error ("Unable to find file to append to (%s)", file_uri)
+                    return None
 
+                new_index = conv.value_or (last_file, "order_index", 0) + 1
                 last_node = conv.value_or_none (last_file, "originating_blank_node")
                 new_node  = self.wrap_in_blank_node (file_uri, index=new_index)
                 if new_node is None:
