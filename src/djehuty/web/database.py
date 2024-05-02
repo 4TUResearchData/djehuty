@@ -174,7 +174,6 @@ class SparqlInterface:
         return self.__run_query (query)
 
     def __run_query (self, query, cache_key_string=None, prefix=None, retries=5):
-        self.log.info ("Running query.: %s", query)
 
         cache_key = None
         if cache_key_string is not None:
@@ -390,8 +389,6 @@ class SparqlInterface:
         if len(search_words) == 0:
             return filters
 
-        self.log.info("length of search words: %s", len(search_words))
-
         fields = []
         if "scopes" in search_filters:
             fields += search_filters["scopes"]
@@ -453,11 +450,9 @@ class SparqlInterface:
         filters += rdf.sparql_in_filter ("group_id",    groups)
         filters += rdf.sparql_in_filter ("dataset_id", exclude_ids, negate=True)
 
-        self.log.info("search_filters: %s", search_filters)
         if search_filters is None:
             filters += self.__search_query_to_sparql_filters_v2 (search_for, search_format)
         else:
-            self.log.info("v3")
             filters += self.__search_query_to_sparql_filters_v3 (search_for, search_filters)
 
         if is_software is not None:
