@@ -1880,10 +1880,20 @@ class SparqlInterface:
         if self.add_triples_from_graph (graph):
             item_uri    = rdf.uuid_to_uri (item_uuid, item_type)
             existing_links = self.private_links (item_uri=item_uri, account_uuid=account_uuid)
-            existing_links = list(map (lambda item: URIRef(rdf.uuid_to_uri(item["uuid"], "private_link")),
-                                               existing_links))
+            if existing_links:
+                last_link = self.__last_item_by_order_index (existing_links)
+                if last_link is None:
+                    self.log.error ("Unable to find link to append to (%s)", link_uri)
 
-            new_links    = existing_links + [URIRef(link_uri)]
+                last_node = conv.value_or_none (last_link, "originating_blank_node")
+                new_index = conv.value_or (last_link, "order_index", 0) + 1
+                new_node  = self.wrap_in_blank_node (link_uri, index=new_index)
+                if new_node is None:
+                    self.log.error ("Failed preparation to append %s.", collaborator_uri)
+                    return None
+
+                if self.append_to_list (last_node, new_node):
+                    return link_uri
 
             item = None
             if item_type == "dataset":
@@ -1905,12 +1915,13 @@ class SparqlInterface:
                                               limit        = 1)[0]
 
             if item is None:
-                self.log.error ("Could not find item to insert a private link for.")
+                self.log.error ("Could not find item to insert a private link %s for.",
+                                link_uri)
                 return None
 
             if self.update_item_list (item["uuid"],
                                       account_uuid,
-                                      new_links,
+                                      [URIRef(link_uri)],
                                       "private_links"):
                 return link_uri
 
