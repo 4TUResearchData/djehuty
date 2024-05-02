@@ -523,6 +523,19 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
+    def repository_datalink_statistics (self, use_cache=False):
+        """Returns datalink sizes."""
+
+        # Since the post-figshare djht:data_link_size is used.
+        filters = 'FILTER (?created > "2021-03-17"^^xsd:date)'
+        query = self.__query_from_template ("statistics_datalink", {
+            "filters": filters})
+
+        if use_cache:
+            return self.__run_query (query, query, "repository_statistics")
+
+        return self.__run_query (query)
+
     def repository_statistics (self):
         """Procedure to retrieve repository-wide statistics."""
 
@@ -536,10 +549,14 @@ class SparqlInterface:
             authors     = self.__run_query (authors_query, authors_query, "repository_statistics")
             collections = self.__run_query (collections_query, collections_query, "repository_statistics")
             files       = self.repository_file_statistics (use_cache=True)
+            datalinks   = self.repository_datalink_statistics (use_cache=True)
             number_of_files = 0
             number_of_bytes = 0
             for entry in files:
                 number_of_files += 1
+                number_of_bytes += int(float(entry["bytes"]))
+
+            for entry in datalinks:
                 number_of_bytes += int(float(entry["bytes"]))
 
             files_results = {

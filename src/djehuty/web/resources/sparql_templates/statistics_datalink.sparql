@@ -1,0 +1,13 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?data_link ?bytes
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?dataset    rdf:type            djht:Dataset .
+    ?dataset    djht:data_link      ?data_link .
+    ?dataset    djht:data_link_size ?bytes .
+    ?dataset    djht:created_date   ?created .
+  }
+{%- if filters is not none %}{{ filters | safe }}{% endif %}
+}
+{% endblock %}
