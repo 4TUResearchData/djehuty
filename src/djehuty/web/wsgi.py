@@ -321,6 +321,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             R("/v3/datasets",                                                    self.api_v3_datasets),
             R("/v3/datasets/codemeta",                                           self.api_v3_datasets_codemeta),
+            R("/v3/datasets/search",                                             self.api_v3_datasets_search),
             R("/v3/datasets/top/<item_type>",                                    self.api_v3_datasets_top),
             R("/v3/datasets/<dataset_id>/submit-for-review",                     self.api_v3_dataset_submit),
             R("/v3/datasets/<dataset_id>/publish",                               self.api_v3_dataset_publish),
@@ -6267,6 +6268,64 @@ class ApiServer:
                                                item_type = "dataset",
                                                limit = 10000)))
             return self.response (json.dumps(output))
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+    def api_v3_datasets_search (self, request):
+        """Implements /v3/datasets/search."""
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        parameters = request.get_json()
+
+        try:
+            record = {}
+            record["order"]           = self.get_parameter (parameters, "order")
+            record["order_direction"] = self.get_parameter (parameters, "order_direction")
+            record["institution"]     = self.get_parameter (parameters, "institution")
+            record["published_since"] = self.get_parameter (parameters, "published_since")
+            record["modified_since"]  = self.get_parameter (parameters, "modified_since")
+            record["group"]           = self.get_parameter (parameters, "group")
+            record["resource_doi"]    = self.get_parameter (parameters, "resource_doi")
+            record["item_type"]       = self.get_parameter (parameters, "item_type")
+            record["doi"]             = self.get_parameter (parameters, "doi")
+            record["handle"]          = self.get_parameter (parameters, "handle")
+            record["search_for"]      = self.get_parameter (parameters, "search_for")
+            record["search_filters"]  = self.get_parameter (parameters, "search_filters")
+            record["categories"]      = split_delimited_string(self.get_parameter (parameters, "categories"), ",")
+            record["is_latest"]       = self.get_parameter (parameters, "is_latest")
+
+            offset, limit = self.__paging_offset_and_limit (parameters)
+            record["offset"] = offset
+            record["limit"]  = limit
+
+            validator.string_value   (record, "order", 0, 32)
+            validator.order_direction (record, "order_direction")
+            validator.integer_value  (record, "institution")
+            validator.string_value   (record, "published_since", maximum_length=32)
+            validator.string_value   (record, "modified_since",  maximum_length=32)
+            validator.integer_value  (record, "group")
+            validator.string_value   (record, "resource_doi",    maximum_length=255)
+            validator.integer_value  (record, "item_type")
+            validator.string_value   (record, "doi",             maximum_length=255)
+            validator.string_value   (record, "handle",          maximum_length=255)
+            validator.string_value   (record, "search_for",      maximum_length=1024)
+            validator.boolean_value  (record, "is_latest")
+            validator.search_filters (record["search_filters"])
+
+            if "categories" in record and record["categories"] is not None:
+                for category_id in record["categories"]:
+                    validator.integer_value (record, "category_id", category_id)
+
+            # Rewrite the group parameter to match the database's plural form.
+            record["groups"]  = [record["group"]] if record["group"] is not None else None
+            del record["group"]
+
+            records = self.db.datasets (**record)
+            return self.default_list_response (records, formatter.format_dataset_record,
+                                               base_url = self.base_url)
+
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 

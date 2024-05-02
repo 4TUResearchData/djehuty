@@ -200,6 +200,52 @@ def group (value, required=False):
     """Validation procedure for the group parameter."""
     return integer_value (value, "group", required=required)
 
+def search_filters (value, error_list=None):
+    """Validation procedure for the search_filters parameter."""
+
+    if value is None:
+        return None
+
+    __typed_value (value, "scopes",      list, "list",   error_list=error_list)
+    __typed_value (value, "formats",     list, "list",   error_list=error_list)
+    __typed_value (value, "operator",    str,  "string", error_list=error_list)
+    __typed_value (value, "institution", str,  "string", error_list=error_list)
+
+    for k, v in value.items():
+        if k == "scopes":
+            for elem in v:
+                string_value ({ "value": elem }, "value", 1, 20, required=True)
+                if elem not in ["title", "description", "tag"]:
+                    return raise_or_return_error (error_list,
+                                InvalidValue(
+                                    field_name = "search_filters",
+                                    message = "Invalid value in 'scopes'.",
+                                    code    = "InvalidValue"))
+        elif k == "formats":
+            for elem in v:
+                string_value ({ "value": elem }, "value", 1, 20, required=True)
+
+        elif k == "institution":
+            string_value ({ "value": v }, "value", 1, 50, required=True)
+
+        elif k == "operator":
+            string_value ({ "value": v }, "value", 1, 5, required=True)
+            if v not in ["and", "or", "exact"]:
+                return raise_or_return_error (error_list,
+                            InvalidValueType(
+                                field_name = "search_filters",
+                                message = "Invalid value in 'operator'.",
+                                code    = "WrongValueType"))
+
+        else:
+            return raise_or_return_error (error_list,
+                        InvalidValue(
+                            field_name = "search_filters",
+                            message = f"Invalid key '{k}' in 'search_filters'.",
+                            code    = "InvalidValue"))
+
+    return value
+
 def index_exists (value, index):
     """Procedure to test whether a list or string has a certain length."""
 

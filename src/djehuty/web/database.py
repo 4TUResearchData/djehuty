@@ -174,6 +174,7 @@ class SparqlInterface:
         return self.__run_query (query)
 
     def __run_query (self, query, cache_key_string=None, prefix=None, retries=5):
+        self.log.info ("Running query.: %s", query)
 
         cache_key = None
         if cache_key_string is not None:
@@ -304,9 +305,9 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
-    def __search_query_to_sparql_filters (self, search_for, search_format):
+    def __search_query_to_sparql_filters_v2 (self, search_for, search_format):
         """
-        Procedure to parse search queries and return SPARQL FILTER statements.
+        Procedure to parse v2 search queries and return SPARQL FILTER statements.
         """
 
         filters = ""
@@ -374,13 +375,64 @@ class SparqlInterface:
 
         return filters
 
+
+    def __search_query_to_sparql_filters_v3 (self, search_for, search_filters):
+        """
+        Procedure to convert v3 search queries to SPARQL FILTER statements.
+        """
+
+        filters = ""
+        if search_for is None or not isinstance (search_filters, dict):
+            return filters
+
+        operator = "&&"
+        search_words = search_for.split()
+        if len(search_words) == 0:
+            return filters
+
+        self.log.info("length of search words: %s", len(search_words))
+
+        fields = []
+        if "scopes" in search_filters:
+            fields += search_filters["scopes"]
+        if "formats" in search_filters:
+            fields += search_filters["formats"]
+        if "operator" in search_filters:
+            if search_filters["operator"] == "or":
+                operator = "||"
+
+        if isinstance (fields, list) and len(fields) > 0:
+            filters += "FILTER ("
+            for field in fields:
+                if not isinstance (field, str):
+                    continue
+
+                filters_tmp = ""
+                for word in search_words:
+                    escaped_word = rdf.escape_string_value (word.lower())
+                    filters_tmp += f"CONTAINS(LCASE(?{field}), {escaped_word}) {operator} "
+                filters_tmp = "(" + filters_tmp[:-4] + ") || "
+                filters += filters_tmp
+
+            filters = filters[:-4]
+            filters += ")\n"
+
+        if "organization" in search_filters:
+            organization = search_filters["organization"]
+            if isinstance (organization, str) and organization != "":
+                escaped_org = rdf.escape_string_value (organization.lower())
+                filters = f"FILTER(CONTAINS(LCASE(?organization), {escaped_org}))\n"
+
+        return filters
+
     def datasets (self, account_uuid=None, categories=None, collection_uri=None,
                   container_uuid=None, dataset_id=None, dataset_uuid=None, doi=None,
                   exclude_ids=None, groups=None, handle=None, institution=None,
                   is_latest=False, item_type=None, limit=None, modified_since=None,
                   offset=None, order=None, order_direction=None, published_since=None,
-                  resource_doi=None, return_count=False, search_for=None, search_format=False,
-                  version=None, is_published=True, is_under_review=None, git_uuid=None,
+                  resource_doi=None, return_count=False, search_for=None,
+                  search_format=False, search_filters=None, version=None,
+                  is_published=True, is_under_review=None, git_uuid=None,
                   private_link_id_string=None, use_cache=True, is_restricted=None,
                   is_embargoed=None, is_software=None):
         """Procedure to retrieve version(s) of datasets."""
@@ -400,7 +452,13 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("private_link_id_string", private_link_id_string, escape=True)
         filters += rdf.sparql_in_filter ("group_id",    groups)
         filters += rdf.sparql_in_filter ("dataset_id", exclude_ids, negate=True)
-        filters += self.__search_query_to_sparql_filters (search_for, search_format)
+
+        self.log.info("search_filters: %s", search_filters)
+        if search_filters is None:
+            filters += self.__search_query_to_sparql_filters_v2 (search_for, search_format)
+        else:
+            self.log.info("v3")
+            filters += self.__search_query_to_sparql_filters_v3 (search_for, search_filters)
 
         if is_software is not None:
             if is_software:

@@ -408,10 +408,17 @@ function load_search_filters_from_url() {
 }
 
 function load_search_results() {
-    let api_dataset_url    = "/v2/articles/search";
+    let api_dataset_url    = "/v3/datasets/search";
     let api_collection_url = "/v2/collections/search";
     let request_params     = parse_url_params();
+    let search_filters     = {};
     let target_api_url     = null;
+
+    if ("matchoperator" in request_params) {
+        search_filters["operator"] = request_params["matchoperator"];
+    } else {
+        search_filters["operator"] = "and";
+    }
 
     if ("datatypes" in request_params && request_params["datatypes"] === "collection") {
         target_api_url = api_collection_url;
@@ -420,69 +427,29 @@ function load_search_results() {
         request_params["item_type"] = request_params["datatypes"];
     }
 
-    let search_for = "";
+    search_filters["scopes"] = [];
     if ("searchscope" in request_params && typeof(request_params["searchscope"]) === "string" && request_params["searchscope"].length > 0) {
-
-        // If there's no search terms, show an error message.
-        if (!("search" in request_params) || typeof(request_params["search"]) === "string" && request_params["search"].length == 0) {
-            let error_message = `Search Scope requires search terms(s).`;
-            jQuery("#search-error").html(error_message);
-            jQuery("#search-error").show();
-            return;
-        }
-
-        let temp_search_for = "";
         let items = request_params["searchscope"];
-        let iterated = 0;
         for (let scope of items.split(",")) {
-            iterated += 1;
-            temp_search_for += `:${scope}: ${request_params["search"]} OR `;
-        }
-        if (temp_search_for.endsWith(" OR ")) {
-            temp_search_for = temp_search_for.slice(0, -4);
-        }
-        if (temp_search_for.length > 0) {
-            if (iterated > 1) {
-                search_for = `( ${temp_search_for} )`;
-            } else {
-                search_for = `${temp_search_for}`;
-            }
+            search_filters["scopes"].push(scope);
         }
     } else {
         // If searchscope is not selected, search in title, description, and tags.
-        if ("search" in request_params && typeof(request_params["search"]) === "string" && request_params["search"].length > 0) {
-            search_for = `( :title: ${request_params["search"]} OR :description: ${request_params["search"]} OR :tag: ${request_params["search"]} )`;
-        }
+        search_filters["scopes"] = ["title", "description", "tag"];
     }
 
+    search_filters["formats"] = [];
     if (("filetypes" in request_params && typeof(request_params["filetypes"]) === "string" && request_params["filetypes"].length > 0) || ("filetypes_other" in request_params && typeof(request_params["filetypes_other"]) === "string" && request_params["filetypes_other"].length > 0)) {
-        let temp_search_for = "";
         let items = request_params["filetypes"];
-        let iterated = 0;
         if (items && items.length > 0) {
-            for (let scope of items.split(",")) {
-                iterated += 1;
-                temp_search_for += `:format: ${scope} OR `;
+            for (let format of items.split(",")) {
+                search_filters["formats"].push(format);
             }
         }
         if ("filetypes_other" in request_params && typeof(request_params["filetypes_other"]) === "string" && request_params["filetypes_other"].length > 0) {
             let filetypes_other = request_params["filetypes_other"];
             filetypes_other = trim_single_word(filetypes_other);
-            temp_search_for += `:format: ${filetypes_other} OR `;
-        }
-        if (temp_search_for.endsWith(" OR ")) {
-            temp_search_for = temp_search_for.slice(0, -4);
-        }
-        if (temp_search_for.length > 0) {
-            if (search_for) {
-                if (iterated > 1) {
-                    search_for += ` AND ( ${temp_search_for} )`;
-                } else {
-                    search_for += ` AND ${temp_search_for}`;
-                }
-            } else {
-                search_for += `${temp_search_for}`;
-            }
+            search_filters["formats"].push(filetypes_other);
         }
     }
 
@@ -499,29 +466,15 @@ function load_search_results() {
     }
 
     if ("institutions_other" in request_params && typeof(request_params["institutions_other"]) === "string" && request_params["institutions_other"].length > 0) {
-        let institutions_other = request_params["institutions_other"];
-        institutions_other = trim_single_word(institutions_other);
-        if (search_for) {
-            search_for += ` AND :organizations: ${institutions_other}`;
-        } else {
-            search_for += `:organizations: ${institutions_other}`;
-        }
+        search_filters["organization"] = trim_single_word(request_params["institutions_other"]);
     }
 
-    if (search_for.length > 0) {
-        request_params["search_for"] = search_for;
-    } else {
-        if ("search" in request_params && typeof(request_params["search"]) === "string" && request_params["search"].length > 0) {
-            request_params["search_for"] = request_params["search"];
-        }
-    }
-
+    request_params["search_for"] = request_params["search"];
     request_params["group"] = request_params["institutions"];
     request_params["page_size"] = page_size;
     request_params["is_latest"] = 1;
-    if (!("page" in request_params)) {
-        request_params["page"] = 1;
-    }
+    request_params["page"] = "page" in request_params ? request_params["page"] : 1;
+    request_params["search_filters"] = search_filters;
 
     jQuery("#search-loader").show();
     jQuery("#search-error").hide();
