@@ -1666,16 +1666,6 @@ class SparqlInterface:
 
         return None
 
-    def append_to_list (self, node_to_be_appended_to, node_to_append):
-        """Procedure to append a blank node to an existing list."""
-
-        query = self.__query_from_template ("append_to_list", {
-            "last_blank_node":   node_to_be_appended_to,
-            "append_blank_node": node_to_append
-        })
-
-        return self.__run_logged_query (query)
-
     def delete_item_from_list (self, subject, predicate, rdf_first_value, value_type="uri"):
         """
         Removes node from list where RDF_FIRST_VALUE is the rdf:first property
@@ -1708,6 +1698,34 @@ class SparqlInterface:
         })
 
         return self.__run_logged_query (query)
+
+    def __append_to_existing_list (self, base_item_uri, existing_items):
+        """
+        Procedure to append to a list when the 'existing_items' contain
+        'originating_blank_node' and 'order_index' properties.
+        """
+        last_item = self.__last_item_by_order_index (existing_items)
+        if last_item is None:
+            self.log.error ("Unable to find item to append to (%s)", base_item_uri)
+            return None
+
+        new_index = conv.value_or (last_item, "order_index", 0) + 1
+        last_node = conv.value_or_none (last_item, "originating_blank_node")
+        new_node  = self.wrap_in_blank_node (base_item_uri, index=new_index)
+        if new_node is None:
+            self.log.error ("Failed preparation to append %s.", base_item_uri)
+            return None
+
+        query = self.__query_from_template ("append_to_list", {
+            "last_blank_node":   last_node,
+            "append_blank_node": new_node
+        })
+
+        if self.__run_logged_query (query):
+            return rdf.uri_to_uuid (base_item_uri)
+
+        self.log.error ("Failed to append %s to the item list.", base_item_uri)
+        return None
 
     def insert_file (self, file_id=None, name=None, size=None,
                      is_link_only=None, download_url=None, supplied_md5=None,
@@ -1754,26 +1772,12 @@ class SparqlInterface:
             # In the case where there are already files in the dataset,
             # we can append to the last blank node.
             if existing_files:
-                last_file = self.__last_item_by_order_index (existing_files)
-                if last_file is None:
-                    self.log.error ("Unable to find file to append to (%s)", file_uri)
-                    return None
+                output = self.__append_to_existing_list (file_uri, existing_files)
+                if output is not None:
+                    self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
+                    self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
 
-                new_index = conv.value_or (last_file, "order_index", 0) + 1
-                last_node = conv.value_or_none (last_file, "originating_blank_node")
-                new_node  = self.wrap_in_blank_node (file_uri, index=new_index)
-                if new_node is None:
-                    self.log.error ("Failed preparation to append %s.", file_uri)
-                    return None
-
-                self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
-                self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
-
-                if self.append_to_list (last_node, new_node):
-                    return rdf.uri_to_uuid (file_uri)
-
-                self.log.error ("Failed to append %s to the file list.", file_uri)
-                return None
+                return output
 
             files = [URIRef(file_uri)]
             if self.update_item_list (dataset_uuid, account_uuid, files, "files"):
@@ -1880,24 +1884,7 @@ class SparqlInterface:
         if self.add_triples_from_graph (graph):
             existing_collaborators = self.collaborators (dataset_uuid)
             if existing_collaborators:
-                last_collaborator = self.__last_item_by_order_index (existing_collaborators)
-                if last_collaborator is None:
-                    self.log.error ("Unable to find collaborator to append to (%s)",
-                                    collaborator_uri)
-                    return None
-
-                last_node = conv.value_or_none(last_collaborator, "originating_blank_node")
-                new_index = conv.value_or (last_collaborator, "order_index", 0) + 1
-                new_node = self.wrap_in_blank_node(collaborator_uri, index=new_index)
-                if new_node is None:
-                    self.log.error ("Failed preparation to append %s.", collaborator_uri)
-                    return None
-
-                if self.append_to_list(last_node, new_node):
-                    return rdf.uri_to_uuid (collaborator_uri)
-
-                self.log.error ("failed to append %s to list of collaborators ", collaborator_uri)
-                return None
+                return self.__append_to_existing_list (collaborator_uri, existing_collaborators)
 
             collaborators = [URIRef(collaborator_uri)]
             if self.update_item_list (dataset_uuid, account_uuid, collaborators, "collaborators"):
@@ -1948,22 +1935,10 @@ class SparqlInterface:
         rdf.add (graph, link_uri, rdf.DJHT["purpose"], purpose,  XSD.string)
 
         if self.add_triples_from_graph (graph):
-            item_uri    = rdf.uuid_to_uri (item_uuid, item_type)
+            item_uri       = rdf.uuid_to_uri (item_uuid, item_type)
             existing_links = self.private_links (item_uri=item_uri, account_uuid=account_uuid)
             if existing_links:
-                last_link = self.__last_item_by_order_index (existing_links)
-                if last_link is None:
-                    self.log.error ("Unable to find link to append to (%s)", link_uri)
-
-                last_node = conv.value_or_none (last_link, "originating_blank_node")
-                new_index = conv.value_or (last_link, "order_index", 0) + 1
-                new_node  = self.wrap_in_blank_node (link_uri, index=new_index)
-                if new_node is None:
-                    self.log.error ("Failed preparation to append %s.", collaborator_uri)
-                    return None
-
-                if self.append_to_list (last_node, new_node):
-                    return link_uri
+                return self.__append_to_existing_list (link_uri, existing_links)
 
             item = None
             if item_type == "dataset":
