@@ -174,8 +174,9 @@ class ApiServer:
             R("/admin/quota-requests",                                           self.ui_admin_quota_requests),
             R("/admin/sparql",                                                   self.ui_admin_sparql),
             R("/admin/reports",                                                  self.ui_admin_reports),
-            R("/admin/reports/restricted_datasets",                              self.ui_admin_reports_restricted_datasets),
             R("/admin/reports/embargoed_datasets",                               self.ui_admin_reports_embargoed_datasets),
+            R("/admin/reports/operational_statistics",                           self.ui_admin_reports_operational_statistics),
+            R("/admin/reports/restricted_datasets",                              self.ui_admin_reports_restricted_datasets),
             R("/admin/impersonate/<account_uuid>",                               self.ui_admin_impersonate),
             R("/admin/maintenance",                                              self.ui_admin_maintenance),
             R("/admin/maintenance/clear-cache",                                  self.ui_admin_clear_cache),
@@ -2900,6 +2901,26 @@ class ApiServer:
             return self.__export_report_in_format (request, "embargoed_datasets", embargoed_datasets, fileformat)
 
         return self.__render_template (request, "admin/reports/embargoed_datasets.html", datasets=embargoed_datasets)
+
+    def ui_admin_reports_operational_statistics (self, request):
+        """Implements /admin/reports/operational_statistics."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        operational_statistics = self.db.repository_statistics()
+
+        export = self.get_parameter (request, "export")
+        fileformat = self.get_parameter (request, "format")
+
+        if export and fileformat:
+            return self.__export_report_in_format (request, "operational_statistics", operational_statistics, fileformat)
+
+        return self.__render_template (request, "admin/reports/operational_statistics.html", datasets=operational_statistics)
+
 
     def ui_admin_maintenance (self, request):
         """Implements /admin/maintenance."""

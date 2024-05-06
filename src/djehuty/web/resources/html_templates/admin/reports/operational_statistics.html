@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block headers %}
+<script src="/static/js/d3.v7.min.js"></script>
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/jquery.dataTables.min.js"></script>
 <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
@@ -14,7 +15,6 @@
 jQuery(document).ready(function () {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery("#reports-table").DataTable({
-        "order": [],
         columnDefs: [{ orderable: false,  targets: 0 }],
         pageLength: 25
     });
@@ -31,6 +31,7 @@ jQuery(document).ready(function () {
   <li class="active corporate-identity-submenu-active">Reports
   {% if may_query %}<li><a href="/admin/sparql">Query</a>{% endif %}
   {% if may_review_quotas %}<li><a href="/admin/quota-requests">Quota requests</a>{% endif %}
+  <li><a href="/admin/reports">← Go back</a></li>
 </ul>
 {% endblock %}
 {% block body %}
@@ -38,23 +39,14 @@ jQuery(document).ready(function () {
   <p class="no-script">Sorry, this page requires JavaScript to function properly.</p>
 </noscript>
 <div class="hide-for-javascript">
-<h1>The List of Reports</h1>
-<table id="reports-table" class="corporate-identity-table">
-  <thead><tr><th>Report</th><th>Remark</th></thead>
-  <tbody>
-    <tr>
-      <td><a href="/admin/reports/restricted_datasets">The list of the current restricted_datasets</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><a href="/admin/reports/embargoed_datasets">The list of the currrent embargoed datasets</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><a href="/admin/reports/operational_statistics">Operational statistics</a></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
+<h1>REPORT: Operational Statistics</h1>
+
+{%- if operational_statistics %}
+<p></p>
+Export: <a href="/admin/reports/operational_statistics?export=1&format=csv">CSV</a>, <a href="/admin/reports/operational_statistics?export=1&format=json">JSON</a>
+{%- endif %}
+<p></p>
+Coming soon...
+
 </div>
 {% endblock %}
