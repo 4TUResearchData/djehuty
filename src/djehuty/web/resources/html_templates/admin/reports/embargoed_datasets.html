@@ -23,13 +23,14 @@ jQuery(document).ready(function () {
 {% endblock %}
 {% block submenu %}
 <ul>
-  <li><a href="/admin/reports">← Go back</a></li>
   <li><a href="/admin/dashboard">Dashboard</a>
   <li><a href="/admin/users">Users</a>
   <li><a href="/admin/maintenance">Maintenance</a>
   <li><a href="/admin/exploratory">Exploratory</a>
   <li class="active corporate-identity-submenu-active">Reports
   {% if may_query %}<li><a href="/admin/sparql">Query</a>{% endif %}
+  {% if may_review_quotas %}<li><a href="/admin/quota-requests">Quota requests</a>{% endif %}
+  <li><a href="/admin/reports">← Go back</a></li>
 </ul>
 {% endblock %}
 {% block body %}
