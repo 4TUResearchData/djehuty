@@ -1,15 +1,10 @@
-# Stats of number of datasets published in a given date interval
-# separated by status (new dataset or just new version) and member institution
-
-PREFIX djht:  <https://ontologies.data.4tu.nl/djehuty/0.0.1/>
-PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX graph: <https://data.4tu.nl>
-
+{% extends "prefixes.sparql" %}
+{% block query %}
 SELECT DISTINCT ?institution ?is_first_version
                 COUNT(?dataset) AS ?datasets
 
 WHERE
-{ GRAPH graph: {
+{ GRAPH <{{state_graph}}> {
   ?container a                                           djht:DatasetContainer ;
              djht:published_versions/rdf:rest*/rdf:first ?dataset ;
              djht:published_versions/rdf:first           ?first_version .
@@ -29,3 +24,4 @@ WHERE
 }
 GROUP BY ?is_first_version ?institution
 ORDER BY ?institution DESC(?is_first_version)
+{% endblock %}

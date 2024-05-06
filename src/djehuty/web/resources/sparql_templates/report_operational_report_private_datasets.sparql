@@ -1,16 +1,11 @@
-# Stats of number of unpublished datasets in a given date interval
-# separated by member institution
-
-PREFIX djht:  <https://ontologies.data.4tu.nl/djehuty/0.0.1/>
-PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX graph: <https://data.4tu.nl>
-
+{% extends "prefixes.sparql" %}
+{% block query %}
 SELECT DISTINCT ?institution
                 ?is_new
                 COUNT(?dataset) AS ?datasets
 
 WHERE
-{ GRAPH graph: {
+{ GRAPH <{{state_graph}}> {
   ?container a                 djht:DatasetContainer ;
              djht:draft        ?dataset .
   ?dataset   djht:created_date ?date ;
@@ -30,3 +25,4 @@ WHERE
 }
 GROUP BY ?institution ?is_new
 ORDER BY ?institution ?is_new
+{% endblock %}

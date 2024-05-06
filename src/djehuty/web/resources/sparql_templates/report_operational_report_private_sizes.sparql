@@ -1,14 +1,9 @@
-# Stats of total size of unpublished uploads in a given date interval
-# separated by member institution
-
-PREFIX djht:  <https://ontologies.data.4tu.nl/djehuty/0.0.1/>
-PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX graph: <https://data.4tu.nl>
-
+{% extends "prefixes.sparql" %}
+{% block query %}
 SELECT DISTINCT ?institution
                 SUM(?size) AS ?total_size
 
-WHERE { GRAPH graph: {
+WHERE { GRAPH <{{state_graph}}> {
     ?container a                              djht:DatasetContainer ;
                djht:draft                     ?draft .
     ?draft     djht:created_date              ?date ;
@@ -30,3 +25,4 @@ WHERE { GRAPH graph: {
 }
 GROUP BY ?institution
 ORDER BY ?institution
+{% endblock %}

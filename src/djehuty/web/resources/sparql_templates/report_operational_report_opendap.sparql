@@ -1,20 +1,12 @@
-# Opendap data urls in a given date interval separated by member institution
-# For this query, ***DISABLE*** "Strict checking of void variables" !
-# When checking is enabled (default):
-#   Virtuoso 37000 Error SP031: SPARQL compiler: Variable '_::trans_subj_20_29' is used in subexpressions of the query but not assigned
-#   see also https://sourceforge.net/p/virtuoso/mailman/message/33073869/
-
-PREFIX djht:  <https://ontologies.data.4tu.nl/djehuty/0.0.1/>
-PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX graph: <https://data.4tu.nl>
-
+{% extends "prefixes.sparql" %}
+{% block query %}
 SELECT DISTINCT ?institution ?data_url
 WHERE
 {
   { SELECT DISTINCT MIN(?posted_date) AS ?date
                     ?data_url ?gid
     WHERE {
-      GRAPH graph: {
+      GRAPH <{{state_graph}}> {
         ?container  a                                           djht:DatasetContainer ;
                     djht:latest_published_version/djht:group_id ?gid ;
                     djht:published_versions/rdf:rest*/rdf:first ?dataset .
@@ -38,3 +30,4 @@ WHERE
   FILTER ( STR(?date) > "{{BEGIN}}" AND STR(?date) < "{{END}}")
 }
 ORDER BY ?institution
+{% endblock %}
