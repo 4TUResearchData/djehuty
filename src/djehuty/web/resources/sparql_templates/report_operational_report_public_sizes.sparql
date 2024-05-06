@@ -1,0 +1,37 @@
+# Stats of total size of published uploads in a given date interval
+# separated by member institution
+
+PREFIX djht:  <https://ontologies.data.4tu.nl/djehuty/0.0.1/>
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX graph: <https://data.4tu.nl>
+
+SELECT DISTINCT ?institution
+                SUM(?size) AS ?total_size
+
+WHERE
+{
+  { SELECT DISTINCT ?file ?size ?gid
+                    MIN(?posted_date) AS ?date
+    WHERE { GRAPH graph: {
+        ?container a                                           djht:DatasetContainer ;
+                   djht:published_versions/rdf:rest*/rdf:first ?dataset ;
+                   djht:latest_published_version/djht:group_id ?gid .
+        ?dataset   djht:posted_date                            ?posted_date ;
+                   djht:files/rdf:rest*/rdf:first              ?file .
+        ?file      djht:is_link_only                           false ;
+                   djht:size                                   ?size .
+      }
+    }
+  }
+  BIND (   1*(?gid=28586 OR ?gid=28628) #Delft
+         + 2*(?gid=28589 OR ?gid=28631) #Eindhoven
+         + 3*(?gid=28592 OR ?gid=28634) #Twente
+         + 4*(?gid=28595)               #Wageningen
+         AS ?institution_num )
+  VALUES (?institution_num ?institution) {
+    (0 "other") (1 "Delft") (2 "Eindhoven") (3 "Twente") (4 "Wageningen")
+  }
+  FILTER ( STR(?date) > "{{BEGIN}}" AND STR(?date) < "{{END}}")
+}
+GROUP BY ?institution
+ORDER BY ?institution

@@ -149,7 +149,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/delete_inactive_session_by_uuid.sparql \
     djehuty/web/resources/sparql_templates/delete_item_categories.sparql      \
     djehuty/web/resources/sparql_templates/delete_item_from_list.sparql       \
-    djehuty/web/resources/sparql_templates/delete_items_all_from_list.sparql  \
     djehuty/web/resources/sparql_templates/delete_private_links.sparql        \
     djehuty/web/resources/sparql_templates/delete_session.sparql              \
     djehuty/web/resources/sparql_templates/delete_session_by_uuid.sparql      \
@@ -173,13 +172,17 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/quota_requests.sparql              \
     djehuty/web/resources/sparql_templates/record_uri.sparql                  \
     djehuty/web/resources/sparql_templates/references.sparql                  \
+    djehuty/web/resources/sparql_templates/report_operational_report_opendap.sparql \
+    djehuty/web/resources/sparql_templates/report_operational_report_private_datasets.sparql \
+    djehuty/web/resources/sparql_templates/report_operational_report_private_sizes.sparql \
+    djehuty/web/resources/sparql_templates/report_operational_report_public_datasets.sparql \
+    djehuty/web/resources/sparql_templates/report_operational_report_public_sizes.sparql \
     djehuty/web/resources/sparql_templates/reviews.sparql                     \
     djehuty/web/resources/sparql_templates/root_categories.sparql             \
     djehuty/web/resources/sparql_templates/search_tags.sparql                 \
     djehuty/web/resources/sparql_templates/statistics.sparql                  \
     djehuty/web/resources/sparql_templates/statistics_authors.sparql          \
     djehuty/web/resources/sparql_templates/statistics_collections.sparql      \
-    djehuty/web/resources/sparql_templates/statistics_datalink.sparql         \
     djehuty/web/resources/sparql_templates/statistics_datasets.sparql         \
     djehuty/web/resources/sparql_templates/statistics_files.sparql            \
     djehuty/web/resources/sparql_templates/subcategories_by_category.sparql   \

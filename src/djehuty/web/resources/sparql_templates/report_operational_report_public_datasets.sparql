@@ -1,0 +1,31 @@
+# Stats of number of datasets published in a given date interval
+# separated by status (new dataset or just new version) and member institution
+
+PREFIX djht:  <https://ontologies.data.4tu.nl/djehuty/0.0.1/>
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX graph: <https://data.4tu.nl>
+
+SELECT DISTINCT ?institution ?is_first_version
+                COUNT(?dataset) AS ?datasets
+
+WHERE
+{ GRAPH graph: {
+  ?container a                                           djht:DatasetContainer ;
+             djht:published_versions/rdf:rest*/rdf:first ?dataset ;
+             djht:published_versions/rdf:first           ?first_version .
+  ?dataset   djht:posted_date                            ?date ;
+             djht:group_id                               ?gid .
+  }
+  BIND ( ?dataset=?first_version AS ?is_first_version )
+  BIND (   1*(?gid=28586 OR ?gid=28628) #Delft
+         + 2*(?gid=28589 OR ?gid=28631) #Eindhoven
+         + 3*(?gid=28592 OR ?gid=28634) #Twente
+         + 4*(?gid=28595)               #Wageningen
+         AS ?institution_num )
+  VALUES (?institution_num ?institution) {
+    (0 "other") (1 "Delft") (2 "Eindhoven") (3 "Twente") (4 "Wageningen")
+  }
+  FILTER ( STR(?date) > "{{BEGIN}}" AND STR(?date) < "{{END}}")
+}
+GROUP BY ?is_first_version ?institution
+ORDER BY ?institution DESC(?is_first_version)
