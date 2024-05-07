@@ -2,7 +2,7 @@
 {% block body %}
 <h1>Your dataset has been submitted for review</h1>
 <p>Dear {{account.first_name | default("", False)}} {{account.last_name | default("", False)}},</p>
-<p>Thank you for submitting your dataset '{{dataset.title}}' to 4TU.ResearchData.  We hereby confirm we have received your dataset submission.</p>
-<p>A reviewer will contact you about publishing it in the 4TU.ResearchData repository.</p>
-<p>This is an automated message.  If you have any questions, please contact researchdata@4tu.nl.</p>
+<p>Thank you for submitting your dataset '{{dataset.title}}' to {{site_name}}.  We hereby confirm we have received your dataset submission.</p>
+<p>A reviewer will contact you about publishing it in the {{site_name}} repository.</p>
+<p>This is an automated message.  If you have any questions, please contact <a href="mailto:{{support_email}}">{{support_email}}</a>.</p>
 {% endblock %}

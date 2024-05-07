@@ -6980,7 +6980,9 @@ class ApiServer:
                         f"Submission of {dataset['title']}.",
                         "dataset_submitted",
                         dataset = dataset,
-                        account = account)
+                        account = account,
+                        support_email = self.support_email_address,
+                        site_name = self.site_name)
 
                 self.locks.unlock (locks.LockTypes.SUBMIT_DATASET)
                 return self.respond_204 ()
