@@ -4433,10 +4433,8 @@ class ApiServer:
                                                  existing_authors))
 
                 authors = existing_authors + new_authors
-                if not self.db.update_item_list (dataset["uuid"],
-                                                 account_uuid,
-                                                 authors,
-                                                 "authors"):
+                if not self.db.update_item_list (dataset["uuid"], account_uuid,
+                                                 authors, "authors"):
                     self.log.error ("Adding a single author failed.")
                     return self.error_500()
 
@@ -4485,10 +4483,7 @@ class ApiServer:
                 authors.remove (next (filter (lambda item: item['uuid'] == author_id, authors)))
 
             authors = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "author")), authors))
-            if self.db.update_item_list (dataset["uuid"],
-                                         account_uuid,
-                                         authors,
-                                         "authors"):
+            if self.db.update_item_list (dataset["uuid"], account_uuid, authors, "authors"):
                 return self.respond_204()
 
             return self.error_500()
@@ -4582,10 +4577,8 @@ class ApiServer:
                                                  existing_fundings))
 
                 fundings = existing_fundings + new_fundings
-                if not self.db.update_item_list (item["uuid"],
-                                                 account_uuid,
-                                                 fundings,
-                                                 "funding_list"):
+                if not self.db.update_item_list (item["uuid"], account_uuid,
+                                                 fundings, "funding_list"):
                     self.log.error ("Adding a single funder failed.")
                     return self.error_500()
 
@@ -4643,10 +4636,8 @@ class ApiServer:
             fundings.remove (next (filter (lambda item: item['uuid'] == funding_id, fundings)))
 
             fundings = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "funding")), fundings))
-            if self.db.update_item_list (item["uuid"],
-                                         account_uuid,
-                                         fundings,
-                                         "funding_list"):
+            if self.db.update_item_list (item["uuid"], account_uuid,
+                                         fundings, "funding_list"):
                 return self.respond_204()
 
             return self.error_500()
@@ -4696,10 +4687,8 @@ class ApiServer:
             authors = list(map(lambda item: URIRef(uuid_to_uri(item["uuid"], "author")),
                                 authors))
 
-            if self.db.update_item_list (collection["uuid"],
-                                         account_uuid,
-                                         authors,
-                                         "authors"):
+            if self.db.update_item_list (collection["uuid"], account_uuid,
+                                         authors, "authors"):
                 return self.respond_204()
 
             return self.error_500()
@@ -4797,10 +4786,8 @@ class ApiServer:
                     categories = list(dict.fromkeys(existing_categories + categories))
 
                 categories = uris_from_records (categories, "category")
-                if self.db.update_item_list (dataset["uuid"],
-                                             account_uuid,
-                                             categories,
-                                             "categories"):
+                if self.db.update_item_list (dataset["uuid"], account_uuid,
+                                             categories, "categories"):
                     return self.respond_205()
 
                 return self.error_500()
@@ -5128,10 +5115,8 @@ class ApiServer:
                 links    = list(map (lambda item: URIRef(item["uri"]), links))
                 links    = links + [ URIRef(link_uri) ]
 
-                if not self.db.update_item_list (dataset["uuid"],
-                                                 account_uuid,
-                                                 links,
-                                                 "private_links"):
+                if not self.db.update_item_list (dataset["uuid"], account_uuid,
+                                                 links, "private_links"):
                     self.log.error ("Updating private links failed for %s.",
                                     dataset["container_uuid"])
 
@@ -5846,10 +5831,8 @@ class ApiServer:
                                                  existing_authors))
 
                 authors = existing_authors + new_authors
-                if not self.db.update_item_list (collection["uuid"],
-                                                 account_uuid,
-                                                 authors,
-                                                 "authors"):
+                if not self.db.update_item_list (collection["uuid"], account_uuid,
+                                                 authors, "authors"):
                     self.log.error ("Adding a single author failed.")
                     return self.error_500()
 
@@ -5972,10 +5955,8 @@ class ApiServer:
 
                     datasets[index] = URIRef(dataset["container_uri"])
 
-                if self.db.update_item_list (collection["uuid"],
-                                             account_uuid,
-                                             datasets,
-                                             "datasets"):
+                if self.db.update_item_list (collection["uuid"], account_uuid,
+                                             datasets, "datasets"):
                     self.db.cache.invalidate_by_prefix ("datasets")
                     return self.respond_205()
 
@@ -7434,10 +7415,8 @@ class ApiServer:
                 url_encoded = validator.string_value (request.args, "url", 0, 1024, True)
                 url         = unquote(url_encoded)
                 references.remove (next (filter (lambda item: item == url, references)))
-                if not self.db.update_item_list (item["uuid"],
-                                                 account_uuid,
-                                                 references,
-                                                 "references"):
+                if not self.db.update_item_list (item["uuid"], account_uuid,
+                                                 references, "references"):
                     self.log.error ("Deleting a reference failed.")
                     return self.error_500()
 
@@ -7538,10 +7517,7 @@ class ApiServer:
                 tag_encoded = validator.string_value (request.args, "tag", 0, 1024, True)
                 tag         = unquote(tag_encoded)
                 tags.remove (next (filter (lambda item: item == tag, tags)))
-                if not self.db.update_item_list (item["uuid"],
-                                                 account_uuid,
-                                                 tags,
-                                                 "tags"):
+                if not self.db.update_item_list (item["uuid"], account_uuid, tags, "tags"):
                     self.log.error ("Deleting a tag failed.")
                     return self.error_500()
 
@@ -7567,10 +7543,7 @@ class ApiServer:
                 # Remove duplicates.
                 tags = deduplicate_list(existing_tags + new_tags)
 
-            if not self.db.update_item_list (item["uuid"],
-                                             account_uuid,
-                                             tags,
-                                             "tags"):
+            if not self.db.update_item_list (item["uuid"], account_uuid, tags, "tags"):
                 self.log.error ("Updating tags failed.")
                 return self.error_500()
 
