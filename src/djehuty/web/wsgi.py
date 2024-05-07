@@ -7801,6 +7801,7 @@ class ApiServer:
             return None
 
         # Accounting for the initial commit.
+        contributors = {}
         previous_commit = commits[0]
         stats = self.__git_files_by_type (previous_commit.tree)
         total_lines = 0
@@ -7808,35 +7809,55 @@ class ApiServer:
             for entry in stats[extension]:
                 total_lines += value_or (entry, "lines", 0)
 
-        contributors = {
-            previous_commit.author.email: {
+        week = datetime.fromtimestamp(previous_commit.commit_time).isocalendar()
+        week = int(datetime.fromisocalendar(week[0], week[1], 1).timestamp())
+
+        contributors[previous_commit.author.email] = {
+            "total": 1,
+            "weeks": { week: { "w": week, "a": total_lines, "d": 0, "c": 1 } },
+            "author": {
                 "name": previous_commit.author.name,
-                "email": previous_commit.author.email,
-                "commits": 1,
-                "additions": total_lines,
-                "deletions": 0
+                "email": previous_commit.author.email
             }
         }
 
         # Walk the repository's history.
         for commit in commits[1:]:
             stats = git_repository.diff(previous_commit, commit).stats
-            if commit.author.email in contributors:
-                record = contributors[commit.author.email]
-                record["commits"] += 1
-                record["additions"] += stats.insertions
-                record["deletions"] += stats.deletions
-            else:
+            week = datetime.fromtimestamp(commit.commit_time).isocalendar()
+            week = int(datetime.fromisocalendar(week[0], week[1], 1).timestamp())
+            if commit.author.email not in contributors:
                 contributors[commit.author.email] = {
-                    "name": commit.author.name,
-                    "email": commit.author.email,
-                    "commits": 1,
-                    "additions": stats.insertions,
-                    "deletions": stats.deletions
+                    "total": 0,
+                    "weeks": { week: { "w": week, "c": 0, "a": 0, "d": 0 } },
+                    "author": {
+                        "name": commit.author.name,
+                        "email": commit.author.email
+                    }
                 }
+            record = contributors[commit.author.email]
+            if "weeks" in record and week in record["weeks"]:
+                record["weeks"][week]["c"] += 1
+                record["weeks"][week]["a"] += stats.insertions
+                record["weeks"][week]["d"] += stats.deletions
+                record["total"] += 1
+            else:
+                record["weeks"][week] = {
+                    "w": week,
+                    "c": 1,
+                    "a": stats.insertions,
+                    "d": stats.deletions
+                }
+                record["total"] += 1
+
             previous_commit = commit
 
-        return list(contributors.values())
+        # Flatten the structure
+        contributors = list(contributors.values())
+        for contributor in contributors:
+            contributor["weeks"] = list(contributor["weeks"].values())
+
+        return contributors
 
     def __git_files_by_type (self, tree, path="", output=None):
         """
