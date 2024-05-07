@@ -21,7 +21,8 @@ WHERE
   VALUES (?institution_num ?institution) {
     (0 "other") (1 "Delft") (2 "Eindhoven") (3 "Twente") (4 "Wageningen")
   }
-  FILTER ( STR(?date) > "{{BEGIN}}" AND STR(?date) < "{{END}}")
+  {% if filters is not none %}{{ filters | safe }}
+  {% endif %}
 }
 GROUP BY ?institution ?is_new
 ORDER BY ?institution ?is_new

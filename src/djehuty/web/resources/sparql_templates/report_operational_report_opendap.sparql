@@ -1,22 +1,18 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?institution ?data_url
+SELECT DISTINCT ?institution SUM(?size) AS ?total_size
 WHERE
 {
   { SELECT DISTINCT MIN(?posted_date) AS ?date
-                    ?data_url ?gid
+                    ?size ?gid
     WHERE {
       GRAPH <{{state_graph}}> {
         ?container  a                                           djht:DatasetContainer ;
                     djht:latest_published_version/djht:group_id ?gid ;
                     djht:published_versions/rdf:rest*/rdf:first ?dataset .
         ?dataset    djht:posted_date                            ?posted_date .
-        { ?dataset  djht:files/rdf:rest*/rdf:first              ?file .
-          ?file     djht:is_link_only                           true ;
-                    djht:download_url                           ?data_url . } UNION
-        { ?dataset  djht:data_link                              ?data_url . }
+        ?dataset    djht:data_link_size                         ?size .
       }
-      FILTER (STRSTARTS(?data_url, "https://opendap.4tu.nl/thredds/"))
     }
   }
   BIND (   1*(?gid=28586 OR ?gid=28628) #Delft
@@ -27,7 +23,8 @@ WHERE
   VALUES (?institution_num ?institution) {
     (0 "other") (1 "Delft") (2 "Eindhoven") (3 "Twente") (4 "Wageningen")
   }
-  FILTER ( STR(?date) > "{{BEGIN}}" AND STR(?date) < "{{END}}")
+  {% if filters is not none %}{{ filters | safe }}
+  {% endif %}
 }
 ORDER BY ?institution
 {% endblock %}

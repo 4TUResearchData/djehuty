@@ -531,34 +531,103 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
-    def repository_statistics (self):
+    def repository_statistics (self, use_summary=True, start_date=None, end_date=None):
         """Procedure to retrieve repository-wide statistics."""
 
-        datasets_query    = self.__query_from_template ("statistics_datasets")
-        collections_query = self.__query_from_template ("statistics_collections")
-        authors_query     = self.__query_from_template ("statistics_authors")
+        if use_summary:
+            datasets_query    = self.__query_from_template ("statistics_datasets")
+            collections_query = self.__query_from_template ("statistics_collections")
+            authors_query     = self.__query_from_template ("statistics_authors")
 
-        row = { "datasets": 0, "authors": 0, "collections": 0, "files": 0, "bytes": 0 }
+            row = { "datasets": 0, "authors": 0, "collections": 0, "files": 0, "bytes": 0 }
+            try:
+                datasets    = self.__run_query (datasets_query, datasets_query, "repository_statistics")
+                authors     = self.__run_query (authors_query, authors_query, "repository_statistics")
+                collections = self.__run_query (collections_query, collections_query, "repository_statistics")
+                files       = self.repository_file_statistics (use_cache=True)
+                datalinks   = self.repository_datalink_statistics (use_cache=True)
+                number_of_files = 0
+                number_of_bytes = 0
+                for entry in files:
+                    number_of_files += 1
+                    number_of_bytes += int(float(entry["bytes"]))
+
+                for entry in datalinks:
+                    number_of_bytes += int(float(entry["bytes"]))
+
+                files_results = {
+                    "files": number_of_files,
+                    "bytes": number_of_bytes
+                }
+                row = { **datasets[0], **authors[0], **collections[0], **files_results }
+            except (IndexError, KeyError):
+                pass
+
+            return row
+
+        filters = ""
+        date_suffix = ""
+        if start_date and end_date:
+            filters += f'FILTER (?date >= "{start_date}"^^xsd:date AND ?date < "{end_date}"^^xsd:date)'
+            date_suffix = f"_{start_date}_{end_date}"
+
+        opendap_query = self.__query_from_template (
+            "report_operational_report_opendap",
+            {"filters": filters}
+        )
+
+        private_datasets_query = self.__query_from_template (
+            "report_operational_report_private_datasets",
+            {"filters": filters}
+        )
+
+        private_sizes_query = self.__query_from_template (
+            "report_operational_report_private_sizes",
+            {"filters": filters}
+        )
+
+        public_datasets_query = self.__query_from_template (
+            "report_operational_report_public_datasets",
+            {"filters": filters}
+        )
+
+        public_sizes_query = self.__query_from_template (
+            "report_operational_report_public_sizes",
+            {"filters": filters}
+        )
+
+        row = {}
+
         try:
-            datasets    = self.__run_query (datasets_query, datasets_query, "repository_statistics")
-            authors     = self.__run_query (authors_query, authors_query, "repository_statistics")
-            collections = self.__run_query (collections_query, collections_query, "repository_statistics")
-            files       = self.repository_file_statistics (use_cache=True)
-            datalinks   = self.repository_datalink_statistics (use_cache=True)
-            number_of_files = 0
-            number_of_bytes = 0
-            for entry in files:
-                number_of_files += 1
-                number_of_bytes += int(float(entry["bytes"]))
+            opendap = self.__run_query(
+                opendap_query,
+                opendap_query,
+                "repository_operational_statistics" + date_suffix)
+            private_datasets = self.__run_query(
+                private_datasets_query,
+                private_datasets_query,
+                "repository_operational_statistics" + date_suffix)
+            private_sizes = self.__run_query(
+                private_sizes_query,
+                private_sizes_query,
+                "repository_operational_statistics" + date_suffix)
+            public_datasets = self.__run_query(
+                public_datasets_query,
+                public_datasets_query,
+                "repository_operational_statistics" + date_suffix)
+            public_sizes = self.__run_query(
+                public_sizes_query,
+                public_sizes_query,
+                "repository_operational_statistics" + date_suffix)
 
-            for entry in datalinks:
-                number_of_bytes += int(float(entry["bytes"]))
-
-            files_results = {
-                "files": number_of_files,
-                "bytes": number_of_bytes
+            row = {
+                "opendap": opendap,
+                "private_datasets": private_datasets,
+                "private_sizes": private_sizes,
+                "public_datasets": public_datasets,
+                "public_sizes": public_sizes
             }
-            row = { **datasets[0], **authors[0], **collections[0], **files_results }
+
         except (IndexError, KeyError):
             pass
 

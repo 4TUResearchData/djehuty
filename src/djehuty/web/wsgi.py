@@ -2911,16 +2911,30 @@ class ApiServer:
         if not self.db.may_administer (token):
             return self.error_403 (request)
 
-        operational_statistics = self.db.repository_statistics()
+        try:
+            params = {}
+            params["start_date"] = self.get_parameter (request, "start_date")
+            params["end_date"]   = self.get_parameter (request, "end_date")
+            params["export"]     = self.get_parameter (request, "export")
+            params["format"]     = self.get_parameter (request, "format")
 
-        export = self.get_parameter (request, "export")
-        fileformat = self.get_parameter (request, "format")
+            validator.date_value   (params, "start_date")
+            validator.date_value   (params, "end_date")
+            validator.integer_value  (params, "export")
+            validator.string_value   (params, "format",  maximum_length=10)
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
 
-        if export and fileformat:
-            return self.__export_report_in_format (request, "operational_statistics", operational_statistics, fileformat)
+        operational_statistics = self.db.repository_statistics(
+            use_summary=False, start_date=params["start_date"],
+            end_date=params["end_date"])
 
-        return self.__render_template (request, "admin/reports/operational_statistics.html", datasets=operational_statistics)
+        if params["export"] and params["format"]:
+            return self.__export_report_in_format (request, "operational_statistics", operational_statistics, params["format"])
 
+        return self.__render_template (request, "admin/reports/operational_statistics.html",
+                                       operational_statistics=operational_statistics,
+                                       params=params)
 
     def ui_admin_maintenance (self, request):
         """Implements /admin/maintenance."""
