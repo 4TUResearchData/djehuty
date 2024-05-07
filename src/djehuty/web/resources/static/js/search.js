@@ -470,6 +470,9 @@ function load_search_results() {
     }
 
     request_params["search_for"] = request_params["search"];
+    if (request_params["search_for"] === undefined) {
+        request_params["search_for"] = request_params["q"];
+    }
     request_params["group"] = request_params["institutions"];
     request_params["page_size"] = page_size;
     request_params["is_latest"] = 1;

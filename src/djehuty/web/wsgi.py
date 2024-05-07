@@ -3798,11 +3798,7 @@ class ApiServer:
 
         search_for = self.get_parameter(request, "search")
         if search_for is None:
-            # 'q' is used by visitors from library.tudelft.nl. This can be
-            # removed once the library.tudelft.nl search has been updated.
-            search_for = self.get_parameter(request, "q")
-            if search_for is None:
-                search_for = ""
+            search_for = ""
 
         search_for = search_for.strip()
         categories = self.db.categories(limit=None)
