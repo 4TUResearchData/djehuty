@@ -178,8 +178,12 @@ WHERE {
     {%- else %}
     BIND("false"^^xsd:boolean AS ?private_link_is_expired)
     {%- endif %}
+    {%- if account_uuid is not none %}
     BIND(xsd:boolean(?collaborator_account = <account:{{account_uuid}}> &&
                      ?account != <account:{{account_uuid}}>) AS ?is_shared_with_me)
+    {%- else %}
+    BIND("false"^^xsd:boolean AS ?is_shared_with_me)
+    {%- endif %}
   }
 {%- if is_under_review is not none: %}
 {%- if is_under_review: %}
