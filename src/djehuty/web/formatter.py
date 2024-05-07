@@ -529,8 +529,21 @@ def format_private_links_record (record):
 def format_group_record (record):
     """Record formatter for groups."""
     return {
-      "id":            conv.value_or_none(record, "id"),
-      "parent_id":     conv.value_or_none(record, "parent_id"),
-      "name":          conv.value_or_none(record, "name"),
-      "association":   conv.value_or_none(record, "association"),
+        "id":            conv.value_or_none(record, "id"),
+        "parent_id":     conv.value_or_none(record, "parent_id"),
+        "name":          conv.value_or_none(record, "name"),
+        "association":   conv.value_or_none(record, "association"),
+    }
+
+def format_operational_statistics_record (record):
+    """Record formatter for operational statistics."""
+    return {
+        "institution":      conv.value_or_none(record, "institution"),
+        "opendap_size":     conv.value_or_none(record, "opendap_size"),
+        "public_size":      conv.value_or_none(record, "public_size"),
+        "private_size":     conv.value_or_none(record, "private_size"),
+        "public_old_count": conv.value_or_none(record, "public_old_count"),
+        "public_new_count": conv.value_or_none(record, "public_new_count"),
+        "private_old_count": conv.value_or_none(record, "private_old_count"),
+        "private_new_count": conv.value_or_none(record, "private_new_count")
     }

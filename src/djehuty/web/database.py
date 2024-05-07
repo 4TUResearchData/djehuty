@@ -596,42 +596,84 @@ class SparqlInterface:
             {"filters": filters}
         )
 
-        row = {}
+        records = []
+        temp_records = {}
+        init_record = {"opendap_size": 0, "public_size": 0, "private_size": 0,
+                       "public_old_count": 0, "public_new_count": 0,
+                       "private_old_count": 0, "private_new_count": 0}
 
         try:
             opendap = self.__run_query(
                 opendap_query,
                 opendap_query,
                 "repository_operational_statistics" + date_suffix)
+
             private_datasets = self.__run_query(
                 private_datasets_query,
                 private_datasets_query,
                 "repository_operational_statistics" + date_suffix)
+
             private_sizes = self.__run_query(
                 private_sizes_query,
                 private_sizes_query,
                 "repository_operational_statistics" + date_suffix)
+
             public_datasets = self.__run_query(
                 public_datasets_query,
                 public_datasets_query,
                 "repository_operational_statistics" + date_suffix)
+
             public_sizes = self.__run_query(
                 public_sizes_query,
                 public_sizes_query,
                 "repository_operational_statistics" + date_suffix)
 
-            row = {
-                "opendap": opendap,
-                "private_datasets": private_datasets,
-                "private_sizes": private_sizes,
-                "public_datasets": public_datasets,
-                "public_sizes": public_sizes
-            }
+            for record in opendap:
+                temp_records[record["institution"]] = init_record.copy()
+                temp_records[record["institution"]]["opendap_size"] = record["total_size"]
+
+            for record in private_datasets:
+                if record["institution"] not in temp_records:
+                    temp_records[record["institution"]] = init_record.copy()
+                if "is_new" in record and record["is_new"] == 0:
+                    temp_records[record["institution"]]["private_old_count"] = record["datasets"]
+                elif "is_new" in record and record["is_new"] == 1:
+                    temp_records[record["institution"]]["private_new_count"] = record["datasets"]
+
+            for record in private_sizes:
+                if record["institution"] not in temp_records:
+                    temp_records[record["institution"]] = init_record.copy()
+                temp_records[record["institution"]]["private_size"] = record["total_size"]
+
+            for record in public_datasets:
+                if record["institution"] not in temp_records:
+                    temp_records[record["institution"]] = init_record.copy()
+                if "is_first_version" in record and record["is_first_version"] == 0:
+                    temp_records[record["institution"]]["public_old_count"] = record["datasets"]
+                elif "is_first_version" in record and record["is_first_version"] == 1:
+                    temp_records[record["institution"]]["public_new_count"] = record["datasets"]
+
+            for record in public_sizes:
+                if record["institution"] not in temp_records:
+                    temp_records[record["institution"]] = init_record.copy()
+                temp_records[record["institution"]]["public_size"] = record["total_size"]
+
+            for institution, item in temp_records.items():
+                records.append({
+                    "institution":  institution,
+                    "opendap_size": item.get("opendap_size", 0),
+                    "public_size":  item.get("public_size", 0),
+                    "private_size": item.get("private_size", 0),
+                    "public_old_count":  item.get("public_old_count", 0),
+                    "public_new_count":  item.get("public_new_count", 0),
+                    "private_old_count": item.get("private_old_count", 0),
+                    "private_new_count": item.get("private_new_count", 0)
+                })
 
         except (IndexError, KeyError):
             pass
 
-        return row
+        return records
 
     def dataset_statistics (self, item_type="downloads",
                                   order="downloads",

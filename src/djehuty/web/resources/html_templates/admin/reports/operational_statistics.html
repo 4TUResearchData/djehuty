@@ -13,16 +13,6 @@
 </style>
 <script>
 jQuery(document).ready(function () {
-    {%- if operational_statistics %}
-    let operational_statistics = [{{(operational_statistics|default({}))|tojson}}];
-    {%- else %}
-    let operational_statistics = [];
-    {%- endif %}
-    {%- if params %}
-    let params = [{{(params|default({}))|tojson}}];
-    {%- else %}
-    let params = [];
-    {%- endif %}
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery("#reports-table").DataTable({
         columnDefs: [{ orderable: false,  targets: 0 }],
@@ -51,10 +41,6 @@ jQuery(document).ready(function () {
 <div class="hide-for-javascript">
 <h1>REPORT: Operational Statistics</h1>
 
-{%- if operational_statistics %}
-<p></p>
-Export: <a href="/admin/reports/operational_statistics?export=1&format=csv">CSV</a>, <a href="/admin/reports/operational_statistics?export=1&format=json">JSON</a>
-{%- endif %}
 <p></p>
 Coming soon...
 

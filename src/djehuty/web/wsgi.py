@@ -372,6 +372,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             R("/v3/admin/files-integrity-statistics",                            self.api_v3_admin_files_integrity_statistics),
             R("/v3/admin/accounts/clear-cache",                                  self.api_v3_admin_accounts_clear_cache),
+            R("/v3/admin/report/operational-statistics",                         self.api_v3_admin_report_operational_statistics),
 
             ## ----------------------------------------------------------------
             ## GIT HTTP API
@@ -2911,30 +2912,7 @@ class ApiServer:
         if not self.db.may_administer (token):
             return self.error_403 (request)
 
-        try:
-            params = {}
-            params["start_date"] = self.get_parameter (request, "start_date")
-            params["end_date"]   = self.get_parameter (request, "end_date")
-            params["export"]     = self.get_parameter (request, "export")
-            params["format"]     = self.get_parameter (request, "format")
-
-            validator.date_value   (params, "start_date")
-            validator.date_value   (params, "end_date")
-            validator.integer_value  (params, "export")
-            validator.string_value   (params, "format",  maximum_length=10)
-        except validator.ValidationException as error:
-            return self.error_400 (request, error.message, error.code)
-
-        operational_statistics = self.db.repository_statistics(
-            use_summary=False, start_date=params["start_date"],
-            end_date=params["end_date"])
-
-        if params["export"] and params["format"]:
-            return self.__export_report_in_format (request, "operational_statistics", operational_statistics, params["format"])
-
-        return self.__render_template (request, "admin/reports/operational_statistics.html",
-                                       operational_statistics=operational_statistics,
-                                       params=params)
+        return self.__render_template (request, "admin/reports/operational_statistics.html")
 
     def ui_admin_maintenance (self, request):
         """Implements /admin/maintenance."""
@@ -8223,6 +8201,43 @@ class ApiServer:
         self.db.cache.invalidate_by_prefix ("accounts")
 
         return self.respond_204 ()
+
+    def api_v3_admin_report_operational_statistics (self, request):
+        """Implements /v3/admin/report/operational-statistics."""
+
+        handler = self.default_error_handling (request, "GET", "application/json")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        try:
+            record = {}
+            record["start_date"] = self.get_parameter (request, "start_date")
+            record["end_date"]   = self.get_parameter (request, "end_date")
+            record["export"]     = self.get_parameter (request, "export")
+            record["format"]     = self.get_parameter (request, "format")
+
+            validator.date_value   (record, "start_date")
+            validator.date_value   (record, "end_date")
+            validator.integer_value  (record, "export")
+            validator.string_value   (record, "format",  maximum_length=10)
+
+            records = self.db.repository_statistics(
+                use_summary=False, start_date=record["start_date"],
+                end_date=record["end_date"])
+
+            if record["export"] and record["format"]:
+                return self.__export_report_in_format (request, "operational_statistics",
+                                                       records, record["format"])
+
+            return self.default_list_response (records,
+                                               formatter.format_operational_statistics_record,
+                                               base_url = self.base_url)
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
 
     def api_v3_datasets_assign_reviewer (self, request, dataset_uuid, reviewer_uuid):
         """Implements /v3/datasets/<id>/assign-reviewer/<rid>."""
