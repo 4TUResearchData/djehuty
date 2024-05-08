@@ -7890,6 +7890,10 @@ class ApiServer:
                 self.__git_files_by_type (list(entry), f"{path}{entry.name}/", output)
                 continue
 
+            # Submodules are represented as commits.
+            if isinstance (entry, pygit2.Commit):
+                continue
+
             record = { "filename": f"{path}{entry.name}", "size": entry.size }
 
             # Skip over binary files and large files.
