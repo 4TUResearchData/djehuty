@@ -101,7 +101,7 @@
 {%- if git_repository_url %}
     <div id="git-repository">
       <p>To access the source code, use the following command:</p>
-      <pre>git clone {{git_repository_url}}</pre>
+      <pre>git clone {{git_repository_url}}{% if item.git_repository_name %} "{{item.git_repository_name}}"{% endif %}</pre>
     </div>
 {%- endif %}
 {% if files %}
