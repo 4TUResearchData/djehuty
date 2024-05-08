@@ -7792,10 +7792,17 @@ class ApiServer:
 
         return self.error_403 (request)
 
-    def __git_contributors (self, git_repository):
+    def __git_contributors (self, git_uuid, git_repository):
         """Returns a list of contributors including their commit statistics."""
         history = git_repository.walk (git_repository.head.target,
                                        pygit2.enums.SortMode.REVERSE)
+
+        cache_key = f"{git_uuid}_{git_repository.head.target}"
+        cache_prefix = "git_contributors"
+        cached_value = self.db.cache.cached_value (cache_prefix, cache_key)
+        if cached_value:
+            return cached_value
+
         commits = list(history)
         if not commits:
             return None
@@ -7865,6 +7872,7 @@ class ApiServer:
         for contributor in contributors:
             contributor["weeks"] = list(contributor["weeks"].values())
 
+        self.db.cache.cache_value (cache_prefix, cache_key, contributors)
         return contributors
 
     def __git_files_by_type (self, tree, path="", output=None):
@@ -7945,6 +7953,12 @@ class ApiServer:
         if isinstance (git_repository, Response):
             return git_repository
 
+        cache_key = f"{git_uuid}_{git_repository.head.target}"
+        cache_prefix = "git_languages"
+        cached_value = self.db.cache.cached_value (cache_prefix, cache_key)
+        if cached_value:
+            return self.response (cached_value)
+
         tree = git_repository.revparse_single(branch).tree # pylint: disable=no-member
         statistics = self.__git_files_by_type (tree)
 
@@ -7969,6 +7983,7 @@ class ApiServer:
         sorted_summary = dict(sorted(summary.items(),
                                      key=lambda item: item[1],
                                      reverse=True))
+        self.db.cache.cache_value (cache_prefix, cache_key, json.dumps (sorted_summary))
         return self.response (json.dumps (sorted_summary))
 
     def api_v3_dataset_git_contributors (self, request, git_uuid):
@@ -7978,7 +7993,7 @@ class ApiServer:
         if isinstance (git_repository, Response):
             return git_repository
 
-        contributors = self.__git_contributors (git_repository)
+        contributors = self.__git_contributors (git_uuid, git_repository)
         if contributors is None:
             return self.error_404 (request)
 
