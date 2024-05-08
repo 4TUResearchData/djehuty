@@ -7814,6 +7814,8 @@ class ApiServer:
 
         contributors[previous_commit.author.email] = {
             "total": 1,
+            "additions": total_lines,
+            "deletions": 0,
             "weeks": { week: { "w": week, "a": total_lines, "d": 0, "c": 1 } },
             "author": {
                 "name": previous_commit.author.name,
@@ -7829,6 +7831,8 @@ class ApiServer:
             if commit.author.email not in contributors:
                 contributors[commit.author.email] = {
                     "total": 0,
+                    "additions": 0,
+                    "deletions": 0,
                     "weeks": { week: { "w": week, "c": 0, "a": 0, "d": 0 } },
                     "author": {
                         "name": commit.author.name,
@@ -7841,6 +7845,8 @@ class ApiServer:
                 record["weeks"][week]["a"] += stats.insertions
                 record["weeks"][week]["d"] += stats.deletions
                 record["total"] += 1
+                record["additions"] += stats.insertions
+                record["deletions"] += stats.deletions
             else:
                 record["weeks"][week] = {
                     "w": week,
@@ -7849,6 +7855,8 @@ class ApiServer:
                     "d": stats.deletions
                 }
                 record["total"] += 1
+                record["additions"] += stats.insertions
+                record["deletions"] += stats.deletions
 
             previous_commit = commit
 
