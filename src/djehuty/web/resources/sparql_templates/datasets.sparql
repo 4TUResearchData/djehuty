@@ -25,7 +25,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?is_under_review (?review AS ?review_uri) ?review_submit_date
                 ?totals_created_at ?total_downloads ?total_views ?total_shares
                 ?total_cites ?git_uuid ?agreed_to_deposit_agreement ?agreed_to_publish
-                ?private_link_is_expired ?is_shared_with_me ?anonymize
+                ?private_link_is_expired ?is_shared_with_me ?anonymize ?git_repository_name
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -147,6 +147,7 @@ WHERE {
     OPTIONAL { ?dataset djht:license_remarks       ?license_remarks . }
     OPTIONAL { ?dataset djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
     OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }
+    OPTIONAL { ?dataset djht:git_repository_name   ?git_repository_name . }
 
     ?container_uri      djht:account              ?account .
     {%- if not disable_collaboration %}

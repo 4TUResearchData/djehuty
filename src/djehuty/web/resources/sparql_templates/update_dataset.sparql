@@ -62,6 +62,8 @@ DELETE {
     ?dataset           djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement .
     {%- endif%}{% if agreed_to_publish is not none %}
     ?dataset           djht:agreed_to_publish    ?agreed_to_publish .
+    {%- endif%}{% if git_repository_name is not none %}
+    ?dataset           djht:git_repository_name  ?git_repository_name .
     {%- endif%}{% if container_doi is not none %}
     ?container         djht:doi                  ?container_doi .
     {%- endif%}{% if first_online_date is not none %}
@@ -136,6 +138,8 @@ INSERT {
     ?dataset           djht:agreed_to_deposit_agreement {{agreed_to_deposit_agreement | safe}} .
     {%- endif%}{% if agreed_to_publish is not none %}
     ?dataset           djht:agreed_to_publish    {{agreed_to_publish | safe}} .
+    {%- endif%}{% if git_repository_name is not none %}
+    ?dataset          djht:git_repository_name  {{git_repository_name | safe}} .
     {%- endif%}{% if container_doi is not none %}
     ?container         djht:doi                  {{container_doi | safe}} .
     {%- endif%}{% if first_online_date is not none %}
@@ -194,6 +198,7 @@ WHERE {
     OPTIONAL { ?dataset djht:eula                  ?eula . }
     OPTIONAL { ?dataset djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
     OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }
+    OPTIONAL { ?dataset djht:git_repository_name   ?git_repository_name . }
     OPTIONAL { ?container djht:doi                 ?container_doi . }
     OPTIONAL { ?container djht:first_online_date   ?first_online_date . }
   }

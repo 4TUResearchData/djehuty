@@ -114,6 +114,7 @@ function gather_form_data () {
         "publisher":      or_null(jQuery("#publisher").val()),
         "time_coverage":  or_null(jQuery("#time_coverage").val()),
         "language":       or_null(jQuery("#language").val()),
+        "git_repository_name": or_null(jQuery("#git-repository-name").val()),
         "is_metadata_record": is_metadata_record,
         "metadata_reason": or_null(jQuery("#metadata_only_reason").val()),
         "defined_type":   defined_type_name,

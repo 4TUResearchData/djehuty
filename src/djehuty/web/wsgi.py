@@ -4302,6 +4302,7 @@ class ApiServer:
                     eula            = validator.string_value  (record, "eula", 0, 50000),
                     defined_type_name = defined_type_name,
                     defined_type    = defined_type,
+                    git_repository_name = validator.string_value  (record, "git_repository_name",  0, 255),
                     agreed_to_deposit_agreement = validator.boolean_value (record, "agreed_to_deposit_agreement", False, False),
                     agreed_to_publish = validator.boolean_value (record, "agreed_to_publish", False, False),
                     categories      = validator.array_value   (record, "categories"),

@@ -475,6 +475,8 @@ git push {{site_shorttag}} --tags</pre>
   <select id="git-branches">
     <option value="" disabled="disabled">Select branch</option>
   </select>
+  <label for="git-repository-name">Git repository name</label><div class="fas fa-question-circle help-icon"><span class="help-text">This will be used as the folder name when cloning the repository.</span></div>
+  <input type="text" id="git-repository-name" name="git-repository-name" value="{{article["git_repository_name"]}}" />
   <label id="git-files-label">Git file list</label>
   <div id="git-files-wrapper" class="options-wrapper">
     <ul id="git-files"></ul>
