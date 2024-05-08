@@ -7891,7 +7891,7 @@ class ApiServer:
                 continue
 
             # Submodules are represented as commits.
-            if isinstance (entry, pygit2.Commit):
+            if isinstance (entry, pygit2.Commit):  # pylint: disable=no-member
                 continue
 
             record = { "filename": f"{path}{entry.name}", "size": entry.size }
