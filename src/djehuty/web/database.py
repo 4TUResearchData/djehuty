@@ -599,8 +599,8 @@ class SparqlInterface:
         records = []
         temp_records = {}
         init_record = {"opendap_size": 0, "public_size": 0, "private_size": 0,
-                       "public_old_count": 0, "public_new_count": 0,
-                       "private_old_count": 0, "private_new_count": 0}
+                       "updated_datasets_count": 0, "new_datasets_count": 0,
+                       "updated_drafts_count": 0, "new_drafts_count": 0}
 
         try:
             opendap = self.__run_query(
@@ -636,9 +636,9 @@ class SparqlInterface:
                 if record["institution"] not in temp_records:
                     temp_records[record["institution"]] = init_record.copy()
                 if "is_new" in record and record["is_new"] == 0:
-                    temp_records[record["institution"]]["private_old_count"] = record["datasets"]
+                    temp_records[record["institution"]]["updated_drafts_count"] = record["datasets"]
                 elif "is_new" in record and record["is_new"] == 1:
-                    temp_records[record["institution"]]["private_new_count"] = record["datasets"]
+                    temp_records[record["institution"]]["new_drafts_count"] = record["datasets"]
 
             for record in private_sizes:
                 if record["institution"] not in temp_records:
@@ -649,9 +649,9 @@ class SparqlInterface:
                 if record["institution"] not in temp_records:
                     temp_records[record["institution"]] = init_record.copy()
                 if "is_first_version" in record and record["is_first_version"] == 0:
-                    temp_records[record["institution"]]["public_old_count"] = record["datasets"]
+                    temp_records[record["institution"]]["updated_datasets_count"] = record["datasets"]
                 elif "is_first_version" in record and record["is_first_version"] == 1:
-                    temp_records[record["institution"]]["public_new_count"] = record["datasets"]
+                    temp_records[record["institution"]]["new_datasets_count"] = record["datasets"]
 
             for record in public_sizes:
                 if record["institution"] not in temp_records:
@@ -664,11 +664,17 @@ class SparqlInterface:
                     "opendap_size": item.get("opendap_size", 0),
                     "public_size":  item.get("public_size", 0),
                     "private_size": item.get("private_size", 0),
-                    "public_old_count":  item.get("public_old_count", 0),
-                    "public_new_count":  item.get("public_new_count", 0),
-                    "private_old_count": item.get("private_old_count", 0),
-                    "private_new_count": item.get("private_new_count", 0)
+                    "new_datasets_count":     item.get("new_datasets_count", 0),
+                    "updated_datasets_count": item.get("updated_datasets_count", 0),
+                    "new_drafts_count":       item.get("new_drafts_count", 0),
+                    "updated_drafts_count":   item.get("updated_drafts_count", 0),
                 })
+
+            # "Others" should be the last entry in the list.
+            other_institution = next((record for record in records if record["institution"] == "Others"), None)
+            if other_institution:
+                records.remove(other_institution)
+                records.append(other_institution)
 
         except (IndexError, KeyError):
             pass

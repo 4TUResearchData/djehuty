@@ -18,7 +18,7 @@ WHERE { GRAPH <{{state_graph}}> {
            + 4*(?gid=28595)               #Wageningen
            AS ?institution_num )
     VALUES (?institution_num ?institution) {
-      (0 "other") (1 "Delft") (2 "Eindhoven") (3 "Twente") (4 "Wageningen")
+      (0 "Others") (1 "Delft") (2 "Eindhoven") (3 "Twente") (4 "Wageningen")
     }
     {% if filters is not none %}{{ filters | safe }}
     {% endif %}

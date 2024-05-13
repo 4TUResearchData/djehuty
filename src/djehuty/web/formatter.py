@@ -542,8 +542,8 @@ def format_operational_statistics_record (record):
         "opendap_size":     conv.value_or_none(record, "opendap_size"),
         "public_size":      conv.value_or_none(record, "public_size"),
         "private_size":     conv.value_or_none(record, "private_size"),
-        "public_old_count": conv.value_or_none(record, "public_old_count"),
-        "public_new_count": conv.value_or_none(record, "public_new_count"),
-        "private_old_count": conv.value_or_none(record, "private_old_count"),
-        "private_new_count": conv.value_or_none(record, "private_new_count")
+        "new_datasets_count":   conv.value_or_none(record, "new_datasets_count"),
+        "updated_datasets_count": conv.value_or_none(record, "updated_datasets_count"),
+        "new_drafts_count":     conv.value_or_none(record, "new_drafts_count"),
+        "updated_drafts_count": conv.value_or_none(record, "updated_drafts_count"),
     }

@@ -1,24 +1,30 @@
 {% extends "layout.html" %}
 {% block headers %}
+<script src="/static/js/report-operational-statistics.js"></script>
 <script src="/static/js/d3.v7.min.js"></script>
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/jquery.dataTables.min.js"></script>
 <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
 <style>
-#reports-table .fa-user-secret { color: #000; }
-#reports-table .fa-user-secret:hover { color: #666; }
-#reports-table .fa-user-secret:active { color: #999; }
-#reports-table { display: none; }
-#reports-table_wrapper { margin-top: 1em; }
+.corporate-identity-table tbody tr td:nth-child(1) {
+    width: unset !important;
+    max-width: unset !important;
+}
+.corporate-identity-table tbody tr td { text-align: right; }
+.corporate-identity-table thead tr th { text-align: center; }
+.corporate-identity-table thead tr th:last-child { text-align: center; }
+.corporate-identity-table tbody tr:nth-child(even) { background: unset; }
+.corporate-identity-table tbody tr td:first-child { text-align: center; }
+.corporate-identity-table tbody tr td:last-child { width: unset; !important; max-width: unset !important; }
+.corporate-identity-table tbody tr td:nth-child(1) {
+    width: unset; !important;
+    max-width: unset; !important;
+}
 </style>
 <script>
 jQuery(document).ready(function () {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
-    jQuery("#reports-table").DataTable({
-        columnDefs: [{ orderable: false,  targets: 0 }],
-        pageLength: 25
-    });
-    jQuery("#reports-table").show();
+    load_operational_statistics_data();
 });
 </script>
 {% endblock %}
@@ -41,8 +47,24 @@ jQuery(document).ready(function () {
 <div class="hide-for-javascript">
 <h1>REPORT: Operational Statistics</h1>
 
-<p></p>
-Coming soon...
+<div>&nbsp;</div>
 
+<div>
+<table id="operational-statistics-table" class="display cell-border corporate-identity-table">
+    <thead>
+        <tr>
+            <th>Institution</th>
+            <th>Public<br>Size</th>
+            <th>Private<br>Size</th>
+            <th>OPeNDAP<br>Size</th>
+            <th>New<br>Datasets</th>
+            <th>Updated<br>Datasets</th>
+            <th>New<br>Drafts</th>
+            <th>Updated<br>Drafts</th>
+        </tr>
+    </thead>
+</table>
+</div>
+<p></p>
 </div>
 {% endblock %}
