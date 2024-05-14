@@ -572,27 +572,27 @@ class SparqlInterface:
             date_suffix = f"_{start_date}_{end_date}"
 
         opendap_query = self.__query_from_template (
-            "report_operational_report_opendap",
+            "report_operational_statistics_opendap",
             {"filters": filters}
         )
 
         private_datasets_query = self.__query_from_template (
-            "report_operational_report_private_datasets",
+            "report_operational_statistics_private_datasets",
             {"filters": filters}
         )
 
         private_sizes_query = self.__query_from_template (
-            "report_operational_report_private_sizes",
+            "report_operational_statistics_private_sizes",
             {"filters": filters}
         )
 
         public_datasets_query = self.__query_from_template (
-            "report_operational_report_public_datasets",
+            "report_operational_statistics_public_datasets",
             {"filters": filters}
         )
 
         public_sizes_query = self.__query_from_template (
-            "report_operational_report_public_sizes",
+            "report_operational_statistics_public_sizes",
             {"filters": filters}
         )
 
