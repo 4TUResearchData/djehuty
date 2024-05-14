@@ -1,5 +1,19 @@
-function load_operational_statistics_data() {
-    jQuery.ajax({
+function load_operational_statistics() {
+    jQuery.when(
+        get_operational_statistics_data()
+    ).done(function (data) {
+        render_data_table(data);
+        render_chart_overview(data);
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        render_data_table([]);
+        show_message ("failure",
+            "<p>Failed to load operational statistics data (" +
+            textStatus + ": " + errorThrown + ")</p>");
+    });
+}
+
+function get_operational_statistics_data() {
+    return jQuery.ajax({
         url: "/v3/admin/report/operational-statistics",
         type: "GET",
         dataType: "json",
@@ -7,20 +21,15 @@ function load_operational_statistics_data() {
         accept: "application/json",
     }).done(function(data) {
         if (data.length == 0) {
-            let error_message = `No data...`;
-            jQuery("#loading-error").html(error_message);
-            jQuery("#loading-error").show();
+            show_message ("failure",
+                "<p>The API has returned null data...</p>");
             return;
         }
-        render_operational_statistics(data);
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-        let error_message = `Error loading data: ${textStatus}`;
-        jQuery("#loading-error").html(error_message);
-        jQuery("#loading-error").show();
+        return data;
     });
 }
 
-function render_operational_statistics(data) {
+function render_data_table(data) {
     jQuery('#operational-statistics-table').DataTable( {
         data: data,
         paging: false,
@@ -38,4 +47,7 @@ function render_operational_statistics(data) {
             { data: 'updated_drafts_count', render: DataTable.render.number(',')},
         ]
     });
+}
+
+function render_chart_overview() {
 }

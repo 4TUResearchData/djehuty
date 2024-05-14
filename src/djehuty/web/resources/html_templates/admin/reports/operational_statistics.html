@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block headers %}
 <script src="/static/js/report-operational-statistics.js"></script>
+<script src="/static/js/utils.js"></script>
 <script src="/static/js/d3.v7.min.js"></script>
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/jquery.dataTables.min.js"></script>
@@ -24,7 +25,7 @@
 <script>
 jQuery(document).ready(function () {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
-    load_operational_statistics_data();
+    load_operational_statistics();
 });
 </script>
 {% endblock %}
@@ -47,7 +48,10 @@ jQuery(document).ready(function () {
 <div class="hide-for-javascript">
 <h1>REPORT: Operational Statistics</h1>
 
-<div>&nbsp;</div>
+<div style="padding: 1em 0em 1em 0em">
+DATE RANGE : <input type="date" id="textinput_publisheddate_other" name="textinput_publisheddate_other" placeholder="YYYY-MM-DD" value="" maxlength="10"> ~ <input type="date" id="textinput_publisheddate_other" name="textinput_publisheddate_other" placeholder="YYYY-MM-DD" value="" maxlength="10">
+<button class="search-filter-apply-button disabled" id="search-filter-apply-button">Apply</button>
+</div>
 
 <div>
 <table id="operational-statistics-table" class="display cell-border corporate-identity-table">
@@ -63,7 +67,13 @@ jQuery(document).ready(function () {
             <th>Updated<br>Drafts</th>
         </tr>
     </thead>
+    <tbody>
+        <tr>
+            <td colspan="8" class="dataTables_empty">Loading data from the server...</td>
+        </tr>
+    </tbody>
 </table>
+<div><i>* The unit of the size is bytes.</i></div>
 </div>
 <p></p>
 </div>
