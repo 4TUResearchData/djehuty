@@ -29,13 +29,13 @@ function render_operational_statistics(data) {
         order: [],
         columns: [
             { data: 'institution', orderable: false },
-            { data: 'public_size' },
-            { data: 'private_size' },
-            { data: 'opendap_size' },
-            { data: 'new_datasets_count' },
-            { data: 'updated_datasets_count' },
-            { data: 'new_drafts_count' },
-            { data: 'updated_drafts_count' },
+            { data: 'public_size', render: DataTable.render.number(',') },
+            { data: 'private_size', render: DataTable.render.number(',') },
+            { data: 'opendap_size', render: DataTable.render.number(',') },
+            { data: 'new_datasets_count', render: DataTable.render.number(',')},
+            { data: 'updated_datasets_count', render: DataTable.render.number(',')},
+            { data: 'new_drafts_count', render: DataTable.render.number(',')},
+            { data: 'updated_drafts_count', render: DataTable.render.number(',')},
         ]
     });
 }
