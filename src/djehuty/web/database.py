@@ -1097,7 +1097,7 @@ class SparqlInterface:
     def container_uri (self, graph, item_id, item_type, account_uuid):
         """Returns the URI of the container belonging to item with item_id."""
 
-        prefix     = item_type.capitalize()
+        prefix     = "".join(word.capitalize() for word in item_type.split("-"))
         item_class = f"{prefix}Container"
         uri        = None
         if conv.parses_to_int (item_id):
@@ -2858,6 +2858,54 @@ class SparqlInterface:
         results = self.__run_query (query)
         return results
 
+    ## ------------------------------------------------------------------------
+    ## PHYSICAL OBJECTS
+    ## ------------------------------------------------------------------------
+
+    def insert_physical_object (self, title, account_uuid, container_uuid=None,
+                                description=None, publisher=None,
+                                published_date=None, resource_type=None,
+                                subject=None, alternate_identifier=None,
+                                related_identifier=None, doi=None):
+        """Inserts a physical object."""
+
+        graph           = Graph()
+        uri             = rdf.unique_node ("physical-object")
+        container_uri   = None
+        if container_uuid is not None:
+            container_uri   = URIRef(rdf.uuid_to_uri (container_uuid, "container"))
+
+        container       = self.container_uri (graph, container_uri, "physical-object", account_uuid)
+        account_uri     = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
+
+        # Add the dataset to its container.
+        graph.add ((container, rdf.DJHT["draft"],       uri))
+        graph.add ((container, rdf.DJHT["account"],     account_uri))
+
+        graph.add ((uri, RDF.type,                       rdf.DJHT["PhysicalObject"]))
+        graph.add ((uri, rdf.DJHT["title"],              Literal(title, datatype=XSD.string)))
+        graph.add ((uri, rdf.DJHT["container"],          container))
+
+        rdf.add (graph, uri, rdf.DJHT["description"],    description,    XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["publisher"],      publisher,      XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["published_date"], published_date, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["resource_type"],  resource_type,  XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["subject"],        subject, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["alternate_identifier"], alternate_identifier, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["related_identifier"], related_identifier, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["doi"],            doi,            XSD.string)
+
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.dateTime)
+
+        self.cache.invalidate_by_prefix ("physical-objects")
+        if self.add_triples_from_graph (graph):
+            container_uuid = rdf.uri_to_uuid (container)
+            self.cache.invalidate_by_prefix (f"physical-objects_{account_uuid}")
+            return container_uuid, rdf.uri_to_uuid (uri)
+
+        return None, None
     ## ------------------------------------------------------------------------
     ## REVIEWS
     ## ------------------------------------------------------------------------
