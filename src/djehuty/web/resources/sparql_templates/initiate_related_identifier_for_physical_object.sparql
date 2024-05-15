@@ -1,0 +1,22 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?object djht:related_identifiers <blank:{{blank_uuid}}> .
+    <blank:{{blank_uuid}}> rdf:first <physical-object-related-identifier:{{identifier_uuid}}> .
+    <blank:{{blank_uuid}}> rdf:rest rdf:nil .
+    <blank:{{blank_uuid}}> djht:index 0 .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container      rdf:type                  djht:PhysicalObjectContainer .
+    ?container      djht:account              ?account .
+    ?container      djht:draft                ?object .
+
+    FILTER NOT EXISTS { ?object djht:related_identifiers ?related_identifiers . }
+    FILTER (?container = <container:{{container_uuid}}>)
+    FILTER (?account   = <account:{{account_uuid}}>)
+  }
+}
+{% endblock %}
