@@ -142,6 +142,10 @@ class WebServer:
             R("/my/sessions/new",                                                self.ui_new_session),
             R("/my/profile",                                                     self.ui_profile),
             R("/my/profile/connect-with-orcid",                                  self.ui_profile_connect_with_orcid),
+            R("/my/physical-objects",                                            self.ui_my_physical_objects),
+            R("/my/physical-objects/new",                                        self.ui_new_physical_object),
+            R("/my/physical-objects/<container_uuid>/edit",                      self.ui_edit_physical_object),
+            R("/my/physical-objects/<container_uuid>/delete",                    self.ui_delete_physical_object),
             R("/review/overview",                                                self.ui_review_overview),
             R("/review/goto-dataset/<dataset_id>",                               self.ui_review_impersonate_to_dataset),
             R("/review/assign-to-me/<dataset_id>",                               self.ui_review_assign_to_me),
@@ -3141,6 +3145,104 @@ class WebServer:
             return self.error_500 (f"Failed to update ORCID for {account_uuid}")
 
         return redirect ("/my/profile", 302)
+
+    def ui_my_physical_objects (self, request):
+        """Implements /my/physical-objects."""
+
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
+
+        drafts = self.db.physical_objects (account_uuid   = account_uuid,
+                                           is_published   = False,
+                                           is_latest      = False)
+
+        return self.__render_template (request, "depositor/physical-objects.html",
+                                       drafts = drafts)
+
+    def ui_new_physical_object (self, request):
+        """Implements /my/physical-objects/new."""
+
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
+
+        container_uuid, object_uuid = self.db.insert_physical_object (
+            title = "Untitled item",
+            account_uuid = account_uuid)
+
+        if container_uuid is not None and object_uuid is not None:
+            # Add oneself as author but don't bail if that doesn't work.
+            try:
+                account    = self.db.account_by_uuid (account_uuid)
+                author_uri = URIRef(uuid_to_uri(account["author_uuid"], "author"))
+                self.db.update_item_list (object_uuid, account_uuid,
+                                          [author_uri], "authors")
+            except (TypeError, KeyError):
+                self.log.warning ("No author record for account %s.", account_uuid)
+
+            return redirect (f"/my/physical-objects/{container_uuid}/edit", code=302)
+
+        return self.error_500()
+
+    def ui_edit_physical_object (self, request, container_uuid):
+        """Implements /my/physical-objects/<uuid>/edit."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        try:
+            physical_object = self.db.physical_objects (
+                container_uuid = container_uuid,
+                account_uuid   = account_uuid,
+                is_published   = False,
+                is_latest      = False)[0]
+
+            return self.__render_template (
+                request, "depositor/edit-physical-object.html",
+                object = physical_object,
+                draft_doi = f"{self.igsn_prefix}/{container_uuid}")
+        except IndexError:
+            return self.error_403 (request)
+
+    def ui_delete_physical_object (self, request, container_uuid):
+        """Implements /my/physical-objects/<uuid>/delete."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        try:
+            physical_object = self.db.physical_objects (
+                container_uuid = container_uuid,
+                account_uuid   = account_uuid,
+                is_published   = False,
+                is_latest      = False)[0]
+
+            if self.db.delete_physical_object (account_uuid, physical_object["object_uuid"]):
+                return redirect ("/my/physical-objects", code=303)
+
+            self.log.error ("Failed to delete physical object draft.")
+
+        except IndexError:
+            return self.error_403 (request)
+        except KeyError as error:
+            self.log.error("KeyError: %s", error)
+
+        return self.error_500 ()
 
     def ui_review_overview (self, request):
         """Implements /review/overview."""
