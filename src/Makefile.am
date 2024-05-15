@@ -58,11 +58,13 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/depositor/dataset-private-links.html \
     djehuty/web/resources/html_templates/depositor/edit-collection.html       \
     djehuty/web/resources/html_templates/depositor/edit-dataset.html          \
+    djehuty/web/resources/html_templates/depositor/edit-physical-object.html  \
     djehuty/web/resources/html_templates/depositor/edit-session.html          \
     djehuty/web/resources/html_templates/depositor/language-selector.html     \
     djehuty/web/resources/html_templates/depositor/my-collections.html        \
     djehuty/web/resources/html_templates/depositor/my-data.html               \
     djehuty/web/resources/html_templates/depositor/new_private_link.html      \
+    djehuty/web/resources/html_templates/depositor/physical-objects.html      \
     djehuty/web/resources/html_templates/depositor/profile.html               \
     djehuty/web/resources/html_templates/depositor/published-collection.html  \
     djehuty/web/resources/html_templates/depositor/submitted-for-review.html  \
@@ -156,6 +158,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/delete_groups_by_id.sparql \
     djehuty/web/resources/sparql_templates/delete_item_from_list.sparql       \
     djehuty/web/resources/sparql_templates/delete_items_all_from_list.sparql  \
+    djehuty/web/resources/sparql_templates/delete_physical_object_draft.sparql \
     djehuty/web/resources/sparql_templates/delete_private_links.sparql        \
     djehuty/web/resources/sparql_templates/delete_session.sparql              \
     djehuty/web/resources/sparql_templates/delete_session_by_uuid.sparql      \
@@ -170,6 +173,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/funding.sparql                     \
     djehuty/web/resources/sparql_templates/group.sparql                       \
     djehuty/web/resources/sparql_templates/group_by_name.sparql               \
+    djehuty/web/resources/sparql_templates/initiate_creator_for_physical_object.sparql \
+    djehuty/web/resources/sparql_templates/initiate_event_for_physical_object.sparql \
     djehuty/web/resources/sparql_templates/item_collaborative_permissions.sparql \
     djehuty/web/resources/sparql_templates/latest_datasets_portal.sparql      \
     djehuty/web/resources/sparql_templates/licenses.sparql                    \
@@ -177,6 +182,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/missing_checksummed_files_for_container.sparql \
     djehuty/web/resources/sparql_templates/missing_dois.sparql                \
     djehuty/web/resources/sparql_templates/opendap_to_doi.sparql              \
+    djehuty/web/resources/sparql_templates/physical-objects.sparql            \
+    djehuty/web/resources/sparql_templates/physical_object_events.sparql      \
     djehuty/web/resources/sparql_templates/prefixes.sparql                    \
     djehuty/web/resources/sparql_templates/private_links.sparql               \
     djehuty/web/resources/sparql_templates/publish_draft_collection.sparql    \
@@ -205,6 +212,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/update_file.sparql                 \
     djehuty/web/resources/sparql_templates/update_git_uuid.sparql             \
     djehuty/web/resources/sparql_templates/update_orcid_for_account.sparql    \
+    djehuty/web/resources/sparql_templates/update_physical_object_draft.sparql \
     djehuty/web/resources/sparql_templates/update_private_link.sparql         \
     djehuty/web/resources/sparql_templates/update_quota_request.sparql        \
     djehuty/web/resources/sparql_templates/update_review.sparql               \
@@ -292,6 +300,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/js/dropzone.min.js                           \
     djehuty/web/resources/static/js/edit-collection.js                        \
     djehuty/web/resources/static/js/edit-dataset.js                           \
+    djehuty/web/resources/static/js/edit-physical-object.js                   \
     djehuty/web/resources/static/js/edit-profile.js                           \
     djehuty/web/resources/static/js/exploratory.js                            \
     djehuty/web/resources/static/js/jquery.dataTables.min.js                  \
