@@ -119,6 +119,12 @@ class ApiServer:
         self.datacite_id         = None
         self.datacite_password   = None
         self.datacite_prefix     = None
+
+        self.igsn_url            = None
+        self.igsn_id             = None
+        self.igsn_password       = None
+        self.igsn_prefix         = None
+
         self.ssi_psk             = None
         self.log_access          = self.log_access_directly
         self.log                 = logging.getLogger(__name__)
