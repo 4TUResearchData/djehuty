@@ -481,6 +481,15 @@ def read_datacite_configuration (server, xml_root):
         server.datacite_password = config_value (datacite, "password")
         server.datacite_prefix   = config_value (datacite, "prefix")
 
+def read_igsn_configuration (server, xml_root):
+    """Procedure to parse and set the IGSN API configuration."""
+    igsn = xml_root.find("igsn")
+    if igsn:
+        server.igsn_url      = config_value (igsn, "api-url")
+        server.igsn_id       = config_value (igsn, "repository-id")
+        server.igsn_password = config_value (igsn, "password")
+        server.igsn_prefix   = config_value (igsn, "prefix")
+
 def read_automatic_login_configuration (server, xml_root):
     """Procedure to parse and set automatic login for development setups."""
     automatic_login_email = config_value (xml_root, "authentication/automatic-login-email")
@@ -707,6 +716,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         read_orcid_configuration (server, xml_root)
         read_datacite_configuration (server, xml_root)
+        read_igsn_configuration (server, xml_root)
         read_email_configuration (server, xml_root, logger)
         read_saml_configuration (server, xml_root, logger)
         read_automatic_login_configuration (server, xml_root)
