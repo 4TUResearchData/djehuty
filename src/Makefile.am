@@ -195,6 +195,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/update_file.sparql                 \
     djehuty/web/resources/sparql_templates/update_git_uuid.sparql             \
     djehuty/web/resources/sparql_templates/update_orcid_for_account.sparql    \
+    djehuty/web/resources/sparql_templates/update_physical_object_draft.sparql \
     djehuty/web/resources/sparql_templates/update_private_link.sparql         \
     djehuty/web/resources/sparql_templates/update_quota_request.sparql        \
     djehuty/web/resources/sparql_templates/update_review.sparql               \
