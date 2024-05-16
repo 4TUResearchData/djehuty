@@ -183,6 +183,7 @@ class ApiServer:
             R("/my/physical-objects",                                            self.ui_my_physical_objects),
             R("/my/physical-objects/new",                                        self.ui_new_physical_object),
             R("/my/physical-objects/<container_uuid>/edit",                      self.ui_edit_physical_object),
+            R("/my/physical-objects/<container_uuid>/delete",                    self.ui_delete_physical_object),
             R("/review/overview",                                                self.ui_review_overview),
             R("/review/goto-dataset/<dataset_id>",                               self.ui_review_impersonate_to_dataset),
             R("/review/assign-to-me/<dataset_id>",                               self.ui_review_assign_to_me),
@@ -2842,6 +2843,35 @@ class ApiServer:
                 draft_doi = f"{self.igsn_prefix}/{container_uuid}")
         except IndexError:
             return self.error_403 (request)
+
+    def ui_delete_physical_object (self, request, container_uuid):
+        """Implements /my/physical-objects/<uuid>/delete."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        try:
+            physical_object = self.db.physical_objects (
+                container_uuid = container_uuid,
+                account_uuid   = account_uuid,
+                is_published   = False,
+                is_latest      = False)[0]
+
+            if self.db.delete_physical_object (account_uuid, physical_object["object_uuid"]):
+                return redirect ("/my/physical-objects", code=303)
+
+            self.log.error ("Failed to delete physical object draft.")
+
+        except IndexError:
+            return self.error_403 (request)
+        except KeyError as error:
+            self.log.error("KeyError: %s", error)
+
+        return self.error_500 ()
 
     def ui_review_overview (self, request):
         """Implements /review/overview."""
