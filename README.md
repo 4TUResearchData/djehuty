@@ -4,7 +4,7 @@ This Python package provides the repository system for 4TU.ResearchData.
 
 ## Develop
 
-First, create the virtual environment (here we name it `djehuty-env`)
+First, create a Python virtual environment (here, we name it `djehuty-env`).
 
 ```bash
 python -m venv djehuty-env
@@ -19,9 +19,7 @@ On Linux/Mac:
 ```
 
 <details>
-<summary>On Windows PowerShell</summary>
-
-On Windows PowerShell:
+<summary>On Windows PowerShell:</summary>
 
 ```bash
 djehuty-env\Scripts\Activate.ps1
@@ -96,11 +94,12 @@ For developing, it's best to set yourself as an admin and get all rights. To do 
 
 Djehuty needs SPARQL-compatible database to run, such as Virtuoso or Jena Fuseki.
 
-You can run a docker container such as
-openlink/virtuoso-opensource-7
-secoresearch/fuseki
+You can run a docker container such as:
 
-Forward the port to 8890.
+- Virtuoso: [openlink/virtuoso-opensource-7](https://hub.docker.com/r/openlink/virtuoso-opensource-7/)
+- Jena Fuseki: [secoresearch/fuseki](https://hub.docker.com/r/secoresearch/fuseki)
+
+Forward the container's port to 8890.
 
 Login to the database Admin panel to create a dataset for djehuty named `sparql`. (new dataset -> create dataset named `sparql`)
 
@@ -112,7 +111,7 @@ djehuty web --initialize --config djehuty.xml
 
 Doing so will create `.djehuty-initialized` file on root to signal that the database was seeded.
 
-#### Keeping your development environment up-to-date
+### Keeping your development environment up-to-date
 
 To update packages in the virtual environment, use the following command
 inside an activated virtual environment:
