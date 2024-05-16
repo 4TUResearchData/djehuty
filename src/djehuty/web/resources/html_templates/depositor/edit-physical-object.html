@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/quill.min.js"></script>
+<script src="/static/js/utils.js"></script>
+<script src="/static/js/edit-physical-object.js"></script>
+<script>
+jQuery(document).ready(function (){
+    jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
+    activate ("{{object["container_uuid"]}}", function() {});
+});
+</script>
+<link href="/static/css/quill.4tu.css" rel="stylesheet">
+<link href="/static/css/form.css" rel="stylesheet">
+<style>
+#tags-list { display: none; border: none; padding: 0em; }
+#tags-list li {
+  display: inline-block;
+  list-style-type: none;
+  margin: 0em 1em .5em 0em;
+  padding: .5em;
+  border-radius: .5em;
+  background: #eee;
+}
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/my/physical-objects">&#8592; Go back</a>
+  <li class="active corporate-identity-submenu-active">Edit physical object
+  <li class="hide-for-javascript save-button"><a id="save" href="#">Save draft</a>
+  <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
+</ul>
+{% endblock %}
+{% block body %}
+<div class="object-content-loader"></div>
+<div class="object-content">
+{%- if object["title"] == "Untitled item" %}
+<h1>Add new physical object</h1>
+{%- else %}
+<h1>Edit physical object</h1>
+{%- endif %}
+<noscript>
+  <p class="no-script">Sorry, this page requires JavaScript to work correctly.</p>
+</noscript>
+<div class="hide-for-javascript">
+<h2>Physical object details</h2>
+<p>Fields marked with <span class="required-field">&#8727;</span> are required.</p>
+<label for="title">Title</label><div class="fas fa-question-circle help-icon"><span class="help-text">Giving your object a descriptive title will help making it discoverable via search engines. The title should have at least three characters.</span></div><span class="required-field">&#8727;</span>
+<input type="text" id="title" name="title" value="{{object["title"]}}" />
+
+<label>Description</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add as much context as possible so that others can interpret your research and reproduce it. Make sure you include methodology, techniques used, and if relevant information about approval for data collection to confirm adherence to legal or ethical requirements. The description should have at least four characters.</span></div><span class="required-field">&#8727;</span>
+<div id="description" class="texteditor">
+  {{object["description"] | default("", True) | replace("\\n", "<br>") | safe }}
+</div>
+
+<label for="subject">Subject</label><div class="fas fa-question-circle help-icon"><span class="help-text">This free-text property contains the subject, keyword, classification code, or key phrase describing the resource.</span></div>
+<input type="text" id="subject" name="subject" value="{{object["subject"]}}" />
+
+<label for="alternate_identifier">Alternate identifier</label><div class="fas fa-question-circle help-icon"><span class="help-text">When the same instance of the resource has an additional identifier, enter it here. Otherwise, leave it blank.</span></div>
+<input type="text" id="alternate_identifier" name="alternate_identifier" value="{{object["alternate_identifier"]}}" />
+
+<label for="publisher">Publisher</label>
+<input type="text" id="publisher" name="publisher" value="{% if object["publisher"] %}{{object["publisher"]}}{% else %}{{site_name}}{% endif %}">
+
+<h3 class="corporate-identity-h3">Linked resource &amp; references</h3>
+
+<label>IGSN</label><div class="fas fa-question-circle help-icon"><span class="help-text">Upon publication, an International Generic Sample Number (IGSN) will be assigned to your physical object. If you need to have the IGSN before publication, you can use this value.</span></div>
+<div id="doi-wrapper" class="options-wrapper">
+  The IGSN of your physical object will be: <strong>{{object["doi"] | default(draft_doi, False)}}</strong>
+</div>
+</div>
+</div>
+{% endblock %}
