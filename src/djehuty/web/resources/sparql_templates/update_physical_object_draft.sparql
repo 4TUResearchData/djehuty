@@ -1,0 +1,75 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    {%- if title is not none %}
+    ?physical_object djht:title                  ?title .
+    {%- endif%}{% if description is not none %}
+    ?physical_object djht:description            ?description .
+    {%- endif%}{% if publisher is not none %}
+    ?physical_object djht:publisher              ?publisher .
+    {%- endif%}{% if published_date is not none %}
+    ?physical_object djht:published_date         ?published_date .
+    {%- endif%}{% if resource_type is not none %}
+    ?physical_object djht:resource_type          ?resource_type .
+    {%- endif%}{% if subject is not none %}
+    ?physical_object djht:subject                ?subject .
+    {%- endif%}{% if alternate_identifier is not none %}
+    ?physical_object djht:alternate_identifier   ?alternate_identifier .
+    {%- endif%}{% if related_identifier is not none %}
+    ?physical_object djht:related_identifier     ?related_identifier .
+    {%- endif%}{% if doi is not none %}
+    ?physical_object djht:doi                    ?doi .
+    {%- endif%}{% if modified_date is not none %}
+    ?physical_object djht:modified_date          ?modified_date .
+    {%- endif%}
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    {%- if title is not none %}
+    ?physical_object djht:title                  {{title | safe}} .
+    {%- endif%}{% if description is not none %}
+    ?physical_object djht:description            {{description | safe}} .
+    {%- endif%}{% if publisher is not none %}
+    ?physical_object djht:publisher              {{publisher | safe}} .
+    {%- endif%}{% if published_date is not none %}
+    ?physical_object djht:published_date         {{published_date | safe}} .
+    {%- endif%}{% if resource_type is not none %}
+    ?physical_object djht:resource_type          {{resource_type | safe}} .
+    {%- endif%}{% if subject is not none %}
+    ?physical_object djht:subject                {{subject | safe}} .
+    {%- endif%}{% if alternate_identifier is not none %}
+    ?physical_object djht:alternate_identifier   {{alternate_identifier | safe}} .
+    {%- endif%}{% if related_identifier is not none %}
+    ?physical_object djht:related_identifier     {{related_identifier | safe}} .
+    {%- endif%}{% if doi is not none %}
+    ?physical_object djht:doi                    {{doi | safe}} .
+    {%- endif%}{% if modified_date is not none %}
+    ?physical_object djht:modified_date          "{{modified_date | safe}}"^^xsd:dateTime .
+    {%- endif%}
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container                    rdf:type                  djht:PhysicalObjectContainer .
+    ?container                    djht:draft                ?physical_object .
+    ?container                    djht:account              ?account .
+    ?physical_object              rdf:type                  djht:PhysicalObject .
+
+    OPTIONAL { ?physical_object   djht:title                 ?title . }
+    OPTIONAL { ?physical_object   djht:description           ?description . }
+    OPTIONAL { ?physical_object   djht:publisher             ?publisher . }
+    OPTIONAL { ?physical_object   djht:published_date        ?published_date . }
+    OPTIONAL { ?physical_object   djht:resource_type         ?resource_type . }
+    OPTIONAL { ?physical_object   djht:subject               ?subject . }
+    OPTIONAL { ?physical_object   djht:alternate_identifier  ?alternate_identifier . }
+    OPTIONAL { ?physical_object   djht:related_identifier    ?related_identifier . }
+    OPTIONAL { ?physical_object   djht:doi                   ?doi . }
+    OPTIONAL { ?physical_object   djht:modified_date         ?modified_date . }
+
+  }
+  FILTER (?account = <account:{{account_uuid}}>)
+  FILTER (?container = <container:{{container_uuid}}>)
+}
+{% endblock %}

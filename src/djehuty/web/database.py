@@ -2929,6 +2929,30 @@ class SparqlInterface:
         })
 
         return self.__run_query (query)
+
+    def update_physical_object (self, title, account_uuid, container_uuid=None,
+                                description=None, publisher=None,
+                                published_date=None, resource_type=None,
+                                subject=None, alternate_identifier=None,
+                                related_identifier=None, doi=None):
+        """Updates a physical object record."""
+
+        query = self.__query_from_template ("update_physical_object_draft", {
+            "title":                  rdf.escape_string_value (title),
+            "description":            rdf.escape_string_value (description),
+            "publisher":              rdf.escape_string_value (publisher),
+            "published_date":         rdf.escape_datetime_value (published_date),
+            "resource_type":          rdf.escape_string_value (resource_type),
+            "subject":                rdf.escape_string_value (subject),
+            "alternate_identifier":   rdf.escape_string_value (alternate_identifier),
+            "related_identifier":     rdf.escape_string_value (related_identifier),
+            "doi":                    rdf.escape_string_value (doi),
+            "modified_date":          datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S"),
+            "account_uuid":           account_uuid,
+            "container_uuid":         container_uuid
+        })
+
+        return self.__run_query (query)
     ## ------------------------------------------------------------------------
     ## REVIEWS
     ## ------------------------------------------------------------------------
