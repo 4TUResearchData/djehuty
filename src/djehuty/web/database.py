@@ -2862,6 +2862,19 @@ class SparqlInterface:
     ## PHYSICAL OBJECTS
     ## ------------------------------------------------------------------------
 
+    def physical_objects (self, account_uuid=None, container_uuid=None,
+                          is_published=True, is_latest=True):
+        """Procedure to retrieve physical objects."""
+
+        query = self.__query_from_template ("physical-objects", {
+            "account_uuid":   account_uuid,
+            "container_uuid": container_uuid,
+            "is_published":   is_published,
+            "is_latest":      is_latest
+        })
+
+        return self.__run_query (query)
+
     def insert_physical_object (self, title, account_uuid, container_uuid=None,
                                 description=None, publisher=None,
                                 published_date=None, resource_type=None,

@@ -1,0 +1,51 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+{%- if return_count %}
+SELECT (COUNT(DISTINCT ?object) AS ?objects)
+{%- else %}
+SELECT DISTINCT ?account_uuid ?container_uuid ?object_uuid ?created_date
+                ?title ?description ?publisher ?published_date ?resource_type
+                ?subject ?alternate_identifier ?related_identifier ?doi
+                ?modified_date ?version
+{%endif%}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container      rdf:type                  djht:PhysicalObjectContainer .
+    ?container      djht:account              ?account .
+
+    {%- if is_published is none and is_latest is none: %}
+    ?object         djht:container            ?container .
+    {%- elif is_latest %}
+    ?container      djht:latest_published_version ?object .
+    {%- elif is_published %}
+    ?container      djht:published_versions/rdf:rest*/rdf:first ?object .
+    {%- else %}
+    ?container      djht:draft                ?object .
+    {%- endif %}
+    ?object         djht:title                ?title .
+    OPTIONAL { ?container djht:doi                ?container_doi . }
+    OPTIONAL { ?object djht:version               ?version . }
+    OPTIONAL { ?object djht:title                 ?title . }
+    OPTIONAL { ?object djht:description           ?description . }
+    OPTIONAL { ?object djht:publisher             ?publisher . }
+    OPTIONAL { ?object djht:published_date        ?published_date . }
+    OPTIONAL { ?object djht:resource_type         ?resource_type . }
+    OPTIONAL { ?object djht:subject               ?subject . }
+    OPTIONAL { ?object djht:alternate_identifier  ?alternate_identifier . }
+    OPTIONAL { ?object djht:related_identifier    ?related_identifier . }
+    OPTIONAL { ?object djht:doi                   ?doi . }
+    OPTIONAL { ?object djht:modified_date         ?modified_date . }
+    OPTIONAL { ?object djht:created_date          ?created_date . }
+
+    BIND(STRAFTER(STR(?container), "container:")    AS ?container_uuid)
+    BIND(STRAFTER(STR(?object), "physical-object:") AS ?object_uuid)
+    BIND(STRAFTER(STR(?account), "account:")        AS ?account_uuid)
+    {%- if is_published %}
+    BIND (xsd:boolean (EXISTS { ?container djht:draft ?draft_dataset . }) AS ?has_draft)
+    {%- endif %}
+  }
+{%- if account_uuid is not none: %}
+FILTER (?account = <account:{{account_uuid}}>)
+{%- endif %}
+}
+{% endblock %}
