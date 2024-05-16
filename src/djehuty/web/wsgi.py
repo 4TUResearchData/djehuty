@@ -180,6 +180,7 @@ class ApiServer:
             R("/my/sessions/new",                                                self.ui_new_session),
             R("/my/profile",                                                     self.ui_profile),
             R("/my/profile/connect-with-orcid",                                  self.ui_profile_connect_with_orcid),
+            R("/my/physical-objects",                                            self.ui_my_physical_objects),
             R("/review/overview",                                                self.ui_review_overview),
             R("/review/goto-dataset/<dataset_id>",                               self.ui_review_impersonate_to_dataset),
             R("/review/assign-to-me/<dataset_id>",                               self.ui_review_assign_to_me),
@@ -542,6 +543,7 @@ class ApiServer:
             "base_url":            self.base_url,
             "identity_provider":   self.identity_provider,
             "in_production":       self.in_production,
+            "supports_igsn":       self.igsn_prefix is not None,
             "is_logged_in":        account is not None,
             "may_deposit":         self.db.is_depositor (token, account),
             "large_footer":        self.large_footer,
@@ -2766,6 +2768,22 @@ class ApiServer:
 
         return redirect ("/my/profile", 302)
 
+    def ui_my_physical_objects (self, request):
+        """Implements /my/physical-objects."""
+
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
+
+        drafts = self.db.physical_objects (account_uuid   = account_uuid,
+                                           is_published   = False,
+                                           is_latest      = False)
+
+        return self.__render_template (request, "depositor/physical-objects.html",
+                                       drafts = drafts)
     def ui_review_overview (self, request):
         """Implements /review/overview."""
         if not self.accepts_html (request):

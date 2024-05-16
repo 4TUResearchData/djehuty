@@ -40,6 +40,9 @@ jQuery(document).ready(function () {
   <li class="active corporate-identity-submenu-active">My Datasets
   {%- if may_deposit %}<li class="create-button"><a href="/my/datasets/new">Add new dataset</a>{%- endif %}
   <li><a href="/my/collections">My Collections</a>
+  {%- if supports_igsn %}
+  <li><a href="/my/physical-objects">My physical objects</a>
+  {%- endif %}
 </ul>
 {% endblock %}
 {% block body %}

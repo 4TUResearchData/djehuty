@@ -21,7 +21,12 @@ jQuery(document).ready(function () {
   <li><a href="/my/dashboard">My Dashboard</a>
   <li><a href="/my/datasets">My Datasets</a>
   <li class="active corporate-identity-submenu-active">My Collections
+
   {%- if may_deposit %}<li class="create-button"><a href="/my/collections/new">Create new collection</a>{%- endif %}
+  <li class="create-button"><a href="/my/collections/new">Create new collection</a>
+  {%- if supports_igsn %}
+  <li><a href="/my/physical-objects">My physical objects</a>
+  {%- endif %}
 </ul>
 {% endblock %}
 {% block body %}

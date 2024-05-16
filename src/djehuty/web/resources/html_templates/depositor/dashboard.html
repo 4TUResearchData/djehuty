@@ -61,6 +61,9 @@ jQuery(document).ready(function (){
   <li class="create-button"><a href="/my/sessions/new">Create API token</a>
   <li><a href="/my/datasets">My Datasets</a>
   <li><a href="/my/collections">My Collections</a>
+  {%- if supports_igsn %}
+  <li><a href="/my/physical-objects">My physical objects</a>
+  {%- endif %}
 </ul>
 {% endblock %}
 {% block body %}

@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block headers %}
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/my/dashboard">My Dashboard</a>
+  <li><a href="/my/datasets">My Datasets</a>
+  <li><a href="/my/collections">My Collections</a>
+  <li class="active corporate-identity-submenu-active">My physical objects
+  <li class="create-button"><a href="/my/physical-objects/new">Register physical object</a>
+</ul>
+{% endblock %}
+{% block body %}
+<h1>Physical objects</h1>
+
+<h2>Drafts</h2>
+{%- if drafts: %}
+<table id="table-objects" class="corporate-identity-table">
+  <thead>
+    <tr>
+      <th>Physical object</th>
+      <th>Type</th>
+      <th>Created&nbsp;at</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>{% for object in drafts: %}
+    <tr>
+      <td><a href="/my/physical-objects/{{object.container_uuid}}/edit">{{object.title}}</a></td>
+      <td>{{object.resource_type | default("undefined", False)}}</td>
+      <td>{{object.created_date | truncate(10,False,'')}}</td>
+      <td><a href="/my/physical-objects/{{object.container_uuid}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
+{%- else %}
+<p>You don&apos;t have draft physical objects (yet).</p>
+<div class="center"><a id="add-new-object" href="/my/physical-objects/new" class="button corporate-identity-standard-button">Register physical object</a></div>
+{%- endif %}
+{% endblock %}
