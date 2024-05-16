@@ -125,6 +125,7 @@ class WebServer:
             R("/my/profile/connect-with-orcid",                                  self.ui_profile_connect_with_orcid),
             R("/my/physical-objects",                                            self.ui_my_physical_objects),
             R("/my/physical-objects/new",                                        self.ui_new_physical_object),
+            R("/my/physical-objects/<container_uuid>/edit",                      self.ui_edit_physical_object),
             R("/review/overview",                                                self.ui_review_overview),
             R("/review/goto-dataset/<dataset_id>",                               self.ui_review_impersonate_to_dataset),
             R("/review/assign-to-me/<dataset_id>",                               self.ui_review_assign_to_me),
@@ -3161,6 +3162,31 @@ class WebServer:
             return redirect (f"/my/physical-objects/{container_uuid}/edit", code=302)
 
         return self.error_500()
+
+    def ui_edit_physical_object (self, request, container_uuid):
+        """Implements /my/physical-objects/<uuid>/edit."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        try:
+            physical_object = self.db.physical_objects (
+                container_uuid = container_uuid,
+                account_uuid   = account_uuid,
+                is_published   = False,
+                is_latest      = False)[0]
+
+            return self.__render_template (
+                request, "depositor/edit-physical-object.html",
+                object = physical_object,
+                draft_doi = f"{self.igsn_prefix}/{container_uuid}")
+        except IndexError:
+            return self.error_403 (request)
+
     def ui_review_overview (self, request):
         """Implements /review/overview."""
         if not self.accepts_html (request):
