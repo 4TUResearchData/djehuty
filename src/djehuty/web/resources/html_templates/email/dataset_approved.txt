@@ -12,7 +12,11 @@ When referring to the specific version of your dataset, we recommend to use:
 When referring to the dataset, or an update of this dataset, we recommend to use:
   https://doi.org/{{container_doi}}
 
+In case you have published additional documents referring to your dataset, you can add them to the metadata yourself. Find more information about modifying and versioning on this page [3].
+
 This is an automated message. For further correspondence, either use the feedback form [2] or contact us by e-mail at {{support_email}}</p>
 
 [1] {{base_url}}/datasets/{{container_uuid}}
 [2] {{base_url}}/feedback
+[3] {{base_url}}/info/en/use/publish-cite/after-uploading
+
