@@ -2919,6 +2919,16 @@ class SparqlInterface:
             return container_uuid, rdf.uri_to_uuid (uri)
 
         return None, None
+
+    def delete_physical_object (self, account_uuid, object_uuid):
+        """Removes an unpublished physical object."""
+
+        query = self.__query_from_template ("delete_physical_object_draft", {
+            "account_uuid": account_uuid,
+            "object_uuid": object_uuid
+        })
+
+        return self.__run_query (query)
     ## ------------------------------------------------------------------------
     ## REVIEWS
     ## ------------------------------------------------------------------------
