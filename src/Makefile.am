@@ -55,6 +55,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/depositor/dataset-private-links.html \
     djehuty/web/resources/html_templates/depositor/edit-collection.html       \
     djehuty/web/resources/html_templates/depositor/edit-dataset.html          \
+    djehuty/web/resources/html_templates/depositor/edit-physical-object.html  \
     djehuty/web/resources/html_templates/depositor/edit-session.html          \
     djehuty/web/resources/html_templates/depositor/language-selector.html     \
     djehuty/web/resources/html_templates/depositor/my-collections.html        \
@@ -291,6 +292,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/js/dropzone.min.js                           \
     djehuty/web/resources/static/js/edit-collection.js                        \
     djehuty/web/resources/static/js/edit-dataset.js                           \
+    djehuty/web/resources/static/js/edit-physical-object.js                   \
     djehuty/web/resources/static/js/edit-profile.js                           \
     djehuty/web/resources/static/js/exploratory.js                            \
     djehuty/web/resources/static/js/jquery.dataTables.min.js                  \

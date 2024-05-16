@@ -182,6 +182,7 @@ class ApiServer:
             R("/my/profile/connect-with-orcid",                                  self.ui_profile_connect_with_orcid),
             R("/my/physical-objects",                                            self.ui_my_physical_objects),
             R("/my/physical-objects/new",                                        self.ui_new_physical_object),
+            R("/my/physical-objects/<container_uuid>/edit",                      self.ui_edit_physical_object),
             R("/review/overview",                                                self.ui_review_overview),
             R("/review/goto-dataset/<dataset_id>",                               self.ui_review_impersonate_to_dataset),
             R("/review/assign-to-me/<dataset_id>",                               self.ui_review_assign_to_me),
@@ -378,6 +379,10 @@ class ApiServer:
             R("/v3/datasets/<dataset_uuid>/collaborators/<collaborator_uuid>",   self.api_v3_dataset_remove_collaborator),
             R("/v3/accounts/search",                                             self.api_v3_accounts_search),
             R("/v3/authors/<author_uuid>",                                       self.api_v3_author_details),
+
+            ## Physical objects
+            ## ----------------------------------------------------------------
+            R("/v3/physical-objects/<container_uuid>",                           self.api_v3_physical_object_details),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -2813,6 +2818,31 @@ class ApiServer:
             return redirect (f"/my/physical-objects/{container_uuid}/edit", code=302)
 
         return self.error_500()
+
+    def ui_edit_physical_object (self, request, container_uuid):
+        """Implements /my/physical-objects/<uuid>/edit."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        try:
+            physical_object = self.db.physical_objects (
+                container_uuid = container_uuid,
+                account_uuid   = account_uuid,
+                is_published   = False,
+                is_latest      = False)[0]
+
+            return self.__render_template (
+                request, "depositor/edit-physical-object.html",
+                object = physical_object,
+                draft_doi = f"{self.igsn_prefix}/{container_uuid}")
+        except IndexError:
+            return self.error_403 (request)
+
     def ui_review_overview (self, request):
         """Implements /review/overview."""
         if not self.accepts_html (request):
@@ -6464,6 +6494,55 @@ class ApiServer:
     def api_v3_collections_authors_reorder (self, request, container_uuid):
         """Implements /v3/datasets/<uuid>/reorder-authors."""
         return self.__reorder_authors_for_item (request, container_uuid)
+
+    def api_v3_physical_object_details (self, request, container_uuid):
+        """Implements /v3/physical-objects/<uuid>."""
+
+        if request.method == "PUT":
+            account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json")
+            if isinstance (account_uuid, Response):
+                return account_uuid
+
+            if not validator.is_valid_uuid (container_uuid):
+                return self.error_404 (request)
+
+            try:
+                physical_object = self.db.physical_objects (
+                    container_uuid = container_uuid,
+                    account_uuid   = account_uuid,
+                    is_published   = False,
+                    is_latest      = False)[0]
+
+                if not physical_object:
+                    return self.error_403 (request)
+
+                errors = []
+                record = request.get_json()
+                parameters = {
+                    "title":                validator.string_value (record, "title",                0, 255,  error_list=errors),
+                    "description":          validator.string_value (record, "description",          0, 2048, error_list=errors),
+                    "publisher":            validator.string_value (record, "publisher",            0, 255,  error_list=errors),
+                    "resource_type":        validator.string_value (record, "resource_type",        0, 255,  error_list=errors),
+                    "subject":              validator.string_value (record, "subject",              0, 255,  error_list=errors),
+                    "alternate_identifier": validator.string_value (record, "alternate_identifier", 0, 255,  error_list=errors),
+                    "related_identifier":   validator.string_value (record, "related_identifier",   0, 255,  error_list=errors),
+                    "doi":                  validator.string_value (record, "doi",                  0, 255,  error_list=errors),
+                    "account_uuid":         account_uuid,
+                    "container_uuid":       container_uuid
+                }
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                if not self.db.update_physical_object (**parameters):
+                    return self.error_500 ()
+
+                return self.respond_204 ()
+            except IndexError:
+                return self.error_403 (request)
+            except validator.ValidationException as error:
+                return self.error_400 (request, error.message, error.code)
+
+        return self.error_405 ("PUT")
 
     def api_v3_datasets_codemeta (self, request):
         """Implements /v3/datasets/codemeta."""
