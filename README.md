@@ -1,4 +1,5 @@
-# djehuty
+djehuty
+=========
 
 This Python package provides the repository system for 4TU.ResearchData.
 
@@ -150,7 +151,7 @@ pyinstaller --onefile \
 #### Tricks when building using WINE
 
 While no support can be provided for this, the following notes may help.
-Alledgedly, using Python 3.8.6 works well. Activating the virtual
+Alledgedly, using Python 3.8.6 works well.  Activating the virtual
 environment works best from a `cmd.exe`, which can be started using:
 
 ```bash
