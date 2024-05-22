@@ -230,9 +230,26 @@ def split_author_name(name):
     parts = ([''] + parts)[-2:]
     return parts
 
-def split_delimited_string (input_string, delimiter=","):
-    """Returns a list of strings from a delimited string."""
+def split_string (input_string, delimiter='\\s' , is_quoted=False, maxsplit=-1):
+    """Splits a string by a delimiter character and strips whitespace."""
     if not isinstance(input_string, str) or input_string == "":
         return None
+    regex_pattern = re.compile(fr'''((?:[^{delimiter}])+)''')
+    if is_quoted:
+        regex_pattern = re.compile(fr'''((?:[^{delimiter}"']|"[^"]*"|'[^']*')+)''')
+    words = regex_pattern.split(input_string)[1::2]
+    if maxsplit == 0:
+        return [input_string]
+    if 0 < maxsplit < len(words):
+        tmp_words = []
+        tmp_words = words[:maxsplit]
+        tmp_words.append(delimiter.join(words[maxsplit:]))
+        words = tmp_words
+    words[:] = [word.strip() for word in words]
+    words[:] = [word for word in words if word]
+    if is_quoted:
+        for index, word in enumerate(words):
+            if word[0] == word[-1] and word[0] in ['"', "'"]:
+                words[index] = word[1:-1]
 
-    return [item.strip() for item in input_string.split(delimiter)]
+    return words

@@ -36,7 +36,7 @@ from djehuty.utils.convenience import pretty_print_size, decimal_coords
 from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
 from djehuty.utils.convenience import make_citation, is_opendap_url, landing_page_url
-from djehuty.utils.convenience import split_author_name, split_delimited_string
+from djehuty.utils.convenience import split_author_name, split_string
 from djehuty.utils.constants import group_to_member, member_url_names, filetypes_by_extension
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 
@@ -971,9 +971,9 @@ class ApiServer:
         record["item_type"]       = self.get_parameter (request, "item_type")
         record["doi"]             = self.get_parameter (request, "doi")
         record["handle"]          = self.get_parameter (request, "handle")
-        record["search_for"]      = self.parse_search_terms(self.get_parameter (request, "search_for"))
+        record["search_for"]      = self.parse_search_terms (self.get_parameter (request, "search_for"))
         record["search_format"]   = self.get_parameter (request, "search_format")
-        record["categories"]      = split_delimited_string(self.get_parameter (request, "categories"), ",")
+        record["categories"]      = split_string (self.get_parameter (request, "categories"), delimiter=",")
         record["is_latest"]       = self.get_parameter (request, "is_latest")
 
         offset, limit = self.__paging_offset_and_limit (request)
@@ -6111,13 +6111,13 @@ class ApiServer:
         record["published_since"] = self.get_parameter (request, "published_since")
         record["modified_since"]  = self.get_parameter (request, "modified_since")
         record["group"]           = self.get_parameter (request, "group")
-        record["group_ids"]       = self.get_parameter (request, "group_ids")
+        record["group_ids"]       = split_string (self.get_parameter (request, "group_ids"), delimiter=",")
+        record["categories"]      = split_string (self.get_parameter (request, "categories"), delimiter=",")
         record["resource_doi"]    = self.get_parameter (request, "resource_doi")
         record["item_type"]       = self.get_parameter (request, "item_type")
         record["doi"]             = self.get_parameter (request, "doi")
         record["handle"]          = self.get_parameter (request, "handle")
         record["return_count"]    = self.get_parameter (request, "return_count")
-        record["categories"]      = self.get_parameter (request, "categories")
 
         try:
             validator.integer_value (record, "limit")
@@ -6135,13 +6135,11 @@ class ApiServer:
             validator.boolean_value (record, "return_count")
 
             if record["categories"] is not None:
-                record["categories"] = record["categories"].split(",")
                 validator.array_value   (record, "categories")
                 for index, _ in enumerate(record["categories"]):
                     record["categories"][index] = validator.integer_value (record["categories"], index)
 
             if record["group_ids"] is not None:
-                record["group_ids"] = record["group_ids"].split(",")
                 validator.array_value   (record, "group_ids")
                 for index, _ in enumerate(record["group_ids"]):
                     record["group_ids"][index] = validator.integer_value (record["group_ids"], index)
@@ -6313,7 +6311,7 @@ class ApiServer:
             record["handle"]          = self.get_parameter (parameters, "handle")
             record["search_for"]      = self.get_parameter (parameters, "search_for")
             record["search_filters"]  = self.get_parameter (parameters, "search_filters")
-            record["categories"]      = split_delimited_string(self.get_parameter (parameters, "categories"), ",")
+            record["categories"]      = split_string (self.get_parameter (parameters, "categories"), delimiter=",")
             record["is_latest"]       = self.get_parameter (parameters, "is_latest")
 
             offset, limit = self.__paging_offset_and_limit (parameters)
@@ -6356,8 +6354,8 @@ class ApiServer:
         record["offset"]          = self.get_parameter (request, "offset")
         record["order"]           = self.get_parameter (request, "order")
         record["order_direction"] = self.get_parameter (request, "order_direction")
-        record["group_ids"]       = self.get_parameter(request, "group_ids")
-        record["categories"]      = self.get_parameter (request, "categories")
+        record["group_ids"]       = split_string (self.get_parameter (request, "group_ids"), delimiter=",")
+        record["categories"]      = split_string (self.get_parameter (request, "categories"), delimiter=",")
         record["item_type"]       = item_type
 
         validator.integer_value (record, "dataset_id")
@@ -6375,23 +6373,14 @@ class ApiServer:
                 code    = "InvalidURLParameterValue")
 
         if record["categories"] is not None:
-            categories = record["categories"]
-            if categories == "":
-                categories = None
-            else:
-                categories = categories.split(",")
-                record["categories"] = categories
-                validator.array_value   (record, "categories")
-                for index, _ in enumerate(categories):
-                    category_id = validator.integer_value (categories, index)
-                    categories[index] = category_id
-                record["categories"] = categories
+            validator.array_value (record, "categories")
+            for index, _ in enumerate(record["categories"]):
+                record["categories"][index] = validator.integer_value (record["categories"], index)
 
         if record["group_ids"] is not None:
-            record["group_ids"] = record["group_ids"].split(",")
-            validator.array_value(record, "group_ids")
+            validator.array_value (record, "group_ids")
             for index, _ in enumerate(record["group_ids"]):
-                record["group_ids"][index] = validator.integer_value(record["group_ids"], index)
+                record["group_ids"][index] = validator.integer_value (record["group_ids"], index)
 
         return record
 

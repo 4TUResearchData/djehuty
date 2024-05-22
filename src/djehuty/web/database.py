@@ -385,8 +385,8 @@ class SparqlInterface:
             return filters
 
         operator = "&&"
-        search_words = search_for.split()
-        if len(search_words) == 0:
+        search_words = conv.split_string (search_for, is_quoted=True)
+        if search_words is None or len(search_words) == 0:
             return filters
 
         fields = []
