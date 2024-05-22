@@ -27,6 +27,7 @@
 ul.latest-datasets li a { color: {{primary_color}}; }
 ul.latest-datasets li a:hover { color: {{primary_color_hover}}; }
 ul.latest-datasets li a:active { color: {{primary_color_active}}; }
+#files div.label { margin-bottom: 1em; }
 #files ul li a { color: {{primary_color}}; }
 #files ul li a:hover { color: {{primary_color_hover}}; }
 #files ul li a:active { color: {{primary_color_active}}; }
