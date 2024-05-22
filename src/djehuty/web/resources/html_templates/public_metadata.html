@@ -104,7 +104,7 @@
                 {# The query below searches for full text. Field search does not yet work for keywords #}
 {% for tag in tags|sort %}
     {% set query = '"'~tag~'"' %}
-            <a class="corporate-identity" href="/search?search={{query|urlencode}}">{{tag}}</a>
+            <a class="corporate-identity" href="/search?searchscope=tag&search={{query|urlencode}}">{{tag}}</a>
     {%- if loop.revindex0 %}, {% endif %}
 {% endfor %}
         </div>
