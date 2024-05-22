@@ -1778,12 +1778,19 @@ class ApiServer:
 
         account      = self.db.account_by_uuid (account_uuid)
         storage_used = self.db.account_storage_used (account_uuid)
+        pending_quota_requests = self.db.quota_requests (status       = "unresolved",
+                                                         account_uuid = account_uuid)
 
         account_quota   = 0
         percentage_used = 0
+        requested_quota = None
         try:
             account_quota   = account["quota"]
             percentage_used = round(storage_used / account_quota * 100, 2)
+
+            if pending_quota_requests:
+                requested_bytes = int(pending_quota_requests[0]["requested_size"])
+                requested_quota = pretty_print_size (requested_bytes)
         except (TypeError, KeyError):
             pass
 
@@ -1792,6 +1799,7 @@ class ApiServer:
             request, "depositor/dashboard.html",
             storage_used = pretty_print_size (storage_used),
             quota        = pretty_print_size (account_quota),
+            requested_quota = requested_quota,
             percentage_used = percentage_used,
             sessions     = sessions)
 

@@ -26,6 +26,8 @@ function submit_storage_request (event) {
         dataType:    "json"
     }).done(function () {
         show_message ("success", "<p>Quota request has been sent.</p>");
+        jQuery(".quota-requested").remove();
+        jQuery(".storage-usage").after(`<span class="quota-requested">Request pending for ${data["new-quota"]}.00GB</span>`);
         toggle_storage_request(null);
     }).fail(function () {
         show_message ("failure", "<p>Quota request could not be sent.</p>");

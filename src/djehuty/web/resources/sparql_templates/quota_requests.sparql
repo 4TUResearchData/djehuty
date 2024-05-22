@@ -20,6 +20,8 @@ WHERE {
   FILTER (?status = {{status | safe}})
   {%- endif %}{% if quota_request_uuid is not none: %}
   FILTER (?request = <quota-request:{{quota_request_uuid}}>)
+  {%- endif %}{% if account_uuid is not none: %}
+  FILTER (?account = <account:{{account_uuid}}>)
   {%- endif %}
 }
 ORDER BY DESC(?created_date)

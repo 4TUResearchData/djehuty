@@ -1409,7 +1409,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix ("accounts")
         return self.__run_logged_query (query)
 
-    def quota_requests (self, status=None, quota_request_uuid=None):
+    def quota_requests (self, status=None, quota_request_uuid=None, account_uuid=None):
         """Procedure to return a list of quota requests."""
 
         status_uri = None
@@ -1418,7 +1418,8 @@ class SparqlInterface:
 
         query = self.__query_from_template ("quota_requests", {
             "status": status_uri,
-            "quota_request_uuid": quota_request_uuid
+            "quota_request_uuid": quota_request_uuid,
+            "account_uuid": account_uuid
         })
         return self.__run_query (query)
 

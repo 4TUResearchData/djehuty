@@ -3,7 +3,7 @@
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js"></script>
-<script src="/static/js/depositor-dashboard.js"></script>
+<script src="/static/js/depositor-dashboard.js?cache=1715649348"></script>
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
 <style>
 #session-table tbody tr td:nth-child(2) { white-space: nowrap; }
@@ -40,6 +40,14 @@
     border-radius: .5em .5em 0em 0em;
     font-weight: bold;
 }
+.quota-requested {
+    background: #ffeecc;
+    padding: .25em;
+    border-radius: .25em;
+    user-select: none;
+    margin-right: .25em;
+}
+.storage-usage { margin-right: .25em; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -58,7 +66,7 @@
   <a id="create-new-collection" href="/my/collections/new" class="button corporate-identity-standard-button">Create new collection</a>
 </div>
 <h2>Storage usage</h2>
-<p>Using {{storage_used}} of {{quota}} ({{percentage_used}}%). <a id="request-more-storage" href="#">Request more storage.</a></p>
+<p><span class="storage-usage">Using {{storage_used}} of {{quota}} ({{percentage_used}}%).</span>{% if requested_quota %}<span class="quota-requested">Request pending for {{requested_quota}}</span>{% endif %}<a id="request-more-storage" href="#">Request more storage.</a></p>
 <div id="storage-request-wrapper">
   <label for="new-quota">New quota</label>
   <input type="text" id="new-quota" name="new-quota" placeholder="New quota in gigabytes (for example: 50)." />
