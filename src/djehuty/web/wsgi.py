@@ -6182,6 +6182,14 @@ class ApiServer:
         if isinstance (account_uuid, Response):
             return account_uuid
 
+        order = validator.string_value (request.args, "order", 0, 32)
+        if order is None:
+            order = "order_index"
+
+        order_direction = validator.order_direction (request.args, "order_direction")
+        if order_direction is None:
+            order_direction = "asc"
+
         try:
             dataset = self.db.datasets (container_uuid = container_uuid,
                                         account_uuid   = account_uuid,
@@ -6201,8 +6209,8 @@ class ApiServer:
                 is_published = False,
                 item_type    = "dataset",
                 limit        = validator.integer_value (request.args, "limit"),
-                order        = validator.string_value (request.args, "order", 0, 32),
-                order_direction = validator.order_direction (request.args, "order_direction"))
+                order        = order,
+                order_direction = order_direction)
 
             if author_uuid is not None:
                 return self.response (json.dumps(formatter.format_author_record_v3 (authors[0])))
