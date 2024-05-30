@@ -6318,7 +6318,9 @@ class ApiServer:
             record["doi"]             = self.get_parameter (parameters, "doi")
             record["handle"]          = self.get_parameter (parameters, "handle")
             record["search_for"]      = self.get_parameter (parameters, "search_for")
-            record["search_filters"]  = self.get_parameter (parameters, "search_filters")
+            record["search_format"]   = self.get_parameter (parameters, "search_format")
+            record["search_scope"]    = self.get_parameter (parameters, "search_scope")
+            record["organizations"]   = self.get_parameter (parameters, "organizations")
             record["categories"]      = split_string (self.get_parameter (parameters, "categories"), delimiter=",")
             record["is_latest"]       = self.get_parameter (parameters, "is_latest")
 
@@ -6337,8 +6339,10 @@ class ApiServer:
             validator.string_value   (record, "doi",             maximum_length=255)
             validator.string_value   (record, "handle",          maximum_length=255)
             validator.string_value   (record, "search_for",      maximum_length=1024)
+            validator.string_value   (record, "organizations",   maximum_length=255)
             validator.boolean_value  (record, "is_latest")
-            validator.search_filters (record["search_filters"])
+            validator.array_value    (record, "search_format")
+            validator.array_value    (record, "search_scope")
 
             if "categories" in record and record["categories"] is not None:
                 for category_id in record["categories"]:

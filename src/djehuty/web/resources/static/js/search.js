@@ -361,6 +361,7 @@ function load_search_filters_from_url() {
 
             if (filter_name in filter_info) {
                 for (let value of values) {
+                    value = value.replace(/[^a-zA-Z0-9-_]/g, '');
                     let checkbox_id = `checkbox_${filter_name}_${value}`;
                     let checkbox_id_element = jQuery(`#${checkbox_id}`);
                     if (checkbox_id_element.length > 0) {
@@ -408,76 +409,73 @@ function load_search_filters_from_url() {
 }
 
 function load_search_results() {
-    let api_dataset_url    = "/v3/datasets/search";
     let api_collection_url = "/v2/collections/search";
-    let request_params     = parse_url_params();
-    let search_filters     = {};
+    let api_dataset_url    = "/v3/datasets/search";
     let target_api_url     = null;
+    let url_params         = parse_url_params();
+    let request_params     = {};
 
-    if ("matchoperator" in request_params) {
-        search_filters["operator"] = request_params["matchoperator"];
-    } else {
-        search_filters["operator"] = "and";
-    }
-
-    if ("datatypes" in request_params && request_params["datatypes"] === "collection") {
+    if ("datatypes" in url_params && url_params["datatypes"] === "collection") {
         target_api_url = api_collection_url;
     } else {
         target_api_url = api_dataset_url;
-        request_params["item_type"] = request_params["datatypes"];
+        request_params["item_type"] = url_params["datatypes"];
     }
 
-    search_filters["scopes"] = [];
-    if ("searchscope" in request_params && typeof(request_params["searchscope"]) === "string" && request_params["searchscope"].length > 0) {
-        let items = request_params["searchscope"];
-        for (let scope of items.split(",")) {
-            search_filters["scopes"].push(scope);
+    if ("searchscope" in url_params && typeof(url_params["searchscope"]) === "string" && url_params["searchscope"].length > 0) {
+        let value = url_params["searchscope"];
+        let scopes = [];
+        for (let scope of value.split(",")) {
+            scopes.push(scope);
         }
+        request_params["search_scope"] = scopes;
     } else {
         // If searchscope is not selected, search in title, description, and tags.
-        search_filters["scopes"] = ["title", "description", "tag"];
+        request_params["search_scope"] = ["title", "description", "tag"];
     }
 
-    search_filters["formats"] = [];
-    if (("filetypes" in request_params && typeof(request_params["filetypes"]) === "string" && request_params["filetypes"].length > 0) || ("filetypes_other" in request_params && typeof(request_params["filetypes_other"]) === "string" && request_params["filetypes_other"].length > 0)) {
-        let items = request_params["filetypes"];
-        if (items && items.length > 0) {
-            for (let format of items.split(",")) {
-                search_filters["formats"].push(format);
+    if (("filetypes" in url_params && typeof(url_params["filetypes"]) === "string" && url_params["filetypes"].length > 0) || ("filetypes_other" in url_params && typeof(url_params["filetypes_other"]) === "string" && url_params["filetypes_other"].length > 0)) {
+        let value = url_params["filetypes"];
+        let formats = [];
+        if (value && value.length > 0) {
+            for (let format of value.split(",")) {
+                formats.push(format);
             }
         }
-        if ("filetypes_other" in request_params && typeof(request_params["filetypes_other"]) === "string" && request_params["filetypes_other"].length > 0) {
-            let filetypes_other = request_params["filetypes_other"];
+        if ("filetypes_other" in url_params && typeof(url_params["filetypes_other"]) === "string" && url_params["filetypes_other"].length > 0) {
+            let filetypes_other = url_params["filetypes_other"];
             filetypes_other = trim_single_word(filetypes_other);
-            search_filters["formats"].push(filetypes_other);
+            formats.push(filetypes_other);
         }
+
+        request_params["search_format"] = formats;
     }
 
-    if ("publisheddate" in request_params && typeof(request_params["publisheddate"]) === "string" && request_params["publisheddate"].length > 0) {
+    if ("publisheddate" in url_params && typeof(url_params["publisheddate"]) === "string" && url_params["publisheddate"].length > 0) {
         let today = new Date();
-        let year = today.getFullYear() - request_params["publisheddate"];
+        let year = today.getFullYear() - url_params["publisheddate"];
         let new_date = new Date(year, 0, 1);
         let since_date = new_date.toISOString();
         request_params["published_since"] = `${since_date}`;
-    } else if ("publisheddate_other" in request_params && typeof(request_params["publisheddate_other"]) === "string" && request_params["publisheddate_other"].length > 0) {
-        let new_date = new Date(request_params["publisheddate_other"]);
+    } else if ("publisheddate_other" in url_params && typeof(url_params["publisheddate_other"]) === "string" && url_params["publisheddate_other"].length > 0) {
+        let new_date = new Date(url_params["publisheddate_other"]);
         let since_date = new_date.toISOString();
         request_params["published_since"] = `${since_date}`;
     }
 
-    if ("institutions_other" in request_params && typeof(request_params["institutions_other"]) === "string" && request_params["institutions_other"].length > 0) {
-        search_filters["organization"] = trim_single_word(request_params["institutions_other"]);
+    if ("institutions_other" in url_params && typeof(url_params["institutions_other"]) === "string" && url_params["institutions_other"].length > 0) {
+        request_params["organizations"] = trim_single_word(url_params["institutions_other"]);
     }
 
-    request_params["search_for"] = request_params["search"];
-    if (request_params["search_for"] === undefined) {
-        request_params["search_for"] = request_params["q"];
+    request_params["search_for"] = url_params["search"];
+    if (url_params["q"]) {
+        request_params["search_for"] = url_params["q"];
     }
-    request_params["group"] = request_params["institutions"];
+
+    request_params["group"] = url_params["institutions"];
     request_params["page_size"] = page_size;
     request_params["is_latest"] = 1;
-    request_params["page"] = "page" in request_params ? request_params["page"] : 1;
-    request_params["search_filters"] = search_filters;
+    request_params["page"] = "page" in url_params ? url_params["page"] : 1;
 
     jQuery("#search-loader").show();
     jQuery("#search-error").hide();

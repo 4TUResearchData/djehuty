@@ -79,6 +79,34 @@ def sparql_filter (name, value, escape=False, is_uri=False):
 
     return query
 
+def sparql_contains_filter (names, values, lcase=True, andgate=False):
+    """Returns a FILTER statement for CONTAINS() with multiple names and values."""
+    query   = ""
+    names  = [names]  if isinstance(names,  str) and names  != "" else names
+    values = [values] if isinstance(values, str) and values != "" else values
+
+    if not isinstance(names, list) or not isinstance(values, list):
+        return query
+
+    if not values or not names:
+        return query
+
+    operator = "&&" if andgate else "||"
+
+    query = "FILTER ("
+    for name in names:
+        for value in values:
+            symbol  = f"STR(?{name})"
+            literal = f"STR({escape_value (value, XSD.string)})"
+            if lcase:
+                symbol  = f"LCASE(STR(?{name}))"
+                literal = f"STR({escape_value (value.lower(), XSD.string)})"
+            query  += f"CONTAINS({symbol},{literal}) {operator} "
+
+    query = query[:-len(operator) - 2] + ")"
+
+    return query
+
 def escape_value (value, datatype=None):
     """Returns VALUE wrapped in double quotes with type annotation DATATYPE."""
     if value is None:

@@ -374,64 +374,16 @@ class SparqlInterface:
 
         return filters
 
-
-    def __search_query_to_sparql_filters_v3 (self, search_for, search_filters):
-        """
-        Procedure to convert v3 search queries to SPARQL FILTER statements.
-        """
-
-        filters = ""
-        if search_for is None or not isinstance (search_filters, dict):
-            return filters
-
-        operator = "&&"
-        search_words = conv.split_string (search_for, is_quoted=True)
-        if search_words is None or len(search_words) == 0:
-            return filters
-
-        fields = []
-        if "scopes" in search_filters:
-            fields += search_filters["scopes"]
-        if "formats" in search_filters:
-            fields += search_filters["formats"]
-        if "operator" in search_filters:
-            if search_filters["operator"] == "or":
-                operator = "||"
-
-        if isinstance (fields, list) and len(fields) > 0:
-            filters += "FILTER ("
-            for field in fields:
-                if not isinstance (field, str):
-                    continue
-
-                filters_tmp = ""
-                for word in search_words:
-                    escaped_word = rdf.escape_string_value (word.lower())
-                    filters_tmp += f"CONTAINS(LCASE(?{field}), {escaped_word}) {operator} "
-                filters_tmp = "(" + filters_tmp[:-4] + ") || "
-                filters += filters_tmp
-
-            filters = filters[:-4]
-            filters += ")\n"
-
-        if "organization" in search_filters:
-            organization = search_filters["organization"]
-            if isinstance (organization, str) and organization != "":
-                escaped_org = rdf.escape_string_value (organization.lower())
-                filters = f"FILTER(CONTAINS(LCASE(?organization), {escaped_org}))\n"
-
-        return filters
-
     def datasets (self, account_uuid=None, categories=None, collection_uri=None,
                   container_uuid=None, dataset_id=None, dataset_uuid=None, doi=None,
                   exclude_ids=None, groups=None, handle=None, institution=None,
                   is_latest=False, item_type=None, limit=None, modified_since=None,
                   offset=None, order=None, order_direction=None, published_since=None,
                   resource_doi=None, return_count=False, search_for=None,
-                  search_format=False, search_filters=None, version=None,
+                  search_format=False, version=None, search_scope=None,
                   is_published=True, is_under_review=None, git_uuid=None,
                   private_link_id_string=None, use_cache=True, is_restricted=None,
-                  is_embargoed=None, is_software=None):
+                  is_embargoed=None, is_software=None, organizations=None):
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -450,10 +402,13 @@ class SparqlInterface:
         filters += rdf.sparql_in_filter ("group_id",    groups)
         filters += rdf.sparql_in_filter ("dataset_id", exclude_ids, negate=True)
 
-        if search_filters is None:
+        filters += rdf.sparql_contains_filter("organizations", organizations)
+        filters += rdf.sparql_contains_filter("format", search_format)
+
+        if isinstance (search_for, dict):
             filters += self.__search_query_to_sparql_filters_v2 (search_for, search_format)
         else:
-            filters += self.__search_query_to_sparql_filters_v3 (search_for, search_filters)
+            filters += rdf.sparql_contains_filter(search_scope, search_for)
 
         if is_software is not None:
             if is_software:
