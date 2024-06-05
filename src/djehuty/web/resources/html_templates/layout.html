@@ -32,7 +32,11 @@
       {%- endif %}
       {%- if private_view and not is_reviewing %}
       <div id="pre-header" class="pre-header">
+      {%- if posted_date is not none and posted_date == "unpublished" %}
         <p>You are viewing a pre-publication item. It hasn't been reviewed or published.</p>
+      {%- else %}
+        <p>You are viewing a privately published item. Please keep the access conditions in mind.</p>
+      {%- endif %}
       </div>
       {%- endif %}
       <div id="header" class="corporate-identity-header">

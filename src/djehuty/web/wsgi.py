@@ -3356,6 +3356,7 @@ class ApiServer:
                                        opendap=opendap,
                                        statistics=statistics,
                                        git_repository_url=git_repository_url,
+                                       posted_date=posted_date,
                                        private_view=private_view,
                                        my_email=my_email,
                                        my_name=my_name,
