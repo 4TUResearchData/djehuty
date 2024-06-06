@@ -6066,8 +6066,16 @@ class ApiServer:
             return self.error_403 (request)
 
         try:
+            author = None
             if parses_to_int (author_id):
                 author = self.db.authors(author_id=int(author_id))[0]
+            else:
+                if not validator.is_valid_uuid (author_id):
+                    return self.error_404 (request)
+                author = self.db.authors(author_uuid = author_id)[0]
+
+            if author is None:
+                return self.error_404 (request)
 
             return self.response (json.dumps (formatter.format_author_details_record (author)))
         except IndexError:
