@@ -2,39 +2,23 @@ FROM debian:bookworm-slim
 LABEL authors="Nikhef"
 
 # build with: docker image build -t djehuty:latest .
-# start with: docker container run --rm -ti -v $PWD/djehuty-example-config.xml:/djehuty-example-config.xml djehuty:latest
+# start with: docker container run --rm -ti -v ../etc/djehuty/djehuty-example-config.xml:/config.xml:Z djehuty:latest /bin/djehuty web -c /config.xml
 
-ENV DJEHUTY_VERSION 0.0.1
+RUN apt-get update && apt-get install -y python3 python3-venv git
+RUN rm -rf /var/lib/dpkg/info/*.list /var/lib/apt/lists/*
+RUN useradd -mg users -d /opt/djehuty -u 7001 djehuty
+RUN mkdir -p /data && chown -R djehuty: /data
 
-RUN apt-get update && \
-    apt-get install -y \
-      python3 \
-      python3-dev \
-      pkg-config \
-      libxml2-dev \
-      libxmlsec1-dev \
-      libxmlsec1-openssl \
-      python3-pip \
-      python3-venv \
-      build-essential \
-      git \
-    && \
-    rm -rf /var/lib/dpkg/info/*.list /var/lib/apt/lists/* && \
-    useradd -mg users -u 7001 djehuty && \
-    mkdir /data && chown -R djehuty: /data
+RUN echo '#!/bin/sh\nVIRTUAL_ENV=/opt/djehuty/virtual-env\n/opt/djehuty/virtual-env/bin/djehuty $@' > /usr/bin/djehuty && chmod +x /usr/bin/djehuty
 
 USER djehuty
-WORKDIR /home/djehuty
 
-RUN python3 -m venv djehuty-env && . djehuty-env/bin/activate && \
-    git clone --depth 1 https://github.com/4TUResearchData/djehuty.git && \
-    cd djehuty && pip install python3-saml && \
-    pip install -r requirements.txt && \
-    sed -e "s/@VERSION@/${DJEHUTY_VERSION}/g" pyproject.toml.in > pyproject.toml && \
-    pip install --editable .
+RUN git clone --depth 1 https://github.com/4TUResearchData/djehuty.git /opt/djehuty/djehuty
+RUN VERSION=$(git -C /opt/djehuty/djehuty rev-parse --short HEAD); sed -e "s/@VERSION@/0.0.0+${VERSION}/g" /opt/djehuty/djehuty/pyproject.toml.in > /opt/djehuty/djehuty/pyproject.toml
 
-COPY scripts/ .
+RUN python3 -m venv /opt/djehuty/virtual-env
+RUN . /opt/djehuty/virtual-env/bin/activate && \
+    pip install -r /opt/djehuty/djehuty/requirements.txt python3-saml && \
+    pip install --editable /opt/djehuty/djehuty
 
 CMD ["/bin/bash"]
-
-

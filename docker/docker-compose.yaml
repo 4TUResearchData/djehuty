@@ -6,7 +6,7 @@ services:
     security_opt:
       - no-new-privileges:true
     image: djehuty:latest
-    command: '/home/djehuty/start-djehuty.sh'
+    command: '/bin/djehuty web -c /djehuty-config.xml'
     volumes:
       - /opt/djehuty/data/:/data/
       - /opt/djehuty/djehuty-config.xml:/djehuty-config.xml
