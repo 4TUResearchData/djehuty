@@ -529,11 +529,11 @@ function render_search_results(data, page_number) {
 
         let uuid = item.uuid;
         let title = item.title;
-        let url_dataset = item.url_public_html;
+        let url_container = item.url_public_html;
 
         // Collections don't have .url_public_html and .url returns json.
-        if (!url_dataset) {
-            url_dataset = "/collections/" + uuid;
+        if (!url_container) {
+            url_container = "/collections/" + uuid;
         }
 
         let preview_thumb = "/static/images/dataset-thumb.svg";
@@ -552,11 +552,11 @@ function render_search_results(data, page_number) {
         }
 
         html_tile_view += `<div class="tile-item">`;
-        html_tile_view += `<a href="${url_dataset}">`;
+        html_tile_view += `<a href="${url_container}">`;
         html_tile_view += `<img class="tile-preview" src="${preview_thumb}" aria-hidden="true" alt="thumbnail for ${uuid}" />`;
         html_tile_view += `</a>`;
         html_tile_view += `<div class="tile-matches" id="article_${uuid}"></div>`;
-        html_tile_view += `<div class="tile-title"><a href="/datasets/${uuid}">${title}</a></div>`;
+        html_tile_view += `<div class="tile-title"><a href="${url_container}">${title}</a></div>`;
 
         if (revision) {
             html_tile_view += `<div class="tile-revision">Revision ${revision}</div>`;
@@ -566,7 +566,7 @@ function render_search_results(data, page_number) {
         html_tile_view += `</div>`;
 
         html_list_view += '<tr>';
-        html_list_view += `<td><a href="${url_dataset}">${title}</a></td><td style="text-align: center">${posted_date}</td>`;
+        html_list_view += `<td><a href="${url_container}">${title}</a></td><td style="text-align: center">${posted_date}</td>`;
         html_list_view += '</tr>';
     }
 
