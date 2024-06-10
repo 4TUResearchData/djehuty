@@ -7,6 +7,7 @@ import signal
 import sys
 import logging
 import os
+import importlib.metadata
 
 import djehuty.backup.ui as backup_ui
 import djehuty.web.ui as web_ui
@@ -14,7 +15,8 @@ import djehuty.web.ui as web_ui
 def show_version ():
     """Show the program's version."""
 
-    print("This is djehuty v0.0.1")
+    version = importlib.metadata.version (__package__ or __name__)
+    print(f"This is djehuty v{version}")
     sys.exit(0)
 
 def show_help ():
