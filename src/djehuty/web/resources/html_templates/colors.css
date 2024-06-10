@@ -1,5 +1,5 @@
-.corporate-identity { {{primary_color}}; }
-.corporate-identity:hover { {{primary_color_hover}}; }
+.corporate-identity { color: {{primary_color}}; text-decoration: none; }
+.corporate-identity:hover { color: {{primary_color_hover}}; text-decoration: underline; }
 .corporate-identity li.active { background: {{primary_color}}; }
 .corporate-identity li.active a { color: #ffffff; text-decoration: none; }
 .corporate-identity-submenu-active { border-bottom: solid .25em {{primary_color}}; }

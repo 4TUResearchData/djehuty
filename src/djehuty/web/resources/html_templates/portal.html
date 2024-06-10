@@ -50,8 +50,6 @@
 .h1-suffix { font-size: 0.6em; }
 .h1-suffix a { text-transform: uppercase; text-decoration: none; color: #808080; }
 .h1-suffix a:hover { color: #505050; }
-#latest-datasets ul a { color: inherit; text-decoration: none }
-#latest-datasets ul a:hover { text-decoration: underline }
 #new-notice { border-radius: .5em; padding: 0em; margin: 0em; background: #ffeeaa; }
 #new-notice p { padding: 1em; }
 </style>
@@ -368,9 +366,9 @@
 <h1 class="corporate-identity-h1">Latest datasets <span class="h1-suffix">[<a href="/search">All</a>]</span></h1>
 <div id="latest-datasets">
   <ul>
-    {% for (url,title,pub_date,ago,rgba) in latest %}
-      <li style="color:rgba({{rgba}})">
-        <a href="{{url}}" title="Published {{ago}}, {{pub_date}}">{{title}}</a>
+    {% for (url,title,pub_date) in latest %}
+      <li>
+        <a class="corporate-identity" href="{{url}}" title="Published {{ago}}, {{pub_date}}">{{title}}</a>
       </li>
     {% endfor %}
   </ul>

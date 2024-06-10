@@ -3099,27 +3099,14 @@ class ApiServer:
         except ValueError:
             summary_data = { "datasets": 0, "authors": 0, "collections": 0, "files": 0, "bytes": 0 }
 
-        rgb_shift = ((244,32), (145,145), (32,244)) # begin and end values of r,g,b
-        opa_min = 0.3                               # minimum opacity
-        rgb_opa_days = (7., 21.)                    # fading times (days) for color and opacity
-
-        today = date.today()
         latest = []
         try:
             records           = self.db.latest_datasets_portal(30)
             latest_pub_date   = records[0]['published_date'][:10]
-            fading_delay_days = (today - date(*[int(x) for x in latest_pub_date.split('-')])).days
             for rec in records:
                 pub_date = rec['published_date'][:10]
-                days = (today - date(*[int(x) for x in pub_date.split('-')])).days
-                ago  = ('today','yesterday')[days] if days < 2 else f'{days} days ago'
-                days = days - fading_delay_days
-                horizontal, vertical = [min(1., days/d) for d in rgb_opa_days]
-                rgba = ([round(i[0] + horizontal*(i[1]-i[0])) for i in rgb_shift] +
-                        [round(1 - vertical*(1-opa_min), 3)])
-                str_rgba = ','.join([str(c) for c in rgba])
                 url = f'/datasets/{rec["container_uuid"]}'
-                latest.append((url, rec['title'], pub_date, ago, str_rgba))
+                latest.append((url, rec['title'], pub_date))
         except (IndexError, KeyError):
             pass
 
