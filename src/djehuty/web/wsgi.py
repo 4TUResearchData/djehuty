@@ -387,6 +387,7 @@ class ApiServer:
             ## SHARED SUBMIT INTERFACE API
             ## ----------------------------------------------------------------
             R("/v3/receive-from-ssi",                                            self.api_v3_receive_from_ssi),
+            R("/v3/redirect-from-ssi/<container_uuid>/<token>",                  self.api_v3_redirect_from_ssi),
         ])
 
         ## Static resources and HTML templates.
@@ -8324,6 +8325,19 @@ class ApiServer:
 
         return self.error_404 (request)
 
+    def api_v3_redirect_from_ssi (self, request, container_uuid, token):
+        """Implements /v3/redirect-from-ssi/<container_uuid>/<token>."""
+
+        if request.method != "GET":
+            return self.error_405 ("GET")
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_403 (request)
+
+        response = redirect (f"/my/datasets/{container_uuid}/edit", code=302)
+        response.set_cookie (key=self.cookie_key, value=token, secure=self.in_production)
+        return response
+
     def api_v3_receive_from_ssi (self, request):
         """Implements /v3/receive-from-ssi."""
         if self.ssi_psk is None:
@@ -8380,8 +8394,7 @@ class ApiServer:
             self.log.error ("Failed to create dataset for account %s.", account_uuid)
             return self.error_500 ()
 
-        response = redirect (f"/my/datasets/{container_uuid}/edit", code=302)
-        response.set_cookie (key=self.cookie_key, value=token, secure=self.in_production)
+        response = redirect (f"{self.base_url}/v3/redirect-from-ssi/{container_uuid}/{token}", code=302)
         return response
 
     ## ------------------------------------------------------------------------
