@@ -3102,8 +3102,7 @@ class ApiServer:
 
         latest = []
         try:
-            records           = self.db.latest_datasets_portal(30)
-            latest_pub_date   = records[0]['published_date'][:10]
+            records = self.db.latest_datasets_portal(30)
             for rec in records:
                 pub_date = rec['published_date'][:10]
                 url = f'/datasets/{rec["container_uuid"]}'
