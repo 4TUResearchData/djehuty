@@ -441,16 +441,12 @@ def read_static_pages (static_pages, server, inside_reload, config_dir, logger):
                 filesystem_path = os.path.abspath(os.path.join(config_dir, filesystem_path))
 
             server.static_pages[uri_path] = {"filesystem-path": filesystem_path}
-            if not inside_reload:
-                logger.info ("Loaded page: %s -> %s", uri_path, filesystem_path)
 
         if uri_path is not None and redirect_to is not None:
             code = 302
             if "code" in redirect_to.attrib:
                 code = int(redirect_to.attrib["code"])
             server.static_pages[uri_path] = {"redirect-to": redirect_to.text, "code": code}
-            if not inside_reload:
-                logger.info ("Loaded redirect (%i): %s -> %s", code, uri_path, redirect_to.text)
 
 def read_colors_configuration (server, xml_root):
     """Procedure to parse and set the color scheme configuration."""
@@ -985,15 +981,17 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 if server.obtain_orcid_read_public_token ():
                     logger.info ("Obtained read-public token from ORCID.")
 
-            logger.info ("SPARQL endpoint:  %s.", server.db.endpoint)
-            logger.info ("SPARQL update_endpoint:  %s.", server.db.update_endpoint)
-            logger.info ("State graph:  %s.", server.db.state_graph)
-            logger.info ("Storage path: %s.", server.db.storage)
-            logger.info ("Secondary storage path: %s.", server.db.secondary_storage)
-            logger.info ("Cache storage path: %s.", server.db.cache.storage)
             if server.db.depositing_domain is not None:
                 logger.info ("Depositing is limited to the domain: %s.", server.db.depositing_domain)
 
+            logger.info ("SPARQL endpoint:         %s", server.db.endpoint)
+            if server.db.endpoint != server.db.update_endpoint:
+                logger.info ("SPARQL update_endpoint:  %s", server.db.update_endpoint)
+            logger.info ("State graph:             %s", server.db.state_graph)
+            logger.info ("Storage path:            %s", server.db.storage)
+            logger.info ("Secondary storage path:  %s", server.db.secondary_storage)
+            logger.info ("Cache storage path:      %s", server.db.cache.storage)
+            logger.info ("Static pages loaded:     %s", len(server.static_pages))
             logger.info ("Running on %s", server.base_url)
 
             if server.identity_provider is not None:
