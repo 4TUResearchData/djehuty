@@ -45,6 +45,7 @@ class SparqlInterface:
         self.default_quota  = 5000000000
         self.store          = None
         self.disable_collaboration = True
+        self.depositing_domain = None
 
     def setup_sparql_endpoint (self):
         """Procedure to be called after setting the 'endpoint' members."""
@@ -3212,9 +3213,25 @@ class SparqlInterface:
         return (self.__may_execute_role (session_token, "administer", account) and
                 self.__may_execute_role (session_token, "review_integrity", account))
 
-    def is_depositor (self, session_token):
+    def is_depositor (self, session_token, account=None):
         """Returns True when the account linked to the session is a depositor, False otherwise"""
-        return self.is_logged_in (session_token)
+
+        if self.depositing_domain is None:
+            return self.is_logged_in (session_token)
+
+        if session_token is None:
+            return False
+
+        if account is None:
+            account = self.account_by_session_token (session_token)
+
+        if account is None:
+            return False
+
+        if "domain" in account:
+            return account["domain"] == self.depositing_domain
+
+        return False
 
     def is_logged_in (self, session_token):
         """Returns True when the session_token is valid, False otherwise."""

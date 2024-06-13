@@ -38,7 +38,7 @@ jQuery(document).ready(function () {
 <ul>
   <li><a href="/my/dashboard">My Dashboard</a>
   <li class="active corporate-identity-submenu-active">My Datasets
-  <li class="create-button"><a href="/my/datasets/new">Add new dataset</a>
+  {%- if may_deposit %}<li class="create-button"><a href="/my/datasets/new">Add new dataset</a>{%- endif %}
   <li><a href="/my/collections">My Collections</a>
 </ul>
 {% endblock %}

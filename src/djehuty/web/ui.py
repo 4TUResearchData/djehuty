@@ -690,6 +690,10 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if support_email_address is not None:
             server.support_email_address = support_email_address.text
 
+        depositing_domain = xml_root.find ("restrict-depositing-to-domain")
+        if depositing_domain is not None:
+            server.db.depositing_domain = depositing_domain.text
+
         read_orcid_configuration (server, xml_root)
         read_datacite_configuration (server, xml_root)
         read_email_configuration (server, xml_root, logger)
@@ -987,6 +991,9 @@ def main (address=None, port=None, state_graph=None, storage=None,
             logger.info ("Storage path: %s.", server.db.storage)
             logger.info ("Secondary storage path: %s.", server.db.secondary_storage)
             logger.info ("Cache storage path: %s.", server.db.cache.storage)
+            if server.db.depositing_domain is not None:
+                logger.info ("Depositing is limited to the domain: %s.", server.db.depositing_domain)
+
             logger.info ("Running on %s", server.base_url)
 
             if server.identity_provider is not None:

@@ -5,6 +5,7 @@
   <site-shorttag>example-shorttag</site-shorttag>
   <site-description>Djehuty example instance</site-description>
   <support-email-address>support@example.com</support-email-address>
+  <!-- <restrict-depositing-to-domain>example.com</restrict-depositing-to-domain> -->
   <colors>
     <primary-color>#f49120</primary-color>
     <primary-color-hover>#d26000</primary-color-hover>

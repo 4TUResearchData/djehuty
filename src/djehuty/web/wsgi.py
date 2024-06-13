@@ -518,6 +518,7 @@ class ApiServer:
             "identity_provider":   self.identity_provider,
             "in_production":       self.in_production,
             "is_logged_in":        account is not None,
+            "may_deposit":         self.db.is_depositor (token, account),
             "large_footer":        self.large_footer,
             "maintenance_mode":    self.maintenance_mode,
             "menu":                self.menu,
@@ -1773,9 +1774,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid, error_response = self.__depositor_account_uuid (request)
-        if error_response is not None:
-            return error_response
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
 
         account      = self.db.account_by_uuid (account_uuid)
         storage_used = self.db.account_storage_used (account_uuid)
@@ -1817,9 +1818,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid, error_response = self.__depositor_account_uuid (request)
-        if error_response is not None:
-            return error_response
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
 
         draft_datasets     = self.db.datasets (account_uuid = account_uuid,
                                                limit           = 10000,
@@ -1930,9 +1931,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid, error_response = self.__depositor_account_uuid (request)
-        if error_response is not None:
-            return error_response
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
 
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id,
@@ -2089,9 +2090,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid, error_response = self.__depositor_account_uuid (request)
-        if error_response is not None:
-            return error_response
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
 
         drafts = self.db.collections (account_uuid = account_uuid,
                                       is_published = False,
@@ -2119,9 +2120,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
-        account_uuid, error_response = self.__depositor_account_uuid (request)
-        if error_response is not None:
-            return error_response
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
 
         try:
             collection = self.__collection_by_id_or_uri(
@@ -2631,9 +2632,9 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        account_uuid, error_response = self.__depositor_account_uuid (request)
-        if error_response is not None:
-            return error_response
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
 
         try:
             return self.__render_template (
