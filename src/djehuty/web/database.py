@@ -2294,7 +2294,7 @@ class SparqlInterface:
                         agreed_to_deposit_agreement=False, agreed_to_publish=False,
                         is_metadata_record=False, metadata_reason=None,
                         container_doi=None, is_first_online=False,
-                        git_repository_name=None):
+                        git_repository_name=None, git_code_hosting_url=None):
         """Procedure to overwrite parts of a dataset."""
 
         modified_date_str = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
@@ -2340,6 +2340,7 @@ class SparqlInterface:
                                rdf.escape_boolean_value (agreed_to_deposit_agreement),
             "agreed_to_publish": rdf.escape_boolean_value (agreed_to_publish),
             "git_repository_name": rdf.escape_string_value (git_repository_name),
+            "git_code_hosting_url": rdf.escape_string_value (git_code_hosting_url),
             "container_doi":   rdf.escape_string_value (container_doi),
             "first_online_date": first_online_date_str
         })
