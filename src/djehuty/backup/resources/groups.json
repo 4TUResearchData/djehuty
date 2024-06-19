@@ -3,7 +3,8 @@
         "id": 28589,
         "parent_id": 28585,
         "name": "Eindhoven University of Technology",
-        "association_criteria": "tue.nl"
+        "association_criteria": "tue.nl",
+        "is_featured": true
     },
     {
         "id": 28585,
@@ -21,7 +22,8 @@
         "id": 28631,
         "parent_id": 28589,
         "name": "Eindhoven University of Technology Students",
-        "association_criteria": "student.tue.nl"
+        "association_criteria": "student.tue.nl",
+        "is_featured": true
     },
     {
         "id": 35313,
@@ -33,7 +35,8 @@
         "id": 28586,
         "parent_id": 28585,
         "name": "Delft University of Technology",
-        "association_criteria": "tudelft.nl"
+        "association_criteria": "tudelft.nl",
+        "is_featured": true
     },
     {
         "id": 34901,
@@ -51,19 +54,22 @@
         "id": 28628,
         "parent_id": 28586,
         "name": "Delft University of Technology Students",
-        "association_criteria": "student.tudelft.nl"
+        "association_criteria": "student.tudelft.nl",
+        "is_featured": true
     },
     {
         "id": 28634,
         "parent_id": 28592,
         "name": "University of Twente Students",
-        "association_criteria": "student.utwente.nl"
+        "association_criteria": "student.utwente.nl",
+        "is_featured": true
     },
     {
         "id": 28592,
         "parent_id": 28585,
         "name": "University of Twente",
-        "association_criteria": "utwente.nl"
+        "association_criteria": "utwente.nl",
+        "is_featured": true
     },
     {
         "id": 34916,
@@ -99,7 +105,8 @@
         "id": 28595,
         "parent_id": 28585,
         "name": "Wageningen University and Research",
-        "association_criteria": "wur.nl"
+        "association_criteria": "wur.nl",
+        "is_featured": true
     },
     {
         "id": 34907,
@@ -111,7 +118,8 @@
         "id": 28598,
         "parent_id": 28585,
         "name": "Other institutions",
-        "association_criteria": "nogroup"
+        "association_criteria": "nogroup",
+        "is_featured": true
     },
     {
         "id": 34898,

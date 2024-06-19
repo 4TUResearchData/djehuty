@@ -127,7 +127,7 @@ def escape_datetime_value (value):
     return escape_value (value, datatype=XSD.dateTime)
 
 def escape_boolean_value (value):
-    """Returns VALUE wrapped in double quotes and annotated as xsd:date."""
+    """Returns VALUE wrapped in double quotes and annotated as xsd:boolean."""
     return escape_value (value, datatype=XSD.boolean)
 
 def sparql_in_filter (name, values, escape=False, is_uri=False, negate=False):

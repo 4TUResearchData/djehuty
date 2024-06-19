@@ -7615,6 +7615,7 @@ class ApiServer:
                 parent_id       = validator.integer_value (request.args, "parent_id"),
                 name            = validator.string_value  (request.args, "name", 0, 255),
                 association     = validator.string_value  (request.args, "association", 0, 255),
+                is_featured     = validator.boolean_value (request.args, "is_featured"),
                 limit           = validator.integer_value (request.args, "limit"),
                 offset          = validator.integer_value (request.args, "offset"),
                 order           = validator.integer_value (request.args, "order"),

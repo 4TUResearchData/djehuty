@@ -2689,7 +2689,7 @@ class SparqlInterface:
         return roots
 
     def group (self, group_id=None, parent_id=None, name=None,
-               association=None, limit=None, offset=None,
+               association=None, limit=None, offset=None, is_featured=None,
                order=None, order_direction=None, starts_with=False):
         """Procedure to return group information."""
 
@@ -2705,6 +2705,7 @@ class SparqlInterface:
                 filters += rdf.sparql_filter ("name", name, escape=True)
 
         filters += rdf.sparql_filter ("association", association, escape=True)
+        filters += rdf.sparql_filter ("is_featured", is_featured)
 
         query = self.__query_from_template ("group", {
             "filters":     filters
