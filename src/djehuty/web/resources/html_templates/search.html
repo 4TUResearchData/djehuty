@@ -14,16 +14,6 @@
 }
 .tile-item:hover { background: #eeeeee; }
 .tile-item:active { background: #e9e9e9; }
-.match-badge {
-    background-color: #f49120;
-    color: white;
-    font-size: 0.8em;
-    padding: 0.4em;
-    margin: 0.4em;
-    text-align: center;
-    border-radius: 1em;
-    display:inline-block;
-}
 .tile-title {
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -102,12 +92,6 @@
     display: inline-block;
     width: 22%;
 }
-.search-filter-row {
-    padding: 0.8em 0.5em 0.5em 1em;
-    border-left: 0.2em solid #f49120;
-    background: #f9f9f9;
-    margin-top: 0.5em;
-}
 .search-filter-title {
     font-size: 1.05em;
     font-weight: bold;
@@ -125,26 +109,11 @@
     padding: 0;
     margin: 0;
 }
-.search-filter-content input[type="checkbox"] {
-    margin-right: 1em;
-    background: #f49120;
-    accent-color:  #f49120;
-    height: 1.2em;
-}
 .search-filter-content input[type="text"],input[type="date"] {
     margin-right: 1em;
     height: 1.2em;
     display: block;
     margin-left: 2.4em;
-}
-.search-filter-content label:hover {
-    color: #f49120;
-}
-#show-categories-more, #show-categories-less {
-    color: #f49120;
-    cursor: pointer;
-    text-align: center;
-    background: #f9f9f9;
 }
 .search-filter-apply-button {
     height: 2.5em;
@@ -183,9 +152,6 @@
 .corporate-identity-table tbody tr td:nth-child(1) { max-width: 0; }
 .search-results-pager div {
     padding: 0.5em 0.5em 0.5em 0.5em;
-}
-.search-results-pager a:hover {
-    color: #f49120;
 }
 #textinput-publisheddate-other-error {
     display: none;
@@ -314,7 +280,7 @@
                     {% endfor %}
                 </ul>
             </div>
-            <div id="show-categories-more">Show more</div>
+            <div id="search-show-more">Show more</div>
         </div>
     </div>
     <!-- End of Search Sidebar -->

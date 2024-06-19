@@ -87,7 +87,7 @@ function toggle_filter_categories_showmore(flag) {
 
     if (flag) {
         jQuery('#search-filter-content-categories ul li').css('display', 'none');
-        jQuery('#show-categories-more').show();
+        jQuery('#search-show-more').show();
         if (enable_subcategories) {
             jQuery('#search-filter-content-categories ul li').slice(0, 75).show();
         } else {
@@ -95,12 +95,13 @@ function toggle_filter_categories_showmore(flag) {
         }
    } else {
        jQuery('#search-filter-content-categories ul li').show();
-       jQuery('#show-categories-more').hide();
+       jQuery('#search-show-more').hide();
    }
 }
 
 function toggle_filter_apply_button(flag) {
-    let color = flag ? "#f49120" : "#eeeeee";
+    let primary_color = get_corporate_background_color();
+    let color = flag ? primary_color : "#eeeeee";
     let cursor = flag ? "pointer" : "default";
     let color_text = flag ? "white" : "#cccccc";
     let classes = flag ? ["enabled", "disabled"] : ["disabled", "enabled"];
@@ -109,7 +110,8 @@ function toggle_filter_apply_button(flag) {
 }
 
 function toggle_filter_reset_button(flag) {
-    let color = flag ? "#f49120" : "#eeeeee";
+    let primary_color = get_corporate_background_color();
+    let color = flag ? primary_color : "#eeeeee";
     let cursor = flag ? "pointer" : "default";
     let color_text = flag ? "white" : "#cccccc";
     let classes = flag ? ["enabled", "disabled"] : ["disabled", "enabled"];
@@ -131,15 +133,17 @@ function toggle_view_mode(mode) {
         return;
     }
 
+    let primary_color = get_corporate_background_color();
+
     if (mode === "tile") {
         jQuery('#search-results-list-view').hide();
         jQuery('#search-results-tile-view').show();
         jQuery('#list-view-mode').css('color', 'darkgray');
-        jQuery('#tile-view-mode').css('color', '#f49120');
+        jQuery('#tile-view-mode').css('color', primary_color);
     } else {
         jQuery('#search-results-list-view').show();
         jQuery('#search-results-tile-view').hide();
-        jQuery('#list-view-mode').css('color', '#f49120');
+        jQuery('#list-view-mode').css('color', primary_color);
         jQuery('#tile-view-mode').css('color', 'darkgray');
     }
 
@@ -178,7 +182,7 @@ function register_event_handlers() {
     });
 
     // show more categories if 'Show more' text is clicked.
-    jQuery('#show-categories-more').click(function() {
+    jQuery('#search-show-more').click(function() {
         toggle_filter_categories_showmore(false);
     });
 
@@ -729,4 +733,12 @@ function sort_search_results(sort_by) {
 
 function trim_single_word(word) {
     return word.replace(/\s+.*$/g, '');
+}
+
+function get_corporate_background_color() {
+    let rgb = jQuery(".corporate-identity-background").css("background");
+    if (rgb === undefined) {
+        return "#000000";
+    }
+    return `#${rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/).slice(1).map(n => parseInt(n, 10).toString(16).padStart(2, '0')).join('')}`;
 }
