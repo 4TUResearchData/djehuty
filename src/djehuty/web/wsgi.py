@@ -6529,7 +6529,8 @@ class ApiServer:
         """Implements /v3/physical-objects/<uuid>."""
 
         if request.method == "PUT":
-            account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json")
+            account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json",
+                                                                      self.db.is_depositor)
             if isinstance (account_uuid, Response):
                 return account_uuid
 
