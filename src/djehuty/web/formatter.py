@@ -539,3 +539,14 @@ def format_group_record (record):
       "association":   conv.value_or_none(record, "association"),
       "is_featured":   conv.value_or_none(record, "is_featured")
     }
+
+def format_physical_object_record (record):
+    """Record formatter for physical objects."""
+    return {
+        "description":   conv.value_or_none (record, "description"),
+        "last_modified": conv.value_or_none (record, "modified_date"),
+        "resource_type": conv.value_or_none (record, "resource_type"),
+        "subject":       conv.value_or_none (record, "subject"),
+        "title":         conv.value_or_none (record, "title"),
+        "uuid":          conv.value_or_none (record, "object_uuid")
+    }
