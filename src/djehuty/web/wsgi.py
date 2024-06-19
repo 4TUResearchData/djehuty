@@ -808,7 +808,8 @@ class ApiServer:
 
         return None
 
-    def default_authenticated_error_handling (self, request, methods, content_type):
+    def default_authenticated_error_handling (self, request, methods, content_type,
+                                              privilege_test=None):
         """Procedure to handle method and content type mismatches as well authentication."""
 
         handler = self.default_error_handling (request, methods, content_type)
@@ -818,6 +819,11 @@ class ApiServer:
         account_uuid = self.account_uuid_from_request (request)
         if account_uuid is None:
             return self.error_authorization_failed (request)
+
+        if privilege_test is not None:
+            token = self.token_from_request (request)
+            if not privilege_test (token):
+                return self.error_403 (request)
 
         return account_uuid
 
@@ -8253,13 +8259,10 @@ class ApiServer:
     def api_v3_explore_types (self, request):
         """Implements /v3/explore/types."""
 
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
+        handler = self.default_authenticated_error_handling (request, "GET", "application/json",
+                                                             self.db.may_administer)
+        if isinstance (handler, Response):
             return handler
-
-        token = self.token_from_cookie (request)
-        if not self.db.may_administer (token):
-            return self.error_403 (request)
 
         types = self.db.types ()
         types = list(map (lambda item: item["type"], types))
@@ -8268,13 +8271,10 @@ class ApiServer:
     def api_v3_explore_properties (self, request):
         """Implements /v3/explore/properties."""
 
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
+        handler = self.default_authenticated_error_handling (request, "GET", "application/json",
+                                                             self.db.may_administer)
+        if isinstance (handler, Response):
             return handler
-
-        token = self.token_from_cookie (request)
-        if not self.db.may_administer (token):
-            return self.error_403 (request)
 
         try:
             parameters = {}
@@ -8292,13 +8292,10 @@ class ApiServer:
     def api_v3_explore_property_types (self, request):
         """Implements /v3/explore/property_value_types."""
 
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
+        handler = self.default_authenticated_error_handling (request, "GET", "application/json",
+                                                             self.db.may_administer)
+        if isinstance (handler, Response):
             return handler
-
-        token = self.token_from_cookie (request)
-        if not self.db.may_administer (token):
-            return self.error_403 (request)
 
         try:
             parameters = {}
@@ -8320,13 +8317,10 @@ class ApiServer:
     def api_v3_explore_clear_cache (self, request):
         """Implements /v3/explore/clear-cache."""
 
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
+        handler = self.default_authenticated_error_handling (request, "GET", "application/json",
+                                                             self.db.may_administer)
+        if isinstance (handler, Response):
             return handler
-
-        token = self.token_from_cookie (request)
-        if not self.db.may_administer (token):
-            return self.error_403 (request)
 
         self.log.info ("Invalidating explorer caches.")
         self.db.cache.invalidate_by_prefix ("explorer_properties")
@@ -8338,13 +8332,10 @@ class ApiServer:
     def api_v3_admin_accounts_clear_cache (self, request):
         """Implements /v3/admin/accounts/clear-cache."""
 
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
+        handler = self.default_authenticated_error_handling (request, "GET", "application/json",
+                                                             self.db.may_administer)
+        if isinstance (handler, Response):
             return handler
-
-        token = self.token_from_cookie (request)
-        if not self.db.may_administer (token):
-            return self.error_403 (request)
 
         self.log.info ("Invalidating accounts caches.")
         self.db.cache.invalidate_by_prefix ("accounts")
