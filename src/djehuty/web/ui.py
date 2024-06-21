@@ -428,7 +428,7 @@ def read_menu_configuration (xml_root, server):
 
     return None
 
-def read_static_pages (static_pages, server, inside_reload, config_dir, logger):
+def read_static_pages (static_pages, server, config_dir):
     """Procedure to parse and register static pages."""
     for page in static_pages:
         uri_path        = config_value (page, "uri-path")
@@ -734,7 +734,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         if (server.add_static_root ("/s", resources_root) and not inside_reload):
             logger.info ("Added static root: %s", resources_root)
 
-        read_static_pages (static_pages, server, inside_reload, config_dir, logger)
+        read_static_pages (static_pages, server, config_dir)
 
         return config
 
