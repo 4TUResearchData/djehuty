@@ -1,7 +1,7 @@
 {% block public_metadata  %}
 <h2>{{item.title}}</h2>
 
-{% if item.is_embargoed: %}
+{% if item.is_embargoed and item.embargo_type == "article": %}
 <p>This {{item_type}} is under embargo until {{item.embargo_until_date}}.</p>
 {% else: %}
 
