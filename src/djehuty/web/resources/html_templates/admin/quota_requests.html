@@ -48,7 +48,7 @@
       <td>Denied</td>
       {%- else %}
       <td><a href="/admin/approve-quota-request/{{request.uuid}}" class="fas fa-thumbs-up" title="Approve"><span class="hidden">Approve</span></a>
-        <a href="/admin/deny-quota/{{request.uuid}}" class="fas fa-thumbs-down" title="Deny"><span class="hidden">Deny</span></a></td>
+        <a href="/admin/deny-quota-request/{{request.uuid}}" class="fas fa-thumbs-down" title="Deny"><span class="hidden">Deny</span></a></td>
       {%- endif %}
     </tr>
     {%- endfor %}
