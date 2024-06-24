@@ -49,6 +49,11 @@
 }
 .storage-usage { margin-right: .25em; }
 </style>
+<script>
+jQuery(document).ready(function (){
+    install_touchable_help_icons();
+});
+</script>
 {% endblock %}
 {% block submenu %}
 <ul>
@@ -68,7 +73,7 @@
 <h2>Storage usage</h2>
 <p><span class="storage-usage">Using {{storage_used}} of {{quota}} ({{percentage_used}}%).</span>{% if requested_quota %}<span class="quota-requested">Request pending for {{requested_quota}}</span>{% endif %}<a id="request-more-storage" href="#">Request more storage.</a></p>
 <div id="storage-request-wrapper">
-  <label for="new-quota">New quota</label>
+  <label for="new-quota">New quota</label><div class="fas fa-question-circle help-icon"><span class="help-text">For example, if your current quota is 50GB and you'd like 20GB more, request 70GB.</span></div>
   <input type="text" id="new-quota" name="new-quota" placeholder="New quota in gigabytes (for example: 50)." />
   <label for="quota-reason">Reason</label>
   <div id="quota-reason" class="texteditor"></div>
