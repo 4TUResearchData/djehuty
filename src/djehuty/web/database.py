@@ -22,6 +22,7 @@ class SparqlInterface:
 
     def __init__ (self):
 
+        self.storage_locations = []
         self.storage     = None
         self.secondary_storage = None
         self.secondary_storage_quirks = False

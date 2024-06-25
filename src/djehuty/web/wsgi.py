@@ -3649,7 +3649,38 @@ class ApiServer:
     def __filesystem_location (self, file_info):
         """Procedure to gather the filesystem location from file metadata."""
 
+        # There are two ways to configure storage in Djehuty. The historical
+        # way one can configure primary-storage-root and secondary-storage-root.
+        # In the 'new way', one lists the storage locations in the 'storage'
+        # configuration option.
+
+        # This is only used for quirks-mode.
+        allowed_chars = ".0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
+
+        # Traverse the 'storage' locations -- the new way of configuring storage.
         file_path = None
+        if self.db.storage_locations:
+            for location in self.db.storage_locations:
+                if "filename" in file_info:
+                    file_path = f"{location['path']}/{file_info['filename']}"
+                    if os.path.isfile (file_path):
+                        return file_path
+                elif "id" in file_info:
+                    ## Data stored before Djehuty went into production requires a few tweaks.
+                    ## Only apply these quirks when enabled.
+                    name = file_info['name']
+                    if value_or (file_info, "quirks", False):
+                        name = ''.join(char for char in name if char in allowed_chars)
+                    file_path = f"{location['path']}/{file_info['id']}/{name}"
+                    if os.path.isfile (file_path):
+                        return file_path
+
+            self.log.error ("File %s could not be found in the configured storage locations.",
+                            file_path)
+            return None
+
+        # Use primary-storage-root and secondary-storage-root -- the historical
+        # way of configuring storage.
 
         ## The filesystem_location property was introduced in Djehuty.
         ## It isn't set for files deposited before Djehuty went into production.
@@ -3663,7 +3694,6 @@ class ApiServer:
             ## Data stored before Djehuty went into production requires a few tweaks.
             ## Only apply these quirks when enabled.
             if self.db.secondary_storage_quirks:
-                allowed_chars = ".0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
                 name = ''.join(char for char in name if char in allowed_chars)
             file_path = f"{self.db.secondary_storage}/{file_info['id']}/{name}"
 
@@ -3771,11 +3801,16 @@ class ApiServer:
             else:
                 self.__log_event (request, dataset["container_uuid"], "dataset", "download")
 
-            return send_file (file_path,
-                              request.environ,
-                              "application/octet-stream",
-                              as_attachment=True,
-                              download_name=metadata["name"])
+            try:
+                return send_file (file_path,
+                                  request.environ,
+                                  "application/octet-stream",
+                                  as_attachment=True,
+                                  download_name=metadata["name"])
+            except PermissionError:
+                self.log.error ("Back-end has no permission to access file %s.", file_path)
+                return self.error_403 (request)
+
         except FileNotFoundError:
             self.log.error ("File download failed due to missing file: '%s'.", file_path)
 

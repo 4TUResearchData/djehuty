@@ -110,6 +110,21 @@ def read_raw_xml (xml_root, path, default_value=None):
 
     return default_value, None
 
+def read_storage_locations (server, xml_root):
+    """Procedure to read storage locations."""
+
+    storage = xml_root.find ("storage")
+    if not storage:
+        return None
+
+    for location in storage:
+        if location.tag != "location":
+            continue
+        quirks = location.attrib.get("quirks") == "1"
+        server.db.storage_locations.append({ "path": location.text, "quirks": quirks })
+
+    return None
+
 def read_quotas_configuration (server, xml_root):
     """Read quota information from XML_ROOT."""
 
@@ -696,6 +711,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
         read_saml_configuration (server, xml_root, logger)
         read_automatic_login_configuration (server, xml_root)
         read_privilege_configuration (server, xml_root, logger)
+        read_storage_locations (server, xml_root)
         read_quotas_configuration (server, xml_root)
         read_colors_configuration (server, xml_root)
 
@@ -989,6 +1005,9 @@ def main (address=None, port=None, state_graph=None, storage=None,
                 logger.info ("SPARQL update_endpoint:  %s", server.db.update_endpoint)
             logger.info ("State graph:             %s", server.db.state_graph)
             logger.info ("Storage path:            %s", server.db.storage)
+            if server.db.storage_locations:
+                for location in server.db.storage_locations:
+                    logger.info ("Storage path:            %s", location["path"])
             logger.info ("Secondary storage path:  %s", server.db.secondary_storage)
             logger.info ("Cache storage path:      %s", server.db.cache.storage)
             logger.info ("Static pages loaded:     %s", len(server.static_pages))

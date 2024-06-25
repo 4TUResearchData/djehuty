@@ -7,6 +7,7 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?order_index   ?uuid          ?filesystem_location
                 ?container_uuid ?order_name   (?rest AS ?originating_blank_node)
                 ?is_incomplete ?is_image ?is_shared_with_me
+                ?filename
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                djht:File .
@@ -51,6 +52,7 @@ WHERE {
     BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
     BIND(CONCAT(STR(!CONTAINS(LCASE(?name), "readme")), LCASE(?name)) AS ?order_name)
     BIND(xsd:boolean(?collaborator_account = <account:{{account_uuid}}>) AS ?is_shared_with_me)
+    BIND (REPLACE(STR(?filesystem_location), "^.*/([^/]*)$", "$1") as ?filename)
   }
   {%- if account_uuid is none and (private_view is not true) %}
   FILTER (! (BOUND(?embargo_until_date) && ?embargo_until_date > NOW()))
