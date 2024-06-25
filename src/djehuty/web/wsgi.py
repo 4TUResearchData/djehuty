@@ -730,6 +730,14 @@ class ApiServer:
         response.status_code = 405
         return response
 
+    def error_409 (self):
+        """Procedure to respond with HTTP 409."""
+        response = self.response (json.dumps({
+            "message": "The resource is already available."
+        }))
+        response.status_code = 409
+        return response
+
     def error_410 (self, request):
         """Procedure to respond with HTTP 410."""
         if self.accepts_html (request):
@@ -7144,6 +7152,25 @@ class ApiServer:
         if storage_available < 1:
             return self.error_413 (request)
 
+        # If strict_check is set to 1, the file is not accepted if
+        # (1) the file is empty. Or (2) the file is already uploaded.
+        strict_check = validator.integer_value (request.args, "strict_check", 0, 1)
+        supplied_md5 = None
+
+        if strict_check:
+            try:
+                supplied_md5 = validator.string_value (request.args, "md5",
+                                             minimum_length=32,
+                                             maximum_length=32,
+                                             required=True)
+            except validator.ValidationException as error:
+                return self.error_400 (request, error.message, error.code)
+
+            # If the supplied_md5 is d41d8cd98f00b204e9800998ecf8427e,
+            # it means the content of the file is empty.
+            if supplied_md5 == "d41d8cd98f00b204e9800998ecf8427e":
+                return self.error_400 (request, "Empty file is not allowed.", "EmptyFile")
+
         try:
             dataset   = self.__dataset_by_id_or_uri (dataset_id,
                                                      account_uuid=account_uuid,
@@ -7155,6 +7182,18 @@ class ApiServer:
                 account_uuid, request, "dataset", dataset, "data_edit")
             if error_response is not None:
                 return error_response
+
+            if strict_check:
+                files = self.db.dataset_files (
+                    dataset_uri = dataset["uri"],
+                    account_uuid = account_uuid
+                )
+
+                for file in files:
+                    if "computed_md5" not in file:
+                        continue
+                    if file["computed_md5"] == supplied_md5:
+                        return self.error_409 ()
 
             content_type = value_or (request.headers, "Content-Type", "")
             if not content_type.startswith ("multipart/form-data"):
@@ -7286,17 +7325,26 @@ class ApiServer:
             bytes_to_read -= file_size
             if bytes_to_read != len(expected_end):
                 is_incomplete = 1
-                self.log.error ("Expected different length after file contents (%d vs %d).",
+                self.log.error ("Expected different length after file contents: '%d' != '%d'.",
                                 bytes_to_read, len(expected_end))
 
             if is_incomplete != 1:
                 ending = input_stream.read (bytes_to_read)
                 if ending != expected_end:
                     is_incomplete = 1
-                    self.log.error ("Expected different end after file contents: '%s' vs '%s'.",
+                    self.log.error ("Expected different end after file contents: '%s' != '%s'.",
                                     ending, expected_end)
 
             computed_md5 = md5.hexdigest()
+
+            if strict_check and computed_md5 != supplied_md5:
+                self.log.error ("MD5 checksum mismatch for %s: computed_md5(%s) != supplied_md5(%s)",
+                                output_filename, computed_md5, supplied_md5)
+                os.remove (output_filename)
+                return self.error_400 (request,
+                                       "MD5 checksum mismatch.",
+                                       "MD5Mismatch")
+
             download_url = f"{self.base_url}/file/{dataset_id}/{file_uuid}"
 
             # Set an upper limit on thumbnailable images.

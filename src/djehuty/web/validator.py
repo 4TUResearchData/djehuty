@@ -291,7 +291,7 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None, req
         return raise_or_return_error (error_list,
                     ValueTooShort(
                         field_name = field_name,
-                        message = f"The value for '{field_name}' needs to be longer than {minimum_length}.",
+                        message = f"The value for '{field_name}' is shorter than {minimum_length}.",
                         code    = "ValueTooShort"))
 
     return value
