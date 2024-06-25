@@ -7340,7 +7340,24 @@ class ApiServer:
             if strict_check and computed_md5 != supplied_md5:
                 self.log.error ("MD5 checksum mismatch for %s: computed_md5(%s) != supplied_md5(%s)",
                                 output_filename, computed_md5, supplied_md5)
+
+                try:
+                    file_metadata = self.__file_by_id_or_uri (file_uuid,
+                                                         account_uuid = account_uuid,
+                                                         dataset_uri = dataset["uri"])
+
+                    if self.db.delete_item_from_list (dataset["uri"], "files",
+                                                      uuid_to_uri (file_metadata["uuid"], "file")):
+                        self.db.cache.invalidate_by_prefix (f"{account_uuid}_storage")
+                        self.db.cache.invalidate_by_prefix (f"{dataset['uuid']}_dataset_storage")
+                    else:
+                        self.log.error ("Failed to delete file %s from dataset %s.",
+                                        file_uuid, dataset_id)
+                except (IndexError, KeyError, StopIteration):
+                    pass
+
                 os.remove (output_filename)
+
                 return self.error_400 (request,
                                        "MD5 checksum mismatch.",
                                        "MD5Mismatch")
