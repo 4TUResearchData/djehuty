@@ -7136,7 +7136,7 @@ class ApiServer:
 
         account = self.db.account_by_uuid (account_uuid)
         if account is None or "quota" not in account:
-            self.log.error ("Account %s does not have an assigmed quota.", account_uuid)
+            self.log.error ("Account %s does not have an assigned quota.", account_uuid)
             return self.error_403 (request)
 
         storage_used      = self.db.account_storage_used (account_uuid)
