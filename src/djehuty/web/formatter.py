@@ -533,4 +533,5 @@ def format_group_record (record):
       "parent_id":     conv.value_or_none(record, "parent_id"),
       "name":          conv.value_or_none(record, "name"),
       "association":   conv.value_or_none(record, "association"),
+      "is_featured":   conv.value_or_none(record, "is_featured")
     }
