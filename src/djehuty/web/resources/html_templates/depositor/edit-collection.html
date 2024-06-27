@@ -3,7 +3,7 @@
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js"></script>
-<script src="/static/js/edit-collection.js"></script>
+<script src="/static/js/edit-collection.js?cache=1719476090"></script>
 <script>
 jQuery(document).ready(function () {
     root_categories = []
@@ -179,7 +179,10 @@ jQuery(document).ready(function () {
 <input type="text" id="resource_doi" name="resource_doi" value="{{collection["resource_doi"] | default("", True)}}" />
 <p>Add any other relevant URLs or DOIs below.</p>
 <label for="references">References</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add references (links) to any relevant content or external sources that help describe the resource. All links must be full, valid URLs or DOIs in order to function, eg: https://doi.org/10.4233/uuid:35022242-b3ba-48d9-b3f6-c6ab20b8cc19. Hit return to enter new references.</span></div>
-<input type="text" id="references" name="references" value="" />
+<div class="input-with-button">
+  <input type="text" id="references" name="references" value="" />
+  <a id="add-reference-button" class="form-button corporate-identity-standard-button" href="#">Add reference</a>
+</div>
 <table class="inside-form-table" id="references-list">
   <thead>
     <tr><th>Reference</th><th>Actions</th></tr>
