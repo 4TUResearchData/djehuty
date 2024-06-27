@@ -3669,7 +3669,7 @@ class ApiServer:
                     ## Data stored before Djehuty went into production requires a few tweaks.
                     ## Only apply these quirks when enabled.
                     name = file_info['name']
-                    if value_or (file_info, "quirks", False):
+                    if value_or (location, "quirks", False):
                         name = ''.join(char for char in name if char in allowed_chars)
                     file_path = f"{location['path']}/{file_info['id']}/{name}"
                     if os.path.isfile (file_path):
