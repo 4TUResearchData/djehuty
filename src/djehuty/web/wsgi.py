@@ -7550,8 +7550,7 @@ class ApiServer:
             references     = list(map(lambda reference: reference["url"], references))
 
             if request.method == 'DELETE':
-                url_encoded = validator.string_value (request.args, "url", 0, 1024, True)
-                url         = unquote(url_encoded)
+                url = validator.string_value (request.args, "url", 0, 1024, True)
                 references.remove (next (filter (lambda item: item == url, references)))
                 if not self.db.update_item_list (item["uuid"], account_uuid,
                                                  references, "references"):

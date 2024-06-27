@@ -276,9 +276,11 @@ function render_references_for_dataset (dataset_uuid) {
     }).done(function (references) {
         jQuery("#references-list tbody").empty();
         for (let url of references) {
-            let row = `<tr><td><a target="_blank" href="${encodeURIComponent(url)}">`;
+            let encoded_url = encodeURIComponent(url);
+            encoded_url = encoded_url.replace(/\'/g, "%27");
+            let row = `<tr><td><a target="_blank" href="${encoded_url}">`;
             row += `${url}</a></td><td><a href="#" `;
-            row += `onclick="javascript:remove_reference('${encodeURIComponent(url)}', `;
+            row += `onclick="javascript:remove_reference('${encoded_url}', `;
             row += `'${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
             jQuery("#references-list tbody").append(row);
