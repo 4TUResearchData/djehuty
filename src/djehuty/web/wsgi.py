@@ -3876,8 +3876,10 @@ class ApiServer:
 
         search_for = search_for.strip()
         categories = self.db.categories(limit=None)
+        groups     = self.db.group()
         return self.__render_template (request, "search.html",
                                        search_for=search_for,
+                                       institutions=groups,
                                        categories=categories,
                                        page_title=f"{search_for} (search)")
 
@@ -6353,7 +6355,7 @@ class ApiServer:
             record["institution"]     = self.get_parameter (parameters, "institution")
             record["published_since"] = self.get_parameter (parameters, "published_since")
             record["modified_since"]  = self.get_parameter (parameters, "modified_since")
-            record["group"]           = self.get_parameter (parameters, "group")
+            record["groups"]          = split_string (self.get_parameter (parameters, "groups"), delimiter=",")
             record["resource_doi"]    = self.get_parameter (parameters, "resource_doi")
             record["item_type"]       = self.get_parameter (parameters, "item_type")
             record["doi"]             = self.get_parameter (parameters, "doi")
@@ -6374,7 +6376,6 @@ class ApiServer:
             validator.integer_value  (record, "institution")
             validator.string_value   (record, "published_since", maximum_length=32)
             validator.string_value   (record, "modified_since",  maximum_length=32)
-            validator.integer_value  (record, "group")
             validator.string_value   (record, "resource_doi",    maximum_length=255)
             validator.integer_value  (record, "item_type")
             validator.string_value   (record, "doi",             maximum_length=255)
@@ -6389,9 +6390,9 @@ class ApiServer:
                 for category_id in record["categories"]:
                     validator.integer_value (record, "category_id", category_id)
 
-            # Rewrite the group parameter to match the database's plural form.
-            record["groups"]  = [record["group"]] if record["group"] is not None else None
-            del record["group"]
+            if "groups" in record and record["groups"] is not None:
+                for group_id in record["groups"]:
+                    validator.integer_value (record, "group_id", group_id)
 
             records = self.db.datasets (**record)
             return self.default_list_response (records, formatter.format_dataset_record,

@@ -60,6 +60,34 @@ function parse_url_params() {
     return params;
 }
 
+function _featured_institutions_count() {
+    let count = 0;
+    jQuery('#search-filter-content-institutions ul li').each(function() {
+        if (this.classList.contains("featured")) {
+            count += 1;
+        }
+    });
+    return count;
+}
+
+function toggle_filter_institutions_showmore(flag) {
+    if (flag) {
+        let featured_count = _featured_institutions_count();
+        jQuery('#search-filter-content-institutions ul li').css('display', 'none');
+        jQuery('#search-institutions-show-more').show();
+
+        if (featured_count > 0) {
+            jQuery('#search-filter-content-institutions ul li').slice(0, featured_count).show();
+        } else {
+            // Show every institution if there are no featured institutions.
+            jQuery('#search-filter-content-institutions ul li').show();
+        }
+   } else {
+       jQuery('#search-filter-content-institutions ul li').show();
+       jQuery('#search-institutions-show-more').hide();
+   }
+}
+
 function toggle_checkbox_subcategories(parent_category_id) {
     let parent_category_checkbox = document.getElementById(`checkbox_categories_${parent_category_id}`);
     let subcategories = document.getElementById(`subcategories_of_${parent_category_id}`);
@@ -87,7 +115,7 @@ function toggle_filter_categories_showmore(flag) {
 
     if (flag) {
         jQuery('#search-filter-content-categories ul li').css('display', 'none');
-        jQuery('#search-show-more').show();
+        jQuery('#search-categories-show-more').show();
         if (enable_subcategories) {
             jQuery('#search-filter-content-categories ul li').slice(0, 75).show();
         } else {
@@ -95,12 +123,12 @@ function toggle_filter_categories_showmore(flag) {
         }
    } else {
        jQuery('#search-filter-content-categories ul li').show();
-       jQuery('#search-show-more').hide();
+       jQuery('#search-categories-show-more').hide();
    }
 }
 
 function toggle_filter_apply_button(flag) {
-    let primary_color = get_corporate_background_color();
+    let primary_color = _corporate_background_color();
     let color = flag ? primary_color : "#eeeeee";
     let cursor = flag ? "pointer" : "default";
     let color_text = flag ? "white" : "#cccccc";
@@ -110,7 +138,7 @@ function toggle_filter_apply_button(flag) {
 }
 
 function toggle_filter_reset_button(flag) {
-    let primary_color = get_corporate_background_color();
+    let primary_color = _corporate_background_color();
     let color = flag ? primary_color : "#eeeeee";
     let cursor = flag ? "pointer" : "default";
     let color_text = flag ? "white" : "#cccccc";
@@ -122,9 +150,28 @@ function toggle_filter_reset_button(flag) {
 function toggle_filter_input_text(id, flag) {
     if (flag) {
         jQuery(`#${id}`).show();
+
+        // Disable all the checkboxes if the 'Other' checkbox for institutions is checked.
+        if (id === "textinput_institutions_other") {
+            jQuery("#search-filter-content-institutions input[type='checkbox']").each(function() {
+                if (this.id === "checkbox_institutions_other") {
+                    return;
+                }
+                this.disabled = flag;
+                this.checked = !flag;
+            });
+        }
+
     } else {
         jQuery(`#${id}`).val("");
         jQuery(`#${id}`).hide();
+
+        // Enable the other checkboxes if the 'Other' checkbox for institutions is unchecked.
+        if (id === "textinput_institutions_other") {
+            jQuery("#search-filter-content-institutions input[type='checkbox']").each(function() {
+                this.disabled = flag;
+            });
+        }
     }
 }
 
@@ -133,7 +180,7 @@ function toggle_view_mode(mode) {
         return;
     }
 
-    let primary_color = get_corporate_background_color();
+    let primary_color = _corporate_background_color();
 
     if (mode === "tile") {
         jQuery('#search-results-list-view').hide();
@@ -179,11 +226,17 @@ function register_event_handlers() {
         toggle_filter_apply_button(true);
         toggle_filter_reset_button(false);
         toggle_filter_categories_showmore(true);
+        toggle_filter_institutions_showmore(true);
     });
 
-    // show more categories if 'Show more' text is clicked.
-    jQuery('#search-show-more').click(function() {
+    // show more categories if 'Show more' for categories is clicked.
+    jQuery('#search-categories-show-more').click(function() {
         toggle_filter_categories_showmore(false);
+    });
+
+    // show more institutions if 'Show more' for institutions is clicked.
+    jQuery('#search-institutions-show-more').click(function() {
+        toggle_filter_institutions_showmore(false);
     });
 
     // Enable the apply button if any checkbox is checked.
@@ -378,6 +431,10 @@ function load_search_filters_from_url() {
                         }
                     }
 
+                    if (filter_name == "institutions") {
+                        toggle_filter_institutions_showmore(false);
+                    }
+
                     // If collection is checked, disable Search Scope and File Types.
                     if (checkbox_id === "checkbox_datatypes_collection") {
                         jQuery("#search-filter-content-searchscope input[type='checkbox']").each(function() {
@@ -418,6 +475,48 @@ function load_search_results() {
     let target_api_url     = null;
     let url_params         = parse_url_params();
     let request_params     = {};
+
+    // If the selected institutions have separate groups for students,
+    // add the associated groups too.
+    if ("institutions" in url_params) {
+        let institutions = {};
+        let hidden_institutions = {};
+        let checked_institutions = {};
+        jQuery(`#search-filter-content-institutions label`).each(function() {
+            let institution_name = this.innerText.trim();
+            let institution_id   = this.attributes["for"].value;
+            let hidden = false;
+            if ("hidden" in this.attributes) {
+                hidden = true;
+            }
+
+            if (hidden) {
+                hidden_institutions[institution_name] = institution_id;
+            } else {
+                institutions[institution_name] = institution_id;
+            }
+
+            institutions[institution_name] = {
+                "id": institution_id,
+                "hidden": hidden,
+            };
+        });
+
+        for (let institution of url_params["institutions"].split(",")) {
+            let institution_id = `checkbox_institutions_${institution}`;
+            let institution_name = jQuery(`label[for='${institution_id}']`).text().trim();
+
+            checked_institutions[institution_name] = institution_id;
+        }
+
+        for (let institution_name of Object.keys(hidden_institutions)) {
+            let associated_institution_name = institution_name.substring(0, institution_name.length - " Students".length);
+            if (associated_institution_name in checked_institutions) {
+                let id = hidden_institutions[institution_name].slice("checkbox_institutions_".length);
+                url_params["institutions"] += `,${id}`;
+            }
+        }
+    }
 
     if ("datatypes" in url_params && url_params["datatypes"] === "collection") {
         target_api_url = api_collection_url;
@@ -476,7 +575,7 @@ function load_search_results() {
         request_params["search_for"] = url_params["q"];
     }
 
-    request_params["group"] = url_params["institutions"];
+    request_params["groups"] = url_params["institutions"];
     request_params["page_size"] = page_size;
     request_params["is_latest"] = 1;
     request_params["page"] = "page" in url_params ? url_params["page"] : 1;
@@ -735,7 +834,7 @@ function trim_single_word(word) {
     return word.replace(/\s+.*$/g, '');
 }
 
-function get_corporate_background_color() {
+function _corporate_background_color() {
     let rgb = jQuery(".corporate-identity-background").css("background");
     if (rgb === undefined) {
         return "#000000";

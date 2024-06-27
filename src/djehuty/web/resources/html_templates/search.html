@@ -158,6 +158,10 @@
     margin-left: 2.4em;
     color: red;
 }
+.show-more-label {
+    text-align: center;
+}
+
 </style>
 {% endblock %}
 {% block body %}
@@ -165,6 +169,7 @@
 <script>
     jQuery(document).ready(function() {
         init_search_filter_info();
+        toggle_filter_institutions_showmore(true);
         toggle_filter_categories_showmore(true);
         register_event_handlers();
         load_search_filters_from_url();
@@ -189,19 +194,38 @@
 
         <div class="search-filter-row">
             <div class="search-filter-title">Institutions</div>
-            <div class="search-filter-content other" id="search-filter-content-institutions">
+            <div class="search-filter-content multiple other" id="search-filter-content-institutions">
                 <ul>
-                    <li><input type="checkbox" id="checkbox_institutions_28586" name="checkbox_institutions_28586" value="28586"><label for="checkbox_institutions_28586">TU Delft</label> </li>
-                    <li><input type="checkbox" id="checkbox_institutions_28628" name="checkbox_institutions_28628" value="28628"><label for="checkbox_institutions_28628">TU Delft Students</label> </li>
-                    <li><input type="checkbox" id="checkbox_institutions_28589" name="checkbox_institutions_28589" value="28589"><label for="checkbox_institutions_28589">TU Eindhoven</label> </li>
-                    <li><input type="checkbox" id="checkbox_institutions_28631" name="checkbox_institutions_28631" value="28631"><label for="checkbox_institutions_28631">TU Eindhoven Students</label> </li>
-                    <li><input type="checkbox" id="checkbox_institutions_28592" name="checkbox_institutions_28592" value="28592"><label for="checkbox_institutions_28592">University of Twente</label> </li>
-                    <li><input type="checkbox" id="checkbox_institutions_28634" name="checkbox_institutions_28634" value="28634"><label for="checkbox_institutions_28634">University of Twente Student</label> </li>
-                    <li><input type="checkbox" id="checkbox_institutions_28595" name="checkbox_institutions_28595" value="28595"><label for="checkbox_institutions_28595">Wageningen University</label> </li>
-                    <li><input type="checkbox" id="checkbox_institutions_other" name="checkbox_institutions_other" value="other"><label for="checkbox_institutions_other">Other</label> </li>
+                    {% set ns = namespace(featured_institutions=0) %}
+                    {% for institution in institutions | sort(attribute='name') %}
+                    {% if institution.is_featured and institution.name != "Other institutions" %}
+                    {# Hide institutions ending with "Students". #}
+                    {# The hidden institutions will be processed by Javascript.  #}
+                    {% set hidden = "hidden" if institution.name[-9:] == " Students" else "" %}
+                    <li class="featured">
+                        <input type="checkbox" id="checkbox_institutions_{{institution.id}}" name="checkbox_institutions_{{institution.id}}" value="{{institution.id}}" {{hidden}}>
+                        <label for="checkbox_institutions_{{institution.id}}" {{hidden}}>{{institution.name}}</label>
+                    </li>
+                    {% set ns.featured_institutions = ns.featured_institutions + 1 %}
+                    {% endif %}
+                    {% endfor %}
+                    {% for institution in institutions | sort(attribute='name') %}
+                    {% if not institution.is_featured and institution.name != "Other institutions" %}
+                    {% set hidden = "hidden" if institution.name[-9:] == " Students" else "" %}
+                    <li>
+                        <input type="checkbox" id="checkbox_institutions_{{institution.id}}" name="checkbox_institutions_{{institution.id}}" value="{{institution.id}}" {{hidden}}>
+                        <label for="checkbox_institutions_{{institution.id}}" {{hidden}}>{{institution.name}}</label>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    <li><input type="checkbox" id="checkbox_institutions_other" name="checkbox_institutions_other" value="other"><label for="checkbox_institutions_other">Other institution</label> </li>
                     <li><input type="text" style="display: none" id="textinput_institutions_other" name="textinput_institutions_other" placeholder="ex) Amsterdam" value="" maxlength="255"> </li>
                 </ul>
             </div>
+            {% if ns.featured_institutions > 0 %}
+            <div id="search-institutions-show-more" class="show-more-label"><label class="corporate-identity">Show more</label></div>
+            {% endif %}
         </div>
 
         <div class="search-filter-row">
@@ -280,7 +304,7 @@
                     {% endfor %}
                 </ul>
             </div>
-            <div id="search-show-more">Show more</div>
+            <div id="search-categories-show-more" class="show-more-label"><label class="corporate-identity">Show more</label></div>
         </div>
     </div>
     <!-- End of Search Sidebar -->
