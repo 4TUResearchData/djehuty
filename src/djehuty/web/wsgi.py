@@ -1720,12 +1720,11 @@ class ApiServer:
 
     def ui_review_impersonate_to_dataset (self, request, dataset_id):
         """Implements /review/goto-dataset/<id>."""
-        if not self.accepts_html (request):
-            return self.error_406 ("text/html")
 
-        token = self.token_from_cookie (request)
-        if not self.db.may_impersonate (token):
-            return self.error_403 (request)
+        handler = self.default_authenticated_error_handling (request, "GET", "text/html",
+                                                             self.db.may_impersonate)
+        if isinstance (handler, Response):
+            return handler
 
         dataset = None
         try:
@@ -1741,7 +1740,7 @@ class ApiServer:
         # Add a secondary cookie to go back to at one point.
         response = redirect (f"/my/datasets/{dataset['container_uuid']}/edit", code=302)
         response.set_cookie (key    = self.impersonator_cookie_key,
-                             value  = token,
+                             value  = self.token_from_request (request),
                              secure = self.in_production)
         response.set_cookie (key    = "redirect_to",
                              value  = "/review/overview",
@@ -3908,13 +3907,11 @@ class ApiServer:
 
     def api_private_institution_accounts (self, request):
         """Implements /v2/account/institution/accounts."""
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
-            return handler
 
-        token = self.token_from_request (request)
-        if not self.db.may_administer (token):
-            return self.error_403 (request)
+        handler = self.default_authenticated_error_handling (request, "GET", "application/json",
+                                                             self.db.may_administer)
+        if isinstance (handler, Response):
+            return handler
 
         try:
             offset, limit       = validator.paging_to_offset_and_limit (request.args)
@@ -6097,13 +6094,10 @@ class ApiServer:
 
     def api_private_author_details (self, request, author_id):
         """Implements /v2/account/authors/<id>."""
-        handler = self.default_error_handling (request, "GET", "application/json")
-        if handler is not None:
+        handler = self.default_authenticated_error_handling (request, "GET", "application/json",
+                                                             self.db.may_administer)
+        if isinstance (handler, Response):
             return handler
-
-        token = self.token_from_request (request)
-        if not self.db.may_administer (token):
-            return self.error_403 (request)
 
         try:
             author = None
@@ -7735,12 +7729,10 @@ class ApiServer:
     def api_v3_admin_files_integrity_statistics (self, request):
         """Implements /v3/admin/files-integrity-statistics."""
 
-        if not self.accepts_json (request):
-            return self.error_406 ("application/json")
-
-        token = self.token_from_cookie (request)
-        if not self.db.may_review_integrity (token):
-            return self.error_403 (request)
+        handler = self.default_authenticated_error_handling (request, "GET", "application/json",
+                                                             self.db.may_review_integrity)
+        if isinstance (handler, Response):
+            return handler
 
         files = self.db.repository_file_statistics (extended_properties=True)
         number_of_files = 0
@@ -8345,14 +8337,12 @@ class ApiServer:
     def api_v3_datasets_assign_reviewer (self, request, dataset_uuid, reviewer_uuid):
         """Implements /v3/datasets/<id>/assign-reviewer/<rid>."""
 
-        if request.method != "PUT":
-            return self.error_405 ("PUT")
-
-        account_uuid = self.account_uuid_from_request (request)
-        token = self.token_from_cookie (request)
-        if not self.db.may_review (token):
-            self.log.error ("Account %s attempted a reviewer action.", account_uuid)
-            return self.error_403 (request)
+        account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json",
+                                                                  self.db.may_review)
+        if isinstance (account_uuid, Response):
+            uuid = self.account_uuid_from_request (request)
+            self.log.error ("Account %s attempted a reviewer action.", uuid)
+            return account_uuid
 
         reviewer = self.db.account_by_uuid (reviewer_uuid)
         dataset  = None
