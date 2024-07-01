@@ -44,16 +44,6 @@
        url("/static/fonts/fa-brands-400.woff") format("woff"),
        url("/static/fonts/fa-brands-400.ttf") format("truetype");
 }
-
-.corporate-identity-table thead tr th {
-    color: #000;
-    text-align: left;
-    padding: .5em;
-    z-index: 50;
-    border-top: none;
-    white-space: nowrap;
-    min-width: 60pt;
-}
 .corporate-identity-table tbody tr td { padding: .5em; z-index: 50; white-space: nowrap; }
 .corporate-identity-table thead tr th:last-child { text-align: right; }
 .corporate-identity-table tbody tr:nth-child(even) { background: #fafafa; }

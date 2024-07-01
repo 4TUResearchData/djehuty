@@ -468,8 +468,8 @@ def read_colors_configuration (server, xml_root):
     colors = xml_root.find("colors")
     if colors:
         for color in ["primary-color", "primary-color-hover",
-                      "primary-color-active", "privilege-button-color",
-                      "footer-background-color"]:
+                      "primary-color-active", "primary-foreground-color",
+                      "privilege-button-color", "footer-background-color"]:
             server.colors[color] = config_value (colors, color, fallback=server.colors[color])
 
 def read_datacite_configuration (server, xml_root):

@@ -10,6 +10,7 @@
     <primary-color>#f49120</primary-color>
     <primary-color-hover>#d26000</primary-color-hover>
     <primary-color-active>#9d4800</primary-color-active>
+    <primary-foreground-color>#000000</primary-foreground-color>
     <privilege-button-color>#fce3bf</privilege-button-color>
     <footer-background-color>#707070</footer-background-color>
   </colors>

@@ -114,11 +114,12 @@ class ApiServer:
         self.locks               = locks.Locks()
         self.menu = []
         self.colors = {
-            "primary-color":           "#f49120",
-            "primary-color-hover":     "#d26000",
-            "primary-color-active":    "#9d4800",
-            "privilege-button-color":  "#fce3bf",
-            "footer-background-color": "#707070"
+            "primary-color":            "#f49120",
+            "primary-color-hover":      "#d26000",
+            "primary-color-active":     "#9d4800",
+            "primary-foreground-color": "#000000",
+            "privilege-button-color":   "#fce3bf",
+            "footer-background-color":  "#707070"
         }
         self.static_pages = {}
 
@@ -1520,11 +1521,12 @@ class ApiServer:
 
         return self.__render_css_template (
             "colors.css",
-            primary_color           = self.colors['primary-color'],
-            primary_color_hover     = self.colors['primary-color-hover'],
-            primary_color_active    = self.colors['primary-color-active'],
-            footer_background_color = self.colors['footer-background-color'],
-            privilege_button_color  = self.colors['privilege-button-color'])
+            primary_color            = self.colors['primary-color'],
+            primary_color_hover      = self.colors['primary-color-hover'],
+            primary_color_active     = self.colors['primary-color-active'],
+            primary_foreground_color = self.colors['primary-foreground-color'],
+            footer_background_color  = self.colors['footer-background-color'],
+            privilege_button_color   = self.colors['privilege-button-color'])
 
     def loader_svg (self, request):
         """Implements /theme/loader.svg."""
