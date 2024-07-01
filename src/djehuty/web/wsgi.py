@@ -416,12 +416,15 @@ class ApiServer:
     ## WSGI AND WERKZEUG SETUP.
     ## ------------------------------------------------------------------------
 
-    def add_static_root (self, uri, path):
+    def add_static_root (self, uri, path, prepend=False):
         """Procedure to register a filesystem root for static files."""
         if uri is not None and path is not None:
-            self.static_roots = { **self.static_roots, **{ uri: path } }
-            self.wsgi = SharedDataMiddleware(self.__respond, self.static_roots)
+            if prepend:
+                self.static_roots = { **{ uri: path }, **self.static_roots }
+            else:
+                self.static_roots = { **self.static_roots, **{ uri: path } }
 
+            self.wsgi = SharedDataMiddleware(self.__respond, self.static_roots)
             return True
 
         return False

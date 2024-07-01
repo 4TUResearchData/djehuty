@@ -739,6 +739,18 @@ def read_configuration_file (server, config_file, address, port, state_graph,
 
         read_menu_configuration (xml_root, server)
 
+        custom_logo_path = config_value (xml_root, "custom-logo-path", None, None)
+        if custom_logo_path:
+            if not os.path.isabs (custom_logo_path):
+                custom_logo_path = os.path.abspath(os.path.join (config_dir, custom_logo_path))
+            server.add_static_root ("/static/images/logo.png", custom_logo_path, prepend=True)
+
+        custom_favicon_path = config_value (xml_root, "custom-favicon-path", None, None)
+        if custom_favicon_path:
+            if not os.path.isabs (custom_favicon_path):
+                custom_favicon_path = os.path.abspath(os.path.join (config_dir, custom_favicon_path))
+            server.add_static_root ("/static/images/favicon.ico", custom_favicon_path, prepend=True)
+
         static_pages = xml_root.find("static-pages")
         if not static_pages:
             return config
