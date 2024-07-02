@@ -1659,6 +1659,9 @@ class ApiServer:
                             last_name  = value_or_none (saml_record, "last_name"),
                             common_name = value_or_none (saml_record, "common_name"),
                         )
+                        if account_uuid is None:
+                            self.log.error ("Creating account for %s failed.", saml_record["email"])
+                            return self.error_500()
                         self.log.access ("Account %s created via SAML.", account_uuid) #  pylint: disable=no-member
 
                 except TypeError:
