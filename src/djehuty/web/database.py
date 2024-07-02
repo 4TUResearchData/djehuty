@@ -1491,7 +1491,12 @@ class SparqlInterface:
 
         graph.add ((author_uri, RDF.type,      rdf.DJHT["Author"]))
 
-        orcid_id = self.__normalize_orcid (orcid_id)
+        orcid_id   = self.__normalize_orcid (orcid_id)
+        first_name = conv.strip_string (first_name)
+        last_name  = conv.strip_string (last_name)
+        full_name  = conv.strip_string (full_name)
+        email      = conv.strip_string (email)
+
         rdf.add (graph, author_uri, rdf.DJHT["id"],             author_id)
         rdf.add (graph, author_uri, rdf.DJHT["institution_id"], institution_id)
         rdf.add (graph, author_uri, rdf.DJHT["group_id"],       group_id)
@@ -2261,6 +2266,10 @@ class SparqlInterface:
 
     def update_author (self, author_uuid, created_by, first_name, last_name, email, orcid):
         """Update the author record identified by AUTHOR_UUID, CREATED_BY."""
+
+        first_name = conv.strip_string (first_name)
+        last_name  = conv.strip_string (last_name)
+        email      = conv.strip_string (email)
 
         full_name = None
         if first_name is not None and last_name is not None:
