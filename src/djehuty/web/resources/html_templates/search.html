@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
-<script src="/static/js/search.js?cache=1719591180"></script>
+<script src="/static/js/search.js?cache=1720035375"></script>
 <style>
 .tile-item {
     display: inline-block;
@@ -171,6 +171,7 @@ label { cursor: pointer; }
         init_search_filter_info();
         toggle_filter_institutions_showmore(true);
         toggle_filter_categories_showmore(true);
+        toggle_filter_licenses_showmore(true);
         register_event_handlers();
         load_search_filters_from_url();
         load_search_preferences();
@@ -196,28 +197,28 @@ label { cursor: pointer; }
             <div class="search-filter-title">Institutions</div>
             <div class="search-filter-content multiple other" id="search-filter-content-institutions">
                 <ul>
-                    {% set ns = namespace(featured_institutions=0) %}
-                    {% for institution in institutions | sort(attribute='name') %}
-                    {% if institution.is_featured and institution.name != "Other institutions" %}
+                    {%- set ns = namespace(featured_institutions=0) -%}
+                    {%- for institution in institutions | sort(attribute='name') -%}
+                    {%- if institution.is_featured and institution.name != "Other institutions" -%}
                     {# Hide institutions ending with "Students". #}
                     {# The hidden institutions will be processed by Javascript.  #}
-                    {% set hidden = "hidden" if institution.name[-9:] == " Students" else "" %}
+                    {%- set hidden = "hidden" if institution.name[-9:] == " Students" else "" -%}
                     <li class="featured">
                         <input type="checkbox" id="checkbox_institutions_{{institution.id}}" name="checkbox_institutions_{{institution.id}}" value="{{institution.id}}" {{hidden}}>
                         <label for="checkbox_institutions_{{institution.id}}" {{hidden}}>{{institution.name}}</label>
                     </li>
-                    {% set ns.featured_institutions = ns.featured_institutions + 1 %}
-                    {% endif %}
-                    {% endfor %}
-                    {% for institution in institutions | sort(attribute='name') %}
-                    {% if not institution.is_featured and institution.name != "Other institutions" %}
-                    {% set hidden = "hidden" if institution.name[-9:] == " Students" else "" %}
+                    {%- set ns.featured_institutions = ns.featured_institutions + 1 -%}
+                    {%- endif -%}
+                    {%- endfor -%}
+                    {%- for institution in institutions | sort(attribute='name') -%}
+                    {%- if not institution.is_featured and institution.name != "Other institutions" -%}
+                    {%- set hidden = "hidden" if institution.name[-9:] == " Students" else "" -%}
                     <li>
                         <input type="checkbox" id="checkbox_institutions_{{institution.id}}" name="checkbox_institutions_{{institution.id}}" value="{{institution.id}}" {{hidden}}>
                         <label for="checkbox_institutions_{{institution.id}}" {{hidden}}>{{institution.name}}</label>
                     </li>
-                    {% endif %}
-                    {% endfor %}
+                    {%- endif -%}
+                    {%- endfor -%}
 
                     <li><input type="checkbox" id="checkbox_institutions_other" name="checkbox_institutions_other" value="other"><label for="checkbox_institutions_other">Other institution</label> </li>
                     <li><input type="text" style="display: none" id="textinput_institutions_other" name="textinput_institutions_other" placeholder="ex) Amsterdam" value="" maxlength="255"> </li>
@@ -280,28 +281,43 @@ label { cursor: pointer; }
         </div>
 
         <div class="search-filter-row">
+            <div class="search-filter-title">Licenses</div>
+            <div class="search-filter-content multiple" id="search-filter-content-licenses">
+                <ul>
+                    {% for license in licenses | sort(attribute='name') %}
+                    <li>
+                        <input type="checkbox" id="checkbox_licenses_{{license.id}}" name="checkbox_licenses_{{license.id}}" value="{{license.id}}">
+                        <label for="checkbox_licenses_{{license.id}}">{{license.name}}</label>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div id="search-licenses-show-more" class="show-more-label"><label class="corporate-identity">Show more</label></div>
+        </div>
+
+        <div class="search-filter-row">
             <div class="search-filter-title">Categories</div>
             <div class="search-filter-content multiple" id="search-filter-content-categories">
                 <ul>
-                    {% for category in categories | sort(attribute='title') %}
-                    {% if not "parent_id" in category %}
+                    {%- for category in categories | sort(attribute='title') -%}
+                    {%- if not "parent_id" in category -%}
                     <li>
-                        <input type="checkbox" id="checkbox_categories_{{category.id}}" name="checkbox_categories_{{category.id}}" value="{{category.id}}" onchange="toggle_checkbox_subcategories({{category.id}})">
+                        <input type="checkbox" id="checkbox_categories_{{category.id}}" class="parentcategory" name="checkbox_categories_{{category.id}}" value="{{category.id}}">
                         <label for="checkbox_categories_{{category.id}}">{{category.title}}</label>
                     </li>
 
                     <ul id="subcategories_of_{{category.id}}" style="display: none;">
-                        {% for subcategory in categories %}
-                        {% if subcategory.parent_id == category.id %}
+                        {%- for subcategory in categories -%}
+                        {%- if subcategory.parent_id == category.id -%}
                         <li style="padding-left: 1em">
-                            <input type="checkbox" id="checkbox_categories_{{subcategory.id}}" name="checkbox_categories_{{subcategory.id}}" value="{{subcategory.id}}">
+                            <input type="checkbox" id="checkbox_categories_{{subcategory.id}}" class="subcategory" name="checkbox_categories_{{subcategory.id}}" value="{{subcategory.id}}">
                         <label for="checkbox_categories_{{subcategory.id}}">{{subcategory.title}}</label>
                         </li>
-                        {% endif %}
-                        {% endfor %}
+                        {%- endif -%}
+                        {%- endfor -%}
                     </ul>
-                    {% endif %}
-                    {% endfor %}
+                    {%- endif -%}
+                    {%- endfor -%}
                 </ul>
             </div>
             <div id="search-categories-show-more" class="show-more-label"><label class="corporate-identity">Show more</label></div>

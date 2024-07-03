@@ -88,14 +88,33 @@ function toggle_filter_institutions_showmore(flag) {
    }
 }
 
-function toggle_checkbox_subcategories(parent_category_id) {
+function toggle_filter_licenses_showmore(flag) {
+    if (flag) {
+        jQuery('#search-filter-content-licenses ul li').css('display', 'none');
+        jQuery('#search-licenses-show-more').show();
+        jQuery('#search-filter-content-licenses ul li').slice(0, 5).show();
+   } else {
+       jQuery('#search-filter-content-licenses ul li').show();
+       jQuery('#search-licenses-show-more').hide();
+   }
+}
+
+function toggle_checkbox_subcategories(parent_category_id, force_on=false) {
     let parent_category_checkbox = document.getElementById(`checkbox_categories_${parent_category_id}`);
     let subcategories = document.getElementById(`subcategories_of_${parent_category_id}`);
     if (subcategories === null) {
         return;
     }
+    if (force_on) {
+        subcategories.style.display = "block";
+        return;
+    }
+
     if (parent_category_checkbox.checked) {
         subcategories.style.display = "block";
+        jQuery(`#subcategories_of_${parent_category_id} input[type='checkbox']`).each(function() {
+            this.checked = false;
+        });
     } else {
         jQuery(`#subcategories_of_${parent_category_id} input[type='checkbox']`).each(function() {
             this.checked = false;
@@ -104,20 +123,24 @@ function toggle_checkbox_subcategories(parent_category_id) {
     }
 }
 
-function toggle_filter_categories_showmore(flag) {
-    if (enable_subcategories) {
-        jQuery(`#search-filter-content-categories input[type='checkbox']`).each(function() {
-            if (this.id.startsWith("checkbox_categories_")) {
-                toggle_checkbox_subcategories(this.id.split("_")[2]);
-            }
-        });
+function clear_checkbox_parentcategory(parent_category_id) {
+    let parent_category_checkbox = document.getElementById(`checkbox_categories_${parent_category_id}`);
+    if (parent_category_checkbox.checked) {
+        parent_category_checkbox.checked = false;
     }
+}
 
+function toggle_filter_categories_showmore(flag) {
     if (flag) {
         jQuery('#search-filter-content-categories ul li').css('display', 'none');
         jQuery('#search-categories-show-more').show();
         if (enable_subcategories) {
             jQuery('#search-filter-content-categories ul li').slice(0, 75).show();
+            jQuery(`#search-filter-content-categories input[type='checkbox']`).each(function() {
+                if (this.id.startsWith("checkbox_categories_")) {
+                    toggle_checkbox_subcategories(this.id.split("_")[2]);
+                }
+            });
         } else {
             jQuery('#search-filter-content-categories ul li').slice(0, 10).show();
         }
@@ -227,17 +250,63 @@ function register_event_handlers() {
         toggle_filter_reset_button(false);
         toggle_filter_categories_showmore(true);
         toggle_filter_institutions_showmore(true);
+        toggle_filter_licenses_showmore(true);
     });
 
-    // show more categories if 'Show more' for categories is clicked.
+    // Collapse the list if 'Show more' is clicked.
     jQuery('#search-categories-show-more').click(function() {
         toggle_filter_categories_showmore(false);
     });
-
-    // show more institutions if 'Show more' for institutions is clicked.
     jQuery('#search-institutions-show-more').click(function() {
         toggle_filter_institutions_showmore(false);
     });
+    jQuery('#search-licenses-show-more').click(function() {
+        toggle_filter_licenses_showmore(false);
+    });
+
+    // Register events for each filter.
+    for (let filter_name of Object.keys(filter_info)) {
+        let event_id = "search-filter-content-" + filter_name;
+        let is_multiple = filter_info[filter_name]["is_multiple"];
+
+        jQuery(`#${event_id} input[type='checkbox']`).change(function() {
+            let target_element = this;
+            if (target_element.checked) {
+                if (!is_multiple) {
+                    jQuery(`#${event_id} input[type='checkbox']`).each(function() {
+                        this.checked = false;
+                        jQuery(`#${event_id} input[type='text']`).each(function() {
+                            this.value = "";
+                            toggle_filter_input_text(this.id, false);
+                        });
+                        jQuery(`#${event_id} input[type='date']`).each(function() {
+                            this.value = "";
+                            toggle_filter_input_text(this.id, false);
+                        });
+
+                    });
+                    target_element.checked = true;
+                }
+
+                if (target_element.classList.contains("parentcategory")) {
+                    let parent_category_id = target_element.id.split("_").pop();
+                    toggle_checkbox_subcategories(parent_category_id);
+                } else if (target_element.classList.contains("subcategory")) {
+                    let parent_category_id = jQuery(target_element).parent().parent().prop("id").split("_").pop();
+                    clear_checkbox_parentcategory(parent_category_id);
+                }
+            }
+
+            if (target_element.id.split("_").pop() === "other") {
+                jQuery(`#${event_id} input[type='text']`).each(function() {
+                    toggle_filter_input_text(this.id, target_element.checked);
+                });
+                jQuery(`#${event_id} input[type='date']`).each(function() {
+                    toggle_filter_input_text(this.id, target_element.checked);
+                });
+            }
+        });
+    }
 
     // Enable the apply button if any checkbox is checked.
     // If collection is checked, disable Search Scope and File Types.
@@ -269,43 +338,6 @@ function register_event_handlers() {
             });
         }
     });
-
-    // Register events for each filter.
-    for (let filter_name of Object.keys(filter_info)) {
-        let event_id = "search-filter-content-" + filter_name;
-        let is_multiple = filter_info[filter_name]["is_multiple"];
-
-        jQuery(`#${event_id} input[type='checkbox']`).change(function() {
-            let target_element = this;
-            if (target_element.checked) {
-                if (!is_multiple) {
-                    jQuery(`#${event_id} input[type='checkbox']`).each(function() {
-                        this.checked = false;
-                        jQuery(`#${event_id} input[type='text']`).each(function() {
-                            this.value = "";
-                            toggle_filter_input_text(this.id, false);
-                        });
-                        jQuery(`#${event_id} input[type='date']`).each(function() {
-                            this.value = "";
-                            toggle_filter_input_text(this.id, false);
-                        });
-
-                    });
-                    target_element.checked = true;
-                }
-            }
-
-            if (target_element.id.split("_").pop() === "other") {
-                jQuery(`#${event_id} input[type='text']`).each(function() {
-                    toggle_filter_input_text(this.id, target_element.checked);
-                });
-                jQuery(`#${event_id} input[type='date']`).each(function() {
-                    toggle_filter_input_text(this.id, target_element.checked);
-                });
-
-            }
-        });
-    }
 
     // When the apply button is clicked, update the URL.
     jQuery("#search-filter-apply-button").click(function() {
@@ -417,6 +449,18 @@ function load_search_filters_from_url() {
             }
 
             if (filter_name in filter_info) {
+                if (filter_name == "institutions") {
+                    toggle_filter_institutions_showmore(false);
+                }
+
+                if (filter_name == "licenses") {
+                    toggle_filter_licenses_showmore(false);
+                }
+
+                if (filter_name == "categories") {
+                    toggle_filter_categories_showmore(false);
+                }
+
                 for (let value of values) {
                     value = value.replace(/[^a-zA-Z0-9-_]/g, '');
                     let checkbox_id = `checkbox_${filter_name}_${value}`;
@@ -424,9 +468,16 @@ function load_search_filters_from_url() {
                     if (checkbox_id_element.length > 0) {
                         jQuery(`#${checkbox_id}`).prop("checked", true);
                         if (filter_name == "categories") {
-                            toggle_filter_categories_showmore(true);
                             if (enable_subcategories) {
-                                toggle_filter_categories_showmore(false);
+                                let checkbox_id_class = checkbox_id_element.prop("class");
+                                if (checkbox_id_class) {
+                                    let classes = checkbox_id_class.split(" ");
+                                    if (classes.includes("subcategory")) {
+                                        let parent_category_id = jQuery(checkbox_id_element).parent().parent().prop("id").split("_").pop();
+                                        toggle_checkbox_subcategories(parent_category_id, force_on=true);
+                                        jQuery(`#${checkbox_id}`).prop("checked", true);
+                                    }
+                                }
                             }
                         }
                     }
@@ -526,32 +577,19 @@ function load_search_results() {
     }
 
     if ("searchscope" in url_params && typeof(url_params["searchscope"]) === "string" && url_params["searchscope"].length > 0) {
-        let value = url_params["searchscope"];
-        let scopes = [];
-        for (let scope of value.split(",")) {
-            scopes.push(scope);
-        }
-        request_params["search_scope"] = scopes;
+        request_params["search_scope"] = _split_comma_separated_string(url_params["searchscope"]);
     } else {
         // If searchscope is not selected, search in title, description, and tags.
         request_params["search_scope"] = ["title", "description", "tag"];
     }
 
     if (("filetypes" in url_params && typeof(url_params["filetypes"]) === "string" && url_params["filetypes"].length > 0) || ("filetypes_other" in url_params && typeof(url_params["filetypes_other"]) === "string" && url_params["filetypes_other"].length > 0)) {
-        let value = url_params["filetypes"];
-        let formats = [];
-        if (value && value.length > 0) {
-            for (let format of value.split(",")) {
-                formats.push(format);
-            }
-        }
+        request_params["search_format"] = _split_comma_separated_string(url_params["filetypes"]);
         if ("filetypes_other" in url_params && typeof(url_params["filetypes_other"]) === "string" && url_params["filetypes_other"].length > 0) {
             let filetypes_other = url_params["filetypes_other"];
             filetypes_other = trim_single_word(filetypes_other);
-            formats.push(filetypes_other);
+            request_params["search_format"].push(filetypes_other);
         }
-
-        request_params["search_format"] = formats;
     }
 
     if ("publisheddate" in url_params && typeof(url_params["publisheddate"]) === "string" && url_params["publisheddate"].length > 0) {
@@ -566,6 +604,18 @@ function load_search_results() {
         request_params["published_since"] = `${since_date}`;
     }
 
+    if (("licenses" in url_params && typeof(url_params["licenses"]) === "string" && url_params["licenses"].length > 0)) {
+        request_params["licenses"] = _split_comma_separated_string(url_params["licenses"]);
+    }
+
+    if (("categories" in url_params && typeof(url_params["categories"]) === "string" && url_params["categories"].length > 0)) {
+        request_params["categories"] = _split_comma_separated_string(url_params["categories"]);
+    }
+
+    if (("institutions" in url_params && typeof(url_params["institutions"]) === "string" && url_params["institutions"].length > 0)) {
+        request_params["groups"] = _split_comma_separated_string(url_params["institutions"]);
+    }
+
     if ("institutions_other" in url_params && typeof(url_params["institutions_other"]) === "string" && url_params["institutions_other"].length > 0) {
         request_params["organizations"] = trim_single_word(url_params["institutions_other"]);
     }
@@ -575,7 +625,6 @@ function load_search_results() {
         request_params["search_for"] = url_params["q"];
     }
 
-    request_params["groups"] = url_params["institutions"];
     request_params["page_size"] = page_size;
     request_params["is_latest"] = 1;
     request_params["page"] = "page" in url_params ? url_params["page"] : 1;
@@ -840,4 +889,14 @@ function _corporate_background_color() {
         return "#000000";
     }
     return `#${rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\).*$/).slice(1).map(n => parseInt(n, 10).toString(16).padStart(2, '0')).join('')}`;
+}
+
+function _split_comma_separated_string(value) {
+    let values = [];
+    if (value && value.length > 0) {
+        for (let v of value.split(",")) {
+            values.push(v);
+        }
+    }
+    return values;
 }

@@ -382,7 +382,7 @@ class SparqlInterface:
                   is_latest=False, item_type=None, limit=None, modified_since=None,
                   offset=None, order=None, order_direction=None, published_since=None,
                   resource_doi=None, return_count=False, search_for=None,
-                  search_format=False, version=None, search_scope=None,
+                  search_format=False, version=None, search_scope=None, licenses=None,
                   is_published=True, is_under_review=None, git_uuid=None,
                   private_link_id_string=None, use_cache=True, is_restricted=None,
                   is_embargoed=None, is_software=None, organizations=None):
@@ -403,6 +403,7 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("private_link_id_string", private_link_id_string, escape=True)
         filters += rdf.sparql_in_filter ("group_id",    groups)
         filters += rdf.sparql_in_filter ("dataset_id", exclude_ids, negate=True)
+        filters += rdf.sparql_in_filter ("license_id", licenses)
 
         filters += rdf.sparql_contains_filter("organizations", organizations)
         filters += rdf.sparql_contains_filter("format", search_format)

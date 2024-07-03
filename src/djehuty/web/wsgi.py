@@ -3891,9 +3891,11 @@ class ApiServer:
 
         search_for = search_for.strip()
         categories = self.db.categories(limit=None)
+        licenses   = self.db.licenses()
         groups     = self.db.group()
         return self.__render_template (request, "search.html",
                                        search_for=search_for,
+                                       licenses=licenses,
                                        institutions=groups,
                                        categories=categories,
                                        page_title=f"{search_for} (search)")
@@ -6401,7 +6403,7 @@ class ApiServer:
             record["institution"]     = self.get_parameter (parameters, "institution")
             record["published_since"] = self.get_parameter (parameters, "published_since")
             record["modified_since"]  = self.get_parameter (parameters, "modified_since")
-            record["groups"]          = split_string (self.get_parameter (parameters, "groups"), delimiter=",")
+            record["groups"]          = self.get_parameter (parameters, "groups")
             record["resource_doi"]    = self.get_parameter (parameters, "resource_doi")
             record["item_type"]       = self.get_parameter (parameters, "item_type")
             record["doi"]             = self.get_parameter (parameters, "doi")
@@ -6409,8 +6411,9 @@ class ApiServer:
             record["search_for"]      = self.get_parameter (parameters, "search_for")
             record["search_format"]   = self.get_parameter (parameters, "search_format")
             record["search_scope"]    = self.get_parameter (parameters, "search_scope")
+            record["licenses"]        = self.get_parameter (parameters, "licenses")
             record["organizations"]   = self.get_parameter (parameters, "organizations")
-            record["categories"]      = split_string (self.get_parameter (parameters, "categories"), delimiter=",")
+            record["categories"]      = self.get_parameter (parameters, "categories")
             record["is_latest"]       = self.get_parameter (parameters, "is_latest")
 
             offset, limit = self.__paging_offset_and_limit (parameters)
@@ -6429,16 +6432,31 @@ class ApiServer:
             validator.string_value   (record, "search_for",      maximum_length=1024)
             validator.string_value   (record, "organizations",   maximum_length=255)
             validator.boolean_value  (record, "is_latest")
-            validator.array_value    (record, "search_format")
-            validator.array_value    (record, "search_scope")
 
-            if "categories" in record and record["categories"] is not None:
-                for category_id in record["categories"]:
-                    validator.integer_value (record, "category_id", category_id)
+            if record["groups"] is not None:
+                validator.array_value    (record, "groups")
+                for index, _ in enumerate(record["groups"]):
+                    record["groups"][index] = validator.integer_value (record["groups"], index)
 
-            if "groups" in record and record["groups"] is not None:
-                for group_id in record["groups"]:
-                    validator.integer_value (record, "group_id", group_id)
+            if record["search_format"] is not None:
+                validator.array_value    (record, "search_format")
+                for index, _ in enumerate(record["search_format"]):
+                    record["search_format"][index] = validator.string_value (record["search_format"], index, maximum_length=255)
+
+            if record["search_scope"] is not None:
+                validator.array_value    (record, "search_scope")
+                for index, _ in enumerate(record["search_scope"]):
+                    record["search_scope"][index] = validator.string_value (record["search_scope"], index, maximum_length=12)
+
+            if record["licenses"] is not None:
+                validator.array_value    (record, "licenses")
+                for index, _ in enumerate(record["licenses"]):
+                    record["licenses"][index] = validator.string_value (record["licenses"], index, maximum_length=255)
+
+            if record["categories"] is not None:
+                validator.array_value    (record, "categories")
+                for index, _ in enumerate(record["categories"]):
+                    record["categories"][index] = validator.integer_value (record["categories"], index)
 
             records = self.db.datasets (**record)
             return self.default_list_response (records, formatter.format_dataset_record,
