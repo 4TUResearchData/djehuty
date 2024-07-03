@@ -415,6 +415,20 @@ function cancel_edit_author (author_uuid, dataset_uuid) {
         .addClass("fa-pen");
 }
 
+function reorder_author (dataset_uuid, author_uuid, direction) {
+    jQuery.ajax({
+        url:  `/v3/datasets/${dataset_uuid}/reorder-authors`,
+        data: JSON.stringify({ "author":  author_uuid, "direction": direction }),
+        type: "POST",
+        contentType: "application/json",
+        accept: "application/json"
+    }).done (function () {
+        render_authors_for_dataset (dataset_uuid);
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to change the order of the authors.</p>");
+    });
+}
+
 function update_author (author_uuid, dataset_uuid) {
     let record = {
         "first_name": jQuery("#edit_author_first_name").val(),
@@ -476,7 +490,9 @@ function render_authors_for_dataset (dataset_uuid) {
         accept:      "application/json",
     }).done(function (authors) {
         jQuery("#authors-list tbody").empty();
-        for (let author of authors) {
+        let number_of_items = authors.length;
+        for (let index = 0; index < number_of_items; index++) {
+            const author = authors[index];
             let row = `<tr id="author-${author.uuid}"><td>${author.full_name}`;
             let orcid = null;
             if (author.orcid_id && author.orcid_id != "") {
@@ -497,6 +513,17 @@ function render_authors_for_dataset (dataset_uuid) {
             } else {
                 row += "</td><td>";
             }
+
+            if (number_of_items == 1) {
+                row += "<td></td><td></td>";
+            } else if (index == 0) {
+                row += `<td><a onclick="javascript:reorder_author('${dataset_uuid}', '${author.uuid}', 'down'); return false" class="fas fa-angle-down"></a></td><td></td>`;
+            } else if (index == number_of_items - 1) {
+                row += `<td></td><td><a onclick="javascript:reorder_author('${dataset_uuid}', '${author.uuid}', 'up'); return false" class="fas fa-angle-up"></a></td>`;
+            } else {
+                row += `<td><a onclick="javascript:reorder_author('${dataset_uuid}', '${author.uuid}', 'down'); return false" class="fas fa-angle-down"></a></td><td><a onclick="javascript:reorder_author('${dataset_uuid}', '${author.uuid}', 'up'); return false" class="fas fa-angle-up"></a></td>`;
+            }
+
             row += `</td><td><a href="#" onclick="javascript:remove_author('${author.uuid}', `;
             row += `'${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;

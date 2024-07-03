@@ -342,6 +342,7 @@ class ApiServer:
             R("/v3/file/<file_id>",                                              self.api_v3_file),
             R("/v3/datasets/<container_uuid>/authors",                           self.api_v3_dataset_authors),
             R("/v3/datasets/<container_uuid>/authors/<author_uuid>",             self.api_v3_dataset_authors),
+            R("/v3/datasets/<container_uuid>/reorder-authors",                   self.api_v3_datasets_authors_reorder),
             R("/v3/datasets/<dataset_id>/references",                            self.api_v3_dataset_references),
             R("/v3/collections/<collection_id>/references",                      self.api_v3_collection_references),
             R("/v3/datasets/<dataset_id>/tags",                                  self.api_v3_dataset_tags),
@@ -6312,6 +6313,34 @@ class ApiServer:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["GET", "PUT"])
+
+    def api_v3_datasets_authors_reorder (self, request, container_uuid):
+        """Implements /v3/datasets/<uuid>/reorder-authors."""
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        parameters  = request.get_json()
+        errors      = []
+        direction   = validator.options_value (parameters, "direction", ["up", "down"],
+                                               required=True, error_list=errors)
+        author_uuid = validator.string_value (parameters, "author", required=True,
+                                              error_list=errors)
+        if not validator.is_valid_uuid (author_uuid):
+            errors.append({ "field_name": "author", "message": "Author should be a valid UUID."})
+
+        if errors:
+            return self.error_400_list (request, errors)
+
+        if self.db.reorder_authors (account_uuid, container_uuid, author_uuid, direction):
+            return self.respond_205()
+
+        return self.error_500()
 
     def api_v3_datasets_codemeta (self, request):
         """Implements /v3/datasets/codemeta."""

@@ -2264,6 +2264,21 @@ class SparqlInterface:
 
         return None
 
+    def reorder_authors (self, account_uuid, container_uuid, author_uuid, action):
+        """
+        Change the order of author with AUTHOR_UUID in the authors list of
+        the draft of the container identified by CONTAINER_UUID.
+        """
+
+        query = self.__query_from_template ("update_authors_order", {
+            "container_uuid": container_uuid,
+            "account_uuid": account_uuid,
+            "author_uuid": author_uuid,
+            "action": "+1" if action == "down" else "-1"
+        })
+
+        return self.__run_logged_query (query)
+
     def update_author (self, author_uuid, created_by, first_name, last_name, email, orcid):
         """Update the author record identified by AUTHOR_UUID, CREATED_BY."""
 

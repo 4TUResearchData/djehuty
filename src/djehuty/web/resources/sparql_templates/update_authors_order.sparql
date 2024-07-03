@@ -1,0 +1,34 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?blank_1 djht:index ?current_index .
+    ?blank_2 djht:index ?new_index .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?blank_1 djht:index ?new_index .
+    ?blank_2 djht:index ?current_index .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container rdf:type     djht:DatasetContainer .
+    ?container djht:account ?account .
+    ?container djht:draft   ?dataset .
+    ?dataset   djht:authors ?authors .
+
+    ?authors   rdf:rest*    ?blank_1 .
+    ?blank_1   rdf:first    <author:{{author_uuid}}> .
+    ?blank_1   djht:index   ?current_index .
+
+    ?authors   rdf:rest*    ?blank_2 .
+    ?blank_2   djht:index   ?new_index .
+
+    FILTER (?new_index = (xsd:integer(?current_index){{action}}))
+    FILTER (?container = <container:{{container_uuid}}>)
+    FILTER (?account = <account:{{account_uuid}}>)
+  }
+}
+{% endblock %}
