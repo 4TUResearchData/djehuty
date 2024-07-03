@@ -343,6 +343,7 @@ class ApiServer:
             R("/v3/datasets/<container_uuid>/authors",                           self.api_v3_dataset_authors),
             R("/v3/datasets/<container_uuid>/authors/<author_uuid>",             self.api_v3_dataset_authors),
             R("/v3/datasets/<container_uuid>/reorder-authors",                   self.api_v3_datasets_authors_reorder),
+            R("/v3/collections/<container_uuid>/reorder-authors",                self.api_v3_collections_authors_reorder),
             R("/v3/datasets/<dataset_id>/references",                            self.api_v3_dataset_references),
             R("/v3/collections/<collection_id>/references",                      self.api_v3_collection_references),
             R("/v3/datasets/<dataset_id>/tags",                                  self.api_v3_dataset_tags),
@@ -6314,8 +6315,8 @@ class ApiServer:
 
         return self.error_405 (["GET", "PUT"])
 
-    def api_v3_datasets_authors_reorder (self, request, container_uuid):
-        """Implements /v3/datasets/<uuid>/reorder-authors."""
+    def __reorder_authors_for_item (self, request, container_uuid):
+        """Generalization for api_v3_[datasets|collections]_authors_reorder."""
 
         if not validator.is_valid_uuid (container_uuid):
             return self.error_404 (request)
@@ -6341,6 +6342,14 @@ class ApiServer:
             return self.respond_205()
 
         return self.error_500()
+
+    def api_v3_datasets_authors_reorder (self, request, container_uuid):
+        """Implements /v3/datasets/<uuid>/reorder-authors."""
+        return self.__reorder_authors_for_item (request, container_uuid)
+
+    def api_v3_collections_authors_reorder (self, request, container_uuid):
+        """Implements /v3/datasets/<uuid>/reorder-authors."""
+        return self.__reorder_authors_for_item (request, container_uuid)
 
     def api_v3_datasets_codemeta (self, request):
         """Implements /v3/datasets/codemeta."""

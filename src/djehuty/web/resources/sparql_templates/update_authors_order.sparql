@@ -14,10 +14,10 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container rdf:type     djht:DatasetContainer .
+    ?container rdf:type/rdfs:subClassOf djht:Container .
     ?container djht:account ?account .
-    ?container djht:draft   ?dataset .
-    ?dataset   djht:authors ?authors .
+    ?container djht:draft   ?item .
+    ?item      djht:authors ?authors .
 
     ?authors   rdf:rest*    ?blank_1 .
     ?blank_1   rdf:first    <author:{{author_uuid}}> .
