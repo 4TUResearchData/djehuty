@@ -260,3 +260,4 @@ def strip_string (input_string):
     """Removes whitespace from the beginning and end of a string."""
     if isinstance (input_string, str):
         return input_string.strip()
+    return input_string
