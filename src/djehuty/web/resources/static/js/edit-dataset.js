@@ -492,13 +492,12 @@ function render_authors_for_dataset (dataset_uuid) {
         jQuery("#authors-list tbody").empty();
         let number_of_items = authors.length;
         for (let index = 0; index < number_of_items; index++) {
-            const author = authors[index];
+            let author = authors[index];
             let row = `<tr id="author-${author.uuid}"><td>${author.full_name}`;
             let orcid = null;
             if (author.orcid_id && author.orcid_id != "") {
                 orcid = author.orcid_id;
-            } else
-            if (author.orcid && author.orcid != "") {
+            } else if (author.orcid && author.orcid != "") {
                 orcid = author.orcid;
             }
             if (orcid !== null) {

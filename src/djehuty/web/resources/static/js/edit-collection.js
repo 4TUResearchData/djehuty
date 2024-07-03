@@ -55,16 +55,51 @@ function render_datasets_for_collection (collection_id) {
     });
 }
 
+function reorder_author (collection_id, author_uuid, direction) {
+    jQuery.ajax({
+        url:  `/v3/collections/${collection_id}/reorder-authors`,
+        data: JSON.stringify({ "author":  author_uuid, "direction": direction }),
+        type: "POST",
+        contentType: "application/json",
+        accept: "application/json"
+    }).done (function () {
+        render_authors_for_collection (collection_id);
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to change the order of the authors.</p>");
+    });
+}
+
 function render_authors_for_collection (collection_id, authors = null) {
 
     function draw_authors_for_collection (collection_id, authors) {
         jQuery("#authors-list tbody").empty();
-        for (let author of authors) {
-            let row = `<tr><td><a href="#">${author.full_name}`;
-            if (author.orcid_id != null && author.orcid_id != "") {
-                row += ` (${author.orcid_id})`;
+        let number_of_items = authors.length;
+        for (let index = 0; index < number_of_items; index++) {
+            let author = authors[index];
+            let row = `<tr id="author-${author.uuid}"><td>${author.full_name}`;
+            let orcid = null;
+            if (author.orcid_id && author.orcid_id != "") {
+                orcid = author.orcid_id;
+            } else if (author.orcid && author.orcid != "") {
+                orcid = author.orcid;
             }
-            row += `</a></td><td><a href="#" `;
+            if (orcid !== null) {
+                row += ` <a href="https://orcid.org/${orcid}" `;
+                row += `target="_blank" rel="noopener noreferrer"><img `;
+                row += `src="/static/images/orcid.svg" style="height: 15px" `;
+                row += `alt="ORCID" title="ORCID profile (new window)" /></a>`;
+            }
+            if (number_of_items == 1) {
+                row += "<td></td><td></td>";
+            } else if (index == 0) {
+                row += `<td><a onclick="javascript:reorder_author('${collection_id}', '${author.uuid}', 'down'); return false" class="fas fa-angle-down"></a></td><td></td>`;
+            } else if (index == number_of_items - 1) {
+                row += `<td></td><td><a onclick="javascript:reorder_author('${collection_id}', '${author.uuid}', 'up'); return false" class="fas fa-angle-up"></a></td>`;
+            } else {
+                row += `<td><a onclick="javascript:reorder_author('${collection_id}', '${author.uuid}', 'down'); return false" class="fas fa-angle-down"></a></td><td><a onclick="javascript:reorder_author('${collection_id}', '${author.uuid}', 'up'); return false" class="fas fa-angle-up"></a></td>`;
+            }
+
+            row += `</td><td><a href="#" `;
             row += `onclick="javascript:remove_author('${author.uuid}', `;
             row += `'${collection_id}'); return false;" class="fas fa-trash-can" `;
             row += `title="Remove"></a></td></tr>`;
