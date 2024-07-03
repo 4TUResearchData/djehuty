@@ -823,12 +823,21 @@ function add_tag (dataset_uuid) {
     let tag = jQuery.trim(jQuery("#tag").val());
     if (tag == "") { return 0; }
 
+    let tags = []
+    if (tag.indexOf (";") >= 0) {
+        let items = tag.split(";");
+        for (item of items) {
+            tags.push(jQuery.trim(item));
+        }
+    } else {
+        tags = [tag];
+    }
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}/tags`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
-        data:        JSON.stringify({ "tags": [tag] }),
+        data:        JSON.stringify({ "tags": tags }),
     }).done(function () {
         render_tags_for_dataset (dataset_uuid);
         jQuery("#tag").val("");

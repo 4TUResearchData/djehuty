@@ -195,12 +195,21 @@ function add_tag (collection_id) {
     let tag = jQuery.trim(jQuery("#tag").val());
     if (tag == "") { return 0; }
 
+    let tags = []
+    if (tag.indexOf (";") >= 0) {
+        let items = tag.split(";");
+        for (item of items) {
+            tags.push(jQuery.trim(item));
+        }
+    } else {
+        tags = [tag];
+    }
     jQuery.ajax({
         url:         `/v3/collections/${collection_id}/tags`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
-        data:        JSON.stringify({ "tags": [tag] }),
+        data:        JSON.stringify({ "tags": tags }),
     }).done(function () {
         render_tags_for_collection (collection_id);
         jQuery("#tag").val("");
