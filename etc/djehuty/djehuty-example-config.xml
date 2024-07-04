@@ -86,6 +86,7 @@
       <may-impersonate>1</may-impersonate>
       <may-process-feedback>1</may-process-feedback>
       <may-review>0</may-review>
+      <may-review-quotas>0</may-review-quotas>
     </account>
   </privileges>
   <quotas default="5000000000">
