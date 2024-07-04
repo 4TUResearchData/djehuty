@@ -1,0 +1,152 @@
+\chapter{Running \code{djehuty}}
+
+Now that \code{djehuty} is installed, it's a good moment to look into its
+run-time configuration options.  All configuration can be done through a
+configuration file, for which an example is available at
+\file{etc/djehuty/djehuty-example-config.xml}.
+
+\section{The configuration file}
+
+\subsection{Essential options}
+
+\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}            & \textbf{Description}\\
+  \fi
+  \t{bind-address}           & The address to bind a TCP socket on.\\
+  \t{port}                   & The port to bind a TCK socket on.\\
+  \t{base-url}               & The URL on which the instance will be available
+                               to the outside world.\\
+  \t{allow-crawlers}         & Set to 1 to allow crawlers in the \t{robots.txt},
+                               otherwise set to 0.\\
+  \t{production}             & Performs extra checks before starting. Enable
+                               this when running a production instance.\\
+  \t{live-reload}            & When set to 1, it reloads Python code on-the-fly.
+                               We recommend to set it to 0 when running in
+                               production.\\
+  \t{debug-mode}             & When set to 1, it will display backtraces and
+                               error messages in the web browser. When set to 0,
+                               it will only show backtraces and error messages
+                               in the web browser.\\
+  \t{use-x-forwarded-for}    & When running \t{djehuty} behind a reverse-proxy
+                               server, use the HTTP header \t{X-Forwarded-For}
+                               to log IP address information.\\
+  \t{disable-collaboration}  & When set to 1, it disables the ``collaborators''
+                               feature.\\
+  \t{enable-query-audit-log} & When set to 1, it writes every SPARQL query that
+                               modifies the database in the web logs.  This can
+                               be replayed to reconstruct the database at a
+                               later time.  Setting this option to 0 disables
+                               this feature.\\
+  \t{disable-2fa}            & Accounts with privileges receive a code by e-mail
+                               as a second factor when logging in.  Setting this
+                               option to 1 disables the second factor
+                               authentication.\\
+  \t{sandbox-message}        & Display a message on the top of every page.\\
+  \t{notice-message}         & Display a message on the main page.\\
+  \t{maintenance-mode}       & When set to 1, all HTTP requests result in the
+                               displayment of a maintenance message. Use this
+                               option while backing up the database, or when
+                               performing major updates.\\
+\end{tabular}
+
+\subsection{Configuring the Database}
+
+  The \t{djehuty} program stores its state in a SPARQL 1.1 compliant
+  RDF store.  Configuring the connection details is done in the
+  \t{rdf-store} node.
+
+\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}            & \textbf{Description}\\
+  \fi
+  \t{state-graph}            & The graph name to store triplets in.\\
+  \t{sparql-uri}             & The URI at which the SPARQL 1.1 endpoint can
+                               be reached.\newline\newline
+                               When the \t{sparql-uri} begins with \t{bdb://},
+                               followed by a path to a filesystem directory,
+                               it will use the BerkeleyDB back-end, for which
+                               the \code{berkeleydb} Python package needs to
+                               be installed.\\
+  \t{sparql-update-uri}      & The URI at which the SPARQL 1.1 Update endpoint
+                               can be reached (in case it is different from
+                               the \t{sparql-uri}.\\
+\end{tabular}
+
+\subsection{Configuring storage}
+
+  Storage locations can be configured with the \t{storage} node.
+  When configuring multiple locations, \t{djehuty} attempts to find a
+  file by looking at the first configured location, and in case it cannot
+  find the file there, it will look at the second configured location,
+  and so on, until it has tried each storage location.
+
+  This allows for moving files between storage systems transparently
+  without requiring specific interactions with \t{djehuty} other than
+  having the files made available as a POSIX filesystem.
+
+  One use-case that suits this mechanism is letting uploads write to
+  fast online storage and later move the uploaded files to a slower but
+  less costly storage.
+
+\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}            & \textbf{Description}\\
+  \fi
+  \t{location}               & A filesystem path to where files are stored.
+                               This is a repeatable property.\\
+\end{tabular}
+
+\subsection{Customizing looks}
+
+  With the following options, the instance can be branded as necessary.
+
+\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}             & \textbf{Description}\\
+  \fi
+  \t{site-name}               & Name for the instance used in the title of a
+                                browser window.\\
+  \t{site-description}        & Description used as a meta-tag in the HTML
+                                output.\\
+  \t{site-shorttag}           & Used as keyword and as Git remote name.\\
+  \t{support-email-address}   & E-mail address used in e-mails sent to users
+                                in automated messages.\\
+  \t{custom-logo-path}        & Path to a PNG image file that will be used as
+                                logo on the website.\\
+  \t{custom-favicon-path}     & Path to an ICO file that will be used as
+                                favicon.\\
+  \t{small-footer}            & HTML that will be used as footer for all
+                                pages except for the main page.\\
+  \t{large-footer}            & HTML that will be used as footer on the
+                                main page.\\
+  \t{show-portal-summary}     & When set to 1, it shows the repository summary
+                                of number of datasets, authors, collections,
+                                files and bytes on the main page.\\
+  \t{show-institutions}       & When set to 1, it shows the list of
+                                institutions on the main page.\\
+  \t{show-science-categories} & When set to 1, it shows the subjects
+                                (categories) on the main page.\\
+  \t{show-latest-datasets}    & When set to 1, it shows the list of latest
+                                published datasets on the main page.\\
+  \t{colors}                  & Colors used in the HTML output. See section
+                                \ref{sec:customize-colors}.\\
+\end{tabular}
+
+\subsubsection{Customizing colors}
+\label{sec:customize-colors}
+
+  The following options can be configured in the \t{colors} section.
+
+\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}              & \textbf{Description}\\
+  \fi
+  \t{primary-color}            & The main background color to use.\\
+  \t{primary-foreground-color} & The main foreground color to use.\\
+  \t{primary-color-hover}      & Color to use when hovering a link.\\
+  \t{primary-color-active}     & Color to use when a link is clicked.\\
+  \t{privilege-button-color}   & The background color of buttons for
+                                 privileged actions.\\
+  \t{footer-background-color}  & Color to use in the footer.\\
+\end{tabular}
