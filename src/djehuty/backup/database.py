@@ -931,6 +931,7 @@ class DatabaseInterface:
         #rdf.add (self.store, uri, rdf.DJHT["resource_id"],          value_or_none (record, "resource_id"), datatype=XSD.string)
         rdf.add (self.store, uri, rdf.DJHT["name"],                 value_or_none (record, "name"), datatype=XSD.string)
         rdf.add (self.store, uri, rdf.DJHT["association_criteria"], value_or_none (record, "association_criteria"), datatype=XSD.string)
+        rdf.add (self.store, uri, rdf.DJHT["is_featured"],          value_or_none (record, "is_featured"), datatype=XSD.boolean)
 
         return True
 
