@@ -31,7 +31,7 @@
     review and modify the configuration file.
   </sandbox-message>
   <notice-message>
-    Dear users, if you find a bug, a missing functionality, or if you are having difficulty with the website, please <a href="/feedback">let us know</a>.
+    Dear users, if you find a bug, a missing functionality, or if you are having difficulty with the website, please <a href="mailto:researchdata@4tu.nl">let us know</a>.
   </notice-message>
   <bind-address>127.0.0.1</bind-address>
   <port>8080</port>
