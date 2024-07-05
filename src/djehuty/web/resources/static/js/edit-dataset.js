@@ -320,7 +320,11 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
         }
         for (let collaborator of collaborators) {
             let row = `<tr><td>`;
-            row += `${collaborator.first_name} ${collaborator.last_name} (${collaborator.email})</td>`;
+            let supervisor_badge = "";
+            if (collaborator.is_supervisor) {
+                supervisor_badge = '<span class="active-badge">Supervisor</span>';
+            }
+            row += `${collaborator.first_name} ${collaborator.last_name} (${collaborator.email})${supervisor_badge}</td>`;
             row += '<td class="type-begin"><input name="read" type="checkbox" disabled="disabled"';
             row += collaborator.metadata_read ? ' checked="checked"' : '';
             row += '></td><td class="type-end"><input name="edit" type="checkbox" disabled="disabled"';
@@ -333,7 +337,7 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
             row += collaborator.data_remove ? ' checked="checked"' : '';
             row += '></td><td>';
 
-            if (may_edit_metadata) {
+            if (may_edit_metadata && !collaborator.is_supervisor) {
                 row += '<a href="#"';
                 row += `onclick="javascript:remove_collaborator('${encodeURIComponent(collaborator.uuid)}', `;
                 row += `'${dataset_uuid}', '${may_edit_metadata}'); return false;" class="fas fa-trash-can" `;

@@ -2432,6 +2432,8 @@ class ApiServer:
                 return error_response
 
             collaborators = self.db.collaborators (dataset["uuid"])
+            for collaborator in collaborators:
+                collaborator["is_supervisor"] = self.db.groups[collaborator["account_uuid"]]["is_supervisor"]
             return self.default_list_response (collaborators, formatter.format_collaborator_record)
 
         if request.method == "POST":
@@ -2520,6 +2522,9 @@ class ApiServer:
                 account_uuid, request, "dataset", dataset, "metadata_edit")
             if error_response is not None:
                 return error_response
+
+            if self.db.groups[collaborator_uuid]["is_supervisor"]:
+                return self.error_403 (request)
 
             if self.db.remove_collaborator (dataset["uuid"], collaborator_uuid) is None:
                 return self.error_500()

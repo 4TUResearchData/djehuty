@@ -363,8 +363,12 @@ def read_group_configuration (server, xml_root, logger):
         #group_name = group.attrib["name"]
         group_id = group.attrib["id"]
         for account in group:
-            server.db.groups[account.attrib["email"].lower()]=group_id
-
+            is_supervisor = account.attrib.get("is_supervisor")
+            is_supervisor = is_supervisor == "1"
+            server.db.groups[account.attrib["email"].lower()]= {
+                "group": group_id,
+                "is_supervisor": is_supervisor
+            }
 
 def read_privilege_configuration (server, xml_root, logger):
     """Read the privileges configuration from XML_ROOT."""

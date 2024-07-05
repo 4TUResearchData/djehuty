@@ -1362,9 +1362,9 @@ class SparqlInterface:
             dataset_uuid = rdf.uri_to_uuid (uri)
             self.log.info ("Inserted dataset %s", container_uuid)
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
-            group_id = self.groups[account_uuid]
+            group_id = self.groups[account_uuid]["group"]
             for collaborator_uuid in self.groups.keys():
-                if group_id == self.groups[collaborator_uuid]:
+                if group_id == self.groups[collaborator_uuid]["group"] and self.groups[collaborator_uuid]["is_supervisor"]:
                     self.insert_collaborator(dataset_uuid,
                                              collaborator_uuid,
                                              account_uuid,

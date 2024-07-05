@@ -16,7 +16,8 @@ def format_collaborator_record (record):
         "metadata_edit":  conv.value_or_none(record, "metadata_edit"),
         "data_read":      conv.value_or_none(record, "data_read"),
         "data_edit":      conv.value_or_none(record, "data_edit"),
-        "data_remove":    conv.value_or_none(record, "data_remove")
+        "data_remove":    conv.value_or_none(record, "data_remove"),
+        "is_supervisor":  conv.value_or_none(record, "is_supervisor")
     }
 
 def format_account_record (record):
