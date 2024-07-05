@@ -1040,6 +1040,10 @@ def main (address=None, port=None, state_graph=None, storage=None,
                     logger.error ("An e-mail server must be configured for production-mode.")
                     raise MissingConfigurationError
 
+            if server.in_production and not server.db.feedback_reviewer_email_addresses():
+                logger.error ("An account with 'may-process-feedback' privileges must be configured.")
+                raise MissingConfigurationError
+
             for email_address in server.db.privileges:  # pylint: disable=consider-using-dict-items
                 if server.db.privileges[email_address.lower()]["needs_2fa"]:
                     logger.info ("Enabled 2FA for %s.", email_address)
