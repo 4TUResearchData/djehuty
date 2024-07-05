@@ -787,23 +787,6 @@ class ApiServer:
         response.status_code = 500
         return response
 
-    def error_503_list (self, request, errors):
-        """Procedure to respond with HTTP 503 with a list of error messages."""
-        response = None
-        if self.accepts_html (request):
-            response = self.__render_template (request, "503.html", message=errors)
-        else:
-            response = self.response (json.dumps(errors))
-        response.status_code = 503
-        return response
-
-    def error_503 (self, request, message, code):
-        """Procedure to respond with HTTP 503 with a single error message."""
-        return self.error_503_list (request, {
-            "message": message,
-            "code":    code
-        })
-
     def error_authorization_failed (self, request):
         """Procedure to handle authorization failures."""
         if self.accepts_html (request):
@@ -3082,9 +3065,7 @@ class ApiServer:
 
         addresses = self.db.feedback_reviewer_email_addresses()
         if not addresses:
-            return self.error_503 (request,
-                                   "Feedback page is not accessible because "
-                                   "the feedback reviewer is not set." , 503)
+            return self.error_404 (request)
 
         if not self.accepts_html (request):
             return self.error_406 ("text/html")

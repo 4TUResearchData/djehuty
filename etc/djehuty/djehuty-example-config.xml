@@ -84,7 +84,6 @@
       <may-administer>1</may-administer>
       <may-run-sparql-queries>1</may-run-sparql-queries>
       <may-impersonate>1</may-impersonate>
-      <may-process-feedback>1</may-process-feedback>
       <may-review>0</may-review>
       <may-review-quotas>0</may-review-quotas>
     </account>
