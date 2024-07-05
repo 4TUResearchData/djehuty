@@ -2431,9 +2431,10 @@ class ApiServer:
             if error_response is not None:
                 return error_response
 
-            collaborators = self.db.collaborators (dataset["uuid"])
+            collaborators = self.db.collaborators (dataset["uuid"], account_uuid=account_uuid)
             for collaborator in collaborators:
-                collaborator["is_supervisor"] = self.db.groups[collaborator["account_uuid"]]["is_supervisor"]
+                if collaborator["account_uuid"] in self.db.groups:
+                    collaborator["is_supervisor"] = self.db.groups[collaborator["account_uuid"]]["is_supervisor"]
             return self.default_list_response (collaborators, formatter.format_collaborator_record)
 
         if request.method == "POST":
