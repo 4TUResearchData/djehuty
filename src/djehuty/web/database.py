@@ -29,6 +29,7 @@ class SparqlInterface:
         self.endpoint    = "http://127.0.0.1:8890/sparql"
         self.update_endpoint = None
         self.state_graph = "https://data.4tu.nl/portal/self-test"
+        self.groups      = {}
         self.privileges  = {}
         self.thumbnail_storage = None
         self.profile_images_storage = None
@@ -94,6 +95,20 @@ class SparqlInterface:
 
         self.sparql_is_up = True
         return None
+
+    def translate_email_to_uuid (self):
+        groups = {}
+        if not self.groups:
+            return False
+        for email in self.groups.keys():
+            account = self.account_by_email(email)
+            self.log.info("wat zit dr in account? %s", account)
+            if account is None:
+                self.log.error("No account for %s", email)
+                continue
+            groups[account['uuid']] = self.groups[email]
+        self.groups = groups
+        return True
 
     ## ------------------------------------------------------------------------
     ## Private methods
@@ -406,8 +421,8 @@ class SparqlInterface:
                   exclude_ids=None, groups=None, handle=None, institution=None,
                   is_latest=False, item_type=None, limit=None, modified_since=None,
                   offset=None, order=None, order_direction=None, published_since=None,
-                  resource_doi=None, return_count=False, search_for=None,
-                  search_format=False, version=None, licenses=None,
+                  resource_doi=None, return_count=False, search_for=None, group_uuid=None,
+                  search_format=False, version=None, search_scope=None, licenses=None,
                   is_published=True, is_under_review=None, git_uuid=None,
                   private_link_id_string=None, use_cache=True, is_restricted=None,
                   is_embargoed=None, is_software=None, organizations=None):
@@ -466,7 +481,8 @@ class SparqlInterface:
             "is_under_review": is_under_review,
             "private_link_id_string": private_link_id_string,
             "filters":        filters,
-            "return_count":   return_count
+            "return_count":   return_count,
+            "group_uuid" :    group_uuid
         })
 
         # Setting the default value for 'limit' to 10 makes passing
@@ -1343,10 +1359,22 @@ class SparqlInterface:
 
         if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
+            dataset_uuid = rdf.uri_to_uuid (uri)
             self.log.info ("Inserted dataset %s", container_uuid)
             self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
-            return container_uuid, rdf.uri_to_uuid (uri)
-
+            group_id = self.groups[account_uuid]
+            for collaborator_uuid in self.groups.keys():
+                if group_id == self.groups[collaborator_uuid]:
+                    self.insert_collaborator(dataset_uuid,
+                                             collaborator_uuid,
+                                             account_uuid,
+                                             metadata_read=True,
+                                             metadata_edit=True,
+                                             data_read=True,
+                                             data_edit=True,
+                                             data_remove=True,
+                                             inferred=True)
+            return container_uuid, dataset_uuid
         return None, None
 
     def insert_quota_request (self, account_uuid, requested_size, reason):
@@ -1872,8 +1900,10 @@ class SparqlInterface:
 
     def insert_collaborator (self, dataset_uuid, collaborator_uuid,
                              account_uuid, metadata_read, metadata_edit,
-                             data_read, data_edit, data_remove):
+                             data_read, data_edit, data_remove, inferred=False):
         """Procedure to add a collaborator to the state graph."""
+        if collaborator_uuid == account_uuid:
+            return None
 
         graph = Graph()
         collaborator_uri = rdf.unique_node("collaborator")
@@ -1886,6 +1916,8 @@ class SparqlInterface:
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_remove"],   data_remove,   XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["item"],          rdf.uuid_to_uri(dataset_uuid, "dataset"), "uri")
         rdf.add (graph, collaborator_uri, rdf.DJHT["account"],       rdf.uuid_to_uri(collaborator_uuid, "account"),  "uri")
+        if not inferred:
+            rdf.add(graph, collaborator_uri, rdf.DJHT["added_by"], rdf.uuid_to_uri(account_uuid, "account"), "uri")
 
         if self.add_triples_from_graph (graph):
             existing_collaborators = self.collaborators (dataset_uuid)
@@ -2976,7 +3008,8 @@ class SparqlInterface:
 
             domain     = conv.value_or (account, "domain", "")
             quota      = self.account_quota (email, domain, account)
-            account    = { **account, **privileges, "quota": quota }
+            self.log.info("Group id = %s", self.groups[email])
+            account    = { **account, **privileges, "quota": quota, "group_id": self.groups[email]}
         except (TypeError, KeyError):
             pass
 

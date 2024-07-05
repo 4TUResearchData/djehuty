@@ -151,6 +151,10 @@ WHERE {
     OPTIONAL { ?dataset djht:git_repository_name   ?git_repository_name . }
     OPTIONAL { ?dataset djht:git_code_hosting_url  ?git_code_hosting_url . }
 
+    {%- if group_uuid is not none %}
+    ?dataset            djht:group                ?group .
+    {%- endif %}
+
     ?container_uri      djht:account              ?account .
     {%- if not disable_collaboration %}
     OPTIONAL {
@@ -205,6 +209,9 @@ FILTER (?account = <account:{{account_uuid}}>)
 FILTER (?account = <account:{{account_uuid}}> ||
         ?collaborator_account = <account:{{account_uuid}}>)
   {%- endif %}
+{%- endif %}
+{%- if group_uuid is not none: %}
+FILTER (?group = <institution_group:{{group_uuid}}>)
 {%- endif %}
 {% if filters is not none %}{{ filters | safe }}{% endif %}
 }

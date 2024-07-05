@@ -128,6 +128,35 @@ jQuery(document).ready(function () {
   {% endfor %}</tbody>
 </table>
 {%- endif %}
+{%- if published_datasets: %}
+<h2>Group datasets</h2>
+<div id="table-published-loader" class="loader"></div>
+<table id="table-published" class="corporate-identity-table">
+  <thead>
+    <tr>
+      <th>Dataset</th>
+      <th>Author</th>
+      <th>Type</th>
+      <th>Size</th>
+      <th>Created&nbsp;at</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>{% for article in group_datasets: %}
+    <tr>
+      <td><a href="/datasets/{{article.container_uuid}}">{{article.title}}</a></td>
+      <td></td>
+      <td>{{article.defined_type_name | default("undefined", False)}}</td>
+      <td>{{article.storage_used}}</td>
+      <td>{{article.created_date | truncate(10,False,'')}}</td>
+      <td>
+        {%- if not article.has_draft %}<a href="/my/datasets/{{article.container_uuid}}/new-version-draft" class="fas fa-plus" title="Add new version"></a>{% endif %}
+        <a href="/my/datasets/{{article.uuid}}/private_links" class="fas fa-link" title="Private links"></a>
+      </td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
+{%- endif %}
 </div>
 </div>
 {% endblock %}
