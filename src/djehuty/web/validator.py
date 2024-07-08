@@ -206,31 +206,34 @@ def search_filters (value, error_list=None):
     if value is None:
         return None
 
-    __typed_value (value, "scopes",      list, "list",   error_list=error_list)
-    __typed_value (value, "formats",     list, "list",   error_list=error_list)
+    __typed_value (value, "scope",       list, "list",   error_list=error_list)
+    __typed_value (value, "format",      list, "list",   error_list=error_list)
     __typed_value (value, "operator",    str,  "string", error_list=error_list)
-    __typed_value (value, "institution", str,  "string", error_list=error_list)
+    __typed_value (value, "organizations", str,  "string", error_list=error_list)
 
     for k, v in value.items():
-        if k == "scopes":
+        if k == "scope":
+            valid_scopes = ["title", "description", "tag"]
+            if not v:
+                return valid_scopes
             for elem in v:
                 string_value ({ "value": elem }, "value", 1, 20, required=True)
-                if elem not in ["title", "description", "tag"]:
+                if elem not in valid_scopes:
                     return raise_or_return_error (error_list,
                                 InvalidValue(
                                     field_name = "search_filters",
-                                    message = "Invalid value in 'scopes'.",
+                                    message = "Invalid value in 'scope'.",
                                     code    = "InvalidValue"))
-        elif k == "formats":
+        elif k == "format":
             for elem in v:
                 string_value ({ "value": elem }, "value", 1, 20, required=True)
 
-        elif k == "institution":
+        elif k == "organizations":
             string_value ({ "value": v }, "value", 1, 50, required=True)
 
         elif k == "operator":
             string_value ({ "value": v }, "value", 1, 5, required=True)
-            if v not in ["and", "or", "exact"]:
+            if v not in ["AND", "OR", "EXACT"]:
                 return raise_or_return_error (error_list,
                             InvalidValueType(
                                 field_name = "search_filters",
@@ -244,7 +247,8 @@ def search_filters (value, error_list=None):
                             message = f"Invalid key '{k}' in 'search_filters'.",
                             code    = "InvalidValue"))
 
-    return value
+    for k, v in value.items():
+        return v
 
 def index_exists (value, index):
     """Procedure to test whether a list or string has a certain length."""

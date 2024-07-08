@@ -79,7 +79,7 @@ def sparql_filter (name, value, escape=False, is_uri=False):
 
     return query
 
-def sparql_contains_filter (names, values, lcase=True, andgate=False):
+def sparql_contains_filter (names, values, lcase=True, andgate=False, decapsulate=False):
     """Returns a FILTER statement for CONTAINS() with multiple names and values."""
     query   = ""
     names  = [names]  if isinstance(names,  str) and names  != "" else names
@@ -93,7 +93,7 @@ def sparql_contains_filter (names, values, lcase=True, andgate=False):
 
     operator = "&&" if andgate else "||"
 
-    query = "FILTER ("
+    query = "FILTER (" if not decapsulate else ""
     for name in names:
         for value in values:
             symbol  = f"STR(?{name})"
@@ -103,7 +103,10 @@ def sparql_contains_filter (names, values, lcase=True, andgate=False):
                 literal = f"STR({escape_value (value.lower(), XSD.string)})"
             query  += f"CONTAINS({symbol},{literal}) {operator} "
 
-    query = query[:-len(operator) - 2] + ")"
+    if not decapsulate:
+        query = query[:-len(operator) - 2] + ")"
+    else:
+        query = query[:-len(operator) - 2]
 
     return query
 

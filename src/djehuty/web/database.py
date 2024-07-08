@@ -376,13 +376,38 @@ class SparqlInterface:
 
         return filters
 
+    def __search_query_to_sparql_filters_v3 (self, search_query):
+        """
+        Procedure to parse v3 search query and return SPARQL FILTER statements.
+        """
+        search_for = search_query["search_for"] # list
+        operator   = search_query["operator"]   # str
+        scopes     = search_query["scope"]      # list
+        andgate    = operator == "AND"
+
+        if not search_for:
+            return ""
+
+        filters = "FILTER ("
+        for scope in scopes:
+            filters += "("
+            for word in search_for:
+                filters += "("
+                filters += rdf.sparql_contains_filter(scope, word, andgate=andgate,
+                                                      decapsulate=True)
+                filters += " ) && "
+            filters = filters[:-4] + " ) || "
+        filters = filters[:-4] + " )\n"
+
+        return filters
+
     def datasets (self, account_uuid=None, categories=None, collection_uri=None,
                   container_uuid=None, dataset_id=None, dataset_uuid=None, doi=None,
                   exclude_ids=None, groups=None, handle=None, institution=None,
                   is_latest=False, item_type=None, limit=None, modified_since=None,
                   offset=None, order=None, order_direction=None, published_since=None,
                   resource_doi=None, return_count=False, search_for=None,
-                  search_format=False, version=None, search_scope=None, licenses=None,
+                  search_format=False, version=None, licenses=None,
                   is_published=True, is_under_review=None, git_uuid=None,
                   private_link_id_string=None, use_cache=True, is_restricted=None,
                   is_embargoed=None, is_software=None, organizations=None):
@@ -404,14 +429,13 @@ class SparqlInterface:
         filters += rdf.sparql_in_filter ("group_id",    groups)
         filters += rdf.sparql_in_filter ("dataset_id", exclude_ids, negate=True)
         filters += rdf.sparql_in_filter ("license_id", licenses)
-
         filters += rdf.sparql_contains_filter("organizations", organizations)
-        filters += rdf.sparql_contains_filter("format", search_format)
 
-        if isinstance (search_for, dict):
+        if isinstance (search_for, list):
             filters += self.__search_query_to_sparql_filters_v2 (search_for, search_format)
-        else:
-            filters += rdf.sparql_contains_filter(search_scope, search_for)
+        elif isinstance (search_for, dict):
+            filters += self.__search_query_to_sparql_filters_v3 (search_for)
+            filters += rdf.sparql_contains_filter("format", search_format)
 
         if is_software is not None:
             if is_software:

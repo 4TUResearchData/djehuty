@@ -6410,11 +6410,12 @@ class ApiServer:
             record["handle"]          = self.get_parameter (parameters, "handle")
             record["search_for"]      = self.get_parameter (parameters, "search_for")
             record["search_format"]   = self.get_parameter (parameters, "search_format")
-            record["search_scope"]    = self.get_parameter (parameters, "search_scope")
             record["licenses"]        = self.get_parameter (parameters, "licenses")
             record["organizations"]   = self.get_parameter (parameters, "organizations")
             record["categories"]      = self.get_parameter (parameters, "categories")
             record["is_latest"]       = self.get_parameter (parameters, "is_latest")
+            search_operator           = self.get_parameter (parameters, "search_operator")
+            search_scope              = self.get_parameter (parameters, "search_scope")
 
             offset, limit = self.__paging_offset_and_limit (parameters)
             record["offset"] = offset
@@ -6430,7 +6431,6 @@ class ApiServer:
             validator.string_value   (record, "doi",             maximum_length=255)
             validator.string_value   (record, "handle",          maximum_length=255)
             validator.string_value   (record, "search_for",      maximum_length=1024)
-            validator.string_value   (record, "organizations",   maximum_length=255)
             validator.boolean_value  (record, "is_latest")
 
             if record["groups"] is not None:
@@ -6439,14 +6439,23 @@ class ApiServer:
                     record["groups"][index] = validator.integer_value (record["groups"], index)
 
             if record["search_format"] is not None:
-                validator.array_value    (record, "search_format")
-                for index, _ in enumerate(record["search_format"]):
-                    record["search_format"][index] = validator.string_value (record["search_format"], index, maximum_length=255)
+                record["search_format"] = validator.search_filters({"format": record["search_format"]})
 
-            if record["search_scope"] is not None:
-                validator.array_value    (record, "search_scope")
-                for index, _ in enumerate(record["search_scope"]):
-                    record["search_scope"][index] = validator.string_value (record["search_scope"], index, maximum_length=12)
+            if search_operator is not None:
+                search_operator = validator.search_filters({"operator": search_operator})
+
+            if search_scope is not None:
+                search_scope = validator.search_filters({"scope": search_scope})
+
+            if record["search_for"] is not None:
+                search_tokens = re.findall(r'[^" ]+|"[^"]+"|\([^)]+\)', record["search_for"])
+                search_tokens = [s.strip('"') for s in search_tokens]
+                record["search_for"] = { "operator": search_operator,
+                                         "search_for": search_tokens,
+                                         "scope": search_scope}
+
+            if record["organizations"] is not None:
+                record["organizations"] = validator.search_filters("organizations", record["organizations"])
 
             if record["licenses"] is not None:
                 validator.array_value    (record, "licenses")
