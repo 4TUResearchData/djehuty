@@ -113,6 +113,12 @@
 \newcommand\tablerdf[1]{\texttt{table2rdf:}#1}
 \newcommand{\dhref}[1]{\href{#1}{#1}}
 
+\ifdefined\HCode
+\newcommand\cfgindent{\texttt{\hspace*{1em}}}
+\else
+\newcommand\cfgindent{\texttt{\phantom{\hspace*{1em}}}}
+\fi
+
 % Ontology terms shorthands.
 \newcommand\dcterms[1]{\href{http://www.dublincore.org/specifications/dublin-core/dcmi-terms/2012-06-14/\#terms-#1}{{\color{black}\texttt{dcterms:#1}}}}
 \newcommand\dctype[1]{\href{http://www.dublincore.org/specifications/dublin-core/dcmi-terms/2012-06-14/\#dcmitype-#1}{{\color{black}\texttt{dctype:#1}}}}

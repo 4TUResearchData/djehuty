@@ -1,13 +1,11 @@
-\chapter{Running \code{djehuty}}
+\chapter{Configuring \code{djehuty}}
 
 Now that \code{djehuty} is installed, it's a good moment to look into its
 run-time configuration options.  All configuration can be done through a
 configuration file, for which an example is available at
 \file{etc/djehuty/djehuty-example-config.xml}.
 
-\section{The configuration file}
-
-\subsection{Essential options}
+\section{Essential options}
 
 \begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
@@ -50,7 +48,7 @@ configuration file, for which an example is available at
                                performing major updates.\\
 \end{tabular}
 
-\subsection{Configuring the Database}
+\section{Configuring the Database}
 
   The \t{djehuty} program stores its state in a SPARQL 1.1 compliant
   RDF store.  Configuring the connection details is done in the
@@ -73,7 +71,7 @@ configuration file, for which an example is available at
                                the \t{sparql-uri}.\\
 \end{tabular}
 
-\subsection{Configuring storage}
+\section{Configuring storage}
 
   Storage locations can be configured with the \t{storage} node.
   When configuring multiple locations, \t{djehuty} attempts to find a
@@ -97,7 +95,115 @@ configuration file, for which an example is available at
                                This is a repeatable property.\\
 \end{tabular}
 
-\subsection{Customizing looks}
+\section{Configuring an identity provider}
+
+  Ideally, \t{djehuty} makes use of an external identity provider.
+  \t{djehuty} can use SAML2.0, OAuth, or an internal identity provider
+  (for testing and development purposes only).
+
+  This section will outline the configuration options for each
+  identity provision mechanism.
+
+\subsection {SAML2.0}
+
+\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}             & \textbf{Description}\\
+  \fi
+  \t{strict}                  & When set to 1, SAML responses must be signed.
+                                \textbf{Never disable `strict' mode in a
+                                production environment.}\\
+  \t{debug}                   & Increases logging verbosity for SAML-related messages.\\
+  \t{attributes}              & In this section the attributes provided by the
+                                identity provider can be aligned to the
+                                attributes \t{djehuty} expects.\\
+  \t{service-provider}        & The \t{djehuty} program fulfills the role of
+                                service provider.  In this section the
+                                certificate and service provider metadata
+                                can be configured.\\
+  \t{identity-provider}       & In this section the certificate and
+                                single-sign-on URL of the identity provider
+                                can be configured.\\
+\end{tabular}
+
+\subsubsection{The \t{attributes} configuration}
+
+  To create account and author records and to authenticate a user, \t{djehuty}
+  stores information provided by the identity provider.  Each identity provider
+  may provide this information using different attributes.  Therefore, the
+  translation from attributes used by \t{djehuty} and attributes given by the
+  identity provider can be configured.  The following attributes must be
+  configured.
+
+\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}             & \textbf{Description}\\
+  \fi
+  \t{first-name}              & A user's first name.\\
+  \t{last-name}               & A user's last name.\\
+  \t{common-name}             & A user's full name.\\
+  \t{email}                   & A user's e-mail address.\\
+\end{tabular}
+
+  As an example, the attributes configuration for SURFConext looks like this:
+
+\begin{lstlisting}[language=xml]
+<attributes>
+  <first-name>urn:mace:dir:attribute-def:givenName</first-name>
+  <last-name>urn:mace:dir:attribute-def:sn</last-name>
+  <common-name>urn:mace:dir:attribute-def:cn</common-name>
+  <email>urn:mace:dir:attribute-def:mail</email>
+</attributes>
+\end{lstlisting}
+
+  And for SURF Research Access Management (SRAM), the attributes configuration
+  looks like this:
+
+\begin{lstlisting}[language=xml]
+<attributes>
+  <first-name>urn:oid:2.5.4.42</first-name>
+  <last-name>urn:oid:2.5.4.4</last-name>
+  <common-name>urn:oid:2.5.4.3</common-name>
+  <email>urn:oid:0.9.2342.19200300.100.1.3</email>
+</attributes>
+\end{lstlisting}
+
+\subsubsection{The \t{service-provider} configuration}
+
+\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}              & \textbf{Description}\\
+  \fi
+  \t{x509-certificate}         & Contents of the public certificate without
+                                 whitespacing.\\
+  \t{private-key}              & Contents of the private key belonging to the
+                                 \t{x509-certificate} to sign messages with.\\
+  \t{metadata}                 & This section contains metadata that may be
+                                 displayed by the identity provider to users
+                                 before authorizing them.\\
+  \cfgindent\t{display-name}   & The name to be displayed by the identity
+                                 provider when authorizing the user to the
+                                 service.\\
+  \cfgindent\t{url}            & The URL to the service.\\
+  \cfgindent\t{description}    & Textual description of the service.\\
+  %\cfgindent\t{logo}          & \\
+  \cfgindent\t{organization}   & This section contains metadata to describe the
+                                organization behind the service.\\
+  \cfgindent\cfgindent\t{name} & The name of the service provider's organization.\\
+  \cfgindent\cfgindent\t{url}  & The URL to the web page of the organization.\\
+  \cfgindent\t{contact}        & A repeatable section to list contact persons
+                                 and their roles within the organization. The
+                                 role can be configured by setting the \t{type}
+                                 attribute.\\
+  \cfgindent\cfgindent\t{first-name} & The first name of the contact person.\\
+  \cfgindent\cfgindent\t{last-name} & The last name of the contact person.\\
+  \cfgindent\cfgindent\t{email} & The e-mail address of the contact person.
+                                  Note that some identity providers prefer
+                                  functional e-mail addresses (e.g. support@...
+                                  instead of jdoe@...).\\
+\end{tabular}
+
+\section{Customizing looks}
 
   With the following options, the instance can be branded as necessary.
 
@@ -133,7 +239,7 @@ configuration file, for which an example is available at
                                 \ref{sec:customize-colors}.\\
 \end{tabular}
 
-\subsubsection{Customizing colors}
+\subsection{Customizing colors}
 \label{sec:customize-colors}
 
   The following options can be configured in the \t{colors} section.
