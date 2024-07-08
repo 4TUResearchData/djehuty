@@ -1049,12 +1049,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
                     logger.info ("Enabled 2FA for %s.", email_address)
 
             if initialize:
-                lock_file = os.path.abspath (".djehuty-initialized")
-                try:
-                    # We only create a file, so using the 'with' construct
-                    # seems unnecessarily complex.
-                    open (lock_file, "x", encoding="utf-8").close()  # pylint: disable=consider-using-with
-
+                if not server.db.state_graph_is_initialized ():
                     logger.info ("Invalidating caches ...")
                     server.db.cache.invalidate_all ()
                     logger.info ("Initializing RDF store ...")
@@ -1067,12 +1062,12 @@ def main (address=None, port=None, state_graph=None, storage=None,
                         logger.info ("Initialization completed.")
 
                     server.db.initialize_privileged_accounts ()
+                    server.db.mark_state_graph_as_initialized ()
                     initialize = False
-                except FileExistsError:
+                else:
                     logger.warning (("Skipping initialization of the database "
                                      "because it has been initialized before."))
-                    logger.warning ("Remove '%s' and restart to initialize the database.", lock_file)
-
+                    logger.warning ("Empty the state-graph to re-initialize.")
         run_simple (config["address"], config["port"], server,
                     threaded=(config["maximum_workers"] <= 1),
                     processes=config["maximum_workers"],

@@ -3295,6 +3295,18 @@ class SparqlInterface:
 
         return self.__run_query (query, query, "explorer_property_types")
 
+    def mark_state_graph_as_initialized (self):
+        """Inserts the triplet that marks the graph as initialized."""
+        query = ((f'INSERT {{ GRAPH <{self.state_graph}> {{ <this> '
+                  f'<{rdf.DJHT["initialized"]}> "true"^^<{XSD.boolean}> }} }}'))
+        return self.__run_query (query)
+
+    def state_graph_is_initialized (self):
+        """"Returns True of the state-graph is already initialized."""
+        query = ((f'ASK {{ GRAPH <{self.state_graph}> {{ <this> '
+                  f'<{rdf.DJHT["initialized"]}> "true"^^<{XSD.boolean}> }} }}'))
+        return self.__run_query (query)
+
     def add_triples_from_graph (self, graph):
         """Inserts triples from GRAPH into the state graph."""
 
