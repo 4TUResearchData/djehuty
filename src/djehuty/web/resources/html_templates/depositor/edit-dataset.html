@@ -3,7 +3,7 @@
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js"></script>
-<script src="/static/js/edit-dataset.js?cache=1720009224"></script>
+<script src="/static/js/edit-dataset.js?cache=1720505627"></script>
 <script src="/static/js/dropzone.min.js"></script>
 <script>
 Dropzone.autoDiscover = false;
@@ -414,7 +414,7 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
   <label for="latitude">Latitude</label><div class="fas fa-question-circle help-icon"><span class="help-text">Geographic latitude in decimal degrees, North is positive, South is negative. Values: -90 to 90.</span></div>
   <input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{article["latitude"] | default("", True)}}" />
 </div>
-<label for="format">Format</label><div class="fas fa-question-circle help-icon"><span class="help-text">Format of the data file(s), e.g. the media type like image/jpeg or a description like &#8220;gzipped shape files&#8221;.</span></div>
+<label for="format">File format(s)</label><div class="fas fa-question-circle help-icon"><span class="help-text">Format of the data file(s), e.g. the media type like image/jpeg or a description like &#8220;gzipped shape files&#8221;.</span></div>
 <input type="text" id="format" name="format" placeholder="Example: image/jpeg" value="{{article["format"] | default("", True)}}" />
 <label for="data_link">Data Link</label><div class="fas fa-question-circle help-icon"><span class="help-text">Link to extra data that belong to the current item, e.g. an OpenDAP catalog with netCDF files on our OpenDAP server.</span></div>
 <input type="text" id="data_link" name="data_link" placeholder="Link to extra data related to the current item" value="{{article["data_link"] | default("", True)}}" />

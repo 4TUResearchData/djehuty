@@ -234,7 +234,7 @@ function add_tag (collection_id) {
     if (tag.indexOf (";") >= 0) {
         let items = tag.split(";");
         for (item of items) {
-            tags.push(jQuery.trim(item));
+            if (item != "") { tags.push(jQuery.trim(item)); }
         }
     } else {
         tags = [tag];
