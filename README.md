@@ -13,6 +13,9 @@ cd /path/to/the/repository/checkout/root
 pip install -r requirements.txt
 ```
 
+Note: On Windows Powershell, replace `. djehuty-env/bin/activate` with
+`djehuty-env\Scripts\Activate.ps1`.
+
 ### Interactive development
 
 To get an interactive development environment, use:
@@ -23,12 +26,32 @@ cp etc/djehuty/djehuty-example-config.xml djehuty.xml
 djehuty web --config-file djehuty.xml
 ```
 
+Note: On Windows, instead of the `sed` command, copy `pyproject.toml.in`
+to `pyproject.toml` and change the version from `@VERSION@` to `0.0.1`.
+
 #### Keeping your development environment up-to-date
 
 To update packages in the virtual environment, use the following command
 inside an activated virtual environment:
 ```bash
 pip freeze | grep -v "djehuty.git" | cut -d= -f1 | xargs -n1 pip install -U
+```
+
+### Setting up the database
+
+Djehuty needs a SPARQL 1.1 endpoint such as
+[Virtuoso OSE](https://github.com/openlink/virtuoso-opensource) or
+[Jena Fuseki](https://jena.apache.org/documentation/fuseki2/) to
+store its state.
+
+### First run
+
+Upon first run, `djehuty` needs to initialize the database with categories,
+licences and accounts.  To do so, pass the `--initialize` option to the
+`djehuty web` command:
+
+```bash
+djehuty web --initialize --config djehuty.xml
 ```
 
 ## Deploy
@@ -98,7 +121,7 @@ The RPMs will be available under `rpmbuild/RPMS/noarch`.
 ### Using the built-in web server
 
 ```bash
-djehuty web --config-file=config.xml
+djehuty web --config-file=djehuty.xml
 ```
 
 An example of a configuration file can be found in [etc/djehuty/djehuty-example-config.xml](./etc/djehuty/djehuty-example-config.xml).
@@ -110,5 +133,5 @@ Use the `maximum-workers` configuration option to use forking rather than thread
 On EL7, install `uwsgi` and `uwsgi-plugin-python36`.
 
 ```bash
-uwsgi --plugins-dir /usr/lib64/uwsgi --need-plugin python36,http --http :8080 --wsgi-file src/djehuty/web/ui.py -H <path-to-your-virtualenv-root> --env DJEHUTY_CONFIG_FILE=config.xml --master --processes 4 --threads 2
+uwsgi --plugins-dir /usr/lib64/uwsgi --need-plugin python36,http --http :8080 --wsgi-file src/djehuty/web/ui.py -H <path-to-your-virtualenv-root> --env DJEHUTY_CONFIG_FILE=djehuty.xml --master --processes 4 --threads 2
 ```
