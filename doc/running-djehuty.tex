@@ -35,7 +35,19 @@ configuration file, for which an example is available at
                                modifies the database in the web logs.  This can
                                be replayed to reconstruct the database at a
                                later time.  Setting this option to 0 disables
-                               this feature.\\
+                               this feature.  This element takes an attribute
+                               \t{transactions-directory} that should specify
+                               an empty directory to which transactions can be
+                               written that are extracted from the audit log.\\
+  \t{cache-root}             & \t{djehuty} can cache query responses to lower
+                               the load on the database server.  Specify the
+                               directory where to store cache files.  This
+                               element takes an attribute \t{clear-on-start},
+                               and when set to 1, it will remove all cache files
+                               on start-up of \t{djehuty}.\\
+  \t{profile-images-root}    & Users can upload a profile image in \t{djehuty}.
+                               This option should point to a filesystem directory
+                               where these profile images can be stored.\\
   \t{disable-2fa}            & Accounts with privileges receive a code by e-mail
                                as a second factor when logging in.  Setting this
                                option to 1 disables the second factor
@@ -98,13 +110,27 @@ configuration file, for which an example is available at
 \section{Configuring an identity provider}
 
   Ideally, \t{djehuty} makes use of an external identity provider.
-  \t{djehuty} can use SAML2.0, OAuth, or an internal identity provider
+  \t{djehuty} can use SAML2.0, ORCID, or an internal identity provider
   (for testing and development purposes only).
 
   This section will outline the configuration options for each
   identity provision mechanism.
 
 \subsection {SAML2.0}
+
+  For SAML 2.0, the configuration can be placed in the \t{saml}
+  section under \t{authentication}.  That looks as following:
+
+\begin{lstlisting}[language=xml]
+<authentication>
+  <saml version="2.0">
+    <!-- Configuration goes here. -->
+  </saml>
+</authentication>
+\end{lstlisting}
+
+  The options outlined in the remainder of this section should be placed
+  where the example shows \code{<!-- Configuration goes here. -->}.
 
 \begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
@@ -201,6 +227,85 @@ configuration file, for which an example is available at
                                   Note that some identity providers prefer
                                   functional e-mail addresses (e.g. support@...
                                   instead of jdoe@...).\\
+\end{tabular}
+
+\subsection{ORCID}
+
+  \href{https://orcid.org}{ORCID.org} plays a key role in making researchers
+  findable.  Its identity provider service can be used by \t{djehuty} in two ways:
+  \begin{enumerate}
+  \item{As primary identity provider to log in and deposit data;}
+  \item{As additional identity provider to couple an author record to its ORCID record.}
+  \end{enumerate}
+
+  When another identity provider is configured in addition to ORCID, that
+  identity provider will be used as primary and ORCID will only be used to
+  couple author records to the author's ORCID record.
+
+  To configure ORCID, the configuration can be placed in the \t{orcid}
+  section under \t{authentication}.  That looks as following:
+
+\begin{lstlisting}[language=xml]
+<authentication>
+  <orcid>
+    <!-- Configuration goes here. -->
+  </orcid>
+</authentication>
+\end{lstlisting}
+
+  Then the following parameters can be configured:
+
+\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}             & \textbf{Description}\\
+  \fi
+  \t{client-id}               & The client ID provided by ORCID.\\
+  \t{client-secret}           & The client secret provided by ORCID.\\
+  \t{endpoint}                & The URL to the ORCID endpoint to use.\\
+\end{tabular}
+
+\section{Configuring an e-mail server}
+
+  On various occassions, \t{djehuty} will attempt to send an e-mail to either
+  an author, a reviewer or an administrator.  To be able to do so, an e-mail
+  server must be configured from which the instance may send e-mails.
+
+  The configuration is done under the \t{email} node, and the following
+  items can be configured:
+
+\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}             & \textbf{Description}\\
+  \fi
+  \t{server}                  & Address of the e-mail server without protocol
+                                specification.\\
+  \t{port}                    & The port the e-mail server operates on.\\
+  \t{starttls}                & When 1, \t{djehuty} attempts to use StartTLS.\\
+  \t{username}                & The username to authenticate with to the
+                                e-mail server.\\
+  \t{password}                & The password to authenticate with to the
+                                e-mail server.\\
+  \t{from}                    & The e-mail address used to send e-mail from.\\
+  \t{subject-prefix}          & Text to prefix in the subject of all e-mails
+                                sent from the instance of \t{djehuty}.  This
+                                can be used to distinguish a test instance from
+                                a production instance.\\
+\end{tabular}
+
+\section{Configurating DOI registration}
+
+  When publishing a dataset or collection, \t{djehuty} can register a
+  persistent identifier with DataCite.  To enable this feature, configure it
+  under the \t{datacite} node. The following parameters can be configured:
+
+\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}             & \textbf{Description}\\
+  \fi
+  \t{api-url}                 & The URL of the API endpoint of DataCite.\\
+  \t{repository-id}           & The repository identifier given by DataCite.\\
+  \t{password}                & The password to authenticate with to DataCite.\\
+  \t{prefix}                  & The DOI prefix to use when registering a DOI.\\
 \end{tabular}
 
 \section{Customizing looks}
