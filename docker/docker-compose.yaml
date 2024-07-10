@@ -5,8 +5,9 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    image: djehuty:latest
+    image: djehuty:24.6
     command: '/bin/djehuty web -c /djehuty-config.xml'
+    read_only: true
     volumes:
       - /opt/djehuty/data/:/data/
       - /opt/djehuty/djehuty-config.xml:/djehuty-config.xml
@@ -16,11 +17,12 @@ services:
     depends_on:
       - sparql
   sparql:
+    read_only: true
     cap_drop:
       - ALL
     security_opt:
       - no-new-privileges:true
-    image: openlink/virtuoso-opensource-7:7.2.11
+    image: openlink/virtuoso-opensource-7:7.2.13
     volumes:
       - /container_data/sparql/:/database/
     expose:
