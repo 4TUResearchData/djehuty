@@ -94,3 +94,31 @@ make install
   needing super user privileges.
 
   After installation, the \t{djehuty} program will be available.
+
+\section{Pre-built containers}
+
+  4TU.ResearchData provides Docker container images as a convenience service
+  for each monthly \t{djehuty} release.  The following table outlines the
+  meaning of each image provided.  The images are published to
+  \href{https://hub.docker.com/r/4turesearchdata/djehuty}{Docker Hub}%
+  \footnote{\dhref{https://hub.docker.com/r/4turesearchdata/djehuty}}.
+
+\begin{tabular}{p{0.25\textwidth} p{0.73\textwidth}}
+  \textbf{Image tag}  & \textbf{Description}\\
+  \t{devel}           & Image meant for development purposes. Before it
+                        executes the \t{djehuty} command it checks out the
+                        latest codebase.  So re-running the same container
+                        image may result in running a different version of
+                        \t{djehuty}.\\
+  \t{latest}          & This image points to the latest \t{djehuty} release.
+                        It does not automatically update the \t{djehuty}
+                        codebase.\\
+  \t{XX.X}            & 4TU.ResearchData releases a version each month where
+                        the number before the dot refers to the year and the
+                        number after the dot refers to the month.  Use a
+                        specific version image when you want to upgrade at
+                        your own pace.\\
+\end{tabular}
+
+  To build the container images for yourself, see the build instructions in
+  the \file{docker/Dockerfile} file.
