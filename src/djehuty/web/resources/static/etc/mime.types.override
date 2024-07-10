@@ -1,0 +1,12 @@
+application/x-mathworks-simulink	slx
+application/x-netcdf	cdf nc netcdf
+application/x-robustqo	robustqo
+application/x-stata-dta	dta
+application/x-vensim	mdl
+text/markdown	markdown md mkd rmd
+text/x-common-lisp	asd fasl lisp ros nlogo
+text/x-fasta	t0 t2
+text/x-linny-r	lnr
+text/x-matlab	m mat
+text/x-python	py wsgi pickle pkl
+text/x-rsrc	r
