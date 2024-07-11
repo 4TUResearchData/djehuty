@@ -1,0 +1,21 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?dataset          djht:format_annotation      ?format_annotation .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?dataset          djht:format_annotation      {{format_annotation | safe}} .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container            rdf:type                djht:DatasetContainer ;
+                          djht:draft              ?dataset .
+    OPTIONAL { ?dataset   djht:format_annotation  ?format_annotation . }
+  }
+  FILTER (?dataset = <dataset:{{dataset_uuid}}>)
+}
+{% endblock %}

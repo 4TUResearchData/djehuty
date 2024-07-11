@@ -37,6 +37,7 @@ from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
 from djehuty.utils.convenience import make_citation, is_opendap_url, landing_page_url
 from djehuty.utils.convenience import split_author_name, split_string
+from djehuty.utils.convenience import guess_file_types
 from djehuty.utils.constants import group_to_member, member_url_names, filetypes_by_extension
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 
@@ -6798,6 +6799,16 @@ class ApiServer:
                                                is_published = False)
         if dataset is None:
             return self.error_403 (request)
+
+        dataset_format = None
+        if "format" in dataset:
+            dataset_format = dataset["format"]
+        files = self.db.dataset_files (dataset_uri=dataset["uri"])
+        annotation = guess_file_types (dataset_format, files)
+        if annotation is not None:
+            succeeded  = self.db.update_dataset_format_annotation (dataset["uuid"], account_uuid, annotation)
+            if not succeeded:
+                self.log.error ("Updating the format annotation of '%s' failed: %s", dataset["uuid"], annotation)
 
         reviewer_account = self.db.account_by_session_token (token)
         if not self.db.update_review (dataset["review_uri"],

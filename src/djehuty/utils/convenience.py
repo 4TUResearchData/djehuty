@@ -3,8 +3,10 @@ This module provides convenience functions that can be used throughout
 the codebase.
 """
 
+import os
 import re
 import logging
+import mimetypes
 
 def value_or (record, key, other):
     """Return the value of KEY or OTHER."""
@@ -261,3 +263,90 @@ def strip_string (input_string):
     if isinstance (input_string, str):
         return input_string.strip()
     return input_string
+
+def guess_file_types (dataset_format, files):
+    """Guess the file types based on the djht:format and file extensions."""
+    guessed_mimetypes = set()
+    extensions = set()
+    for file in files:
+        if "name" not in file:
+            continue
+        file_extension = os.path.splitext (file["name"])[1]
+        if file_extension:
+            extensions.add (file_extension.lower())
+
+    if not dataset_format and not extensions:
+        return None
+
+    path_resource_etc = os.path.join (os.path.dirname (__file__),
+                                      "../web/resources/static/etc")
+    mimetypes.init(files=[f"{path_resource_etc}/mime.types",
+                          f"{path_resource_etc}/mime.types.override"])
+
+    for extension in extensions:
+        guessed_type = mimetypes.guess_type(f"file.{extension}")
+        if guessed_type[0] is not None:
+            guessed_mimetypes.add(guessed_type[0])
+
+    format_tokens = set()
+    if dataset_format:
+        format_tokens = set(re.split(r'[\s+;\n\r,:()"\']', dataset_format))
+        format_tokens = {token.strip() for token in format_tokens}
+        format_tokens = {token for token in format_tokens if token}
+        format_tokens = {token.lower() for token in format_tokens}
+
+    for format_token in format_tokens:
+        if '://' in format_token: # skip URLs
+            continue
+
+        is_guessed = False
+        # Is the token a file extension with a leading dot?
+        if format_token.startswith('*.') or format_token.startswith('.'):
+            if format_token.startswith('*'):
+                format_token = format_token[1:]
+
+            guessed_type = mimetypes.guess_type(f"file{format_token}")
+            if guessed_type[0] is not None:
+                guessed_mimetypes.add(guessed_type[0])
+                is_guessed = True
+        # Is the token a MIME type?
+        elif '/' in format_token:
+            guessed_extension = mimetypes.guess_extension(format_token)
+            if guessed_extension is not None:
+                guessed_mimetypes.add(guessed_extension)
+                is_guessed = True
+
+        if is_guessed:
+            continue
+
+        # Is the token a non-standard MIME type? i.e. script/m, survey/pdf
+        maybe_extensions = set()
+        if '/' in format_token:
+            extension_tokens = format_token.split('/')
+            tokens_set = set()
+            if len(extension_tokens) == 2:
+                tokens_set.add(extension_tokens[1])
+            elif len(extension_tokens) > 2:
+                tokens_set = set(extension_tokens)
+
+            for maybe_extension in tokens_set:
+                if maybe_extension.startswith('.'):
+                    maybe_extension = extension_tokens[1:]
+                maybe_extensions.add(f".{maybe_extension}")
+        # Is the token a file extension having no leading dot?
+        else:
+            maybe_extensions.add(f".{format_token}")
+
+        for maybe_extension in maybe_extensions:
+            guessed_type = mimetypes.guess_type(f"file.{maybe_extension}")
+            if guessed_type[0] is not None:
+                guessed_mimetypes.add(guessed_type[0])
+
+    annotation = ""
+    if guessed_mimetypes:
+        annotation = ";".join(guessed_mimetypes)
+    if extensions:
+        annotation += ";"
+        annotation += ';'.join(extensions)
+
+    return annotation if annotation else None

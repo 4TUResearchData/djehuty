@@ -1191,6 +1191,22 @@ class SparqlInterface:
 
         return False, None
 
+    def update_dataset_format_annotation (self, dataset_uuid, account_uuid, annotation):
+        """Procedure to update the format annotation of a draft dataset."""
+
+        query = self.__query_from_template ("update_format_annotation", {
+            "dataset_uuid":      dataset_uuid,
+            "format_annotation": rdf.escape_string_value (annotation)
+        })
+
+        self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
+
+        if self.__run_logged_query (query):
+            return True
+
+        return False
+
     def insert_dataset (self,
                         title,
                         account_uuid,
