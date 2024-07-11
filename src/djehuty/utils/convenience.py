@@ -313,7 +313,7 @@ def guess_file_types (dataset_format, files):
         elif '/' in format_token:
             guessed_extension = mimetypes.guess_extension(format_token)
             if guessed_extension is not None:
-                guessed_mimetypes.add(guessed_extension)
+                guessed_mimetypes.add(format_token)
                 is_guessed = True
 
         if is_guessed:
