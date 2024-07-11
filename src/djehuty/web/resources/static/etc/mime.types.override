@@ -1,5 +1,6 @@
 application/x-mathworks-simulink	slx
 application/x-netcdf	cdf nc netcdf
+application/x-r-data	rds rdata
 application/x-robustqo	robustqo
 application/x-stata-dta	dta
 application/x-vensim	mdl
@@ -10,3 +11,18 @@ text/x-linny-r	lnr
 text/x-matlab	m mat
 text/x-python	py wsgi pickle pkl
 text/x-rsrc	r
+application/x-applix-spreadsheet	not_to_use
+text/x-systemd-unit	not_to_use
+application/vnd.tcpdump.pcap	not_to_use
+image/fits	not_to_use
+application/x-info	not_to_use
+audio/x-it	not_to_use
+application/its+xml	not_to_use
+application/vnd.apple.keynote	not_to_use
+text/x-troff-me	not_to_use
+text/x-troff-ms	not_to_use
+application/onenote	not_to_use
+text/x-systemd-unit	not_to_use
+application/vnd.seemail	not_to_use
+application/x-mswinurl	not_to_use
+image/x-panasonic-rw	not_to_use
