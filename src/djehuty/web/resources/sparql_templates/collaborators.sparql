@@ -4,6 +4,7 @@ SELECT DISTINCT ?dataset_uri        ?metadata_read      ?metadata_edit
                 ?data_read          ?data_edit          ?data_remove
                 ?first_name         ?last_name          ?uuid
                 ?email              ?order_index        ?account_uuid
+                ?group_id           ?group_name
                 (?rest AS ?originating_blank_node)
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -22,6 +23,13 @@ WHERE {
     OPTIONAL { ?account           djht:first_name          ?first_name . }
     OPTIONAL { ?account           djht:last_name           ?last_name . }
     OPTIONAL { ?account           djht:email               ?email . }
+    OPTIONAL {
+      ?account           djht:domain                ?domain .
+      ?group             rdf:type                   djht:InstitutionGroup ;
+                         djht:association_criteria  ?domain ;
+                         djht:name                  ?group_name ;
+                         djht:id                    ?group_id .
+    }
 
     BIND(STRAFTER(STR(?collaborator_uri), "collaborator:") AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:") AS ?account_uuid)

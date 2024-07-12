@@ -363,10 +363,12 @@ def read_group_configuration (server, xml_root, logger):
         #group_name = group.attrib["name"]
         group_id = group.attrib["id"]
         for account in group:
+            group_name = account.attrib.get("group_name")
             is_supervisor = account.attrib.get("is_supervisor")
             is_supervisor = is_supervisor == "1"
             server.db.groups[account.attrib["email"].lower()]= {
                 "group": group_id,
+                "group_name": group_name,
                 "is_supervisor": is_supervisor
             }
 
