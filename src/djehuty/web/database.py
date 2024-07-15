@@ -489,6 +489,11 @@ class SparqlInterface:
         query = self.__query_from_template ("datasets_missing_dois")
         return self.__run_query (query)
 
+    def datasets_format_annotation (self):
+        """Procedure to retrieve published datasets for djht:format_annotation."""
+        query = self.__query_from_template ("datasets_format_annotation")
+        return self.__run_query (query)
+
     def repository_file_statistics (self, extended_properties=False, use_cache=False):
         """Returns files and their sizes, and optionally more properties."""
         query = self.__query_from_template ("statistics_files", {

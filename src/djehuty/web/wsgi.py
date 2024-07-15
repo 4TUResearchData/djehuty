@@ -185,6 +185,7 @@ class ApiServer:
             R("/admin/maintenance/clear-sessions",                               self.ui_admin_clear_sessions),
             R("/admin/maintenance/repair-doi-registrations",                     self.ui_admin_repair_doi_registrations),
             R("/admin/maintenance/recalculate-statistics",                       self.ui_admin_recalculate_statistics),
+            R("/admin/maintenance/update-format-annotation",                     self.ui_admin_update_format_annotation),
             R("/categories/<category_id>",                                       self.ui_categories),
             R("/category",                                                       self.ui_category),
             R("/institutions/<institution_name>",                                self.ui_institution),
@@ -2991,6 +2992,47 @@ class ApiServer:
             return self.respond_204 ()
 
         return self.error_403 (request)
+
+    def ui_admin_update_format_annotation (self, request):
+        """Implements /admin/maintenance/update-format-annotation."""
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        account_uuid = self.account_uuid_from_request (request)
+        datasets = self.db.datasets_format_annotation ()
+        update_all = validator.integer_value (request.args, "update_all", 0, 1)
+
+        if datasets:
+            total_count   = len(datasets)
+            updated_count = 0
+            error_count   = 0
+            for dataset in datasets:
+                if "format_annotation" in dataset and update_all is None:
+                    total_count -= 1
+                    continue
+
+                dataset_format = None
+                if "format" in dataset:
+                    dataset_format = dataset["format"]
+                files = self.db.dataset_files (dataset_uri=dataset["uri"])
+                annotation = guess_file_types (dataset_format, files)
+                if annotation is not None:
+                    succeeded  = self.db.update_dataset_format_annotation (dataset["uuid"], account_uuid, annotation)
+                    if succeeded:
+                        updated_count += 1
+                    else:
+                        error_count += 1
+
+            if error_count == 0:
+                self.log.info("%s of %s datasets have been updated for djht:format_annotation",
+                              updated_count, total_count)
+                return self.respond_204 ()
+
+            self.log.error("Failed to update %s datasets for djht:format_annotation", error_count)
+            return self.error_500 ()
+
+        return self.respond_204 ()
 
     def ui_admin_repair_doi_registrations (self, request):
         """Implements /admin/maintenance/repair-doi-registrations."""
