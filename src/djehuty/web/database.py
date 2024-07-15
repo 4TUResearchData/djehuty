@@ -3026,8 +3026,10 @@ class SparqlInterface:
 
             domain     = conv.value_or (account, "domain", "")
             quota      = self.account_quota (email, domain, account)
-            self.log.info("Group id = %s", self.groups[email])
-            account    = { **account, **privileges, "quota": quota, "group_id": self.groups[email]}
+            account    = { **account, **privileges, "quota": quota }
+            if email in self.groups:
+                account["group_id"] = self.groups[email]
+
         except (TypeError, KeyError):
             pass
 
