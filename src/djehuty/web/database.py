@@ -421,7 +421,7 @@ class SparqlInterface:
                   exclude_ids=None, groups=None, handle=None, institution=None,
                   is_latest=False, item_type=None, limit=None, modified_since=None,
                   offset=None, order=None, order_direction=None, published_since=None,
-                  resource_doi=None, return_count=False, search_for=None, group_uuid=None,
+                  resource_doi=None, return_count=False, search_for=None,
                   search_format=False, version=None, search_scope=None, licenses=None,
                   is_published=True, is_under_review=None, git_uuid=None,
                   private_link_id_string=None, use_cache=True, is_restricted=None,
@@ -481,8 +481,7 @@ class SparqlInterface:
             "is_under_review": is_under_review,
             "private_link_id_string": private_link_id_string,
             "filters":        filters,
-            "return_count":   return_count,
-            "group_uuid" :    group_uuid
+            "return_count":   return_count
         })
 
         # Setting the default value for 'limit' to 10 makes passing
