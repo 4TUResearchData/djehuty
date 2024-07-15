@@ -6,6 +6,7 @@ DELETE {
     ?collaborator_uri  rdf:type                 djht:Collaborator .
     ?collaborator_uri  djht:metadata_read       ?metadata_read .
     ?collaborator_uri  djht:metadata_edit       ?metadata_edit .
+    ?collaborator_uri  djht:metadata_remove     ?metadata_remove .
     ?collaborator_uri  djht:data_read           ?data_read .
     ?collaborator_uri  djht:data_edit           ?data_edit .
     ?collaborator_uri  djht:data_remove         ?data_remove .
@@ -17,6 +18,7 @@ WHERE {
     ?collaborator_uri  rdf:type                 djht:Collaborator .
     ?collaborator_uri  djht:metadata_read       ?metadata_read .
     ?collaborator_uri  djht:metadata_edit       ?metadata_edit .
+    ?collaborator_uri  djht:metadata_remove     ?metadata_remove .
     ?collaborator_uri  djht:data_read           ?data_read .
     ?collaborator_uri  djht:data_edit           ?data_edit .
     ?collaborator_uri  djht:data_remove         ?data_remove .

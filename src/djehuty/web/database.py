@@ -1894,6 +1894,7 @@ class SparqlInterface:
                         "dataset_uri": f"dataset:{dataset_uuid}",
                         "metadata_read": True,
                         "metadata_edit": True,
+                        "metadata_remove": self.groups[collaborator_uuid]["is_supervisor"],
                         "data_read": True,
                         "data_edit": True,
                         "data_remove": True,
@@ -1916,7 +1917,8 @@ class SparqlInterface:
 
     def insert_collaborator (self, dataset_uuid, collaborator_uuid,
                              account_uuid, metadata_read, metadata_edit,
-                             data_read, data_edit, data_remove, inferred=False):
+                             metadata_remove, data_read, data_edit,
+                             data_remove, inferred=False):
         """Procedure to add a collaborator to the state graph."""
         if collaborator_uuid == account_uuid:
             return None
