@@ -1889,7 +1889,7 @@ class SparqlInterface:
             group_id = self.groups[account_uuid]["group"]
             for collaborator_uuid in self.groups.keys():
                 account = self.account_by_uuid (collaborator_uuid)
-                if group_id == self.groups[collaborator_uuid]["group"] and self.groups[collaborator_uuid]["is_supervisor"]:
+                if group_id == self.groups[collaborator_uuid]["group"]:
                     results.append({
                         "dataset_uri": f"dataset:{dataset_uuid}",
                         "metadata_read": True,
@@ -1903,6 +1903,7 @@ class SparqlInterface:
                         "email": account["email"],
                         "group_id": group_id,
                         "group_name": self.groups[collaborator_uuid]["group_name"],
+                        "is_supervisor": self.groups[collaborator_uuid]["is_supervisor"],
                         "inferred": True,
                         "order_index": None,
                         "account_uuid": collaborator_uuid,
