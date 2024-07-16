@@ -6,6 +6,7 @@ SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to
                 ?published_date ?container_uuid ?dataset_version ?declined_date
                 ?reviewer_email ?reviewer_first_name ?reviewer_last_name
                 ?modified_date (?status_label AS ?status) ?has_published_version
+                ?last_seen_by_reviewer
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review             rdf:type                 djht:Review ;
@@ -23,6 +24,7 @@ WHERE {
     OPTIONAL { ?dataset djht:published_date       ?published_date . }
     OPTIONAL { ?dataset djht:declined_date        ?declined_date . }
     OPTIONAL { ?dataset djht:modified_date        ?modified_date . }
+    OPTIONAL { ?dataset djht:last_seen_by_reviewer ?last_seen_by_reviewer . }
     OPTIONAL { ?dataset djht:version              ?dataset_version . }
 
     ?container_uri      djht:account              ?account .

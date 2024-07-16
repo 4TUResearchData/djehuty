@@ -410,6 +410,7 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-comments-dots::before { content: "\f4ad"; }
 .fa-angle-up::before { content: "\f106"; }
 .fa-angle-down::before { content: "\f107"; }
+.fa-circle-exclamation::before { content: "\f06a"; }
 .fa-empty::before {}
 
 ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; font-size: 13pt; }

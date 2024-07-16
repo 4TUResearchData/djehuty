@@ -196,6 +196,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/update_private_link.sparql         \
     djehuty/web/resources/sparql_templates/update_quota_request.sparql        \
     djehuty/web/resources/sparql_templates/update_review.sparql               \
+    djehuty/web/resources/sparql_templates/update_seen_by_reviewer.sparql     \
     djehuty/web/resources/sparql_templates/update_session.sparql              \
     djehuty/web/resources/sparql_templates/update_view_and_download_counts.sparql \
     djehuty/web/resources/static/css/dropzone.min.css                         \

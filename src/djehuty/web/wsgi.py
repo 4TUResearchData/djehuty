@@ -1747,6 +1747,8 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
+        self.db.dataset_update_seen_by_reviewer (dataset_id)
+
         # Add a secondary cookie to go back to at one point.
         response = redirect (f"/my/datasets/{dataset['container_uuid']}/edit", code=302)
         response.set_cookie (key    = self.impersonator_cookie_key,
@@ -4403,6 +4405,10 @@ class ApiServer:
                     agreed_to_publish = validator.boolean_value (record, "agreed_to_publish", False, False),
                     categories      = validator.array_value   (record, "categories"),
                 )
+
+                if self.__is_reviewing (request):
+                    self.db.dataset_update_seen_by_reviewer (dataset["uuid"])
+
                 if not result:
                     return self.error_500()
 

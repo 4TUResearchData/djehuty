@@ -2487,6 +2487,16 @@ class SparqlInterface:
         })
         return self.__run_logged_query (query)
 
+    def dataset_update_seen_by_reviewer (self, dataset_uuid):
+        """Sets the last_seen_by_reviewer property to the current timestamp."""
+
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
+        query = self.__query_from_template ("update_seen_by_reviewer", {
+            "timestamp": current_time,
+            "dataset_uuid": dataset_uuid
+        })
+        return self.__run_logged_query (query)
+
     def insert_collection (self, title,
                            account_uuid,
                            collection_id=None,
