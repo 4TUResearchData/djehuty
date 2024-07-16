@@ -5,6 +5,22 @@ function cleanup_name(name) {
 function update_item_count () {
     jQuery("#table-count").text(`${jQuery("#overview-table tbody tr:visible").length} items`);
 }
+
+function clear_reviews_cache (event) {
+    if (event !== null) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    jQuery.ajax({
+        url:         "/v3/admin/reviews/clear-cache",
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function () { location.reload();
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to clear the reviews cache.</p>");
+    });
+}
+
 function assign_reviewer (event) {
     let identifiers = this.value.split(":");
     let dataset_uuid = identifiers[0];
@@ -77,7 +93,9 @@ function activate() {
             initComplete: function (settings, json) {
             }
         });
-
+        jQuery("#remove-cache").on("click", function (event) {
+            clear_reviews_cache (event);
+        });
         jQuery(".reviewer-selector").change(assign_reviewer);
         jQuery(".reviewer-filter").change(apply_filters);
         jQuery(".status-filter").change(apply_filters);

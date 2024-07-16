@@ -30,7 +30,7 @@
     user-select: none;
 }
 </style>
-<script src="/static/js/review-overview.js"></script>
+<script src="/static/js/review-overview.js?cache=1721134140"></script>
 <script>
 activate ();
 </script>
@@ -62,7 +62,7 @@ activate ();
 </ul>
 {% endblock %}
 {% block body %}
-<h1>Overview</h1>
+<h1>Overview{% if may_administer %}<span class="no-select"> &nbsp;<a id="remove-cache" href="#" class="fas fa-sync"></a></span>{% else %}<div id="remove-cache"></div>{% endif %}</h1>
 <p></p>
 {%- if reviews %}
 <table id="overview-table" class="reviewer-table corporate-identity-table">

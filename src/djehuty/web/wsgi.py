@@ -375,6 +375,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             R("/v3/admin/files-integrity-statistics",                            self.api_v3_admin_files_integrity_statistics),
             R("/v3/admin/accounts/clear-cache",                                  self.api_v3_admin_accounts_clear_cache),
+            R("/v3/admin/reviews/clear-cache",                                   self.api_v3_admin_reviews_clear_cache),
 
             ## ----------------------------------------------------------------
             ## GIT HTTP API
@@ -8404,18 +8405,23 @@ class ApiServer:
 
         return self.respond_204 ()
 
-    def api_v3_admin_accounts_clear_cache (self, request):
-        """Implements /v3/admin/accounts/clear-cache."""
-
+    def __api_v3_admin_clear_cache (self, request, key):
         handler = self.default_authenticated_error_handling (request, "GET", "application/json",
                                                              self.db.may_administer)
         if isinstance (handler, Response):
             return handler
 
-        self.log.info ("Invalidating accounts caches.")
-        self.db.cache.invalidate_by_prefix ("accounts")
-
+        self.log.info ("Invalidating %s caches.", key)
+        self.db.cache.invalidate_by_prefix (key)
         return self.respond_204 ()
+
+    def api_v3_admin_accounts_clear_cache (self, request):
+        """Implements /v3/admin/accounts/clear-cache."""
+        return self.__api_v3_admin_clear_cache (request, "accounts")
+
+    def api_v3_admin_reviews_clear_cache (self, request):
+        """Implements /v3/admin/reviews/clear-cache."""
+        return self.__api_v3_admin_clear_cache (request, "reviews")
 
     def api_v3_datasets_assign_reviewer (self, request, dataset_uuid, reviewer_uuid):
         """Implements /v3/datasets/<id>/assign-reviewer/<rid>."""
