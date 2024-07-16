@@ -3460,7 +3460,11 @@ class ApiServer:
             else:
                 collection = self.__collection_by_id_or_uri (collection_id, is_published=True, is_latest=True)
 
+        # For retracted collections we display a different error page.
         if collection is None:
+            collection = self.__collection_by_id_or_uri (collection_id, is_published=None, is_latest=None)
+            if collection is not None and collection["is_public"] == 0:
+                return self.error_410 (request)
             return self.error_404 (request)
 
         container_uuid = collection["container_uuid"]
