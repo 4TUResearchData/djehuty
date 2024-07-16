@@ -95,9 +95,6 @@ activate ();
       {%- else %}
       <td>{{review.dataset_version | default("new", False)}}</td>
       {% endif %}
-      {%- if 'last_seen_by_reviewer' in review and review.modified_date > review.last_seen_by_reviewer: %}
-      <span class="fas fa-circle-exclamation" title="Modified after seen by reviewer"><span style="font-size:0pt">Modified</span></span>
-      {%- endif %}
       <td>
         {{review.submitter_first_name | default("", False)}}
         {{review.submitter_last_name | default("", False)}}
