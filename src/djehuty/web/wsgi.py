@@ -4413,6 +4413,9 @@ class ApiServer:
                 if not result:
                     return self.error_500()
 
+                if value_or (dataset, "is_under_review", False):
+                    self.db.cache.invalidate_by_prefix ("reviews")
+
                 return self.respond_205()
 
             except validator.ValidationException as error:
