@@ -7,6 +7,8 @@ SELECT DISTINCT ?file ?bytes
 {%- endif %}
 WHERE {
   GRAPH <{{state_graph}}> {
+    ?dataset        rdf:type            djht:Dataset .
+    ?dataset        djht:files/rdf:rest*/rdf:first ?file .
     ?file           rdf:type            djht:File .
     ?file           djht:size           ?bytes .
 {%- if extended_properties is defined and extended_properties %}
