@@ -176,7 +176,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/reviews.sparql                     \
     djehuty/web/resources/sparql_templates/root_categories.sparql             \
     djehuty/web/resources/sparql_templates/search_tags.sparql                 \
-    djehuty/web/resources/sparql_templates/statistics.sparql                  \
     djehuty/web/resources/sparql_templates/statistics_authors.sparql          \
     djehuty/web/resources/sparql_templates/statistics_collections.sparql      \
     djehuty/web/resources/sparql_templates/statistics_datalink.sparql         \
