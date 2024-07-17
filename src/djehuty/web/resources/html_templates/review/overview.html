@@ -104,6 +104,9 @@ activate ();
       <td id="{{review.dataset_uuid}}_status">
       {% if review.status == "assigned": %}
       <span class="fas fa-glasses" title="Assigned to reviewer"><span style="font-size:0pt">assigned</span></span>
+      {%- if 'last_seen_by_reviewer' in review and review.modified_date > review.last_seen_by_reviewer: %}
+      <span class="fas fa-circle-exclamation" title="Modified after seen by reviewer"><span style="font-size:0pt">Modified</span></span>
+      {%- endif %}
       {% elif review.status == "approved": %}
       <span class="fas fa-check-double" title="Approved by reviewer"><span style="font-size:0pt">approved</span></span>
       {% elif review.status == "rejected": %}
@@ -111,9 +114,6 @@ activate ();
       {% else: %}
       <span class="fas fa-hourglass" title="Unassigned"><span style="font-size:0pt">unassigned</span></span>
       {% endif %}
-      {%- if 'last_seen_by_reviewer' in review and review.modified_date > review.last_seen_by_reviewer: %}
-      <span class="fas fa-circle-exclamation" title="Modified after seen by reviewer"><span style="font-size:0pt">Modified</span></span>
-      {%- endif %}
       </td>
       <td>{{review.request_date}}</td>
       <td>{{review.modified_date}}</td>
