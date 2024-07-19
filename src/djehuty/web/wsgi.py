@@ -1732,10 +1732,10 @@ class ApiServer:
     def ui_review_impersonate_to_dataset (self, request, dataset_id):
         """Implements /review/goto-dataset/<id>."""
 
-        handler = self.default_authenticated_error_handling (request, "GET", "text/html",
-                                                             self.db.may_impersonate)
-        if isinstance (handler, Response):
-            return handler
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html",
+                                                                  self.db.may_impersonate)
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         dataset = None
         try:
@@ -1748,7 +1748,13 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
-        self.db.dataset_update_seen_by_reviewer (dataset_id)
+        try:
+            review = self.db.reviews (dataset_uri = dataset["uri"])[0]
+            assigned_uuid = uri_to_uuid (review["assigned_to"])
+            if account_uuid == assigned_uuid:
+                self.db.dataset_update_seen_by_reviewer (dataset["uuid"])
+        except (TypeError, IndexError):
+            pass
 
         # Add a secondary cookie to go back to at one point.
         response = redirect (f"/my/datasets/{dataset['container_uuid']}/edit", code=302)
@@ -4408,7 +4414,14 @@ class ApiServer:
                 )
 
                 if self.__is_reviewing (request):
-                    self.db.dataset_update_seen_by_reviewer (dataset["uuid"])
+                    try:
+                        reviewer_account = self.db.account_by_session_token (self.__impersonator_token (request))
+                        review = self.db.reviews (dataset_uri = dataset["uri"])[0]
+                        assigned_uuid = uri_to_uuid (review["assigned_to"])
+                        if reviewer_account["uuid"] == assigned_uuid:
+                            self.db.dataset_update_seen_by_reviewer (dataset["uuid"])
+                    except (TypeError, IndexError):
+                        pass
 
                 if not result:
                     return self.error_500()
