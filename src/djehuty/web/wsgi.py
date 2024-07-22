@@ -3878,7 +3878,12 @@ class ApiServer:
                                 "No files associated with this dataset")
                 return self.error_404 (request)
 
-            zipfly_object = zipfly.ZipFly(paths = file_paths)
+            try:
+                zipfly_object = zipfly.ZipFly(paths = file_paths)
+            except TypeError:
+                self.log.error ("Error in zipping files: %s", file_paths)
+                return self.error_404 (request)
+
             writer = zipfly_object.generator()
             response = self.response (writer, mimetype="application/zip")
 
