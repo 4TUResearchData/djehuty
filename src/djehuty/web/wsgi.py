@@ -3254,7 +3254,7 @@ class ApiServer:
             ## For retracted datasets we display a different error page.
             if dataset is None:
                 dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=None, is_latest=None)
-                if dataset is not None and dataset["is_public"] == 0:
+                if dataset is not None and value_or (dataset, "is_public", 1) == 0:
                     return self.error_410 (request)
                 return self.error_404 (request)
 
@@ -3472,7 +3472,7 @@ class ApiServer:
         # For retracted collections we display a different error page.
         if collection is None:
             collection = self.__collection_by_id_or_uri (collection_id, is_published=None, is_latest=None)
-            if collection is not None and collection["is_public"] == 0:
+            if collection is not None and value_or (collection, "is_public", 1) == 0:
                 return self.error_410 (request)
             return self.error_404 (request)
 
