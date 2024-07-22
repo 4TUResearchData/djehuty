@@ -8780,7 +8780,8 @@ class ApiServer:
         # collect rendering parameters
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
         # adjust rendering parameters: use / as date separator
-        parameters['published_date'] = parameters['published_date'].replace('-', '/')
+        if parameters["published_date"] is not None:
+            parameters['published_date'] = parameters['published_date'].replace('-', '/')
 
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.ris"}
         return self.__render_export_format(template_name="refman.ris",
