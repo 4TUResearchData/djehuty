@@ -75,7 +75,7 @@ class CacheLayer:
                     if os.name != 'nt':
                         os.fchmod (query_fd, 0o400)
         except OSError:
-            self.log.error ("Failed to save cache for %s.", key)
+            self.log.warning ("Failed to save cache for %s.", key)
 
         return value
 
@@ -85,7 +85,7 @@ class CacheLayer:
         try:
             os.remove(file_path)
         except FileNotFoundError:
-            self.log.error ("Trying to remove %s multiple times.", file_path)
+            self.log.warning ("Trying to remove %s multiple times.", file_path)
 
         return True
 
@@ -95,7 +95,7 @@ class CacheLayer:
             try:
                 os.remove(file_path)
             except FileNotFoundError:
-                self.log.error ("Trying to remove %s multiple times.", file_path)
+                self.log.warning ("Trying to remove %s multiple times.", file_path)
 
         return True
 
@@ -114,7 +114,7 @@ class CacheLayer:
             try:
                 os.remove(file_path)
             except FileNotFoundError:
-                self.log.error ("Trying to remove %s multiple times.", file_path)
+                self.log.warning ("Trying to remove %s multiple times.", file_path)
             except IsADirectoryError:
                 pass
 
