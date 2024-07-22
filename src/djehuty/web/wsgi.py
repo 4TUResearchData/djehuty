@@ -8716,6 +8716,8 @@ class ApiServer:
             return self.error_406 ("application/xml")
 
         parameters = self.__metadata_export_parameters(dataset_id, version)
+        if parameters is None:
+            return self.error_404 (request)
         xml_string = xml_formatter.refworks(parameters)
         output = self.response (xml_string, mimetype="application/xml")
         version_string = f'_v{version}' if version else ''
@@ -8759,6 +8761,8 @@ class ApiServer:
 
         # collect rendering parameters
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
+        if parameters is None:
+            return self.error_404 (request)
         # adjust rendering parameters
         # turn authors in one string
         self.add_names_to_authors(parameters["authors"])
@@ -8779,6 +8783,8 @@ class ApiServer:
 
         # collect rendering parameters
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
+        if parameters is None:
+            return self.error_404 (request)
         # adjust rendering parameters: use / as date separator
         if parameters["published_date"] is not None:
             parameters['published_date'] = parameters['published_date'].replace('-', '/')
@@ -8795,6 +8801,8 @@ class ApiServer:
 
         # collect rendering parameters
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
+        if parameters is None:
+            return self.error_404 (request)
         # adjust rendering parameters
         # prepare Reference Type (Tag %0)
         self.add_names_to_authors(parameters["authors"])
@@ -8814,6 +8822,8 @@ class ApiServer:
 
         # collect rendering parameters
         parameters = self.__metadata_export_parameters(dataset_id, version=version)
+        if parameters is None:
+            return self.error_404 (request)
         self.add_names_to_authors(parameters["authors"])
         headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_citation.cff"}
         return self.__render_export_format(template_name="citation.cff",
