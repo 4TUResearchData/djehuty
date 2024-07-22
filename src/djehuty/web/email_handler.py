@@ -45,7 +45,8 @@ class EmailInterface:
 
         try:
             connection = smtplib.SMTP (self.smtp_server, self.smtp_port, timeout=10)
-        except (smtplib.SMTPConnectError, smtplib.SMTPException, ConnectionRefusedError) as error:
+        except (smtplib.SMTPConnectError, smtplib.SMTPException,
+                smtplib.SMTPServerDisconnected, ConnectionRefusedError) as error:
             self.log.error ("Connecting to the e-mail server failed: %s", error)
             return False
 
@@ -62,7 +63,7 @@ class EmailInterface:
         except smtplib.SMTPAuthenticationError:
             self.log.error ("Wrong credentials for authenticating to the e-mail server.")
             return False
-        except (smtplib.SMTPHeloError,
+        except (smtplib.SMTPHeloError, smtplib.SMTPServerDisconnected,
                 smtplib.SMTPNotSupportedError, smtplib.SMTPException) as error:
             self.log.error ("Authenticating to the e-mail server failed: %s", error)
             return False
@@ -70,7 +71,8 @@ class EmailInterface:
         try:
             connection.sendmail (self.from_address, recipient, message.as_string())
         except (smtplib.SMTPRecipientsRefused, smtplib.SMTPHeloError, smtplib.SMTPSenderRefused,
-                smtplib.SMTPDataError, smtplib.SMTPNotSupportedError) as error:
+                smtplib.SMTPDataError, smtplib.SMTPNotSupportedError,
+                smtplib.SMTPServerDisconnected) as error:
             self.log.error ("Sending e-mail failed: %s", error)
             return False
 
