@@ -26,11 +26,11 @@ WHERE {
     OPTIONAL { ?account  djht:maximum_file_size     ?maximum_file_size . }
     OPTIONAL { ?account  djht:modified_date         ?modified_date . }
     OPTIONAL { ?account  djht:quota                 ?quota . }
+    OPTIONAL { ?account  djht:domain                ?domain . }
     OPTIONAL {
       ?group             rdf:type                   djht:InstitutionGroup ;
                          djht:association_criteria  ?domain ;
                          djht:id                    ?group_id .
-      ?account           djht:domain                ?domain .
     }
     OPTIONAL {
       ?author            rdf:type                   djht:Author ;
