@@ -1667,6 +1667,19 @@ class ApiServer:
                             return self.error_500()
                         self.log.access ("Account %s created via SAML.", account_uuid) #  pylint: disable=no-member
 
+                    authors = self.db.authors (account_uuid=account_uuid, limit = 1)
+                    if not value_or (authors, 0, True):
+                        author_uuid = self.db.insert_author (
+                            account_uuid = account_uuid,
+                            first_name   = value_or_none (saml_record, "first_name"),
+                            last_name    = value_or_none (saml_record, "last_name"),
+                            full_name    = value_or_none (saml_record, "common_name"),
+                            email        = saml_record["email"],
+                            is_active    = True,
+                            is_public    = True)
+                        self.log.info ("Created author record %s for account %s.",
+                                       author_uuid, account_uuid)
+
                 except TypeError:
                     pass
         else:
