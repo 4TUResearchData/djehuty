@@ -1,5 +1,5 @@
 \chapter{Configuring \code{djehuty}}
-
+\label{chap:configuring-djehuty}
 Now that \code{djehuty} is installed, it's a good moment to look into its
 run-time configuration options.  All configuration can be done through a
 configuration file, for which an example is available at
@@ -7,7 +7,7 @@ configuration file, for which an example is available at
 
 \section{Essential options}
 
-\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+\begin{tabular}{p{0.34\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
   \textbf{Option}            & \textbf{Description}\\
   \fi
@@ -31,6 +31,10 @@ configuration file, for which an example is available at
                                to log IP address information.\\
   \t{disable-collaboration}  & When set to 1, it disables the ``collaborators''
                                feature.\\
+  \t{restrict-depositing-to-domain} & By default, any authenticated user may
+                               deposit data.  This option limits the ability
+                               to deposit to users with an e-mail address of
+                               a specific domain name.\\
   \t{enable-query-audit-log} & When set to 1, it writes every SPARQL query that
                                modifies the database in the web logs.  This can
                                be replayed to reconstruct the database at a
@@ -66,7 +70,7 @@ configuration file, for which an example is available at
   RDF store.  Configuring the connection details is done in the
   \t{rdf-store} node.
 
-\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
   \textbf{Option}            & \textbf{Description}\\
   \fi
@@ -99,7 +103,7 @@ configuration file, for which an example is available at
   fast online storage and later move the uploaded files to a slower but
   less costly storage.
 
-\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
   \textbf{Option}            & \textbf{Description}\\
   \fi
@@ -132,7 +136,7 @@ configuration file, for which an example is available at
   The options outlined in the remainder of this section should be placed
   where the example shows \code{<!-- Configuration goes here. -->}.
 
-\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
   \textbf{Option}             & \textbf{Description}\\
   \fi
@@ -161,7 +165,7 @@ configuration file, for which an example is available at
   identity provider can be configured.  The following attributes must be
   configured.
 
-\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
   \textbf{Option}             & \textbf{Description}\\
   \fi
@@ -196,7 +200,7 @@ configuration file, for which an example is available at
 
 \subsubsection{The \t{service-provider} configuration}
 
-\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
   \textbf{Option}              & \textbf{Description}\\
   \fi
@@ -255,7 +259,7 @@ configuration file, for which an example is available at
 
   Then the following parameters can be configured:
 
-\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
   \textbf{Option}             & \textbf{Description}\\
   \fi
@@ -273,7 +277,7 @@ configuration file, for which an example is available at
   The configuration is done under the \t{email} node, and the following
   items can be configured:
 
-\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
   \textbf{Option}             & \textbf{Description}\\
   \fi
@@ -298,7 +302,7 @@ configuration file, for which an example is available at
   persistent identifier with DataCite.  To enable this feature, configure it
   under the \t{datacite} node. The following parameters can be configured:
 
-\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
   \textbf{Option}             & \textbf{Description}\\
   \fi
@@ -312,12 +316,13 @@ configuration file, for which an example is available at
 
   With the following options, the instance can be branded as necessary.
 
-\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
   \textbf{Option}             & \textbf{Description}\\
   \fi
   \t{site-name}               & Name for the instance used in the title of a
-                                browser window.\\
+                                browser window and as default value in the
+                                publisher field for new datasets.\\
   \t{site-description}        & Description used as a meta-tag in the HTML
                                 output.\\
   \t{site-shorttag}           & Used as keyword and as Git remote name.\\
@@ -349,7 +354,7 @@ configuration file, for which an example is available at
 
   The following options can be configured in the \t{colors} section.
 
-\begin{tabular}{p{0.32\textwidth} p{0.62\textwidth}}
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
   \ifdefined\HCode
   \textbf{Option}              & \textbf{Description}\\
   \fi
@@ -361,3 +366,62 @@ configuration file, for which an example is available at
                                  privileged actions.\\
   \t{footer-background-color}  & Color to use in the footer.\\
 \end{tabular}
+
+\section{Configuring privileged users}
+
+  By default an authenticated user may deposit data. But users can have
+  additional roles; for example: a dataset reviewer, a technical
+  administrator or a quota reviewer.
+
+  Such additional roles are configured in terms of privileges.  The
+  following privileges can be configured in the \t{privileges} section:
+
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}                     & \textbf{Description}\\
+  \fi
+  \t{may-administer}                  & Allows access to perform maintenance
+                                        tasks, view accounts and view reports
+                                        on restricted and embargoed datasets.\\
+  \t{may-run-sparql-queries}          & Allows to run arbitrary SPARQL queries
+                                        on the database.\\
+  \t{may-impersonate}                 & Allows to log in to any account and
+                                        therefore perform any action as that
+                                        account.\\
+  \t{may-review}                      & Allows to see which datasets are sent
+                                        for review, and allows to perform
+                                        reviews.\\
+  \t{may-review-quotas}               & Allows access to see requests for
+                                        storage quota increases and approve or
+                                        decline them.\\
+  \t{may-review-integrity}            & Allows access to an API call that
+                                        provides statistics on the accessibility
+                                        of files on the filesystem.\\
+  \t{may-process-feedback}            & Accounts with this privilege will
+                                        receive e-mails with the information
+                                        entered into the feedback form by other
+                                        users.\\
+  \t{may-receive-email-notifications} & This ``privilege'' can be used to disable
+                                        sending any e-mails to an account by
+                                        setting it to \t{0}.  The default is
+                                        \t{1}.\\
+\end{tabular}
+
+  To enable a privilege for an account, set the value of the desired privilege
+  to \t{1}.  Privileges are disabled by default, except for
+  \t{may-receive-email-notifications} which defaults to \t{1}.
+
+\begin{lstlisting}[language=xml]
+  <privileges>
+    <account email="you@example.com" orcid="0000-0000-0000-0001">
+      <may-administer>1</may-administer>
+      <may-run-sparql-queries>1</may-run-sparql-queries>
+      <may-impersonate>1</may-impersonate>
+      <may-review>0</may-review>
+      <may-review-quotas>0</may-review-quotas>
+      <may-review-integrity>0</may-review-integrity>
+      <may-process-feedback>0</may-process-feedback>
+      <may-receive-email-notifications>1</may-receive-email-notifications>
+    </account>
+  </privileges>
+\end{lstlisting}
