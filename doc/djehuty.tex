@@ -35,7 +35,7 @@ body,html{
   width: 100%;
   height: 100%;
   font-family: 'SourceSans', serif;
-  font-size: 12pt;
+  font-size: 13pt;
   margin: 0pt;
   padding: 0pt;
   background-color: #f9f9f9;
@@ -68,6 +68,7 @@ body,html{
 .chapwrap .sectionHead { padding: 0pt 10pt 0pt 10pt; }
 .chapwrap .subsectionHead { padding: 0pt 10pt 0pt 10pt; }
 .chapwrap .likesubsubsectionHead { padding: 0pt 10pt 0pt 10pt; }
+.subsubsectionHead { margin-left: .75em; font-size: 1em; }
 .ectt-1095 { font-family: "Lucida Console", Monaco, monospace; }
 .lstlisting {
   text-align: left;
@@ -88,12 +89,12 @@ body,html{
 .likechapterHead, .chapterHead {
   margin: 0pt;
   padding: 10pt;
-  background-color: #fce3bf;
-  color: #000000;
+  background-color: #444444;
+  color: #ffffff;
   -webkit-border-radius: 4pt 4pt 0pt 0pt;
   -moz-border-radius: 4pt 4pt 0pt 0pt;
   border-radius: 4pt 4pt 0pt 0pt;
-  border: solid 1pt #fce3bf;
+  border: solid 1pt #444444;
 }
 table {
   margin: auto 10pt 10pt 10pt;
@@ -117,6 +118,8 @@ td { font-size: 12pt; padding-left: 10pt; }
 .subsectionToc { padding-left: 40pt; font-size: 0.9em; }
 .subsectionToc a { color: #00007c; }
 .subsectionToc a:hover { color: #6666af; }
+.lofToc a { color: #00007c; }
+.lofToc a:hover { color: #6666af; }
 img { width: 60%; height: auto; }
 .figure img { width: 100%; height: auto; }
 .caption { text-align: center; }
@@ -127,6 +130,7 @@ img { width: 60%; height: auto; }
   margin: 10pt;
   padding: 0pt;
 }
+dt.enumerate-enumitem{ float:left; clear:left; margin: 0em 1em 0em 1em; }
 h1 { font-size 4em; }
 h3 { font-size: 1.25em; }
 h4 { font-size: 1.10em; }
@@ -149,6 +153,8 @@ div.caption {
   -moz-border-radius: 10pt;
   border-radius: 10pt;
 }
+a { color: #7c0000; }
+a:hover { color: #af6666; }
 \EndCssFile
 \fi
 \begin{titlepage}
@@ -157,10 +163,6 @@ div.caption {
       \begin{html}
         <h1><code>djehuty</code></h1>
         <h2>The 4TU.ResearchData repository system</h2>
-      \end{html}
-      \includegraphics[width=0.35\textwidth]{figures/logo.pdf}
-      \begin{html}
-        <br><br>
       \end{html}
       version \djehutyversion{}, \today{}~\\
     \else
