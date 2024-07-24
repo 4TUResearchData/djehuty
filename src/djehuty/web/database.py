@@ -9,7 +9,7 @@ import os.path
 import logging
 from datetime import datetime
 from urllib.error import URLError, HTTPError
-from rdflib import Dataset, Graph, Literal, RDF, XSD, URIRef
+from rdflib import Dataset, Graph, Literal, RDF, RDFS, XSD, URIRef
 from rdflib.plugins.stores import sparqlstore, memory
 from rdflib.store import CORRUPTED_STORE, NO_STORE
 from jinja2 import Environment, FileSystemLoader
@@ -1857,6 +1857,45 @@ class SparqlInterface:
 
         return False
 
+    def insert_group_member (self, group_uuid, account_uuid, is_supervisor, is_inferred):
+
+        graph = Graph()
+        account_uri = URIRef(rdf.uuid_to_uri(account_uuid, "account"))
+        group_uri = URIRef(rdf.uuid_to_uri(group_uuid, "group"))
+        if is_supervisor:
+            rdf.add(graph, account_uri, rdf.DJHT["is_supervisor_of"], group_uri, "uri")
+        else:
+            rdf.add(graph, account_uri, rdf.DJHT["is_member_of"], group_uri, "uri")
+
+        rdf.add(graph, account_uri, rdf.DJHT["is_inferred"], is_inferred, XSD.boolean)
+
+        if self.add_triples_from_graph(graph):
+            return True
+        return False
+
+    def insert_group (self, name, is_inferred, group_id):
+        graph = Graph()
+        group_uri = rdf.unique_node("group")
+        rdf.add(graph, group_uri, RDFS.label, name, XSD.string)
+        rdf.add(graph, group_uri, RDF.type, rdf.DJHT["Group"], "uri")
+
+        rdf.add(graph, group_uri, rdf.DJHT["metadata_read"], True, XSD.boolean)
+        rdf.add(graph, group_uri, rdf.DJHT["metadata_edit"], True, XSD.boolean)
+        rdf.add(graph, group_uri, rdf.DJHT["metadata_remove"], False, XSD.boolean)
+        rdf.add(graph, group_uri, rdf.DJHT["data_read"], True, XSD.boolean)
+        rdf.add(graph, group_uri, rdf.DJHT["data_edit"], True, XSD.boolean)
+        rdf.add(graph, group_uri, rdf.DJHT["data_remove"], False, XSD.boolean)
+        rdf.add(graph, group_uri, rdf.DJHT["is_inferred"], is_inferred, XSD.boolean)
+        rdf.add(graph, group_uri, rdf.DJHT["group_id"], group_id, XSD.integer)
+
+        if self.add_triples_from_graph (graph):
+            return rdf.uri_to_uuid(group_uri)
+        return None
+
+    def delete_inferred_groups (self):
+        query = self.__query_from_template("delete_inferred_groups")
+        return self.__run_logged_query (query)
+
     def item_collaborative_permissions (self, item_type, item_uuid,
                                         collaborator_account_uuid):
         """
@@ -1884,6 +1923,7 @@ class SparqlInterface:
         })
 
         results = self.__run_query(query)
+        self.__log_query(query)
         try:
             group_id = self.groups[account_uuid]["group"]
             for collaborator_uuid in self.groups.keys():
@@ -1928,6 +1968,7 @@ class SparqlInterface:
         graph.add ((collaborator_uri, RDF.type,      rdf.DJHT["Collaborator"]))
         rdf.add (graph, collaborator_uri, rdf.DJHT["metadata_read"], metadata_read, XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["metadata_edit"], metadata_edit, XSD.boolean)
+        rdf.add (graph, collaborator_uri, rdf.DJHT["metadata_remove"], metadata_remove, XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_read"],     data_read,     XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_edit"],     data_edit,     XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_remove"],   data_remove,   XSD.boolean)
@@ -3175,6 +3216,7 @@ class SparqlInterface:
 
         account = self.account_by_uuid (account_uuid)
         if account is None:
+            self.log.info("Bestaat account?")
             return None, None, None
 
         if token is None:

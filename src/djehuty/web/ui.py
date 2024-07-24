@@ -352,24 +352,28 @@ def setup_saml_service_provider (server, logger):
         else:
             logger.error ("Failed to create '%s'.", saml_cache_dir)
 
-def read_group_configuration (server, xml_root, logger):
-    """Read the group configuration from XML_ROOT."""
-    groups = xml_root.find("groups")
-    if not groups:
-        return None
 
-    # lookup table tussen email adres en group naam dict {key:value} = {mail:group}
-    for group in groups:
-        group_name = group.attrib["name"]
-        group_id = group.attrib["id"]
-        for account in group:
-            is_supervisor = account.attrib.get("is_supervisor")
-            is_supervisor = is_supervisor == "1"
-            server.db.groups[account.attrib["email"].lower()]= {
-                "group": group_id,
-                "group_name": group_name,
-                "is_supervisor": is_supervisor
-            }
+def read_group_configuration (server, logger, config_files):
+    """Read the group configuration from XML_ROOT."""
+    for config_file in config_files:
+        tree = ElementTree.parse(config_file)
+        xml_root = tree.getroot()
+        if xml_root.tag != "djehuty":
+            continue
+        groups = xml_root.find("groups")
+        if not groups:
+            return None
+
+        for group in groups:
+            group_name = group.attrib["name"]
+            group_id = group.attrib["id"]
+            group_uuid = server.db.insert_group(group_name, True, group_id)
+            for member in group:
+                is_supervisor = member.attrib.get("is_supervisor")
+                is_supervisor = is_supervisor == "1"
+                account = server.db.account_by_email(member.attrib["email"].lower())
+                if account is not None:
+                    server.db.insert_group_member(group_uuid, account["uuid"], is_supervisor, True)
 
 def read_privilege_configuration (server, xml_root, logger):
     """Read the privileges configuration from XML_ROOT."""
@@ -737,7 +741,6 @@ def read_configuration_file (server, config_file, logger, config_files):
         read_saml_configuration (server, xml_root, logger)
         read_automatic_login_configuration (server, xml_root)
         logger.info("EN NOE?")
-        read_group_configuration(server, xml_root, logger)
         read_privilege_configuration (server, xml_root, logger)
         read_storage_locations (server, xml_root)
         read_quotas_configuration (server, xml_root)
@@ -999,6 +1002,10 @@ def main (config_file=None, run_internal_server=True, initialize=True,
 
         server.db.setup_sparql_endpoint ()
         server.db.disable_collaboration = server.disable_collaboration
+        #if not inside_reload:
+         #   server.db.delete_inferred_groups()
+          #  read_group_configuration(server, logger, config_files)
+
 
         if apply_transactions is not None:
             return apply_transactions_from_directory (logger, server, config, apply_transactions)

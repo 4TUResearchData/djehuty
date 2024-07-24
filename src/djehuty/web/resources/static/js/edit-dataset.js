@@ -322,7 +322,6 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
         /* For the group(s). */
         let group_row_has_been_set = false;
         for (let collaborator of collaborators) {
-            if (!collaborator.inferred) { continue; }
             if (!group_row_has_been_set) {
                 jQuery("#collaborators-form tbody").append(`<tr><td colspan="7" style="text-align:left"><strong>${collaborator.group_name}</strong></td></tr>`);
                 group_row_has_been_set = true;
@@ -332,38 +331,7 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
             if (collaborator.is_supervisor) {
                 supervisor_badge = '<span class="active-badge">Supervisor</span>';
             }
-                row += `${collaborator.first_name} ${collaborator.last_name} (${collaborator.email})${supervisor_badge}</td>`;
-                row += '<td class="type-begin"><input name="read" type="checkbox" disabled="disabled"';
-                row += collaborator.metadata_read ? ' checked="checked"' : '';
-                row += '></td><td class="type-end"><input name="edit" type="checkbox" disabled="disabled"';
-                row += collaborator.metadata_edit ? ' checked="checked"' : '';
-                row += '></td><td><input name="read" type="checkbox" disabled="disabled"';
-                row += collaborator.data_read ? ' checked="checked"' : '';
-                row += '></td><td><input name="edit" type="checkbox" disabled="disabled"';
-                row += collaborator.data_edit ? ' checked="checked"' : '';
-                row += '></td><td class="type-end"><input name="remove" type="checkbox" disabled="disabled"';
-                row += collaborator.data_remove ? ' checked="checked"' : '';
-                row += '></td><td>';
-
-            if (may_edit_metadata) {
-                row += '<a href="#"';
-                row += `onclick="javascript:remove_collaborator('${encodeURIComponent(collaborator.uuid)}', `;
-                row += `'${dataset_uuid}', '${may_edit_metadata}'); return false;" class="fas fa-trash-can" `;
-                row += `title="Remove"></a>`;
-            }
-            row += '</td></tr>';
-            jQuery("#collaborators-form tbody").prepend(row);
-        }
-
-        /* For the individual accounts. */
-        for (let collaborator of collaborators) {
-            if (collaborator.inferred) { continue; }
-            let row = `<tr><td>`;
-            let supervisor_badge = "";
-            if (collaborator.is_supervisor) {
-                supervisor_badge = '<span class="active-badge">Supervisor</span>';
-            }
-            row += `${collaborator.first_name} ${collaborator.last_name} (${collaborator.email})</td>`;
+            row += `${collaborator.first_name} ${collaborator.last_name} (${collaborator.email})${supervisor_badge}</td>`;
             row += '<td class="type-begin"><input name="read" type="checkbox" disabled="disabled"';
             row += collaborator.metadata_read ? ' checked="checked"' : '';
             row += '></td><td class="type-end"><input name="edit" type="checkbox" disabled="disabled"';
@@ -382,10 +350,12 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
                 row += `'${dataset_uuid}', '${may_edit_metadata}'); return false;" class="fas fa-trash-can" `;
                 row += `title="Remove"></a>`;
             }
-            row += '</td></tr>';
-            jQuery("#collaborators-form tbody").prepend(row);
-        }
 
+            row += '</td></tr>';
+            if (collaborator.is_supervisor) {jQuery("#collaborators-form tbody").prepend(row);}
+            else {jQuery("#collaborators-form tbody").append(row);}
+
+        }
 
         jQuery("#add_collaborator").on("input", function (event) {
             return autocomplete_collaborator (event, dataset_uuid);
