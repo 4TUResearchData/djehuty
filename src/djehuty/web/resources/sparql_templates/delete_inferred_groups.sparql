@@ -4,7 +4,6 @@ DELETE {
     GRAPH <{{state_graph}}> {
     ?group      ?predicate          ?object .
     ?account    ?account_predicate  ?account_object .
-
     }
 }
 WHERE {
@@ -15,6 +14,7 @@ WHERE {
         ?account    rdf:type            djht:Account .
         ?account    djht:is_inferred    "true"^^xsd:boolean .
         ?account    ?account_predicate  ?account_object .
+        {?account    djht:is_member_of   ?group .} UNION {?account    djht:is_supervisor_of   ?group .}
     }
 }
 {% endblock %}
