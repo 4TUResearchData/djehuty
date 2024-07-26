@@ -3078,7 +3078,11 @@ class SparqlInterface:
                 self.log.info ("Account for %s already exists.", email)
                 continue
 
-            account_uuid = self.insert_account (email=email)
+            first_name   = self.privileges[email]["first_name"]
+            last_name    = self.privileges[email]["last_name"]
+            account_uuid = self.insert_account (email      = email,
+                                                first_name = first_name,
+                                                last_name  = last_name)
             if not account_uuid:
                 self.log.error ("Creating account for %s failed.", email)
                 continue
@@ -3091,6 +3095,8 @@ class SparqlInterface:
 
             author_uuid = self.insert_author (
                 email        = email,
+                first_name   = first_name,
+                last_name    = last_name,
                 account_uuid = account_uuid,
                 orcid_id     = orcid,
                 is_active    = True,

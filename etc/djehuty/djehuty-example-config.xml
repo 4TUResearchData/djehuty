@@ -80,7 +80,7 @@
     <from>noreply@example.com</from>
   </email>
   <privileges>
-    <account email="you@example.com" orcid="0000-0000-0000-0001">
+    <account first_name="John" last_name="Doe" email="you@example.com" orcid="0000-0000-0000-0001">
       <may-administer>1</may-administer>
       <may-run-sparql-queries>1</may-run-sparql-queries>
       <may-impersonate>1</may-impersonate>

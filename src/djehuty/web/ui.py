@@ -374,7 +374,9 @@ def read_privilege_configuration (server, xml_root, logger):
                 "may_review_integrity": bool(int(config_value (account, "may-review-integrity", None, False))),
                 "may_process_feedback": bool(int(config_value (account, "may-process-feedback", None, False))),
                 "may_receive_email_notifications": bool(int(config_value (account, "may-receive-email-notifications", None, True))),
-                "orcid":           orcid
+                "orcid":           orcid,
+                "first_name":      account.attrib.get("first_name"),
+                "last_name":       account.attrib.get("last_name"),
             }
 
             ## The "needs_2fa" property is set to True when the user has any
