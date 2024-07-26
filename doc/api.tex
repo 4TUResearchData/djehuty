@@ -1,0 +1,253 @@
+\chapter{Application Programming Interface}
+
+  The application programming interface (API) provided by \t{djehuty} allows
+  for automating tasks otherwise done through the user interface.  In addition
+  to automation, the API can also be used to gather additional information,
+  like statistics on Git repositories.
+
+  Throughout this chapter we provide examples for using the API using \t{curl} and \t{jq}.
+  Another way of seeing the API in action is to use the developer tools in a web
+  browser while performing the desired action using the web user interface.
+
+\section{Getting started}
+
+  Most interaction with the API requires an API token.  Such a token can be
+  obtained from the dashboard page after logging in.
+
+\section{The \t{/v2} interface}
+
+  The \t{v2} API was designed by Figshare\dhref{https://figshare.com}.
+  \t{djehuty} implements a backward-compatible version of it, with the
+  following differences:
+  \begin{enumerate}
+    \item{The \t{id} property is superseded by the \t{uuid} property.}
+    \item{Error handling is done through precise HTTP error codes,
+        rather than always returning \t{400} on a usage error.}
+  \end{enumerate}
+
+  Unless specified otherwise, the HTTP \t{Content-Type} to interact
+  with the API is \t{application/json}.  In the case an API call returns
+  information, don't forget to set the HTTP \t{Accept} header appropriately.
+
+\subsection{\t{/v2/articles} (HTTP \code{GET})}
+\label{sec:v2-articles}
+
+  The following parameters can be used:
+
+\begin{tabular}{p{0.20\textwidth} p{0.20\textwidth} p{0.59\textwidth}}
+  \ifdefined\HCode
+  \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
+  \fi
+  \t{order}            & Optional & Field to use for sorting.\\
+  \t{order\_direction} & Optional & Can be either \code{asc} or \code{desc}.\\
+  \t{institution}      & Optional & The institution identifier to filter on.\\
+  \t{published\_since} & Optional & When set, datasets published before this
+                                    timestamp are dropped from the results.\\
+  \t{modified\_since}  & Optional & When set, only datasets modified after
+                                    this timestamp are shown from the results.\\
+  \t{group}            & Optional & The group identifier to filter on.\\
+  \t{resource\_doi}    & Optional & The DOI of the associated journal publication.
+                                    When set, only returns datasets associated
+                                    with this DOI.\\
+  \t{item\_type}       & Optional & Either \code{3} for datasets or \code{9}
+                                    for software.\\
+  \t{doi}              & Optional & The DOI of the dataset to search for.\\
+  \t{handle}           & Optional & Unused.\\
+\end{tabular}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl "https://data.4tu.nl/v2/articles?limit=100&published_since=2024-07-25" | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been shortened. */
+  {
+    "id": null,
+    "uuid": "4f8a9423-83fc-4263-9bb7-2aa83d73865d",
+    "title": "Measurement data of a Low Speed Field Test of Tractor Se...",
+    "doi": "10.4121/4f8a9423-83fc-4263-9bb7-2aa83d73865d.v1",
+    "handle": null,
+    "url": "https://data.4tu.nl/v2/articles/4f8a...865d",
+    "published_date": "2024-07-26T10:39:57",
+    "thumb": null,
+    "defined_type": 3,
+    "defined_type_name": "dataset",
+    "group_id": 28589,
+    "url_private_api": "https://data.4tu.nl/v2/account/articles/4f8a...865d",
+    "url_public_api": "https://data.4tu.nl/v2/articles/4f8a...865d",
+    "url_private_html": "https://data.4tu.nl/my/datasets/4f8a...865d/edit",
+    "url_public_html": "https://data.4tu.nl/datasets/4f8a...865d/1",
+    ...
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/articles/search} (HTTP \code{POST})}
+
+  In addition to the parameters of section \refer{sec:v2-articles}, the
+  following parameters can be used.
+
+\begin{tabular}{p{0.20\textwidth} p{0.20\textwidth} p{0.59\textwidth}}
+  \ifdefined\HCode
+  \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
+  \fi
+  \t{search\_for}       & Optional & The terms to search for.\\
+\end{tabular}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request POST\
+     --header "Content-Type: application/json"\
+     --data '{ "search_for": "djehuty" }'\
+     https://data.4tu.nl/v2/articles/search | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been shortened. */
+  {
+    "id": null,
+    "uuid": "342efadc-66f8-4e9b-9d27-da7b28b849d2",
+    "title": "Source code of the 4TU.ResearchData repository",
+    "doi": "10.4121/342efadc-66f8-4e9b-9d27-da7b28b849d2.v1",
+    "handle": null,
+    "url": "https://data.4tu.nl/v2/articles/342e...49d2",
+    "published_date": "2023-03-20T11:29:10",
+    "thumb": null,
+    "defined_type": 9,
+    "defined_type_name": "software",
+    "group_id": 28586,
+    "url_private_api": "https://data.4tu.nl/v2/account/articles/342e...49d2",
+    "url_public_api": "https://data.4tu.nl/v2/articles/342e...49d2",
+    "url_private_html": "https://data.4tu.nl/my/datasets/342e...49d2/edit",
+    "url_public_html": "https://data.4tu.nl/datasets/342e...49d2/1",
+    ...
+  }
+]
+\end{lstlisting}
+\subsection{\t{/v2/articles/<dataset-id>} (HTTP \code{GET})}
+\label{sec:v2-articles-dataset-id}
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2 | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "files": ...,
+  "custom_fields": ...,
+  "authors": ...,
+  "description": "<p>This dataset contains the source code of the 4TU...",
+  "license": ...,
+  "tags": ...,
+  "categories": ...,
+  "references": ...,
+  "id": null,
+  "uuid": "342efadc-66f8-4e9b-9d27-da7b28b849d2",
+  "title": "Source code of the 4TU.ResearchData repository",
+  "doi": "10.4121/342efadc-66f8-4e9b-9d27-da7b28b849d2.v1",
+  "url": "https://data.4tu.nl/v2/articles/342e...49d2",
+  "published_date": "2023-03-20T11:29:10",
+  "timeline": ...,
+  ...
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/articles/<dataset-id>/versions} (HTTP \code{GET})}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  {
+    "version": 1,
+    "url": "https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions/1"
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/articles/<dataset-id>/versions/<version>} (HTTP \code{GET})}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions/1 | jq
+\end{lstlisting}
+
+  The output of the example is identical to the example output of section
+  \refer{sec:v2-articles-dataset-id}.
+
+\subsection{\t{/v2/articles/<dataset-id>/versions/<version>/embargo} (HTTP \code{GET})}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl https://data.4tu.nl/v2/articles/c1274889-b797-43bd-a3b1-ee0611d58fd7/versions/2/embargo | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{
+  "is_embargoed": true,
+  "embargo_date": "2039-06-30",
+  "embargo_type": "article",
+  "embargo_title": "Under embargo",
+  "embargo_reason": "<p>Need consent to publish the data</p>",
+  "embargo_options": []
+}
+\end{lstlisting}
+
+
+%\subsection{\t{/v2/articles/<dataset-id>}/versions/<version>/confidentiality (HTTP \code{GET})}
+%\subsection{\t{/v2/articles/<dataset-id>}/versions/<version>/update\_thumb}
+\subsection{\t{/v2/articles/<dataset-id>/files} (HTTP \code{GET})}
+
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/files
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been shortened. */
+  {
+    "id": null,
+    "uuid": "d3e1c325-7fa9-4cb9-884e-0b9cd2059292",
+    "name": "djehuty-0.0.1.tar.gz",
+    "size": 3713709,
+    "is_link_only": false,
+    "is_incomplete": false,
+    "download_url": "https://data.4tu.nl/file/342e...49d2/d3e1...9292",
+    "supplied_md5": null,
+    "computed_md5": "910e9b0f79a0af548f59b3d8a56c3bf4"
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/articles/<dataset-id>/files/<file-id>} (HTTP \code{GET})}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl https://data.4tu.nl/v2/articles/342e...49d2/files/d3e1...9292 | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "id": null,
+  "uuid": "d3e1c325-7fa9-4cb9-884e-0b9cd2059292",
+  "name": "djehuty-0.0.1.tar.gz",
+  "size": 3713709,
+  "is_link_only": false,
+  "is_incomplete": false,
+  "download_url": "https://data.4tu.nl/file/342e...49d2/d3e1...9292",
+  "supplied_md5": null,
+  "computed_md5": "910e9b0f79a0af548f59b3d8a56c3bf4"
+}
+\end{lstlisting}

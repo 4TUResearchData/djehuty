@@ -164,6 +164,17 @@
   identifierstyle=\color{magenta}
 }
 
+
+\lstdefinelanguage{JSON}
+{
+  basicstyle=\normalfont\ttfamily,
+  commentstyle=\color{CodeComment},
+  stringstyle=\color{CodePurple},
+  string=[s]{"}{"},
+  comment=[l]{:\ "},
+  morecomment=[l]{:"}
+}
+
 \lstdefinestyle{codestyle}{
     commentstyle=\color{CodeComment},
     keywordstyle=\color{magenta},
