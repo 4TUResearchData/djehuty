@@ -409,7 +409,7 @@ def format_dataset_embargo_record (dataset):
 
     return {
         "is_embargoed":      bool(is_embargoed or is_restricted),
-        "embargo_date":      conv.value_or_none(dataset, "embargo_until"),
+        "embargo_date":      conv.value_or_none(dataset, "embargo_until_date"),
         "embargo_type":      conv.value_or(dataset, "embargo_type", "file"),
         "embargo_title":     conv.value_or(dataset, "embargo_title", ""),
         "embargo_reason":    conv.value_or(dataset, "embargo_reason", ""),
