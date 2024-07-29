@@ -1919,38 +1919,8 @@ class SparqlInterface:
             "dataset_uuid": dataset_uuid,
             "account_uuid": account_uuid,
         })
-
-        results = self.__run_query(query)
         self.__log_query(query)
-        try:
-            group_id = self.groups[account_uuid]["group"]
-            for collaborator_uuid in self.groups.keys():
-                account = self.account_by_uuid (collaborator_uuid)
-                if group_id == self.groups[collaborator_uuid]["group"]:
-                    results.append({
-                        "dataset_uri": f"dataset:{dataset_uuid}",
-                        "metadata_read": True,
-                        "metadata_edit": True,
-                        "metadata_remove": self.groups[collaborator_uuid]["is_supervisor"],
-                        "data_read": True,
-                        "data_edit": True,
-                        "data_remove": True,
-                        "first_name": conv.value_or_none (account, "first_name"),
-                        "last_name": conv.value_or_none (account, "last_name"),
-                        "uuid": str(uuid.uuid4()),
-                        "email": account["email"],
-                        "group_id": group_id,
-                        "group_name": self.groups[collaborator_uuid]["group_name"],
-                        "is_supervisor": self.groups[collaborator_uuid]["is_supervisor"],
-                        "inferred": True,
-                        "order_index": None,
-                        "account_uuid": collaborator_uuid,
-                        "originating_blank_node": None
-                    })
-        except (TypeError, KeyError):
-            pass
-
-        return results
+        return self.__run_query(query)
 
     def insert_collaborator (self, dataset_uuid, collaborator_uuid,
                              account_uuid, metadata_read, metadata_edit,

@@ -1883,9 +1883,6 @@ class ApiServer:
         review_datasets    = self.__datasets_with_storage_usage (review_datasets)
         published_datasets = self.__datasets_with_storage_usage (published_datasets)
 
-        for draft in draft_datasets:
-            draft["is_supervisor"] = self.db.groups[account_uuid]["is_supervisor"]
-
         return self.__render_template (request, "depositor/my-data.html",
                                        draft_datasets     = draft_datasets,
                                        review_datasets    = review_datasets,
@@ -2434,10 +2431,7 @@ class ApiServer:
             if error_response is not None:
                 return error_response
 
-            collaborators = self.db.collaborators (dataset["uuid"], account_uuid=account_uuid)
-            for collaborator in collaborators:
-                if collaborator["account_uuid"] in self.db.groups:
-                    collaborator["is_supervisor"] = self.db.groups[collaborator["account_uuid"]]["is_supervisor"]
+            collaborators = self.db.collaborators (dataset["uuid"])
             return self.default_list_response (collaborators, formatter.format_collaborator_record)
 
         if request.method == "POST":
