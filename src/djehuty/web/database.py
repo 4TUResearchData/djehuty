@@ -1857,7 +1857,7 @@ class SparqlInterface:
 
         return False
 
-    def insert_group_member (self, group_uuid, account_uuid, is_supervisor, is_inferred):
+    def insert_group_member (self, group_uuid, account_uuid, is_supervisor, is_inferred=None):
 
         graph = Graph()
         account_uri = URIRef(rdf.uuid_to_uri(account_uuid, "account"))
@@ -1866,8 +1866,6 @@ class SparqlInterface:
             rdf.add(graph, account_uri, rdf.DJHT["is_supervisor_of"], group_uri, "uri")
         else:
             rdf.add(graph, account_uri, rdf.DJHT["is_member_of"], group_uri, "uri")
-
-        rdf.add(graph, account_uri, rdf.DJHT["is_inferred"], is_inferred, XSD.boolean)
 
         if self.add_triples_from_graph(graph):
             return True

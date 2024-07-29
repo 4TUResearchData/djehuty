@@ -371,9 +371,27 @@ def read_group_configuration (server, logger, config_files):
             for member in group:
                 is_supervisor = member.attrib.get("is_supervisor")
                 is_supervisor = is_supervisor == "1"
-                account = server.db.account_by_email(member.attrib["email"].lower())
+                email = member.attrib.get("email")
+                if email is None:
+                    logger.error ("Account must have 'email' attribute.")
+                    continue
+                email = email.lower()
+                account = server.db.account_by_email(email)
                 if account is not None:
-                    server.db.insert_group_member(group_uuid, account["uuid"], is_supervisor, True)
+                    server.db.insert_group_member (group_uuid, account["uuid"], is_supervisor)
+                else:
+                    first_name = member.attrib.get("first_name")
+                    last_name  = member.attrib.get("last_name")
+                    common_name = f"{first_name} {last_name}"
+                    if first_name is None and last_name is None:
+                        logger.warning ("Adding account %s without name.", email)
+                        common_name = None
+                    account_uuid = server.db.insert_account (
+                        email       = email,
+                        first_name  = first_name,
+                        last_name   = last_name,
+                        common_name = common_name)
+                    server.db.insert_group_member (group_uuid, account_uuid, is_supervisor)
 
 def read_privilege_configuration (server, xml_root, logger):
     """Read the privileges configuration from XML_ROOT."""
