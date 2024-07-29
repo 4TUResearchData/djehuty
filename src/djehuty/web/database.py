@@ -1875,7 +1875,7 @@ class SparqlInterface:
         graph = Graph()
         group_uri = rdf.unique_node("group")
         rdf.add(graph, group_uri, RDFS.label, name, XSD.string)
-        rdf.add(graph, group_uri, RDF.type, rdf.DJHT["Group"], "uri")
+        rdf.add(graph, group_uri, RDF.type, rdf.DJHT["InstitutionGroup"], "uri")
 
         rdf.add(graph, group_uri, rdf.DJHT["metadata_read"], True, XSD.boolean)
         rdf.add(graph, group_uri, rdf.DJHT["metadata_edit"], True, XSD.boolean)

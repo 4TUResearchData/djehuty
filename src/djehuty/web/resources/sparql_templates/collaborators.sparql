@@ -5,26 +5,43 @@ SELECT DISTINCT ?dataset_uri
                 ?data_read          ?data_edit          ?data_remove
                 ?first_name         ?last_name          ?uuid
                 ?email              ?order_index        ?account_uuid
-                ?group_id           ?group_name
+                ?group_id           ?group_name         ?is_supervisor
                 (?rest AS ?originating_blank_node)
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?dataset_uri       djht:collaborators       ?collaborators .
-    ?collaborators     rdf:rest*                ?rest .
-    ?rest              rdf:first                ?collaborator_uri .
-    ?rest              djht:index               ?order_index .
-    ?collaborator_uri  rdf:type                 djht:Collaborator .
-    ?collaborator_uri  djht:account             ?account .
-    ?collaborator_uri  djht:metadata_read       ?metadata_read .
-    ?collaborator_uri  djht:metadata_edit       ?metadata_edit .
-    ?collaborator_uri  djht:metadata_remove     ?metadata_remove .
-    ?collaborator_uri  djht:data_read           ?data_read .
-    ?collaborator_uri  djht:data_edit           ?data_edit .
-    ?collaborator_uri  djht:data_remove         ?data_remove .
+    {
+      ?dataset_uri       djht:collaborators       ?collaborators .
+      ?collaborators     rdf:rest*                ?rest .
+      ?rest              rdf:first                ?collaborator_uri .
+      ?rest              djht:index               ?order_index .
+      ?collaborator_uri  rdf:type                 djht:Collaborator .
+      ?collaborator_uri  djht:account             ?account .
 
-    OPTIONAL { ?account           djht:first_name          ?first_name . }
-    OPTIONAL { ?account           djht:last_name           ?last_name . }
-    OPTIONAL { ?account           djht:email               ?email . }
+      ?collaborator_uri  djht:metadata_read       ?metadata_read .
+      ?collaborator_uri  djht:metadata_edit       ?metadata_edit .
+      ?collaborator_uri  djht:metadata_remove     ?metadata_remove .
+      ?collaborator_uri  djht:data_read           ?data_read .
+      ?collaborator_uri  djht:data_edit           ?data_edit .
+      ?collaborator_uri  djht:data_remove         ?data_remove .
+    } UNION {
+      ?dataset_uri       djht:container/djht:account ?owner .
+      ?owner             djht:is_member_of        ?group .
+
+      {
+        ?account           djht:is_member_of        ?group .
+        BIND("false"^^xsd:boolean AS ?is_supervisor)
+      } UNION {
+        ?account           djht:is_supervisor_of    ?group .
+        BIND("true"^^xsd:boolean AS ?is_supervisor)
+      }
+
+      ?group             djht:metadata_read       ?metadata_read .
+      ?group             djht:metadata_edit       ?metadata_edit .
+      ?group             djht:metadata_remove     ?metadata_remove .
+      ?group             djht:data_read           ?data_read .
+      ?group             djht:data_edit           ?data_edit .
+      ?group             djht:data_remove         ?data_remove .
+    }
     OPTIONAL {
       ?account           djht:domain                ?domain .
       ?group             rdf:type                   djht:InstitutionGroup ;
@@ -32,6 +49,9 @@ WHERE {
                          djht:name                  ?group_name ;
                          djht:id                    ?group_id .
     }
+    OPTIONAL { ?account           djht:first_name          ?first_name . }
+    OPTIONAL { ?account           djht:last_name           ?last_name . }
+    OPTIONAL { ?account           djht:email               ?email . }
 
     BIND(STRAFTER(STR(?collaborator_uri), "collaborator:") AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:") AS ?account_uuid)
