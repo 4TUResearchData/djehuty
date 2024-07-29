@@ -352,7 +352,9 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
             }
 
             row += '</td></tr>';
-            if (collaborator.is_supervisor) {jQuery("#collaborators-form tbody").prepend(row);}
+            if (collaborator.is_supervisor || !collaborator.is_inferred) {
+                jQuery("#collaborators-form tbody").prepend(row);
+            }
             else {jQuery("#collaborators-form tbody").append(row);}
 
         }

@@ -20,7 +20,7 @@ def format_collaborator_record (record):
         "is_supervisor":  conv.value_or_none(record, "is_supervisor"),
         "group_id":       conv.value_or_none(record, "group_id"),
         "group_name":     conv.value_or_none(record, "group_name"),
-        "inferred":       conv.value_or(record, "inferred", False)
+        "is_inferred":    conv.value_or(record, "is_inferred", False)
     }
 
 def format_account_record (record):

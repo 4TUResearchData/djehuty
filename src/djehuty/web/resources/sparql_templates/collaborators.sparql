@@ -6,7 +6,7 @@ SELECT DISTINCT ?dataset_uri
                 ?first_name         ?last_name          ?uuid
                 ?email              ?order_index        ?account_uuid
                 ?group_id           ?group_name         ?is_supervisor
-                (?rest AS ?originating_blank_node)
+                (?rest AS ?originating_blank_node)      ?is_inferred
 WHERE {
   GRAPH <{{state_graph}}> {
     {
@@ -23,6 +23,7 @@ WHERE {
       ?collaborator_uri  djht:data_read           ?data_read .
       ?collaborator_uri  djht:data_edit           ?data_edit .
       ?collaborator_uri  djht:data_remove         ?data_remove .
+      BIND("false"^^xsd:boolean AS ?is_inferred)
     } UNION {
       ?dataset_uri       djht:container/djht:account ?owner .
       ?owner             djht:is_member_of        ?group .
@@ -41,6 +42,7 @@ WHERE {
       ?group             djht:data_read           ?data_read .
       ?group             djht:data_edit           ?data_edit .
       ?group             djht:data_remove         ?data_remove .
+      BIND("true"^^xsd:boolean AS ?is_inferred)
     }
     OPTIONAL {
       ?account           djht:domain                ?domain .
