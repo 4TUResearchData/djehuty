@@ -1864,6 +1864,7 @@ class SparqlInterface:
         group_uri = URIRef(rdf.uuid_to_uri(group_uuid, "group"))
         if is_supervisor:
             rdf.add(graph, account_uri, rdf.DJHT["is_supervisor_of"], group_uri, "uri")
+            rdf.add(graph, account_uri, rdf.DJHT["is_member_of"], group_uri, "uri")
         else:
             rdf.add(graph, account_uri, rdf.DJHT["is_member_of"], group_uri, "uri")
 

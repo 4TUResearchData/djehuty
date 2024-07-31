@@ -28,13 +28,10 @@ WHERE {
       ?dataset_uri       djht:container/djht:account ?owner .
       ?owner             djht:is_member_of        ?group .
 
-      {
-        ?account           djht:is_member_of        ?group .
-        BIND("false"^^xsd:boolean AS ?is_supervisor)
-      } UNION {
-        ?account           djht:is_supervisor_of    ?group .
-        BIND("true"^^xsd:boolean AS ?is_supervisor)
-      }
+      OPTIONAL { ?account djht:is_supervisor_of   ?group2 . }
+      BIND(?group2 = ?group AS ?is_supervisor)
+      ?account           djht:email               ?email .
+      ?account           djht:is_member_of        ?group .
 
       ?group             djht:metadata_read       ?metadata_read .
       ?group             djht:metadata_edit       ?metadata_edit .
