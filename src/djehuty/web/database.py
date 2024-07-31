@@ -1857,20 +1857,38 @@ class SparqlInterface:
 
         return False
 
-    def insert_group_member (self, group_uuid, account_uuid, is_supervisor, is_inferred=None):
+    def insert_group_member (self, group_uuid, account_uuid, is_supervisor):
 
         graph = Graph()
+        member_uri = rdf.unique_node("member")
         account_uri = URIRef(rdf.uuid_to_uri(account_uuid, "account"))
-        group_uri = URIRef(rdf.uuid_to_uri(group_uuid, "group"))
-        if is_supervisor:
-            rdf.add(graph, account_uri, rdf.DJHT["is_supervisor_of"], group_uri, "uri")
-            rdf.add(graph, account_uri, rdf.DJHT["is_member_of"], group_uri, "uri")
-        else:
-            rdf.add(graph, account_uri, rdf.DJHT["is_member_of"], group_uri, "uri")
+        graph.add((member_uri, RDF.type, rdf.DJHT["Member"]))
+        rdf.add(graph, member_uri, rdf.DJHT["metadata_read"], True, XSD.boolean)
+        rdf.add(graph, member_uri, rdf.DJHT["metadata_edit"], True, XSD.boolean)
+        rdf.add(graph, member_uri, rdf.DJHT["metadata_remove"], is_supervisor, XSD.boolean)
+        rdf.add(graph, member_uri, rdf.DJHT["data_read"], True, XSD.boolean)
+        rdf.add(graph, member_uri, rdf.DJHT["data_edit"], True, XSD.boolean)
+        rdf.add(graph, member_uri, rdf.DJHT["data_remove"], is_supervisor, XSD.boolean)
+        rdf.add(graph, member_uri, rdf.DJHT["is_supervisor"], is_supervisor, XSD.boolean)
+        rdf.add(graph, member_uri, rdf.DJHT["account"], account_uri, "uri")
 
+        existing_members = self.members(group_uuid)
+        if not existing_members:
+            self.insert_item_list(graph, URIRef(rdf.uuid_to_uri(group_uuid, "group")), [URIRef(member_uri)], "members")
         if self.add_triples_from_graph(graph):
-            return True
-        return False
+            if existing_members:
+                return self.__append_to_existing_list(member_uri, existing_members)
+            return rdf.uri_to_uuid(member_uri)
+        self.log.error("failed to create member list for %s ", member_uri)
+        return None
+
+    def members(self, group_uuid):
+        "Get list of members of a group"
+        query = self.__query_from_template("members", {
+            "group_uuid": group_uuid,
+        })
+        self.__log_query(query)
+        return self.__run_query(query)
 
     def insert_group (self, name, is_inferred, group_id):
         graph = Graph()
@@ -1878,12 +1896,6 @@ class SparqlInterface:
         rdf.add(graph, group_uri, RDFS.label, name, XSD.string)
         rdf.add(graph, group_uri, RDF.type, rdf.DJHT["InstitutionGroup"], "uri")
 
-        rdf.add(graph, group_uri, rdf.DJHT["metadata_read"], True, XSD.boolean)
-        rdf.add(graph, group_uri, rdf.DJHT["metadata_edit"], True, XSD.boolean)
-        rdf.add(graph, group_uri, rdf.DJHT["metadata_remove"], False, XSD.boolean)
-        rdf.add(graph, group_uri, rdf.DJHT["data_read"], True, XSD.boolean)
-        rdf.add(graph, group_uri, rdf.DJHT["data_edit"], True, XSD.boolean)
-        rdf.add(graph, group_uri, rdf.DJHT["data_remove"], False, XSD.boolean)
         rdf.add(graph, group_uri, rdf.DJHT["is_inferred"], is_inferred, XSD.boolean)
         rdf.add(graph, group_uri, rdf.DJHT["group_id"], group_id, XSD.integer)
 
