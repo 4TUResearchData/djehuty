@@ -26,23 +26,22 @@ WHERE {
       BIND("false"^^xsd:boolean AS ?is_inferred)
     } UNION {
       ?dataset_uri       djht:container/djht:account ?owner .
-
-      BIND(EXISTS { ?account djht:is_supervisor_of ?group } AS ?is_supervisor)
+      ?group_uri   rdf:type djht:InstitutionGroup .
+      ?group_uri   djht:members/rdf:rest*/rdf:first/djht:account ?owner .
       ?group_uri         djht:members             ?members .
       ?members           rdf:rest*                ?rest .
       ?rest              rdf:first                ?member_uri .
       ?rest              djht:index               ?order_index .
       ?member_uri        rdf:type                 djht:Member .
       ?member_uri        djht:account             ?account .
-      ?member_uri        djht:account             ?owner .
-
-
       ?member_uri        djht:metadata_read       ?metadata_read .
       ?member_uri        djht:metadata_edit       ?metadata_edit .
       ?member_uri        djht:metadata_remove     ?metadata_remove .
       ?member_uri        djht:data_read           ?data_read .
       ?member_uri        djht:data_edit           ?data_edit .
       ?member_uri        djht:data_remove         ?data_remove .
+      ?member_uri        djht:is_supervisor       ?is_supervisor .
+
       BIND("true"^^xsd:boolean AS ?is_inferred)
     }
     OPTIONAL {
