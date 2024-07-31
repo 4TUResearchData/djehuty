@@ -344,7 +344,7 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
             row += collaborator.data_remove ? ' checked="checked"' : '';
             row += '></td><td>';
 
-            if (may_edit_metadata) {
+            if (may_edit_metadata && !collaborator.is_inferred && !collaborator.is_supervisor) {
                 row += '<a href="#"';
                 row += `onclick="javascript:remove_collaborator('${encodeURIComponent(collaborator.uuid)}', `;
                 row += `'${dataset_uuid}', '${may_edit_metadata}'); return false;" class="fas fa-trash-can" `;
