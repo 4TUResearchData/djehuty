@@ -1926,11 +1926,12 @@ class SparqlInterface:
 
         return None
 
-    def collaborators (self, dataset_uuid, account_uuid=None):
-        "Get list of collaborators of a dataset"
+    def collaborators (self, dataset_uuid, account_uuid=None, include_inferred=True):
+        "get list of collaborators of a dataset"
         query = self.__query_from_template("collaborators", {
             "dataset_uuid": dataset_uuid,
             "account_uuid": account_uuid,
+            "include_inferred": include_inferred
         })
         self.__log_query(query)
         return self.__run_query(query)
@@ -1959,7 +1960,7 @@ class SparqlInterface:
             rdf.add(graph, collaborator_uri, rdf.DJHT["added_by"], rdf.uuid_to_uri(account_uuid, "account"), "uri")
 
         if self.add_triples_from_graph (graph):
-            existing_collaborators = self.collaborators (dataset_uuid)
+            existing_collaborators = self.collaborators (dataset_uuid, include_inferred=False)
             if existing_collaborators:
                 return self.__append_to_existing_list (collaborator_uri, existing_collaborators)
 

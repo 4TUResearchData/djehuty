@@ -24,7 +24,9 @@ WHERE {
       ?collaborator_uri  djht:data_edit           ?data_edit .
       ?collaborator_uri  djht:data_remove         ?data_remove .
       BIND("false"^^xsd:boolean AS ?is_inferred)
-    } UNION {
+    }
+    {%- if include_inferred %}
+    UNION {
       ?dataset_uri       djht:container/djht:account ?owner .
       ?group_uri   rdf:type djht:InstitutionGroup .
       ?group_uri   djht:members/rdf:rest*/rdf:first/djht:account ?owner .
@@ -44,6 +46,7 @@ WHERE {
 
       BIND("true"^^xsd:boolean AS ?is_inferred)
     }
+    {%- endif %}
     OPTIONAL {
       ?account           djht:domain                ?domain .
       ?group             rdf:type                   djht:InstitutionGroup ;
