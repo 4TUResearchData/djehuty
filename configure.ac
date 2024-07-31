@@ -1,6 +1,6 @@
-AC_INIT(djehuty, 24.6-dev)
+AC_INIT(djehuty, 24.7-dev)
 AM_INIT_AUTOMAKE([foreign tar-ustar])
-AM_PATH_PYTHON([3.7])
+AM_PATH_PYTHON([3.8])
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
