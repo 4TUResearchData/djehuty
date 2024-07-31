@@ -7,15 +7,10 @@ DELETE {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?group      rdf:type            djht:Group .
+    ?group      rdf:type            djht:InstitutionGroup .
     ?group      djht:is_inferred    "true"^^xsd:boolean .
     ?group      ?predicate          ?object .
     ?account    rdf:type            djht:Account .
-    {
-      ?account    djht:is_member_of     ?group .
-    } UNION {
-      ?account    djht:is_supervisor_of ?group .
-    }
   }
 }
 {% endblock %}
