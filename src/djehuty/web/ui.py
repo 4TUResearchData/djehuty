@@ -1104,11 +1104,11 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                                      "because it has been initialized before."))
                     logger.warning ("Empty the state-graph to re-initialize.")
 
-            if not inside_reload:
-                server.db.delete_inferred_groups()
-                read_group_configuration(server, logger, config_files)
+        if not inside_reload:
+            server.db.delete_inferred_groups()
+            read_group_configuration(server, logger, config_files)
 
-            run_simple (config["address"], config["port"], server,
+        run_simple (config["address"], config["port"], server,
                     threaded=(config["maximum_workers"] <= 1),
                     processes=config["maximum_workers"],
                     extra_files=list(config_files),
