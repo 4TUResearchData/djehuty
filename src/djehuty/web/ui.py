@@ -879,6 +879,7 @@ def apply_transactions_from_directory (logger, server, config, transactions_dire
             with open(filename, "r", encoding="utf-8") as transaction:
                 query = transaction.read()
                 server.db.sparql.update (query)
+                server.db.sparql.commit()
                 print(f"Applied {transaction.name}.")
             os.rename (filename, applied_filename)
 
