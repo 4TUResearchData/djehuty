@@ -1768,7 +1768,7 @@ class ApiServer:
             assigned_uuid = uri_to_uuid (review["assigned_to"])
             if account_uuid == assigned_uuid:
                 self.db.dataset_update_seen_by_reviewer (dataset["uuid"])
-        except (TypeError, IndexError):
+        except (KeyError, TypeError, IndexError):
             pass
 
         # Add a secondary cookie to go back to at one point.
