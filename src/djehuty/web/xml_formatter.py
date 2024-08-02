@@ -171,7 +171,7 @@ def refworks (parameters):
             maker.child(ref, f'k{index+1}', {}, tag)
     maker.child(ref, 'pb')
     maker.child(ref, 'pp')
-    maker.child(ref, 'yr', {}, parameters['published_year'])
+    maker.child(ref, 'yr', {}, value_or (parameters, 'published_year', 'unknown'))
     maker.child(ref, 'ed')
     doi = parameters['doi']
     maker.child(ref, 'ul', {}, f'https://doi.org/{doi}')
