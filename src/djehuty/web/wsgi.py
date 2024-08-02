@@ -925,9 +925,11 @@ class ApiServer:
             file = None
             if parses_to_int (identifier):
                 file = self.db.dataset_files (file_id = int(identifier), **parameters)
-            elif (validator.is_valid_uuid (identifier) or
+            elif (validator.is_valid_uuid (identifier) and
                   validator.is_valid_uuid (uri_to_uuid (dataset_uri))):
                 file = self.db.dataset_files (file_uuid = identifier, **parameters)
+            elif (validator.is_valid_uuid (uri_to_uuid (dataset_uri))):
+                file = self.db.dataset_files (file_uuid = None, **parameters)
 
             return file
 
