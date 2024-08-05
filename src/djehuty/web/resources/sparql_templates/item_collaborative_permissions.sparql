@@ -1,7 +1,39 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?metadata_read ?metadata_edit ?metadata_remove
-                ?data_read ?data_edit ?data_remove
+DELETE {
+  GRAPH <{{state_graph}}> {
+    {%- if full_name is not none %}
+    ?author       djht:full_name             ?full_name .
+    {%- endif %}{% if first_name is not none %}
+    ?author       djht:first_name            ?first_name .
+    {%- endif%}{% if last_name is not none %}
+    ?author       djht:last_name             ?last_name .
+    {%- endif%}{% if email is not none %}
+    ?author       djht:email                 ?email .
+    {%- endif%}{% if orcid is not none %}
+    ?author       djht:orcid_id              ?orcid .
+    {%- endif%}{% if modified_date is not none %}
+    ?author       djht:modified_date         ?modified_date .
+    {%- endif%}
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    {%- if full_name is not none %}
+    ?author       djht:full_name             {{full_name | safe }} .
+    {%- endif %}{% if first_name is not none %}
+    ?author       djht:first_name            {{first_name | safe}} .
+    {%- endif%}{% if last_name is not none %}
+    ?author       djht:last_name             {{last_name | safe}} .
+    {%- endif%}{% if email is not none %}
+    ?author       djht:email                 {{email | safe}} .
+    {%- endif%}{% if orcid is not none %}
+    ?author       djht:orcid_id              {{orcid | safe}} .
+    {%- endif%}{% if modified_date is not none %}
+    ?author       djht:modified_date         {{modified_date | safe}} .
+    {%- endif%}
+  }
+}
 WHERE {
   GRAPH <{{state_graph}}> {
     ?item               rdf:type            djht:{{item_type | capitalize}} .

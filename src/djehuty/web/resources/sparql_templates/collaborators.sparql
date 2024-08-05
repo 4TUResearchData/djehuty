@@ -28,8 +28,8 @@ WHERE {
     {%- if include_inferred %}
     UNION {
       ?dataset_uri       djht:container/djht:account ?owner .
-      ?group_uri   rdf:type djht:InstitutionGroup .
-      ?group_uri   djht:members/rdf:rest*/rdf:first/djht:account ?owner .
+      ?group_uri         rdf:type djht:InstitutionGroup .
+      ?group_uri         djht:members/rdf:rest*/rdf:first/djht:account ?owner .
       ?group_uri         djht:members             ?members .
       ?members           rdf:rest*                ?rest .
       ?rest              rdf:first                ?member_uri .
@@ -49,7 +49,9 @@ WHERE {
     {%- endif %}
     OPTIONAL {
       ?account           djht:domain                ?domain .
-      ?group             rdf:type                   djht:InstitutionGroup ;
+      }
+    OPTIONAL {
+      ?group_uri         rdf:type                   djht:InstitutionGroup ;
                          djht:association_criteria  ?domain ;
                          djht:name                  ?group_name ;
                          djht:id                    ?group_id .

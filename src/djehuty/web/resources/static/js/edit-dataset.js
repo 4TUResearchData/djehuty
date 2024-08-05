@@ -328,10 +328,14 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
             }
             let row = `<tr><td>`;
             let supervisor_badge = "";
+            let group_member_badge = "";
             if (collaborator.is_supervisor) {
                 supervisor_badge = '<span class="active-badge">Supervisor</span>';
             }
-            row += `${collaborator.first_name} ${collaborator.last_name} (${collaborator.email})${supervisor_badge}</td>`;
+            if (collaborator.group_name) {
+                group_member_badge = `<span class="active-badge">${collaborator.group_name}</span>`;
+            }
+            row += `${collaborator.first_name} ${collaborator.last_name} (${collaborator.email})${supervisor_badge}${group_member_badge}</td>`;
             row += '<td class="type-begin"><input name="read" type="checkbox" disabled="disabled"';
             row += collaborator.metadata_read ? ' checked="checked"' : '';
             row += '></td><td class="type-end"><input name="edit" type="checkbox" disabled="disabled"';
@@ -367,6 +371,29 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
     }).fail(function () {
         show_message ("failure", "<p>Failed to retrieve collaborators.</p>");
     });
+}
+
+function update_collaborator (collaborator_uuid, dataset_uuid, may_edit_metadata) {
+    let update_form_data = {
+        "metadata": {
+            "read": jQuery("input[name='read'].subitem-checkbox-metadata").prop("checked"),
+            "edit": jQuery("input[name='edit'].subitem-checkbox-metadata").prop("checked"),
+        },
+        "data": {
+            "read": jQuery("input[name='read'].subitem-checkbox-data").prop("checked"),
+            "edit": jQuery("input[name='edit'].subitem-checkbox-data").prop("checked"),
+            "remove": jQuery("input[name='remove'].subitem-checkbox-data").prop("checked"),
+        },
+        "account": or_null(jQuery("#account_uuid").val())
+    };
+
+    jQuery.ajax({
+        url:         `/v3/datasets/${dataset_uuid}/collaborators/${collaborator_uuid}`,
+        type:        "PUT",
+        accept:      "application/json",
+        data:        JSON.stringify(update_form_data),
+    }).done(function () { render_collaborators_for_dataset (dataset_uuid, may_edit_metadata); })
+      .fail(function () { show_message ("failure", `<p>Failed to update ${collaborator_uuid}</p>`); });
 }
 
 function add_collaborator (dataset_uuid, may_edit_metadata) {

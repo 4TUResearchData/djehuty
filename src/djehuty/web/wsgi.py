@@ -357,6 +357,7 @@ class ApiServer:
             R("/v3/tags/search",                                                 self.api_v3_tags_search),
             R("/v3/datasets/<dataset_uuid>/collaborators",                       self.api_v3_dataset_collaborators),
             R("/v3/datasets/<dataset_uuid>/collaborators/<collaborator_uuid>",   self.api_v3_dataset_remove_collaborator),
+            R("/v3/datasets/<dataset_uuid>/collaborators/<collaborator_uuid>",   self.api_v3_update_collaborators),
             R("/v3/accounts/search",                                             self.api_v3_accounts_search),
             R("/v3/authors/<author_uuid>",                                       self.api_v3_author_details),
 
@@ -2468,6 +2469,11 @@ class ApiServer:
                                                          data["edit"],
                                                          data["remove"],
                                                          )
+            group_uuid = self.db.account_by_uuid ()
+
+            if collaborators in self.db.members (group["uuid"]):
+                self.log.error ("Collaborator already in your group.")
+                return self.error_400()
 
             if collaborators is None:
                 self.log.error ("Inserting collaborator failed. ")
@@ -2476,6 +2482,43 @@ class ApiServer:
             return self.respond_205()
 
         return self.error_500 ()
+
+    def api_v3_update_collaborators (self, request, dataset_uuid, collaborator_uuid):
+        """Update permissions of a collaborator"""
+        if not self.accepts_json(request):
+            return self.error_406("application/json")
+
+        account_uuid = self.account_uuid_from_request(request)
+        if account_uuid is None:
+            return self.error_authorization_failed(request)
+
+        if (not validator.is_valid_uuid(dataset_uuid) or
+                not validator.is_valid_uuid(collaborator_uuid)):
+            return self.error_404(request)
+
+        try:
+            dataset = self.db.datasets(container_uuid=dataset_uuid,
+                                       account_uuid=account_uuid,
+                                       is_published=False,
+                                       is_latest=None,
+                                       limit=1)[0]
+
+            _, error_response = self.__needs_collaborative_permissions(
+                account_uuid, request, "dataset", dataset, "metadata_edit")
+            if error_response is not None:
+                return error_response
+
+            if value_or(value_or(self.db.groups, collaborator_uuid, None), "is_supervisor", False):
+                return self.error_403(request)
+
+            if self.db.update_collaborator(dataset["uuid"], collaborator_uuid) is None:
+                return self.error_500()
+
+            return self.respond_204()
+        except IndexError:
+            pass
+
+        return self.error_403(request)
 
     def api_v3_accounts_search (self, request):
         """Search and autocomplete to add collaborator"""

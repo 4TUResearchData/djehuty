@@ -1890,14 +1890,15 @@ class SparqlInterface:
         self.__log_query(query)
         return self.__run_query(query)
 
-    def insert_group (self, name, is_inferred, group_id):
+    def insert_group (self, name, is_inferred, group_id, domain):
         graph = Graph()
         group_uri = rdf.unique_node("group")
-        rdf.add(graph, group_uri, RDFS.label, name, XSD.string)
+        rdf.add(graph, group_uri, rdf.DJHT["association_criteria"], domain, XSD.string)
+        rdf.add(graph, group_uri, rdf.DJHT["name"], name, XSD.string)
         rdf.add(graph, group_uri, RDF.type, rdf.DJHT["InstitutionGroup"], "uri")
 
         rdf.add(graph, group_uri, rdf.DJHT["is_inferred"], is_inferred, XSD.boolean)
-        rdf.add(graph, group_uri, rdf.DJHT["group_id"], group_id, XSD.integer)
+        rdf.add(graph, group_uri, rdf.DJHT["id"], group_id, XSD.integer)
 
         if self.add_triples_from_graph (graph):
             return rdf.uri_to_uuid(group_uri)
@@ -1975,12 +1976,30 @@ class SparqlInterface:
             self.log.error("failed to create collaborator list for %s ", collaborator_uri)
         return None
 
+    def update_collaborator (self, dataset_uuid, collaborator_uuid, metadata_read, metadata_edit,
+                             metadata_remove, data_read, data_edit, data_remove):
+        """Update permissions of existing collaborators"""
+
+        query = self.__query_from_template("update_collaborators", {
+            "dataset_uuid": dataset_uuid,
+            "collaborator_uuid": collaborator_uuid,
+            "metadata_read": rdf.escape_boolean_value(metadata_read),
+            "metadata_edit": rdf.escape_boolean_value(metadata_edit),
+            "metadata_remove": rdf.escape_boolean_value(metadata_remove),
+            "data_read": rdf.escape_boolean_value(data_read),
+            "data_edit": rdf.escape_boolean_value(data_edit),
+            "data_remove": rdf.escape_boolean_value(data_remove)
+        })
+
+        return self.__run_query (query)
+
     def remove_collaborator (self, dataset_uuid, collaborator_uuid):
         "Procedure to remove a collaborator from the state graph."
 
         query = self.__query_from_template("delete_collaborator", {
             "dataset_uuid": dataset_uuid,
             "collaborator_uuid": collaborator_uuid
+
         })
 
         self.cache.invalidate_by_prefix(f"datasets_{dataset_uuid}")
