@@ -928,6 +928,9 @@ class ApiServer:
             elif (validator.is_valid_uuid (identifier) and
                   validator.is_valid_uuid (uri_to_uuid (dataset_uri))):
                 file = self.db.dataset_files (file_uuid = identifier, **parameters)
+            elif validator.is_valid_uuid (identifier):
+                parameters["dataset_uri"] = None
+                file = self.db.dataset_files (file_uuid = identifier, **parameters)
             elif (validator.is_valid_uuid (uri_to_uuid (dataset_uri))):
                 file = self.db.dataset_files (file_uuid = None, **parameters)
 
@@ -971,7 +974,7 @@ class ApiServer:
         try:
             return self.__files_by_id_or_uri (identifier, account_uuid,
                                               dataset_uri, private_view)[0]
-        except IndexError:
+        except (TypeError, IndexError):
             return None
 
     def __paging_offset_and_limit (self, request, error_list=None):
