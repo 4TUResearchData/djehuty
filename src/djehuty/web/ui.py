@@ -521,9 +521,7 @@ def read_email_configuration (server, xml_root, logger):
             logger.error ("Could not configure the email subsystem:")
             logger.error ("The email port should be a numeric value.")
 
-def read_configuration_file (server, config_file, address, port, state_graph,
-                             storage, base_url, use_debugger, use_reloader,
-                             logger, config_files):
+def read_configuration_file (server, config_file, logger, config_files):
     """Procedure to parse a configuration file."""
 
     inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
@@ -550,14 +548,14 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             config["log-file"] = log_file
             configure_file_logging (log_file, inside_reload, logger)
 
-        config["address"]       = config_value (xml_root, "bind-address", address, "127.0.0.1")
-        config["port"]          = int(config_value (xml_root, "port", port, 8080))
-        server.base_url         = config_value (xml_root, "base-url", base_url,
+        config["address"]       = config_value (xml_root, "bind-address", None, "127.0.0.1")
+        config["port"]          = int(config_value (xml_root, "port", None, 8080))
+        server.base_url         = config_value (xml_root, "base-url", None,
                                                 f"http://{config['address']}:{config['port']}")
-        server.db.storage       = config_value (xml_root, "storage-root", storage)
-        server.db.state_graph   = config_value (xml_root, "rdf-store/state-graph", state_graph)
-        config["use_reloader"]  = config_value (xml_root, "live-reload", use_reloader)
-        config["use_debugger"]  = config_value (xml_root, "debug-mode", use_debugger)
+        server.db.storage       = config_value (xml_root, "storage-root")
+        server.db.state_graph   = config_value (xml_root, "rdf-store/state-graph")
+        config["use_reloader"]  = config_value (xml_root, "live-reload")
+        config["use_debugger"]  = config_value (xml_root, "debug-mode")
         config["maximum_workers"] = int(config_value (xml_root, "maximum-workers", None, 1))
 
         endpoint = config_value (xml_root, "rdf-store/sparql-uri")
@@ -726,17 +724,7 @@ def read_configuration_file (server, config_file, address, port, state_graph,
             if not os.path.isabs(include):
                 include = os.path.join(config_dir, include)
 
-            new_config = read_configuration_file (server,
-                                                  include,
-                                                  config["address"],
-                                                  config["port"],
-                                                  server.db.state_graph,
-                                                  server.db.storage,
-                                                  server.base_url,
-                                                  config["use_debugger"],
-                                                  config["use_reloader"],
-                                                  logger,
-                                                  config_files)
+            new_config = read_configuration_file (server, include, logger, config_files)
             config = { **config, **new_config }
 
         read_menu_configuration (xml_root, server)
@@ -899,9 +887,7 @@ def apply_transactions_from_directory (logger, server, config, transactions_dire
 ## Starting point for the command-line program
 ## ----------------------------------------------------------------------------
 
-def main (address=None, port=None, state_graph=None, storage=None,
-          base_url=None, config_file=None, use_debugger=False,
-          use_reloader=False, run_internal_server=True, initialize=True,
+def main (config_file=None, run_internal_server=True, initialize=True,
           extract_transactions_from_log=None, apply_transactions=None):
     """The main entry point for the 'web' subcommand."""
     try:
@@ -928,10 +914,7 @@ def main (address=None, port=None, state_graph=None, storage=None,
 
         server = wsgi.ApiServer ()
         config_files = set()
-        config = read_configuration_file (server, config_file, address, port,
-                                          state_graph, storage, base_url,
-                                          use_debugger, use_reloader, logger,
-                                          config_files)
+        config = read_configuration_file (server, config_file, logger, config_files)
 
         ## Handle extracting Query Audit Logs early on.
         if extract_transactions_from_log is not None:

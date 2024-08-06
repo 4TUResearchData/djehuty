@@ -35,14 +35,7 @@ Available subcommands and options:
 
   web:
     --help               -h Show a help message.
-    --port=ARG           -p The port to start the web server on.
-    --address=ARG        -a The address to bind the server on.
-    --state-graph        -s The state graph in the RDF store.
-    --storage            -S The storage path backing the API.
-    --base-url=ARG       -b URL on which this instance is accessed by users.
     --config-file=ARG    -c Load configuration from a file.
-    --debug              -d Enable debugging.
-    --dev-reload         -r Enable active reloading.
     --initialize         -i Populate the RDF store with default triples.
     --extract-transactions-from-log=ARG
                          -e Extract transactions from the log file.
@@ -94,14 +87,7 @@ def main_inner ():
     ### WEB SUBCOMMAND
     ### -----------------------------------------------------------------------
     web_parser = subparsers.add_parser('web', help="Options for the 'web' subcommand.")
-    web_parser.add_argument('--address',    '-a', type=str, default=None)
-    web_parser.add_argument('--port',       '-p', type=int, default=None)
-    web_parser.add_argument('--state-graph','-s', type=str, default=None)
-    web_parser.add_argument('--storage',    '-S', type=str, default=None)
-    web_parser.add_argument('--base-url',   '-b', type=str, default=None)
     web_parser.add_argument('--config-file','-c', type=str, default=None)
-    web_parser.add_argument('--debug',      '-d', action='store_true')
-    web_parser.add_argument('--dev-reload', '-r', action='store_true')
     web_parser.add_argument('--initialize', '-i', action='store_true')
     web_parser.add_argument('--extract-transactions-from-log', '-e', nargs='?',
                             const='', default=None)
@@ -137,9 +123,7 @@ def main_inner ():
                             args.api_url)
 
     if args.command == "web":
-        web_ui.main (args.address, args.port, args.state_graph, args.storage,
-                     args.base_url, args.config_file, args.debug,
-                     args.dev_reload, True, args.initialize,
+        web_ui.main (args.config_file, True, args.initialize,
                      args.extract_transactions_from_log,
                      args.apply_transactions)
 
