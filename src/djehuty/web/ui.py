@@ -548,8 +548,10 @@ def read_configuration_file (server, config_file, logger, config_files):
             config["log-file"] = log_file
             configure_file_logging (log_file, inside_reload, logger)
 
-        config["address"]       = config_value (xml_root, "bind-address", None, "127.0.0.1")
-        config["port"]          = int(config_value (xml_root, "port", None, 8080))
+        address                 = value_or_none (config, "address")
+        port                    = value_or_none (config, "port")
+        config["address"]       = config_value (xml_root, "bind-address", address, "127.0.0.1")
+        config["port"]          = int(config_value (xml_root, "port", port, 8080))
         server.base_url         = config_value (xml_root, "base-url", None,
                                                 f"http://{config['address']}:{config['port']}")
         server.db.storage       = config_value (xml_root, "storage-root")
