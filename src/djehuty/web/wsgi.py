@@ -2469,11 +2469,6 @@ class ApiServer:
                                                          data["edit"],
                                                          data["remove"],
                                                          )
-            group_uuid = self.db.account_by_uuid ()
-
-            if collaborators in self.db.members (group["uuid"]):
-                self.log.error ("Collaborator already in your group.")
-                return self.error_400()
 
             if collaborators is None:
                 self.log.error ("Inserting collaborator failed. ")
@@ -2511,8 +2506,16 @@ class ApiServer:
             if value_or(value_or(self.db.groups, collaborator_uuid, None), "is_supervisor", False):
                 return self.error_403(request)
 
-            if self.db.update_collaborator(dataset["uuid"], collaborator_uuid) is None:
-                return self.error_500()
+            update_collaborator = self.db.update_collaborator (dataset["uuid"],
+                                            collaborator_account_uuid,
+                                            account_uuid,
+                                            metadata["read"],
+                                            metadata["edit"],
+                                            False,
+                                            data["read"],
+                                            data["edit"],
+                                            data["remove"],
+                                            )
 
             return self.respond_204()
         except IndexError:
