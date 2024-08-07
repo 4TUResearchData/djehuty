@@ -1556,6 +1556,9 @@ class SparqlInterface:
         if email is not None:
             domain = email.partition("@")[2]
 
+        if common_name is None and first_name is not None and last_name is not None:
+            common_name = f"{first_name} {last_name}"
+
         rdf.add (graph, account_uri, RDF.type,               rdf.DJHT["Account"], "uri")
         rdf.add (graph, account_uri, rdf.DJHT["active"],     1)
         rdf.add (graph, account_uri, rdf.DJHT["first_name"], first_name, XSD.string)
