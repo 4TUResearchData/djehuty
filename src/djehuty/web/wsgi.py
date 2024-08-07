@@ -1604,27 +1604,18 @@ class ApiServer:
             account_uuid = self.db.account_uuid_by_orcid (orcid_record['orcid'])
             if account_uuid is None:
                 try:
-                    email = f"{orcid_record['orcid']}@orcid"
                     account_uuid = self.db.insert_account (
                         # We don't receive the user's e-mail address,
                         # so we construct an artificial one that doesn't
                         # resolve so no accidental e-mails will be sent.
-                        email      = email,
-                        common_name = orcid_record["name"]
+                        email       = f"{orcid_record['orcid']}@orcid",
+                        common_name = orcid_record["name"],
+                        orcid_id    = orcid_record['orcid']
                     )
                     if not account_uuid:
                         return self.error_500 ()
 
                     self.log.access ("Account %s created via ORCID.", account_uuid) #  pylint: disable=no-member
-                    author_uuid = self.db.insert_author (
-                        email        = email,
-                        account_uuid = account_uuid,
-                        orcid_id     = orcid_record['orcid'],
-                        is_active    = True,
-                        is_public    = True)
-                    if not author_uuid:
-                        self.log.error ("Failed to link author to new account for %s.", email)
-                        return self.error_500 ()
                 except KeyError:
                     self.log.error ("Received an unexpected record from ORCID.")
                     return self.error_403 (request)
@@ -1672,6 +1663,9 @@ class ApiServer:
                             return self.error_500()
                         self.log.access ("Account %s created via SAML.", account_uuid) #  pylint: disable=no-member
 
+                    # For a while we didn't create author records for accounts.
+                    # This check creates the missing author records upon login
+                    # for such accounts.
                     authors = self.db.authors (account_uuid=account_uuid, limit = 1)
                     if not value_or (authors, 0, True):
                         author_uuid = self.db.insert_author (
@@ -8582,14 +8576,6 @@ class ApiServer:
                 self.log.error ("Failed to create account for SSI user %s.", email)
                 return self.error_500 ()
             self.log.access ("Account %s created via SSI.", account_uuid) #  pylint: disable=no-member
-            author_uuid = self.db.insert_author (
-                email        = email,
-                account_uuid = account_uuid,
-                is_active    = True,
-                is_public    = True)
-            if not author_uuid:
-                self.log.error ("Failed to link author to new account for %s.", email)
-                return self.error_500 ()
         else:
             account_uuid = account["uuid"]
 

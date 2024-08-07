@@ -1545,18 +1545,18 @@ class SparqlInterface:
         return None
 
     def insert_account (self, email=None, first_name=None, last_name=None,
-                        common_name=None, location=None, biography=None):
+                        common_name=None, location=None, biography=None,
+                        orcid_id=None):
         """Procedure to create an account."""
 
-        graph       = Graph()
-        account_uri = rdf.unique_node ("account")
-
-        graph.add ((account_uri, RDF.type,      rdf.DJHT["Account"]))
-
-        domain = None
+        graph        = Graph()
+        account_uri  = rdf.unique_node ("account")
+        account_uuid = rdf.uri_to_uuid (account_uri)
+        domain       = None
         if email is not None:
             domain = email.partition("@")[2]
 
+        rdf.add (graph, account_uri, RDF.type,               rdf.DJHT["Account"], "uri")
         rdf.add (graph, account_uri, rdf.DJHT["active"],     1)
         rdf.add (graph, account_uri, rdf.DJHT["first_name"], first_name, XSD.string)
         rdf.add (graph, account_uri, rdf.DJHT["last_name"],  last_name,  XSD.string)
@@ -1572,6 +1572,21 @@ class SparqlInterface:
 
         if self.add_triples_from_graph (graph):
             self.cache.invalidate_by_prefix ("accounts")
+
+            if email is not None and (first_name is not None or last_name is not None):
+                author_uuid = self.insert_author (
+                    first_name   = first_name,
+                    last_name    = last_name,
+                    full_name    = common_name,
+                    email        = email,
+                    account_uuid = account_uuid,
+                    orcid_id     = orcid_id,
+                    is_active    = True,
+                    is_public    = True)
+                if not author_uuid:
+                    self.log.warning ("Failed to link author to new account for %s.", email)
+                self.cache.invalidate_by_prefix ("repository_statistics")
+
             return rdf.uri_to_uuid (account_uri)
 
         return None
@@ -3078,9 +3093,11 @@ class SparqlInterface:
                 self.log.info ("Account for %s already exists.", email)
                 continue
 
+            orcid        = self.privileges[email]["orcid"]
             first_name   = self.privileges[email]["first_name"]
             last_name    = self.privileges[email]["last_name"]
             account_uuid = self.insert_account (email      = email,
+                                                orcid_id   = orcid,
                                                 first_name = first_name,
                                                 last_name  = last_name)
             if not account_uuid:
@@ -3088,25 +3105,6 @@ class SparqlInterface:
                 continue
 
             self.log.info ("Created account for %s.", email)
-
-            orcid = self.privileges[email]["orcid"]
-            if orcid is None:
-                continue
-
-            author_uuid = self.insert_author (
-                email        = email,
-                first_name   = first_name,
-                last_name    = last_name,
-                account_uuid = account_uuid,
-                orcid_id     = orcid,
-                is_active    = True,
-                is_public    = True)
-            if not author_uuid:
-                self.log.warning ("Failed to link author to account for %s.", email)
-                continue
-
-            self.log.info ("Linked account of %s to ORCID: %s.", email, orcid)
-            continue
 
     def update_view_and_download_counts (self):
         """Procedure that recalculate views and downloads statistics."""
