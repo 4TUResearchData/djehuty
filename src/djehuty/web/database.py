@@ -1796,7 +1796,7 @@ class SparqlInterface:
     def update_file (self, account_uuid, file_uuid, dataset_uuid, download_url=None,
                      computed_md5=None, viewer_type=None, preview_state=None,
                      file_size=None, status=None, filesystem_location=None,
-                     is_incomplete=None, is_image=None):
+                     is_incomplete=None, is_image=None, handle=None):
         """Procedure to update file metadata."""
 
         modified_date = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
@@ -1812,7 +1812,8 @@ class SparqlInterface:
             "is_incomplete": is_incomplete,
             "is_image":      rdf.escape_boolean_value (is_image),
             "modified_date": modified_date,
-            "status":        status
+            "status":        status,
+            "handle":        handle
         })
 
         self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
