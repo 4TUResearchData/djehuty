@@ -1,6 +1,7 @@
 FROM debian:bookworm-slim
 LABEL authors="Nikhef, 4TU.ResearchData"
 ARG PURPOSE="release"
+ARG BRANCH="main"
 
 # Build a self-updating (development) container:
 # docker image build --build-arg="PURPOSE=development" -t djehuty:devel .
@@ -22,7 +23,7 @@ RUN UPDATE_COMMAND=""; if [ "$PURPOSE" = "development" ]; then UPDATE_COMMAND="/
 
 USER djehuty
 
-RUN git clone --depth 1 https://github.com/4TUResearchData/djehuty.git /opt/djehuty/djehuty
+RUN git clone --branch "$BRANCH" --depth 1 https://github.com/4TUResearchData/djehuty.git /opt/djehuty/djehuty
 RUN VERSION=$(git -C /opt/djehuty/djehuty rev-parse --short HEAD); sed -e "s/@VERSION@/0.0.0+${VERSION}/g" /opt/djehuty/djehuty/pyproject.toml.in > /opt/djehuty/djehuty/pyproject.toml
 
 RUN python3 -m venv /opt/djehuty/virtual-env
