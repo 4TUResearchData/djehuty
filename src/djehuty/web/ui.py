@@ -355,15 +355,14 @@ def setup_saml_service_provider (server, logger):
 
 def write_pem_file (file_stream, contents, format_name):
     """Writes CONTENTS to FILE_STREAM."""
-    file_stream.write(f"-----BEGIN {format_name}-----")
+    file_stream.write(f"-----BEGIN {format_name}-----\n")
     total_length = len(contents)
     start = 0
     while start < total_length:
-        chunk = contents[start:start+64]
-        file_stream.write (chunk)
+        file_stream.write (contents[start:start+64])
         file_stream.write ("\n")
         start += 64
-    file_stream.write(f"-----END {format_name}-----")
+    file_stream.write(f"-----END {format_name}-----\n")
 
 def setup_handle_registration (server, logger):
     """Write the Handle configuration to a file."""
@@ -993,7 +992,8 @@ def main (config_file=None, run_internal_server=True, initialize=True,
             server.db.cache.invalidate_all ()
 
         setup_saml_service_provider (server, logger)
-        setup_handle_registration (server, logger)
+        if server.handle_url is not None:
+            setup_handle_registration (server, logger)
 
         if not server.in_production and not inside_reload:
             logger.warning ("Assuming to run in a non-production environment.")
