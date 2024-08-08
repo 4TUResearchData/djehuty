@@ -7315,15 +7315,17 @@ class ApiServer:
                                      json    = handle_data)
 
             if response.status_code == 201:
+                self.log.info ("Handle %s created.", handle)
                 return True
             if response.status_code == 200:
                 self.log.warning ("Handle %s already active; updated", handle)
                 return True
 
             self.log.error ("Handle registration failed with %s (%s)",
-                        response.status_code, response.text)
-        except requests.exceptions.ConnectionError:
+                            response.status_code, response.text)
+        except requests.exceptions.ConnectionError as error:
             self.log.error ("Failed to create handle %s due to a connection error.", handle)
+            self.log.error ("Error: %s", error)
 
         return False
 
