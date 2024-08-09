@@ -48,6 +48,7 @@ if HAVE_HTLATEX
 $(doc_HTML): $(doc_PDF)
 	@cp -r ${abs_top_srcdir}/src/djehuty/web/resources/static/fonts ${srcdir}
 	@$(HTLATEX) $(doc_TEX) > /dev/null
+	@mv $(doc_NAME).html index.html
 	@printf "Generated $(doc_HTML).\n"
 
 .PHONY: $(doc_NAME).css
@@ -97,6 +98,8 @@ docs-clean:
       $(doc_NAME)2.html                                            \
       $(doc_NAME)3.html                                            \
       $(doc_NAME)4.html                                            \
+      $(doc_NAME)5.html                                            \
+      index.html                                                   \
       missfont.log                                                 \
       texput.log                                                   \
       figures/account-.png                                         \
