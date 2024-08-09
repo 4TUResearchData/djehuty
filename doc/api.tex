@@ -9,12 +9,7 @@
   Another way of seeing the API in action is to use the developer tools in a web
   browser while performing the desired action using the web user interface.
 
-\section{Getting started}
-
-  Most interaction with the API requires an API token.  Such a token can be
-  obtained from the dashboard page after logging in.
-
-\section{The \t{/v2} interface}
+\section{The \t{/v2} public interface}
 
   The \t{v2} API was designed by Figshare\dhref{https://figshare.com}.
   \t{djehuty} implements a backward-compatible version of it, with the
@@ -251,3 +246,192 @@ curl https://data.4tu.nl/v2/articles/342e...49d2/files/d3e1...9292 | jq
   "computed_md5": "910e9b0f79a0af548f59b3d8a56c3bf4"
 }
 \end{lstlisting}
+
+\subsection{\t{/v2/categories} (HTTP \code{GET})}
+\label{sec:v2-categories}
+
+  Each dataset and collection is categorized using a controlled vocabulary
+  of categories.  This API endpoint provides those categories.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl https://data.4tu.nl/v2/categories | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been shortened. */
+  {
+    "id": 13622,
+    "uuid": "01fddd41-68d2-4e28-9d9c-18347847e7d1",
+    "title": "Mining and Extraction of Energy Resources",
+    "parent_id": 13620,
+    "parent_uuid": "6e5bdc69-96db-41e4-ac0b-18812b46c49c",
+    "path": "",
+    "source_id": null,
+    "taxonomy_id": null
+  },
+  {
+    "id": 13443,
+    "uuid": "026f555c-2826-4a83-97ff-0f230fb54ddb",
+    "title": "Livestock Raising",
+    "parent_id": 13440,
+    "parent_uuid": "45a8c849-ab59-4302-af79-09b8c0677df8",
+    "path": "",
+    "source_id": null,
+    "taxonomy_id": null
+  },
+  ...
+]
+\end{lstlisting}
+
+\subsection{\t{v2/licenses} (HTTP \code{GET})}
+\label{sec:v2-licenses}
+
+  Publishing a dataset involves communicating under which conditions it can be
+  re-used.  The licenses under which you can publish a dataset can be found with
+  this API endpoint.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl https://data.4tu.nl/v2/licenses | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been shortened. */
+  {
+    "value": 1,
+    "name": "CC BY 4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/",
+    "type": "data"
+  },
+  {
+    "value": 10,
+    "name": "CC BY-NC 4.0",
+    "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+    "type": "data"
+  },
+  ...
+]
+\end{lstlisting}
+
+\section{The \t{/v2} private interface}
+
+  The interaction with the \t{v2} private interface API requires an API token.
+  Such a token can be obtained from the dashboard page after logging in.  This
+  token can then be passed along in the \t{Authorization} HTTP header as:
+\begin{lstlisting}
+Authorization: token YOUR_TOKEN_HERE
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles} (HTTP \code{GET})}
+
+  This API endpoint lists the draft datasets of the account to which the
+  authorization token belongs.
+
+  The following parameters can be used:
+
+\begin{tabular}{p{0.20\textwidth} p{0.20\textwidth} p{0.59\textwidth}}
+  \ifdefined\HCode
+  \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
+  \fi
+  \t{page}             & Optional & The page number used in combination with
+                                    \t{page\_size}.\\
+  \t{page\_size}       & Optional & The number of datasets per page.  Used
+                                    in combination with \t{page}.\\
+  \t{limit}            & Optional & The maximum number of datasets to output.
+                                    Used together with \t{offset}.\\
+  \t{offset}           & Optional & The number of datasets to skip in the
+                                    output.  Used together with \t{limit}.\\
+\end{tabular}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -H "Authorization: token YOUR_TOKEN_HERE" https://data.4tu.nl/v2/account/articles | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "id": null,
+  "uuid": "6ddd7a31-8ad8-4c20-95a3-e68fe716fa42",
+  "title": "Example draft dataset",
+  "doi": null,
+  "handle": null,
+  "url": "https://data.4tu.nl/v2/articles/6ddd7a31-8ad8-4c20-95a3-e68fe716fa42",
+  "published_date": null,
+  ...
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles} (HTTP \code{POST})}
+
+  This API endpoint can be used to create a new dataset.
+
+  The following parameters can be used:
+
+\begin{tabular}{p{0.20\textwidth} p{0.20\textwidth} p{0.59\textwidth}}
+  \ifdefined\HCode
+  \textbf{Parameter} & \textbf{Data type}   & \textbf{Description}\\
+  \fi
+  \t{title}          & \t{string}           & The title of the dataset.\\
+  \t{description}    & \t{string}           & A description of the dataset.\\
+  \t{tags}           & list of \t{string}s  & Keywords to enhance the
+                                              findability of the dataset. Instead
+                                              of using the key \code{tags}, you
+                                              may also use the key
+                                              \code{keywords}.\\
+  \t{references}     & list of \t{string}s  & URLs to resources referring to
+                                              this dataset, or resources that
+                                              this dataset refers to.\\
+  \t{categories}     & list of \t{string}s  & Categories are a controlled
+                                              vocabulary and can be used to
+                                              make the dataset findable in
+                                              the categorical overviews.
+                                              The \t{string} values expected
+                                              here can be found under the
+                                              \code{uuid} property with a
+                                              call to \code{/v2/categories}.
+                                              For more details, see section
+                                              \refer{sec:v2-categories}.\\
+  \t{authors}        & list of author records & \\
+  \t{defined\_type}  & \t{string}           & One of: \t{figure},
+                                              \t{online resource},
+                                              \t{preprint}, \t{book},
+                                              \t{conference contribution},
+                                              \t{media}, \t{dataset},
+                                              \t{poster},
+                                              \t{journal contribution},
+                                              \t{presentation},
+                                              \t{thesis} or \t{software}.\\
+  \t{funding}        & \t{string}           & One-liner to cite funding.\\
+  \t{funding\_list}  & list of funding records & \\
+  \t{license}        & \t{integer}          & Licences communicate under which
+                                              conditions the dataset can be
+                                              re-used.  The \t{integer} value
+                                              to submit here can be found as
+                                              the \t{value} property in a call
+                                              to \code{/v2/licences}. For more
+                                              details, see section
+                                              \refer{sec:v2-licenses}.\\
+  %\t{language}       & \t{string}           & \\
+  \t{doi}            & \t{string}           & Do not use this field as a DOI
+                                              will be automatically assigned
+                                              upon publication..\\
+  \t{handle}         & \t{string}           & Do not use this field as it is
+                                              deprecated.\\
+  \t{resource\_doi}  & \t{string}           & The URL of the DOI of an
+                                              associated peer-reviewed
+                                              journal publication.\\
+  \t{resource\_title} & \t{string}          & The title of the associated
+                                              peer-reviewed journal
+                                              publication.\\
+  %\t{group_id}       & \t{integer}          & \\
+  \t{publisher}      & \t{string}           & The name of the data repository
+                                              publishing the dataset.\\
+  \t{custom\_fields} & list of key-value pairs & \\
+  \t{timeline}       &                      & Do not use this field because it
+                                              will be automatically populated
+                                              during the publication process.\\
+\end{tabular}
