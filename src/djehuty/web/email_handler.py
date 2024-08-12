@@ -21,9 +21,7 @@ class EmailInterface:
     def is_properly_configured (self):
         """Procedure to bail early on a misconfigured instance of this class."""
         return (self.smtp_server is not None and
-                self.from_address is not None and
-                self.smtp_username is not None and
-                self.smtp_password is not None)
+                self.from_address is not None)
 
     def send_email (self, recipient, subject, plaintext, html):
         """Procedure to send an email."""
