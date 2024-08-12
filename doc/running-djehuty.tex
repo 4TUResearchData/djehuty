@@ -296,7 +296,7 @@ configuration file, for which an example is available at
                                 a production instance.\\
 \end{tabular}
 
-\section{Configurating DOI registration}
+\section{Configuring DOI registration}
 
   When publishing a dataset or collection, \t{djehuty} can register a
   persistent identifier with DataCite.  To enable this feature, configure it
@@ -310,6 +310,27 @@ configuration file, for which an example is available at
   \t{repository-id}           & The repository identifier given by DataCite.\\
   \t{password}                & The password to authenticate with to DataCite.\\
   \t{prefix}                  & The DOI prefix to use when registering a DOI.\\
+\end{tabular}
+
+\section{Configuring Handle registration}
+
+  Each uploaded file can be assigned a persistent identifier using the Handle
+  system.  To enable this feature, configure it under the \t{handle} node.
+  The following parameters can be configured:
+
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}             & \textbf{Description}\\
+  \fi
+  \t{url}                     & The URL of the API endpoint of the Handle
+                                system implementor.\\
+  \t{certificate}             & Certificate to use for authenticating to the
+                                endpoint.\\
+  \t{private-key}             & The private key paired with the certificate
+                                used to authenticate to the endpoint.\\
+  \t{prefix}                  & The Handle prefix to use when registering a
+                                handle.\\
+  \t{index}                   & The index to use when registering a handle.\\
 \end{tabular}
 
 \section{Customizing looks}
