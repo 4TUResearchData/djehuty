@@ -51,20 +51,23 @@ class EmailInterface:
         connection.ehlo()
         if self.do_starttls:
             connection.starttls ()
-        else:
+        elif self.smtp_username is not None and self.smtp_password is not None:
             self.log.error ("The e-mail interface hasn't been tested without STARTTLS.")
             self.log.error ("Please review the code before continuing.")
             return False
+        else:
+            self.log.warning ("STARTTLS is not enabled. Please review your e-mail settings.")
 
-        try:
-            connection.login (self.smtp_username, self.smtp_password)
-        except smtplib.SMTPAuthenticationError:
-            self.log.error ("Wrong credentials for authenticating to the e-mail server.")
-            return False
-        except (smtplib.SMTPHeloError, smtplib.SMTPServerDisconnected,
-                smtplib.SMTPNotSupportedError, smtplib.SMTPException) as error:
-            self.log.error ("Authenticating to the e-mail server failed: %s", error)
-            return False
+        if self.smtp_username is not None and self.smtp_password is not None:
+            try:
+                connection.login (self.smtp_username, self.smtp_password)
+            except smtplib.SMTPAuthenticationError:
+                self.log.error ("Wrong credentials for authenticating to the e-mail server.")
+                return False
+            except (smtplib.SMTPHeloError, smtplib.SMTPServerDisconnected,
+                    smtplib.SMTPNotSupportedError, smtplib.SMTPException) as error:
+                self.log.error ("Authenticating to the e-mail server failed: %s", error)
+                return False
 
         try:
             connection.sendmail (self.from_address, recipient, message.as_string())
