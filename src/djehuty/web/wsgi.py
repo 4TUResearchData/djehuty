@@ -83,6 +83,15 @@ class ApiServer:
         self.disable_2fa      = False
         self.disable_collaboration = False
         self.automatic_login_email = None
+
+        self.handle_certificate_path = None
+        self.handle_certificate      = None
+        self.handle_private_key_path = None
+        self.handle_private_key      = None
+        self.handle_url              = None
+        self.handle_prefix           = None
+        self.handle_index            = None
+
         self.small_footer     = (
             '<div id="footer-wrapper2"><p>This repository is powered by '
             '<a href="https://github.com/4TUResearchData/djehuty">djehuty</a> '
@@ -7283,6 +7292,46 @@ class ApiServer:
 
         return self.error_405 (["GET", "POST", "DELETE"])
 
+    def __register_file_handle (self, handle, download_url):
+        """Procedure to register a file handle."""
+
+        if self.handle_url is None:
+            return False
+
+        handle_data = { "values": [
+            { "index": self.handle_index,
+              "type": "URL",
+              "data": {
+                  "format": "string",
+                  "value": download_url
+              }
+             }]}
+        http_headers = {
+            "Accept":        "application/json",
+            "Content-Type":  "application/json",
+            "Authorization": 'Handle clientCert="true"',
+        }
+
+        try:
+            response = requests.put (f"{self.handle_url}/{handle}",
+                                     headers = http_headers,
+                                     cert    = (self.handle_certificate_path,
+                                                self.handle_private_key_path),
+                                     timeout = 60,
+                                     json    = handle_data)
+
+            if response.status_code == 201:
+                self.log.info ("Handle %s created.", handle)
+                return True
+
+            self.log.error ("Handle registration failed with %s (%s)",
+                            response.status_code, response.text)
+        except requests.exceptions.ConnectionError as error:
+            self.log.error ("Failed to create handle %s due to a connection error.", handle)
+            self.log.error ("Error: %s", error)
+
+        return False
+
     def api_v3_dataset_upload_file (self, request, dataset_id):
         """Implements /v3/datasets/<id>/upload."""
         handler = self.default_error_handling (request, "POST", "application/json")
@@ -7523,13 +7572,18 @@ class ApiServer:
             if file_size < 10000001:
                 is_image = self.__image_mimetype (output_filename) is not None
 
+            handle = f"{self.handle_prefix}/{file_uuid}"
+            if not self.__register_file_handle (handle, download_url):
+                handle = None
+
             self.db.update_file (account_uuid, file_uuid, dataset["uuid"],
                                  computed_md5  = computed_md5,
                                  download_url  = download_url,
                                  filesystem_location = output_filename,
                                  file_size     = file_size,
                                  is_image      = is_image,
-                                 is_incomplete = is_incomplete)
+                                 is_incomplete = is_incomplete,
+                                 handle        = handle)
 
             response_data = { "location": f"{self.base_url}/v3/file/{file_uuid}" }
             if is_incomplete:

@@ -61,6 +61,13 @@
     <password>changeme</password>
     <prefix>10.5438</prefix>
   </datacite>
+  <handle>
+    <url>https://epic-pid.storage.surfsara.nl:800X/api/handles</url>
+    <index>XXX</index>
+    <certificate><!-- Contents here of the certificate PEM file without newlines/header/footer. --></certificate>
+    <private-key><!-- Contents here of the private key PEM file without newlines/header/footer. --></private-key>
+    <prefix>XX.XXXXX</prefix>
+  </handle>
   <authentication>
     <!--
     <automatic-login-email>you@example.com</automatic-login-email>

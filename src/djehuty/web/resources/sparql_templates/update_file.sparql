@@ -18,6 +18,8 @@ DELETE {
     ?file              djht:size                ?size .
     {%- endif%}{% if status is not none %}
     ?file              djht:status              ?status .
+    {%- endif%}{% if handle is not none %}
+    ?file              djht:handle              ?handle .
     {%- endif%}{% if filesystem_location is not none %}
     ?file              djht:filesystem_location ?filesystem_location .
     {%- endif%}
@@ -42,6 +44,8 @@ INSERT {
     ?file              djht:size                {{file_size | safe}} .
     {%- endif%}{% if status is not none %}
     ?file              djht:status              "{{status | safe}}"^^xsd:string .
+    {%- endif%}{% if handle is not none %}
+    ?file              djht:handle              "{{handle | safe}}"^^xsd:string .
     {%- endif%}{% if filesystem_location is not none %}
     ?file              djht:filesystem_location "{{filesystem_location | safe}}"^^xsd:string .
     {%- endif%}
@@ -76,6 +80,7 @@ WHERE {
     OPTIONAL { ?file   djht:preview_state       ?preview_state . }
     OPTIONAL { ?file   djht:size                ?size . }
     OPTIONAL { ?file   djht:status              ?status . }
+    OPTIONAL { ?file   djht:handle              ?handle . }
     OPTIONAL { ?file   djht:modified_date       ?modified_date . }
   }
   FILTER (?file = <file:{{file_uuid | safe}}>)

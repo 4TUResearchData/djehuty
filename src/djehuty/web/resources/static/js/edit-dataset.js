@@ -657,7 +657,12 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
                 if ("is_incomplete" in file && file["is_incomplete"] == true) {
                     html_filename += ` <span class="file-incomplete-warning">The file upload was not complete!</span>`;
                 }
-                html += `<td>${html_filename}</td>`;
+                let file_handle = "";
+                if ("handle" in file) {
+                    file_handle  = `<a href="https://hdl.handle.net/${file.handle}">`;
+                    file_handle += '<img src="/static/images/handle-logo.png" class="handle-icon" alt="Handle" /></a>';
+                }
+                html += `<td>${html_filename} ${file_handle}</td>`;
                 if (file["computed_md5"] === null) {
                     html += `<td>${render_in_form("Unavailable")}</td>`;
                 } else {

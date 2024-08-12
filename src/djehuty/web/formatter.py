@@ -225,7 +225,7 @@ def file_download_url (record):
 def format_file_for_dataset_record (record):
     """Record formatter for files."""
     download_url = file_download_url (record)
-    return {
+    output = {
       "id":            conv.value_or_none(record, "id"),
       "uuid":          conv.value_or_none(record, "uuid"),
       "name":          conv.value_or_none(record, "name"),
@@ -234,8 +234,12 @@ def format_file_for_dataset_record (record):
       "is_incomplete": bool(conv.value_or_none(record, "is_incomplete")),
       "download_url":  download_url,
       "supplied_md5":  conv.value_or_none(record, "supplied_md5"),
-      "computed_md5":  conv.value_or_none(record, "computed_md5")
+      "computed_md5":  conv.value_or_none(record, "computed_md5"),
     }
+    if "handle" in record:
+        output["handle"] = record["handle"]
+
+    return output
 
 def format_file_details_record (record):
     """Detailed record formatter for files."""

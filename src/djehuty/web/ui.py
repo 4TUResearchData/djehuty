@@ -352,6 +352,41 @@ def setup_saml_service_provider (server, logger):
         else:
             logger.error ("Failed to create '%s'.", saml_cache_dir)
 
+
+def write_pem_file (file_stream, contents, format_name):
+    """Writes CONTENTS to FILE_STREAM."""
+    file_stream.write(f"-----BEGIN {format_name}-----\n")
+    total_length = len(contents)
+    start = 0
+    while start < total_length:
+        file_stream.write (contents[start:start+64])
+        file_stream.write ("\n")
+        start += 64
+    file_stream.write(f"-----END {format_name}-----\n")
+
+def setup_handle_registration (server, logger):
+    """Write the Handle configuration to a file."""
+
+    handle_cache_dir = os.path.join(server.db.cache.storage, "handle-config")
+    os.makedirs (handle_cache_dir, mode=0o700, exist_ok=True)
+    if not os.path.isdir (handle_cache_dir):
+        logger.error ("Failed to create '%s'.", handle_cache_dir)
+
+    server.handle_certificate_path = os.path.join (handle_cache_dir, "certificate.pem")
+    server.handle_private_key_path = os.path.join (handle_cache_dir, "certificate.key")
+
+    config_fd = os.open (server.handle_certificate_path,
+                         os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+                         0o600)
+    with open (config_fd, "w", encoding="utf-8") as file_stream:
+        write_pem_file (file_stream, server.handle_certificate, "CERTIFICATE")
+
+    config_fd = os.open (server.handle_private_key_path,
+                         os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+                         0o600)
+    with open (config_fd, "w", encoding="utf-8") as file_stream:
+        write_pem_file (file_stream, server.handle_private_key, "PRIVATE KEY")
+
 def read_privilege_configuration (server, xml_root, logger):
     """Read the privileges configureation from XML_ROOT."""
     privileges = xml_root.find("privileges")
@@ -482,6 +517,16 @@ def read_datacite_configuration (server, xml_root):
         server.datacite_id       = config_value (datacite, "repository-id")
         server.datacite_password = config_value (datacite, "password")
         server.datacite_prefix   = config_value (datacite, "prefix")
+
+def read_handle_configuration (server, xml_root):
+    """Procedure to parse and set the Handle API configuration."""
+    handle = xml_root.find("handle")
+    if handle:
+        server.handle_url         = config_value (handle, "url")
+        server.handle_certificate = config_value (handle, "certificate")
+        server.handle_private_key = config_value (handle, "private-key")
+        server.handle_prefix      = config_value (handle, "prefix")
+        server.handle_index       = config_value (handle, "index")
 
 def read_automatic_login_configuration (server, xml_root):
     """Procedure to parse and set automatic login for development setups."""
@@ -714,6 +759,7 @@ def read_configuration_file (server, config_file, logger, config_files):
 
         read_orcid_configuration (server, xml_root)
         read_datacite_configuration (server, xml_root)
+        read_handle_configuration (server, xml_root)
         read_email_configuration (server, xml_root, logger)
         read_saml_configuration (server, xml_root, logger)
         read_automatic_login_configuration (server, xml_root)
@@ -947,6 +993,8 @@ def main (config_file=None, run_internal_server=True, initialize=True,
             server.db.cache.invalidate_all ()
 
         setup_saml_service_provider (server, logger)
+        if server.handle_url is not None:
+            setup_handle_registration (server, logger)
 
         if not server.in_production and not inside_reload:
             logger.warning ("Assuming to run in a non-production environment.")
@@ -1016,7 +1064,10 @@ def main (config_file=None, run_internal_server=True, initialize=True,
             logger.info ("Secondary storage path:  %s", server.db.secondary_storage)
             logger.info ("Cache storage path:      %s", server.db.cache.storage)
             logger.info ("Static pages loaded:     %s", len(server.static_pages))
-            logger.info ("Running on %s", server.base_url)
+            if server.handle_url is None:
+                logger.info ("Handle registration is disabled.")
+            else:
+                logger.info ("Handle prefix:           %s", server.handle_prefix)
 
             if server.identity_provider is not None:
                 logger.info ("Using %s as identity provider.",

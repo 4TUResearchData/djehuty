@@ -652,3 +652,4 @@ img { user-select: none; }
     user-select: none;
     border-radius: .5em .5em 0em 0em;
 }
+.handle-icon { margin-bottom: -0.2em; margin-right: .75em; }

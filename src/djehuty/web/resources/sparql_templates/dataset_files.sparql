@@ -7,7 +7,7 @@ SELECT DISTINCT ?name          ?size          ?is_link_only
                 ?order_index   ?uuid          ?filesystem_location
                 ?container_uuid ?order_name   (?rest AS ?originating_blank_node)
                 ?is_incomplete ?is_image ?is_shared_with_me
-                ?filename
+                ?filename      ?handle
 WHERE {
   GRAPH <{{state_graph}}> {
     ?file              rdf:type                djht:File .
@@ -36,6 +36,7 @@ WHERE {
     OPTIONAL { ?file  djht:name                 ?name . }
     OPTIONAL { ?file  djht:filesystem_location  ?filesystem_location . }
     OPTIONAL { ?file  djht:size                 ?size . }
+    OPTIONAL { ?file  djht:handle               ?handle . }
     OPTIONAL { ?file  djht:is_link_only         ?is_link_only . }
     OPTIONAL { ?file  djht:download_url         ?download_url . }
     OPTIONAL { ?file  djht:supplied_md5         ?supplied_md5 . }

@@ -111,8 +111,11 @@
     {% for file in files %}
             <li>
               <span class="size">{{'{:,}'.format(file.size)}} bytes</span><!--
-              --><span class="md5">MD5:<code>{{file.computed_md5}}</code></span>
-              <a class="corporate-identity" href="/file/{{item.container_uuid}}/{{file.uuid}}">{{file.name}}</a>
+              --><span class="md5">MD5:<code>{{file.computed_md5}}</code></span><!--
+              {%- if file.handle is defined and file.handle is not none %}
+              --><a href="https://hdl.handle.net/{{file.handle}}"><img src="/static/images/handle-logo.png" class="handle-icon" alt="Handle" /></a><!--
+              {%- endif %}
+              --><a class="corporate-identity" href="/file/{{item.container_uuid}}/{{file.uuid}}">{{file.name}}</a>
             </li>
     {% endfor %}
             <li class="zip"><a class="corporate-identity" href="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}">download all files (zip)</a>

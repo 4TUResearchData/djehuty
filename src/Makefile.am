@@ -228,6 +228,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/ext-link.png                          \
     djehuty/web/resources/static/images/favicon.ico                           \
     djehuty/web/resources/static/images/favicon.png                           \
+    djehuty/web/resources/static/images/handle-logo.png                       \
     djehuty/web/resources/static/images/licenses/apache.png                   \
     djehuty/web/resources/static/images/licenses/cc-0.png                     \
     djehuty/web/resources/static/images/licenses/cc-by.png                    \
