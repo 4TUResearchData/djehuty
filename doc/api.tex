@@ -48,6 +48,14 @@
                                     for software.\\
   \t{doi}              & Optional & The DOI of the dataset to search for.\\
   \t{handle}           & Optional & Unused.\\
+  \t{page}             & Optional & The page number used in combination with
+                                    \t{page\_size}.\\
+  \t{page\_size}       & Optional & The number of datasets per page.  Used
+                                    in combination with \t{page}.\\
+  \t{limit}            & Optional & The maximum number of datasets to output.
+                                    Used together with \t{offset}.\\
+  \t{offset}           & Optional & The number of datasets to skip in the
+                                    output.  Used together with \t{limit}.\\
 \end{tabular}
 
   Example usage:
@@ -122,6 +130,7 @@ curl --request POST\
   }
 ]
 \end{lstlisting}
+
 \subsection{\t{/v2/articles/<dataset-id>} (HTTP \code{GET})}
 \label{sec:v2-articles-dataset-id}
   Example usage:
@@ -244,6 +253,187 @@ curl https://data.4tu.nl/v2/articles/342e...49d2/files/d3e1...9292 | jq
   "download_url": "https://data.4tu.nl/file/342e...49d2/d3e1...9292",
   "supplied_md5": null,
   "computed_md5": "910e9b0f79a0af548f59b3d8a56c3bf4"
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/collections} (HTTP \code{GET})}
+\label{sec:v2-collections}
+
+  The following parameters can be used:
+
+\begin{tabular}{p{0.20\textwidth} p{0.20\textwidth} p{0.59\textwidth}}
+  \ifdefined\HCode
+  \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
+  \fi
+  \t{order}            & Optional & Field to use for sorting.\\
+  \t{order\_direction} & Optional & Can be either \code{asc} or \code{desc}.\\
+  \t{institution}      & Optional & The institution identifier to filter on.\\
+  \t{published\_since} & Optional & When set, collections published before this
+                                    timestamp are dropped from the results.\\
+  \t{modified\_since}  & Optional & When set, only collections modified after
+                                    this timestamp are shown from the results.\\
+  \t{group}            & Optional & The group identifier to filter on.\\
+  \t{resource\_doi}    & Optional & The DOI of the associated journal publication.
+                                    When set, only returns collections associated
+                                    with this DOI.\\
+  \t{doi}              & Optional & The DOI of the collection to search for.\\
+  \t{handle}           & Optional & Unused.\\
+  \t{page}             & Optional & The page number used in combination with
+                                    \t{page\_size}.\\
+  \t{page\_size}       & Optional & The number of collections per page.  Used
+                                    in combination with \t{page}.\\
+  \t{limit}            & Optional & The maximum number of collections to output.
+                                    Used together with \t{offset}.\\
+  \t{offset}           & Optional & The number of collections to skip in the
+                                    output.  Used together with \t{limit}.\\
+\end{tabular}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl "https://data.4tu.nl/v2/collections?limit=100&published_since=2024-07-25" | jq
+\end{lstlisting}
+
+Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been shortened. */
+  {
+    "id": null,
+    "uuid": "0fe9ab80-6e6a-4087-a509-ce09dddfa3d9",
+    "title": "PhD research 'Untangling the complexity of local water ...'",
+    "doi": "10.4121/0fe9ab80-6e6a-4087-a509-ce09dddfa3d9.v1",
+    "handle": "",
+    "url": "https://data.4tu.nl/v2/collections/0fe9...fa3d9",
+    "timeline": {
+      "posted": "2024-08-13T14:09:52",
+      "firstOnline": "2024-08-13T14:09:51",
+      ...
+    },
+    "published_date": "2024-08-13T14:09:52"
+  },
+  ...
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/collections/search} (HTTP \code{POST})}
+
+  In addition to the parameters of section \refer{sec:v2-collections}, the
+  following parameters can be used.
+
+\begin{tabular}{p{0.20\textwidth} p{0.20\textwidth} p{0.59\textwidth}}
+  \ifdefined\HCode
+  \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
+  \fi
+  \t{search\_for}      & Optional          & The terms to search for.\\
+\end{tabular}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request POST\
+     --header "Content-Type: application/json"\
+     --data '{ "search_for": "wingtips" }'\
+     https://data.4tu.nl/v2/collections/search | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[  /* Example output has been shortened. */
+  {
+    "id": 6070238,
+    "uuid": "3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782",
+    "title": "Flared Folding Wingtips - TU Delft",
+    "doi": "10.4121/c.6070238.v1",
+    "handle": "",
+    "url": "https://data.4tu.nl/v2/collections/3dfc...2782",
+    "timeline": {
+      "posted": "2023-04-05T15:05:04",
+      "firstOnline": "2023-04-05T15:05:03",
+      ...
+    },
+    "published_date": "2023-04-05T15:05:04"
+  },
+  ...
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/collections/<collection-id>} (HTTP \code{GET})}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl https://data.4tu.nl/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782 | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "version": 3,
+  ...
+  "description": "<p>This collection contains the results of the work ...",
+  "categories": [ ... ],
+  "references": [],
+  "tags": [ ... ],
+  "created_date": "2024-08-08T15:48:55",
+  "modified_date": "2024-08-12T11:24:39",
+  "id": 6070238,
+  "uuid": "3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782",
+  "title": "Flared Folding Wingtips - TU Delft",
+  "doi": "10.4121/c.6070238.v3",
+  "published_date": "2024-08-12T11:24:40",
+  "timeline": ...
+  ...
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/collections/<collection-id>/versions} (HTTP \code{GET})}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl https://data.4tu.nl/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/versions | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been shortened. */
+  {
+    "version": 3,
+    "url": "https://data.4tu.nl/v2/collections/3dfc...2782/versions/3"
+  },
+  {
+    "version": 2,
+    "url": "https://data.4tu.nl/v2/collections/3dfc...2782/versions/2"
+  },
+  {
+    "version": 1,
+    "url": "https://data.4tu.nl/v2/collections/3dfc...2782/versions/1"
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/collections/<collection-id>/versions/<version>} (HTTP \code{GET})}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl https://data.4tu.nl/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/versions/2 | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "version": 2,
+  ...
+  "description": "<p>This collection contains the results of the work ...",
+  "categories": [ ... ],
+  "references": [],
+  "tags": [ ... ],
+  "references": [],
+  "tags": [ ... ],
+  "authors": [ ... ],
+  "created_date": "2023-04-05T15:07:35",
+  "modified_date": "2023-05-26T15:19:11",
+  "id": 6070238,
+  "uuid": "3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782",
+  "title": "Flared Folding Wingtips - TU Delft",
+  "doi": "10.4121/c.6070238.v2",
+  ...
 }
 \end{lstlisting}
 
