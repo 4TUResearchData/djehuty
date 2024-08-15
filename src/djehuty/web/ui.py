@@ -1094,6 +1094,10 @@ def main (config_file=None, run_internal_server=True, initialize=True,
 
             if initialize:
                 if not server.db.state_graph_is_initialized ():
+                    if not server.db.sparql_is_up:
+                        logger.error ("Cannot initialize because the SPARQL endpoint is down.")
+                        return None
+
                     logger.info ("Invalidating caches ...")
                     server.db.cache.invalidate_all ()
                     logger.info ("Initializing RDF store ...")
