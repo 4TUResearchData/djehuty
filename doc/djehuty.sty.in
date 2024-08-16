@@ -76,6 +76,9 @@
 %% Create a variable that holds the current version of djehuty.
 \def \djehutyversion {@VERSION@}
 
+%% Create a variable that holds the base URL for this instance of djehuty.
+\def \djehutybaseurl {@BASE_URL@}
+
 \newcommand\VRule[1][\arrayrulewidth]{\vrule width #1}
 \newcommand{\oddcell}{\cellcolor{OddRowColor}}
 \newcommand{\oddrow}{\rowcolor{OddRowColor}}

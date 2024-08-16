@@ -45,6 +45,8 @@ EXTRA_DIST              = $(doc_TEX) $(doc_STYLE)                  \
 
 
 if HAVE_HTLATEX
+index.html: $(doc_HTML)
+
 $(doc_HTML): $(doc_PDF)
 	@cp -r ${abs_top_srcdir}/src/djehuty/web/resources/static/fonts ${srcdir}
 	@$(HTLATEX) $(doc_TEX) > /dev/null

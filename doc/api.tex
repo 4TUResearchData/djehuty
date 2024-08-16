@@ -60,7 +60,7 @@
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl "https://data.4tu.nl/v2/articles?limit=100&published_since=2024-07-25" | jq
+curl "(@*\djehutybaseurl{}*@)/v2/articles?limit=100&published_since=2024-07-25" | jq
 \end{lstlisting}
 
   Output of the example:
@@ -72,16 +72,16 @@ curl "https://data.4tu.nl/v2/articles?limit=100&published_since=2024-07-25" | jq
     "title": "Measurement data of a Low Speed Field Test of Tractor Se...",
     "doi": "10.4121/4f8a9423-83fc-4263-9bb7-2aa83d73865d.v1",
     "handle": null,
-    "url": "https://data.4tu.nl/v2/articles/4f8a...865d",
+    "url": "(@*\djehutybaseurl{}*@)/v2/articles/4f8a...865d",
     "published_date": "2024-07-26T10:39:57",
     "thumb": null,
     "defined_type": 3,
     "defined_type_name": "dataset",
     "group_id": 28589,
-    "url_private_api": "https://data.4tu.nl/v2/account/articles/4f8a...865d",
-    "url_public_api": "https://data.4tu.nl/v2/articles/4f8a...865d",
-    "url_private_html": "https://data.4tu.nl/my/datasets/4f8a...865d/edit",
-    "url_public_html": "https://data.4tu.nl/datasets/4f8a...865d/1",
+    "url_private_api": "(@*\djehutybaseurl{}*@)/v2/account/articles/4f8a...865d",
+    "url_public_api": "(@*\djehutybaseurl{}*@)/v2/articles/4f8a...865d",
+    "url_private_html": "(@*\djehutybaseurl{}*@)/my/datasets/4f8a...865d/edit",
+    "url_public_html": "(@*\djehutybaseurl{}*@)/datasets/4f8a...865d/1",
     ...
   }
 ]
@@ -104,7 +104,7 @@ curl "https://data.4tu.nl/v2/articles?limit=100&published_since=2024-07-25" | jq
 curl --request POST\
      --header "Content-Type: application/json"\
      --data '{ "search_for": "djehuty" }'\
-     https://data.4tu.nl/v2/articles/search | jq
+     (@*\djehutybaseurl{}*@)/v2/articles/search | jq
 \end{lstlisting}
 
   Output of the example:
@@ -116,16 +116,16 @@ curl --request POST\
     "title": "Source code of the 4TU.ResearchData repository",
     "doi": "10.4121/342efadc-66f8-4e9b-9d27-da7b28b849d2.v1",
     "handle": null,
-    "url": "https://data.4tu.nl/v2/articles/342e...49d2",
+    "url": "(@*\djehutybaseurl{}*@)/v2/articles/342e...49d2",
     "published_date": "2023-03-20T11:29:10",
     "thumb": null,
     "defined_type": 9,
     "defined_type_name": "software",
     "group_id": 28586,
-    "url_private_api": "https://data.4tu.nl/v2/account/articles/342e...49d2",
-    "url_public_api": "https://data.4tu.nl/v2/articles/342e...49d2",
-    "url_private_html": "https://data.4tu.nl/my/datasets/342e...49d2/edit",
-    "url_public_html": "https://data.4tu.nl/datasets/342e...49d2/1",
+    "url_private_api": "(@*\djehutybaseurl{}*@)/v2/account/articles/342e...49d2",
+    "url_public_api": "(@*\djehutybaseurl{}*@)/v2/articles/342e...49d2",
+    "url_private_html": "(@*\djehutybaseurl{}*@)/my/datasets/342e...49d2/edit",
+    "url_public_html": "(@*\djehutybaseurl{}*@)/datasets/342e...49d2/1",
     ...
   }
 ]
@@ -135,7 +135,7 @@ curl --request POST\
 \label{sec:v2-articles-dataset-id}
   Example usage:
 \begin{lstlisting}[language=bash]
-curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2 | jq
+curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2 | jq
 \end{lstlisting}
 
   Output of the example:
@@ -153,7 +153,7 @@ curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2 | jq
   "uuid": "342efadc-66f8-4e9b-9d27-da7b28b849d2",
   "title": "Source code of the 4TU.ResearchData repository",
   "doi": "10.4121/342efadc-66f8-4e9b-9d27-da7b28b849d2.v1",
-  "url": "https://data.4tu.nl/v2/articles/342e...49d2",
+  "url": "(@*\djehutybaseurl{}*@)/v2/articles/342e...49d2",
   "published_date": "2023-03-20T11:29:10",
   "timeline": ...,
   ...
@@ -164,7 +164,7 @@ curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2 | jq
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions | jq
+curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions | jq
 \end{lstlisting}
 
   Output of the example:
@@ -172,7 +172,7 @@ curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versio
 [
   {
     "version": 1,
-    "url": "https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions/1"
+    "url": "(@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions/1"
   }
 ]
 \end{lstlisting}
@@ -181,7 +181,7 @@ curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versio
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions/1 | jq
+curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions/1 | jq
 \end{lstlisting}
 
   The output of the example is identical to the example output of section
@@ -191,7 +191,7 @@ curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versio
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl https://data.4tu.nl/v2/articles/c1274889-b797-43bd-a3b1-ee0611d58fd7/versions/2/embargo | jq
+curl (@*\djehutybaseurl{}*@)/v2/articles/c1274889-b797-43bd-a3b1-ee0611d58fd7/versions/2/embargo | jq
 \end{lstlisting}
 
   Output of the example:
@@ -214,7 +214,7 @@ curl https://data.4tu.nl/v2/articles/c1274889-b797-43bd-a3b1-ee0611d58fd7/versio
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/files
+curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/files
 \end{lstlisting}
 
   Output of the example:
@@ -227,7 +227,7 @@ curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/files
     "size": 3713709,
     "is_link_only": false,
     "is_incomplete": false,
-    "download_url": "https://data.4tu.nl/file/342e...49d2/d3e1...9292",
+    "download_url": "(@*\djehutybaseurl{}*@)/file/342e...49d2/d3e1...9292",
     "supplied_md5": null,
     "computed_md5": "910e9b0f79a0af548f59b3d8a56c3bf4"
   }
@@ -238,7 +238,7 @@ curl https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/files
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl https://data.4tu.nl/v2/articles/342e...49d2/files/d3e1...9292 | jq
+curl (@*\djehutybaseurl{}*@)/v2/articles/342e...49d2/files/d3e1...9292 | jq
 \end{lstlisting}
 
   Output of the example:
@@ -250,7 +250,7 @@ curl https://data.4tu.nl/v2/articles/342e...49d2/files/d3e1...9292 | jq
   "size": 3713709,
   "is_link_only": false,
   "is_incomplete": false,
-  "download_url": "https://data.4tu.nl/file/342e...49d2/d3e1...9292",
+  "download_url": "(@*\djehutybaseurl{}*@)/file/342e...49d2/d3e1...9292",
   "supplied_md5": null,
   "computed_md5": "910e9b0f79a0af548f59b3d8a56c3bf4"
 }
@@ -290,7 +290,7 @@ curl https://data.4tu.nl/v2/articles/342e...49d2/files/d3e1...9292 | jq
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl "https://data.4tu.nl/v2/collections?limit=100&published_since=2024-07-25" | jq
+curl "(@*\djehutybaseurl{}*@)/v2/collections?limit=100&published_since=2024-07-25" | jq
 \end{lstlisting}
 
 Output of the example:
@@ -302,7 +302,7 @@ Output of the example:
     "title": "PhD research 'Untangling the complexity of local water ...'",
     "doi": "10.4121/0fe9ab80-6e6a-4087-a509-ce09dddfa3d9.v1",
     "handle": "",
-    "url": "https://data.4tu.nl/v2/collections/0fe9...fa3d9",
+    "url": "(@*\djehutybaseurl{}*@)/v2/collections/0fe9...fa3d9",
     "timeline": {
       "posted": "2024-08-13T14:09:52",
       "firstOnline": "2024-08-13T14:09:51",
@@ -331,7 +331,7 @@ Output of the example:
 curl --request POST\
      --header "Content-Type: application/json"\
      --data '{ "search_for": "wingtips" }'\
-     https://data.4tu.nl/v2/collections/search | jq
+     (@*\djehutybaseurl{}*@)/v2/collections/search | jq
 \end{lstlisting}
 
   Output of the example:
@@ -343,7 +343,7 @@ curl --request POST\
     "title": "Flared Folding Wingtips - TU Delft",
     "doi": "10.4121/c.6070238.v1",
     "handle": "",
-    "url": "https://data.4tu.nl/v2/collections/3dfc...2782",
+    "url": "(@*\djehutybaseurl{}*@)/v2/collections/3dfc...2782",
     "timeline": {
       "posted": "2023-04-05T15:05:04",
       "firstOnline": "2023-04-05T15:05:03",
@@ -359,7 +359,7 @@ curl --request POST\
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl https://data.4tu.nl/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782 | jq
+curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782 | jq
 \end{lstlisting}
 
   Output of the example:
@@ -387,7 +387,7 @@ curl https://data.4tu.nl/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782 | j
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl https://data.4tu.nl/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/versions | jq
+curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/versions | jq
 \end{lstlisting}
 
   Output of the example:
@@ -395,15 +395,15 @@ curl https://data.4tu.nl/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/ver
 [ /* Example output has been shortened. */
   {
     "version": 3,
-    "url": "https://data.4tu.nl/v2/collections/3dfc...2782/versions/3"
+    "url": "(@*\djehutybaseurl{}*@)/v2/collections/3dfc...2782/versions/3"
   },
   {
     "version": 2,
-    "url": "https://data.4tu.nl/v2/collections/3dfc...2782/versions/2"
+    "url": "(@*\djehutybaseurl{}*@)/v2/collections/3dfc...2782/versions/2"
   },
   {
     "version": 1,
-    "url": "https://data.4tu.nl/v2/collections/3dfc...2782/versions/1"
+    "url": "(@*\djehutybaseurl{}*@)/v2/collections/3dfc...2782/versions/1"
   }
 ]
 \end{lstlisting}
@@ -412,7 +412,7 @@ curl https://data.4tu.nl/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/ver
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl https://data.4tu.nl/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/versions/2 | jq
+curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/versions/2 | jq
 \end{lstlisting}
 
   Output of the example:
@@ -445,7 +445,7 @@ curl https://data.4tu.nl/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/ver
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl https://data.4tu.nl/v2/categories | jq
+curl (@*\djehutybaseurl{}*@)/v2/categories | jq
 \end{lstlisting}
 
   Output of the example:
@@ -484,7 +484,7 @@ curl https://data.4tu.nl/v2/categories | jq
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl https://data.4tu.nl/v2/licenses | jq
+curl (@*\djehutybaseurl{}*@)/v2/licenses | jq
 \end{lstlisting}
 
   Output of the example:
@@ -538,7 +538,7 @@ Authorization: token YOUR_TOKEN_HERE
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -H "Authorization: token YOUR_TOKEN_HERE" https://data.4tu.nl/v2/account/articles | jq
+curl -H "Authorization: token YOUR_TOKEN_HERE" (@*\djehutybaseurl{}*@)/v2/account/articles | jq
 \end{lstlisting}
 
   Output of the example:
@@ -549,7 +549,7 @@ curl -H "Authorization: token YOUR_TOKEN_HERE" https://data.4tu.nl/v2/account/ar
   "title": "Example draft dataset",
   "doi": null,
   "handle": null,
-  "url": "https://data.4tu.nl/v2/articles/6ddd7a31-8ad8-4c20-95a3-e68fe716fa42",
+  "url": "(@*\djehutybaseurl{}*@)/v2/articles/6ddd7a31-8ad8-4c20-95a3-e68fe716fa42",
   "published_date": null,
   ...
 }

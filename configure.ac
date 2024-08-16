@@ -34,6 +34,15 @@ AM_COND_IF([HAVE_PDFLATEX],
               doc/Makefile
               doc/djehuty.sty])])
 
+dnl Package-specific configurable options
+dnl ---------------------------------------------------------------------------
+
+AC_ARG_VAR(BASE_URL, [The URL on which the instance will run.  This is only
+                      used to align the documentation.])
+
+dnl Default value for BASE_URL
+: "${BASE_URL=https://data.4tu.nl}"
+
 dnl Check for presence of 'git'.
 dnl ---------------------------------------------------------------------------
 AC_CHECK_PROG(GIT, git, git)
