@@ -5,6 +5,8 @@ from urllib.parse import quote, unquote
 from io import StringIO
 import os.path
 import os
+import shutil
+import tempfile
 import getpass
 import logging
 import json
@@ -395,6 +397,7 @@ class ApiServer:
             R("/v3/datasets/<git_uuid>.git/git-receive-pack",                    self.api_v3_private_dataset_git_receive_pack),
             R("/v3/datasets/<git_uuid>.git/languages",                           self.api_v3_dataset_git_languages),
             R("/v3/datasets/<git_uuid>.git/contributors",                        self.api_v3_dataset_git_contributors),
+            R("/v3/datasets/<git_uuid>.git/zip",                                 self.api_v3_dataset_git_zip),
 
             ## ----------------------------------------------------------------
             ## SHARED SUBMIT INTERFACE API
@@ -6778,6 +6781,64 @@ class ApiServer:
                 return self.error_500 ()
 
         return self.response (json.dumps(files))
+
+
+    def __git_files_for_zipfly (self, filesystem_path, tree, path=""):
+        file_paths = []
+        for entry in tree:
+            # Walk the directory tree
+            if isinstance (entry, pygit2.Tree):  # pylint: disable=no-member
+                file_paths += self.__git_files_for_zipfly (filesystem_path, list(entry),
+                                                           f"{path}{entry.name}/")
+                continue
+
+            # Submodules are represented as commits.
+            if isinstance (entry, pygit2.Commit):  # pylint: disable=no-member
+                continue
+
+            relative_path = f"{path}{entry.name}"
+            absolute_path = f"{filesystem_path}/{relative_path}"
+            record = { "fs": absolute_path, "n": relative_path }
+            file_paths.append (record)
+
+        return file_paths
+
+    def api_v3_dataset_git_zip (self, request, git_uuid):
+        """Implements /v3/datasets/<git_uuid>.git/zip."""
+
+        git_repository, branch = self.__git_statistics_error_handling (request, git_uuid)
+        if isinstance (git_repository, Response):
+            return git_repository
+
+        with tempfile.TemporaryDirectory(dir = self.db.cache.storage,
+                                         prefix = "git-zip-",
+                                         delete = False) as folder:
+            git_directory  = f"{self.db.storage}/{git_uuid}.git"
+            git_repository = pygit2.clone_repository (git_directory, folder)
+
+            if not isinstance (git_repository, pygit2.Repository):
+                logging.error ("Unable to clone %s.", git_directory)
+                return self.error_500 ()
+
+            tree = git_repository.revparse_single(branch).tree # pylint: disable=no-member
+            files  = self.__git_files_for_zipfly (folder, tree)
+            writer = None
+            try:
+                zipfly_object = zipfly.ZipFly(paths = files)
+                writer = zipfly_object.generator()
+            except TypeError:
+                logging.error ("Could not ZIP files for git repository %s", git_uuid)
+                return self.error_500 ()
+
+            response = self.response (writer, mimetype="application/zip")
+            response.headers["Content-disposition"] = f"attachment; filename={git_uuid}.zip"
+
+            # Removes the temporary cloned repository. This should only be
+            # done after the request is complete.
+            response.call_on_close (lambda: shutil.rmtree (folder))
+            return response
+
+        return self.error_404 (request)
 
     def api_v3_dataset_decline (self, request, dataset_id):
         """Implements /v3/datasets/<id>/decline."""
