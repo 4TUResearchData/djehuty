@@ -566,7 +566,7 @@ def read_email_configuration (server, xml_root, logger):
             logger.error ("Could not configure the email subsystem:")
             logger.error ("The email port should be a numeric value.")
 
-def read_configuration_file (server, config_file, logger, config_files):
+def read_configuration_file (server, config_file, logger, config_files, config=None):
     """Procedure to parse a configuration file."""
 
     inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
@@ -574,7 +574,9 @@ def read_configuration_file (server, config_file, logger, config_files):
         if config_file is None:
             raise FileNotFoundError
 
-        config   = {}
+        if config is None:
+            config = {}
+
         xml_root = None
         tree = ElementTree.parse(config_file)
 
@@ -597,9 +599,11 @@ def read_configuration_file (server, config_file, logger, config_files):
         port                    = convenience.value_or_none (config, "port")
         config["address"]       = config_value (xml_root, "bind-address", address, "127.0.0.1")
         config["port"]          = int(config_value (xml_root, "port", port, 8080))
-        server.base_url         = config_value (xml_root, "base-url", None,
-                                                f"http://{config['address']}:{config['port']}")
 
+        if server.base_url is None:
+            server.base_url = f"http://{config['address']}:{config['port']}"
+
+        server.base_url         = config_value (xml_root, "base-url", None, server.base_url)
         server.db.storage       = config_value (xml_root, "storage-root", None, server.db.storage)
         server.db.state_graph   = config_value (xml_root, "rdf-store/state-graph", None, server.db.state_graph)
 
@@ -777,7 +781,7 @@ def read_configuration_file (server, config_file, logger, config_files):
             if not os.path.isabs(include):
                 include = os.path.join(config_dir, include)
 
-            new_config = read_configuration_file (server, include, logger, config_files)
+            new_config = read_configuration_file (server, include, logger, config_files, config)
             config = { **config, **new_config }
 
         read_menu_configuration (xml_root, server)
