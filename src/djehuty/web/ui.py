@@ -916,7 +916,12 @@ def apply_transactions_from_directory (logger, server, config, transactions_dire
                                os.listdir(directory)))
     transactions = sorted(transactions)
 
-    print(f"Applying {len(transactions)} transactions.")
+    number_of_transactions = len(transactions)
+    if number_of_transactions < 1:
+        print("No transactions to apply.")
+        return False
+
+    print(f"Applying {number_of_transactions} transactions.")
     try:
         for transaction_file in transactions:
             filename = f"{directory}/{transaction_file}"
