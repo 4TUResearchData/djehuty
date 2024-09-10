@@ -111,7 +111,7 @@
         <ul>
     {% for file in files %}
             <li>
-              <span class="size">{{'{:,}'.format(file.size)}} bytes</span><!--
+              {%- if "size" in file: %}<span class="size">{{'{:,}'.format(file.size)}} bytes</span>{%- endif %}<!--
               --><span class="md5">MD5:<code>{{file.computed_md5}}</code></span><!--
               {%- if file.handle is defined and file.handle is not none %}
               --><a href="https://hdl.handle.net/{{file.handle}}"><img src="/static/images/handle-logo.png" class="handle-icon" alt="Handle" /></a><!--
