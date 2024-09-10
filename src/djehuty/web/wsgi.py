@@ -4021,8 +4021,10 @@ class ApiServer:
         try:
             record  = self.__default_dataset_api_parameters (request.get_json())
             records = self.db.datasets (**record)
-            return self.default_list_response (records, formatter.format_dataset_record,
-                                               base_url = self.base_url)
+            output  = self.default_list_response (records, formatter.format_dataset_record,
+                                                  base_url = self.base_url)
+            output.headers["Access-Control-Allow-Origin"] = "*"
+            return output
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
 
