@@ -35,14 +35,6 @@ configuration file, for which an example is available at
                                deposit data.  This option limits the ability
                                to deposit to users with an e-mail address of
                                a specific domain name.\\
-  \t{enable-query-audit-log} & When set to 1, it writes every SPARQL query that
-                               modifies the database in the web logs.  This can
-                               be replayed to reconstruct the database at a
-                               later time.  Setting this option to 0 disables
-                               this feature.  This element takes an attribute
-                               \t{transactions-directory} that should specify
-                               an empty directory to which transactions can be
-                               written that are extracted from the audit log.\\
   \t{cache-root}             & \t{djehuty} can cache query responses to lower
                                the load on the database server.  Specify the
                                directory where to store cache files.  This
@@ -86,6 +78,52 @@ configuration file, for which an example is available at
                                can be reached (in case it is different from
                                the \t{sparql-uri}.\\
 \end{tabular}
+
+\section{Audit trails and database reconstruction}
+
+  The \t{djehuty} program can keep an audit log of all database modifications
+  made by itself from which a database state can be reconstructed.  Whether
+  \t{djehuty} keeps such an audit log can be configured with the following
+  option:
+
+\begin{tabular}{p{0.34\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}            & \textbf{Description}\\
+  \fi
+  \t{enable-query-audit-log} & When set to 1, it writes every SPARQL query that
+                               modifies the database in the web logs.  This can
+                               be replayed to reconstruct the database at a
+                               later time.  Setting this option to 0 disables
+                               this feature.  This element takes an attribute
+                               \t{transactions-directory} that should specify
+                               an empty directory to which transactions can be
+                               written that are extracted from the audit log.\\
+\end{tabular}
+
+\subsection{Reconstructing the database from the query audit log}
+
+  Each query that modifies the database state while the query audit logs
+  are enabled can be extracted from the query audit log using the
+  \t{-{}-extract-transactions-from-log} command-line option.  A timestamp to
+  specify the starting point to extract from can be specified as an argument.
+  The following example displays its use:
+
+\begin{lstlisting}[language=bash]
+djehuty web --config-file=config.xml --extract-transactions-from-log="YYYY-MM-DD HH:MM:SS"
+\end{lstlisting}
+
+This will create a file for each query in the folder specified in the
+\t{transactions-directory} attribute.
+
+  To replay the extracted transactions, use the \t{apply-transactions}
+  command-line option:
+\begin{lstlisting}[language=bash]
+djehuty web --config-file=config.xml --apply-transactions
+\end{lstlisting}
+
+  When a query cannot be executed, the command stops, allowing to fix or
+  remove the query to-be-replayed.  Invoking the \t{-{}-apply-transactions}
+  command a second time will continue replaying where the previous run stopped.
 
 \section{Configuring storage}
 
