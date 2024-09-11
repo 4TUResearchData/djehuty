@@ -1,4 +1,4 @@
-;; Copyright (c) 2022 TU Delft <r.r.e.janssen@tudelft.nl>
+;; Copyright (c) 2022, 2023, 2024 TU Delft <r.r.e.janssen@tudelft.nl>
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,7 @@
 (define djehuty
   (package
    (name "djehuty")
-   (version "0.0.1")
+   (version "@VERSION@")
    (source (origin
             (method url-fetch)
             (uri (string-append

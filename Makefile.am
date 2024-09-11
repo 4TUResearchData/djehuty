@@ -15,7 +15,6 @@ EXTRA_DIST              =                   \
   README.md                                 \
   etc/djehuty.service                       \
   etc/djehuty/djehuty-example-config.xml    \
-  guix.scm                                  \
   requirements.txt                          \
   setup.py                                  \
   pyproject.toml                            \
