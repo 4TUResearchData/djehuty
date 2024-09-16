@@ -1,0 +1,36 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?first_name      ?full_name        ?uuid
+                ?is_active       ?is_public        ?last_name
+                ?orcid_id        ?email            ?is_editable
+                (?rest AS ?originating_blank_node) ?order_index
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container         rdf:type                 djht:PhysicalObjectContainer .
+    ?item_uri          djht:container           ?container ;
+                       djht:creators/rdf:rest*  ?rest .
+    ?rest              rdf:first                ?creator ;
+                       djht:index               ?order_index .
+
+    OPTIONAL { ?creator djht:email              ?email . }
+    OPTIONAL { ?creator djht:first_name         ?first_name . }
+    OPTIONAL { ?creator djht:full_name          ?full_name . }
+    OPTIONAL { ?creator djht:is_active          ?is_active . }
+    OPTIONAL { ?creator djht:is_public          ?is_public . }
+    OPTIONAL { ?creator djht:last_name          ?last_name . }
+    OPTIONAL { ?creator djht:orcid_id           ?orcid_id . }
+
+    {%- if account_uuid is not none %}
+    ?container         djht:account             ?account .
+    BIND (xsd:boolean (EXISTS { ?creator djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)    {%- else %}
+    BIND("false"^^xsd:boolean AS ?is_editable)
+    {%- endif %}
+
+    BIND(STRAFTER(STR(?creator), "author:") AS ?uuid)
+  }
+  FILTER (?container = <container:{{container_uuid}}>)
+{%- if account_uuid is not none %}
+  FILTER (?account = <account:{{account_uuid}}>)
+{%- endif %}
+}
+{% endblock %}

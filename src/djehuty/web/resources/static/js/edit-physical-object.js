@@ -43,9 +43,130 @@ function save_physical_object (container_uuid, event, notify=true) {
     });
 }
 
+function cancel_edit_author (author_uuid, container_uuid) {
+    jQuery("#author-inline-edit-form").remove();
+    jQuery(`#edit-author-${author_uuid}`).attr("onclick",
+      `javascript:edit_author('${author_uuid}', ` +
+      `'${container_uuid}'); return false`)
+        .removeClass("fa-times")
+        .removeClass("fa-lg")
+        .addClass("fa-pen");
+}
+
+function update_author (author_uuid, container_uuid) {
+    let record = {
+        "first_name": jQuery("#edit_author_first_name").val(),
+        "last_name": jQuery("#edit_author_last_name").val(),
+        "email": jQuery("#edit_author_email").val(),
+        "orcid": jQuery("#edit_author_orcid").val()
+    };
+    jQuery.ajax({
+        url:         `/v3/authors/${author_uuid}`,
+        data:        JSON.stringify(record),
+        type:        "PUT",
+        contentType: "application/json",
+        accept:      "application/json",
+    }).done(function () {
+        cancel_edit_author (author_uuid, container_uuid);
+        render_authors (container_uuid);
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to update author details.</p>");
+    });
+}
+
+function edit_author (author_uuid, container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/datasets/${container_uuid}/authors/${author_uuid}`,
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (author) {
+        let html = `<tr id="author-inline-edit-form"><td colspan="3">`;
+        html += `<label for="author_first_name">First name</label>`;
+        html += `<input type="text" id="edit_author_first_name" name="author_first_name" value="${or_empty (author.first_name)}">`;
+        html += `<label for="author_last_name">Last name</label>`;
+        html += `<input type="text" id="edit_author_last_name" name="author_last_name" value="${or_empty (author.last_name)}">`;
+        html += `<label for="author_email">E-mail address</label>`;
+        html += `<input type="text" id="edit_author_email" name="author_email" value="${or_empty (author.email)}">`;
+        html += `<label for="author_orcid">ORCID</label>`;
+        html += `<input type="text" id="edit_author_orcid" name="author_orcid" value="${or_empty (author.orcid)}">`;
+        html += `<div id="update-author" class="a-button">`;
+        html += `<a href="#" onclick="javascript:update_author(`;
+        html += `'${author_uuid}', '${container_uuid}'); `;
+        html += `return false;">Update author</a></div>`;
+        html += `</td></tr>`;
+
+        jQuery(`#author-${author_uuid}`).after(html);
+        jQuery(`#edit-author-${author_uuid}`)
+            .removeClass("fa-pen")
+            .addClass("fa-times")
+            .addClass("fa-lg")
+            .attr("onclick",
+              `javascript:cancel_edit_author('${author_uuid}', ` +
+              `'${container_uuid}'); return false;`);
+    });
+}
+
+function add_author (author_uuid, container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-objects/${container_uuid}/creators`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify([author_uuid]),
+    }).done(function () {
+        render_authors (container_uuid);
+        jQuery("#authors").val("");
+        autocomplete_author(null, container_uuid);
+    }).fail(function () { show_message ("failure", `<p>Failed to add ${author_uuid}.</p>`); });
+}
+
+function render_authors (container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-objects/${container_uuid}/creators`,
+        data:        { "limit": 10000 },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (authors) {
+        jQuery("#authors-list tbody").empty();
+        for (let author of authors) {
+            let row = `<tr id="author-${author.uuid}"><td>${author.full_name}`;
+            let orcid = null;
+            if (author.orcid_id && author.orcid_id != "") {
+                orcid = author.orcid_id;
+            } else
+            if (author.orcid && author.orcid != "") {
+                orcid = author.orcid;
+            }
+            if (orcid !== null) {
+                row += ` <a href="https://orcid.org/${orcid}" `;
+                row += `target="_blank" rel="noopener noreferrer"><img `;
+                row += `src="/static/images/orcid.svg" style="height: 15px" `;
+                row += `alt="ORCID" title="ORCID profile (new window)" /></a>`;
+            }
+            if (author.is_editable) {
+                row += `</td><td><a id="edit-author-${author.uuid}" href="#" onclick="javascript:edit_author('${author.uuid}', `;
+                row += `'${container_uuid}'); return false" class="fas fa-pen" title="Edit"></a>`;
+            } else {
+                row += "</td><td>";
+            }
+            row += `</td><td><a href="#" onclick="javascript:remove_author('${author.uuid}', `;
+            row += `'${container_uuid}'); return false;" class="fas fa-trash-can" `;
+            row += `title="Remove"></a></td></tr>`;
+            jQuery("#authors-list tbody").append(row);
+        }
+        jQuery("#authors-list").show();
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to retrieve author details.</p>");
+    });
+}
+
 function activate (container_uuid, callback=jQuery.noop) {
     new Quill('#description', { theme: '4tu' });
     jQuery("#delete").on("click", function (event) { delete_physical_object (container_uuid, event); });
     jQuery("#save").on("click", function (event)   { save_physical_object (container_uuid, event); });
+    jQuery("#authors").on("input", function (event) {
+        return autocomplete_author (event, container_uuid);
+    });
+    render_authors (container_uuid);
     callback();
 }
