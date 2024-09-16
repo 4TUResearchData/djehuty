@@ -173,6 +173,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/funding.sparql                     \
     djehuty/web/resources/sparql_templates/group.sparql                       \
     djehuty/web/resources/sparql_templates/group_by_name.sparql               \
+    djehuty/web/resources/sparql_templates/initiate_creator_for_physical_object.sparql \
+    djehuty/web/resources/sparql_templates/initiate_event_for_physical_object.sparql \
     djehuty/web/resources/sparql_templates/item_collaborative_permissions.sparql \
     djehuty/web/resources/sparql_templates/latest_datasets_portal.sparql      \
     djehuty/web/resources/sparql_templates/licenses.sparql                    \
@@ -181,6 +183,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/missing_dois.sparql                \
     djehuty/web/resources/sparql_templates/opendap_to_doi.sparql              \
     djehuty/web/resources/sparql_templates/physical-objects.sparql            \
+    djehuty/web/resources/sparql_templates/physical_object_events.sparql      \
     djehuty/web/resources/sparql_templates/prefixes.sparql                    \
     djehuty/web/resources/sparql_templates/private_links.sparql               \
     djehuty/web/resources/sparql_templates/publish_draft_collection.sparql    \
