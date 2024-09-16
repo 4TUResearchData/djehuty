@@ -385,6 +385,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             R("/v3/physical-objects",                                            self.api_v3_physical_object_details),
             R("/v3/physical-objects/<container_uuid>",                           self.api_v3_physical_object_details),
+            R("/v3/physical-objects/<container_uuid>/creators",                  self.api_v3_physical_object_creators),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -6612,6 +6613,68 @@ class ApiServer:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["GET", "PUT"])
+
+    def api_v3_physical_object_creators (self, request, container_uuid):
+        """Implements /v3/physical-objects/<container_uuid>/creators"""
+
+        if request.method in ("GET", "HEAD"):
+            handler = self.default_error_handling (request, "GET", "application/json")
+            if handler is not None:
+                return handler
+
+            account_uuid = self.account_uuid_from_request (request)
+            records = self.db.physical_object_creators (container_uuid, account_uuid)
+            return self.default_list_response (records, formatter.format_author_details_record)
+
+        # For the remainder of the calls, one needs proper authentication.
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["POST", "PUT", "DELETE"],
+                                                                  "application/json")
+
+        if request.method in ("POST", "PUT"):
+
+            if request.method == "PUT":
+                return self.error_500 ()
+
+            record = request.get_json()
+            validated = []
+            errors = []
+            if not isinstance (record, list):
+                return self.error_400 (request, message = "Expected a list.",
+                                                code    = "UnexpectedContent")
+
+            for author_uuid in record:
+                if validator.is_valid_uuid (author_uuid):
+                    validated.append (author_uuid)
+                else:
+                    errors.append ({
+                        "field_name": author_uuid,
+                        "message": "Expected a valid UUID."
+                    })
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            for author_uuid in validated:
+                if self.db.add_creator_to_physical_object (container_uuid,
+                                                           author_uuid,
+                                                           account_uuid) is None:
+                    self.log.error ("Failed to add <author:%s> to <container:%s>.",
+                                    author_uuid, container_uuid)
+                    errors.append({
+                        "field_name": author_uuid,
+                        "message": "Failed database insert."
+                    })
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            return self.respond_204 ()
+
+        if request.method == "DELETE":
+            return self.error_500 ()
+
+        return self.error_405 (["GET", "POST", "PUT", "DELETE"])
 
     def api_v3_datasets_codemeta (self, request):
         """Implements /v3/datasets/codemeta."""

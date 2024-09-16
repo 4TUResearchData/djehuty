@@ -2953,6 +2953,37 @@ class SparqlInterface:
         })
 
         return self.__run_query (query)
+
+    def physical_object_creators (self, container_uuid, account_uuid):
+        """Returns the creators of a physical object."""
+
+        query = self.__query_from_template ("physical_object_creators", {
+            "container_uuid": container_uuid,
+            "account_uuid":   account_uuid
+        })
+        return self.__run_query (query)
+
+    def add_creator_to_physical_object (self, container_uuid, creator_uuid, account_uuid):
+        """Adds a creator to a physical object."""
+
+        creator_uri = URIRef(rdf.uuid_to_uri (creator_uuid, "author"))
+        existing_objects = self.physical_object_creators (container_uuid, account_uuid)
+        self.log.info ("Existing objects: %s", existing_objects)
+        if existing_objects:
+            self.log.info ("Existing objects.")
+            return self.__append_to_existing_list (creator_uri, existing_objects)
+
+        query = self.__query_from_template ("initiate_creator_for_physical_object", {
+            "container_uuid": container_uuid,
+            "creator_uuid":   creator_uuid,
+            "account_uuid":   account_uuid,
+            "blank_uuid":     rdf.uri_to_uuid (rdf.blank_node ())
+        })
+        if self.__run_logged_query (query):
+            return creator_uuid
+
+        return None
+
     ## ------------------------------------------------------------------------
     ## REVIEWS
     ## ------------------------------------------------------------------------
