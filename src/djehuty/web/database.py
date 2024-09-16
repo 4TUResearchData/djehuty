@@ -2985,6 +2985,47 @@ class SparqlInterface:
 
         return None
 
+    def physical_object_events (self, container_uuid, account_uuid):
+        """Returns events of a physical object."""
+
+        query = self.__query_from_template ("physical_object_events", {
+            "container_uuid": container_uuid,
+            "account_uuid":   account_uuid
+        })
+        return self.__run_query (query)
+
+    def add_event_to_physical_object (self, container_uuid, event_type, date, account_uuid):
+        """Adds an event to a physical object."""
+
+        graph            = Graph()
+        uri              = rdf.unique_node ("physical-object-event")
+        event_type_uri   = rdf.DJHT[f"PhysicalObjectEvent{event_type.capitalize()}"]
+        current_time     = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        event_uuid       = rdf.uri_to_uuid (uri)
+
+        rdf.add (graph, uri, rdf.DJHT["created_date"], current_time, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["event_type"],   event_type_uri, "uri")
+        rdf.add (graph, uri, rdf.DJHT["date"],         date, XSD.date)
+        rdf.add (graph, uri, RDF.type,                 rdf.DJHT["PhysicalObjectEvent"], "uri")
+
+        if not self.add_triples_from_graph (graph):
+            return None
+
+        existing_objects = self.physical_object_events (container_uuid, account_uuid)
+        if existing_objects:
+            return self.__append_to_existing_list (uri, existing_objects)
+
+        query = self.__query_from_template ("initiate_event_for_physical_object", {
+            "container_uuid": container_uuid,
+            "event_uuid":     event_uuid,
+            "account_uuid":   account_uuid,
+            "blank_uuid":     rdf.uri_to_uuid (rdf.blank_node ())
+        })
+        if self.__run_logged_query (query):
+            return event_uuid
+
+        return None
+
     ## ------------------------------------------------------------------------
     ## REVIEWS
     ## ------------------------------------------------------------------------

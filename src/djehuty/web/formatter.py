@@ -550,3 +550,12 @@ def format_physical_object_record (record):
         "title":         conv.value_or_none (record, "title"),
         "uuid":          conv.value_or_none (record, "object_uuid")
     }
+
+def format_physical_object_event_record (record):
+    """Record formatter for events of a physical object."""
+    return {
+        "uuid":          conv.value_or_none (record, "uuid"),
+        "type":          conv.value_or_none (record, "event_type"),
+        "date":          conv.value_or_none (record, "date"),
+        "created_date":  conv.value_or_none (record, "created_date")
+    }

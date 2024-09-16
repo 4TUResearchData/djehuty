@@ -1,0 +1,31 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?uuid ?date ?event_type ?created_date
+                (?rest AS ?originating_blank_node) ?order_index
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container         rdf:type                 djht:PhysicalObjectContainer .
+    ?item_uri          djht:container           ?container ;
+                       djht:events/rdf:rest*    ?rest .
+    ?rest              rdf:first                ?event ;
+                       djht:index               ?order_index .
+
+    ?event             djht:event_type          ?event_type_uri .
+    ?event_type_uri    rdfs:label               ?event_type .
+    ?event             djht:date                ?date .
+    ?event             djht:created_date        ?created_date .
+
+    {%- if account_uuid is not none %}
+    ?container         djht:account             ?account .
+    BIND (xsd:boolean (EXISTS { ?creator djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)    {%- else %}
+    BIND("false"^^xsd:boolean AS ?is_editable)
+    {%- endif %}
+
+    BIND(STRAFTER(STR(?event), "physical-object-event:") AS ?uuid)
+  }
+  FILTER (?container = <container:{{container_uuid}}>)
+{%- if account_uuid is not none %}
+  FILTER (?account = <account:{{account_uuid}}>)
+{%- endif %}
+}
+{% endblock %}
