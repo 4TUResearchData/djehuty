@@ -4,7 +4,7 @@
 SELECT (COUNT(DISTINCT ?object) AS ?objects)
 {%- else %}
 SELECT DISTINCT ?account_uuid ?container_uuid ?object_uuid ?created_date
-                ?title ?description ?publisher ?published_date ?resource_type
+                ?title ?abstract ?methods ?publisher ?published_date ?resource_type
                 ?subject ?alternate_identifier ?related_identifier ?doi
                 ?modified_date ?version
 {%endif%}
@@ -26,7 +26,8 @@ WHERE {
     OPTIONAL { ?container djht:doi                ?container_doi . }
     OPTIONAL { ?object djht:version               ?version . }
     OPTIONAL { ?object djht:title                 ?title . }
-    OPTIONAL { ?object djht:description           ?description . }
+    OPTIONAL { ?object djht:abstract              ?abstract . }
+    OPTIONAL { ?object djht:methods               ?methods . }
     OPTIONAL { ?object djht:publisher             ?publisher . }
     OPTIONAL { ?object djht:published_date        ?published_date . }
     OPTIONAL { ?object djht:resource_type         ?resource_type . }
