@@ -161,6 +161,56 @@ function render_authors (container_uuid) {
     });
 }
 
+function add_event (container_uuid) {
+    let data = {
+        "date": or_null(jQuery("#date").val()),
+        "type": or_null(jQuery("#dateType").val())
+    };
+
+    jQuery.ajax({
+        url:         `/v3/physical-objects/${container_uuid}/events`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify([data]),
+    }).done(function () {
+        render_events (container_uuid);
+    }).fail(function () {
+        show_message ("failure", `<p>Failed to add event. Try again later.</p>`);
+    });
+}
+
+function render_events (container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-objects/${container_uuid}/events`,
+        data:        { "limit": 10000, "order": "created_date", "order_direction": "desc" },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (events) {
+        jQuery("#physical-object-events tbody").empty();
+
+        let row = '<tr><td><input type="date" name="date" id="date" /></td>';
+        row += '<td><select name="dateType" id="dateType">';
+        row += '<option value="" disabled="disabled" selected="selected">Event type</option>';
+        row += '<option value="collected">Collected</option>';
+        row += '<option value="destroyed">Destroyed</option>';
+        row += '<option value="issued">Issued</option>';
+        row += '<option value="other">Other</option>';
+        row += '</select></td>';
+        row += '<td><a id="add-event-button" class="fas fa-plus" href="#" ';
+        row += 'title="Add event" onclick="javascript:';
+        row += `add_event('${container_uuid}'); return false;"></a></td></tr>`;
+        jQuery("#physical-object-events tbody").append(row);
+
+        for (let event of events) {
+            let row = `<tr><td>${event.date}</td><td>${event.type}</td><td></td></tr>`;
+            jQuery("#physical-object-events tbody").append(row);
+        }
+    }).fail(function() {
+        show_message ("failure", "<p>Failed to retrieve events.</p>");
+    });
+}
+
 function activate (container_uuid, callback=jQuery.noop) {
     new Quill('#abstract', { theme: '4tu' });
     new Quill('#methods', { theme: '4tu' });
@@ -170,5 +220,6 @@ function activate (container_uuid, callback=jQuery.noop) {
         return autocomplete_author (event, container_uuid);
     });
     render_authors (container_uuid);
+    render_events (container_uuid);
     callback();
 }

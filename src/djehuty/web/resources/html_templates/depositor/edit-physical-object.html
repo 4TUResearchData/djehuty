@@ -23,6 +23,9 @@ jQuery(document).ready(function (){
   border-radius: .5em;
   background: #eee;
 }
+#physical-object-events > thead > tr > th { text-align: left !important; }
+#date { width: 612pt !important; border-radius: .5em !important; }
+#dateType { width: 150pt !important; border-radius: .5em !important; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -77,6 +80,16 @@ jQuery(document).ready(function (){
 
 <label for="publisher">Publisher</label>
 <input type="text" id="publisher" name="publisher" value="{% if object["publisher"] %}{{object["publisher"]}}{% else %}{{site_name}}{% endif %}">
+
+<label>Events</label>
+<div class="options-wrapper">
+  <table id="physical-object-events">
+    <thead>
+      <tr><th>Date</th><th>Type</th><th></th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
 
 <h3 class="corporate-identity-h3">Linked resource &amp; references</h3>
 
