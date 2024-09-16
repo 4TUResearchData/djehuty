@@ -4,8 +4,10 @@ DELETE {
   GRAPH <{{state_graph}}> {
     {%- if title is not none %}
     ?physical_object djht:title                  ?title .
-    {%- endif%}{% if description is not none %}
-    ?physical_object djht:description            ?description .
+    {%- endif%}{% if abstract is not none %}
+    ?physical_object djht:abstract               ?abstract .
+    {%- endif%}{% if methods is not none %}
+    ?physical_object djht:methods                ?methods .
     {%- endif%}{% if publisher is not none %}
     ?physical_object djht:publisher              ?publisher .
     {%- endif%}{% if published_date is not none %}
@@ -29,8 +31,10 @@ INSERT {
   GRAPH <{{state_graph}}> {
     {%- if title is not none %}
     ?physical_object djht:title                  {{title | safe}} .
-    {%- endif%}{% if description is not none %}
-    ?physical_object djht:description            {{description | safe}} .
+    {%- endif%}{% if abstract is not none %}
+    ?physical_object djht:abstract               {{abstract | safe}} .
+    {%- endif%}{% if methods is not none %}
+    ?physical_object djht:methods                {{methods | safe}} .
     {%- endif%}{% if publisher is not none %}
     ?physical_object djht:publisher              {{publisher | safe}} .
     {%- endif%}{% if published_date is not none %}
@@ -58,7 +62,8 @@ WHERE {
     ?physical_object              rdf:type                  djht:PhysicalObject .
 
     OPTIONAL { ?physical_object   djht:title                 ?title . }
-    OPTIONAL { ?physical_object   djht:description           ?description . }
+    OPTIONAL { ?physical_object   djht:abstract              ?abstract . }
+    OPTIONAL { ?physical_object   djht:methods               ?methods . }
     OPTIONAL { ?physical_object   djht:publisher             ?publisher . }
     OPTIONAL { ?physical_object   djht:published_date        ?published_date . }
     OPTIONAL { ?physical_object   djht:resource_type         ?resource_type . }

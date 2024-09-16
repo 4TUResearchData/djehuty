@@ -10,7 +10,8 @@ function delete_physical_object (container_uuid, event) {
 function gather_form_data (container_uuid) {
     let form_data = {
         "title":                  or_null(jQuery("#title").val()),
-        "description":            or_null(jQuery("#description .ql-editor").html()),
+        "abstract":               or_null(jQuery("#abstract .ql-editor").html()),
+        "methods":                or_null(jQuery("#methods .ql-editor").html()),
         "publisher":              or_null(jQuery("#publisher").val()),
         "resource_type":          or_null(jQuery("#resource_type").val()),
         "subject":                or_null(jQuery("#subject").val()),
@@ -161,7 +162,8 @@ function render_authors (container_uuid) {
 }
 
 function activate (container_uuid, callback=jQuery.noop) {
-    new Quill('#description', { theme: '4tu' });
+    new Quill('#abstract', { theme: '4tu' });
+    new Quill('#methods', { theme: '4tu' });
     jQuery("#delete").on("click", function (event) { delete_physical_object (container_uuid, event); });
     jQuery("#save").on("click", function (event)   { save_physical_object (container_uuid, event); });
     jQuery("#authors").on("input", function (event) {
