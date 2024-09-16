@@ -9,7 +9,7 @@ function render_categories_for_collection (dataset_uuid, categories) {
 function render_references_for_collection (collection_id) {
     jQuery.ajax({
         url:         `/v3/collections/${collection_id}/references`,
-        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+        data:        { "limit": 10000, "order": "id", "order_direction": "asc" },
         type:        "GET",
         accept:      "application/json",
     }).done(function (references) {
@@ -33,7 +33,7 @@ function render_references_for_collection (collection_id) {
 function render_datasets_for_collection (collection_id) {
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/articles`,
-        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+        data:        { "limit": 10000, "order": "id", "order_direction": "asc" },
         type:        "GET",
         accept:      "application/json",
     }).done(function (datasets) {
@@ -111,7 +111,7 @@ function render_authors_for_collection (collection_id, authors = null) {
     if (authors === null) {
         jQuery.ajax({
             url:         `/v2/account/collections/${collection_id}/authors`,
-            data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+            data:        { "limit": 10000, "order": "id", "order_direction": "asc" },
             type:        "GET",
             accept:      "application/json",
         }).done(function (authors) {
@@ -127,7 +127,7 @@ function render_authors_for_collection (collection_id, authors = null) {
 function render_funding_for_collection (collection_id) {
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/funding`,
-        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+        data:        { "limit": 10000, "order": "id", "order_direction": "asc" },
         type:        "GET",
         accept:      "application/json",
     }).done(function (funders) {
