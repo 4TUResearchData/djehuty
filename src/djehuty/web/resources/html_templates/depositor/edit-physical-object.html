@@ -13,6 +13,7 @@ jQuery(document).ready(function (){
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
 <link href="/static/css/form.css" rel="stylesheet">
 <style>
+#new-author, #update-author { text-align: center; line-height: 3.5em; height: 3.5em; }
 #tags-list { display: none; border: none; padding: 0em; }
 #tags-list li {
   display: inline-block;
@@ -48,6 +49,15 @@ jQuery(document).ready(function (){
 <p>Fields marked with <span class="required-field">&#8727;</span> are required.</p>
 <label for="title">Title</label><div class="fas fa-question-circle help-icon"><span class="help-text">Giving your object a descriptive title will help making it discoverable via search engines. The title should have at least three characters.</span></div><span class="required-field">&#8727;</span>
 <input type="text" id="title" name="title" value="{{object["title"]}}" />
+
+<label for="authors">Creators</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select creators from the list or manually add them by creating a new creator record. Hit enter after adding each creator and drag and drop names to arrange them in the order you wish.</span></div><span class="required-field">&#8727;</span>
+<input type="text" id="authors" name="authors" />
+<table class="inside-form-table multi-list" id="authors-list">
+  <thead>
+    <tr><th>Creator</th><th colspan="2">Actions</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
 <label>Description</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add as much context as possible so that others can interpret your research and reproduce it. Make sure you include methodology, techniques used, and if relevant information about approval for data collection to confirm adherence to legal or ethical requirements. The description should have at least four characters.</span></div><span class="required-field">&#8727;</span>
 <div id="description" class="texteditor">
