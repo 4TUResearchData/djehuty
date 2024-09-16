@@ -2931,7 +2931,7 @@ class SparqlInterface:
         return self.__run_query (query)
 
     def update_physical_object (self, title, account_uuid, container_uuid=None,
-                                description=None, publisher=None,
+                                abstract=None, methods=None, publisher=None,
                                 published_date=None, resource_type=None,
                                 subject=None, alternate_identifier=None,
                                 related_identifier=None, doi=None):
@@ -2939,7 +2939,8 @@ class SparqlInterface:
 
         query = self.__query_from_template ("update_physical_object_draft", {
             "title":                  rdf.escape_string_value (title),
-            "description":            rdf.escape_string_value (description),
+            "abstract":               rdf.escape_string_value (abstract),
+            "methods":                rdf.escape_string_value (methods),
             "publisher":              rdf.escape_string_value (publisher),
             "published_date":         rdf.escape_datetime_value (published_date),
             "resource_type":          rdf.escape_string_value (resource_type),

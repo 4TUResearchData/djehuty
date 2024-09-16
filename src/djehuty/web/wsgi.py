@@ -6586,7 +6586,8 @@ class ApiServer:
                 record = request.get_json()
                 parameters = {
                     "title":                validator.string_value (record, "title",                0, 255,  error_list=errors),
-                    "description":          validator.string_value (record, "description",          0, 2048, error_list=errors),
+                    "abstract":             validator.string_value (record, "abstract",             0, 2048, error_list=errors),
+                    "methods":              validator.string_value (record, "methods",              0, 2048, error_list=errors),
                     "publisher":            validator.string_value (record, "publisher",            0, 255,  error_list=errors),
                     "resource_type":        validator.string_value (record, "resource_type",        0, 255,  error_list=errors),
                     "subject":              validator.string_value (record, "subject",              0, 255,  error_list=errors),
