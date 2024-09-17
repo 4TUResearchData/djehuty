@@ -63,6 +63,8 @@ nobase_dist_doc_DATA     = index.html                              \
                            $(doc_NAME)3.html                       \
                            $(doc_NAME)4.html                       \
                            $(doc_NAME)5.html                       \
+                           $(doc_NAME)6.html                       \
+                           $(doc_NAME)7.html                       \
                            $(doc_NAME).css                         \
                            figures/references-graph-.png           \
                            figures/typed-notation-.png             \

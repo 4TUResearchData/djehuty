@@ -136,9 +136,9 @@ arguments.  When invoking \t{djehuty}, we usually invoke
 import djehuty.web.ui as web_ui
 ...
 if args.command == "web":
-    web_ui.main (args.address, args.port, args.state_graph, args.storage,
-                 args.base_url, args.config_file, args.debug,
-                 args.dev_reload, True, args.initialize)
+    web_ui.main (args.config_file, True, args.initialize,
+                 args.extract_transactions_from_log,
+                 args.apply_transactions)
 \end{lstlisting}
 
 So, the entry-point for the \t{web} subcommand is found in
@@ -165,3 +165,72 @@ name using the \t{url\_map}.  So, except for static resources in the
 \t{src/djehuty/web/resources} folder and pre-configured static pages, URIs are
 handled by a procedure in the \t{ApiServer} instance.
 
+A mapping between a URI and the procedure that is executed to handle the
+request to that URI can be found in the \t{url\_map} defined in the
+\t{ApiServer} class in \file{wsgi.py}.
+
+\subsection{Diving into the code that displays the homepage}
+
+As an example, in the \t{url\_map}, we can find the following line:
+\begin{lstlisting}[language=python]
+R("/", self.ui_home),
+\end{lstlisting}
+
+In this case, \t{self} is a reference to an instance of the \t{ApiServer}
+class, so we look for a procedure called \t{ui\_home} inside the
+\t{ApiServer} class.  Some code editors have a feature to ``go to definition''
+which helps navigating.
+
+The \t{ui\_home} gathers the summary numbers from the SPARQL endpoint
+with the following line:
+\begin{lstlisting}[language=python]
+summary_data = self.db.repository_statistics()
+\end{lstlisting}
+
+And a list of the latest datasets with the following line:
+\begin{lstlisting}[language=python]
+records = self.db.latest_datasets_portal(30)
+\end{lstlisting}
+
+It then passes that information to the \t{\_\_render\_template}
+procedure which renders the \file{portal.html} in the
+\file{src/djehuty/web/resources/html\_templates} folder.  The Jinja%
+\footnote{\dhref{https://jinja.palletsprojects.com/en/3.1.x/}} package
+is used to interpret the template.
+
+\begin{lstlisting}[language=python]
+return self.__render_template (request, "portal.html",
+                               summary_data = summary_data,
+                               latest = records, ...)
+\end{lstlisting}
+
+\subsection{Database communication}
+
+In the \t{ui\_home} procedure, we found a call to the
+\t{self.db.repository\_statistics} procedure.  To find out by hand where that
+procedure can be found, we can look for the place where \t{self.db} is
+assigned a value:
+
+\begin{lstlisting}[language=python]
+self.db = database.SparqlInterface()
+\end{lstlisting}
+
+And from there look up where \t{database} comes from:
+\begin{lstlisting}[language=python]
+from djehuty.web import database
+\end{lstlisting}
+
+From which we can conclude that it can be found in
+\file{src/djehuty/web/database.py}.
+
+In the \t{repository\_statistics} procedure, we find a call to
+\t{self.\_\_query\_from\_template} followed by a call to \t{\_\_run\_query}
+which takes the output of the former procedure as its input.
+
+As the name implies, \t{\_\_run\_query} sends the query to the SPARQL endpoint
+and retrieves the results by putting them in a list of Python dictionaries.
+
+The \t{self.\_\_query\_from\_template} procedure takes one parameter, which is
+the name of the template file (minus the extension) that contains a SPARQL
+query.  These templates can be found in the
+\file{src/djehuty/web/resources/sparql\_templates} folder.
