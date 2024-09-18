@@ -18,6 +18,8 @@
 {% set pid = item.dataset_id %}
 {% set item_type = "dataset" %}
 
+<div id="rdfa" vocab="http://schema.org/" typeof="Dataset">
+
 {% include 'public_metadata.html' %}
 
 <div id="data">
@@ -119,7 +121,10 @@
               --><a class="corporate-identity" href="/file/{{item.container_uuid}}/{{file.uuid}}">{{file.name}}</a>
             </li>
     {% endfor %}
-            <li class="zip"><a class="corporate-identity" href="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}">download all files (zip)</a>
+            <li class="zip">
+                <span property="distribution" typeof="DataDownload">
+                    <a class="corporate-identity" href="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}" property="contentUrl" resource="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}" >download all files (zip)</a>
+                </span>    
                 <div id="total_size">{{'{:,}'.format(files_size)}} bytes unzipped</div>
             </li>
         </ul>
@@ -127,4 +132,6 @@
 {% endif %}
 {% endif %}
 </div>
+</div>
+
 {% endblock %}

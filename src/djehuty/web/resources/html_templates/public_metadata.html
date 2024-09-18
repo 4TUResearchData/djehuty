@@ -1,5 +1,5 @@
 {% block public_metadata  %}
-<h2>{{item.title}}</h2>
+<h2 property="name">{{item.title}}</h2>
 
 {% if item.is_embargoed and item.embargo_type == "article": %}
 <p>This {{item_type}} is under embargo until {{item.embargo_until_date}}.</p>
@@ -12,12 +12,12 @@
 {% endif %}
 
 <div id="metadata">
-{% if private_view %}
+ {% if private_view %}
   {% if doi %}
-<div id="doi"><span>doi:</span> {{doi}}</a></div>
+ <div id="doi"><span>doi:</span> {{doi}}</a></div>
   {% endif %}
-{% else %}
-    <div id="doi"><span>doi:</span> <a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{doi}}</a>
+ {% else %}
+    <div id="doi"><span>doi:</span> <a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><span property="identifier" resource="https://doi.org/{{doi}}">{{doi}}</span></a>
   {% if container_doi and not old %}
         <div id="container_doi">The doi above is for this specific version of this {{item_type}}, which is currently the latest. Newer versions may be published in the future.
             For a link that will always point to the latest version, please use<br />
@@ -31,7 +31,7 @@
     <div id="cite">
         <button id="cite_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
         Datacite citation style:
-        <div id="citation">{{citation}}</div>
+        <div id="citation" property="citation">{{citation}}</div>
         <a class="corporate-identity" href="https://doi.datacite.org/dois/{{item.doi|replace('/','%2F')}}" target="_blank" rel="noopener noreferrer" title="opens in new window">Other citation styles (APA, Harvard, MLA, Vancouver, Chicago, IEEE) available at Datacite</a>
     </div>
   {% if my_collections %}
@@ -55,7 +55,8 @@
         <div id="type">{{ dtype }}</div>
 {% if not private_view and versions[1:2] %}
         <button id="versions_show" onclick="document.getElementById('versions').style.display='block'" title="Choose another version."
-            {% if old %}style="background-color: #ff0"{% endif %}>version {{thisversion}}
+            {% if old %}style="background-color: #ff0"{% endif %}>version 
+            <span property="version"> {{thisversion}}</span>
             {% if old %} (old){% endif %} &#x1F53B; </button>
         <div id ="versions">
             <button id="versions_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
@@ -102,11 +103,13 @@
         <div id="tags">
             <div class="label">keywords</div>
                 {# The query below searches for full text. Field search does not yet work for keywords #}
+<span property="keywords">  
 {% for tag in tags|sort %}
     {% set query = '"'~tag~'"' %}
             <a class="corporate-identity" href="/search?searchscope=tag&search={{query|urlencode}}">{{tag}}</a>
     {%- if loop.revindex0 %}, {% endif %}
 {% endfor %}
+</span>  
         </div>
 {% set geo = item.geolocation %}
 {% set lat = coordinates.lat %}
@@ -117,7 +120,7 @@
         <div id="geo">
             <div class="label">geolocation</div>
     {% if geo %}
-            <div id = "geo_name">{{geo}}</div>
+            <div id = "geo_name" property="spatialCoverage">{{geo}}</div>
     {% endif %}
     {% if lat %}
             <div id = "lat">lat (N): {{lat}}</div>
@@ -134,7 +137,7 @@
 {% if item.time_coverage %}
         <div id="time_coverage">
             <div class="label">time coverage</div>
-            {{item.time_coverage}}
+            <span property="temporalCoverage">{{item.time_coverage}}</span>
         </div>
 {% endif %}
 {% if item_type == "dataset" %}
@@ -148,7 +151,7 @@
                        'CC BY-NC-ND 4.0': 'cc-by-nc-nd.png',
                        'GPL-3.0'        : 'gnu-gpl-v3.png'  } %}
     {% set lic_img = lic_imgs[item.license_name] %}
-        <div id="licence">
+        <div id="licence" property="license" resource="{{item.license_url}}">
             <div class="label">licence</div>
             <a class="corporate-identity" href="{{item.license_url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">
                 {%- if lic_img %}<img src="/static/images/licenses/{{lic_img}}" alt="{{lic_img}} logo"/>{% endif %}
@@ -187,15 +190,18 @@
 {%- if not anonymize %}
       <div id="authors">by
 {% for a in authors %}
-            <a class="corporate-identity{% if a.is_active %} is_active{% endif %}" href="/authors/{{a.uuid}}" >{{a.full_name}}</a>
+        <span property="creator" typeof="Person">
+            <a class="corporate-identity{% if a.is_active %} is_active{% endif %}" href="/authors/{{a.uuid}}"><span property="name">{{a.full_name}}</span></a>        
     {%- if a.orcid_id %}
+            <span property="sameAs" resource="https://orcid.org/{{a.orcid_id}}"></span>
             <a class="corporate-identity" href="https://orcid.org/{{a.orcid_id}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
     {%- endif %}
+        </span>
     {%- if loop.revindex0 %}, {% endif %}
 {% endfor %}
         </div>
 {%- endif %}
-        <div id="description">
+        <div id="description" property="description" >
 {% autoescape false %}
         {%- if item.description %}
         {{ item.description.replace('\\n', '\n') }}
@@ -211,9 +217,9 @@
 {% endfor %}
         </div>
 {% if item.publisher %}
-        <div id="publisher">
+        <div id="publisher" property="publisher" typeof="Organization">
             <div class="label">publisher</div>
-            {{item.publisher}}
+                <span property="name">{{item.publisher}}</span>
         </div>
 {% endif %}
 {% if item.format %}
@@ -284,7 +290,9 @@
                     [<a class="corporate-identity" href="{{funding.url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">more info...</a>]
         {% endif %}
         {% if funding.funder_name %}
-                    <span class="funder_name">{{funding.funder_name}}</span>
+                    <span class="funder_name" property="funder" typeof="Organization"> 
+                        <span property="name">{{funding.funder_name}}</span>
+                    </span>
         {% endif %}
                 </li>
     {% endfor %}
