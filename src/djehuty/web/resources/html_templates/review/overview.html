@@ -134,7 +134,7 @@ activate ();
         </select>
         {%- endif %}
       </td>
-      <td><a id="copy-btn-{{review.uuid}}" class="fas fa-copy" href="#" onclick="javascript:copy_row('{{review.uuid}}','{{review.dataset_uuid}}','{{review.dataset_title | replace("'", "\\'")}}', '{% if review.has_published_version %}{{review.dataset_version | default("update", False)}}{% else %}{{review.dataset_version | default("new", False)}}{% endif %}', '{{review.submitter_first_name | default("", False)}}', '{{review.submitter_last_name | default("", False)}}', '{{review.submitter_email}}', '{{review.group_name | default("Unknown", False)}}', '{{review.request_date}}', '{{review.modified_date}}', '{{review.published_date}}'); return false"></a></td>
+      <td><a id="copy-btn-{{review.uuid}}" class="fas fa-copy" href="#" onclick="javascript:copy_row('{{review.uuid}}','{{review.dataset_uuid}}','{{review.dataset_title | replace("'", "\\'")}}', '{% if review.has_published_version %}{{review.dataset_version | default("update", False)}}{% else %}{{review.dataset_version | default("new", False)}}{% endif %}', `{{review.submitter_first_name | default("", False)}}`, `{{review.submitter_last_name | default("", False)}}`, '{{review.submitter_email}}', '{{review.group_name | default("Unknown", False)}}', '{{review.request_date}}', '{{review.modified_date}}', '{{review.published_date}}'); return false"></a></td>
     </tr>
   {% endfor %}</tbody>
 </table>
