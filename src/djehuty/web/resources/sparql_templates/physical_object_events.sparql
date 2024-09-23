@@ -17,7 +17,7 @@ WHERE {
 
     {%- if account_uuid is not none %}
     ?container         djht:account             ?account .
-    BIND (xsd:boolean (EXISTS { ?creator djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)    {%- else %}
+    BIND (xsd:boolean (EXISTS { ?event djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)    {%- else %}
     BIND("false"^^xsd:boolean AS ?is_editable)
     {%- endif %}
 
