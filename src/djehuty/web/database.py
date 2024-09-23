@@ -3026,6 +3026,50 @@ class SparqlInterface:
 
         return None
 
+    def physical_object_related_identifiers (self, container_uuid, account_uuid):
+        """Returns related identifiers of a physical object."""
+
+        query = self.__query_from_template ("physical_object_related_identifiers", {
+            "container_uuid": container_uuid,
+            "account_uuid":   account_uuid
+        })
+        return self.__run_query (query)
+
+    def add_related_identifier_to_physical_object (self, container_uuid,
+                                                   identifier, identifier_type,
+                                                   identifier_relation,
+                                                   account_uuid):
+        graph         = Graph()
+        uri           = rdf.unique_node ("physical-object-related-identifier")
+        type_uri      = rdf.DJHT[f"PhysicalObjectRelatedIdentifier{identifier_type}"]
+        relation_uri  = rdf.DJHT[f"PhysicalObjectRelatedIdentifier{identifier_relation}"]
+        current_time  = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+
+        rdf.add (graph, uri, rdf.DJHT["created_date"], current_time, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["type"],         type_uri, "uri")
+        rdf.add (graph, uri, rdf.DJHT["relation"],     relation_uri, "uri")
+        rdf.add (graph, uri, rdf.DJHT["url"],          identifier, XSD.string)
+        rdf.add (graph, uri, RDF.type, rdf.DJHT["PhysicalObjectRelatedIdentifier"], "uri")
+
+        if not self.add_triples_from_graph (graph):
+            return None
+
+        existing_objects = self.physical_object_related_identifiers (container_uuid, account_uuid)
+        if existing_objects:
+            return self.__append_to_existing_list (uri, existing_objects)
+
+        identifier_uuid = rdf.uri_to_uuid (uri)
+        query = self.__query_from_template ("initiate_related_identifier_for_physical_object", {
+            "container_uuid":  container_uuid,
+            "identifier_uuid": identifier_uuid,
+            "account_uuid":    account_uuid,
+            "blank_uuid":      rdf.uri_to_uuid (rdf.blank_node ())
+        })
+        if self.__run_logged_query (query):
+            return identifier_uuid
+
+        return None
+
     ## ------------------------------------------------------------------------
     ## REVIEWS
     ## ------------------------------------------------------------------------

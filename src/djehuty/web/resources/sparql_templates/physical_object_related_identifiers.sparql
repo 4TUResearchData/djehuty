@@ -1,0 +1,34 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?uuid ?url ?type ?relation ?created_date
+                (?rest AS ?originating_blank_node) ?order_index
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container         rdf:type                 djht:PhysicalObjectContainer .
+    ?item_uri          djht:container           ?container ;
+                       djht:related_identifiers/rdf:rest* ?rest .
+    ?rest              rdf:first                ?related ;
+                       djht:index               ?order_index .
+
+    ?related           djht:type              ?type_uri .
+    ?type_uri          rdfs:label             ?type .
+    ?related           djht:relation          ?relation_uri .
+    ?relation_uri      rdfs:label             ?relation .
+    ?related           djht:url               ?url .
+    ?related           djht:created_date      ?created_date .
+
+    {%- if account_uuid is not none %}
+    ?container         djht:account             ?account .
+    BIND (xsd:boolean (EXISTS { ?creator djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)
+    {%- else %}
+    BIND("false"^^xsd:boolean AS ?is_editable)
+    {%- endif %}
+
+    BIND(STRAFTER(STR(?related), "physical-object-related-identifier:") AS ?uuid)
+  }
+  FILTER (?container = <container:{{container_uuid}}>)
+{%- if account_uuid is not none %}
+  FILTER (?account = <account:{{account_uuid}}>)
+{%- endif %}
+}
+{% endblock %}

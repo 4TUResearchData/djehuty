@@ -211,6 +211,63 @@ function render_events (container_uuid) {
     });
 }
 
+function add_related_identifier (container_uuid) {
+    let data = {
+        "identifier": or_null(jQuery("#related-identifier").val()),
+        "identifier-type": or_null(jQuery("#identifierType").val()),
+        "relation-type": or_null(jQuery("#relationType").val())
+    };
+    jQuery.ajax({
+        url:         `/v3/physical-objects/${container_uuid}/related-identifiers`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify([data]),
+    }).done(function () {
+        render_related_identifiers (container_uuid);
+    }).fail(function () {
+        show_message ("failure", `<p>Failed to add event. Try again later.</p>`);
+    });
+}
+
+function render_related_identifiers (container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-objects/${container_uuid}/related-identifiers`,
+        data:        { "limit": 10000, "order": "created_date", "order_direction": "desc" },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (records) {
+        jQuery("#related-identifiers tbody").empty();
+
+        let row = '<tr><td><input type="text" name="identifier" id="related-identifier" /></td>';
+        row += '<td><select name="identifierType" id="identifierType">';
+        row += '<option value="" disabled="disabled" selected="selected">Identifier type</option>';
+        row += '<option value="IGSNDOI">IGSN DOI</option>';
+        row += '<option value="OtherDOI">Other DOI</option>';
+        row += '<option value="URL">URL</option>';
+        row += '</select></td>';
+        row += '<td><select name="relationType" id="relationType">';
+        row += '<option value="" disabled="disabled" selected="selected">Relationship type</option>';
+        row += '<option value="IsPartOf">Is part of</option>';
+        row += '<option value="IsDerivedFrom">Is derived from</option>';
+        row += '<option value="HasPart">Has part</option>';
+        row += '<option value="IsSourceOf">Is source of</option>';
+        row += '</select></td>';
+        row += '<td><a id="add-event-button" class="fas fa-plus" href="#" ';
+        row += 'title="Add event" onclick="javascript:';
+        row += `add_related_identifier('${container_uuid}'); return false;"></a></td></tr>`;
+        jQuery("#related-identifiers tbody").append(row);
+
+        for (let identifier of records) {
+            let row = `<tr><td>${identifier.url}</td><td>${identifier.type}</td><td>${identifier.relation}</td><td></td></tr>`;
+            jQuery("#related-identifiers tbody").append(row);
+        }
+    }).fail(function() {
+        show_message ("failure", "<p>Failed to retrieve events.</p>");
+    });
+
+}
+
 function activate (container_uuid, callback=jQuery.noop) {
     new Quill('#abstract', { theme: '4tu' });
     new Quill('#methods', { theme: '4tu' });
@@ -220,6 +277,7 @@ function activate (container_uuid, callback=jQuery.noop) {
         return autocomplete_author (event, container_uuid);
     });
     render_authors (container_uuid);
+    render_related_identifiers (container_uuid);
     render_events (container_uuid);
     callback();
 }

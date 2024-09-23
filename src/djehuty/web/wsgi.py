@@ -387,6 +387,7 @@ class ApiServer:
             R("/v3/physical-objects/<container_uuid>",                           self.api_v3_physical_object_details),
             R("/v3/physical-objects/<container_uuid>/creators",                  self.api_v3_physical_object_creators),
             R("/v3/physical-objects/<container_uuid>/events",                    self.api_v3_physical_object_events),
+            R("/v3/physical-objects/<container_uuid>/related-identifiers",       self.api_v3_physical_object_related_identifiers),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -6724,6 +6725,69 @@ class ApiServer:
                         errors.append({
                             "field_name": "PhysicalObjectEvent",
                             "message": "Failed to create event."
+                        });
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            return self.respond_204 ()
+
+        if request.method == "DELETE":
+            return self.error_500 ()
+
+        return self.error_405 (["GET", "POST", "PUT", "DELETE"])
+
+    def api_v3_physical_object_related_identifiers (self, request, container_uuid):
+        """Implements /v3/physical-objects/<container_uuid>/related-identifiers"""
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        if request.method in ("GET", "HEAD"):
+            handler = self.default_error_handling (request, "GET", "application/json")
+            if handler is not None:
+                return handler
+
+            account_uuid = self.account_uuid_from_request (request)
+            records = self.db.physical_object_related_identifiers (container_uuid, account_uuid)
+            return self.default_list_response (records, formatter.format_physical_object_related_identifier_record)
+
+        # For the remainder of the calls, one needs proper authentication.
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["POST", "PUT", "DELETE"],
+                                                                  "application/json")
+
+        if request.method in ("POST", "PUT"):
+
+            if request.method == "PUT":
+                return self.error_500 ()
+
+            records = request.get_json()
+            identifier_types = ["IGSNDOI", "DOI", "URL"]
+            relation_types   = ["IsPartOf", "IsDerivedFrom", "HasPart", "IsSourceOf"]
+            errors = []
+
+            if not isinstance (records, list):
+                return self.error_400 (request, message = "Expected a list.",
+                                                code    = "UnexpectedContent")
+
+            for identifier in records:
+                url                 = validator.string_value (identifier, "identifier", 0, 2048, True, errors)
+                identifier_type     = validator.options_value (identifier, "identifier-type", identifier_types, True, errors)
+                identifier_relation = validator.options_value (identifier, "relation-type", relation_types, True, errors)
+                if (url is not None and
+                    identifier_type is not None and
+                    identifier_relation is not None):
+                    if self.db.add_related_identifier_to_physical_object (container_uuid,
+                                                                          url,
+                                                                          identifier_type,
+                                                                          identifier_relation,
+                                                                          account_uuid) is None:
+                        self.log.error ("Failed to add related identifier (%s, %s, %s, %s) to physical object %s.",
+                                        url, identifier_type, identifier_relation, container_uuid)
+                        errors.append({
+                            "field_name": "PhysicalObjectRelatedIdentifier",
+                            "message": "Failed to create record of related identifier."
                         });
 
             if errors:

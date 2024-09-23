@@ -23,9 +23,11 @@ jQuery(document).ready(function (){
   border-radius: .5em;
   background: #eee;
 }
-#physical-object-events > thead > tr > th { text-align: left !important; }
-#date { width: 612pt !important; border-radius: .5em !important; }
-#dateType { width: 150pt !important; border-radius: .5em !important; }
+#related-identifiers thead tr th,
+#physical-object-events thead tr th { text-align: left !important; }
+#date { width: 637pt !important; border-radius: .5em !important; }
+#related-identifier { width: 512pt !important; border-radius: .5em !important; }
+#dateType, #identifierType, #relationType { width: 125pt !important; border-radius: .5em !important; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -77,6 +79,16 @@ jQuery(document).ready(function (){
 
 <label for="alternate_identifier">Alternate identifier</label><div class="fas fa-question-circle help-icon"><span class="help-text">When the same instance of the resource has an additional identifier, enter it here. Otherwise, leave it blank.</span></div>
 <input type="text" id="alternate_identifier" name="alternate_identifier" value="{{object["alternate_identifier"]}}" />
+
+<label>Related identifiers</label>
+<div class="options-wrapper">
+  <table id="related-identifiers">
+    <thead>
+      <tr><th>Identifier</th><th>Type</th><th>Relation</th><th></th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
 
 <label for="publisher">Publisher</label>
 <input type="text" id="publisher" name="publisher" value="{% if object["publisher"] %}{{object["publisher"]}}{% else %}{{site_name}}{% endif %}">
