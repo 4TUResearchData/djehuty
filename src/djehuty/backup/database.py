@@ -975,6 +975,15 @@ class DatabaseInterface:
         self.store.add ((rdf.DJHT["PhysicalObjectEventIssued"], RDFS.label, Literal("Issued", datatype=XSD.string)))
         self.store.add ((rdf.DJHT["PhysicalObjectEventOther"], RDFS.label, Literal("Other", datatype=XSD.string)))
 
+        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierIGSNDOI"], RDFS.label, Literal("IGSN DOI", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierOtherDOI"], RDFS.label, Literal("Other DOI", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierURL"], RDFS.label, Literal("URL", datatype=XSD.string)))
+
+        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierIsPartOf"], RDFS.label, Literal("Is part of", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierIsDerivedFrom"], RDFS.label, Literal("Is derived from", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierIsSourceOf"], RDFS.label, Literal("Is source of", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierHasPart"], RDFS.label, Literal("Has part", datatype=XSD.string)))
+
         languages = self.__load_resource_file("languages.json")
         for language in languages:
             uri = rdf.unique_node ("language")
