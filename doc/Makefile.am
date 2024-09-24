@@ -31,6 +31,7 @@ EXTRA_DIST              = $(doc_TEX) $(doc_STYLE)                  \
                           introduction.tex                         \
                           contributing.tex                         \
                           knowledge-graph.tex                      \
+                          running-djehuty.tex                      \
                           api.tex                                  \
                           references.bib                           \
                           figures/account.pdf                      \
