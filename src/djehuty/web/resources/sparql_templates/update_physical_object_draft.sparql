@@ -10,6 +10,8 @@ DELETE {
     ?physical_object djht:methods                ?methods .
     {%- endif%}{% if publisher is not none %}
     ?physical_object djht:publisher              ?publisher .
+    {%- endif%}{% if publication_year is not none %}
+    ?physical_object djht:publication_year       ?publication_year .
     {%- endif%}{% if published_date is not none %}
     ?physical_object djht:published_date         ?published_date .
     {%- endif%}{% if resource_type is not none %}
@@ -37,6 +39,8 @@ INSERT {
     ?physical_object djht:methods                {{methods | safe}} .
     {%- endif%}{% if publisher is not none %}
     ?physical_object djht:publisher              {{publisher | safe}} .
+    {%- endif%}{% if publication_year is not none %}
+    ?physical_object djht:publication_year       {{publication_year}} .
     {%- endif%}{% if published_date is not none %}
     ?physical_object djht:published_date         {{published_date | safe}} .
     {%- endif%}{% if resource_type is not none %}
@@ -65,6 +69,7 @@ WHERE {
     OPTIONAL { ?physical_object   djht:abstract              ?abstract . }
     OPTIONAL { ?physical_object   djht:methods               ?methods . }
     OPTIONAL { ?physical_object   djht:publisher             ?publisher . }
+    OPTIONAL { ?physical_object   djht:publication_year      ?publication_year . }
     OPTIONAL { ?physical_object   djht:published_date        ?published_date . }
     OPTIONAL { ?physical_object   djht:resource_type         ?resource_type . }
     OPTIONAL { ?physical_object   djht:subject               ?subject . }
