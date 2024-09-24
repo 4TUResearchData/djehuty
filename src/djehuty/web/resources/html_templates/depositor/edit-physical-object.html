@@ -91,7 +91,10 @@ jQuery(document).ready(function (){
 </div>
 
 <label for="publisher">Publisher</label>
-<input type="text" id="publisher" name="publisher" value="{% if object["publisher"] %}{{object["publisher"]}}{% else %}{{site_name}}{% endif %}">
+<input type="text" id="publisher" name="publisher" value="{% if object["publisher"] %}{{object["publisher"]}}{% else %}{{site_name}}{% endif %}" />
+
+<label for="publication_year">Publication year</label><div class="fas fa-question-circle help-icon"><span class="help-text">Enter the year that a sample was first made available to the research community.</span></div>
+<input type="text" id="publication_year" name="publication_year" value="{{object["publication_year"]}}" />
 
 <label>Events</label>
 <div class="options-wrapper">

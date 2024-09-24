@@ -13,6 +13,7 @@ function gather_form_data (container_uuid) {
         "abstract":               or_null(jQuery("#abstract .ql-editor").html()),
         "methods":                or_null(jQuery("#methods .ql-editor").html()),
         "publisher":              or_null(jQuery("#publisher").val()),
+        "publication_year":       or_null(jQuery("#publication_year").val()),
         "resource_type":          or_null(jQuery("#resource_type").val()),
         "subject":                or_null(jQuery("#subject").val()),
         "alternate_identifier":   or_null(jQuery("#alternate_identifier").val()),

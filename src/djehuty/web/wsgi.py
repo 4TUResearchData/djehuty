@@ -6591,6 +6591,7 @@ class ApiServer:
                     "abstract":             validator.string_value (record, "abstract",             0, 2048, error_list=errors),
                     "methods":              validator.string_value (record, "methods",              0, 2048, error_list=errors),
                     "publisher":            validator.string_value (record, "publisher",            0, 255,  error_list=errors),
+                    "publication_year":     validator.integer_value (record, "publication_year",             error_list=errors),
                     "resource_type":        validator.string_value (record, "resource_type",        0, 255,  error_list=errors),
                     "subject":              validator.string_value (record, "subject",              0, 255,  error_list=errors),
                     "alternate_identifier": validator.string_value (record, "alternate_identifier", 0, 255,  error_list=errors),

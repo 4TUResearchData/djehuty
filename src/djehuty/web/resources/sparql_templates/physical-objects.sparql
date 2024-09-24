@@ -6,7 +6,7 @@ SELECT (COUNT(DISTINCT ?object) AS ?objects)
 SELECT DISTINCT ?account_uuid ?container_uuid ?object_uuid ?created_date
                 ?title ?abstract ?methods ?publisher ?published_date ?resource_type
                 ?subject ?alternate_identifier ?related_identifier ?doi
-                ?modified_date ?version
+                ?publication_year ?modified_date ?version
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -29,6 +29,7 @@ WHERE {
     OPTIONAL { ?object djht:abstract              ?abstract . }
     OPTIONAL { ?object djht:methods               ?methods . }
     OPTIONAL { ?object djht:publisher             ?publisher . }
+    OPTIONAL { ?object djht:publication_year      ?publication_year . }
     OPTIONAL { ?object djht:published_date        ?published_date . }
     OPTIONAL { ?object djht:resource_type         ?resource_type . }
     OPTIONAL { ?object djht:subject               ?subject . }

@@ -2928,13 +2928,13 @@ class SparqlInterface:
             "object_uuid": object_uuid
         })
 
-        return self.__run_query (query)
+        return self.__run_logged_query (query)
 
     def update_physical_object (self, title, account_uuid, container_uuid=None,
                                 abstract=None, methods=None, publisher=None,
-                                published_date=None, resource_type=None,
-                                subject=None, alternate_identifier=None,
-                                related_identifier=None, doi=None):
+                                publication_year=None, published_date=None,
+                                resource_type=None, subject=None, doi=None,
+                                alternate_identifier=None, related_identifier=None):
         """Updates a physical object record."""
 
         query = self.__query_from_template ("update_physical_object_draft", {
@@ -2942,6 +2942,7 @@ class SparqlInterface:
             "abstract":               rdf.escape_string_value (abstract),
             "methods":                rdf.escape_string_value (methods),
             "publisher":              rdf.escape_string_value (publisher),
+            "publication_year":       publication_year,
             "published_date":         rdf.escape_datetime_value (published_date),
             "resource_type":          rdf.escape_string_value (resource_type),
             "subject":                rdf.escape_string_value (subject),
@@ -2953,7 +2954,7 @@ class SparqlInterface:
             "container_uuid":         container_uuid
         })
 
-        return self.__run_query (query)
+        return self.__run_logged_query (query)
 
     def physical_object_creators (self, container_uuid, account_uuid):
         """Returns the creators of a physical object."""
