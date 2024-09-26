@@ -69,6 +69,8 @@ class ElementMaker:
 
 def serialize_tree_to_string (tree, indent=True):
     """Procedure to turn the ElementTree into a string."""
+    if tree is None:
+        return None
     if indent:
         ElementTree.indent(tree)
     return ElementTree.tostring(tree, encoding='utf8', short_empty_elements=True)
@@ -87,6 +89,8 @@ def scrub (obj):
 
 def dublincore_tree (parameters):
     """Procedure to create a Dublin Core XML tree from PARAMETERS."""
+    if parameters is None:
+        return None
     parameters = scrub(parameters)
     namespaces = {'dc' : 'http://purl.org/dc/elements/1.1/',
                   'oai': 'http://www.openarchives.org/OAI/2.0/oai_dc/'}
@@ -124,6 +128,8 @@ def dublincore (parameters):
 
 def nlm (parameters):
     """Procedure to create a NLM XML string from PARAMETERS."""
+    if parameters is None:
+        return None
     parameters = scrub(parameters)
     namespaces = {'xlink': 'http://www.w3.org/1999/xlink/'}
     maker = ElementMaker(namespaces)
@@ -135,12 +141,11 @@ def nlm (parameters):
     maker.child(maker.child(meta, 'title-group'),
                 'article-title', {}, item['title'])
     contribs = maker.child(meta, 'contrib-group')
-    authors = parameters['authors']
-    for author in authors:
-        name = maker.child(maker.child(contribs, 'contrib', {'contrib-type': 'author'}),
-                           'name')
-        maker.child_option(name, 'surname', author, 'last_name')
-        maker.child_option(name, 'given-name', author, 'first_name')
+    if "authors" in parameters:
+        for author in parameters['authors']:
+            name = maker.child(maker.child(contribs, 'contrib', {'contrib-type': 'author'}), 'name')
+            maker.child_option(name, 'surname', author, 'last_name')
+            maker.child_option(name, 'given-name', author, 'first_name')
     maker.child(maker.child(meta, 'pub-date', {'pub-type': 'pub'}),
                 'year', {}, value_or(parameters, 'published_year', None))
     maker.child(meta, 'self-uri', {'xlink:href': f"https:doi.org/{parameters['doi']}"})
@@ -149,17 +154,20 @@ def nlm (parameters):
 
 def refworks (parameters):
     """Procedure to create a Refworks XML string from PARAMETERS."""
+    if parameters is None:
+        return None
     parameters = scrub(parameters)
     maker = ElementMaker()
     root = maker.root('references')
     ref  = maker.child(root, 'reference')
     item    = parameters['item']
-    authors = parameters['authors']
-    for index, author in enumerate(authors):
-        name = author['full_name']
-        if 'last_name' in author and 'first_name' in author:
-            name = f"{author['last_name']}, {author['first_name']}"
-        maker.child(ref, f'a{index+1}', {}, name)
+    if "authors" in parameters:
+        authors = parameters['authors']
+        for index, author in enumerate(authors):
+            name = author['full_name']
+            if 'last_name' in author and 'first_name' in author:
+                name = f"{author['last_name']}, {author['first_name']}"
+            maker.child(ref, f'a{index+1}', {}, name)
     maker.child(ref, 't1', {}, item['title'])
     maker.child(ref, 'sn')
     maker.child(ref, 'op')
@@ -180,6 +188,8 @@ def refworks (parameters):
 
 def datacite_tree (parameters, debug=False):
     """Procedure to create a DataCite XML tree from PARAMETERS."""
+    if parameters is None:
+        return None
     parameters = scrub(parameters)
     namespaces = {'': 'http://datacite.org/schema/kernel-4'}
     schemas    = {'': 'http://schema.datacite.org/meta/kernel-4.4/metadata.xsd'}
@@ -193,15 +203,16 @@ def datacite_tree (parameters, debug=False):
     #02 creators
     orcid_att = {'nameIdentifierScheme': 'https://orcid.org/'}
     personal_att = {'nameType': 'Personal'}
-    creators = parameters['authors']
-    creators_element = maker.child(root,'creators')
-    for creator in creators:
-        creator_att = personal_att if 'orcid_id' in creator else {}
-        creator_element = maker.child(creators_element, 'creator')
-        maker.child_option(creator_element, 'creatorName', creator, 'full_name', creator_att)
-        maker.child_option(creator_element, 'givenName', creator, 'first_name')
-        maker.child_option(creator_element, 'familyName', creator, 'last_name')
-        maker.child_option(creator_element, 'nameIdentifier', creator, 'orcid_id', orcid_att)
+    if "authors" in parameters:
+        creators = parameters['authors']
+        creators_element = maker.child(root,'creators')
+        for creator in creators:
+            creator_att = personal_att if 'orcid_id' in creator else {}
+            creator_element = maker.child(creators_element, 'creator')
+            maker.child_option(creator_element, 'creatorName', creator, 'full_name', creator_att)
+            maker.child_option(creator_element, 'givenName', creator, 'first_name')
+            maker.child_option(creator_element, 'familyName', creator, 'last_name')
+            maker.child_option(creator_element, 'nameIdentifier', creator, 'orcid_id', orcid_att)
 
     #03 titles
     maker.child(maker.child(root, 'titles'), 'title', {}, item['title'])

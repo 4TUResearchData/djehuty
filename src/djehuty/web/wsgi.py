@@ -8797,18 +8797,20 @@ class ApiServer:
         if not self.accepts_xml (request):
             return self.error_406 ("application/xml")
 
-        return self.export_datacite(dataset_id, version, item_type="dataset")
+        return self.export_datacite (request, dataset_id, version, item_type="dataset")
 
     def ui_export_datacite_collection (self, request, collection_id, version=None):
         """Implements /export/datacite/collections/<id>."""
         if not self.accepts_xml (request):
             return self.error_406 ("application/xml")
 
-        return self.export_datacite(collection_id, version, item_type="collection")
+        return self.export_datacite (request, collection_id, version, item_type="collection")
 
-    def export_datacite (self, item_id, version=None, item_type="dataset"):
+    def export_datacite (self, request, item_id, version=None, item_type="dataset"):
         """export metadata in datacite format"""
         xml_string = self.format_datacite(item_id, version, item_type=item_type)
+        if xml_string is None:
+            return self.error_404 (request)
         output = self.response (xml_string, mimetype="application/xml")
         version_string = f'_v{version}' if version else ''
         output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_datacite.xml"
@@ -8864,6 +8866,8 @@ class ApiServer:
             return self.error_406 ("application/xml")
 
         parameters = self.__metadata_export_parameters(dataset_id, version)
+        if parameters is None:
+            return self.error_404 (request)
         xml_string = xml_formatter.dublincore(parameters)
         output = self.response (xml_string, mimetype="application/xml")
         version_string = f'_v{version}' if version else ''
