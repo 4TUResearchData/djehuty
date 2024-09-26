@@ -138,7 +138,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/dataset_storage_used.sparql        \
     djehuty/web/resources/sparql_templates/dataset_versions.sparql            \
     djehuty/web/resources/sparql_templates/datasets.sparql                    \
-    djehuty/web/resources/sparql_templates/datasets_missing_dois.sparql       \
     djehuty/web/resources/sparql_templates/decline_draft_dataset.sparql       \
     djehuty/web/resources/sparql_templates/delete_account_property.sparql     \
     djehuty/web/resources/sparql_templates/delete_associations.sparql         \
@@ -165,6 +164,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/latest_datasets_portal.sparql      \
     djehuty/web/resources/sparql_templates/licenses.sparql                    \
     djehuty/web/resources/sparql_templates/missing_checksummed_files_for_container.sparql \
+    djehuty/web/resources/sparql_templates/missing_dois.sparql                \
     djehuty/web/resources/sparql_templates/opendap_to_doi.sparql              \
     djehuty/web/resources/sparql_templates/prefixes.sparql                    \
     djehuty/web/resources/sparql_templates/private_links.sparql               \

@@ -3010,9 +3010,9 @@ class ApiServer:
         if not self.db.may_administer (token):
             return self.error_403 (request)
 
-        missing_doi_datasets = self.db.datasets_missing_dois ()
+        missing_doi_items = self.db.missing_dois ()
         return self.__render_template (request, "admin/maintenance.html",
-                                       missing_dois = len(missing_doi_datasets))
+                                       missing_dois = len(missing_doi_items))
 
     def ui_admin_clear_cache (self, request):
         """Implements /admin/maintenance/clear-cache."""
@@ -3030,25 +3030,27 @@ class ApiServer:
         if not self.db.may_administer (token):
             return self.error_403 (request)
 
-        datasets = self.db.datasets_missing_dois ()
-        if datasets:
-            self.log.info ("Repairing %s missing DOI registrations.", len(datasets))
+        items = self.db.missing_dois ()
+        if items:
+            self.log.info ("Repairing %s missing DOI registrations.", len(items))
             error_count = 0
-            for dataset in datasets:
-                if not self.__update_item_doi (dataset["container_uuid"],
-                                               item_type  = "dataset",
-                                               version    = dataset["version"],
+            for item in items:
+                if not self.__update_item_doi (item["container_uuid"],
+                                               item_type  = item["item_type"],
+                                               version    = item["version"],
                                                from_draft = False):
                     error_count += 1
                     self.log.error ("Registering DOI for publication of %s failed.",
-                                    dataset["container_uuid"])
+                                    item["container_uuid"])
                     continue
 
-                doi = self.__standard_doi (dataset["container_uuid"],
-                                           version = dataset["version"])
-                if not self.db.dataset_update_doi_after_publishing (dataset["uuid"], doi):
+                doi = self.__standard_doi (item["container_uuid"],
+                                           version = item["version"])
+                if not self.db.update_doi_after_publishing (item["uuid"],
+                                                            item["item_type"],
+                                                            doi):
                     self.log.error ("Updating the DOI '%s' in the database failed for %s.",
-                                    doi, dataset["uuid"])
+                                    doi, item["uuid"])
 
             if error_count == 0:
                 return self.respond_204 ()

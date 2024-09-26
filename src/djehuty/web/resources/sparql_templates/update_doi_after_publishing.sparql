@@ -12,9 +12,9 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?dataset   rdf:type          djht:Dataset .
+    ?dataset   rdf:type/rdfs:subClassOf djht:Container .
     OPTIONAL { ?dataset djht:doi ?doi . }
   }
-  FILTER (?dataset = <dataset:{{dataset_uuid}}>)
+  FILTER (?dataset = <{{item_type}}:{{item_uuid}}>)
 }
 {% endblock %}

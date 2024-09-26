@@ -484,9 +484,9 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
-    def datasets_missing_dois (self):
-        """Procedure to retrieve datasets where a DOI registration went wrong."""
-        query = self.__query_from_template ("datasets_missing_dois")
+    def missing_dois (self):
+        """Procedure to retrieve items where a DOI registration went wrong."""
+        query = self.__query_from_template ("missing_dois")
         return self.__run_query (query)
 
     def repository_file_statistics (self, extended_properties=False, use_cache=False):
@@ -2497,11 +2497,12 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix ("datasets")
         return self.__run_query(query)
 
-    def dataset_update_doi_after_publishing (self, dataset_uuid, doi):
+    def update_doi_after_publishing (self, item_uuid, item_type, doi):
         """Procedure to update a DOI after it has been published."""
 
         query = self.__query_from_template ("update_doi_after_publishing", {
-            "dataset_uuid": dataset_uuid,
+            "item_uuid": item_uuid,
+            "item_type": item_type,
             "doi": rdf.escape_string_value (doi)
         })
         return self.__run_logged_query (query)
