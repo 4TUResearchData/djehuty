@@ -2,19 +2,19 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?dataset   djht:doi          ?doi .
+    ?item      djht:doi          ?doi .
   }
 }
 INSERT {
   GRAPH <{{state_graph}}> {
-    ?dataset   djht:doi          {{doi | safe}} .
+    ?item      djht:doi          {{doi | safe}} .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?dataset   rdf:type/rdfs:subClassOf djht:Container .
-    OPTIONAL { ?dataset djht:doi ?doi . }
+    ?item      rdf:type          djht:{{item_type.capitalize()}} .
+    OPTIONAL { ?item djht:doi ?doi . }
   }
-  FILTER (?dataset = <{{item_type}}:{{item_uuid}}>)
+  FILTER (?item = <{{item_type}}:{{item_uuid}}>)
 }
 {% endblock %}
