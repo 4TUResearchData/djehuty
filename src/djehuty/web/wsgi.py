@@ -64,7 +64,7 @@ class ApiServer:
         self.base_url         = f"http://{address}:{port}"
         self.site_name        = ""
         self.site_description = ""
-        self.site_shorttag    = ""
+        self.site_shorttag    = "4tu"
         self.support_email_address = ""
         self.db               = database.SparqlInterface()  # pylint: disable=invalid-name
         self.email            = email_handler.EmailInterface()
