@@ -100,7 +100,7 @@ def format_codemeta_author_record (record):
         "@type": "Person",
         "givenName": conv.value_or_none (record, "first_name"),
         "familyName": conv.value_or_none (record, "last_name"),
-        "email": conv.value_or_none (record, "email"),
+        "email": None,
     }
 
     orcid = conv.value_or_none (record, "orcid_id")
