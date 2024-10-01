@@ -6429,6 +6429,8 @@ class ApiServer:
             datasets = self.db.datasets (is_published = True,
                                          is_latest    = True,
                                          is_software  = True,
+                                         is_embargoed = False,
+                                         is_restricted = False,
                                          modified_since = modified_since,
                                          order        = order,
                                          order_direction = order_direction,
