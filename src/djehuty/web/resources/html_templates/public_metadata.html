@@ -17,7 +17,7 @@
  <div id="doi"><span>doi:</span> {{doi}}</a></div>
   {% endif %}
  {% else %}
-    <div id="doi"><span>doi:</span> <a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><span property="identifier" resource="https://doi.org/{{doi}}">{{doi}}</span></a>
+    <div id="doi"><span class="doi-label">doi:</span><a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><span class="doi-value" property="identifier" resource="https://doi.org/{{doi}}">{{doi}}</span></a>
   {% if container_doi and not old %}
         <div id="container_doi">The doi above is for this specific version of this {{item_type}}, which is currently the latest. Newer versions may be published in the future.
             For a link that will always point to the latest version, please use<br />
