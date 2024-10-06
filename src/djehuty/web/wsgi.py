@@ -8016,12 +8016,12 @@ class ApiServer:
         return self.response (json.dumps(output))
 
     def __git_create_repository (self, git_uuid):
-        git_directory = f"{self.db.storage}/{git_uuid}.git"
+        git_directory = os.path.join(self.db.storage, f"{git_uuid}.git")
         if not os.path.exists (git_directory):
             initial_repository = pygit2.init_repository (git_directory, True)
             if initial_repository:
                 try:
-                    with open (f"{git_directory}/config", "a",
+                    with open (os.path.join(git_directory, "config"), "a",
                                encoding = "utf-8") as config:
                         config.write ("\n[http]\n  receivepack = true\n")
                 except FileNotFoundError:
