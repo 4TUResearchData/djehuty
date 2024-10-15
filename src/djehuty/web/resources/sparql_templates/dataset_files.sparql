@@ -52,7 +52,11 @@ WHERE {
     BIND(STRAFTER(STR(?file), "file:") AS ?uuid)
     BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
     BIND(CONCAT(STR(!CONTAINS(LCASE(?name), "readme")), LCASE(?name)) AS ?order_name)
+    {%- if account_uuid is not none %}
     BIND(xsd:boolean(?collaborator_account = <account:{{account_uuid}}>) AS ?is_shared_with_me)
+    {%- else %}
+    BIND("false"^^xsd:boolean AS ?is_shared_with_me)
+    {%- endif %}
     BIND (REPLACE(STR(?filesystem_location), "^.*/([^/]*)$", "$1") as ?filename)
   }
   {%- if account_uuid is none and (private_view is not true) %}
