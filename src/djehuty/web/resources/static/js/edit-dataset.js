@@ -238,13 +238,6 @@ function render_licenses (dataset) {
             let html = `<option value="${license.value}"${selected}>${license.name}</option>`;
             jQuery(".license-selector").append(html);
         }
-        // Render legacy licenses last.
-        for (let license of licenses) {
-            if (license.type != "legacy") { continue; }
-            let selected = ((chosen_license == license.value) ? " selected" : "");
-            let html = `<option value="${license.value}"${selected}>${license.name}</option>`;
-            jQuery(".license-selector").append(html);
-        }
     }).fail(function () {
         show_message ("failure", "<p>Failed to retrieve license list.</p>");
     });
