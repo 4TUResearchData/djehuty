@@ -353,6 +353,9 @@ function save_collection (collection_id, event, notify=true, on_success=jQuery.n
     event.preventDefault();
     event.stopPropagation();
 
+    // When keywords were entered but yet submitted, handle those first.
+    add_tag (collection_id);
+
     form_data = gather_form_data();
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}`,
