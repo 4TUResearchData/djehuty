@@ -328,8 +328,10 @@ function gather_form_data () {
     if (group_id !== undefined) { group_id = group_id["value"]; }
     else { group_id = null; }
 
+    let title = or_null(jQuery("#title").val());
+    if (title == "" || title == null) { title = "Untitled collection"; }
     let form_data = {
-        "title":          or_null(jQuery("#title").val()),
+        "title":          title,
         "description":    or_null(jQuery("#description .ql-editor").html()),
         "resource_title": or_null(jQuery("#resource_title").val()),
         "resource_doi":   or_null(jQuery("#resource_doi").val()),

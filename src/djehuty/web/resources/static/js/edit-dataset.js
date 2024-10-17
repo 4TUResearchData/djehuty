@@ -98,8 +98,10 @@ function gather_form_data () {
     let agreed_to_publish = jQuery("#publish_agreement").prop("checked");
     let is_metadata_record = jQuery("#metadata_record_only").prop("checked");
 
+    let title = or_null(jQuery("#title").val());
+    if (title == "" || title == null) { title = "Untitled item"; }
     let form_data = {
-        "title":          or_null(jQuery("#title").val()),
+        "title":          title,
         "description":    or_null(jQuery("#description .ql-editor").html()),
         "resource_title": or_null(jQuery("#resource_title").val()),
         "resource_doi":   or_null(jQuery("#resource_doi").val()),

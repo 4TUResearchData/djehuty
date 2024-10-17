@@ -117,7 +117,7 @@ jQuery(document).ready(function () {
 <h2>Collection details</h2>
 <p>Fields marked with <span class="required-field">&#8727;</span> are required.</p>
 <label for="title">Title</label><div class="fas fa-question-circle help-icon"><span class="help-text">Give your collection a title. This will help making your items discoverable via search engines such as Google. The title should have at least three characters.</span></div><span class="required-field">&#8727;</span>
-<input type="text" id="title" name="title" value="{{collection["title"]}}" />
+<input type="text" id="title" name="title" {%- if collection.title != "Untitled collection" %}value="{{collection.title}}"{% else %}placeholder="Untitled collection"{% endif %} />
 <label for="authors">Authors</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select authors from the list or manually add them by creating a new author record. Hit enter after adding each author and drag and drop names to arrange them in the order you wish.</span></div><span class="required-field">&#8727;</span>
 <input type="text" id="authors" name="authors" />
 <table class="inside-form-table" id="authors-list">
