@@ -2034,7 +2034,8 @@ class ApiServer:
                 permissions = permissions,
                 account    = account,
                 categories = categories,
-                groups     = groups)
+                groups     = groups,
+                api_token  = self.token_from_request (request))
 
         except IndexError:
             return self.error_403 (request)

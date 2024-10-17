@@ -3,7 +3,7 @@
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js"></script>
-<script src="/static/js/edit-dataset.js?cache=1729002847"></script>
+<script src="/static/js/edit-dataset.js?cache=1729163683"></script>
 <script src="/static/js/dropzone.min.js"></script>
 <script>
 Dropzone.autoDiscover = false;
@@ -179,6 +179,9 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 .thumbnail-item:hover label { cursor: pointer; opacity: 1.0; }
 .thumbnail-inactive label { border: 2pt solid #aaa; opacity: 0.5; }
 .thumbnail-active label { border: 2pt solid #f49120; opacity: 1.0; }
+#api-upload { text-align: left; }
+#api-upload pre { font-size: 0.9em; white-space: pre-wrap; overflow-wrap: anywhere; }
+#api-upload-fold { display: none; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -495,6 +498,14 @@ git push {{site_shorttag}} --tags</pre>
     <input type="file" name="file" id="file" aria-label="Upload file" multiple="">
   </div>
 </form>
+  <div id="api-upload">
+    <p>Or <a id="api-upload-toggle" href="#">upload from another computer or server</a>.</p>
+    <div id="api-upload-fold" class="options-wrapper">
+      <p>Files can also be uploaded through an API call for which a copy/pasteable example is displayed here:</p>
+      <pre>curl -X POST "{{base_url}}/v3/datasets/c7258d22-c92c-4fda-b6a9-2f8d3eb7aedb/upload" -H 'Accept: application/json' -H 'Authorization: token {{api_token}}' -F "file=@<strong>path/to/your/file/here</strong>"</pre>
+      <p>The displayed token is valid until you log out. However, the token can be any token generated from the <a href="/my/dashboard">Dashboard</a> using the <a href="/my/sessions/new">Create API token</a> button.</p>
+    </div>
+  </div>
 </div>
 <div id="files-wrapper" class="record-type-field">
   <div id="files-table-actions">
