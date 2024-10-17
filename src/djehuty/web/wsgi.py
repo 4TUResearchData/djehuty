@@ -8721,19 +8721,16 @@ class ApiServer:
     ## ------------------------------------------------------------------------
 
     def __metadata_export_parameters (self, item_id, version=None, item_type="dataset", from_draft=False):
-        """collect patameters for various export formats"""
+        """Collect parameters for various export formats."""
 
         container_uuid = self.db.container_uuid_by_id(item_id)
         is_dataset = item_type == "dataset"
-        items_function = None
+        items_function = self.db.collections
         if is_dataset:
-            items_function     = self.db.datasets
-        else:
-            items_function     = self.db.collections
+            items_function = self.db.datasets
         container = self.db.container(container_uuid, item_type=item_type, use_cache=bool(version))
-        if version:
-            current_version = version
-        else:
+        current_version = version
+        if not version:
             current_version = value_or(container, 'latest_published_version_number', 0)
             if from_draft:
                 current_version += 1
@@ -8756,7 +8753,8 @@ class ApiServer:
                 if item is not None and "published_date" in item:
                     published_date = item['published_date'][:10]
             except IndexError:
-                self.log.error("Nothing found for %s %s version %s.", item_type, item_id, current_version)
+                self.log.warning ("Nothing found for %s %s version %s.",
+                                  item_type, item_id, current_version)
 
         if item is None:
             return None
