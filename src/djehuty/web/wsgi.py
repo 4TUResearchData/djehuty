@@ -1761,6 +1761,9 @@ class ApiServer:
         if isinstance (account_uuid, Response):
             return account_uuid
 
+        if not validator.is_valid_uuid (dataset_id):
+            return self.error_404 (request)
+
         dataset = None
         try:
             dataset = self.db.datasets (dataset_uuid    = dataset_id,
@@ -1802,6 +1805,9 @@ class ApiServer:
         """Implements /admin/impersonate/<id>."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
+
+        if not validator.is_valid_uuid (account_uuid):
+            return self.error_404 (request)
 
         token = self.token_from_cookie (request)
         if not self.db.may_impersonate (token):
@@ -2303,6 +2309,9 @@ class ApiServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
+        if not validator.is_valid_uuid (session_uuid):
+            return self.error_404 (request)
+
         if request.method in ("GET", "HEAD"):
             if self.accepts_html (request):
                 try:
@@ -2367,6 +2376,9 @@ class ApiServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
+        if not validator.is_valid_uuid (session_uuid):
+            return self.error_404 (request)
+
         if request.method == "GET":
             return self.__render_template (request, "activate_2fa_session.html",
                                            session_uuid=session_uuid)
@@ -2403,6 +2415,9 @@ class ApiServer:
         """Implements /my/sessions/<id>/delete."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
+
+        if not validator.is_valid_uuid (session_uuid):
+            return self.error_404 (request)
 
         account_uuid = self.account_uuid_from_request (request)
         if account_uuid is None:
@@ -2786,6 +2801,9 @@ class ApiServer:
             self.log.error ("Account %s attempted a reviewer action.", account_uuid)
             return error_response
 
+        if not validator.is_valid_uuid (dataset_id):
+            return self.error_404 (request)
+
         dataset    = None
         try:
             dataset = self.db.datasets (dataset_uuid    = dataset_id,
@@ -2811,6 +2829,9 @@ class ApiServer:
         if error_response is not None:
             self.log.error ("Account %s attempted a reviewer action.", account_uuid)
             return error_response
+
+        if not validator.is_valid_uuid (dataset_id):
+            return self.error_404 (request)
 
         dataset = None
         try:
