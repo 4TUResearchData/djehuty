@@ -2800,7 +2800,7 @@ class SparqlInterface:
 
         query = self.__query_from_template ("group_by_name", {
             "startswith": startswith,
-            "group_name": group_name
+            "group_name": rdf.escape_string_value (group_name)
         })
 
         results = self.__run_query (query, query, "group")

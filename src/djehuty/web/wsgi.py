@@ -3198,8 +3198,9 @@ class ApiServer:
                 "page":      page,
                 "page_size": page_size,
             })
+            validator.integer_value ({ "id": category_id }, "id", required=True)
         except validator.ValidationException:
-            pass
+            return self.error_404 (request)
 
         category      = self.db.category_by_id (category_id)
         if category is None:

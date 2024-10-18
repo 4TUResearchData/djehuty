@@ -8,9 +8,9 @@ WHERE {
     ?group           djht:name                 ?group_name .
   }
 {%- if startswith %}
-FILTER (STRSTARTS(STR(?group_name), "{{ group_name | safe }}"))
+FILTER (STRSTARTS(STR(?group_name), {{ group_name | safe }}))
 {%- else %}
-FILTER (STR(?group_name) = "{{ group_name | safe }}")
+FILTER (STR(?group_name) = {{ group_name | safe }})
 {%- endif %}
 }
 {% endblock %}
