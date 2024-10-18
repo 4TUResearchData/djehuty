@@ -8729,7 +8729,12 @@ class ApiServer:
     def __metadata_export_parameters (self, item_id, version=None, item_type="dataset", from_draft=False):
         """Collect parameters for various export formats."""
 
-        container_uuid = self.db.container_uuid_by_id(item_id)
+        container_uuid = item_id
+        if parses_to_int (item_id):
+            container_uuid = self.db.container_uuid_by_id(item_id)
+        elif not validator.is_valid_uuid (item_id):
+            return None
+
         is_dataset = item_type == "dataset"
         items_function = self.db.collections
         if is_dataset:

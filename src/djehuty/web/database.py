@@ -618,6 +618,9 @@ class SparqlInterface:
     def container (self, container_uuid, item_type="dataset", use_cache=True):
         """Procedure to get container properties (incl shallow statistics)."""
 
+        if container_uuid is None:
+            return None
+
         query   = self.__query_from_template ("container", {
             "item_type"     : item_type,
             "container_uuid": container_uuid
