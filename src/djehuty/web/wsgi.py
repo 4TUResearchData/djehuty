@@ -7894,12 +7894,16 @@ class ApiServer:
             if request.method == 'DELETE':
                 tag_encoded = validator.string_value (request.args, "tag", 0, 1024, True)
                 tag         = unquote(tag_encoded)
-                tags.remove (next (filter (lambda item: item == tag, tags)))
-                if not self.db.update_item_list (item["uuid"], account_uuid, tags, "tags"):
-                    self.log.error ("Deleting a tag failed.")
-                    return self.error_500()
+                try:
+                    tags.remove (next (filter (lambda item: item == tag, tags)))
+                    if self.db.update_item_list (item["uuid"], account_uuid, tags, "tags"):
+                        return self.respond_204()
+                except StopIteration:
+                    pass
 
-                return self.respond_204()
+                self.log.error ("Deleting tag '%s' failed for <%s>.", tag, item["uri"])
+                return self.error_500()
+
 
             ## For POST and PUT requests, the 'parameters' will be a dictionary
             ## containing a key "references", which can contain multiple
