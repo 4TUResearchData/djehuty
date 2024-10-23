@@ -36,7 +36,7 @@ class SparqlInterface:
         self.cache       = cache.CacheLayer(None)
         self.jinja       = Environment(loader = FileSystemLoader(
                             os.path.join(os.path.dirname(__file__),
-                                         "resources/sparql_templates")),
+                                         "resources", "sparql_templates")),
                                          autoescape=True)
         self.sparql       = None
         self.sparql_is_up = False

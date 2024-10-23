@@ -44,7 +44,7 @@ class CacheLayer:
         """Returns the cached value or None."""
         data = None
         try:
-            filename = f"{self.storage}/{prefix}_{key}"
+            filename = os.path.join (self.storage, f"{prefix}_{key}")
             with open(filename, "r",
                       encoding = "utf-8") as cache_file:
                 cached = cache_file.read()
@@ -60,7 +60,7 @@ class CacheLayer:
     def cache_value (self, prefix, key, value, query=None):
         """Procedure to store 'value' as a cache."""
         try:
-            cache_filename = f"{self.storage}/{prefix}_{key}"
+            cache_filename = os.path.join (self.storage, f"{prefix}_{key}")
             cache_fd = os.open (cache_filename, os.O_WRONLY | os.O_CREAT, 0o600)
             with open(cache_fd, "w", encoding = "utf-8") as cache_file:
                 cache_file.write(json.dumps(value))
@@ -68,7 +68,7 @@ class CacheLayer:
                     os.fchmod (cache_fd, 0o400)
 
             if query is not None:
-                query_filename = f"{self.storage}/{prefix}_{key}.sparql"
+                query_filename = os.path.join (self.storage, f"{prefix}_{key}.sparql")
                 query_fd = os.open (query_filename, os.O_WRONLY | os.O_CREAT, 0o600)
                 with open(query_fd, "w", encoding = "utf-8") as query_file:
                     query_file.write(query)
@@ -81,7 +81,7 @@ class CacheLayer:
 
     def remove_cached_value (self, prefix, key):
         """Procedure to invalidate a uniquely identifiable cache item."""
-        file_path = f"{self.storage}/{prefix}_{key}"
+        file_path = os.path.join (self.storage, f"{prefix}_{key}")
         try:
             os.remove(file_path)
         except FileNotFoundError:
@@ -91,7 +91,7 @@ class CacheLayer:
 
     def invalidate_by_prefix (self, prefix):
         """Procedure to remove all cache items belonging to 'prefix'."""
-        for file_path in glob.glob(f"{self.storage}/{prefix}_*"):
+        for file_path in glob.glob(os.path.join(self.storage, f"{prefix}_*")):
             try:
                 os.remove(file_path)
             except FileNotFoundError:
@@ -108,7 +108,7 @@ class CacheLayer:
         if self.storage in ("", "/"):
             return False
 
-        files = glob.glob(f"{self.storage}/*")
+        files = glob.glob(os.path.join(self.storage, "*"))
         self.log.info ("Removing %d files.", len(files))
         for file_path in files:
             try:

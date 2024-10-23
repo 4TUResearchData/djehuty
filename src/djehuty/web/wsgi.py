@@ -470,7 +470,7 @@ class ApiServer:
         try:
             original  = Image.open (input_filename)
             extension = original.format.lower()
-            output_filename = f"{self.db.thumbnail_storage}/{dataset_uuid}.{extension}"
+            output_filename = os.path.join (self.db.thumbnail_storage, f"{dataset_uuid}.{extension}")
 
             # When the image is the exact thumbnail size.
             if original.width == max_width and original.height == max_height:
@@ -691,7 +691,7 @@ class ApiServer:
         git_repository_url = None
         if value_or_none (dataset, "defined_type_name") == "software":
             try:
-                if os.path.exists (f"{self.db.storage}/{dataset['git_uuid']}.git"):
+                if os.path.exists (os.path.join (self.db.storage, f"{dataset['git_uuid']}.git")):
                     git_repository_url = f"{self.base_url}/v3/datasets/{dataset['git_uuid']}.git"
             except KeyError:
                 pass
@@ -3748,7 +3748,7 @@ class ApiServer:
                     name = file_info['name']
                     if value_or (location, "quirks", False):
                         name = ''.join(char for char in name if char in allowed_chars)
-                    file_path = f"{location['path']}/{file_info['id']}/{name}"
+                    file_path = os.path.join (location['path'], f"{file_info['id']}", name)
                     if os.path.isfile (file_path):
                         return file_path
 
@@ -3772,7 +3772,7 @@ class ApiServer:
             ## Only apply these quirks when enabled.
             if self.db.secondary_storage_quirks:
                 name = ''.join(char for char in name if char in allowed_chars)
-            file_path = f"{self.db.secondary_storage}/{file_info['id']}/{name}"
+            file_path = os.path.join (self.db.secondary_storage, f"{file_info['id']}", name)
 
         return file_path
 
@@ -6714,7 +6714,7 @@ class ApiServer:
                 self.log.error ("Failed to add 'git_uuid' for dataset.")
                 return None
 
-        git_directory = f"{self.db.storage}/{dataset['git_uuid']}.git"
+        git_directory = os.path.join (self.db.storage, f"{dataset['git_uuid']}.git")
         if not os.path.exists (git_directory):
             self.log.error ("No Git repository at '%s'", git_directory)
             return None
@@ -6826,6 +6826,7 @@ class ApiServer:
                 continue
 
             relative_path = f"{path}{entry.name}"
+            # The path separator is under our own control, don't use os.path.join here.
             absolute_path = f"{filesystem_path}/{relative_path}"
             record = { "fs": absolute_path, "n": relative_path }
             file_paths.append (record)
@@ -6842,7 +6843,7 @@ class ApiServer:
         with tempfile.TemporaryDirectory(dir = self.db.cache.storage,
                                          prefix = "git-zip-",
                                          delete = False) as folder:
-            git_directory  = f"{self.db.storage}/{git_uuid}.git"
+            git_directory  = os.path.join (self.db.storage, f"{git_uuid}.git")
             git_repository = pygit2.clone_repository (git_directory, folder)
 
             if not isinstance (git_repository, pygit2.Repository):
@@ -7351,7 +7352,7 @@ class ApiServer:
             try:
                 file_data       = request.files['file']
                 _, extension = os.path.splitext (file_data.filename)
-                output_filename = f"{self.db.profile_images_storage}/{account['uuid']}"
+                output_filename = os.path.join (self.db.profile_images_storage, account['uuid'])
 
                 if not (extension.lower() == ".jpg" or extension.lower() == ".png"):
                     return self.error_400 (request, "Only JPG and PNG images are supported.",
@@ -7579,7 +7580,7 @@ class ApiServer:
                 self.error_500 ()
 
             self.locks.unlock (locks.LockTypes.FILE_LIST)
-            output_filename = f"{self.db.storage}/{dataset_id}_{file_uuid}"
+            output_filename = os.path.join (self.db.storage, f"{dataset_id}_{file_uuid}")
 
             computed_md5 = None
             md5 = hashlib.new ("md5", usedforsecurity=False)
@@ -8340,7 +8341,7 @@ class ApiServer:
             self.log.error ("No dataset associated with Git repository '%s'.", git_uuid)
             return self.error_404 (request), None
 
-        git_directory = f"{self.db.storage}/{git_uuid}.git"
+        git_directory = os.path.join (self.db.storage, f"{git_uuid}.git")
         if not os.path.exists (git_directory):
             self.log.error ("No Git repository at '%s'", git_directory)
             return self.error_404 (request), None
@@ -8654,7 +8655,7 @@ class ApiServer:
             file_uuid = row["file_uuid"]
             computed_md5 = None
             md5 = hashlib.new ("md5", usedforsecurity=False)
-            filename = f"{self.db.storage}/{container_uuid}_{file_uuid}"
+            filename = os.path.join (self.db.storage, f"{container_uuid}_{file_uuid}")
             with open(filename, "rb") as stream:
                 for chunk in iter(lambda: stream.read(4096), b""): # pylint: disable=cell-var-from-loop
                     md5.update(chunk)
