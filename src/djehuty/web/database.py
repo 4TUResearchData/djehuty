@@ -236,11 +236,12 @@ class SparqlInterface:
             if self.sparql_is_up:
                 self.log.error ("Connection to the SPARQL endpoint seems down.")
                 self.sparql_is_up = False
-                return []
+            return []
         except AttributeError as error:
             self.log.error ("SPARQL query failed.")
             self.log.error ("Exception: %s", error)
             self.__log_query (query)
+            return []
         except Exception as error:  # pylint: disable=broad-exception-caught
             self.log.error ("SPARQL query failed.")
             self.log.error ("Exception: %s: %s", type(error), error)

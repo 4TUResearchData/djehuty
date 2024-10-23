@@ -141,7 +141,7 @@ def make_citation (authors, year, title, version, item_type, doi,
         return None
 
 def custom_field_name (name):
-    """Return a predicatable name for a custom field."""
+    """Return a predictable name for a custom field."""
 
     name = name.lower().replace(" ", "_")
 

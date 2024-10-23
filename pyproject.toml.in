@@ -20,7 +20,7 @@ classifiers     = [
 ]
 
 [project.urls]
-"Homepage"      = "https://data.4tu.nl"
+"Homepage"      = "https://data.4tu.nl/"
 "Source Code"   = "https://github.com/4TUResearchData/djehuty"
 "Bug Tracker"   = "https://github.com/4TUResearchData/djehuty/issues"
 

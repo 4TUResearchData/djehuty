@@ -29,7 +29,7 @@ Available subcommands and options:
     --help               -h Show a help message.
     --stats-auth=ARG     -a Username/password for the statistics endpoint.
     --token=ARG          -t The API token to use.
-    --account=ARG        -i The account ID to backup.
+    --account-id=ARG     -i The account ID to backup.
     --api-url            -u The base URL for accessing the API. Defaults to
                             'https://api.figshare.com'.
 
@@ -122,7 +122,7 @@ def main_inner ():
             backup_ui.main (args.token, args.stats_auth, args.account_id,
                             args.api_url)
 
-    if args.command == "web":
+    elif args.command == "web":
         web_ui.main (args.config_file, True, args.initialize,
                      args.extract_transactions_from_log,
                      args.apply_transactions)
