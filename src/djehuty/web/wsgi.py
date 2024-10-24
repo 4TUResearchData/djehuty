@@ -114,6 +114,11 @@ class ApiServer:
         self.saml_attribute_first_name = "urn:mace:dir:attribute-def:givenName"
         self.saml_attribute_last_name = "urn:mace:dir:attribute-def:sn"
         self.saml_attribute_common_name = "urn:mace:dir:attribute-def:cn"
+        self.saml_attribute_groups = None
+        self.saml_attribute_group_prefix = None
+
+        self.sram_organization_api_token = None
+        self.sram_collaboration_id = None
 
         self.datacite_url        = None
         self.datacite_id         = None
@@ -1305,6 +1310,21 @@ class ApiServer:
             record["first_name"] = attributes[self.saml_attribute_first_name][0]
             record["last_name"]  = attributes[self.saml_attribute_last_name][0]
             record["common_name"] = attributes[self.saml_attribute_common_name][0]
+            record["domain"] = None
+            record["group_uuid"] = None
+
+            if self.saml_attribute_groups is not None:
+                groups = attributes[self.saml_attribute_groups]
+                for group in groups:
+                    prefix = f"{self.saml_attribute_group_prefix}:"
+                    if group.startswith(prefix):
+                        domain = group[len(prefix):].replace("_", ".")
+                        group = self.db.group (association=domain)
+                        if group:
+                            record["domain"] = domain
+                            record["group_uuid"] = group[0]["uuid"]
+                            break
+
         except (KeyError, IndexError):
             self.log.error ("Didn't receive expected fields in SAMLResponse.")
             self.log.error ("Received attributes: %s", attributes)
@@ -1588,6 +1608,81 @@ class ApiServer:
 
         return self.error_403 (request)
 
+    def __send_sram_collaboration_invite (self, saml_record):
+
+        if (self.sram_organization_api_token is None or
+            self.sram_collaboration_id is None or
+            "email" not in saml_record):
+            return None
+
+        invitation_expiry = datetime.now() + timedelta(days=2)
+        headers = {
+            "Accept": "application/json",
+            "Authorization": f"Bearer {self.sram_organization_api_token}",
+            "Content-Type": "application/json"
+        }
+        json_data = {
+            "collaboration_identifier": self.sram_collaboration_id,
+            "intended_role": "member",
+            # SRAM wants the epoch time in milliseconds.
+            "invitation_expiry_date": int(invitation_expiry.timestamp()) * 1000,
+            "invites": [saml_record["email"]]
+        }
+        response = requests.put ("https://sram.surf.nl/api/invitations/v1/collaboration_invites",
+                                 headers = headers,
+                                 timeout = 60,
+                                 json    = json_data)
+        if response.status_code == 201:
+            self.log.info ("Sent invite to '%s' for SRAM collaboration membership.",
+                           saml_record["email"])
+        elif response.status_code == 401:
+            self.log.warning ("Missing Authorization for SRAM API.")
+        elif response.status_code == 403:
+            self.log.warning ("SRAM API authentication failed.")
+        elif response.status_code == 404:
+            self.log.warning ("SRAM API endpoint not found.")
+        else:
+            self.log.info ("SRAM unexpectedly responded with: %s", response.status_code)
+
+        return None
+
+    def __already_in_sram_collaboration (self, saml_record):
+
+        if (self.sram_organization_api_token is None or
+            self.sram_collaboration_id is None or
+            "email" not in saml_record):
+            return None
+
+        headers = {
+            "Accept": "application/json",
+            "Authorization": f"Bearer {self.sram_organization_api_token}",
+            "Content-Type": "application/json"
+        }
+        response = requests.get (f"https://sram.surf.nl/api/collaborations/v1/{self.sram_collaboration_id}",
+                                 headers = headers,
+                                 timeout = 60)
+        if response.status_code != 200:
+            self.log.error ("Retrieving SRAM collaboration members failed with status code %s",
+                            response.status_code)
+            return False
+
+        try:
+            record = response.json()
+            memberships = record["collaboration_memberships"]
+            for member in memberships:
+                expiry_date = value_or_none (member, "expiry_date")
+                if expiry_date is not None and expiry_date < datetime.now().timestamp():
+                    continue
+                if saml_record["email"].lower() == member["user"]["email"].lower():
+                    self.log.info ("Account '%s' is already part of an SRAM collaboration.",
+                                   saml_record["email"])
+                    return True
+        except (TypeError, KeyError) as error:
+            self.log.error ("Checking SRAM response failed with %s.", error)
+            return False
+
+        return False
+
     def ui_login (self, request):
         """Implements /login."""
 
@@ -1674,6 +1769,17 @@ class ApiServer:
                             self.log.error ("Creating account for %s failed.", saml_record["email"])
                             return self.error_500()
                         self.log.access ("Account %s created via SAML.", account_uuid) #  pylint: disable=no-member
+
+                    if (self.sram_collaboration_id is not None and
+                        self.sram_organization_api_token is not None):
+                        try:
+                            if not self.__already_in_sram_collaboration (saml_record):
+                                self.__send_sram_collaboration_invite (saml_record)
+                        except (TypeError, KeyError) as error:
+                            self.log.warning ("An error (%s) occurred when sending invite to %s.",
+                                              error, value_or_none (saml_record, "email"))
+                        except requests.exceptions.ConnectionError:
+                            self.log.error ("Failed to send invite through SRAM due to a connection error.")
 
                     # For a while we didn't create author records for accounts.
                     # This check creates the missing author records upon login
