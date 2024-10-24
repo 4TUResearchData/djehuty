@@ -358,6 +358,13 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 </div>
 <label>Group</label><span class="required-field"> &#8727;</span>
 <div id="groups-wrapper">
+{%- if article.group_name is not none and article.group_name is defined %}
+<h4>{{article.group_name}}</h4>
+<input class="subitem-checkbox" type="radio" name="groups" value="{{article.group_id}}" id="group_{{article.group_id}}" checked="checked"><!--
+--><label class="subitem-label no-head" for="group_{{article.group_id}}">{{article.group_name}}</label><br>
+{%- elif not groups: %}
+<p>No group association found.  Please contact <a href="mailto:{{support_email_address}}">support</a>.</p>
+{%- else %}
 {%- for group in groups: %}
 <h4>{{group.name}}</h4>
 <div id="subgroups_{{group.id}}" class="subgroup-wrapper">
@@ -369,6 +376,7 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 {%- endfor %}
 </div>
 {%- endfor %}
+{%- endif %}
 </div>
 <label for="publisher">Publisher</label>
 <input type="text" id="publisher" name="publisher" value="{% if article["publisher"] %}{{article["publisher"]}}{% else %}{{site_name}}{% endif %}">

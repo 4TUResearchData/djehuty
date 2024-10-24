@@ -1258,6 +1258,13 @@ class SparqlInterface:
         container       = self.container_uri (graph, container_uri, "dataset", account_uuid)
         account_uri     = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
 
+        # Look up the account's group.
+        association_criteria = None
+        try:
+            association_criteria = self.group (account_uuid=account_uuid)[0]["association"]
+        except (IndexError, KeyError):
+            pass
+
         ## TIMELINE
         ## --------------------------------------------------------------------
         self.insert_timeline (
@@ -1317,6 +1324,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["data_link"],      data_link,      XSD.string)
         rdf.add (graph, uri, rdf.DJHT["thumb"],          thumb,          XSD.string)
         rdf.add (graph, uri, rdf.DJHT["thumb_origin"],   thumb_origin,   XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["association_criteria"], association_criteria, XSD.string)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
@@ -2500,6 +2508,17 @@ class SparqlInterface:
 
         return True
 
+    def associate_dataset_with_group (self, dataset_uri, association_criteria, account_uuid):
+        """Associate a dataset to a group."""
+
+        graph = Graph()
+        rdf.add (graph, URIRef(dataset_uri), rdf.DJHT["association_criteria"], association_criteria, XSD.string)
+        if self.add_triples_from_graph (graph):
+            self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+            self.log.info ("Associated <%s> to group '%s'", dataset_uri, association_criteria)
+            return True
+        return False
+
     def delete_dataset_embargo (self, dataset_uri, account_uuid):
         """Procedure to lift the embargo on a dataset."""
 
@@ -2836,7 +2855,7 @@ class SparqlInterface:
         roots = sorted (roots, key = lambda field: field["title"])
         return roots
 
-    def group (self, group_id=None, parent_id=None, name=None,
+    def group (self, group_id=None, parent_id=None, name=None, account_uuid=None,
                association=None, limit=None, offset=None, is_featured=None,
                order=None, order_direction=None, starts_with=False):
         """Procedure to return group information."""
@@ -2856,7 +2875,8 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("is_featured", is_featured)
 
         query = self.__query_from_template ("group", {
-            "filters":     filters
+            "account_uuid": account_uuid,
+            "filters":      filters
         })
 
         query += rdf.sparql_suffix (order, order_direction, limit, offset)

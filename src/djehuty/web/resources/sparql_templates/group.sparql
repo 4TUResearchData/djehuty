@@ -1,15 +1,23 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT ?id ?parent_id ?name ?association ?is_featured
+SELECT ?uuid ?id ?parent_id ?name ?association ?is_featured
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?group           rdf:type                 djht:InstitutionGroup .
+    ?group           rdf:type                  djht:InstitutionGroup .
     ?group           djht:id                   ?id .
+    ?group           djht:association_criteria ?association .
+    {%- if account_uuid is not none %}
+    ?account         rdf:type                  djht:Account .
+    ?account         djht:domain               ?association .
+    {%- endif %}
     OPTIONAL { ?group           djht:name                 ?name . }
     OPTIONAL { ?group           djht:parent_id            ?parent_id . }
-    OPTIONAL { ?group           djht:association_criteria ?association . }
     OPTIONAL { ?group           djht:is_featured          ?is_featured . }
+    BIND (STRAFTER(STR(?group), "group:") AS ?uuid)
   }
+{%- if account_uuid is not none %}
+FILTER (?account = <account:{{account_uuid}}>)
+{%- endif %}
 {% if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}

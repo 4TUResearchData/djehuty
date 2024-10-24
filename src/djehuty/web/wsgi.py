@@ -554,6 +554,7 @@ class ApiServer:
             "site_description":    self.site_description,
             "site_name":           self.site_name,
             "site_shorttag":       self.site_shorttag,
+            "support_email_address": self.support_email_address,
             "small_footer":        self.small_footer,
         }
         if account is None:
@@ -1754,16 +1755,51 @@ class ApiServer:
                     if "email" not in saml_record:
                         return self.error_400 (request, "Invalid request", "MissingEmailProperty")
 
-                    account = self.db.account_by_email (saml_record["email"])
+                    account = self.db.account_by_email (saml_record["email"].lower())
                     if account:
                         account_uuid = account["uuid"]
+
+                        # Reset previous group association.
+                        if value_or_none (saml_record, "domain") is None:
+                            saml_record["domain"] = ""
+
+                        if not self.db.update_account (account_uuid, domain=saml_record["domain"]):
+                            self.log.error ("Unable to update domain for account:%s", account_uuid)
+                        else:
+                            self.log.info ("Updated domain to '%s' for account:%s.",
+                                           saml_record["domain"], account_uuid)
+
+                            # When a dataset was created before the owner
+                            # was placed in a group, assign those datasets
+                            # to the group automatically.
+                            datasets = self.db.datasets (account_uuid = account_uuid,
+                                                         is_published = False,
+                                                         limit        = 10000,
+                                                         use_cache    = False)
+                            for dataset in datasets:
+                                if "group_name" not in dataset:
+                                    self.db.associate_dataset_with_group (dataset["uri"],
+                                                                          saml_record["domain"],
+                                                                          account_uuid)
+
+                            # The supervisor privileges are defined in the XML configuration.
+                            if (value_or_none (saml_record, "group_uuid") is not None and
+                                self.db.insert_group_member (saml_record["group_uuid"],
+                                                             account_uuid, False)):
+                                self.log.info ("Added account:%s to group group:%s.",
+                                               account_uuid, saml_record["group_uuid"])
+                            else:
+                                self.log.info ("Failed to add account:%s to group group:%s.",
+                                               account_uuid, value_or_none (saml_record, "group_uuid"))
+
                         self.log.access ("Account %s logged in via SAML.", account_uuid) #  pylint: disable=no-member
                     else:
                         account_uuid = self.db.insert_account (
-                            email      = saml_record["email"],
-                            first_name = value_or_none (saml_record, "first_name"),
-                            last_name  = value_or_none (saml_record, "last_name"),
+                            email       = saml_record["email"],
+                            first_name  = value_or_none (saml_record, "first_name"),
+                            last_name   = value_or_none (saml_record, "last_name"),
                             common_name = value_or_none (saml_record, "common_name"),
+                            domain      = value_or_none (saml_record, "domain")
                         )
                         if account_uuid is None:
                             self.log.error ("Creating account for %s failed.", saml_record["email"])
@@ -2044,12 +2080,13 @@ class ApiServer:
         if error_response is not None:
             return error_response
 
+        account = self.db.account_by_uuid (account_uuid)
         container_uuid, dataset_uuid = self.db.insert_dataset(title = "Untitled item",
-                                                              account_uuid = account_uuid)
+                                                              account_uuid = account_uuid,
+                                                              group_id = value_or_none (account, "group_id"))
         if container_uuid is not None and dataset_uuid is not None:
             # Add oneself as author but don't bail if that doesn't work.
             try:
-                account    = self.db.account_by_uuid (account_uuid)
                 author_uri = URIRef(uuid_to_uri(account["author_uuid"], "author"))
                 self.db.update_item_list (dataset_uuid, account_uuid,
                                           [author_uri], "authors")

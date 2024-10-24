@@ -30,6 +30,8 @@ DELETE {
     ?account          djht:institution_user_id   ?institution_user_id .
     {%- endif%}{% if institution_id is not none %}
     ?account          djht:institution_id        ?institution_id .
+    {%- endif%}{% if domain is not none %}
+    ?account          djht:domain                ?domain .
     {%- endif%}{% if profile_image is not none %}
     ?account          djht:profile_image         ?profile_image .
     {%- endif%}{% if maximum_file_size is not none %}
@@ -69,6 +71,8 @@ INSERT {
     ?account          djht:institution_user_id {{institution_user_id}} .
     {%- endif%}{% if institution_id is not none %}
     ?account          djht:institution_id      {{institution_id}} .
+    {%- endif%}{% if domain is not none %}
+    ?account          djht:domain              {{domain | safe}} .
     {%- endif%}{% if profile_image is not none %}
     ?account          djht:profile_image       <{{profile_image | safe}}> .
     {%- endif%}{% if maximum_file_size is not none %}
@@ -94,6 +98,7 @@ WHERE {
     OPTIONAL { ?account   djht:biography             ?biography . }
     OPTIONAL { ?account   djht:institution_user_id   ?institution_user_id . }
     OPTIONAL { ?account   djht:institution_id        ?institution_id . }
+    OPTIONAL { ?account   djht:domain                ?domain . }
     OPTIONAL { ?account   djht:profile_image         ?profile_image . }
     OPTIONAL { ?account   djht:maximum_file_size     ?maximum_file_size . }
     OPTIONAL { ?account   djht:modified_date         ?modified_date . }
