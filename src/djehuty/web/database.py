@@ -1411,7 +1411,7 @@ class SparqlInterface:
 
     def update_account (self, account_uuid, active=None, email=None, job_title=None,
                         first_name=None, last_name=None, institution_user_id=None,
-                        institution_id=None,
+                        institution_id=None, domain=None,
                         maximum_file_size=None, modified_date=None, created_date=None,
                         location=None, biography=None, categories=None, twitter=None,
                         linkedin=None, website=None, profile_image=None):
@@ -1439,12 +1439,14 @@ class SparqlInterface:
             "biography":             rdf.escape_string_value (biography),
             "institution_user_id":   institution_user_id,
             "institution_id":        institution_id,
+            "domain":                rdf.escape_string_value (domain),
             "maximum_file_size":     maximum_file_size,
             "profile_image":         profile_image,
             "modified_date":         modified_date,
             "created_date":          created_date
         })
 
+        self.cache.invalidate_by_prefix ("group")
         self.cache.invalidate_by_prefix ("accounts")
 
         results = self.__run_logged_query (query)
@@ -1550,14 +1552,13 @@ class SparqlInterface:
 
     def insert_account (self, email=None, first_name=None, last_name=None,
                         common_name=None, location=None, biography=None,
-                        orcid_id=None):
+                        domain=None, orcid_id=None):
         """Procedure to create an account."""
 
         graph        = Graph()
         account_uri  = rdf.unique_node ("account")
-        account_uuid = rdf.uri_to_uuid (account_uri)
-        domain       = None
-        if email is not None:
+
+        if domain is None and email is not None:
             domain = email.partition("@")[2]
 
         if common_name is None and first_name is not None and last_name is not None:
@@ -1581,6 +1582,7 @@ class SparqlInterface:
             self.cache.invalidate_by_prefix ("accounts")
 
             if email is not None and (first_name is not None or last_name is not None):
+                account_uuid = rdf.uri_to_uuid (account_uri)
                 author_uuid = self.insert_author (
                     first_name   = first_name,
                     last_name    = last_name,
@@ -1846,6 +1848,68 @@ class SparqlInterface:
             return True
 
         return False
+
+    def insert_group_member (self, group_uuid, account_uuid, is_supervisor):
+        """Procedure to link an account to a group."""
+
+        graph       = Graph()
+        member_uri  = rdf.unique_node("member")
+        account_uri = URIRef(rdf.uuid_to_uri(account_uuid, "account"))
+        group_uri   = URIRef(rdf.uuid_to_uri(group_uuid, "group"))
+
+        graph.add ((member_uri, RDF.type, rdf.DJHT["Member"]))
+        rdf.add (graph, member_uri, rdf.DJHT["metadata_read"], True, XSD.boolean)
+        rdf.add (graph, member_uri, rdf.DJHT["metadata_edit"], True, XSD.boolean)
+        rdf.add (graph, member_uri, rdf.DJHT["metadata_remove"], is_supervisor, XSD.boolean)
+        rdf.add (graph, member_uri, rdf.DJHT["data_read"], True, XSD.boolean)
+        rdf.add (graph, member_uri, rdf.DJHT["data_edit"], True, XSD.boolean)
+        rdf.add (graph, member_uri, rdf.DJHT["data_remove"], is_supervisor, XSD.boolean)
+        rdf.add (graph, member_uri, rdf.DJHT["is_supervisor"], is_supervisor, XSD.boolean)
+        rdf.add (graph, member_uri, rdf.DJHT["account"], account_uri, "uri")
+        rdf.add (graph, account_uri, rdf.DJHT["group"], group_uri, "uri")
+
+        existing_members = self.members (group_uuid)
+        if not existing_members:
+            self.insert_item_list (graph, URIRef(rdf.uuid_to_uri(group_uuid, "group")), [URIRef(member_uri)], "members")
+        if self.add_triples_from_graph(graph):
+            if existing_members:
+                return self.__append_to_existing_list(member_uri, existing_members)
+            return rdf.uri_to_uuid(member_uri)
+        self.log.error("failed to create member list for %s ", member_uri)
+        return None
+
+    def members (self, group_uuid):
+        """Procedure to gather the list of members of a group."""
+        query = self.__query_from_template ("members", {
+            "group_uuid": group_uuid,
+        })
+        return self.__run_query(query)
+
+    def insert_group (self, name, is_inferred, is_featured, group_id, parent_id, domain):
+        """Procedure to create a new group."""
+        graph = Graph()
+        group_uri = rdf.unique_node("group")
+
+        rdf.add(graph, group_uri, rdf.DJHT["association_criteria"], domain, XSD.string)
+        rdf.add(graph, group_uri, rdf.DJHT["name"], name, XSD.string)
+        rdf.add(graph, group_uri, RDF.type, rdf.DJHT["InstitutionGroup"], "uri")
+        rdf.add(graph, group_uri, rdf.DJHT["is_inferred"], is_inferred, XSD.boolean)
+        rdf.add(graph, group_uri, rdf.DJHT["is_featured"], is_featured, XSD.boolean)
+        rdf.add(graph, group_uri, rdf.DJHT["id"], group_id, XSD.integer)
+        rdf.add(graph, group_uri, rdf.DJHT["parent_id"], parent_id, XSD.integer)
+
+        if self.add_triples_from_graph (graph):
+            return rdf.uri_to_uuid(group_uri)
+        return None
+
+    def delete_inferred_groups (self):
+        """Procedure to remove groups that were loaded from a configuration file."""
+        query = self.__query_from_template ("delete_group_members")
+        self.__run_logged_query (query)
+        query = self.__query_from_template ("delete_inferred_groups")
+        self.__run_logged_query (query)
+        query = self.__query_from_template ("delete_account_groups_associations")
+        self.__run_logged_query (query)
 
     def item_collaborative_permissions (self, item_type, item_uuid,
                                         collaborator_account_uuid):

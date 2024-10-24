@@ -95,6 +95,28 @@
       <may-review-quotas>0</may-review-quotas>
     </account>
   </privileges>
+  <groups>
+    <group name="4TU.ResearchData" domain="4tu.nl" id="28585" parent_id="0" />
+    <group name="Delft University of Technology Students" domain="student.tudelft.nl" id="28628" parent_id="28586" is_featured="1" />
+    <group name="Delft University of Technology" domain="tudelft.nl" id="28586" parent_id="28585" is_featured="1"  />
+    <group name="Deltares" domain="deltares.nl" id="34907" parent_id="28598" />
+    <group name="Eindhoven University of Technology Students" domain="student.tue.nl" id="28631" parent_id="28589" is_featured="1" />
+    <group name="Eindhoven University of Technology" domain="tue.nl" parent_id="28585" id="28589" is_featured="1" />
+    <group name="Erasmus University Rotterdam" domain="eur.nl" id="34904" parent_id="28598" />
+    <group name="IHE Delft Institute for Water Education" domain="un-ihe.org" id="34910" parent_id="28598" />
+    <group name="Leiden University" domain="leidenuniv.nl" id="34895" parent_id="28598" />
+    <group name="Maastricht University" domain="maastrichtuniversity.nl" id="34919" parent_id="28598" />
+    <group name="NIOZ Royal Netherlands Institute for Sea Research" domain="nioz.nl" id="34892" parent_id="28598" />
+    <group name="Other institutions" domain="nogroup" id="28598" parent_id="28585" is_featured="1" />
+    <group name="Radboud University" domain="ru.nl" id="34913" parent_id="28598" />
+    <group name="University of Amsterdam Students" domain="student.uva.nl" id="35313" parent_id="34901" />
+    <group name="University of Amsterdam" domain="uva.nl" id="34901" parent_id="28598" />
+    <group name="University of Groningen" domain="rug.nl" id="34916" parent_id="28598" />
+    <group name="University of Twente Students" domain="student.utwente.nl" id="28634" parent_id="28592" is_featured="1" />
+    <group name="University of Twente" domain="utwente.nl" id="28592" parent_id="28585" is_featured="1" />
+    <group name="Utrecht University" domain="uu.nl" id="34898" parent_id="28598" />
+    <group name="Wageningen University and Research" domain="wur.nl" id="28595" parent_id="28585" is_featured="1" />
+  </groups>
   <quotas default="5000000000">
     <group domain="tudelft.nl">50000000000</group>
     <account email="you@example.com">25000000000</account>

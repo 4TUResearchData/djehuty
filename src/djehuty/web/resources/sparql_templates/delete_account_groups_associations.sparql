@@ -1,0 +1,15 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?account    djht:group          ?group .
+    ?group      ?predicate          ?object .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?account    rdf:type            djht:Account .
+    ?account    djht:group          ?group .
+  }
+}
+{% endblock %}

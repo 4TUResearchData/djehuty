@@ -982,10 +982,6 @@ class DatabaseInterface:
         for license_record in licenses:
             self.insert_license (None, license_record)
 
-        groups = self.__load_resource_file ("groups.json")
-        for group in groups:
-            self.insert_institution_group (group)
-
         categories = self.__load_resource_file ("root_categories.json")
         for category in categories:
             self.insert_category(category)

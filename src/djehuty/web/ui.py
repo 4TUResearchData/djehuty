@@ -353,6 +353,58 @@ def setup_saml_service_provider (server, logger):
             logger.error ("Failed to create '%s'.", saml_cache_dir)
 
 
+def refresh_group_configuration (server, logger, config_files):
+    """Read and apply the group configuration from CONFIG_FILES."""
+    for config_file in config_files:
+        tree = ElementTree.parse(config_file)
+        xml_root = tree.getroot()
+        if xml_root.tag != "djehuty":
+            continue
+        groups = xml_root.find("groups")
+        if not groups:
+            continue
+
+        logger.info ("Refreshing groups configuration.")
+        server.db.delete_inferred_groups()
+
+        for group in groups:
+            group_name = group.attrib["name"]
+            group_id = group.attrib["id"]
+            parent_id = convenience.value_or_none (group.attrib, "parent_id")
+            domain = group.attrib["domain"]
+            is_featured = group.attrib.get("is_featured") == "1"
+            group_uuid = server.db.insert_group (group_name, True, is_featured, group_id, parent_id, domain)
+            for member in group:
+                is_supervisor = member.attrib.get("is_supervisor") == "1"
+                email = member.attrib.get("email")
+                if email is None:
+                    logger.error ("Account must have 'email' attribute.")
+                    continue
+                email = email.lower()
+                account = server.db.account_by_email(email)
+                if account is not None:
+                    logger.info("Account %s already exists.", email)
+                    server.db.insert_group_member (group_uuid, account["uuid"], is_supervisor)
+                    server.db.update_account (account["uuid"], domain=domain)
+                else:
+                    logger.info("Account %s does not exist.", email)
+                    first_name = member.attrib.get("first_name")
+                    last_name  = member.attrib.get("last_name")
+                    common_name = f"{first_name} {last_name}"
+                    if first_name is None and last_name is None:
+                        logger.warning ("Adding account %s without name.", email)
+                        common_name = None
+                    account_uuid = server.db.insert_account (
+                        email       = email,
+                        first_name  = first_name,
+                        last_name   = last_name,
+                        common_name = common_name,
+                        domain      = domain)
+                    if account_uuid is None:
+                        logger.error("Cannot find account for %s.", email)
+                        continue
+                    server.db.insert_group_member (group_uuid, account_uuid, is_supervisor)
+
 def write_pem_file (file_stream, contents, format_name):
     """Writes CONTENTS to FILE_STREAM."""
     file_stream.write(f"-----BEGIN {format_name}-----\n")
@@ -1127,6 +1179,10 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                     logger.warning (("Skipping initialization of the database "
                                      "because it has been initialized before."))
                     logger.warning ("Empty the state-graph to re-initialize.")
+
+        if not inside_reload:
+            refresh_group_configuration (server, logger, config_files)
+
         run_simple (config["address"], config["port"], server,
                     threaded=(config["maximum_workers"] <= 1),
                     processes=config["maximum_workers"],
