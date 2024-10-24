@@ -1040,7 +1040,7 @@ class ApiServer:
         validator.boolean_value (record, "is_latest")
 
         try:
-            validator.string_value (record, "search_for",      maximum_length=1024)
+            validator.string_value (record, "search_for", maximum_length=1024, strip_html=False)
         except validator.InvalidValueType:
             validator.array_value  (record, "search_for" )
 
@@ -2718,7 +2718,7 @@ class ApiServer:
 
         try:
             parameters = request.get_json()
-            search_for = validator.string_value (parameters, "search_for", 0, 32, required=True)
+            search_for = validator.string_value (parameters, "search_for", 0, 32, required=True, strip_html=False)
             exclude = validator.array_value (parameters, "exclude", required=False)
             accounts   = self.db.accounts (search_for=search_for, limit=5)
             for index,_ in enumerate(accounts):
@@ -3312,7 +3312,7 @@ class ApiServer:
             try:
                 validator.string_value (record, "email", 5, 255, False)
                 validator.options_value (record, "type", ["bug", "missing", "other"], True)
-                validator.string_value (record, "description", 10, 4096, True)
+                validator.string_value (record, "description", 10, 4096, True, strip_html=False)
             except validator.ValidationException as error:
                 email = self.__email_from_request (request)
                 return self.__render_template (request, "feedback.html",
@@ -3617,7 +3617,7 @@ class ApiServer:
             name       = validator.string_value (parameters, "name", required=True)
             dataset_id = validator.string_value (parameters, "dataset_id", required=True)
             version    = validator.string_value (parameters, "version", required=True)
-            reason     = validator.string_value (parameters, "reason", 0, 10000, required=True)
+            reason     = validator.string_value (parameters, "reason", 0, 10000, required=True, strip_html=False)
 
             dataset = self.db.datasets (container_uuid=dataset_id, version=version)[0]
 
@@ -4476,7 +4476,7 @@ class ApiServer:
                 container_uuid, _ = self.db.insert_dataset (
                     title          = validator.string_value  (record, "title",          3, 1000,                   True),
                     account_uuid     = account_uuid,
-                    description    = validator.string_value  (record, "description",    0, 10000,                  False),
+                    description    = validator.string_value  (record, "description",    0, 10000, False, strip_html=False),
                     tags           = tags,
                     references     = validator.array_value   (record, "references",                                False),
                     categories     = validator.array_value   (record, "categories",                                False),
@@ -4604,7 +4604,7 @@ class ApiServer:
                 result = self.db.update_dataset (dataset["uuid"],
                     account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
-                    description     = validator.string_value  (record, "description",    0, 10000),
+                    description     = validator.string_value  (record, "description",    0, 10000, strip_html=False),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
                     resource_title  = validator.string_value  (record, "resource_title", 0, 255),
                     license_url     = license_url,
@@ -4625,13 +4625,13 @@ class ApiServer:
                     is_embargoed    = is_embargoed,
                     is_restricted   = is_restricted,
                     is_metadata_record = validator.boolean_value (record, "is_metadata_record", when_none=False),
-                    metadata_reason = validator.string_value  (record, "metadata_reason",  0, 512),
+                    metadata_reason = validator.string_value  (record, "metadata_reason",  0, 512, strip_html=False),
                     embargo_until_date = validator.date_value (record, "embargo_until_date",
                                                                is_temporary_embargo),
                     embargo_type    = validator.options_value (record, "embargo_type", validator.embargo_types),
                     embargo_title   = validator.string_value  (record, "embargo_title", 0, 1000),
-                    embargo_reason  = validator.string_value  (record, "embargo_reason", 0, 10000),
-                    eula            = validator.string_value  (record, "eula", 0, 50000),
+                    embargo_reason  = validator.string_value  (record, "embargo_reason", 0, 10000, strip_html=False),
+                    eula            = validator.string_value  (record, "eula", 0, 50000, strip_html=False),
                     defined_type_name = defined_type_name,
                     defined_type    = defined_type,
                     git_repository_name = validator.string_value  (record, "git_repository_name",  0, 255),
@@ -5758,7 +5758,7 @@ class ApiServer:
                 doi             = validator.string_value (parameters, "doi", 0, 255),
                 handle          = validator.string_value (parameters, "handle", 0, 255),
                 order           = validator.string_value (parameters, "order", 0, 255),
-                search_for      = validator.string_value (parameters, "search_for", 0, 512),
+                search_for      = validator.string_value (parameters, "search_for", 0, 512, strip_html=False),
                 limit           = limit,
                 offset          = offset,
                 order_direction = validator.order_direction (parameters, "order_direction"),
@@ -5948,7 +5948,7 @@ class ApiServer:
                     account_uuid            = account_uuid,
                     funding                 = validator.string_value  (record, "funding",          0, 255,        False),
                     funding_list            = validator.array_value   (record, "funding_list",                    False),
-                    description             = validator.string_value  (record, "description",      0, 10000,      False),
+                    description             = validator.string_value  (record, "description",      0, 10000,      False, strip_html=False),
                     datasets                = validator.array_value   (record, "articles",                        False),
                     authors                 = validator.array_value   (record, "authors",                         False),
                     categories              = validator.array_value   (record, "categories",                      False),
@@ -6022,7 +6022,7 @@ class ApiServer:
                                                                  is_published = False)
                 result = self.db.update_collection (collection["uuid"], account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
-                    description     = validator.string_value  (record, "description",    0, 10000),
+                    description     = validator.string_value  (record, "description",    0, 10000, strip_html=False),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
                     resource_title  = validator.string_value  (record, "resource_title", 0, 255),
                     group_id        = validator.integer_value (record, "group_id",       0, pow(2, 63)),
@@ -6687,7 +6687,7 @@ class ApiServer:
             validator.integer_value  (record, "item_type")
             validator.string_value   (record, "doi",             maximum_length=255)
             validator.string_value   (record, "handle",          maximum_length=255)
-            validator.string_value   (record, "search_for",      maximum_length=1024)
+            validator.string_value   (record, "search_for", maximum_length=1024, strip_html=False)
             validator.boolean_value  (record, "is_latest")
 
             if record["groups"] is not None:
@@ -7362,7 +7362,7 @@ class ApiServer:
                 "dataset_uuid":       dataset["uuid"],
                 "account_uuid":       account_uuid,
                 "title":              validator.string_value  (record, "title",          3, 1000,  True, errors),
-                "description":        validator.string_value  (record, "description",    0, 10000, True, errors),
+                "description":        validator.string_value  (record, "description",    0, 10000, True, errors, strip_html=False),
                 "resource_doi":       resource_doi,
                 "resource_title":     resource_title,
                 "license_url":        license_url,
@@ -7383,12 +7383,12 @@ class ApiServer:
                 "is_embargoed":       is_embargoed,
                 "is_restricted":      is_restricted,
                 "is_metadata_record": validator.boolean_value (record, "is_metadata_record", when_none=False),
-                "metadata_reason":    validator.string_value  (record, "metadata_reason",  0, 512),
+                "metadata_reason":    validator.string_value  (record, "metadata_reason",  0, 512, strip_html=False),
                 "embargo_until_date": validator.date_value    (record, "embargo_until_date", is_temporary_embargo, errors),
                 "embargo_type":       validator.options_value (record, "embargo_type", validator.embargo_types, is_temporary_embargo, errors),
                 "embargo_title":      validator.string_value  (record, "embargo_title", 0, 1000, is_embargoed, errors),
-                "embargo_reason":     validator.string_value  (record, "embargo_reason", 0, 10000, is_embargoed, errors),
-                "eula":               validator.string_value  (record, "eula", 0, 50000, is_restricted, errors),
+                "embargo_reason":     validator.string_value  (record, "embargo_reason", 0, 10000, is_embargoed, errors, strip_html=False),
+                "eula":               validator.string_value  (record, "eula", 0, 50000, is_restricted, errors, strip_html=False),
                 "defined_type_name":  dataset_type,
                 "defined_type":       defined_type,
                 "agreed_to_deposit_agreement": agreed_to_deposit_agreement,
@@ -8644,7 +8644,7 @@ class ApiServer:
         try:
             parameters = request.get_json()
             quota_gb   = validator.integer_value (parameters, "new-quota", required=True)
-            reason     = validator.string_value (parameters, "reason", 0, 10000, required=True)
+            reason     = validator.string_value (parameters, "reason", 0, 10000, required=True, strip_html=False)
 
             if quota_gb < 1:
                 return self.error_400 (request,
@@ -8679,7 +8679,7 @@ class ApiServer:
 
         try:
             parameters = request.get_json()
-            search = validator.string_value (parameters, "search_for", 0, 32, required=True)
+            search = validator.string_value (parameters, "search_for", 0, 32, required=True, strip_html=False)
             tags = self.db.previously_used_tags (search)
             tags = list(map (lambda item: item["tag"], tags))
             return self.response (json.dumps (tags))

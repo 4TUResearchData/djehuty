@@ -3,7 +3,29 @@ This module contains procedures to validate user input.
 """
 
 import re
+from html.parser import HTMLParser
 from djehuty.utils import convenience as conv
+
+class HTMLStripper (HTMLParser):
+    """Overriden HTMLParser to strip HTML tags inspired by Django's implementation."""
+
+    def __init__ (self):
+        super().__init__(convert_charrefs=False)
+        self.reset()
+        self.state = []
+
+    def handle_data (self, data):
+        self.state.append (data)
+
+    def handle_entityref (self, name):
+        self.state.append (f"&{name};")
+
+    def handle_charref (self, name):
+        self.state.append (f"&#{name};")
+
+    def get_data (self):
+        """Return stripped HTML."""
+        return "".join(self.state)
 
 def raise_or_return_error (error_list, error):
     """Adds the error to the ERROR_LIST or raises ERROR."""
@@ -260,7 +282,8 @@ def index_exists (value, index):
 
     return True
 
-def string_value (record, field_name, minimum_length=0, maximum_length=None, required=False, error_list=None):
+def string_value (record, field_name, minimum_length=0, maximum_length=None,
+                  required=False, error_list=None, strip_html=True):
     """Validation procedure for string values."""
 
     value = conv.value_or_none (record, field_name)
@@ -297,6 +320,16 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None, req
                         field_name = field_name,
                         message = f"The value for '{field_name}' is shorter than {minimum_length}.",
                         code    = "ValueTooShort"))
+
+    if strip_html:
+        while "<" in value and ">" in value:
+            tag_count = value.count("<")
+            html = HTMLStripper()
+            html.feed (value)
+            html.close()
+            value = html.get_data()
+            if tag_count == value.count("<"):
+                break
 
     return value
 
