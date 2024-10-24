@@ -1,6 +1,7 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?dataset_uri        ?metadata_read      ?metadata_edit
+SELECT DISTINCT ?dataset_uri
+                ?metadata_read      ?metadata_edit      ?metadata_remove
                 ?data_read          ?data_edit          ?data_remove
                 ?first_name         ?last_name          ?uuid
                 ?email              ?order_index        ?account_uuid
@@ -15,6 +16,7 @@ WHERE {
     ?collaborator_uri  djht:account             ?account .
     ?collaborator_uri  djht:metadata_read       ?metadata_read .
     ?collaborator_uri  djht:metadata_edit       ?metadata_edit .
+    OPTIONAL { ?collaborator_uri  djht:metadata_remove     ?metadata_remove . }
     ?collaborator_uri  djht:data_read           ?data_read .
     ?collaborator_uri  djht:data_edit           ?data_edit .
     ?collaborator_uri  djht:data_remove         ?data_remove .

@@ -2634,6 +2634,7 @@ class ApiServer:
                                                          account_uuid,
                                                          metadata["read"],
                                                          metadata["edit"],
+                                                         False,
                                                          data["read"],
                                                          data["edit"],
                                                          data["remove"],

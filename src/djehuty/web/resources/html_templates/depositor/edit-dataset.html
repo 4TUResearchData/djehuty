@@ -32,7 +32,7 @@ jQuery(document).ready(function (){
     let permissions = {{permissions|tojson}};
 {%- else %}
     let permissions = {
-        "metadata_read": true, "metadata_edit": true,
+        "metadata_read": true, "metadata_edit": true, "metadata_remove": true,
         "data_read": true, "data_edit": true, "data_remove": true
     }
 {%- endif %}
@@ -206,8 +206,10 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
   <li class="hide-for-javascript publish-button"><a id="publish" href="#">Publish</a>
   <li class="hide-for-javascript decline-button"><a id="decline" href="#">Decline</a>
   {%- endif %}
-  {%- if not article.is_shared_with_me %}
+  {%- if not article.is_shared_with_me or permissions.metadata_remove %}
   <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
+  {%- endif %}
+  {%- if not article.is_shared_with_me %}
   <li class="hide-for-javascript preview-button"><a id="preview" href="#">Preview</a>
   <li class="hide-for-javascript private-links-button"><a id="private-links" target="_blank" href="/my/datasets/{{article["uuid"]}}/private_links?go_back=no">Private access</a>
   {%- endif %}

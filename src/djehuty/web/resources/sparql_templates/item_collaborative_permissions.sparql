@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?metadata_read ?metadata_edit
+SELECT DISTINCT ?metadata_read ?metadata_edit ?metadata_remove
                 ?data_read ?data_edit ?data_remove
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -15,6 +15,7 @@ WHERE {
     ?collaborator       djht:account        <account:{{account_uuid}}> .
     ?collaborator       djht:metadata_read  ?metadata_read .
     ?collaborator       djht:metadata_edit  ?metadata_edit .
+    OPTIONAL { ?collaborator       djht:metadata_remove ?metadata_remove . }
     ?collaborator       djht:data_read      ?data_read .
     ?collaborator       djht:data_edit      ?data_edit .
     ?collaborator       djht:data_remove    ?data_remove .

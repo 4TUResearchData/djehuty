@@ -1949,7 +1949,8 @@ class SparqlInterface:
 
     def insert_collaborator (self, dataset_uuid, collaborator_uuid,
                              account_uuid, metadata_read, metadata_edit,
-                             data_read, data_edit, data_remove):
+                             metadata_remove, data_read, data_edit,
+                             data_remove):
         """Procedure to add a collaborator to the state graph."""
 
         graph = Graph()
@@ -1958,6 +1959,7 @@ class SparqlInterface:
         graph.add ((collaborator_uri, RDF.type,      rdf.DJHT["Collaborator"]))
         rdf.add (graph, collaborator_uri, rdf.DJHT["metadata_read"], metadata_read, XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["metadata_edit"], metadata_edit, XSD.boolean)
+        rdf.add (graph, collaborator_uri, rdf.DJHT["metadata_remove"], metadata_remove, XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_read"],     data_read,     XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_edit"],     data_edit,     XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_remove"],   data_remove,   XSD.boolean)
