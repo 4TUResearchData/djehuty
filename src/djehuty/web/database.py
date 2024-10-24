@@ -1938,11 +1938,12 @@ class SparqlInterface:
 
         return None
 
-    def collaborators (self, dataset_uuid, account_uuid=None):
+    def collaborators (self, dataset_uuid, account_uuid=None, include_inferred=True):
         "Get list of collaborators of a dataset"
         query = self.__query_from_template("collaborators", {
             "dataset_uuid": dataset_uuid,
             "account_uuid": account_uuid,
+            "include_inferred": include_inferred
         })
 
         return self.__run_query(query)
@@ -1950,8 +1951,10 @@ class SparqlInterface:
     def insert_collaborator (self, dataset_uuid, collaborator_uuid,
                              account_uuid, metadata_read, metadata_edit,
                              metadata_remove, data_read, data_edit,
-                             data_remove):
+                             data_remove, inferred=False):
         """Procedure to add a collaborator to the state graph."""
+        if collaborator_uuid == account_uuid:
+            return None
 
         graph = Graph()
         collaborator_uri = rdf.unique_node("collaborator")
@@ -1965,9 +1968,11 @@ class SparqlInterface:
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_remove"],   data_remove,   XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["item"],          rdf.uuid_to_uri(dataset_uuid, "dataset"), "uri")
         rdf.add (graph, collaborator_uri, rdf.DJHT["account"],       rdf.uuid_to_uri(collaborator_uuid, "account"),  "uri")
+        if not inferred:
+            rdf.add(graph, collaborator_uri, rdf.DJHT["added_by"], rdf.uuid_to_uri(account_uuid, "account"), "uri")
 
         if self.add_triples_from_graph (graph):
-            existing_collaborators = self.collaborators (dataset_uuid)
+            existing_collaborators = self.collaborators (dataset_uuid, include_inferred=False)
             if existing_collaborators:
                 return self.__append_to_existing_list (collaborator_uri, existing_collaborators)
 
@@ -1981,6 +1986,23 @@ class SparqlInterface:
 
             self.log.error("failed to create collaborator list for %s ", collaborator_uri)
         return None
+
+    def update_collaborator (self, dataset_uuid, collaborator_uuid, metadata_read, metadata_edit,
+                             metadata_remove, data_read, data_edit, data_remove):
+        """Update permissions of existing collaborators"""
+
+        query = self.__query_from_template("update_collaborators", {
+            "dataset_uuid": dataset_uuid,
+            "collaborator_uuid": collaborator_uuid,
+            "metadata_read": rdf.escape_boolean_value(metadata_read),
+            "metadata_edit": rdf.escape_boolean_value(metadata_edit),
+            "metadata_remove": rdf.escape_boolean_value(metadata_remove),
+            "data_read": rdf.escape_boolean_value(data_read),
+            "data_edit": rdf.escape_boolean_value(data_edit),
+            "data_remove": rdf.escape_boolean_value(data_remove)
+        })
+
+        return self.__run_query (query)
 
     def remove_collaborator (self, dataset_uuid, collaborator_uuid):
         "Procedure to remove a collaborator from the state graph."
@@ -2080,7 +2102,7 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
-    def delete_dataset_draft (self, container_uuid, dataset_uuid, account_uuid):
+    def delete_dataset_draft (self, container_uuid, dataset_uuid, account_uuid, owner_account_uuid):
         """Remove the draft dataset from a container in the state graph."""
 
         collaborators = self.collaborators(dataset_uuid)
@@ -2092,7 +2114,7 @@ class SparqlInterface:
         result = self.__run_logged_query (query)
         self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
         self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
-        self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+        self.cache.invalidate_by_prefix (f"datasets_{owner_account_uuid}")
 
         for collaborator in collaborators:
             self.cache.invalidate_by_prefix(f"datasets_{collaborator['account_uuid']}")

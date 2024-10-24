@@ -98,6 +98,8 @@ function fill_collaborator (email, full_name, account_uuid) {
 
 function autocomplete_collaborator (event, item_id) {
     let current_text = jQuery.trim(jQuery("#add_collaborator").val());
+    let existing_collaborators = [];
+    jQuery(".contributor-uuid").each(function(){existing_collaborators.push(jQuery(this).val()); });
     if (current_text == "") {
         jQuery("#collaborator-ac").remove();
         jQuery("#add_collaborator").removeClass("input-for-ac");
@@ -107,7 +109,7 @@ function autocomplete_collaborator (event, item_id) {
             type:    "POST",
             contentType: "application/json",
             accept: "application/json",
-            data: JSON.stringify({ "search_for": current_text}),
+            data: JSON.stringify({ "search_for": current_text, "exclude": existing_collaborators}),
             }).done(function (data) {
                 jQuery("#collaborator-ac").remove();
                 let html = "<ul>";

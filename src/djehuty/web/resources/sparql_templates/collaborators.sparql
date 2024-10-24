@@ -5,30 +5,68 @@ SELECT DISTINCT ?dataset_uri
                 ?data_read          ?data_edit          ?data_remove
                 ?first_name         ?last_name          ?uuid
                 ?email              ?order_index        ?account_uuid
-                (?rest AS ?originating_blank_node)
+                ?group_id           ?group_name         ?is_supervisor
+                (?rest AS ?originating_blank_node)      ?is_inferred
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?dataset_uri       djht:collaborators       ?collaborators .
-    ?collaborators     rdf:rest*                ?rest .
-    ?rest              rdf:first                ?collaborator_uri .
-    ?rest              djht:index               ?order_index .
-    ?collaborator_uri  rdf:type                 djht:Collaborator .
-    ?collaborator_uri  djht:account             ?account .
-    ?collaborator_uri  djht:metadata_read       ?metadata_read .
-    ?collaborator_uri  djht:metadata_edit       ?metadata_edit .
-    OPTIONAL { ?collaborator_uri  djht:metadata_remove     ?metadata_remove . }
-    ?collaborator_uri  djht:data_read           ?data_read .
-    ?collaborator_uri  djht:data_edit           ?data_edit .
-    ?collaborator_uri  djht:data_remove         ?data_remove .
+    ?dataset_uri       djht:container/djht:account ?owner .
+    {
+      ?dataset_uri       djht:collaborators       ?collaborators .
+      ?collaborators     rdf:rest*                ?rest .
+      ?rest              rdf:first                ?collaborator_uri .
+      ?rest              djht:index               ?order_index .
+      ?collaborator_uri  rdf:type                 djht:Collaborator .
+      ?collaborator_uri  djht:account             ?account .
 
+      ?collaborator_uri  djht:metadata_read       ?metadata_read .
+      ?collaborator_uri  djht:metadata_edit       ?metadata_edit .
+      ?collaborator_uri  djht:metadata_remove     ?metadata_remove .
+      ?collaborator_uri  djht:data_read           ?data_read .
+      ?collaborator_uri  djht:data_edit           ?data_edit .
+      ?collaborator_uri  djht:data_remove         ?data_remove .
+
+      OPTIONAL {
+        ?account           djht:domain              ?domain .
+        ?group_uri         rdf:type                   djht:InstitutionGroup ;
+                           djht:association_criteria  ?domain ;
+                           djht:name                  ?group_name ;
+                           djht:id                    ?group_id .
+      }
+      BIND("false"^^xsd:boolean AS ?is_inferred)
+    }
+    {%- if include_inferred %}
+    UNION {
+      ?group_uri         rdf:type djht:InstitutionGroup .
+      ?dataset_uri       djht:association_criteria ?association_criteria .
+      ?group_uri         djht:association_criteria ?association_criteria .
+      ?group_uri         djht:members             ?members .
+      ?group_uri         djht:name                ?group_name .
+      ?group_uri         djht:id                  ?group_id .
+      ?members           rdf:rest*                ?rest .
+      ?rest              rdf:first                ?collaborator_uri .
+      ?rest              djht:index               ?order_index .
+      ?collaborator_uri  rdf:type                 djht:Member .
+      ?collaborator_uri  djht:account             ?account .
+      ?collaborator_uri  djht:metadata_read       ?metadata_read .
+      ?collaborator_uri  djht:metadata_edit       ?metadata_edit .
+      ?collaborator_uri  djht:metadata_remove     ?metadata_remove .
+      ?collaborator_uri  djht:data_read           ?data_read .
+      ?collaborator_uri  djht:data_edit           ?data_edit .
+      ?collaborator_uri  djht:data_remove         ?data_remove .
+      ?collaborator_uri  djht:is_supervisor       ?is_supervisor .
+
+      BIND("true"^^xsd:boolean AS ?is_inferred)
+    }
+    {%- endif %}
     OPTIONAL { ?account           djht:first_name          ?first_name . }
     OPTIONAL { ?account           djht:last_name           ?last_name . }
     OPTIONAL { ?account           djht:email               ?email . }
 
-    BIND(STRAFTER(STR(?collaborator_uri), "collaborator:") AS ?uuid)
+    BIND(STRAFTER(STR(?collaborator_uri), ":") AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:") AS ?account_uuid)
 
   }
+FILTER (?owner != ?account)
 FILTER (?dataset_uri = <dataset:{{dataset_uuid}}>)
 {%- if account_uuid is not none %}
 FILTER (?account = <account:{{account_uuid}}>)

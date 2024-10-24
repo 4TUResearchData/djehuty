@@ -298,8 +298,55 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
         accept:      "application/json",
     }).done(function (collaborators) {
         jQuery("#collaborators-form tbody").empty();
-        let row = "<tr>";
+
+        for (let collaborator of collaborators) {
+            let row = `<tr id="row-${encodeURIComponent(collaborator.uuid)}"><td>`;
+            let supervisor_badge = "";
+            let supervisor_disabled = "";
+            let group_member_badge = "";
+            if (collaborator.is_supervisor) {
+                supervisor_badge = '<span class="active-badge">Supervisor</span>';
+                supervisor_disabled = ' disabled="disabled"'
+                supervisor_no_update = ''
+            }
+            if (collaborator.is_inferred) {
+                group_member_badge = `<span class="active-badge">${collaborator.group_name}</span>`;
+            }
+            row += `${collaborator.first_name} ${collaborator.last_name} (${collaborator.email})${supervisor_badge}${group_member_badge}</td>`;
+            row += `<td class="type-begin"><input class="subitem-checkbox-metadata" name="read" type="checkbox"${supervisor_disabled}`;
+            row += collaborator.metadata_read ? ' checked="checked"' : '';
+            row += `></td><td class="type-end"><input class="subitem-checkbox-metadata" name="edit" type="checkbox"${supervisor_disabled}`;
+            row += collaborator.metadata_edit ? ' checked="checked"' : '';
+            row += `></td><td><input class="subitem-checkbox-data" name="read" type="checkbox"${supervisor_disabled}`;
+            row += collaborator.data_read ? ' checked="checked"' : '';
+            row += `></td><td><input class="subitem-checkbox-data" name="edit" type="checkbox"${supervisor_disabled}`;
+            row += collaborator.data_edit ? ' checked="checked"' : '';
+            row += `></td><td class="type-end"><input class="subitem-checkbox-data" name="remove" type="checkbox"${supervisor_disabled}`;
+            row += collaborator.data_remove ? ' checked="checked"' : '';
+            row += `><input type="hidden" class="contributor-uuid" value="${collaborator.account_uuid}"></td><td>`;
+            if (may_edit_metadata && !collaborator.is_inferred && !collaborator.is_supervisor) {
+                row += '<a href="#"';
+                row += `onclick="javascript:remove_collaborator('${encodeURIComponent(collaborator.uuid)}', `;
+                row += `'${dataset_uuid}', '${may_edit_metadata}'); return false;" class="fas fa-trash-can" `;
+                row += `title="Remove"></a>`;
+            }
+            row += '</td><td>';
+            if (may_edit_metadata && !collaborator.is_supervisor && !collaborator.is_inferred) {
+                row += '<a href="#"';
+                row += `onclick="javascript:update_collaborator('${encodeURIComponent(collaborator.uuid)}', `;
+                row += `'${dataset_uuid}', '${may_edit_metadata}'); return false;" class="fas fa-sync" `;
+                row += `title="Update"></a>`;
+            }
+            row += '</td></tr>';
+            if (collaborator.is_supervisor) {
+                jQuery("#collaborators-form tbody").prepend(row);
+            }
+            else {jQuery("#collaborators-form tbody").append(row);}
+
+        }
+
         if (may_edit_metadata) {
+            let row = "<tr>";
             row += '<td><input type="text" id="add_collaborator" name="add_collaborator" value=""/>';
             row += '<input type="hidden" id="account_uuid" name="account_uuid" value=""/></td>';
             row += '<td class="type-begin"><input class="subitem-checkbox-metadata" name="read" type="checkbox" checked="checked" disabled="disabled"></td>';
@@ -309,38 +356,16 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
             row += '<td class="type-end"><input class="subitem-checkbox-data" name="remove" type="checkbox"></td>';
             row += '<td><a id="add-collaborator-button" class="fas fa-plus" href="#" ';
             row += 'title="Add collaborator"></a></td>';
+            row += '<td></td>';
             row += "</tr>";
-            jQuery("#collaborators-form tbody").append(row);
+            jQuery("#collaborators-form tbody").prepend(row);
             jQuery("#add-collaborator-button").on("click", function(event) {
                 event.preventDefault();
                 event.stopPropagation();
                 add_collaborator(dataset_uuid, may_edit_metadata);
             });
         }
-        for (let collaborator of collaborators) {
-            let row = `<tr><td>`;
-            row += `${collaborator.first_name} ${collaborator.last_name} (${collaborator.email})</td>`;
-            row += '<td class="type-begin"><input name="read" type="checkbox" disabled="disabled"';
-            row += collaborator.metadata_read ? ' checked="checked"' : '';
-            row += '></td><td class="type-end"><input name="edit" type="checkbox" disabled="disabled"';
-            row += collaborator.metadata_edit ? ' checked="checked"' : '';
-            row += '></td><td><input name="read" type="checkbox" disabled="disabled"';
-            row += collaborator.data_read ? ' checked="checked"' : '';
-            row += '></td><td><input name="edit" type="checkbox" disabled="disabled"';
-            row += collaborator.data_edit ? ' checked="checked"' : '';
-            row += '></td><td class="type-end"><input name="remove" type="checkbox" disabled="disabled"';
-            row += collaborator.data_remove ? ' checked="checked"' : '';
-            row += '></td><td>';
 
-            if (may_edit_metadata) {
-                row += '<a href="#"';
-                row += `onclick="javascript:remove_collaborator('${encodeURIComponent(collaborator.uuid)}', `;
-                row += `'${dataset_uuid}', '${may_edit_metadata}'); return false;" class="fas fa-trash-can" `;
-                row += `title="Remove"></a>`;
-            }
-            row += '</td></tr>';
-            jQuery("#collaborators-form tbody").prepend(row);
-        }
         jQuery("#add_collaborator").on("input", function (event) {
             return autocomplete_collaborator (event, dataset_uuid);
         });
@@ -349,6 +374,37 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
     }).fail(function () {
         show_message ("failure", "<p>Failed to retrieve collaborators.</p>");
     });
+}
+
+function update_collaborator (collaborator_uuid, dataset_uuid, may_edit_metadata) {
+    if (may_edit_metadata) {
+        let row = "<tr>";
+        let update_form_data = {
+            "metadata": {
+                "read": jQuery(`#row-${collaborator_uuid} input[name='read'].subitem-checkbox-metadata`).prop("checked"),
+                "edit": jQuery(`#row-${collaborator_uuid} input[name='edit'].subitem-checkbox-metadata`).prop("checked"),
+            },
+            "data": {
+                "read": jQuery(`#row-${collaborator_uuid} input[name='read'].subitem-checkbox-data`).prop("checked"),
+                "edit": jQuery(`#row-${collaborator_uuid} input[name='edit'].subitem-checkbox-data`).prop("checked"),
+                "remove": jQuery(`#row-${collaborator_uuid} input[name='remove'].subitem-checkbox-data`).prop("checked"),
+            },
+            "account": or_null(jQuery("#account_uuid").val())
+        };
+
+        jQuery.ajax({
+            url: `/v3/datasets/${dataset_uuid}/collaborators/${collaborator_uuid}`,
+            type: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify(update_form_data),
+        }).done(function () {
+            render_collaborators_for_dataset(dataset_uuid, may_edit_metadata);
+            jQuery("#update_collaborator").val("");
+        })
+            .fail(function () {
+                show_message("failure", `<p>Failed to update ${collaborator_uuid}</p>`);
+            });
+    }
 }
 
 function add_collaborator (dataset_uuid, may_edit_metadata) {
@@ -1022,8 +1078,14 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
             add_reference (dataset_uuid);
         });
          jQuery("#collaborators").on("keypress", function(e){
-            if(e.which == 13){
+            if (e.which == 13) {
                 add_collaborator(dataset_uuid, permissions.metadata_edit);
+            }
+        });
+
+        jQuery("#collaborators").on("keypress", function(e){
+            if (e.which == 13) {
+                update_collaborator(dataset_uuid, permissions.metadata_edit);
             }
         });
 

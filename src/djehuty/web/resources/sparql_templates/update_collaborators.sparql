@@ -1,0 +1,52 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+
+DELETE {
+  GRAPH <{{state_graph}}> {
+    {%- if metadata_read is not none %}
+    ?collaborator_uri  djht:metadata_read       ?metadata_read .
+    {%- endif %}{% if metadata_edit is not none %}
+    ?collaborator_uri  djht:metadata_edit       ?metadata_edit .
+    {%- endif %}{% if metadata_remove is not none %}
+    ?collaborator_uri  djht:metadata_remove     ?metadata_remove .
+    {%- endif %}{% if data_read is not none %}
+    ?collaborator_uri  djht:data_read           ?data_read .
+    {%- endif %}{% if data_edit is not none %}
+    ?collaborator_uri  djht:data_edit           ?data_edit .
+    {%- endif %}{% if data_remove is not none %}
+    ?collaborator_uri  djht:data_remove         ?data_remove .
+    {%- endif%}
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    {%- if metadata_read is not none %}
+    ?collaborator_uri  djht:metadata_read       {{metadata_read | safe }} .
+    {%- endif %}{% if metadata_edit is not none %}
+    ?collaborator_uri  djht:metadata_edit       {{metadata_edit | safe }} .
+    {%- endif %}{% if metadata_remove is not none %}
+    ?collaborator_uri  djht:metadata_remove     {{metadata_remove | safe }} .
+    {%- endif %}{% if data_read is not none %}
+    ?collaborator_uri  djht:data_read           {{data_read | safe }} .
+     {%- endif %}{% if data_edit is not none %}
+    ?collaborator_uri  djht:data_edit           {{data_edit | safe }} .
+    {%- endif %}{% if data_remove is not none %}
+    ?collaborator_uri  djht:data_remove         {{data_remove| safe }} .
+    {%- endif%}
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?collaborator_uri  rdf:type                 djht:Collaborator .
+    ?collaborator_uri  djht:metadata_read       ?metadata_read .
+    ?collaborator_uri  djht:metadata_edit       ?metadata_edit .
+    ?collaborator_uri  djht:metadata_remove     ?metadata_remove .
+    ?collaborator_uri  djht:data_read           ?data_read .
+    ?collaborator_uri  djht:data_edit           ?data_edit .
+    ?collaborator_uri  djht:data_remove         ?data_remove .
+  }
+
+FILTER (?collaborator_uri = <collaborator:{{collaborator_uuid}}>)
+}
+
+{% endblock %}

@@ -32,6 +32,14 @@ WHERE {
       ?collaborator      djht:account        ?collaborator_account .
       ?collaborator      djht:metadata_read  "true"^^xsd:boolean .
     }
+    OPTIONAL {
+      ?group_uri          rdf:type djht:InstitutionGroup .
+      ?item_uri           djht:association_criteria        ?association_criteria .
+      ?group_uri          djht:association_criteria        ?association_criteria .
+      ?group_uri          djht:members/rdf:rest*/rdf:first ?member_uri .
+      ?member_uri         djht:is_supervisor "true"^^xsd:boolean .
+      ?member_uri         djht:account ?member_account .
+    }
     {%- endif %}
     {%- endif %}
     {%- endif %}

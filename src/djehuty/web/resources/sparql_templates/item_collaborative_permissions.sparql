@@ -4,21 +4,36 @@ SELECT DISTINCT ?metadata_read ?metadata_edit ?metadata_remove
                 ?data_read ?data_edit ?data_remove
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?item               rdf:type            djht:{{item_type | capitalize}} .
-    {%- if item_type == "file" %}
-    ?dataset            djht:files/rdf:rest*/rdf:first ?item .
-    ?collaborator       djht:item           ?dataset .
-    {%- else %}
-    ?collaborator       djht:item           ?item .
-    {%- endif %}
-    ?collaborator       rdf:type            djht:Collaborator .
-    ?collaborator       djht:account        <account:{{account_uuid}}> .
-    ?collaborator       djht:metadata_read  ?metadata_read .
-    ?collaborator       djht:metadata_edit  ?metadata_edit .
-    OPTIONAL { ?collaborator       djht:metadata_remove ?metadata_remove . }
-    ?collaborator       djht:data_read      ?data_read .
-    ?collaborator       djht:data_edit      ?data_edit .
-    ?collaborator       djht:data_remove    ?data_remove .
+    ?item               rdf:type            djht:{{item_type | capitalize}} .    {
+      {%- if item_type == "file" %}
+      ?dataset            djht:files/rdf:rest*/rdf:first ?item .
+      ?collaborator       djht:item           ?dataset .
+      {%- else %}
+      ?collaborator       djht:item           ?item .
+      {%- endif %}
+      ?collaborator       rdf:type            djht:Collaborator .
+      ?collaborator       djht:account        <account:{{account_uuid}}> .
+      ?collaborator       djht:metadata_read  ?metadata_read .
+      ?collaborator       djht:metadata_edit  ?metadata_edit .
+      ?collaborator       djht:metadata_remove ?metadata_remove .
+      ?collaborator       djht:data_read      ?data_read .
+      ?collaborator       djht:data_edit      ?data_edit .
+      ?collaborator       djht:data_remove    ?data_remove .
+    } UNION {
+      ?item               djht:container/djht:account ?owner .
+      ?group_uri          rdf:type djht:InstitutionGroup .
+      ?dataset            djht:association_criteria        ?association_criteria .
+      ?group_uri          djht:association_criteria        ?association_criteria .
+      ?group_uri          djht:members/rdf:rest*/rdf:first ?member_uri .
+      ?member_uri         djht:is_supervisor "true"^^xsd:boolean .
+      ?member_uri         djht:metadata_read  ?metadata_read .
+      ?member_uri         djht:metadata_edit  ?metadata_edit .
+      ?member_uri         djht:metadata_remove ?metadata_remove .
+      ?member_uri         djht:data_read      ?data_read .
+      ?member_uri         djht:data_edit      ?data_edit .
+      ?member_uri         djht:data_remove    ?data_remove .
+      ?member_uri         djht:account        <account:{{account_uuid}}> .
+    }
   }
   FILTER (?item = <{{item_type}}:{{item_uuid}}>)
 }

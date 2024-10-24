@@ -372,7 +372,7 @@ class ApiServer:
             R("/v3/profile/picture/<account_uuid>",                              self.api_v3_profile_picture_for_account),
             R("/v3/tags/search",                                                 self.api_v3_tags_search),
             R("/v3/datasets/<dataset_uuid>/collaborators",                       self.api_v3_dataset_collaborators),
-            R("/v3/datasets/<dataset_uuid>/collaborators/<collaborator_uuid>",   self.api_v3_dataset_remove_collaborator),
+            R("/v3/datasets/<dataset_uuid>/collaborators/<collaborator_uuid>",   self.api_v3_update_collaborators),
             R("/v3/accounts/search",                                             self.api_v3_accounts_search),
             R("/v3/authors/<author_uuid>",                                       self.api_v3_author_details),
 
@@ -2207,7 +2207,7 @@ class ApiServer:
                 return self.error_403 (request)
 
             container_uuid = dataset["container_uuid"]
-            if self.db.delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid):
+            if self.db.delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid, dataset["account_uuid"]):
                 return redirect ("/my/datasets", code=303)
 
             return self.error_404 (request)
@@ -2648,6 +2648,62 @@ class ApiServer:
 
         return self.error_500 ()
 
+    def api_v3_update_collaborators (self, request, dataset_uuid, collaborator_uuid):
+        """Implements /v3/datasets/<dataset_uuid>/collaborators/<collaborator_uuid>"""
+        account_uuid = self.default_authenticated_error_handling(request,
+                                                                 ["PUT", "DELETE"],
+                                                                 "application/json")
+        if isinstance(account_uuid, Response):
+            return account_uuid
+
+        if (not validator.is_valid_uuid (dataset_uuid) or
+                not validator.is_valid_uuid (collaborator_uuid)):
+            return self.error_404 (request)
+        try:
+            dataset = self.db.datasets (container_uuid=dataset_uuid,
+                                        account_uuid=account_uuid,
+                                        is_published=False,
+                                        is_latest=None,
+                                        limit=1)[0]
+
+            _, error_response = self.__needs_collaborative_permissions(
+                account_uuid, request, "dataset", dataset, "metadata_edit")
+            if error_response is not None:
+                return error_response
+
+            collaborators = self.db.collaborators (dataset["uuid"])
+            for collaborator in collaborators:
+                if collaborator["account_uuid"] == account_uuid and not collaborator["is_supervisor"]:
+                    return self.error_403 (request)
+
+        except IndexError:
+            return self.error_403 (request)
+
+        if request.method == "PUT":
+            parameters = request.get_json()
+            metadata = parameters["metadata"]
+            data = parameters["data"]
+            if not self.db.update_collaborator (dataset["uuid"],
+                                                collaborator_uuid,
+                                                metadata["read"],
+                                                metadata["edit"],
+                                                False,
+                                                data["read"],
+                                                data["edit"],
+                                                data["remove"]):
+                self.log.error ("Could not update permissions for collaborator:%s in dataset:%s",
+                                collaborator_uuid, dataset["uuid"])
+                return self.error_500()
+
+            return self.respond_204()
+
+        if request.method == "DELETE":
+            if self.db.remove_collaborator(dataset["uuid"], collaborator_uuid) is None:
+                return self.error_500()
+            return self.respond_204()
+
+        return self.error_403(request)
+
     def api_v3_accounts_search (self, request):
         """Search and autocomplete to add collaborator"""
         if not self.accepts_json(request):
@@ -2663,44 +2719,15 @@ class ApiServer:
         try:
             parameters = request.get_json()
             search_for = validator.string_value (parameters, "search_for", 0, 32, required=True)
+            exclude = validator.array_value (parameters, "exclude", required=False)
             accounts   = self.db.accounts (search_for=search_for, limit=5)
+            for index,_ in enumerate(accounts):
+                account = accounts[index]
+                if account["uuid"] in exclude:
+                    accounts.pop(index)
             return self.default_list_response (accounts, formatter.format_account_details_record)
         except (validator.ValidationException, KeyError) as error:
             return self.error_400(request, error.message, error.code)
-
-    def api_v3_dataset_remove_collaborator (self, request, dataset_uuid, collaborator_uuid):
-        """Removes the collaborator from the share section of edit dataset form."""
-        if not self.accepts_json (request):
-            return self.error_406 ("application/json")
-
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed (request)
-
-        if (not validator.is_valid_uuid (dataset_uuid) or
-            not validator.is_valid_uuid (collaborator_uuid)):
-            return self.error_404 (request)
-
-        try:
-            dataset = self.db.datasets (container_uuid=dataset_uuid,
-                                        account_uuid=account_uuid,
-                                        is_published=False,
-                                        is_latest=None,
-                                        limit=1)[0]
-
-            _, error_response = self.__needs_collaborative_permissions (
-                account_uuid, request, "dataset", dataset, "metadata_edit")
-            if error_response is not None:
-                return error_response
-
-            if self.db.remove_collaborator (dataset["uuid"], collaborator_uuid) is None:
-                return self.error_500()
-
-            return self.respond_204()
-        except IndexError:
-            pass
-
-        return self.error_403 (request)
 
     def ui_dataset_new_private_link (self, request, dataset_uuid):
         """Implements /my/datasets/<uuid>/private_link/new."""
@@ -4646,7 +4673,7 @@ class ApiServer:
                                                            is_published=False)
 
                 container_uuid = dataset["container_uuid"]
-                if self.db.delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid):
+                if self.db.delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid, dataset["account_uuid"]):
                     return self.respond_204()
             except (IndexError, KeyError):
                 pass
