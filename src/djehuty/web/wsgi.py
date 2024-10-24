@@ -856,7 +856,7 @@ class ApiServer:
         """Returns a self.response object with some tweaks."""
 
         output                   = Response(content, mimetype=mimetype)
-        output.headers["Server"] = "4TU.ResearchData API"
+        output.headers["Server"] = f"{self.site_name} API"
         return output
 
     ## GENERAL HELPERS
@@ -1518,19 +1518,19 @@ class ApiServer:
     def respond_202 (self):
         """Procedure to respond with HTTP 202."""
         output = Response("", 202, {})
-        output.headers["Server"] = "4TU.ResearchData API"
+        output.headers["Server"] = f"{self.site_name} API"
         return output
 
     def respond_204 (self):
         """Procedure to respond with HTTP 204."""
         output = Response("", 204, {})
-        output.headers["Server"] = "4TU.ResearchData API"
+        output.headers["Server"] = f"{self.site_name} API"
         return output
 
     def respond_205 (self):
         """Procedure to respond with HTTP 205."""
         output = Response("", 205, {})
-        output.headers["Server"] = "4TU.ResearchData API"
+        output.headers["Server"] = f"{self.site_name} API"
         return output
 
     ## API CALLS
@@ -4154,7 +4154,7 @@ class ApiServer:
             return account_uuid
 
         ## Our API only contains data from 4TU.ResearchData.
-        return self.response (json.dumps({ "id": 898, "name": "4TU.ResearchData" }))
+        return self.response (json.dumps({ "id": 898, "name": self.site_name }))
 
     def api_private_institution_accounts (self, request):
         """Implements /v2/account/institution/accounts."""

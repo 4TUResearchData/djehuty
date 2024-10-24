@@ -162,7 +162,7 @@ jQuery(document).ready(function () {
 {%- endfor %}
 </div>
 <label for="publisher">Publisher</label>
-<input type="text" id="publisher" name="publisher" value="{{collection["publisher"] | default("4TU.ResearchData", True)}}">
+<input type="text" id="publisher" name="publisher" value="{% if collection["publisher"] %}{{collection["publisher"]}}{% else %}{{site_name}}{% endif %}">
 <label for="funding">Funding</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select from the list by searching for funder name, grant number or grant name or manually add them by creating a new funding record.</span></div>
 <input type="text" id="funding" name="funding" />
 <table class="inside-form-table multi-list" id="funding-list">
