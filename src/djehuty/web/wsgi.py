@@ -7378,8 +7378,10 @@ class ApiServer:
 
             except OSError:
                 self.log.error ("Writing %s to disk failed.", output_filename)
+                return self.error_400 (request, "Cannot determine the format of the uploaded image.", "InvalidImageFormat")
             except (IndexError, KeyError) as error:
                 self.log.error ("Uploading profile image failed with error: %s", error)
+                return self.error_400 (request, "Uploading the profile image failed.", "UploadFailed")
 
         return self.error_405 (["GET", "POST", "DELETE"])
 
