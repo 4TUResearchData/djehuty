@@ -159,6 +159,7 @@ function save_dataset (dataset_uuid, event, notify=true, on_success=jQuery.noop)
 
     // When keywords were entered but yet submitted, handle those first.
     add_tag (dataset_uuid);
+    add_reference (dataset_uuid);
 
     form_data = gather_form_data();
     jQuery.ajax({

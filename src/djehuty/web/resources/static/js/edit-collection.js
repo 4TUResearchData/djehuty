@@ -355,6 +355,7 @@ function save_collection (collection_id, event, notify=true, on_success=jQuery.n
 
     // When keywords were entered but yet submitted, handle those first.
     add_tag (collection_id);
+    add_reference (collection_id);
 
     form_data = gather_form_data();
     jQuery.ajax({
