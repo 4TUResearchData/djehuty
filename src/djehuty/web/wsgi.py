@@ -4075,8 +4075,13 @@ class ApiServer:
         try:
             file_paths = []
             for file_info in metadata:
+                file_path = self.__filesystem_location (file_info)
+                if file_path is None:
+                    self.log.error ("Excluding missing file %s in ZIP of %s.",
+                                    file_info["name"], dataset_id)
+                    continue
                 file_paths.append ({
-                    "fs": self.__filesystem_location (file_info),
+                    "fs": file_path,
                     "n":  file_info["name"]
                 })
 
