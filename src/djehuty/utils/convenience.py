@@ -77,8 +77,10 @@ def pretty_print_size (num_bytes):
         output = f"{num_bytes/1000000:.2f}MB"
     elif num_bytes < 1000000000000:
         output = f"{num_bytes/1000000000:.2f}GB"
-    else:
+    elif num_bytes < 1000000000000000:
         output = f"{num_bytes/1000000000000:.2f}TB"
+    else:
+        output = f"{num_bytes/1000000000000000:.2f}PB"
 
     return output
 
@@ -86,7 +88,9 @@ def opendap_sizes_to_bytes (size, units):
     """Return the bytes for a pretty-printed SIZE with UNITS."""
     output = size
 
-    if units == "Tbytes":
+    if units == "Pbytes":
+        output = size * 1000000000000000
+    elif units == "Tbytes":
         output = size * 1000000000000
     elif units == "Gbytes":
         output = size * 1000000000
