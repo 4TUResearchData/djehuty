@@ -127,6 +127,11 @@ def format_codemeta_record (record, git_url, tags, authors):
             "embargoDate": conv.value_or_none(record, "embargo_until_date")
         }
 
+    # Strip the HTML tags from the description.
+    description = conv.value_or_none (record, "description")
+    if description:
+        description = conv.html_to_plaintext (description, True)
+
     return {
         "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
         "@type": "SoftwareSourceCode",
@@ -137,7 +142,7 @@ def format_codemeta_record (record, git_url, tags, authors):
         "datePublished": conv.value_or_none(record, "published_date"),
         "dateModified": conv.value_or_none(record, "modified_date"),
         "identifier": conv.value_or_none(record, "doi"),
-        "description": conv.value_or_none(record, "description"),
+        "description": description,
         "keywords": list (map (format_tag_record, tags)),
         "author": list (map (format_codemeta_author_record, authors))
     }

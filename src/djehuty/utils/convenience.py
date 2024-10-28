@@ -5,6 +5,52 @@ the codebase.
 
 import re
 import logging
+from html.parser import HTMLParser
+
+class HTMLStripper (HTMLParser):
+    """Overriden HTMLParser to strip HTML tags inspired by Django's implementation."""
+
+    def __init__ (self):
+        super().__init__(convert_charrefs=False)
+        self.reset()
+        self.state = []
+
+    def handle_data (self, data):
+        self.state.append (data)
+
+    def handle_entityref (self, name):
+        self.state.append (f"&{name};")
+
+    def handle_charref (self, name):
+        self.state.append (f"&#{name};")
+
+    def get_data (self):
+        """Return stripped HTML."""
+        return "".join(self.state)
+
+
+def html_to_plaintext (value, respect_newlines=False):
+    """
+    Outputs plain text without HTML tags.
+    When RESPECT_NEWLINES is set to True, it will convert line
+    breaks to newline characters.
+    """
+    if respect_newlines:
+        value = value.replace("</p>", "</p>\n\n")
+        value = value.replace("<br>", "\n")
+        value = value.replace("<br/>", "\n")
+        value = value.replace("<br />", "\n")
+
+    while "<" in value and ">" in value:
+        tag_count = value.count("<")
+        html = HTMLStripper()
+        html.feed (value)
+        html.close()
+        value = html.get_data()
+        if tag_count == value.count("<"):
+            break
+
+    return value
 
 def value_or (record, key, other):
     """Return the value of KEY or OTHER."""
