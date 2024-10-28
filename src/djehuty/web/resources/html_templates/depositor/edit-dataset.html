@@ -513,7 +513,7 @@ git push {{site_shorttag}} --tags</pre>
     <p>Or <a id="api-upload-toggle" href="#">upload from another computer or server</a>.</p>
     <div id="api-upload-fold" class="options-wrapper">
       <p>Files can also be uploaded through an API call for which a copy/pasteable example is displayed here:</p>
-      <pre>curl -X POST "{{base_url}}/v3/datasets/{{container_uuid}}/upload" -H 'Accept: application/json' -H 'Authorization: token {{api_token}}' -F "file=@<strong>path/to/your/file/here</strong>"</pre>
+      <pre>curl --http1.1 -X POST "{{base_url}}/v3/datasets/{{container_uuid}}/upload" -H 'Accept: application/json' -H 'Authorization: token {{api_token}}' -F "file=@<strong>path/to/your/file/here</strong>"</pre>
       <p>The displayed token is valid until you log out. However, the token can be any token generated from the <a href="/my/dashboard">Dashboard</a> using the <a href="/my/sessions/new">Create API token</a> button.</p>
     </div>
   </div>
