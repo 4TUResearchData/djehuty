@@ -710,7 +710,7 @@ class ApiServer:
     def error_400_list (self, request, errors):
         """Procedure to respond with HTTP 400 with a list of error messages."""
         response = None
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "400.html", message=errors)
         else:
             response = self.response (json.dumps(errors))
@@ -727,7 +727,7 @@ class ApiServer:
     def error_403 (self, request):
         """Procedure to respond with HTTP 403."""
         response = None
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "403.html")
         else:
             response = self.response (json.dumps({
@@ -739,7 +739,7 @@ class ApiServer:
     def error_404 (self, request):
         """Procedure to respond with HTTP 404."""
         response = None
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "404.html")
         else:
             response = self.response (json.dumps({
@@ -765,7 +765,7 @@ class ApiServer:
 
     def error_410 (self, request):
         """Procedure to respond with HTTP 410."""
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "410.html")
         else:
             response = self.response (json.dumps({
@@ -808,7 +808,7 @@ class ApiServer:
 
     def error_authorization_failed (self, request):
         """Procedure to handle authorization failures."""
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "403.html")
         else:
             response = self.response (json.dumps({
@@ -1375,11 +1375,12 @@ class ApiServer:
             global_match = "*/*" in acceptable
             return global_match or exact_match
         except KeyError:
-            return False
+            # No "Accept" header can be treated as equivalent to "Accept: */*".
+            return not strict
 
-    def accepts_html (self, request):
+    def accepts_html (self, request, strict=False):
         """Procedure to check whether the client accepts HTML."""
-        return self.accepts_content_type (request, "text/html")
+        return self.accepts_content_type (request, "text/html", strict=strict)
 
     def accepts_plain_text (self, request):
         """Procedure to check whether the client accepts plain text."""
@@ -1538,7 +1539,7 @@ class ApiServer:
 
     def ui_redirect_to_home (self, request):
         """Implements /."""
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             return redirect ("/", code=301)
 
         return self.response (json.dumps({ "status": "OK" }))
