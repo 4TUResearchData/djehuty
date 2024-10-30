@@ -1948,10 +1948,9 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
-    def insert_collaborator (self, dataset_uuid, collaborator_uuid,
-                             account_uuid, metadata_read, metadata_edit,
-                             metadata_remove, data_read, data_edit,
-                             data_remove, inferred=False):
+    def insert_collaborator (self, dataset_uuid, collaborator_uuid, account_uuid,
+                             metadata_read, metadata_edit, metadata_remove,
+                             data_read, data_edit, data_remove):
         """Procedure to add a collaborator to the state graph."""
         if collaborator_uuid == account_uuid:
             return None
@@ -1967,9 +1966,8 @@ class SparqlInterface:
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_edit"],     data_edit,     XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["data_remove"],   data_remove,   XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["item"],          rdf.uuid_to_uri(dataset_uuid, "dataset"), "uri")
-        rdf.add (graph, collaborator_uri, rdf.DJHT["account"],       rdf.uuid_to_uri(collaborator_uuid, "account"),  "uri")
-        if not inferred:
-            rdf.add(graph, collaborator_uri, rdf.DJHT["added_by"], rdf.uuid_to_uri(account_uuid, "account"), "uri")
+        rdf.add (graph, collaborator_uri, rdf.DJHT["account"],       rdf.uuid_to_uri(collaborator_uuid, "account"), "uri")
+        rdf.add (graph, collaborator_uri, rdf.DJHT["added_by"],      rdf.uuid_to_uri(account_uuid, "account"), "uri")
 
         if self.add_triples_from_graph (graph):
             existing_collaborators = self.collaborators (dataset_uuid, include_inferred=False)
