@@ -1335,6 +1335,10 @@ class ApiServer:
             self.log.error ("Received attributes: %s", attributes)
             return None
 
+        # Fall-back to determining the domain based on the e-mail address.
+        if record["domain"] is None:
+            record["domain"] = record["email"].partition("@")[2]
+
         return record
 
     def saml_metadata (self, request):
