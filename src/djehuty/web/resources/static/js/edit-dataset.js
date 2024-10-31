@@ -452,7 +452,7 @@ function render_tags_for_dataset (dataset_uuid) {
         jQuery("#tags-list").empty();
         for (let tag of tags) {
             let row = `<li>${tag} &nbsp; <a href="#" class="fas fa-trash-can"`;
-            row += ` onclick="javascript:remove_tag('${encodeURIComponent(tag)}', `;
+            row += ` onclick="javascript:remove_tag(`${encodeURIComponent(tag)}`, `;
             row += `'${dataset_uuid}'); return false;"></a></li>`;
             jQuery("#tags-list").append(row);
         }
