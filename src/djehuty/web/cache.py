@@ -40,30 +40,33 @@ class CacheLayer:
 
         return False
 
-    def cached_value (self, prefix, key):
+    def cached_value (self, prefix, key, is_raw=False):
         """Returns the cached value or None."""
-        data = None
         try:
             filename = os.path.join (self.storage, f"{prefix}_{key}")
             with open(filename, "r",
                       encoding = "utf-8") as cache_file:
                 cached = cache_file.read()
-                data   = json.loads(cached)
-                self.log.debug ("Cache hit for %s.", key)
+                if is_raw:
+                    return cached
+                return json.loads (cached)
         except OSError:
             self.log.debug ("No cached response for %s.", key)
         except json.decoder.JSONDecodeError:
             self.log.error ("Possible cache corruption at %s.", filename)
 
-        return data
+        return None
 
-    def cache_value (self, prefix, key, value, query=None):
+    def cache_value (self, prefix, key, value, query=None, is_raw=False):
         """Procedure to store 'value' as a cache."""
         try:
             cache_filename = os.path.join (self.storage, f"{prefix}_{key}")
             cache_fd = os.open (cache_filename, os.O_WRONLY | os.O_CREAT, 0o600)
             with open(cache_fd, "w", encoding = "utf-8") as cache_file:
-                cache_file.write(json.dumps(value))
+                if is_raw:
+                    cache_file.write (value)
+                else:
+                    cache_file.write (json.dumps(value))
                 if os.name != 'nt':
                     os.fchmod (cache_fd, 0o400)
 
