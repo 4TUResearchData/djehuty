@@ -50,6 +50,12 @@ try:
 except (ImportError, ModuleNotFoundError):
     pass
 
+## Similarly, error handling for loading pyvips is done in 'ui'.
+try:
+    import pyvips
+except (OSError, ImportError, ModuleNotFoundError):
+    pass
+
 def R (uri_path, endpoint):  # pylint: disable=invalid-name
     """
     Short-hand for defining a route between a URI and its
@@ -410,6 +416,13 @@ class ApiServer:
             ## ----------------------------------------------------------------
             R("/v3/receive-from-ssi",                                            self.api_v3_receive_from_ssi),
             R("/v3/redirect-from-ssi/<container_uuid>/<token>",                  self.api_v3_redirect_from_ssi),
+
+            ## ----------------------------------------------------------------
+            ## INTERNATIONAL IMAGE INTEROPERABILITY FRAMEWORK
+            ## ----------------------------------------------------------------
+            R("/iiif/v3/<file_uuid>/<region>/<size>/<rotation>/<quality>.<image_format>", self.iiif_v3_image),
+            R("/iiif/v3/<file_uuid>",                                            self.iiif_v3_image_context_redirect),
+            R("/iiif/v3/<file_uuid>/info.json",                                  self.iiif_v3_image_context),
         ])
 
         ## Static resources and HTML templates.
@@ -9272,3 +9285,238 @@ class ApiServer:
                 parts = split_author_name(author['full_name'])
                 author['first_name'] = parts[0]
                 author['last_name' ] = parts[1]
+
+    ## ------------------------------------------------------------------------
+    ## IIIF
+    ## ------------------------------------------------------------------------
+
+    def iiif_v3_image_context_redirect (self, request, file_uuid):
+        """Implements /iiif/v3/<uuid>."""
+
+        if not self.enable_iiif:
+            return self.error_404 (request)
+
+        if not validator.is_valid_uuid (file_uuid):
+            return self.error_400 (request, "Invalid file UUID.", "InvalidFileUUID")
+
+        metadata = self.db.dataset_files (file_uuid = file_uuid)
+        if not metadata:
+            return self.error_404 (request)
+
+        return redirect (f"{self.base_url}/iiif/v3/{file_uuid}/info.json", code=303)
+
+    def iiif_v3_image_context (self, request, file_uuid):
+        """Implements /iiif/v3/<uuid>/info.json."""
+
+        if not self.enable_iiif:
+            return self.error_404 (request)
+
+        if not validator.is_valid_uuid (file_uuid):
+            return self.error_400 (request, "Invalid file UUID.", "InvalidFileUUID")
+
+        metadata = self.db.dataset_files (file_uuid = file_uuid)
+        if not metadata:
+            return self.error_404 (request)
+
+        try:
+            metadata = metadata[0]
+            input_filename = self.__filesystem_location (metadata)
+            image  = pyvips.Image.new_from_file (input_filename)
+            output = {
+                "@context":  "http://iiif.io/api/image/3/context.json",
+                "id":        f"{self.base_url}/iiif/v3/{file_uuid}",
+                "type":      "ImageService3",
+                "protocol":  "http://iiif.io/api/image",
+                "profile":   "level1",
+                "width":     image.width,
+                "height":    image.height,
+                "maxWidth":  image.width,                # Optional
+                "maxHeight": image.height,               # Optional
+                "maxArea":   image.width * image.height, # Optional
+                "extraFormats": ["jpg", "png", "tif", "webp"],
+                "extraFeatures": ["cors", "mirroring", "regionByPx",
+                                  "regionSquare", "rotationArbitrary",
+                                  "rotationBy90s"],
+                "sizes": [{ "width": image.width, "height": image.height }]
+            }
+            del image
+            response = self.response (json.dumps (output),
+                                      mimetype=('application/ld+json;profile='
+                                                '"http://iiif.io/api/image/3/'
+                                                'context.json"'))
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            return response
+        except IndexError:
+            self.log.error ("Unable to read metadata.")
+        except (KeyError, FileNotFoundError, UnidentifiedImageError):
+            self.log.error ("Unable to open image file %s.", file_uuid)
+
+        return self.error_500 ()
+
+    def iiif_v3_image (self, request, file_uuid, region, size, rotation, quality, image_format):
+        """Implements /iiif/v3/<uuid>/<region>/<size>/<rotation>/<quality>.<format>."""
+
+        if not self.enable_iiif:
+            return self.error_404 (request)
+
+        if not validator.is_valid_uuid (file_uuid):
+            return self.error_400 (request, "Invalid file UUID.", "InvalidFileUUID")
+
+        validation_errors = []
+        parameters = {
+            "region": region,
+            "size": size,
+            "rotation": rotation,
+            "quality": quality,
+            "image_format": image_format
+        }
+        supported_qualities = ["color", "gray", "bitonal", "default"]
+        supported_formats   = ["jpg", "png", "tif", "webp"]
+        quality = validator.options_value (parameters, "quality", supported_qualities,
+                                           required=True, error_list=validation_errors)
+
+        image_format = validator.options_value (parameters, "image_format", supported_formats,
+                                                required=True, error_list=validation_errors)
+
+        metadata = self.db.dataset_files (file_uuid = file_uuid)
+        if not metadata:
+            return self.error_404 (request)
+
+        metadata = metadata[0]
+        input_filename = self.__filesystem_location (metadata)
+        original  = pyvips.Image.new_from_file (input_filename)
+
+        # Region
+        output_region = { "x": 0, "y": 0, "w": original.width, "h": original.height }
+        if region == "square":
+            shortest = min (original.width, original.height)
+            output_region["w"] = shortest
+            output_region["h"] = shortest
+
+        elif region.startswith("pct:"):
+            # To-do: implement percentage-wise translation.
+            validation_errors.append ({
+                "field_name": "region",
+                "message": "Percentage-wise regions are not implemented."
+            })
+
+        # Attempt to parse the x,y,w,h format
+        if validator.index_exists (region, 255):
+            validation_errors.append ({
+                "field_name": "region",
+                "message": "The region is too long"
+            })
+        elif region not in ("full", "square"):
+            deconstructed = region.split (",")
+            if len(deconstructed) != 4:
+                validation_errors.append ({
+                    "field_name": "region",
+                    "message": "The region format should be 'x,y,w,h'."
+                })
+            else:
+                output_region = { "x": deconstructed[0], "y": deconstructed[1],
+                                  "w": deconstructed[2], "h": deconstructed[3] }
+
+        # Size
+        output_size = { "w": original.width, "h": original.height }
+        if size != "max" and "," not in size:
+            validation_errors.append ({
+                "field_name": "size",
+                "message": f"Unexpected value '{size}' for size."
+            })
+
+        if "," in size:
+            sizes = size.split(",")
+            if len (sizes) != 2:
+                validation_errors.append ({
+                    "field_name": "size",
+                    "message": "Expected a 'width,height' specification."
+                })
+
+            elif sizes[0].startswith("^"):
+                validation_errors.append ({
+                    "field_name": "size",
+                    "message": "Image scaling is not supported."
+                })
+            elif value_or (sizes, 0, "") == "" and parses_to_int (sizes[1]):
+                scale_factor = float(sizes[1]) / original.height
+                output_size = { "w": original.width * scale_factor, "h": int(sizes[1]) }
+            elif parses_to_int (sizes[0]) and value_or (sizes, 1, "") == "":
+                scale_factor = float(sizes[0]) / original.width
+                output_size = { "w": int(sizes[0]), "h": original.height * scale_factor }
+            elif parses_to_int (sizes[0]) and parses_to_int (sizes[1]):
+                output_size = { "w": int(sizes[0]), "h": int(sizes[1]) }
+
+        # Rotation
+        mirror      = (isinstance (rotation, str) and rotation[0] == "!")
+        try:
+            rotation    = int(rotation) if not mirror else int(rotation[1:])
+            if rotation < 0 or rotation > 360:
+                validation_errors.append ({
+                    "field_name": "rotation",
+                    "message": "Rotation must be a value between 0 and 360."
+                })
+        except ValueError:
+            return self.error_400 (request, "Rotation must be an integer.",
+                                   "InvalidRotationValue")
+
+        # Error reporting
+        if validation_errors:
+            return self.error_400_list (request, validation_errors)
+
+        # Serve from cache
+        # ---------------------------------------------------------------------
+        cache_key = self.db.cache.make_key ((f"{file_uuid}_{region}_{size}_"
+                                             f"{mirror}_{rotation}_"
+                                             f"{quality}_{image_format}"))
+        file_path = os.path.join (self.db.iiif_cache_storage, cache_key)
+        try:
+            response = send_file (file_path, request.environ, f"image/{image_format}",
+                                  as_attachment=False, download_name=None)
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            return response
+        except OSError:
+            pass
+
+        # Transform the input image to the output image
+        # ---------------------------------------------------------------------
+        output = None
+        try:
+            output = pyvips.Image.new_temp_file(format=f".{image_format}")
+            original.write(output)
+
+            output = output.crop (output_region["x"], output_region["y"],
+                                  output_region["w"], output_region["h"])
+            output = output.thumbnail_image (output_size["w"],
+                                             height = output_size["h"],
+                                             size = "force")
+            if mirror:
+                output = output.fliphor()
+            if rotation not in (0, 360):
+                output = output.similarity (angle=rotation)
+            if quality == "gray":
+                output = output.colourspace (pyvips.enums.Interpretation.B_W)
+
+            # The commonly used mimetype for TIFF is image/tiff.
+            if image_format == "tif":
+                image_format = "tiff"
+
+            target = pyvips.Target.new_to_file (file_path)
+            output.write_to_target (target, f".{image_format}")
+            response = send_file (file_path, request.environ, f"image/{image_format}",
+                              as_attachment=False, download_name=None)
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            return response
+        except FileNotFoundError:
+            self.log.error ("File download failed due to missing file: '%s'.", file_path)
+        except pyvips.error.Error as error:
+            if "is not a known file format" in str(error):
+                return self.error_400 (request,
+                                       (f"'{image_format}' is not a supported "
+                                        "image format. The following are "
+                                        f"supported: {supported_formats}."),
+                                       "InvalidImageFormat")
+            self.log.error ("Pyvips reported: %s", error)
+            return self.error_500 ()
+
+        return self.error_500 ()
