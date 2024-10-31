@@ -22,6 +22,16 @@ try:
 except (ImportError, ModuleNotFoundError):
     SAML2_DEPENDENCY_LOADED = False
 
+PYVIPS_ERROR_MESSAGE = None
+try:
+    import pyvips  # pylint: disable=unused-import
+    PYVIPS_DEPENDENCY_LOADED = True
+except (ImportError, ModuleNotFoundError):
+    PYVIPS_DEPENDENCY_LOADED = False
+except OSError as pyvips_oserror_message:
+    PYVIPS_DEPENDENCY_LOADED = False
+    PYVIPS_ERROR_MESSAGE = pyvips_oserror_message
+
 # The 'uwsgi' module only needs to be available when deploying using uwsgi.
 # To catch potential run-time problems early on in the situation that the
 # uwsgi module is required, we set UWSGI_DEPENDENCY_LOADED here without
@@ -708,6 +718,9 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
         server.allow_crawlers = read_boolean_value (xml_root, "allow-crawlers",
                                                     server.allow_crawlers, logger)
 
+        server.enable_iiif = read_boolean_value (xml_root, "enable-iiif",
+                                                 server.enable_iiif, logger)
+
         ssi_psk = config_value (xml_root, "ssi-psk")
         if ssi_psk is not None:
             ssi_psk = ssi_psk.replace(" ", "").replace("\n", "").replace("\r", "").replace("\t", "")
@@ -757,6 +770,12 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
             server.db.thumbnail_storage = thumbnails_root.text
         elif server.db.thumbnail_storage is None:
             server.db.thumbnail_storage = f"{server.db.storage}/thumbnails"
+
+        iiif_cache = xml_root.find ("iiif-cache-root")
+        if iiif_cache is not None:
+            server.db.iiif_cache_storage = iiif_cache.text
+        elif server.db.iiif_cache_storage is None:
+            server.db.iiif_cache_storage = f"{server.db.storage}/iiif"
 
         production_mode = xml_root.find ("production")
         if production_mode is not None:
@@ -1101,6 +1120,12 @@ def main (config_file=None, run_internal_server=True, initialize=True,
         if not server.add_static_root ("/thumbnails", server.db.thumbnail_storage):
             logger.error ("Failed to setup route for thumbnails.")
 
+        if server.db.iiif_cache_storage is not None and not inside_reload:
+            try:
+                os.makedirs (server.db.iiif_cache_storage, mode=0o700, exist_ok=True)
+            except PermissionError:
+                logger.error ("Cannot create %s directory.", server.db.iiif_cache_storage)
+
         server.db.setup_sparql_endpoint ()
         server.db.disable_collaboration = server.disable_collaboration
 
@@ -1145,6 +1170,15 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                 logger.info ("Handle registration is disabled.")
             else:
                 logger.info ("Handle prefix:           %s", server.handle_prefix)
+
+            if server.enable_iiif:
+                if not PYVIPS_DEPENDENCY_LOADED:
+                    logger.error ("Dependency 'pyvips' is required for IIIF.")
+                    if PYVIPS_ERROR_MESSAGE is not None:
+                        logging.error ("Loading 'pyvips' failed with:\n---\n%s\n---",
+                                       PYVIPS_ERROR_MESSAGE)
+                    raise DependencyNotAvailable
+                logging.getLogger('pyvips').setLevel(logging.ERROR)
 
             if server.identity_provider is not None:
                 logger.info ("Using %s as identity provider.",

@@ -395,6 +395,22 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{index}                   & The index to use when registering a handle.\\
 \end{tabular}
 
+\section{Configuring IIIF support}
+
+  When publishing images, \t{djehuty} can enable the IIIF Image API for the
+  images. It uses \t{libvips} and \t{pyvips} under the hood to perform image
+  manipulation.  The following parameters can be configured:
+
+\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
+  \ifdefined\HCode
+  \textbf{Option}             & \textbf{Description}\\
+  \t{enable-iiif}             & Enable support for the IIIF image API.  This
+                                requires the \t{pyvips} package to be available
+                                in the run-time environment.\\
+  \t{iiif-cache-root}         & The directory to store the output of IIIF Image
+                                API requests to avoid re-computing the image.\\
+\end{tabular}
+
 \section{Customizing looks}
 
   With the following options, the instance can be branded as necessary.

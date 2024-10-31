@@ -32,6 +32,7 @@ class SparqlInterface:
         self.privileges  = {}
         self.thumbnail_storage = None
         self.profile_images_storage = None
+        self.iiif_cache_storage = None
         self.log         = logging.getLogger(__name__)
         self.cache       = cache.CacheLayer(None)
         self.jinja       = Environment(loader = FileSystemLoader(

@@ -83,6 +83,7 @@ class ApiServer:
         self.show_science_categories = True
         self.show_latest_datasets = True
         self.disable_2fa      = False
+        self.enable_iiif      = False
         self.disable_collaboration = False
         self.automatic_login_email = None
 
