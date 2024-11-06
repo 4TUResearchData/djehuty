@@ -403,14 +403,6 @@ def format_dataset_details_record (dataset, authors, files, custom_fields,
         "agreed_to_publish": bool(conv.value_or_none(dataset, "agreed_to_publish"))
     }
 
-def format_dataset_embargo_option_record (record):
-    """Record formatter for embargo options."""
-    return {
-        "id":                conv.value_or_none (record, "id"),
-        "type":              conv.value_or_none (record, "type"),
-        "ip_name":           conv.value_or_none (record, "ip_name")
-    }
-
 def format_dataset_embargo_record (dataset):
     """Record formatter for embargos."""
 

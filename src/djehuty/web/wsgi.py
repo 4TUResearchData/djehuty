@@ -3,7 +3,6 @@
 from datetime import date, datetime, timedelta
 from urllib.parse import quote, unquote
 from io import StringIO
-import os.path
 import os
 import shutil
 import tempfile
@@ -1532,12 +1531,6 @@ class ApiServer:
         """Procedure to respond with HTTP 201."""
         output = self.response (json.dumps(body))
         output.status_code = 201
-        return output
-
-    def respond_202 (self):
-        """Procedure to respond with HTTP 202."""
-        output = Response("", 202, {})
-        output.headers["Server"] = f"{self.site_name} API"
         return output
 
     def respond_204 (self):
