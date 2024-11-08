@@ -48,6 +48,7 @@ class SparqlInterface:
         self.store          = None
         self.disable_collaboration = True
         self.depositing_domain = None
+        self.delay_inserting_log_entries = False
 
     def setup_sparql_endpoint (self):
         """Procedure to be called after setting the 'endpoint' members."""
@@ -251,10 +252,13 @@ class SparqlInterface:
 
         return results
 
-    def __insert_query_for_graph (self, graph):
+    def __insert_query_for_graph (self, graph, only_log_query=False):
         if self.enable_query_audit_log:
             query = rdf.insert_query (self.state_graph, graph)
-            self.__log_query (query, "Query Audit Log")
+            if only_log_query:
+                self.__log_query (query, "Query Audit Log (delayed)")
+            else:
+                self.__log_query (query, "Query Audit Log")
             return query
         return rdf.insert_query (self.state_graph, graph)
 
@@ -1853,7 +1857,7 @@ class SparqlInterface:
         rdf.add (graph, entry_uri, rdf.DJHT["created"], created_date, XSD.dateTime)
         rdf.add (graph, entry_uri, rdf.DJHT[f"{item_type}"], item_uri, "url")
         rdf.add (graph, entry_uri, rdf.DJHT["event_type"], rdf.DJHT[f"{type_suffix}"], "url")
-        if self.add_triples_from_graph (graph):
+        if self.add_triples_from_graph (graph, self.delay_inserting_log_entries):
             return True
 
         return False
@@ -3461,7 +3465,7 @@ class SparqlInterface:
                   f'<{rdf.DJHT["initialized"]}> "true"^^<{XSD.boolean}> }} }}'))
         return self.__run_query (query)
 
-    def add_triples_from_graph (self, graph):
+    def add_triples_from_graph (self, graph, only_log_query=False):
         """Inserts triples from GRAPH into the state graph."""
 
         ## There's an upper limit to how many triples one can add in a single
@@ -3476,8 +3480,8 @@ class SparqlInterface:
             counter += 1
             insertable_graph.add ((subject, predicate, noun))
             if counter >= 250:
-                query = self.__insert_query_for_graph (insertable_graph)
-                if not self.__run_query (query):
+                query = self.__insert_query_for_graph (insertable_graph, only_log_query)
+                if not only_log_query and not self.__run_query (query):
                     processing_complete = False
                     break
 
@@ -3485,8 +3489,8 @@ class SparqlInterface:
                 insertable_graph = Graph()
                 counter = 0
 
-        query = self.__insert_query_for_graph (insertable_graph)
-        if not self.__run_query (query):
+        query = self.__insert_query_for_graph (insertable_graph, only_log_query)
+        if not only_log_query and not self.__run_query (query):
             processing_complete = False
 
         if processing_complete:

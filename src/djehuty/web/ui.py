@@ -721,6 +721,9 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
         server.enable_iiif = read_boolean_value (xml_root, "enable-iiif",
                                                  server.enable_iiif, logger)
 
+        server.db.delay_inserting_log_entries = read_boolean_value (xml_root, "delay-inserting-log-entries",
+                                                                    server.db.delay_inserting_log_entries, logger)
+
         ssi_psk = config_value (xml_root, "ssi-psk")
         if ssi_psk is not None:
             ssi_psk = ssi_psk.replace(" ", "").replace("\n", "").replace("\r", "").replace("\t", "")
