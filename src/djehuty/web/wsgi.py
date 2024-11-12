@@ -9312,8 +9312,8 @@ class ApiServer:
             return self.error_404 (request)
 
         try:
-            metadata = metadata[0]
-            input_filename = self.__filesystem_location (metadata)
+            image_info = metadata[0]
+            input_filename = self.__filesystem_location (image_info)
             image  = pyvips.Image.new_from_file (input_filename)
             output = {
                 "@context":  "http://iiif.io/api/image/3/context.json",
@@ -9343,6 +9343,17 @@ class ApiServer:
             self.log.error ("Unable to read metadata.")
         except (KeyError, FileNotFoundError, UnidentifiedImageError):
             self.log.error ("Unable to open image file %s.", file_uuid)
+        except pyvips.error.Error as error:
+            if "is not a known file format" in str(error):
+                supported_formats   = ["jpg", "png", "tif", "webp"]
+                filename = metadata[0]["name"]
+                return self.error_400 (request,
+                                       (f"'{filename}' is not a supported "
+                                        "image. The following formats are "
+                                        f"supported: {supported_formats}."),
+                                       "InvalidImageFormat")
+            self.log.error ("Pyvips reported: %s", error)
+            return self.error_500 ()
 
         return self.error_500 ()
 
