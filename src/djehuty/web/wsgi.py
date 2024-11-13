@@ -7240,15 +7240,8 @@ class ApiServer:
                 "field_name": "categories",
                 "message": "Please specify at least one category."})
 
-        ## resource_doi and resource_title are not required, but if one of
-        ## the two is provided, the other must be provided as well.
         resource_doi =   validator.string_value  (collection, "resource_doi",   0, 255,   False, errors)
         resource_title = validator.string_value  (collection, "resource_title", 0, 255,   False, errors)
-
-        if resource_doi is not None:
-            validator.string_value  (collection, "resource_title", 0, 255,   True, errors)
-        if resource_title is not None:
-            validator.string_value  (collection, "resource_doi",   0, 255,   True, errors)
 
         if errors:
             return self.error_400_list (request, errors)
@@ -7363,16 +7356,8 @@ class ApiServer:
                     "field_name": "categories",
                     "message": "Please specify at least one category."})
 
-            ## resource_doi and resource_title are not required, but if one of
-            ## the two is provided, the other must be provided as well.
             resource_doi =   validator.string_value  (record, "resource_doi",   0, 255,   False, errors)
             resource_title = validator.string_value  (record, "resource_title", 0, 255,   False, errors)
-
-            if resource_doi is not None:
-                validator.string_value  (record, "resource_title", 0, 255,   True, errors)
-            if resource_title is not None:
-                validator.string_value  (record, "resource_doi",   0, 255,   True, errors)
-
             license_id = validator.integer_value (record, "license_id", 0, pow(2, 63), True, errors)
             license_url = self.db.license_url_by_id (license_id)
             parameters = {
