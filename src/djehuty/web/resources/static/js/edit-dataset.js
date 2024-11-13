@@ -1078,13 +1078,13 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
             add_reference (dataset_uuid);
         });
          jQuery("#collaborators").on("keypress", function(e){
-            if(e.which == 13){
+            if (e.which == 13) {
                 add_collaborator(dataset_uuid, permissions.metadata_edit);
             }
         });
 
         jQuery("#collaborators").on("keypress", function(e){
-            if(e.which == 13){
+            if (e.which == 13) {
                 update_collaborator(dataset_uuid, permissions.metadata_edit);
             }
         });

@@ -127,6 +127,11 @@ def format_codemeta_record (record, git_url, tags, authors):
             "embargoDate": conv.value_or_none(record, "embargo_until_date")
         }
 
+    # Strip the HTML tags from the description.
+    description = conv.value_or_none (record, "description")
+    if description:
+        description = conv.html_to_plaintext (description, True)
+
     return {
         "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
         "@type": "SoftwareSourceCode",
@@ -137,7 +142,7 @@ def format_codemeta_record (record, git_url, tags, authors):
         "datePublished": conv.value_or_none(record, "published_date"),
         "dateModified": conv.value_or_none(record, "modified_date"),
         "identifier": conv.value_or_none(record, "doi"),
-        "description": conv.value_or_none(record, "description"),
+        "description": description,
         "keywords": list (map (format_tag_record, tags)),
         "author": list (map (format_codemeta_author_record, authors))
     }
@@ -396,14 +401,6 @@ def format_dataset_details_record (dataset, authors, files, custom_fields,
         "resource_doi":      conv.value_or(dataset, "resource_doi", ""),
         "agreed_to_deposit_agreement": bool(conv.value_or_none (dataset, "agreed_to_deposit_agreement")),
         "agreed_to_publish": bool(conv.value_or_none(dataset, "agreed_to_publish"))
-    }
-
-def format_dataset_embargo_option_record (record):
-    """Record formatter for embargo options."""
-    return {
-        "id":                conv.value_or_none (record, "id"),
-        "type":              conv.value_or_none (record, "type"),
-        "ip_name":           conv.value_or_none (record, "ip_name")
     }
 
 def format_dataset_embargo_record (dataset):

@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-<h1>Overview of 4TU.ResearchData</h1>
+<h1>Overview of {{site_name}}</h1>
 {% for category in categories: %}
 <h2>{{category.title}}</h2>
 {% for item in category.articles: %}

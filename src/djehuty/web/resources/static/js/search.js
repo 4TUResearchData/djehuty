@@ -222,7 +222,7 @@ function toggle_view_mode(mode) {
 }
 
 function toggle_sort_by(sort_by) {
-    if (sort_by !== "title" && sort_by !== "date") {
+    if (!sort_by.startsWith("title_") && !sort_by.startsWith("date_")) {
         return;
     }
 
@@ -859,14 +859,11 @@ function load_search_preferences() {
     if ("sort_by" in all_preferences) {
         toggle_sort_by(all_preferences["sort_by"]);
     } else {
-        toggle_sort_by("date");
+        toggle_sort_by("date_dsc");
     }
 }
 
 function sort_search_results(sort_by) {
-    //
-    // Sort the list view
-    //
     let search_results_list = jQuery(".corporate-identity-table");
     // the first <tr> is the header row, so find the second <tr>
     let list_items = search_results_list.find("tr:gt(0)").get();
@@ -877,12 +874,12 @@ function sort_search_results(sort_by) {
             let keyA = null;
             let keyB = null;
 
-            if (sort_by === "date") {
+            if (sort_by.startsWith("date_")) {
                 keyA = jQuery(a).children("td").eq(1).text();
                 keyB = jQuery(b).children("td").eq(1).text();
                 keyA = new Date(keyA);
                 keyB = new Date(keyB);
-            } else if (sort_by === "title") {
+            } else if (sort_by.startsWith("title_")) {
                 keyA = jQuery(a).children("td").eq(0).text();
                 keyB = jQuery(b).children("td").eq(0).text();
                 // Sometimes, the title has leading/trailing spaces.
@@ -894,6 +891,9 @@ function sort_search_results(sort_by) {
             return 0;
         });
 
+        if (sort_by.endsWith("_dsc")) {
+            list_items.reverse();
+        }
         jQuery.each(list_items, function(i, row) {
             search_results_list.append(row);
         });
@@ -910,14 +910,14 @@ function sort_search_results(sort_by) {
             let keyA = null;
             let keyB = null;
 
-            if (sort_by === "date") {
+            if (sort_by.startsWith("date_")) {
                 keyA = jQuery(a).children("div").eq(2).text();
                 keyB = jQuery(b).children("div").eq(2).text();
                 keyA = keyA.split(" ").pop();
                 keyB = keyB.split(" ").pop();
                 keyA = new Date(keyA);
                 keyB = new Date(keyB);
-            } else if (sort_by === "title") {
+            } else if (sort_by.startsWith("title_")) {
                 keyA = jQuery(a).children("div").eq(1).text();
                 keyB = jQuery(b).children("div").eq(1).text();
                 // Sometimes, the title has leading/trailing spaces.
@@ -929,6 +929,9 @@ function sort_search_results(sort_by) {
             return 0;
         });
 
+        if (sort_by.endsWith("_dsc")) {
+            tile_items.reverse();
+        }
         jQuery.each(tile_items, function(i, tile) {
             search_results_tiles.append(tile);
         });

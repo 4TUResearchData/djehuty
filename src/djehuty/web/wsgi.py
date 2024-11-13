@@ -3,7 +3,6 @@
 from datetime import date, datetime, timedelta
 from urllib.parse import quote, unquote
 from io import StringIO
-import os.path
 import os
 import shutil
 import tempfile
@@ -50,6 +49,12 @@ try:
 except (ImportError, ModuleNotFoundError):
     pass
 
+## Similarly, error handling for loading pyvips is done in 'ui'.
+try:
+    import pyvips
+except (OSError, ImportError, ModuleNotFoundError):
+    pass
+
 def R (uri_path, endpoint):  # pylint: disable=invalid-name
     """
     Short-hand for defining a route between a URI and its
@@ -83,6 +88,7 @@ class ApiServer:
         self.show_science_categories = True
         self.show_latest_datasets = True
         self.disable_2fa      = False
+        self.enable_iiif      = False
         self.disable_collaboration = False
         self.automatic_login_email = None
 
@@ -409,6 +415,13 @@ class ApiServer:
             ## ----------------------------------------------------------------
             R("/v3/receive-from-ssi",                                            self.api_v3_receive_from_ssi),
             R("/v3/redirect-from-ssi/<container_uuid>/<token>",                  self.api_v3_redirect_from_ssi),
+
+            ## ----------------------------------------------------------------
+            ## INTERNATIONAL IMAGE INTEROPERABILITY FRAMEWORK
+            ## ----------------------------------------------------------------
+            R("/iiif/v3/<file_uuid>/<region>/<size>/<rotation>/<quality>.<image_format>", self.iiif_v3_image),
+            R("/iiif/v3/<file_uuid>",                                            self.iiif_v3_image_context_redirect),
+            R("/iiif/v3/<file_uuid>/info.json",                                  self.iiif_v3_image_context),
         ])
 
         ## Static resources and HTML templates.
@@ -710,7 +723,7 @@ class ApiServer:
     def error_400_list (self, request, errors):
         """Procedure to respond with HTTP 400 with a list of error messages."""
         response = None
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "400.html", message=errors)
         else:
             response = self.response (json.dumps(errors))
@@ -727,7 +740,7 @@ class ApiServer:
     def error_403 (self, request):
         """Procedure to respond with HTTP 403."""
         response = None
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "403.html")
         else:
             response = self.response (json.dumps({
@@ -739,7 +752,7 @@ class ApiServer:
     def error_404 (self, request):
         """Procedure to respond with HTTP 404."""
         response = None
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "404.html")
         else:
             response = self.response (json.dumps({
@@ -765,7 +778,7 @@ class ApiServer:
 
     def error_410 (self, request):
         """Procedure to respond with HTTP 410."""
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "410.html")
         else:
             response = self.response (json.dumps({
@@ -808,7 +821,7 @@ class ApiServer:
 
     def error_authorization_failed (self, request):
         """Procedure to handle authorization failures."""
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "403.html")
         else:
             response = self.response (json.dumps({
@@ -856,7 +869,7 @@ class ApiServer:
         """Returns a self.response object with some tweaks."""
 
         output                   = Response(content, mimetype=mimetype)
-        output.headers["Server"] = "4TU.ResearchData API"
+        output.headers["Server"] = f"{self.site_name} API"
         return output
 
     ## GENERAL HELPERS
@@ -1040,7 +1053,7 @@ class ApiServer:
         validator.boolean_value (record, "is_latest")
 
         try:
-            validator.string_value (record, "search_for",      maximum_length=1024)
+            validator.string_value (record, "search_for", maximum_length=1024, strip_html=False)
         except validator.InvalidValueType:
             validator.array_value  (record, "search_for" )
 
@@ -1314,24 +1327,17 @@ class ApiServer:
             record["domain"] = None
             record["group_uuid"] = None
 
-            self.log.info ("Checking domain")
             if self.saml_attribute_groups is not None:
-                self.log.info ("saml_attribute_groups is not None")
                 groups = attributes[self.saml_attribute_groups]
-                self.log.info ("groups = %s", groups)
                 for group in groups:
-                    self.log.info ("group = %s", group)
                     prefix = f"{self.saml_attribute_group_prefix}:"
                     if group.startswith(prefix):
                         domain = group[len(prefix):].replace("_", ".")
-                        self.log.info ("Checking whether '%s' group exists.", domain)
                         group = self.db.group (association=domain)
                         if group:
-                            self.log.info ("Association found")
                             record["domain"] = domain
                             record["group_uuid"] = group[0]["uuid"]
                             break
-                        self.log.info ("self.db.group (association = \"%s\") => F", domain)
 
         except (KeyError, IndexError):
             self.log.error ("Didn't receive expected fields in SAMLResponse.")
@@ -1341,6 +1347,10 @@ class ApiServer:
             self.log.error ("Didn't receive required fields in SAMLResponse.")
             self.log.error ("Received attributes: %s", attributes)
             return None
+
+        # Fall-back to determining the domain based on the e-mail address.
+        if record["domain"] is None:
+            record["domain"] = record["email"].partition("@")[2]
 
         return record
 
@@ -1382,11 +1392,12 @@ class ApiServer:
             global_match = "*/*" in acceptable
             return global_match or exact_match
         except KeyError:
-            return False
+            # No "Accept" header can be treated as equivalent to "Accept: */*".
+            return not strict
 
-    def accepts_html (self, request):
+    def accepts_html (self, request, strict=False):
         """Procedure to check whether the client accepts HTML."""
-        return self.accepts_content_type (request, "text/html")
+        return self.accepts_content_type (request, "text/html", strict=strict)
 
     def accepts_plain_text (self, request):
         """Procedure to check whether the client accepts plain text."""
@@ -1522,22 +1533,16 @@ class ApiServer:
         output.status_code = 201
         return output
 
-    def respond_202 (self):
-        """Procedure to respond with HTTP 202."""
-        output = Response("", 202, {})
-        output.headers["Server"] = "4TU.ResearchData API"
-        return output
-
     def respond_204 (self):
         """Procedure to respond with HTTP 204."""
         output = Response("", 204, {})
-        output.headers["Server"] = "4TU.ResearchData API"
+        output.headers["Server"] = f"{self.site_name} API"
         return output
 
     def respond_205 (self):
         """Procedure to respond with HTTP 205."""
         output = Response("", 205, {})
-        output.headers["Server"] = "4TU.ResearchData API"
+        output.headers["Server"] = f"{self.site_name} API"
         return output
 
     ## API CALLS
@@ -1545,7 +1550,7 @@ class ApiServer:
 
     def ui_redirect_to_home (self, request):
         """Implements /."""
-        if self.accepts_html (request):
+        if self.accepts_html (request, strict=True):
             return redirect ("/", code=301)
 
         return self.response (json.dumps({ "status": "OK" }))
@@ -1617,6 +1622,12 @@ class ApiServer:
         return self.error_403 (request)
 
     def __send_sram_collaboration_invite (self, saml_record):
+
+        if (self.sram_organization_api_token is None or
+            self.sram_collaboration_id is None or
+            "email" not in saml_record):
+            return None
+
         invitation_expiry = datetime.now() + timedelta(days=2)
         headers = {
             "Accept": "application/json",
@@ -1635,19 +1646,26 @@ class ApiServer:
                                  timeout = 60,
                                  json    = json_data)
         if response.status_code == 201:
-            self.log.info ("Sent invite to '%s' for SRAM collaboration membership.", saml_record["email"])
+            self.log.info ("Sent invite to '%s' for SRAM collaboration membership.",
+                           saml_record["email"])
         elif response.status_code == 401:
             self.log.warning ("Missing Authorization for SRAM API.")
         elif response.status_code == 403:
             self.log.warning ("SRAM API authentication failed.")
         elif response.status_code == 404:
             self.log.warning ("SRAM API endpoint not found.")
-        elif response.status_code == 400:
-            self.log.info ("Invite already sent to SRAM for '%s'.", saml_record["email"])
         else:
             self.log.info ("SRAM unexpectedly responded with: %s", response.status_code)
 
+        return None
+
     def __already_in_sram_collaboration (self, saml_record):
+
+        if (self.sram_organization_api_token is None or
+            self.sram_collaboration_id is None or
+            "email" not in saml_record):
+            return None
+
         headers = {
             "Accept": "application/json",
             "Authorization": f"Bearer {self.sram_organization_api_token}",
@@ -1777,14 +1795,14 @@ class ApiServer:
                                                                           account_uuid)
 
                             # The supervisor privileges are defined in the XML configuration.
-                            if (saml_record["group_uuid"] is not None and
+                            if (value_or_none (saml_record, "group_uuid") is not None and
                                 self.db.insert_group_member (saml_record["group_uuid"],
                                                              account_uuid, False)):
                                 self.log.info ("Added account:%s to group group:%s.",
                                                account_uuid, saml_record["group_uuid"])
                             else:
                                 self.log.info ("Failed to add account:%s to group group:%s.",
-                                               account_uuid, saml_record["group_uuid"])
+                                               account_uuid, value_or_none (saml_record, "group_uuid"))
 
                         self.log.access ("Account %s logged in via SAML.", account_uuid) #  pylint: disable=no-member
                     else:
@@ -1807,7 +1825,7 @@ class ApiServer:
                                 self.__send_sram_collaboration_invite (saml_record)
                         except (TypeError, KeyError) as error:
                             self.log.warning ("An error (%s) occurred when sending invite to %s.",
-                                              error, saml_record["email"])
+                                              error, value_or_none (saml_record, "email"))
                         except requests.exceptions.ConnectionError:
                             self.log.error ("Failed to send invite through SRAM due to a connection error.")
 
@@ -2073,6 +2091,7 @@ class ApiServer:
         account_uuid, error_response = self.__depositor_account_uuid (request)
         if error_response is not None:
             return error_response
+
         account = self.db.account_by_uuid (account_uuid)
         container_uuid, dataset_uuid = self.db.insert_dataset(title = "Untitled item",
                                                               account_uuid = account_uuid,
@@ -2649,15 +2668,15 @@ class ApiServer:
         if isinstance(account_uuid, Response):
             return account_uuid
 
-        if (not validator.is_valid_uuid(dataset_uuid) or
-                not validator.is_valid_uuid(collaborator_uuid)):
-            return self.error_404(request)
+        if (not validator.is_valid_uuid (dataset_uuid) or
+                not validator.is_valid_uuid (collaborator_uuid)):
+            return self.error_404 (request)
         try:
-            dataset = self.db.datasets(container_uuid=dataset_uuid,
-                                       account_uuid=account_uuid,
-                                       is_published=False,
-                                       is_latest=None,
-                                       limit=1)[0]
+            dataset = self.db.datasets (container_uuid=dataset_uuid,
+                                        account_uuid=account_uuid,
+                                        is_published=False,
+                                        is_latest=None,
+                                        limit=1)[0]
 
             _, error_response = self.__needs_collaborative_permissions(
                 account_uuid, request, "dataset", dataset, "metadata_edit")
@@ -2670,21 +2689,22 @@ class ApiServer:
                     return self.error_403 (request)
 
         except IndexError:
-            pass
+            return self.error_403 (request)
 
         if request.method == "PUT":
             parameters = request.get_json()
             metadata = parameters["metadata"]
             data = parameters["data"]
             if not self.db.update_collaborator (dataset["uuid"],
-                                            collaborator_uuid,
-                                            metadata["read"],
-                                            metadata["edit"],
-                                            False,
-                                            data["read"],
-                                            data["edit"],
-                                            data["remove"]):
-                self.log.error("Could not update permissions for collaborator %s in dataset %s", collaborator_uuid, dataset["uuid"])
+                                                collaborator_uuid,
+                                                metadata["read"],
+                                                metadata["edit"],
+                                                False,
+                                                data["read"],
+                                                data["edit"],
+                                                data["remove"]):
+                self.log.error ("Could not update permissions for collaborator:%s in dataset:%s",
+                                collaborator_uuid, dataset["uuid"])
                 return self.error_500()
 
             return self.respond_204()
@@ -2710,8 +2730,8 @@ class ApiServer:
 
         try:
             parameters = request.get_json()
-            search_for = validator.string_value (parameters, "search_for", 0, 32, required=True)
-            exclude = validator.array_value(parameters, "exclude", required=False)
+            search_for = validator.string_value (parameters, "search_for", 0, 32, required=True, strip_html=False)
+            exclude = validator.array_value (parameters, "exclude", required=False)
             accounts   = self.db.accounts (search_for=search_for, limit=5)
             for index,_ in enumerate(accounts):
                 account = accounts[index]
@@ -3304,7 +3324,7 @@ class ApiServer:
             try:
                 validator.string_value (record, "email", 5, 255, False)
                 validator.options_value (record, "type", ["bug", "missing", "other"], True)
-                validator.string_value (record, "description", 10, 4096, True)
+                validator.string_value (record, "description", 10, 4096, True, strip_html=False)
             except validator.ValidationException as error:
                 email = self.__email_from_request (request)
                 return self.__render_template (request, "feedback.html",
@@ -3609,7 +3629,7 @@ class ApiServer:
             name       = validator.string_value (parameters, "name", required=True)
             dataset_id = validator.string_value (parameters, "dataset_id", required=True)
             version    = validator.string_value (parameters, "version", required=True)
-            reason     = validator.string_value (parameters, "reason", 0, 10000, required=True)
+            reason     = validator.string_value (parameters, "reason", 0, 10000, required=True, strip_html=False)
 
             dataset = self.db.datasets (container_uuid=dataset_id, version=version)[0]
 
@@ -4066,8 +4086,13 @@ class ApiServer:
         try:
             file_paths = []
             for file_info in metadata:
+                file_path = self.__filesystem_location (file_info)
+                if file_path is None:
+                    self.log.error ("Excluding missing file %s in ZIP of %s.",
+                                    file_info["name"], dataset_id)
+                    continue
                 file_paths.append ({
-                    "fs": self.__filesystem_location (file_info),
+                    "fs": file_path,
                     "n":  file_info["name"]
                 })
 
@@ -4146,7 +4171,7 @@ class ApiServer:
             return account_uuid
 
         ## Our API only contains data from 4TU.ResearchData.
-        return self.response (json.dumps({ "id": 898, "name": "4TU.ResearchData" }))
+        return self.response (json.dumps({ "id": 898, "name": self.site_name }))
 
     def api_private_institution_accounts (self, request):
         """Implements /v2/account/institution/accounts."""
@@ -4468,7 +4493,7 @@ class ApiServer:
                 container_uuid, _ = self.db.insert_dataset (
                     title          = validator.string_value  (record, "title",          3, 1000,                   True),
                     account_uuid     = account_uuid,
-                    description    = validator.string_value  (record, "description",    0, 10000,                  False),
+                    description    = validator.string_value  (record, "description",    0, 10000, False, strip_html=False),
                     tags           = tags,
                     references     = validator.array_value   (record, "references",                                False),
                     categories     = validator.array_value   (record, "categories",                                False),
@@ -4596,7 +4621,7 @@ class ApiServer:
                 result = self.db.update_dataset (dataset["uuid"],
                     account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
-                    description     = validator.string_value  (record, "description",    0, 10000),
+                    description     = validator.string_value  (record, "description",    0, 10000, strip_html=False),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
                     resource_title  = validator.string_value  (record, "resource_title", 0, 255),
                     license_url     = license_url,
@@ -4617,13 +4642,13 @@ class ApiServer:
                     is_embargoed    = is_embargoed,
                     is_restricted   = is_restricted,
                     is_metadata_record = validator.boolean_value (record, "is_metadata_record", when_none=False),
-                    metadata_reason = validator.string_value  (record, "metadata_reason",  0, 512),
+                    metadata_reason = validator.string_value  (record, "metadata_reason",  0, 512, strip_html=False),
                     embargo_until_date = validator.date_value (record, "embargo_until_date",
                                                                is_temporary_embargo),
                     embargo_type    = validator.options_value (record, "embargo_type", validator.embargo_types),
                     embargo_title   = validator.string_value  (record, "embargo_title", 0, 1000),
-                    embargo_reason  = validator.string_value  (record, "embargo_reason", 0, 10000),
-                    eula            = validator.string_value  (record, "eula", 0, 50000),
+                    embargo_reason  = validator.string_value  (record, "embargo_reason", 0, 10000, strip_html=False),
+                    eula            = validator.string_value  (record, "eula", 0, 50000, strip_html=False),
                     defined_type_name = defined_type_name,
                     defined_type    = defined_type,
                     git_repository_name = validator.string_value  (record, "git_repository_name",  0, 255),
@@ -5750,7 +5775,7 @@ class ApiServer:
                 doi             = validator.string_value (parameters, "doi", 0, 255),
                 handle          = validator.string_value (parameters, "handle", 0, 255),
                 order           = validator.string_value (parameters, "order", 0, 255),
-                search_for      = validator.string_value (parameters, "search_for", 0, 512),
+                search_for      = validator.string_value (parameters, "search_for", 0, 512, strip_html=False),
                 limit           = limit,
                 offset          = offset,
                 order_direction = validator.order_direction (parameters, "order_direction"),
@@ -5940,7 +5965,7 @@ class ApiServer:
                     account_uuid            = account_uuid,
                     funding                 = validator.string_value  (record, "funding",          0, 255,        False),
                     funding_list            = validator.array_value   (record, "funding_list",                    False),
-                    description             = validator.string_value  (record, "description",      0, 10000,      False),
+                    description             = validator.string_value  (record, "description",      0, 10000,      False, strip_html=False),
                     datasets                = validator.array_value   (record, "articles",                        False),
                     authors                 = validator.array_value   (record, "authors",                         False),
                     categories              = validator.array_value   (record, "categories",                      False),
@@ -6014,7 +6039,7 @@ class ApiServer:
                                                                  is_published = False)
                 result = self.db.update_collection (collection["uuid"], account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
-                    description     = validator.string_value  (record, "description",    0, 10000),
+                    description     = validator.string_value  (record, "description",    0, 10000, strip_html=False),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
                     resource_title  = validator.string_value  (record, "resource_title", 0, 255),
                     group_id        = validator.integer_value (record, "group_id",       0, pow(2, 63)),
@@ -6679,7 +6704,7 @@ class ApiServer:
             validator.integer_value  (record, "item_type")
             validator.string_value   (record, "doi",             maximum_length=255)
             validator.string_value   (record, "handle",          maximum_length=255)
-            validator.string_value   (record, "search_for",      maximum_length=1024)
+            validator.string_value   (record, "search_for", maximum_length=1024, strip_html=False)
             validator.boolean_value  (record, "is_latest")
 
             if record["groups"] is not None:
@@ -7215,15 +7240,8 @@ class ApiServer:
                 "field_name": "categories",
                 "message": "Please specify at least one category."})
 
-        ## resource_doi and resource_title are not required, but if one of
-        ## the two is provided, the other must be provided as well.
         resource_doi =   validator.string_value  (collection, "resource_doi",   0, 255,   False, errors)
         resource_title = validator.string_value  (collection, "resource_title", 0, 255,   False, errors)
-
-        if resource_doi is not None:
-            validator.string_value  (collection, "resource_title", 0, 255,   True, errors)
-        if resource_title is not None:
-            validator.string_value  (collection, "resource_doi",   0, 255,   True, errors)
 
         if errors:
             return self.error_400_list (request, errors)
@@ -7338,23 +7356,15 @@ class ApiServer:
                     "field_name": "categories",
                     "message": "Please specify at least one category."})
 
-            ## resource_doi and resource_title are not required, but if one of
-            ## the two is provided, the other must be provided as well.
             resource_doi =   validator.string_value  (record, "resource_doi",   0, 255,   False, errors)
             resource_title = validator.string_value  (record, "resource_title", 0, 255,   False, errors)
-
-            if resource_doi is not None:
-                validator.string_value  (record, "resource_title", 0, 255,   True, errors)
-            if resource_title is not None:
-                validator.string_value  (record, "resource_doi",   0, 255,   True, errors)
-
             license_id = validator.integer_value (record, "license_id", 0, pow(2, 63), True, errors)
             license_url = self.db.license_url_by_id (license_id)
             parameters = {
                 "dataset_uuid":       dataset["uuid"],
                 "account_uuid":       account_uuid,
                 "title":              validator.string_value  (record, "title",          3, 1000,  True, errors),
-                "description":        validator.string_value  (record, "description",    0, 10000, True, errors),
+                "description":        validator.string_value  (record, "description",    0, 10000, True, errors, strip_html=False),
                 "resource_doi":       resource_doi,
                 "resource_title":     resource_title,
                 "license_url":        license_url,
@@ -7375,12 +7385,12 @@ class ApiServer:
                 "is_embargoed":       is_embargoed,
                 "is_restricted":      is_restricted,
                 "is_metadata_record": validator.boolean_value (record, "is_metadata_record", when_none=False),
-                "metadata_reason":    validator.string_value  (record, "metadata_reason",  0, 512),
+                "metadata_reason":    validator.string_value  (record, "metadata_reason",  0, 512, strip_html=False),
                 "embargo_until_date": validator.date_value    (record, "embargo_until_date", is_temporary_embargo, errors),
                 "embargo_type":       validator.options_value (record, "embargo_type", validator.embargo_types, is_temporary_embargo, errors),
                 "embargo_title":      validator.string_value  (record, "embargo_title", 0, 1000, is_embargoed, errors),
-                "embargo_reason":     validator.string_value  (record, "embargo_reason", 0, 10000, is_embargoed, errors),
-                "eula":               validator.string_value  (record, "eula", 0, 50000, is_restricted, errors),
+                "embargo_reason":     validator.string_value  (record, "embargo_reason", 0, 10000, is_embargoed, errors, strip_html=False),
+                "eula":               validator.string_value  (record, "eula", 0, 50000, is_restricted, errors, strip_html=False),
                 "defined_type_name":  dataset_type,
                 "defined_type":       defined_type,
                 "agreed_to_deposit_agreement": agreed_to_deposit_agreement,
@@ -8636,7 +8646,7 @@ class ApiServer:
         try:
             parameters = request.get_json()
             quota_gb   = validator.integer_value (parameters, "new-quota", required=True)
-            reason     = validator.string_value (parameters, "reason", 0, 10000, required=True)
+            reason     = validator.string_value (parameters, "reason", 0, 10000, required=True, strip_html=False)
 
             if quota_gb < 1:
                 return self.error_400 (request,
@@ -8671,7 +8681,7 @@ class ApiServer:
 
         try:
             parameters = request.get_json()
-            search = validator.string_value (parameters, "search_for", 0, 32, required=True)
+            search = validator.string_value (parameters, "search_for", 0, 32, required=True, strip_html=False)
             tags = self.db.previously_used_tags (search)
             tags = list(map (lambda item: item["tag"], tags))
             return self.response (json.dumps (tags))
@@ -9253,3 +9263,249 @@ class ApiServer:
                 parts = split_author_name(author['full_name'])
                 author['first_name'] = parts[0]
                 author['last_name' ] = parts[1]
+
+    ## ------------------------------------------------------------------------
+    ## IIIF
+    ## ------------------------------------------------------------------------
+
+    def iiif_v3_image_context_redirect (self, request, file_uuid):
+        """Implements /iiif/v3/<uuid>."""
+
+        if not self.enable_iiif:
+            return self.error_404 (request)
+
+        if not validator.is_valid_uuid (file_uuid):
+            return self.error_400 (request, "Invalid file UUID.", "InvalidFileUUID")
+
+        metadata = self.db.dataset_files (file_uuid = file_uuid)
+        if not metadata:
+            return self.error_404 (request)
+
+        return redirect (f"{self.base_url}/iiif/v3/{file_uuid}/info.json", code=303)
+
+    def iiif_v3_image_context (self, request, file_uuid):
+        """Implements /iiif/v3/<uuid>/info.json."""
+
+        if not self.enable_iiif:
+            return self.error_404 (request)
+
+        if not validator.is_valid_uuid (file_uuid):
+            return self.error_400 (request, "Invalid file UUID.", "InvalidFileUUID")
+
+        metadata = self.db.dataset_files (file_uuid = file_uuid)
+        if not metadata:
+            return self.error_404 (request)
+
+        try:
+            image_info = metadata[0]
+            input_filename = self.__filesystem_location (image_info)
+            image  = pyvips.Image.new_from_file (input_filename)
+            output = {
+                "@context":  "http://iiif.io/api/image/3/context.json",
+                "id":        f"{self.base_url}/iiif/v3/{file_uuid}",
+                "type":      "ImageService3",
+                "protocol":  "http://iiif.io/api/image",
+                "profile":   "level1",
+                "width":     image.width,
+                "height":    image.height,
+                "maxWidth":  image.width,                # Optional
+                "maxHeight": image.height,               # Optional
+                "maxArea":   image.width * image.height, # Optional
+                "extraFormats": ["jpg", "png", "tif", "webp"],
+                "extraFeatures": ["cors", "mirroring", "regionByPx",
+                                  "regionSquare", "rotationArbitrary",
+                                  "rotationBy90s"],
+                "sizes": [{ "width": image.width, "height": image.height }]
+            }
+            del image
+            response = self.response (json.dumps (output),
+                                      mimetype=('application/ld+json;profile='
+                                                '"http://iiif.io/api/image/3/'
+                                                'context.json"'))
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            return response
+        except IndexError:
+            self.log.error ("Unable to read metadata.")
+        except (KeyError, FileNotFoundError, UnidentifiedImageError):
+            self.log.error ("Unable to open image file %s.", file_uuid)
+        except pyvips.error.Error as error:
+            if "is not a known file format" in str(error):
+                supported_formats   = ["jpg", "png", "tif", "webp"]
+                filename = metadata[0]["name"]
+                return self.error_400 (request,
+                                       (f"'{filename}' is not a supported "
+                                        "image. The following formats are "
+                                        f"supported: {supported_formats}."),
+                                       "InvalidImageFormat")
+            self.log.error ("Pyvips reported: %s", error)
+            return self.error_500 ()
+
+        return self.error_500 ()
+
+    def iiif_v3_image (self, request, file_uuid, region, size, rotation, quality, image_format):
+        """Implements /iiif/v3/<uuid>/<region>/<size>/<rotation>/<quality>.<format>."""
+
+        if not self.enable_iiif:
+            return self.error_404 (request)
+
+        if not validator.is_valid_uuid (file_uuid):
+            return self.error_400 (request, "Invalid file UUID.", "InvalidFileUUID")
+
+        validation_errors = []
+        parameters = {
+            "region": region,
+            "size": size,
+            "rotation": rotation,
+            "quality": quality,
+            "image_format": image_format
+        }
+        supported_qualities = ["color", "gray", "bitonal", "default"]
+        supported_formats   = ["jpg", "png", "tif", "webp"]
+        quality = validator.options_value (parameters, "quality", supported_qualities,
+                                           required=True, error_list=validation_errors)
+
+        image_format = validator.options_value (parameters, "image_format", supported_formats,
+                                                required=True, error_list=validation_errors)
+
+        metadata = self.db.dataset_files (file_uuid = file_uuid)
+        if not metadata:
+            return self.error_404 (request)
+
+        metadata = metadata[0]
+        input_filename = self.__filesystem_location (metadata)
+        original  = pyvips.Image.new_from_file (input_filename)
+
+        # Region
+        output_region = { "x": 0, "y": 0, "w": original.width, "h": original.height }
+        if region == "square":
+            shortest = min (original.width, original.height)
+            output_region["w"] = shortest
+            output_region["h"] = shortest
+
+        elif region.startswith("pct:"):
+            # To-do: implement percentage-wise translation.
+            validation_errors.append ({
+                "field_name": "region",
+                "message": "Percentage-wise regions are not implemented."
+            })
+
+        # Attempt to parse the x,y,w,h format
+        if validator.index_exists (region, 255):
+            validation_errors.append ({
+                "field_name": "region",
+                "message": "The region is too long"
+            })
+        elif region not in ("full", "square"):
+            deconstructed = region.split (",")
+            if len(deconstructed) != 4:
+                validation_errors.append ({
+                    "field_name": "region",
+                    "message": "The region format should be 'x,y,w,h'."
+                })
+            else:
+                output_region = { "x": deconstructed[0], "y": deconstructed[1],
+                                  "w": deconstructed[2], "h": deconstructed[3] }
+
+        # Size
+        output_size = { "w": original.width, "h": original.height }
+        if size != "max" and "," not in size:
+            validation_errors.append ({
+                "field_name": "size",
+                "message": f"Unexpected value '{size}' for size."
+            })
+
+        if "," in size:
+            sizes = size.split(",")
+            if len (sizes) != 2:
+                validation_errors.append ({
+                    "field_name": "size",
+                    "message": "Expected a 'width,height' specification."
+                })
+
+            elif sizes[0].startswith("^"):
+                validation_errors.append ({
+                    "field_name": "size",
+                    "message": "Image scaling is not supported."
+                })
+            elif value_or (sizes, 0, "") == "" and parses_to_int (sizes[1]):
+                scale_factor = float(sizes[1]) / original.height
+                output_size = { "w": original.width * scale_factor, "h": int(sizes[1]) }
+            elif parses_to_int (sizes[0]) and value_or (sizes, 1, "") == "":
+                scale_factor = float(sizes[0]) / original.width
+                output_size = { "w": int(sizes[0]), "h": original.height * scale_factor }
+            elif parses_to_int (sizes[0]) and parses_to_int (sizes[1]):
+                output_size = { "w": int(sizes[0]), "h": int(sizes[1]) }
+
+        # Rotation
+        mirror      = (isinstance (rotation, str) and rotation[0] == "!")
+        try:
+            rotation    = int(rotation) if not mirror else int(rotation[1:])
+            if rotation < 0 or rotation > 360:
+                validation_errors.append ({
+                    "field_name": "rotation",
+                    "message": "Rotation must be a value between 0 and 360."
+                })
+        except ValueError:
+            return self.error_400 (request, "Rotation must be an integer.",
+                                   "InvalidRotationValue")
+
+        # Error reporting
+        if validation_errors:
+            return self.error_400_list (request, validation_errors)
+
+        # Serve from cache
+        # ---------------------------------------------------------------------
+        cache_key = self.db.cache.make_key ((f"{file_uuid}_{region}_{size}_"
+                                             f"{mirror}_{rotation}_"
+                                             f"{quality}_{image_format}"))
+        file_path = os.path.join (self.db.iiif_cache_storage, cache_key)
+        try:
+            response = send_file (file_path, request.environ, f"image/{image_format}",
+                                  as_attachment=False, download_name=None)
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            return response
+        except OSError:
+            pass
+
+        # Transform the input image to the output image
+        # ---------------------------------------------------------------------
+        output = None
+        try:
+            output = pyvips.Image.new_temp_file(format=f".{image_format}")
+            original.write(output)
+
+            output = output.crop (output_region["x"], output_region["y"],
+                                  output_region["w"], output_region["h"])
+            output = output.thumbnail_image (output_size["w"],
+                                             height = output_size["h"],
+                                             size = "force")
+            if mirror:
+                output = output.fliphor()
+            if rotation not in (0, 360):
+                output = output.similarity (angle=rotation)
+            if quality == "gray":
+                output = output.colourspace (pyvips.enums.Interpretation.B_W)
+
+            # The commonly used mimetype for TIFF is image/tiff.
+            if image_format == "tif":
+                image_format = "tiff"
+
+            target = pyvips.Target.new_to_file (file_path)
+            output.write_to_target (target, f".{image_format}")
+            response = send_file (file_path, request.environ, f"image/{image_format}",
+                              as_attachment=False, download_name=None)
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            return response
+        except FileNotFoundError:
+            self.log.error ("File download failed due to missing file: '%s'.", file_path)
+        except pyvips.error.Error as error:
+            if "is not a known file format" in str(error):
+                return self.error_400 (request,
+                                       (f"'{image_format}' is not a supported "
+                                        "image format. The following are "
+                                        f"supported: {supported_formats}."),
+                                       "InvalidImageFormat")
+            self.log.error ("Pyvips reported: %s", error)
+            return self.error_500 ()
+
+        return self.error_500 ()

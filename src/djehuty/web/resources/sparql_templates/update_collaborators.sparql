@@ -18,7 +18,6 @@ DELETE {
     {%- endif%}
   }
 }
-
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if metadata_read is not none %}
@@ -36,7 +35,6 @@ INSERT {
     {%- endif%}
   }
 }
-
 WHERE {
   GRAPH <{{state_graph}}> {
     ?collaborator_uri  rdf:type                 djht:Collaborator .

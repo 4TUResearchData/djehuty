@@ -5,6 +5,52 @@ the codebase.
 
 import re
 import logging
+from html.parser import HTMLParser
+
+class HTMLStripper (HTMLParser):
+    """Overriden HTMLParser to strip HTML tags inspired by Django's implementation."""
+
+    def __init__ (self):
+        super().__init__(convert_charrefs=False)
+        self.reset()
+        self.state = []
+
+    def handle_data (self, data):
+        self.state.append (data)
+
+    def handle_entityref (self, name):
+        self.state.append (f"&{name};")
+
+    def handle_charref (self, name):
+        self.state.append (f"&#{name};")
+
+    def get_data (self):
+        """Return stripped HTML."""
+        return "".join(self.state)
+
+
+def html_to_plaintext (value, respect_newlines=False):
+    """
+    Outputs plain text without HTML tags.
+    When RESPECT_NEWLINES is set to True, it will convert line
+    breaks to newline characters.
+    """
+    if respect_newlines:
+        value = value.replace("</p>", "</p>\n\n")
+        value = value.replace("<br>", "\n")
+        value = value.replace("<br/>", "\n")
+        value = value.replace("<br />", "\n")
+
+    while "<" in value and ">" in value:
+        tag_count = value.count("<")
+        html = HTMLStripper()
+        html.feed (value)
+        html.close()
+        value = html.get_data()
+        if tag_count == value.count("<"):
+            break
+
+    return value
 
 def value_or (record, key, other):
     """Return the value of KEY or OTHER."""
@@ -31,8 +77,10 @@ def pretty_print_size (num_bytes):
         output = f"{num_bytes/1000000:.2f}MB"
     elif num_bytes < 1000000000000:
         output = f"{num_bytes/1000000000:.2f}GB"
-    else:
+    elif num_bytes < 1000000000000000:
         output = f"{num_bytes/1000000000000:.2f}TB"
+    else:
+        output = f"{num_bytes/1000000000000000:.2f}PB"
 
     return output
 
@@ -40,7 +88,9 @@ def opendap_sizes_to_bytes (size, units):
     """Return the bytes for a pretty-printed SIZE with UNITS."""
     output = size
 
-    if units == "Tbytes":
+    if units == "Pbytes":
+        output = size * 1000000000000000
+    elif units == "Tbytes":
         output = size * 1000000000000
     elif units == "Gbytes":
         output = size * 1000000000

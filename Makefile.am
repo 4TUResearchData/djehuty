@@ -16,7 +16,6 @@ EXTRA_DIST              =                   \
   etc/djehuty.service                       \
   etc/djehuty/djehuty-example-config.xml    \
   requirements.txt                          \
-  setup.py                                  \
   pyproject.toml                            \
   main.py                                   \
   tests/admin_panel.py                      \
@@ -44,13 +43,21 @@ dist-pypi:
 	@python -m build
 
 source-dist:
-	@PYTHON@ setup.py sdist --formats=gztar --owner=root --group=root
+	@PYTHON@ -m build --skip-dependency-check --no-isolation --sdist \
+           -C=--global-option=sdist                                \
+           -C=--global-option=--owner=root                         \
+           -C=--global-option=--group=root                         \
+           -C=--global-option=--formats=gztar
 
 binary-dist:
-	@PYTHON@ setup.py bdist --formats=gztar --owner=root --group=root
+	@PYTHON@ -m build --skip-dependency-check --no-isolation --wheel \
+           -C=--global-option=bdist                                \
+           -C=--global-option=--owner=root                         \
+           -C=--global-option=--group=root                         \
+           -C=--global-option=--formats=gztar
 
 all-local:
-	@PYTHON@ setup.py build --build-base $(shell readlink -f $(builddir))/build
+	@PYTHON@ -m build --outdir $(shell readlink -f $(builddir))/build
 
 install-exec-local:
 	@PYTHON@ setup.py install                 \

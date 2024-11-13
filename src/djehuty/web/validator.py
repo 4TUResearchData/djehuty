@@ -260,7 +260,8 @@ def index_exists (value, index):
 
     return True
 
-def string_value (record, field_name, minimum_length=0, maximum_length=None, required=False, error_list=None):
+def string_value (record, field_name, minimum_length=0, maximum_length=None,
+                  required=False, error_list=None, strip_html=True):
     """Validation procedure for string values."""
 
     value = conv.value_or_none (record, field_name)
@@ -297,6 +298,9 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None, req
                         field_name = field_name,
                         message = f"The value for '{field_name}' is shorter than {minimum_length}.",
                         code    = "ValueTooShort"))
+
+    if strip_html:
+        return conv.html_to_plaintext (value)
 
     return value
 

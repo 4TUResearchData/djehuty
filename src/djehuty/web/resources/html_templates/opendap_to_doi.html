@@ -2,11 +2,11 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <meta name="description" content="4TU.ResearchData API">
+        <meta name="description" content="{{site_name}} API">
         <meta name="keywords" content="figshare, api, 4tu, 4tu.researchdata">
-        <meta name="author" content="4TU.ResearchData">
+        <meta name="author" content="{{site_name}}">
         <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
-        <title>4TU.ResearchData</title>
+        <title>{{site_name}}</title>
         <link rel='shortcut icon' type='image/x-icon' href='/static/images/favicon.ico'>
         <style>
             body {font-family: 'Source Sans Pro',sans-serif}
@@ -17,7 +17,7 @@
         </style>
     </head>
     <body>
-        <div id="header-left"><a href="/portal"><img id="logo" src="/static/images/logo.png" alt="4TU.ResearchData portal"></a></div>
+        <div id="header-left"><a href="/portal"><img id="logo" src="/static/images/logo.png" alt="{{site_name}} portal"></a></div>
         <div class="main">
             {% if referrer | length %}
                 {% if dois | length %}
