@@ -47,7 +47,7 @@ class SparqlInterface:
         self.default_quota  = 5000000000
         self.store          = None
         self.disable_collaboration = True
-        self.depositing_domain = None
+        self.depositing_domains = []
         self.delay_inserting_log_entries = False
 
     def setup_sparql_endpoint (self):
@@ -3402,7 +3402,7 @@ class SparqlInterface:
     def is_depositor (self, session_token, account=None):
         """Returns True when the account linked to the session is a depositor, False otherwise"""
 
-        if self.depositing_domain is None:
+        if not self.depositing_domains:
             return self.is_logged_in (session_token)
 
         if session_token is None:
@@ -3415,7 +3415,7 @@ class SparqlInterface:
             return False
 
         if "domain" in account:
-            return account["domain"] == self.depositing_domain
+            return account["domain"] in self.depositing_domains
 
         return False
 

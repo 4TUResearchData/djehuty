@@ -31,10 +31,10 @@ configuration file, for which an example is available at
                                to log IP address information.\\
   \t{disable-collaboration}  & When set to 1, it disables the ``collaborators''
                                feature.\\
-  \t{restrict-depositing-to-domain} & By default, any authenticated user may
-                               deposit data.  This option limits the ability
-                               to deposit to users with an e-mail address of
-                               a specific domain name.\\
+  \t{allowed-depositing-domains} & When unset, any authenticated user may
+                               deposit data.  Otherwise, this option limits the
+                               ability to deposit to users with an e-mail
+                               address of the listed domain names.\\
   \t{cache-root}             & \t{djehuty} can cache query responses to lower
                                the load on the database server.  Specify the
                                directory where to store cache files.  This

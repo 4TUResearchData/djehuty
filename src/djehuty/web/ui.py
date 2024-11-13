@@ -846,9 +846,15 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
         if support_email_address is not None:
             server.support_email_address = support_email_address.text
 
-        depositing_domain = xml_root.find ("restrict-depositing-to-domain")
-        if depositing_domain is not None:
-            server.db.depositing_domain = depositing_domain.text
+        depositing_domains = xml_root.find ("allowed-depositing-domains")
+        if depositing_domains is not None:
+            for domain in depositing_domains:
+                if domain.tag != "domain":
+                    logger.error ("Unexpected '%s' in 'allowed-depositing-domains'.", domain.tag)
+                    raise SystemExit
+                if domain.text is None or domain.text.strip() == "":
+                    continue
+                server.db.depositing_domains.append (domain.text.strip())
 
         read_orcid_configuration (server, xml_root)
         read_datacite_configuration (server, xml_root)
@@ -1155,8 +1161,8 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                 if server.obtain_orcid_read_public_token ():
                     logger.info ("Obtained read-public token from ORCID.")
 
-            if server.db.depositing_domain is not None:
-                logger.info ("Depositing is limited to the domain: %s.", server.db.depositing_domain)
+            if server.db.depositing_domains:
+                logger.info ("Depositing is limited to the domains: %s.", server.db.depositing_domains)
 
             logger.info ("SPARQL endpoint:         %s", server.db.endpoint)
             if server.db.endpoint != server.db.update_endpoint:
