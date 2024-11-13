@@ -2173,8 +2173,8 @@ class ApiServer:
                     return self.error_500 ()
 
             categories = self.db.categories_tree ()
-            account    = self.db.account_by_uuid (account_uuid)
-            groups     = self.__groups_for_account (account)
+            account    = self.db.account_by_uuid (dataset["account_uuid"])
+            groups     = self.__groups_for_account (dataset["account_uuid"])
 
             try:
                 # Historically, some datasets have multiple values for
