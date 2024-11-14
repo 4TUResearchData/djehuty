@@ -4227,6 +4227,15 @@ class ApiServer:
 
     def api_datasets_search (self, request):
         """Implements /v2/articles/search."""
+
+        if request.method == "OPTIONS":
+            response = self.respond_204 ()
+            response.headers["Accept"] = "application/json"
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+            response.headers["Access-Control-Request-Methods"] = "POST"
+            return response
+
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
             return handler
