@@ -7215,6 +7215,8 @@ class ApiServer:
         validator.string_value  (collection, "time_coverage",  0, 512,   False, errors)
         validator.string_value  (collection, "publisher",      0, 10000, True, errors)
         validator.string_value  (collection, "language",       0, 10,    True, errors)
+        validator.string_value  (collection, "resource_doi",   0, 255,   False, errors)
+        validator.string_value  (collection, "resource_title", 0, 255,   False, errors)
 
         authors = self.db.authors (item_uri  = collection["uri"],
                                    item_type = "collection")
@@ -7239,9 +7241,6 @@ class ApiServer:
             errors.append({
                 "field_name": "categories",
                 "message": "Please specify at least one category."})
-
-        resource_doi =   validator.string_value  (collection, "resource_doi",   0, 255,   False, errors)
-        resource_title = validator.string_value  (collection, "resource_title", 0, 255,   False, errors)
 
         if errors:
             return self.error_400_list (request, errors)
