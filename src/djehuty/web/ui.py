@@ -760,25 +760,25 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
             except TypeError:
                 config["clear-cache-on-start"] = False
         elif server.db.cache.storage is None:
-            server.db.cache.storage = f"{server.db.storage}/cache"
+            server.db.cache.storage = os.path.join (server.db.storage, "cache")
 
         profile_images_root = xml_root.find ("profile-images-root")
         if profile_images_root is not None:
             server.db.profile_images_storage = profile_images_root.text
         elif server.db.profile_images_storage is None:
-            server.db.profile_images_storage = f"{server.db.storage}/profile-images"
+            server.db.profile_images_storage = os.path.join (server.db.storage, "profile-images")
 
         thumbnails_root = xml_root.find ("thumbnails-root")
         if thumbnails_root is not None:
             server.db.thumbnail_storage = thumbnails_root.text
         elif server.db.thumbnail_storage is None:
-            server.db.thumbnail_storage = f"{server.db.storage}/thumbnails"
+            server.db.thumbnail_storage = os.path.join (server.db.storage, "thumbnails")
 
         iiif_cache = xml_root.find ("iiif-cache-root")
         if iiif_cache is not None:
             server.db.iiif_cache_storage = iiif_cache.text
         elif server.db.iiif_cache_storage is None:
-            server.db.iiif_cache_storage = f"{server.db.storage}/iiif"
+            server.db.iiif_cache_storage = os.path.join (server.db.storage, "iiif")
 
         production_mode = xml_root.find ("production")
         if production_mode is not None:
@@ -955,7 +955,7 @@ def extract_transactions (config, since_datetime):
                 if state_output == 2:
                     if line == "---\n":
                         state_output = 0
-                        with open (f"{directory_prefix}/transaction_{count:08d}.sparql",
+                        with open (os.path.join (directory_prefix, f"transaction_{count:08d}.sparql"),
                                    "w", encoding="utf-8") as output_file:
                             output_file.write (query)
                         query = ""
@@ -1020,8 +1020,8 @@ def apply_transactions_from_directory (logger, server, config, transactions_dire
     print(f"Applying {number_of_transactions} transactions.")
     try:
         for transaction_file in transactions:
-            filename = f"{directory}/{transaction_file}"
-            applied_filename = f"{directory}/applied_{transaction_file}"
+            filename = os.path.join (directory, transaction_file)
+            applied_filename = os.path.join (directory, f"applied_{transaction_file}")
             with open(filename, "r", encoding="utf-8") as transaction:
                 query = transaction.read()
                 server.db.sparql.update (query)
@@ -1117,7 +1117,7 @@ def main (config_file=None, run_internal_server=True, initialize=True,
             except PermissionError:
                 logger.error ("Cannot create %s directory.",
                               server.db.profile_images_storage)
-                server.db.profile_images_storage = f"{server.db.storage}/profile-images"
+                server.db.profile_images_storage = os.path.join (server.db.storage, "profile-images")
                 logger.error ("Falling back to %s.", server.db.profile_images_storage)
 
         if server.db.thumbnail_storage is not None and not inside_reload:
