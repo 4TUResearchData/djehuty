@@ -1357,7 +1357,7 @@ class ApiServer:
     def saml_metadata (self, request):
         """Communicates the service provider metadata for SAML 2.0."""
 
-        if not (self.accepts_content_type (request, "application/samlmetadata+xml") or
+        if not (self.accepts_content_type (request, "application/samlmetadata+xml", strict=False) or
                 self.accepts_xml (request)):
             return self.error_406 ("text/xml")
 
