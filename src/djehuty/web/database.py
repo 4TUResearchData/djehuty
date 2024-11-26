@@ -1117,8 +1117,8 @@ class SparqlInterface:
         if uri is None:
             uri = rdf.unique_node ("container")
             account_uri = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
-            graph.add ((uri, RDF.type,                   rdf.DJHT[item_class]))
-            graph.add ((uri, rdf.DJHT["account"],        account_uri))
+            rdf.add (graph, uri, RDF.type,            rdf.DJHT[item_class], "uri")
+            rdf.add (graph, uri, rdf.DJHT["account"], account_uri, "uri")
 
             ## The item_id is a left-over from the Figshare days.
             rdf.add (graph, uri, rdf.DJHT[f"{item_type}_id"], item_id, datatype=XSD.integer)
@@ -1134,29 +1134,29 @@ class SparqlInterface:
         """
         if records:
             blank_node = rdf.blank_node ()
-            graph.add ((uri, rdf.DJHT[name], blank_node))
+            rdf.add (graph, uri, rdf.DJHT[name], blank_node, "uri")
 
             previous_blank_node = None
             for index, item in enumerate(records):
                 if insert_procedure:
                     item = insert_procedure (**item)
 
-                graph.add ((blank_node, rdf.DJHT["index"], Literal (index, datatype=XSD.integer)))
+                rdf.add (graph, blank_node, rdf.DJHT["index"], index, XSD.integer)
                 if isinstance (item, URIRef):
-                    graph.add ((blank_node, RDF.first,    item))
+                    rdf.add (graph, blank_node, RDF.first, item, "uri")
                 else:
-                    graph.add ((blank_node, RDF.first,    Literal (item, datatype=XSD.string)))
+                    rdf.add (graph, blank_node, RDF.first, item, XSD.string)
 
                 if previous_blank_node is not None:
-                    graph.add ((previous_blank_node, RDF.rest, blank_node))
-                    graph.add ((previous_blank_node, RDF.type, RDF.List))
+                    rdf.add (graph, previous_blank_node, RDF.rest, blank_node, "uri")
+                    rdf.add (graph, previous_blank_node, RDF.type, RDF.List, "uri")
 
                 previous_blank_node = blank_node
                 blank_node = rdf.blank_node ()
 
             del blank_node
-            graph.add ((previous_blank_node, RDF.rest, RDF.nil))
-            graph.add ((previous_blank_node, RDF.type, RDF.List))
+            rdf.add (graph, previous_blank_node, RDF.rest, RDF.nil, "uri")
+            rdf.add (graph, previous_blank_node, RDF.type, RDF.List, "uri")
 
         return True
 
@@ -1309,10 +1309,9 @@ class SparqlInterface:
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
 
-        graph.add ((uri, RDF.type,                      rdf.DJHT["Dataset"]))
-        graph.add ((uri, rdf.DJHT["title"],              Literal(title, datatype=XSD.string)))
-        graph.add ((uri, rdf.DJHT["container"],          container))
-
+        rdf.add (graph, uri, RDF.type,                   rdf.DJHT["Dataset"], "uri")
+        rdf.add (graph, uri, rdf.DJHT["title"],          title,          XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["container"],      container,      "uri")
         rdf.add (graph, uri, rdf.DJHT["description"],    description,    XSD.string)
         rdf.add (graph, uri, rdf.DJHT["defined_type"],   defined_type)
         rdf.add (graph, uri, rdf.DJHT["defined_type_name"], defined_type_name, XSD.string)
@@ -1353,8 +1352,8 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["git_uuid"], git_uuid, XSD.string)
 
         # Add the dataset to its container.
-        graph.add ((container, rdf.DJHT["draft"],       uri))
-        graph.add ((container, rdf.DJHT["account"],     account_uri))
+        rdf.add (graph, container, rdf.DJHT["draft"],       uri,         "uri")
+        rdf.add (graph, container, rdf.DJHT["account"],     account_uri, "uri")
 
         self.cache.invalidate_by_prefix ("datasets")
 
@@ -1377,7 +1376,7 @@ class SparqlInterface:
         account_uri  = rdf.uuid_to_uri (account_uuid, "account")
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
 
-        graph.add ((uri, RDF.type,      rdf.DJHT["QuotaRequest"]))
+        rdf.add (graph, uri, RDF.type, rdf.DJHT["QuotaRequest"], "uri")
         rdf.add (graph, uri, rdf.DJHT["account"], account_uri, "uri")
         rdf.add (graph, uri, rdf.DJHT["requested_size"], requested_size, XSD.integer)
         rdf.add (graph, uri, rdf.DJHT["reason"], reason, XSD.string)
@@ -1532,15 +1531,13 @@ class SparqlInterface:
 
         graph      = Graph()
         author_uri = rdf.unique_node ("author")
-
-        graph.add ((author_uri, RDF.type,      rdf.DJHT["Author"]))
-
         orcid_id   = self.__normalize_orcid (orcid_id)
         first_name = conv.strip_string (first_name)
         last_name  = conv.strip_string (last_name)
         full_name  = conv.strip_string (full_name)
         email      = conv.strip_string (email)
 
+        rdf.add (graph, author_uri, RDF.type,                   rdf.DJHT["Author"], "uri")
         rdf.add (graph, author_uri, rdf.DJHT["id"],             author_id)
         rdf.add (graph, author_uri, rdf.DJHT["institution_id"], institution_id)
         rdf.add (graph, author_uri, rdf.DJHT["group_id"],       group_id)
@@ -1669,15 +1666,13 @@ class SparqlInterface:
 
         graph       = Graph()
         funding_uri = rdf.unique_node ("funding")
-
-        graph.add ((funding_uri, RDF.type,                   rdf.DJHT["Funding"]))
-
         account_uri = None
         is_user_defined = False
         if account_uuid:
             account_uri = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
             is_user_defined = True
 
+        rdf.add (graph, funding_uri, RDF.type,                    rdf.DJHT["Funding"], "uri")
         rdf.add (graph, funding_uri, rdf.DJHT["id"],              funding_id)
         rdf.add (graph, funding_uri, rdf.DJHT["title"],           title,           XSD.string)
         rdf.add (graph, funding_uri, rdf.DJHT["grant_code"],      grant_code,      XSD.string)
@@ -1765,8 +1760,7 @@ class SparqlInterface:
         graph    = Graph()
         file_uri = rdf.unique_node ("file")
 
-        graph.add ((file_uri, RDF.type,               rdf.DJHT["File"]))
-
+        rdf.add (graph, file_uri, RDF.type,                  rdf.DJHT["File"], "uri")
         rdf.add (graph, file_uri, rdf.DJHT["id"],            file_id)
         rdf.add (graph, file_uri, rdf.DJHT["name"],          name,          XSD.string)
         rdf.add (graph, file_uri, rdf.DJHT["size"],          size)
@@ -1852,7 +1846,7 @@ class SparqlInterface:
         type_suffix = f"LogEntry{event_type[0].upper()}{event_type[1:]}"
         item_uri    = rdf.uuid_to_uri (item_uuid, "container")
 
-        graph.add ((entry_uri, RDF.type, rdf.DJHT["LogEntry"]))
+        rdf.add (graph, entry_uri, RDF.type, rdf.DJHT["LogEntry"], "uri")
         rdf.add (graph, entry_uri, rdf.DJHT["ip_address"], ip_address, XSD.string)
         rdf.add (graph, entry_uri, rdf.DJHT["created"], created_date, XSD.dateTime)
         rdf.add (graph, entry_uri, rdf.DJHT[f"{item_type}"], item_uri, "url")
@@ -1870,7 +1864,7 @@ class SparqlInterface:
         account_uri = URIRef(rdf.uuid_to_uri(account_uuid, "account"))
         group_uri   = URIRef(rdf.uuid_to_uri(group_uuid, "group"))
 
-        graph.add ((member_uri, RDF.type, rdf.DJHT["Member"]))
+        rdf.add (graph, member_uri, RDF.type, rdf.DJHT["Member"], "uri")
         rdf.add (graph, member_uri, rdf.DJHT["metadata_read"], True, XSD.boolean)
         rdf.add (graph, member_uri, rdf.DJHT["metadata_edit"], True, XSD.boolean)
         rdf.add (graph, member_uri, rdf.DJHT["metadata_remove"], is_supervisor, XSD.boolean)
@@ -1963,7 +1957,7 @@ class SparqlInterface:
         graph = Graph()
         collaborator_uri = rdf.unique_node("collaborator")
 
-        graph.add ((collaborator_uri, RDF.type,      rdf.DJHT["Collaborator"]))
+        rdf.add (graph, collaborator_uri, RDF.type, rdf.DJHT["Collaborator"], "uri")
         rdf.add (graph, collaborator_uri, rdf.DJHT["metadata_read"], metadata_read, XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["metadata_edit"], metadata_edit, XSD.boolean)
         rdf.add (graph, collaborator_uri, rdf.DJHT["metadata_remove"], metadata_remove, XSD.boolean)
@@ -2034,8 +2028,7 @@ class SparqlInterface:
         graph    = Graph()
         link_uri = rdf.unique_node ("private_link")
 
-        graph.add ((link_uri, RDF.type,      rdf.DJHT["PrivateLink"]))
-
+        rdf.add (graph, link_uri, RDF.type, rdf.DJHT["PrivateLink"], "uri")
         rdf.add (graph, link_uri, rdf.DJHT["id"],           id_string,    XSD.string)
         rdf.add (graph, link_uri, rdf.DJHT["read_only"],    read_only)
         rdf.add (graph, link_uri, rdf.DJHT["is_active"],    is_active)
@@ -2732,10 +2725,9 @@ class SparqlInterface:
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
 
-        graph.add ((uri, RDF.type,         rdf.DJHT["Collection"]))
-        graph.add ((uri, rdf.DJHT["title"], Literal(title, datatype=XSD.string)))
-        graph.add ((uri, rdf.DJHT["container"], container))
-
+        rdf.add (graph, uri, RDF.type,                   rdf.DJHT["Collection"], "uri")
+        rdf.add (graph, uri, rdf.DJHT["title"],          title,          XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["container"],      container,      "uri")
         rdf.add (graph, uri, rdf.DJHT["collection_id"],  collection_id)
         rdf.add (graph, uri, rdf.DJHT["account"],        account_uri)
         rdf.add (graph, uri, rdf.DJHT["description"],    description,    XSD.string)
@@ -2763,8 +2755,8 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["version"],        version)
 
         # Add the collection to its container.
-        graph.add ((container, rdf.DJHT["draft"],       uri))
-        graph.add ((container, rdf.DJHT["account"],     account_uri))
+        rdf.add (graph, container, rdf.DJHT["draft"],    uri, "uri")
+        rdf.add (graph, container, rdf.DJHT["account"],  account_uri, "uri")
 
         if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
@@ -3009,9 +3001,6 @@ class SparqlInterface:
         if not isinstance (dataset_uri, URIRef):
             dataset_uri = URIRef(dataset_uri)
 
-        graph.add ((uri, RDF.type,                      rdf.DJHT["Review"]))
-        graph.add ((uri, rdf.DJHT["dataset"],            dataset_uri))
-
         status_uri = None
         if status is not None:
             status_uri = rdf.DJHT["Review" + status.capitalize()]
@@ -3019,6 +3008,8 @@ class SparqlInterface:
         if assigned_to is not None:
             assigned_to = rdf.uuid_to_uri (assigned_to, "account")
 
+        rdf.add (graph, uri, RDF.type,                   rdf.DJHT["Review"], "uri")
+        rdf.add (graph, uri, rdf.DJHT["dataset"],        dataset_uri, "uri")
         rdf.add (graph, uri, rdf.DJHT["request_date"],   request_date,  XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["reminder_date"],  reminder_date, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["assigned_to"],    assigned_to,   "uri")
@@ -3246,28 +3237,27 @@ class SparqlInterface:
             token = secrets.token_hex (64)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        graph        = Graph()
+        link_uri     = rdf.unique_node ("session")
+        account_uri  = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
 
-        graph       = Graph()
-        link_uri    = rdf.unique_node ("session")
-        account_uri = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
-
-        graph.add ((link_uri, RDF.type,               rdf.DJHT["Session"]))
-        graph.add ((link_uri, rdf.DJHT["account"],    account_uri))
-        graph.add ((link_uri, rdf.DJHT["created_date"], Literal(current_time, datatype=XSD.dateTime)))
-        graph.add ((link_uri, rdf.DJHT["name"],       Literal(name, datatype=XSD.string)))
-        graph.add ((link_uri, rdf.DJHT["token"],      Literal(token, datatype=XSD.string)))
-        graph.add ((link_uri, rdf.DJHT["editable"],   Literal(editable, datatype=XSD.boolean)))
+        rdf.add (graph, link_uri, RDF.type, rdf.DJHT["Session"], "uri")
+        rdf.add (graph, link_uri, rdf.DJHT["account"],      account_uri, "uri")
+        rdf.add (graph, link_uri, rdf.DJHT["created_date"], current_time, XSD.dateTime)
+        rdf.add (graph, link_uri, rdf.DJHT["name"],         name,         XSD.string)
+        rdf.add (graph, link_uri, rdf.DJHT["token"],        token,        XSD.string)
+        rdf.add (graph, link_uri, rdf.DJHT["editable"],     editable,     XSD.boolean)
 
         mfa_token = None
         try:
             if self.privileges[account["email"].lower()]["needs_2fa"] and not override_mfa:
                 mfa_token = secrets.randbelow (1000000)
-                graph.add ((link_uri, rdf.DJHT["mfa_token"], Literal(mfa_token, datatype=XSD.integer)))
-                graph.add ((link_uri, rdf.DJHT["mfa_tries"], Literal(0, datatype=XSD.integer)))
+                rdf.add (graph, link_uri, rdf.DJHT["mfa_token"], mfa_token, XSD.integer)
+                rdf.add (graph, link_uri, rdf.DJHT["mfa_tries"], 0,         XSD.integer)
         except KeyError:
             pass
 
-        graph.add ((link_uri, rdf.DJHT["active"], Literal((mfa_token is None), datatype=XSD.boolean)))
+        rdf.add (graph, link_uri, rdf.DJHT["active"], (mfa_token is None), XSD.boolean)
 
         if self.add_triples_from_graph (graph):
             return token, mfa_token, rdf.uri_to_uuid (link_uri)
