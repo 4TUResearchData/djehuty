@@ -2001,7 +2001,7 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
-    def remove_collaborator (self, dataset_uuid, collaborator_uuid):
+    def delete_collaborator (self, dataset_uuid, collaborator_uuid):
         "Procedure to remove a collaborator from the state graph."
 
         query = self.__query_from_template("delete_collaborator", {

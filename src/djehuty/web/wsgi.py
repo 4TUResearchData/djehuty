@@ -2712,7 +2712,7 @@ class ApiServer:
             return self.respond_204()
 
         if request.method == "DELETE":
-            if self.db.remove_collaborator(dataset["uuid"], collaborator_uuid) is None:
+            if self.db.delete_collaborator(dataset["uuid"], collaborator_uuid) is None:
                 return self.error_500()
             return self.respond_204()
 
