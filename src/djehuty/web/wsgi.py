@@ -2091,6 +2091,7 @@ class ApiServer:
 
         account_uuid, error_response = self.__depositor_account_uuid (request)
         if error_response is not None:
+            self.log.error ("Attempt to create dataset for account:%s was denied.", account_uuid)
             return error_response
 
         account = self.db.account_by_uuid (account_uuid)

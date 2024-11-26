@@ -65,11 +65,13 @@ jQuery(document).ready(function (){
 {% endblock %}
 {% block body %}
 <h1>Dashboard</h1>
+{%- if may_deposit %}
 <h2>Quick actions</h2>
 <div class="center">
   <a id="create-new-dataset" href="/my/datasets/new" class="button corporate-identity-standard-button">Add new dataset</a>
   <a id="create-new-collection" href="/my/collections/new" class="button corporate-identity-standard-button">Create new collection</a>
 </div>
+{%- endif %}
 <h2>Storage usage</h2>
 <p><span class="storage-usage">Using {{storage_used}} of {{quota}} ({{percentage_used}}%).</span>{% if requested_quota %}<span class="quota-requested">Request pending for {{requested_quota}}</span>{% endif %}<a id="request-more-storage" href="#">Request more storage.</a></p>
 <div id="storage-request-wrapper">
