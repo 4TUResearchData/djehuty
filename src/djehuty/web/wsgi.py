@@ -1754,7 +1754,7 @@ class ApiServer:
 
                 return response
 
-            ## Retrieve signed data from SURFConext via the user.
+            ## Retrieve signed data from the IdP via the user.
             if request.method == "POST":
                 if not self.accepts_html (request):
                     return self.error_406 ("text/html")
@@ -1876,6 +1876,7 @@ class ApiServer:
             response.set_cookie (key=self.cookie_key, value=token, secure=self.in_production)
             return response
 
+        self.log.error ("Failed to complete the log in procedure for an unknown reason.")
         return self.error_500 ()
 
     def ui_logout (self, request):
