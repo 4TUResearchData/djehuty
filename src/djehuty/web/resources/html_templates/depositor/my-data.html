@@ -51,8 +51,8 @@ jQuery(document).ready(function () {
 </noscript>
 <div class="hide-for-javascript">
 <h1>Datasets</h1>
-<h2>Drafts</h2>
 {%- if draft_datasets: %}
+<h2>Drafts</h2>
 <div id="table-unpublished-loader" class="loader"></div>
 <table id="table-unpublished" class="corporate-identity-table">
   <thead>
@@ -74,9 +74,11 @@ jQuery(document).ready(function () {
     </tr>
   {% endfor %}</tbody>
 </table>
-{%- else %}
+{%- elif may_deposit %}
 <p>You don&apos;t have draft datasets (yet).</p>
 <div class="center"><a id="add-new-dataset" href="/my/datasets/new" class="button corporate-identity-standard-button">Add new dataset</a></div>
+{%- else %}
+<p>You have not been invited to collaborate on a dataset (yet).</p>
 {%- endif %}
 {%- if review_datasets: %}
 <h2>Under review</h2>

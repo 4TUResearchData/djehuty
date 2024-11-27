@@ -30,8 +30,8 @@ jQuery(document).ready(function () {
 </noscript>
 <div class="hide-for-javascript">
 <h1>Collections</h1>
+{%- if draft_collections %}
 <h2>Drafts</h2>
-{% if draft_collections %}
 <div id="table-unpublished-collections-loader" class="loader"></div>
 <table id="table-unpublished-collections" class="corporate-identity-table">
   <thead>
@@ -51,10 +51,12 @@ jQuery(document).ready(function () {
     </tr>
   {% endfor %}</tbody>
 </table>
-{% else %}
+{%- elif may_deposit %}
 <p>You don&apos;t have any unpublished collections (yet).</p>
 <div class="center"><a id="add-new-collection" href="/my/collections/new" class="button corporate-identity-standard-button">Create new collection</a></div>
-{% endif %}
+{%- else %}
+<p>You have not been invited to collaborate on a collection (yet).</p>
+{%- endif %}
 {% if published_collections %}
 <h2>Published</h2>
 <div id="table-published-collections-loader" class="loader"></div>
