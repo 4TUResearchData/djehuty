@@ -1049,6 +1049,7 @@ def main (config_file=None, run_internal_server=True, initialize=True,
           extract_transactions_from_log=None, apply_transactions=None):
     """The main entry point for the 'web' subcommand."""
     try:
+        convenience.add_logging_level ("AUDIT", logging.INFO + 6)
         convenience.add_logging_level ("ACCESS", logging.INFO + 5)
         convenience.add_logging_level ("STORE", logging.INFO + 4)
 

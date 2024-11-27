@@ -737,9 +737,11 @@ class ApiServer:
             "code":    code
         })
 
-    def error_403 (self, request):
+    def error_403 (self, request, audit_log_message=None):
         """Procedure to respond with HTTP 403."""
         response = None
+        if audit_log_message is not None:
+            self.log.audit (audit_log_message)
         if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "403.html")
         else:
@@ -861,7 +863,9 @@ class ApiServer:
         if privilege_test is not None:
             token = self.token_from_request (request)
             if not privilege_test (token):
-                return self.error_403 (request)
+                return self.error_403 (request, (f"account:{account_uuid} "
+                                                 "didn't pass privilege test "
+                                                 f"{privilege_test.__name__}."))
 
         return account_uuid
 
@@ -977,14 +981,12 @@ class ApiServer:
             return None, None
 
         if "uuid" not in item:
-            self.log.error ("Expected a 'uuid' property in 'item'. Assuming no permission.")
-            return None, self.error_403 (request)
+            return None, self.error_403 (request, f"Missing 'uuid' in item for account:{account_uuid}.")
 
         record = self.db.item_collaborative_permissions (item_type, item["uuid"], account_uuid)
         if not permissions:
-            self.log.error ("Could not find permissions for %s on %s",
-                            account_uuid, item["uuid"])
-            return None, self.error_403 (request)
+            return None, self.error_403 (request, ("Could not find permissions for "
+                                                   f"account:{account_uuid} on {item['uuid']}."))
 
         # Provide syntatic leniency for a single permission
         if isinstance (permissions, str):
@@ -992,9 +994,8 @@ class ApiServer:
 
         for permission in permissions:
             if not value_or (record, permission, False):
-                self.log.error ("Account %s attempted action requiring '%s' on %s.",
-                                account_uuid, permission, item["uuid"])
-                return None, self.error_403 (request)
+                return None, self.error_403 (request, (f"account:{account_uuid} attempted action "
+                                                       f"requiring '{permission}' on {item['uuid']}."))
 
         return record, None
 
@@ -1506,7 +1507,9 @@ class ApiServer:
 
         token = self.token_from_cookie (request)
         if not privilege_test (token):
-            error_response = self.error_403 (request)
+            error_response = self.error_403 (request, (f"account:{account_uuid} "
+                                                       "didn't pass privilege test "
+                                                       f"'{privilege_test.__name__}'."))
 
         return account_uuid, error_response
 
@@ -1716,7 +1719,7 @@ class ApiServer:
         elif self.identity_provider == "orcid":
             orcid_record = self.authenticate_using_orcid (request)
             if orcid_record is None:
-                return self.error_403 (request)
+                return self.error_403 (request, "Failed login attempt through ORCID.")
 
             if not self.accepts_html (request):
                 return self.error_406 ("text/html")
@@ -1733,12 +1736,12 @@ class ApiServer:
                         orcid_id    = orcid_record['orcid']
                     )
                     if not account_uuid:
-                        return self.error_500 ()
+                        return self.error_403 (request, ("Failed to create account "
+                                                         f"for {orcid_record['orcid']}."))
 
                     self.log.access ("Account %s created via ORCID.", account_uuid) #  pylint: disable=no-member
                 except KeyError:
-                    self.log.error ("Received an unexpected record from ORCID.")
-                    return self.error_403 (request)
+                    return self.error_403 (request, "Received an unexpected record from ORCID.")
             else:
                 self.log.access ("Account %s logged in via ORCID.", account_uuid) #  pylint: disable=no-member
 
@@ -1761,7 +1764,7 @@ class ApiServer:
 
                 saml_record = self.authenticate_using_saml (request)
                 if saml_record is None:
-                    return self.error_403 (request)
+                    return self.error_403 (request, "Failed to receive SAML record.")
 
                 try:
                     if "email" not in saml_record:
@@ -1928,7 +1931,8 @@ class ApiServer:
             pass
 
         if dataset is None:
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                             f"impersonation on dataset:{dataset_id}."))
 
         try:
             review = self.db.reviews (dataset_uri = dataset["uri"])[0]
@@ -2126,8 +2130,8 @@ class ApiServer:
         container_uuid = value_or_none (dataset, "container_uuid")
 
         if dataset is None or container_uuid is None:
-            self.log.error ("Unable to find dataset '%s'.", dataset_id)
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted to create "
+                                             f"new version of dataset:{dataset_id}."))
 
         existing_draft = self.__dataset_by_id_or_uri (container_uuid,
                                                       is_published = False,
@@ -2161,7 +2165,8 @@ class ApiServer:
                                                    use_cache    = False)
 
             if dataset is None:
-                return self.error_403 (request)
+                return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                 f"to access dataset:{dataset_id}."))
 
             permissions, error_response = self.__needs_collaborative_permissions (
                 account_uuid, request, "dataset", dataset, "metadata_read")
@@ -2218,7 +2223,8 @@ class ApiServer:
                                                    is_published=False)
 
             if dataset is None:
-                return self.error_403 (request)
+                return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                 f"to delete dataset:{dataset_id}."))
 
             container_uuid = dataset["container_uuid"]
             if self.db.delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid, dataset["account_uuid"]):
@@ -2247,7 +2253,9 @@ class ApiServer:
                                         is_latest    = None,
                                         limit        = 1)[0]
         except IndexError:
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                             "to get private links of "
+                                             f"dataset:{dataset_uuid}."))
 
         if not dataset:
             return self.error_404 (request)
@@ -2288,7 +2296,9 @@ class ApiServer:
                                               use_cache    = False,
                                               limit        = 1)[0]
         except IndexError:
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                             "to get private links of "
+                                             f"collection:{collection_uuid}."))
 
         if not collection:
             return self.error_404 (request)
@@ -2351,7 +2361,8 @@ class ApiServer:
                 is_published = False)
 
             if collection is None:
-                return self.error_403 (request)
+                return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                 f"to edit collection:{collection_id}."))
 
             categories = self.db.categories_tree ()
             account    = self.db.account_by_uuid (account_uuid)
@@ -2410,8 +2421,9 @@ class ApiServer:
         container_uuid = value_or_none (collection, "container_uuid")
 
         if collection is None or container_uuid is None:
-            self.log.error ("Unable to find collection '%s'.", collection_id)
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                             "to create new version of "
+                                             f"collection:{collection_id}."))
 
         existing_draft = self.__collection_by_id_or_uri (collection_id,
                                                          is_published = False,
@@ -2446,7 +2458,8 @@ class ApiServer:
             # Either accessing another account's collection or
             # trying to remove a published collection.
             if collection is None:
-                return self.error_403 (request)
+                return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                 f"to delete collection:{collection_id}."))
 
             result = self.db.delete_collection_draft (
                 container_uuid = collection["container_uuid"],
@@ -2474,16 +2487,16 @@ class ApiServer:
                 try:
                     session = self.db.sessions (account_uuid, session_uuid=session_uuid)[0]
                     if not session["editable"]:
-                        return self.error_403 (request)
+                        return self.error_403 (request, (f"account:{account_uuid} attempted to "
+                                                         f"edit non-editable session:{session_uuid}."))
 
                     return self.__render_template (
                         request,
                         "depositor/edit-session.html",
                         session = session)
                 except IndexError:
-                    self.log.error ("Unable to edit session %s for account %s.",
-                                   session_uuid, account_uuid)
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"account:{account_uuid} attempted to edit "
+                                                     f"non-existing session:{session_uuid}."))
 
             return self.error_406 ("text/html")
 
@@ -2548,7 +2561,8 @@ class ApiServer:
             mfa_token = request.form.get("mfa-token")
             if not parses_to_int (mfa_token):
                 self.__remove_session_due_to_2fa_mismatch (session_uuid)
-                return self.error_403 (request)
+                return self.error_403 (request, (f"session:{session_uuid} invalidated "
+                                                 "due to wrong MFA."))
 
             account   = self.db.account_by_session_token (token, mfa_token=mfa_token)
             if account is None or "uuid" not in account:
@@ -2561,7 +2575,8 @@ class ApiServer:
 
             if session is None:
                 self.__remove_session_due_to_2fa_mismatch (session_uuid)
-                return self.error_403 (request)
+                return self.error_403 (request, (f"session:{session_uuid} invalidated "
+                                                 "due to wrong MFA."))
 
             if self.db.update_session (account["uuid"], session_uuid, active=True):
                 return redirect ("/my/dashboard", code=302)
@@ -2621,7 +2636,8 @@ class ApiServer:
 
         if request.method == "POST":
             if value_or (dataset, "is_shared_with_me", False):
-                return self.error_403 (request)
+                return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                 f"to modify dataset:{dataset_uuid}."))
 
             try:
                 parameters = request.get_json()
@@ -2688,10 +2704,13 @@ class ApiServer:
             collaborators = self.db.collaborators (dataset["uuid"])
             for collaborator in collaborators:
                 if collaborator["account_uuid"] == account_uuid and not collaborator["is_supervisor"]:
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                     f"to {request.method} collaborators "
+                                                     f"for dataset:{dataset_uuid}."))
 
         except IndexError:
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted to modify "
+                                             f"collaborators for dataset:{dataset_uuid}."))
 
         if request.method == "PUT":
             parameters = request.get_json()
@@ -2755,14 +2774,19 @@ class ApiServer:
         if not validator.is_valid_uuid (dataset_uuid):
             return self.error_404 (request)
 
-        dataset = self.db.datasets (dataset_uuid = dataset_uuid,
-                                    account_uuid = account_uuid,
-                                    is_published = None,
-                                    is_latest    = None,
-                                    limit        = 1)[0]
+        dataset = None
+        try:
+            dataset = self.db.datasets (dataset_uuid = dataset_uuid,
+                                        account_uuid = account_uuid,
+                                        is_published = None,
+                                        is_latest    = None,
+                                        limit        = 1)[0]
+        except IndexError:
+            pass
 
         if dataset is None:
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted to create "
+                                             f"private link for dataset:{dataset_uuid}."))
 
         if request.method in ("GET", "HEAD"):
             return self.__render_template (request, "depositor/new_private_link.html",
@@ -2820,7 +2844,8 @@ class ApiServer:
                                           limit        = 1)[0]
 
         if collection is None:
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted to create "
+                                             f"private link for collection:{collection_uuid}."))
 
         self.locks.lock (locks.LockTypes.PRIVATE_LINKS)
         self.db.insert_private_link (collection["uuid"], account_uuid, item_type="collection")
@@ -2939,8 +2964,8 @@ class ApiServer:
 
         account_uuid = self.account_uuid_from_request (request)
         if orcid is None or account_uuid is None:
-            self.log.error ("Failed to authenticate %s with ORCID.", account_uuid)
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} failed "
+                                             "to authenticate ORCID."))
 
         authors = self.db.authors (account_uuid=account_uuid, limit = 1)
         if not value_or (authors, 0, True):
@@ -2983,7 +3008,6 @@ class ApiServer:
 
         account_uuid, error_response = self.__reviewer_account_uuid (request)
         if error_response is not None:
-            self.log.error ("Account %s attempted a reviewer action.", account_uuid)
             return error_response
 
         if not validator.is_valid_uuid (dataset_id):
@@ -3010,9 +3034,8 @@ class ApiServer:
 
     def ui_review_unassign (self, request, dataset_id):
         """Implements /review/unassign/<id>."""
-        account_uuid, error_response = self.__reviewer_account_uuid (request)
+        _, error_response = self.__reviewer_account_uuid (request)
         if error_response is not None:
-            self.log.error ("Account %s attempted a reviewer action.", account_uuid)
             return error_response
 
         if not validator.is_valid_uuid (dataset_id):
@@ -3636,14 +3659,14 @@ class ApiServer:
             dataset = self.db.datasets (container_uuid=dataset_id, version=version)[0]
 
             if not value_or_none(dataset, 'is_confidential') and not (not value_or_none(dataset, 'embargo_until_date') and value_or_none(dataset, 'embargo_type')):
-                self.log.warning ("Not allowed. Dataset %s is not confidential", dataset_id)
-                return self.error_403 (request)
+                return self.error_403 (request, (f"{email} attempted to request "
+                                                 "access to non-confidential "
+                                                 f"dataset:{dataset_id}."))
 
             # When in pre-production state, don't mind about DOI.
             doi = value_or_none(dataset, 'doi')
             if doi is None and self.in_production and not self.in_preproduction:
-                self.log.error ("Dataset %s does not have a DOI", dataset_id)
-                return self.error_403 (request)
+                return self.error_403 (request, f"dataset:{dataset_id} does not have a DOI.")
             title = dataset['title']
             contact_info = self.db.contact_info_from_container(dataset_id)
             addresses = self.db.reviewer_email_addresses()
@@ -4037,18 +4060,17 @@ class ApiServer:
         ## publically accessible, the file isn't of the user and the user
         ## isn't coming from a private link viewing.
         if dataset is None or metadata is None:
-            self.log.info ("Denied access to file %s in dataset %s.", file_id, dataset_id)
-            return self.error_403 (request)
+            return self.error_403 (request, (f"Denied access to file:{file_id} "
+                                             f"in dataset:{dataset_id}."))
 
         if "container_uuid" not in dataset or "container_uuid" not in metadata:
-            self.log.error ("Missing container UUID for dataset %s or file %s",
-                            dataset_id, file_id)
-            return self.error_403 (request)
+            return self.error_403 (request, ("Missing container UUID for dataset:"
+                                             f"{dataset_id} or file:{file_id}."))
 
         if dataset["container_uuid"] != metadata["container_uuid"]:
-            self.log.error ("Found a mismatch between container UUID for dataset %s and file %s.",
-                            dataset["container_uuid"], metadata["container_uuid"])
-            return self.error_403 (request)
+            return self.error_403 (request, ("Found a mismatch between container UUID "
+                                             f"for dataset:{dataset['container_uuid']} and "
+                                             f"file:{metadata['container_uuid']}."))
 
         ## Filesystem interaction
         ## --------------------------------------------------------------------
@@ -4610,7 +4632,8 @@ class ApiServer:
                                                        is_published = False)
 
                 if dataset is None:
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"account{account_uuid} attempted "
+                                                     f"to modify dataset:{dataset_id}."))
 
                 _, error_response = self.__needs_collaborative_permissions (
                     account_uuid, request, "dataset", dataset, "metadata_edit")
@@ -4758,7 +4781,8 @@ class ApiServer:
                                                        is_published=False)
 
                 if dataset is None:
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"account:{account_uuid} attempted to "
+                                                     f"modify authors on dataset:{dataset_id}."))
 
                 _, error_response = self.__needs_collaborative_permissions (
                     account_uuid, request, "dataset", dataset, "metadata_edit")
@@ -4836,7 +4860,8 @@ class ApiServer:
                                                      is_published = False)
 
             if dataset is None:
-                return self.error_403 (request)
+                return self.error_403 (request, (f"account:{account_uuid} attempted to "
+                                                 f"remove author on dataset:{dataset_id}."))
 
             _, error_response = self.__needs_collaborative_permissions (
                 account_uuid, request, "dataset", dataset, "metadata_edit")
@@ -4879,7 +4904,8 @@ class ApiServer:
                                              is_published=False)
 
                 if item is None:
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"account:{account_uuid} attempted to "
+                                                     f"view funding of {item_type}:{item_id}."))
 
                 _, error_response = self.__needs_collaborative_permissions (
                     account_uuid, request, item_type, item, "metadata_read")
@@ -4909,7 +4935,8 @@ class ApiServer:
                                              is_published=False)
 
                 if item is None:
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"account:{account_uuid} attempted to "
+                                                     f"modify funding of {item_type}:{item_id}."))
 
                 _, error_response = self.__needs_collaborative_permissions (
                     account_uuid, request, item_type, item, "metadata_edit")
@@ -4992,7 +5019,8 @@ class ApiServer:
                                            is_published = False)
 
             if item is None:
-                return self.error_403 (request)
+                return self.error_403 (request, (f"account:{account_uuid} attempted to "
+                                                 f"remove funding of {item_type}:{item_id}."))
 
             _, error_response = self.__needs_collaborative_permissions (
                 account_uuid, request, item_type, item, "metadata_edit")
@@ -5043,7 +5071,9 @@ class ApiServer:
                                                          is_published = False)
 
             if collection is None:
-                return self.error_403 (request)
+                return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                 f"to remove author:{author_id} "
+                                                 f"from collection:{collection_id}."))
 
             authors    = self.db.authors (item_uri     = collection["uri"],
                                           account_uuid = account_uuid,
@@ -5092,7 +5122,8 @@ class ApiServer:
         except (IndexError, KeyError) as error:
             self.log.error ("Failed to delete dataset from collection: %s", error)
 
-        return self.error_403 (request)
+        return self.error_403 (request, (f"account:{account_uuid} attempted to remove remove "
+                                         f"dataset:{dataset_id} from collection:{collection_id}"))
 
     def api_private_dataset_categories (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/categories."""
@@ -5245,7 +5276,8 @@ class ApiServer:
                                                              account_uuid=account_uuid,
                                                              is_published=False)
                 if dataset is None:
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"account:{account_uuid} attempted to "
+                                                     f"view files of dataset:{dataset_id}."))
 
                 _, error_response = self.__needs_collaborative_permissions (
                     account_uuid, request, "dataset", dataset, "data_read")
@@ -5284,7 +5316,8 @@ class ApiServer:
                                                        is_published=False)
 
                 if dataset is None:
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"account:{account_uuid} attempted to remove "
+                                                     f"all files from dataset:{dataset_id}."))
 
                 if self.db.delete_items_all_from_list (dataset["uri"], "files"):
                     self.db.cache.invalidate_by_prefix (f"{account_uuid}_storage")
@@ -5310,7 +5343,8 @@ class ApiServer:
                                                        is_published=False)
 
                 if dataset is None:
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                     f"to add link to dataset:{dataset_id}."))
 
                 _, error_response = self.__needs_collaborative_permissions (
                     account_uuid, request, "dataset", dataset, "data_edit")
@@ -5398,7 +5432,8 @@ class ApiServer:
                                                        is_published=False)
 
                 if dataset is None:
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                     f"to remove dataset:{dataset_id}."))
 
                 _, error_response = self.__needs_collaborative_permissions (
                     account_uuid, request, "dataset", dataset, "data_remove")
@@ -5442,7 +5477,8 @@ class ApiServer:
                 return self.error_404 (request)
 
             if value_or (dataset, "is_shared_with_me", False):
-                return self.error_403 (request)
+                return self.error_403 (request, (f"collaborator account:{account_uuid} attempted "
+                                                 f"to view private links on dataset:{dataset_id}."))
 
             links = self.db.private_links (item_uri   = dataset["uri"],
                                            account_uuid = account_uuid)
@@ -5459,7 +5495,9 @@ class ApiServer:
                     return self.error_404 (request)
 
                 if value_or (dataset, "is_shared_with_me", False):
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"collaborator account:{account_uuid} "
+                                                     "attempted to modify private links of "
+                                                     f"dataset:{dataset_id}."))
 
                 id_string = secrets.token_urlsafe()
                 expires_date = validator.date_value (parameters, "expires_date", False)
@@ -5522,7 +5560,8 @@ class ApiServer:
         if request.method in ("GET", "HEAD"):
 
             if value_or (dataset, "is_shared_with_me", False):
-                return self.error_403 (request)
+                return self.error_403 (request, (f"collaborator account:{account_uuid} attempted "
+                                                 f"to view a private link of dataset:{dataset_id}."))
 
             links = self.db.private_links (
                         item_uri   = dataset["uri"],
@@ -5534,7 +5573,8 @@ class ApiServer:
         if request.method == 'PUT':
 
             if value_or (dataset, "is_shared_with_me", False):
-                return self.error_403 (request)
+                return self.error_403 (request, (f"collaborator account:{account_uuid} attempted "
+                                                 f"to modify a private link of dataset:{dataset_id}."))
 
             parameters = request.get_json()
             try:
@@ -5558,7 +5598,9 @@ class ApiServer:
         if request.method == 'DELETE':
 
             if value_or (dataset, "is_shared_with_me", False):
-                return self.error_403 (request)
+                return self.error_403 (request, (f"collaborator account:{account_uuid} "
+                                                 "attempted to remove a private link "
+                                                 f"of dataset:{dataset_id}."))
 
             result = self.db.delete_private_links (dataset["container_uuid"],
                                                    account_uuid,
@@ -5615,7 +5657,8 @@ class ApiServer:
                                                      is_published = False,
                                                      account_uuid = account_uuid)
         if collection is None:
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted to reserve "
+                                             f"DOI for collection:{collection_id}."))
 
         data = self.__datacite_reserve_doi (self.__standard_doi (collection_id))
         if data is None:
@@ -5709,7 +5752,8 @@ class ApiServer:
                                                account_uuid = account_uuid)
 
         if dataset is None:
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted to "
+                                             f"reserve DOI for dataset:{dataset_id}."))
 
         _, error_response = self.__needs_collaborative_permissions (
             account_uuid, request, "dataset", dataset, "metadata_edit")
@@ -6027,7 +6071,8 @@ class ApiServer:
                                                                 account_uuid = account_uuid,
                                                                 is_published = False)
                 if collection is None:
-                    return self.error_403 (request)
+                    return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                     f"to view collection:{collection_id}."))
 
                 collection["doi"] = self.__standard_doi (collection["container_uuid"],
                                                          version = None,
@@ -7304,7 +7349,9 @@ class ApiServer:
             return self.error_404 (request)
 
         if value_or (dataset, "is_shared_with_me", False):
-            return self.error_403 (request)
+            return self.error_403 (request, (f"collaborator account:{account_uuid} "
+                                             f"attempted to sumbit dataset:{dataset_id} "
+                                             "for review."))
 
         record = request.get_json()
         try:
@@ -7623,8 +7670,8 @@ class ApiServer:
 
         account = self.db.account_by_uuid (account_uuid)
         if account is None or "quota" not in account:
-            self.log.error ("Account %s does not have an assigned quota.", account_uuid)
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted to "
+                                             "upload a file but has no assigned quota."))
 
         storage_used      = self.db.account_storage_used (account_uuid)
         storage_available = account["quota"] - storage_used
@@ -7655,7 +7702,8 @@ class ApiServer:
                                                      account_uuid=account_uuid,
                                                      is_published=False)
             if dataset is None:
-                return self.error_403 (request)
+                return self.error_403 (request, (f"account:{account_uuid} attempted to "
+                                                 f"upload a file to dataset:{dataset_id}."))
 
             _, error_response = self.__needs_collaborative_permissions (
                 account_uuid, request, "dataset", dataset, "data_edit")
@@ -7886,7 +7934,8 @@ class ApiServer:
                                                    account_uuid=account_uuid,
                                                    is_published=False)
             if dataset is None:
-                return self.error_403 (request)
+                return self.error_403 (request, (f"account:{account_uuid} attempted to view "
+                                                 f"image files for dataset:{dataset_id}."))
 
             files = self.db.dataset_files (
                 dataset_uri  = dataset["uri"],
@@ -7916,7 +7965,8 @@ class ApiServer:
                                                account_uuid=account_uuid,
                                                is_published=False)
         if dataset is None:
-            return self.error_403 (request)
+            return self.error_403 (request, (f"account:{account_uuid} attempted to update "
+                                             f"the thumbnail of dataset:{dataset_id}."))
 
         try:
             parameters = request.get_json()
@@ -8367,7 +8417,8 @@ class ApiServer:
         except IndexError:
             pass
 
-        return self.error_403 (request)
+        return self.error_403 (request, (f"Someone attempted to update the git "
+                                         f"repository for dataset:{dataset['uuid']}."))
 
     def api_v3_private_dataset_git_upload_pack (self, request, git_uuid):
         """Implements /v3/datasets/<id>.git/git-upload-pack."""
@@ -8383,7 +8434,8 @@ class ApiServer:
         except IndexError:
             pass
 
-        return self.error_403 (request)
+        return self.error_403 (request, (f"Someone attempted to update the git "
+                                         f"repository for dataset:{dataset['uuid']}."))
 
     def __git_contributors (self, git_uuid, git_repository):
         """Returns a list of contributors including their commit statistics."""
@@ -8797,8 +8849,6 @@ class ApiServer:
         account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json",
                                                                   self.db.may_review)
         if isinstance (account_uuid, Response):
-            uuid = self.account_uuid_from_request (request)
-            self.log.error ("Account %s attempted a reviewer action.", uuid)
             return account_uuid
 
         reviewer = self.db.account_by_uuid (reviewer_uuid)
