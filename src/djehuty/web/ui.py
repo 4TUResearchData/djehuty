@@ -1041,12 +1041,23 @@ def apply_transactions_from_directory (logger, server, config, transactions_dire
 
     return False
 
+def perform_rdf_export (logger, server, full_export):
+    """Make an RDF export of of the currently configured SPARQL endpoint."""
+
+    if not server.db.export_rdf (full_export):
+        logger.error ("Unable to create RDF export.")
+        return False
+
+    logger.info ("Created RDF export in '%s'", server.db.export_directory)
+    return True
+
 ## ----------------------------------------------------------------------------
 ## Starting point for the command-line program
 ## ----------------------------------------------------------------------------
 
 def main (config_file=None, run_internal_server=True, initialize=True,
-          extract_transactions_from_log=None, apply_transactions=None):
+          extract_transactions_from_log=None, apply_transactions=None,
+          full_rdf_export=False, public_rdf_export=False):
     """The main entry point for the 'web' subcommand."""
     try:
         convenience.add_logging_level ("AUDIT", logging.INFO + 6)
@@ -1060,14 +1071,16 @@ def main (config_file=None, run_internal_server=True, initialize=True,
         else:
             logger = logging.getLogger ("uwsgi:djehuty.web.ui")
 
+        perform_export = full_rdf_export or public_rdf_export
         since_datetime = None
-        ## Be less verbose when only extracting Query Audit Logs.
+        ## Be less verbose when only extracting Query Audit Logs or making
+        ## RDF exports.
         if extract_transactions_from_log is not None:
             logger = logging.getLogger (__name__)
             logger.setLevel(logging.ERROR)
             since_datetime = extract_transactions_from_log
 
-        if apply_transactions is not None:
+        if apply_transactions is not None or perform_export:
             logger = logging.getLogger (__name__)
             logger.setLevel(logging.ERROR)
 
@@ -1141,6 +1154,9 @@ def main (config_file=None, run_internal_server=True, initialize=True,
 
         if apply_transactions is not None:
             return apply_transactions_from_directory (logger, server, config, apply_transactions)
+
+        if perform_export:
+            return perform_rdf_export (logger, server, full_rdf_export)
 
         if not run_internal_server:
             server.using_uwsgi = True

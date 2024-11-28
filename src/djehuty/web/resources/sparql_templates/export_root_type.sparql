@@ -1,0 +1,19 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?subject ?predicate ?object (datatype(?object) AS ?type)
+WHERE {
+  GRAPH <{{state_graph}}> {
+    {%- if type_name == "Dataset" or type_name == "Collection" %}
+    ?container_uri rdf:type         djht:{{type_name}}Container .
+    {%- if full_export: %}
+    ?subject       djht:container   ?container_uri .
+    {%- else %}
+    ?container_uri djht:published_versions/rdf:rest*/rdf:first ?subject .
+    {%- endif %}
+    {%- else %}
+    ?subject       rdf:type         djht:{{type_name}} .
+    {%- endif %}
+    ?subject       ?predicate       ?object .
+  }
+}
+{% endblock %}

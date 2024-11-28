@@ -46,6 +46,13 @@ Available subcommands and options:
                             The optional argument is the path to the folder that
                             contains the SPARQL transaction files.  By default
                             it will look in the current working directory.
+    --full-rdf-export    -f Exports all metadata as RDF triples in N3 format.
+                            This feature is in BETA state. Do not rely on it
+                            for a full back-up.
+    --public-rdf-export  -p Exports all publically available metadata as RDF
+                            triples in N3 format.  This feature is in BETA
+                            state. Do not reply on it for an accurate
+                            representation of publically available metadata.
 
   Global options:
   --help                 -h  Show this message.
@@ -93,6 +100,8 @@ def main_inner ():
                             const='', default=None)
     web_parser.add_argument('--apply-transactions', '-A', nargs='?',
                             const='', default=None)
+    web_parser.add_argument('--full-rdf-export', '-f', action='store_true')
+    web_parser.add_argument('--public-rdf-export', '-p', action='store_true')
 
     ### GLOBAL ARGUMENTS
     ### -----------------------------------------------------------------------
@@ -125,7 +134,8 @@ def main_inner ():
     elif args.command == "web":
         web_ui.main (args.config_file, True, args.initialize,
                      args.extract_transactions_from_log,
-                     args.apply_transactions)
+                     args.apply_transactions, args.full_rdf_export,
+                     args.public_rdf_export)
 
     elif len(sys.argv) == 1:
         print("Try --help for usage options.")

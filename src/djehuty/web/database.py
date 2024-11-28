@@ -49,6 +49,7 @@ class SparqlInterface:
         self.disable_collaboration = True
         self.depositing_domains = []
         self.delay_inserting_log_entries = False
+        self.export_directory = "."
 
     def setup_sparql_endpoint (self):
         """Procedure to be called after setting the 'endpoint' members."""
@@ -3503,3 +3504,61 @@ class SparqlInterface:
                 self.__log_query (query, "Query Audit Log (manual execution)")
 
         return self.__run_query (query)
+
+    def __export_rdf_to_file (self, query, export_directory, filename):
+
+        records   = self.__run_query (query)
+        stream_fd = os.open (os.path.join (export_directory, filename),
+                             os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+
+        with open (stream_fd, "w", encoding="utf-8") as stream:
+            for triple in records:
+                if "type" in triple:
+                    value = rdf.escape_value (triple["object"], URIRef(triple["type"]))
+                else:
+                    value = f"<{triple['object']}>"
+                stream.write (f"<{triple['subject']}> <{triple['predicate']}> {value} <{self.state_graph}> .\n")
+            if os.name != 'nt':
+                os.fchmod (stream_fd, 0o400)
+
+    def export_rdf (self, full_export=False):
+        """Export RDF triples."""
+
+        current_time     = datetime.strftime (datetime.now(), "%Y-%m-%d_%H%M%S")
+        export_directory = os.path.join (self.export_directory, f"{current_time}")
+        export_directory += "-full" if full_export else "-public"
+
+        try:
+            os.makedirs (export_directory, mode=0o700, exist_ok=True)
+        except PermissionError:
+            self.log.error ("No permission to create directory '%s'.", export_directory)
+            return False
+
+        root_types = ["Account", "Author", "Category", "Collection",
+                      "CustomField", "Dataset", "File", "Funding",
+                      "InstitutionGroup", "Language", "License",
+                      "Review", "ReviewType"]
+
+        if full_export:
+            root_types += ["LogEntry", "LogEntryType", "PrivateLink",
+                           "QuotaRequest", "Session"]
+
+        for record_type in root_types:
+            query = self.__query_from_template ("export_root_type", {
+                "full_export": full_export,
+                "type_name": record_type
+            })
+            self.__export_rdf_to_file (query, export_directory, f"{record_type}.n3")
+
+        listable_types = ["authors", "categories", "files", "funding_list",
+                          "references", "tags", "datasets", "private_links",
+                          "collaborators"]
+
+        for record_type in listable_types:
+            query = self.__query_from_template ("export_listable_type", {
+                "full_export": full_export,
+                "predicate": record_type
+            })
+            self.__export_rdf_to_file (query, export_directory, f"{record_type}.n3")
+
+        return True

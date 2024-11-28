@@ -1,0 +1,22 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?subject ?predicate ?object (datatype(?object) AS ?type)
+WHERE {
+  GRAPH <{{state_graph}}> {
+    {%- if full_export: %}
+    ?container_uri rdf:type/rdfs:subClassOf djht:Container .
+    ?item          djht:container ?container_uri .
+    ?item          djht:{{predicate}}/rdf:rest* ?subject .
+    {%- else %}
+    ?container_uri rdf:type/rdfs:subClassOf djht:Container .
+    ?container_uri djht:published_versions/rdf:rest*/rdf:first ?item .
+    {
+      ?item          djht:{{predicate}}/rdf:rest*/rdf:first ?subject .
+    } UNION {
+      ?item          djht:{{predicate}}/rdf:rest* ?subject .
+    }
+    {% endif %}
+    ?subject       ?predicate       ?object .
+  }
+}
+{% endblock %}
