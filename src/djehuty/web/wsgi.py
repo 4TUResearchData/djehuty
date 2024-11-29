@@ -8410,34 +8410,36 @@ class ApiServer:
     def api_v3_private_dataset_git_receive_pack (self, request, git_uuid):
         """Implements /v3/datasets/<id>.git/git-receive-pack."""
         try:
-            dataset = None
-            if validator.is_valid_uuid (git_uuid):
-                dataset = self.db.datasets (git_uuid = git_uuid, is_published=False)[0]
+            if not validator.is_valid_uuid (git_uuid):
+                return self.error_403 (request, ("Someone attempted to update a git "
+                                                 "repository with an invalid UUID."))
 
+            dataset = self.db.datasets (git_uuid = git_uuid, is_published=False)[0]
             if dataset is not None:
                 return self.__git_passthrough (request)
         except IndexError:
             pass
 
         return self.error_403 (request, (f"Someone attempted to update the git "
-                                         f"repository for dataset:{dataset['uuid']}."))
+                                         f"repository git:{git_uuid}."))
 
     def api_v3_private_dataset_git_upload_pack (self, request, git_uuid):
         """Implements /v3/datasets/<id>.git/git-upload-pack."""
         try:
-            dataset = None
-            if validator.is_valid_uuid (git_uuid):
-                dataset = self.db.datasets (git_uuid     = git_uuid,
-                                            is_published = None,
-                                            is_latest    = None)[0]
-
+            if not validator.is_valid_uuid (git_uuid):
+                return self.error_403 (request, ("Someone attempted to pull a git "
+                                                 "repository with an invalid UUID."))
+            dataset = self.db.datasets (git_uuid     = git_uuid,
+                                        is_published = None,
+                                        is_latest    = None)[0]
+            if dataset is not None:
                 self.__log_event (request, dataset["container_uuid"], "dataset", "gitDownload")
                 return self.__git_passthrough (request)
         except IndexError:
             pass
 
-        return self.error_403 (request, (f"Someone attempted to update the git "
-                                         f"repository for dataset:{dataset['uuid']}."))
+        return self.error_403 (request, (f"Someone attempted to pull the git "
+                                         f"repository git:{git_uuid}."))
 
     def __git_contributors (self, git_uuid, git_repository):
         """Returns a list of contributors including their commit statistics."""
