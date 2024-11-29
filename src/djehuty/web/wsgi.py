@@ -7896,9 +7896,11 @@ class ApiServer:
             if file_size < 10000001:
                 is_image = self.__image_mimetype (output_filename) is not None
 
-            handle = f"{self.handle_prefix}/{file_uuid}"
-            if not self.__register_file_handle (handle, download_url):
-                handle = None
+            handle = None
+            if not is_incomplete:
+                handle = f"{self.handle_prefix}/{file_uuid}"
+                if not self.__register_file_handle (handle, download_url):
+                    handle = None
 
             self.db.update_file (account_uuid, file_uuid, dataset["uuid"],
                                  computed_md5  = computed_md5,
