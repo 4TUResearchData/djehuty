@@ -126,9 +126,12 @@ def order_direction (record, field_name, required=False, error_list=None):
     return value
 
 def integer_value (record, field_name, minimum_value=None, maximum_value=None, required=False, error_list=None):
-    """Validation procedure for integer values."""
+    """
+    Validation procedure for integer values.  If FIELD_NAME is None, it expects
+    RECORD to be the value to validate.
+    """
 
-    value   = conv.value_or_none (record, field_name)
+    value   = record if field_name is None else conv.value_or_none (record, field_name)
     prefix  = field_name.capitalize() if isinstance(field_name, str) else ""
 
     if value is None or (isinstance(value, str) and value == ""):
@@ -262,9 +265,12 @@ def index_exists (value, index):
 
 def string_value (record, field_name, minimum_length=0, maximum_length=None,
                   required=False, error_list=None, strip_html=True):
-    """Validation procedure for string values."""
+    """
+    Validation procedure for string values.  If FIELD_NAME is None, it expects
+    RECORD to be the value to validate.
+    """
 
-    value = conv.value_or_none (record, field_name)
+    value = record if field_name is None else conv.value_or_none (record, field_name)
     if value is None:
         if required:
             return raise_or_return_error (error_list,
@@ -318,9 +324,12 @@ def url_value (record, field_name, required=False, error_list=None):
                     code    = "WrongValueFormat"))
 
 def date_value (record, field_name, required=False, error_list=None):
-    """Validation procedure for date values."""
+    """
+    Validation procedure for date values.  If FIELD_NAME is None, it expects
+    RECORD to be the value to validate.
+    """
 
-    value = conv.value_or_none (record, field_name)
+    value = record if field_name is None else conv.value_or_none (record, field_name)
     if value is None:
         if required:
             return raise_or_return_error (error_list,
@@ -360,9 +369,12 @@ def date_value (record, field_name, required=False, error_list=None):
     return value
 
 def boolean_value (record, field_name, required=False, when_none=None, error_list=None):
-    """Validation procedure for boolean values."""
+    """
+    Validation procedure for boolean values.  If FIELD_NAME is None, it expects
+    RECORD to be the value to validate.
+    """
 
-    value = conv.value_or_none (record, field_name)
+    value = record if field_name is None else conv.value_or_none (record, field_name)
     if value is None:
         if required:
             return raise_or_return_error (error_list,
@@ -391,9 +403,12 @@ def boolean_value (record, field_name, required=False, when_none=None, error_lis
     return value
 
 def options_value (record, field_name, options, required=False, error_list=None):
-    """Validation procedure for pre-defined options fields."""
+    """
+    Validation procedure for pre-defined options fields.  If FIELD_NAME is None, it expects
+    RECORD to be the value to validate.
+    """
 
-    value = conv.value_or_none (record, field_name)
+    value = record if field_name is None else conv.value_or_none (record, field_name)
     if value is None:
         if required:
             return raise_or_return_error (error_list,
@@ -413,9 +428,12 @@ def options_value (record, field_name, options, required=False, error_list=None)
     return value
 
 def __typed_value (record, field_name, expected_type=None, type_name=None, required=False, error_list=None):
-    """Procedure to validate multiple-values fields."""
+    """
+    Procedure to validate multiple-values fields.  If FIELD_NAME is None, it expects
+    RECORD to be the value to validate.
+    """
 
-    value = conv.value_or_none (record, field_name)
+    value = record if field_name is None else conv.value_or_none (record, field_name)
     if value is None:
         if required:
             return raise_or_return_error (error_list,

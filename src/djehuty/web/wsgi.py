@@ -6485,66 +6485,39 @@ class ApiServer:
         if handler is not None:
             return handler
 
-        record = {}
-        record["limit"]           = self.get_parameter (request, "limit")
-        record["offset"]          = self.get_parameter (request, "offset")
-        record["order"]           = self.get_parameter (request, "order")
-        record["order_direction"] = self.get_parameter (request, "order_direction")
-        record["institution"]     = self.get_parameter (request, "institution")
-        record["published_since"] = self.get_parameter (request, "published_since")
-        record["modified_since"]  = self.get_parameter (request, "modified_since")
-        record["group"]           = self.get_parameter (request, "group")
-        record["group_ids"]       = split_string (self.get_parameter (request, "group_ids"), delimiter=",")
-        record["categories"]      = split_string (self.get_parameter (request, "categories"), delimiter=",")
-        record["resource_doi"]    = self.get_parameter (request, "resource_doi")
-        record["item_type"]       = self.get_parameter (request, "item_type")
-        record["doi"]             = self.get_parameter (request, "doi")
-        record["handle"]          = self.get_parameter (request, "handle")
-        record["return_count"]    = self.get_parameter (request, "return_count")
+        errors = []
+        record = {
+            "categories":   validator.string_value  (self.get_parameter (request, "categories"), None, maximum_length=512, error_list=errors),
+            "doi":          validator.string_value  (self.get_parameter (request, "doi"), None, maximum_length=255, error_list=errors),
+            "group":        validator.integer_value (self.get_parameter (request, "group"), None, error_list=errors),
+            "group_ids":    validator.string_value  (self.get_parameter (request, "group_ids"), None, maximum_length=512, error_list=errors),
+            "handle":       validator.string_value  (self.get_parameter (request, "handle"), None, maximum_length=255, error_list=errors),
+            "institution":  validator.integer_value (self.get_parameter (request, "institution"), None, error_list=errors),
+            "item_type":    validator.integer_value (self.get_parameter (request, "item_type"), None, error_list=errors),
+            "limit":        validator.integer_value (self.get_parameter (request, "limit"), None, error_list=errors),
+            "modified_since": validator.string_value (self.get_parameter (request, "modified_since"), None, max_length=32, error_list=errors),
+            "offset":       validator.integer_value (self.get_parameter (request, "offset"), None, error_list=errors),
+            "order":        validator.string_value  (self.get_parameter (request, "order", maximum_length=32), None, error_list=errors),
+            "order_direction": validator.order_direction (self.get_parameter (request, "order_direction"), None, error_list=errors),
+            "published_since": validator.string_value (self.get_parameter (request, "published_since"), None, max_length=32, error_list=errors),
+            "resource_doi": validator.string_value  (self.get_parameter (request, "resource_doi"), None, maximum_length=255, error_list=errors),
+            "return_count": validator.boolean_value (self.get_parameter (request, "return_count"), None, error_list=errors),
+        }
 
-        try:
-            validator.integer_value (record, "limit")
-            validator.integer_value (record, "offset")
-            validator.string_value  (record, "order",           maximum_length=32)
-            validator.order_direction (record, "order_direction")
-            validator.integer_value (record, "institution")
-            validator.string_value  (record, "published_since", maximum_length=32)
-            validator.string_value  (record, "modified_since",  maximum_length=32)
-            validator.integer_value (record, "group")
-            validator.string_value  (record, "resource_doi",    maximum_length=255)
-            validator.integer_value (record, "item_type")
-            validator.string_value  (record, "doi",             maximum_length=255)
-            validator.string_value  (record, "handle",          maximum_length=255)
-            validator.boolean_value (record, "return_count")
+        record["categories"] = split_string (record["categories"], delimiter=",")
+        if record["categories"] is not None:
+            for index, _ in enumerate(record["categories"]):
+                record["categories"][index] = validator.integer_value (record["categories"], index, error_list=errors)
 
-            if record["categories"] is not None:
-                validator.array_value   (record, "categories")
-                for index, _ in enumerate(record["categories"]):
-                    record["categories"][index] = validator.integer_value (record["categories"], index)
+        record["groups"]  = split_string (record["groups"], delimiter=",")
+        if record["groups"] is not None:
+            for index, _ in enumerate(record["groups"]):
+                record["groups"][index] = validator.integer_value (record["groups"], index, error_list=errors)
 
-            if record["group_ids"] is not None:
-                validator.array_value   (record, "group_ids")
-                for index, _ in enumerate(record["group_ids"]):
-                    record["group_ids"][index] = validator.integer_value (record["group_ids"], index)
+        if errors:
+            return self.error_400_list (request, errors)
 
-        except validator.ValidationException as error:
-            return self.error_400 (request, error.message, error.code)
-
-        records = self.db.datasets (limit           = record["limit"],
-                                    offset          = record["offset"],
-                                    order           = record["order"],
-                                    order_direction = record["order_direction"],
-                                    institution     = record["institution"],
-                                    published_since = record["published_since"],
-                                    modified_since  = record["modified_since"],
-                                    #group           = record["group"],
-                                    groups          = record["group_ids"],
-                                    resource_doi    = record["resource_doi"],
-                                    item_type       = record["item_type"],
-                                    doi             = record["doi"],
-                                    handle          = record["handle"],
-                                    categories      = record["categories"],
-                                    return_count    = record["return_count"])
+        records = self.db.datasets (**record)
         if record["return_count"]:
             return self.response (json.dumps(records[0]))
 
