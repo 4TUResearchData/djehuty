@@ -1020,44 +1020,32 @@ class ApiServer:
 
     def __default_dataset_api_parameters (self, request):
 
-        record = {}
-        record["order"]           = self.get_parameter (request, "order")
-        record["order_direction"] = self.get_parameter (request, "order_direction")
-        record["institution"]     = self.get_parameter (request, "institution")
-        record["published_since"] = self.get_parameter (request, "published_since")
-        record["modified_since"]  = self.get_parameter (request, "modified_since")
-        record["group"]           = self.get_parameter (request, "group")
-        record["resource_doi"]    = self.get_parameter (request, "resource_doi")
-        record["item_type"]       = self.get_parameter (request, "item_type")
-        record["doi"]             = self.get_parameter (request, "doi")
-        record["handle"]          = self.get_parameter (request, "handle")
-        record["search_for"]      = self.parse_search_terms (self.get_parameter (request, "search_for"))
-        record["search_format"]   = self.get_parameter (request, "search_format")
-        record["categories"]      = split_string (self.get_parameter (request, "categories"), delimiter=",")
-        record["is_latest"]       = self.get_parameter (request, "is_latest")
-
+        record = {
+            "categories":   validator.string_value  (self.get_parameter (request, "categories"), None, maximum_length=512),
+            "doi":          validator.string_value  (self.get_parameter (request, "doi"), None, maximum_length=255),
+            "group":        validator.integer_value (self.get_parameter (request, "group"), None),
+            "handle":       validator.string_value  (self.get_parameter (request, "handle"), None, maximum_length=255),
+            "institution":  validator.integer_value (self.get_parameter (request, "institution"), None),
+            "is_latest":    validator.boolean_value (self.get_parameter (request, "is_latest"), None),
+            "item_type":    validator.integer_value (self.get_parameter (request, "item_type"), None),
+            "modified_since": validator.string_value (self.get_parameter (request, "modified_since"), None, maximum_length=32),
+            "order":        validator.string_value  (self.get_parameter (request, "order"), None, maximum_length=32),
+            "order_direction": validator.order_direction (self.get_parameter (request, "order_direction"), None),
+            "published_since": validator.string_value (self.get_parameter (request, "published_since"), None, maximum_length=32),
+            "resource_doi": validator.string_value  (self.get_parameter (request, "resource_doi"), None, maximum_length=255),
+            "search_for":   self.parse_search_terms (self.get_parameter (request, "search_for")),
+            "search_format": validator.boolean_value (self.get_parameter (request, "search_format"), None),
+        }
         offset, limit = self.__paging_offset_and_limit (request)
         record["offset"] = offset
         record["limit"]  = limit
-
-        validator.string_value  (record, "order", 0, 32)
-        validator.order_direction (record, "order_direction")
-        validator.integer_value (record, "institution")
-        validator.string_value  (record, "published_since", maximum_length=32)
-        validator.string_value  (record, "modified_since",  maximum_length=32)
-        validator.integer_value (record, "group")
-        validator.string_value  (record, "resource_doi",    maximum_length=255)
-        validator.integer_value (record, "item_type")
-        validator.string_value  (record, "doi",             maximum_length=255)
-        validator.string_value  (record, "handle",          maximum_length=255)
-        validator.boolean_value (record, "search_format")
-        validator.boolean_value (record, "is_latest")
 
         try:
             validator.string_value (record, "search_for", maximum_length=1024, strip_html=False)
         except validator.InvalidValueType:
             validator.array_value  (record, "search_for" )
 
+        record["categories"] = split_string (record["categories"], delimiter=",")
         if "categories" in record and record["categories"] is not None:
             for category_id in record["categories"]:
                 validator.integer_value (record, "category_id", category_id)
@@ -6489,17 +6477,17 @@ class ApiServer:
         record = {
             "categories":   validator.string_value  (self.get_parameter (request, "categories"), None, maximum_length=512, error_list=errors),
             "doi":          validator.string_value  (self.get_parameter (request, "doi"), None, maximum_length=255, error_list=errors),
-            "group":        validator.integer_value (self.get_parameter (request, "group"), None, error_list=errors),
-            "group_ids":    validator.string_value  (self.get_parameter (request, "group_ids"), None, maximum_length=512, error_list=errors),
+            #"group":        validator.integer_value (self.get_parameter (request, "group"), None, error_list=errors),
+            "groups":       validator.string_value  (self.get_parameter (request, "group_ids"), None, maximum_length=512, error_list=errors),
             "handle":       validator.string_value  (self.get_parameter (request, "handle"), None, maximum_length=255, error_list=errors),
             "institution":  validator.integer_value (self.get_parameter (request, "institution"), None, error_list=errors),
             "item_type":    validator.integer_value (self.get_parameter (request, "item_type"), None, error_list=errors),
             "limit":        validator.integer_value (self.get_parameter (request, "limit"), None, error_list=errors),
-            "modified_since": validator.string_value (self.get_parameter (request, "modified_since"), None, max_length=32, error_list=errors),
+            "modified_since": validator.string_value (self.get_parameter (request, "modified_since"), None, maximum_length=32, error_list=errors),
             "offset":       validator.integer_value (self.get_parameter (request, "offset"), None, error_list=errors),
-            "order":        validator.string_value  (self.get_parameter (request, "order", maximum_length=32), None, error_list=errors),
+            "order":        validator.string_value  (self.get_parameter (request, "order"), None, maximum_length=32, error_list=errors),
             "order_direction": validator.order_direction (self.get_parameter (request, "order_direction"), None, error_list=errors),
-            "published_since": validator.string_value (self.get_parameter (request, "published_since"), None, max_length=32, error_list=errors),
+            "published_since": validator.string_value (self.get_parameter (request, "published_since"), None, maximum_length=32, error_list=errors),
             "resource_doi": validator.string_value  (self.get_parameter (request, "resource_doi"), None, maximum_length=255, error_list=errors),
             "return_count": validator.boolean_value (self.get_parameter (request, "return_count"), None, error_list=errors),
         }
