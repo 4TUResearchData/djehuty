@@ -1,7 +1,7 @@
 djehuty
 =========
 
-This Python package provides the repository system for 4TU.ResearchData.
+This Python package provides the repository system for 4TU.ResearchData and Nikhef.
 
 ## Develop
 

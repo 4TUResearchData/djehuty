@@ -47,3 +47,6 @@ doc/djehuty.tmp
 doc/djehuty.toc
 doc/djehuty.xref
 doc/figures/*-.png
+djehuty.code-workspace
+query.sparqlbook
+.vscode/launch.json
