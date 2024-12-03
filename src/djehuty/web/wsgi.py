@@ -6686,43 +6686,31 @@ class ApiServer:
             return handler
 
         parameters = request.get_json()
-
         try:
-            record = {}
-            record["order"]           = self.get_parameter (parameters, "order")
-            record["order_direction"] = self.get_parameter (parameters, "order_direction")
-            record["institution"]     = self.get_parameter (parameters, "institution")
-            record["published_since"] = self.get_parameter (parameters, "published_since")
-            record["modified_since"]  = self.get_parameter (parameters, "modified_since")
-            record["groups"]          = self.get_parameter (parameters, "groups")
-            record["resource_doi"]    = self.get_parameter (parameters, "resource_doi")
-            record["item_type"]       = self.get_parameter (parameters, "item_type")
-            record["doi"]             = self.get_parameter (parameters, "doi")
-            record["handle"]          = self.get_parameter (parameters, "handle")
-            record["search_for"]      = self.get_parameter (parameters, "search_for")
-            record["search_format"]   = self.get_parameter (parameters, "search_format")
-            record["licenses"]        = self.get_parameter (parameters, "licenses")
-            record["organizations"]   = self.get_parameter (parameters, "organizations")
-            record["categories"]      = self.get_parameter (parameters, "categories")
-            record["is_latest"]       = self.get_parameter (parameters, "is_latest")
-            search_operator           = self.get_parameter (parameters, "search_operator")
-            search_scope              = self.get_parameter (parameters, "search_scope")
+            record = {
+                "categories":      value_or_none (parameters, "categories"),
+                "doi":             validator.string_value   (parameters, "doi",        maximum_length=255),
+                "groups":          value_or_none (parameters, "groups"),
+                "handle":          validator.string_value   (parameters, "handle",     maximum_length=255),
+                "institution":     validator.integer_value  (parameters, "institution"),
+                "is_latest":       validator.boolean_value  (parameters, "is_latest"),
+                "item_type":       validator.integer_value  (parameters, "item_type"),
+                "licenses":        value_or_none (parameters, "licenses"),
+                "modified_since":  validator.string_value   (parameters, "modified_since", maximum_length=32),
+                "order":           validator.string_value   (parameters, "order", 0, 32),
+                "order_direction": validator.order_direction (parameters, "order_direction"),
+                "organizations":   validator.string_value (parameters, "organizations", maximum_length=255),
+                "published_since": validator.string_value   (parameters, "published_since", maximum_length=32),
+                "resource_doi":    validator.string_value   (parameters, "resource_doi", maximum_length=255),
+                "search_for":      validator.string_value   (parameters, "search_for", maximum_length=1024, strip_html=False),
+                "search_format":   value_or_none (parameters, "search_format")
+            }
 
             offset, limit = self.__paging_offset_and_limit (parameters)
             record["offset"] = offset
             record["limit"]  = limit
-
-            validator.string_value   (record, "order", 0, 32)
-            validator.order_direction (record, "order_direction")
-            validator.integer_value  (record, "institution")
-            validator.string_value   (record, "published_since", maximum_length=32)
-            validator.string_value   (record, "modified_since",  maximum_length=32)
-            validator.string_value   (record, "resource_doi",    maximum_length=255)
-            validator.integer_value  (record, "item_type")
-            validator.string_value   (record, "doi",             maximum_length=255)
-            validator.string_value   (record, "handle",          maximum_length=255)
-            validator.string_value   (record, "search_for", maximum_length=1024, strip_html=False)
-            validator.boolean_value  (record, "is_latest")
+            search_operator  = value_or_none (parameters, "search_operator")
+            search_scope     = value_or_none (parameters, "search_scope")
 
             if record["groups"] is not None:
                 validator.array_value    (record, "groups")
@@ -6744,9 +6732,6 @@ class ApiServer:
                 record["search_for"] = { "operator": search_operator,
                                          "search_for": search_tokens,
                                          "scope": search_scope}
-
-            if record["organizations"] is not None:
-                record["organizations"] = validator.search_filters("organizations", record["organizations"])
 
             if record["licenses"] is not None:
                 validator.array_value    (record, "licenses")
