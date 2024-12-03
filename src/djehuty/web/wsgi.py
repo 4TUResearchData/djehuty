@@ -6751,22 +6751,16 @@ class ApiServer:
             return self.error_400 (request, error.message, error.code)
 
     def __api_v3_datasets_parameters (self, request, item_type):
-        record = {}
-        record["dataset_id"]      = self.get_parameter (request, "id")
-        record["limit"]           = self.get_parameter (request, "limit")
-        record["offset"]          = self.get_parameter (request, "offset")
-        record["order"]           = self.get_parameter (request, "order")
-        record["order_direction"] = self.get_parameter (request, "order_direction")
-        record["group_ids"]       = split_string (self.get_parameter (request, "group_ids"), delimiter=",")
-        record["categories"]      = split_string (self.get_parameter (request, "categories"), delimiter=",")
-        record["item_type"]       = item_type
-
-        validator.integer_value (record, "dataset_id")
-        validator.integer_value (record, "limit")
-        validator.integer_value (record, "offset")
-        validator.string_value  (record, "order", maximum_length=32)
-        validator.order_direction (record, "order_direction")
-        validator.string_value  (record, "item_type", maximum_length=32)
+        record = {
+            "dataset_id": validator.integer_value (self.get_parameter (request, "id"), None),
+            "limit":      validator.integer_value (self.get_parameter (request, "limit"), None),
+            "offset":     validator.integer_value (self.get_parameter (request, "offset"), None),
+            "order":      validator.string_value  (self.get_parameter (request, "order"), None, maximum_length=32),
+            "order_direction": validator.order_direction (self.get_parameter (request, "order_direction"), None),
+            "item_type":  validator.integer_value (item_type, None),
+            "categories": validator.string_value  (self.get_parameter (request, "categories"), None, maximum_length=512),
+            "group_ids":  validator.string_value  (self.get_parameter (request, "group_ids"), None, maximum_length=512),
+        }
 
         if item_type not in {"downloads", "views", "shares", "cites"}:
             raise validator.InvalidValue(
@@ -6775,13 +6769,13 @@ class ApiServer:
                            "'downloads', 'views', 'shares' or 'cites'."),
                 code    = "InvalidURLParameterValue")
 
+        record["categories"] = split_string (record["categories"], delimiter=",")
         if record["categories"] is not None:
-            validator.array_value (record, "categories")
             for index, _ in enumerate(record["categories"]):
                 record["categories"][index] = validator.integer_value (record["categories"], index)
 
+        record["group_ids"]  = split_string (record["group_ids"], delimiter=",")
         if record["group_ids"] is not None:
-            validator.array_value (record, "group_ids")
             for index, _ in enumerate(record["group_ids"]):
                 record["group_ids"][index] = validator.integer_value (record["group_ids"], index)
 
