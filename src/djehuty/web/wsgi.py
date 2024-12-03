@@ -1023,7 +1023,7 @@ class ApiServer:
         record = {
             "categories":   validator.string_value  (self.get_parameter (request, "categories"), None, maximum_length=512),
             "doi":          validator.string_value  (self.get_parameter (request, "doi"), None, maximum_length=255),
-            "group":        validator.integer_value (self.get_parameter (request, "group"), None),
+            "groups":       validator.integer_value (self.get_parameter (request, "group"), None),
             "handle":       validator.string_value  (self.get_parameter (request, "handle"), None, maximum_length=255),
             "institution":  validator.integer_value (self.get_parameter (request, "institution"), None),
             "is_latest":    validator.boolean_value (self.get_parameter (request, "is_latest"), None),
@@ -1051,8 +1051,8 @@ class ApiServer:
                 validator.integer_value (record, "category_id", category_id)
 
         # Rewrite the group parameter to match the database's plural form.
-        record["groups"]  = [record["group"]] if record["group"] is not None else None
-        del record["group"]
+        if record["groups"] is not None:
+            record["groups"] = [record["groups"]]
 
         return record
 
