@@ -4,7 +4,7 @@
 <style>
     #content a    { text-decoration: none }
     #content a:hover { text-decoration: underline }
-    #datasets, #collections, #member, #usage, #associated-authors
+    #datasets, #collections, #location, #member, #usage, #metric-wrapper, #associated-authors
                   { margin-top: 10px }
     #has-account  { margin-top: 80px }
     #left_column  { width: 65%; margin-bottom:10px }
@@ -17,6 +17,7 @@
     #orcid img    { height: 20px }
     .is_active    { font-weight: bold }
     #profile_image img { max-width: 200px; max-height: 200px; border-radius: 20px }
+    #metric-wrapper { height: 65px; }
 </style>
 {% endblock %}
 {% block body %}
@@ -38,12 +39,14 @@
     <div id="usage">
         <div class="label">usage stats</div>
         <div class="small">Totals for datasets (co-)authored by {{profile.full_name}}</div>
+        <div id="metric-wrapper">
     {% for metric in statistics %}
         <div class="metric">
             <div class="number">{{statistics[metric]}}</div>
             {{metric}}
         </div>
     {% endfor %}
+        </div>
     </div>
 {% endif %}
 
