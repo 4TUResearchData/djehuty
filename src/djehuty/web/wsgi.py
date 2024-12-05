@@ -304,6 +304,7 @@ class ApiServer:
             R("/v2/account/articles/<dataset_id>/private_links",                 self.api_private_dataset_private_links),
             R("/v2/account/articles/<dataset_id>/private_links/<link_id>",       self.api_private_dataset_private_links_details),
             R("/v2/account/articles/<dataset_id>/reserve_doi",                   self.api_private_dataset_reserve_doi),
+            R("/v2/account/articles/<dataset_id>/publish",                       self.api_v3_dataset_publish),
 
             ## Public collections
             ## ----------------------------------------------------------------
