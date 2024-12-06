@@ -5842,48 +5842,40 @@ class ApiServer:
     ## COLLECTIONS
     ## ------------------------------------------------------------------------
 
+    def __default_collection_api_parameters (self, request):
+        errors = []
+        record = {
+            "order":           validator.string_value  (self.get_parameter (request, "order"), None, maximum_length=32, error_list=errors),
+            "order_direction": validator.order_direction (self.get_parameter (request, "order_direction"), None, error_list=errors),
+            "institution":     validator.integer_value (self.get_parameter (request, "institution"), None, error_list=errors),
+            "published_since": validator.string_value  (self.get_parameter (request, "published_since"), None, maximum_length=32, error_list=errors),
+            "modified_since":  validator.string_value  (self.get_parameter (request, "modified_since"), None, maximum_length=32, error_list=errors),
+            "group":           validator.integer_value (self.get_parameter (request, "group"), None, error_list=errors),
+            "resource_doi":    validator.string_value  (self.get_parameter (request, "resource_doi"), None, maximum_length=255, error_list=errors),
+            "doi":             validator.string_value  (self.get_parameter (request, "doi"), None, maximum_length=255, error_list=errors),
+            "handle":          validator.string_value  (self.get_parameter (request, "handle"), None, maximum_length=255, error_list=errors),
+            "is_latest":       True
+        }
+
+        offset, limit = self.__paging_offset_and_limit (request, error_list=errors)
+        record["limit"] = limit
+        record["offset"] = offset
+        validator.order_direction (record, "order_direction", error_list=errors)
+        return errors, record
+
     def api_collections (self, request):
         """Implements /v2/collections."""
         handler = self.default_error_handling (request, "GET", "application/json")
         if handler is not None:
             return handler
 
-        ## Parameters
-        ## ----------------------------------------------------------------
-        order           = self.get_parameter (request, "order")
-        order_direction = self.get_parameter (request, "order_direction")
-        institution     = self.get_parameter (request, "institution")
-        published_since = self.get_parameter (request, "published_since")
-        modified_since  = self.get_parameter (request, "modified_since")
-        group           = self.get_parameter (request, "group")
-        resource_doi    = self.get_parameter (request, "resource_doi")
-        doi             = self.get_parameter (request, "doi")
-        handle          = self.get_parameter (request, "handle")
+        errors, record = self.__default_collection_api_parameters (request)
+        if errors:
+            return self.error_400_list (request, errors)
 
-        try:
-            offset, limit = self.__paging_offset_and_limit (request)
-            validator.order_direction ({"order_direction": order_direction}, "order_direction")
-            validator.institution (institution)
-            validator.group (group)
-
-            records = self.db.collections (limit=limit,
-                                           offset=offset,
-                                           order=order,
-                                           order_direction=order_direction,
-                                           institution=institution,
-                                           published_since=published_since,
-                                           modified_since=modified_since,
-                                           group=group,
-                                           resource_doi=resource_doi,
-                                           doi=doi,
-                                           is_latest=True,
-                                           handle=handle)
-
-            return self.default_list_response (records, formatter.format_collection_record,
-                                               base_url = self.base_url)
-
-        except validator.ValidationException as error:
-            return self.error_400 (request, error.message, error.code)
+        records = self.db.collections (**record)
+        return self.default_list_response (records, formatter.format_collection_record,
+                                           base_url = self.base_url)
 
     def api_collections_search (self, request):
         """Implements /v2/collections/search."""
@@ -5956,7 +5948,7 @@ class ApiServer:
         return self.response (json.dumps(total))
 
     def api_private_collections (self, request):
-        """Implements /v2/collections/<id>/versions/<version>."""
+        """Implements /v2/account/collections."""
 
         account_uuid = self.default_authenticated_error_handling (request,
                                                                   ["GET", "POST"],
@@ -5965,34 +5957,14 @@ class ApiServer:
             return account_uuid
 
         if request.method in ("GET", "HEAD"):
-            ## Parameters
-            ## ----------------------------------------------------------------
-            offset, limit = self.__paging_offset_and_limit (request)
-            order           = self.get_parameter (request, "order")
-            order_direction = self.get_parameter (request, "order_direction")
+            errors, record = self.__default_collection_api_parameters (request)
+            if errors:
+                return self.error_400_list (request, errors)
 
-            ## These parameters aren't in the Figshare spec.
-            institution     = self.get_parameter (request, "institution")
-            published_since = self.get_parameter (request, "published_since")
-            modified_since  = self.get_parameter (request, "modified_since")
-            group           = self.get_parameter (request, "group")
-            resource_doi    = self.get_parameter (request, "resource_doi")
-            doi             = self.get_parameter (request, "doi")
-            handle          = self.get_parameter (request, "handle")
-
-            records = self.db.collections (limit=limit,
-                                           offset=offset,
-                                           order=order,
-                                           order_direction=order_direction,
-                                           institution=institution,
-                                           published_since=published_since,
-                                           modified_since=modified_since,
-                                           group=group,
-                                           resource_doi=resource_doi,
-                                           doi=doi,
-                                           handle=handle,
-                                           account_uuid=account_uuid)
-
+            record["account_uuid"] = account_uuid
+            record["is_latest"]    = None
+            record["is_published"] = None
+            records = self.db.collections (**record)
             return self.default_list_response (records, formatter.format_collection_record,
                                                base_url = self.base_url)
 
