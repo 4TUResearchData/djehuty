@@ -6730,7 +6730,6 @@ class ApiServer:
             "offset":     validator.integer_value (self.get_parameter (request, "offset"), None),
             "order":      validator.string_value  (self.get_parameter (request, "order"), None, maximum_length=32),
             "order_direction": validator.order_direction (self.get_parameter (request, "order_direction"), None),
-            "item_type":  validator.integer_value (item_type, None),
             "categories": validator.string_value  (self.get_parameter (request, "categories"), None, maximum_length=512),
             "group_ids":  validator.string_value  (self.get_parameter (request, "group_ids"), None, maximum_length=512),
         }
