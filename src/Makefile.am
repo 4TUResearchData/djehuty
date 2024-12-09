@@ -38,7 +38,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/admin/reports/dashboard.html         \
     djehuty/web/resources/html_templates/admin/reports/embargoed_datasets.html \
     djehuty/web/resources/html_templates/admin/reports/restricted_datasets.html \
-    djehuty/web/resources/html_templates/admin/maintenance.html               \
     djehuty/web/resources/html_templates/admin/sparql.html                    \
     djehuty/web/resources/html_templates/admin/users.html                     \
     djehuty/web/resources/html_templates/author.html                          \

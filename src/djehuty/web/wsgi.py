@@ -201,7 +201,6 @@ class ApiServer:
             R("/admin/reports/restricted_datasets",                              self.ui_admin_reports_restricted_datasets),
             R("/admin/reports/embargoed_datasets",                               self.ui_admin_reports_embargoed_datasets),
             R("/admin/impersonate/<account_uuid>",                               self.ui_admin_impersonate),
-            R("/admin/maintenance",                                              self.ui_admin_maintenance),
             R("/admin/maintenance/clear-cache",                                  self.ui_admin_clear_cache),
             R("/admin/maintenance/clear-sessions",                               self.ui_admin_clear_sessions),
             R("/admin/maintenance/repair-doi-registrations",                     self.ui_admin_repair_doi_registrations),
@@ -3127,7 +3126,9 @@ class ApiServer:
         if not self.db.may_administer (token):
             return self.error_403 (request)
 
-        return self.__render_template (request, "admin/dashboard.html")
+        missing_doi_items = self.db.missing_dois ()
+        return self.__render_template (request, "admin/dashboard.html",
+                                       missing_dois = len(missing_doi_items))
 
     def ui_admin_users (self, request):
         """Implements /admin/users."""
@@ -3218,19 +3219,6 @@ class ApiServer:
             return self.__export_report_in_format (request, "embargoed_datasets", embargoed_datasets, fileformat)
 
         return self.__render_template (request, "admin/reports/embargoed_datasets.html", datasets=embargoed_datasets)
-
-    def ui_admin_maintenance (self, request):
-        """Implements /admin/maintenance."""
-        if not self.accepts_html (request):
-            return self.error_406 ("text/html")
-
-        token = self.token_from_cookie (request)
-        if not self.db.may_administer (token):
-            return self.error_403 (request)
-
-        missing_doi_items = self.db.missing_dois ()
-        return self.__render_template (request, "admin/maintenance.html",
-                                       missing_dois = len(missing_doi_items))
 
     def ui_admin_clear_cache (self, request):
         """Implements /admin/maintenance/clear-cache."""
