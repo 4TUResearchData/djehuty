@@ -66,7 +66,7 @@ pyinstaller --onefile \
             --hidden-import=_cffi_backend \
             --add-data "src/djehuty/web/resources:djehuty/web/resources" \
             --name djehuty \
-            main.py
+            /path/to/djehuty-env/bin/djehuty
 ```
 
 On Windows, use:
@@ -78,7 +78,7 @@ pyinstaller --onefile \
             --add-data="src/djehuty/web/resources;djehuty/web/resources" \
             --icon="src/djehuty/web/resources/static/images/favicon.ico" \
             --name=djehuty \
-            main.py
+            /path/to/djehuty-env/bin/djehuty
 ```
 
 #### Tricks when building using WINE
@@ -94,14 +94,14 @@ wine cmd
 
 ```bash
 pip install nuitka
-nuitka3 --standalone \
-        --include-module=rdflib.plugins \
-        --include-module=_cffi_backend \
-        --include-package-data=djehuty \
-        --onefile \
-        --linux-onefile-icon="src/djehuty/web/resources/static/images/favicon.png" \
-        main.py \
-        -o djehuty.appimage
+nuitka --standalone \
+       --include-module=rdflib.plugins \
+       --include-module=_cffi_backend \
+       --include-package-data=djehuty \
+       --onefile \
+       --linux-onefile-icon="src/djehuty/web/resources/static/images/favicon.png" \
+       /path/to/djehuty-env/bin/djehuty \
+       -o djehuty.appimage
 ```
 
 ### Build RPMs

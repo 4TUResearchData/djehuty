@@ -17,7 +17,6 @@ EXTRA_DIST              =                   \
   etc/djehuty/djehuty-example-config.xml    \
   requirements.txt                          \
   pyproject.toml                            \
-  main.py                                   \
   tests/admin_panel.py                      \
   tests/create_article.py                   \
   tests/create_collection.py                \
