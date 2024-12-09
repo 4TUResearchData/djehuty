@@ -746,9 +746,7 @@ class ApiServer:
         if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "403.html")
         else:
-            response = self.response (json.dumps({
-                "message": "Not allowed."
-            }))
+            response = self.response (json.dumps ({"message": "Not allowed."}))
         response.status_code = 403
         return response
 
@@ -820,6 +818,7 @@ class ApiServer:
         """Procedure to respond with HTTP 500."""
         response = self.response ("")
         response.status_code = 500
+        self.log.audit ("An unexpected error has occurred (HTTP 500).")
         return response
 
     def error_authorization_failed (self, request):
@@ -4718,8 +4717,6 @@ class ApiServer:
             except (IndexError, KeyError):
                 pass
 
-            return self.error_500 ()
-
         return self.error_500 ()
 
     def api_private_dataset_authors (self, request, dataset_id):
@@ -5182,8 +5179,6 @@ class ApiServer:
                                              categories, "categories"):
                     return self.respond_205()
 
-                return self.error_500()
-
             except IndexError:
                 return self.error_500 ()
             except KeyError:
@@ -5246,8 +5241,6 @@ class ApiServer:
                     return self.respond_204()
             except (IndexError, KeyError):
                 pass
-
-            return self.error_500 ()
 
         return self.error_500 ()
 
@@ -5374,8 +5367,6 @@ class ApiServer:
                 return self.error_400 (request, error.message, error.code)
             except (IndexError, KeyError):
                 pass
-
-            return self.error_500 ()
 
         return self.error_500 ()
 
@@ -7213,8 +7204,6 @@ class ApiServer:
         if errors:
             return self.error_400_list (request, errors)
 
-        ## Only continue publishing when validation went fine.
-
         ## Register/update dois
         container_uuid = collection["container_uuid"]
         container = self.db.container(container_uuid, "collection")
@@ -7796,7 +7785,6 @@ class ApiServer:
                     pass
 
                 os.remove (output_filename)
-
                 return self.error_400 (request,
                                        "MD5 checksum mismatch.",
                                        "MD5Mismatch")
@@ -9314,7 +9302,6 @@ class ApiServer:
                                         f"supported: {supported_formats}."),
                                        "InvalidImageFormat")
             self.log.error ("Pyvips reported: %s", error)
-            return self.error_500 ()
 
         return self.error_500 ()
 
@@ -9482,6 +9469,5 @@ class ApiServer:
                                         f"supported: {supported_formats}."),
                                        "InvalidImageFormat")
             self.log.error ("Pyvips reported: %s", error)
-            return self.error_500 ()
 
         return self.error_500 ()
