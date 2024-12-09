@@ -47,6 +47,8 @@ doc/djehuty.tmp
 doc/djehuty.toc
 doc/djehuty.xref
 doc/figures/*-.png
+doc/index.html
 djehuty.code-workspace
+install-sh~
 query.sparqlbook
 .vscode/launch.json
