@@ -2990,8 +2990,8 @@ class ApiServer:
                                        reviewers = reviewers,
                                        reviews = reviews)
 
-    def ui_review_assign_to_me (self, request, dataset_id):
-        """Implements /review/assign-to-me/<id>."""
+    def __review_assign_or_unassign (self, request, dataset_id, status):
+        """Simplifies the implementations to assign or unassign a reviewer."""
 
         account_uuid, error_response = self.__reviewer_account_uuid (request)
         if error_response is not None:
@@ -3011,41 +3011,24 @@ class ApiServer:
         if dataset is None:
             return self.error_403 (request)
 
+        if status == "unassigned":
+            account_uuid = None
+
         if self.db.update_review (dataset["review_uri"],
                                   author_account_uuid = dataset["account_uuid"],
                                   assigned_to = account_uuid,
-                                  status      = "assigned"):
+                                  status      = status):
             return redirect ("/review/overview", code=302)
 
         return self.error_500()
+
+    def ui_review_assign_to_me (self, request, dataset_id):
+        """Implements /review/assign-to-me/<id>."""
+        return self.__review_assign_or_unassign (request, dataset_id, "assigned")
 
     def ui_review_unassign (self, request, dataset_id):
         """Implements /review/unassign/<id>."""
-        _, error_response = self.__reviewer_account_uuid (request)
-        if error_response is not None:
-            return error_response
-
-        if not validator.is_valid_uuid (dataset_id):
-            return self.error_404 (request)
-
-        dataset = None
-        try:
-            dataset = self.db.datasets (dataset_uuid    = dataset_id,
-                                        is_published    = False,
-                                        is_under_review = True)[0]
-        except (IndexError, TypeError):
-            pass
-
-        if dataset is None:
-            return self.error_403 (request)
-
-        if self.db.update_review (dataset["review_uri"],
-                                  author_account_uuid = dataset["account_uuid"],
-                                  assigned_to = None,
-                                  status      = "unassigned"):
-            return redirect ("/review/overview", code=302)
-
-        return self.error_500()
+        return self.__review_assign_or_unassign (request, dataset_id, "unassigned")
 
     def ui_review_published (self, request, dataset_id):
         """Implements /review/published/<id>."""
