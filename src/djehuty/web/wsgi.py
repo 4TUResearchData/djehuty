@@ -7314,8 +7314,6 @@ class ApiServer:
                     "field_name": "categories",
                     "message": "Please specify at least one category."})
 
-            resource_doi =   validator.string_value  (record, "resource_doi",   0, 255,   False, errors)
-            resource_title = validator.string_value  (record, "resource_title", 0, 255,   False, errors)
             license_id = validator.integer_value (record, "license_id", 0, pow(2, 63), True, errors)
             license_url = self.db.license_url_by_id (license_id)
             parameters = {
@@ -7323,8 +7321,8 @@ class ApiServer:
                 "account_uuid":       account_uuid,
                 "title":              validator.string_value  (record, "title",          3, 1000,  True, errors),
                 "description":        validator.string_value  (record, "description",    0, 10000, True, errors, strip_html=False),
-                "resource_doi":       resource_doi,
-                "resource_title":     resource_title,
+                "resource_doi":       validator.string_value  (record, "resource_doi",   0, 255,   False, errors),
+                "resource_title":     validator.string_value  (record, "resource_title", 0, 255,   False, errors),
                 "license_url":        license_url,
                 "group_id":           validator.integer_value (record, "group_id",       0, pow(2, 63), True, errors),
                 "time_coverage":      validator.string_value  (record, "time_coverage",  0, 512,   False, errors),
