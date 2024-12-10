@@ -6947,9 +6947,9 @@ class ApiServer:
                                          prefix = "git-zip-",
                                          delete = False) as folder:
             git_directory  = os.path.join (self.db.storage, f"{git_uuid}.git")
-            git_repository = pygit2.clone_repository (git_directory, folder)
+            git_cloned     = pygit2.clone_repository (git_directory, folder)
 
-            if not isinstance (git_repository, pygit2.Repository):
+            if not isinstance (git_cloned, pygit2.Repository):
                 return self.error_500 (f"Unable to clone {git_directory}.")
 
             tree = git_repository.revparse_single(branch).tree # pylint: disable=no-member
