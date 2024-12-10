@@ -181,7 +181,7 @@ def paging_to_offset_and_limit (record, error_list=None):
     # Check whether the parameters are mixed.
     if ((page is not None or page_size is not None) and
         (offset is not None or limit is not None)):
-        return raise_or_return_error (error_list,
+        return None, raise_or_return_error (error_list,
             InvalidPagingOptions(
                 field_name = "page_size",
                 message = ("Either use page/page-size or offset/limit. "
