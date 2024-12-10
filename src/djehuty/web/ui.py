@@ -905,15 +905,15 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
 
         return config
 
-    except ConfigFileNotFound:
+    except ConfigFileNotFound as error:
         if not inside_reload:
             logger.error ("%s does not look like a Djehuty configuration file.",
                            config_file)
-        raise SystemExit
-    except ElementTree.ParseError:
+        raise SystemExit from error
+    except ElementTree.ParseError as error:
         if not inside_reload:
             logger.error ("%s does not contain valid XML.", config_file)
-        raise SystemExit
+        raise SystemExit from error
     except FileNotFoundError as error:
         if not inside_reload:
             if config_file is None:
