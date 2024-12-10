@@ -147,6 +147,34 @@ def format_codemeta_record (record, git_url, tags, authors):
         "author": list (map (format_codemeta_author_record, authors))
     }
 
+def format_rocrate_record (record, ror_url, tags, authors):
+    """Record formatter for the RO-Crate format."""
+
+    # Strip the HTML tags from the description.
+    description = conv.value_or_none (record, "description")
+    if description:
+        description = conv.html_to_plaintext (description, True)
+
+    output = {
+        "@context": "https://w3id.org/ro/crate/1.1/context",
+        "@graph": [{
+            "@id": "./",
+            "@type": "Dataset",
+            "identifier": f"https://doi.org/{record["doi"]}",
+            "datePublished": conv.value_or_none(record, "published_date"),
+            "name": conv.value_or_none (record, "title"),
+            "description": description,
+            "keywords": list (map (format_tag_record, tags)),
+            "license": { "@id": conv.value_or_none (record, "license_spdx") },
+            "author": list (map (format_codemeta_author_record, authors))
+        }]
+    }
+
+    if ror_url:
+        output["@graph"][0]["publisher"] = ror_url
+
+    return output
+
 def format_dataset_record (record):
     """Record formatter for datasets."""
 

@@ -108,6 +108,7 @@ class ApiServer:
         )
         self.large_footer     = self.small_footer
 
+        self.ror_url             = None
         self.orcid_client_id     = None
         self.orcid_client_secret = None
         self.orcid_endpoint      = None
@@ -345,6 +346,7 @@ class ApiServer:
             ## ----------------------------------------------------------------
             R("/v3/datasets",                                                    self.api_v3_datasets),
             R("/v3/datasets/codemeta",                                           self.api_v3_datasets_codemeta),
+            R("/v3/datasets/ro-crate",                                           self.api_v3_datasets_ro_crate),
             R("/v3/datasets/search",                                             self.api_v3_datasets_search),
             R("/v3/datasets/top/<item_type>",                                    self.api_v3_datasets_top),
             R("/v3/datasets/<dataset_id>/submit-for-review",                     self.api_v3_dataset_submit),
@@ -6613,6 +6615,40 @@ class ApiServer:
             return self.response (json.dumps(output))
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
+
+    def api_v3_datasets_ro_crate (self, request):
+        """Implements /v3/datasets/ro-crate"""
+
+        errors          = []
+        offset, limit   = self.__paging_offset_and_limit (request, error_list=errors)
+        modified_since  = validator.string_value (request.args, "modified_since", 0, 32, False, error_list=errors)
+        order           = validator.string_value (request.args, "order", 0, 255, False, error_list=errors)
+        order_direction = validator.order_direction (request.args, "order_direction", False, error_list=errors)
+        if errors:
+            return self.error_400_list (request, errors)
+
+        datasets = self.db.datasets (is_published = True,
+                                     is_latest    = True,
+                                     is_embargoed = False,
+                                     is_restricted = False,
+                                     modified_since = modified_since,
+                                     order        = order,
+                                     order_direction = order_direction,
+                                     limit        = limit,
+                                     offset       = offset)
+
+        output = []
+        for dataset in datasets:
+            output.append (formatter.format_rocrate_record (
+                dataset,
+                self.ror_url,
+                tags = self.db.tags(item_uri=dataset["uri"], limit=None),
+                authors = self.db.authors (item_uri=dataset["uri"],
+                                           is_published = True,
+                                           item_type = "dataset",
+                                           limit = 10000)))
+
+        return self.response (json.dumps(output))
 
     def api_v3_datasets_search (self, request):
         """Implements /v3/datasets/search."""
