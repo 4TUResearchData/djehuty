@@ -654,14 +654,13 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
 
         xml_root = None
         tree = ElementTree.parse(config_file)
-
         if config_file is not None:
             config_files.add (config_file)
             if not inside_reload:
                 logger.info ("Reading config file: %s", config_file)
 
         xml_root = tree.getroot()
-        if xml_root.tag != "djehuty":
+        if not xml_root or xml_root.tag != "djehuty":
             raise ConfigFileNotFound
 
         config_dir = os.path.dirname(config_file)
@@ -743,9 +742,6 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
             config["use_reloader"] = bool(int(config["use_reloader"]))
         if config["use_debugger"]:
             config["use_debugger"] = bool(int(config["use_debugger"]))
-
-        if not xml_root:
-            return config
 
         cache_root = xml_root.find ("cache-root")
         if cache_root is not None:
@@ -913,9 +909,11 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
         if not inside_reload:
             logger.error ("%s does not look like a Djehuty configuration file.",
                            config_file)
+        raise SystemExit
     except ElementTree.ParseError:
         if not inside_reload:
             logger.error ("%s does not contain valid XML.", config_file)
+        raise SystemExit
     except FileNotFoundError as error:
         if not inside_reload:
             if config_file is None:
