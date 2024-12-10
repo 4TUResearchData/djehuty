@@ -5384,6 +5384,8 @@ class ApiServer:
                 metadata = self.__file_by_id_or_uri (file_id,
                                                      account_uuid = account_uuid,
                                                      dataset_uri = dataset["uri"])
+                if metadata is None:
+                    return self.error_404 (request)
 
                 if self.db.delete_item_from_list (dataset["uri"], "files",
                                                   uuid_to_uri (metadata["uuid"], "file")):
