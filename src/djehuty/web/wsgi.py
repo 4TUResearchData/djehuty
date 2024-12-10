@@ -813,11 +813,13 @@ class ApiServer:
         response.status_code = 406
         return response
 
-    def error_500 (self):
+    def error_500 (self, audit_log_message=None):
         """Procedure to respond with HTTP 500."""
         response = self.response ("")
         response.status_code = 500
-        self.log.audit ("An unexpected error has occurred (HTTP 500).")
+        if audit_log_message is None:
+            audit_log_message = "An unexpected error has occurred (HTTP 500)."
+        self.log.audit (audit_log_message)
         return response
 
     def error_authorization_failed (self, request):
@@ -1804,8 +1806,7 @@ class ApiServer:
                             domain      = value_or_none (saml_record, "domain")
                         )
                         if account_uuid is None:
-                            self.log.error ("Creating account for %s failed.", saml_record["email"])
-                            return self.error_500()
+                            return self.error_500 (f"Creating account for {saml_record['email']} failed.")
                         self.log.access ("Account %s created via SAML.", account_uuid) #  pylint: disable=no-member
 
                     if (self.sram_collaboration_id is not None and
@@ -1838,14 +1839,12 @@ class ApiServer:
                 except TypeError:
                     pass
         else:
-            self.log.error ("Unknown identity provider '%s'", self.identity_provider)
-            return self.error_500()
+            return self.error_500 (f"Unknown identity provider '{self.identity_provider}'.")
 
         if account_uuid is not None:
             token, mfa_token, session_uuid = self.db.insert_session (account_uuid, name="Website login")
             if session_uuid is None:
-                self.log.error ("Failed to create a session for account %s.", account_uuid)
-                return self.error_500 ()
+                return self.error_500 (f"Failed to create a session for account {account_uuid}.")
 
             self.log.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
 
@@ -1866,8 +1865,7 @@ class ApiServer:
             response.set_cookie (key=self.cookie_key, value=token, secure=self.in_production)
             return response
 
-        self.log.error ("Failed to complete the log in procedure for an unknown reason.")
-        return self.error_500 ()
+        return self.error_500 ("Failed to complete the log in procedure for an unknown reason.")
 
     def ui_logout (self, request):
         """Implements /logout."""
@@ -2658,8 +2656,7 @@ class ApiServer:
                                                          )
 
             if collaborators is None:
-                self.log.error ("Inserting collaborator failed. ")
-                return self.error_500()
+                return self.error_500 ("Inserting collaborator failed. ")
 
             return self.respond_205()
 
@@ -2711,9 +2708,9 @@ class ApiServer:
                                                 data["read"],
                                                 data["edit"],
                                                 data["remove"]):
-                self.log.error ("Could not update permissions for collaborator:%s in dataset:%s",
-                                collaborator_uuid, dataset["uuid"])
-                return self.error_500()
+                return self.error_500 (("Could not update permissions for "
+                                        f"collaborator:{collaborator_uuid} in "
+                                        f"dataset:{dataset['uuid']}"))
 
             return self.respond_204()
 
@@ -2968,8 +2965,7 @@ class ApiServer:
                            author_uuid, account_uuid)
 
         if not self.db.update_orcid_for_account (account_uuid, orcid):
-            self.log.error ("Failed to update ORCID for %s", account_uuid)
-            return self.error_500 ()
+            return self.error_500 (f"Failed to update ORCID for {account_uuid}")
 
         return redirect ("/my/profile", 302)
 
@@ -3256,8 +3252,7 @@ class ApiServer:
                 self.log.info ("Recalculated statistics.")
                 return self.respond_204 ()
 
-            self.log.error ("Failed to recalculate statistics.")
-            return self.error_500 ()
+            return self.error_500 ("Failed to recalculate statistics.")
 
         return self.error_403 (request)
 
@@ -4036,8 +4031,7 @@ class ApiServer:
         try:
             file_path = self.__filesystem_location (metadata)
             if file_path is None:
-                self.log.error ("File download failed due to missing metadata.")
-                return self.error_500 ()
+                return self.error_500 ("File download failed due to missing metadata.")
 
             if self.__is_reviewing (request):
                 self.__log_event (request, dataset["container_uuid"], "dataset", "reviewerDownload")
@@ -4766,8 +4760,7 @@ class ApiServer:
                             is_public  = True,
                             created_by = account_uuid)
                         if author_uuid is None:
-                            self.log.error ("Adding a single author failed.")
-                            return self.error_500()
+                            return self.error_500 ("Adding a single author failed.")
                     new_authors.append(URIRef(uuid_to_uri (author_uuid, "author")))
 
                 # The PUT method overwrites the existing authors, so we can
@@ -4788,8 +4781,7 @@ class ApiServer:
                 authors = existing_authors + new_authors
                 if not self.db.update_item_list (dataset["uuid"], account_uuid,
                                                  authors, "authors"):
-                    self.log.error ("Adding a single author failed.")
-                    return self.error_500()
+                    return self.error_500 ("Adding a single author failed.")
 
                 return self.respond_205()
 
@@ -4913,8 +4905,7 @@ class ApiServer:
                             url         = validator.string_value (record, "url", 0, 512, False),
                             account_uuid = account_uuid)
                         if funder_uuid is None:
-                            self.log.error ("Adding a single funder failed.")
-                            return self.error_500()
+                            return self.error_500 ("Adding a single funder failed.")
                     new_fundings.append(URIRef(uuid_to_uri (funder_uuid, "funding")))
 
                 # The PUT method overwrites the existing funding list, so we can
@@ -4935,8 +4926,7 @@ class ApiServer:
                 fundings = existing_fundings + new_fundings
                 if not self.db.update_item_list (item["uuid"], account_uuid,
                                                  fundings, "funding_list"):
-                    self.log.error ("Adding a single funder failed.")
-                    return self.error_500()
+                    return self.error_500 ("Adding a single funder failed.")
 
                 return self.respond_205()
 
@@ -5467,9 +5457,8 @@ class ApiServer:
                     is_active    = True)
 
                 if link_uri is None:
-                    self.log.error ("Creating a private link failed for %s",
-                                   dataset["uuid"])
-                    return self.error_500()
+                    return self.error_500 (("Creating a private link failed for "
+                                            f"{dataset['uuid']}"))
 
                 links    = self.db.private_links (item_uri   = dataset["uri"],
                                                   account_uuid = account_uuid)
@@ -5478,10 +5467,8 @@ class ApiServer:
 
                 if not self.db.update_item_list (dataset["uuid"], account_uuid,
                                                  links, "private_links"):
-                    self.log.error ("Updating private links failed for %s.",
-                                    dataset["container_uuid"])
-
-                    return self.error_500()
+                    return self.error_500 (("Updating private links failed for "
+                                            f"{dataset['container_uuid']}."))
 
                 return self.response(json.dumps({
                     "location": f"{self.base_url}/private_datasets/{id_string}"
@@ -5621,10 +5608,8 @@ class ApiServer:
                                       doi = reserved_doi):
             return self.response (json.dumps({ "doi": reserved_doi }))
 
-        self.log.error ("Updating the collection %s for reserving DOI %s failed.",
-                        collection_id, reserved_doi)
-
-        return self.error_500 ()
+        return self.error_500 ((f"Updating the collection {collection_id} for "
+                                f"reserving DOI {reserved_doi} failed."))
 
     def __reserve_and_save_doi (self, account_uuid, item, version=None,
                                 item_type="dataset"):
@@ -6147,8 +6132,7 @@ class ApiServer:
                             is_public  = True,
                             created_by = account_uuid)
                         if author_uuid is None:
-                            self.log.error ("Adding a single author failed.")
-                            return self.error_500()
+                            return self.error_500 ("Adding a single author failed.")
                     new_authors.append(URIRef(uuid_to_uri (author_uuid, "author")))
 
                 collection = self.__collection_by_id_or_uri (collection_id,
@@ -6173,8 +6157,7 @@ class ApiServer:
                 authors = existing_authors + new_authors
                 if not self.db.update_item_list (collection["uuid"], account_uuid,
                                                  authors, "authors"):
-                    self.log.error ("Adding a single author failed.")
-                    return self.error_500()
+                    return self.error_500 ("Adding a single author failed.")
 
                 return self.respond_205()
 
@@ -6923,9 +6906,9 @@ class ApiServer:
                 files = git_repository.revparse_single(branch_name).tree
                 files = [e.name for e in files]
             except pygit2.GitError as error:  # pylint: disable=no-member
-                self.log.error ("Failed to retrieve Git files for branch '%s' in '%s' due to: '%s'.",
-                                branch_name, git_repository.path, error)
-                return self.error_500 ()
+                return self.error_500 (("Failed to retrieve Git files for branch "
+                                        f"'{branch_name}' in '{git_repository.path}' "
+                                        f"due to: '{error}'."))
 
         return self.response (json.dumps(files))
 
@@ -6965,8 +6948,7 @@ class ApiServer:
             git_repository = pygit2.clone_repository (git_directory, folder)
 
             if not isinstance (git_repository, pygit2.Repository):
-                logging.error ("Unable to clone %s.", git_directory)
-                return self.error_500 ()
+                return self.error_500 (f"Unable to clone {git_directory}.")
 
             tree = git_repository.revparse_single(branch).tree # pylint: disable=no-member
             files  = self.__git_files_for_zipfly (folder, tree)
@@ -6975,8 +6957,7 @@ class ApiServer:
                 zipfly_object = zipfly.ZipFly(paths = files)
                 writer = zipfly_object.generator()
             except TypeError:
-                logging.error ("Could not ZIP files for git repository %s", git_uuid)
-                return self.error_500 ()
+                return self.error_500 (f"Could not ZIP files for git repository {git_uuid}.")
 
             response = self.response (writer, mimetype="application/zip")
             response.headers["Content-disposition"] = f"attachment; filename={git_uuid}.zip"
@@ -7078,16 +7059,14 @@ class ApiServer:
                                                             dataset,
                                                             version=version)
                 if not reserved_doi:
-                    self.log.error ("Reserving DOI %s for %s failed.",
-                                    reserved_doi, container_uuid)
-                    return self.error_500 ()
+                    return self.error_500 ((f"Reserving DOI {reserved_doi} for "
+                                            f"{container_uuid} failed."))
 
                 if not self.__update_item_doi (container_uuid,
                                                item_type="dataset",
                                                version=version):
-                    logging.error ("Updating DOI %s for publication of %s failed.",
-                                   reserved_doi, container_uuid)
-                    return self.error_500 ()
+                    return self.error_500 ((f"Updating DOI {reserved_doi} for "
+                                            f"publication of {container_uuid} failed."))
 
         if self.db.publish_dataset (container_uuid, account_uuid):
             try:
@@ -7185,15 +7164,13 @@ class ApiServer:
                                                             version=version,
                                                             item_type="collection")
                 if not reserved_doi:
-                    self.log.error ("Reserving DOI %s for %s failed.",
-                                    reserved_doi, container_uuid)
-                    return self.error_500()
+                    return self.error_500 ((f"Reserving DOI {reserved_doi} for "
+                                            f"{container_uuid} failed."))
 
                 if not self.__update_item_doi (container_uuid, version=version,
                                                item_type="collection"):
-                    logging.error ("Updating DOI %s for publication of %s failed.",
-                                   reserved_doi, container_uuid)
-                    return self.error_500()
+                    return self.error_500 ((f"Updating DOI {reserved_doi} for "
+                                            f"publication of {container_uuid} failed."))
 
         if self.db.publish_collection (collection["container_uuid"], account_uuid):
             return self.respond_201 ({
@@ -7678,9 +7655,8 @@ class ApiServer:
                 account_uuid  = account_uuid)
             except RuntimeError as error:
                 self.locks.unlock (locks.LockTypes.FILE_LIST)
-                self.log.error ("Failed to create file metadata for %s: %s",
-                                dataset_id, error)
-                self.error_500 ()
+                self.error_500 (("Failed to create file metadata for "
+                                 f"{dataset_id}: {error}."))
 
             self.locks.unlock (locks.LockTypes.FILE_LIST)
             output_filename = os.path.join (self.db.storage, f"{dataset_id}_{file_uuid}")
@@ -7787,8 +7763,7 @@ class ApiServer:
             return self.response (json.dumps(response_data))
 
         except OSError as error:
-            self.log.error ("Writing %s to disk failed: %s", output_filename, error)
-            return self.error_500 ()
+            return self.error_500 (f"Writing {output_filename} to disk failed: {error}")
         except (IndexError, KeyError):
             pass
 
@@ -7924,8 +7899,7 @@ class ApiServer:
                 references.remove (next (filter (lambda item: item == url, references)))
                 if not self.db.update_item_list (item["uuid"], account_uuid,
                                                  references, "references"):
-                    self.log.error ("Deleting a reference failed.")
-                    return self.error_500()
+                    return self.error_500 ("Deleting a reference failed.")
 
                 return self.respond_204()
 
@@ -7945,8 +7919,7 @@ class ApiServer:
                                              account_uuid,
                                              references,
                                              "references"):
-                self.log.error ("Updating references failed.")
-                return self.error_500()
+                return self.error_500 ("Updating references failed.")
 
             return self.respond_205()
 
@@ -8030,8 +8003,7 @@ class ApiServer:
                 except StopIteration:
                     pass
 
-                self.log.error ("Deleting tag '%s' failed for <%s>.", tag, item["uri"])
-                return self.error_500()
+                return self.error_500 (f"Deleting tag '{tag}' failed for <{item['uri']}>.")
 
 
             ## For POST and PUT requests, the 'parameters' will be a dictionary
@@ -8055,8 +8027,7 @@ class ApiServer:
                 tags = deduplicate_list(existing_tags + new_tags)
 
             if not self.db.update_item_list (item["uuid"], account_uuid, tags, "tags"):
-                self.log.error ("Updating tags failed.")
-                return self.error_500()
+                return self.error_500 ("Updating tags failed.")
 
             return self.respond_205()
 
@@ -8273,8 +8244,7 @@ class ApiServer:
         if service == "git-receive-pack":
             return self.api_v3_private_dataset_git_receive_pack (request, git_uuid)
 
-        self.log.error ("Unsupported Git service command: %s", service)
-        return self.error_500 ()
+        return self.error_500 (f"Unsupported Git service command: {service}.")
 
     def api_v3_private_dataset_git_receive_pack (self, request, git_uuid):
         """Implements /v3/datasets/<id>.git/git-receive-pack."""
@@ -8755,8 +8725,7 @@ class ApiServer:
             dataset = self.db.datasets (container_uuid = container_uuid, is_published=False)[0]
             account_uuid = dataset["account_uuid"]
         except (IndexError, KeyError) as error:
-            self.log.error ("Cannot find dataset or account UUID: %s", error)
-            return self.error_500 ()
+            return self.error_500 (f"Cannot find dataset or account UUID: {error}")
 
         files = self.db.missing_checksummed_files_for_container (container_uuid)
         for row in files:
@@ -8830,24 +8799,21 @@ class ApiServer:
             # Create an account.
             account_uuid = self.db.insert_account (email=email)
             if not account_uuid:
-                self.log.error ("Failed to create account for SSI user %s.", email)
-                return self.error_500 ()
+                return self.error_500 (f"Failed to create account for SSI user {email}.")
             self.log.access ("Account %s created via SSI.", account_uuid) #  pylint: disable=no-member
         else:
             account_uuid = account["uuid"]
 
         token, _, session_uuid = self.db.insert_session (account_uuid, name="Login via SSI")
         if session_uuid is None:
-            self.log.error ("Failed to create a session for account %s.", account_uuid)
-            return self.error_500 ()
+            return self.error_500 (f"Failed to create a session for account {account_uuid}.")
         self.log.access ("Created session %s for account %s.", session_uuid, account_uuid) #  pylint: disable=no-member
 
         container_uuid, _ = self.db.insert_dataset (
             title = title,
             account_uuid = account_uuid)
         if container_uuid is None:
-            self.log.error ("Failed to create dataset for account %s.", account_uuid)
-            return self.error_500 ()
+            return self.error_500 (f"Failed to create dataset for account {account_uuid}.")
 
         response = redirect (f"{self.base_url}/v3/redirect-from-ssi/{container_uuid}/{token}", code=302)
         return response
