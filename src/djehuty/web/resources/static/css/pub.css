@@ -14,7 +14,7 @@
 #wrapper #content .metric .number { font-size: 24px; font-weight: bold }
 #wrapper #content #categories   { padding-top: 10px; clear: left }
 #wrapper #content #tags, #geo, #time_coverage, #dates, #collections, #peer, #references, #publisher, #format, #organizations,
-#wrapper #content #contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export, #data_link
+#wrapper #content #contributors, #funding, #usage, #derived_from, #same_as, #language, #licence, #export, #data_link, #code-hosting-url
                                 { margin-top: 10px }
 #wrapper #content #funding ul   { list-style-type: square; margin-left: 20px }
 #wrapper #content #funding .funder_name { display: block; color: #999 }

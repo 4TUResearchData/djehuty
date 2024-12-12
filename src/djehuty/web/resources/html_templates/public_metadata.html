@@ -244,6 +244,12 @@
             </ul>
         </div>
 {% endif %}
+{% if item.git_code_hosting_url %}
+        <div id="code-hosting-url">
+            <div class="label">code hosting project url</div>
+            <a href="{{item.git_code_hosting_url}}">{{item.git_code_hosting_url}}</a>
+        </div>
+{% endif %}
 {% if derived_from %}
         <div id="derived_from">
             <div class="label">derived from</div>
