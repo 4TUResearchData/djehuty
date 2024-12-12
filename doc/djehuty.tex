@@ -38,32 +38,26 @@ body,html{
   font-size: 13pt;
   margin: 0pt;
   padding: 0pt;
-  background-color: #f9f9f9;
+  background-color: #eee;
 }
-#wrapper {
-  max-width: 900pt;
-  min-width: 400pt;
-  margin: auto;
-}
+#wrapper { min-width: 1240pt; }
+#sidebar .tableofcontents { padding: 0pt 10pt 0pt 14pt; }
+#sidebar .likechapterHead { padding: 10pt; background: #ccc; color: #111; margin: 0pt; border-radius: 0pt 4pt 0pt 0pt; }
+#sidebar { font-size: .9em; top: 2pt; width: 350pt; position: fixed; height: 100%; overflow: auto; }
+#sidebar .sidebarwrap { background: #fff; border-radius: 4pt; padding-bottom: 10pt; }
+#titlepage, #chapters { margin-left: 350pt; min-width: 870pt; }
+#titlepage { background: #fff; border-radius: 4pt; margin: 10pt 10pt 10pt 360pt; padding-bottom: 10pt; border: solid 1pt #cccccc; }
 .chapter {
   background-color: #ffffff;
   padding: 0pt;
-  margin: 20pt;
+  margin: 10pt;
   height: auto;
-  -webkit-border-radius: 4pt;
-  -moz-border-radius: 4pt;
   border-radius: 4pt;
   border-left: solid 1pt #cccccc;
   border-right: solid 1pt #cccccc;
   border-bottom: solid 1pt #cccccc;
 }
-.chapwrap {
-  padding: 0pt;
-  background: none;
-  -webkit-border-radius: 4pt;
-  -moz-border-radius: 4pt;
-  border-radius: 4pt;
-}
+.chapwrap { padding: 0pt; background: none; border-radius: 4pt; }
 .chapwrap p { padding: 0pt 10pt 0pt 10pt; }
 .chapwrap .sectionHead { padding: 0pt 10pt 0pt 10pt; }
 .chapwrap .subsectionHead { padding: 0pt 10pt 0pt 10pt; }
@@ -86,7 +80,7 @@ body,html{
   font-family: 'FiraMono', 'Lucida Console', Monaco, monospace;
   padding: 0pt;
 }
-.likechapterHead, .chapterHead {
+#chapters .likechapterHead, #chapters .chapterHead {
   margin: 0pt;
   padding: 10pt;
   background-color: #222222;
@@ -122,13 +116,6 @@ td { font-size: 12pt; padding-left: 10pt; }
 img { width: 60%; height: auto; }
 .figure img { width: 100%; height: auto; }
 .caption { text-align: center; }
-.rotatebox {
-  writing-mode: sideways-lr;
-  transform: rotate(45deg) !important;
-  transform-origin: left;
-  margin: 10pt;
-  padding: 0pt;
-}
 dt.enumerate-enumitem{ float:left; clear:left; margin: 0em 1em 0em 1em; }
 h1 { font-size 4em; }
 h3 { font-size: 1.25em; }
@@ -148,27 +135,31 @@ div.caption {
   padding: 5pt;
   margin: 0pt 150pt 0pt 150pt;
   min-width: 300pt;
-  -webkit-border-radius: 10pt;
-  -moz-border-radius: 10pt;
   border-radius: 10pt;
 }
 a { color: #7c0000; }
 a:hover { color: #af6666; }
 \EndCssFile
 \fi
+
+\ifdefined\HCode
+\begin{html}
+<div id="titlepage">
+\end{html}
+\fi
 \begin{titlepage}
   \begin{center}
     \ifdefined\HCode
       \begin{html}
         <h1><code>djehuty</code></h1>
-        <h2>The 4TU.ResearchData repository system</h2>
+        <h2>The 4TU.ResearchData and Nikhef repository system</h2>
       \end{html}
       version \djehutyversion{}, \today{}~\\
     \else
       \topskip0pt
       \vspace*{\fill}
       { \Huge \t{djehuty} }~\\~\\
-      { \Large The 4TU.ResearchData repository system }~\\~\\
+      { \Large The 4TU.ResearchData and Nikhef repository system }~\\~\\
       \includegraphics[width=0.35\textwidth]{figures/logo.pdf}
       ~\\~\\
       \url{https://github.com/4TUResearchData/djehuty}~\\
@@ -189,7 +180,7 @@ a:hover { color: #af6666; }
 \ifdefined\HCode
 \begin{html}
 <p style="text-align: center">This document is also available as <a href="djehuty.pdf">PDF</a>.</p>
-<div class="chapter"><div class="chapwrap">
+</div><div id="sidebar"><div class="sidebarwrap">
 \end{html}
 \fi
 
@@ -197,7 +188,7 @@ a:hover { color: #af6666; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter"><div class="chapwrap">
+</div></div><div id="chapters"><div class="chapter"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -256,7 +247,7 @@ a:hover { color: #af6666; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div>
+</div></div></div>
 \end{html}
 \fi
 \end{document}
