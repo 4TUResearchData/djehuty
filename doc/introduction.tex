@@ -1,7 +1,7 @@
 \chapter{Introduction}
 
-\code{djehuty} is the data repository system developed by and for
-4TU.ResearchData.  The name finds its inspiration in
+\code{djehuty} is the data repository system developed by
+4TU.ResearchData and Nikhef.  The name finds its inspiration in
 \href{https://en.wikipedia.org/wiki/Thoth}{Thoth}, the Egyptian
 entity that introduced the idea of writing.
 
@@ -50,28 +50,6 @@ tar zxvf djehuty-(@*\djehutyversion{}*@).tar.gz
   or \href{http://vos.openlinksw.com/owiki/wiki/VOS}%
   {Virtuoso open-source edition}%
   \footnote{http://vos.openlinksw.com/owiki/wiki/VOS}.
-
-\subsection{Installation on Enterprise Linux 7+}
-
-  The Python packages on Enterprise Linux version 7 or higher seem to
-  be too far out of date.  So installing the prerequisites involves
-  two steps.
-
-  The first step involves installing system-wide packages for Python and Git.
-
-\begin{lstlisting}[language=bash]
-yum install python39 git
-\end{lstlisting}
-
-  The second step involves using Python's \t{venv} module to
-  install the Python packages in a virtual environment:
-
-\begin{lstlisting}[language=bash]
-python3.9 -m venv djehuty-env
-. djehuty-env/bin/activate
-cd /path/to/the/repository/checkout/root
-pip install -r requirements.txt
-\end{lstlisting}
 
 \section{Installation instructions}
 
