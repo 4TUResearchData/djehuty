@@ -437,6 +437,53 @@ curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782
 }
 \end{lstlisting}
 
+\subsection{\t{/v2/collections/<collection-id>/articles} (HTTP \texttt{GET})}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/articles | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been shortened. */
+  {
+    "id": 20222334,
+    "uuid": "c5fde4a2-798a-456e-b793-cf64e486c0e8",
+    "title": "E001 - Stiffness and Hinge Release Study (October 2021) ...",
+    "doi": "10.4121/20222334.v2",
+    "published_date": "2023-05-31T08:57:54",
+    "defined_type": 3,
+    "defined_type_name": "dataset",
+    "group_id": 28586,
+    "timeline": {
+      "posted": "2023-05-31T08:57:54",
+      "firstOnline": "2023-05-26T15:08:09",
+      "revision": null
+    },
+    "resource_title": "Effect of Wing Stiffness and Folding Wingtip ...",
+    "resource_doi": "https://doi.org/10.2514/1.C037108"
+  },
+  {
+    "id": null,
+    "uuid": "984090ea-26fd-4809-8dac-f41367bf8916",
+    "title": "M001 - GVT Data and Nastran models (August 2024) ...",
+    "doi": "10.4121/984090ea-26fd-4809-8dac-f41367bf8916.v1",
+    "published_date": "2024-08-12T11:21:47",
+    "defined_type": 3,
+    "defined_type_name": "dataset",
+    "group_id": 28586,
+    "timeline": {
+      "posted": "2024-08-12T11:21:47",
+      "firstOnline": "2024-08-12T11:21:46",
+      "revision": null
+    },
+    "resource_title": "Effect of Wing Stiffness and Folding Wingtip ...",
+    "resource_doi": "https://doi.org/10.2514/1.C037108"
+  }
+]
+\end{lstlisting}
+
 \subsection{\t{/v2/categories} (HTTP \texttt{GET})}
 \label{sec:v2-categories}
 
@@ -625,3 +672,291 @@ curl -H "Authorization: token YOUR_TOKEN_HERE" (@*\djehutybaseurl{}*@)/v2/accoun
                                               will be automatically populated
                                               during the publication process.\\
 \end{tabular}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "title": "Example dataset" }' \
+     (@*\djehutybaseurl{}*@)/v2/account/articles | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{
+  "location": "(@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1",
+  "warnings": []
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>} (HTTP \texttt{GET})}
+
+  This API endpoint lists details of the dataset identified by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1 | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "files": [],
+  "authors": [],
+  "id": null,
+  "uuid": "637e9a3b-3e6d-4810-bc8d-f15ab1d6a4d7",
+  "title": "Example dataset",
+  ...
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>} (HTTP \texttt{PUT})}
+
+  This API endpoint can be used to update the metadata of the dataset
+  identified by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -v -X PUT \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --data '{ "title": "Updated title" }'
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1 | jq
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+...
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>} (HTTP \texttt{DELETE})}
+
+  This API endpoint can be used to delete a draft dataset.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -v -X DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1 | jq
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
+...
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/authors} (HTTP \texttt{GET})}
+\label{sec:api-v2-articles-authors}
+
+  This API endpoint lists the authors of the dataset identified by \code{dataset-id}.
+  The following URL parameters can be used:
+
+\begin{tabular}{p{0.20\textwidth} p{0.20\textwidth} p{0.59\textwidth}}
+  \ifdefined\HCode
+  \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
+  \fi
+  \t{order}            & Optional & Field to use for sorting.\\
+  \t{order\_direction} & Optional & Can be either \code{asc} or \code{desc}.\\
+  \t{limit}            & Optional & The maximum number of datasets to output.
+                                    Used together with \t{offset}.\\
+\end{tabular}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1 | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  {
+    "id": null,
+    "uuid": "08f4d496-67b5-4b7c-b2d2-923458d1f450",
+    "full_name": "John Doe Jr",
+    "is_active": false,
+    "url_name": null,
+    "orcid_id": ""
+  },
+  {
+    "id": null,
+    "uuid": "6815031c-21dc-4873-93c9-f6539da482ce",
+    "full_name": "John Doe",
+    "is_active": false,
+    "url_name": null,
+    "orcid_id": ""
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/authors} (HTTP \texttt{POST})}
+\label{sec:api-v2-articles-authors-post}
+
+  This API endpoint can be used to append authors to the dataset identified
+  by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -X POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "authors": [{ "name": "John Doe" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/authors
+curl -X POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "authors": [{ "name": "John Doe Jr" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/authors
+\end{lstlisting}
+
+  The following is an example of the output of the HTTP \texttt{POST} calls:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+...
+\end{lstlisting}
+
+  An example of the output of the HTTP \texttt{GET} call can be found in
+  \refer{sec:api-v2-articles-authors}.
+
+\subsection{\t{/v2/account/articles/<dataset-id>/authors} (HTTP \texttt{PUT})}
+
+  In contrast to \refer{sec:api-v2-articles-authors-post}, this API endpoint
+  can be used to \textbf{overwrite} the list of authors of the dataset identified
+  by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -X PUT \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "authors": [{ "name": "John Doe" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/authors
+
+curl -X PUT \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "authors": [{ "name": "John Doe Jr" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/authors
+
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1 | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  {
+    "id": null,
+    "uuid": "61751fe3-53a1-477f-a46f-e534cbd0b618",
+    "full_name": "John Doe Jr",
+    "is_active": false,
+    "url_name": null,
+    "orcid_id": ""
+  },
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/authors/<author-id>} (HTTP \texttt{DELETE})}
+
+  This API endpoint can be used to delete an author's association with a dataset.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -X DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/authors/6175...0b618
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
+...
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/funding} (HTTP \texttt{GET})}
+
+  This API endpoint lists the funding of the dataset identified by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/funding | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  {
+    "id": null,
+    "uuid": "6f605fe1-e87a-43f5-8b67-70ebe3f9b868",
+    "title": "Example cases fund",
+    "grant_code": "EXA-001",
+    "funder_name": "Example",
+    "is_user_defined": null,
+    "url": "https://example.exa"
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/funding} (HTTP \texttt{POST})}
+\label{sec:api-v2-articles-funding-post}
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -v -X POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "funders": [{ "title": "Example cases fund", \
+                             "grant_code": "EXA-001", \
+                             "funder_name": "Example", \
+                             "url": "https://example.exa" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/funding
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+...
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/funding} (HTTP \texttt{PUT})}
+
+  In contrast to \refer{sec:api-v2-articles-funding-post}, this API endpoint
+  can be used to \textbf{overwrite} the list of funders of the dataset
+  identified by \code{dataset-id}.
+
+\begin{lstlisting}[language=bash]
+curl -v -X PUT \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "funders": [{ "title": "Example cases fund",
+                             "grant_code": "EXA-001",
+                             "funder_name": "Example",
+                             "url": "https://example.exa" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/funding
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+...
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/funding/<funding-id>} (HTTP \texttt{DELETE})}
+
+  This API endpoint can be used to delete an funder's association with a dataset.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -X DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/funding/d50e...7500
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
+...
+\end{lstlisting}
+
