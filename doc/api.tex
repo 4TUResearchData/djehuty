@@ -902,6 +902,10 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
 \subsection{\t{/v2/account/articles/<dataset-id>/funding} (HTTP \texttt{POST})}
 \label{sec:api-v2-articles-funding-post}
+
+  This API endpoint can be used to append funders to the dataset identified
+  by \code{dataset-id}.
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl -v -X POST \
@@ -960,3 +964,217 @@ HTTP/1.1 204 NO CONTENT
 ...
 \end{lstlisting}
 
+\subsection{\t{/v2/account/articles/<dataset-id>/categories} (HTTP \texttt{GET})}
+
+  This API endpoint lists the categories of the dataset identified by \code{dataset-id}.
+  The identifiers for the categories can be found by using the API endpoint
+  described at \refer{sec:v2-categories}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/categories | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  {
+    "id": 13558,
+    "uuid": "8f27eb44-0a63-4496-ba6d-e3cbf4efa6c7",
+    "title": "Other Earth Sciences",
+    "parent_id": 13551,
+    "parent_uuid": "dd4dbaaf-0610-4d8d-8b07-e1eeb32dd11c",
+    "path": "",
+    "source_id": null,
+    "taxonomy_id": null
+  },
+  {
+    "id": 13551,
+    "uuid": "dd4dbaaf-0610-4d8d-8b07-e1eeb32dd11c",
+    "title": "Earth Sciences",
+    "parent_id": null,
+    "parent_uuid": null,
+    "path": "",
+    "source_id": null,
+    "taxonomy_id": null
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/categories} (HTTP \texttt{POST})}
+\label{sec:api-v2-articles-categories-post}
+
+  This API endpoint can be used to append categories to the dataset identified
+  by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -v -X POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "categories": [13551, 13558]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/categories
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+...
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/categories} (HTTP \texttt{PUT})}
+
+  In contrast to \refer{sec:api-v2-articles-categories-post}, this API endpoint
+  can be used to \textbf{overwrite} the list of categories of the dataset identified
+  by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -v -X POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "categories": ["dd4dbaaf-0610-4d8d-8b07-e1eeb32dd11c"]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/categories
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+...
+\end{lstlisting}
+
+%% TODO: The deletion of categories via the v2 API is broken.
+% \subsection{\t{/v2/account/articles/<dataset-id>/categories/<category-id>} (HTTP \texttt{DELETE})}
+
+%   This API endpoint can be used to delete a category's association with a dataset.
+
+%   Example usage:
+% \begin{lstlisting}[language=bash]
+% curl -X DELETE \
+%      --header "Authorization: token YOUR_TOKEN_HERE" \
+%      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/categories/d50e...7500
+% \end{lstlisting}
+
+%   HTTP response of the example:
+% \begin{lstlisting}
+% HTTP/1.1 204 NO CONTENT
+% ...
+% \end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/embargo} (HTTP \texttt{GET})}
+
+  This API endpoint lists the embargo status of the dataset identified by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/embargo | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{
+  "is_embargoed": false,
+  "embargo_date": null,
+  "embargo_type": "file",
+  "embargo_title": "",
+  "embargo_reason": "",
+  "embargo_options": []
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/embargo} (HTTP \texttt{GET})}
+
+  This API endpoint can be used to remove an embargo on the dataset
+  identified by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -v -X DELETE --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3d...995b1/embargo
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
+...
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/files} (HTTP \texttt{GET})}
+
+  This API endpoint lists files associated with the dataset identified by
+  \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/files | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been shortened. */
+  {
+    "id": null,
+    "uuid": "d112d0cd-bc15-4f8e-9013-930750fc017a",
+    "name": "README.md",
+    "size": 3696,
+    "is_link_only": false,
+    "is_incomplete": false,
+    "download_url": "https://next.data.4tu.nl/file/d7b3...995b1/d112...c017a",
+    "supplied_md5": null,
+    "computed_md5": "c5b36584a0d62d28e9bf9e6892d9ebac"
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/files} (HTTP \texttt{DELETE})}
+
+% \notebox{This API endpoint is a 4TU extension to the original specification.}
+
+  This API endpoint can be used to delete all files associated with the
+  dataset identified by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -X DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "remove_all": true }' \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/files
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
+...
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/files/<file-id>} (HTTP \texttt{GET})}
+
+  This API endpoint lists files associated with the dataset identified by
+  \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/files | jq
+\end{lstlisting}
+
+  output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been shortened. */
+  {
+    "id": null,
+    "uuid": "d112d0cd-bc15-4f8e-9013-930750fc017a",
+    "name": "README.md",
+    "size": 3696,
+    "is_link_only": false,
+    "is_incomplete": false,
+    "download_url": "https://next.data.4tu.nl/file/d7b3...995b1/d112...c017a",
+    "supplied_md5": null,
+    "computed_md5": "c5b36584a0d62d28e9bf9e6892d9ebac"
+  }
+]
+\end{lstlisting}
