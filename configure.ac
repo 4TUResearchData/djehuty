@@ -22,7 +22,11 @@ else
     AC_MSG_WARN([Unable to create PDF version of the user manual.])
   fi
   if test "x$HTLATEX" = "x"; then
-    AC_MSG_WARN([Unable to create HTML version of the user manual.])
+    dnl Do a single-shot guess to find htlatex on a mingw64/msys2 install.
+    AC_CHECK_FILE("/mingw64/bin/htlatex.bat", [AC_SUBST(HTLATEX, htlatex.bat)])
+    if test "x$HTLATEX" = "x"; then
+      AC_MSG_WARN([Unable to create HTML version of the user manual.])
+    fi
   fi
 fi
 
