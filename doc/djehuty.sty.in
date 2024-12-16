@@ -68,6 +68,8 @@
 \definecolor{LinkGray}{rgb}{0.47, 0.13, 0.13}
 \definecolor{CiteColor}{rgb}{0.13, 0.47, 0.13}
 \definecolor{DarkGray}{rgb}{0.40, 0.40, 0.40}
+\definecolor{NoteBoxBorder}{rgb}{1.0, 0.94, 0.8}
+\definecolor{NoteBoxBG}{rgb}{1.0, 0.98, 0.92}
 
 % When highlighting text, make sure the highlighting box doesn't
 % add padding space.
@@ -105,6 +107,15 @@
   \label{fig:#1}
 \end{figure}
 }
+
+\ifdefined\HCode
+\newcommand{\NoteBox}[1]{\fbox{\textbf{Note:} #1}}
+\else
+\newcommand\NoteBox[1]{
+  \setlength{\fboxsep}{0.5em}
+  \fcolorbox{NoteBoxBorder}{NoteBoxBG}{\textbf{Note:} #1}
+}
+\fi
 
 \newcommand\triplet[3]{\code{#1} $\rightarrow$ \code{#2} $\rightarrow$ \code{#3}}
 \newcommand\refer[1]{\ref{#1} {\color{LinkGray}`\nameref{#1}'}}
