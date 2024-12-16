@@ -7033,7 +7033,11 @@ class ApiServer:
 
         token = self.token_from_cookie (request, self.impersonator_cookie_key)
         if not self.db.may_review (token):
-            return self.error_403 (request)
+            # When using the API, the impersonator cookie isn't set,
+            # so we fall back to using the regular token.
+            token = self.token_from_request (request)
+            if not self.db.may_review (token):
+                return self.error_403 (request)
 
         account_uuid = self.account_uuid_from_request (request)
         if account_uuid is None:
