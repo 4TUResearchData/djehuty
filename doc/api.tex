@@ -1084,7 +1084,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/embargo} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/articles/<dataset-id>/embargo} (HTTP \texttt{DELETE})}
 
   This API endpoint can be used to remove an embargo on the dataset
   identified by \code{dataset-id}.
@@ -1164,7 +1164,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/files | jq
 \end{lstlisting}
 
-  output of the example:
+  Output of the example:
 \begin{lstlisting}[language=JSON]
 [ /* Example output has been shortened. */
   {
@@ -1180,3 +1180,192 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   }
 ]
 \end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/private\_links} (HTTP \texttt{GET})}
+
+  This API endpoint lists the private links associated with the dataset
+  identified by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/private_links | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  {
+    "id": "8G2f...IJP0",
+    "is_active": true,
+    "expires_date": "2032-01-01T00:00:00"
+  },
+  {
+    "id": "Hb0a...diitg",
+    "is_active": true,
+    "expires_date": "2026-01-01T00:00:00"
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/private\_links} (HTTP \texttt{POST})}
+
+  This API endpoint can be used to append a private link to the dataset
+  identified by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -X POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --data '{ "expires_date": "2032-01-01", "read_only": false }'
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/private_links | jq
+\end{lstlisting}
+
+  output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "location": "(@*\djehutybaseurl{}*@)/private_datasets/8G2fk..."
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/private\_links/<link-id>} (HTTP \texttt{GET})}
+
+  This API endpoint can be used to view the details of a private link for
+  the dataset identified by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/private_links/8G2fk... | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  {
+    "id": "8G2f...IJP0",
+    "is_active": true,
+    "expires_date": "2032-01-01T00:00:00"
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/private\_links/<link-id>} (HTTP \texttt{PUT})}
+
+  This API endpoint can be used to update the expiry date of a private link
+  and whether the private link is active or not for the dataset identified
+  by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -X PUT \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --data '{ "expires_date": "2034-01-01", "is_active": true }'
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/private_links/8G2fk... | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "location": "(@*\djehutybaseurl{}*@)/private_datasets/8G2fk..."
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/private\_links/<link-id>} (HTTP \texttt{DELETE})}
+
+  This API endpoint can be used to remove a private link for the dataset identified
+  by \code{dataset-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -X DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/private_links/8G2fk...
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
+...
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/reserve\_doi} (HTTP \texttt{POST})}
+
+  This API endpoint can be used to obtain the DOI before the dataset is
+  published and the DOI is activated.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -X POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/reserve_doi | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{
+  "doi": "10.5074/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1"
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/account/articles/<dataset-id>/publish} (HTTP \texttt{POST})}
+
+  This API endpoint can be used to publish the dataset identified by
+  \code{dataset-id}.
+
+  \NoteBox{
+    Only users with the ``review'' privilege can succesfully
+    use this API call.
+  }
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -X POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/publish | jq
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 201 CREATED
+...
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "location": "(@*\djehutybaseurl{}*@)/review/published/9ce6...3976"
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/account/authors/search} (HTTP \texttt{POST})}
+
+  This API endpoint can be used to search for authors known to the data
+  repository.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl -X POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --data '{ "search": "John Doe" }'
+     (@*\djehutybaseurl{}*@)/v2/account/authors/search | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* This example output has been shortened. */
+  {
+    "full_name": "John Doe Jr",
+    "uuid": "08f4d496-67b5-4b7c-b2d2-923458d1f450",
+    "orcid_id": "",
+    ...
+  },
+  {
+    "full_name": "John Doe",
+    "uuid": "6815031c-21dc-4873-93c9-f6539da482ce",
+    "orcid_id": "",
+    ...
+  }
+]
+\end{lstlisting}
+
