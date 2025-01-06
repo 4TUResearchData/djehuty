@@ -46,6 +46,7 @@ from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 try:
     from onelogin.saml2.auth import OneLogin_Saml2_Auth
     from onelogin.saml2.errors import OneLogin_Saml2_Error
+    from xmlsec import Error as xmlsecError
 except (ImportError, ModuleNotFoundError):
     pass
 
@@ -1354,15 +1355,19 @@ class ApiServer:
         if self.identity_provider != "saml":
             return self.error_404 (request)
 
-        saml_auth   = self.__saml_auth (request)
-        settings    = saml_auth.get_settings ()
-        metadata    = settings.get_sp_metadata ()
-        errors      = settings.validate_metadata (metadata)
-        if len(errors) == 0:
-            return self.response (metadata, mimetype="text/xml")
+        try:
+            saml_auth = self.__saml_auth (request)
+            settings  = saml_auth.get_settings ()
+            metadata  = settings.get_sp_metadata ()
+            errors    = settings.validate_metadata (metadata)
+            if len(errors) == 0:
+                return self.response (metadata, mimetype="text/xml")
 
-        self.log.error ("SAML SP Metadata validation failed.")
-        self.log.error ("Errors: %s", ", ".join(errors))
+            self.log.error ("SAML SP Metadata validation failed.")
+            self.log.error ("Errors: %s", ", ".join(errors))
+        except xmlsecError as error:
+            self.log.error ("SAML configuration error: %s", error)
+
         return self.error_500 ()
 
     ## CONVENIENCE PROCEDURES
