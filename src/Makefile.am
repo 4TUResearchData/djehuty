@@ -11,6 +11,7 @@ PYTHON_FILES =                                                                \
     djehuty/utils/convenience.py                                              \
     djehuty/utils/rdf.py                                                      \
     djehuty/web/cache.py                                                      \
+    djehuty/web/config.py                                                     \
     djehuty/web/database.py                                                   \
     djehuty/web/email_handler.py                                              \
     djehuty/web/formatter.py                                                  \

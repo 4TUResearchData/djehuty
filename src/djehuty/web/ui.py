@@ -11,6 +11,7 @@ from rdflib.plugins.stores import berkeleydb
 from djehuty.web import wsgi
 from djehuty.utils import convenience
 import djehuty.backup.database as backup_database
+from djehuty.web.config import config
 
 # Even though we don't use these imports in 'ui', the state of
 # SAML2_DEPENDENCY_LOADED is important to catch the situation
@@ -120,7 +121,7 @@ def read_raw_xml (xml_root, path, default_value=None):
 
     return default_value, None
 
-def read_storage_locations (server, xml_root):
+def read_storage_locations (xml_root):
     """Procedure to read storage locations."""
 
     storage = xml_root.find ("storage")
@@ -131,11 +132,11 @@ def read_storage_locations (server, xml_root):
         if location.tag != "location":
             continue
         quirks = location.attrib.get("quirks") == "1"
-        server.db.storage_locations.append({ "path": location.text, "quirks": quirks })
+        config.storage_locations.append({ "path": location.text, "quirks": quirks })
 
     return None
 
-def read_quotas_configuration (server, xml_root):
+def read_quotas_configuration (xml_root):
     """Read quota information from XML_ROOT."""
 
     quotas = xml_root.find("quotas")
@@ -144,7 +145,7 @@ def read_quotas_configuration (server, xml_root):
 
     # Set the default quota for non-members.
     try:
-        server.db.default_quota = int(quotas.attrib["default"])
+        config.default_quota = int(quotas.attrib["default"])
     except (ValueError, TypeError):
         pass
 
@@ -160,26 +161,26 @@ def read_quotas_configuration (server, xml_root):
 
         # Organization-wide quotas
         if domain is not None:
-            server.db.group_quotas[domain] = value
+            config.group_quotas[domain] = value
 
         # Account-specific quotas
         elif email is not None:
-            server.db.account_quotas[email.lower()] = value
+            config.account_quotas[email.lower()] = value
 
     return None
 
-def read_sram_configuration (server, xml_root):
+def read_sram_configuration (xml_root):
     """Read the SRAM configuration from XML_ROOT."""
 
     sram = xml_root.find("authentication/saml/sram")
     if not sram:
         return None
 
-    server.sram_organization_api_token = config_value (sram, "organization-api-token", fallback = server.sram_organization_api_token)
-    server.sram_collaboration_id = config_value (sram, "collaboration-id", fallback = server.sram_collaboration_id)
+    config.sram_organization_api_token = config_value (sram, "organization-api-token", fallback = config.sram_organization_api_token)
+    config.sram_collaboration_id = config_value (sram, "collaboration-id", fallback = config.sram_collaboration_id)
     return None
 
-def read_saml_configuration (server, xml_root, logger):
+def read_saml_configuration (xml_root, logger):
     """Read the SAML configuration from XML_ROOT."""
 
     saml = xml_root.find("authentication/saml")
@@ -202,12 +203,12 @@ def read_saml_configuration (server, xml_root, logger):
     if attributes is None:
         logger.error ("Missing attributes information for SAML.")
     else:
-        server.saml_attribute_first_name = config_value (attributes, "first-name")
-        server.saml_attribute_last_name = config_value (attributes, "last-name")
-        server.saml_attribute_common_name = config_value (attributes, "common-name")
-        server.saml_attribute_email = config_value (attributes, "email")
-        server.saml_attribute_groups = config_value (attributes, "groups")
-        server.saml_attribute_group_prefix = config_value (attributes, "group-prefix")
+        config.saml_attribute_first_name = config_value (attributes, "first-name")
+        config.saml_attribute_last_name = config_value (attributes, "last-name")
+        config.saml_attribute_common_name = config_value (attributes, "common-name")
+        config.saml_attribute_email = config_value (attributes, "email")
+        config.saml_attribute_groups = config_value (attributes, "groups")
+        config.saml_attribute_group_prefix = config_value (attributes, "group-prefix")
 
     ## Service Provider settings
     service_provider     = saml.find ("service-provider")
@@ -261,11 +262,11 @@ def read_saml_configuration (server, xml_root, logger):
     saml_idp_sso_url     = config_value (sso_service, "url")
     saml_idp_sso_binding = config_value (sso_service, "binding")
 
-    server.identity_provider = "saml"
+    config.identity_provider = "saml"
 
     ## Create an almost-ready-to-serialize configuration structure.
     ## The SP entityId will and ACS URL be generated at a later time.
-    server.saml_config = {
+    config.saml_config = {
         "strict": saml_strict,
         "debug":  saml_debug,
         "sp": {
@@ -348,7 +349,7 @@ def setup_saml_service_provider (server, logger):
     ## but unfortunately we can only indicate the directory for that
     ## file.  Therefore, we create a separate directory in the cache
     ## for this purpose and place the file in that directory.
-    if server.identity_provider == "saml":
+    if config.identity_provider == "saml":
         if not SAML2_DEPENDENCY_LOADED:
             logger.error ("Missing python3-saml dependency.")
             logger.error ("Cannot initiate authentication with SAML.")
@@ -358,20 +359,20 @@ def setup_saml_service_provider (server, logger):
         os.makedirs (saml_cache_dir, mode=0o700, exist_ok=True)
         if os.path.isdir (saml_cache_dir):
             filename  = os.path.join (saml_cache_dir, "settings.json")
-            saml_base_url = f"{server.base_url}/saml"
+            saml_base_url = f"{config.base_url}/saml"
             saml_idp_binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
             # pylint: disable=unsubscriptable-object
-            # PyLint assumes server.saml_config is None, but we can be certain
+            # PyLint assumes config.saml_config is None, but we can be certain
             # it contains a saml configuration, because otherwise
-            # server.identity_provider wouldn't be set to "saml".
-            server.saml_config["sp"]["entityId"] = saml_base_url
-            server.saml_config["sp"]["assertionConsumerService"]["url"] = f"{saml_base_url}/login"
-            server.saml_config["idp"]["singleSignOnService"]["binding"] = saml_idp_binding
+            # config.identity_provider wouldn't be set to "saml".
+            config.saml_config["sp"]["entityId"] = saml_base_url
+            config.saml_config["sp"]["assertionConsumerService"]["url"] = f"{saml_base_url}/login"
+            config.saml_config["idp"]["singleSignOnService"]["binding"] = saml_idp_binding
             # pylint: enable=unsubscriptable-object
             config_fd = os.open (filename, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
             with open (config_fd, "w", encoding="utf-8") as file_stream:
-                json.dump(server.saml_config, file_stream)
-            server.saml_config_path = saml_cache_dir
+                json.dump(config.saml_config, file_stream)
+            config.saml_config_path = saml_cache_dir
         else:
             logger.error ("Failed to create '%s'.", saml_cache_dir)
 
@@ -447,22 +448,27 @@ def setup_handle_registration (server, logger):
     if not os.path.isdir (handle_cache_dir):
         logger.error ("Failed to create '%s'.", handle_cache_dir)
 
-    server.handle_certificate_path = os.path.join (handle_cache_dir, "certificate.pem")
-    server.handle_private_key_path = os.path.join (handle_cache_dir, "certificate.key")
+    config.handle_certificate_path = os.path.join (handle_cache_dir, "certificate.pem")
+    config.handle_private_key_path = os.path.join (handle_cache_dir, "certificate.key")
 
-    config_fd = os.open (server.handle_certificate_path,
+    if config.handle_certificate is None or config.handle_private_key is None:
+        return None
+
+    config_fd = os.open (config.handle_certificate_path,
                          os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
                          0o600)
     with open (config_fd, "w", encoding="utf-8") as file_stream:
-        write_pem_file (file_stream, server.handle_certificate, "CERTIFICATE")
+        write_pem_file (file_stream, config.handle_certificate, "CERTIFICATE")
 
-    config_fd = os.open (server.handle_private_key_path,
+    config_fd = os.open (config.handle_private_key_path,
                          os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
                          0o600)
     with open (config_fd, "w", encoding="utf-8") as file_stream:
-        write_pem_file (file_stream, server.handle_private_key, "PRIVATE KEY")
+        write_pem_file (file_stream, config.handle_private_key, "PRIVATE KEY")
 
-def read_privilege_configuration (server, xml_root, logger):
+    return None
+
+def read_privilege_configuration (xml_root, logger):
     """Read the privileges configuration from XML_ROOT."""
     privileges = xml_root.find("privileges")
     if not privileges:
@@ -475,7 +481,7 @@ def read_privilege_configuration (server, xml_root, logger):
             if "orcid" in account.attrib:
                 orcid = account.attrib["orcid"]
             lowercase_email = email.lower()
-            server.db.privileges[lowercase_email] = {
+            config.privileges[lowercase_email] = {
                 "may_administer":  bool(int(config_value (account, "may-administer", None, False))),
                 "may_query":       bool(int(config_value (account, "may-run-sparql-queries", None, False))),
                 "may_impersonate": bool(int(config_value (account, "may-impersonate", None, False))),
@@ -491,13 +497,13 @@ def read_privilege_configuration (server, xml_root, logger):
 
             ## The "needs_2fa" property is set to True when the user has any
             ## extra privilege.
-            server.db.privileges[lowercase_email]["needs_2fa"] = (not server.disable_2fa) and (
-                server.db.privileges[lowercase_email]["may_administer"] or
-                server.db.privileges[lowercase_email]["may_query"] or
-                server.db.privileges[lowercase_email]["may_impersonate"] or
-                server.db.privileges[lowercase_email]["may_review"] or
-                server.db.privileges[lowercase_email]["may_process_feedback"] or
-                server.db.privileges[lowercase_email]["may_review_quotas"]
+            config.privileges[lowercase_email]["needs_2fa"] = (not config.disable_2fa) and (
+                config.privileges[lowercase_email]["may_administer"] or
+                config.privileges[lowercase_email]["may_query"] or
+                config.privileges[lowercase_email]["may_impersonate"] or
+                config.privileges[lowercase_email]["may_review"] or
+                config.privileges[lowercase_email]["may_process_feedback"] or
+                config.privileges[lowercase_email]["may_review_quotas"]
             )
 
         except KeyError as error:
@@ -533,7 +539,7 @@ def configure_file_logging (log_file, inside_reload, logger):
             log.removeHandler(handler)
         log.addHandler(file_handler)
 
-def read_menu_configuration (xml_root, server):
+def read_menu_configuration (xml_root):
     """Procedure to parse the menu configuration from XML_ROOT."""
     menu = xml_root.find("menu")
     if not menu:
@@ -548,7 +554,7 @@ def read_menu_configuration (xml_root, server):
                     "href":  config_value (submenu_item, "href")
                 })
 
-        server.menu.append({
+        config.menu.append({
             "title":   config_value (primary_menu_item, "title"),
             "submenu": submenu
         })
@@ -575,55 +581,55 @@ def read_static_pages (static_pages, server, config_dir):
                 code = int(redirect_to.attrib["code"])
             server.static_pages[uri_path] = {"redirect-to": redirect_to.text, "code": code}
 
-def read_colors_configuration (server, xml_root):
+def read_colors_configuration (xml_root):
     """Procedure to parse and set the color scheme configuration."""
     colors = xml_root.find("colors")
     if colors:
         for color in ["primary-color", "primary-color-hover",
                       "primary-color-active", "primary-foreground-color",
                       "privilege-button-color", "footer-background-color"]:
-            server.colors[color] = config_value (colors, color, fallback=server.colors[color])
+            config.colors[color] = config_value (colors, color, fallback=config.colors[color])
 
-def read_datacite_configuration (server, xml_root):
+def read_datacite_configuration (xml_root):
     """Procedure to parse and set the DataCite API configuration."""
     datacite = xml_root.find("datacite")
     if datacite:
-        server.datacite_url      = config_value (datacite, "api-url")
-        server.datacite_id       = config_value (datacite, "repository-id")
-        server.datacite_password = config_value (datacite, "password")
-        server.datacite_prefix   = config_value (datacite, "prefix")
+        config.datacite_url      = config_value (datacite, "api-url")
+        config.datacite_id       = config_value (datacite, "repository-id")
+        config.datacite_password = config_value (datacite, "password")
+        config.datacite_prefix   = config_value (datacite, "prefix")
 
-def read_handle_configuration (server, xml_root):
+def read_handle_configuration (xml_root):
     """Procedure to parse and set the Handle API configuration."""
     handle = xml_root.find("handle")
     if handle:
-        server.handle_url         = config_value (handle, "url")
-        server.handle_certificate = config_value (handle, "certificate")
-        server.handle_private_key = config_value (handle, "private-key")
-        server.handle_prefix      = config_value (handle, "prefix")
-        server.handle_index       = config_value (handle, "index")
+        config.handle_url         = config_value (handle, "url")
+        config.handle_certificate = config_value (handle, "certificate")
+        config.handle_private_key = config_value (handle, "private-key")
+        config.handle_prefix      = config_value (handle, "prefix")
+        config.handle_index       = config_value (handle, "index")
 
-def read_automatic_login_configuration (server, xml_root):
+def read_automatic_login_configuration (xml_root):
     """Procedure to parse and set automatic login for development setups."""
     automatic_login_email = config_value (xml_root, "authentication/automatic-login-email")
     if (automatic_login_email is not None
-        and server.orcid_client_id is None
-        and server.saml_config is None):
-        server.identity_provider = "automatic-login"
-        server.automatic_login_email = automatic_login_email
+        and config.orcid_client_id is None
+        and config.saml_config is None):
+        config.identity_provider = "automatic-login"
+        config.automatic_login_email = automatic_login_email
 
-def read_orcid_configuration (server, xml_root):
+def read_orcid_configuration (xml_root):
     """Procedure to parse and set the ORCID API configuration."""
     orcid = xml_root.find("authentication/orcid")
     if orcid:
-        server.orcid_client_id     = config_value (orcid, "client-id")
-        server.orcid_client_secret = config_value (orcid, "client-secret")
-        server.orcid_endpoint      = config_value (orcid, "endpoint")
-        server.orcid_read_public_token = config_value (orcid, "read-public-token")
+        config.orcid_client_id     = config_value (orcid, "client-id")
+        config.orcid_client_secret = config_value (orcid, "client-secret")
+        config.orcid_endpoint      = config_value (orcid, "endpoint")
+        config.orcid_read_public_token = config_value (orcid, "read-public-token")
 
         # SAML takes precedence over ORCID authentication.
-        if server.identity_provider != "saml":
-            server.identity_provider   = "orcid"
+        if config.identity_provider != "saml":
+            config.identity_provider   = "orcid"
 
 def read_email_configuration (server, xml_root, logger):
     """Procedure to parse and set the email server configuration."""
@@ -641,16 +647,13 @@ def read_email_configuration (server, xml_root, logger):
             logger.error ("Could not configure the email subsystem:")
             logger.error ("The email port should be a numeric value.")
 
-def read_configuration_file (server, config_file, logger, config_files, config=None):
+def read_configuration_file (server, config_file, logger, config_files):
     """Procedure to parse a configuration file."""
 
     inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
     try:
         if config_file is None:
             raise FileNotFoundError
-
-        if config is None:
-            config = {}
 
         xml_root = None
         tree = ElementTree.parse(config_file)
@@ -666,181 +669,179 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
         config_dir = os.path.dirname(config_file)
         log_file = config_value (xml_root, "log-file", None, None)
         if log_file is not None:
-            config["log-file"] = log_file
+            config.log_file = log_file
             configure_file_logging (log_file, inside_reload, logger)
 
-        address                 = convenience.value_or_none (config, "address")
-        port                    = convenience.value_or_none (config, "port")
-        config["address"]       = config_value (xml_root, "bind-address", address, "127.0.0.1")
-        config["port"]          = int(config_value (xml_root, "port", port, 8080))
+        config.address      = config_value (xml_root, "bind-address", config.address, "127.0.0.1")
+        config.port         = int(config_value (xml_root, "port", config.port, 8080))
 
-        if server.base_url is None:
-            server.base_url = f"http://{config['address']}:{config['port']}"
+        if config.base_url is None:
+            config.base_url = f"http://{config.address}:{config.port}"
 
-        server.base_url         = config_value (xml_root, "base-url", None, server.base_url)
-        server.db.storage       = config_value (xml_root, "storage-root", None, server.db.storage)
-        server.db.state_graph   = config_value (xml_root, "rdf-store/state-graph", None, server.db.state_graph)
+        config.base_url     = config_value (xml_root, "base-url", None, config.base_url)
+        config.storage      = config_value (xml_root, "storage-root", None, config.storage)
+        config.state_graph  = config_value (xml_root, "rdf-store/state-graph", None, config.state_graph)
 
         live_reload             = convenience.value_or_none (config, "live-reload")
-        config["use_reloader"]  = config_value (xml_root, "live-reload", None, live_reload)
+        config.use_reloader  = config_value (xml_root, "live-reload", None, live_reload)
 
-        debug_mode              = convenience.value_or_none (config, "debug-mode")
-        config["use_debugger"]  = config_value (xml_root, "debug-mode", None, debug_mode)
-        config["maximum_workers"] = int(config_value (xml_root, "maximum-workers", None, 1))
+        debug_mode             = convenience.value_or_none (config, "debug-mode")
+        config.use_debugger    = config_value (xml_root, "debug-mode", None, debug_mode)
+        config.maximum_workers = int(config_value (xml_root, "maximum-workers", None, 1))
 
         endpoint = config_value (xml_root, "rdf-store/sparql-uri")
         if endpoint:
-            server.db.endpoint = endpoint
+            config.endpoint = endpoint
 
         update_endpoint = config_value (xml_root, "rdf-store/sparql-update-uri")
         if update_endpoint:
-            server.db.update_endpoint = update_endpoint
+            config.update_endpoint = update_endpoint
 
-        server.show_portal_summary = read_boolean_value (xml_root, "show-portal-summary",
-                                                         server.show_portal_summary, logger)
+        config.show_portal_summary = read_boolean_value (xml_root, "show-portal-summary",
+                                                         config.show_portal_summary, logger)
 
-        server.show_institutions = read_boolean_value (xml_root, "show-institutions",
-                                                       server.show_institutions, logger)
+        config.show_institutions = read_boolean_value (xml_root, "show-institutions",
+                                                       config.show_institutions, logger)
 
-        server.show_science_categories = read_boolean_value (xml_root, "show-science-categories",
-                                                             server.show_science_categories, logger)
+        config.show_science_categories = read_boolean_value (xml_root, "show-science-categories",
+                                                             config.show_science_categories, logger)
 
-        server.show_latest_datasets = read_boolean_value (xml_root, "show-latest-datasets",
-                                                          server.show_latest_datasets, logger)
+        config.show_latest_datasets = read_boolean_value (xml_root, "show-latest-datasets",
+                                                          config.show_latest_datasets, logger)
 
-        server.maintenance_mode = read_boolean_value (xml_root, "maintenance-mode",
-                                                      server.maintenance_mode, logger)
+        config.maintenance_mode = read_boolean_value (xml_root, "maintenance-mode",
+                                                      config.maintenance_mode, logger)
 
-        server.disable_2fa = read_boolean_value (xml_root, "disable-2fa",
-                                                 server.disable_2fa, logger)
+        config.disable_2fa = read_boolean_value (xml_root, "disable-2fa",
+                                                 config.disable_2fa, logger)
 
-        server.allow_crawlers = read_boolean_value (xml_root, "allow-crawlers",
-                                                    server.allow_crawlers, logger)
+        config.allow_crawlers = read_boolean_value (xml_root, "allow-crawlers",
+                                                    config.allow_crawlers, logger)
 
-        server.enable_iiif = read_boolean_value (xml_root, "enable-iiif",
-                                                 server.enable_iiif, logger)
+        config.enable_iiif = read_boolean_value (xml_root, "enable-iiif",
+                                                 config.enable_iiif, logger)
 
-        server.db.delay_inserting_log_entries = read_boolean_value (xml_root, "delay-inserting-log-entries",
-                                                                    server.db.delay_inserting_log_entries, logger)
+        config.delay_inserting_log_entries = read_boolean_value (xml_root, "delay-inserting-log-entries",
+                                                                 config.delay_inserting_log_entries, logger)
 
         ssi_psk = config_value (xml_root, "ssi-psk")
         if ssi_psk is not None:
             ssi_psk = ssi_psk.replace(" ", "").replace("\n", "").replace("\r", "").replace("\t", "")
-            server.ssi_psk = ssi_psk
+            config.ssi_psk = ssi_psk
 
         enable_query_audit_log = xml_root.find ("enable-query-audit-log")
         if enable_query_audit_log is not None:
-            config["transactions_directory"] = enable_query_audit_log.attrib.get("transactions-directory")
-            if config["transactions_directory"] is None:
-                config["transactions_directory"] = "."
+            transactions_directory = enable_query_audit_log.attrib.get("transactions-directory")
+            if transactions_directory is not None:
+                config.transactions_directory = transactions_directory
             try:
-                server.db.enable_query_audit_log = bool(int(enable_query_audit_log.text))
+                config.enable_query_audit_log = bool(int(enable_query_audit_log.text))
             except (ValueError, TypeError):
                 logger.info("Invalid value for enable-query-audit-log. Ignoring.. assuming 1 (True)")
 
-        if config["use_reloader"]:
-            config["use_reloader"] = bool(int(config["use_reloader"]))
-        if config["use_debugger"]:
-            config["use_debugger"] = bool(int(config["use_debugger"]))
+        if config.use_reloader:
+            config.use_reloader = bool(int(config.use_reloader))
+        if config.use_debugger:
+            config.use_debugger = bool(int(config.use_debugger))
 
         cache_root = xml_root.find ("cache-root")
         if cache_root is not None:
             server.db.cache.storage = cache_root.text
             try:
                 clear_on_start = cache_root.attrib.get("clear-on-start")
-                config["clear-cache-on-start"] = bool(int(clear_on_start))
+                config.clear_cache_on_start = bool(int(clear_on_start))
             except ValueError:
                 logger.warning ("Invalid value for the 'clear-on-start' attribute in 'cache-root'.")
                 logger.warning ("Will not clear cache on start; Use '1' to enable, or '0' to disable.")
-                config["clear-cache-on-start"] = False
+                config.clear_cache_on_start = False
             except TypeError:
-                config["clear-cache-on-start"] = False
+                config.clear_cache_on_start = False
         elif server.db.cache.storage is None:
-            server.db.cache.storage = os.path.join (server.db.storage, "cache")
+            server.db.cache.storage = os.path.join (config.storage, "cache")
 
         profile_images_root = xml_root.find ("profile-images-root")
         if profile_images_root is not None:
-            server.db.profile_images_storage = profile_images_root.text
-        elif server.db.profile_images_storage is None:
-            server.db.profile_images_storage = os.path.join (server.db.storage, "profile-images")
+            config.profile_images_storage = profile_images_root.text
+        elif config.profile_images_storage is None:
+            config.profile_images_storage = os.path.join (config.storage, "profile-images")
 
         thumbnails_root = xml_root.find ("thumbnails-root")
         if thumbnails_root is not None:
-            server.db.thumbnail_storage = thumbnails_root.text
-        elif server.db.thumbnail_storage is None:
-            server.db.thumbnail_storage = os.path.join (server.db.storage, "thumbnails")
+            config.thumbnail_storage = thumbnails_root.text
+        elif config.thumbnail_storage is None:
+            config.thumbnail_storage = os.path.join (config.storage, "thumbnails")
 
         iiif_cache = xml_root.find ("iiif-cache-root")
         if iiif_cache is not None:
-            server.db.iiif_cache_storage = iiif_cache.text
-        elif server.db.iiif_cache_storage is None:
-            server.db.iiif_cache_storage = os.path.join (server.db.storage, "iiif")
+            config.iiif_cache_storage = iiif_cache.text
+        elif config.iiif_cache_storage is None:
+            config.iiif_cache_storage = os.path.join (config.storage, "iiif")
 
         production_mode = xml_root.find ("production")
         if production_mode is not None:
-            server.in_production = bool(int(production_mode.text))
+            config.in_production = bool(int(production_mode.text))
             try:
                 pre_production = production_mode.attrib.get("pre-production")
                 if pre_production is not None:
-                    server.in_preproduction = bool(int(pre_production))
+                    config.in_preproduction = bool(int(pre_production))
             except (ValueError, TypeError):
                 logger.warning ("Invalid value for the 'pre-production' attribute in 'production'.")
                 logger.warning ("Pre-production mode is enabled; Use either '1' to enable, or '0' to disable.")
-                server.in_preproduction = True
+                config.in_preproduction = True
 
         secondary_storage = xml_root.find ("secondary-storage-root")
         if secondary_storage is not None:
-            server.db.secondary_storage = secondary_storage.text
+            config.secondary_storage = secondary_storage.text
             try:
                 quirks = secondary_storage.attrib.get("quirks")
-                server.db.secondary_storage_quirks = bool(int(quirks))
+                config.secondary_storage_quirks = bool(int(quirks))
             except ValueError:
                 logger.warning ("Invalid value for the 'quirks' attribute in 'secondary-storage-root'.")
                 logger.warning ("Quirks-mode is disabled; Use either '1' to enable, or '0' to disable.")
-                server.db.secondary_storage_quirks = False
+                config.secondary_storage_quirks = False
             except TypeError:
-                server.db.secondary_storage_quirks = False
+                config.secondary_storage_quirks = False
 
         use_x_forwarded_for = bool(int(config_value (xml_root, "use-x-forwarded-for", None, 0)))
         if use_x_forwarded_for:
             server.log_access = server.log_access_using_x_forwarded_for
 
-        server.disable_collaboration = read_boolean_value (xml_root, "disable-collaboration",
-                                                           server.disable_collaboration,
+        config.disable_collaboration = read_boolean_value (xml_root, "disable-collaboration",
+                                                           config.disable_collaboration,
                                                            logger)
 
         sandbox_message, sandbox_message_attributes = read_raw_xml (xml_root, "sandbox-message")
         if sandbox_message:
-            server.sandbox_message_css = sandbox_message_attributes.get("style")
-            server.sandbox_message = sandbox_message
+            config.sandbox_message_css = sandbox_message_attributes.get("style")
+            config.sandbox_message = sandbox_message
 
         notice_message, _ = read_raw_xml (xml_root, "notice-message")
         if notice_message:
-            server.notice_message = notice_message
+            config.notice_message = notice_message
 
         large_footer, _ = read_raw_xml (xml_root, "large-footer")
         if large_footer:
-            server.large_footer = large_footer
+            config.large_footer = large_footer
 
         small_footer, _ = read_raw_xml (xml_root, "small-footer")
         if small_footer:
-            server.small_footer = small_footer
+            config.small_footer = small_footer
 
         site_name = xml_root.find ("site-name")
         if site_name is not None:
-            server.site_name = site_name.text
+            config.site_name = site_name.text
 
         site_description = xml_root.find ("site-description")
         if site_description is not None:
-            server.site_description = site_description.text
+            config.site_description = site_description.text
 
         site_shorttag = xml_root.find ("site-shorttag")
         if site_shorttag is not None:
-            server.site_shorttag = site_shorttag.text
+            config.site_shorttag = site_shorttag.text
 
         support_email_address = xml_root.find ("support-email-address")
         if support_email_address is not None:
-            server.support_email_address = support_email_address.text
+            config.support_email_address = support_email_address.text
 
         depositing_domains = xml_root.find ("allowed-depositing-domains")
         if depositing_domains is not None:
@@ -850,19 +851,19 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
                     raise SystemExit
                 if domain.text is None or domain.text.strip() == "":
                     continue
-                server.db.depositing_domains.append (domain.text.strip())
+                config.depositing_domains.append (domain.text.strip())
 
-        read_orcid_configuration (server, xml_root)
-        read_datacite_configuration (server, xml_root)
-        read_handle_configuration (server, xml_root)
+        read_orcid_configuration (xml_root)
+        read_datacite_configuration (xml_root)
+        read_handle_configuration (xml_root)
         read_email_configuration (server, xml_root, logger)
-        read_saml_configuration (server, xml_root, logger)
-        read_sram_configuration (server, xml_root)
-        read_automatic_login_configuration (server, xml_root)
-        read_privilege_configuration (server, xml_root, logger)
-        read_storage_locations (server, xml_root)
-        read_quotas_configuration (server, xml_root)
-        read_colors_configuration (server, xml_root)
+        read_saml_configuration (xml_root, logger)
+        read_sram_configuration (xml_root)
+        read_automatic_login_configuration (xml_root)
+        read_privilege_configuration (xml_root, logger)
+        read_storage_locations (xml_root)
+        read_quotas_configuration (xml_root)
+        read_colors_configuration (xml_root)
 
         for include_element in xml_root.iter('include'):
             include    = include_element.text
@@ -873,10 +874,9 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
             if not os.path.isabs(include):
                 include = os.path.join(config_dir, include)
 
-            new_config = read_configuration_file (server, include, logger, config_files, config)
-            config = { **config, **new_config }
+            read_configuration_file (server, include, logger, config_files)
 
-        read_menu_configuration (xml_root, server)
+        read_menu_configuration (xml_root)
 
         custom_logo_path = config_value (xml_root, "custom-logo-path", None, None)
         if custom_logo_path:
@@ -926,17 +926,17 @@ def read_configuration_file (server, config_file, logger, config_files, config=N
 
     return {}
 
-def extract_transactions (config, since_datetime):
+def extract_transactions (since_datetime):
     """Extract the queries from the audit log and write them as files."""
 
-    if "log-file" not in config:
+    if config.log_file is None:
         print("No log file found to extract queries from.", file=sys.stderr)
         return False
 
-    filename = config["log-file"]
+    filename = config.log_file
     try:
-        if "transactions_directory" in config:
-            directory_prefix = config["transactions_directory"]
+        if config.transactions_directory is not None:
+            directory_prefix = config.transactions_directory
             os.makedirs(directory_prefix, mode=0o700, exist_ok=True)
             if not os.path.isdir(directory_prefix):
                 print (f"Failed to create '{directory_prefix}'.", file=sys.stderr)
@@ -996,13 +996,13 @@ def extract_transactions (config, since_datetime):
         print (f"Could not open '{filename}'.", file=sys.stderr)
         return False
 
-def apply_transactions_from_directory (logger, server, config, transactions_directory):
+def apply_transactions_from_directory (logger, server, transactions_directory):
     """Apply extracted transactions from the query audit log."""
 
     # Override with the value from the configuration file.
     directory = transactions_directory
-    if "transactions_directory" in config:
-        directory = config["transactions_directory"]
+    if config.transactions_directory is not None:
+        directory = config.transactions_directory
 
     print (f"Finding transactions in '{directory}'.")
     transactions = list(filter(lambda x: (x.startswith("transaction_") and
@@ -1046,7 +1046,7 @@ def perform_rdf_export (logger, server, full_export):
         logger.error ("Unable to create RDF export.")
         return False
 
-    logger.info ("Created RDF export in '%s'", server.db.export_directory)
+    logger.info ("Created RDF export in '%s'", config.export_directory)
     return True
 
 ## ----------------------------------------------------------------------------
@@ -1084,16 +1084,16 @@ def main (config_file=None, run_internal_server=True, initialize=True,
 
         server = wsgi.ApiServer ()
         config_files = set()
-        config = read_configuration_file (server, config_file, logger, config_files)
+        read_configuration_file (server, config_file, logger, config_files)
 
         ## Handle extracting Query Audit Logs early on.
         if extract_transactions_from_log is not None:
-            return extract_transactions (config, since_datetime)
+            return extract_transactions (since_datetime)
 
         inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
 
-        if (isinstance (server.db.endpoint, str) and
-            server.db.endpoint.startswith("bdb://") and
+        if (isinstance (config.endpoint, str) and
+            config.endpoint.startswith("bdb://") and
             not berkeleydb.has_bsddb):
             logger.error(("Configured a BerkeleyDB database back-end, "
                           "but BerkeleyDB is not installed on the system "
@@ -1103,99 +1103,94 @@ def main (config_file=None, run_internal_server=True, initialize=True,
         if not server.db.cache.cache_is_ready() and not inside_reload:
             logger.error ("Failed to set up cache layer.")
 
-        if ("clear-cache-on-start" in config and
-            config["clear-cache-on-start"] and
-            not inside_reload):
+        if config.clear_cache_on_start and not inside_reload:
             logger.info ("Clearing cache.")
             server.db.cache.invalidate_all ()
 
         setup_saml_service_provider (server, logger)
-        if server.handle_url is not None:
+        if config.handle_url is not None:
             setup_handle_registration (server, logger)
 
-        if not server.in_production and not inside_reload:
+        if not config.in_production and not inside_reload:
             logger.warning ("Assuming to run in a non-production environment.")
             logger.warning (("Set <production> to 1 in your configuration "
                              "file for hardened security settings."))
 
-        if server.in_production and not os.path.isdir (server.db.storage):
-            logger.error ("The storage directory '%s' does not exist.",
-                          server.db.storage)
+        if config.in_production and not os.path.isdir (config.storage):
+            logger.error ("The storage directory '%s' does not exist.", config.storage)
             raise FileNotFoundError
 
-        if server.db.profile_images_storage is not None and not inside_reload:
+        if config.profile_images_storage is not None and not inside_reload:
             try:
-                os.makedirs (server.db.profile_images_storage, mode=0o700, exist_ok=True)
+                os.makedirs (config.profile_images_storage, mode=0o700, exist_ok=True)
             except PermissionError:
                 logger.error ("Cannot create %s directory.",
-                              server.db.profile_images_storage)
-                server.db.profile_images_storage = os.path.join (server.db.storage, "profile-images")
-                logger.error ("Falling back to %s.", server.db.profile_images_storage)
+                              config.profile_images_storage)
+                config.profile_images_storage = os.path.join (config.storage, "profile-images")
+                logger.error ("Falling back to %s.", config.profile_images_storage)
 
-        if server.db.thumbnail_storage is not None and not inside_reload:
+        if config.thumbnail_storage is not None and not inside_reload:
             try:
-                os.makedirs (server.db.thumbnail_storage, mode=0o700, exist_ok=True)
+                os.makedirs (config.thumbnail_storage, mode=0o700, exist_ok=True)
             except PermissionError:
-                logger.error ("Cannot create %s directory.", server.db.thumbnail_storage)
+                logger.error ("Cannot create %s directory.", config.thumbnail_storage)
 
-        if not server.add_static_root ("/thumbnails", server.db.thumbnail_storage):
+        if not server.add_static_root ("/thumbnails", config.thumbnail_storage):
             logger.error ("Failed to setup route for thumbnails.")
 
-        if server.db.iiif_cache_storage is not None and not inside_reload:
+        if config.iiif_cache_storage is not None and not inside_reload:
             try:
-                os.makedirs (server.db.iiif_cache_storage, mode=0o700, exist_ok=True)
+                os.makedirs (config.iiif_cache_storage, mode=0o700, exist_ok=True)
             except PermissionError:
-                logger.error ("Cannot create %s directory.", server.db.iiif_cache_storage)
+                logger.error ("Cannot create %s directory.", config.iiif_cache_storage)
 
         server.db.setup_sparql_endpoint ()
-        server.db.disable_collaboration = server.disable_collaboration
 
         if apply_transactions is not None:
-            return apply_transactions_from_directory (logger, server, config, apply_transactions)
+            return apply_transactions_from_directory (logger, server, apply_transactions)
 
         if perform_export:
             return perform_rdf_export (logger, server, full_rdf_export)
 
         if not run_internal_server:
-            server.using_uwsgi = True
-            server.locks.using_uwsgi = True
+            config.using_uwsgi = True
             return server
 
         if inside_reload:
             logger.info ("Reloaded.")
         else:
-            if not server.menu:
+            if not config.menu:
                 logger.warning ("No menu structure provided.")
 
             if shutil.which ("git") is None:
                 logger.error ("Cannot find the 'git' executable.  Please install it.")
-                if server.in_production:
+                if config.in_production:
                     raise DependencyNotAvailable
 
-            if server.orcid_client_id is not None and server.orcid_read_public_token is None:
+            if config.orcid_client_id is not None and config.orcid_read_public_token is None:
                 if server.obtain_orcid_read_public_token ():
                     logger.info ("Obtained read-public token from ORCID.")
 
-            if server.db.depositing_domains:
-                logger.info ("Depositing is limited to the domains: %s.", server.db.depositing_domains)
+            if config.depositing_domains:
+                logger.info ("Depositing is limited to the domains: %s.", config.depositing_domains)
 
-            logger.info ("SPARQL endpoint:         %s", server.db.endpoint)
-            if server.db.endpoint != server.db.update_endpoint:
-                logger.info ("SPARQL update_endpoint:  %s", server.db.update_endpoint)
-            logger.info ("State graph:             %s", server.db.state_graph)
-            logger.info ("Storage path:            %s", server.db.storage)
-            if server.db.storage_locations:
-                for location in server.db.storage_locations:
+            logger.info ("SPARQL endpoint:         %s", config.endpoint)
+            if config.endpoint != config.update_endpoint:
+                logger.info ("SPARQL update_endpoint:  %s", config.update_endpoint)
+            logger.info ("State graph:             %s", config.state_graph)
+            logger.info ("Storage path:            %s", config.storage)
+            if config.storage_locations:
+                for location in config.storage_locations:
                     logger.info ("Storage path:            %s", location["path"])
-            logger.info ("Secondary storage path:  %s", server.db.secondary_storage)
+            logger.info ("Secondary storage path:  %s", config.secondary_storage)
             logger.info ("Cache storage path:      %s", server.db.cache.storage)
             logger.info ("Static pages loaded:     %s", len(server.static_pages))
-            if server.handle_url is None:
+            if config.handle_url is None:
                 logger.info ("Handle registration is disabled.")
             else:
-                logger.info ("Handle prefix:           %s", server.handle_prefix)
+                logger.info ("Handle prefix:           %s", config.handle_prefix)
 
-            if server.enable_iiif:
+            if config.enable_iiif:
                 if not PYVIPS_DEPENDENCY_LOADED:
                     logger.error ("Dependency 'pyvips' is required for IIIF.")
                     if PYVIPS_ERROR_MESSAGE is not None:
@@ -1204,27 +1199,27 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                     raise DependencyNotAvailable
                 logging.getLogger('pyvips').setLevel(logging.ERROR)
 
-            if server.identity_provider is not None:
+            if config.identity_provider is not None:
                 logger.info ("Using %s as identity provider.",
-                             server.identity_provider.upper())
+                             config.identity_provider.upper())
             else:
                 logger.error ("Missing identity provider configuration.")
-                if server.in_production:
+                if config.in_production:
                     raise MissingConfigurationError
 
             if not server.email.is_properly_configured ():
                 logger.warning ("Sending notification e-mails has been disabled.")
                 logger.warning ("Please configure a mail server to enable it.")
-                if server.in_production:
+                if config.in_production:
                     logger.error ("An e-mail server must be configured for production-mode.")
                     raise MissingConfigurationError
 
-            if server.in_production and not server.db.feedback_reviewer_email_addresses():
+            if config.in_production and not server.db.feedback_reviewer_email_addresses():
                 logger.error ("An account with 'may-process-feedback' privileges must be configured.")
                 raise MissingConfigurationError
 
-            for email_address in server.db.privileges:  # pylint: disable=consider-using-dict-items
-                if server.db.privileges[email_address.lower()]["needs_2fa"]:
+            for email_address in config.privileges:  # pylint: disable=consider-using-dict-items
+                if config.privileges[email_address.lower()]["needs_2fa"]:
                     logger.info ("Enabled 2FA for %s.", email_address)
 
             if initialize:
@@ -1255,12 +1250,12 @@ def main (config_file=None, run_internal_server=True, initialize=True,
         if not inside_reload:
             refresh_group_configuration (server, logger, config_files)
 
-        run_simple (config["address"], config["port"], server,
-                    threaded=(config["maximum_workers"] <= 1),
-                    processes=config["maximum_workers"],
+        run_simple (config.address, config.port, server,
+                    threaded=(config.maximum_workers <= 1),
+                    processes=config.maximum_workers,
                     extra_files=list(config_files),
-                    use_debugger=config["use_debugger"],
-                    use_reloader=config["use_reloader"])
+                    use_debugger=config.use_debugger,
+                    use_reloader=config.use_reloader)
 
     except (FileNotFoundError, DependencyNotAvailable, MissingConfigurationError):
         pass

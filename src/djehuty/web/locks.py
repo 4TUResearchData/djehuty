@@ -2,6 +2,8 @@
 
 from enum import Enum
 from threading import Lock
+from djehuty.web.config import config
+
 try:
     import uwsgi
 except ModuleNotFoundError:
@@ -33,12 +35,10 @@ class Locks:
             LockTypes.SUBMIT_DATASET: Lock(),
         }
 
-        self.using_uwsgi = False
-
     def lock (self, lock_type):
         """Lock critical section LOCK_TYPE."""
 
-        if self.using_uwsgi:
+        if config.using_uwsgi:
             uwsgi.lock(lock_type.value)
         else:
             lock = self.locks.get(lock_type)
@@ -46,7 +46,7 @@ class Locks:
 
     def unlock (self, lock_type):
         """Unlock critical section LOCK_TYPE."""
-        if self.using_uwsgi:
+        if config.using_uwsgi:
             uwsgi.unlock(lock_type.value)
         else:
             lock = self.locks.get(lock_type)

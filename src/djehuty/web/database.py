@@ -16,23 +16,13 @@ from jinja2 import Environment, FileSystemLoader
 from djehuty.web import cache
 from djehuty.utils import rdf
 from djehuty.utils import convenience as conv
+from djehuty.web.config import config
 
 class SparqlInterface:
     """This class reads and writes data from a SPARQL endpoint."""
 
     def __init__ (self):
 
-        self.storage_locations = []
-        self.storage     = None
-        self.secondary_storage = None
-        self.secondary_storage_quirks = False
-        self.endpoint    = "http://127.0.0.1:8890/sparql"
-        self.update_endpoint = None
-        self.state_graph = "https://data.4tu.nl/portal/self-test"
-        self.privileges  = {}
-        self.thumbnail_storage = None
-        self.profile_images_storage = None
-        self.iiif_cache_storage = None
         self.log         = logging.getLogger(__name__)
         self.cache       = cache.CacheLayer(None)
         self.jinja       = Environment(loader = FileSystemLoader(
@@ -41,22 +31,14 @@ class SparqlInterface:
                                          autoescape=True)
         self.sparql       = None
         self.sparql_is_up = False
-        self.enable_query_audit_log = False
-        self.account_quotas = {}
-        self.group_quotas   = {}
-        self.default_quota  = 5000000000
-        self.store          = None
-        self.disable_collaboration = True
-        self.depositing_domains = []
-        self.delay_inserting_log_entries = False
-        self.export_directory = "."
+        self.store        = None
 
     def setup_sparql_endpoint (self):
         """Procedure to be called after setting the 'endpoint' members."""
 
         # BerkeleyDB as local RDF store.
-        if (isinstance (self.endpoint, str) and self.endpoint.startswith("bdb://")):
-            directory = self.endpoint[6:]
+        if (isinstance (config.endpoint, str) and config.endpoint.startswith("bdb://")):
+            directory = config.endpoint[6:]
             self.sparql = Dataset("BerkeleyDB")
             self.sparql.open (directory, create=True)
             if not isinstance (self.sparql, Dataset):
@@ -71,24 +53,24 @@ class SparqlInterface:
 
         # In-memory SPARQL endpoint. This does not work when live-reload
         # is enabled.
-        elif (isinstance (self.endpoint, str) and
-              self.endpoint.startswith ("memory://")):
-            self.store = memory.Memory(identifier = URIRef(self.state_graph))
+        elif (isinstance (config.endpoint, str) and
+              config.endpoint.startswith ("memory://")):
+            self.store = memory.Memory(identifier = URIRef(config.state_graph))
             self.sparql = Dataset(store = self.store)
             self.log.info ("Using in-memory RDF store.")
 
         # External SPARQL endpoints, like Virtuoso.
         else:
-            if self.update_endpoint is None:
-                self.update_endpoint = self.endpoint
+            if config.update_endpoint is None:
+                config.update_endpoint = config.endpoint
 
             self.store = sparqlstore.SPARQLUpdateStore(
                 # Avoid rdflib from wrapping in a blank-node graph by setting
                 # context_aware to False.
                 context_aware   = False,
                 autocommit      = False,
-                query_endpoint  = self.endpoint,
-                update_endpoint = self.update_endpoint,
+                query_endpoint  = config.endpoint,
+                update_endpoint = config.update_endpoint,
                 returnFormat    = "json",
                 method          = "POST")
             # Set bind_namespaces so rdflib does not inject PREFIXes.
@@ -162,8 +144,8 @@ class SparqlInterface:
     def __query_from_template (self, name, args=None):
         template   = self.jinja.get_template (f"{name}.sparql")
         parameters = {
-            "state_graph":           self.state_graph,
-            "disable_collaboration": self.disable_collaboration
+            "state_graph":           config.state_graph,
+            "disable_collaboration": config.disable_collaboration
         }
         if args is None:
             args = {}
@@ -173,7 +155,7 @@ class SparqlInterface:
     def __run_logged_query (self, query):
         """Passthrough for '__run_query' that handles the audit log feature."""
 
-        if self.enable_query_audit_log:
+        if config.enable_query_audit_log:
             self.__log_query (query, "Query Audit Log")
 
         return self.__run_query (query)
@@ -254,14 +236,14 @@ class SparqlInterface:
         return results
 
     def __insert_query_for_graph (self, graph, only_log_query=False):
-        if self.enable_query_audit_log:
-            query = rdf.insert_query (self.state_graph, graph)
+        if config.enable_query_audit_log:
+            query = rdf.insert_query (config.state_graph, graph)
             if only_log_query:
                 self.__log_query (query, "Query Audit Log (delayed)")
             else:
                 self.__log_query (query, "Query Audit Log")
             return query
-        return rdf.insert_query (self.state_graph, graph)
+        return rdf.insert_query (config.state_graph, graph)
 
     def __last_item_by_order_index (self, results):
         try:
@@ -1852,7 +1834,7 @@ class SparqlInterface:
         rdf.add (graph, entry_uri, rdf.DJHT["created"], created_date, XSD.dateTime)
         rdf.add (graph, entry_uri, rdf.DJHT[f"{item_type}"], item_uri, "url")
         rdf.add (graph, entry_uri, rdf.DJHT["event_type"], rdf.DJHT[f"{type_suffix}"], "url")
-        if self.add_triples_from_graph (graph, self.delay_inserting_log_entries):
+        if self.add_triples_from_graph (graph, config.delay_inserting_log_entries):
             return True
 
         return False
@@ -2855,7 +2837,7 @@ class SparqlInterface:
         """Procedure to return the categories without a parent category."""
 
         query = self.__query_from_template ("root_categories", {
-            "state_graph": self.state_graph
+            "state_graph": config.state_graph
         })
 
         query += rdf.sparql_suffix ("title", "asc")
@@ -3060,8 +3042,8 @@ class SparqlInterface:
     def account_quota (self, email, domain, account):
         """Return the account's quota in bytes."""
 
-        account_quota = self.account_quotas.get (email)
-        group_quota   = self.group_quotas.get (domain)
+        account_quota = config.account_quotas.get (email)
+        group_quota   = config.group_quotas.get (domain)
 
         if "quota" in account:
             return account["quota"]
@@ -3072,7 +3054,7 @@ class SparqlInterface:
         if group_quota:
             return group_quota
 
-        return self.default_quota
+        return config.default_quota
 
     def __account_with_privileges_and_quotas (self, account):
         """Returns an account record with privileges and quotas."""
@@ -3080,8 +3062,8 @@ class SparqlInterface:
         try:
             privileges = {}
             email = account["email"].lower()
-            if email in self.privileges:
-                privileges = self.privileges[email]
+            if email in config.privileges:
+                privileges = config.privileges[email]
 
             domain     = conv.value_or (account, "domain", "")
             quota      = self.account_quota (email, domain, account)
@@ -3114,9 +3096,9 @@ class SparqlInterface:
         ## The privileges are stored by e-mail address, so we can use
         ## this to look up the email addresses without accessing the
         ## SPARQL endpoint.
-        for email_address in self.privileges:  # pylint: disable=consider-using-dict-items
+        for email_address in config.privileges:  # pylint: disable=consider-using-dict-items
             email = email_address.lower()
-            if self.privileges[email][privilege]:
+            if config.privileges[email][privilege]:
                 addresses.append(email_address)
 
         return addresses
@@ -3198,16 +3180,16 @@ class SparqlInterface:
     def initialize_privileged_accounts (self):
         """Ensures privileged accounts are present in the database."""
 
-        privileged_accounts = list(self.privileges.keys())
+        privileged_accounts = list(config.privileges.keys())
         for email in privileged_accounts:
             account = self.account_by_email (email)
             if account is not None:
                 self.log.info ("Account for %s already exists.", email)
                 continue
 
-            orcid        = self.privileges[email]["orcid"]
-            first_name   = self.privileges[email]["first_name"]
-            last_name    = self.privileges[email]["last_name"]
+            orcid        = config.privileges[email]["orcid"]
+            first_name   = config.privileges[email]["first_name"]
+            last_name    = config.privileges[email]["last_name"]
             account_uuid = self.insert_account (email      = email,
                                                 orcid_id   = orcid,
                                                 first_name = first_name,
@@ -3251,7 +3233,7 @@ class SparqlInterface:
 
         mfa_token = None
         try:
-            if self.privileges[account["email"].lower()]["needs_2fa"] and not override_mfa:
+            if config.privileges[account["email"].lower()]["needs_2fa"] and not override_mfa:
                 mfa_token = secrets.randbelow (1000000)
                 rdf.add (graph, link_uri, rdf.DJHT["mfa_token"], mfa_token, XSD.integer)
                 rdf.add (graph, link_uri, rdf.DJHT["mfa_tries"], 0,         XSD.integer)
@@ -3393,7 +3375,7 @@ class SparqlInterface:
     def is_depositor (self, session_token, account=None):
         """Returns True when the account linked to the session is a depositor, False otherwise"""
 
-        if not self.depositing_domains:
+        if not config.depositing_domains:
             return self.is_logged_in (session_token)
 
         if session_token is None:
@@ -3406,7 +3388,7 @@ class SparqlInterface:
             return False
 
         if "domain" in account:
-            return account["domain"] in self.depositing_domains
+            return account["domain"] in config.depositing_domains
 
         return False
 
@@ -3446,13 +3428,13 @@ class SparqlInterface:
 
     def mark_state_graph_as_initialized (self):
         """Inserts the triplet that marks the graph as initialized."""
-        query = ((f'INSERT {{ GRAPH <{self.state_graph}> {{ <this> '
+        query = ((f'INSERT {{ GRAPH <{config.state_graph}> {{ <this> '
                   f'<{rdf.DJHT["initialized"]}> "true"^^<{XSD.boolean}> }} }}'))
         return self.__run_query (query)
 
     def state_graph_is_initialized (self):
         """"Returns True of the state-graph is already initialized."""
-        query = ((f'ASK {{ GRAPH <{self.state_graph}> {{ <this> '
+        query = ((f'ASK {{ GRAPH <{config.state_graph}> {{ <this> '
                   f'<{rdf.DJHT["initialized"]}> "true"^^<{XSD.boolean}> }} }}'))
         return self.__run_query (query)
 
@@ -3498,7 +3480,7 @@ class SparqlInterface:
         if not self.may_query (session_token):
             return False
 
-        if self.enable_query_audit_log:
+        if config.enable_query_audit_log:
             execution_type, _ = rdf.query_type (query)
             if execution_type == "update":
                 self.__log_query (query, "Query Audit Log (manual execution)")
@@ -3517,15 +3499,15 @@ class SparqlInterface:
                     value = rdf.escape_value (triple["object"], URIRef(triple["type"]))
                 else:
                     value = f"<{triple['object']}>"
-                stream.write (f"<{triple['subject']}> <{triple['predicate']}> {value} <{self.state_graph}> .\n")
+                stream.write (f"<{triple['subject']}> <{triple['predicate']}> {value} <{config.state_graph}> .\n")
             if os.name != 'nt':
-                os.fchmod (stream_fd, 0o400)
+                os.fchmod (stream_fd, 0o400)  # pylint: disable=no-member
 
     def export_rdf (self, full_export=False):
         """Export RDF triples."""
 
         current_time     = datetime.strftime (datetime.now(), "%Y-%m-%d_%H%M%S")
-        export_directory = os.path.join (self.export_directory, f"{current_time}")
+        export_directory = os.path.join (config.export_directory, f"{current_time}")
         export_directory += "-full" if full_export else "-public"
 
         try:

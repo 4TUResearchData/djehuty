@@ -40,6 +40,7 @@ from djehuty.utils.convenience import make_citation, is_opendap_url, landing_pag
 from djehuty.utils.convenience import split_author_name, split_string
 from djehuty.utils.constants import group_to_member, member_url_names, filetypes_by_extension
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
+from djehuty.web.config import config
 
 ## Error handling for loading python3-saml is done in 'ui'.
 ## So if it fails here, we can safely assume we don't need it.
@@ -67,83 +68,14 @@ class ApiServer:
     """This class implements the HTTP interface for users."""
 
     def __init__ (self, address="127.0.0.1", port=8080):
-        self.base_url         = f"http://{address}:{port}"
-        self.site_name        = ""
-        self.site_description = ""
-        self.site_shorttag    = "4tu"
-        self.support_email_address = ""
+        config.base_url         = f"http://{address}:{port}"
         self.db               = database.SparqlInterface()  # pylint: disable=invalid-name
         self.email            = email_handler.EmailInterface()
         self.cookie_key       = "djehuty_session"
         self.impersonator_cookie_key = f"impersonator_{self.cookie_key}"
-        self.allow_crawlers   = False
-        self.in_production    = False
-        self.in_preproduction = False
-        self.using_uwsgi      = False
-        self.maintenance_mode = False
-        self.sandbox_message_css = ""
-        self.sandbox_message  = False
-        self.notice_message   = False
-        self.show_portal_summary = True
-        self.show_institutions = True
-        self.show_science_categories = True
-        self.show_latest_datasets = True
-        self.disable_2fa      = False
-        self.enable_iiif      = False
-        self.disable_collaboration = False
-        self.automatic_login_email = None
-
-        self.handle_certificate_path = None
-        self.handle_certificate      = None
-        self.handle_private_key_path = None
-        self.handle_private_key      = None
-        self.handle_url              = None
-        self.handle_prefix           = None
-        self.handle_index            = None
-
-        self.small_footer     = (
-            '<div id="footer-wrapper2"><p>This repository is powered by '
-            '<a href="https://github.com/4TUResearchData/djehuty">djehuty</a> '
-            'built for <a href="https://data.4tu.nl">4TU.ResearchData</a>.'
-            '</p></div>'
-        )
-        self.large_footer     = self.small_footer
-
-        self.orcid_client_id     = None
-        self.orcid_client_secret = None
-        self.orcid_endpoint      = None
-        self.orcid_read_public_token = None
-        self.identity_provider   = None
-
-        self.saml_config_path    = None
-        self.saml_config         = None
-        self.saml_attribute_email = "urn:mace:dir:attribute-def:mail"
-        self.saml_attribute_first_name = "urn:mace:dir:attribute-def:givenName"
-        self.saml_attribute_last_name = "urn:mace:dir:attribute-def:sn"
-        self.saml_attribute_common_name = "urn:mace:dir:attribute-def:cn"
-        self.saml_attribute_groups = None
-        self.saml_attribute_group_prefix = None
-
-        self.sram_organization_api_token = None
-        self.sram_collaboration_id = None
-
-        self.datacite_url        = None
-        self.datacite_id         = None
-        self.datacite_password   = None
-        self.datacite_prefix     = None
-        self.ssi_psk             = None
         self.log_access          = self.log_access_directly
         self.log                 = logging.getLogger(__name__)
         self.locks               = locks.Locks()
-        self.menu = []
-        self.colors = {
-            "primary-color":            "#f49120",
-            "primary-color-hover":      "#d26000",
-            "primary-color-active":     "#9d4800",
-            "primary-foreground-color": "#000000",
-            "privilege-button-color":   "#fce3bf",
-            "footer-background-color":  "#707070"
-        }
         self.static_pages = {}
 
         ## Routes to all reachable pages and API calls.
@@ -489,7 +421,7 @@ class ApiServer:
         try:
             original  = Image.open (input_filename)
             extension = original.format.lower()
-            output_filename = os.path.join (self.db.thumbnail_storage, f"{dataset_uuid}.{extension}")
+            output_filename = os.path.join (config.thumbnail_storage, f"{dataset_uuid}.{extension}")
 
             # When the image is the exact thumbnail size.
             if original.width == max_width and original.height == max_height:
@@ -552,24 +484,24 @@ class ApiServer:
         token         = self.token_from_cookie (request)
         account       = self.db.account_by_session_token (token)
         parameters    = {
-            "base_url":            self.base_url,
-            "identity_provider":   self.identity_provider,
-            "in_production":       self.in_production,
+            "base_url":            config.base_url,
+            "identity_provider":   config.identity_provider,
+            "in_production":       config.in_production,
             "is_logged_in":        account is not None,
             "may_deposit":         self.db.is_depositor (token, account),
-            "large_footer":        self.large_footer,
-            "maintenance_mode":    self.maintenance_mode,
-            "menu":                self.menu,
-            "orcid_client_id":     self.orcid_client_id,
-            "orcid_endpoint":      self.orcid_endpoint,
+            "large_footer":        config.large_footer,
+            "maintenance_mode":    config.maintenance_mode,
+            "menu":                config.menu,
+            "orcid_client_id":     config.orcid_client_id,
+            "orcid_endpoint":      config.orcid_endpoint,
             "path":                request.path,
-            "sandbox_message":     self.sandbox_message,
-            "sandbox_message_css": self.sandbox_message_css,
-            "site_description":    self.site_description,
-            "site_name":           self.site_name,
-            "site_shorttag":       self.site_shorttag,
-            "support_email_address": self.support_email_address,
-            "small_footer":        self.small_footer,
+            "sandbox_message":     config.sandbox_message,
+            "sandbox_message_css": config.sandbox_message_css,
+            "site_description":    config.site_description,
+            "site_name":           config.site_name,
+            "site_shorttag":       config.site_shorttag,
+            "support_email_address": config.support_email_address,
+            "small_footer":        config.small_footer,
         }
         if account is None:
             parameters = { **parameters,
@@ -600,7 +532,7 @@ class ApiServer:
         html_template = self.jinja.get_template (f"{template_name}.html")
         text_template = self.jinja.get_template (f"{template_name}.txt")
 
-        parameters    = { "base_url": self.base_url }
+        parameters    = { "base_url": config.base_url }
 
         html_response = html_template.render({ **context, **parameters })
         text_response = text_template.render({ **context, **parameters })
@@ -615,7 +547,7 @@ class ApiServer:
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             self.log_access (request)
-            if self.maintenance_mode:
+            if config.maintenance_mode:
                 return self.ui_maintenance (request)
             endpoint, values = adapter.match() #  pylint: disable=unpacking-non-sequence
             return endpoint (request, **values)
@@ -711,8 +643,8 @@ class ApiServer:
         git_repository_url = None
         if value_or_none (dataset, "defined_type_name") == "software":
             try:
-                if os.path.exists (os.path.join (self.db.storage, f"{dataset['git_uuid']}.git")):
-                    git_repository_url = f"{self.base_url}/v3/datasets/{dataset['git_uuid']}.git"
+                if os.path.exists (os.path.join (config.storage, f"{dataset['git_uuid']}.git")):
+                    git_repository_url = f"{config.base_url}/v3/datasets/{dataset['git_uuid']}.git"
             except KeyError:
                 pass
 
@@ -875,7 +807,7 @@ class ApiServer:
         """Returns a self.response object with some tweaks."""
 
         output                   = Response(content, mimetype=mimetype)
-        output.headers["Server"] = f"{self.site_name} API"
+        output.headers["Server"] = config.site_name
         return output
 
     ## GENERAL HELPERS
@@ -885,7 +817,7 @@ class ApiServer:
         """Standard doi for datasets/collections."""
 
         if not container_doi:
-            container_doi = f'{self.datacite_prefix}/{container_uuid}'
+            container_doi = f'{config.datacite_prefix}/{container_uuid}'
         doi = container_doi
         if version:
             doi += f'.v{version}'
@@ -1080,7 +1012,7 @@ class ApiServer:
         """Gathers a complete collection record and formats it."""
         try:
             uri = collection["uri"]
-            collection["base_url"] = self.base_url
+            collection["base_url"] = config.base_url
             datasets_count = self.db.collections_dataset_count (collection_uri = uri)
             fundings       = self.db.fundings (item_uri = uri, item_type="collection")
             categories     = self.db.categories (item_uri = uri, limit = None)
@@ -1194,8 +1126,8 @@ class ApiServer:
         """Requests a read-public token from ORCID."""
 
         url_parameters = {
-            "client_id":     self.orcid_client_id,
-            "client_secret": self.orcid_client_secret,
+            "client_id":     config.orcid_client_id,
+            "client_secret": config.orcid_client_secret,
             "grant_type":    "client_credentials",
             "scope":         "/read-public"
         }
@@ -1203,7 +1135,7 @@ class ApiServer:
             "Accept": "application/json",
             "Content-Type": "application/x-www-form-urlencoded"
         }
-        response = requests.post(f"{self.orcid_endpoint}/token",
+        response = requests.post(f"{config.orcid_endpoint}/token",
                                  params  = url_parameters,
                                  headers = headers,
                                  timeout = 10)
@@ -1216,7 +1148,7 @@ class ApiServer:
         record = response.json()
         token = value_or_none (record, "access_token")
         if token is not None:
-            self.orcid_read_public_token = token
+            config.orcid_read_public_token = token
             return True
 
         self.log.error ("Unexpected response for read-public token from ORCID.")
@@ -1229,17 +1161,17 @@ class ApiServer:
         record = { "code": self.get_parameter (request, "code") }
         try:
             url_parameters = {
-                "client_id":     self.orcid_client_id,
-                "client_secret": self.orcid_client_secret,
+                "client_id":     config.orcid_client_id,
+                "client_secret": config.orcid_client_secret,
                 "grant_type":    "authorization_code",
-                "redirect_uri":  f"{self.base_url}{redirect_path}",
+                "redirect_uri":  f"{config.base_url}{redirect_path}",
                 "code":          validator.string_value (record, "code", 0, 10, required=True)
             }
             headers = {
                 "Accept": "application/json",
                 "Content-Type": "application/x-www-form-urlencoded"
             }
-            response = requests.post(f"{self.orcid_endpoint}/token",
+            response = requests.post(f"{config.orcid_endpoint}/token",
                                      params  = url_parameters,
                                      headers = headers,
                                      timeout = 10)
@@ -1263,7 +1195,7 @@ class ApiServer:
             ## actual HTTP host used.  Fortunately, we pre-configure the
             ## expected HTTP host in the form of the "base_url".  So we strip
             ## off the protocol prefix.
-            "http_host":   self.base_url.split("://")[1],
+            "http_host":   config.base_url.split("://")[1],
             "script_name": request.path,
             "get_data":    request.args.copy(),
             "post_data":   request.form.copy()
@@ -1272,13 +1204,13 @@ class ApiServer:
     def __saml_auth (self, request):
         """Returns an instance of OneLogin_Saml2_Auth."""
         http_fields = self.__request_to_saml_request (request)
-        return OneLogin_Saml2_Auth (http_fields, custom_base_path=self.saml_config_path)
+        return OneLogin_Saml2_Auth (http_fields, custom_base_path=config.saml_config_path)
 
     def authenticate_using_saml (self, request):
         """Returns a record upon success, None otherwise."""
 
         http_fields = self.__request_to_saml_request (request)
-        saml_auth   = OneLogin_Saml2_Auth (http_fields, custom_base_path=self.saml_config_path)
+        saml_auth   = OneLogin_Saml2_Auth (http_fields, custom_base_path=config.saml_config_path)
         try:
             saml_auth.process_response ()
         except OneLogin_Saml2_Error as error:
@@ -1311,17 +1243,17 @@ class ApiServer:
         attributes           = saml_auth.get_attributes()
         record["session"]    = session
         try:
-            record["email"]      = attributes[self.saml_attribute_email][0]
-            record["first_name"] = attributes[self.saml_attribute_first_name][0]
-            record["last_name"]  = attributes[self.saml_attribute_last_name][0]
-            record["common_name"] = attributes[self.saml_attribute_common_name][0]
+            record["email"]      = attributes[config.saml_attribute_email][0]
+            record["first_name"] = attributes[config.saml_attribute_first_name][0]
+            record["last_name"]  = attributes[config.saml_attribute_last_name][0]
+            record["common_name"] = attributes[config.saml_attribute_common_name][0]
             record["domain"] = None
             record["group_uuid"] = None
 
-            if self.saml_attribute_groups is not None:
-                groups = attributes[self.saml_attribute_groups]
+            if config.saml_attribute_groups is not None:
+                groups = attributes[config.saml_attribute_groups]
                 for group in groups:
-                    prefix = f"{self.saml_attribute_group_prefix}:"
+                    prefix = f"{config.saml_attribute_group_prefix}:"
                     if group.startswith(prefix):
                         domain = group[len(prefix):].replace("_", ".")
                         group = self.db.group (association=domain)
@@ -1352,7 +1284,7 @@ class ApiServer:
                 self.accepts_xml (request)):
             return self.error_406 ("text/xml")
 
-        if self.identity_provider != "saml":
+        if config.identity_provider != "saml":
             return self.error_404 (request)
 
         try:
@@ -1533,13 +1465,13 @@ class ApiServer:
     def respond_204 (self):
         """Procedure to respond with HTTP 204."""
         output = Response("", 204, {})
-        output.headers["Server"] = f"{self.site_name} API"
+        output.headers["Server"] = config.site_name
         return output
 
     def respond_205 (self):
         """Procedure to respond with HTTP 205."""
         output = Response("", 205, {})
-        output.headers["Server"] = f"{self.site_name} API"
+        output.headers["Server"] = config.site_name
         return output
 
     ## API CALLS
@@ -1556,7 +1488,7 @@ class ApiServer:
         """Implements /robots.txt."""
 
         output = "User-agent: *\n"
-        if self.allow_crawlers:
+        if config.allow_crawlers:
             output += "Allow: /\n"
         else:
             output += "Disallow: /\n"
@@ -1571,12 +1503,12 @@ class ApiServer:
 
         return self.__render_css_template (
             "colors.css",
-            primary_color            = self.colors['primary-color'],
-            primary_color_hover      = self.colors['primary-color-hover'],
-            primary_color_active     = self.colors['primary-color-active'],
-            primary_foreground_color = self.colors['primary-foreground-color'],
-            footer_background_color  = self.colors['footer-background-color'],
-            privilege_button_color   = self.colors['privilege-button-color'])
+            primary_color            = config.colors['primary-color'],
+            primary_color_hover      = config.colors['primary-color-hover'],
+            primary_color_active     = config.colors['primary-color-active'],
+            primary_foreground_color = config.colors['primary-foreground-color'],
+            footer_background_color  = config.colors['footer-background-color'],
+            privilege_button_color   = config.colors['privilege-button-color'])
 
     def loader_svg (self, request):
         """Implements /theme/loader.svg."""
@@ -1585,11 +1517,11 @@ class ApiServer:
             return self.error_406 ("image/svg+xml")
 
         return self.__render_svg_template ("loader.svg",
-            primary_color = self.colors["primary-color"])
+            primary_color = config.colors["primary-color"])
 
     def ui_maintenance (self, request):
         """Implements a maintenance page."""
-        if not self.maintenance_mode:
+        if not config.maintenance_mode:
             self.error_404 (request)
 
         if self.accepts_html (request):
@@ -1607,32 +1539,32 @@ class ApiServer:
         if account_uuid is not None:
             return redirect ("/my/dashboard", code=302)
 
-        if self.identity_provider == "saml":
+        if config.identity_provider == "saml":
             return redirect ("/login", code=302)
 
-        if self.identity_provider == "orcid":
-            return redirect ((f"{self.orcid_endpoint}/authorize?client_id="
-                              f"{self.orcid_client_id}&response_type=code"
+        if config.identity_provider == "orcid":
+            return redirect ((f"{config.orcid_endpoint}/authorize?client_id="
+                              f"{config.orcid_client_id}&response_type=code"
                               "&scope=/authenticate&redirect_uri="
-                              f"{self.base_url}/login"), 302)
+                              f"{config.base_url}/login"), 302)
 
         return self.error_403 (request)
 
     def __send_sram_collaboration_invite (self, saml_record):
 
-        if (self.sram_organization_api_token is None or
-            self.sram_collaboration_id is None or
+        if (config.sram_organization_api_token is None or
+            config.sram_collaboration_id is None or
             "email" not in saml_record):
             return None
 
         invitation_expiry = datetime.now() + timedelta(days=2)
         headers = {
             "Accept": "application/json",
-            "Authorization": f"Bearer {self.sram_organization_api_token}",
+            "Authorization": f"Bearer {config.sram_organization_api_token}",
             "Content-Type": "application/json"
         }
         json_data = {
-            "collaboration_identifier": self.sram_collaboration_id,
+            "collaboration_identifier": config.sram_collaboration_id,
             "intended_role": "member",
             # SRAM wants the epoch time in milliseconds.
             "invitation_expiry_date": int(invitation_expiry.timestamp()) * 1000,
@@ -1658,17 +1590,17 @@ class ApiServer:
 
     def __already_in_sram_collaboration (self, saml_record):
 
-        if (self.sram_organization_api_token is None or
-            self.sram_collaboration_id is None or
+        if (config.sram_organization_api_token is None or
+            config.sram_collaboration_id is None or
             "email" not in saml_record):
             return None
 
         headers = {
             "Accept": "application/json",
-            "Authorization": f"Bearer {self.sram_organization_api_token}",
+            "Authorization": f"Bearer {config.sram_organization_api_token}",
             "Content-Type": "application/json"
         }
-        response = requests.get (f"https://sram.surf.nl/api/collaborations/v1/{self.sram_collaboration_id}",
+        response = requests.get (f"https://sram.surf.nl/api/collaborations/v1/{config.sram_collaboration_id}",
                                  headers = headers,
                                  timeout = 60)
         if response.status_code != 200:
@@ -1701,8 +1633,8 @@ class ApiServer:
 
         ## Automatic log in for development purposes only.
         ## --------------------------------------------------------------------
-        if self.automatic_login_email is not None and not self.in_production:
-            account = self.db.account_by_email (self.automatic_login_email)
+        if config.automatic_login_email is not None and not config.in_production:
+            account = self.db.account_by_email (config.automatic_login_email)
             if account is None:
                 return self.error_403 (request)
             account_uuid = account["uuid"]
@@ -1710,7 +1642,7 @@ class ApiServer:
 
         ## ORCID authentication
         ## --------------------------------------------------------------------
-        elif self.identity_provider == "orcid":
+        elif config.identity_provider == "orcid":
             orcid_record = self.authenticate_using_orcid (request)
             if orcid_record is None:
                 return self.error_403 (request, "Failed login attempt through ORCID.")
@@ -1741,7 +1673,7 @@ class ApiServer:
 
         ## SAML 2.0 authentication
         ## --------------------------------------------------------------------
-        elif self.identity_provider == "saml":
+        elif config.identity_provider == "saml":
 
             ## Initiate the login procedure.
             if request.method == "GET":
@@ -1814,8 +1746,8 @@ class ApiServer:
                             return self.error_500 (f"Creating account for {saml_record['email']} failed.")
                         self.log.access ("Account %s created via SAML.", account_uuid) #  pylint: disable=no-member
 
-                    if (self.sram_collaboration_id is not None and
-                        self.sram_organization_api_token is not None):
+                    if (config.sram_collaboration_id is not None and
+                        config.sram_organization_api_token is not None):
                         try:
                             if not self.__already_in_sram_collaboration (saml_record):
                                 self.__send_sram_collaboration_invite (saml_record)
@@ -1844,7 +1776,7 @@ class ApiServer:
                 except TypeError:
                     pass
         else:
-            return self.error_500 (f"Unknown identity provider '{self.identity_provider}'.")
+            return self.error_500 (f"Unknown identity provider '{config.identity_provider}'.")
 
         if account_uuid is not None:
             token, mfa_token, session_uuid = self.db.insert_session (account_uuid, name="Website login")
@@ -1855,7 +1787,7 @@ class ApiServer:
 
             if mfa_token is None:
                 response = redirect ("/my/dashboard", code=302)
-                response.set_cookie (key=self.cookie_key, value=token, secure=self.in_production)
+                response.set_cookie (key=self.cookie_key, value=token, secure=config.in_production)
                 return response
 
             ## Send e-mail
@@ -1867,7 +1799,7 @@ class ApiServer:
                 "2fa_token", token = mfa_token)
 
             response = redirect (f"/my/sessions/{session_uuid}/activate", code=302)
-            response.set_cookie (key=self.cookie_key, value=token, secure=self.in_production)
+            response.set_cookie (key=self.cookie_key, value=token, secure=config.in_production)
             return response
 
         return self.error_500 ("Failed to complete the log in procedure for an unknown reason.")
@@ -1891,7 +1823,7 @@ class ApiServer:
             self.db.delete_session (self.token_from_cookie (request))
             response.set_cookie (key    = self.cookie_key,
                                  value  = other_session_token,
-                                 secure = self.in_production)
+                                 secure = config.in_production)
             response.delete_cookie (key = self.impersonator_cookie_key)
             response.delete_cookie (key = "redirect_to")
             return response
@@ -1936,10 +1868,10 @@ class ApiServer:
         response = redirect (f"/my/datasets/{dataset['container_uuid']}/edit", code=302)
         response.set_cookie (key    = self.impersonator_cookie_key,
                              value  = self.token_from_request (request),
-                             secure = self.in_production)
+                             secure = config.in_production)
         response.set_cookie (key    = "redirect_to",
                              value  = "/review/overview",
-                             secure = self.in_production)
+                             secure = config.in_production)
 
         # Create a new session for the user to be impersonated as.
         new_token, _, _ = self.db.insert_session (dataset["account_uuid"],
@@ -1947,7 +1879,7 @@ class ApiServer:
                                                   override_mfa=True)
         response.set_cookie (key    = self.cookie_key,
                              value  = new_token,
-                             secure = self.in_production)
+                             secure = config.in_production)
         return response
 
     def ui_admin_impersonate (self, request, account_uuid):
@@ -1966,10 +1898,10 @@ class ApiServer:
         response = redirect ("/my/dashboard", code=302)
         response.set_cookie (key    = self.impersonator_cookie_key,
                              value  = token,
-                             secure = self.in_production)
+                             secure = config.in_production)
         response.set_cookie (key    = "redirect_to",
                              value  = "/admin/users",
-                             secure = self.in_production)
+                             secure = config.in_production)
 
         # Create a new session for the user to be impersonated as.
         new_token, _, _ = self.db.insert_session (account_uuid,
@@ -1977,7 +1909,7 @@ class ApiServer:
                                                   override_mfa=True)
         response.set_cookie (key    = self.cookie_key,
                              value  = new_token,
-                             secure = self.in_production)
+                             secure = config.in_production)
         return response
 
     def ui_dashboard (self, request):
@@ -2187,7 +2119,7 @@ class ApiServer:
                 request,
                 "depositor/edit-dataset.html",
                 container_uuid = dataset["container_uuid"],
-                disable_collaboration = self.disable_collaboration,
+                disable_collaboration = config.disable_collaboration,
                 article    = dataset,
                 permissions = permissions,
                 account    = account,
@@ -2924,10 +2856,10 @@ class ApiServer:
 
         # Start the authentication process for ORCID.
         if self.get_parameter (request, "code") is None:
-            return redirect ((f"{self.orcid_endpoint}/authorize?client_id="
-                              f"{self.orcid_client_id}&response_type=code"
+            return redirect ((f"{config.orcid_endpoint}/authorize?client_id="
+                              f"{config.orcid_client_id}&response_type=code"
                               "&scope=/authenticate&redirect_uri="
-                              f"{self.base_url}/my/profile/connect-with-orcid"), 302)
+                              f"{config.base_url}/my/profile/connect-with-orcid"), 302)
 
         # Catch the response of the authentication process of ORCID.
         orcid_record = self.authenticate_using_orcid (
@@ -3070,8 +3002,8 @@ class ApiServer:
                                                  email_address  = record["email"],
                                                  first_name     = record["first_name"],
                                                  requested_size = requested_size,
-                                                 base_url       = self.base_url,
-                                                 support_email  = self.support_email_address)
+                                                 base_url       = config.base_url,
+                                                 support_email  = config.support_email_address)
                 except (IndexError, KeyError):
                     self.log.error ("Unable to send e-mail for quota request %s.",
                                     quota_request_uuid)
@@ -3361,11 +3293,11 @@ class ApiServer:
         return self.__render_template (request, "portal.html",
                                        summary_data = summary_data,
                                        latest = latest,
-                                       notice_message = self.notice_message,
-                                       show_portal_summary = self.show_portal_summary,
-                                       show_institutions = self.show_institutions,
-                                       show_science_categories = self.show_science_categories,
-                                       show_latest_datasets = self.show_latest_datasets)
+                                       notice_message = config.notice_message,
+                                       show_portal_summary = config.show_portal_summary,
+                                       show_institutions = config.show_institutions,
+                                       show_science_categories = config.show_science_categories,
+                                       show_latest_datasets = config.show_latest_datasets)
 
     def ui_categories (self, request, category_id):
         """Implements /categories/<id>."""
@@ -3624,7 +3556,7 @@ class ApiServer:
 
             # When in pre-production state, don't mind about DOI.
             doi = value_or_none(dataset, 'doi')
-            if doi is None and self.in_production and not self.in_preproduction:
+            if doi is None and config.in_production and not config.in_preproduction:
                 return self.error_403 (request, f"dataset:{dataset_id} does not have a DOI.")
             title = dataset['title']
             contact_info = self.db.contact_info_from_container(dataset_id)
@@ -3632,7 +3564,7 @@ class ApiServer:
 
             # When in pre-production state, don't send e-mails to depositors.
             owner_email = None
-            if contact_info and self.in_production and not self.in_preproduction:
+            if contact_info and config.in_production and not config.in_preproduction:
                 owner_email = contact_info['email']
                 addresses.append(owner_email)
 
@@ -3872,7 +3804,7 @@ class ApiServer:
         dataset = None
         try:
             referer       = request.headers.get ("Referer")
-            referer_begin = f"{self.base_url}/private_datasets/"
+            referer_begin = f"{config.base_url}/private_datasets/"
             if referer.startswith (referer_begin):
                 private_link_id = referer.partition (referer_begin)[2]
 
@@ -3903,8 +3835,8 @@ class ApiServer:
 
         # Traverse the 'storage' locations -- the new way of configuring storage.
         file_path = None
-        if self.db.storage_locations:
-            for location in self.db.storage_locations:
+        if config.storage_locations:
+            for location in config.storage_locations:
                 if "filename" in file_info:
                     file_path = f"{location['path']}/{file_info['filename']}"
                     if os.path.isfile (file_path):
@@ -3937,9 +3869,9 @@ class ApiServer:
 
             ## Data stored before Djehuty went into production requires a few tweaks.
             ## Only apply these quirks when enabled.
-            if self.db.secondary_storage_quirks:
+            if config.secondary_storage_quirks:
                 name = ''.join(char for char in name if char in allowed_chars)
-            file_path = os.path.join (self.db.secondary_storage, f"{file_info['id']}", name)
+            file_path = os.path.join (config.secondary_storage, f"{file_info['id']}", name)
 
         return file_path
 
@@ -4153,7 +4085,7 @@ class ApiServer:
             return account_uuid
 
         ## Our API only contains data from 4TU.ResearchData.
-        return self.response (json.dumps({ "id": 898, "name": self.site_name }))
+        return self.response (json.dumps({ "id": 898, "name": config.site_name }))
 
     def api_private_institution_accounts (self, request):
         """Implements /v2/account/institution/accounts."""
@@ -4202,7 +4134,7 @@ class ApiServer:
             record["is_latest"] = 1
             records = self.db.datasets (**record)
             return self.default_list_response (records, formatter.format_dataset_record,
-                                               base_url = self.base_url)
+                                               base_url = config.base_url)
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
@@ -4226,7 +4158,7 @@ class ApiServer:
             record  = self.__default_dataset_api_parameters (request.get_json())
             records = self.db.datasets (**record)
             output  = self.default_list_response (records, formatter.format_dataset_record,
-                                                  base_url = self.base_url)
+                                                  base_url = config.base_url)
             output.headers["Access-Control-Allow-Origin"] = "*"
             return output
         except validator.ValidationException as error:
@@ -4273,7 +4205,7 @@ class ApiServer:
             dataset         = self.__dataset_by_id_or_uri (dataset_id, account_uuid=None, is_latest=True)
 
             # Passing along the base_url here to generate the API links.
-            dataset["base_url"] = self.base_url
+            dataset["base_url"] = config.base_url
 
             dataset_uri     = dataset["uri"]
             authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
@@ -4313,7 +4245,7 @@ class ApiServer:
 
         versions  = self.db.dataset_versions (container_uri=container["container_uri"])
         return self.default_list_response (versions, formatter.format_dataset_version_record,
-                                           base_url = self.base_url)
+                                           base_url = config.base_url)
 
     def api_dataset_version_details (self, request, dataset_id, version):
         """Implements /v2/articles/<id>/versions/<version>."""
@@ -4328,7 +4260,7 @@ class ApiServer:
             return self.error_404 (request)
 
         # Passing along the base_url here to generate the API links.
-        dataset["base_url"] = self.base_url
+        dataset["base_url"] = config.base_url
 
         dataset_uri   = dataset["uri"]
         authors       = self.db.authors(item_uri=dataset_uri, item_type="dataset")
@@ -4427,7 +4359,7 @@ class ApiServer:
             files = self.db.dataset_files (dataset_uri=dataset["uri"])
 
         return self.default_list_response (files, formatter.format_file_for_dataset_record,
-                                           base_url = self.base_url)
+                                           base_url = config.base_url)
 
     def api_dataset_file_details (self, request, dataset_id, file_id):
         """Implements /v2/articles/<id>/files/<fid>."""
@@ -4438,7 +4370,7 @@ class ApiServer:
         try:
             dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=True)
             record = self.__file_by_id_or_uri (file_id, dataset_uri = dataset["uri"])
-            record["base_url"] = self.base_url
+            record["base_url"] = config.base_url
 
             results = formatter.format_file_for_dataset_record (record)
             return self.response (json.dumps(results))
@@ -4466,7 +4398,7 @@ class ApiServer:
                                             account_uuid=account_uuid)
 
                 return self.default_list_response (records, formatter.format_dataset_record,
-                                                   base_url = self.base_url)
+                                                   base_url = config.base_url)
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
@@ -4509,7 +4441,7 @@ class ApiServer:
                 )
 
                 return self.response(json.dumps({
-                    "location": f"{self.base_url}/v2/account/articles/{container_uuid}",
+                    "location": f"{config.base_url}/v2/account/articles/{container_uuid}",
                     "warnings": []
                 }))
             except validator.ValidationException as error:
@@ -5238,7 +5170,7 @@ class ApiServer:
                     limit      = validator.integer_value (request.args, "limit"))
 
                 return self.default_list_response (files, formatter.format_file_for_dataset_record,
-                                                   base_url = self.base_url)
+                                                   base_url = config.base_url)
 
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
@@ -5310,7 +5242,7 @@ class ApiServer:
                         return self.error_500()
 
                     return self.respond_201({
-                        "location": f"{self.base_url}/v2/account/articles/{dataset_id}/files/{file_id}"
+                        "location": f"{config.base_url}/v2/account/articles/{dataset_id}/files/{file_id}"
                     })
 
                 file_id = self.db.insert_file (
@@ -5326,7 +5258,7 @@ class ApiServer:
                     return self.error_500()
 
                 return self.respond_201({
-                    "location": f"{self.base_url}/v2/account/articles/{dataset_id}/files/{file_id}"
+                    "location": f"{config.base_url}/v2/account/articles/{dataset_id}/files/{file_id}"
                 })
 
             except validator.ValidationException as error:
@@ -5361,7 +5293,7 @@ class ApiServer:
                 metadata = self.__file_by_id_or_uri (file_id,
                                                      account_uuid = account_uuid,
                                                      dataset_uri = dataset["uri"])
-                metadata["base_url"] = self.base_url
+                metadata["base_url"] = config.base_url
                 return self.response (json.dumps (formatter.format_file_details_record (metadata)))
             except (IndexError, KeyError):
                 pass
@@ -5478,7 +5410,7 @@ class ApiServer:
                                             f"{dataset['container_uuid']}."))
 
                 return self.response(json.dumps({
-                    "location": f"{self.base_url}/private_datasets/{id_string}"
+                    "location": f"{config.base_url}/private_datasets/{id_string}"
                 }))
 
             except validator.ValidationException as error:
@@ -5534,7 +5466,7 @@ class ApiServer:
                     return self.error_500()
 
                 return self.response(json.dumps({
-                    "location": f"{self.base_url}/private_datasets/{link_id}"
+                    "location": f"{config.base_url}/private_datasets/{link_id}"
                 }))
 
             except validator.ValidationException as error:
@@ -5568,14 +5500,14 @@ class ApiServer:
             "Accept": "application/vnd.api+json",
             "Content-Type": "application/vnd.api+json"
         }
-        attributes = { "doi": doi } if doi else { "prefix": self.datacite_prefix }
+        attributes = { "doi": doi } if doi else { "prefix": config.datacite_prefix }
         json_data = { "data": { "type": "dois", "attributes": attributes } }
 
         try:
-            response = requests.post(f"{self.datacite_url}/dois",
+            response = requests.post(f"{config.datacite_url}/dois",
                                      headers = headers,
-                                     auth    = (self.datacite_id,
-                                                self.datacite_password),
+                                     auth    = (config.datacite_id,
+                                                config.datacite_password),
                                      timeout = 60,
                                      json    = json_data)
             data = None
@@ -5632,7 +5564,7 @@ class ApiServer:
         container_uuid = item["container_uuid"]
         doi = self.__standard_doi (container_uuid, version,
                                    value_or_none (item, "container_doi"))
-        if doi.split("/")[0] != self.datacite_prefix:
+        if doi.split("/")[0] != config.datacite_prefix:
             self.log.error ("Doi %s of %s has wrong prefix", doi, container_uuid)
             return False
 
@@ -5724,17 +5656,17 @@ class ApiServer:
             "data": {
                 "attributes": {
                     "event": "publish", #does no harm when already published
-                    "url": landing_page_url(item_id, version, item_type=item_type, base_url=self.base_url),
+                    "url": landing_page_url(item_id, version, item_type=item_type, base_url=config.base_url),
                     "xml": str(encoded_bytes, "utf-8")
                 }
             }
         }
 
         try:
-            response = requests.put(f"{self.datacite_url}/dois/{doi}",
+            response = requests.put(f"{config.datacite_url}/dois/{doi}",
                                     headers = headers,
-                                    auth    = (self.datacite_id,
-                                               self.datacite_password),
+                                    auth    = (config.datacite_id,
+                                               config.datacite_password),
                                     timeout = 60,
                                     json    = json_data)
 
@@ -5787,7 +5719,7 @@ class ApiServer:
             )
 
             return self.default_list_response (records, formatter.format_dataset_record,
-                                               base_url = self.base_url)
+                                               base_url = config.base_url)
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
@@ -5829,7 +5761,7 @@ class ApiServer:
 
         records = self.db.collections (**record)
         return self.default_list_response (records, formatter.format_collection_record,
-                                           base_url = self.base_url)
+                                           base_url = config.base_url)
 
     def api_collections_search (self, request):
         """Implements /v2/collections/search."""
@@ -5854,7 +5786,7 @@ class ApiServer:
         )
 
         return self.default_list_response (records, formatter.format_collection_record,
-                                           base_url = self.base_url)
+                                           base_url = config.base_url)
 
     def api_collection_details (self, request, collection_id):
         """Implements /v2/collections/<id>."""
@@ -5886,7 +5818,7 @@ class ApiServer:
             versions = self.db.collection_versions (container_uri = uri)
 
         return self.default_list_response (versions, formatter.format_collection_version_record,
-                                           base_url = self.base_url)
+                                           base_url = config.base_url)
 
     def api_collection_version_details (self, request, collection_id, version):
         """Implements /v2/collections/<id>/versions/<version>."""
@@ -5920,7 +5852,7 @@ class ApiServer:
             record["is_published"] = None
             records = self.db.collections (**record)
             return self.default_list_response (records, formatter.format_collection_record,
-                                               base_url = self.base_url)
+                                               base_url = config.base_url)
 
         if request.method == 'POST':
             record = request.get_json()
@@ -5963,7 +5895,7 @@ class ApiServer:
                     return self.error_500 ()
 
                 return self.response(json.dumps({
-                    "location": f"{self.base_url}/v2/account/collections/{collection_id}",
+                    "location": f"{config.base_url}/v2/account/collections/{collection_id}",
                     "warnings": []
                 }))
             except validator.ValidationException as error:
@@ -6084,7 +6016,7 @@ class ApiServer:
         )
 
         return self.default_list_response (records, formatter.format_dataset_record,
-                                           base_url = self.base_url)
+                                           base_url = config.base_url)
 
     def api_private_collection_authors (self, request, collection_id):
         """Implements /v2/account/collections/<id>/authors."""
@@ -6227,7 +6159,7 @@ class ApiServer:
                                              offset         = offset)
 
                 return self.default_list_response (datasets, formatter.format_dataset_record,
-                                                   base_url = self.base_url)
+                                                   base_url = config.base_url)
             except (IndexError, KeyError):
                 pass
             except validator.ValidationException as error:
@@ -6318,7 +6250,7 @@ class ApiServer:
                                               offset         = offset,
                                               is_latest      = True)
             return self.default_list_response (datasets, formatter.format_dataset_record,
-                                               base_url = self.base_url)
+                                               base_url = config.base_url)
         except (IndexError, KeyError):
             pass
         except validator.ValidationException as error:
@@ -6435,7 +6367,7 @@ class ApiServer:
             return self.response (json.dumps(records[0]))
 
         return self.default_list_response (records, formatter.format_dataset_record,
-                                           base_url = self.base_url)
+                                           base_url = config.base_url)
 
     def api_v3_dataset_authors (self, request, container_uuid, author_uuid=None):
         """Implements /v3/datasets/<uuid>/authors[/<author_uuid>]."""
@@ -6670,7 +6602,7 @@ class ApiServer:
 
             records = self.db.datasets (**record)
             return self.default_list_response (records, formatter.format_dataset_record,
-                                               base_url = self.base_url)
+                                               base_url = config.base_url)
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
@@ -6822,7 +6754,7 @@ class ApiServer:
                 self.log.error ("Failed to add 'git_uuid' for dataset.")
                 return None
 
-        git_directory = os.path.join (self.db.storage, f"{dataset['git_uuid']}.git")
+        git_directory = os.path.join (config.storage, f"{dataset['git_uuid']}.git")
         if not os.path.exists (git_directory):
             self.log.error ("No Git repository at '%s'", git_directory)
             return None
@@ -6951,7 +6883,7 @@ class ApiServer:
         with tempfile.TemporaryDirectory(dir = self.db.cache.storage,
                                          prefix = "git-zip-",
                                          delete = False) as folder:
-            git_directory  = os.path.join (self.db.storage, f"{git_uuid}.git")
+            git_directory  = os.path.join (config.storage, f"{git_uuid}.git")
             git_cloned     = pygit2.clone_repository (git_directory, folder)
 
             if not isinstance (git_cloned, pygit2.Repository):
@@ -7010,8 +6942,8 @@ class ApiServer:
                                             use_cache=False)[0]
                 subject = f"Declined: {dataset['title']}"
                 parameters = {
-                    "base_url": self.base_url,
-                    "support_email": self.support_email_address,
+                    "base_url": config.base_url,
+                    "support_email": config.support_email_address,
                     "title": dataset["title"]
                 }
                 self.__send_templated_email ([account["email"]], subject,
@@ -7024,7 +6956,7 @@ class ApiServer:
                 self.log.error ("Unable to send decline e-mail for dataset: %s.", dataset["uuid"])
 
             return self.respond_201 ({
-                "location": f"{self.base_url}/review/overview"
+                "location": f"{config.base_url}/review/overview"
             })
 
         return self.error_500 ()
@@ -7064,7 +6996,7 @@ class ApiServer:
         container_uuid = dataset["container_uuid"]
         container = self.db.container(container_uuid)
         new_version = value_or(container, 'latest_published_version_number', 0) + 1
-        if self.in_production and not self.in_preproduction:
+        if config.in_production and not config.in_preproduction:
             for version in (None, new_version):
                 reserved_doi = self.__reserve_and_save_doi (account_uuid,
                                                             dataset,
@@ -7088,8 +7020,8 @@ class ApiServer:
                 dataset = self.db.datasets (dataset_uuid=dataset["uuid"], use_cache=False)[0]
                 subject = f"Approved: {dataset['title']}"
                 parameters = {
-                    "base_url": self.base_url,
-                    "support_email": self.support_email_address,
+                    "base_url": config.base_url,
+                    "support_email": config.support_email_address,
                     "title": dataset["title"],
                     "container_uuid": dataset["container_uuid"],
                     "versioned_doi": value_or_none (dataset, "doi"),
@@ -7107,7 +7039,7 @@ class ApiServer:
                                 dataset["uuid"], error)
 
             return self.respond_201 ({
-                "location": f"{self.base_url}/review/published/{dataset_id}"
+                "location": f"{config.base_url}/review/published/{dataset_id}"
             })
 
         return self.error_500 ()
@@ -7169,7 +7101,7 @@ class ApiServer:
         container_uuid = collection["container_uuid"]
         container = self.db.container(container_uuid, "collection")
         new_version = value_or(container, 'latest_published_version_number', 0) + 1
-        if self.in_production and not self.in_preproduction:
+        if config.in_production and not config.in_preproduction:
             for version in (None, new_version):
                 reserved_doi = self.__reserve_and_save_doi (account_uuid, collection,
                                                             version=version,
@@ -7185,7 +7117,7 @@ class ApiServer:
 
         if self.db.publish_collection (collection["container_uuid"], account_uuid):
             return self.respond_201 ({
-                "location": f"{self.base_url}/published/{collection_id}"
+                "location": f"{config.base_url}/published/{collection_id}"
             })
 
         return self.error_500 ()
@@ -7343,15 +7275,15 @@ class ApiServer:
                                                 account=account)
 
                 # When in pre-production state, don't send e-mails to depositors.
-                if self.in_production and not self.in_preproduction and "email" in account:
+                if config.in_production and not config.in_preproduction and "email" in account:
                     self.__send_templated_email (
                         [account["email"]],
                         f"Submission of {dataset['title']}.",
                         "dataset_submitted",
                         dataset = dataset,
                         account = account,
-                        support_email = self.support_email_address,
-                        site_name = self.site_name)
+                        support_email = config.support_email_address,
+                        site_name = config.site_name)
 
                 self.locks.unlock (locks.LockTypes.SUBMIT_DATASET)
                 return self.respond_204 ()
@@ -7440,7 +7372,7 @@ class ApiServer:
             try:
                 file_data       = request.files['file']
                 _, extension = os.path.splitext (file_data.filename)
-                output_filename = os.path.join (self.db.profile_images_storage, account['uuid'])
+                output_filename = os.path.join (config.profile_images_storage, account['uuid'])
 
                 if not (extension.lower() == ".jpg" or extension.lower() == ".png"):
                     return self.error_400 (request, "Only JPG and PNG images are supported.",
@@ -7462,7 +7394,7 @@ class ApiServer:
 
                 if self.db.update_account (account["uuid"], profile_image=output_filename):
                     self.log.info ("Updated profile image for account %s", account["uuid"])
-                    return self.response (json.dumps({ "location": f"{self.base_url}/v3/profile/picture" }))
+                    return self.response (json.dumps({ "location": f"{config.base_url}/v3/profile/picture" }))
 
             except OSError:
                 self.log.error ("Writing %s to disk failed.", output_filename)
@@ -7476,11 +7408,11 @@ class ApiServer:
     def __register_file_handle (self, handle, download_url):
         """Procedure to register a file handle."""
 
-        if self.handle_url is None:
+        if config.handle_url is None:
             return False
 
         handle_data = { "values": [
-            { "index": self.handle_index,
+            { "index": config.handle_index,
               "type": "URL",
               "data": {
                   "format": "string",
@@ -7494,10 +7426,10 @@ class ApiServer:
         }
 
         try:
-            response = requests.put (f"{self.handle_url}/{handle}",
+            response = requests.put (f"{config.handle_url}/{handle}",
                                      headers = http_headers,
-                                     cert    = (self.handle_certificate_path,
-                                                self.handle_private_key_path),
+                                     cert    = (config.handle_certificate_path,
+                                                config.handle_private_key_path),
                                      timeout = 60,
                                      json    = handle_data)
 
@@ -7670,7 +7602,7 @@ class ApiServer:
                                  f"{dataset_id}: {error}."))
 
             self.locks.unlock (locks.LockTypes.FILE_LIST)
-            output_filename = os.path.join (self.db.storage, f"{dataset_id}_{file_uuid}")
+            output_filename = os.path.join (config.storage, f"{dataset_id}_{file_uuid}")
 
             computed_md5 = None
             md5 = hashlib.new ("md5", usedforsecurity=False)
@@ -7696,7 +7628,7 @@ class ApiServer:
 
                     # Make the file read-only from here on.
                     if os.name != 'nt':
-                        os.fchmod (destination_fd, 0o400)
+                        os.fchmod (destination_fd, 0o400)  # pylint: disable=no-member
             except BadRequest:
                 is_incomplete = 1
                 self.log.error ("Failed to write %s to disk: possible that bad internet connection on user's side or page refreshed/closed during upload.", output_filename)
@@ -7745,7 +7677,7 @@ class ApiServer:
                                        "MD5 checksum mismatch.",
                                        "MD5Mismatch")
 
-            download_url = f"{self.base_url}/file/{dataset_id}/{file_uuid}"
+            download_url = f"{config.base_url}/file/{dataset_id}/{file_uuid}"
 
             # Set an upper limit on thumbnailable images.
             is_image = False
@@ -7754,7 +7686,7 @@ class ApiServer:
 
             handle = None
             if not is_incomplete:
-                handle = f"{self.handle_prefix}/{file_uuid}"
+                handle = f"{config.handle_prefix}/{file_uuid}"
                 if not self.__register_file_handle (handle, download_url):
                     handle = None
 
@@ -7767,7 +7699,7 @@ class ApiServer:
                                  is_incomplete = is_incomplete,
                                  handle        = handle)
 
-            response_data = { "location": f"{self.base_url}/v3/file/{file_uuid}" }
+            response_data = { "location": f"{config.base_url}/v3/file/{file_uuid}" }
             if is_incomplete:
                 response_data["is_incomplete"] = is_incomplete
 
@@ -7803,7 +7735,7 @@ class ApiServer:
                 is_image     = True)
 
             return self.default_list_response (files, formatter.format_file_for_dataset_record,
-                                                base_url = self.base_url)
+                                                base_url = config.base_url)
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
@@ -7882,7 +7814,7 @@ class ApiServer:
             return error_response
 
         try:
-            metadata["base_url"] = self.base_url
+            metadata["base_url"] = config.base_url
             return self.response (json.dumps (formatter.format_file_details_record (metadata)))
         except KeyError:
             return self.error_500()
@@ -8132,14 +8064,14 @@ class ApiServer:
         return self.response (json.dumps(output))
 
     def __git_create_repository (self, git_uuid):
-        git_directory = os.path.join(self.db.storage, f"{git_uuid}.git")
+        git_directory = os.path.join(config.storage, f"{git_uuid}.git")
         if not os.path.exists (git_directory):
             initial_repository = pygit2.init_repository (git_directory, True)
             if initial_repository:
                 try:
                     with open (os.path.join(git_directory, "config"), "a",
-                               encoding = "utf-8") as config:
-                        config.write ("\n[http]\n  receivepack = true\n")
+                               encoding = "utf-8") as git_config:
+                        git_config.write ("\n[http]\n  receivepack = true\n")
                 except FileNotFoundError:
                     self.log.error ("%s/.git/config does not exist.", git_directory)
                     return False
@@ -8194,7 +8126,7 @@ class ApiServer:
 
             ## Rewrite as if the request matches the filesystem layout.
             ## It assumes the first twelve characters are: "/v3/datasets".
-            "PATH_TRANSLATED":     f"{self.db.storage}{request.path[12:]}",
+            "PATH_TRANSLATED":     f"{config.storage}{request.path[12:]}",
         }
 
         try:
@@ -8432,7 +8364,7 @@ class ApiServer:
             self.log.error ("No dataset associated with Git repository '%s'.", git_uuid)
             return self.error_404 (request), None
 
-        git_directory = os.path.join (self.db.storage, f"{git_uuid}.git")
+        git_directory = os.path.join (config.storage, f"{git_uuid}.git")
         if not os.path.exists (git_directory):
             self.log.error ("No Git repository at '%s'", git_directory)
             return self.error_404 (request), None
@@ -8743,7 +8675,7 @@ class ApiServer:
             file_uuid = row["file_uuid"]
             computed_md5 = None
             md5 = hashlib.new ("md5", usedforsecurity=False)
-            filename = os.path.join (self.db.storage, f"{container_uuid}_{file_uuid}")
+            filename = os.path.join (config.storage, f"{container_uuid}_{file_uuid}")
             with open(filename, "rb") as stream:
                 for chunk in iter(lambda: stream.read(4096), b""): # pylint: disable=cell-var-from-loop
                     md5.update(chunk)
@@ -8762,7 +8694,7 @@ class ApiServer:
             dataset = self.__dataset_by_id_or_uri (dataset_id, version=version)
             doi = dataset["container_doi"] if version is None else dataset["doi"]
             return self.__render_svg_template ("badge.svg", doi=doi, version=version,
-                                               color=self.colors["primary-color"])
+                                               color=config.colors["primary-color"])
         except KeyError:
             pass
 
@@ -8778,12 +8710,12 @@ class ApiServer:
             return self.error_403 (request)
 
         response = redirect (f"/my/datasets/{container_uuid}/edit", code=302)
-        response.set_cookie (key=self.cookie_key, value=token, secure=self.in_production)
+        response.set_cookie (key=self.cookie_key, value=token, secure=config.in_production)
         return response
 
     def api_v3_receive_from_ssi (self, request):
         """Implements /v3/receive-from-ssi."""
-        if self.ssi_psk is None:
+        if config.ssi_psk is None:
             return self.error_404 (request)
 
         if request.method != "PUT":
@@ -8793,7 +8725,7 @@ class ApiServer:
             return self.error_406 ("application/json")
 
         record = request.get_json()
-        if value_or_none (record, "psk") != self.ssi_psk:
+        if value_or_none (record, "psk") != config.ssi_psk:
             return self.error_403 (request)
 
         errors = []
@@ -8826,7 +8758,7 @@ class ApiServer:
         if container_uuid is None:
             return self.error_500 (f"Failed to create dataset for account {account_uuid}.")
 
-        response = redirect (f"{self.base_url}/v3/redirect-from-ssi/{container_uuid}/{token}", code=302)
+        response = redirect (f"{config.base_url}/v3/redirect-from-ssi/{container_uuid}/{token}", code=302)
         return response
 
     ## ------------------------------------------------------------------------
@@ -9181,7 +9113,7 @@ class ApiServer:
     def iiif_v3_image_context_redirect (self, request, file_uuid):
         """Implements /iiif/v3/<uuid>."""
 
-        if not self.enable_iiif:
+        if not config.enable_iiif:
             return self.error_404 (request)
 
         if not validator.is_valid_uuid (file_uuid):
@@ -9191,12 +9123,12 @@ class ApiServer:
         if not metadata:
             return self.error_404 (request)
 
-        return redirect (f"{self.base_url}/iiif/v3/{file_uuid}/info.json", code=303)
+        return redirect (f"{config.base_url}/iiif/v3/{file_uuid}/info.json", code=303)
 
     def iiif_v3_image_context (self, request, file_uuid):
         """Implements /iiif/v3/<uuid>/info.json."""
 
-        if not self.enable_iiif:
+        if not config.enable_iiif:
             return self.error_404 (request)
 
         if not validator.is_valid_uuid (file_uuid):
@@ -9212,7 +9144,7 @@ class ApiServer:
             image  = pyvips.Image.new_from_file (input_filename)
             output = {
                 "@context":  "http://iiif.io/api/image/3/context.json",
-                "id":        f"{self.base_url}/iiif/v3/{file_uuid}",
+                "id":        f"{config.base_url}/iiif/v3/{file_uuid}",
                 "type":      "ImageService3",
                 "protocol":  "http://iiif.io/api/image",
                 "profile":   "level1",
@@ -9254,7 +9186,7 @@ class ApiServer:
     def iiif_v3_image (self, request, file_uuid, region, size, rotation, quality, image_format):
         """Implements /iiif/v3/<uuid>/<region>/<size>/<rotation>/<quality>.<format>."""
 
-        if not self.enable_iiif:
+        if not config.enable_iiif:
             return self.error_404 (request)
 
         if not validator.is_valid_uuid (file_uuid):
@@ -9367,7 +9299,7 @@ class ApiServer:
         cache_key = self.db.cache.make_key ((f"{file_uuid}_{region}_{size}_"
                                              f"{mirror}_{rotation}_"
                                              f"{quality}_{image_format}"))
-        file_path = os.path.join (self.db.iiif_cache_storage, cache_key)
+        file_path = os.path.join (config.iiif_cache_storage, cache_key)
         try:
             response = send_file (file_path, request.environ, f"image/{image_format}",
                                   as_attachment=False, download_name=None)
