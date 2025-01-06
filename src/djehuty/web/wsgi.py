@@ -7019,11 +7019,23 @@ class ApiServer:
 
         if self.db.publish_dataset (container_uuid, account_uuid):
             try:
-                # E-mail the datase owner.
                 account = self.db.account_by_uuid (dataset["account_uuid"])
 
                 # Retrieve the dataset again to get the DOIs.
                 dataset = self.db.datasets (dataset_uuid=dataset["uuid"], use_cache=False)[0]
+
+                # Cache the Git statistics API endpoints.
+                git_url = self.__git_repository_url_for_dataset (dataset)
+                git_uuid = value_or_none (dataset, "git_uuid")
+                if git_url is not None and git_uuid is not None:
+                    response = self.api_v3_dataset_git_languages (request, git_uuid)
+                    self.log.info ("Caching Git repository '%s' languages status: %s",
+                                   dataset["git_uuid"], response.status_code)
+                    response = self.api_v3_dataset_git_contributors (request, git_uuid)
+                    self.log.info ("Caching Git repository '%s' contributors status: %s",
+                                   dataset["git_uuid"], response.status_code)
+
+                # Send e-mails.
                 subject = f"Approved: {dataset['title']}"
                 parameters = {
                     "base_url": config.base_url,
