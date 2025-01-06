@@ -4586,6 +4586,12 @@ class ApiServer:
                     try:
                         reviewer_account = self.db.account_by_session_token (self.__impersonator_token (request))
                         review = self.db.reviews (dataset_uri = dataset["uri"])[0]
+                        if "assigned_to" not in review:
+                            if self.db.update_review (dataset["review_uri"],
+                                  author_account_uuid = dataset["account_uuid"],
+                                  assigned_to = reviewer_account["uuid"],
+                                  status      = "assigned"):
+                                review["assigned_to"] = reviewer_account["uuid"]
                         assigned_uuid = uri_to_uuid (review["assigned_to"])
                         if reviewer_account["uuid"] == assigned_uuid:
                             self.db.dataset_update_seen_by_reviewer (dataset["uuid"])
