@@ -8827,6 +8827,7 @@ class ApiServer:
 
         parameters = {
             'item'          : item,
+            'container_doi' : value_or_none (container, "doi"),
             'doi'           : doi,
             'authors'       : self.db.authors(item_uri=item_uri, item_type=item_type),
             'categories'    : self.db.categories(item_uri=item_uri, limit=None),

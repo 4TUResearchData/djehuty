@@ -278,11 +278,12 @@ def datacite_tree (parameters, debug=False):
         maker.child(root, 'language', {}, item['language'])
 
     #11 relatedIdentifiers
-    has_doi = 'resource_doi' in item
+    has_resource_doi = 'resource_doi' in item
     has_ref = 'references' in parameters
-    if has_doi or has_ref:
+    has_other_versions = "version" in item and "container_doi" in parameters
+    if has_resource_doi or has_ref or has_other_versions:
         relations_element = maker.child(root, 'relatedIdentifiers')
-        if has_doi:
+        if has_resource_doi:
             maker.child(relations_element,
                         'relatedIdentifier',
                         {'relatedIdentifierType': 'DOI', 'relationType': 'IsSupplementTo'},
@@ -293,6 +294,14 @@ def datacite_tree (parameters, debug=False):
                             'relatedIdentifier',
                             {'relatedIdentifierType': 'URL', 'relationType': 'References'},
                             ref['url'])
+        if has_other_versions:
+            version = int(item['version'])
+            for index in range(1, version + 1):
+                versioned_doi = f"{parameters['container_doi']}.v{index}"
+                if parameters['doi'] != versioned_doi:
+                    maker.child(relations_element, 'relatedIdentifier',
+                                { 'relatedIdentifierType': 'DOI', 'relationType': 'IsVersionOf' },
+                                versioned_doi)
 
     #12 formats
     if 'format' in item:
