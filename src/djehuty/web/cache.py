@@ -68,7 +68,7 @@ class CacheLayer:
                 else:
                     cache_file.write (json.dumps(value))
                 if os.name != 'nt':
-                    os.fchmod (cache_fd, 0o400)
+                    os.fchmod (cache_fd, 0o400)  # pylint: disable=no-member
 
             if query is not None:
                 query_filename = os.path.join (self.storage, f"{prefix}_{key}.sparql")
@@ -76,7 +76,7 @@ class CacheLayer:
                 with open(query_fd, "w", encoding = "utf-8") as query_file:
                     query_file.write(query)
                     if os.name != 'nt':
-                        os.fchmod (query_fd, 0o400)
+                        os.fchmod (query_fd, 0o400)  # pylint: disable=no-member
         except OSError:
             self.log.warning ("Failed to save cache for %s.", key)
 
