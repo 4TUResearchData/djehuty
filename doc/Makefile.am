@@ -104,6 +104,8 @@ docs-clean:
       $(doc_NAME)3.html                                            \
       $(doc_NAME)4.html                                            \
       $(doc_NAME)5.html                                            \
+      $(doc_NAME)6.html                                            \
+      $(doc_NAME)7.html                                            \
       index.html                                                   \
       missfont.log                                                 \
       texput.log                                                   \

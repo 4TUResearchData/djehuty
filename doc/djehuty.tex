@@ -31,121 +31,79 @@
     font-weight: normal;
     font-style: normal;
 }
-body,html{
-  width: 100%;
-  height: 100%;
-  font-family: 'SourceSans', serif;
-  font-size: 13pt;
-  margin: 0pt;
-  padding: 0pt;
-  background-color: #eee;
+body,html {
+  width: 100%; height: 100%; font-family: 'SourceSans', serif; font-size: 13pt; margin: 0pt; padding: 0pt;
+  background: repeating-linear-gradient(90deg, #e6e6e6 0, #e6e6e6 5%, transparent 0, transparent 50%),
+              repeating-linear-gradient(180deg, #e6e6e6 0, #e6e6e6 5%, transparent 0, transparent 50%);
+  background-size: 1em 1em; background-color: #eee;
 }
-#wrapper { min-width: 1240pt; }
-#sidebar .tableofcontents { padding: 0pt 10pt 0pt 14pt; }
-#sidebar .likechapterHead { padding: 10pt; background: #ccc; color: #111; margin: 0pt; border-radius: 0pt 4pt 0pt 0pt; }
-#sidebar { font-size: .9em; top: 2pt; width: 350pt; position: fixed; height: 100%; overflow: auto; }
-#sidebar .sidebarwrap { background: #fff; border-radius: 4pt; padding-bottom: 10pt; }
-#titlepage, #chapters { margin-left: 350pt; min-width: 870pt; }
-#titlepage { background: #fff; border-radius: 4pt; margin: 10pt 10pt 10pt 360pt; padding-bottom: 10pt; border: solid 1pt #cccccc; }
-.chapter {
-  background-color: #ffffff;
-  padding: 0pt;
-  margin: 10pt;
-  height: auto;
-  border-radius: 4pt;
-  border-left: solid 1pt #cccccc;
-  border-right: solid 1pt #cccccc;
-  border-bottom: solid 1pt #cccccc;
-}
+#wrapper { min-width: 720pt; }
+#sidebar.wide { position: fixed; top: 5pt; width: 265pt; font-size: .9em; }
+#sidebar.wide .likechapterHead { border-radius: 0pt 4pt 0pt 0pt; }
+#sidebar.narrow { position: relative; top: auto; width: 850pt; margin-left: auto; margin-right: auto; font-size: 1.0em; background: #fff; }
+#sidebar.narrow .likechapterHead { border-radius: 4pt 4pt 0pt 0pt; }
+#sidebar .tableofcontents { padding: 0pt 10pt 0pt 5pt; }
+#sidebar .likechapterHead { padding: 10pt; background: #aaa; color: #111; margin: 0pt; border-radius: 0pt 4pt 0pt 0pt; }
+#sidebar.wide .sidebarwrap { background: #f9f9f9; border-radius: 4pt; padding-bottom: 0pt; border-right: solid 1pt #ddd; border-bottom: solid 1pt #ddd; }
+.chapter { background: #fff; margin: 10pt; width: 850pt; border-radius: 4pt; border-left: solid 1pt #ccc; border-right: solid 1pt #ccc; border-bottom: solid 1pt #ccc; }
+.chapter.wide { margin-left: 275pt; }
+.chapter.narrow { margin-left: auto; margin-right: auto; }
+.chapter.ultra-narrow { margin-left: auto; margin-right: auto; width: 720pt; }
 .chapwrap { padding: 0pt; background: none; border-radius: 4pt; }
 .chapwrap p { padding: 0pt 10pt 0pt 10pt; }
-.chapwrap .sectionHead { padding: 0pt 10pt 0pt 10pt; }
-.chapwrap .subsectionHead { padding: 0pt 10pt 0pt 10pt; }
+.chapwrap .sectionHead { padding: 5pt 10pt 5pt 10pt; background: #eee; }
+.chapwrap .subsectionHead { padding: 5pt 10pt 5pt 10pt; background: #f6f6f6; }
 .chapwrap .likesubsubsectionHead { padding: 0pt 10pt 0pt 10pt; }
 .subsubsectionHead { margin-left: .75em; font-size: 1em; }
-.ectt-1095 { font-family: "Lucida Console", Monaco, monospace; }
-.lstlisting {
-  text-align: left;
-  font-family: 'FiraMono', 'Lucida Console', Monaco, monospace;
-  font-style: normal;
-  font-size: 13pt;
-  background: #f8f8f8;
-  margin: 0pt 10pt 0pt 10pt;
-  padding: 10pt;
-  border-radius: 5pt;
-  border: solid 1pt #cccccc;
-}
+.ectt-1095 { font-family: 'FiraMono', monospace; }
+.lstlisting { font-family: 'FiraMono', monospace; font-size: 13pt; background: #f8f8f8; margin: 0pt 10pt 0pt 10pt; padding: 10pt; border-radius: 5pt; border: solid 1pt #ccc; }
 .center { text-align: center; }
-.ectt-1200 {
-  font-family: 'FiraMono', 'Lucida Console', Monaco, monospace;
-  padding: 0pt;
-}
-#chapters .likechapterHead, #chapters .chapterHead {
-  margin: 0pt;
-  padding: 10pt;
-  background-color: #222222;
-  color: #ffffff;
-  border-radius: 4pt 4pt 0pt 0pt;
-  border: solid 1pt #222222;
-}
-table {
-  margin: auto 10pt 10pt 10pt;
-  width: 100%;
-  max-width: 830pt;
-  border-radius: 4pt;
-  border-collapse: collapse;
-  border: solid 2pt #444444;
-  line-height: 1em;
-}
+.ectt-1200 { font-family: 'FiraMono', 'Lucida Console', Monaco, monospace; padding: 0pt; }
+.chapwrap h2.likechapterHead, .chapterHead { margin: 0pt; padding: 10pt; background: #222; color: #fff; border-radius: 4pt 4pt 0pt 0pt; border: solid 1pt #222; }
+table.ultra-narrow { max-width: 700pt; }
+table { margin: auto 10pt 10pt 10pt; width: 100%; max-width: 830pt; border-radius: 4pt; border-spacing: 0; border: solid 2pt #444; line-height: 1em; }
+table thead tr { background: #ff0000; }
 table tr:nth-child(even) { background: #f9f9f9; }
 table tr:first-child { background: #444444; color: #ffffff; }
 hr { margin: 5pt 10pt 5pt 10pt; }
 td { font-size: 12pt; padding-left: 10pt; }
-.tableofcontents { padding: 10pt; }
-.chapterToc { display: inline-block; padding: 4pt; margin-top: .75em; font-size: 1.5em; font-weight: bold; }
+.chapterToc { display: inline-block; padding: 4pt; font-size: 1.25em; font-weight: bold; background: #ddd; width: 100%; margin-left: -5pt; padding: 5pt 5pt 5pt 10pt; }
 .chapterToc a { color: #000000; }
 .chapterToc a:hover { color: #666666; }
-.sectionToc { padding-left: 20pt; font-size 1.0em;}
+.sectionToc { display: inline-block; width: 100%; padding-left: 10pt; font-size 1.0em; }
 .sectionToc a { color: #7c0000; }
 .sectionToc a:hover { color: #af6666; }
-.subsectionToc { padding-left: 40pt; font-size: 0.9em; }
+.subsectionToc { display: inline-block; width: 100%; padding-left: 20pt; font-size: 0.9em; }
 .subsectionToc a { color: #00007c; }
 .subsectionToc a:hover { color: #6666af; }
-.lofToc a { color: #00007c; }
-.lofToc a:hover { color: #6666af; }
+.subsectionToc .ectt-1200 { font-size: 0.9em; }
 img { width: 60%; height: auto; }
 .figure img { width: 100%; height: auto; }
 .caption { text-align: center; }
-dt.enumerate-enumitem{ float:left; clear:left; margin: 0em 1em 0em 1em; }
-h1 { font-size 4em; }
+dt.enumerate-enumitem { float:left; clear:left; margin: 0em 1em 0em 1em; }
+h1 { font-size 4em; padding-top: 10pt; }
 h3 { font-size: 1.25em; }
 h4 { font-size: 1.10em; }
 #titlepage-logo { width: 200pt; }
 hr { border: none; }
-/* Hack for extraneous text for figures. */
 div.figure p.noindent { display: none; }
 div.figure div.center p.noindent { display: block; }
-/* Hack for extraneous text for tables. */
 div.table div.float span.ecrm-1095 { display: none; }
 div.table div.float div.caption span.content span.ecrm-1095 { font-size: 12pt; display: inline-block; }
 div.table div.float { font-size: 0em; }
 div.table div.float div.caption span.id { font-size: 12pt; }
 div.fbox { margin: 0pt 10pt 0pt 10pt; padding: .5em; background: #fffaea; border: solid 2pt #ffeecc; }
-div.caption {
-  background: #eeeeee;
-  padding: 5pt;
-  margin: 0pt 150pt 0pt 150pt;
-  min-width: 300pt;
-  border-radius: 10pt;
-}
+div.caption { background: #eee; padding: 5pt; margin: 0pt 150pt 0pt 150pt; min-width: 300pt; border-radius: 10pt; }
+div.chapter_sections { padding: .75em 0em .75em 0em; }
 a { color: #7c0000; }
 a:hover { color: #af6666; }
+div.section_subsections { display: none; }
 \EndCssFile
 \fi
 
 \ifdefined\HCode
 \begin{html}
-<div id="titlepage">
+<div id="titlepage" class="chapter narrow">
 \end{html}
 \fi
 \begin{titlepage}
@@ -181,19 +139,17 @@ a:hover { color: #af6666; }
 \ifdefined\HCode
 \begin{html}
 <p style="text-align: center">This document is also available as <a href="djehuty.pdf">PDF</a>.</p>
-</div><div id="sidebar"><div class="sidebarwrap">
+</div><div id="sidebar" class="narrow"><div class="sidebarwrap">
 \end{html}
 \fi
 
 \tableofcontents
 
 \ifdefined\HCode
-\begin{html}
-</div></div><div id="chapters"><div class="chapter"><div class="chapwrap">
-\end{html}
+\else
+\listoffigures
 \fi
 
-\listoffigures
 \newpage{}
 \hypersetup{linkcolor=LinkGray}
 \setcounter{page}{1}
@@ -201,7 +157,7 @@ a:hover { color: #af6666; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter"><div class="chapwrap">
+</div></div><div class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -209,7 +165,7 @@ a:hover { color: #af6666; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter"><div class="chapwrap">
+</div></div><div class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -217,7 +173,7 @@ a:hover { color: #af6666; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter"><div class="chapwrap">
+</div></div><div class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -225,7 +181,7 @@ a:hover { color: #af6666; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter"><div class="chapwrap">
+</div></div><div class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -233,7 +189,7 @@ a:hover { color: #af6666; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter"><div class="chapwrap">
+</div></div><div class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -241,14 +197,78 @@ a:hover { color: #af6666; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter"><div class="chapwrap">
+</div></div><div class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 \bibliography{references}
 
 \ifdefined\HCode
 \begin{html}
-</div></div></div>
+</div></div>
+<script>
+var windowState = "narrow";
+function removeWhitespace (element) {
+  let sibling = element.nextElementSibling;
+  if (sibling !== null && sibling.nodeName == "BR") { sibling.remove(); }
+  sibling = element.nextSibling;
+  while (sibling != element.nextElementSibling) {
+    sibling.remove();
+    sibling = element.nextSibling;
+  }
+}
+function setWindowState (state) {
+  document.getElementById("sidebar").setAttribute("class", (state != "wide") ? "chapter narrow" : "wide");
+  for (table of document.getElementsByTagName("table")) { table.setAttribute("class", `tabular ${state}`); }
+  for (chapter of document.getElementsByClassName("chapter")) { chapter.setAttribute("class", `chapter ${state}`); }
+  for (section of document.getElementsByClassName("section_subsections")) { section.style.display = (state != "wide") ? "block" : "none"; }
+  windowState = state;
+}
+function renderWindow (event) {
+  let windowWidth = window.innerWidth;
+  if (windowWidth < 961 && windowState != "ultra-narrow") {
+    setWindowState ("ultra-narrow");
+  } else if (windowWidth > 960 && windowWidth < 1500 && windowState != "narrow") {
+    setWindowState ("narrow");
+  } else if (windowWidth > 1499 && windowState != "wide") {
+    setWindowState ("wide");
+  }
+}
+window.addEventListener('load', function () {
+  for (chapter of document.getElementsByClassName("chapterToc")) {
+    removeWhitespace (chapter);
+    let chapterNumber = chapter.textContent.split(" ")[0];
+    let sectionsWrapper = document.createElement("div");
+    sectionsWrapper.setAttribute("id", `chapter${chapterNumber}_sections`);
+    sectionsWrapper.setAttribute("class", "chapter_sections");
+    chapter.after(sectionsWrapper);
+  }
+  for (section of document.getElementsByClassName("sectionToc")) {
+    removeWhitespace (section);
+    let sectionNumber = section.textContent.split(" ")[0];
+    let chapterNumber = sectionNumber.split(".")[0];
+    let chapterElement = document.getElementById(`chapter${chapterNumber}_sections`);
+    if (section.nextElementSibling.className != "subsectionToc") {
+      chapterElement.appendChild(section);
+      continue;
+    }
+    let class_name = sectionNumber.split(".").join("_");
+    let subsectionsWrapper = document.createElement("div");
+    subsectionsWrapper.setAttribute("id", `section${class_name}_subsections`);
+    subsectionsWrapper.setAttribute("class", "section_subsections");
+    chapterElement.appendChild(section);
+    chapterElement.appendChild(subsectionsWrapper);
+  }
+  for (subsection of document.getElementsByClassName("subsectionToc")) {
+    removeWhitespace(subsection);
+    let splitted = subsection.textContent.split(" ")[0].split(".");
+    let class_name = `${splitted[0]}_${splitted[1]}`;
+    let sectionElement = document.getElementById(`section${class_name}_subsections`);
+    sectionElement.appendChild(subsection);
+  }
+  window.addEventListener("resize", renderWindow);
+  renderWindow(null);
+});
+</script>
 \end{html}
 \fi
 \end{document}
