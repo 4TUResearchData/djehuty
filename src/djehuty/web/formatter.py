@@ -135,7 +135,7 @@ def format_codemeta_record (record, git_url, tags, authors, base_url):
     if description:
         description = conv.html_to_plaintext (description, True)
 
-    return {
+    output = {
         "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
         "@type": "SoftwareSourceCode",
         "name": conv.value_or_none (record, "title"),
@@ -149,6 +149,12 @@ def format_codemeta_record (record, git_url, tags, authors, base_url):
         "keywords": list (map (format_tag_record, tags)),
         "author": list (map (lambda author: format_codemeta_author_record (author, base_url), authors))
     }
+
+    resource_doi = conv.value_or_none (record, "resource_doi")
+    if resource_doi is not None:
+        output["relatedLink"] = f"https://doi.org/{resource_doi}"
+
+    return output
 
 def format_dataset_record (record):
     """Record formatter for datasets."""
