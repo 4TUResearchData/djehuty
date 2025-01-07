@@ -6887,6 +6887,10 @@ class ApiServer:
         if isinstance (git_repository, Response):
             return git_repository
 
+        if branch is None:
+            self.log.audit ("NoGitBranch error occurred for %s.", git_uuid)
+            return self.error_400 (request, "No default branch found.", "NoGitBranch")
+
         with tempfile.TemporaryDirectory(dir = self.db.cache.storage,
                                          prefix = "git-zip-",
                                          delete = False) as folder:
