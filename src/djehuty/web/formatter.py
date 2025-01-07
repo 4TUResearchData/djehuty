@@ -99,22 +99,25 @@ def dataset_urls (record):
         "url_public_html":  conv.value_or_none(record, "url_public_html")
     }
 
-def format_codemeta_author_record (record):
+def format_codemeta_author_record (record, base_url):
     """Record formatter for an author as used in CodeMeta."""
     author = {
         "@type": "Person",
         "givenName": conv.value_or_none (record, "first_name"),
         "familyName": conv.value_or_none (record, "last_name"),
+        "name": conv.value_or_none (record, "full_name"),
         "email": None,
     }
 
     orcid = conv.value_or_none (record, "orcid_id")
     if orcid is not None:
         author["@id"] = f"https://orcid.org/{orcid}"
+    else:
+        author["@id"] = f"{base_url}/authors/{record['uuid']}"
 
     return author
 
-def format_codemeta_record (record, git_url, tags, authors):
+def format_codemeta_record (record, git_url, tags, authors, base_url):
     """Record formatter for the CodeMeta format."""
 
     if bool(conv.value_or (record, "is_embargoed", False)):
@@ -144,7 +147,7 @@ def format_codemeta_record (record, git_url, tags, authors):
         "identifier": conv.value_or_none(record, "doi"),
         "description": description,
         "keywords": list (map (format_tag_record, tags)),
-        "author": list (map (format_codemeta_author_record, authors))
+        "author": list (map (lambda author: format_codemeta_author_record (author, base_url), authors))
     }
 
 def format_dataset_record (record):

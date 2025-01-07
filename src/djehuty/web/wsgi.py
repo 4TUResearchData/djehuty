@@ -6537,7 +6537,8 @@ class ApiServer:
                     authors = self.db.authors (item_uri=dataset["uri"],
                                                is_published = True,
                                                item_type = "dataset",
-                                               limit = 10000)))
+                                               limit = 10000),
+                    base_url = config.base_url))
             return self.response (json.dumps(output))
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
