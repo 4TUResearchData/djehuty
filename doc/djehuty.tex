@@ -39,25 +39,28 @@ body,html {
 }
 #wrapper { min-width: 720pt; }
 #sidebar.wide { position: fixed; top: 5pt; width: 265pt; font-size: .9em; }
-#sidebar.wide .likechapterHead { border-radius: 0pt 4pt 0pt 0pt; }
+#sidebar.wide .likechapterHead { border-radius: 0pt; }
 #sidebar.narrow { position: relative; top: auto; width: 850pt; margin-left: auto; margin-right: auto; font-size: 1.0em; background: #fff; }
 #sidebar.narrow .likechapterHead { border-radius: 4pt 4pt 0pt 0pt; }
 #sidebar .tableofcontents { padding: 0pt 10pt 0pt 5pt; }
-#sidebar .likechapterHead { padding: 10pt; background: #aaa; color: #111; margin: 0pt; border-radius: 0pt 4pt 0pt 0pt; }
+#sidebar .likechapterHead { padding: 10pt; background: #aaa; color: #111; margin: 0pt; border-radius: 0pt; }
 #sidebar.wide .sidebarwrap { background: #f9f9f9; border-radius: 4pt; padding-bottom: 0pt; border-right: solid 1pt #ddd; border-bottom: solid 1pt #ddd; }
+#sidebar.wide h2.additionalHead:nth-child(1) { border-radius: 0pt 4pt 0pt 0pt; }
+#sidebar.wide h2.additionalHead { background: #ccc; border-radius: 0pt; }
 .chapter { background: #fff; margin: 10pt; width: 850pt; border-radius: 4pt; border-left: solid 1pt #ccc; border-right: solid 1pt #ccc; border-bottom: solid 1pt #ccc; }
 .chapter.wide { margin-left: 275pt; }
 .chapter.narrow { margin-left: auto; margin-right: auto; }
 .chapter.ultra-narrow { margin-left: auto; margin-right: auto; width: 720pt; }
 .chapwrap { padding: 0pt; background: none; border-radius: 4pt; }
 .chapwrap p { padding: 0pt 10pt 0pt 10pt; }
-.chapwrap .sectionHead { padding: 5pt 10pt 5pt 10pt; background: #eee; }
-.chapwrap .subsectionHead { padding: 5pt 10pt 5pt 10pt; background: #f6f6f6; }
+.chapwrap .sectionHead, .chapwrap .likesectionHead { padding: 5pt 10pt 5pt 10pt; background: #eee; }
+.chapwrap .subsectionHead, .chapwrap .likesubsectionHead { padding: 5pt 10pt 5pt 10pt; background: #f6f6f6; }
 .chapwrap .likesubsubsectionHead { padding: 0pt 10pt 0pt 10pt; }
 .subsubsectionHead { margin-left: .75em; font-size: 1em; }
 .ectt-1095 { font-family: 'FiraMono', monospace; }
 .lstlisting { font-family: 'FiraMono', monospace; font-size: 13pt; background: #f8f8f8; margin: 0pt 10pt 0pt 10pt; padding: 10pt; border-radius: 5pt; border: solid 1pt #ccc; }
 .center { text-align: center; }
+.ecbx-1200 { font-weight: bold; }
 .ectt-1200 { font-family: 'FiraMono', 'Lucida Console', Monaco, monospace; padding: 0pt; }
 .chapwrap h2.likechapterHead, .chapterHead { margin: 0pt; padding: 10pt; background: #222; color: #fff; border-radius: 4pt 4pt 0pt 0pt; border: solid 1pt #222; }
 table.ultra-narrow { max-width: 700pt; }
@@ -84,6 +87,8 @@ dt.enumerate-enumitem { float:left; clear:left; margin: 0em 1em 0em 1em; }
 h1 { font-size 4em; padding-top: 10pt; }
 h3 { font-size: 1.25em; }
 h4 { font-size: 1.10em; }
+h2 a { color: #000; }
+h2 a:hover { color: #222; }
 #titlepage-logo { width: 200pt; }
 hr { border: none; }
 div.figure p.noindent { display: none; }
@@ -140,7 +145,10 @@ div.section_subsections { display: none; }
 \begin{html}
 <p style="text-align: center">This document is also available as <a href="djehuty.pdf">PDF</a>.</p>
 </div><div id="sidebar" class="narrow"><div class="sidebarwrap">
+<h2 class="likechapterHead additionalHead"><a href="#news-section">News</a></h2>
+<h2 class="likechapterHead additionalHead"><a href="#contact-section">Contact</a></h2>
 \end{html}
+\renewcommand{\contentsname}{\href{\#titlepage}{Documentation}}
 \fi
 
 \tableofcontents
@@ -200,7 +208,24 @@ div.section_subsections { display: none; }
 </div></div><div class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
+
 \bibliography{references}
+
+\ifdefined\HCode
+\begin{html}
+</div></div><div class="chapter narrow"><div class="chapwrap">
+\end{html}
+\fi
+
+\input{contact}
+
+\ifdefined\HCode
+\begin{html}
+</div></div><div class="chapter narrow"><div class="chapwrap">
+\end{html}
+\fi
+
+\input{news}
 
 \ifdefined\HCode
 \begin{html}
@@ -247,7 +272,7 @@ window.addEventListener('load', function () {
     let sectionNumber = section.textContent.split(" ")[0];
     let chapterNumber = sectionNumber.split(".")[0];
     let chapterElement = document.getElementById(`chapter${chapterNumber}_sections`);
-    if (section.nextElementSibling.className != "subsectionToc") {
+    if (section.nextElementSibling != null && section.nextElementSibling.className != "subsectionToc") {
       chapterElement.appendChild(section);
       continue;
     }
@@ -265,6 +290,14 @@ window.addEventListener('load', function () {
     let sectionElement = document.getElementById(`section${class_name}_subsections`);
     sectionElement.appendChild(subsection);
   }
+  let additionalHeads = document.getElementsByClassName("additionalHead");
+  for (head of additionalHeads) {
+    sibling = head.nextElementSibling;
+    if (sibling != null && sibling.nodeName == "P") {
+      sibling.remove();
+    }
+  }
+
   window.addEventListener("resize", renderWindow);
   renderWindow(null);
 });
