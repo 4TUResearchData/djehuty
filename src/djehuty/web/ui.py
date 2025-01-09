@@ -3,6 +3,7 @@
 import logging
 import sys
 import os
+import socket
 import shutil
 import json
 from defusedxml import ElementTree
@@ -674,6 +675,10 @@ def read_configuration_file (server, config_file, logger, config_files):
 
         config.address      = config_value (xml_root, "bind-address", config.address, "127.0.0.1")
         config.port         = int(config_value (xml_root, "port", config.port, 8080))
+        config.alternative_port = config_value (xml_root, "alternative-port",
+                                                config.alternative_port, None)
+        if config.alternative_port is not None:
+            config.alternative_port = int(config.alternative_port)
 
         if config.base_url is None:
             config.base_url = f"http://{config.address}:{config.port}"
@@ -1249,6 +1254,20 @@ def main (config_file=None, run_internal_server=True, initialize=True,
 
         if not inside_reload:
             refresh_group_configuration (server, logger, config_files)
+
+
+        # The 'run_simple' procedure below doesn't allow to catch an
+        # address-already-in-use error, so we have to test beforehand to
+        # figure out if we need to use the fallback port instead.
+        try:
+            bind_test = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
+            bind_test.bind ((config.address, config.port))
+            bind_test.close()
+        except OSError:
+            logger.info ("Unable to bind to port %s.", config.port)
+            if config.alternative_port is not None:
+                logger.info ("Falling back to port %s.", config.alternative_port)
+                config.port = config.alternative_port
 
         run_simple (config.address, config.port, server,
                     threaded=(config.maximum_workers <= 1),

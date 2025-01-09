@@ -12,7 +12,9 @@ configuration file, for which an example is available at
   \textbf{Option}            & \textbf{Description}\\
   \fi
   \t{bind-address}           & The address to bind a TCP socket on.\\
-  \t{port}                   & The port to bind a TCK socket on.\\
+  \t{port}                   & The port to bind a TCP socket on.\\
+  \t{alternative-port}       & A fall-back port to bind on when \t{port} is
+                               already in use.\\
   \t{base-url}               & The URL on which the instance will be available
                                to the outside world.\\
   \t{allow-crawlers}         & Set to 1 to allow crawlers in the \t{robots.txt},
