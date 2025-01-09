@@ -13,6 +13,7 @@ class RuntimeConfiguration:
 
         self.address                     = None
         self.port                        = None
+        self.alternative_port            = None
         self.base_url                    = None
         self.log_file                    = None
         self.use_reloader                = None
