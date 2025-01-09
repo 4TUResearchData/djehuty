@@ -41,12 +41,14 @@ body,html {
 #sidebar.wide { position: fixed; top: 17pt; width: 265pt; height: 100vh; font-size: .9em; overflow-y: scroll; }
 #sidebar.wide .likechapterHead { border-radius: 0pt; }
 #sidebar.narrow { position: relative; top: auto; width: 850pt; margin-left: auto; margin-right: auto; font-size: 1.0em; background: #fff; }
-#sidebar.narrow .likechapterHead { border-radius: 4pt 4pt 0pt 0pt; }
+#sidebar.narrow .likechapterHead { border-radius: 0pt; }
 #sidebar .tableofcontents { padding: 0pt 10pt 0pt 5pt; }
 #sidebar .likechapterHead { padding: 10pt; background: #aaa; color: #111; margin: 0pt; border-radius: 0pt; }
 #sidebar.wide .sidebarwrap { background: #f9f9f9; border-radius: 4pt; padding-bottom: 0pt; border-right: solid 1pt #ddd; border-bottom: solid 1pt #ddd; }
 #sidebar.wide h2.additionalHead:nth-child(1) { border-radius: 0pt 4pt 0pt 0pt; }
-#sidebar.wide h2.additionalHead { background: #ccc; border-radius: 0pt; }
+#sidebar.narrow h2.additionalHead:nth-child(1) { border-radius: 4pt 4pt 0pt 0pt; }
+#sidebar h2.additionalHead:nth-child(1) { background: #ccc; }
+#sidebar h2.additionalHead:nth-child(2) { background: #bbb; }
 .chapter { background: #fff; margin: 10pt; width: 850pt; border-radius: 4pt; border-left: solid 1pt #ccc; border-right: solid 1pt #ccc; border-bottom: solid 1pt #ccc; }
 .chapter.wide { margin-left: 275pt; }
 .chapter.narrow { margin-left: auto; margin-right: auto; }
