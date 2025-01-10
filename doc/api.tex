@@ -1370,3 +1370,137 @@ curl -X POST \
 ]
 \end{lstlisting}
 
+\subsection{\t{/v2/account/collections} (HTTP \texttt{GET})}
+
+  This API endpoint lists the draft collections of the account to which the
+  authorization token belongs.
+
+  The following parameters can be used:
+
+\begin{tabular}{p{0.20\textwidth} p{0.20\textwidth} p{0.59\textwidth}}
+  \ifdefined\HCode
+  \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
+  \fi
+  \t{page}             & Optional & The page number used in combination with
+                                    \t{page\_size}.\\
+  \t{page\_size}       & Optional & The number of datasets per page.  Used
+                                    in combination with \t{page}.\\
+  \t{limit}            & Optional & The maximum number of datasets to output.
+                                    Used together with \t{offset}.\\
+  \t{offset}           & Optional & The number of datasets to skip in the
+                                    output.  Used together with \t{limit}.\\
+  \t{order}            & Optional & Field to use for sorting.\\
+  \t{order\_direction} & Optional & Can be either \code{asc} or \code{desc}.\\
+\end{tabular}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* This example output has been shortened. */
+  {
+    "id": null,
+    "uuid": "fc03a4c3-cba4-4a88-a8a6-eb38924eeb6d",
+    "title": "Test collection",
+    "doi": null,
+    "handle": "",
+    "url": "(@*\djehutybaseurl{}*@)/v2/collections/fc03...eb6d",
+    "published_date": null,
+    ...
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections} (HTTP \texttt{POST})}
+
+  This API endpoint can be used to create a new collection.
+
+  The following parameters can be used:
+
+\begin{tabular}{p{0.20\textwidth} p{0.20\textwidth} p{0.59\textwidth}}
+  \ifdefined\HCode
+  \textbf{Parameter} & \textbf{Data type}   & \textbf{Description}\\
+  \fi
+  \t{title}          & \t{string}           & The title of the collection.\\
+  \t{description}    & \t{string}           & A description of the collection.\\
+  \t{tags}           & list of \t{string}s  & Keywords to enhance the
+                                              findability of the collection. Instead
+                                              of using the key \code{tags}, you
+                                              may also use the key
+                                              \code{keywords}.\\
+  \t{references}     & list of \t{string}s  & URLs to resources referring to
+                                              this collection, or resources that
+                                              this collection refers to.\\
+  \t{categories}     & list of \t{string}s  & Categories are a controlled
+                                              vocabulary and can be used to
+                                              make the collection findable in
+                                              the categorical overviews.
+                                              The \t{string} values expected
+                                              here can be found under the
+                                              \code{uuid} property with a
+                                              call to \code{/v2/categories}.
+                                              For more details, see section
+                                              \refer{sec:v2-categories}.\\
+  \t{authors}        & list of author records & \\
+  \t{funding}        & \t{string}           & One-liner to cite funding.\\
+  \t{funding\_list}  & list of funding records & \\
+  \t{license}        & \t{integer}          & Licences communicate under which
+                                              conditions the collection can be
+                                              re-used.  The \t{integer} value
+                                              to submit here can be found as
+                                              the \t{value} property in a call
+                                              to \code{/v2/licences}. For more
+                                              details, see section
+                                              \refer{sec:v2-licenses}.\\
+  %\t{language}       & \t{string}           & \\
+  \t{doi}            & \t{string}           & Do not use this field as a DOI
+                                              will be automatically assigned
+                                              upon publication..\\
+  \t{handle}         & \t{string}           & Do not use this field as it is
+                                              deprecated.\\
+  \t{resource\_doi}  & \t{string}           & The URL of the DOI of an
+                                              associated peer-reviewed
+                                              journal publication.\\
+  \t{resource\_title} & \t{string}          & The title of the associated
+                                              peer-reviewed journal
+                                              publication.\\
+  %\t{group_id}       & \t{integer}          & \\
+  \t{custom\_fields} & \t{Object}           & An \t{Object} where each key is a
+                                              field name and each value is the
+                                              corresponding value. Allowed values
+                                              are: \t{contributors}, \t{data\_link},
+                                              \t{derived\_from}, \t{format},
+                                              \t{geolocation}, \t{language},
+                                              \t{latitude}, \t{longitude},
+                                              \t{organizations}, \t{publisher},
+                                              \t{same\_as}, \t{time\_coverage}.\\
+  \t{custom\_fields\_list} & list of \t{Objects} & Each \t{Object} should have
+                                              two keys: \t{name} and
+                                              \t{value}. For allowed key values,
+                                              see \t{custom\_fields}.\\
+  \t{timeline}       &                      & Do not use this field because it
+                                              will be automatically populated
+                                              during the publication process.\\
+  \t{articles}       & list of strings or integers & The articles to include
+                                              in the collection.\\
+\end{tabular}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "title": "Example collection" }' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{
+  "location": "(@*\djehutybaseurl{}*@)/v2/account/collections/455b...5d62",
+  "warnings": []
+}
+\end{lstlisting}
