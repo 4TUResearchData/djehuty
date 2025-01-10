@@ -3838,7 +3838,7 @@ class ApiServer:
         if config.storage_locations:
             for location in config.storage_locations:
                 if "filename" in file_info:
-                    file_path = f"{location['path']}/{file_info['filename']}"
+                    file_path = os.path.join (location['path'], file_info['filename'])
                     if os.path.isfile (file_path):
                         return file_path
                 elif "id" in file_info:
