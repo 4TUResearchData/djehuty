@@ -5881,7 +5881,7 @@ class ApiServer:
                     tags                    = validator.array_value   (record, "tags",                            False),
                     references              = validator.array_value   (record, "references",                      False),
                     custom_fields           = validator.object_value  (record, "custom_fields",                   False),
-                    custom_fields_list      = validator.object_value  (record, "custom_fields_list",              False),
+                    custom_fields_list      = validator.array_value   (record, "custom_fields_list",              False),
                     doi                     = validator.string_value  (record, "doi",              0, 255,        False),
                     handle                  = validator.string_value  (record, "handle",           0, 255,        False),
                     url                     = validator.string_value  (record, "url",              0, 512,        False),

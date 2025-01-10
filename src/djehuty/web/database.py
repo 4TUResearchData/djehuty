@@ -2062,12 +2062,23 @@ class SparqlInterface:
                                    item_uri=None, graph=None):
         """Procedure to add a custom field value to the state graph."""
 
+        allowed_custom_fields = [ "contributors", "data_link", "derived_from",
+                                  "format", "geolocation",  "language",
+                                  "latitude", "license_remarks", "longitude",
+                                  "organizations", "publisher", "same_as",
+                                  "time_coverage" ]
+
         if name is None or value is None or item_uri is None or graph is None:
             self.log.error ("insert_custom_field_value was passed None parameters.")
             return False
 
+        if name.lower() not in allowed_custom_fields:
+            self.log.warning ("Blocked inserting custom field '%s' for <%s>.",
+                              name, item_uri)
+            return False
+
         name = conv.custom_field_name (name)
-        rdf.add (graph, item_uri, rdf.DJHT[name], value)
+        rdf.add (graph, item_uri, rdf.DJHT[name], value, XSD.string)
         return True
 
     def dataset_is_under_review (self, dataset_uuid):
@@ -2698,12 +2709,22 @@ class SparqlInterface:
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
-        for field in custom_fields:
+        for field in custom_fields_list:
             self.insert_custom_field_value (
                 name     = conv.value_or_none (field, "name"),
                 value    = conv.value_or_none (field, "value"),
                 item_uri = uri,
                 graph    = graph)
+
+        for key in custom_fields:
+            try:
+                self.insert_custom_field_value (
+                    name     = key,
+                    value    = custom_fields[key],
+                    item_uri = uri,
+                    graph    = graph)
+            except (AttributeError, IndexError) as error:
+                self.log.error ("Error while inserting custom field (%s).", error)
 
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
