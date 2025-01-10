@@ -172,7 +172,7 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/ve
 [
   {
     "version": 1,
-    "url": "(@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions/1"
+    "url": "(@*\djehutybaseurl{}*@)/v2/articles/342e...49d2/versions/1"
   }
 ]
 \end{lstlisting}
@@ -181,7 +181,7 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/ve
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions/1 | jq
+curl (@*\djehutybaseurl{}*@)/v2/articles/342e...49d2/versions/1 | jq
 \end{lstlisting}
 
   The output of the example is identical to the example output of section
@@ -191,7 +191,7 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/ve
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl (@*\djehutybaseurl{}*@)/v2/articles/c1274889-b797-43bd-a3b1-ee0611d58fd7/versions/2/embargo | jq
+curl (@*\djehutybaseurl{}*@)/v2/articles/c127...8fd7/versions/2/embargo | jq
 \end{lstlisting}
 
   Output of the example:
@@ -412,7 +412,7 @@ curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/versions/2 | jq
+curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc...2782/versions/2 | jq
 \end{lstlisting}
 
   Output of the example:
@@ -441,7 +441,7 @@ curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/articles | jq
+curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc...2782/articles | jq
 \end{lstlisting}
 
   Output of the example:
@@ -585,7 +585,8 @@ Authorization: token YOUR_TOKEN_HERE
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -H "Authorization: token YOUR_TOKEN_HERE" (@*\djehutybaseurl{}*@)/v2/account/articles | jq
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles | jq
 \end{lstlisting}
 
   Output of the example:
@@ -683,8 +684,8 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Output of the example:
 \begin{lstlisting}[language=JSON]
-{
-  "location": "(@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1",
+{ /* The UUID in this example has been shortened. */
+  "location": "(@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1",
   "warnings": []
 }
 \end{lstlisting}
@@ -882,7 +883,7 @@ HTTP/1.1 204 NO CONTENT
   Example usage:
 \begin{lstlisting}[language=bash]
 curl --header "Authorization: token YOUR_TOKEN_HERE" \
-     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/funding | jq
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...95b1/funding | jq
 \end{lstlisting}
 
   Output of the example:
@@ -973,7 +974,7 @@ HTTP/1.1 204 NO CONTENT
   Example usage:
 \begin{lstlisting}[language=bash]
 curl --header "Authorization: token YOUR_TOKEN_HERE" \
-     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/categories | jq
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...95b1/categories | jq
 \end{lstlisting}
 
   Output of the example:
