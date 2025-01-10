@@ -51,6 +51,7 @@
 \usepackage{tabularx}
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 
+\usepackage{stringstrings}
 \usepackage{float}
 
 \usepackage{xcolor, colortbl}
@@ -126,6 +127,7 @@
 \newcommand\bamrdf[1]{\texttt{bam2rdf:}#1}
 \newcommand\tablerdf[1]{\texttt{table2rdf:}#1}
 \newcommand{\dhref}[1]{\href{#1}{#1}}
+\newcommand{\commitLink}[1]{\href{https://github.com/4TUResearchData/djehuty/commit/#1}{\substring{#1}{1}{9}}}
 
 \ifdefined\HCode
 \newcommand\cfgindent{\texttt{\hspace*{1em}}}

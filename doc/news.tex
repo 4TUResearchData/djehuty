@@ -7,4 +7,27 @@
 
 \section*{Upcoming release notes for \texttt{v25.1}.}
 
-  From the upcoming release onwards, the release notes will be published here.
+  The release notes for the upcoming release will be published here.
+
+\section*{Release notes for \texttt{v24.12}.}
+
+\subsection*{New features}
+\begin{itemize}
+  \item{Add specific logging for when the server would respond an HTTP 500 error (\commitLink{1dcd141f7c75e82a5f970d0ac8ddba7e8915bf9c}).}
+\end{itemize}
+\subsection*{Bugfixes}
+\begin{itemize}
+  \item{Fix a problem with downloading Git repositories as ZIP (\commitLink{a8c2da4c544b10a493d67c515a5fca191222ba29}).}
+  \item{Avoid returning an internal server error when using paging in the API (\commitLink{2629ef56ff43946067edf7e147f48867830691f6}).}
+  \item{Fix lay-out bug on the landing pages (\commitLink{a3ff6a54ee80359ad3d2299e968ab28766b86505}).}
+  \item{Fix bug when filtering on groups in the API (\commitLink{187f4344f5d0e50bcf7063f28dda9bfccc8229ae}).}
+\end{itemize}
+\subsection*{Technical debt}
+\begin{itemize}
+  \item{Refactor parts of the codebase (\commitLink{0370836d5bdff62f04f5815893658284aff3ca48},
+      \commitLink{dd7602a66691840ffe6c2d444a36dd4256c23627}, \commitLink{aa8eda2fc0b5cf65cd38d4002d358e65312a845d},
+      \commitLink{3fb51635c82ad612681db5a3244d93e62cd8f616}, \commitLink{dd6ccca45a7505b96e002a2bb79fc75b5384570c},
+      \commitLink{58c1fcedcec678d27c1d0daf9559dfab45fdb8f6})}
+  \item{Reduce build-system files (\commitLink{e73966fede6e1e2fc8ea2256f107b650a23400a0}).}
+  \item{Bump the minimal required Python version to 3.9 (\commitLink{208c7e08f6162fd78a456079e079d5f609f67e68}).}
+\end{itemize}
