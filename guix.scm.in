@@ -50,8 +50,7 @@
           python-pygit2
           python-requests
           python-urllib3
-          python-werkzeug
-          python-zipfly))
+          python-werkzeug))
    (home-page "https://github.com/4TUResearchData/djehuty")
    (synopsis "Data repository for 4TU.ResearchData")
    (description "This packge contains the implementation of the data

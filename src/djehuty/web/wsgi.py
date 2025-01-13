@@ -17,7 +17,6 @@ import base64
 import csv
 import requests
 import pygit2
-import zipfly
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
@@ -41,6 +40,7 @@ from djehuty.utils.convenience import split_author_name, split_string
 from djehuty.utils.constants import group_to_member, member_url_names, filetypes_by_extension
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 from djehuty.web.config import config
+from djehuty.web import zipfly
 
 ## Error handling for loading python3-saml is done in 'ui'.
 ## So if it fails here, we can safely assume we don't need it.
