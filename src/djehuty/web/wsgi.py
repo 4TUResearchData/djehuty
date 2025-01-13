@@ -158,24 +158,8 @@ class ApiServer:
 
             ## Export formats
             ## ----------------------------------------------------------------
-            R("/export/datacite/datasets/<dataset_id>",                          self.ui_export_datacite_dataset),
-            R("/export/datacite/datasets/<dataset_id>/<version>",                self.ui_export_datacite_dataset),
-            R("/export/datacite/collections/<collection_id>",                    self.ui_export_datacite_collection),
-            R("/export/datacite/collections/<collection_id>/<version>",          self.ui_export_datacite_collection),
-            R("/export/refworks/datasets/<dataset_id>",                          self.ui_export_refworks_dataset),
-            R("/export/refworks/datasets/<dataset_id>/<version>",                self.ui_export_refworks_dataset),
-            R("/export/bibtex/datasets/<dataset_id>",                            self.ui_export_bibtex_dataset),
-            R("/export/bibtex/datasets/<dataset_id>/<version>",                  self.ui_export_bibtex_dataset),
-            R("/export/refman/datasets/<dataset_id>",                            self.ui_export_refman_dataset),
-            R("/export/refman/datasets/<dataset_id>/<version>",                  self.ui_export_refman_dataset),
-            R("/export/endnote/datasets/<dataset_id>",                           self.ui_export_endnote_dataset),
-            R("/export/endnote/datasets/<dataset_id>/<version>",                 self.ui_export_endnote_dataset),
-            R("/export/nlm/datasets/<dataset_id>",                               self.ui_export_nlm_dataset),
-            R("/export/nlm/datasets/<dataset_id>/<version>",                     self.ui_export_nlm_dataset),
-            R("/export/dc/datasets/<dataset_id>",                                self.ui_export_dc_dataset),
-            R("/export/dc/datasets/<dataset_id>/<version>",                      self.ui_export_dc_dataset),
-            R("/export/cff/datasets/<dataset_id>",                               self.ui_export_cff_dataset),
-            R("/export/cff/datasets/<dataset_id>/<version>",                     self.ui_export_cff_dataset),
+            R("/export/<citation_format>/<item_type>s/<item_id>",                self.ui_export_citation),
+            R("/export/<citation_format>/<item_type>s/<item_id>/<version>",      self.ui_export_citation),
 
             ## SAML 2.0
             ## ----------------------------------------------------------------
@@ -5650,10 +5634,11 @@ class ApiServer:
     def __update_item_doi (self, item_id, version=None, item_type="dataset", from_draft=True):
         """Procedure to modify metadata of an existing doi."""
 
-        doi, xml = self.format_datacite_for_registration (item_id, version, item_type, from_draft)
-
+        parameters = self.__metadata_export_parameters (item_id, version, item_type=item_type, from_draft=from_draft)
+        xml = str(xml_formatter.datacite (parameters, indent=False), encoding='utf-8')
+        xml = '<?xml version="1.0" encoding="UTF-8"?>' + xml.split('?>', 1)[1] #Datacite is very choosy about this
+        doi = parameters["doi"]
         encoded_bytes = base64.b64encode(xml.encode("utf-8"))
-
         headers = {
             "Accept": "application/vnd.api+json",
             "Content-Type": "application/vnd.api+json"
@@ -8866,163 +8851,118 @@ class ApiServer:
             parameters['fundings'] = self.db.fundings(item_uri=item_uri)
         return parameters
 
-    def ui_export_datacite_dataset (self, request, dataset_id, version=None):
-        """Implements /export/datacite/datasets/<id>."""
-        if not self.accepts_xml (request):
-            return self.error_406 ("application/xml")
+    def ui_export_citation (self, request, citation_format, item_type, item_id, version=None):
+        """Implements /export/<citation_format>/<item_type>s/<id>[/<version>]."""
 
-        return self.export_datacite (request, dataset_id, version, item_type="dataset")
-
-    def ui_export_datacite_collection (self, request, collection_id, version=None):
-        """Implements /export/datacite/collections/<id>."""
-        if not self.accepts_xml (request):
-            return self.error_406 ("application/xml")
-
-        return self.export_datacite (request, collection_id, version, item_type="collection")
-
-    def export_datacite (self, request, item_id, version=None, item_type="dataset"):
-        """export metadata in datacite format"""
-        xml_string = self.format_datacite(item_id, version, item_type=item_type)
-        if xml_string is None:
+        if item_type not in ["dataset", "collection"]:
             return self.error_404 (request)
-        output = self.response (xml_string, mimetype="application/xml")
-        version_string = f'_v{version}' if version else ''
-        output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_datacite.xml"
-        return output
 
-    def format_datacite (self, item_id, version=None, item_type="dataset", indent=True):
-        """render metadata in datacite format"""
-        parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type)
-        return xml_formatter.datacite(parameters, indent=indent)
+        if citation_format in ["datacite", "refworks", "nlm", "dc"]:
+            if not self.accepts_xml (request):
+                return self.error_406 ("application/xml")
 
-    def format_datacite_for_registration (self, item_id, version=None, item_type="dataset", from_draft=True):
-        """return doi and un-indented datacite xml separately"""
-        parameters = self.__metadata_export_parameters(item_id, version, item_type=item_type, from_draft=from_draft)
-        xml = str(xml_formatter.datacite(parameters, indent=False), encoding='utf-8')
-        xml = '<?xml version="1.0" encoding="UTF-8"?>' + xml.split('?>', 1)[1] #Datacite is very choosy about this
-        return parameters["doi"], xml
+        if citation_format in ["bibtex", "refman", "endnote", "cff"]:
+            if not self.accepts_plain_text (request):
+                return self.error_406 ("text/plain")
 
-    def ui_export_refworks_dataset (self, request, dataset_id, version=None):
-        """export metadata in Refworks format"""
-        if not self.accepts_xml (request):
-            return self.error_406 ("application/xml")
-
-        parameters = self.__metadata_export_parameters(dataset_id, version)
-        if parameters is None:
-            return self.error_404 (request)
-        xml_string = xml_formatter.refworks(parameters)
-        output = self.response (xml_string, mimetype="application/xml")
-        version_string = f'_v{version}' if version else ''
-        output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_refworks.xml"
-        return output
-
-    def ui_export_nlm_dataset (self, request, dataset_id, version=None):
-        """export metadata in NLM format"""
-        if not self.accepts_xml (request):
-            return self.error_406 ("application/xml")
-
-        parameters = self.__metadata_export_parameters(dataset_id, version)
+        parameters = self.__metadata_export_parameters (item_id, version, item_type=item_type)
         if parameters is None:
             return self.error_404 (request)
 
         if "authors" in parameters:
-            self.add_names_to_authors(parameters["authors"])
+            for author in parameters["authors"]:
+                if "full_name" not in author:
+                    author["full_name"] = ""
+                    self.log.warning ("full_name is missing for author %s.", author["uuid"])
+                if not ("first_name" in author or "last_name" in author):
+                    parts = split_author_name (author["full_name"])
+                    author["first_name"] = parts[0]
+                    author["last_name"]  = parts[1]
 
-        xml_string = xml_formatter.nlm(parameters)
+        version_string = f"_v{version}" if version else ""
+        procedure = getattr (self, f"export_{citation_format}")
+        return procedure (request, parameters, item_id, version_string)
+
+    def export_datacite (self, request, parameters, item_id, version_string):
+        """export metadata in datacite format"""
+        xml_string = xml_formatter.datacite (parameters, indent=True)
+        if xml_string is None:
+            return self.error_404 (request)
         output = self.response (xml_string, mimetype="application/xml")
-        version_string = f'_v{version}' if version else ''
-        output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_nlm.xml"
+        output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_datacite.xml"
         return output
 
-    def ui_export_dc_dataset (self, request, dataset_id, version=None):
+    def export_refworks (self, request, parameters, item_id, version_string):
+        """export metadata in Refworks format"""
+        xml_string = xml_formatter.refworks (parameters)
+        if xml_string is None:
+            return self.error_404 (request)
+        output = self.response (xml_string, mimetype="application/xml")
+        output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_refworks.xml"
+        return output
+
+    def export_nlm (self, request, parameters, item_id, version_string):
+        """export metadata in NLM format"""
+        xml_string = xml_formatter.nlm (parameters)
+        if xml_string is None:
+            return self.error_404 (request)
+        output = self.response (xml_string, mimetype="application/xml")
+        output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_nlm.xml"
+        return output
+
+    def export_dc (self, request, parameters, item_id, version_string):
         """export metadata in Dublin Core format"""
-        if not self.accepts_xml (request):
-            return self.error_406 ("application/xml")
-
-        parameters = self.__metadata_export_parameters(dataset_id, version)
-        if parameters is None:
+        xml_string = xml_formatter.dublincore (parameters)
+        if xml_string is None:
             return self.error_404 (request)
-        xml_string = xml_formatter.dublincore(parameters)
         output = self.response (xml_string, mimetype="application/xml")
-        version_string = f'_v{version}' if version else ''
-        output.headers["Content-disposition"] = f"attachment; filename={dataset_id}{version_string}_dublincore.xml"
+        output.headers["Content-disposition"] = f"attachment; filename={item_id}{version_string}_dublincore.xml"
         return output
 
-    def ui_export_bibtex_dataset (self, request, dataset_id, version=None):
+    def export_bibtex (self, request, parameters, item_id, version_string):  # pylint: disable=unused-argument
         """export metadata in bibtex format"""
-        if not self.accepts_plain_text (request):
-            return self.error_406 ("text/plain")
-
-        # collect rendering parameters
-        parameters = self.__metadata_export_parameters(dataset_id, version=version)
-        if parameters is None:
-            return self.error_404 (request)
-        # adjust rendering parameters
-        # turn authors in one string
-        self.add_names_to_authors(parameters["authors"])
-        parameters["authors_str"] = " and ".join([f"{author['last_name']}, {author['first_name']}" for author in
-                                                 parameters["authors"]])
-        # turn tags into one comma delimited string
+        parameters["authors_str"] = " and ".join([f"{author['last_name']}, {author['first_name']}"
+                                                  for author in parameters["authors"]])
         parameters["tags_str"] = ', '.join(parameters["tags"])
+        headers = {"Content-disposition": f"attachment; filename={item_id}{version_string}.bib"}
+        return self.__render_export_format (template_name = "bibtex.bib",
+                                            mimetype      = "text/plain",
+                                            headers       = headers,
+                                            **parameters)
 
-        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.bib"}
-        return self.__render_export_format(template_name="bibtex.bib",
-                                           mimetype="text/plain",
-                                           headers=headers, **parameters)
-
-    def ui_export_refman_dataset (self, request, dataset_id, version=None):
+    def export_refman (self, request, parameters, item_id, version_string):  # pylint: disable=unused-argument
         """export metadata in .ris format"""
-        if not self.accepts_plain_text (request):
-            return self.error_406 ("text/plain")
 
-        # collect rendering parameters
-        parameters = self.__metadata_export_parameters(dataset_id, version=version)
-        if parameters is None:
-            return self.error_404 (request)
-        # adjust rendering parameters: use / as date separator
         if parameters["published_date"] is not None:
             parameters['published_date'] = parameters['published_date'].replace('-', '/')
 
-        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.ris"}
-        return self.__render_export_format(template_name="refman.ris",
-                                           mimetype="text/plain",
-                                           headers=headers, **parameters)
+        headers = {"Content-disposition": f"attachment; filename={item_id}{version_string}.ris"}
+        return self.__render_export_format (template_name = "refman.ris",
+                                            mimetype      = "text/plain",
+                                            headers       = headers,
+                                            **parameters)
 
-    def ui_export_endnote_dataset (self, request, dataset_id, version=None):
+    def export_endnote (self, request, parameters, item_id, version_string):  # pylint: disable=unused-argument
         """export metadata in .enw format"""
-        if not self.accepts_plain_text (request):
-            return self.error_406 ("text/plain")
 
-        # collect rendering parameters
-        parameters = self.__metadata_export_parameters(dataset_id, version=version)
-        if parameters is None:
-            return self.error_404 (request)
-        # adjust rendering parameters
-        # prepare Reference Type (Tag %0)
-        self.add_names_to_authors(parameters["authors"])
         parameters["reference_type"] = "Generic"
         if parameters["item"]["defined_type_name"] == "software":
             parameters["reference_type"] = "Computer Program"
 
-        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}.enw"}
-        return self.__render_export_format(template_name="endnote.enw",
-                                           mimetype="text/plain",
-                                           headers=headers, **parameters)
+        headers = {"Content-disposition": f"attachment; filename={item_id}{version_string}.enw"}
+        return self.__render_export_format (template_name = "endnote.enw",
+                                            mimetype      = "text/plain",
+                                            headers       = headers,
+                                            **parameters)
 
-    def ui_export_cff_dataset (self, request, dataset_id, version=None):
+    def export_cff (self, request, parameters, item_id, version_string):  # pylint: disable=unused-argument
         """export metadata in citation file format"""
-        if not self.accepts_plain_text (request):
-            return self.error_406 ("text/plain")
 
-        # collect rendering parameters
-        parameters = self.__metadata_export_parameters(dataset_id, version=version)
-        if parameters is None:
-            return self.error_404 (request)
-        self.add_names_to_authors(parameters["authors"])
-        headers = {"Content-disposition": f"attachment; filename={parameters['item']['uuid']}_citation.cff"}
-        return self.__render_export_format(template_name="citation.cff",
-                                           mimetype="text/plain",
-                                           headers=headers, **parameters)
+        headers = {"Content-disposition": f"attachment; filename={item_id}{version_string}.cff"}
+        return self.__render_export_format (template_name = "citation.cff",
+                                            mimetype       = "text/plain",
+                                            headers        = headers,
+                                            **parameters)
 
     def parse_organizations (self, text):
         """Obscure procedure to split organizations by semicolon."""
@@ -9118,17 +9058,6 @@ class ApiServer:
                 search_tokens[idx] = search_dict
 
         return search_tokens
-
-    def add_names_to_authors (self, authors):
-        """Procedure to add missing first_name and last_name to author dict"""
-        for author in authors:
-            if 'full_name' not in author:
-                author['full_name'] = ''
-                self.log.warning ("full_name is missing for author %s.", author['uuid'])
-            if not ('first_name' in author or 'last_name' in author):
-                parts = split_author_name(author['full_name'])
-                author['first_name'] = parts[0]
-                author['last_name' ] = parts[1]
 
     ## ------------------------------------------------------------------------
     ## IIIF
