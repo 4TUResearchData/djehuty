@@ -1255,19 +1255,19 @@ def main (config_file=None, run_internal_server=True, initialize=True,
         if not inside_reload:
             refresh_group_configuration (server, logger, config_files)
 
-
-        # The 'run_simple' procedure below doesn't allow to catch an
-        # address-already-in-use error, so we have to test beforehand to
-        # figure out if we need to use the fallback port instead.
-        try:
-            bind_test = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
-            bind_test.bind ((config.address, config.port))
-            bind_test.close()
-        except OSError:
-            logger.info ("Unable to bind to port %s.", config.port)
-            if config.alternative_port is not None:
-                logger.info ("Falling back to port %s.", config.alternative_port)
-                config.port = config.alternative_port
+            # The 'run_simple' procedure below doesn't allow to catch an
+            # address-already-in-use error, so we have to test beforehand to
+            # figure out if we need to use the fallback port instead.
+            try:
+                bind_test = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
+                bind_test.bind ((config.address, config.port))
+                bind_test.close()
+            except OSError as error:
+                if config.alternative_port is not None:
+                    logger.info ("Falling back to port %s.", config.alternative_port)
+                    config.port = config.alternative_port
+                else:
+                    logger.info ("Unable to bind to port %s: %s.", config.port, error)
 
         run_simple (config.address, config.port, server,
                     threaded=(config.maximum_workers <= 1),
