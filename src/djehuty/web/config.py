@@ -1,6 +1,6 @@
 """This module provides a program-wide configurable state."""
 
-class RuntimeConfiguration:
+class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
     """This class implements the configurable properties for djehuty."""
 
     _instance = None

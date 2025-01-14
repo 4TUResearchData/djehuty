@@ -39,8 +39,7 @@
              (base32
               "0aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))))
    (build-system python-build-system)
-   (arguments
-    `(#:tests? #f))
+   (arguments `(#:tests? #f))
    (propagated-inputs
     (list git
           python-defusedxml
@@ -52,9 +51,9 @@
           python-urllib3
           python-werkzeug))
    (home-page "https://github.com/4TUResearchData/djehuty")
-   (synopsis "Data repository for 4TU.ResearchData")
+   (synopsis "The 4TU.ResearchData and Nikhef data repository system.")
    (description "This packge contains the implementation of the data
-repository of 4TU.ResearchData.")
+repository of 4TU.ResearchData and Nikhef.")
    (license license:agpl3+)))
 
 ;; Evaluate to the above recipe, so that the development
