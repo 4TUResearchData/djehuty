@@ -144,15 +144,15 @@ if args.command == "web":
 So, the entry-point for the \t{web} subcommand is found in
 \t{src/djehuty/web/ui.py} at the \t{main} procedure.
 
-This procedure essentially sets up an instance of \t{ApiServer} (found in
+This procedure essentially sets up an instance of \t{WebServer} (found in
 \t{src/djehuty/web/wsgi.py} and uses \t{werkzeug}'s \t{run\_simple} to start
 the web server.
 
 \subsection{Translating URI paths to internal procedures}
 
-An instance of the \t{ApiServer} is passed along in werkzeug's \t{run\_simple}
+An instance of the \t{WebServer} is passed along in werkzeug's \t{run\_simple}
 procedure.  Werkzeug calls the instance directly, which is handled by the
-\t{\_\_call\_\_} procedure of the \t{ApiServer} class.  The \t{\_\_call\_\_} procedure
+\t{\_\_call\_\_} procedure of the \t{WebServer} class.  The \t{\_\_call\_\_} procedure
 invokes its \t{wsgi} instance, which is configured as following:
 \begin{lstlisting}[language=python]
 self.wsgi = SharedDataMiddleware(self.__respond, self.static_roots)
@@ -163,11 +163,11 @@ The \t{\_\_respond} procedure calls \t{\_\_dispatch\_request}
 In \t{\_\_dispatch\_request}, the requested URI is translated into the procedure
 name using the \t{url\_map}.  So, except for static resources in the
 \t{src/djehuty/web/resources} folder and pre-configured static pages, URIs are
-handled by a procedure in the \t{ApiServer} instance.
+handled by a procedure in the \t{WebServer} instance.
 
 A mapping between a URI and the procedure that is executed to handle the
 request to that URI can be found in the \t{url\_map} defined in the
-\t{ApiServer} class in \file{wsgi.py}.
+\t{WebServer} class in \file{wsgi.py}.
 
 \subsection{Diving into the code that displays the homepage}
 
@@ -176,9 +176,9 @@ As an example, in the \t{url\_map}, we can find the following line:
 R("/", self.ui_home),
 \end{lstlisting}
 
-In this case, \t{self} is a reference to an instance of the \t{ApiServer}
+In this case, \t{self} is a reference to an instance of the \t{WebServer}
 class, so we look for a procedure called \t{ui\_home} inside the
-\t{ApiServer} class.  Some code editors have a feature to ``go to definition''
+\t{WebServer} class.  Some code editors have a feature to ``go to definition''
 which helps navigating.
 
 The \t{ui\_home} gathers the summary numbers from the SPARQL endpoint

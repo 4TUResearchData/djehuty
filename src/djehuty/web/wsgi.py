@@ -64,7 +64,7 @@ def R (uri_path, endpoint):  # pylint: disable=invalid-name
     """
     return Rule (uri_path, endpoint=endpoint)
 
-class ApiServer:
+class WebServer:
     """This class implements the HTTP interface for users."""
 
     def __init__ (self, address="127.0.0.1", port=8080):

@@ -1087,7 +1087,7 @@ def main (config_file=None, run_internal_server=True, initialize=True,
             logger = logging.getLogger (__name__)
             logger.setLevel(logging.ERROR)
 
-        server = wsgi.ApiServer ()
+        server = wsgi.WebServer ()
         config_files = set()
         read_configuration_file (server, config_file, logger, config_files)
 

@@ -353,7 +353,7 @@ class SparqlInterface:
             for search_term in search_for:
                 search_term_safe = rdf.escape_string_value (search_term.lower())
 
-                # should be the same as ApiServer.ui_search()'s fields.
+                # should be the same as WebServer.ui_search()'s fields.
                 fields = ["title", "resource_title", "description", "tag", "organizations"]
                 for field in fields:
                     filter_list.append(f"       CONTAINS(LCASE(?{field}),          {search_term_safe})")
