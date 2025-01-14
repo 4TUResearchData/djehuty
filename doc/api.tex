@@ -620,6 +620,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
                                               of using the key \code{tags}, you
                                               may also use the key
                                               \code{keywords}.\\
+  \t{keywords}       & list of \t{string}s  & See \t{tags}.\\
   \t{references}     & list of \t{string}s  & URLs to resources referring to
                                               this dataset, or resources that
                                               this dataset refers to.\\
@@ -653,7 +654,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
                                               to \code{/v2/licences}. For more
                                               details, see section
                                               \refer{sec:v2-licenses}.\\
-  %\t{language}       & \t{string}           & \\
+  \t{language}       & \t{string}           & An ISO 639-1 language code.\\
   \t{doi}            & \t{string}           & Do not use this field as a DOI
                                               will be automatically assigned
                                               upon publication..\\
@@ -717,6 +718,118 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   This API endpoint can be used to update the metadata of the dataset
   identified by \code{dataset-id}.
 
+  The following parameters can be used:
+
+\begin{tabular}{p{0.20\textwidth} p{0.20\textwidth} p{0.59\textwidth}}
+  \ifdefined\HCode
+  \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
+  \fi
+  \t{title}          & \t{string}           & The title of the dataset.\\
+  \t{description}    & \t{string}           & A description of the dataset.\\
+  \t{resource\_doi}  & \t{string}           & The URL of the DOI of an
+                                              associated peer-reviewed
+                                              journal publication.\\
+  \t{resource\_title} & \t{string}          & The title of the associated
+                                              peer-reviewed journal
+                                              publication.\\
+  \t{license}        & \t{integer}          & Licences communicate under which
+                                              conditions the dataset can be
+                                              re-used.  The \t{integer} value
+                                              to submit here can be found as
+                                              the \t{value} property in a call
+                                              to \code{/v2/licences}. For more
+                                              details, see section
+                                              \refer{sec:v2-licenses}.\\
+  \t{group_id} &&\\
+  \t{time_coverage}  & \t{string}           & Free-text field to describe the
+                                              time coverage of the dataset.\\
+  \t{publisher}      & \t{string}           & The name of the data repository
+                                              publishing the dataset.\\
+  \t{language}       & \t{string}           & An ISO 639-1 language code.\\
+  \t{contributors}   & \t{string}           & Free-text field to indicate
+                                              contributors to the dataset
+                                              other than direct authors.\\
+  \t{license\_remarks} & \t{string}         & Free-text field to clarify
+                                              licensing details.\\
+  \t{geolocation}    & \t{string}           & Free-text field to specify a
+                                              location.\\
+  \t{longitude}      & \t{string}           & The longitude coordinate of the
+                                              location.\\
+  \t{latitude}       & \t{string}           & The latitude coordinate of the
+                                              location.\\
+  \t{format}         & \t{string}           & Free-text field to indicate the
+                                              data format(s) used in the
+                                              dataset.\\
+  \t{data\_link}     & \t{string}           & URL to where the data can be
+                                              found.  This is only applicable
+                                              when data is not directly
+                                              uploaded.\\
+  \t{derived\_from}  & \t{string}           & DOI or URL of a dataset from
+                                              which this dataset is derived
+                                              from.\\
+  \t{same\_as}       & \t{string}           & DOI or URL of the dataset that
+                                              is the same as this one.\\
+  \t{organizations}  & \t{string}           & Free-text field to specify
+                                              organizations that contributed
+                                              or are associated with the
+                                              dataset.\\
+  \t{is\_embargoed}  & \t{boolean}          & Set to \code{true} when the
+                                              dataset is under embargo.\\
+  \t{embargo\_options} & \t{Object}         & An \t{Object} with an \t{id}
+                                              property that can have either
+                                              the integer value \t{1000} to
+                                              indicate the dataset has no
+                                              end-date for the embargo or the
+                                              integer value \t{1001} to indicate
+                                              that the dataset is permanently
+                                              closed-access.\\
+  \t{embargo\_until\_date} & \t{string}     & A date indicator for when the
+                                              dataset will be available
+                                              publically.\\
+  \t{embargo\_type}  & \t{string}           & Either \t{file} for files-only
+                                              embargo or \t{article} to also
+                                              hide the metadata, except for the
+                                              title and authors of the dataset.\\
+  \t{embargo\_title} & \t{string}           & Title of the embargo.\\
+  \t{embargo\_reason} & \t{string}          & Reason for the embargo.\\
+  \t{is\_metadata\_record} & \t{boolean}    & Set to \t{true} when no data is
+                                              associated with this dataset.\\
+  \t{metadata\_reason} & \t{string}         & Reason why the dataset is
+                                              metadata-only.\\
+  \t{eula}           & \t{string}           & An End-User-License-Agreement.\\
+  \t{defined\_type}  & \t{string}           & Either \t{software} to indicate
+                                              the dataset is software or
+                                              \t{dataset} to indicate the
+                                              dataset is data (not software).\\
+  \t{git\_repository\_name} & \t{string}    & Title of the Git repository (for
+                                              software datasets only).  This is
+                                              a djehuty-extension to the
+                                              original API specification.\\
+  \t{git\_code\_hosting\_url} & \t{string}  & Link to the code hosting platform
+                                              (e.g. Gitlab, or any other).  This
+                                              is a djehuty-extension to the
+                                              original API specification.\\
+  \t{agreed\_to\_deposit\_agreement} & \t{boolean} & Set to \t{true} when you
+                                              agree to the repository's deposit
+                                              agreement.  This is a
+                                              djehuty-extension to the original
+                                              API specification.\\
+  \t{agreed\_to\_publish} & \t{boolean}     & Set to \t{true} to indicate the
+                                              dataset may be published.  This
+                                              is a djehuty-extension to the
+                                              original API specification.\\
+  \t{categories}     & list of \t{string}s  & Categories are a controlled
+                                              vocabulary and can be used to
+                                              make the dataset findable in
+                                              the categorical overviews.
+                                              The \t{string} values expected
+                                              here can be found under the
+                                              \code{uuid} property with a
+                                              call to \code{/v2/categories}.
+                                              For more details, see section
+                                              \refer{sec:v2-categories}.\\
+\end{tabular}
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl -v -X PUT \
@@ -728,7 +841,6 @@ curl -v -X PUT \
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 205 RESET CONTENT
-...
 \end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>} (HTTP \texttt{DELETE})}
@@ -739,13 +851,12 @@ HTTP/1.1 205 RESET CONTENT
 \begin{lstlisting}[language=bash]
 curl -v -X DELETE \
      --header "Authorization: token YOUR_TOKEN_HERE" \
-     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1 | jq
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1
 \end{lstlisting}
 
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 204 NO CONTENT
-...
 \end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>/authors} (HTTP \texttt{GET})}
@@ -815,7 +926,6 @@ curl -X POST \
   The following is an example of the output of the HTTP \texttt{POST} calls:
 \begin{lstlisting}
 HTTP/1.1 205 RESET CONTENT
-...
 \end{lstlisting}
 
   An example of the output of the HTTP \texttt{GET} call can be found in
@@ -873,7 +983,6 @@ curl -X DELETE \
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 204 NO CONTENT
-...
 \end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>/funding} (HTTP \texttt{GET})}
@@ -922,7 +1031,6 @@ curl -v -X POST \
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 205 RESET CONTENT
-...
 \end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>/funding} (HTTP \texttt{PUT})}
@@ -945,7 +1053,6 @@ curl -v -X PUT \
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 205 RESET CONTENT
-...
 \end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>/funding/<funding-id>} (HTTP \texttt{DELETE})}
@@ -962,7 +1069,6 @@ curl -X DELETE \
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 204 NO CONTENT
-...
 \end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>/categories} (HTTP \texttt{GET})}
@@ -1021,7 +1127,6 @@ curl -v -X POST \
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 205 RESET CONTENT
-...
 \end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>/categories} (HTTP \texttt{PUT})}
@@ -1042,7 +1147,6 @@ curl -v -X POST \
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 205 RESET CONTENT
-...
 \end{lstlisting}
 
 %% TODO: The deletion of categories via the v2 API is broken.
@@ -1099,7 +1203,6 @@ curl -v -X DELETE --header "Authorization: token YOUR_TOKEN_HERE" \
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 204 NO CONTENT
-...
 \end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>/files} (HTTP \texttt{GET})}
@@ -1151,7 +1254,6 @@ curl -X DELETE \
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 204 NO CONTENT
-...
 \end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>/files/<file-id>} (HTTP \texttt{GET})}
@@ -1218,7 +1320,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 \begin{lstlisting}[language=bash]
 curl -X POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
-     --data '{ "expires_date": "2032-01-01", "read_only": false }'
+     --data '{ "expires_date": "2032-01-01", "read_only": false }' \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/private_links | jq
 \end{lstlisting}
 
@@ -1261,7 +1363,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 \begin{lstlisting}[language=bash]
 curl -X PUT \
      --header "Authorization: token YOUR_TOKEN_HERE" \
-     --data '{ "expires_date": "2034-01-01", "is_active": true }'
+     --data '{ "expires_date": "2034-01-01", "is_active": true }' \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/private_links/8G2fk... | jq
 \end{lstlisting}
 
@@ -1287,7 +1389,6 @@ curl -X DELETE \
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 204 NO CONTENT
-...
 \end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>/reserve\_doi} (HTTP \texttt{POST})}
@@ -1329,7 +1430,6 @@ curl -X POST \
   HTTP response of the example:
 \begin{lstlisting}
 HTTP/1.1 201 CREATED
-...
 \end{lstlisting}
 
   Output of the example:
@@ -1348,7 +1448,7 @@ HTTP/1.1 201 CREATED
 \begin{lstlisting}[language=bash]
 curl -X POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
-     --data '{ "search": "John Doe" }'
+     --data '{ "search": "John Doe" }' \
      (@*\djehutybaseurl{}*@)/v2/account/authors/search | jq
 \end{lstlisting}
 
@@ -1500,7 +1600,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   Output of the example:
 \begin{lstlisting}[language=JSON]
 {
-  "location": "(@*\djehutybaseurl{}*@)/v2/account/collections/455b...5d62",
+  "location": "(@*\djehutybaseurl{}*@)/v2/account/collections/08b7...cfa8",
   "warnings": []
 }
 \end{lstlisting}
