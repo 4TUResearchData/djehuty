@@ -140,7 +140,6 @@ def format_codemeta_record (record, git_url, tags, authors, base_url):
         "@type": "SoftwareSourceCode",
         "name": conv.value_or_none (record, "title"),
         "license": conv.value_or_none (record, "license_spdx"),
-        "codeRepository": git_url,
         "dateCreated": conv.value_or_none(record, "created_date"),
         "datePublished": conv.value_or_none(record, "published_date"),
         "dateModified": conv.value_or_none(record, "modified_date"),
@@ -153,6 +152,20 @@ def format_codemeta_record (record, git_url, tags, authors, base_url):
     resource_doi = conv.value_or_none (record, "resource_doi")
     if resource_doi is not None:
         output["relatedLink"] = f"https://doi.org/{resource_doi}"
+
+    download_url = []
+    if "version" in record and "container_uuid" in record:
+        download_url = [f"{base_url}/ndownloader/items/{record['container_uuid']}/versions/{record['version']}"]
+
+    if git_url:
+        download_url.append (f"{git_url}/zip")
+        output["codeRepository"] = git_url
+
+    if download_url:
+        output["downloadUrl"] = download_url
+
+    if "version" in record:
+        output["version"] = record["version"]
 
     return output
 
