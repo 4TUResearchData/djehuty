@@ -396,7 +396,7 @@ class SparqlInterface:
                   is_latest=False, item_type=None, limit=None, modified_since=None,
                   offset=None, order=None, order_direction=None, published_since=None,
                   resource_doi=None, return_count=False, search_for=None,
-                  search_format=False, version=None, licenses=None,
+                  search_format=False, version=None, licenses=None, search_for_raw=None,
                   is_published=True, is_under_review=None, git_uuid=None,
                   private_link_id_string=None, use_cache=True, is_restricted=None,
                   is_embargoed=None, is_software=None, organizations=None):
@@ -454,6 +454,7 @@ class SparqlInterface:
             "is_published":   is_published,
             "is_under_review": is_under_review,
             "private_link_id_string": private_link_id_string,
+            "search_for_raw": rdf.escape_string_value (search_for_raw),
             "filters":        filters,
             "return_count":   return_count
         })

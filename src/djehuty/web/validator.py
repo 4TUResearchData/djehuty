@@ -216,7 +216,7 @@ def search_filters (value, error_list=None):
 
     for k, v in value.items():
         if k == "scope":
-            valid_scopes = ["title", "description", "tag"]
+            valid_scopes = ["title", "description", "tag", "author"]
             if not v:
                 return valid_scopes
             for elem in v:

@@ -36,7 +36,7 @@ from djehuty.utils.convenience import pretty_print_size, decimal_coords
 from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
 from djehuty.utils.convenience import make_citation, is_opendap_url, landing_page_url
-from djehuty.utils.convenience import split_author_name, split_string
+from djehuty.utils.convenience import split_author_name, split_string, html_to_plaintext
 from djehuty.utils.constants import group_to_member, member_url_names, filetypes_by_extension
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 from djehuty.web.config import config
@@ -6576,6 +6576,7 @@ class WebServer:
                 search_scope = validator.search_filters({"scope": search_scope})
 
             if record["search_for"] is not None:
+                record["search_for_raw"] = html_to_plaintext (record["search_for"])
                 search_tokens = re.findall(r'[^" ]+|"[^"]+"|\([^)]+\)', record["search_for"])
                 search_tokens = [s.strip('"') for s in search_tokens]
                 record["search_for"] = { "operator": search_operator,

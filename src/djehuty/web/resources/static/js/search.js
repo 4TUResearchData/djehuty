@@ -630,7 +630,7 @@ function load_search_results() {
         request_params["search_scope"] = _split_comma_separated_string(url_params["searchscope"]);
     } else {
         // If searchscope is not selected, search in title, description, and tags.
-        request_params["search_scope"] = ["title", "description", "tag"];
+        request_params["search_scope"] = ["title", "description", "tag", "author"];
     }
 
     if ("searchoperator" in url_params && typeof(url_params["searchoperator"]) === "string" && url_params["searchoperator"].length > 0) {

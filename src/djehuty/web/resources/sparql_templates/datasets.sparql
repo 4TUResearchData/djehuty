@@ -177,6 +177,12 @@ WHERE {
     }
     {%- endif %}
 
+    {%- if search_for_raw is not none: %}
+    OPTIONAL {
+      ?dataset          djht:authors/rdf:rest*/rdf:first/djht:full_name ?author .
+    }
+    {%- endif %}
+
     OPTIONAL { ?dataset djht:is_under_review       ?is_under_review_tmp . }
     BIND(COALESCE(?is_under_review_tmp, "false"^^xsd:boolean) AS ?is_under_review)
 
