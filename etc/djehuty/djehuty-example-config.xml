@@ -36,8 +36,8 @@
   <bind-address>127.0.0.1</bind-address>
   <port>8080</port>
   <base-url>http://localhost:8080</base-url>
-  <storage-root>/data</storage-root>
-  <cache-root clear-on-start="1">/data/cache</cache-root>
+  <storage-root>./data</storage-root>
+  <cache-root clear-on-start="1">./data/cache</cache-root>
   <live-reload>1</live-reload>
   <!-- <log-file>/var/log/djehuty.log</log-file> -->
   <debug-mode>1</debug-mode>
@@ -57,8 +57,8 @@
   </rdf-store>
   <datacite>
     <api-url>https://api.datacite.org</api-url>
-    <repository-id>changeme</repository-id>
-    <password>changeme</password>
+    <repository-id><!-- Repository ID received from DataCite. --></repository-id>
+    <password><!-- Password for this repository ID. --></password>
     <prefix>10.5438</prefix>
   </datacite>
   <handle>
@@ -79,11 +79,11 @@
     </orcid>
   </authentication>
   <email>
-    <server>smtp.example.com</server>
+    <server><!-- smtp.example.com --></server>
     <port>587</port>
     <starttls>1</starttls>
-    <username>address</username>
-    <password>password</password>
+    <username><!-- Username for the SMTP server. --></username>
+    <password><!-- Password for the e-mail account. --></password>
     <from>noreply@example.com</from>
   </email>
   <privileges>
