@@ -31,6 +31,23 @@ virtual environment:
 pip freeze | grep -v "djehuty.git" | cut -d= -f1 | xargs -n1 pip install -U
 ```
 
+### macOS X
+
+For development on Apple's macOS X, we recommend installing `python3`, `git`,
+`autoconf`, `automake`, and `make` through [homebrew](https://brew.sh/),
+followed by creating a Python virtual environment for `djehuty`:
+
+```bash
+brew install python3 git autoconf automake make
+git clone https://github.com/4TUResearchData/djehuty.git && cd djehuty/
+autoreconf -if && ./configure
+python3 -m venv ../djehuty-env
+. ../djehuty-env/bin/activate
+pip install --upgrade pip
+pip install --requirement requirements.txt
+pip install --editable .
+```
+
 ### Microsoft Windows
 
 For development on Windows we recommend [MSYS2](https://www.msys2.org/)
