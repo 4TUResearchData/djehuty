@@ -3,6 +3,12 @@ djehuty
 
 This Python package provides the repository system for 4TU.ResearchData and Nikhef.
 
+## Reporting (potential) security issues
+
+For security-related matters, please e-mail
+[security@djehuty.4tu.nl](mailto:security@djehuty.4tu.nl).  This will only
+reach the security teams at 4TU.ResearchData and Nikhef.
+
 ## Creating a development environment
 
 This project uses the GNU autotools build system.
@@ -18,6 +24,7 @@ git clone https://github.com/4TUResearchData/djehuty.git && cd djehuty/
 autoreconf -if && ./configure
 python -m venv ../djehuty-env
 . ../djehuty-env/bin/activate
+pip install --upgrade pip
 pip install --requirement requirements.txt
 pip install --editable .
 ```
@@ -46,6 +53,14 @@ python3 -m venv ../djehuty-env
 pip install --upgrade pip
 pip install --requirement requirements.txt
 pip install --editable .
+```
+
+#### Keeping your development environment up-to-date
+
+Because the virtual environment isn't updated by homebrew, you can use the
+following snippet to update packages inside your virtual environment:
+```bash
+pip freeze | grep -v "djehuty.git" | cut -d= -f1 | xargs -n1 pip install -U
 ```
 
 ### Microsoft Windows
@@ -78,7 +93,7 @@ pacman -Suy
 
 See [Updating MSYS2](https://www.msys2.org/docs/updating/) for more details.
 
-### Verify that the installation went fine
+### Verify that the installation works
 Upon completing the installation, you should be able to run:
 ```bash
 djehuty --help
