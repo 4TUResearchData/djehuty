@@ -101,7 +101,7 @@ curl "(@*\djehutybaseurl{}*@)/v2/articles?limit=100&published_since=2024-07-25" 
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl --request POST\
+curl --request POST \
      --header "Content-Type: application/json"\
      --data '{ "search_for": "djehuty" }'\
      (@*\djehutybaseurl{}*@)/v2/articles/search | jq
@@ -328,7 +328,7 @@ Output of the example:
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl --request POST\
+curl --request POST \
      --header "Content-Type: application/json"\
      --data '{ "search_for": "wingtips" }'\
      (@*\djehutybaseurl{}*@)/v2/collections/search | jq
@@ -832,7 +832,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -v -X PUT \
+curl --verbose --request PUT \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --data '{ "title": "Updated title" }'
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1 | jq
@@ -849,7 +849,7 @@ HTTP/1.1 205 RESET CONTENT
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -v -X DELETE \
+curl --verbose --request DELETE \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1
 \end{lstlisting}
@@ -911,12 +911,12 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -X POST \
+curl --request POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --header "Content-Type: application/json" \
      --data '{ "authors": [{ "name": "John Doe" }]}' \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/authors
-curl -X POST \
+curl --request POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --header "Content-Type: application/json" \
      --data '{ "authors": [{ "name": "John Doe Jr" }]}' \
@@ -939,13 +939,13 @@ HTTP/1.1 205 RESET CONTENT
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -X PUT \
+curl --request PUT \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --header "Content-Type: application/json" \
      --data '{ "authors": [{ "name": "John Doe" }]}' \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/authors
 
-curl -X PUT \
+curl --request PUT \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --header "Content-Type: application/json" \
      --data '{ "authors": [{ "name": "John Doe Jr" }]}' \
@@ -975,7 +975,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -X DELETE \
+curl --request DELETE \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/authors/6175...0b618
 \end{lstlisting}
@@ -1018,7 +1018,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -v -X POST \
+curl --verbose --request POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --header "Content-Type: application/json" \
      --data '{ "funders": [{ "title": "Example cases fund", \
@@ -1040,7 +1040,7 @@ HTTP/1.1 205 RESET CONTENT
   identified by \code{dataset-id}.
 
 \begin{lstlisting}[language=bash]
-curl -v -X PUT \
+curl --verbose --request PUT \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --header "Content-Type: application/json" \
      --data '{ "funders": [{ "title": "Example cases fund",
@@ -1061,7 +1061,7 @@ HTTP/1.1 205 RESET CONTENT
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -X DELETE \
+curl --request DELETE \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/funding/d50e...7500
 \end{lstlisting}
@@ -1117,7 +1117,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -v -X POST \
+curl --verbose --request POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --header "Content-Type: application/json" \
      --data '{ "categories": [13551, 13558]}' \
@@ -1137,7 +1137,7 @@ HTTP/1.1 205 RESET CONTENT
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -v -X POST \
+curl --verbose --request POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --header "Content-Type: application/json" \
      --data '{ "categories": ["dd4dbaaf-0610-4d8d-8b07-e1eeb32dd11c"]}' \
@@ -1156,7 +1156,7 @@ HTTP/1.1 205 RESET CONTENT
 
 %   Example usage:
 % \begin{lstlisting}[language=bash]
-% curl -X DELETE \
+% curl --request DELETE \
 %      --header "Authorization: token YOUR_TOKEN_HERE" \
 %      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/categories/d50e...7500
 % \end{lstlisting}
@@ -1196,7 +1196,8 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -v -X DELETE --header "Authorization: token YOUR_TOKEN_HERE" \
+curl --verbose --request DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3d...995b1/embargo
 \end{lstlisting}
 
@@ -1244,7 +1245,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -X DELETE \
+curl --request DELETE \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --header "Content-Type: application/json" \
      --data '{ "remove_all": true }' \
@@ -1318,7 +1319,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -X POST \
+curl --request POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --data '{ "expires_date": "2032-01-01", "read_only": false }' \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/private_links | jq
@@ -1361,7 +1362,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -X PUT \
+curl --request PUT \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --data '{ "expires_date": "2034-01-01", "is_active": true }' \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/private_links/8G2fk... | jq
@@ -1381,7 +1382,7 @@ curl -X PUT \
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -X DELETE \
+curl --request DELETE \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/private_links/8G2fk...
 \end{lstlisting}
@@ -1398,7 +1399,7 @@ HTTP/1.1 204 NO CONTENT
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -X POST \
+curl --request POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/reserve_doi | jq
 \end{lstlisting}
@@ -1422,7 +1423,7 @@ curl -X POST \
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -X POST \
+curl --request POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/publish | jq
 \end{lstlisting}
@@ -1446,7 +1447,7 @@ HTTP/1.1 201 CREATED
 
   Example usage:
 \begin{lstlisting}[language=bash]
-curl -X POST \
+curl --request POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      --data '{ "search": "John Doe" }' \
      (@*\djehutybaseurl{}*@)/v2/account/authors/search | jq
