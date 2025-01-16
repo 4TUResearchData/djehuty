@@ -5928,9 +5928,12 @@ class WebServer:
         if request.method == 'PUT':
             record = request.get_json()
             try:
-                collection     = self.__collection_by_id_or_uri (collection_id,
-                                                                 account_uuid = account_uuid,
-                                                                 is_published = False)
+                collection = self.__collection_by_id_or_uri (collection_id,
+                                                             account_uuid = account_uuid,
+                                                             is_published = False)
+                if collection is None:
+                    return self.error_404 (request)
+
                 result = self.db.update_collection (collection["uuid"], account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000, strip_html=False),
@@ -5986,27 +5989,32 @@ class WebServer:
         if isinstance (account_uuid, Response):
             return account_uuid
 
-        parameters = request.get_json()
-        records = self.db.collections(
-            resource_doi    = value_or_none (parameters, "resource_doi"),
-            resource_id     = value_or_none (parameters, "resource_id"),
-            doi             = value_or_none (parameters, "doi"),
-            handle          = value_or_none (parameters, "handle"),
-            order           = value_or_none (parameters, "order"),
-            search_for      = value_or_none (parameters, "search_for"),
-            #page            = value_or_none (parameters, "page"),
-            #page_size       = value_or_none (parameters, "page_size"),
-            limit           = value_or_none (parameters, "limit"),
-            offset          = value_or_none (parameters, "offset"),
-            order_direction = value_or_none (parameters, "order_direction"),
-            institution     = value_or_none (parameters, "institution"),
-            published_since = value_or_none (parameters, "published_since"),
-            modified_since  = value_or_none (parameters, "modified_since"),
-            group           = value_or_none (parameters, "group"),
-            account_uuid    = account_uuid
-        )
+        record = request.get_json()
+        errors = []
+        parameters = {
+            "resource_doi"    : validator.string_value (record, "resource_doi", 0, 255, error_list=errors),
+            "resource_id"     : validator.integer_value (record, "resource_id", error_list=errors),
+            "doi"             : validator.string_value (record, "doi", 0, 255, error_list=errors),
+            "handle"          : validator.string_value (record, "handle", 0, 255, error_list=errors),
+            "order"           : validator.string_value (record, "order", 0, 255, error_list=errors),
+            "search_for"      : validator.string_value (record, "search_for", maximum_length=1024, strip_html=False, error_list=errors),
+            "order_direction" : validator.order_direction (record, "order_direction", error_list=errors),
+            "institution"     : validator.integer_value (record, "institution", error_list=errors),
+            "published_since" : validator.string_value (record, "published_since", 0, 255, error_list=errors),
+            "modified_since"  : validator.string_value (record, "modified_since", 0, 255, error_list=errors),
+            "group"           : validator.integer_value (record, "group", error_list=errors),
+            "account_uuid"    : account_uuid,
+            "is_published"    : None,
+            "is_latest"       : None
+        }
+        offset, limit = self.__paging_offset_and_limit (record, error_list=errors)
+        if errors:
+            return self.error_400_list (request, errors)
 
-        return self.default_list_response (records, formatter.format_dataset_record,
+        parameters["offset"] = offset
+        parameters["limit"]  = limit
+        records = self.db.collections(**parameters)
+        return self.default_list_response (records, formatter.format_collection_record,
                                            base_url = config.base_url)
 
     def api_private_collection_authors (self, request, collection_id):
