@@ -73,8 +73,8 @@
     <automatic-login-email>you@example.com</automatic-login-email>
     -->
     <orcid>
-      <client-id>APP-XXXXXXXXXXXXXXXX</client-id>
-      <client-secret>XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</client-secret>
+      <client-id><!-- APP-XXXXXXXXXXXXXXXX --></client-id>
+      <client-secret><!-- XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --></client-secret>
       <endpoint>https://orcid.org/oauth</endpoint>
     </orcid>
   </authentication>
@@ -84,7 +84,7 @@
     <starttls>1</starttls>
     <username><!-- Username for the SMTP server. --></username>
     <password><!-- Password for the e-mail account. --></password>
-    <from>noreply@example.com</from>
+    <from><!-- noreply@example.com --></from>
   </email>
   <privileges>
     <account first_name="John" last_name="Doe" email="you@example.com" orcid="0000-0000-0000-0001">
