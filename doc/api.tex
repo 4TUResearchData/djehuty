@@ -1605,3 +1605,134 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   "warnings": []
 }
 \end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>} (HTTP \texttt{GET})}
+\label{sec:v2-collections-collection-id}
+
+  This API endpoint lists details of the collection identified by \code{collection-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/08b7...cfa8 | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "articles_count": 0,
+  "authors": [],
+  "id": null,
+  "uuid": "08b702d6-98a0-4081-9445-5aeae720cfa8",
+  "title": "Example collection",
+  ...
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>} (HTTP \texttt{PUT})}
+
+  This API endpoint can be used to update the metadata of the collection
+  identified by \code{collection-id}.
+
+  The following parameters can be used:
+
+\begin{tabular}{p{0.20\textwidth} p{0.20\textwidth} p{0.10\textwidth} p{0.49\textwidth}}
+  \ifdefined\HCode
+  \textbf{Parameter} & \textbf{Data type} & \textbf{Required} & \textbf{Description}\\
+  \fi
+  \t{title}          & \t{string}    & Yes  & The title of the collection.\\
+  \t{description}    & \t{string}    & No   & A description of the collection.\\
+  \t{resource\_doi}  & \t{string}    & No   & The URL of the DOI of an
+                                              associated peer-reviewed
+                                              journal publication.\\
+  \t{resource\_title} & \t{string}   & No   & The title of the associated
+                                              peer-reviewed journal
+                                              publication.\\
+  \t{group\_id}      & \t{integer}   & No   & \\
+  \t{time\_coverage} & \t{string}    & No   & Free-text field to describe the
+                                              time coverage of the collection.\\
+  \t{publisher}      & \t{string}    & No   & The name of the data repository
+                                              publishing the collection.\\
+  \t{language}       & \t{string}    & No   & An ISO 639-1 language code.\\
+  \t{contributors}   & \t{string}    & No   & Free-text field to indicate
+                                              contributors to the collection
+                                              other than direct authors.\\
+  \t{geolocation}    & \t{string}    & No   & Free-text field to specify a
+                                              location.\\
+  \t{longitude}      & \t{string}    & No   & The longitude coordinate of the
+                                              location.\\
+  \t{latitude}       & \t{string}    & No   & The latitude coordinate of the
+                                              location.\\
+  \t{organizations}  & \t{string}    & No   & Free-text field to specify
+                                              organizations that contributed
+                                              or are associated with the
+                                              collection.\\
+  \t{categories}     & list of \t{string}s & No & Categories are a controlled
+                                              vocabulary and can be used to
+                                              make the collection findable in
+                                              the categorical overviews.
+                                              The \t{string} values expected
+                                              here can be found under the
+                                              \code{uuid} property with a
+                                              call to \code{/v2/categories}.
+                                              For more details, see section
+                                              \refer{sec:v2-categories}.\\
+\end{tabular}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --verbose --request PUT \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "title": "Updated title" }' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/08b702d6-98a0-4081-9445-5aeae720cfa8 | jq
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>} (HTTP \texttt{DELETE})}
+
+  This API endpoint can be used to delete a draft collection.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --verbose --request DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/08b702d6-98a0-4081-9445-5aeae720cfa8
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/search} (HTTP \texttt{POST})}
+
+  This API call searches for collections, including drafts created
+  by the account performing the search.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "search_for": "Example" }' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/search | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been shortened. */
+  {
+    "id": null,
+    "uuid": "08b702d6-98a0-4081-9445-5aeae720cfa8",
+    "title": "Example collection",
+    "url": (@*\djehutybaseurl{}*@)/v2/collections/08b7...cfa8
+    ...
+  }
+]
+\end{lstlisting}
+
