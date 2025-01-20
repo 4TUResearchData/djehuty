@@ -72,6 +72,9 @@
 \definecolor{NoteBoxBorder}{rgb}{1.0, 0.94, 0.8}
 \definecolor{NoteBoxBG}{rgb}{1.0, 0.98, 0.92}
 
+% Set alternating colors for rows in tables.
+\rowcolors{1}{EvenRowColor}{OddRowColor}
+
 % When highlighting text, make sure the highlighting box doesn't
 % add padding space.
 \setlength{\fboxsep}{0pt}
@@ -84,8 +87,6 @@
 
 \newcommand\VRule[1][\arrayrulewidth]{\vrule width #1}
 \newcommand{\oddcell}{\cellcolor{OddRowColor}}
-\newcommand{\oddrow}{\rowcolor{OddRowColor}}
-\newcommand{\evenrow}{\rowcolor{EvenRowColor}}
 \newcommand{\headrow}{\rowcolor{Gray}}
 \newcommand{\B}{$\bullet{}$}
 \ifdefined\HCode
