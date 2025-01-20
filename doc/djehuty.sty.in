@@ -103,7 +103,7 @@
 \newcommand\includefigure[3]{
 \begin{figure}[H]
   \begin{center}
-    \includegraphics[width=1.0\textwidth]{figures/#1.pdf}
+    \includegraphics[alt={Figure showing: #2},width=1.0\textwidth]{figures/#1.pdf}
   \end{center}
   \caption{\textit{#2}}
   \label{fig:#1}
