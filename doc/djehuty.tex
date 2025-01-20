@@ -37,41 +37,37 @@ body,html {
               repeating-linear-gradient(180deg, #e6e6e6 0, #e6e6e6 5%, transparent 0, transparent 50%);
   background-size: 1em 1em; background-color: #eee;
 }
-#wrapper { min-width: 720pt; }
-#sidebar.wide { position: fixed; top: 17pt; width: 265pt; height: 100vh; font-size: .9em; overflow-y: scroll; }
-#sidebar.wide .likechapterHead { border-radius: 0pt; }
+#wrapper { margin: auto; max-width: 1125pt; min-width: 720pt; }
+#sidebar.wide { position: fixed; top: 17pt; width: 265pt; height: 100vh; font-size: .9em; overflow-y: auto; }
 #sidebar.narrow { position: relative; top: auto; width: 850pt; margin-left: auto; margin-right: auto; font-size: 1.0em; background: #fff; }
-#sidebar.narrow .likechapterHead { border-radius: 0pt; }
 #sidebar .tableofcontents { padding: 0pt 10pt 0pt 5pt; }
 #sidebar .likechapterHead { padding: 10pt; background: #aaa; color: #111; margin: 0pt; border-radius: 0pt; }
-#sidebar.wide .sidebarwrap { background: #f9f9f9; border-radius: 4pt; padding-bottom: 0pt; border-right: solid 1pt #ddd; border-bottom: solid 1pt #ddd; }
-#sidebar.wide h2.additionalHead:nth-child(1) { border-radius: 0pt 4pt 0pt 0pt; }
-#sidebar.narrow h2.additionalHead:nth-child(1) { border-radius: 4pt 4pt 0pt 0pt; }
-#sidebar h2.additionalHead:nth-child(1) { background: #ccc; }
+#sidebar.wide .sidebarwrap { background: #f9f9f9; border-radius: 4pt; padding-bottom: 0pt; border: solid 1pt #ddd; }
+#sidebar h2 a { color: #000; }
+#sidebar h2 a:hover { color: #555; }
+#sidebar h2.additionalHead:nth-child(1) { background: #ccc; border-radius: 4pt 4pt 0pt 0pt; }
 #sidebar h2.additionalHead:nth-child(2) { background: #bbb; }
 .chapter { background: #fff; margin: 10pt; width: 850pt; border-radius: 4pt; border-left: solid 1pt #ccc; border-right: solid 1pt #ccc; border-bottom: solid 1pt #ccc; }
 .chapter.wide { margin-left: 275pt; }
 .chapter.narrow { margin-left: auto; margin-right: auto; }
 .chapter.ultra-narrow { margin-left: auto; margin-right: auto; width: 720pt; }
 .chapwrap { padding: 0pt; background: none; border-radius: 4pt; }
-.chapwrap p { padding: 0pt 10pt 0pt 10pt; }
+.chapwrap p, .chapwrap .likesubsubsectionHead { padding: 0pt 10pt 0pt 10pt; }
 .chapwrap .sectionHead, .chapwrap .likesectionHead { padding: 5pt 10pt 5pt 10pt; background: #eee; }
 .chapwrap .subsectionHead, .chapwrap .likesubsectionHead { padding: 5pt 10pt 5pt 10pt; background: #f6f6f6; }
-.chapwrap .likesubsubsectionHead { padding: 0pt 10pt 0pt 10pt; }
 .subsubsectionHead { margin-left: .75em; font-size: 1em; }
-.ectt-1095 { font-family: 'FiraMono', monospace; }
-.lstlisting { font-family: 'FiraMono', monospace; font-size: 13pt; background: #f8f8f8; margin: 0pt 10pt 0pt 10pt; padding: 10pt; border-radius: 5pt; border: solid 1pt #ccc; }
-.center { text-align: center; }
+.ectt-1095 { font-family: 'FiraMono', monospace; font-size: 11pt }
+.lstlisting { font-family: 'FiraMono', monospace; font-size: 11pt; background: #f8f8f8; margin: 0pt 10pt 0pt 10pt; padding: 10pt; border-radius: 5pt; border: solid 1pt #ccc; }
+.center, .caption { text-align: center; }
 .ecbx-1200 { font-weight: bold; }
 .ectt-1200 { font-family: 'FiraMono', 'Lucida Console', Monaco, monospace; padding: 0pt; }
 .chapwrap h2.likechapterHead, .chapterHead { margin: 0pt; padding: 10pt; background: #222; color: #fff; border-radius: 4pt 4pt 0pt 0pt; border: solid 1pt #222; }
 table.ultra-narrow { max-width: 700pt; }
 table { margin: auto 10pt 10pt 10pt; width: 100%; max-width: 830pt; border-radius: 4pt; border-spacing: 0; border: solid 2pt #444; line-height: 1em; }
-table thead tr { background: #ff0000; }
 table tr:nth-child(even) { background: #f9f9f9; }
-table tr:first-child { background: #444444; color: #ffffff; }
+table tr:first-child { background: #444; color: #fff; }
 hr { margin: 5pt 10pt 5pt 10pt; }
-td { font-size: 12pt; padding-left: 10pt; }
+td { font-size: 11pt; padding-left: 10pt; }
 .chapterToc { display: inline-block; padding: 4pt; font-size: 1.25em; font-weight: bold; background: #ddd; width: 100%; margin-left: -5pt; padding: 5pt 5pt 5pt 10pt; }
 .chapterToc a { color: #000000; }
 .chapterToc a:hover { color: #666666; }
@@ -84,20 +80,16 @@ td { font-size: 12pt; padding-left: 10pt; }
 .subsectionToc .ectt-1200 { font-size: 0.9em; }
 img { width: 60%; height: auto; }
 .figure img { width: 100%; height: auto; }
-.caption { text-align: center; }
 dt.enumerate-enumitem { float:left; clear:left; margin: 0em 1em 0em 1em; }
 h1 { font-size 4em; padding-top: 10pt; }
 h3 { font-size: 1.25em; }
 h4 { font-size: 1.10em; }
-h2 a { color: #000; }
-h2 a:hover { color: #222; }
 #titlepage-logo { width: 200pt; }
 hr { border: none; }
 div.figure p.noindent { display: none; }
 div.figure div.center p.noindent { display: block; }
 div.table div.float span.ecrm-1095 { display: none; }
 div.table div.float div.caption span.content span.ecrm-1095 { font-size: 12pt; display: inline-block; }
-div.table div.float { font-size: 0em; }
 div.table div.float div.caption span.id { font-size: 12pt; }
 div.fbox { margin: 0pt 10pt 0pt 10pt; padding: .5em; background: #fffaea; border: solid 2pt #ffeecc; }
 div.caption { background: #eee; padding: 5pt; margin: 0pt 150pt 0pt 150pt; min-width: 300pt; border-radius: 10pt; }
@@ -126,7 +118,7 @@ div.section_subsections { display: none; }
       \vspace*{\fill}
       { \Huge \t{djehuty} }~\\~\\
       { \Large The 4TU.ResearchData and Nikhef repository system }~\\~\\
-      \includegraphics[width=0.35\textwidth]{figures/logo.pdf}
+      \includegraphics[alt={The logo of 4TU.ResearchData},width=0.35\textwidth]{figures/logo.pdf}
       ~\\~\\
       \url{https://github.com/4TUResearchData/djehuty}~\\
        version \djehutyversion{}, \today{}
@@ -299,7 +291,6 @@ window.addEventListener('load', function () {
       sibling.remove();
     }
   }
-
   window.addEventListener("resize", renderWindow);
   renderWindow(null);
 });
