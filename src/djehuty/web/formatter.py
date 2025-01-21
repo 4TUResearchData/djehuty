@@ -120,11 +120,15 @@ def format_codemeta_author_record (record, base_url):
 def format_codemeta_record (record, git_url, tags, authors, base_url):
     """Record formatter for the CodeMeta format."""
 
+    title = conv.value_or_none (record, "git_repository_name")
+    if title is None or title == "":
+        title = conv.value_or_none (record, "title")
+
     if bool(conv.value_or (record, "is_embargoed", False)):
         return {
             "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
             "@type": "SoftwareSourceCode",
-            "name": conv.value_or_none(record, "title"),
+            "name": title,
             "dateCreated": conv.value_or_none(record, "created_date"),
             "datePublished": conv.value_or_none(record, "published_date"),
             "embargoDate": conv.value_or_none(record, "embargo_until_date")
@@ -138,20 +142,27 @@ def format_codemeta_record (record, git_url, tags, authors, base_url):
     output = {
         "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
         "@type": "SoftwareSourceCode",
-        "name": conv.value_or_none (record, "title"),
+        "name": title,
         "license": conv.value_or_none (record, "license_spdx"),
         "dateCreated": conv.value_or_none(record, "created_date"),
         "datePublished": conv.value_or_none(record, "published_date"),
         "dateModified": conv.value_or_none(record, "modified_date"),
         "identifier": conv.value_or_none(record, "doi"),
-        "description": description,
+        "description": [conv.value_or (record, "title", ""), description],
         "keywords": list (map (format_tag_record, tags)),
         "author": list (map (lambda author: format_codemeta_author_record (author, base_url), authors))
     }
 
     resource_doi = conv.value_or_none (record, "resource_doi")
     if resource_doi is not None:
-        output["relatedLink"] = f"https://doi.org/{resource_doi}"
+        output["referencePublication"] = [{
+            "@type": "ScholarlyArticle",
+            "url": f"https://doi.org/{resource_doi}",
+            "name": conv.value_or_none (record, "resource_name"),
+            "@id": resource_doi
+        }]
+    else:
+        output["referencePublication"] = []
 
     download_url = []
     if "version" in record and "container_uuid" in record:
