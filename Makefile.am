@@ -59,13 +59,11 @@ all-local:
 	@PYTHON@ -m build --outdir $(shell readlink -f $(builddir))/build
 
 install-exec-local:
-	@PYTHON@ setup.py install                 \
-        --prefix $(DESTDIR)$(prefix)        \
-        --single-version-externally-managed \
-        --record $(DESTDIR)$(pkgpythondir)/install_files.txt
+	@PYTHON@ -m pip install --prefix $(DESTDIR)$(prefix) \
+        --disable-pip-version-check                    \
+        --no-cache-dir .
 
 uninstall-local:
-	cat $(DESTDIR)$(pkgpythondir)/install_files.txt | xargs rm -rf
 	rm -rf $(DESTDIR)$(pkgpythondir)
 
 lint:
