@@ -183,15 +183,25 @@ def format_codemeta_record (record, git_url, tags, authors, base_url):
 def format_dataset_record (record):
     """Record formatter for datasets."""
 
+    urls = dataset_urls (record)
     if (bool(conv.value_or (record, "is_embargoed", False)) and
         conv.value_or (record, "embargo_type", "") == "article"):
         return {
+            "uuid":           conv.value_or_none(record, "container_uuid"),
+            "title":          conv.value_or_none(record, "title"),
             "embargo_date":   conv.value_or_none(record, "embargo_until_date"),
             "embargo_type":   conv.value_or_none(record, "embargo_type"),
             "embargo_title":  conv.value_or(record, "embargo_title", ""),
             "embargo_reason": conv.value_or(record, "embargo_reason", ""),
+            "published_date": conv.value_or_none(record, "published_date"),
+            "url_public_html": conv.value_or_none(urls, "url_public_html"),
+            "timeline": {
+                "posted":     conv.value_or_none(record, "timeline_posted"),
+                "firstOnline": conv.value_or_none(record, "timeline_first_online"),
+                "revision":   conv.value_or_none(record, "timeline_revision"),
+            }
         }
-    urls = dataset_urls (record)
+
     return {
         "id":                      conv.value_or_none(record, "dataset_id"),
         "uuid":                    conv.value_or_none(record, "container_uuid"),
