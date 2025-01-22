@@ -73,7 +73,8 @@ pacman -Suy git autoconf automake make ${PREFIX}python \
             ${PREFIX}python-pygit2 ${PREFIX}python-rdflib \
             ${PREFIX}python-jinja ${PREFIX}python-requests \
             ${PREFIX}python-werkzeug ${PREFIX}python-defusedxml \
-            ${PREFIX}python-pillow
+            ${PREFIX}python-pillow ${PREFIX}python-build \
+            ${PREFIX}python-setuptools
 git clone https://github.com/4TUResearchData/djehuty.git && cd djehuty/
 autoreconf -if && ./configure
 # If you chose a different PREFIX above, change /mingw64 accordingly below.
