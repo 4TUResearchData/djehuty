@@ -24,7 +24,9 @@
 % Use a different font.
 \ifdefined\HCode
 \else
-\usepackage{libertine}
+\IfFileExists{libertine.sty}{\usepackage{libertine}}{
+  \PackageWarning{djehuty}{Rendering without Libertine font.}
+}
 \fi
 \usepackage[T1]{fontenc}
 
@@ -51,10 +53,9 @@
 \usepackage{tabularx}
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 
-\usepackage{stringstrings}
 \usepackage{float}
 
-\usepackage{xcolor, colortbl}
+\usepackage[table]{xcolor}
 \definecolor{Gray}{rgb}{0.95, 0.57, 0.13}
 \definecolor{White}{gray}{1.00}
 \definecolor{HighlightColor}{rgb}{1.0, 0.97, 0.85}
@@ -128,7 +129,13 @@
 \newcommand\bamrdf[1]{\texttt{bam2rdf:}#1}
 \newcommand\tablerdf[1]{\texttt{table2rdf:}#1}
 \newcommand{\dhref}[1]{\href{#1}{#1}}
-\newcommand{\commitLink}[1]{\href{https://github.com/4TUResearchData/djehuty/commit/#1}{\substring{#1}{1}{9}}}
+\newcommand{\commitLink}[1]{\href{https://github.com/4TUResearchData/djehuty/commit/#1}{\texttt{#1}}}
+\IfFileExists{stringstrings.sty}{
+  \usepackage{stringstrings}
+  \renewcommand{\commitLink}[1]{\href{https://github.com/4TUResearchData/djehuty/commit/##1}{\substring{##1}{1}{9}}}
+}{
+  \PackageWarning{djehuty}{Missing stringstrings package: will render long Git commits.}
+}
 
 \ifdefined\HCode
 \newcommand\cfgindent{\texttt{\hspace*{1em}}}
@@ -157,8 +164,12 @@
 \fi
 
 % Define the style for bibliography
-\usepackage[natbibapa]{apacite}
-\bibliographystyle{apacite}
+\IfFileExists{apacite.sty}{
+  \usepackage[natbibapa]{apacite}
+  \bibliographystyle{apacite}
+}{
+  \PackageWarning{djehuty}{Using default citation style due to missing 'apacite' package.}
+}
 
 % Hyperref should be loaded last.
 \usepackage[colorlinks=true,linkcolor=LinkGray,urlcolor=LinkGray,citecolor=CiteColor,plainpages=false,pdfpagelabels]{hyperref}
