@@ -23,7 +23,7 @@
              (gnu packages version-control)
              (gnu packages xml)
              (gnu packages)
-             (guix build-system python)
+             (guix build-system pyproject)
              (guix download)
              (guix packages))
 
@@ -38,8 +38,11 @@
             (sha256
              (base32
               "0aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))))
-   (build-system python-build-system)
+   (build-system pyproject-build-system)
    (arguments `(#:tests? #f))
+   (native-inputs
+    (list python-setuptools
+          python-wheel))
    (propagated-inputs
     (list git
           python-defusedxml

@@ -39,6 +39,15 @@ AM_COND_IF([HAVE_PDFLATEX],
               doc/Makefile
               doc/djehuty.sty])])
 
+dnl Check for the Python 'build' module.
+dnl ---------------------------------------------------------------------------
+if test "x$PYTHON" != "x"; then
+   $PYTHON -m build --version > /dev/null 2> /dev/null
+   if test $? -ne 0; then
+      AC_MSG_WARN([Unable to build tarballs due to missing Python 'build' module.])
+   fi
+fi
+
 dnl Package-specific configurable options
 dnl ---------------------------------------------------------------------------
 
