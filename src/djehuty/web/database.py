@@ -2218,7 +2218,7 @@ class SparqlInterface:
                 references            = draft_references,
                 categories            = draft_categories,
                 authors               = draft_authors,
-                custom_fields         = draft_custom_fields,
+                custom_fields_list    = draft_custom_fields,
                 datasets              = draft_dataset_uris,
                 private_links         = None,
                 is_public             = 0,
