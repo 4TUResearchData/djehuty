@@ -28,6 +28,9 @@ WHERE {
     OPTIONAL { ?dataset djht:version              ?dataset_version . }
 
     ?container_uri      djht:account              ?account .
+    {%- if domain is not none %}
+    ?account            djht:domain               "{{domain}}"^^xsd:string .
+    {%- endif %}
 
     OPTIONAL { ?container_uri djht:latest_published_version ?published_version . }
     OPTIONAL {

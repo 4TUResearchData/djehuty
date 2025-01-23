@@ -25,7 +25,7 @@
         <p>Reviewing dataset for <strong>{{impersonating_account.first_name}} {{impersonating_account.last_name}}</strong>. <a href="/logout">Click here</a> to stop reviewing.</p>
       </div>
       {% else: %}
-      <div id="pre-header">
+      <div id="pre-header" class="pre-header">
         <p>Impersonating as <strong>{{impersonating_account.first_name}} {{impersonating_account.last_name}}</strong>. <a href="/logout">Click here</a> to stop impersonating.</p>
       </div>
       {%- endif %}
@@ -61,7 +61,7 @@
           <a href="/login"><div class="button" id="login-button">Log in</div></a>
           {%- endif %}
           {%- else %}
-          {%- if may_review and path != "/review/overview" %}
+          {%- if (may_review or may_review_institution) and path != "/review/overview" %}
           <a href="/review/overview" class="button fas fa-clipboard-check corporate-identity-privilege-button" title="Reviewer dashboard"><span class="hidden">Reviewer dashboard</span></a>
           {%- endif %}
           {%- if may_administer and not path.startswith("/admin") %}

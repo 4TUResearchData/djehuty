@@ -502,10 +502,14 @@ class WebServer:
                 "may_impersonate":       self.db.may_impersonate (token, account),
                 "may_query":             self.db.may_query (token, account),
                 "may_review":            self.db.may_review (token, account),
+                "may_review_institution": self.db.may_review_institution (token, account),
                 "may_review_integrity":  self.db.may_review_integrity (token, account),
                 "may_review_quotas":     self.db.may_review_quotas (token, account),
                 "session_token":         self.token_from_request (request),
             }
+
+            if not parameters["is_reviewing"]:
+                parameters["is_reviewing"] = self.db.may_review_institution (impersonator_token)
 
         return self.response (template.render({ **context, **parameters }),
                               mimetype='text/html')
@@ -2896,11 +2900,19 @@ class WebServer:
             return self.error_406 ("text/html")
 
         token = self.token_from_cookie (request)
-        if not self.db.may_review (token):
+        may_review_all = self.db.may_review (token)
+        may_review_institution = self.db.may_review_institution (token)
+        if (not may_review_all and not may_review_institution):
             return self.error_403 (request)
+
+        domain = None
+        if may_review_institution:
+            account = self.db.account_by_session_token (token)
+            domain = value_or_none (account, "domain")
 
         reviewers = self.db.reviewer_accounts ()
         reviews = self.db.reviews (limit           = 10000,
+                                   domain          = domain,
                                    order           = "request_date",
                                    order_direction = "desc")
         return self.__render_template (request, "review/overview.html",
@@ -6915,36 +6927,34 @@ class WebServer:
 
     def api_v3_dataset_decline (self, request, dataset_id):
         """Implements /v3/datasets/<id>/decline."""
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
+        account_uuid = self.default_authenticated_error_handling (request, "POST", "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
-        token = self.token_from_cookie (request, self.impersonator_cookie_key)
-        if not self.db.may_review (token):
+        reviewer_token = self.token_from_cookie (request, self.impersonator_cookie_key)
+        may_review_all = self.db.may_review (reviewer_token)
+        may_review_institution = self.db.may_review_institution (reviewer_token)
+        if not may_review_all and not may_review_institution:
             return self.error_403 (request)
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed (request)
+        reviewer_account = self.db.account_by_session_token (reviewer_token)
+        if may_review_institution:
+            submitter_token = self.token_from_request (request)
+            submitter_account = self.db.account_by_session_token (submitter_token)
+            if value_or (reviewer_account, "domain", "A") != value_or (submitter_account, "domain", "not-A"):
+                return self.error_403 (request)
 
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                account_uuid = account_uuid,
                                                is_published = False)
-
         if dataset is None:
             return self.error_403 (request)
 
         container_uuid = dataset["container_uuid"]
         if self.db.decline_dataset (container_uuid, account_uuid):
             try:
-                # E-mail the datase owner.
+                # E-mail the dataset owner.
                 account = self.db.account_by_uuid (dataset["account_uuid"])
-
-                # Retrieve the dataset again to get the DOIs.
-                dataset = self.db.datasets (dataset_uuid=dataset["uuid"],
-                                            is_published=None,
-                                            is_latest=None,
-                                            use_cache=False)[0]
                 subject = f"Declined: {dataset['title']}"
                 parameters = {
                     "base_url": config.base_url,
@@ -6969,21 +6979,28 @@ class WebServer:
     def api_v3_dataset_publish (self, request, dataset_id):
         """Implements /v3/datasets/<id>/publish."""
 
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
-        token = self.token_from_cookie (request, self.impersonator_cookie_key)
-        if not self.db.may_review (token):
+        reviewer_token = self.token_from_cookie (request, self.impersonator_cookie_key)
+        submitter_token = self.token_from_request (request)
+        may_review_all = self.db.may_review (reviewer_token)
+        may_review_institution = self.db.may_review_institution (reviewer_token)
+        if not may_review_all and not may_review_institution:
             # When using the API, the impersonator cookie isn't set,
             # so we fall back to using the regular token.
-            token = self.token_from_request (request)
-            if not self.db.may_review (token):
+            may_review_all = self.db.may_review (submitter_token)
+            may_review_institution = self.db.may_review_institution (submitter_token)
+            if not may_review_all and not may_review_institution:
                 return self.error_403 (request)
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed (request)
+        reviewer_account = self.db.account_by_session_token (reviewer_token)
+        if may_review_institution:
+            submitter_account = self.db.account_by_session_token (submitter_token)
+            if value_or (reviewer_account, "domain", "A") != value_or (submitter_account, "domain", "not-A"):
+                return self.error_403 (request)
 
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                account_uuid = account_uuid,
@@ -6991,7 +7008,6 @@ class WebServer:
         if dataset is None:
             return self.error_403 (request)
 
-        reviewer_account = self.db.account_by_session_token (token)
         if not self.db.update_review (dataset["review_uri"],
                                       author_account_uuid = dataset["account_uuid"],
                                       assigned_to = reviewer_account["uuid"],

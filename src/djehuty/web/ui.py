@@ -487,6 +487,7 @@ def read_privilege_configuration (xml_root, logger):
                 "may_query":       bool(int(config_value (account, "may-run-sparql-queries", None, False))),
                 "may_impersonate": bool(int(config_value (account, "may-impersonate", None, False))),
                 "may_review":      bool(int(config_value (account, "may-review", None, False))),
+                "may_review_institution": bool(int(config_value (account, "may-review-institution", None, False))),
                 "may_review_quotas": bool(int(config_value (account, "may-review-quotas", None, False))),
                 "may_review_integrity": bool(int(config_value (account, "may-review-integrity", None, False))),
                 "may_process_feedback": bool(int(config_value (account, "may-process-feedback", None, False))),

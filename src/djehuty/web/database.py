@@ -2977,7 +2977,7 @@ class SparqlInterface:
 
     def reviews (self, assigned_to=None, dataset_uri=None, status=None,
                  account_uuid=None, limit=10, order=None, order_direction=None,
-                 offset=None, review_uuid=None):
+                 offset=None, review_uuid=None, domain=None):
         """Returns reviews within the scope of the procedure's parameters."""
 
         filters = rdf.sparql_filter ("dataset", dataset_uri, is_uri=True)
@@ -2985,6 +2985,7 @@ class SparqlInterface:
         query = self.__query_from_template ("reviews", {
             "account_uuid":   account_uuid,
             "assigned_to":    assigned_to,
+            "domain":         domain,
             "review_uuid":    review_uuid,
             "status":         status.capitalize() if status is not None else status,
             "filters":        filters,
@@ -3371,6 +3372,10 @@ class SparqlInterface:
     def may_review (self, session_token, account=None):
         """Returns True when the session's account is a reviewer."""
         return self.__may_execute_role (session_token, "review", account)
+
+    def may_review_institution (self, session_token, account=None):
+        """Returns True when the session's account is a reviewer for its own institution."""
+        return self.__may_execute_role (session_token, "review_institution", account)
 
     def may_administer (self, session_token, account=None):
         """Returns True when the session's account is an administrator."""
