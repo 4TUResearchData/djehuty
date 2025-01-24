@@ -169,6 +169,7 @@
   \bibliographystyle{apacite}
 }{
   \PackageWarning{djehuty}{Using default citation style due to missing 'apacite' package.}
+  \newcommand{\citep}[1]{\cite{##1}}
 }
 
 % Hyperref should be loaded last.
