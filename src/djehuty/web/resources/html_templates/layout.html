@@ -20,7 +20,7 @@
       </div>
       {%- endif %}
       {%- if impersonating_account %}
-      {%- if is_reviewing %}
+      {%- if is_reviewing and path.startswith("/my/datasets/") %}
       <div id="pre-header-for-reviewer" class="pre-header">
         <p>Reviewing dataset for <strong>{{impersonating_account.first_name}} {{impersonating_account.last_name}}</strong>. <a href="/logout">Click here</a> to stop reviewing.</p>
       </div>
