@@ -1,7 +1,7 @@
 Name:        djehuty
 Version:     @VERSION@
 Release:     1%{?dist}
-Summary:     Repository system for 4TU.ResearchData
+Summary:     Data repository system by 4TU.ResearchData and Nikhef
 Source0:     %{name}-%{version}.tar.gz
 License:     AGPLv3+
 Group:       System Environment/Daemons
@@ -25,7 +25,8 @@ Requires: python3dist(pillow)
 %undefine __brp_mangle_shebangs
 
 %description
-This package provides the repository system for 4TU.ResearchData.
+This package provides the data repository system by
+4TU.ResearchData and Nikhef.
 
 %prep
 %autosetup -p1 -n %{name}-%{version}
