@@ -1471,6 +1471,29 @@ curl --request POST \
 ]
 \end{lstlisting}
 
+\subsection{\t{/v2/account/authors/<author-id>} (HTTP \texttt{GET})}
+
+  This API endpoint returns a detailed author record for the author identified
+  by \code{author-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/authors/5c75...94aa | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* This example output has been shortened. */
+  "first_name": "Roel",
+  "full_name": "Roel Janssen",
+  "uuid": "5c752155-60ff-41d7-9b88-b7112afc94aa",
+  "last_name": "Janssen",
+  "orcid_id": "0000-0003-4324-5350",
+  ...
+}
+\end{lstlisting}
+
 \subsection{\t{/v2/account/collections} (HTTP \texttt{GET})}
 
   This API endpoint lists the draft collections of the account to which the
