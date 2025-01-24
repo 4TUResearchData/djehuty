@@ -19,7 +19,8 @@ PYTHON_FILES =                                                                \
     djehuty/web/ui.py                                                         \
     djehuty/web/validator.py                                                  \
     djehuty/web/wsgi.py                                                       \
-    djehuty/web/xml_formatter.py
+    djehuty/web/xml_formatter.py                                              \
+    djehuty/web/zipfly.py
 
 EXTRA_RESOURCES =                                                             \
     djehuty/backup/resources/contributors_organizations.json                  \

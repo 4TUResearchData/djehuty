@@ -22,6 +22,8 @@ Requires: python3dist(werkzeug)
 Requires: python3dist(defusedxml)
 Requires: python3dist(pillow)
 
+%undefine __brp_mangle_shebangs
+
 %description
 This package provides the repository system for 4TU.ResearchData.
 
@@ -30,18 +32,19 @@ This package provides the repository system for 4TU.ResearchData.
 
 
 %build
-%py3_build
+%{configure}
+make
 
 
 %install
-%py3_install
+make install DESTDIR=%{buildroot}
 mkdir -p %{buildroot}%{_unitdir}
 cp etc/%{name}.service %{buildroot}%{_unitdir}/
 mkdir -p %{buildroot}/etc/%{name}
 cp etc/%{name}/djehuty-example-config.xml %{buildroot}/etc/%{name}/
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -51,3 +54,24 @@ rm -rf $RPM_BUILD_ROOT
 %{_unitdir}/%{name}.service
 /etc/%{name}/djehuty-example-config.xml
 /usr/bin/djehuty
+/usr/share/djehuty/djehuty.css
+/usr/share/djehuty/djehuty.pdf
+/usr/share/djehuty/djehuty2.html
+/usr/share/djehuty/djehuty3.html
+/usr/share/djehuty/djehuty4.html
+/usr/share/djehuty/djehuty5.html
+/usr/share/djehuty/djehuty6.html
+/usr/share/djehuty/djehuty7.html
+/usr/share/djehuty/figures/account-.png
+/usr/share/djehuty/figures/dataset-.png
+/usr/share/djehuty/figures/dataset-container-.png
+/usr/share/djehuty/figures/funding-.png
+/usr/share/djehuty/figures/rdf-list-abbrev-.png
+/usr/share/djehuty/figures/references-graph-.png
+/usr/share/djehuty/figures/typed-literals-notation-.png
+/usr/share/djehuty/figures/typed-notation-.png
+/usr/share/djehuty/fonts/FiraMono-Regular.ttf
+/usr/share/djehuty/fonts/SourceSansPro-Bold.ttf
+/usr/share/djehuty/fonts/SourceSansPro-Italic.ttf
+/usr/share/djehuty/fonts/SourceSansPro-Regular.ttf
+/usr/share/djehuty/index.html
