@@ -597,6 +597,12 @@ class WebServer:
     def __send_email_to_reviewers (self, subject, template_name, **context):
         """Procedure to send an email to all accounts configured with 'may_review' privileges."""
         addresses = self.db.reviewer_email_addresses()
+        account_email = context.get("account_email")
+        if account_email is not None:
+            domain = value_or_none (account_email.rsplit("@", 1), 1)
+            addresses += self.db.institutional_reviewer_email_addresses (domain)
+            # Remove potential duplicate addresses
+            addresses = list(set(addresses))
         return self.__send_templated_email (addresses, subject, template_name, **context)
 
     def __send_email_to_quota_reviewers (self, subject, template_name, **context):
@@ -7304,6 +7310,7 @@ class WebServer:
             if self.db.insert_review (dataset["uri"]) is not None:
                 subject = f"Request for review: {dataset['container_uuid']}"
                 self.__send_email_to_reviewers (subject, "submitted_for_review_notification",
+                                                account_email=value_or_none(account, "email"),
                                                 dataset=dataset,
                                                 account=account)
 
@@ -8665,10 +8672,18 @@ class WebServer:
     def api_v3_datasets_assign_reviewer (self, request, dataset_uuid, reviewer_uuid):
         """Implements /v3/datasets/<id>/assign-reviewer/<rid>."""
 
-        account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json",
-                                                                  self.db.may_review)
+        account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json")
         if isinstance (account_uuid, Response):
             return account_uuid
+
+        if not validator.is_valid_uuid (reviewer_uuid):
+            return self.error_403 (request)
+
+        account_token = self.token_from_cookie (request, self.cookie_key)
+        may_review_all = self.db.may_review (account_token)
+        may_review_institution = self.db.may_review_institution (account_token)
+        if not may_review_all and not may_review_institution:
+            return self.error_403 (request)
 
         reviewer = self.db.account_by_uuid (reviewer_uuid)
         dataset  = None

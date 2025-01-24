@@ -3113,18 +3113,32 @@ class SparqlInterface:
 
         return None
 
-    def __privileged_role_email_addresses (self, privilege):
-        """Returns e-mail addresses of accounts with PRIVILEGE."""
+    def __privileged_role_email_addresses (self, privilege, domain=None):
+        """
+        Returns e-mail addresses of accounts with PRIVILEGE. When DOMAIN is
+        specified, it only returns e-mail addresses for that domain.
+        """
         addresses = []
         ## The privileges are stored by e-mail address, so we can use
         ## this to look up the email addresses without accessing the
         ## SPARQL endpoint.
         for email_address in config.privileges:  # pylint: disable=consider-using-dict-items
             email = email_address.lower()
+            if isinstance(domain, str) and not email.endswith(f"@{domain}"):
+                continue
             if config.privileges[email][privilege]:
                 addresses.append(email_address)
 
         return addresses
+
+    def institutional_reviewer_email_addresses (self, domain):
+        """
+        Returns the e-mail addresses of accounts with the
+        'may_review_institution' privileges for DOMAIN.
+        """
+        if domain is None:
+            return []
+        return self.__privileged_role_email_addresses ("may_review_institution", domain)
 
     def reviewer_email_addresses (self):
         """Returns the e-mail addresses of accounts with 'may_review' privileges."""
