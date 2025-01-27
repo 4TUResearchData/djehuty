@@ -2917,6 +2917,7 @@ class WebServer:
             domain = value_or_none (account, "domain")
 
         reviewers = self.db.reviewer_accounts ()
+        reviewers += self.db.institutional_reviewer_accounts (None)
         reviews = self.db.reviews (limit           = 10000,
                                    domain          = domain,
                                    order           = "request_date",

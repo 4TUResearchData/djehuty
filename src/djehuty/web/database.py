@@ -3136,22 +3136,26 @@ class SparqlInterface:
         Returns the e-mail addresses of accounts with the
         'may_review_institution' privileges for DOMAIN.
         """
-        if domain is None:
-            return []
         return self.__privileged_role_email_addresses ("may_review_institution", domain)
+
+    def institutional_reviewer_accounts (self, domain=None):
+        """Returns the accounts with 'may_review_institution' privileges."""
+        email_addresses = self.institutional_reviewer_email_addresses (domain)
+        return self.reviewer_accounts (email_addresses=email_addresses)
 
     def reviewer_email_addresses (self):
         """Returns the e-mail addresses of accounts with 'may_review' privileges."""
         return self.__privileged_role_email_addresses ("may_review")
 
-    def reviewer_accounts (self):
+    def reviewer_accounts (self, email_addresses=None):
         """Returns the accounts with 'may_review' privileges."""
-
-        email_addresses = self.reviewer_email_addresses ()
+        if email_addresses is None:
+            email_addresses = self.reviewer_email_addresses ()
         accounts = []
         for email_address in email_addresses:
             account = self.account_by_email (email_address)
-            accounts.append (account)
+            if account is not None:
+                accounts.append (account)
 
         return accounts
 
