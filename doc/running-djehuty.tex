@@ -7,10 +7,9 @@ configuration file, for which an example is available at
 
 \section{Essential options}
 
-\begin{tabular}{p{0.34\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}            & \textbf{Description}\\
-  \fi
   \t{bind-address}           & The address to bind a TCP socket on.\\
   \t{port}                   & The port to bind a TCP socket on.\\
   \t{alternative-port}       & A fall-back port to bind on when \t{port} is
@@ -56,7 +55,7 @@ configuration file, for which an example is available at
                                displayment of a maintenance message. Use this
                                option while backing up the database, or when
                                performing major updates.\\
-\end{tabular}
+\end{tabularx}
 
 \section{Configuring the Database}
 
@@ -64,10 +63,9 @@ configuration file, for which an example is available at
   RDF store.  Configuring the connection details is done in the
   \t{rdf-store} node.
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}            & \textbf{Description}\\
-  \fi
   \t{state-graph}            & The graph name to store triplets in.\\
   \t{sparql-uri}             & The URI at which the SPARQL 1.1 endpoint can
                                be reached.\newline\newline
@@ -79,7 +77,7 @@ configuration file, for which an example is available at
   \t{sparql-update-uri}      & The URI at which the SPARQL 1.1 Update endpoint
                                can be reached (in case it is different from
                                the \t{sparql-uri}.\\
-\end{tabular}
+\end{tabularx}
 
 \section{Audit trails and database reconstruction}
 
@@ -88,10 +86,9 @@ configuration file, for which an example is available at
   \t{djehuty} keeps such an audit log can be configured with the following
   option:
 
-\begin{tabular}{p{0.34\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}            & \textbf{Description}\\
-  \fi
   \t{enable-query-audit-log} & When set to 1, it writes every SPARQL query that
                                modifies the database in the web logs.  This can
                                be replayed to reconstruct the database at a
@@ -100,7 +97,7 @@ configuration file, for which an example is available at
                                \t{transactions-directory} that should specify
                                an empty directory to which transactions can be
                                written that are extracted from the audit log.\\
-\end{tabular}
+\end{tabularx}
 
 \subsection{Reconstructing the database from the query audit log}
 
@@ -143,13 +140,13 @@ djehuty web --config-file=config.xml --apply-transactions
   fast online storage and later move the uploaded files to a slower but
   less costly storage.
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}            & \textbf{Description}\\
-  \fi
   \t{location}               & A filesystem path to where files are stored.
                                This is a repeatable property.\\
-\end{tabular}
+\end{tabularx}
+
 
 \section{Configuring an identity provider}
 
@@ -176,10 +173,9 @@ djehuty web --config-file=config.xml --apply-transactions
   The options outlined in the remainder of this section should be placed
   where the example shows \code{<!-- Configuration goes here. -->}.
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}             & \textbf{Description}\\
-  \fi
   \t{strict}                  & When set to 1, SAML responses must be signed.
                                 \textbf{Never disable `strict' mode in a
                                 production environment.}\\
@@ -197,7 +193,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{sram}                    & In this section, SURF Research Access
                                 Management-specific attributes can be
                                 configured.\\
-\end{tabular}
+\end{tabularx}
 
 \subsubsection{The \t{attributes} configuration}
 
@@ -208,17 +204,16 @@ djehuty web --config-file=config.xml --apply-transactions
   identity provider can be configured.  The following attributes must be
   configured.
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}             & \textbf{Description}\\
-  \fi
   \t{first-name}              & A user's first name.\\
   \t{last-name}               & A user's last name.\\
   \t{common-name}             & A user's full name.\\
   \t{email}                   & A user's e-mail address.\\
   \t{groups}                  & The attribute denoting groups.\\
   \t{group-prefix}            & The prefix for each group short name.\\
-\end{tabular}
+\end{tabularx}
 
   As an example, the attributes configuration for SURFConext looks like this:
 
@@ -253,21 +248,19 @@ djehuty web --config-file=config.xml --apply-transactions
   that provides access to the \t{djehuty} instance.  To do so,
   the following attributes must be configured.
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}             & \textbf{Description}\\
-  \fi
   \t{organization-api-token}  & An organization-level API token.\\
   \t{collaboration-id}        & The UUID of the collaboration to invite
                                 users to.\\
-\end{tabular}
+\end{tabularx}
 
 \subsubsection{The \t{service-provider} configuration}
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}              & \textbf{Description}\\
-  \fi
   \t{x509-certificate}         & Contents of the public certificate without
                                  whitespacing.\\
   \t{private-key}              & Contents of the private key belonging to the
@@ -295,7 +288,7 @@ djehuty web --config-file=config.xml --apply-transactions
                                   Note that some identity providers prefer
                                   functional e-mail addresses (e.g. support@...
                                   instead of jdoe@...).\\
-\end{tabular}
+\end{tabularx}
 
 \subsection{ORCID}
 
@@ -323,14 +316,13 @@ djehuty web --config-file=config.xml --apply-transactions
 
   Then the following parameters can be configured:
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}             & \textbf{Description}\\
-  \fi
   \t{client-id}               & The client ID provided by ORCID.\\
   \t{client-secret}           & The client secret provided by ORCID.\\
   \t{endpoint}                & The URL to the ORCID endpoint to use.\\
-\end{tabular}
+\end{tabularx}
 
 \section{Configuring an e-mail server}
 
@@ -341,10 +333,9 @@ djehuty web --config-file=config.xml --apply-transactions
   The configuration is done under the \t{email} node, and the following
   items can be configured:
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}             & \textbf{Description}\\
-  \fi
   \t{server}                  & Address of the e-mail server without protocol
                                 specification.\\
   \t{port}                    & The port the e-mail server operates on.\\
@@ -358,7 +349,7 @@ djehuty web --config-file=config.xml --apply-transactions
                                 sent from the instance of \t{djehuty}.  This
                                 can be used to distinguish a test instance from
                                 a production instance.\\
-\end{tabular}
+\end{tabularx}
 
 \section{Configuring DOI registration}
 
@@ -366,15 +357,14 @@ djehuty web --config-file=config.xml --apply-transactions
   persistent identifier with DataCite.  To enable this feature, configure it
   under the \t{datacite} node. The following parameters can be configured:
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}             & \textbf{Description}\\
-  \fi
   \t{api-url}                 & The URL of the API endpoint of DataCite.\\
   \t{repository-id}           & The repository identifier given by DataCite.\\
   \t{password}                & The password to authenticate with to DataCite.\\
   \t{prefix}                  & The DOI prefix to use when registering a DOI.\\
-\end{tabular}
+\end{tabularx}
 
 \section{Configuring Handle registration}
 
@@ -382,10 +372,9 @@ djehuty web --config-file=config.xml --apply-transactions
   system.  To enable this feature, configure it under the \t{handle} node.
   The following parameters can be configured:
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}             & \textbf{Description}\\
-  \fi
   \t{url}                     & The URL of the API endpoint of the Handle
                                 system implementor.\\
   \t{certificate}             & Certificate to use for authenticating to the
@@ -395,7 +384,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{prefix}                  & The Handle prefix to use when registering a
                                 handle.\\
   \t{index}                   & The index to use when registering a handle.\\
-\end{tabular}
+\end{tabularx}
 
 \section{Configuring IIIF support}
 
@@ -403,25 +392,23 @@ djehuty web --config-file=config.xml --apply-transactions
   images. It uses \t{libvips} and \t{pyvips} under the hood to perform image
   manipulation.  The following parameters can be configured:
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}             & \textbf{Description}\\
-  \fi
   \t{enable-iiif}             & Enable support for the IIIF image API.  This
                                 requires the \t{pyvips} package to be available
                                 in the run-time environment.\\
   \t{iiif-cache-root}         & The directory to store the output of IIIF Image
                                 API requests to avoid re-computing the image.\\
-\end{tabular}
+\end{tabularx}
 
 \section{Customizing looks}
 
   With the following options, the instance can be branded as necessary.
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}             & \textbf{Description}\\
-  \fi
   \t{site-name}               & Name for the instance used in the title of a
                                 browser window and as default value in the
                                 publisher field for new datasets.\\
@@ -449,17 +436,16 @@ djehuty web --config-file=config.xml --apply-transactions
                                 published datasets on the main page.\\
   \t{colors}                  & Colors used in the HTML output. See section
                                 \ref{sec:customize-colors}.\\
-\end{tabular}
+\end{tabularx}
 
 \subsection{Customizing colors}
 \label{sec:customize-colors}
 
   The following options can be configured in the \t{colors} section.
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}              & \textbf{Description}\\
-  \fi
   \t{primary-color}            & The main background color to use.\\
   \t{primary-foreground-color} & The main foreground color to use.\\
   \t{primary-color-hover}      & Color to use when hovering a link.\\
@@ -467,7 +453,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{privilege-button-color}   & The background color of buttons for
                                  privileged actions.\\
   \t{footer-background-color}  & Color to use in the footer.\\
-\end{tabular}
+\end{tabularx}
 
 \section{Configuring privileged users}
 
@@ -478,10 +464,9 @@ djehuty web --config-file=config.xml --apply-transactions
   Such additional roles are configured in terms of privileges.  The
   following privileges can be configured in the \t{privileges} section:
 
-\begin{tabular}{p{0.36\textwidth} p{0.62\textwidth}}
-  \ifdefined\HCode
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Option}                     & \textbf{Description}\\
-  \fi
   \t{may-administer}                  & Allows access to perform maintenance
                                         tasks, view accounts and view reports
                                         on restricted and embargoed datasets.\\
@@ -507,7 +492,7 @@ djehuty web --config-file=config.xml --apply-transactions
                                         sending any e-mails to an account by
                                         setting it to \t{0}.  The default is
                                         \t{1}.\\
-\end{tabular}
+\end{tabularx}
 
   To enable a privilege for an account, set the value of the desired privilege
   to \t{1}.  Privileges are disabled by default, except for

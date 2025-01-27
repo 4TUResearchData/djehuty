@@ -80,7 +80,8 @@ make install
   \href{https://hub.docker.com/r/4turesearchdata/djehuty}{Docker Hub}%
   \footnote{\dhref{https://hub.docker.com/r/4turesearchdata/djehuty}}.
 
-\begin{tabular}{p{0.25\textwidth} p{0.73\textwidth}}
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
   \textbf{Image tag}  & \textbf{Description}\\
   \t{devel}           & Image meant for development purposes.  Before it
                         executes the \t{djehuty} command it checks out the
@@ -95,7 +96,7 @@ make install
                         number after the dot refers to the month.  Use a
                         specific version image when you want to upgrade at
                         your own pace.\\
-\end{tabular}
+\end{tabularx}
 
   To build the container images for yourself, see the build instructions in
   the \file{docker/Dockerfile} file.
