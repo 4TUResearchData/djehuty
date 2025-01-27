@@ -5104,8 +5104,40 @@ class WebServer:
         if account_uuid is None:
             return self.error_authorization_failed(request)
 
-        if self.db.delete_dataset_categories (dataset_id, account_uuid, category_id):
-            return self.respond_204()
+        try:
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                   account_uuid=account_uuid,
+                                                   is_published=False)
+
+            if dataset is None:
+                return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                 f"to remove category:{category_id} "
+                                                 f"from dataset:{dataset_id}."))
+
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, "dataset", dataset, "metadata_edit")
+            if error_response is not None:
+                return error_response
+
+            category = None
+            if parses_to_int (category_id):
+                category = self.db.category_by_id (category_id = category_id)
+            elif validator.is_valid_uuid (category_id):
+                category = self.db.category_by_id (category_uuid = category_id)
+
+            if category is None:
+                return self.error_403 (request, (f"account:{account_uuid} failed "
+                                                 f"to remove category:{category_id} "
+                                                 f"from dataset:{dataset_id}."))
+
+            if self.db.delete_item_from_list (dataset["uri"], "categories",
+                                              uuid_to_uri (category["uuid"], "category")):
+                return self.respond_204()
+
+            self.log.error ("Failed to delete category %s from dataset %s.",
+                            category_id, dataset_id)
+        except (IndexError, KeyError, StopIteration):
+            pass
 
         return self.error_500()
 

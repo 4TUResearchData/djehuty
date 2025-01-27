@@ -11,7 +11,11 @@ WHERE {
     OPTIONAL { ?category djht:taxonomy_id  ?taxonomy_id . }
   }
   BIND(STRAFTER(STR(?category), "category:") AS ?uuid)
+  {%- if category_id is not none %}
   FILTER (?id = {{category_id}})
+  {%- endif %}{% if category_uuid is not none %}
+  FILTER (?category = <category:{{category_uuid}}>)
+  {%- endif %}
 {%- if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}

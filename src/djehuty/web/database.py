@@ -1625,25 +1625,6 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix ("accounts")
         return self.__run_logged_query (query)
 
-    def delete_item_categories (self, item_id, account_uuid, category_id=None,
-                                item_type="dataset"):
-        """Procedure to delete the categories of a dataset or collection."""
-
-        prefix = item_type.capitalize()
-        query = self.__query_from_template ("delete_item_categories", {
-            "item_id":     item_id,
-            "item_type":   item_type,
-            "prefix":      prefix,
-            "account_uuid": account_uuid,
-            "category_id": category_id
-        })
-
-        return self.__run_logged_query (query)
-
-    def delete_dataset_categories (self, dataset_id, account_uuid, category_id=None):
-        """Procedure to delete the categories related to a dataset."""
-        return self.delete_item_categories (dataset_id, account_uuid, category_id, "dataset")
-
     def insert_funding (self, title=None, grant_code=None, funder_name=None,
                         account_uuid=None, url=None, funding_id=None):
         """Procedure to add an funding to the state graph."""
@@ -2833,11 +2814,15 @@ class SparqlInterface:
 
         return results
 
-    def category_by_id (self, category_id):
+    def category_by_id (self, category_id=None, category_uuid=None):
         """Procedure to return category information by its identifier."""
 
+        if category_id is None and category_uuid is None:
+            return None
+
         query = self.__query_from_template ("category_by_id", {
-            "category_id": category_id
+            "category_id": category_id,
+            "category_uuid": category_uuid
         })
 
         try:
