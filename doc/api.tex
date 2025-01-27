@@ -131,6 +131,10 @@ curl --request POST \
 
 \subsection{\t{/v2/articles/<dataset-id>} (HTTP \texttt{GET})}
 \label{sec:v2-articles-dataset-id}
+
+  This API endpoint can be used to retrieve detailed metadata for the dataset
+  identified by \code{dataset-id}.
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2 | jq
@@ -160,6 +164,9 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2 | 
 
 \subsection{\t{/v2/articles/<dataset-id>/versions} (HTTP \texttt{GET})}
 
+  This API endpoint can be used to retrieve a list of versions for the dataset
+  identified by \code{dataset-id}.
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions | jq
@@ -177,6 +184,9 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/ve
 
 \subsection{\t{/v2/articles/<dataset-id>/versions/<version>} (HTTP \texttt{GET})}
 
+  This API endpoint can be used to retrieve detailed metadata of the version
+  \code{version} for the dataset identified by \code{dataset-id}.
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl (@*\djehutybaseurl{}*@)/v2/articles/342e...49d2/versions/1 | jq
@@ -186,6 +196,9 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342e...49d2/versions/1 | jq
   \refer{sec:v2-articles-dataset-id}.
 
 \subsection{\t{/v2/articles/<dataset-id>/versions/<version>/embargo} (HTTP \texttt{GET})}
+
+  This API endpoint can be used to retrieve embargo information of the version
+  \code{version} for the dataset identified by \code{dataset-id}.
 
   Example usage:
 \begin{lstlisting}[language=bash]
@@ -209,6 +222,8 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/c127...8fd7/versions/2/embargo | jq
 %\subsection{\t{/v2/articles/<dataset-id>}/versions/<version>/update\_thumb}
 \subsection{\t{/v2/articles/<dataset-id>/files} (HTTP \texttt{GET})}
 
+  This API endpoint can be used to retrieve the list of files associated with
+  the dataset identified by \code{dataset-id}.
 
   Example usage:
 \begin{lstlisting}[language=bash]
@@ -234,6 +249,10 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/fi
 
 \subsection{\t{/v2/articles/<dataset-id>/files/<file-id>} (HTTP \texttt{GET})}
 
+  This API endpoint can be used to retrieve all metadata of the file
+  identified by \code{file-id} associated with the dataset identified
+  by \code{dataset-id}.
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl (@*\djehutybaseurl{}*@)/v2/articles/342e...49d2/files/d3e1...9292 | jq
@@ -256,6 +275,9 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342e...49d2/files/d3e1...9292 | jq
 
 \subsection{\t{/v2/collections} (HTTP \texttt{GET})}
 \label{sec:v2-collections}
+
+  This API endpoint can be used to retrieve a list of collections published
+  in the data repository.
 
   The following parameters can be used:
 
@@ -313,6 +335,9 @@ Output of the example:
 
 \subsection{\t{/v2/collections/search} (HTTP \texttt{POST})}
 
+  This API endpoint can be used to search for collections published in
+  the data repository.
+
   In addition to the parameters of section \refer{sec:v2-collections}, the
   following parameters can be used.
 
@@ -353,6 +378,9 @@ curl --request POST \
 
 \subsection{\t{/v2/collections/<collection-id>} (HTTP \texttt{GET})}
 
+  This API endpoint can be used to retrieve detailed metadata for the collection
+  identified by \code{collection-id}.
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782 | jq
@@ -381,6 +409,9 @@ curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782
 
 \subsection{\t{/v2/collections/<collection-id>/versions} (HTTP \texttt{GET})}
 
+  This API endpoint can be used to retrieve a list of versions for the collection
+  identified by \code{collection-id}.
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782/versions | jq
@@ -405,6 +436,9 @@ curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782
 \end{lstlisting}
 
 \subsection{\t{/v2/collections/<collection-id>/versions/<version>} (HTTP \texttt{GET})}
+
+  This API endpoint can be used to retrieve detailed metadata of the version
+  \code{version} for the collection identified by \code{collection-id}.
 
   Example usage:
 \begin{lstlisting}[language=bash]
@@ -434,6 +468,9 @@ curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc...2782/versions/2 | jq
 \end{lstlisting}
 
 \subsection{\t{/v2/collections/<collection-id>/articles} (HTTP \texttt{GET})}
+
+  This API endpoint can be used to retrieve the list of datasets in the
+  collection identified by \code{collection-id}.
 
   Example usage:
 \begin{lstlisting}[language=bash]
