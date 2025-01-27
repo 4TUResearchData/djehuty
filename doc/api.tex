@@ -1178,23 +1178,21 @@ curl --verbose --request POST \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-%% TODO: The deletion of categories via the v2 API is broken.
-% \subsection{\t{/v2/account/articles/<dataset-id>/categories/<category-id>} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/articles/<dataset-id>/categories/<category-id>} (HTTP \texttt{DELETE})}
 
-%   This API endpoint can be used to delete a category's association with a dataset.
+  This API endpoint can be used to delete a category's association with a dataset.
 
-%   Example usage:
-% \begin{lstlisting}[language=bash]
-% curl --request DELETE \
-%      --header "Authorization: token YOUR_TOKEN_HERE" \
-%      (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/categories/d50e...7500
-% \end{lstlisting}
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/categories/d50e...7500
+\end{lstlisting}
 
-%   HTTP response of the example:
-% \begin{lstlisting}
-% HTTP/1.1 204 NO CONTENT
-% ...
-% \end{lstlisting}
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
+\end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>/embargo} (HTTP \texttt{GET})}
 
