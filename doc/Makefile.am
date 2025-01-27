@@ -44,7 +44,8 @@ EXTRA_DIST              = $(doc_TEX) $(doc_STYLE)                  \
                           figures/rdf-list-abbrev.pdf              \
                           figures/references-graph.pdf             \
                           figures/typed-literals-notation.pdf      \
-                          figures/typed-notation.pdf
+                          figures/typed-notation.pdf               \
+                          figures/favicon.png
 
 
 if HAVE_HTLATEX
@@ -77,6 +78,7 @@ nobase_dist_doc_DATA     = index.html                              \
                            figures/dataset-container-.png          \
                            figures/account-.png                    \
                            figures/funding-.png                    \
+                           figures/favicon.png                     \
                            fonts/SourceSansPro-Regular.ttf         \
                            fonts/SourceSansPro-Italic.ttf          \
                            fonts/SourceSansPro-Bold.ttf            \

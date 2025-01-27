@@ -35,6 +35,7 @@
 \Configure{HTML}{\HCode{<html lang="en">\Hnewline}}{\HCode{</html>}}{}{}
 \Configure{@HEAD}{\HCode{<meta http-equiv="Content-Type" content="text/html; charset=utf-8">\Hnewline}}
 \Configure{@HEAD}{\HCode{<link rel="stylesheet" href="djehuty.css">\Hnewline}}
+\Configure{@HEAD}{\HCode{<link rel="shortcut icon" type="image/png" href="figures/favicon.png">\Hnewline}}
 \Configure{@BODY}{\ifvmode\IgnorePar\fi\EndP\HCode{<div id="wrapper">}}
 \Configure{@/BODY}{\ifvmode\IgnorePar\fi\EndP\HCode{</div>}}
 \fi
