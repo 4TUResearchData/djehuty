@@ -5069,7 +5069,10 @@ class WebServer:
                     try:
                         categories[index] = validator.string_value (categories, index, 0, 36)
                     except validator.ValidationException:
-                        categories[index] = validator.integer_value (categories, index)
+                        category_id = validator.integer_value (categories, index)
+                        category = self.db.category_by_id (category_id=category_id)
+                        if category is not None:
+                            categories[index] = category["uuid"]
 
                 ## Append when using POST, otherwise overwrite.
                 if request.method == 'POST':
