@@ -1181,6 +1181,7 @@ HTTP/1.1 205 RESET CONTENT
 \subsection{\t{/v2/account/articles/<dataset-id>/categories/<category-id>} (HTTP \texttt{DELETE})}
 
   This API endpoint can be used to delete a category's association with a dataset.
+  The \code{category-id} can be either the UUID or the numeric ID.
 
   Example usage:
 \begin{lstlisting}[language=bash]
@@ -1781,5 +1782,215 @@ curl --request POST \
     ...
   }
 ]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/authors} (HTTP \texttt{GET})}
+\label{sec:api-v2-collections-authors}
+
+  Similar to \refer{sec:api-v2-articles-authors}, this API endpoint lists the
+  authors of the collection identified by \code{collection-id}.
+  The following URL parameters can be used:
+
+\begin{tabularx}{\textwidth}{*{2}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
+  \t{order}            & Optional & Field to use for sorting.\\
+  \t{order\_direction} & Optional & Can be either \code{asc} or \code{desc}.\\
+  \t{limit}            & Optional & The maximum number of datasets to output.
+                                    Used together with \t{offset}.\\
+\end{tabularx}
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/3760c457-d4f3-4d58-8b94-af089a97a9b4 | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  {
+    "id": null,
+    "uuid": "08f4d496-67b5-4b7c-b2d2-923458d1f450",
+    "full_name": "John Doe Jr",
+    "is_active": false,
+    "url_name": null,
+    "orcid_id": ""
+  },
+  {
+    "id": null,
+    "uuid": "6815031c-21dc-4873-93c9-f6539da482ce",
+    "full_name": "John Doe",
+    "is_active": false,
+    "url_name": null,
+    "orcid_id": ""
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/authors} (HTTP \texttt{POST})}
+\label{sec:api-v2-collections-authors-post}
+
+  Similar to \refer{sec:api-v2-articles-authors-post}, this API endpoint can
+  be used to append authors to the collection identified by \code{collection-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "authors": [{ "name": "John Doe" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/3760c457-d4f3-4d58-8b94-af089a97a9b4/authors
+curl --request POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "authors": [{ "name": "John Doe Jr" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/3760c457-d4f3-4d58-8b94-af089a97a9b4/authors
+\end{lstlisting}
+
+  The following is an example of the output of the HTTP \texttt{POST} calls:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+\end{lstlisting}
+
+  An example of the output of the HTTP \texttt{GET} call can be found in
+  \refer{sec:api-v2-collections-authors}.
+
+\subsection{\t{/v2/account/collections/<collection-id>/authors} (HTTP \texttt{PUT})}
+
+  In contrast to \refer{sec:api-v2-collections-authors-post}, this API endpoint
+  can be used to \textbf{overwrite} the list of authors of the collection identified
+  by \code{collection-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request PUT \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "authors": [{ "name": "John Doe" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/3760c457-d4f3-4d58-8b94-af089a97a9b4/authors
+
+curl --request PUT \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "authors": [{ "name": "John Doe Jr" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/3760c457-d4f3-4d58-8b94-af089a97a9b4/authors
+
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/3760c457-d4f3-4d58-8b94-af089a97a9b4/authors | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  {
+    "id": null,
+    "uuid": "61751fe3-53a1-477f-a46f-e534cbd0b618",
+    "full_name": "John Doe Jr",
+    "is_active": false,
+    "url_name": null,
+    "orcid_id": ""
+  },
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/authors/<author-id>} (HTTP \texttt{DELETE})}
+
+  This API endpoint can be used to delete an author's association with a collection.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d//authors/5c75...94aa
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/categories} (HTTP \texttt{GET})}
+
+  This API endpoint can be used to retrieve the categories associated with
+  the collection identified by \code{collection-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/categories | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  {
+    "id": 13376,
+    "uuid": "2bdba8f2-5914-4d82-bfe8-c938cccab71f",
+    "title": "Agricultural and Veterinary Sciences",
+    "parent_id": null,
+    "parent_uuid": null,
+    "path": "",
+    "source_id": null,
+    "taxonomy_id": null
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/categories} (HTTP \texttt{POST})}
+\label{sec:api-v2-collections-categories-post}
+
+  Similar to \refer{sec:api-v2-articles-categories-post} this API endpoint can be
+  used to append categories to the collection identified by \code{collection-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --verbose --request POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "categories": [13551, 13558]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/categories
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/categories} (HTTP \texttt{PUT})}
+
+  In contrast to \refer{sec:api-v2-collections-categories-post}, this API endpoint
+  can be used to \textbf{overwrite} the list of categories of the collection identified
+  by \code{collection-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --verbose --request POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "categories": ["dd4dbaaf-0610-4d8d-8b07-e1eeb32dd11c"]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/categories
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/categories/<category-id>} (HTTP \texttt{DELETE})}
+
+  This API endpoint can be used to delete a category's association with a collection.
+  The \code{category-id} can be either the UUID or the numeric ID.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/categories/13558
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
