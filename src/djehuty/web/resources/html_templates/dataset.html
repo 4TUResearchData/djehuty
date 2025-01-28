@@ -1,5 +1,13 @@
-{% extends "layout.html" %}
-{% block headers %}
+{%- extends "layout.html" %}
+{%- set doi = item.doi %}
+{%- set pid = item.dataset_id %}
+{%- set item_type = "dataset" %}
+
+{%- block headers %}
+{%- if item.embargo_type is not defined or item.embargo_type != 'article' %}
+    {%- include 'jsonld.html' %}
+{%- endif %}
+
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/dataset_landing_page.js"></script>
 <script src="/static/js/quill.min.js"></script>
@@ -11,107 +19,103 @@
 #access-request-wrapper { display: none; }
 #content-wrapper {padding: 0}
 </style>
-{% endblock %}
+{%- endblock %}
 
-{% block body %}
-{% set doi = item.doi %}
-{% set pid = item.dataset_id %}
-{% set item_type = "dataset" %}
+{%- block body %}
 
-<div id="rdfa" vocab="http://schema.org/" typeof="Dataset">
 
-{% include 'public_metadata.html' %}
+{%- include 'public_metadata.html' %}
 
 <div id="data">
 
-{% if item.is_embargoed %}
+{%- if item.is_embargoed %}
     <h3>DATA - under embargo</h3>
         <div id="limited_access">
-            <p>The files in this dataset are under embargo{% if item.embargo_until_date %} until {{item.embargo_until_date}}{% endif %}.</p>
-    {% if item.embargo_reason or item.confidential_reason %}
+            <p>The files in this dataset are under embargo{%- if item.embargo_until_date %} until {{item.embargo_until_date}}{%- endif %}.</p>
+    {%- if item.embargo_reason or item.confidential_reason %}
             <h4>Reason</h4>
-        {% autoescape false %}
-        {% if item.embargo_reason %}
+        {%- autoescape false %}
+        {%- if item.embargo_reason %}
             {{item.embargo_reason}}
-        {% else %}
+        {%- else %}
             {{item.confidential_reason}}
-        {% endif %}
-        {% endautoescape %}
-    {% endif %}
+        {%- endif %}
+        {%- endautoescape %}
+    {%- endif %}
        </div>
-{% elif item.is_restricted %}
+{%- elif item.is_restricted %}
     <h3>DATA - restricted access</h3>
         <div id="limited_access">
             <h4>Reason</h4>
-    {% autoescape false %}
-    {% if item.embargo_reason %}
+    {%- autoescape false %}
+    {%- if item.embargo_reason %}
             {{item.embargo_reason}}
-    {% elif item.confidential_reason %}
+    {%- elif item.confidential_reason %}
             {{item.confidential_reason}}
-    {% else %}
+    {%- else %}
             Data is confidential.
-    {% endif %}
-    {% if item.eula %}
+    {%- endif %}
+    {%- if item.eula %}
             <h4>End User Licence Agreement</h4>
             {{item.eula}}
-    {% endif %}
-    {% endautoescape %}
+    {%- endif %}
+    {%- endautoescape %}
         </div>
-        {% include 'dataset_access_request.html' %}
-{% elif item.is_metadata_record %}
+        {%- include 'dataset_access_request.html' %}
+{%- elif item.is_metadata_record %}
     <h3>DATA - not available</h3>
         <div id="metadata_only">
-    {% if item.metadata_reason %}
+    {%- if item.metadata_reason %}
             {{item.metadata_reason}}
-    {% else %}
+    {%- else %}
             Data is undisclosed.
-    {% endif %}
+    {%- endif %}
         </div>
-{% endif %}
-{% if is_own_item and (item.is_restricted or item.is_embargoed) %}
+{%- endif %}
+{%- if is_own_item and (item.is_restricted or item.is_embargoed) %}
     <div id="is_own_item">As the owner of this dataset, you have access to the data files.</div>
-{% elif private_view and (item.is_restricted or item.is_embargoed) %}
+{%- elif private_view and (item.is_restricted or item.is_embargoed) %}
     <div id="private_view">As you are on a private link, you have access to the data files.</div>
-{% endif %}
-{% if not(item.is_restricted or item.is_embargoed) %}
+{%- endif %}
+{%- if not(item.is_restricted or item.is_embargoed) %}
     <h3>DATA</h3>
-{% endif %}
-{% if is_own_item or private_view or not(item.is_restricted or item.is_embargoed) %}
-{% if services %}
+{%- endif %}
+{%- if is_own_item or private_view or not(item.is_restricted or item.is_embargoed) %}
+{%- if services %}
     <div id="services">
         <div class="label">data service</div>
         <ul>
-    {% for url in services %}
+    {%- for url in services %}
             <li><a class="corporate-identity" href="{{url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{url}}</a></li>
-    {% endfor %}
+    {%- endfor %}
         </ul>
     </div>
-{% endif%}
-{% if opendap %}
+{%- endif%}
+{%- if opendap %}
     <div id="opendap">
         <div class="label">OPeNDAP data service</div>
         <ul>
-    {% for url in opendap %}
+    {%- for url in opendap %}
             <li>
                 <a class="corporate-identity" href="{{url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{url}}</a>
                 [<a class="corporate-identity" href="{{url|replace('.html','.xml')}}" target="_blank" rel="noopener noreferrer">xml</a>]
             </li>
-    {% endfor %}
+    {%- endfor %}
         </ul>
     </div>
-{% endif%}
+{%- endif%}
 {%- if git_repository_url %}
     <div id="git-repository">
       <p>To access the source code, use the following command:</p>
-      <pre>git clone {{git_repository_url}}{% if item.git_repository_name %} "{{item.git_repository_name}}"{% endif %}</pre>
+      <pre>git clone {{git_repository_url}}{%- if item.git_repository_name %} "{{item.git_repository_name}}"{%- endif %}</pre>
       <p>Or <a style="text-decoration: underline" href="{{git_repository_url}}/zip">download the latest commit as a ZIP</a>.</p>
     </div>
 {%- endif %}
-{% if files %}
+{%- if files %}
     <div id="files">
         <div class="label">files ({{files|length}})</div>
         <ul>
-    {% for file in files %}
+    {%- for file in files %}
             <li>
               {%- if "size" in file: %}<span class="size">{{'{:,}'.format(file.size)}} bytes</span>{%- endif %}<!--
               --><span class="md5">MD5:<code>{{file.computed_md5}}</code></span><!--
@@ -120,18 +124,16 @@
               {%- endif %}
               --><a class="corporate-identity" href="/file/{{item.container_uuid}}/{{file.uuid}}">{{file.name}}</a>
             </li>
-    {% endfor %}
+    {%- endfor %}
             <li class="zip">
-                <span property="distribution" typeof="DataDownload">
-                    <a class="corporate-identity" href="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}" property="contentUrl" resource="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}" >download all files (zip)</a>
-                </span>    
+                    <a class="corporate-identity" href="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}">download all files (zip)</a>
                 <div id="total_size">{{'{:,}'.format(files_size)}} bytes unzipped</div>
             </li>
         </ul>
     </div>
-{% endif %}
-{% endif %}
+{%- endif %}
+{%- endif %}
 </div>
 </div>
 
-{% endblock %}
+{%- endblock %}

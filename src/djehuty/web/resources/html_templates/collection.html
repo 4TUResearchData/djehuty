@@ -1,25 +1,24 @@
-{% extends "layout.html" %}
-{% block headers %}
+{%- extends "layout.html" %}
+{%- set doi = item.doi %}
+{%- set pid = item.collection_id %}
+{%- set uuid = item.container_uuid %}
+{%- set item_type = "collection" %}
+
+{%- block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/pub.css" />
-{% endblock %}
+{%- endblock %}
 
-{% block body %}
-{% set doi = item.doi %}
-{% set pid = item.collection_id %}
-{% set uuid = item.container_uuid %}
-{% set item_type = "collection" %}
-
-{% include 'public_metadata.html' %}
-
+{%- block body %}
+{%- include 'public_metadata.html' %}
 <div id="data">
     <h3>DATASETS</h3>
     <ul>
-{% for dataset in datasets %}
+{%- for dataset in datasets %}
         <li>
             [{{dataset.type}}] <a class="corporate-identity" href="/datasets/{{dataset.container_uuid}}" title="first online {{dataset.date[:10]}}">{{dataset.title}}</a>
         </li>
-{% endfor %}
+{%- endfor %}
     </ul>
 </div>
-{% endblock %}
+{%- endblock %}

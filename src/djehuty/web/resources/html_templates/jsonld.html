@@ -1,0 +1,73 @@
+<script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        "name": "{{item.title}}",
+        "identifier": "https://doi.org/{{doi}}",
+        "citation": "{{ citation }}",
+        "version": {{ item.version }},
+        "description": "{{ item.description }}",
+        "publisher": {
+            "@type": "Organization",
+            "name": "{{ item.publisher }}"
+        },
+        "license": "{{ item.license_url }}",
+        "keywords": {{ tags|sort | tojson }},
+        "creator": [
+        {%- for a in authors %}
+        {
+            "@type": "Person",
+            "name": "{{ a.full_name }}",
+            "sameAs": "https://orcid.org/{{ a.orcid_id }}"
+          }{%- if not loop.last %},{%- endif %}
+        {%- endfor %}
+        ]
+
+        {%- if coordinates.lat and coordinates.lon %}
+            ,"spatialCoverage": {
+                "@type": "Place",
+                "geo": {
+                    "@type": "GeoCoordinates",
+                    "latitude":  {{ coordinates.lat }},
+                    "longitude": {{ coordinates.lon }}
+                }
+            }
+        {%- elif item.geolocation %}
+            ,"spatialCoverage": "{{ item.geolocation }}"
+        {%- endif %}
+        {%- if item.time_coverage %}
+            ,"temporalCoverage": "{{ item.time_coverage }}"
+        {%- endif %}
+        {%- set valid_fundings = fundings | selectattr('funder_name') | list %}
+        {%- if valid_fundings %}
+            ,"funder": [
+            {%- for funding in valid_fundings  %}
+                {
+                    "@type": "Organization",
+                    "name": "{{ funding.funder_name }}"
+                }{%- if not loop.last %},{%- endif %}
+            {%- endfor %}
+            ]
+        {%- endif %}
+
+        {%- if collections %}
+            ,"includedInDataCatalog": [
+            {%- for c in collections %}
+                {
+                    "@type": "DataCatalog",
+                    "name": "{{ c.title }}",
+                    "url": "{{ base_url }}/collections/{{ c.container_uuid }}"
+                }{%- if not loop.last %},{%- endif %}
+            {%- endfor %}
+            ]
+        {%- endif %}
+        {%- if not item.is_embargoed and  not item.is_restricted  and not item.is_metadata_record %}
+            ,"isAccessibleForFree" : true,
+            "distribution": {
+                "@type": "DataDownload",
+                "contentUrl": "{{ base_url }}/ndownloader/items/{{ item.container_uuid }}/versions/{{ item.version | default('draft', False) }}",
+                "encodingFormat": "application/zip"
+            }
+        {%- endif %}
+    }
+    </script>
