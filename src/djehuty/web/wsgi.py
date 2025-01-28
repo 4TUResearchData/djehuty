@@ -239,6 +239,7 @@ class WebServer:
             R("/v2/account/collections/<collection_id>/authors",                 self.api_private_collection_authors),
             R("/v2/account/collections/<collection_id>/authors/<author_id>",     self.api_private_collection_author_delete),
             R("/v2/account/collections/<collection_id>/categories",              self.api_private_collection_categories),
+            R("/v2/account/collections/<collection_id>/categories/<category_id>", self.api_private_delete_collection_category),
             R("/v2/account/collections/<collection_id>/articles",                self.api_private_collection_datasets),
             R("/v2/account/collections/<collection_id>/articles/<dataset_id>",   self.api_private_collection_dataset_delete),
             R("/v2/account/collections/<collection_id>/reserve_doi",             self.api_private_collection_reserve_doi),
@@ -5105,27 +5106,26 @@ class WebServer:
         return self.__api_private_item_categories (request, "dataset", dataset_id,
                                                    self.__dataset_by_id_or_uri)
 
-    def api_private_delete_dataset_category (self, request, dataset_id, category_id):
-        """Implements /v2/account/articles/<id>/categories/<cid>."""
-        if not self.accepts_json(request):
-            return self.error_406 ("application/json")
+    def __api_private_delete_item_category (self, request, item_type, item_id, category_id, item_by_id_procedure):
+        """Implements /v2/account/[item]/<id>/categories/<cid>."""
 
-        account_uuid = self.account_uuid_from_request (request)
-        if account_uuid is None:
-            return self.error_authorization_failed(request)
+        account_uuid = self.default_authenticated_error_handling (request, "DELETE",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
 
         try:
-            dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                   account_uuid=account_uuid,
-                                                   is_published=False)
+            item = item_by_id_procedure (item_id,
+                                         account_uuid=account_uuid,
+                                         is_published=False)
 
-            if dataset is None:
+            if item is None:
                 return self.error_403 (request, (f"account:{account_uuid} attempted "
                                                  f"to remove category:{category_id} "
-                                                 f"from dataset:{dataset_id}."))
+                                                 f"from {item_type}:{item_id}."))
 
             _, error_response = self.__needs_collaborative_permissions (
-                account_uuid, request, "dataset", dataset, "metadata_edit")
+                account_uuid, request, item_type, item, "metadata_edit")
             if error_response is not None:
                 return error_response
 
@@ -5138,18 +5138,23 @@ class WebServer:
             if category is None:
                 return self.error_403 (request, (f"account:{account_uuid} failed "
                                                  f"to remove category:{category_id} "
-                                                 f"from dataset:{dataset_id}."))
+                                                 f"from {item_type}:{item_id}."))
 
-            if self.db.delete_item_from_list (dataset["uri"], "categories",
+            if self.db.delete_item_from_list (item["uri"], "categories",
                                               uuid_to_uri (category["uuid"], "category")):
                 return self.respond_204()
 
-            self.log.error ("Failed to delete category %s from dataset %s.",
-                            category_id, dataset_id)
+            self.log.error ("Failed to delete category %s from %s %s.",
+                            category_id, item_type, item_id)
         except (IndexError, KeyError, StopIteration):
             pass
 
         return self.error_500()
+
+    def api_private_delete_dataset_category (self, request, dataset_id, category_id):
+        """Implements /v2/account/articles/<id>/categories/<cid>."""
+        return self.__api_private_delete_item_category (request, "dataset", dataset_id,
+                                                        category_id, self.__dataset_by_id_or_uri)
 
     def api_private_dataset_embargo (self, request, dataset_id):
         """Implements /v2/account/articles/<id>/embargo."""
@@ -6173,6 +6178,11 @@ class WebServer:
         """Implements /v2/account/collections/<id>/categories."""
         return self.__api_private_item_categories (request, "collection", collection_id,
                                                    self.__collection_by_id_or_uri)
+
+    def api_private_delete_collection_category (self, request, collection_id, category_id):
+        """Implements /v2/account/collections/<id>/categories/<cid>."""
+        return self.__api_private_delete_item_category (request, "collection", collection_id,
+                                                        category_id, self.__collection_by_id_or_uri)
 
     def api_private_collection_datasets (self, request, collection_id):
         """Implements /v2/account/collections/<id>/articles."""
