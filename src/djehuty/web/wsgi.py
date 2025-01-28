@@ -155,6 +155,8 @@ class WebServer:
             R("/ndownloader/items/<dataset_id>/versions/<version>",              self.ui_download_all_files),
             R("/data_access_request",                                            self.ui_data_access_request),
             R("/feedback",                                                       self.ui_feedback),
+            R("/sitemap.xml",                                                    self.sitemap),
+
 
             ## Export formats
             ## ----------------------------------------------------------------
@@ -459,6 +461,10 @@ class WebServer:
     def __render_svg_template (self, template_name, **context):
         template = self.jinja.get_template (template_name)
         return self.response (template.render (context), mimetype="image/svg+xml")
+
+    def __render_xml_template(self, template_name, **context):
+        template = self.jinja.get_template(template_name)
+        return self.response(template.render(context), mimetype="application/xml")
 
     def __render_css_template (self, template_name, **context):
         template = self.jinja.get_template (template_name)
@@ -1488,6 +1494,7 @@ class WebServer:
         else:
             output += "Disallow: /\n"
 
+        output += f"Sitemap: {config.base_url}/sitemap.xml\n"
         return self.response (output, mimetype="text/plain")
 
     def colors_css (self, request):
@@ -1513,6 +1520,17 @@ class WebServer:
 
         return self.__render_svg_template ("loader.svg",
             primary_color = config.colors["primary-color"])
+
+    def sitemap (self, request):
+        """Implements /sitemap.xml."""
+        if not self.accepts_content_type(request, "application/xml", strict=False):
+            return self.error_406("application/xml")
+
+        datasets = self.db.datasets(is_published=True, is_latest=True,
+                                    limit=50000)
+        return self.__render_xml_template("sitemap_template.xml",
+                                          base_url = config.base_url,
+                                          datasets = datasets)
 
     def ui_maintenance (self, request):
         """Implements a maintenance page."""

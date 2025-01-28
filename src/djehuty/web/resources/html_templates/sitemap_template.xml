@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{%- for item in datasets %}
+    {%- if item.embargo_type is not defined or item.embargo_type != 'article' %}
+    <url>
+        <loc>{{ base_url }}/datasets/{{ item.container_uuid }}</loc>
+        <lastmod>{{ item.timeline_posted }}</lastmod>
+    </url>
+    {%- endif %}
+{%- endfor %}
+</urlset>
