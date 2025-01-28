@@ -137,8 +137,8 @@ div.section_subsections { display: none; }
 
 \ifdefined\HCode
 \begin{html}
-<p style="text-align: center">This document is also available as <a href="djehuty.pdf">PDF</a>.</p>
-</div><div id="sidebar" class="narrow"><div class="sidebarwrap">
+<p style="text-align: center">This document is also available as <a tabindex="-1" href="djehuty.pdf">PDF</a>.</p>
+</div><div id="sidebar" role="menubar" aria-label="Navigation" class="narrow"><div class="sidebarwrap">
 <h2 class="likechapterHead additionalHead"><a href="#news-section">News</a></h2>
 <h2 class="likechapterHead additionalHead"><a href="#contact-section">Contact</a></h2>
 \end{html}
@@ -159,7 +159,7 @@ div.section_subsections { display: none; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter narrow"><div class="chapwrap">
+</div></div><div role="region" aria-label="Chapter: Introduction" class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -167,7 +167,7 @@ div.section_subsections { display: none; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter narrow"><div class="chapwrap">
+</div></div><div role="region" aria-label="Chapter: Configuring Djehuty" class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -175,7 +175,7 @@ div.section_subsections { display: none; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter narrow"><div class="chapwrap">
+</div></div><div role="region" aria-label="Chapter: Knowledge Graph" class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -183,7 +183,7 @@ div.section_subsections { display: none; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter narrow"><div class="chapwrap">
+</div></div><div role="region" aria-label="Chapter: Contributing" class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -191,7 +191,7 @@ div.section_subsections { display: none; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter narrow"><div class="chapwrap">
+</div></div><div role="region" aria-label="Chapter: Application Programming Interface" class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -199,7 +199,7 @@ div.section_subsections { display: none; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter narrow"><div class="chapwrap">
+</div></div><div role="region" aria-label="Chapter: References" class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -207,7 +207,7 @@ div.section_subsections { display: none; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter narrow"><div class="chapwrap">
+</div></div><div role="region" aria-label="Chapter: Contact" class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -215,7 +215,7 @@ div.section_subsections { display: none; }
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div class="chapter narrow"><div class="chapwrap">
+</div></div><div role="region" aria-label="Chapter: News" class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -253,8 +253,12 @@ function renderWindow (event) {
   }
 }
 window.addEventListener('load', function () {
+  for (chapter of document.getElementsByClassName("likechapterHead")) {
+    chapter.setAttribute("role", "menuitem");
+  }
   for (chapter of document.getElementsByClassName("chapterToc")) {
     removeWhitespace (chapter);
+    chapter.setAttribute("role", "menuitem");
     let chapterNumber = chapter.textContent.split(" ")[0];
     let sectionsWrapper = document.createElement("div");
     sectionsWrapper.setAttribute("id", `chapter${chapterNumber}_sections`);
@@ -263,6 +267,7 @@ window.addEventListener('load', function () {
   }
   for (section of document.getElementsByClassName("sectionToc")) {
     removeWhitespace (section);
+    section.setAttribute("role", "menuitem");
     let sectionNumber = section.textContent.split(" ")[0];
     let chapterNumber = sectionNumber.split(".")[0];
     let chapterElement = document.getElementById(`chapter${chapterNumber}_sections`);
@@ -279,6 +284,7 @@ window.addEventListener('load', function () {
   }
   for (subsection of document.getElementsByClassName("subsectionToc")) {
     removeWhitespace(subsection);
+    subsection.setAttribute("role", "menuitem");
     let splitted = subsection.textContent.split(" ")[0].split(".");
     let class_name = `${splitted[0]}_${splitted[1]}`;
     let sectionElement = document.getElementById(`section${class_name}_subsections`);

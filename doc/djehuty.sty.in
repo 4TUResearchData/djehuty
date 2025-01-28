@@ -189,9 +189,9 @@
   morecomment=[s]{!--}{--},
   commentstyle=\color{CodeComment},
   moredelim=[s][\color{black}]{>}{<},
-  moredelim=[s][\color{magenta}]{\ }{=},
-  stringstyle=\color{CodePurple},
-  identifierstyle=\color{magenta}
+  moredelim=[s][\color{violet}]{\ }{=},
+  stringstyle=\color{purple},
+  identifierstyle=\color{violet}
 }
 
 
@@ -199,7 +199,7 @@
 {
   basicstyle=\normalfont\ttfamily,
   commentstyle=\color{CodeComment},
-  stringstyle=\color{CodePurple},
+  stringstyle=\color{purple},
   string=[s]{"}{"},
   comment=[l]{:\ "},
   morecomment=[l]{:"}
@@ -207,9 +207,9 @@
 
 \lstdefinestyle{codestyle}{
     commentstyle=\color{CodeComment},
-    keywordstyle=\color{magenta},
+    keywordstyle=\color{violet},
     numberstyle=\tiny\color{CodeGray},
-    stringstyle=\color{CodePurple},
+    stringstyle=\color{purple},
     basicstyle=\ttfamily,
     breakatwhitespace=false,
     breaklines=true,
