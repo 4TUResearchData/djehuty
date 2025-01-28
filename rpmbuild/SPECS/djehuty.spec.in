@@ -66,6 +66,7 @@ rm -rf %{buildroot}
 /usr/share/djehuty/figures/account-.png
 /usr/share/djehuty/figures/dataset-.png
 /usr/share/djehuty/figures/dataset-container-.png
+/usr/share/djehuty/figures/favicon.png
 /usr/share/djehuty/figures/funding-.png
 /usr/share/djehuty/figures/rdf-list-abbrev-.png
 /usr/share/djehuty/figures/references-graph-.png
