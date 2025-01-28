@@ -5018,8 +5018,9 @@ class WebServer:
         return self.error_403 (request, (f"account:{account_uuid} attempted to remove remove "
                                          f"dataset:{dataset_id} from collection:{collection_id}"))
 
-    def api_private_dataset_categories (self, request, dataset_id):
-        """Implements /v2/account/articles/<id>/categories."""
+    def __api_private_item_categories (self, request, item_type, item_id,
+                                       item_by_id_procedure):
+        """Implements /v2/account/[item]/<id>/categories."""
         account_uuid = self.default_authenticated_error_handling (request,
                                                                   ["GET", "POST", "PUT"],
                                                                   "application/json")
@@ -5028,17 +5029,14 @@ class WebServer:
 
         if request.method in ("GET", "HEAD"):
             try:
-                dataset       = self.__dataset_by_id_or_uri (dataset_id,
-                                                             account_uuid=account_uuid,
-                                                             is_published=False)
-
-                categories    = self.db.categories (item_uri   = dataset["uri"],
-                                                    account_uuid = account_uuid,
-                                                    is_published = False,
-                                                    limit        = None)
-
+                item       = item_by_id_procedure (item_id,
+                                                   account_uuid=account_uuid,
+                                                   is_published=False)
+                categories = self.db.categories (item_uri   = item["uri"],
+                                                 account_uuid = account_uuid,
+                                                 is_published = False,
+                                                 limit        = None)
                 return self.default_list_response (categories, formatter.format_category_record)
-
             except (IndexError, KeyError):
                 pass
 
@@ -5053,25 +5051,29 @@ class WebServer:
                                            "Missing 'categories' parameter.",
                                            "MissingRequiredField")
 
-                dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_uuid = account_uuid,
-                                                       is_published = False)
+                item = item_by_id_procedure (item_id,
+                                             account_uuid = account_uuid,
+                                             is_published = False)
+                if item is None:
+                    return self.error_404 (request)
 
                 _, error_response = self.__needs_collaborative_permissions (
-                    account_uuid, request, "dataset", dataset, "metadata_edit")
+                    account_uuid, request, item_type, item, "metadata_edit")
                 if error_response is not None:
                     return error_response
 
-                # First, validate all values passed by the user.
-                # This way, we can be as certain as we can be that performing
-                # a PUT will not end in having no categories associated with
-                # a dataset.
+                # First, validate all values passed by the user.  This way, we
+                # can be as certain as we can be that performing a PUT will not
+                # end in having no categories associated with an item.
                 for index, _ in enumerate(categories):
-                    categories[index] = validator.string_value (categories, index, 0, 36)
+                    try:
+                        categories[index] = validator.string_value (categories, index, 0, 36)
+                    except validator.ValidationException:
+                        categories[index] = validator.integer_value (categories, index)
 
                 ## Append when using POST, otherwise overwrite.
                 if request.method == 'POST':
-                    existing_categories = self.db.categories (item_uri     = dataset["uri"],
+                    existing_categories = self.db.categories (item_uri     = item["uri"],
                                                               account_uuid = account_uuid,
                                                               is_published = False,
                                                               limit        = None)
@@ -5082,7 +5084,7 @@ class WebServer:
                     categories = list(dict.fromkeys(existing_categories + categories))
 
                 categories = uris_from_records (categories, "category")
-                if self.db.update_item_list (dataset["uuid"], account_uuid,
+                if self.db.update_item_list (item["uuid"], account_uuid,
                                              categories, "categories"):
                     return self.respond_205()
 
@@ -5094,6 +5096,11 @@ class WebServer:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
+
+    def api_private_dataset_categories (self, request, dataset_id):
+        """Implements /v2/account/articles/<id>/categories."""
+        return self.__api_private_item_categories (request, "dataset", dataset_id,
+                                                   self.__dataset_by_id_or_uri)
 
     def api_private_delete_dataset_category (self, request, dataset_id, category_id):
         """Implements /v2/account/articles/<id>/categories/<cid>."""
@@ -6161,28 +6168,8 @@ class WebServer:
 
     def api_private_collection_categories (self, request, collection_id):
         """Implements /v2/account/collections/<id>/categories."""
-
-        account_uuid = self.default_authenticated_error_handling (request, "GET",
-                                                                  "application/json")
-        if isinstance (account_uuid, Response):
-            return account_uuid
-
-        try:
-            collection = self.__collection_by_id_or_uri (collection_id,
-                                                         account_uuid=account_uuid)
-
-            if collection is None:
-                return self.error_404 (request)
-
-            categories = self.db.categories(item_uri   = collection["uri"],
-                                            account_uuid = account_uuid,
-                                            limit        = None)
-
-            return self.default_list_response (categories, formatter.format_category_record)
-        except (IndexError, KeyError):
-            pass
-
-        return self.error_500 ()
+        return self.__api_private_item_categories (request, "collection", collection_id,
+                                                   self.__collection_by_id_or_uri)
 
     def api_private_collection_datasets (self, request, collection_id):
         """Implements /v2/account/collections/<id>/articles."""
