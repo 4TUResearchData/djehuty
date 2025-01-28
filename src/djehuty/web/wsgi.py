@@ -4631,9 +4631,8 @@ class WebServer:
 
         return self.error_500 ()
 
-    def api_private_dataset_authors (self, request, dataset_id):
-        """Implements /v2/account/articles/<id>/authors."""
-
+    def __api_private_item_authors (self, request, item_type, item_id, item_by_id_procedure):
+        """Implements /v2/account/[item]/<id>/authors."""
         account_uuid = self.default_authenticated_error_handling (request,
                                                                   ["GET", "POST", "PUT"],
                                                                   "application/json")
@@ -4642,20 +4641,20 @@ class WebServer:
 
         if request.method in ("GET", "HEAD"):
             try:
-                dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_uuid=account_uuid,
-                                                       is_published=False)
+                item = item_by_id_procedure (item_id,
+                                             account_uuid=account_uuid,
+                                             is_published=False)
 
                 _, error_response = self.__needs_collaborative_permissions (
-                    account_uuid, request, "dataset", dataset, "metadata_read")
+                    account_uuid, request, item_type, item, "metadata_read")
                 if error_response is not None:
                     return error_response
 
                 authors = self.db.authors (
-                    item_uri     = dataset["uri"],
+                    item_uri     = item["uri"],
                     account_uuid = account_uuid,
                     is_published = False,
-                    item_type    = "dataset",
+                    item_type    = item_type,
                     limit        = validator.integer_value (request.args, "limit"),
                     order        = validator.string_value (request.args, "order", 0, 32),
                     order_direction = validator.order_direction (request.args, "order_direction"))
@@ -4674,16 +4673,16 @@ class WebServer:
             parameters = request.get_json()
 
             try:
-                dataset = self.__dataset_by_id_or_uri (dataset_id,
-                                                       account_uuid=account_uuid,
-                                                       is_published=False)
+                item = item_by_id_procedure (item_id,
+                                             account_uuid=account_uuid,
+                                             is_published=False)
 
-                if dataset is None:
+                if item is None:
                     return self.error_403 (request, (f"account:{account_uuid} attempted to "
-                                                     f"modify authors on dataset:{dataset_id}."))
+                                                     f"modify authors on {item_type}:{item_id}."))
 
                 _, error_response = self.__needs_collaborative_permissions (
-                    account_uuid, request, "dataset", dataset, "metadata_edit")
+                    account_uuid, request, item_type, item, "metadata_edit")
                 if error_response is not None:
                     return error_response
 
@@ -4716,9 +4715,9 @@ class WebServer:
                 existing_authors = []
                 if request.method == 'POST':
                     existing_authors = self.db.authors (
-                        item_uri     = dataset["uri"],
+                        item_uri     = item["uri"],
                         account_uuid   = account_uuid,
-                        item_type    = "dataset",
+                        item_type    = item_type,
                         is_published = False,
                         limit        = 10000)
 
@@ -4726,7 +4725,7 @@ class WebServer:
                                                  existing_authors))
 
                 authors = existing_authors + new_authors
-                if not self.db.update_item_list (dataset["uuid"], account_uuid,
+                if not self.db.update_item_list (item["uuid"], account_uuid,
                                                  authors, "authors"):
                     return self.error_500 ("Adding a single author failed.")
 
@@ -4740,6 +4739,11 @@ class WebServer:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
+
+    def api_private_dataset_authors (self, request, dataset_id):
+        """Implements /v2/account/articles/<id>/authors."""
+        return self.__api_private_item_authors (request, "dataset", dataset_id,
+                                                self.__dataset_by_id_or_uri)
 
     def api_private_dataset_author_delete (self, request, dataset_id, author_id):
         """Implements /v2/account/articles/<id>/authors/<a_id>."""
@@ -6085,94 +6089,8 @@ class WebServer:
 
     def api_private_collection_authors (self, request, collection_id):
         """Implements /v2/account/collections/<id>/authors."""
-
-        account_uuid = self.default_authenticated_error_handling (request,
-                                                                  ["GET", "POST", "PUT"],
-                                                                  "application/json")
-        if isinstance (account_uuid, Response):
-            return account_uuid
-
-        if request.method in ("GET", "HEAD"):
-            try:
-                collection = self.__collection_by_id_or_uri (collection_id,
-                                                             account_uuid = account_uuid,
-                                                             is_published = False)
-
-                authors    = self.db.authors (item_uri     = collection["uri"],
-                                              is_published = False,
-                                              account_uuid = account_uuid,
-                                              item_type    = "collection",
-                                              limit        = 10000)
-
-                return self.default_list_response (authors, formatter.format_author_record)
-            except (IndexError, KeyError):
-                pass
-
-            return self.error_500 ()
-
-        if request.method in ('POST', 'PUT'):
-            ## The 'parameters' will be a dictionary containing a key "authors",
-            ## which can contain multiple dictionaries of author records.
-            parameters = request.get_json()
-
-            try:
-                new_authors = []
-                records     = parameters["authors"]
-                for record in records:
-                    # The following fields are allowed:
-                    # id, name, first_name, last_name, email, orcid_id, job_title.
-                    #
-                    # We assume values for is_active and is_public.
-                    author_uuid  = validator.string_value (record, "uuid", 0, 36, False)
-                    if author_uuid is None:
-                        author_uuid = self.db.insert_author (
-                            full_name  = validator.string_value  (record, "name",       0, 255,        False),
-                            first_name = validator.string_value  (record, "first_name", 0, 255,        False),
-                            last_name  = validator.string_value  (record, "last_name",  0, 255,        False),
-                            email      = validator.string_value  (record, "email",      0, 255,        False),
-                            orcid_id   = validator.string_value  (record, "orcid_id",   0, 38,         False),
-                            job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
-                            is_active  = False,
-                            is_public  = True,
-                            created_by = account_uuid)
-                        if author_uuid is None:
-                            return self.error_500 ("Adding a single author failed.")
-                    new_authors.append(URIRef(uuid_to_uri (author_uuid, "author")))
-
-                collection = self.__collection_by_id_or_uri (collection_id,
-                                                             account_uuid = account_uuid,
-                                                             is_published = False)
-
-                # The PUT method overwrites the existing authors, so we can
-                # keep an empty starting list. For POST we must retrieve the
-                # existing authors to preserve them.
-                existing_authors = []
-                if request.method == 'POST':
-                    existing_authors = self.db.authors (
-                        item_uri     = collection["uri"],
-                        account_uuid = account_uuid,
-                        item_type    = "collection",
-                        is_published = False,
-                        limit        = 10000)
-
-                    existing_authors = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "author")),
-                                                 existing_authors))
-
-                authors = existing_authors + new_authors
-                if not self.db.update_item_list (collection["uuid"], account_uuid,
-                                                 authors, "authors"):
-                    return self.error_500 ("Adding a single author failed.")
-
-                return self.respond_205()
-
-            except IndexError:
-                return self.error_500 ()
-            except KeyError:
-                return self.error_400 (request, "Expected an 'authors' field.", "NoAuthorsField")
-            except validator.ValidationException as error:
-                return self.error_400 (request, error.message, error.code)
-
-        return self.error_500 ()
+        return self.__api_private_item_authors (request, "collection", collection_id,
+                                                self.__collection_by_id_or_uri)
 
     def api_private_collection_categories (self, request, collection_id):
         """Implements /v2/account/collections/<id>/categories."""
