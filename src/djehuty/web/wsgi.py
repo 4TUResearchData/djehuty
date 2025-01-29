@@ -6178,10 +6178,15 @@ class WebServer:
                 if collection is None:
                     return self.error_404 (request)
 
-                existing_datasets = self.db.datasets(collection_uri=collection["uri"], is_latest=True, limit=10000)
-                if existing_datasets:
-                    existing_datasets = list(map(lambda item: item["container_uuid"],
-                                                 existing_datasets))
+                existing_datasets = []
+                if request.method == "POST":
+                    existing_datasets = self.db.datasets(collection_uri=collection["uri"],
+                                                         is_latest=True,
+                                                         limit=10000)
+                    if existing_datasets:
+                        existing_datasets = list(map(lambda item: item["container_uuid"],
+                                                     existing_datasets))
+
                 new_datasets = parameters["articles"]
                 datasets   = existing_datasets + new_datasets
 
