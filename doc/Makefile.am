@@ -37,8 +37,12 @@ EXTRA_DIST              = $(doc_TEX) $(doc_STYLE)                  \
                           api.tex                                  \
                           references.bib                           \
                           figures/account.pdf                      \
+                          figures/author.pdf                       \
+                          figures/category.pdf                     \
                           figures/dataset.pdf                      \
                           figures/dataset-container.pdf            \
+                          figures/institutiongroup.pdf             \
+                          figures/file.pdf                         \
                           figures/funding.pdf                      \
                           figures/logo.pdf                         \
                           figures/rdf-list-abbrev.pdf              \
@@ -77,6 +81,10 @@ nobase_dist_doc_DATA     = index.html                              \
                            figures/dataset-.png                    \
                            figures/dataset-container-.png          \
                            figures/account-.png                    \
+                           figures/author-.png                     \
+                           figures/category-.png                   \
+                           figures/institutiongroup-.png           \
+                           figures/file-.png                       \
                            figures/funding-.png                    \
                            figures/favicon.png                     \
                            fonts/SourceSansPro-Regular.ttf         \
@@ -114,8 +122,12 @@ docs-clean:
       missfont.log                                                 \
       texput.log                                                   \
       figures/account-.png                                         \
+      figures/author-.png                                          \
+      figures/category-.png                                        \
       figures/dataset-.png                                         \
       figures/dataset-container-.png                               \
+      figures/institutiongroup-.png                                \
+      figures/file-.png                                            \
       figures/funding-.png                                         \
       figures/logo-.png                                            \
       figures/rdf-list-abbrev-.png                                 \

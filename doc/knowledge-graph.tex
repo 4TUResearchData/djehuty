@@ -91,6 +91,14 @@
   the \i{view}, \i{download}, \i{share} and \i{citation} counts are stored
   in a version-unspecific way.
 
+\section{Authors}
+
+  \t{djehuty} keeps records of authors including their full name, ORCID,
+  and e-mail address.  Furthermore, each \code{djht:Account} has a linked
+  \code{djht:Author} record.
+
+  \includefigure{author}{The RDF pattern for an \code{djht:Author}.}
+
 \section{Accounts}
 
   \t{djehuty} uses an external identity provider, but stores an e-mail address,
@@ -105,4 +113,34 @@
   the details for this structure.
 
   \includefigure{funding}{The RDF pattern for a \code{djht:Funding}.}
+
+\section{Categories}
+
+  Categories in \t{djehuty} are a controlled vocabulary based on the
+  \href{https://www.abs.gov.au/Ausstats/abs@.nsf/Latestproducts/4AE1B46AE2048A28CA25741800044242}%
+  {Australian and New Zealand Standard Research Classification (ANZSRC)}.  The
+  hierarchical structure is captured by using \code{id} and \code{parent\_id}
+  properties.
+
+  \includefigure{category}{The RDF pattern for an \code{djht:Category}.}
+
+\section{Institutions/groups}
+
+  An \code{djht:Account} has an affiliation with an institute or research group.
+  The \code{djht:InstitutionGroup} is stored per \code{djht:Dataset} and
+  \code{djht:Collection}.  The groups can be structured hierarchically by
+  using the \code{id} and \code{parent\_id} properties.
+
+  \includefigure{institutiongroup}{The RDF pattern for an \code{djht:InstitutionGroup}.}
+
+\section{Files}
+
+  A \code{djht:Dataset} keeps a list of \code{djht:File} records.  The file
+  metadata is stored in the knowledge graph while the file contents are
+  stored on a filesystem.  The location of the file data is tracked via the
+  \code{djht:filesystem\_location} property.
+
+  \includefigure{file}{The RDF pattern for a \code{djht:File}.}
+
+  % ...
 
