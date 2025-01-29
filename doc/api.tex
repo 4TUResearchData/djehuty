@@ -1181,7 +1181,7 @@ HTTP/1.1 205 RESET CONTENT
 \subsection{\t{/v2/account/articles/<dataset-id>/categories/<category-id>} (HTTP \texttt{DELETE})}
 
   This API endpoint can be used to delete a category's association with a dataset.
-  The \code{category-id} can be either the UUID or the numeric ID.
+  The \code{category-id} can be either the \code{uuid} or the \code{id} property.
 
   Example usage:
 \begin{lstlisting}[language=bash]
@@ -1980,13 +1980,99 @@ HTTP/1.1 205 RESET CONTENT
 \subsection{\t{/v2/account/collections/<collection-id>/categories/<category-id>} (HTTP \texttt{DELETE})}
 
   This API endpoint can be used to delete a category's association with a collection.
-  The \code{category-id} can be either the UUID or the numeric ID.
+  The \code{category-id} can be either the \code{uuid} or the \code{id} property.
 
   Example usage:
 \begin{lstlisting}[language=bash]
 curl --request DELETE \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/categories/13558
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/articles} (HTTP \texttt{GET})}
+
+  This API endpoint can be used to retrieve the datasets associated with
+  the collection identified by \code{collection-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/articles | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* This example has been shortened. */
+  {
+    "id": null,
+    "uuid": "8050f9cb-d0b0-4149-bd24-02f13c2410db",
+    "doi": "10.4121/8050f9cb-d0b0-4149-bd24-02f13c2410db.v1",
+    ...
+  },
+  {
+    "id": 14309234,
+    "uuid": "06431360-776c-45c6-bcca-ec898f2870ff",
+    "doi": "10.4121/14309234.v1",
+    ...
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/articles} (HTTP \texttt{POST})}
+\label{sec:v2-account-collection-articles}
+  This API endpoint can be used to append datasets to the collection identified
+  by \code{collection-id}.  The API endpoint accepts both the \code{id} property
+  and the \code{uuid} property of a dataset as identifier.
+
+\begin{lstlisting}[language=bash]
+curl --verbose --request POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --header "Accept: application/json" \
+     --data '{ "articles": ["8050...10db", 14309234 ]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/articles
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/articles} (HTTP \texttt{PUT})}
+
+  In contrast to \refer{sec:v2-account-collection-articles}, this API endpoint
+  can be used to \textbf{overwrite} the list of datasets associated with a
+  collection.
+
+\begin{lstlisting}[language=bash]
+curl --verbose --request PUT \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --header "Accept: application/json" \
+     --data '{ "articles": [ 14309234 ]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/articles
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/articles/<dataset-id>} (HTTP \texttt{DELETE})}
+
+  This API endpoint can be used to delete a dataset's association with a collection.
+  The \code{dataset-id} can be either the \code{uuid} or the \code{id} property.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/articles/8050...10db
 \end{lstlisting}
 
   HTTP response of the example:
