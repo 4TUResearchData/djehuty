@@ -102,16 +102,6 @@
 \newcommand\Highlight{\colorbox{HighlightColor}}
 \fi
 
-\newcommand\includefigure[3]{
-\begin{figure}[H]
-  \begin{center}
-    \includegraphics[width=1.0\textwidth]{figures/#1.pdf}
-  \end{center}
-  \caption{\textit{#2}}
-  \label{fig:#1}
-\end{figure}
-}
-
 \ifdefined\HCode
 \newcommand{\NoteBox}[1]{\fbox{\textbf{Note:} #1}}
 \else
@@ -163,6 +153,26 @@
 \else
 \usepackage[pdftex]{graphicx}
 \fi
+
+\IfPackageAtLeastTF{graphicx}{2021/09/16}{%
+\newcommand\includefigure[3]{%
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[alt={Figure showing: #2}, width=1.0\textwidth]{figures/#1.pdf}
+  \end{center}
+  \caption{\textit{#2}}
+  \label{fig:#1}
+\end{figure}}
+}{%
+\newcommand\includefigure[3]{%
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=1.0\textwidth]{figures/#1.pdf}
+  \end{center}
+  \caption{\textit{#2}}
+  \label{fig:#1}
+\end{figure}}
+}
 
 % Define the style for bibliography
 \IfFileExists{apacite.sty}{
