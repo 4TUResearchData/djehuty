@@ -1192,7 +1192,7 @@ HTTP/1.1 205 RESET CONTENT
 \begin{lstlisting}[language=bash]
 curl --request DELETE \
      --header "Authorization: token YOUR_TOKEN_HERE" \
-     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/categories/d50e...7500
+     (@*\djehutybaseurl{}*@)/v2/account/articles/d7b3...995b1/categories/5c61...b668
 \end{lstlisting}
 
   HTTP response of the example:
@@ -2078,6 +2078,111 @@ HTTP/1.1 205 RESET CONTENT
 curl --request DELETE \
      --header "Authorization: token YOUR_TOKEN_HERE" \
      (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/articles/8050...10db
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 204 NO CONTENT
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/reserve\_doi} (HTTP \texttt{POST})}
+
+  This API endpoint can be used to obtain the DOI before the collection is
+  published and the DOI is activated.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/reserve_doi | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{
+  "doi": "10.5074/fc03a4c3-cba4-4a88-a8a6-eb38924eeb6d"
+}
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/funding} (HTTP \texttt{GET})}
+
+  This API endpoint lists the funding of the collection identified by \code{collection-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/funding | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  {
+    "id": null,
+    "uuid": "6f605fe1-e87a-43f5-8b67-70ebe3f9b868",
+    "title": "Example cases fund",
+    "grant_code": "EXA-001",
+    "funder_name": "Example",
+    "is_user_defined": null,
+    "url": "https://example.exa"
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/funding} (HTTP \texttt{POST})}
+\label{sec:api-v2-collections-funding-post}
+
+  This API endpoint can be used to append funders to the collection identified
+  by \code{collection-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --verbose --request POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "funders": [{ "title": "Example cases fund", \
+                             "grant_code": "EXA-001", \
+                             "funder_name": "Example", \
+                             "url": "https://example.exa" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03a4c3-cba4-4a88-a8a6-eb38924eeb6d/funding
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/funding} (HTTP \texttt{PUT})}
+
+  In contrast to \refer{sec:api-v2-collections-funding-post}, this API endpoint
+  can be used to \textbf{overwrite} the list of funders of the collection
+  identified by \code{collection-id}.
+
+\begin{lstlisting}[language=bash]
+curl --verbose --request PUT \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --header "Content-Type: application/json" \
+     --data '{ "funders": [{ "title": "Example cases fund",
+                             "grant_code": "EXA-001",
+                             "funder_name": "Example",
+                             "url": "https://example.exa" }]}' \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03a4c3-cba4-4a88-a8a6-eb38924eeb6d/funding
+\end{lstlisting}
+
+  HTTP response of the example:
+\begin{lstlisting}
+HTTP/1.1 205 RESET CONTENT
+\end{lstlisting}
+
+\subsection{\t{/v2/account/collections/<collection-id>/funding/<funding-id>} (HTTP \texttt{DELETE})}
+
+  This API endpoint can be used to delete an funder's association with a collection.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request DELETE \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/collections/fc03...eb6d/funding/9b43...e6cd
 \end{lstlisting}
 
   HTTP response of the example:
