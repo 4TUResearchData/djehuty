@@ -60,5 +60,5 @@ dnl Default value for BASE_URL
 dnl Check for presence of 'git'.
 dnl ---------------------------------------------------------------------------
 AC_CHECK_PROG(GIT, git, git)
-
+AC_PROG_SED
 AC_OUTPUT

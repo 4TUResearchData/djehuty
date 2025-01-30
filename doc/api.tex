@@ -1,3 +1,8 @@
+\ifdefined\HCode
+\begin{html}
+<a id="api-section"></a>
+\end{html}
+\fi
 \chapter{Application Programming Interface}
 
   The application programming interface (API) provided by \t{djehuty} allows
@@ -54,7 +59,7 @@
   \t{limit}            & Optional & The maximum number of datasets to output.
                                     Used together with \t{offset}.\\
   \t{offset}           & Optional & The number of datasets to skip in the
-                                    output.  Used together with \t{limit}.\\
+                                    output.  Used together with \t{limit}.
 \end{tabularx}
 
   Example usage:
@@ -94,7 +99,7 @@ curl "(@*\djehutybaseurl{}*@)/v2/articles?limit=100&published_since=2024-07-25" 
 \begin{tabularx}{\textwidth}{*{2}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
   \headrow
   \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
-  \t{search\_for}      & Optional & The terms to search for.\\
+  \t{search\_for}      & Optional & The terms to search for.
 \end{tabularx}
 
   Example usage:
@@ -304,7 +309,7 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342e...49d2/files/d3e1...9292 | jq
   \t{limit}            & Optional & The maximum number of collections to output.
                                     Used together with \t{offset}.\\
   \t{offset}           & Optional & The number of collections to skip in the
-                                    output.  Used together with \t{limit}.\\
+                                    output.  Used together with \t{limit}.
 \end{tabularx}
 
   Example usage:
@@ -344,7 +349,7 @@ Output of the example:
 \begin{tabularx}{\textwidth}{*{2}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
   \headrow
   \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
-  \t{search\_for}      & Optional          & The terms to search for.\\
+  \t{search\_for}      & Optional          & The terms to search for.
 \end{tabularx}
 
   Example usage:
@@ -612,7 +617,7 @@ Authorization: token YOUR_TOKEN_HERE
   \t{limit}            & Optional & The maximum number of datasets to output.
                                     Used together with \t{offset}.\\
   \t{offset}           & Optional & The number of datasets to skip in the
-                                    output.  Used together with \t{limit}.\\
+                                    output.  Used together with \t{limit}.
 \end{tabularx}
 
   Example usage:
@@ -703,7 +708,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   \t{custom\_fields} & list of key-value pairs & \\
   \t{timeline}       &                      & Do not use this field because it
                                               will be automatically populated
-                                              during the publication process.\\
+                                              during the publication process.
 \end{tabularx}
 
   Example usage:
@@ -857,7 +862,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
                                               \code{uuid} property with a
                                               call to \code{/v2/categories}.
                                               For more details, see section
-                                              \refer{sec:v2-categories}.\\
+                                              \refer{sec:v2-categories}.
 \end{tabularx}
 
   Example usage:
@@ -901,7 +906,7 @@ HTTP/1.1 204 NO CONTENT
   \t{order}            & Optional & Field to use for sorting.\\
   \t{order\_direction} & Optional & Can be either \code{asc} or \code{desc}.\\
   \t{limit}            & Optional & The maximum number of datasets to output.
-                                    Used together with \t{offset}.\\
+                                    Used together with \t{offset}.
 \end{tabularx}
 
   Example usage:
@@ -1541,7 +1546,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   \t{offset}           & Optional & The number of datasets to skip in the
                                     output.  Used together with \t{limit}.\\
   \t{order}            & Optional & Field to use for sorting.\\
-  \t{order\_direction} & Optional & Can be either \code{asc} or \code{desc}.\\
+  \t{order\_direction} & Optional & Can be either \code{asc} or \code{desc}.
 \end{tabularx}
 
   Example usage:
@@ -1636,7 +1641,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
                                               will be automatically populated
                                               during the publication process.\\
   \t{articles}       & list of strings or integers & The articles to include
-                                              in the collection.\\
+                                              in the collection.
 \end{tabularx}
 
   Example usage:
@@ -1724,7 +1729,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
                                               \code{uuid} property with a
                                               call to \code{/v2/categories}.
                                               For more details, see section
-                                              \refer{sec:v2-categories}.\\
+                                              \refer{sec:v2-categories}.
 \end{tabularx}
 
   Example usage:
@@ -1797,7 +1802,7 @@ curl --request POST \
   \t{order}            & Optional & Field to use for sorting.\\
   \t{order\_direction} & Optional & Can be either \code{asc} or \code{desc}.\\
   \t{limit}            & Optional & The maximum number of datasets to output.
-                                    Used together with \t{offset}.\\
+                                    Used together with \t{offset}.
 \end{tabularx}
 
   Example usage:

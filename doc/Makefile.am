@@ -58,7 +58,11 @@ index.html: $(doc_HTML)
 $(doc_HTML): $(doc_PDF)
 	@cp -r ${abs_top_srcdir}/src/djehuty/web/resources/static/fonts ${srcdir}
 	@$(HTLATEX) $(doc_TEX) > /dev/null
-	@mv $(doc_NAME).html index.html
+	@$(SED) -e 's#class="endfloat" />#class="endfloat">#g' \
+          -e 's#class="newline" />#class="newline">#g' \
+          -e 's#<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  #<!DOCTYPE html>#g' \
+          -e 's#  "http://www.w3.org/TR/html4/loose.dtd"> ##g' \
+          -e 's#<br />#<br>#g' $(doc_NAME).html > index.html
 	@printf "Generated index.html.\n"
 
 .PHONY: $(doc_NAME).css

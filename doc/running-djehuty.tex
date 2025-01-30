@@ -54,7 +54,7 @@ configuration file, for which an example is available at
   \t{maintenance-mode}       & When set to 1, all HTTP requests result in the
                                displayment of a maintenance message. Use this
                                option while backing up the database, or when
-                               performing major updates.\\
+                               performing major updates.
 \end{tabularx}
 
 \section{Configuring the Database}
@@ -76,7 +76,7 @@ configuration file, for which an example is available at
                                be installed.\\
   \t{sparql-update-uri}      & The URI at which the SPARQL 1.1 Update endpoint
                                can be reached (in case it is different from
-                               the \t{sparql-uri}.\\
+                               the \t{sparql-uri}.
 \end{tabularx}
 
 \section{Audit trails and database reconstruction}
@@ -96,7 +96,7 @@ configuration file, for which an example is available at
                                this feature.  This element takes an attribute
                                \t{transactions-directory} that should specify
                                an empty directory to which transactions can be
-                               written that are extracted from the audit log.\\
+                               written that are extracted from the audit log.
 \end{tabularx}
 
 \subsection{Reconstructing the database from the query audit log}
@@ -144,7 +144,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \headrow
   \textbf{Option}            & \textbf{Description}\\
   \t{location}               & A filesystem path to where files are stored.
-                               This is a repeatable property.\\
+                               This is a repeatable property.
 \end{tabularx}
 
 
@@ -192,7 +192,7 @@ djehuty web --config-file=config.xml --apply-transactions
                                 can be configured.\\
   \t{sram}                    & In this section, SURF Research Access
                                 Management-specific attributes can be
-                                configured.\\
+                                configured.
 \end{tabularx}
 
 \subsubsection{The \t{attributes} configuration}
@@ -212,7 +212,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{common-name}             & A user's full name.\\
   \t{email}                   & A user's e-mail address.\\
   \t{groups}                  & The attribute denoting groups.\\
-  \t{group-prefix}            & The prefix for each group short name.\\
+  \t{group-prefix}            & The prefix for each group short name.
 \end{tabularx}
 
   As an example, the attributes configuration for SURFConext looks like this:
@@ -253,7 +253,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \textbf{Option}             & \textbf{Description}\\
   \t{organization-api-token}  & An organization-level API token.\\
   \t{collaboration-id}        & The UUID of the collaboration to invite
-                                users to.\\
+                                users to.
 \end{tabularx}
 
 \subsubsection{The \t{service-provider} configuration}
@@ -287,7 +287,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \cfgindent\cfgindent\t{email} & The e-mail address of the contact person.
                                   Note that some identity providers prefer
                                   functional e-mail addresses (e.g. support@...
-                                  instead of jdoe@...).\\
+                                  instead of jdoe@...).
 \end{tabularx}
 
 \subsection{ORCID}
@@ -321,7 +321,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \textbf{Option}             & \textbf{Description}\\
   \t{client-id}               & The client ID provided by ORCID.\\
   \t{client-secret}           & The client secret provided by ORCID.\\
-  \t{endpoint}                & The URL to the ORCID endpoint to use.\\
+  \t{endpoint}                & The URL to the ORCID endpoint to use.
 \end{tabularx}
 
 \section{Configuring an e-mail server}
@@ -348,7 +348,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{subject-prefix}          & Text to prefix in the subject of all e-mails
                                 sent from the instance of \t{djehuty}.  This
                                 can be used to distinguish a test instance from
-                                a production instance.\\
+                                a production instance.
 \end{tabularx}
 
 \section{Configuring DOI registration}
@@ -363,7 +363,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{api-url}                 & The URL of the API endpoint of DataCite.\\
   \t{repository-id}           & The repository identifier given by DataCite.\\
   \t{password}                & The password to authenticate with to DataCite.\\
-  \t{prefix}                  & The DOI prefix to use when registering a DOI.\\
+  \t{prefix}                  & The DOI prefix to use when registering a DOI.
 \end{tabularx}
 
 \section{Configuring Handle registration}
@@ -383,7 +383,7 @@ djehuty web --config-file=config.xml --apply-transactions
                                 used to authenticate to the endpoint.\\
   \t{prefix}                  & The Handle prefix to use when registering a
                                 handle.\\
-  \t{index}                   & The index to use when registering a handle.\\
+  \t{index}                   & The index to use when registering a handle.
 \end{tabularx}
 
 \section{Configuring IIIF support}
@@ -399,7 +399,7 @@ djehuty web --config-file=config.xml --apply-transactions
                                 requires the \t{pyvips} package to be available
                                 in the run-time environment.\\
   \t{iiif-cache-root}         & The directory to store the output of IIIF Image
-                                API requests to avoid re-computing the image.\\
+                                API requests to avoid re-computing the image.
 \end{tabularx}
 
 \section{Customizing looks}
@@ -435,7 +435,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{show-latest-datasets}    & When set to 1, it shows the list of latest
                                 published datasets on the main page.\\
   \t{colors}                  & Colors used in the HTML output. See section
-                                \ref{sec:customize-colors}.\\
+                                \ref{sec:customize-colors}.
 \end{tabularx}
 
 \subsection{Customizing colors}
@@ -452,7 +452,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{primary-color-active}     & Color to use when a link is clicked.\\
   \t{privilege-button-color}   & The background color of buttons for
                                  privileged actions.\\
-  \t{footer-background-color}  & Color to use in the footer.\\
+  \t{footer-background-color}  & Color to use in the footer.
 \end{tabularx}
 
 \section{Configuring privileged users}
@@ -491,7 +491,7 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{may-receive-email-notifications} & This ``privilege'' can be used to disable
                                         sending any e-mails to an account by
                                         setting it to \t{0}.  The default is
-                                        \t{1}.\\
+                                        \t{1}.
 \end{tabularx}
 
   To enable a privilege for an account, set the value of the desired privilege

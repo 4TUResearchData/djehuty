@@ -1,11 +1,11 @@
 \documentclass[12pt,a4paper]{book}
 \usepackage{djehuty}
-\title{djehuty}
+\title{Documentation of Djehuty: a data and software repository system.}
 \author{Roel Janssen}
 \begin{document}
 \ifdefined\HCode
 \ScriptEnv{html} {\NoFonts\hfill\break} {\EndNoFonts}
-\Tag{TITLE+}{Documentation on djehuty}
+\Tag{TITLE+}{Documentation of Djehuty: a data and software repository system.}
 \CssFile
 @font-face {
     font-family: 'SourceSans';
@@ -100,37 +100,37 @@ a:hover { color: #af6666; }
 div.section_subsections { display: none; }
 \EndCssFile
 \fi
-
 \ifdefined\HCode
 \begin{html}
 <div id="titlepage" class="chapter narrow">
-\end{html}
-\fi
+<div class="center">
+  <h1><code>djehuty</code></h1>
+  <h2>The 4TU.ResearchData and Nikhef repository system</h2>
+  <p>\end{html}%
+version \djehutyversion{}, \today{}
+\begin{html}
+  </p>
+</div>
+\end{html}%
+\else
 \begin{titlepage}
   \begin{center}
-    \ifdefined\HCode
-      \begin{html}
-        <h1><code>djehuty</code></h1>
-        <h2>The 4TU.ResearchData and Nikhef repository system</h2>
-      \end{html}
-      version \djehutyversion{}, \today{}~\\
-    \else
-      \topskip0pt
-      \vspace*{\fill}
-      { \Huge \t{djehuty} }~\\~\\
-      { \Large The 4TU.ResearchData and Nikhef repository system }~\\~\\
-      \includegraphics[width=0.35\textwidth]{figures/logo.pdf}
-      ~\\~\\
-      \url{https://github.com/4TUResearchData/djehuty}~\\
-       version \djehutyversion{}, \today{}
-       % Put it a little bit above the center of the page.
-       ~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\
-       \topskip0pt
-       \vspace*{\fill}
-    \fi
+    \topskip0pt
+    \vspace*{\fill}
+    { \Huge \t{djehuty} }~\\~\\
+    { \Large The 4TU.ResearchData and Nikhef repository system }~\\~\\
+    \includegraphics[width=0.35\textwidth]{figures/logo.pdf}
+    ~\\~\\
+    \url{https://github.com/4TUResearchData/djehuty}~\\
+    version \djehutyversion{}, \today{}
+    % Put it a little bit above the center of the page.
+    ~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\
+    \topskip0pt
+    \vspace*{\fill}
   \end{center}
   \thispagestyle{empty}
 \end{titlepage}
+\fi
 
 \setcounter{page}{1}
 \pagenumbering{roman}
@@ -225,7 +225,7 @@ div.section_subsections { display: none; }
 \ifdefined\HCode
 \begin{html}
 </div></div>
-<script type="text/javascript">
+<script>
 var windowState = "narrow";
 function removeWhitespace (element) {
   let sibling = element.nextElementSibling;
