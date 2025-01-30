@@ -4948,6 +4948,8 @@ class WebServer:
                                          is_published = False,
                                          item_type    = item_type,
                                          limit        = 10000)
+            if not fundings:
+                return self.error_404 (request)
 
             fundings.remove (next (filter (lambda item: item['uuid'] == funding_id, fundings)))
 
