@@ -1,8 +1,13 @@
 \chapter{Knowledge graph}
 
-  \code{djehuty} processes its information using the Resource Description
+  Djehuty processes its information using the Resource Description
   Framework \citep{lassila-99-rdf}.  This chapter describes the parts that
   make up the data model of \t{djehuty}.
+
+  This chapter dives into the structure of the data model, but does not
+  describe every property.  When running an instance of \code{djehuty},
+  the ``Exploratory'' available in the ``Admin panel'' can be used to explore
+  every property.
 
 \section{Use of vocabularies}
 
@@ -14,7 +19,7 @@
     \begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
       \headrow
       \b{Abbreviation} & \b{Ontology URI}\\
-      \t{djht}         & \dhref{https://ontologies.data.4tu.nl/djehuty/\djehutyversion/}\\
+      \t{djht}         & Internal and unpublished ontology.\\
       \t{rdf}          & \dhref{http://www.w3.org/1999/02/22-rdf-syntax-ns\#}\\
       \t{rdfs}         & \dhref{http://www.w3.org/2000/01/rdf-schema\#}\\
       \t{xsd}          & \dhref{http://www.w3.org/2001/XMLSchema\#}
@@ -91,6 +96,28 @@
   the \i{view}, \i{download}, \i{share} and \i{citation} counts are stored
   in a version-unspecific way.
 
+\section{Collections}
+
+  Collections provide a way to group \code{djht:Dataset} objects.
+
+  \includefigure{collection}{The RDF pattern for a \code{djht:Collection}.
+    For a full overview of \code{djht:Collection} properties, use the
+    exploratory from the administration panel.}
+
+  Collections are (just like Datasets) versioned records.  The metadata between
+  versions can differ, except all versions of a collection share an identifier.
+  We use \code{djht:CollectionContainer} to describe the version-unspecific
+  properties of a set of versioned collections.
+
+  \includefigure{collection-container}{The RDF pattern for a
+    \code{djht:CollectionContainer}.  All versions of a collection share a
+    \code{djht:collection\_id} and a UUID in the container URI.}
+
+  The data model follows a natural expression of published versions as a
+  linked list.  Figure \ref{fig:collection-container} further reveals that
+  the \i{view}, \i{download}, \i{share} and \i{citation} counts are stored
+  in a version-unspecific way.
+
 \section{Authors}
 
   \t{djehuty} keeps records of authors including their full name, ORCID,
@@ -142,5 +169,12 @@
 
   \includefigure{file}{The RDF pattern for a \code{djht:File}.}
 
-  % ...
+\section{Private links}
 
+  Before a \code{djht:Dataset} or a \code{djht:Collection} is made publically
+  available, it can be shared using a private link.
+
+  \includefigure{privatelink}{The RDF pattern for a \code{djht:PrivateLink}.}
+
+  The figure \ref{fig:privatelink} displays how private links are stored for
+  a \code{djht:Dataset}, and it works the same for a \code{djht:Collection}.

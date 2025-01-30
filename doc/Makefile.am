@@ -39,11 +39,14 @@ EXTRA_DIST              = $(doc_TEX) $(doc_STYLE)                  \
                           figures/account.pdf                      \
                           figures/author.pdf                       \
                           figures/category.pdf                     \
+                          figures/collection.pdf                   \
+                          figures/collection-container.pdf         \
                           figures/dataset.pdf                      \
                           figures/dataset-container.pdf            \
                           figures/institutiongroup.pdf             \
                           figures/file.pdf                         \
                           figures/funding.pdf                      \
+                          figures/privatelink.pdf                  \
                           figures/logo.pdf                         \
                           figures/rdf-list-abbrev.pdf              \
                           figures/references-graph.pdf             \
@@ -82,6 +85,8 @@ nobase_dist_doc_DATA     = index.html                              \
                            figures/typed-notation-.png             \
                            figures/typed-literals-notation-.png    \
                            figures/rdf-list-abbrev-.png            \
+                           figures/collection-.png                 \
+                           figures/collection-container-.png       \
                            figures/dataset-.png                    \
                            figures/dataset-container-.png          \
                            figures/account-.png                    \
@@ -90,6 +95,7 @@ nobase_dist_doc_DATA     = index.html                              \
                            figures/institutiongroup-.png           \
                            figures/file-.png                       \
                            figures/funding-.png                    \
+                           figures/privatelink-.png                \
                            figures/favicon.png                     \
                            fonts/SourceSansPro-Regular.ttf         \
                            fonts/SourceSansPro-Italic.ttf          \
@@ -128,11 +134,14 @@ docs-clean:
       figures/account-.png                                         \
       figures/author-.png                                          \
       figures/category-.png                                        \
+      figures/collection-.png                                      \
+      figures/collection-container-.png                            \
       figures/dataset-.png                                         \
       figures/dataset-container-.png                               \
       figures/institutiongroup-.png                                \
       figures/file-.png                                            \
       figures/funding-.png                                         \
+      figures/privatelink-.png                                     \
       figures/logo-.png                                            \
       figures/rdf-list-abbrev-.png                                 \
       figures/references-graph-.png                                \

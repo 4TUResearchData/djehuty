@@ -66,12 +66,15 @@ rm -rf %{buildroot}
 /usr/share/djehuty/figures/account-.png
 /usr/share/djehuty/figures/author-.png
 /usr/share/djehuty/figures/category-.png
+/usr/share/djehuty/figures/collection-.png
+/usr/share/djehuty/figures/collection-container-.png
 /usr/share/djehuty/figures/dataset-.png
 /usr/share/djehuty/figures/dataset-container-.png
 /usr/share/djehuty/figures/favicon.png
 /usr/share/djehuty/figures/file-.png
 /usr/share/djehuty/figures/funding-.png
 /usr/share/djehuty/figures/institutiongroup-.png
+/usr/share/djehuty/figures/privatelink-.png
 /usr/share/djehuty/figures/rdf-list-abbrev-.png
 /usr/share/djehuty/figures/references-graph-.png
 /usr/share/djehuty/figures/typed-literals-notation-.png
