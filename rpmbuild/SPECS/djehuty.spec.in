@@ -84,3 +84,8 @@ rm -rf %{buildroot}
 /usr/share/djehuty/fonts/SourceSansPro-Italic.ttf
 /usr/share/djehuty/fonts/SourceSansPro-Regular.ttf
 /usr/share/djehuty/index.html
+
+%changelog
+* Fri Jan 31 2025 Roel Janssen <r.r.e.janssen@tudelft.nl>
+- Initial RPM creation.
+- See https://djehuty.4tu.nl/#news-section for the full release notes.
