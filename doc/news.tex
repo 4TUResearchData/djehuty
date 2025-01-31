@@ -7,7 +7,56 @@
 
 \section*{Upcoming release notes for \texttt{v25.1}.}
 
-  The release notes for the upcoming release will be published here.
+  The January release of 2025 consists of 85 commits made by 3 authors.
+
+  In this release we included an RPM package for Enterprise Linux 9.  This RPM
+  depends on packages in the \href{https://docs.fedoraproject.org/en-US/epel/}%
+  {Extra Packages for Enterprise Linux (EPEL) repository}.
+
+\subsection*{New features}
+\begin{itemize}
+  \item{CodeMeta API output is more complete
+      (\commitLink{91ed59d8650f70022131ede59d388bb1a5b76cd0},
+      \commitLink{860edfec55ffa24be3609bc24c87a78e70587236},
+      \commitLink{3f150a246a4978d51df0ab658cba42c78a3b26a2},
+      \commitLink{5daa47e5f97a39cf2dc27eceb8314de0d0284b62}).}
+  \item{A second port to bind the web service on can now be configured
+      (\commitLink{dff68a6d6bbf3f7548803857deeb1adb6cf9f320}).}
+  \item{Enable searching by author (\commitLink{18a242fcde0f0bfa6036021c20d4eca91602d5a8},
+      \commitLink{fe09578657d71894cec45cad36b4a62c10165a8b}).}
+  \item{Enable institution reviewing (\commitLink{cbd1092cccfacaf8d3191d1130fc1b34154b555b},
+      \commitLink{cb67f83bfa4749c3c468b430efe82f3fb4c34efc}).}
+  \item{Improve indexability by search engines
+      (\commitLink{cc58483902f0760673c2a91567991b18829b112a},
+      \commitLink{20fe6fd9a5c6952af9368eae00755cc248c3c0a1}).}
+\end{itemize}
+\subsection*{Bugfixes}
+\begin{itemize}
+  \item{Related versions of a dataset are communicated to DataCite
+      (\commitLink{1539117be2a7679bafa5a94366f79a832bd759c1}).}
+  \item{HTML output of the documentation is responsive to browser widths
+      (\commitLink{934ed9310f1153960b95aff4944a0a729d153549}).}
+  \item{Restore ability to create new collection versions
+      (\commitLink{545de472c734161d223d94aa61b0d025eea07fec}).}
+  \item{Display embargoed datasets in the search results
+      (\commitLink{c86dcf85bee8af42988346cc12511341f1d3c6fc}).}
+  \item{Fixed building RPM packages (\commitLink{1f629fa0d0ea5acbb45b1ea5652f9cfe8bc431f3},
+      \commitLink{e4c10571a8da9c6b5c63e48d3bd1bce700ab0311}).}
+  \item{Fixed HTTP \texttt{PUT} behavior for \texttt{/v2/account/collections/<id>/articles}
+      (\commitLink{107ea693e170689b83213e668f9e75b59f9348c3}.)}
+\end{itemize}
+\subsection*{Technical debt}
+\begin{itemize}
+  \item{Unified the development environment instructions between GNU/Linux,
+      Windows and macOS (\commitLink{8921d35c1a0909e331b4737b6c0bb6713fb77743},
+      \commitLink{ca9b5831c19948f098106917c34bc4ff383543d2}).}
+  \item{Run-time configurable properties are stored in a separate module
+      (\commitLink{a8e353db6e29342adb038950eacf350e89dda7bf}).}
+  \item{Improve error handling (\commitLink{bdf77edd810bb9d22c111b11e34e265c3e286f31},
+      \commitLink{23c3b53d297b11bacab08d2436b723637773a78d},
+      \commitLink{609c9864e357101f39e0dfb8cfc0b045889d9d17}).}
+  \item{Embed simplified 'zipfly' (\commitLink{0fe0904a2aa25fc19094ee2c57a1b1d6fda4b4ad}).}
+\end{itemize}
 
 \section*{Release notes for \texttt{v24.12}.}
 
