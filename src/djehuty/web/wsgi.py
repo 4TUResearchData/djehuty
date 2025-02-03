@@ -1510,7 +1510,8 @@ class WebServer:
             primary_color_active     = config.colors['primary-color-active'],
             primary_foreground_color = config.colors['primary-foreground-color'],
             footer_background_color  = config.colors['footer-background-color'],
-            privilege_button_color   = config.colors['privilege-button-color'])
+            privilege_button_color   = config.colors['privilege-button-color'],
+            background_color         = config.colors["background-color"])
 
     def loader_svg (self, request):
         """Implements /theme/loader.svg."""

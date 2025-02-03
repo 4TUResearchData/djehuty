@@ -1,3 +1,4 @@
+body,html { background-color: {{background_color}}; }
 .corporate-identity { color: {{primary_color}}; text-decoration: none; }
 .corporate-identity:hover { color: {{primary_color_hover}}; text-decoration: underline; }
 .corporate-identity li.active { background: {{primary_color}}; }

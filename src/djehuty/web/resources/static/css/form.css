@@ -32,6 +32,7 @@
     margin-top: 0em;
     margin-bottom: 1em;
     font-size: 13pt;
+    background-color: #fff;
 }
 #content-wrapper h3:first-child { margin-top: 0em; }
 #content-wrapper h3 {
@@ -104,6 +105,7 @@
     width: 852pt;
     margin-top: 0em;
     margin-bottom: 1em;
+    background-color: #fff;
 }
 .autocomplete {
     border-radius: 0em 0em .5em .5em;

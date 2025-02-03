@@ -67,7 +67,6 @@ body,html {
     font-family: 'SourceSans', sans-serif;
     font-size: 12pt;
     color: #000000;
-    background: #ffffff;
 }
 #wrapper {
     width: 100%;
@@ -97,6 +96,7 @@ body,html {
     text-align: center;
     color: #333333;
     user-select: none;
+    background-color: #fff;
 }
 #header-left  {  display: block; height: 100px; text-align: left; }
 #header-middle { display: block; height: 100px; text-align: center; }
@@ -191,7 +191,7 @@ body,html {
     overflow: hidden;
     z-index: 1;
 }
-nav { display: block; }
+nav { display: block; padding-top: 1pt; }
 .submenu li {
     position: block;
     display: none;
@@ -610,6 +610,7 @@ img { user-select: none; }
     max-width: 750pt;
 }
 #top-datasets td { text-align: left; }
+.tile { background-color: #fff; }
 .tile-item {
     display: inline-block;
     margin: 0pt 10pt 10pt 0pt;

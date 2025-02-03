@@ -100,7 +100,8 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
             "primary-color-active":     "#9d4800",
             "primary-foreground-color": "#000000",
             "privilege-button-color":   "#fce3bf",
-            "footer-background-color":  "#707070"
+            "footer-background-color":  "#707070",
+            "background-color":         "#ffffff"
         }
 
 config = RuntimeConfiguration()
