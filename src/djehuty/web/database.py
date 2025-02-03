@@ -126,20 +126,27 @@ class SparqlInterface:
 
         return output
 
+    def __normalize_identifier (self, value, prefix_url):
+        # Don't process invalid entries
+        if not isinstance(value, str):
+            return None
+        # Don't store empty values.
+        value = value.strip()
+        if value == "":
+            return None
+        # Strip the URI prefix from identifiers.
+        if value.startswith (prefix_url):
+            return value[len(prefix_url):]
+
+        return value
+
     def __normalize_orcid (self, orcid):
         """Procedure to make storing ORCID identifiers consistent."""
-        # Don't process invalid entries
-        if not isinstance(orcid, str):
-            return None
-        # Don't store empty ORCID identifiers.
-        orcid = orcid.strip()
-        if orcid == "":
-            return None
-        # Strip the URI prefix from ORCID identifiers.
-        if orcid.startswith ("https://orcid.org/"):
-            return orcid[18:]
+        return self.__normalize_identifier (orcid, "https://orcid.org/")
 
-        return orcid
+    def __normalize_doi (self, doi):
+        """Procedure to make storing DOIs consistent."""
+        return self.__normalize_identifier (doi, "https://doi.org/")
 
     def __query_from_template (self, name, args=None):
         template   = self.jinja.get_template (f"{name}.sparql")
@@ -1293,6 +1300,8 @@ class SparqlInterface:
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
 
+        doi = self.__normalize_doi (doi)
+        resource_doi = self.__normalize_doi (resource_doi)
         rdf.add (graph, uri, RDF.type,                   rdf.DJHT["Dataset"], "uri")
         rdf.add (graph, uri, rdf.DJHT["title"],          title,          XSD.string)
         rdf.add (graph, uri, rdf.DJHT["container"],      container,      "uri")
@@ -2450,7 +2459,7 @@ class SparqlInterface:
             "defined_type_name": rdf.escape_string_value (defined_type_name),
             "derived_from":    rdf.escape_string_value (derived_from),
             "description":     rdf.escape_string_value (description),
-            "doi":             rdf.escape_string_value (doi),
+            "doi":             rdf.escape_string_value (self.__normalize_doi (doi)),
             "format":          rdf.escape_string_value (mimetype),
             "geolocation":     rdf.escape_string_value (geolocation),
             "has_linked_file": has_linked_file,
@@ -2463,7 +2472,7 @@ class SparqlInterface:
             "modified_date":   modified_date_str,
             "organizations":   rdf.escape_string_value (organizations),
             "publisher":       rdf.escape_string_value (publisher),
-            "resource_doi":    rdf.escape_string_value (resource_doi),
+            "resource_doi":    rdf.escape_string_value (self.__normalize_doi (resource_doi)),
             "resource_title":  rdf.escape_string_value (resource_title),
             "same_as":         rdf.escape_string_value (same_as),
             "time_coverage":   rdf.escape_string_value (time_coverage),
@@ -2711,6 +2720,8 @@ class SparqlInterface:
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------
 
+        doi = self.__normalize_doi (doi)
+        resource_doi = self.__normalize_doi (resource_doi)
         rdf.add (graph, uri, RDF.type,                   rdf.DJHT["Collection"], "uri")
         rdf.add (graph, uri, rdf.DJHT["title"],          title,          XSD.string)
         rdf.add (graph, uri, rdf.DJHT["container"],      container,      "uri")
@@ -2782,7 +2793,7 @@ class SparqlInterface:
             "collection_uri":    rdf.uuid_to_uri (collection_uuid, "collection"),
             "contributors":      rdf.escape_string_value (contributors),
             "description":       rdf.escape_string_value (description),
-            "doi":               rdf.escape_string_value (doi),
+            "doi":               rdf.escape_string_value (self.__normalize_doi (doi)),
             "geolocation":       rdf.escape_string_value (geolocation),
             "language":          rdf.escape_string_value (language),
             "latitude":          rdf.escape_string_value (latitude),
@@ -2791,7 +2802,7 @@ class SparqlInterface:
             "modified_date":     modified_date_str,
             "organizations":     rdf.escape_string_value (organizations),
             "publisher":         rdf.escape_string_value (publisher),
-            "resource_doi":      rdf.escape_string_value (resource_doi),
+            "resource_doi":      rdf.escape_string_value (self.__normalize_doi (resource_doi)),
             "resource_title":    rdf.escape_string_value (resource_title),
             "time_coverage":     rdf.escape_string_value (time_coverage),
             "title":             rdf.escape_string_value (title),
