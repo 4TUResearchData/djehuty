@@ -2535,7 +2535,7 @@ class WebServer:
         return response
 
     def api_v3_dataset_collaborators (self, request, dataset_uuid):
-        """Implements /v3/datasets/dataset_uuid/collaborator"""
+        """Implements /v3/datasets/<dataset_uuid>/collaborators."""
 
         if not self.accepts_json (request):
             return self.error_406 ("application/json")
@@ -2547,16 +2547,11 @@ class WebServer:
         if not validator.is_valid_uuid (dataset_uuid):
             return self.error_404 (request)
 
-        try:
-            dataset = self.db.datasets (container_uuid=dataset_uuid,
-                                        account_uuid=account_uuid,
-                                        is_published=None,
-                                        is_latest=None,
-                                        limit=1)[0]
-        except IndexError:
-            return self.error_403 (request)
-
-        if dataset is None:
+        dataset = self.__dataset_by_id_or_uri (dataset_uuid,
+                                               account_uuid = account_uuid,
+                                               is_published = None,
+                                               is_latest    = None)
+        if not dataset:
             return self.error_403 (request)
 
         if request.method == "GET":
@@ -2624,11 +2619,10 @@ class WebServer:
                 not validator.is_valid_uuid (collaborator_uuid)):
             return self.error_404 (request)
         try:
-            dataset = self.db.datasets (container_uuid=dataset_uuid,
-                                        account_uuid=account_uuid,
-                                        is_published=False,
-                                        is_latest=None,
-                                        limit=1)[0]
+            dataset = self.__dataset_by_id_or_uri (dataset_uuid,
+                                                   account_uuid = account_uuid,
+                                                   is_published = False,
+                                                   is_latest    = None)
 
             _, error_response = self.__needs_collaborative_permissions(
                 account_uuid, request, "dataset", dataset, "metadata_edit")
