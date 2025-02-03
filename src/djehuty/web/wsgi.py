@@ -6717,7 +6717,8 @@ class WebServer:
                     branch_name = "master"
                 elif "main" in branches:
                     branch_name = "main"
-            self.__git_set_default_branch (git_repository, branch_name)
+
+                self.__git_set_default_branch (git_repository, branch_name)
 
         return branch_name
 
@@ -8404,6 +8405,10 @@ class WebServer:
         cached_value = self.db.cache.cached_value (cache_prefix, cache_key)
         if cached_value:
             return self.response (cached_value)
+
+        # No branches means it's an empty repository.
+        if branch is None:
+            return json.dumps({ "Other": 0 })
 
         tree = git_repository.revparse_single(branch).tree # pylint: disable=no-member
         statistics = self.__git_files_by_type (tree)
