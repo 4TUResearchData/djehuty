@@ -8400,15 +8400,15 @@ class WebServer:
         if isinstance (git_repository, Response):
             return git_repository
 
+        # No branches means it's an empty repository.
+        if branch is None:
+            return json.dumps({ "Other": 0 })
+
         cache_key = f"{git_uuid}_{git_repository.head.target}"
         cache_prefix = "git_languages"
         cached_value = self.db.cache.cached_value (cache_prefix, cache_key)
         if cached_value:
             return self.response (cached_value)
-
-        # No branches means it's an empty repository.
-        if branch is None:
-            return json.dumps({ "Other": 0 })
 
         tree = git_repository.revparse_single(branch).tree # pylint: disable=no-member
         statistics = self.__git_files_by_type (tree)
