@@ -139,7 +139,7 @@ version \djehutyversion{}, \today{}
 \ifdefined\HCode
 \begin{html}
 <p style="text-align: center">This document is also available as <a tabindex="-1" href="djehuty.pdf">PDF</a>.</p>
-</div><div id="sidebar" class="narrow"><nav role="menubar" aria-label="Navigation" class="sidebarwrap">
+</div><div id="sidebar" class="narrow"><nav role="menu" aria-label="Navigation" class="sidebarwrap">
 <h2 class="likechapterHead additionalHead"><a href="#news-section">News</a></h2>
 <h2 class="likechapterHead additionalHead"><a href="#contact-section">Contact</a></h2>
 \end{html}
@@ -260,10 +260,11 @@ function setRoleForAnchorInside (element, role) {
   } catch (e) {}
 }
 window.addEventListener('load', function () {
-  for (chapter of document.getElementsByClassName("likechapterHead")) {
+  let sidebar = document.getElementById("sidebar");
+  for (chapter of sidebar.getElementsByClassName("likechapterHead")) {
     setRoleForAnchorInside (chapter, "menuitem");
   }
-  for (chapter of document.getElementsByClassName("chapterToc")) {
+  for (chapter of sidebar.getElementsByClassName("chapterToc")) {
     removeWhitespace (chapter);
     setRoleForAnchorInside (chapter, "menuitem");
     let chapterNumber = chapter.textContent.split(" ")[0];
@@ -289,7 +290,7 @@ window.addEventListener('load', function () {
     chapterElement.appendChild(section);
     chapterElement.appendChild(subsectionsWrapper);
   }
-  for (subsection of document.getElementsByClassName("subsectionToc")) {
+  for (subsection of sidebar.getElementsByClassName("subsectionToc")) {
     removeWhitespace(subsection);
     setRoleForAnchorInside (subsection, "menuitem");
     let splitted = subsection.textContent.split(" ")[0].split(".");
