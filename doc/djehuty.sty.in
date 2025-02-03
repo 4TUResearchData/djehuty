@@ -163,7 +163,7 @@
 \usepackage[pdftex]{graphicx}
 \fi
 
-\IfPackageAtLeastTF{graphicx}{2021/09/16}{%
+\@ifpackagelater{graphicx}{2021/09/16}{%
 \newcommand\includefigure[3]{%
 \begin{figure}[H]
   \begin{center}

@@ -10,17 +10,40 @@ Prefix:      %{_prefix}
 BuildArch:   noarch
 Vendor:      Roel Janssen <r.r.e.janssen@tudelft.nl>
 Url:         https://github.com/4TUResearchData/djehuty
-BuildRequires: python3-devel
-BuildRequires: python3dist(setuptools)
+BuildRequires: systemd-rpm-macros
+# RHEL8 defaults to Python 3.6
+%if 0%{?rhel} == 8
+%global python3_pkgversion 39
+%else
+# Only RHEL8 does not have a package for the 'build' module.
+BuildRequires: python%{python3_pkgversion}-build
+%endif
+BuildRequires: python%{python3_pkgversion}-devel
+BuildRequires: python%{python3_pkgversion}-setuptools
+BuildRequires: python%{python3_pkgversion}-pip
+# Fedora names the following packages without version.
+%if 0%{?fedora} >= 40
+BuildRequires: python-setuptools-wheel
+BuildRequires: python-pip-wheel
+%else
+BuildRequires: python%{python3_pkgversion}-setuptools-wheel
+BuildRequires: python%{python3_pkgversion}-pip-wheel
+%endif
+BuildRequires: texlive
+BuildRequires: texlive-tex4ht
+BuildRequires: texlive-appendix
+BuildRequires: texlive-titlesec
+BuildRequires: texlive-float
+BuildRequires: make
 Requires: git
-Requires: python3dist(requests)
-requires: python3dist(jinja2)
-Requires: python3dist(rdflib)
-Requires: python3dist(pygit2)
-Requires: python3dist(urllib3)
-Requires: python3dist(werkzeug)
-Requires: python3dist(defusedxml)
-Requires: python3dist(pillow)
+Requires: python%{python3_pkgversion}-requests
+Requires: python%{python3_pkgversion}-jinja2
+Requires: python%{python3_pkgversion}-rdflib
+Requires: python%{python3_pkgversion}-pygit2
+Requires: python%{python3_pkgversion}-urllib3
+Requires: python%{python3_pkgversion}-werkzeug
+Requires: python%{python3_pkgversion}-defusedxml
+Requires: python%{python3_pkgversion}-pillow
 
 %undefine __brp_mangle_shebangs
 
@@ -30,7 +53,11 @@ This package provides the data repository system by
 
 %prep
 %autosetup -p1 -n %{name}-%{version}
-
+# RHEL8 does not provide the 'build' module for Python.  Fortunately, it's
+# only required on build-time, not run-time, so we take a shortcut here.
+%if 0%{?rhel} == 8
+pip3.9 install build
+%endif
 
 %build
 %{configure}
