@@ -72,7 +72,7 @@ td { font-size: 11pt; padding-left: 10pt; }
 .chapterToc { display: inline-block; padding: 4pt; font-size: 1.25em; font-weight: bold; background: #ddd; width: 100%; margin-left: -5pt; padding: 5pt 5pt 5pt 10pt; }
 .chapterToc a { color: #000000; }
 .chapterToc a:hover { color: #666666; }
-.sectionToc { display: inline-block; width: 100%; padding-left: 10pt; font-size 1.0em; }
+.sectionToc { display: inline-block; width: 100%; padding: .25em 0pt .25em 7pt; font-size 1.0em; }
 .sectionToc a { color: #7c0000; }
 .sectionToc a:hover { color: #af6666; }
 .subsectionToc { display: inline-block; width: 100%; padding-left: 20pt; font-size: 0.9em; }
@@ -139,7 +139,7 @@ version \djehutyversion{}, \today{}
 \ifdefined\HCode
 \begin{html}
 <p style="text-align: center">This document is also available as <a tabindex="-1" href="djehuty.pdf">PDF</a>.</p>
-</div><div id="sidebar" role="menubar" aria-label="Navigation" class="narrow"><div class="sidebarwrap">
+</div><div id="sidebar" class="narrow"><nav role="menubar" aria-label="Navigation" class="sidebarwrap">
 <h2 class="likechapterHead additionalHead"><a href="#news-section">News</a></h2>
 <h2 class="likechapterHead additionalHead"><a href="#contact-section">Contact</a></h2>
 \end{html}
@@ -160,7 +160,7 @@ version \djehutyversion{}, \today{}
 
 \ifdefined\HCode
 \begin{html}
-</div></div><div role="region" aria-label="Chapter: Introduction" class="chapter narrow"><div class="chapwrap">
+</nav></div><div role="region" aria-label="Chapter: Introduction" class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -253,13 +253,19 @@ function renderWindow (event) {
     setWindowState ("wide");
   }
 }
+function setRoleForAnchorInside (element, role) {
+  try {
+    let anchors = element.getElementsByTagName("a");
+    anchors[anchors.length - 1].setAttribute("role", role);
+  } catch (e) {}
+}
 window.addEventListener('load', function () {
   for (chapter of document.getElementsByClassName("likechapterHead")) {
-    chapter.setAttribute("role", "menuitem");
+    setRoleForAnchorInside (chapter, "menuitem");
   }
   for (chapter of document.getElementsByClassName("chapterToc")) {
     removeWhitespace (chapter);
-    chapter.setAttribute("role", "menuitem");
+    setRoleForAnchorInside (chapter, "menuitem");
     let chapterNumber = chapter.textContent.split(" ")[0];
     let sectionsWrapper = document.createElement("div");
     sectionsWrapper.setAttribute("id", `chapter${chapterNumber}_sections`);
@@ -268,7 +274,7 @@ window.addEventListener('load', function () {
   }
   for (section of document.getElementsByClassName("sectionToc")) {
     removeWhitespace (section);
-    section.setAttribute("role", "menuitem");
+    setRoleForAnchorInside (section, "menuitem");
     let sectionNumber = section.textContent.split(" ")[0];
     let chapterNumber = sectionNumber.split(".")[0];
     let chapterElement = document.getElementById(`chapter${chapterNumber}_sections`);
@@ -285,7 +291,7 @@ window.addEventListener('load', function () {
   }
   for (subsection of document.getElementsByClassName("subsectionToc")) {
     removeWhitespace(subsection);
-    subsection.setAttribute("role", "menuitem");
+    setRoleForAnchorInside (subsection, "menuitem");
     let splitted = subsection.textContent.split(" ")[0].split(".");
     let class_name = `${splitted[0]}_${splitted[1]}`;
     let sectionElement = document.getElementById(`section${class_name}_subsections`);
