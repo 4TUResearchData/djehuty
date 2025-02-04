@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT ?container_uuid ?published_date ?title
+SELECT ?container_uuid ?published_date ?title (?dataset AS ?dataset_uri)
 WHERE {
   GRAPH <{{state_graph}}> {
     ?dataset_container rdf:type                       djht:DatasetContainer ;

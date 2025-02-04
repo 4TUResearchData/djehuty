@@ -413,8 +413,9 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-circle-exclamation::before { content: "\f06a"; }
 .fa-empty::before {}
 
-ul.latest-datasets { list-style: square; margin-left: 0pt; padding-left: 1em; font-size: 13pt; }
-
+.latest-item { background: #fff; margin-bottom: .5em; padding: 1em; border-radius: 4pt; border: solid 1pt #ccc; }
+#latest-datasets ul { list-style: none; margin-left: 0pt; padding: 0pt; font-size: 13pt; }
+.
 table {
     border:none;
     border-spacing: 0pt;

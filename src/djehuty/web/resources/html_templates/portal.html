@@ -366,11 +366,19 @@
 <h1 class="corporate-identity-h1">Latest datasets <span class="h1-suffix">[<a href="/search">All</a>]</span></h1>
 <div id="latest-datasets">
   <ul>
-    {% for (url,title,pub_date) in latest %}
+    {%- for (url,title,pub_date,authors) in latest %}
       <li>
-        <a class="corporate-identity" href="{{url}}" title="Published {{pub_date}}">{{title}}</a>
+        <div class="latest-item">
+          <div class="latest-title"><a class="corporate-identity" href="{{url}}" title="Published {{pub_date}}"><strong>{{title}}</strong></a></div>
+          <div class="authors">
+            {%- for author in authors %}
+            {{author.full_name}}
+            {%- if loop.revindex0 %}, {%- endif %}
+            {%- endfor %}
+          </div>
+        </div>
       </li>
-    {% endfor %}
+    {%- endfor %}
   </ul>
 </div>
 {%- endif %}
