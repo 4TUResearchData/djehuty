@@ -6703,16 +6703,15 @@ class WebServer:
                             git_repository.path, error)
             head_reference = None
 
-        if head_reference is not None:
-            try:
-                name = head_reference.name
-                if name.startswith ("refs/heads/"):
-                    branch_name = name[11:]
-            except AttributeError:
-                pass
+        if head_reference is None:
+            return None
+
+        name = head_reference.name
+        if name is not None and name.startswith ("refs/heads/"):
+            branch_name = name[11:]
 
         # Guess and set a new default.
-        if branch_name is None:
+        if not branch_name:
             branches = list(git_repository.branches.local)
             if branches:
                 branch_name = branches[0]
