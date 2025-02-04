@@ -29,8 +29,8 @@ function latest_datasets () {
         let num_items = 0;
         jQuery.each (data, function(index) {
             if (jQuery.isEmptyObject(data[index])) { return; }
-            output += '<li><a class="corporate-identity" href="/datasets/'+ data[index].uuid +'">';
-            output += data[index].title + '</a></li>';
+            output += '<li><div class="latest-item"><div class="latest-title"><a class="corporate-identity" href="/datasets/'+ data[index].uuid +'">';
+            output += data[index].title + '</a></div></div></li>';
 
             num_items += 1;
         });

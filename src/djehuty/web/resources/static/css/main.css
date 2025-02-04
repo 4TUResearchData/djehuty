@@ -608,6 +608,7 @@ img { user-select: none; }
 #top-datasets-wrapper table { width: 100%; max-width: 880pt; }
 #top-datasets tbody tr td { padding: .5em; z-index: 50; }
 #top-datasets tbody tr:nth-child(odd) { background: #fafafa; }
+#top-datasets tbody tr:nth-child(even) { background: #fff; }
 #top-datasets tbody tr td:last-child { text-align: right; width: 130pt; }
 #top-datasets thead tr th:last-child { text-align: right; }
 #top-datasets tbody tr td:nth-child(1) {
