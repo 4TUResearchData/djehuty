@@ -76,11 +76,11 @@ pacman -Suy git autoconf automake make ${PREFIX}python \
             ${PREFIX}python-pillow ${PREFIX}python-build \
             ${PREFIX}python-setuptools
 git clone https://github.com/4TUResearchData/djehuty.git && cd djehuty/
-autoreconf -if && ./configure
 # If you chose a different PREFIX above, change /mingw64 accordingly below.
 # See: https://www.msys2.org/docs/environments
 /mingw64/bin/python -m venv --system-site-packages ../djehuty-env
 . ../djehuty-env/bin/activate
+autoreconf -if && ./configure
 pip install --editable .
 ```
 
