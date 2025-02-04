@@ -4,12 +4,14 @@
     border: solid 2pt #ccc;
     border-radius: .5em;
     margin-bottom: 1em;
+    border-spacing: 0;
 }
 .inside-form-table thead tr { background: #ccc; border-radius: .5em .5em 0em 0em; }
 .inside-form-table thead tr th { color: #000; text-align: left; padding: .5em; z-index: 50; border-top: none; }
 .inside-form-table thead tr th:last-child { text-align: right; }
 .inside-form-table tbody tr td { padding: .5em; z-index: 50; }
 .inside-form-table tbody tr:nth-child(even) { background: #fafafa; }
+.inside-form-table tbody tr:nth-child(odd) { background: #fff; }
 .inside-form-table tbody tr td:not(:first-child) { max-width: 15px; }
 .inside-form-table tbody tr td:first-child {
     text-overflow: ellipsis;
