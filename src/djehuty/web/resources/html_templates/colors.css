@@ -41,3 +41,4 @@ ul.latest-datasets li a:active { color: {{primary_color_active}}; }
 .search-filter-content label:hover { color: {{primary_color_hover}}; }
 #search-show-more, #search-show-less { color: {{primary_color_hover}}; cursor: pointer; text-align: center; }
 .search-results-pager a:hover { color: {{primary_color_hover}}; }
+.loader, .loader-top { background-color: {{background_color}}; }
