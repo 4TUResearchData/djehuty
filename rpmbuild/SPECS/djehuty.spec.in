@@ -22,6 +22,7 @@ BuildRequires: python%{python3_pkgversion}-setuptools
 BuildRequires: python%{python3_pkgversion}-pip
 %if 0%{?fedora} >= 40
 BuildRequires: texlive-libertine
+BuildRequires: python%{python3_pkgversion}-wheel
 %else
 BuildRequires: python%{python3_pkgversion}-setuptools-wheel
 BuildRequires: python%{python3_pkgversion}-pip-wheel
@@ -66,7 +67,7 @@ make install DESTDIR=%{buildroot}
 mkdir -p %{buildroot}%{_unitdir}
 cp etc/%{name}.service %{buildroot}%{_unitdir}/
 mkdir -p %{buildroot}/etc/%{name}
-cp etc/%{name}/djehuty-example-config.xml %{buildroot}/etc/%{name}/
+cp etc/%{name}/%{name}-example-config.xml %{buildroot}/etc/%{name}/
 
 %clean
 rm -rf %{buildroot}
@@ -78,48 +79,52 @@ rm -rf %{buildroot}
 %{python3_sitelib}/%{name}/
 %{python3_sitelib}/%{name}-@VERSION@*
 %{_unitdir}/%{name}.service
-/etc/%{name}/djehuty-example-config.xml
-/usr/bin/djehuty
-/usr/share/djehuty/djehuty.css
-/usr/share/djehuty/djehuty.pdf
-/usr/share/djehuty/djehuty2.html
-/usr/share/djehuty/djehuty3.html
-/usr/share/djehuty/djehuty4.html
-/usr/share/djehuty/djehuty5.html
-/usr/share/djehuty/djehuty6.html
-/usr/share/djehuty/djehuty7.html
-/usr/share/djehuty/figures/account-.png
-/usr/share/djehuty/figures/author-.png
-/usr/share/djehuty/figures/category-.png
-/usr/share/djehuty/figures/collection-.png
-/usr/share/djehuty/figures/collection-container-.png
-/usr/share/djehuty/figures/dataset-.png
-/usr/share/djehuty/figures/dataset-container-.png
-/usr/share/djehuty/figures/favicon.png
-/usr/share/djehuty/figures/file-.png
-/usr/share/djehuty/figures/funding-.png
-/usr/share/djehuty/figures/institutiongroup-.png
-/usr/share/djehuty/figures/privatelink-.png
-/usr/share/djehuty/figures/rdf-list-abbrev-.png
-/usr/share/djehuty/figures/references-graph-.png
-/usr/share/djehuty/figures/typed-literals-notation-.png
-/usr/share/djehuty/figures/typed-notation-.png
-/usr/share/djehuty/fonts/FiraMono-Regular.ttf
-/usr/share/djehuty/fonts/SourceSansPro-Bold.ttf
-/usr/share/djehuty/fonts/SourceSansPro-Italic.ttf
-/usr/share/djehuty/fonts/SourceSansPro-Regular.ttf
-/usr/share/djehuty/index.html
+%dir /etc/%{name}
+%{_sysconfdir}/%{name}/%{name}-example-config.xml
+%{_bindir}/%{name}
+%dir %{_datadir}/%{name}
+%{_datadir}/%{name}/%{name}.css
+%{_datadir}/%{name}/%{name}.pdf
+%{_datadir}/%{name}/%{name}2.html
+%{_datadir}/%{name}/%{name}3.html
+%{_datadir}/%{name}/%{name}4.html
+%{_datadir}/%{name}/%{name}5.html
+%{_datadir}/%{name}/%{name}6.html
+%{_datadir}/%{name}/%{name}7.html
+%dir %{_datadir}/%{name}/figures
+%{_datadir}/%{name}/figures/account-.png
+%{_datadir}/%{name}/figures/author-.png
+%{_datadir}/%{name}/figures/category-.png
+%{_datadir}/%{name}/figures/collection-.png
+%{_datadir}/%{name}/figures/collection-container-.png
+%{_datadir}/%{name}/figures/dataset-.png
+%{_datadir}/%{name}/figures/dataset-container-.png
+%{_datadir}/%{name}/figures/favicon.png
+%{_datadir}/%{name}/figures/file-.png
+%{_datadir}/%{name}/figures/funding-.png
+%{_datadir}/%{name}/figures/institutiongroup-.png
+%{_datadir}/%{name}/figures/privatelink-.png
+%{_datadir}/%{name}/figures/rdf-list-abbrev-.png
+%{_datadir}/%{name}/figures/references-graph-.png
+%{_datadir}/%{name}/figures/typed-literals-notation-.png
+%{_datadir}/%{name}/figures/typed-notation-.png
+%dir %{_datadir}/%{name}/fonts
+%{_datadir}/%{name}/fonts/FiraMono-Regular.ttf
+%{_datadir}/%{name}/fonts/SourceSansPro-Bold.ttf
+%{_datadir}/%{name}/fonts/SourceSansPro-Italic.ttf
+%{_datadir}/%{name}/fonts/SourceSansPro-Regular.ttf
+%{_datadir}/%{name}/index.html
 
 %post
-%systemd_post djehuty.service
+%systemd_post %{name}.service
 
 %preun
-%systemd_preun djehuty.service
+%systemd_preun %{name}.service
 
 %postun
-%systemd_postun_with_restart djehuty.service
+%systemd_postun_with_restart %{name}.service
 
 %changelog
-* Fri Jan 31 2025 Roel Janssen <r.r.e.janssen@tudelft.nl>
+* Fri Jan 31 2025 Roel Janssen <r.r.e.janssen@tudelft.nl> 25.1-1
 - Initial RPM creation.
 - See https://djehuty.4tu.nl/#news-section for the full release notes.
