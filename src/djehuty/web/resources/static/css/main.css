@@ -44,9 +44,11 @@
        url("/static/fonts/fa-brands-400.woff") format("woff"),
        url("/static/fonts/fa-brands-400.ttf") format("truetype");
 }
+table.corporate-identity-table { border-spacing: 0; }
 .corporate-identity-table tbody tr td { padding: .5em; z-index: 50; white-space: nowrap; }
 .corporate-identity-table thead tr th:last-child { text-align: right; }
 .corporate-identity-table tbody tr:nth-child(even) { background: #fafafa; }
+.corporate-identity-table tbody tr:nth-child(odd) { background: #fff; }
 .corporate-identity-table tbody tr td:last-child { text-align: right; width: 130pt; }
 .corporate-identity-table tbody tr td:nth-child(1) {
     text-overflow: ellipsis;
@@ -184,6 +186,7 @@ body,html {
     display: none;
     max-width: 220pt;
     background: #f1f1f1;
+    border: solid 1pt #ccc;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.25);
     border-radius: .5em;
     margin: 0pt !important;
@@ -592,12 +595,17 @@ img { user-select: none; }
     border-radius: .5em;
     border: 0px;
 }
+.notice-box h3 { padding: 0em 0em 0em 1em; margin: 1em 0em 0em 0em; }
+.notice-box p { margin: 0; padding: 1em; }
 .notice-box {
-    border: solid 2pt #ffeecc;
-    background: #fffaea;
-    padding: 0em 0.5em 0em 0.5em;
-    margin: 1em 0em 0em 0em;
+    border-radius: .5em;
+    padding: 0em;
+    margin: 1em 0em .5em 0em;
+    background: #ffeeaa;
+    border: solid 1pt #d4aa00;
 }
+.notice-box ol { margin-top: 0em; padding-top: 0em; }
+#top-datasets { border-spacing: 0; }
 #top-datasets th { text-align: left; white-space: nowrap; color: #ffffff; padding: .5em; }
 #top-datasets-wrapper table { width: 100%; max-width: 880pt; }
 #top-datasets tbody tr td { padding: .5em; z-index: 50; }
@@ -616,10 +624,12 @@ img { user-select: none; }
     display: inline-block;
     margin: 0pt 10pt 10pt 0pt;
     padding: 10pt;
-    width: 135pt;
+    width: 124pt;
+    max-width: 124pt;
     border-radius: 10pt;
     cursor: pointer;
     background: #f9f9f9;
+    border: solid 1pt #ccc;
 }
 .tile-item:hover { background: #eeeeee; }
 .tile-item:active { background: #e9e9e9; }

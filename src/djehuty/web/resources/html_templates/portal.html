@@ -15,13 +15,13 @@
 .tiles { display: flex; flex-wrap: wrap; justify-content: center; list-style: none; margin: 0pt; padding: 0pt; }
 .tiles li {
     display: inline-block;
-    margin: 1em 5pt 1em 5pt;
+    margin: 1em 4pt 1em 4pt;
     overflow: hidden;
     border: none;
     -webkit-border-radius: 4pt;
     -moz-border-radius: 4pt;
     border-radius: 4pt;
-    box-shadow: 0pt 0pt 10pt #cccccc;
+    border: solid 1pt #ccc;
 }
 .tiles li .tile { display: block; overflow: hidden; height: 160pt; }
 .tiles li .institute-tile { display: block; overflow: hidden; height: 100pt !important; }
@@ -50,13 +50,12 @@
 .h1-suffix { font-size: 0.6em; }
 .h1-suffix a { text-transform: uppercase; text-decoration: none; color: #808080; }
 .h1-suffix a:hover { color: #505050; }
-#new-notice { border-radius: .5em; padding: 0em; margin: 0em; background: #ffeeaa; }
-#new-notice p { padding: 1em; }
+#new-notice { margin-top: 0em; }
 </style>
 {% endblock %}
 {% block body %}
 {%- if notice_message %}
-<div id="new-notice"><p>{{notice_message|safe}}</p></div>
+<div id="new-notice" class="notice-box"><p>{{notice_message|safe}}</p></div>
 {%- endif %}
 {%- if show_portal_summary %}
 <h1 class="corporate-identity-h1">Summary</h1>
