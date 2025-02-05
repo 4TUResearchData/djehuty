@@ -115,6 +115,7 @@ body,html {
     border-radius: .5em;
     text-transform: uppercase;
     font-size: 14pt;
+    font-weight: bold;
     user-select: none;
 }
 .cancel-button { background: #990000; color: #fff; }
@@ -161,18 +162,17 @@ body,html {
     content: '\f0d7';
     font-family: "Font Awesome 6";
     font-weight: 900;
-    color: #808080;
+    color: #a0a0a0;
 }
 #primary-menu li {
     display: inline-block;
     list-style-type: none;
     text-decoration: none;
     color: #000000;
-    font-size: 12pt;
-    padding: 5px 5px 5px 0px;
-    margin: 0pt 5pt 0pt 0pt;
+    font-size: 15pt;
+    padding: 5pt 5pt 5pt 0pt;
+    margin: 0em .25em 0em 0em;
     user-select: none;
-    text-transform: uppercase;
 }
 #site-navigation ul:first-child { margin-left: 5mm; }
 #primary-menu .menu-item-has-children:hover > ul {
@@ -215,7 +215,7 @@ nav { display: block; padding-top: 1pt; }
 }
 .menu-item a { color: #505050; }
 .menu-item a:hover { color: #303030; }
-.submenu-item a { color: #000000; }
+.submenu-item a { font-size: 13pt; color: #000000; }
 .submenu-item a:hover { color: #333333; }
 #footer {
     height: auto;
@@ -417,7 +417,7 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-empty::before {}
 
 .latest-item { background: #fff; margin-bottom: .5em; padding: 1em; border-radius: 4pt; border: solid 1pt #ccc; }
-#latest-datasets ul { list-style: none; margin-left: 0pt; padding: 0pt; font-size: 13pt; }
+#latest-datasets ul { list-style: none; margin-left: 0pt; padding: 0pt; font-size: 14pt; }
 .
 table {
     border:none;
@@ -587,7 +587,7 @@ img { user-select: none; }
     background: #009900;
     color: #fff;
     font-size: small;
-   text-transform: uppercase;
+    text-transform: uppercase;
     padding: .25em .5em .25em .5em;
     margin: 0px;
     border-radius: .5em;

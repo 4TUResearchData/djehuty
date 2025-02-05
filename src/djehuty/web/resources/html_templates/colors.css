@@ -42,3 +42,8 @@ ul.latest-datasets li a:active { color: {{primary_color_active}}; }
 #search-show-more, #search-show-less { color: {{primary_color_hover}}; cursor: pointer; text-align: center; }
 .search-results-pager a:hover { color: {{primary_color_hover}}; }
 .loader, .loader-top { background-color: {{background_color}}; }
+.h1-suffix { background: {{primary_color }}; user-select: none; }
+.h1-suffix:hover { background: {{primary_color_hover }}; }
+.h1-suffix:active { background: {{primary_color_active }}; }
+.h1-suffix a { text-transform: uppercase; text-decoration: none; color: #fff;  font-weight: bold; }
+.h1-suffix a:hover { text-decoration: none; color: #fff;  }

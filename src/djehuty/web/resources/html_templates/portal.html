@@ -2,15 +2,17 @@
 {% block headers %}
 <style>
 #portal-summary { padding: .5em .5em .5em 0em; text-align: center; margin: 0 auto; }
-#portal-summary table { text-align: left; display: inline-block; }
-#portal-summary table tbody td:nth-child(1) {
+.portal-summary-item { text-align: center; width: 100%; }
+.portal-summary-item-left {
+    display: inline-block;
+    width: 350pt;
     text-align: right;
     font-size: 2em;
     font-family: 'FiraMono', monospace;
-    padding-right: .5em;
+    padding: .1em .5em .1em 0em;
+    border-right: solid 2pt #ccc;
 }
-#portal-summary table tbody td:nth-child(2) { border-left: solid 2pt #ccc; padding-left: 1em; }
-#portal-summary table tbody td { width: 220pt; }
+.portal-summary-item-right { display: inline-block; width: 350pt; text-align: left; padding-left: 1em; }
 .tiles-wrapper { margin: auto auto 1em auto; text-align: center; user-select: none; }
 .tiles { display: flex; flex-wrap: wrap; justify-content: center; list-style: none; margin: 0pt; padding: 0pt; }
 .tiles li {
@@ -47,9 +49,13 @@
 .institute-tile:first { margin-left: 0pt; }
 .institute-tile:hover { opacity: 0.5 !important; cursor: pointer; }
 .institute-tile img { width: 145pt; }
-.h1-suffix { font-size: 0.6em; }
-.h1-suffix a { text-transform: uppercase; text-decoration: none; color: #808080; }
-.h1-suffix a:hover { color: #505050; }
+.h1-suffix {
+  display: inline-block;
+  border-radius: .5em;
+  padding: .1em .4em .1em .4em;
+  font-size: 14pt;
+  transform: translate(12%, -12%);
+}
 #new-notice { margin-top: 0em; }
 </style>
 {% endblock %}
@@ -60,15 +66,12 @@
 {%- if show_portal_summary %}
 <h1 class="corporate-identity-h1">Summary</h1>
 <div id="portal-summary">
-  <table>
-    <tbody>
-      <tr><td>{{summary_data["datasets"]}}</td><td>datasets</td></tr>
-      <tr><td>{{summary_data["authors"]}}</td><td>authors</td></tr>
-      <tr><td>{{summary_data["collections"]}}</td><td>collections</td></tr>
-      <tr><td>{{summary_data["files"]}}</td><td>files</td></tr>
-      <tr><td>{{summary_data["bytes"]}}</td><td>bytes</td></tr>
-    </tbody>
-  </table>
+{%- for item in ["datasets", "authors", "collections", "files", "bytes"]: %}
+<div class="portal-summary-item">
+  <div class="portal-summary-item-left">{{summary_data[item]}}</div><!--
+--><div class="portal-summary-item-right">{{item}}</div>
+</div>
+{%- endfor %}
 </div>
 {%- endif %}
 
@@ -116,13 +119,13 @@
 {%- endif %}
 
 {%- if show_science_categories %}
-<h1 class="corporate-identity-h1">Subjects <span class="h1-suffix">[<a href="/category">All</a>]</span></h1>
+<h1 class="corporate-identity-h1">Subjects <span class="h1-suffix"><a href="/category">All</a></span></h1>
 <div class="tiles-wrapper">
   <ul class="tiles">
     <li>
       <div class="tile">
         <div class="tile-row-image">
-          <a href="/categories/13431">
+          <a href="/categories/13431" aria-hidden="true" tabindex="-1">
             <img src="/static/images/portal/mathematics.jpg" alt="Image for Mathematics">
           </a>
         </div>
@@ -132,7 +135,7 @@
     <li>
       <div class="tile">
         <div class="tile-row-image">
-          <a href="/categories/13603">
+          <a href="/categories/13603" aria-hidden="true" tabindex="-1">
             <img src="/static/images/portal/physics.jpg" alt="Image for Physics">
           </a>
         </div>
@@ -144,7 +147,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13594">
+      <a href="/categories/13594" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/chemistry.jpg" alt="Image for Chemistry">
       </a>
     </div>
@@ -156,7 +159,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13551">
+      <a href="/categories/13551" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/earth-sciences.jpg" alt="Image for Earth Sciences">
       </a>
     </div>
@@ -168,7 +171,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13551?categories=13552">
+      <a href="/categories/13551?categories=13552" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/atmospheric-sciences.jpg" alt="Image for Atmospheric Sciences">
       </a>
     </div>
@@ -180,7 +183,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13551?categories=13557">
+      <a href="/categories/13551?categories=13557" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/physical-geography-and-environmental-geoscience.jpg" alt="Image for Physical Geography and Environmental Geoscience">
       </a>
     </div>
@@ -192,7 +195,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13630?categories=13639">
+      <a href="/categories/13630?categories=13639" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/geomatic-engineering.jpg" alt="Image for Geomatic Engineering">
       </a>
     </div>
@@ -204,7 +207,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13410">
+      <a href="/categories/13410" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/environmental-sciences.jpg" alt="Image for Environmental Sciences">
       </a>
     </div>
@@ -216,7 +219,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13578">
+      <a href="/categories/13578" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/biology.jpg" alt="Image for Biology">
       </a>
     </div>
@@ -228,7 +231,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13376">
+      <a href="/categories/13376" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/agricultural-and-veterinary-sciences.jpg" alt="Image for Agricultural and Veterinary Sciences">
       </a>
     </div>
@@ -240,7 +243,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13611">
+      <a href="/categories/13611" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/information-and-computing-sciences.jpg" alt="Image for Information and Computing Sciences">
       </a>
     </div>
@@ -252,7 +255,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13652?categories=13659">
+      <a href="/categories/13652?categories=13659" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/nanotechnology.jpg" alt="Image for Nanotechnology">
       </a>
     </div>
@@ -264,7 +267,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13630?categories=13631">
+      <a href="/categories/13630?categories=13631" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/aerospace-engineering.jpg" alt="Image for Aerospace Engineering">
       </a>
     </div>
@@ -276,7 +279,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13630?categories=13635">
+      <a href="/categories/13630?categories=13635" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/civil-engineering.jpg" alt="Image for Civil Engineering">
       </a>
     </div>
@@ -288,7 +291,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13630?categories=13636">
+      <a href="/categories/13630?categories=13636" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/electrical-and-electronic-engineering.jpg" alt="Image for Electrical and Electronic Engineering">
       </a>
     </div>
@@ -300,7 +303,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13362">
+      <a href="/categories/13362" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/built-environment-and-design.jpg" alt="Image for Built Environment and Design">
       </a>
     </div>
@@ -312,7 +315,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13630?categories=13642">
+      <a href="/categories/13630?categories=13642" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/materials-engineering.jpg" alt="Image for Materials Engineering">
       </a>
     </div>
@@ -324,7 +327,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13630?categories=13643">
+      <a href="/categories/13630?categories=13643" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/mechanical-engineering.jpg" alt="Image for Mechanical Engineering">
       </a>
     </div>
@@ -336,7 +339,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13474">
+      <a href="/categories/13474" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/medical-and-health-sciences.jpg" alt="Image for Medical and Health Sciences">
       </a>
     </div>
@@ -348,7 +351,7 @@
 <li>
   <div class="tile">
     <div class="tile-row-image">
-      <a href="/categories/13500?categories=13503">
+      <a href="/categories/13500?categories=13503" aria-hidden="true" tabindex="-1">
         <img src="/static/images/portal/business-and-management.jpg" alt="Image for Business and Management">
       </a>
     </div>
@@ -362,7 +365,7 @@
 {%- endif %}
 
 {%- if show_latest_datasets %}
-<h1 class="corporate-identity-h1">Latest datasets <span class="h1-suffix">[<a href="/search">All</a>]</span></h1>
+<h1 class="corporate-identity-h1">Latest datasets <span class="h1-suffix"><a href="/search">All</a></span></h1>
 <div id="latest-datasets">
   <ul>
     {%- for (url,title,pub_date,authors) in latest %}
