@@ -3253,7 +3253,6 @@ class WebServer:
                 "type":        request.form.get("feedback_type"),
                 "description": request.form.get("description")
             }
-            self.log.info("Received from feedback form: %s", record)
             try:
                 validator.string_value (record, "email", 5, 255, False)
                 validator.options_value (record, "type", ["bug", "missing", "other"], True)

@@ -39,7 +39,7 @@ dist-docker: dist
              glibc-locales tzdata coreutils net-base bash virtuoso-ose
 
 dist-pypi:
-	@python -m build
+	@PYTHON@ -m build
 
 source-dist:
 	@PYTHON@ -m build --skip-dependency-check --no-isolation --sdist \
@@ -74,7 +74,7 @@ coverity-report:
 	@cov-build --dir cov-int --no-command --fs-capture-search .
 
 publish-pypi: dist-pypi
-	@python -m twine upload --repository pypi dist/djehuty-@VERSION@.tar.gz dist/djehuty-@VERSION@-py3-none-any.whl
+	@PYTHON@ -m twine upload --repository pypi dist/djehuty-@VERSION@.tar.gz dist/djehuty-@VERSION@-py3-none-any.whl
 
 publish-test-pypi: dist-pypi
-	@python -m twine upload --repository testpypi dist/djehuty-@VERSION@.tar.gz dist/djehuty-@VERSION@-py3-none-any.whl
+	@PYTHON@ -m twine upload --repository testpypi dist/djehuty-@VERSION@.tar.gz dist/djehuty-@VERSION@-py3-none-any.whl
