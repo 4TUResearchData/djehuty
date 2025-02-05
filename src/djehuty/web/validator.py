@@ -488,6 +488,14 @@ def is_valid_url (value):
     """Returns True when VALUE looks like a URL, False otherwise."""
     return string_fits_pattern (value, 1024, "^(https?|ftps?)://[-a-zA-Z0-9@:%._\\+~#?&//=]{2,1024}$")
 
+def is_valid_doi (value, allow_empty=True):
+    """Returns True when VALUE looks like a DOI, False otherwise."""
+    if allow_empty and isinstance (value, str) and value == "":
+        return True
+    if allow_empty and value is None:
+        return True
+    return string_fits_pattern (value, 1024, "^10(\\.\\w+)+/\\S+$")
+
 dataset_types = [
     "figure", "online resource", "preprint", "book",
     "conference contribution", "media", "dataset",

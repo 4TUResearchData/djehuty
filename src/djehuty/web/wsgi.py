@@ -32,7 +32,7 @@ from djehuty.web import xml_formatter
 from djehuty.web import database
 from djehuty.web import email_handler
 from djehuty.web import locks
-from djehuty.utils.convenience import pretty_print_size, decimal_coords
+from djehuty.utils.convenience import pretty_print_size, decimal_coords, normalize_doi
 from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
 from djehuty.utils.convenience import make_citation, is_opendap_url, landing_page_url
@@ -7218,6 +7218,13 @@ class WebServer:
                     "field_name": "categories",
                     "message": "Please specify at least one category."})
 
+            resource_doi = normalize_doi (validator.string_value (record, "resource_doi", 0, 255, False))
+            if not validator.is_valid_doi (resource_doi):
+                errors.append ({
+                    "field_name": "resource_doi",
+                    "message": "Please enter a valid DOI."
+                })
+
             license_id = validator.integer_value (record, "license_id", 0, pow(2, 63), True, errors)
             license_url = self.db.license_url_by_id (license_id)
             parameters = {
@@ -7225,7 +7232,7 @@ class WebServer:
                 "account_uuid":       account_uuid,
                 "title":              validator.string_value  (record, "title",          3, 1000,  True, errors),
                 "description":        validator.string_value  (record, "description",    0, 10000, True, errors, strip_html=False),
-                "resource_doi":       validator.string_value  (record, "resource_doi",   0, 255,   False, errors),
+                "resource_doi":       resource_doi,
                 "resource_title":     validator.string_value  (record, "resource_title", 0, 255,   False, errors),
                 "license_url":        license_url,
                 "group_id":           validator.integer_value (record, "group_id",       0, pow(2, 63), True, errors),
