@@ -17,7 +17,7 @@
 .tiles { display: flex; flex-wrap: wrap; justify-content: center; list-style: none; margin: 0pt; padding: 0pt; }
 .tiles li {
     display: inline-block;
-    margin: 1em 4pt 1em 4pt;
+    margin: .5em 11pt .5em 0pt;
     overflow: hidden;
     border: none;
     -webkit-border-radius: 4pt;
@@ -25,6 +25,8 @@
     border-radius: 4pt;
     border: solid 1pt #ccc;
 }
+.tiles li:nth-child(1), .tiles li:nth-child(2), .tiles li:nth-child(3), .tiles li:nth-child(4), .tiles li:nth-child(5) { margin-top: 1em; }
+.tiles li:nth-child(5), .tiles li:nth-child(10), .tiles li:nth-child(15), .tiles li:nth-child(20) { margin-right: 0pt; }
 .tiles li .tile { display: block; overflow: hidden; height: 160pt; }
 .tiles li .institute-tile { display: block; overflow: hidden; height: 100pt !important; }
 .tile-row-image {
