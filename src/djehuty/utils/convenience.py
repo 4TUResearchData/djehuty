@@ -311,3 +311,26 @@ def strip_string (input_string):
     if isinstance (input_string, str):
         return input_string.strip()
     return input_string
+
+def normalize_identifier (value, prefix_url):
+    """Procedure to rewrite URLs to URIs."""
+    # Don't process invalid entries
+    if not isinstance(value, str):
+        return None
+    # Don't store empty values.
+    value = value.strip()
+    if value == "":
+        return None
+    # Strip the URI prefix from identifiers.
+    if value.startswith (prefix_url):
+        return value[len(prefix_url):]
+
+    return value
+
+def normalize_orcid (orcid):
+    """Procedure to make storing ORCID identifiers consistent."""
+    return normalize_identifier (orcid, "https://orcid.org/")
+
+def normalize_doi (doi):
+    """Procedure to make storing DOIs consistent."""
+    return normalize_identifier (doi, "https://doi.org/")
