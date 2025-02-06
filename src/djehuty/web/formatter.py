@@ -158,7 +158,7 @@ def format_codemeta_record (record, git_url, tags, authors, base_url):
         output["referencePublication"] = [{
             "@type": "ScholarlyArticle",
             "url": f"https://doi.org/{resource_doi}",
-            "name": conv.value_or_none (record, "resource_name"),
+            "name": conv.value_or_none (record, "resource_title"),
             "@id": resource_doi
         }]
     else:
