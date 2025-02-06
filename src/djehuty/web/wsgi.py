@@ -6559,6 +6559,7 @@ class WebServer:
         for dataset in datasets:
             output.append (formatter.format_rocrate_record (
                 config.base_url,
+                config.site_name,
                 dataset,
                 config.ror_url,
                 tags    = self.db.tags(item_uri=dataset["uri"], limit=None),
@@ -6579,6 +6580,7 @@ class WebServer:
 
         output = (formatter.format_rocrate_record (
             config.base_url,
+            config.site_name,
             dataset,
             config.ror_url,
             tags    = self.db.tags(item_uri=dataset["uri"], limit=None),

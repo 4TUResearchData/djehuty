@@ -190,7 +190,8 @@ def format_rocrate_file_record (record):
         "contentSize": f"{conv.value_or_none(record, 'size')}",
         "contentUrl": file_download_url (record)
     }
-def format_rocrate_record (base_url, record, ror_url, tags, authors, files):
+
+def format_rocrate_record (base_url, site_name, record, ror_url, tags, authors, files):
     """Record formatter for the RO-Crate format."""
 
     # Strip the HTML tags from the description.
@@ -203,8 +204,15 @@ def format_rocrate_record (base_url, record, ror_url, tags, authors, files):
         file["base_url"] = base_url
         ro_file_ids.append({ "@id": file["uuid"] })
 
-    ro_crate_file_records = list (map (format_rocrate_file_record, files))
-    ro_crate_dataset_record = {
+    file_records = list (map (format_rocrate_file_record, files))
+    publisher_records = []
+    ro_crate_meta_record = {
+        "@id": "ro-crate-metadata.json",
+        "@type": "CreativeWork",
+        "conformsTo": { "@id": "https://w3id.org/ro/crate/1.1" },
+        "about": { "@id": "./" }
+    }
+    dataset_record = {
         "@id": "./",
         "@type": "Dataset",
         "identifier": f"https://doi.org/{record["doi"]}",
@@ -214,15 +222,21 @@ def format_rocrate_record (base_url, record, ror_url, tags, authors, files):
         "keywords": list (map (format_tag_record, tags)),
         "license": { "@id": conv.value_or_none (record, "license_spdx") },
         "author": list (map (lambda author: format_codemeta_author_record (author, base_url), authors)),
-        "hasPart": list (map (lambda item: { "@id": item["@id"] }, ro_crate_file_records))
+        "hasPart": list (map (lambda item: { "@id": item["@id"] }, file_records))
     }
 
     if ror_url:
-        ro_crate_dataset_record["publisher"] = ror_url
+        publisher_records = [{
+            "@id": ror_url,
+            "@type": "Organization",
+            "name": site_name,
+            "url": base_url
+        }]
+        dataset_record["publisher"] = { "@id": ror_url }
 
     return {
         "@context": "https://w3id.org/ro/crate/1.1/context",
-        "@graph": [ro_crate_dataset_record] + ro_crate_file_records
+        "@graph": [ro_crate_meta_record, dataset_record] + publisher_records + file_records
     }
 
 def format_dataset_record (record):
