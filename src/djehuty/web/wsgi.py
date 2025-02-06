@@ -6520,6 +6520,7 @@ class WebServer:
 
             output = []
             for dataset in datasets:
+                has_files = bool(self.db.dataset_files (dataset_uri = dataset["uri"], limit=1))
                 output.append (formatter.format_codemeta_record (
                     dataset,
                     git_url = self.__git_repository_url_for_dataset (dataset),
@@ -6528,6 +6529,7 @@ class WebServer:
                                                is_published = True,
                                                item_type = "dataset",
                                                limit = 10000),
+                    has_files = has_files,
                     base_url = config.base_url))
             return self.response (json.dumps(output))
         except validator.ValidationException as error:

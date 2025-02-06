@@ -117,7 +117,7 @@ def format_codemeta_author_record (record, base_url):
 
     return author
 
-def format_codemeta_record (record, git_url, tags, authors, base_url):
+def format_codemeta_record (record, git_url, tags, authors, has_files, base_url):
     """Record formatter for the CodeMeta format."""
 
     title = conv.value_or_none (record, "git_repository_name")
@@ -165,7 +165,7 @@ def format_codemeta_record (record, git_url, tags, authors, base_url):
         output["referencePublication"] = []
 
     download_url = []
-    if "version" in record and "container_uuid" in record:
+    if has_files and "version" in record and "container_uuid" in record:
         download_url = [f"{base_url}/ndownloader/items/{record['container_uuid']}/versions/{record['version']}"]
 
     if git_url:
