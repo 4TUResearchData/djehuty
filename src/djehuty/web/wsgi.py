@@ -302,6 +302,12 @@ class WebServer:
             R("/v3/accounts/search",                                             self.api_v3_accounts_search),
             R("/v3/authors/<author_uuid>",                                       self.api_v3_author_details),
 
+            ## RO-Crates
+            ## ----------------------------------------------------------------
+            R("/v3/ro-crates",                                                   self.api_v3_ro_crates),
+            R("/v3/datasets/<container_uuid>/ro-crate-metadata.json",            self.api_v3_datasets_ro_crate),
+            R("/v3/datasets/<container_uuid>/versions/<version>/ro-crate-metadata.json", self.api_v3_datasets_ro_crate),
+
             ## Data model exploratory
             ## ----------------------------------------------------------------
             R("/v3/explore/types",                                               self.api_v3_explore_types),
@@ -6526,6 +6532,61 @@ class WebServer:
             return self.response (json.dumps(output))
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
+
+    def api_v3_ro_crates (self, request):
+        """Implements /v3/ro-crates."""
+
+        errors          = []
+        offset, limit   = self.__paging_offset_and_limit (request, error_list=errors)
+        modified_since  = validator.string_value (request.args, "modified_since", 0, 32, False, error_list=errors)
+        order           = validator.string_value (request.args, "order", 0, 255, False, error_list=errors)
+        order_direction = validator.order_direction (request.args, "order_direction", False, error_list=errors)
+        if errors:
+            return self.error_400_list (request, errors)
+
+        datasets = self.db.datasets (is_published = True,
+                                     is_latest    = True,
+                                     is_embargoed = False,
+                                     is_restricted = False,
+                                     modified_since = modified_since,
+                                     order        = order,
+                                     order_direction = order_direction,
+                                     limit        = limit,
+                                     offset       = offset)
+        output = []
+        for dataset in datasets:
+            output.append (formatter.format_rocrate_record (
+                config.base_url,
+                dataset,
+                config.ror_url,
+                tags    = self.db.tags(item_uri=dataset["uri"], limit=None),
+                authors = self.db.authors (item_uri=dataset["uri"],
+                                           is_published = True,
+                                           item_type = "dataset",
+                                           limit = 10000),
+                files   = self.db.dataset_files (dataset_uri = dataset["uri"])))
+
+        return self.response (json.dumps(output))
+
+    def api_v3_datasets_ro_crate (self, request, container_uuid, version=None):
+        """Implements /v3/datasets/<container_uuid>[/versions/<version>]/ro-crate-metadata.json."""
+
+        dataset = self.__dataset_by_id_or_uri (container_uuid, version=version)
+        if dataset is None:
+            return self.error_404 (request)
+
+        output = (formatter.format_rocrate_record (
+            config.base_url,
+            dataset,
+            config.ror_url,
+            tags    = self.db.tags(item_uri=dataset["uri"], limit=None),
+            authors = self.db.authors (item_uri=dataset["uri"],
+                                       is_published = True,
+                                       item_type = "dataset",
+                                       limit = 10000),
+            files   = self.db.dataset_files (dataset_uri = dataset["uri"])))
+
+        return self.response (json.dumps(output))
 
     def api_v3_datasets_search (self, request):
         """Implements /v3/datasets/search."""

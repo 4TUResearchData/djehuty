@@ -78,6 +78,7 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         self.orcid_endpoint              = None
         self.orcid_read_public_token     = None
         self.identity_provider           = None
+        self.ror_url                     = None
         self.saml_config_path            = None
         self.saml_config                 = None
         self.saml_attribute_email        = "urn:mace:dir:attribute-def:mail"

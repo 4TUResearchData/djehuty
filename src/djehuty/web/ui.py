@@ -846,6 +846,10 @@ def read_configuration_file (server, config_file, logger, config_files):
         if site_shorttag is not None:
             config.site_shorttag = site_shorttag.text
 
+        ror_url = xml_root.find ("ror-url")
+        if ror_url is not None:
+            config.ror_url = ror_url.text
+
         support_email_address = xml_root.find ("support-email-address")
         if support_email_address is not None:
             config.support_email_address = support_email_address.text

@@ -180,6 +180,51 @@ def format_codemeta_record (record, git_url, tags, authors, base_url):
 
     return output
 
+def format_rocrate_file_record (record):
+    """Record formatter for RO-Crate file objects."""
+
+    return {
+        "@id": record["uuid"],
+        "@type": "File",
+        "name": conv.value_or_none (record, "name"),
+        "contentSize": f"{conv.value_or_none(record, 'size')}",
+        "contentUrl": file_download_url (record)
+    }
+def format_rocrate_record (base_url, record, ror_url, tags, authors, files):
+    """Record formatter for the RO-Crate format."""
+
+    # Strip the HTML tags from the description.
+    description = conv.value_or_none (record, "description")
+    if description:
+        description = conv.html_to_plaintext (description, True)
+
+    ro_file_ids = []
+    for file in files:
+        file["base_url"] = base_url
+        ro_file_ids.append({ "@id": file["uuid"] })
+
+    ro_crate_file_records = list (map (format_rocrate_file_record, files))
+    ro_crate_dataset_record = {
+        "@id": "./",
+        "@type": "Dataset",
+        "identifier": f"https://doi.org/{record["doi"]}",
+        "datePublished": conv.value_or_none(record, "published_date"),
+        "name": conv.value_or_none (record, "title"),
+        "description": description,
+        "keywords": list (map (format_tag_record, tags)),
+        "license": { "@id": conv.value_or_none (record, "license_spdx") },
+        "author": list (map (lambda author: format_codemeta_author_record (author, base_url), authors)),
+        "hasPart": list (map (lambda item: { "@id": item["@id"] }, ro_crate_file_records))
+    }
+
+    if ror_url:
+        ro_crate_dataset_record["publisher"] = ror_url
+
+    return {
+        "@context": "https://w3id.org/ro/crate/1.1/context",
+        "@graph": [ro_crate_dataset_record] + ro_crate_file_records
+    }
+
 def format_dataset_record (record):
     """Record formatter for datasets."""
 
