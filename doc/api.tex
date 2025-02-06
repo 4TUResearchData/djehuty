@@ -602,6 +602,28 @@ curl (@*\djehutybaseurl{}*@)/v2/licenses | jq
 Authorization: token YOUR_TOKEN_HERE
 \end{lstlisting}
 
+\subsection{\t{/v2/account} (HTTP \texttt{GET})}
+
+  This API endpoint can be used to retrieve information about the account
+  identified with the API token.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "id": null,
+  "uuid": "df7c0e54-b988-42b1-a815-308513d2f269",
+  "is_active": true,
+  "is_public": false,
+  ...
+}
+\end{lstlisting}
+
 \subsection{\t{/v2/account/articles} (HTTP \texttt{GET})}
 
   This API endpoint lists the draft datasets of the account to which the
