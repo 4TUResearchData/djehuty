@@ -31,8 +31,6 @@ def rdflib_network_audit_hook (name, arguments):
         logger = logging.getLogger(__name__)
         logger.audit ("Attempted to send a network request to %s", arguments[0])
 
-    return None
-
 class SparqlInterface:
     """This class reads and writes data from a SPARQL endpoint."""
 
