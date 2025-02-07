@@ -235,15 +235,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/images/favicon.ico                           \
     djehuty/web/resources/static/images/favicon.png                           \
     djehuty/web/resources/static/images/handle-logo.png                       \
-    djehuty/web/resources/static/images/licenses/apache.png                   \
-    djehuty/web/resources/static/images/licenses/cc-0.png                     \
-    djehuty/web/resources/static/images/licenses/cc-by.png                    \
-    djehuty/web/resources/static/images/licenses/cc-by-nc.png                 \
-    djehuty/web/resources/static/images/licenses/cc-by-nc-nd.png              \
-    djehuty/web/resources/static/images/licenses/cc-by-nc-sa.png              \
-    djehuty/web/resources/static/images/licenses/cc-by-nd.png                 \
-    djehuty/web/resources/static/images/licenses/cc-by-sa.png                 \
-    djehuty/web/resources/static/images/licenses/gnu-gpl-v3.png               \
     djehuty/web/resources/static/images/logo.png                              \
     djehuty/web/resources/static/images/logo-delft.png                        \
     djehuty/web/resources/static/images/logo-eindhoven.png                    \
