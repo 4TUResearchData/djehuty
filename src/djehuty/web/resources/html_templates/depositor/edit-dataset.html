@@ -51,7 +51,7 @@ jQuery(document).ready(function (){
 </script>
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
 <link href="/static/css/dropzone.min.css" rel="stylesheet">
-<link href="/static/css/form.css" rel="stylesheet">
+<link href="/static/css/form.css?cache=1738927707" rel="stylesheet">
 <style>
 #share-form {display: none}
 .upload-wrapper { text-align: center; }
@@ -421,11 +421,11 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 <input type="text" id="time_coverage" name="time_coverage" value="{{article["time_coverage"] | default("", True)}}" />
 <label>Geolocation</label><div class="fas fa-question-circle help-icon"><span class="help-text">When your dataset covers geographical data, fill in the following section </span></div>
 <div id="geolocation-wrapper">
-  <label for="geolocation">Name</label><div class="fas fa-question-circle help-icon"><span class="help-text">The geographic area to which the data refer (e.g. municipality, town/city, region, country)</span></div>
+  <label class="inner-head" for="geolocation">Name</label><div class="fas fa-question-circle help-icon"><span class="help-text">The geographic area to which the data refer (e.g. municipality, town/city, region, country)</span></div>
   <input type="text" id="geolocation" name="geolocation" placeholder="Example: Dam Square, Amsterdam" value="{{article["geolocation"] | default("", True)}}" />
-  <label for="longitude">Longitude</label><div class="fas fa-question-circle help-icon"><span class="help-text">Geographic longitude in decimal degrees, East is positive, West is negative. Values: -180 to 180.</span></div>
+  <label class="inner-head" for="longitude">Longitude</label><div class="fas fa-question-circle help-icon"><span class="help-text">Geographic longitude in decimal degrees, East is positive, West is negative. Values: -180 to 180.</span></div>
   <input type="text" id="longitude" name="longitude" placeholder="Example: 4.893" value="{{article["longitude"] | default("", True)}}" />
-  <label for="latitude">Latitude</label><div class="fas fa-question-circle help-icon"><span class="help-text">Geographic latitude in decimal degrees, North is positive, South is negative. Values: -90 to 90.</span></div>
+  <label class="inner-head" for="latitude">Latitude</label><div class="fas fa-question-circle help-icon"><span class="help-text">Geographic latitude in decimal degrees, North is positive, South is negative. Values: -90 to 90.</span></div>
   <input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{article["latitude"] | default("", True)}}" />
 </div>
 <label for="format">File format(s)</label><div class="fas fa-question-circle help-icon"><span class="help-text">Format of the data file(s), e.g. the media type like image/jpeg or a description like &#8220;gzipped shape files&#8221;.</span></div>

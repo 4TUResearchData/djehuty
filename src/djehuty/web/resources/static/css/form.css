@@ -55,10 +55,13 @@
 }
 #content-wrapper label {
     display: inline-block;
-    background: #ffeecc;
+    background: #ffeeaa;
     color: #000;
     padding: .5em .5em .25em .5em;
     border-radius: .5em .5em 0em 0em;
+    border-top: solid 1pt #d4aa00;
+    border-right: solid 1pt #d4aa00;
+    border-left: solid 1pt #d4aa00;
     font-weight: bold;
 }
 #content-wrapper label.no-head {
@@ -66,11 +69,13 @@
     background: none;
     font-weight: normal;
     cursor: pointer;
+    border: 0pt;
     border-radius: 0pt;
 }
 #content-wrapper label.inner-head {
     display: inline-block;
     background: #eeeeee;
+    border: 0pt;
     font-weight: bold;
     cursor: pointer;
 }
@@ -144,6 +149,7 @@
     border-radius: .5em !important;
     cursor: pointer;
     user-select: none;
+    border: 0pt !important;
 }
 .multi-list { display: none; border: none; }
 .multi-list thead { display: none; }
