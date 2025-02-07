@@ -2864,6 +2864,9 @@ class WebServer:
     def ui_profile_connect_with_orcid (self, request):
         """Implements /my/profile/connect-with-orcid."""
 
+        if config.orcid_endpoint is None:
+            return self.error_404 (request)
+
         handler = self.default_error_handling (request, "GET", "text/html")
         if handler is not None:
             return handler
