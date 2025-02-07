@@ -3,6 +3,7 @@ This module provides the communication with the SPARQL endpoint to provide
 data for the API server.
 """
 
+import sys
 import uuid
 import secrets
 import os.path
@@ -17,6 +18,20 @@ from djehuty.web import cache
 from djehuty.utils import rdf
 from djehuty.utils import convenience as conv
 from djehuty.web.config import config
+
+def rdflib_network_audit_hook (name, arguments):
+    """Event handler to audit making unexpected network connections."""
+
+    # RDFLib uses urllib.Request to do network requests.  We only expect it to
+    # connect to the configured SPARQL endpoint(s).  Because RDFLib can also
+    # fetch RDF files, we report such attempts in the audit log.
+    if (name == "urllib.Request" and
+        arguments[0] not in (f"{config.endpoint}?",
+                             f"{config.update_endpoint}?")):
+        logger = logging.getLogger(__name__)
+        logger.audit ("Attempted to send a network request to %s", arguments[0])
+
+    return None
 
 class SparqlInterface:
     """This class reads and writes data from a SPARQL endpoint."""
@@ -76,6 +91,7 @@ class SparqlInterface:
             # Set bind_namespaces so rdflib does not inject PREFIXes.
             self.sparql  = Graph(store = self.store, bind_namespaces = "none")
             self.log.info ("Using external RDF store.")
+            sys.addaudithook (rdflib_network_audit_hook)
 
         self.sparql_is_up = True
         return None
@@ -158,6 +174,9 @@ class SparqlInterface:
         try:
             execution_type, query_type = rdf.query_type (query)
             if execution_type == "update":
+                if query_type == "LOAD":
+                    self.log.audit ("Denied SPARQL LOAD request.")
+                    return False
                 self.sparql.update (query)
                 self.sparql.commit()
                 ## Upon failure, an exception is thrown.
