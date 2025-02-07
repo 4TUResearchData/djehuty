@@ -264,7 +264,7 @@ class WebServer:
             ## V3 API
             ## ----------------------------------------------------------------
             R("/v3/datasets",                                                    self.api_v3_datasets),
-            R("/v3/datasets/codemeta",                                           self.api_v3_datasets_codemeta),
+            R("/v3/codemeta",                                                    self.api_v3_codemeta),
             R("/v3/datasets/search",                                             self.api_v3_datasets_search),
             R("/v3/datasets/top/<item_type>",                                    self.api_v3_datasets_top),
             R("/v3/datasets/<dataset_id>/submit-for-review",                     self.api_v3_dataset_submit),
@@ -6498,8 +6498,8 @@ class WebServer:
         """Implements /v3/datasets/<uuid>/reorder-authors."""
         return self.__reorder_authors_for_item (request, container_uuid)
 
-    def api_v3_datasets_codemeta (self, request):
-        """Implements /v3/datasets/codemeta."""
+    def api_v3_codemeta (self, request):
+        """Implements /v3/codemeta."""
 
         try:
             errors          = []
