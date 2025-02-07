@@ -57,10 +57,7 @@ table.corporate-identity-table { border-spacing: 0; }
     width: 100%;
     max-width: 572pt;
 }
-
 #corporate-identity-logo { content: url("/static/images/logo.png"); height: 60px; }
-#logo { height: 60px; } /* Backward compatibility: Remove after a week. */
-
 body,html {
     width: 100%;
     height: 100%;
@@ -72,7 +69,7 @@ body,html {
 }
 #wrapper {
     width: 100%;
-    min-height: 100%;
+    min-height: calc(100% - 92pt); /* 92pt is a footer with one paragraph. */
     padding: 0em;
     margin: 0em auto auto auto;
     border: none;
@@ -221,7 +218,6 @@ nav { display: block; padding-top: 1pt; }
     height: auto;
     width: 100%;
     margin: 0em;
-    padding: auto;
     text-align: center;
 }
 #footer p { padding: 0.5em 0em 0em 0em; margin: 0em; }
