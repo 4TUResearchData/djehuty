@@ -47,3 +47,7 @@ ul.latest-datasets li a:active { color: {{primary_color_active}}; }
 .h1-suffix:active { background: {{primary_color_active }}; }
 .h1-suffix a { text-transform: uppercase; text-decoration: none; color: #fff;  font-weight: bold; }
 .h1-suffix a:hover { text-decoration: none; color: #fff;  }
+.public-button { background-color: {{primary_color}}; color: #fff; }
+.public-button:hover { background-color: {{primary_color_hover}}; color: #fff; }
+.public-button:active { background-color: {{primary_color_active}}; color: #fff; }
+#wrapper #content #collect, #cite, #versions { border: 2pt solid {{primary_color}}; background-color: #fff; }

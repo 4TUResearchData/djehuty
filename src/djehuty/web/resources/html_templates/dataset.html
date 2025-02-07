@@ -2,17 +2,15 @@
 {%- set doi = item.doi %}
 {%- set pid = item.dataset_id %}
 {%- set item_type = "dataset" %}
-
 {%- block headers %}
 {%- if item.embargo_type is not defined or item.embargo_type != 'article' %}
     {%- include 'jsonld.html' %}
 {%- endif %}
-
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/dataset_landing_page.js"></script>
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js"></script>
-<link rel="stylesheet" type="text/css" href="/static/css/pub.css?cache=1738663477" />
+<link rel="stylesheet" type="text/css" href="/static/css/pub.css?cache=1738923514" />
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
 <link href="/static/css/form.css" rel="stylesheet">
 <style>
@@ -20,16 +18,11 @@
 #content-wrapper {padding: 0}
 </style>
 {%- endblock %}
-
 {%- block body %}
-
-
 {%- include 'public_metadata.html' %}
-
 <div id="data">
-
 {%- if item.is_embargoed %}
-    <h3>DATA - under embargo</h3>
+    <h3 class="label">DATA - under embargo</h3>
         <div id="limited_access">
             <p>The files in this dataset are under embargo{%- if item.embargo_until_date %} until {{item.embargo_until_date}}{%- endif %}.</p>
     {%- if item.embargo_reason or item.confidential_reason %}
@@ -44,7 +37,7 @@
     {%- endif %}
        </div>
 {%- elif item.is_restricted %}
-    <h3>DATA - restricted access</h3>
+    <h3 class="label">DATA - restricted access</h3>
         <div id="limited_access">
             <h4>Reason</h4>
     {%- autoescape false %}
@@ -63,7 +56,7 @@
         </div>
         {%- include 'dataset_access_request.html' %}
 {%- elif item.is_metadata_record %}
-    <h3>DATA - not available</h3>
+    <h3 class="label">DATA - not available</h3>
         <div id="metadata_only">
     {%- if item.metadata_reason %}
             {{item.metadata_reason}}
@@ -78,7 +71,7 @@
     <div id="private_view">As you are on a private link, you have access to the data files.</div>
 {%- endif %}
 {%- if not(item.is_restricted or item.is_embargoed) %}
-    <h3>DATA</h3>
+    <h3 class="label">DATA</h3>
 {%- endif %}
 {%- if is_own_item or private_view or not(item.is_restricted or item.is_embargoed) %}
 {%- if services %}
@@ -113,7 +106,7 @@
 {%- endif %}
 {%- if files %}
     <div id="files">
-        <div class="label">files ({{files|length}})</div>
+        <h3 class="label">Files ({{files|length}})</h3>
         <ul>
     {%- for file in files %}
             <li>

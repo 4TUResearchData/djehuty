@@ -17,11 +17,11 @@
  <div id="doi"><span>doi:</span> {{doi}}</a></div>
   {%- endif %}
  {%- else %}
-    <div id="doi"><span class="doi-label">doi:</span><a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><span class="doi-value">{{doi}}</span></a>
+    <div id="doi"><span class="doi-label">DOI:</span><a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><span class="doi-value">{{doi}}</span></a>
   {%- if container_doi and not old %}
-        <div id="container_doi">The doi above is for this specific version of this {{item_type}}, which is currently the latest. Newer versions may be published in the future.
+        <div id="container_doi">The DOI displayed above is for this specific version of this {{item_type}}, which is currently the latest. Newer versions may be published in the future.
             For a link that will always point to the latest version, please use<br />
-            <span>doi:</span> <a class="corporate-identity" href="https://doi.org/{{container_doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{container_doi}}</a></div>
+            <span>DOI:</span> <a class="corporate-identity" href="https://doi.org/{{container_doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{container_doi}}</a></div>
   {%- endif %}
     </div>
     <button id="cite_show" class="corporate-identity-standard-button" onclick='document.getElementById("cite").style.display="block"' title="Show citation.">Cite</button>
@@ -52,7 +52,7 @@
     {%- set dtype = "Collection" %}
 {%- endif %}
     <div id="type_versions">
-        <div id="type">{{ dtype }}</div>
+        <h3 class="label" id="type">{{ dtype }}</h3>
 {%- if not private_view and versions[1:2] %}
         <button id="versions_show" onclick="document.getElementById('versions').style.display='block'" title="Choose another version."
             {%- if old %}style="background-color: #ff0"{%- endif %}>version {{thisversion}}
@@ -82,7 +82,7 @@
 {%- endif %}
 {%- if statistics %}
         <div id="usage">
-            <div class="label">usage stats</div>
+            <h3 class="label">Usage statistics</h3>
     {%- for metric in statistics %}
             <div class="metric">
                 <div class="number">{{statistics[metric]}}</div>
@@ -92,22 +92,19 @@
         </div>
 {%- endif %}
         <div id="categories">
-            <div class="label">categories</div>
-            <ul>
-{%- for cat in categories %}
-                <li><a class="corporate-identity" href="/categories/{{cat.id}}">{{cat.title}}</a></li>
-{%- endfor %}
+          <h3 class="label">Categories</h3>
+          <ul>
+            {%- for cat in categories %}
+            <li><a class="corporate-identity public-button" href="/categories/{{cat.id}}">{{cat.title}}</a></li>
+            {%- endfor %}
             </ul>
         </div>
         <div id="tags">
-            <div class="label">keywords</div>
-                {# The query below searches for full text. Field search does not yet work for keywords #}
-
-                {%- for tag in tags|sort %}
-    {%- set query = '"'~tag~'"' %}
-            <a class="corporate-identity" href="/search?searchscope=tag&search={{query|urlencode}}">{{tag}}</a>
-    {%- if loop.revindex0 %}, {%- endif %}
-{%- endfor %}
+            <h3 class="label">Keywords</h3>
+            {%- for tag in tags|sort %}
+            {%- set query = '"'~tag~'"' %}
+            <a class="corporate-identity public-button" href="/search?searchscope=tag&search={{query|urlencode}}">{{tag}}</a>
+            {%- endfor %}
         </div>
 {%- set geo = item.geolocation %}
 {%- set lat = coordinates.lat %}
@@ -116,7 +113,7 @@
     {%- set vlat = coordinates.lat_valid %}
     {%- set vlon = coordinates.lon_valid %}
         <div id="geo">
-            <div class="label">geolocation</div>
+            <h3 class="label">Geolocation</h3>
     {%- if geo %}
             <div id = "geo_name">{{geo}}</div>
     {%- endif %}
@@ -134,7 +131,7 @@
 {%- endif %}
 {%- if item.time_coverage %}
         <div id="time_coverage">
-            <div class="label">time coverage</div>
+            <h3 class="label">Time coverage</h2>
             {{item.time_coverage}}
         </div>
 {%- endif %}
@@ -150,17 +147,16 @@
                        'GPL-3.0'        : 'gnu-gpl-v3.png'  } %}
     {%- set lic_img = lic_imgs[item.license_name] %}
         <div id="licence">
-            <div class="label">licence</div>
-            <a class="corporate-identity" href="{{item.license_url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">
-                {%- if lic_img %}<img src="/static/images/licenses/{{lic_img}}" alt="{{lic_img}} logo"/>{%- endif %}
-                {{item.license_name}}</a>
+            <h3 class="label">Licence</h2>
+            <a class="corporate-identity public-button" href="{{item.license_url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">
+              {{item.license_name}}</a>
     {%- if item.license_remarks %}
             <div>{{item.license_remarks}}</div>
     {%- endif %}
         </div>
     {%- if collections %}
         <div id="collections">
-            <div class="label">collection{%- if collections[1:] %}s{%- endif %}</div>
+            <h3 class="label">Collection{%- if collections[1:] %}s{%- endif %}</h3>
             <ul>
         {%- for c in collections %}
                 <li><a class="corporate-identity" href="/collections/{{c.container_uuid}}">{{c.title}}</a></li>
@@ -170,15 +166,15 @@
     {%- endif %}
     {%- if not private_view %}
         <div id="export">
-            <div class="label">export as...</div>
-            <a class="corporate-identity" href="/export/refworks/datasets/{{id_version}}">RefWorks</a>,
-            <a class="corporate-identity" href="/export/bibtex/datasets/{{id_version}}">BibTeX</a>,
-            <a class="corporate-identity" href="/export/refman/datasets/{{id_version}}">Reference Manager</a>,
-            <a class="corporate-identity" href="/export/endnote/datasets/{{id_version}}">Endnote</a>,
-            <a class="corporate-identity" href="/export/datacite/datasets/{{id_version}}">DataCite</a>,
-            <a class="corporate-identity" href="/export/nlm/datasets/{{id_version}}">NLM</a>,
-            <a class="corporate-identity" href="/export/dc/datasets/{{id_version}}">DC</a>,
-            <a class="corporate-identity" href="/export/cff/datasets/{{id_version}}">CFF</a>
+            <h3 class="label">Export as...</h3>
+            <a class="corporate-identity public-button" href="/export/refworks/datasets/{{id_version}}">RefWorks</a>
+            <a class="corporate-identity public-button" href="/export/bibtex/datasets/{{id_version}}">BibTeX</a>
+            <a class="corporate-identity public-button" href="/export/refman/datasets/{{id_version}}">Reference Manager</a>
+            <a class="corporate-identity public-button" href="/export/endnote/datasets/{{id_version}}">Endnote</a>
+            <a class="corporate-identity public-button" href="/export/datacite/datasets/{{id_version}}">DataCite</a>
+            <a class="corporate-identity public-button" href="/export/nlm/datasets/{{id_version}}">NLM</a>
+            <a class="corporate-identity public-button" href="/export/dc/datasets/{{id_version}}">DC</a>
+            <a class="corporate-identity public-button" href="/export/cff/datasets/{{id_version}}">CFF</a>
         </div>
     {%- endif %}
 {%- endif %}
@@ -204,7 +200,7 @@
 {%- endautoescape %}
         </div>
         <div id="dates">
-            <div class="label">history</div>
+            <h3 class="label">History</h3>
 {%- for (date, dtype) in dates %}
             <ul>
                   <li>{{date}} {{dtype}}</li>
@@ -213,25 +209,25 @@
         </div>
 {%- if item.publisher %}
         <div id="publisher">
-            <div class="label">publisher</div>
+            <h3 class="label">Publisher</h3>
                 {{item.publisher}}
         </div>
 {%- endif %}
 {%- if item.format %}
         <div id="format">
-            <div class="label">format</div>
+            <h3 class="label">Format</h3>
             {{ item.format.replace('\\n', '\n') }}
         </div>
 {%- endif %}
 {%- if item.resource_doi %}
         <div id="peer">
-            <div class="label">associated peer-reviewed publication</div>
+            <h3 class="label">Associated peer-reviewed publication</h3>
             <a class="corporate-identity" href="https://doi.org/{{item.resource_doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{item.resource_title}}</a>
         </div>
 {%- endif %}
 {%- if references %}
         <div id="references">
-            <div class="label">references</div>
+            <h3 class="label">References</h3>
             <ul>
     {%- for r in references %}
                 <li><a class="corporate-identity" href="{{r.url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{r.url}}</a></li>
@@ -241,13 +237,13 @@
 {%- endif %}
 {%- if item.git_code_hosting_url %}
         <div id="code-hosting-url">
-            <div class="label">code hosting project url</div>
+            <h3 class="label">Code hosting project url</h3>
             <a href="{{item.git_code_hosting_url}}">{{item.git_code_hosting_url}}</a>
         </div>
 {%- endif %}
 {%- if derived_from %}
         <div id="derived_from">
-            <div class="label">derived from</div>
+            <h3 class="label">Derived from</h3>
             <ul>
     {%- for d in derived_from %}
                 <li><a class="corporate-identity" href="{{d}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{d}}</a></li>
@@ -257,27 +253,27 @@
 {%- endif %}
 {%- if item.same_as %}
         <div id="same_as">
-            <div class="label">same as</div>
+            <h3 class="label">Same as</h3>
             <a class="corporate-identity" href="{{item.same_as}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{item.same_as}}</a>
         </div>
 {%- endif %}
 {%- if item.data_link %}
         <div id="data_link">
-            <div class="label">data link</div>
+            <h3 class="label">Data link</h3>
             <a class="corporate-identity" href="{{item.data_link}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{item.data_link}}</a>
         </div>
 {%- endif %}
 {%- if item.language %}
     {%- if item.language != 'en' %}
         <div id="language">
-            <div class="label">language</div>
+            <h3 class="label">Language</h3>
             {{item.language}}
         </div>
     {%- endif %}
 {%- endif %}
 {%- if fundings %}
         <div id="funding">
-            <div class="label">funding</div>
+            <h3 class="label">Funding</h3>
             <ul>
     {%- for funding in fundings %}
                 <li>
@@ -303,14 +299,14 @@
 {%- if item.organizations %}
     {%- autoescape false %}
         <div id="organizations">
-            <div class="label">organizations</div>
+            <h3 class="label">Organizations</h3>
             {{ item.organizations.replace('\n', '<br />') }}
         </div>
     {%- endautoescape %}
 {%- endif %}
 {%- if contributors %}
         <div id="contributors">
-            <div class="label">contributors</div>
+            <h3 class="label">Contributors</h3>
             <ul>
     {%- for c in contributors %}
                 <li>
