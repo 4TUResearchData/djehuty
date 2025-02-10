@@ -38,7 +38,6 @@ Requires: python%{python3_pkgversion}-requests
 Requires: python%{python3_pkgversion}-jinja2
 Requires: python%{python3_pkgversion}-rdflib
 Requires: python%{python3_pkgversion}-pygit2
-Requires: python%{python3_pkgversion}-urllib3
 Requires: python%{python3_pkgversion}-werkzeug
 Requires: python%{python3_pkgversion}-defusedxml
 Requires: python%{python3_pkgversion}-pillow

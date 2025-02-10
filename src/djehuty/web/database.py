@@ -9,7 +9,6 @@ import secrets
 import os.path
 import logging
 from datetime import datetime
-from urllib.error import URLError, HTTPError
 from rdflib import Dataset, Graph, Literal, RDF, XSD, URIRef
 from rdflib.plugins.stores import sparqlstore, memory
 from rdflib.store import CORRUPTED_STORE, NO_STORE
@@ -201,27 +200,27 @@ class SparqlInterface:
                 self.cache.cache_value (prefix, cache_key, results, query)
 
             if not self.sparql_is_up:
-                self.log.info ("Connection to the SPARQL endpoint seems up again.")
+                self.log.info ("SPARQL endpoint seems up again.")
                 self.sparql_is_up = True
 
-        except HTTPError as error:
-            self.sparql.rollback()
-            if error.code == 503:
-                if retries > 0:
-                    self.log.warning ("Retrying SPARQL request due to service unavailability (%s)",
-                                      retries)
-                    return self.__run_query (query, cache_key_string=cache_key_string,
-                                             prefix=prefix, retries=retries-1)
-
-                self.log.warning ("Giving up on retrying SPARQL request.")
-
-            self.log.error ("SPARQL endpoint returned %d:\n---\n%s\n---",
-                            error.code, error.reason)
-
-            return []
-        except URLError:
+        except OSError as error:
+            error_type = type(error).__name__
+            if error_type == "HTTPError":
+                self.sparql.rollback()
+                if error.code == 503:
+                    if retries > 0:
+                        self.log.warning ("Retrying SPARQL request due to 503 (%s).", retries)
+                        return self.__run_query (query, cache_key_string=cache_key_string,
+                                                 prefix=prefix, retries=retries-1)
+                    self.log.warning ("Giving up on retrying SPARQL request.")
+                self.log.error ("SPARQL endpoint returned %d:\n---\n%s\n---",
+                                error.code, error.reason)
+                return []
             if self.sparql_is_up:
-                self.log.error ("Connection to the SPARQL endpoint seems down.")
+                if error_type == "URLError":
+                    self.log.error ("SPARQL endpoint seems down.")
+                else:
+                    self.log.error ("SPARQL endpoint seems down due to %s.", error_type)
                 self.sparql_is_up = False
             return []
         except AttributeError as error:

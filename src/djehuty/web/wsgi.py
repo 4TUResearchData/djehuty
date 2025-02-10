@@ -1,7 +1,6 @@
 """This module implements the entire HTTP interface for users."""
 
 from datetime import date, datetime, timedelta
-from urllib.parse import quote, unquote
 from io import StringIO
 import os
 import shutil
@@ -17,6 +16,7 @@ import base64
 import csv
 import requests
 import pygit2
+from requests.utils import quote, unquote
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule

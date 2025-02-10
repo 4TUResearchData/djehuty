@@ -51,7 +51,6 @@
           python-pillow
           python-pygit2
           python-requests
-          python-urllib3
           python-werkzeug))
    (home-page "https://github.com/4TUResearchData/djehuty")
    (synopsis "The 4TU.ResearchData and Nikhef data repository system.")

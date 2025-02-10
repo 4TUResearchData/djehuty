@@ -2,7 +2,6 @@ Jinja2>=3.0.3
 pygit2>=1.6.1
 rdflib>=6.0.0
 requests>=2.26.0
-urllib3>=1.26.7
 Werkzeug>=2.0.2
 defusedxml>=0.7.1
 pillow>=9.4.0
