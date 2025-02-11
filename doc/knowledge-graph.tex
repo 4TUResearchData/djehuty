@@ -178,3 +178,14 @@
 
   The figure \ref{fig:privatelink} displays how private links are stored for
   a \code{djht:Dataset}, and it works the same for a \code{djht:Collection}.
+
+\section{Collaborators}
+
+  To enable multiple accounts collaborating on a dataset before it's published,
+  each \code{djht:Dataset} can have a list of \code{djht:Collaborator} objects.
+
+  \includefigure{collaborators}{The RDF pattern for a \code{djht:Collaborator}.}
+
+  As shown in figure \ref{fig:collaborators}, a \code{djht:Collaborator} can be
+  given read, edit, and/or remove rights independently for both metadata (the
+  form fields) and data (the files).

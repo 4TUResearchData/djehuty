@@ -94,6 +94,7 @@ rm -rf %{buildroot}
 %{_datadir}/%{name}/figures/account-.png
 %{_datadir}/%{name}/figures/author-.png
 %{_datadir}/%{name}/figures/category-.png
+%{_datadir}/%{name}/figures/collaborators-.png
 %{_datadir}/%{name}/figures/collection-.png
 %{_datadir}/%{name}/figures/collection-container-.png
 %{_datadir}/%{name}/figures/dataset-.png

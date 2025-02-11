@@ -39,6 +39,7 @@ EXTRA_DIST              = $(doc_TEX) $(doc_STYLE)                  \
                           figures/account.pdf                      \
                           figures/author.pdf                       \
                           figures/category.pdf                     \
+                          figures/collaborators.pdf                \
                           figures/collection.pdf                   \
                           figures/collection-container.pdf         \
                           figures/dataset.pdf                      \
@@ -85,6 +86,7 @@ nobase_dist_doc_DATA     = index.html                              \
                            figures/typed-notation-.png             \
                            figures/typed-literals-notation-.png    \
                            figures/rdf-list-abbrev-.png            \
+                           figures/collaborators-.png              \
                            figures/collection-.png                 \
                            figures/collection-container-.png       \
                            figures/dataset-.png                    \
@@ -134,6 +136,7 @@ docs-clean:
       figures/account-.png                                         \
       figures/author-.png                                          \
       figures/category-.png                                        \
+      figures/collaborators-.png                                   \
       figures/collection-.png                                      \
       figures/collection-container-.png                            \
       figures/dataset-.png                                         \
