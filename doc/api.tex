@@ -14,7 +14,7 @@
   Another way of seeing the API in action is to use the developer tools in a web
   browser while performing the desired action using the web user interface.
 
-\section{The \t{/v2} public interface}
+\section{Published datasets}
 
   The \t{v2} API was designed by Figshare\footnote{\dhref{https://figshare.com}}.
   \t{djehuty} implements a backward-compatible version of it, with the
@@ -29,7 +29,7 @@
   with the API is \t{application/json}.  In the case an API call returns
   information, don't forget to set the HTTP \t{Accept} header appropriately.
 
-\subsection{\t{/v2/articles} (HTTP \texttt{GET})}
+\subsection{\t{/v2/articles} (\t{GET})}
 \label{sec:v2-articles}
 
   This API endpoint can be used to retrieve a list of published datasets.
@@ -93,7 +93,7 @@ curl "(@*\djehutybaseurl{}*@)/v2/articles?limit=100&published_since=2024-07-25" 
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/articles/search} (HTTP \texttt{POST})}
+\subsection{\t{/v2/articles/search} (\t{POST})}
 
   In addition to the parameters of section \refer{sec:v2-articles}, the
   following parameters can be used.
@@ -136,7 +136,7 @@ curl --request POST \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/articles/<dataset-id>} (HTTP \texttt{GET})}
+\subsection{\t{/v2/articles/<dataset-id>} (\t{GET})}
 \label{sec:v2-articles-dataset-id}
 
   This API endpoint can be used to retrieve detailed metadata for the dataset
@@ -169,7 +169,7 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2 | 
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/articles/<dataset-id>/versions} (HTTP \texttt{GET})}
+\subsection{\t{/v2/articles/<dataset-id>/versions} (\t{GET})}
 
   This API endpoint can be used to retrieve a list of versions for the dataset
   identified by \code{dataset-id}.
@@ -189,7 +189,7 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/ve
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/articles/<dataset-id>/versions/<version>} (HTTP \texttt{GET})}
+\subsection{\t{/v2/articles/<dataset-id>/versions/<version>} (\t{GET})}
 
   This API endpoint can be used to retrieve detailed metadata of the version
   \code{version} for the dataset identified by \code{dataset-id}.
@@ -202,7 +202,7 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342e...49d2/versions/1 | jq
   The output of the example is identical to the example output of section
   \refer{sec:v2-articles-dataset-id}.
 
-\subsection{\t{/v2/articles/<dataset-id>/versions/<version>/embargo} (HTTP \texttt{GET})}
+\subsection{\t{/v2/articles/<dataset-id>/versions/<version>/embargo} (\t{GET})}
 
   This API endpoint can be used to retrieve embargo information of the version
   \code{version} for the dataset identified by \code{dataset-id}.
@@ -225,9 +225,9 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/c127...8fd7/versions/2/embargo | jq
 \end{lstlisting}
 
 
-%\subsection{\t{/v2/articles/<dataset-id>}/versions/<version>/confidentiality (HTTP \texttt{GET})}
+%\subsection{\t{/v2/articles/<dataset-id>}/versions/<version>/confidentiality (\t{GET})}
 %\subsection{\t{/v2/articles/<dataset-id>}/versions/<version>/update\_thumb}
-\subsection{\t{/v2/articles/<dataset-id>/files} (HTTP \texttt{GET})}
+\subsection{\t{/v2/articles/<dataset-id>/files} (\t{GET})}
 
   This API endpoint can be used to retrieve the list of files associated with
   the dataset identified by \code{dataset-id}.
@@ -254,7 +254,7 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/fi
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/articles/<dataset-id>/files/<file-id>} (HTTP \texttt{GET})}
+\subsection{\t{/v2/articles/<dataset-id>/files/<file-id>} (\t{GET})}
 
   This API endpoint can be used to retrieve all metadata of the file
   identified by \code{file-id} associated with the dataset identified
@@ -280,7 +280,9 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342e...49d2/files/d3e1...9292 | jq
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/collections} (HTTP \texttt{GET})}
+\section{Published collections}
+
+\subsection{\t{/v2/collections} (\t{GET})}
 \label{sec:v2-collections}
 
   This API endpoint can be used to retrieve a list of collections published
@@ -340,7 +342,7 @@ Output of the example:
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/collections/search} (HTTP \texttt{POST})}
+\subsection{\t{/v2/collections/search} (\t{POST})}
 
   This API endpoint can be used to search for collections published in
   the data repository.
@@ -383,7 +385,7 @@ curl --request POST \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/collections/<collection-id>} (HTTP \texttt{GET})}
+\subsection{\t{/v2/collections/<collection-id>} (\t{GET})}
 
   This API endpoint can be used to retrieve detailed metadata for the collection
   identified by \code{collection-id}.
@@ -414,7 +416,7 @@ curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/collections/<collection-id>/versions} (HTTP \texttt{GET})}
+\subsection{\t{/v2/collections/<collection-id>/versions} (\t{GET})}
 
   This API endpoint can be used to retrieve a list of versions for the collection
   identified by \code{collection-id}.
@@ -442,7 +444,7 @@ curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc4ef2-7f79-4d33-81a7-9c6ae09a2782
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/collections/<collection-id>/versions/<version>} (HTTP \texttt{GET})}
+\subsection{\t{/v2/collections/<collection-id>/versions/<version>} (\t{GET})}
 
   This API endpoint can be used to retrieve detailed metadata of the version
   \code{version} for the collection identified by \code{collection-id}.
@@ -474,7 +476,7 @@ curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc...2782/versions/2 | jq
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/collections/<collection-id>/articles} (HTTP \texttt{GET})}
+\subsection{\t{/v2/collections/<collection-id>/articles} (\t{GET})}
 
   This API endpoint can be used to retrieve the list of datasets in the
   collection identified by \code{collection-id}.
@@ -524,7 +526,9 @@ curl (@*\djehutybaseurl{}*@)/v2/collections/3dfc...2782/articles | jq
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/categories} (HTTP \texttt{GET})}
+\section{Categories}
+
+\subsection{\t{/v2/categories} (\t{GET})}
 \label{sec:v2-categories}
 
   Each dataset and collection is categorized using a controlled vocabulary
@@ -562,7 +566,9 @@ curl (@*\djehutybaseurl{}*@)/v2/categories | jq
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/licenses} (HTTP \texttt{GET})}
+\section{Licences}
+
+\subsection{\t{/v2/licenses} (\t{GET})}
 \label{sec:v2-licenses}
 
   Publishing a dataset involves communicating under which conditions it can be
@@ -593,7 +599,7 @@ curl (@*\djehutybaseurl{}*@)/v2/licenses | jq
 ]
 \end{lstlisting}
 
-\section{The \t{/v2} private interface}
+\section{Account properties}
 
   The interaction with the \t{v2} private interface API requires an API token.
   Such a token can be obtained from the dashboard page after logging in.  This
@@ -602,7 +608,7 @@ curl (@*\djehutybaseurl{}*@)/v2/licenses | jq
 Authorization: token YOUR_TOKEN_HERE
 \end{lstlisting}
 
-\subsection{\t{/v2/account} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account} (\t{GET})}
 
   This API endpoint can be used to retrieve information about the account
   identified with the API token.
@@ -624,7 +630,65 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles} (HTTP \texttt{GET})}
+\section{Authors}
+
+\subsection{\t{/v2/account/authors/search} (\t{POST})}
+
+  This API endpoint can be used to search for authors known to the data
+  repository.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --request POST \
+     --header "Authorization: token YOUR_TOKEN_HERE" \
+     --data '{ "search": "John Doe" }' \
+     (@*\djehutybaseurl{}*@)/v2/account/authors/search | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* This example output has been shortened. */
+  {
+    "full_name": "John Doe Jr",
+    "uuid": "08f4d496-67b5-4b7c-b2d2-923458d1f450",
+    "orcid_id": "",
+    ...
+  },
+  {
+    "full_name": "John Doe",
+    "uuid": "6815031c-21dc-4873-93c9-f6539da482ce",
+    "orcid_id": "",
+    ...
+  }
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/authors/<author-id>} (\t{GET})}
+
+  This API endpoint returns a detailed author record for the author identified
+  by \code{author-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Authorization: token YOUR_TOKEN_HERE" \
+     (@*\djehutybaseurl{}*@)/v2/account/authors/5c75...94aa | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* This example output has been shortened. */
+  "first_name": "Roel",
+  "full_name": "Roel Janssen",
+  "uuid": "5c752155-60ff-41d7-9b88-b7112afc94aa",
+  "last_name": "Janssen",
+  "orcid_id": "0000-0003-4324-5350",
+  ...
+}
+\end{lstlisting}
+
+\section{Creating and editing datasets}
+
+\subsection{\t{/v2/account/articles} (\t{GET})}
 
   This API endpoint lists the draft datasets of the account to which the
   authorization token belongs.
@@ -664,7 +728,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/articles} (\t{POST})}
 
   This API endpoint can be used to create a new dataset.
 
@@ -751,7 +815,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/articles/<dataset-id>} (\t{GET})}
 
   This API endpoint lists details of the dataset identified by \code{dataset-id}.
 
@@ -773,7 +837,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>} (HTTP \texttt{PUT})}
+\subsection{\t{/v2/account/articles/<dataset-id>} (\t{PUT})}
 
   This API endpoint can be used to update the metadata of the dataset
   identified by \code{dataset-id}.
@@ -902,7 +966,7 @@ curl --verbose --request PUT \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/articles/<dataset-id>} (\t{DELETE})}
 
   This API endpoint can be used to delete a draft dataset.
 
@@ -918,7 +982,7 @@ curl --verbose --request DELETE \
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/authors} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/articles/<dataset-id>/authors} (\t{GET})}
 \label{sec:api-v2-articles-authors}
 
   This API endpoint lists the authors of the dataset identified by \code{dataset-id}.
@@ -961,7 +1025,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/authors} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/articles/<dataset-id>/authors} (\t{POST})}
 \label{sec:api-v2-articles-authors-post}
 
   This API endpoint can be used to append authors to the dataset identified
@@ -989,7 +1053,7 @@ HTTP/1.1 205 RESET CONTENT
   An example of the output of the HTTP \texttt{GET} call can be found in
   \refer{sec:api-v2-articles-authors}.
 
-\subsection{\t{/v2/account/articles/<dataset-id>/authors} (HTTP \texttt{PUT})}
+\subsection{\t{/v2/account/articles/<dataset-id>/authors} (\t{PUT})}
 
   In contrast to \refer{sec:api-v2-articles-authors-post}, this API endpoint
   can be used to \textbf{overwrite} the list of authors of the dataset identified
@@ -1027,7 +1091,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/authors/<author-id>} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/articles/<dataset-id>/authors/<author-id>} (\t{DELETE})}
 
   This API endpoint can be used to delete an author's association with a dataset.
 
@@ -1043,7 +1107,7 @@ curl --request DELETE \
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/funding} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/articles/<dataset-id>/funding} (\t{GET})}
 
   This API endpoint lists the funding of the dataset identified by \code{dataset-id}.
 
@@ -1068,7 +1132,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/funding} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/articles/<dataset-id>/funding} (\t{POST})}
 \label{sec:api-v2-articles-funding-post}
 
   This API endpoint can be used to append funders to the dataset identified
@@ -1091,7 +1155,7 @@ curl --verbose --request POST \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/funding} (HTTP \texttt{PUT})}
+\subsection{\t{/v2/account/articles/<dataset-id>/funding} (\t{PUT})}
 
   In contrast to \refer{sec:api-v2-articles-funding-post}, this API endpoint
   can be used to \textbf{overwrite} the list of funders of the dataset
@@ -1113,7 +1177,7 @@ curl --verbose --request PUT \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/funding/<funding-id>} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/articles/<dataset-id>/funding/<funding-id>} (\t{DELETE})}
 
   This API endpoint can be used to delete an funder's association with a dataset.
 
@@ -1129,7 +1193,7 @@ curl --request DELETE \
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/categories} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/articles/<dataset-id>/categories} (\t{GET})}
 
   This API endpoint lists the categories of the dataset identified by \code{dataset-id}.
   The identifiers for the categories can be found by using the API endpoint
@@ -1167,7 +1231,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/categories} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/articles/<dataset-id>/categories} (\t{POST})}
 \label{sec:api-v2-articles-categories-post}
 
   This API endpoint can be used to append categories to the dataset identified
@@ -1187,7 +1251,7 @@ curl --verbose --request POST \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/categories} (HTTP \texttt{PUT})}
+\subsection{\t{/v2/account/articles/<dataset-id>/categories} (\t{PUT})}
 
   In contrast to \refer{sec:api-v2-articles-categories-post}, this API endpoint
   can be used to \textbf{overwrite} the list of categories of the dataset identified
@@ -1207,7 +1271,7 @@ curl --verbose --request POST \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/categories/<category-id>} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/articles/<dataset-id>/categories/<category-id>} (\t{DELETE})}
 
   This API endpoint can be used to delete a category's association with a dataset.
   The \code{category-id} can be either the \code{uuid} or the \code{id} property.
@@ -1224,7 +1288,7 @@ curl --request DELETE \
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/embargo} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/articles/<dataset-id>/embargo} (\t{GET})}
 
   This API endpoint lists the embargo status of the dataset identified by \code{dataset-id}.
 
@@ -1246,7 +1310,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/embargo} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/articles/<dataset-id>/embargo} (\t{DELETE})}
 
   This API endpoint can be used to remove an embargo on the dataset
   identified by \code{dataset-id}.
@@ -1263,7 +1327,7 @@ curl --verbose --request DELETE \
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/files} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/articles/<dataset-id>/files} (\t{GET})}
 
   This API endpoint lists files associated with the dataset identified by
   \code{dataset-id}.
@@ -1291,7 +1355,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/files} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/articles/<dataset-id>/files} (\t{DELETE})}
 
   \NoteBox{
     This API endpoint is a djehuty extension to the original specification.
@@ -1314,7 +1378,7 @@ curl --request DELETE \
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/files/<file-id>} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/articles/<dataset-id>/files/<file-id>} (\t{GET})}
 
   This API endpoint lists files associated with the dataset identified by
   \code{dataset-id}.
@@ -1342,7 +1406,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/private\_links} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/articles/<dataset-id>/private\_links} (\t{GET})}
 
   This API endpoint lists the private links associated with the dataset
   identified by \code{dataset-id}.
@@ -1369,7 +1433,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/private\_links} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/articles/<dataset-id>/private\_links} (\t{POST})}
 
   This API endpoint can be used to append a private link to the dataset
   identified by \code{dataset-id}.
@@ -1389,7 +1453,7 @@ curl --request POST \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/private\_links/<link-id>} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/articles/<dataset-id>/private\_links/<link-id>} (\t{GET})}
 
   This API endpoint can be used to view the details of a private link for
   the dataset identified by \code{dataset-id}.
@@ -1411,7 +1475,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/private\_links/<link-id>} (HTTP \texttt{PUT})}
+\subsection{\t{/v2/account/articles/<dataset-id>/private\_links/<link-id>} (\t{PUT})}
 
   This API endpoint can be used to update the expiry date of a private link
   and whether the private link is active or not for the dataset identified
@@ -1432,7 +1496,7 @@ curl --request PUT \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/private\_links/<link-id>} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/articles/<dataset-id>/private\_links/<link-id>} (\t{DELETE})}
 
   This API endpoint can be used to remove a private link for the dataset identified
   by \code{dataset-id}.
@@ -1449,7 +1513,7 @@ curl --request DELETE \
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/reserve\_doi} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/articles/<dataset-id>/reserve\_doi} (\t{POST})}
 
   This API endpoint can be used to obtain the DOI before the dataset is
   published and the DOI is activated.
@@ -1468,7 +1532,7 @@ curl --request POST \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/articles/<dataset-id>/publish} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/articles/<dataset-id>/publish} (\t{POST})}
 
   This API endpoint can be used to publish the dataset identified by
   \code{dataset-id}.
@@ -1497,61 +1561,9 @@ HTTP/1.1 201 CREATED
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/authors/search} (HTTP \texttt{POST})}
+\section{Creating and editing collections}
 
-  This API endpoint can be used to search for authors known to the data
-  repository.
-
-  Example usage:
-\begin{lstlisting}[language=bash]
-curl --request POST \
-     --header "Authorization: token YOUR_TOKEN_HERE" \
-     --data '{ "search": "John Doe" }' \
-     (@*\djehutybaseurl{}*@)/v2/account/authors/search | jq
-\end{lstlisting}
-
-  Output of the example:
-\begin{lstlisting}[language=JSON]
-[ /* This example output has been shortened. */
-  {
-    "full_name": "John Doe Jr",
-    "uuid": "08f4d496-67b5-4b7c-b2d2-923458d1f450",
-    "orcid_id": "",
-    ...
-  },
-  {
-    "full_name": "John Doe",
-    "uuid": "6815031c-21dc-4873-93c9-f6539da482ce",
-    "orcid_id": "",
-    ...
-  }
-]
-\end{lstlisting}
-
-\subsection{\t{/v2/account/authors/<author-id>} (HTTP \texttt{GET})}
-
-  This API endpoint returns a detailed author record for the author identified
-  by \code{author-id}.
-
-  Example usage:
-\begin{lstlisting}[language=bash]
-curl --header "Authorization: token YOUR_TOKEN_HERE" \
-     (@*\djehutybaseurl{}*@)/v2/account/authors/5c75...94aa | jq
-\end{lstlisting}
-
-  Output of the example:
-\begin{lstlisting}[language=JSON]
-{ /* This example output has been shortened. */
-  "first_name": "Roel",
-  "full_name": "Roel Janssen",
-  "uuid": "5c752155-60ff-41d7-9b88-b7112afc94aa",
-  "last_name": "Janssen",
-  "orcid_id": "0000-0003-4324-5350",
-  ...
-}
-\end{lstlisting}
-
-\subsection{\t{/v2/account/collections} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/collections} (\t{GET})}
 
   This API endpoint lists the draft collections of the account to which the
   authorization token belongs.
@@ -1595,7 +1607,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/collections} (\t{POST})}
 
   This API endpoint can be used to create a new collection.
 
@@ -1684,7 +1696,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/collections/<collection-id>} (\t{GET})}
 \label{sec:v2-collections-collection-id}
 
   This API endpoint lists details of the collection identified by \code{collection-id}.
@@ -1707,7 +1719,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>} (HTTP \texttt{PUT})}
+\subsection{\t{/v2/account/collections/<collection-id>} (\t{PUT})}
 
   This API endpoint can be used to update the metadata of the collection
   identified by \code{collection-id}.
@@ -1770,7 +1782,7 @@ curl --verbose --request PUT \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/collections/<collection-id>} (\t{DELETE})}
 
   This API endpoint can be used to delete a draft collection.
 
@@ -1786,7 +1798,7 @@ curl --verbose --request DELETE \
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/search} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/collections/search} (\t{POST})}
 
   This API call searches for collections, including drafts created
   by the account performing the search.
@@ -1813,7 +1825,7 @@ curl --request POST \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/authors} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/collections/<collection-id>/authors} (\t{GET})}
 \label{sec:api-v2-collections-authors}
 
   Similar to \refer{sec:api-v2-articles-authors}, this API endpoint lists the
@@ -1857,7 +1869,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/authors} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/collections/<collection-id>/authors} (\t{POST})}
 \label{sec:api-v2-collections-authors-post}
 
   Similar to \refer{sec:api-v2-articles-authors-post}, this API endpoint can
@@ -1885,7 +1897,7 @@ HTTP/1.1 205 RESET CONTENT
   An example of the output of the HTTP \texttt{GET} call can be found in
   \refer{sec:api-v2-collections-authors}.
 
-\subsection{\t{/v2/account/collections/<collection-id>/authors} (HTTP \texttt{PUT})}
+\subsection{\t{/v2/account/collections/<collection-id>/authors} (\t{PUT})}
 
   In contrast to \refer{sec:api-v2-collections-authors-post}, this API endpoint
   can be used to \textbf{overwrite} the list of authors of the collection identified
@@ -1923,7 +1935,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/authors/<author-id>} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/collections/<collection-id>/authors/<author-id>} (\t{DELETE})}
 
   This API endpoint can be used to delete an author's association with a collection.
 
@@ -1939,7 +1951,7 @@ curl --request DELETE \
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/categories} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/collections/<collection-id>/categories} (\t{GET})}
 
   This API endpoint can be used to retrieve the categories associated with
   the collection identified by \code{collection-id}.
@@ -1966,7 +1978,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/categories} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/collections/<collection-id>/categories} (\t{POST})}
 \label{sec:api-v2-collections-categories-post}
 
   Similar to \refer{sec:api-v2-articles-categories-post} this API endpoint can be
@@ -1986,7 +1998,7 @@ curl --verbose --request POST \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/categories} (HTTP \texttt{PUT})}
+\subsection{\t{/v2/account/collections/<collection-id>/categories} (\t{PUT})}
 
   In contrast to \refer{sec:api-v2-collections-categories-post}, this API endpoint
   can be used to \textbf{overwrite} the list of categories of the collection identified
@@ -2006,7 +2018,7 @@ curl --verbose --request POST \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/categories/<category-id>} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/collections/<collection-id>/categories/<category-id>} (\t{DELETE})}
 
   This API endpoint can be used to delete a category's association with a collection.
   The \code{category-id} can be either the \code{uuid} or the \code{id} property.
@@ -2023,7 +2035,7 @@ curl --request DELETE \
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/articles} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/collections/<collection-id>/articles} (\t{GET})}
 
   This API endpoint can be used to retrieve the datasets associated with
   the collection identified by \code{collection-id}.
@@ -2052,7 +2064,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/articles} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/collections/<collection-id>/articles} (\t{POST})}
 \label{sec:v2-account-collection-articles}
   This API endpoint can be used to append datasets to the collection identified
   by \code{collection-id}.  The API endpoint accepts both the \code{id} property
@@ -2072,7 +2084,7 @@ curl --verbose --request POST \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/articles} (HTTP \texttt{PUT})}
+\subsection{\t{/v2/account/collections/<collection-id>/articles} (\t{PUT})}
 
   In contrast to \refer{sec:v2-account-collection-articles}, this API endpoint
   can be used to \textbf{overwrite} the list of datasets associated with a
@@ -2092,7 +2104,7 @@ curl --verbose --request PUT \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/articles/<dataset-id>} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/collections/<collection-id>/articles/<dataset-id>} (\t{DELETE})}
 
   This API endpoint can be used to delete a dataset's association with a collection.
   The \code{dataset-id} can be either the \code{uuid} or the \code{id} property.
@@ -2109,7 +2121,7 @@ curl --request DELETE \
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/reserve\_doi} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/collections/<collection-id>/reserve\_doi} (\t{POST})}
 
   This API endpoint can be used to obtain the DOI before the collection is
   published and the DOI is activated.
@@ -2128,7 +2140,7 @@ curl --request POST \
 }
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/funding} (HTTP \texttt{GET})}
+\subsection{\t{/v2/account/collections/<collection-id>/funding} (\t{GET})}
 
   This API endpoint lists the funding of the collection identified by \code{collection-id}.
 
@@ -2153,7 +2165,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 ]
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/funding} (HTTP \texttt{POST})}
+\subsection{\t{/v2/account/collections/<collection-id>/funding} (\t{POST})}
 \label{sec:api-v2-collections-funding-post}
 
   This API endpoint can be used to append funders to the collection identified
@@ -2176,7 +2188,7 @@ curl --verbose --request POST \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/funding} (HTTP \texttt{PUT})}
+\subsection{\t{/v2/account/collections/<collection-id>/funding} (\t{PUT})}
 
   In contrast to \refer{sec:api-v2-collections-funding-post}, this API endpoint
   can be used to \textbf{overwrite} the list of funders of the collection
@@ -2198,7 +2210,7 @@ curl --verbose --request PUT \
 HTTP/1.1 205 RESET CONTENT
 \end{lstlisting}
 
-\subsection{\t{/v2/account/collections/<collection-id>/funding/<funding-id>} (HTTP \texttt{DELETE})}
+\subsection{\t{/v2/account/collections/<collection-id>/funding/<funding-id>} (\t{DELETE})}
 
   This API endpoint can be used to delete an funder's association with a collection.
 
