@@ -229,27 +229,27 @@ version \djehutyversion{}, \today{}
 var windowState = "narrow";
 function removeWhitespace (element) {
   let sibling = element.nextElementSibling;
-  if (sibling !== null && sibling.nodeName == "BR") { sibling.remove(); }
+  if (sibling != null && sibling.nodeName === "BR") { sibling.remove(); }
   sibling = element.nextSibling;
-  while (sibling != element.nextElementSibling) {
+  while (sibling !== element.nextElementSibling) {
     sibling.remove();
     sibling = element.nextSibling;
   }
 }
 function setWindowState (state) {
-  document.getElementById("sidebar").setAttribute("class", (state != "wide") ? "chapter narrow" : "wide");
+  document.getElementById("sidebar").setAttribute("class", (state !== "wide") ? "chapter narrow" : "wide");
   for (table of document.getElementsByTagName("table")) { table.setAttribute("class", `tabular ${state}`); }
   for (chapter of document.getElementsByClassName("chapter")) { chapter.setAttribute("class", `chapter ${state}`); }
-  for (section of document.getElementsByClassName("section_subsections")) { section.style.display = (state != "wide") ? "block" : "none"; }
+  for (section of document.getElementsByClassName("section_subsections")) { section.style.display = (state !== "wide") ? "block" : "none"; }
   windowState = state;
 }
 function renderWindow (event) {
   let windowWidth = window.innerWidth;
-  if (windowWidth < 961 && windowState != "ultra-narrow") {
+  if (windowWidth < 961 && windowState !== "ultra-narrow") {
     setWindowState ("ultra-narrow");
-  } else if (windowWidth > 960 && windowWidth < 1500 && windowState != "narrow") {
+  } else if (windowWidth > 960 && windowWidth < 1500 && windowState !== "narrow") {
     setWindowState ("narrow");
-  } else if (windowWidth > 1499 && windowState != "wide") {
+  } else if (windowWidth > 1499 && windowState !== "wide") {
     setWindowState ("wide");
   }
 }
@@ -279,7 +279,7 @@ window.addEventListener('load', function () {
     let sectionNumber = section.textContent.split(" ")[0];
     let chapterNumber = sectionNumber.split(".")[0];
     let chapterElement = document.getElementById(`chapter${chapterNumber}_sections`);
-    if (section.nextElementSibling != null && section.nextElementSibling.className != "subsectionToc") {
+    if (section.nextElementSibling != null && section.nextElementSibling.className !== "subsectionToc") {
       chapterElement.appendChild(section);
       continue;
     }
@@ -301,7 +301,7 @@ window.addEventListener('load', function () {
   let additionalHeads = document.getElementsByClassName("additionalHead");
   for (head of additionalHeads) {
     sibling = head.nextElementSibling;
-    if (sibling != null && sibling.nodeName == "P") {
+    if (sibling != null && sibling.nodeName === "P") {
       sibling.remove();
     }
   }
