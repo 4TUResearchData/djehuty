@@ -98,6 +98,7 @@ div.chapter_sections { padding: .75em 0em .75em 0em; }
 a { color: #7c0000; }
 a:hover { color: #af6666; }
 div.section_subsections { display: none; }
+div.spacer { height: 1em; }
 \EndCssFile
 \fi
 \ifdefined\HCode
@@ -160,7 +161,7 @@ version \djehutyversion{}, \today{}
 
 \ifdefined\HCode
 \begin{html}
-</nav></div><div role="region" aria-label="Chapter: Introduction" class="chapter narrow"><div class="chapwrap">
+</nav><div class="spacer"></div></div><div role="region" aria-label="Chapter: Introduction" class="chapter narrow"><div class="chapwrap">
 \end{html}
 \fi
 
@@ -226,7 +227,7 @@ version \djehutyversion{}, \today{}
 \begin{html}
 </div></div>
 <script>
-var windowState = "narrow";
+var windowState = "unset";
 function removeWhitespace (element) {
   let sibling = element.nextElementSibling;
   if (sibling != null && sibling.nodeName === "BR") { sibling.remove(); }
