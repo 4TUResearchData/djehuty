@@ -2057,12 +2057,12 @@ class SparqlInterface:
             self.log.error ("insert_custom_field_value was passed None parameters.")
             return False
 
+        name = conv.custom_field_name (name)
         if name.lower() not in allowed_custom_fields:
             self.log.warning ("Blocked inserting custom field '%s' for <%s>.",
                               name, item_uri)
             return False
 
-        name = conv.custom_field_name (name)
         rdf.add (graph, item_uri, rdf.DJHT[name], value, XSD.string)
         return True
 
