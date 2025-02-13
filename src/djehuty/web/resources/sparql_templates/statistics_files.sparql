@@ -2,8 +2,8 @@
 {% block query %}
 SELECT DISTINCT ?file ?bytes
 {%- if extended_properties is defined and extended_properties %}
-                ?name ?filesystem_location ?is_link_only
-                ?supplied_md5 ?computed_md5 ?uuid
+                ?name ?filesystem_location ?is_link_only ?id ?is_public
+                ?supplied_md5 ?computed_md5 ?uuid ?container_uuid
 {%- endif %}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -12,6 +12,8 @@ WHERE {
     ?file           rdf:type            djht:File .
     ?file           djht:size           ?bytes .
 {%- if extended_properties is defined and extended_properties %}
+    ?dataset        djht:container      ?container .
+    OPTIONAL { ?dataset djht:is_public  ?is_public . }
     OPTIONAL { ?file  djht:id           ?id . }
     OPTIONAL { ?file  djht:name         ?name . }
     OPTIONAL { ?file  djht:filesystem_location ?filesystem_location . }
@@ -19,6 +21,7 @@ WHERE {
     OPTIONAL { ?file  djht:supplied_md5 ?supplied_md5 . }
     OPTIONAL { ?file  djht:computed_md5 ?computed_md5 . }
     BIND (STRAFTER(STR(?file), "file:") AS ?uuid)
+    BIND (STRAFTER(STR(?container), "container:") AS ?container_uuid)
 {%- endif %}
   }
 {%- if filters is not none %}{{ filters | safe }}{% endif %}

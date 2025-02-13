@@ -8141,6 +8141,9 @@ class WebServer:
             return handler
 
         files = self.db.repository_file_statistics (extended_properties=True)
+        if not files:
+            return self.response (json.dumps({ "message": "No files to check." }))
+
         number_of_files = 0
         number_of_inaccessible_files = 0
         number_of_incomplete_metadata = 0
@@ -8157,13 +8160,29 @@ class WebServer:
             number_of_files += 1
             number_of_bytes += int(float(entry["bytes"]))
 
+            available_on_s3 = False
             filesystem_location = self.__filesystem_location (entry)
             if not filesystem_location:
+                for _, bucket in config.s3_buckets.items():
+                    filename = f"{entry['container_uuid']}_{entry['uuid']}"
+                    if bucket["quirks-enabled"] and "id" in entry:
+                        filename = self.__quirky_filename ("", entry["id"], entry["name"])
+                    else:
+                        continue
+
+                    if s3.s3_file_exists (bucket["endpoint"], bucket["name"],
+                                          bucket["key-id"], bucket["secret-key"],
+                                          filename):
+                        available_on_s3 = True
+                        break
+
+            if not (filesystem_location or available_on_s3):
                 number_of_incomplete_metadata += 1
                 incomplete_metadata.append (value_or (entry, "uuid", "unknown"))
                 continue
 
-            if not os.path.isfile (filesystem_location):
+            if not ((filesystem_location and os.path.isfile (filesystem_location)) or
+                    available_on_s3):
                 number_of_inaccessible_files += 1
                 missing_files.append (filesystem_location)
 
