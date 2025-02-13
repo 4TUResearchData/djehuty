@@ -2,6 +2,7 @@
 
 from datetime import date, datetime, timedelta
 from io import StringIO
+import os.path
 import os
 import shutil
 import tempfile
@@ -32,6 +33,7 @@ from djehuty.web import xml_formatter
 from djehuty.web import database
 from djehuty.web import email_handler
 from djehuty.web import locks
+from djehuty.web import s3
 from djehuty.utils.convenience import pretty_print_size, decimal_coords, normalize_doi
 from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
 from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
@@ -3850,6 +3852,14 @@ class WebServer:
 
         return dataset
 
+    def __quirky_filename (self, path, file_id, name):
+        """Returns the correct quirky file path for the parameters given."""
+        allowed_chars = ".0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
+        name = "".join(char for char in name if char in allowed_chars)
+        if path is None:
+            path = ""
+        return os.path.join (path, str(file_id), name)
+
     def __filesystem_location (self, file_info):
         """Procedure to gather the filesystem location from file metadata."""
 
@@ -3857,9 +3867,6 @@ class WebServer:
         # way one can configure primary-storage-root and secondary-storage-root.
         # In the 'new way', one lists the storage locations in the 'storage'
         # configuration option.
-
-        # This is only used for quirks-mode.
-        allowed_chars = ".0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
 
         # Traverse the 'storage' locations -- the new way of configuring storage.
         file_path = None
@@ -3872,15 +3879,15 @@ class WebServer:
                 elif "id" in file_info:
                     ## Data stored before Djehuty went into production requires a few tweaks.
                     ## Only apply these quirks when enabled.
-                    name = file_info['name']
+                    file_path = os.path.join(location["path"], str(file_info["id"]),
+                                             file_info["name"])
                     if value_or (location, "quirks", False):
-                        name = ''.join(char for char in name if char in allowed_chars)
-                    file_path = os.path.join (location['path'], f"{file_info['id']}", name)
+                        file_path = self.__quirky_filename (location["path"],
+                                                            file_info["id"],
+                                                            file_info["name"])
                     if os.path.isfile (file_path):
                         return file_path
 
-            self.log.error ("File %s could not be found in the configured storage locations.",
-                            file_path)
             return None
 
         # Use primary-storage-root and secondary-storage-root -- the historical
@@ -3893,13 +3900,15 @@ class WebServer:
 
         ## Files deposited pre-Djehuty have a numeric identifier (id)
         elif "id" in file_info:
-            name = file_info['name']
-
             ## Data stored before Djehuty went into production requires a few tweaks.
             ## Only apply these quirks when enabled.
+            file_path = os.path.join (config.secondary_storage,
+                                      str(file_info['id']),
+                                      file_info['name'])
             if config.secondary_storage_quirks:
-                name = ''.join(char for char in name if char in allowed_chars)
-            file_path = os.path.join (config.secondary_storage, f"{file_info['id']}", name)
+                file_path = self.__quirky_filename (config.secondary_storage,
+                                                    file_info["id"],
+                                                    file_info["name"])
 
         return file_path
 
@@ -3971,6 +3980,13 @@ class WebServer:
 
         return dataset, metadata
 
+    def __log_download_event (self, request, container_uuid):
+        """Procedure to log a download event."""
+        if self.__is_reviewing (request):
+            self.__log_event (request, container_uuid, "dataset", "reviewerDownload")
+        else:
+            self.__log_event (request, container_uuid, "dataset", "download")
+
     def ui_download_file (self, request, dataset_id, file_id):
         """Implements /file/<id>/<fid>."""
         dataset, metadata = self.__accessible_files_for_dataset (request, dataset_id, file_id)
@@ -3995,27 +4011,46 @@ class WebServer:
         ## --------------------------------------------------------------------
         try:
             file_path = self.__filesystem_location (metadata)
-            if file_path is None:
-                return self.error_500 ("File download failed due to missing metadata.")
+            if file_path is not None:
+                self.__log_download_event (request, dataset["container_uuid"])
+                try:
+                    return send_file (file_path,
+                                      request.environ,
+                                      "application/octet-stream",
+                                      as_attachment=True,
+                                      download_name=metadata["name"])
+                except PermissionError:
+                    self.log.error ("Back-end has no permission to access file %s.", file_path)
+                    return self.error_403 (request)
 
-            if self.__is_reviewing (request):
-                self.__log_event (request, dataset["container_uuid"], "dataset", "reviewerDownload")
-            else:
-                self.__log_event (request, dataset["container_uuid"], "dataset", "download")
+            for _, bucket in config.s3_buckets.items():
+                filename = f"{metadata['container_uuid']}_{metadata['uuid']}"
+                if bucket["quirks-enabled"] and "id" in metadata:
+                    filename = self.__quirky_filename ("", metadata["id"], metadata["name"])
+                else:
+                    continue
 
-            try:
-                return send_file (file_path,
-                                  request.environ,
-                                  "application/octet-stream",
-                                  as_attachment=True,
-                                  download_name=metadata["name"])
-            except PermissionError:
-                self.log.error ("Back-end has no permission to access file %s.", file_path)
-                return self.error_403 (request)
+                if s3.s3_file_exists (bucket["endpoint"], bucket["name"],
+                                      bucket["key-id"], bucket["secret-key"],
+                                      filename):
+                    writer = s3.S3DownloadStreamer(bucket["endpoint"],
+                                                   bucket["name"],
+                                                   bucket["key-id"],
+                                                   bucket["secret-key"],
+                                                   filename)
+                    response = self.response (writer, mimetype="application/octet-stream")
+                    filename = quote(metadata["name"])
+                    response.headers["Content-disposition"] = f"filename*=UTF-8''{filename}"
+                    self.__log_download_event (request, dataset["container_uuid"])
+                    return response
+
+            return self.error_500 ("File download failed due to missing metadata.")
 
         except FileNotFoundError:
             self.log.error ("File download failed due to missing file: '%s'.", file_path)
 
+        self.log.error ("File %s could not be found in the configured storage locations.",
+                        file_path)
         return self.error_404 (request)
 
     def ui_download_all_files (self, request, dataset_id, version):
@@ -4067,11 +4102,7 @@ class WebServer:
                 filename_utf8 = f"{quote(safe_title)}_{version}_all.zip"
                 response.headers["Content-disposition"] += f"; filename*=UTF-8''{filename_utf8}"
 
-            if self.__is_reviewing (request):
-                self.__log_event (request, dataset["container_uuid"], "dataset", "reviewerDownload")
-            else:
-                self.__log_event (request, dataset["container_uuid"], "dataset", "download")
-
+            self.__log_download_event (request, dataset["container_uuid"])
             return response
 
         except (FileNotFoundError, KeyError, IndexError, TypeError) as error:

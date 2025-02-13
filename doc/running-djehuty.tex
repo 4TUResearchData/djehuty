@@ -134,7 +134,7 @@ djehuty web --config-file=config.xml --apply-transactions
 
   This allows for moving files between storage systems transparently
   without requiring specific interactions with \t{djehuty} other than
-  having the files made available as a POSIX filesystem.
+  having the files made available as a POSIX filesystem or in an S3 bucket.
 
   One use-case that suits this mechanism is letting uploads write to
   fast online storage and later move the uploaded files to a slower but
@@ -144,8 +144,43 @@ djehuty web --config-file=config.xml --apply-transactions
   \headrow
   \textbf{Option}            & \textbf{Description}\\
   \t{location}               & A filesystem path to where files are stored.
-                               This is a repeatable property.
+                               This is a repeatable property.\\
+  \t{s3-bucket}              & An S3 bucket configuration. See section
+                               \ref{sec:s3-buckets}. This is a repeatable
+                               property.
 \end{tabularx}
+
+\subsection{Configuring S3 buckets}
+\label{sec:s3-buckets}
+
+  Other than configuring storage locations on a POSIX filesystem,
+  \code{djehuty} can be configured to serve files from an S3 bucket.
+  To do so, the following parameters must be configured within a\
+  \code{s3-bucket} node.
+
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Option}             & \textbf{Description}\\
+  \t{endpoint}                & Endpoint URL to connect to.\\
+  \t{name}                    & Name of the bucket.\\
+  \t{key-id}                  & Key ID for the bucket.\\
+  \t{secret-key}              & Secret key for the bucket.
+\end{tabularx}
+
+  For example, configuring one filesystem location and one S3 bucket
+  as storage locations looks as following:
+
+\begin{lstlisting}[language=xml]
+<storage>
+  <location>/data</location>
+  <s3-bucket>
+    <endpoint>https://some.example</endpoint>
+    <name>example-bucket</name>
+    <key-id>...</key-id>
+    <secret-key>...</secret-key>
+  </s3-bucket>
+</storage>
+\end{lstlisting}
 
 
 \section{Configuring an identity provider}

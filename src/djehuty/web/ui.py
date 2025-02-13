@@ -45,6 +45,16 @@ try:
 except ModuleNotFoundError:
     UWSGI_DEPENDENCY_LOADED = False
 
+
+# The 'boto3' module is only needed when configuring an S3 storage location.
+# The BOTO3_DEPENDENCY_LOADED is used to report the problem at startup when
+# it is required due to the run-time configuration.
+try:
+    import boto3  # pylint: disable=unused-import
+    BOTO3_DEPENDENCY_LOADED = True
+except (ImportError, ModuleNotFoundError):
+    BOTO3_DEPENDENCY_LOADED = False
+
 class ConfigFileNotFound(Exception):
     """Raised when the database is not queryable."""
 
@@ -122,7 +132,7 @@ def read_raw_xml (xml_root, path, default_value=None):
 
     return default_value, None
 
-def read_storage_locations (xml_root):
+def read_storage_configuration (xml_root, logger):
     """Procedure to read storage locations."""
 
     storage = xml_root.find ("storage")
@@ -135,6 +145,24 @@ def read_storage_locations (xml_root):
         quirks = location.attrib.get("quirks") == "1"
         config.storage_locations.append({ "path": location.text, "quirks": quirks })
 
+    for item in storage:
+        quirks = item.attrib.get("quirks") == "1"
+        if item.tag == "location":
+            config.storage_locations.append({ "path": item.text, "quirks": quirks })
+
+        elif item.tag == "s3-bucket":
+            bucket = { "quirks-enabled": quirks }
+            bucket["name"] = config_value (item, "name")
+            bucket["key-id"] = config_value (item, "key-id")
+            bucket["secret-key"] = config_value (item, "secret-key")
+            bucket["endpoint"] = config_value (item, "endpoint")
+
+            for key in ("name", "key-id", "secret-key", "endpoint"):
+                if convenience.value_or_none (bucket, key) is None:
+                    logger.warning ("Missing '%s' for S3 bucket.", key)
+                    break
+
+            config.s3_buckets[bucket["name"]] = bucket
     return None
 
 def read_quotas_configuration (xml_root):
@@ -872,7 +900,7 @@ def read_configuration_file (server, config_file, logger, config_files):
         read_sram_configuration (xml_root)
         read_automatic_login_configuration (xml_root)
         read_privilege_configuration (xml_root, logger)
-        read_storage_locations (xml_root)
+        read_storage_configuration (xml_root, logger)
         read_quotas_configuration (xml_root)
         read_colors_configuration (xml_root)
 
@@ -1209,6 +1237,10 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                                        PYVIPS_ERROR_MESSAGE)
                     raise DependencyNotAvailable
                 logging.getLogger('pyvips').setLevel(logging.ERROR)
+
+            if config.s3_buckets and not BOTO3_DEPENDENCY_LOADED:
+                logger.error ("Dependency 'boto3' is required for S3 buckets.")
+                raise DependencyNotAvailable
 
             if config.identity_provider is not None:
                 logger.info ("Using %s as identity provider.",
