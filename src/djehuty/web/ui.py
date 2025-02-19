@@ -812,6 +812,12 @@ def read_configuration_file (server, config_file, logger, config_files):
         elif config.iiif_cache_storage is None:
             config.iiif_cache_storage = os.path.join (config.storage, "iiif")
 
+        s3_cache = xml_root.find ("s3-cache-root")
+        if s3_cache is not None:
+            config.s3_cache_storage = s3_cache.text
+        elif config.s3_cache_storage is None:
+            config.s3_cache_storage = os.path.join (config.storage, "s3")
+
         production_mode = xml_root.find ("production")
         if production_mode is not None:
             config.in_production = bool(int(production_mode.text))
@@ -1239,9 +1245,11 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                     raise DependencyNotAvailable
                 logging.getLogger('pyvips').setLevel(logging.ERROR)
 
-            if config.s3_buckets and not BOTO3_DEPENDENCY_LOADED:
-                logger.error ("Dependency 'boto3' is required for S3 buckets.")
-                raise DependencyNotAvailable
+            if config.s3_buckets:
+                os.makedirs (config.s3_cache_storage, mode=0o700, exist_ok=True)
+                if not BOTO3_DEPENDENCY_LOADED:
+                    logger.error ("Dependency 'boto3' is required for S3 buckets.")
+                    raise DependencyNotAvailable
 
             if config.identity_provider is not None:
                 logger.info ("Using %s as identity provider.",

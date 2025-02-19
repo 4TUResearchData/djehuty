@@ -182,6 +182,19 @@ djehuty web --config-file=config.xml --apply-transactions
 </storage>
 \end{lstlisting}
 
+  There are a few scenarios in which \code{djehuty} downloads an S3 object
+  to perform some operation on: creating thumbnails and IIIF image
+  transformations.  To direct where these temporary files will be stored,
+  the \t{s3-cache-root} can be configured.
+
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Option}             & \textbf{Description}\\
+  \t{s3-cache-root}           & The directory to store the S3 objects
+                                while performing some operation on the
+                                objects.  This option can only be configured
+                                globally and applies to all S3 buckets.
+\end{tabularx}
 
 \section{Configuring an identity provider}
 

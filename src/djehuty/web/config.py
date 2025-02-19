@@ -22,6 +22,7 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         self.transactions_directory      = "."
         self.clear_cache_on_start        = False
         self.s3_buckets                  = {}
+        self.s3_cache_storage            = None
         self.storage_locations           = []
         self.storage                     = None
         self.secondary_storage           = None
