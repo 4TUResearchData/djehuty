@@ -1230,6 +1230,7 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                 logger.info ("Handle prefix:           %s", config.handle_prefix)
 
             if config.enable_iiif:
+                os.makedirs (config.iiif_cache_storage, mode=0o700, exist_ok=True)
                 if not PYVIPS_DEPENDENCY_LOADED:
                     logger.error ("Dependency 'pyvips' is required for IIIF.")
                     if PYVIPS_ERROR_MESSAGE is not None:
