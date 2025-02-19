@@ -2,8 +2,8 @@
 {% block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/quill.min.js"></script>
-<script src="/static/js/utils.js"></script>
-<script src="/static/js/depositor-dashboard.js?cache=1715649348"></script>
+<script src="/static/js/utils.js?cache=1739977731"></script>
+<script src="/static/js/depositor-dashboard.js?cache=1739977731"></script>
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
 <style>
 #session-table tbody tr td:nth-child(2) { white-space: nowrap; }
@@ -35,14 +35,18 @@
 }
 #content-wrapper label {
     display: inline-block;
-    background: #ffeecc;
+    background: #ffeeaa;
     color: #000;
     padding: .5em .5em .25em .5em;
     border-radius: .5em .5em 0em 0em;
+    border-top: solid 1pt #d4aa00;
+    border-right: solid 1pt #d4aa00;
+    border-left: solid 1pt #d4aa00;
     font-weight: bold;
 }
 .quota-requested {
-    background: #ffeecc;
+    background: #ffeeaa;
+    border: solid 1pt #d4aa00;
     padding: .25em;
     border-radius: .25em;
     user-select: none;
@@ -74,7 +78,7 @@ jQuery(document).ready(function (){
 </div>
 {%- endif %}
 <h2>Storage usage</h2>
-<p><span class="storage-usage">Using {{storage_used}} of {{quota}} ({{percentage_used}}%).</span>{% if requested_quota %}<span class="quota-requested">Request pending for {{requested_quota}}</span>{% endif %}<a id="request-more-storage" href="#">Request more storage.</a></p>
+<p><span class="storage-usage">Using {{storage_used}} of {{quota}} ({{percentage_used}}%).</span>{% if requested_quota %}<span class="quota-requested">Request pending for {{requested_quota}}</span>{% endif %}<a class="inline-button open" id="request-more-storage" href="#">Request more storage</a></p>
 <div id="storage-request-wrapper">
   <label for="new-quota">New quota</label><div class="fas fa-question-circle help-icon"><span class="help-text">For example, if your current quota is 50GB and you'd like 20GB more, request 70GB.</span></div>
   <input type="text" id="new-quota" name="new-quota" placeholder="New quota in gigabytes (for example: 50)." />

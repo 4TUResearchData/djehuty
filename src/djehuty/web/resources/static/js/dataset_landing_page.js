@@ -22,11 +22,17 @@ function toggle_access_request (event) {
     let access_request_div = jQuery("#access-request-wrapper");
     if (access_request_div.is(":visible")) {
         jQuery("#access-request-wrapper").slideUp(150, function (){
-            jQuery("#access-request").text("Request access to data.");
+            jQuery("#access-request")
+                .removeClass("close")
+                .addClass("open")
+                .text("Request access to data");
         });
     } else {
        jQuery("#access-request-wrapper").slideDown(150, function (){
-            jQuery("#access-request").text("Cancel access request.");
+           jQuery("#access-request")
+                .removeClass("open")
+                .addClass("close")
+               .text("Cancel access request");
         });
     }
 }

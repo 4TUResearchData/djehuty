@@ -105,6 +105,17 @@ body,html {
     border-radius: .5em;
     text-align: center;
 }
+a.inline-button.open { background: #66cc66; color: #000; text-decoration: none; }
+a.inline-button.open:hover { background: #55bb55; color: #000; text-decoration: none; }
+a.inline-button.open:active { background: #44aa44; color: #000; text-decoration: none; }
+a.inline-button.close { background: #cc6666; color: #000; text-decoration: none; }
+a.inline-button.close:hover { background: #bb5555; color: #000; text-decoration: none; }
+a.inline-button.close:active { background: #aa4444; color: #000; text-decoration: none; }
+a.inline-button {
+    text-decoration: none;
+    padding: .25em .5em .25em .5em;
+    border-radius: .5em;
+}
 .button {
     margin: 25px auto auto auto;
     display: inline-block;

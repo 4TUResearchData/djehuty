@@ -2,11 +2,17 @@ function toggle_storage_request (event) {
     let storage_request_div = jQuery("#storage-request-wrapper");
     if (storage_request_div.is(":visible")) {
         jQuery("#storage-request-wrapper").slideUp(150, function (){
-            jQuery("#request-more-storage").text("Request more storage.");
+            jQuery("#request-more-storage")
+                .removeClass("close")
+                .addClass("open")
+                .text("Request more storage");
         });
     } else {
         jQuery("#storage-request-wrapper").slideDown(150, function (){
-            jQuery("#request-more-storage").text("Cancel storage request.");
+            jQuery("#request-more-storage")
+                .removeClass("open")
+                .addClass("close")
+                .text("Cancel storage request");
         });
     }
 
