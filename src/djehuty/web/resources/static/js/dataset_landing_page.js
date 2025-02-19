@@ -56,10 +56,29 @@ function submit_access_request (event) {
     });
 }
 
+function prompt_download_all_request (event) {
+    jQuery("#download-all-files-message")
+        .addClass("success")
+        .append("<p>Your download is being prepared. This may take a while.</p>")
+        .fadeIn(250);
+    setTimeout(function() {
+        jQuery("#download-all-files-message").fadeOut(500, function() {
+            jQuery("#message")
+                .removeClass("success")
+                .addClass("transparent")
+                .html("<p>&nbsp;</p>")
+                .show();
+        });
+    }, 120000);
+
+    show_message ("success", );
+}
+
 jQuery(document).ready(function (){
     if (document.getElementById ("access-request-reason") !== null) {
         new Quill("#access-request-reason", { theme: "4tu" });
     }
     jQuery("#access-request").on("click", toggle_access_request);
     jQuery("#submit-access-request").on("click", submit_access_request);
+    jQuery("#download-all-files").on("click", prompt_download_all_request);
 });

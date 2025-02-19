@@ -7,12 +7,12 @@
     {%- include 'jsonld.html' %}
 {%- endif %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
-<script src="/static/js/dataset_landing_page.js"></script>
+<script src="/static/js/dataset_landing_page.js?cache=1739977731"></script>
 <script src="/static/js/quill.min.js"></script>
-<script src="/static/js/utils.js"></script>
-<link rel="stylesheet" type="text/css" href="/static/css/pub.css?cache=1738923514" />
+<script src="/static/js/utils.js?cache=1739977731"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/pub.css?cache=1739977731" />
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
-<link href="/static/css/form.css?cache=1738927707" rel="stylesheet">
+<link href="/static/css/form.css?cache=1739977731" rel="stylesheet">
 <style>
 #access-request-wrapper { display: none; }
 #content-wrapper {padding: 0}
@@ -120,11 +120,12 @@
     {%- endfor %}
     {%- if files|length > 1 %}
             <li class="zip">
-                    <a class="corporate-identity" href="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}">download all files (zip)</a>
+                    <a id="download-all-files" class="corporate-identity" href="/ndownloader/items/{{item.container_uuid}}/versions/{{item.version | default('draft', False)}}">download all files (zip)</a>
                 <div id="total_size">{{'{:,}'.format(files_size)}} bytes unzipped</div>
             </li>
     {%- endif %}
         </ul>
+        <div id="download-all-files-message"></div>
     </div>
 {%- endif %}
 {%- endif %}

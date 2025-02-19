@@ -53,3 +53,5 @@
     border: 0pt;
 }
 #collections ul li a { font-size: 14pt; }
+#download-all-files-message { display: none; border-radius: .5em; margin-top: 1em; }
+#download-all-files-message p { padding: 1em; color: #fff; }
