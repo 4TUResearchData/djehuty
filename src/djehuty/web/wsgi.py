@@ -414,7 +414,14 @@ class WebServer:
 
     def __generate_thumbnail (self, input_filename, dataset_uuid, max_width=300, max_height=300):
         try:
-            original  = Image.open (input_filename)
+            s3_cached_file = None
+            original = None
+            if isinstance (input_filename, s3.S3DownloadStreamer):
+                s3_cached_file = s3.s3_temporary_file (input_filename)
+                original = Image.open (s3_cached_file)
+            else:
+                original = Image.open (input_filename)
+
             extension = original.format.lower()
             output_filename = os.path.join (config.thumbnail_storage, f"{dataset_uuid}.{extension}")
 
@@ -459,6 +466,10 @@ class WebServer:
 
             thumbnail = original.resize ((thumb_width, thumb_height))
             thumbnail.save (output_filename)
+
+            if s3_cached_file is not None:
+                os.remove (s3_cached_file)
+
             return extension
 
         except (FileNotFoundError, UnidentifiedImageError) as error:
@@ -3888,7 +3899,21 @@ class WebServer:
                     if os.path.isfile (file_path):
                         return file_path
 
-            return None
+            file_path = None
+            for _, bucket in config.s3_buckets.items():
+                filename = f"{file_info['container_uuid']}_{file_info['uuid']}"
+                if bucket["quirks-enabled"] and "id" in file_info:
+                    filename = self.__quirky_filename ("", file_info["id"], file_info["name"])
+
+                if s3.s3_file_exists (bucket["endpoint"], bucket["name"],
+                                      bucket["key-id"], bucket["secret-key"],
+                                      filename):
+                    return s3.S3DownloadStreamer (bucket["endpoint"],
+                                                  bucket["name"],
+                                                  bucket["key-id"],
+                                                  bucket["secret-key"],
+                                                  filename,
+                                                  file_info["name"])
 
         # Use primary-storage-root and secondary-storage-root -- the historical
         # way of configuring storage.
@@ -3896,19 +3921,22 @@ class WebServer:
         ## The filesystem_location property was introduced in Djehuty.
         ## It isn't set for files deposited before Djehuty went into production.
         if "filesystem_location" in file_info:
-            file_path = file_info["filesystem_location"]
+            if os.path.isfile (file_info["filesystem_location"]):
+                file_path = file_info["filesystem_location"]
 
         ## Files deposited pre-Djehuty have a numeric identifier (id)
         elif "id" in file_info:
             ## Data stored before Djehuty went into production requires a few tweaks.
             ## Only apply these quirks when enabled.
-            file_path = os.path.join (config.secondary_storage,
-                                      str(file_info['id']),
-                                      file_info['name'])
+            filename = os.path.join (config.secondary_storage,
+                                     str(file_info['id']),
+                                     file_info['name'])
             if config.secondary_storage_quirks:
-                file_path = self.__quirky_filename (config.secondary_storage,
-                                                    file_info["id"],
-                                                    file_info["name"])
+                filename = self.__quirky_filename (config.secondary_storage,
+                                                   file_info["id"],
+                                                   file_info["name"])
+            if os.path.isfile (filename):
+                file_path = filename
 
         return file_path
 
@@ -4011,46 +4039,30 @@ class WebServer:
         ## --------------------------------------------------------------------
         try:
             file_path = self.__filesystem_location (metadata)
-            if file_path is not None:
-                self.__log_download_event (request, dataset["container_uuid"])
-                try:
-                    return send_file (file_path,
-                                      request.environ,
-                                      "application/octet-stream",
-                                      as_attachment=True,
-                                      download_name=metadata["name"])
-                except PermissionError:
-                    self.log.error ("Back-end has no permission to access file %s.", file_path)
-                    return self.error_403 (request)
+            if file_path is None:
+                return self.error_500 ("File download failed due to missing metadata.")
 
-            for _, bucket in config.s3_buckets.items():
-                filename = f"{metadata['container_uuid']}_{metadata['uuid']}"
-                if bucket["quirks-enabled"] and "id" in metadata:
-                    filename = self.__quirky_filename ("", metadata["id"], metadata["name"])
-                else:
-                    continue
-
-                if s3.s3_file_exists (bucket["endpoint"], bucket["name"],
-                                      bucket["key-id"], bucket["secret-key"],
-                                      filename):
-                    writer = s3.S3DownloadStreamer(bucket["endpoint"],
-                                                   bucket["name"],
-                                                   bucket["key-id"],
-                                                   bucket["secret-key"],
-                                                   filename)
-                    response = self.response (writer, mimetype="application/octet-stream")
-                    filename = quote(metadata["name"])
-                    response.headers["Content-disposition"] = f"filename*=UTF-8''{filename}"
-                    self.__log_download_event (request, dataset["container_uuid"])
-                    return response
-
-            return self.error_500 ("File download failed due to missing metadata.")
-
+            self.__log_download_event (request, dataset["container_uuid"])
+            if isinstance (file_path, s3.S3DownloadStreamer):
+                file_path.connect ()
+                response = self.response (file_path.iterator(), mimetype="application/octet-stream")
+                filename = quote(metadata["name"])
+                if file_path.content_length > 0:
+                    response.headers["Content-Length"] = file_path.content_length
+                response.headers["Content-disposition"] = f"filename*=UTF-8''{filename}"
+                return response
+            return send_file (file_path,
+                              request.environ,
+                              "application/octet-stream",
+                              as_attachment=True,
+                              download_name=metadata["name"])
+        except PermissionError:
+            return self.error_403 (request, ("Back-end has no permission to "
+                                             f"access file {file_path}."))
         except FileNotFoundError:
             self.log.error ("File download failed due to missing file: '%s'.", file_path)
 
-        self.log.error ("File %s could not be found in the configured storage locations.",
-                        file_path)
+        self.log.error ("File %s could not be found.", file_path)
         return self.error_404 (request)
 
     def ui_download_all_files (self, request, dataset_id, version):
@@ -4068,10 +4080,8 @@ class WebServer:
                     self.log.error ("Excluding missing file %s in ZIP of %s.",
                                     file_info["name"], dataset_id)
                     continue
-                file_paths.append ({
-                    "fs": file_path,
-                    "n":  file_info["name"]
-                })
+                key = "s3" if isinstance (file_path, s3.S3DownloadStreamer) else "fs"
+                file_paths.append ({ key: file_path, "n": file_info["name"] })
 
             if not file_paths:
                 self.log.error ("Download-all for %s failed: %s.",
@@ -4107,7 +4117,14 @@ class WebServer:
 
         except (FileNotFoundError, KeyError, IndexError, TypeError) as error:
             self.log.error ("Files download for %s failed due to: %s.", dataset_id, error)
-            return self.error_404 (request)
+        except OSError as error:
+            error_type = type(error).__name__
+            if error_type == "HTTPError":
+                self.log.error ("Files download for %s failed due to S3 streaming error.", dataset_id)
+            else:
+                self.log.error ("Files download for %s failed due to: %s", dataset_id, error)
+
+        return self.error_404 (request)
 
     def ui_search (self, request):
         """Implements /search."""
@@ -4391,7 +4408,7 @@ class WebServer:
         if input_filename is None:
             return self.error_404 (request)
 
-        extension = self.__generate_thumbnail (self, input_filename, dataset["uuid"])
+        extension = self.__generate_thumbnail (input_filename, dataset["uuid"])
         if extension is None:
             return self.error_500 ()
 
@@ -8161,21 +8178,8 @@ class WebServer:
             number_of_files += 1
             number_of_bytes += int(float(entry["bytes"]))
 
-            available_on_s3 = False
             filesystem_location = self.__filesystem_location (entry)
-            if not filesystem_location:
-                for _, bucket in config.s3_buckets.items():
-                    filename = f"{entry['container_uuid']}_{entry['uuid']}"
-                    if bucket["quirks-enabled"] and "id" in entry:
-                        filename = self.__quirky_filename ("", entry["id"], entry["name"])
-                    else:
-                        continue
-
-                    if s3.s3_file_exists (bucket["endpoint"], bucket["name"],
-                                          bucket["key-id"], bucket["secret-key"],
-                                          filename):
-                        available_on_s3 = True
-                        break
+            available_on_s3 = isinstance (filesystem_location, s3.S3DownloadStreamer)
 
             if not (filesystem_location or available_on_s3):
                 number_of_incomplete_metadata += 1
@@ -9235,9 +9239,15 @@ class WebServer:
             return self.error_404 (request)
 
         try:
+            image = None
             image_info = metadata[0]
             input_filename = self.__filesystem_location (image_info)
-            image  = pyvips.Image.new_from_file (input_filename)
+            if isinstance (input_filename, s3.S3DownloadStreamer):
+                s3_cached_file = s3.s3_temporary_file (input_filename)
+                image = pyvips.Image.new_from_file (s3_cached_file)
+            else:
+                image = pyvips.Image.new_from_file (input_filename)
+
             output = {
                 "@context":  "http://iiif.io/api/image/3/context.json",
                 "id":        f"{config.base_url}/iiif/v3/{file_uuid}",
@@ -9310,7 +9320,11 @@ class WebServer:
 
         metadata = metadata[0]
         input_filename = self.__filesystem_location (metadata)
-        original  = pyvips.Image.new_from_file (input_filename)
+        if isinstance (input_filename, s3.S3DownloadStreamer):
+            s3_cached_file = s3.s3_temporary_file (input_filename)
+            original  = pyvips.Image.new_from_file (s3_cached_file)
+        else:
+            original  = pyvips.Image.new_from_file (input_filename)
 
         # Region
         output_region = { "x": 0, "y": 0, "w": original.width, "h": original.height }
@@ -9383,11 +9397,15 @@ class WebServer:
                     "message": "Rotation must be a value between 0 and 360."
                 })
         except ValueError:
-            return self.error_400 (request, "Rotation must be an integer.",
-                                   "InvalidRotationValue")
+            validation_errors.append ({
+                "field_name": "rotation",
+                "message": "Rotation must be an integer."
+            })
 
         # Error reporting
         if validation_errors:
+            if s3_cached_file is not None:
+                os.remove (s3_cached_file)
             return self.error_400_list (request, validation_errors)
 
         # Serve from cache
@@ -9400,6 +9418,8 @@ class WebServer:
             response = send_file (file_path, request.environ, f"image/{image_format}",
                                   as_attachment=False, download_name=None)
             response.headers["Access-Control-Allow-Origin"] = "*"
+            if s3_cached_file is not None:
+                os.remove (s3_cached_file)
             return response
         except OSError:
             pass
@@ -9410,6 +9430,9 @@ class WebServer:
         try:
             output = pyvips.Image.new_temp_file(format=f".{image_format}")
             original.write(output)
+
+            if s3_cached_file is not None:
+                os.remove (s3_cached_file)
 
             output = output.crop (output_region["x"], output_region["y"],
                                   output_region["w"], output_region["h"])
