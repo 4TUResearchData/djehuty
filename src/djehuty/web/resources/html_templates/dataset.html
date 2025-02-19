@@ -70,7 +70,7 @@
 {%- elif private_view and (item.is_restricted or item.is_embargoed) %}
     <div id="private_view">As you are on a private link, you have access to the data files.</div>
 {%- endif %}
-{%- if not(item.is_restricted or item.is_embargoed) %}
+{%- if not(item.is_restricted or item.is_embargoed) and files %}
     <h3 class="label">DATA</h3>
 {%- endif %}
 {%- if is_own_item or private_view or not(item.is_restricted or item.is_embargoed) %}
