@@ -51,6 +51,32 @@ tar zxvf djehuty-(@*\djehutyversion{}*@).tar.gz
   {Virtuoso open-source edition}%
   \footnote{http://vos.openlinksw.com/owiki/wiki/VOS}.
 
+\subsection{Optional installation requirements depending on configuration}
+
+  For specific features \code{djehuty} may require additional packages to be
+  installed.  Whether this is the case depends on the run-time configuration.
+  When an optional package is required \code{djehuty} will report which one in
+  its logs.  There are three configuration scenarios that require the
+  additional packages: SAML, S3 and IIIF.
+
+\subsubsection{SAML}
+
+  When configuring the use of an identity provider via SAML \code{djehuty}
+  requires the \code{python3-saml} Python package to be installed.  This
+  package provides the implementation of the SAML protocol.
+
+\subsubsection{S3}
+
+  When configuring file access in S3 buckets \code{djehuty} requires the
+  \code{boto3} Python package to be installed.  This package is used to
+  authenticate to the S3 endpoints and to download (or stream) data.
+
+\subsubsection{IIIF}
+
+  When enabling the IIIF functionality \code{djehuty} requires the
+  \code{pyvips} Python package to be installed.  This package is used to
+  perform image transformations.
+
 \section{Installation instructions}
 
   After obtaining the source code (see section \refer{sec:obtaining-tarball})
