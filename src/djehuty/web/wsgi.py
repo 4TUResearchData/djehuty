@@ -8186,7 +8186,8 @@ class WebServer:
                 incomplete_metadata.append (value_or (entry, "uuid", "unknown"))
                 continue
 
-            if not ((filesystem_location and os.path.isfile (filesystem_location)) or
+            if not ((isinstance (filesystem_location, str) and
+                     os.path.isfile (filesystem_location)) or
                     available_on_s3):
                 number_of_inaccessible_files += 1
                 missing_files.append (filesystem_location)
