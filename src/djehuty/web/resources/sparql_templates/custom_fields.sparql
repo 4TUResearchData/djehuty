@@ -22,6 +22,9 @@ WHERE {
     OPTIONAL { ?field  djht:is_multiple          ?is_multiple . }
     OPTIONAL { ?field  djht:is_mandatory         ?is_mandatory . }
   }
+  {#- Historically the "derived from" field could have multiple values, #}
+  {#- so this has to be dealt with separately. #}
+  FILTER (?predicate != djht:derived_from)
 {%- if item_uri is not none %}
   FILTER (?item_uri = <{{item_uri}}>)
 {%- endif %}

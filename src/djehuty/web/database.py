@@ -766,7 +766,16 @@ class SparqlInterface:
         })
         query += rdf.sparql_suffix (order, order_direction, limit, None)
 
-        return self.__run_query(query)
+        self.__log_query (query)
+        results = self.__run_query (query)
+        if not results:
+            return []
+
+        results.append ({
+            "name": "Derived From",
+            "value": self.derived_from (item_uri=item_uri, item_type=item_type)
+        })
+        return results
 
     def previously_used_tags (self, search_for, order=None, order_direction=None, limit=10):
         """Procedure to get tags unrelated to their datasets."""

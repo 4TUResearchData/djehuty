@@ -4285,12 +4285,6 @@ class WebServer:
                 references    = self.db.references (item_uri=dataset_uri),
                 tags          = self.db.tags (item_uri=dataset_uri)
             )
-            # ugly fix for custom field Derived From
-            custom = value_or (total, "custom_fields", [])
-            custom = [c for c in custom if c['name'] != 'Derived From']
-            custom.append( {"name": "Derived From",
-                            "value": self.db.derived_from(item_uri=dataset_uri)} )
-            total['custom_fields'] = custom
             return self.response (json.dumps(total))
         except (IndexError, TypeError):
             return self.error_404 (request)
@@ -4541,12 +4535,6 @@ class WebServer:
                     references    = self.db.references (item_uri=dataset_uri),
                     tags          = self.db.tags (item_uri=dataset_uri)
                 )
-                # ugly fix for custom field Derived From
-                custom = value_or (total, "custom_fields", [])
-                custom = [c for c in custom if c['name'] != 'Derived From']
-                custom.append( {"name": "Derived From",
-                                "value": self.db.derived_from(item_uri=dataset_uri)} )
-                total['custom_fields'] = custom
                 return self.response (json.dumps(total))
             except (IndexError, KeyError) as error:
                 self.log.error ("Failed to retrieve dataset due to: %s", error)
