@@ -4069,6 +4069,10 @@ class WebServer:
         try:
             file_paths = []
             for file_info in metadata:
+                if value_or (file_info, "is_link_only", False):
+                    self.log.info ("Skipping link-only file:%s for download.",
+                                   file_info["uuid"])
+                    continue
                 file_path = self.__filesystem_location (file_info)
                 if file_path is None:
                     self.log.error ("Excluding missing file %s in ZIP of %s.",
@@ -4078,8 +4082,7 @@ class WebServer:
                 file_paths.append ({ key: file_path, "n": file_info["name"] })
 
             if not file_paths:
-                self.log.error ("Download-all for %s failed: %s.",
-                                dataset_id,
+                self.log.error ("Download-all for %s failed: %s.", dataset_id,
                                 "No files associated with this dataset")
                 return self.error_404 (request)
 
