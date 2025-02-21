@@ -1,4 +1,4 @@
-{# Find for each item the latest version authored by a given author. #}
+{#- Find for each item the latest version authored by a given author. #}
 {% extends "prefixes.sparql" %}
 {% block query %}
 SELECT DISTINCT ((?item_type = djht:Dataset) AS ?is_dataset)

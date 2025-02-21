@@ -39,8 +39,8 @@ WHERE {
 
     {%- if not first_publication %}
     ?container     djht:published_versions/rdf:rest* ?append_node .
-    # Working around a bug in Virtuoso.  Check whether this can be
-    # simplified to: ?append_node rdf:rest rdf:nil .
+    {#- Working around a bug in Virtuoso.  Check whether this can be
+     #- simplified to: ?append_node rdf:rest rdf:nil . #}
     ?append_node   rdf:rest ?nil_value .
     FILTER (STR(?nil_value) = STR(rdf:nil))
     {%- endif %}

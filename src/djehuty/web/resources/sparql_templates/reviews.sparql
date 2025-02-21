@@ -47,10 +47,9 @@ WHERE {
 
     OPTIONAL {
       ?review  djht:assigned_to          ?assigned_to .
-
-      # OPTIONAL within OPTIONAL because if ?assigned_to is unbound,
-      # the following OPTIONAL bindings shouldn't just bind freely to anything
-      # with these predicates.
+      {#- OPTIONAL within OPTIONAL because if ?assigned_to is unbound,
+       #- the following OPTIONAL bindings shouldn't just bind freely to anything
+       #- with these predicates. #}
       OPTIONAL { ?assigned_to djht:email            ?reviewer_email . }
       OPTIONAL { ?assigned_to djht:first_name       ?reviewer_first_name . }
       OPTIONAL { ?assigned_to djht:last_name        ?reviewer_last_name . }
