@@ -36,6 +36,7 @@ from zipfile import ZipFile, ZipInfo, ZIP_STORED
 
 try:
     from botocore.exceptions import ResponseStreamingError, ReadTimeoutError
+    from urllib3.exceptions import IncompleteRead
     S3_ENABLED = True
 except (ImportError, ModuleNotFoundError):
     S3_ENABLED = False
@@ -133,7 +134,7 @@ class ZipFly:
                                     zip_writer.write (chunk)
                                     yield stream.get()
                                 retries = 0
-                            except (ResponseStreamingError, ReadTimeoutError):
+                            except (ResponseStreamingError, ReadTimeoutError, IncompleteRead):
                                 current_offset = s3_object.body().tell()
                                 s3_object.reset (offset = current_offset)
                                 retries -= 1

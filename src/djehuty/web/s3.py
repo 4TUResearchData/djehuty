@@ -12,6 +12,7 @@ try:
     from botocore.exceptions import ClientError, PartialCredentialsError
     from botocore.exceptions import ResponseStreamingError, ReadTimeoutError
     from botocore.config import Config
+    from urllib3.exceptions import IncompleteRead
 except (ImportError, ModuleNotFoundError):
     pass
 
@@ -122,7 +123,7 @@ def s3_temporary_file (reader):
                 for chunk in reader.iterator():
                     output_stream.write (chunk)
                 retries = 0
-            except (ResponseStreamingError, ReadTimeoutError):
+            except (ResponseStreamingError, ReadTimeoutError, IncompleteRead):
                 logger = logging.getLogger (__name__)
                 current_offset = reader.body().tell()
                 reader.reset (offset = current_offset)
