@@ -1033,22 +1033,16 @@ class WebServer:
         try:
             uri = collection["uri"]
             collection["base_url"] = config.base_url
-            datasets_count = self.db.collections_dataset_count (collection_uri = uri)
-            fundings       = self.db.fundings (item_uri = uri, item_type="collection")
-            categories     = self.db.categories (item_uri = uri, limit = None)
-            references     = self.db.references (item_uri = uri)
-            custom_fields  = self.db.custom_fields (item_uri = uri, item_type="collection")
-            tags           = self.db.tags (item_uri = uri)
-            authors        = self.db.authors (item_uri = uri, item_type="collection")
-            total          = formatter.format_collection_details_record (collection,
-                                                                         fundings,
-                                                                         categories,
-                                                                         references,
-                                                                         tags,
-                                                                         authors,
-                                                                         custom_fields,
-                                                                         datasets_count)
-            return total
+            return formatter.format_collection_details_record (
+                collection     = collection,
+                funding        = self.db.fundings (item_uri = uri, item_type="collection"),
+                categories     = self.db.categories (item_uri = uri, limit = None),
+                references     = self.db.references (item_uri = uri),
+                tags           = self.db.tags (item_uri = uri),
+                authors        = self.db.authors (item_uri = uri, item_type="collection"),
+                custom_fields  = self.db.custom_fields (item_uri = uri, item_type="collection"),
+                datasets_count = self.db.collections_dataset_count (collection_uri = uri)
+            )
         except IndexError:
             return None
 
@@ -4278,27 +4272,19 @@ class WebServer:
             return handler
 
         try:
-            dataset         = self.__dataset_by_id_or_uri (dataset_id, account_uuid=None, is_latest=True)
-
-            # Passing along the base_url here to generate the API links.
+            dataset = self.__dataset_by_id_or_uri (dataset_id, account_uuid=None, is_latest=True)
             dataset["base_url"] = config.base_url
-
-            dataset_uri     = dataset["uri"]
-            authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
-            files           = self.db.dataset_files(dataset_uri=dataset_uri)
-            custom_fields   = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
-            tags            = self.db.tags(item_uri=dataset_uri)
-            categories      = self.db.categories(item_uri=dataset_uri, limit=None)
-            references      = self.db.references(item_uri=dataset_uri)
-            funding_list    = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
-            total         = formatter.format_dataset_details_record (dataset,
-                                                                     authors,
-                                                                     files,
-                                                                     custom_fields,
-                                                                     tags,
-                                                                     categories,
-                                                                     funding_list,
-                                                                     references)
+            dataset_uri         = dataset["uri"]
+            total = formatter.format_dataset_details_record (
+                authors       = self.db.authors (item_uri=dataset_uri, item_type="dataset"),
+                categories    = self.db.categories (item_uri=dataset_uri, limit=None),
+                custom_fields = self.db.custom_fields (item_uri=dataset_uri, item_type="dataset"),
+                dataset       = dataset,
+                files         = self.db.dataset_files (dataset_uri=dataset_uri),
+                funding       = self.db.fundings (item_uri=dataset_uri, item_type="dataset"),
+                references    = self.db.references (item_uri=dataset_uri),
+                tags          = self.db.tags (item_uri=dataset_uri)
+            )
             # ugly fix for custom field Derived From
             custom = value_or (total, "custom_fields", [])
             custom = [c for c in custom if c['name'] != 'Derived From']
@@ -4337,23 +4323,17 @@ class WebServer:
 
         # Passing along the base_url here to generate the API links.
         dataset["base_url"] = config.base_url
-
-        dataset_uri   = dataset["uri"]
-        authors       = self.db.authors(item_uri=dataset_uri, item_type="dataset")
-        files         = self.db.dataset_files(dataset_uri=dataset_uri)
-        custom_fields = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
-        tags          = self.db.tags(item_uri=dataset_uri)
-        categories    = self.db.categories(item_uri=dataset_uri, limit=None)
-        references    = self.db.references(item_uri=dataset_uri)
-        fundings      = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
-        total         = formatter.format_dataset_details_record (dataset,
-                                                                 authors,
-                                                                 files,
-                                                                 custom_fields,
-                                                                 tags,
-                                                                 categories,
-                                                                 fundings,
-                                                                 references)
+        dataset_uri         = dataset["uri"]
+        total = formatter.format_dataset_details_record (
+            authors       = self.db.authors(item_uri=dataset_uri, item_type="dataset"),
+            categories    = self.db.categories(item_uri=dataset_uri, limit=None),
+            custom_fields = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset"),
+            dataset       = dataset,
+            files         = self.db.dataset_files(dataset_uri=dataset_uri),
+            funding       = self.db.fundings(item_uri=dataset_uri, item_type="dataset"),
+            references    = self.db.references(item_uri=dataset_uri),
+            tags          = self.db.tags(item_uri=dataset_uri)
+        )
         return self.response (json.dumps(total))
 
     def api_dataset_version_embargo (self, request, dataset_id, version):
@@ -4548,25 +4528,19 @@ class WebServer:
                 if error_response is not None:
                     return error_response
 
-                dataset["doi"]  = self.__standard_doi (dataset["container_uuid"],
-                                                       version = None,
+                dataset["doi"]  = self.__standard_doi (dataset["container_uuid"], version = None,
                                                        container_doi = value_or_none (dataset, "container_doi"))
-                authors         = self.db.authors(item_uri=dataset_uri, item_type="dataset")
-                files           = self.db.dataset_files(dataset_uri=dataset_uri, account_uuid=account_uuid)
-                custom_fields   = self.db.custom_fields(item_uri=dataset_uri, item_type="dataset")
-                tags            = self.db.tags(item_uri=dataset_uri)
-                categories      = self.db.categories(item_uri=dataset_uri, limit=None)
-                references      = self.db.references(item_uri=dataset_uri)
-                funding_list    = self.db.fundings(item_uri=dataset_uri, item_type="dataset")
-                total           = formatter.format_dataset_details_record (dataset,
-                                                                           authors,
-                                                                           files,
-                                                                           custom_fields,
-                                                                           tags,
-                                                                           categories,
-                                                                           funding_list,
-                                                                           references,
-                                                                           is_private=True)
+                total = formatter.format_dataset_details_record (
+                    authors       = self.db.authors (item_uri=dataset_uri, item_type="dataset"),
+                    categories    = self.db.categories (item_uri=dataset_uri, limit=None),
+                    custom_fields = self.db.custom_fields (item_uri=dataset_uri, item_type="dataset"),
+                    dataset       = dataset,
+                    files         = self.db.dataset_files (dataset_uri=dataset_uri, account_uuid=account_uuid),
+                    funding       = self.db.fundings (item_uri=dataset_uri, item_type="dataset"),
+                    is_private    = True,
+                    references    = self.db.references (item_uri=dataset_uri),
+                    tags          = self.db.tags (item_uri=dataset_uri)
+                )
                 # ugly fix for custom field Derived From
                 custom = value_or (total, "custom_fields", [])
                 custom = [c for c in custom if c['name'] != 'Derived From']
