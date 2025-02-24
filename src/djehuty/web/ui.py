@@ -971,7 +971,7 @@ def read_configuration_file (server, config_file, logger, config_files):
 
     return {}
 
-def extract_transactions (since_datetime):
+def extract_transactions (since_datetime, delayed=False):
     """Extract the queries from the audit log and write them as files."""
 
     if config.log_file is None:
@@ -988,6 +988,10 @@ def extract_transactions (since_datetime):
         else:
             directory_prefix = "."
 
+        entry_marker = "Query Audit Log:\n"
+        if delayed:
+            entry_marker = "Query Audit Log (delayed):\n"
+
         with open (filename, "r", encoding = "utf-8") as log_file:
             print (f"Reading '{filename}'.", file=sys.stderr)
             count        = 0
@@ -1002,6 +1006,8 @@ def extract_transactions (since_datetime):
                                    "w", encoding="utf-8") as output_file:
                             output_file.write (query)
                         query = ""
+                        if count % 10000 == 0:
+                            print (f"\rExtracted {count} items...", end="")
                     else:
                         now_statement = "    BIND(NOW() AS ?now)\n"
                         if now_statement == line:
@@ -1013,7 +1019,7 @@ def extract_transactions (since_datetime):
                                                '^^xsd:dateTime AS ?now)\n')
                                 line = line.replace (now_statement, replacement)
                             except IndexError:
-                                print (f"Failed to read '{timestamp_line}'.",
+                                print (f"\rFailed to read '{timestamp_line}'.",
                                        file=sys.stderr)
 
                         # Due to a bug (c7204bc), some queries contained the
@@ -1023,7 +1029,7 @@ def extract_transactions (since_datetime):
                             query += line
                 elif state_output == 1 and line == "---\n":
                     state_output = 2
-                elif "Query Audit Log" in line:
+                elif line.endswith (entry_marker):
                     timestamp_line = line
 
                     if since_datetime:
@@ -1035,7 +1041,7 @@ def extract_transactions (since_datetime):
                     query += f"# {line}"
                     count += 1
                     state_output = 1
-            print (f"Extracted {count} items", file=sys.stderr)
+            print (f"\rExtracted {count} items", file=sys.stderr)
             return True
     except FileNotFoundError:
         print (f"Could not open '{filename}'.", file=sys.stderr)
@@ -1099,7 +1105,8 @@ def perform_rdf_export (logger, server, full_export):
 ## ----------------------------------------------------------------------------
 
 def main (config_file=None, run_internal_server=True, initialize=True,
-          extract_transactions_from_log=None, apply_transactions=None,
+          extract_transactions_from_log=None,
+          extract_delayed_transactions_from_log=None, apply_transactions=None,
           full_rdf_export=False, public_rdf_export=False):
     """The main entry point for the 'web' subcommand."""
     try:
@@ -1118,10 +1125,15 @@ def main (config_file=None, run_internal_server=True, initialize=True,
         since_datetime = None
         ## Be less verbose when only extracting Query Audit Logs or making
         ## RDF exports.
-        if extract_transactions_from_log is not None:
+        if extract_transactions_from_log or extract_delayed_transactions_from_log:
             logger = logging.getLogger (__name__)
             logger.setLevel(logging.ERROR)
+
+        if extract_transactions_from_log is not None:
             since_datetime = extract_transactions_from_log
+
+        if extract_delayed_transactions_from_log is not None:
+            since_datetime = extract_delayed_transactions_from_log
 
         if apply_transactions is not None or perform_export:
             logger = logging.getLogger (__name__)
@@ -1133,7 +1145,9 @@ def main (config_file=None, run_internal_server=True, initialize=True,
 
         ## Handle extracting Query Audit Logs early on.
         if extract_transactions_from_log is not None:
-            return extract_transactions (since_datetime)
+            return extract_transactions (since_datetime, delayed=False)
+        if extract_delayed_transactions_from_log is not None:
+            return extract_transactions (since_datetime, delayed=True)
 
         inside_reload = os.environ.get('WERKZEUG_RUN_MAIN')
 
