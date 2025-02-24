@@ -771,10 +771,12 @@ class SparqlInterface:
         if not results:
             return []
 
-        results.append ({
-            "name": "Derived From",
-            "value": self.derived_from (item_uri=item_uri, item_type=item_type)
-        })
+        derived_from_items = self.derived_from (item_uri=item_uri, item_type=item_type)
+        if derived_from_items:
+            results.append ({
+                "name": "Derived From",
+                "value": derived_from_items
+            })
         return results
 
     def previously_used_tags (self, search_for, order=None, order_direction=None, limit=10):
@@ -2180,10 +2182,7 @@ class SparqlInterface:
         draft_dataset_uris  = list({URIRef(container['container_uri']) for container in draft_datasets})
 
         if isinstance (draft_derived_from, list):
-            try:
-                draft_derived_from = draft_derived_from[0]
-            except IndexError:
-                draft_derived_from = None
+            draft_derived_from = conv.value_or_none (draft_derived_from, 0)
 
         draft_funding_title = None
         if draft_fundings:
@@ -2331,10 +2330,7 @@ class SparqlInterface:
         draft_custom_fields = self.custom_fields (item_uri=latest_uri, item_type="dataset")
 
         if isinstance (draft_derived_from, list):
-            try:
-                draft_derived_from = draft_derived_from[0]
-            except IndexError:
-                draft_derived_from = None
+            draft_derived_from = conv.value_or_none (draft_derived_from, 0)
 
         draft_funding_title = None
         if draft_fundings:
