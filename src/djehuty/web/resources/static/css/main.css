@@ -192,7 +192,7 @@ a.inline-button {
 .submenu {
     position: absolute;
     display: none;
-    max-width: 220pt;
+    max-width: 235pt;
     background: #f1f1f1;
     border: solid 1pt #ccc;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.25);
@@ -204,18 +204,12 @@ a.inline-button {
 }
 nav { display: block; padding-top: 1pt; }
 .submenu li {
-    position: block;
-    display: none;
-    list-style-type: none;
-    text-decoration: none;
-    font-size: 12pt;
     font-weight: normal;
     width: 100%;
     min-width: 100pt;
     margin: 0pt 10pt 10pt 10pt;
     padding: 5pt 10pt 5pt 10pt !important;
     user-select: none;
-    text-transform: none !important;
     z-index: 0;
 }
 .submenu li:nth-child(even) {
