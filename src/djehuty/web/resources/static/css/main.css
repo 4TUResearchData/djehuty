@@ -513,6 +513,7 @@ img { user-select: none; }
     z-index: 100;
 }
 .no-script { background: #cc0000; color: #ffffff; padding: 1em; }
+.no-show { font-size: 0pt; }
 .hide-for-javascript { display: none !important; }
 #message { display: none; color: #ffffff; border-radius: .5em; padding: 0em; margin: 0em;  }
 #message p { padding: 1em; }
@@ -667,3 +668,4 @@ img { user-select: none; }
 .handle-icon { margin-bottom: -0.2em; margin-right: .75em; }
 input[type="search"] { background-color: #fff !important; }
 select { background-color: #fff !important; border: solid 1pt #ccc; border-radius: .5em; padding: .25em; }
+.small { font-size: 75%; opacity: 0.8; margin-top: 0pt; padding-top: 0pt; }

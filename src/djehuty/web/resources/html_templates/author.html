@@ -1,148 +1,121 @@
 {% extends "layout.html" %}
 {% block headers %}
-<script src="/static/js/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/pub.css?cache=1739977731" />
 <style>
-    #content a    { text-decoration: none }
-    #content a:hover { text-decoration: underline }
-    #datasets, #collections, #location, #member, #usage, #metric-wrapper, #associated-authors
-                  { margin-top: 10px }
-    #has-account  { margin-top: 80px }
-    #left_column  { width: 65%; margin-bottom:10px }
-    #right_column { float: right; width: 33%; margin-bottom:10px }
-    .label        { text-transform: uppercase; margin-top:20px }
-    ul            { list-style-type: none; padding:0; margin:0 }
-    .small        { font-size: 75%; opacity: 0.8 }
-    .metric       { float: left; margin:5px; text-align: center }
-    .metric .number { font-size: 24px; font-weight: bold }
-    #orcid img    { height: 20px }
-    .is_active    { font-weight: bold }
-    #profile_image img { max-width: 200px; max-height: 200px; border-radius: 20px }
-    #metric-wrapper { height: 65px; }
+#collections, #location, #member, #usage, #associated-authors { margin-top: 1em }
+#left_column  { width: 65%; margin-bottom:10px }
+#right_column { float: right; width: 33%; margin-bottom: 10px }
+.is_active    { font-weight: bold }
+#profile_image img { max-width: 200px; max-height: 200px; border-radius: .5em; }
 </style>
 {% endblock %}
 {% block body %}
-
 <div id="right_column">
-
-{% if profile.image %}
+{%- if profile.image %}
     <div id="profile_image">
         <img src="/v3/profile/picture/{{profile.account_uuid}}" />
     </div>
-{% endif %}
-
-{% if member != "other" %}
+{%- endif %}
+{%- if member != "other" %}
     <div id="member">
         <a class="corporate-identity" href="/institutions/{{member_url_name}}"><img src="/static/images/logo-{{member}}.png" alt="{{member_url_name.replace('_',' ')}} logo" /></a>
     </div>
-{% endif %}
-{% if statistics %}
+{%- endif %}
+{%- if statistics %}
     <div id="usage">
-        <div class="label">usage stats</div>
-        <div class="small">Totals for datasets (co-)authored by {{profile.full_name}}</div>
-        <div id="metric-wrapper">
-    {% for metric in statistics %}
+        <h3 class="label">Usage statistics</div>
+        <p class="small">Totals for datasets (co-)authored by {{profile.full_name}}</p>
+    {%- for metric in statistics %}
         <div class="metric">
             <div class="number">{{statistics[metric]}}</div>
             {{metric}}
         </div>
-    {% endfor %}
-        </div>
+    {%- endfor %}
     </div>
-{% endif %}
-
-{% if profile.location %}
+{%- endif %}
+{%- if profile.location %}
     <div id="location">
-        <div class="label">location</div>
+        <div class="label">Location</div>
         <div>{{profile.location}}</div>
     </div>
-{% endif %}
-{% if profile.website %}
+{%- endif %}
+{%- if profile.website %}
     <div id="location">
-        <div class="label">website</div>
+        <div class="label">Website</div>
         <div><a class="corporate-identity" href="{{profile.website}}" target="_blank">{{profile.website}}</a></div>
     </div>
-{% endif %}
-{% if profile.linkedin %}
+{%- endif %}
+{%- if profile.linkedin %}
     <div id="linkedin">
-        <div class="label">linkedin</div>
+        <div class="label">LinkedIn</div>
         <div><a class="corporate-identity" href="{{profile.linkedin}}" target="_blank">{{profile.linkedin}}</a></div>
     </div>
-{% endif %}
-{% if profile.twitter %}
+{%- endif %}
+{%- if profile.twitter %}
     <div id="twitter">
-        <div class="label">twitter</div>
+        <div class="label">Twitter/X</div>
         <div><a class="corporate-identity" href="{{profile.twitter}}" target="_blank">{{profile.twitter}}</a></div>
     </div>
-{% endif %}
-{% if categories %}
+{%- endif %}
+{%- if categories %}
     <div id="categories">
-        <div class="label">categories</div>
+        <div class="label">Categories</div>
         <ul>
-{% for cat in categories %}
+{%- for cat in categories %}
             <li><a class="corporate-identity" href="/categories/{{cat.id}}">{{cat.title}}</a></li>
-{% endfor %}
+{%- endfor %}
         </ul>
     </div>
-{% endif %}
+{%- endif %}
 </div>
-
 <div id="left_column">
-    <h2>{{profile.full_name}}</h2>
-{% if profile.orcid_id %}
-    <div id="orcid">
-        <img src="/static/images/orcid.svg" alt="orcid logo"/>
-        <a class="corporate-identity" href="https://orcid.org/{{profile.orcid_id}}" target="_blank" rel="noopener noreferrer" title="ORCID profile (new window)">{{profile.orcid_id}}</a>
-    </div>
-{% endif %}
-{% if profile.job_title %}
+    <h2>{{profile.full_name}} {% if profile.orcid_id %}<a class="fab fa-orcid" style="color: #a6ce39;" href="https://orcid.org/{{profile.orcid_id}}" target="_blank" rel="noopener noreferrer" title="ORCID profile (new window)"><span class="no-show">{{profile.orcid_id}}</span></a>{% endif %}</h2>
+{%- if profile.job_title %}
     <div>{{profile.job_title}}</div>
-{% endif %}
-{% if profile.biography %}
+{%- endif %}
+{%- if profile.biography %}
     <div id="biography">
         <div class="label">Biography</div>
         <div>{{profile.biography|safe}}</div>
     </div>
-{% endif %}
-{% if datasets %}
+{%- endif %}
+{%- if datasets %}
     <div id="datasets">
-        <div class="label">Datasets</div>
-        <ul>
-    {% for dataset in datasets %}
-            <li>
-                <a class="corporate-identity" href="/datasets/{{dataset.container_uuid}}/{{dataset.version}}"
-                   title="published {{dataset.posted_date[:10]}}">{{dataset.title}}</a>
-            </li>
-    {% endfor %}
+        <h3 class="label">Datasets</h3>
+        <ul class="latest-datasets">
+    {%- for dataset in datasets %}
+            <li><div class="latest-item"><div class="latest-title"><a class="corporate-identity" href="/datasets/{{dataset.container_uuid}}/{{dataset.version}}" title="published {{dataset.posted_date[:10]}}">{{dataset.title}}</a></div></div></li>
+    {%- endfor %}
         </ul>
     </div>
-{% endif %}
-{% if collections %}
+{%- endif %}
+{%- if collections %}
     <div id="collections">
         <div class="label">Collections</div>
         <ul>
-    {% for collection in collections %}
+    {%- for collection in collections %}
             <li>
                 <a class="corporate-identity" href="/collections/{{collection.container_uuid}}/{{collection.version}}"
                    title="published {{collection.posted_date[:10]}}">{{collection.title}}</a>
             </li>
-    {% endfor %}
+    {%- endfor %}
         </ul>
     </div>
-{% endif %}
-{% if associated_authors %}
+{%- endif %}
+{%- if associated_authors %}
     <div id="associated-authors">
-        <div class="label">Co-authors</div>
-        <div class="small">Co-authors of {{profile.full_name}}'s datasets/collections. Bold: authors with a {{site_name}} account.</div>
+        <h3 class="label">Co-authors</h3>
+        <p class="small">Co-authors of {{profile.full_name}}'s datasets/collections. Bold: authors with a {{site_name}} account.</p>
         <ul>
-    {% for associated_author in associated_authors %}
+    {%- for associated_author in associated_authors %}
             <li>
                 <a class="corporate-identity {% if associated_author.is_active %}is_active{% endif %}"
                    href="/authors/{{associated_author.associated_author_uuid}}"
                    title="">{{associated_author.full_name}}</a>
             </li>
-    {% endfor %}
+    {%- endfor %}
         </ul>
     </div>
-{% endif %}
+{%- endif %}
 </div>
 {% endblock %}
