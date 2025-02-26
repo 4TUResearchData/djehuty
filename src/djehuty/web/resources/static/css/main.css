@@ -170,7 +170,7 @@ a.inline-button {
     content: '\f0d7';
     font-family: "Font Awesome 6";
     font-weight: 900;
-    color: #a0a0a0;
+    color: #d0d0d0;
 }
 #primary-menu li {
     display: inline-block;
@@ -178,7 +178,7 @@ a.inline-button {
     text-decoration: none;
     color: #000000;
     font-size: 15pt;
-    padding: 5pt 5pt 5pt 0pt;
+    padding: 5pt 3pt 5pt 0pt;
     margin: 0em .25em 0em 0em;
     user-select: none;
 }
