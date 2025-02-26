@@ -215,7 +215,7 @@ def format_rocrate_record (base_url, site_name, record, ror_url, tags, authors, 
     dataset_record = {
         "@id": "./",
         "@type": "Dataset",
-        "identifier": f"https://doi.org/{record["doi"]}",
+        "identifier": f"https://doi.org/{record['doi']}",
         "datePublished": conv.value_or_none(record, "published_date"),
         "name": conv.value_or_none (record, "title"),
         "description": description,
