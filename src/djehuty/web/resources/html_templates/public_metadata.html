@@ -136,16 +136,7 @@
         </div>
 {%- endif %}
 {%- if item_type == "dataset" %}
-    {%- set lic_imgs = {'CC0'            : 'cc-0.png',
-                       'CC BY 4.0'      : 'cc-by.png',
-                       'CC BY-SA 4.0'   : 'cc-by-sa.png',
-                       'CC BY-ND 4.0'   : 'cc-by-nd.png',
-                       'CC BY-NC 4.0'   : 'cc-by-nc.png',
-                       'CC BY-NC-SA 3.0': 'cc-by-nc-sa.png',
-                       'CC BY-NC-SA 4.0': 'cc-by-nc-sa.png',
-                       'CC BY-NC-ND 4.0': 'cc-by-nc-nd.png',
-                       'GPL-3.0'        : 'gnu-gpl-v3.png'  } %}
-    {%- set lic_img = lic_imgs[item.license_name] %}
+    {%- if item.license_url %}
         <div id="licence">
             <h3 class="label">Licence</h2>
             <a class="corporate-identity public-button" href="{{item.license_url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">
@@ -154,6 +145,7 @@
             <div>{{item.license_remarks}}</div>
     {%- endif %}
         </div>
+    {%- endif %}
     {%- if collections %}
         <div id="collections">
             <h3 class="label">Collection{%- if collections[1:] %}s{%- endif %}</h3>
