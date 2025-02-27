@@ -173,9 +173,12 @@ function save_dataset (dataset_uuid, event, notify=true, on_success=jQuery.noop)
             show_message ("success", "<p>Saved changes.</p>");
         }
         on_success ();
-    }).fail(function () {
+    }).fail(function (jqXHR, textStatus, errorThrown) {
         if (notify) {
-            show_message ("failure", "<p>Failed to save draft. Please try again at a later time.</p>");
+            let json = jqXHR.responseJSON;
+            let message = "<p>Failed to save draft. Please try again at a later time.</p>";
+            if (json) { message = `<p>Failed to save draft: ${json.message}</p>`; }
+            show_message ("failure", message);
         }
     });
 }

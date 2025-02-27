@@ -369,9 +369,12 @@ function save_collection (collection_id, event, notify=true, on_success=jQuery.n
             show_message ("success", "<p>Saved changes.</p>");
         }
         on_success ();
-    }).fail(function () {
+    }).fail(function (jqXHR, textStatus, errorThrown) {
         if (notify) {
-            show_message ("failure", "<p>Failed to save form.</p>");
+            let json = jqXHR.responseJSON;
+            let message = "<p>Failed to save draft. Please try again at a later time.</p>";
+            if (json) { message = `<p>Failed to save draft: ${json.message}</p>`; }
+            show_message ("failure", message);
         }
     });
 }
