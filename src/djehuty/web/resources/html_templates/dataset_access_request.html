@@ -5,7 +5,7 @@
   <label for="access-request-email">E-mail</label>
   <input type="text" id="access-request-email" name="email" {% if my_email %}value="{{my_email}}"{% else %}placeholder="Your e-mail address"{% endif %}
    />
-  <label for="access-request-name">name</label>
+  <label for="access-request-name">Name</label>
   <input type="text" id="access-request-name" name="name" {% if my_name %}value="{{my_name}}"{% else %}placeholder="Your name"{% endif %}
    />
   <input type="hidden" id="access-request-dataset-id" name="dataset_id" value="{{item.container_uuid}}" />
