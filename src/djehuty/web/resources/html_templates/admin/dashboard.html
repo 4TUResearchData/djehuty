@@ -2,35 +2,7 @@
 {% block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/utils.js"></script>
-<script>
-jQuery(document).ready(function () {
-    jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
-    jQuery("#recalculate-statistics").on("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        jQuery.ajax({
-            url:  "/admin/maintenance/recalculate-statistics",
-            type: "GET"
-        }).done(function () {
-            show_message ("success", "<p>Recalculated statistics.</p>");
-        }).fail(function () {
-            show_message ("failure", "<p>Failed recalculate statistics.</p>");
-        });
-    });
-    jQuery("#clear-cache").on("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        jQuery.ajax({
-            url:  "/admin/maintenance/clear-cache",
-            type: "GET",
-        }).done(function () {
-            show_message ("success", "<p>Cache has been cleared.</p>");
-        }).fail(function () {
-            show_message ("failure", "<p>Could not clear the cache.</p>");
-        });
-    });
-});
-</script>
+<script src="/static/js/admin-dashboard.js"></script>
 {% endblock %}
 {% block submenu %}
 <ul>
@@ -49,6 +21,7 @@ jQuery(document).ready(function () {
 <h2>Maintenance</h2>
 <div class="center">
   <a id="clear-cache" href="/admin/maintenance/clear-cache" class="button corporate-identity-standard-button">Clear cache</a>
+  <a id="clear-website-sessions" href="/admin/maintenance/remove-website-sessions" class="button corporate-identity-standard-button">Clear old website logins</a>
   <a id="recalculate-statistics" href="/admin/maintenance/recalculate-statistics" class="button corporate-identity-standard-button">Recalculate statistics</a>
   <a id="repair-missing-dois" href="/admin/maintenance/repair-doi-registrations" class="button corporate-identity-standard-button">Repair {{missing_dois}} missing DOIs</a></div>
 </div>

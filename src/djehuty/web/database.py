@@ -3320,6 +3320,15 @@ class SparqlInterface:
 
         return self.__run_logged_query (query)
 
+    def delete_sessions_older_than (self, timestamp, name):
+        """Procedure to prune old sessions from the state graph."""
+
+        query   = self.__query_from_template ("delete_sessions_older_than", {
+            "timestamp":  rdf.escape_string_value (timestamp),
+            "name":       rdf.escape_string_value (name)
+        })
+        return self.__run_logged_query (query)
+
     def delete_session (self, token):
         """Procedure to remove a session from the state graph."""
 

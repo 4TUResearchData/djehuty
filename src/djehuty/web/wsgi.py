@@ -139,6 +139,7 @@ class WebServer:
             R("/admin/maintenance/clear-cache",                                  self.ui_admin_clear_cache),
             R("/admin/maintenance/clear-sessions",                               self.ui_admin_clear_sessions),
             R("/admin/maintenance/repair-doi-registrations",                     self.ui_admin_repair_doi_registrations),
+            R("/admin/maintenance/remove-website-sessions",                      self.ui_admin_remove_website_sessions),
             R("/admin/maintenance/recalculate-statistics",                       self.ui_admin_recalculate_statistics),
             R("/categories/<category_id>",                                       self.ui_categories),
             R("/category",                                                       self.ui_category),
@@ -3213,6 +3214,20 @@ class WebServer:
             return self.error_500 ()
 
         return self.respond_204 ()
+
+    def ui_admin_remove_website_sessions (self, request):
+        """Implements /admin/maintenance/remove-website-sessions."""
+        token = self.token_from_cookie (request)
+        if self.db.may_administer (token):
+            expiry_date = datetime.now() - timedelta(days=2)
+            expiry_date = expiry_date.strftime('%Y-%m-%d')
+            if self.db.delete_sessions_older_than (expiry_date, "Website login"):
+                self.log.info ("Removed website login sessions before %s.", expiry_date)
+                return self.respond_204 ()
+
+            return self.error_500 ("Failed to remove website login sessions.")
+
+        return self.error_403 (request)
 
     def ui_admin_recalculate_statistics (self, request):
         """Implements /admin/maintenance/recalculate-statistics."""

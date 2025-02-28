@@ -156,6 +156,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/delete_session.sparql              \
     djehuty/web/resources/sparql_templates/delete_session_by_uuid.sparql      \
     djehuty/web/resources/sparql_templates/delete_sessions.sparql             \
+    djehuty/web/resources/sparql_templates/delete_sessions_older_than.sparql  \
     djehuty/web/resources/sparql_templates/derived_from.sparql                \
     djehuty/web/resources/sparql_templates/explorer_properties.sparql         \
     djehuty/web/resources/sparql_templates/explorer_property_types.sparql     \
@@ -279,6 +280,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/js/ace/ext-searchbox.js                      \
     djehuty/web/resources/static/js/ace/mode-sparql.js                        \
     djehuty/web/resources/static/js/ace/theme-crimson_editor.js               \
+    djehuty/web/resources/static/js/admin-dashboard.js                        \
     djehuty/web/resources/static/js/d3.v7.min.js                              \
     djehuty/web/resources/static/js/dataset_landing_page.js                   \
     djehuty/web/resources/static/js/depositor-dashboard.js                    \
