@@ -4,6 +4,7 @@ This module contains procedures to validate user input.
 
 import re
 from djehuty.utils import convenience as conv
+from html import escape
 
 def raise_or_return_error (error_list, error):
     """Adds the error to the ERROR_LIST or raises ERROR."""
@@ -264,7 +265,8 @@ def index_exists (value, index):
     return True
 
 def string_value (record, field_name, minimum_length=0, maximum_length=None,
-                  required=False, error_list=None, strip_html=True):
+                  required=False, error_list=None, strip_html=True,
+                  error_on_disallowed_html=True):
     """
     Validation procedure for string values.  If FIELD_NAME is None, it expects
     RECORD to be the value to validate.
@@ -305,10 +307,17 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None,
                         message = f"The value for '{field_name}' is shorter than {minimum_length}.",
                         code    = "ValueTooShort"))
 
-    if strip_html:
-        return conv.html_to_plaintext (value)
+    if error_on_disallowed_html and conv.contains_disallowed_html (value):
+        return raise_or_return_error (error_list,
+                    InvalidValue(
+                        field_name = field_name,
+                        message = f"The value for '{field_name}' contains a disallowed pattern.",
+                        code    = "DisallowedPattern"))
 
-    return value
+    if strip_html:
+        return escape (conv.html_to_plaintext (value))
+
+    return conv.encode_html (value)
 
 def url_value (record, field_name, required=False, error_list=None):
     """Validation procedure for URL values."""

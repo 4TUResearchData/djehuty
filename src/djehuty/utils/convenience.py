@@ -6,6 +6,8 @@ the codebase.
 import re
 import logging
 from html.parser import HTMLParser
+from html import escape, unescape
+from djehuty.utils.constants import allowed_html_tags
 
 class HTMLStripper (HTMLParser):
     """Overriden HTMLParser to strip HTML tags inspired by Django's implementation."""
@@ -51,6 +53,32 @@ def html_to_plaintext (value, respect_newlines=False):
             break
 
     return value
+
+def contains_disallowed_html (value):
+    """Return True when there is a disallowed tag in VALUE, False otherwise."""
+
+    if value is None:
+        return False
+
+    stripped_value = unescape (value)
+    for tag in allowed_html_tags:
+        stripped_value = stripped_value.replace (f"<{tag}>", "")
+        stripped_value = stripped_value.replace (f"</{tag}>", "")
+
+    return html_to_plaintext (stripped_value) != stripped_value
+
+def encode_html (value, allow_simple_tags=True):
+    """
+    Returns VALUE but with encoded HTML entities.  When ALLOW_SIMPLE_TAGS is
+    True, it doesn't encode p, strong, em and u tags.
+    """
+    encoded_value = escape (value)
+    if allow_simple_tags:
+        for tag in allowed_html_tags:
+            encoded_value = encoded_value.replace (f"&lt;{tag}&gt;", f"<{tag}>")
+            encoded_value = encoded_value.replace (f"&lt;/{tag}&gt;", f"</{tag}>")
+
+    return encoded_value
 
 def value_or (record, key, other):
     """Return the value of KEY or OTHER."""

@@ -185,3 +185,4 @@
 .input-with-button a:hover { background: #999999; }
 a.fa-angle-up { cursor: pointer; }
 a.fa-angle-down { cursor: pointer; }
+button.ql-link { display: none !important }
