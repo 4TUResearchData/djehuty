@@ -138,6 +138,12 @@
 }
 
 \ifdefined\HCode
+\newcommand{\labelWithConsistentHTMLTag}[1]{\label{#1}\ifvmode\IgnorePar\fi\EndP\HCode{<a id="#1"></a>}}
+\else
+\newcommand{\labelWithConsistentHTMLTag}[1]{\label{#1}}
+\fi
+
+\ifdefined\HCode
 \newcommand\cfgindent{\texttt{\hspace*{1em}}}
 \else
 \newcommand\cfgindent{\texttt{\phantom{\hspace*{1em}}}}
