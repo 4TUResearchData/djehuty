@@ -5,6 +5,78 @@
 \fi
 \chapter*{News}
 
+\labelWithConsistentHTMLTag{release-25-2}
+\section*{Release notes for \texttt{v25.2}.}
+
+  The February release of 2025 consists of 75 commits made by 2 authors.
+
+  The major new features in this release are initial support for RO-Crate
+  and direct support for S3 buckets.  The release was delayed to include an
+  important security fix for a Cross-Site-Scripting vulnerability found
+  by Aaron Liebig.  Many thanks for reporting and assisting in resolving
+  this vulnerability.
+
+\subsection*{New features}
+\begin{itemize}
+\item{Implement initial support for RO-Crates
+    (\commitLink{5ffee87a7b9cfefacea984deb4c78f5007581e8e},
+    \commitLink{96ee261fff36d08e7a2bd2f882a7a7e98d434c75}).}
+\item{Implement support for S3 buckets via \code{boto3}
+    (\commitLink{1077e2503c1e9e338849c5dee250a1e6483137b4},
+    \commitLink{67fe48dbc538d2f00bf687504451e60611021287},
+    \commitLink{2e5394b417518efbff5accbbe06f65cf7ba896cb},
+    \commitLink{09e20e40551404e0957f1fd2f742ffa156442294},
+    \commitLink{30209a7544a35d2da700e8f02d86f30bcb651082},
+    \commitLink{7e6d147fce19329126c91f2a056070d54e1b093f}).}
+\item{Implement ability to extract/replay log entries
+    (\commitLink{a5a2c090389776346944b47554c129f4e686f97e}).}
+\end{itemize}
+
+\subsection*{Security}
+
+\begin{itemize}
+\item{Addressed a Cross-Site-Scripting vulnerability
+    (\commitLink{38e89a0c8ef351bdb524ff8bcb30b44b3ba8d04f}).}
+\end{itemize}
+
+\subsection*{Bugfixes}
+\begin{itemize}
+\item{Improve rendering for accessibility
+    (\commitLink{a3e456cf172c52b41b071133d9d71883e606c786},
+    \commitLink{7cb7654fcb751cd303bf447abde95a7b57f36d7c},
+    \commitLink{11bba959809595d1fc233be6ddd3cba4575a97fc},
+    \commitLink{c74ef45f1523a4e0a4905021a31996a40e4ced97}).}
+\item{Apply user interface updates
+    (\commitLink{b2c213ac9db2d306c8c874c0c8d60367414ba33b},
+    \commitLink{3f13e0c7592125911e9d1dfe442c13c80f2e8c1b},
+    \commitLink{98606dfcc2e8ddf5d8574f7476b13dd688c314cf},
+    \commitLink{858f7b7aa5dca16bf3a1043e581f16b42951a569},
+    \commitLink{d4db446034d81d9961ea2e4d888a1d685dbde2ab},
+    \commitLink{c327f196f6f2eed3cbbad4d1f3c2136a3cb5898c},
+    \commitLink{22107051ea5a31a8c3e5488f59936baee782b7a1},
+    \commitLink{c87550cc5a176c0d9b706f6da6ee8de2c907a83d},
+    \commitLink{6642dcf94bd118659cd0541485dbc032b3497561}).}
+\item{Enhance the documentation
+    (\commitLink{57192bbb83aec6512dbcbdf4c26203ebe18fe099},
+    \commitLink{3a864f07a09e9d16997208b5cb32b6aedc7c18e4},
+    \commitLink{be65be335b4807bedbc89f6b1ed5683969001a3a},
+    \commitLink{ea4e623dbe2dd66091595cdb551cb6a32e175c75},
+    \commitLink{1c6267ec4e4c21c66344b3ad1481049743542259},
+    \commitLink{8d4d81266a2efc210d74bbe5e923821fb9cd278d}).}
+\item{Show precise error messages when input validation fails in the
+    edit-dataset and edit-collection forms
+    (\commitLink{bfd2110f7a5de061cc9921ef4c184be433fbbab3}).}
+\end{itemize}
+
+\subsection*{Technical debt}
+\begin{itemize}
+\item{Remove \code{urllib3} as explicit dependency
+    (\commitLink{672eaff0c058b3e71dabed0161faf505a5beb141}).}
+\item{Prevent comments in query templates from being sent to the SPARQL
+    endpoint (\commitLink{9ac703556e8f20a36c1fda6f5b77e165695e9001}).}
+\end{itemize}
+
+\labelWithConsistentHTMLTag{release-25-1}
 \section*{Release notes for \texttt{v25.1}.}
 
   The January release of 2025 consists of 85 commits made by 3 authors.
@@ -58,6 +130,7 @@
   \item{Embed simplified 'zipfly' (\commitLink{0fe0904a2aa25fc19094ee2c57a1b1d6fda4b4ad}).}
 \end{itemize}
 
+\labelWithConsistentHTMLTag{release-24-12}
 \section*{Release notes for \texttt{v24.12}.}
 
 \subsection*{New features}
