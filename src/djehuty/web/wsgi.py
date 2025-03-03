@@ -321,6 +321,7 @@ class WebServer:
             ## Reviewer
             ## ----------------------------------------------------------------
             R("/v3/datasets/<dataset_uuid>/assign-reviewer/<reviewer_uuid>",     self.api_v3_datasets_assign_reviewer),
+            R("/v3/reviewers",                                                   self.api_v3_reviewers),
 
             ## Administrative
             ## ----------------------------------------------------------------
@@ -8792,6 +8793,23 @@ class WebServer:
             return self.respond_204 ()
 
         return self.error_500()
+
+    def api_v3_reviewers (self, request):
+        """Implements /v3/reviewers."""
+
+        if not self.accepts_json (request):
+            return self.error_406 ("application/json")
+
+        token = self.token_from_request (request)
+        may_review_all = self.db.may_review (token)
+        may_review_institution = self.db.may_review_institution (token)
+        if (not may_review_all and not may_review_institution):
+            return self.error_403 (request)
+
+        reviewers = self.db.reviewer_accounts ()
+        reviewers += self.db.institutional_reviewer_accounts ()
+
+        return self.default_list_response (reviewers, formatter.format_account_record)
 
     def api_v3_repair_md5s (self, request, container_uuid):
         """Attempts to repair the MD5 checksums for DATASET_ID."""
