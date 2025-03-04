@@ -4145,6 +4145,8 @@ class WebServer:
             return self.error_406 ("text/html")
 
         search_for = self.get_parameter(request, "search")
+        search_for = validator.string_value (search_for, None,
+                                             error_on_disallowed_html=False)
         if search_for is None:
             search_for = ""
 
