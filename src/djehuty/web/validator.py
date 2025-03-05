@@ -3,7 +3,6 @@ This module contains procedures to validate user input.
 """
 
 import re
-from html import escape
 from djehuty.utils import convenience as conv
 
 def raise_or_return_error (error_list, error):
