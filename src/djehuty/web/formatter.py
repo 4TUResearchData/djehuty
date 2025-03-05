@@ -288,12 +288,16 @@ def format_dataset_record (record):
 
 def format_author_record_v3 (record):
     """Record formatter for the v3 authors API output."""
+    email = None
+    if conv.value_or (record, "is_editable", False):
+        email = conv.value_or_none (record, "email")
+
     return {
         "uuid":        conv.value_or_none (record, "uuid"),
         "first_name":  conv.value_or_none(record, "first_name"),
         "last_name":   conv.value_or_none(record, "last_name"),
         "full_name":   conv.value_or_none(record, "full_name"),
-        "email":       conv.value_or_none(record, "email"),
+        "email":       email,
         "orcid":       conv.value_or (record, "orcid_id", None),
         "is_editable": conv.value_or (record, "is_editable", False)
     }
