@@ -365,4 +365,4 @@ def normalize_orcid (orcid):
 
 def normalize_doi (doi):
     """Procedure to make storing DOIs consistent."""
-    return normalize_identifier (doi, "https://doi.org/")
+    return normalize_identifier (normalize_identifier (doi, "https://doi.org/"), "doi.org/")
