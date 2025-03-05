@@ -111,7 +111,7 @@ function render_authors_for_collection (collection_id, authors = null) {
     if (authors === null) {
         jQuery.ajax({
             url:         `/v2/account/collections/${collection_id}/authors`,
-            data:        { "limit": 10000, "order": "id", "order_direction": "asc" },
+            data:        { "limit": 10000 },
             type:        "GET",
             accept:      "application/json",
         }).done(function (authors) {

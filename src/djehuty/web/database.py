@@ -628,8 +628,8 @@ class SparqlInterface:
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
                  is_public=None, job_title=None, last_name=None,
-                 orcid_id=None, url_name=None, limit=10, order="order_index",
-                 order_direction="asc", item_uri=None, search_for=None,
+                 orcid_id=None, url_name=None, limit=10, order=None,
+                 order_direction=None, item_uri=None, search_for=None,
                  account_uuid=None, item_type="dataset", is_published=True,
                  author_uuid=None):
         """Procedure to retrieve authors of a dataset."""
@@ -654,6 +654,12 @@ class SparqlInterface:
                         f"        CONTAINS(LCASE(?last_name),  {escaped}) ||\n"
                         f"        CONTAINS(LCASE(?full_name),  {escaped}) ||\n"
                         f"        CONTAINS(LCASE(?orcid_id),   {escaped}))")
+
+        if order is None:
+            order = "order_index"
+
+        if order_direction is None:
+            order_direction = "asc"
 
         query = self.__query_from_template ("authors", {
             "item_type":   item_type,
