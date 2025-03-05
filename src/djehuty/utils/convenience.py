@@ -67,16 +67,20 @@ def contains_disallowed_html (value):
 
     return html_to_plaintext (stripped_value) != stripped_value
 
-def encode_html (value, allow_simple_tags=True):
+def encode_html (value, allow_simple_tags=True, allow_some_punctuation=True):
     """
     Returns VALUE but with encoded HTML entities.  When ALLOW_SIMPLE_TAGS is
-    True, it doesn't encode p, strong, em and u tags.
+    True, it doesn't encode HTML tags in constants.allowed_html_tags.
     """
     encoded_value = escape (value)
     if allow_simple_tags:
         for tag in allowed_html_tags:
             encoded_value = encoded_value.replace (f"&lt;{tag}&gt;", f"<{tag}>")
             encoded_value = encoded_value.replace (f"&lt;/{tag}&gt;", f"</{tag}>")
+
+    if allow_some_punctuation:
+        for character in [("&", "&amp;"), ("\"", "&quot;")]:
+            encoded_value = encoded_value.replace (character[1], character[0])
 
     return encoded_value
 

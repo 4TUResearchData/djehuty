@@ -315,7 +315,9 @@ def string_value (record, field_name, minimum_length=0, maximum_length=None,
                         code    = "DisallowedPattern"))
 
     if strip_html:
-        return escape (conv.html_to_plaintext (value))
+        # The call to encode_html ensures that incomplete HTML tags are still
+        # encoded (for example: <body/onload=...).
+        return conv.encode_html (conv.html_to_plaintext (value), allow_simple_tags=False)
 
     return conv.encode_html (value)
 
