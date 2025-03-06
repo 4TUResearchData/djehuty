@@ -79,7 +79,7 @@ def encode_html (value, allow_simple_tags=True, allow_some_punctuation=True):
             encoded_value = encoded_value.replace (f"&lt;/{tag}&gt;", f"</{tag}>")
 
     if allow_some_punctuation:
-        for character in [("&", "&amp;"), ("\"", "&quot;")]:
+        for character in [("&", "&amp;"), ("\"", "&quot;"), (" ", "&nbsp;")]:
             encoded_value = encoded_value.replace (character[1], character[0])
 
     return encoded_value
