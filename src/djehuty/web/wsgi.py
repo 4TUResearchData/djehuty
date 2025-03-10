@@ -6601,7 +6601,8 @@ class WebServer:
                                            is_published = True,
                                            item_type = "dataset",
                                            limit = 10000),
-                files   = self.db.dataset_files (dataset_uri = dataset["uri"])))
+                files   = self.db.dataset_files (dataset_uri = dataset["uri"]),
+                git_url = self.__git_repository_url_for_dataset (dataset)))
 
         return self.response (json.dumps(output))
 
@@ -6622,7 +6623,8 @@ class WebServer:
                                        is_published = True,
                                        item_type = "dataset",
                                        limit = 10000),
-            files   = self.db.dataset_files (dataset_uri = dataset["uri"])))
+            files   = self.db.dataset_files (dataset_uri = dataset["uri"]),
+            git_url = self.__git_repository_url_for_dataset (dataset)))
 
         return self.response (json.dumps(output))
 

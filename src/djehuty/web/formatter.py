@@ -191,7 +191,8 @@ def format_rocrate_file_record (record):
         "contentUrl": file_download_url (record)
     }
 
-def format_rocrate_record (base_url, site_name, record, ror_url, tags, authors, files):
+def format_rocrate_record (base_url, site_name, record, ror_url, tags,
+                           authors, files, git_url=None):
     """Record formatter for the RO-Crate format."""
 
     # Strip the HTML tags from the description.
@@ -206,6 +207,7 @@ def format_rocrate_record (base_url, site_name, record, ror_url, tags, authors, 
 
     file_records = list (map (format_rocrate_file_record, files))
     publisher_records = []
+    git_record = []
     ro_crate_meta_record = {
         "@id": "ro-crate-metadata.json",
         "@type": "CreativeWork",
@@ -225,6 +227,19 @@ def format_rocrate_record (base_url, site_name, record, ror_url, tags, authors, 
         "hasPart": list (map (lambda item: { "@id": item["@id"] }, file_records))
     }
 
+    if git_url:
+        title = conv.value_or_none (record, "git_repository_name")
+        if title is None or title == "":
+            title = conv.value_or_none (record, "title")
+
+        git_record = [{
+            "@id": record["git_uuid"],
+            "@type": "SoftwareSourceCode",
+            "name": title,
+            "codeRepository": git_url,
+        }]
+        dataset_record["hasPart"].append({ "@id": record["git_uuid"] })
+
     if ror_url:
         publisher_records = [{
             "@id": ror_url,
@@ -236,7 +251,7 @@ def format_rocrate_record (base_url, site_name, record, ror_url, tags, authors, 
 
     return {
         "@context": "https://w3id.org/ro/crate/1.1/context",
-        "@graph": [ro_crate_meta_record, dataset_record] + publisher_records + file_records
+        "@graph": [ro_crate_meta_record, dataset_record] + git_record + publisher_records + file_records
     }
 
 def format_dataset_record (record):
