@@ -9323,6 +9323,7 @@ class WebServer:
 
         metadata = metadata[0]
         input_filename = self.__filesystem_location (metadata)
+        s3_cached_file = None
         if isinstance (input_filename, s3.S3DownloadStreamer):
             s3_cached_file = s3.s3_temporary_file (input_filename)
             original  = pyvips.Image.new_from_file (s3_cached_file)
