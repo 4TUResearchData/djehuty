@@ -3,6 +3,13 @@
 <a id="api-section"></a>
 \end{html}
 \fi
+
+\newcommand{\categoryDescription}{%
+  Categories are a controlled vocabulary and can be used to make the collection
+  findable in the categorical overviews.  The \t{string} values expected here
+  can be found under the \code{uuid} property with a call to \code{/v2/categories}.
+  For more details, see section \refer{sec:v2-categories}.}
+
 \chapter{Application Programming Interface}
 
   The application programming interface (API) provided by \t{djehuty} allows
@@ -748,16 +755,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   \t{references}     & list of \t{string}s  & URLs to resources referring to
                                               this dataset, or resources that
                                               this dataset refers to.\\
-  \t{categories}     & list of \t{string}s  & Categories are a controlled
-                                              vocabulary and can be used to
-                                              make the dataset findable in
-                                              the categorical overviews.
-                                              The \t{string} values expected
-                                              here can be found under the
-                                              \code{uuid} property with a
-                                              call to \code{/v2/categories}.
-                                              For more details, see section
-                                              \refer{sec:v2-categories}.\\
+  \t{categories}     & list of \t{string}s  & \categoryDescription\\
   \t{authors}        & list of author records & \\
   \t{defined\_type}  & \t{string}           & One of: \t{figure},
                                               \t{online resource},
@@ -941,16 +939,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
                                               dataset may be published.  This
                                               is a djehuty-extension to the
                                               original API specification.\\
-  \t{categories}     & list of \t{string}s  & Categories are a controlled
-                                              vocabulary and can be used to
-                                              make the dataset findable in
-                                              the categorical overviews.
-                                              The \t{string} values expected
-                                              here can be found under the
-                                              \code{uuid} property with a
-                                              call to \code{/v2/categories}.
-                                              For more details, see section
-                                              \refer{sec:v2-categories}.
+  \t{categories}     & list of \t{string}s  & \categoryDescription
 \end{tabularx}
 
   Example usage:
@@ -1626,16 +1615,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   \t{references}     & list of \t{string}s  & URLs to resources referring to
                                               this collection, or resources that
                                               this collection refers to.\\
-  \t{categories}     & list of \t{string}s  & Categories are a controlled
-                                              vocabulary and can be used to
-                                              make the collection findable in
-                                              the categorical overviews.
-                                              The \t{string} values expected
-                                              here can be found under the
-                                              \code{uuid} property with a
-                                              call to \code{/v2/categories}.
-                                              For more details, see section
-                                              \refer{sec:v2-categories}.\\
+  \t{categories}     & list of \t{string}s  & \categoryDescription\\
   \t{authors}        & list of author records & \\
   \t{funding}        & \t{string}           & One-liner to cite funding.\\
   \t{funding\_list}  & list of funding records & \\
@@ -1756,16 +1736,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
                                               organizations that contributed
                                               or are associated with the
                                               collection.\\
-  \t{categories}     & list of \t{string}s & No & Categories are a controlled
-                                              vocabulary and can be used to
-                                              make the collection findable in
-                                              the categorical overviews.
-                                              The \t{string} values expected
-                                              here can be found under the
-                                              \code{uuid} property with a
-                                              call to \code{/v2/categories}.
-                                              For more details, see section
-                                              \refer{sec:v2-categories}.
+  \t{categories}     & list of \t{string}s & No & \categoryDescription
 \end{tabularx}
 
   Example usage:
