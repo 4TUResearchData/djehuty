@@ -6689,6 +6689,7 @@ class WebServer:
             modified_since  = validator.string_value (request.args, "modified_since", 0, 32, False, error_list=errors)
             order           = validator.string_value (request.args, "order", 0, 255, False, error_list=errors)
             order_direction = validator.order_direction (request.args, "order_direction", False, error_list=errors)
+            doi             = validator.string_value (request.args, "doi", 0, 255, False, error_list=errors)
             if errors:
                 return self.error_400_list (request, errors)
 
@@ -6697,6 +6698,7 @@ class WebServer:
                                          is_software  = True,
                                          is_embargoed = False,
                                          is_restricted = False,
+                                         doi            = doi,
                                          modified_since = modified_since,
                                          order        = order,
                                          order_direction = order_direction,
