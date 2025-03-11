@@ -672,6 +672,144 @@ class WebServer:
 
         return git_repository_url
 
+    def __author_list_from_request_input (self, parameters, created_by=None):
+        """Returns a list with author objects and a list of error messages."""
+
+        errors  = []
+        records = validator.array_value (parameters, "authors", error_list=errors)
+        if errors:
+            return None, errors
+
+        if records is None:
+            return [], None
+
+        authors = []
+        for record in records:
+            author_uuid  = validator.string_value (record, "uuid", 0, 36, False)
+            if author_uuid and not validator.is_valid_uuid (author_uuid):
+                return None, [{ "field_name": "author.uuid",
+                                "message": "Invalid UUID for author."}]
+            if author_uuid:
+                authors.append (URIRef (uuid_to_uri (author_uuid, "author")))
+                continue
+
+            record = {
+                "full_name":  validator.string_value (record, "name",       0, 255, False, errors),
+                "first_name": validator.string_value (record, "first_name", 0, 255, True, errors),
+                "last_name":  validator.string_value (record, "last_name",  0, 255, True, errors),
+                "email":      validator.string_value (record, "email",      0, 255, False, errors),
+                "orcid_id":   validator.string_value (record, "orcid_id",   0, 38,  False, errors),
+                "job_title":  validator.string_value (record, "job_title",  0, 255, False, errors),
+                "is_active":  False,
+                "is_public":  True,
+                "created_by": created_by
+            }
+
+            if record["full_name"] is None:
+                record["full_name"] = f"{record['first_name']} {record['last_name']}"
+
+            if errors:
+                return None, errors
+
+            author_uuid = self.db.insert_author (**record)
+            if author_uuid is None:
+                return None, [{ "field_name": "authors",
+                                "message": "Unable to create author record." }]
+            authors.append (URIRef (uuid_to_uri (author_uuid, "author")))
+
+        return authors, None
+
+    def __funding_list_from_request_input (self, parameters, created_by=None):
+        """Returns a list with funding objects and a list of error messages."""
+
+        errors = []
+        records = validator.array_value (parameters, "funding_list", error_list=errors)
+        if not records and not errors:
+            records = validator.array_value (parameters, "funders", error_list=errors)
+
+        if errors:
+            return None, errors
+
+        if records is None:
+            return [], None
+
+        funding_items = []
+        for record in records:
+            funder_uuid = validator.string_value (record, "uuid", 0, 36, False)
+            if funder_uuid and not validator.is_valid_uuid (funder_uuid):
+                return None, [{ "field_name": "funding_list.uuid",
+                                "message": "Invalid UUID for funder."}]
+
+            if funder_uuid:
+                funding_items.append (URIRef (uuid_to_uri (funder_uuid, "funding")))
+                continue
+
+            record = {
+                "title":       validator.string_value (record, "title", 0, 255, True),
+                "grant_code":  validator.string_value (record, "grant_code", 0, 32, False),
+                "funder_name": validator.string_value (record, "funder_name", 0, 255, False),
+                "url":         validator.string_value (record, "url", 0, 512, False),
+                "account_uuid": created_by
+            }
+            funder_uuid = self.db.insert_funding (**record)
+            if funder_uuid is None:
+                return None, [{ "field_name": "funding_list.uuid",
+                                "message": "Unable to create funding record."}]
+
+            funding_items.append (URIRef (uuid_to_uri (funder_uuid, "funding")))
+
+        return funding_items, None
+
+    def __simple_list_from_request_input (self, parameters, name, key):
+        """Returns a list with reference objects and a list of error messages."""
+
+        errors  = []
+        records = validator.array_value (parameters, name, error_list=errors)
+        if errors:
+            return None, errors
+
+        if records is None:
+            return [], None
+
+        for index, record in enumerate(records):
+            records[index] = { key: record }
+
+        return records, None
+
+    def __reference_list_from_request_input (self, parameters):
+        """Returns a list with reference objects and a list of error messages."""
+        return self.__simple_list_from_request_input (parameters, "references", "url")
+
+    def __tag_list_from_request_input (self, parameters, field_name="tags"):
+        """Returns a list with reference objects and a list of error messages."""
+        return self.__simple_list_from_request_input (parameters, field_name, "tag")
+
+    def __category_list_from_request_input (self, parameters):
+        """Returns a list with category objects and a list of error messages."""
+
+        errors  = []
+        records = validator.array_value (parameters, "categories", error_list=errors)
+        if errors:
+            return None, errors
+
+        if records is None:
+            return [], None
+
+        for index, record in enumerate(records):
+            if parses_to_int (record):
+                category = self.db.category_by_id (category_id = record)
+                if not category:
+                    return None, [{ "field_name": "categories",
+                                    "message": f"No such category '{record}'." }]
+                records[index] = { "uuid": category["uuid"] }
+            elif validator.is_valid_uuid (record):
+                if not self.db.category_by_id (category_uuid = record):
+                    return None, [{ "field_name": "categories",
+                                    "message": f"No such category '{record}'." }]
+                records[index] = { "uuid": record }
+
+        return records, None
+
     ## ERROR HANDLERS
     ## ------------------------------------------------------------------------
 
@@ -4477,24 +4615,43 @@ class WebServer:
         if request.method == 'POST':
             record = request.get_json()
             try:
-                tags = validator.array_value (record, "tags", False)
-                if not tags:
-                    tags = validator.array_value (record, "keywords", False)
-
                 license_id  = validator.integer_value (record, "license", 0, pow(2, 63), False)
                 license_url = self.db.license_url_by_id (license_id)
                 timeline   = validator.object_value (record, "timeline", False)
+
+                authors, errors = self.__author_list_from_request_input (record, account_uuid)
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                references, errors = self.__reference_list_from_request_input (record)
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                tags, errors = self.__tag_list_from_request_input (record)
+                if not tags and not errors:
+                    tags, errors = self.__tag_list_from_request_input (record, field_name="keywords")
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                categories, errors = self.__category_list_from_request_input (record)
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                funding_list, errors = self.__funding_list_from_request_input (record)
+                if errors:
+                    return self.error_400_list (request, errors)
+
                 container_uuid, _ = self.db.insert_dataset (
                     title          = validator.string_value  (record, "title",          3, 1000,                   True),
                     account_uuid     = account_uuid,
                     description    = validator.string_value  (record, "description",    0, 10000, False, strip_html=False),
                     tags           = tags,
-                    references     = validator.array_value   (record, "references",                                False),
-                    categories     = validator.array_value   (record, "categories",                                False),
-                    authors        = validator.array_value   (record, "authors",                                   False),
+                    references     = references,
+                    categories     = categories,
+                    authors        = authors,
                     defined_type_name = validator.options_value (record, "defined_type", validator.dataset_types,  False),
                     funding        = validator.string_value  (record, "funding",        0, 255,                    False),
-                    funding_list   = validator.array_value   (record, "funding_list",                              False),
+                    funding_list   = funding_list,
                     license_url    = license_url,
                     language       = validator.string_value  (record, "language",       0, 8,                      False),
                     doi            = validator.string_value  (record, "doi",            0, 255,                    False),
@@ -4601,6 +4758,28 @@ class WebServer:
                 if is_restricted or is_closed:
                     record["embargo_type"] = "file"
 
+                authors, errors = self.__author_list_from_request_input (record, account_uuid)
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                references, errors = self.__reference_list_from_request_input (record)
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                tags, errors = self.__tag_list_from_request_input (record)
+                if not tags and not errors:
+                    tags, errors = self.__tag_list_from_request_input (record, field_name="keywords")
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                categories, errors = self.__category_list_from_request_input (record)
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                funding_list, errors = self.__funding_list_from_request_input (record)
+                if errors:
+                    return self.error_400_list (request, errors)
+
                 result = self.db.update_dataset (dataset["uuid"],
                     account_uuid,
                     title           = validator.string_value  (record, "title",          3, 1000),
@@ -4638,8 +4817,11 @@ class WebServer:
                     git_code_hosting_url = validator.string_value (record, "git_code_hosting_url",  0, 512),
                     agreed_to_deposit_agreement = validator.boolean_value (record, "agreed_to_deposit_agreement", False, False),
                     agreed_to_publish = validator.boolean_value (record, "agreed_to_publish", False, False),
-                    categories      = validator.array_value   (record, "categories"),
-                )
+                    authors         = authors,
+                    categories      = categories,
+                    references      = references,
+                    tags            = tags,
+                    funding_list    = funding_list)
 
                 if self.__is_reviewing (request):
                     try:
@@ -4741,28 +4923,9 @@ class WebServer:
                 if error_response is not None:
                     return error_response
 
-                new_authors = []
-                records     = parameters["authors"]
-                for record in records:
-                    # The following fields are allowed:
-                    # id, name, first_name, last_name, email, orcid_id, job_title.
-                    #
-                    # We assume values for is_active and is_public.
-                    author_uuid  = validator.string_value (record, "uuid", 0, 36, False)
-                    if author_uuid is None:
-                        author_uuid = self.db.insert_author (
-                            full_name  = validator.string_value  (record, "name",       0, 255,        False),
-                            first_name = validator.string_value  (record, "first_name", 0, 255,        False),
-                            last_name  = validator.string_value  (record, "last_name",  0, 255,        False),
-                            email      = validator.string_value  (record, "email",      0, 255,        False),
-                            orcid_id   = validator.string_value  (record, "orcid_id",   0, 38,         False),
-                            job_title  = validator.string_value  (record, "job_title",  0, 255,        False),
-                            is_active  = False,
-                            is_public  = True,
-                            created_by = account_uuid)
-                        if author_uuid is None:
-                            return self.error_500 ("Adding a single author failed.")
-                    new_authors.append(URIRef(uuid_to_uri (author_uuid, "author")))
+                new_authors, errors = self.__author_list_from_request_input (parameters, account_uuid)
+                if errors:
+                    return self.error_400_list (request, errors)
 
                 # The PUT method overwrites the existing authors, so we can
                 # keep an empty starting list. For POST we must retrieve the
@@ -4898,21 +5061,9 @@ class WebServer:
                 if error_response is not None:
                     return error_response
 
-                new_fundings = []
-                records     = parameters["funders"]
-                for record in records:
-                    funder_uuid = validator.string_value (record, "uuid", 0, 36, False)
-
-                    if funder_uuid is None:
-                        funder_uuid = self.db.insert_funding (
-                            title       = validator.string_value (record, "title", 0, 255, False),
-                            grant_code  = validator.string_value (record, "grant_code", 0, 32, False),
-                            funder_name = validator.string_value (record, "funder_name", 0, 255, False),
-                            url         = validator.string_value (record, "url", 0, 512, False),
-                            account_uuid = account_uuid)
-                        if funder_uuid is None:
-                            return self.error_500 ("Adding a single funder failed.")
-                    new_fundings.append(URIRef(uuid_to_uri (funder_uuid, "funding")))
+                new_fundings, errors = self.__funding_list_from_request_input (parameters, account_uuid)
+                if errors:
+                    return self.error_400_list (request, errors)
 
                 # The PUT method overwrites the existing funding list, so we can
                 # keep an empty starting list. For POST we must retrieve the

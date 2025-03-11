@@ -218,6 +218,9 @@ def uris_from_records (records, prefix, uuid_index=None):
     ## The UUID is sometimes a property of record, as in record["uuid"],
     ## while at other times the UUID is the record itself.
 
+    if records and isinstance (records[0], URIRef):
+        return records
+
     if uuid_index is not None:
         return list(map (lambda record: URIRef(uuid_to_uri (
             record[uuid_index], prefix)), records))

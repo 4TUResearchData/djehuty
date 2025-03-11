@@ -2442,14 +2442,15 @@ class SparqlInterface:
                         geolocation=None, longitude=None, latitude=None,
                         data_link=None, has_linked_file=None, derived_from=None,
                         same_as=None, organizations=None, categories=None,
-                        defined_type=None, defined_type_name=None,
+                        authors=None, defined_type=None, defined_type_name=None,
                         embargo_until_date=None, embargo_type=None,
                         embargo_title=None, embargo_reason=None, eula=None,
-                        is_embargoed=False, is_restricted=False,
+                        is_embargoed=False, is_restricted=False, references=None,
                         agreed_to_deposit_agreement=False, agreed_to_publish=False,
                         is_metadata_record=False, metadata_reason=None,
-                        container_doi=None, is_first_online=False,
-                        git_repository_name=None, git_code_hosting_url=None):
+                        container_doi=None, is_first_online=False, tags=None,
+                        git_repository_name=None, git_code_hosting_url=None,
+                        funding_list=None):
         """Procedure to overwrite parts of a dataset."""
 
         modified_date_str = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
@@ -2509,10 +2510,21 @@ class SparqlInterface:
 
         results = self.__run_logged_query (query)
         if results:
-            items = []
-            if isinstance (categories, list):
-                items = rdf.uris_from_records (categories, "category")
+            if categories and isinstance (categories, list):
+                items = rdf.uris_from_records (categories, "category", "uuid")
                 self.update_item_list (dataset_uuid, account_uuid, items, "categories")
+            if authors and isinstance (authors, list):
+                items = rdf.uris_from_records (authors, "author")
+                self.update_item_list (dataset_uuid, account_uuid, items, "authors")
+            if references and isinstance (references, list):
+                items = list(map(lambda reference: reference["url"], references))
+                self.update_item_list (dataset_uuid, account_uuid, items, "references")
+            if tags and isinstance (tags, list):
+                items = list(map(lambda tag: tag["tag"], tags))
+                self.update_item_list (dataset_uuid, account_uuid, items, "tags")
+            if funding_list and isinstance (funding_list, list):
+                items = rdf.uris_from_records (funding_list, "funding", "uuid")
+                self.update_item_list (dataset_uuid, account_uuid, items, "funding_list")
         else:
             return False
 
