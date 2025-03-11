@@ -2098,7 +2098,8 @@ class WebServer:
         requested_quota = None
         try:
             account_quota   = account["quota"]
-            percentage_used = round(storage_used / account_quota * 100, 2)
+            if account_quota > 0:
+                percentage_used = round(storage_used / account_quota * 100, 2)
 
             if pending_quota_requests:
                 requested_bytes = int(pending_quota_requests[0]["requested_size"])
