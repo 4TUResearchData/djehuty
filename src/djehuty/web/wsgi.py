@@ -8508,10 +8508,17 @@ class WebServer:
 
     def __git_contributors (self, git_uuid, git_repository):
         """Returns a list of contributors including their commit statistics."""
-        history = git_repository.walk (git_repository.head.target,
+
+        head_reference = git_repository.references.get("HEAD")
+        try:
+            head_reference = head_reference.resolve()
+        except pygit2.GitError:  # pylint: disable=no-member
+            return {}
+
+        history = git_repository.walk (head_reference.target,
                                        pygit2.enums.SortMode.REVERSE)
 
-        cache_key = f"{git_uuid}_{git_repository.head.target}"
+        cache_key = f"{git_uuid}_{head_reference.target}"
         cache_prefix = "git_contributors"
         cached_value = self.db.cache.cached_value (cache_prefix, cache_key)
         if cached_value:
