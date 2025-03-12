@@ -8506,19 +8506,24 @@ class WebServer:
         return self.error_403 (request, (f"Someone attempted to pull the git "
                                          f"repository git:{git_uuid}."))
 
-    def __git_contributors (self, git_uuid, git_repository):
-        """Returns a list of contributors including their commit statistics."""
-
+    def __git_head_reference_target (self, git_repository):
         head_reference = git_repository.references.get("HEAD")
         try:
             head_reference = head_reference.resolve()
         except (KeyError, pygit2.GitError):  # pylint: disable=no-member
+            return None, None
+
+        return head_reference, head_reference.target
+
+    def __git_contributors (self, git_uuid, git_repository):
+        """Returns a list of contributors including their commit statistics."""
+
+        _, target = self.__git_head_reference_target (git_repository)
+        if target is None:
             return {}
 
-        history = git_repository.walk (head_reference.target,
-                                       pygit2.enums.SortMode.REVERSE)
-
-        cache_key = f"{git_uuid}_{head_reference.target}"
+        history = git_repository.walk (target, pygit2.enums.SortMode.REVERSE)
+        cache_key = f"{git_uuid}_{target}"
         cache_prefix = "git_contributors"
         cached_value = self.db.cache.cached_value (cache_prefix, cache_key)
         if cached_value:
@@ -8674,22 +8679,26 @@ class WebServer:
     def api_v3_dataset_git_languages (self, request, git_uuid):
         """Implements /v3/datasets/<id>/languages."""
 
-        git_repository, branch = self.__git_statistics_error_handling (request, git_uuid)
+        git_repository, _ = self.__git_statistics_error_handling (request, git_uuid)
         if isinstance (git_repository, Response):
             return git_repository
 
-        # No branches means it's an empty repository.
-        if branch is None:
-            return json.dumps({ "Other": 0 })
+        # No target means it's an empty repository.
+        head, target = self.__git_head_reference_target (git_repository)
+        if target is None:
+            return self.response (json.dumps({ "Other": 0 }))
 
-        cache_key = f"{git_uuid}_{git_repository.head.target}"
+        cache_key = f"{git_uuid}_{target}"
         cache_prefix = "git_languages"
         cached_value = self.db.cache.cached_value (cache_prefix, cache_key)
         if cached_value:
             return self.response (cached_value)
 
-        tree = git_repository.revparse_single(branch).tree # pylint: disable=no-member
-        statistics = self.__git_files_by_type (tree)
+        commit = head.peel()
+        if not isinstance (commit, pygit2.Commit):
+            return self.response (json.dumps({ "Other": 0 }))
+
+        statistics = self.__git_files_by_type (commit.tree)  # pylint: disable=no-member
 
         # Drop the binary count from the statistics, because we only
         # generate a summary with line counts below.
