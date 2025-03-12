@@ -842,9 +842,11 @@ class WebServer:
         response.status_code = 403
         return response
 
-    def error_404 (self, request):
+    def error_404 (self, request, audit_log_message=None):
         """Procedure to respond with HTTP 404."""
         response = None
+        if audit_log_message is not None:
+            self.log.audit (audit_log_message)
         if self.accepts_html (request, strict=True):
             response = self.__render_template (request, "404.html")
         else:
@@ -4237,9 +4239,8 @@ class WebServer:
                 file_paths.append ({ key: file_path, "n": file_info["name"] })
 
             if not file_paths:
-                self.log.error ("Download-all for %s failed: %s.", dataset_id,
-                                "No files associated with this dataset")
-                return self.error_404 (request)
+                return self.error_404 (request, (f"Download-all for {dataset_id} failed: "
+                                                 "No files associated with this dataset."))
 
             writer = None
             try:
@@ -8695,7 +8696,7 @@ class WebServer:
             return self.response (cached_value)
 
         commit = head.peel()
-        if not isinstance (commit, pygit2.Commit):
+        if not isinstance (commit, pygit2.Commit):  # pylint: disable=no-member
             return self.response (json.dumps({ "Other": 0 }))
 
         statistics = self.__git_files_by_type (commit.tree)  # pylint: disable=no-member
