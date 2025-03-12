@@ -4,11 +4,24 @@
 \end{html}
 \fi
 
+%% Macros to avoid repeating the same text.
+
 \newcommand{\categoryDescription}{%
   Categories are a controlled vocabulary and can be used to make the collection
   findable in the categorical overviews.  The \t{string} values expected here
   can be found under the \code{uuid} property with a call to \code{/v2/categories}.
   For more details, see section \refer{sec:v2-categories}.}
+
+\newcommand{\customFieldsDescription}{%
+  An \t{Object} where each key is a field name and each value is the
+  corresponding value. Allowed values are: \t{contributors},
+  \t{data\_link}, \t{derived\_from}, \t{format}, \t{geolocation},
+  \t{language}, \t{latitude}, \t{longitude}, \t{organizations},
+  \t{publisher}, \t{same\_as}, \t{time\_coverage}.}
+
+\newcommand{\customFieldsListDescription}{%
+  Each \t{Object} should have two keys: \t{name} and \t{value}. For
+  allowed keys, see \t{custom\_fields}.}
 
 \chapter{Application Programming Interface}
 
@@ -791,7 +804,8 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   %\t{group\_id}      & \t{integer}          & \\
   \t{publisher}      & \t{string}           & The name of the data repository
                                               publishing the dataset.\\
-  \t{custom\_fields} & list of key-value pairs & \\
+  \t{custom\_fields} & list of key-value pairs & \customFieldsDescription\\
+  \t{custom\_fields\_list} & list of \t{Objects} & \customFieldsListDescription\\
   \t{timeline}       &                      & Do not use this field because it
                                               will be automatically populated
                                               during the publication process.
@@ -1640,19 +1654,8 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
                                               peer-reviewed journal
                                               publication.\\
   %\t{group_id}       & \t{integer}          & \\
-  \t{custom\_fields} & \t{Object}           & An \t{Object} where each key is a
-                                              field name and each value is the
-                                              corresponding value. Allowed values
-                                              are: \t{contributors}, \t{data\_link},
-                                              \t{derived\_from}, \t{format},
-                                              \t{geolocation}, \t{language},
-                                              \t{latitude}, \t{longitude},
-                                              \t{organizations}, \t{publisher},
-                                              \t{same\_as}, \t{time\_coverage}.\\
-  \t{custom\_fields\_list} & list of \t{Objects} & Each \t{Object} should have
-                                              two keys: \t{name} and
-                                              \t{value}. For allowed key values,
-                                              see \t{custom\_fields}.\\
+  \t{custom\_fields} & \t{Object}           & \customFieldsDescription\\
+  \t{custom\_fields\_list} & list of \t{Objects} & \customFieldsListDescription\\
   \t{timeline}       &                      & Do not use this field because it
                                               will be automatically populated
                                               during the publication process.\\
