@@ -8512,7 +8512,7 @@ class WebServer:
         head_reference = git_repository.references.get("HEAD")
         try:
             head_reference = head_reference.resolve()
-        except pygit2.GitError:  # pylint: disable=no-member
+        except (KeyError, pygit2.GitError):  # pylint: disable=no-member
             return {}
 
         history = git_repository.walk (head_reference.target,
