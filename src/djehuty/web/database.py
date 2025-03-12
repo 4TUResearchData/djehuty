@@ -1229,6 +1229,7 @@ class SparqlInterface:
                         categories=None,
                         authors=None,
                         custom_fields=None,
+                        custom_fields_list=None,
                         private_links=None,
                         files=None,
                         embargo_type=None,
@@ -1253,6 +1254,7 @@ class SparqlInterface:
         categories      = [] if categories      is None else categories
         authors         = [] if authors         is None else authors
         custom_fields   = [] if custom_fields   is None else custom_fields
+        custom_fields_list = [] if custom_fields_list is None else custom_fields_list
         private_links   = [] if private_links   is None else private_links
         files           = [] if files           is None else files
 
@@ -1301,12 +1303,22 @@ class SparqlInterface:
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
-        for field in custom_fields:
+        for field in custom_fields_list:
             self.insert_custom_field_value (
                 name     = conv.value_or_none (field, "name"),
                 value    = conv.value_or_none (field, "value"),
                 item_uri = uri,
                 graph    = graph)
+
+        for key in custom_fields:
+            try:
+                self.insert_custom_field_value (
+                    name     = key,
+                    value    = custom_fields[key],
+                    item_uri = uri,
+                    graph    = graph)
+            except (AttributeError, IndexError) as error:
+                self.log.error ("Error while inserting custom field (%s).", error)
 
         ## TOPLEVEL FIELDS
         ## --------------------------------------------------------------------

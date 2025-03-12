@@ -4663,6 +4663,7 @@ class WebServer:
                     group_id       = validator.integer_value (record, "group_id",       0, pow(2, 63),             False),
                     publisher      = validator.string_value  (record, "publisher",      0, 255,                    False),
                     custom_fields  = validator.object_value  (record, "custom_fields",                             False),
+                    custom_fields_list = validator.array_value (record, "custom_fields_list",                      False),
                     # Unpack the 'timeline' object.
                     publisher_publication = validator.string_value (timeline, "publisherPublication",              False),
                     submission            = validator.string_value (timeline, "submission",                        False),
