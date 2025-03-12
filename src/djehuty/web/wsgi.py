@@ -9531,7 +9531,11 @@ class WebServer:
             })
 
         if "," in size:
+            scale_for_best_fit = size.startswith("!")
             sizes = size.split(",")
+            if scale_for_best_fit:
+                sizes = size[1:].split(",")
+
             if len (sizes) != 2:
                 validation_errors.append ({
                     "field_name": "size",
@@ -9550,7 +9554,19 @@ class WebServer:
                 scale_factor = float(sizes[0]) / original.width
                 output_size = { "w": int(sizes[0]), "h": original.height * scale_factor }
             elif parses_to_int (sizes[0]) and parses_to_int (sizes[1]):
-                output_size = { "w": int(sizes[0]), "h": int(sizes[1]) }
+                if scale_for_best_fit:
+                    width_factor = 1.0
+                    height_factor = 1.0
+                    if original.width > float(sizes[0]):
+                        width_factor = float(sizes[0]) / original.width
+                    if original.height > float(sizes[1]):
+                        height_factor = float(sizes[1]) / original.height
+                    scale_factor = min (width_factor, height_factor)
+                    if scale_factor < 1.0:
+                        output_size = { "w": int(original.width * scale_factor),
+                                        "h": int(original.height * scale_factor) }
+                else:
+                    output_size = { "w": int(sizes[0]), "h": int(sizes[1]) }
 
         # Rotation
         mirror      = (isinstance (rotation, str) and rotation[0] == "!")
