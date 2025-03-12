@@ -69,4 +69,4 @@ filetypes_by_extension = {
     "yml":        "YAML",
 }
 
-allowed_html_tags = ["p", "strong", "em", "u", "ol", "ul", "li", "code", "pre", "br", "sup", "sub"]
+allowed_html_tags = ["p", "strong", "em", "u", "ol", "ul", "li", "code", "pre", "br", "sup", "sub", "h2", "h3"]
