@@ -4643,6 +4643,15 @@ class WebServer:
                 if errors:
                     return self.error_400_list (request, errors)
 
+                group_id = validator.integer_value (record, "group_id", 0, pow(2, 63), False)
+                if group_id is None:
+                    account = self.db.account_by_uuid (account_uuid)
+                    group_id = value_or_none (account, "group_id")
+
+                publisher = validator.string_value  (record, "publisher", 0, 255, False)
+                if publisher is None:
+                    publisher = config.site_name
+
                 container_uuid, _ = self.db.insert_dataset (
                     title          = validator.string_value  (record, "title",          3, 1000,                   True),
                     account_uuid     = account_uuid,
@@ -4660,8 +4669,8 @@ class WebServer:
                     handle         = validator.string_value  (record, "handle",         0, 255,                    False),
                     resource_doi   = validator.string_value  (record, "resource_doi",   0, 255,                    False),
                     resource_title = validator.string_value  (record, "resource_title", 0, 255,                    False),
-                    group_id       = validator.integer_value (record, "group_id",       0, pow(2, 63),             False),
-                    publisher      = validator.string_value  (record, "publisher",      0, 255,                    False),
+                    group_id       = group_id,
+                    publisher      = publisher,
                     custom_fields  = validator.object_value  (record, "custom_fields",                             False),
                     custom_fields_list = validator.array_value (record, "custom_fields_list",                      False),
                     # Unpack the 'timeline' object.
