@@ -2382,7 +2382,7 @@ class SparqlInterface:
                 references            = draft_references,
                 categories            = draft_categories,
                 authors               = draft_authors,
-                custom_fields         = draft_custom_fields,
+                custom_fields_list    = draft_custom_fields,
                 private_links         = None,
                 files                 = draft_files,
                 embargo_type          = conv.value_or_none (latest, "embargo_type"),
