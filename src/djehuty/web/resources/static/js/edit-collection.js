@@ -625,7 +625,7 @@ function activate (collection_id) {
         jQuery("#tag").on("keypress", function(e){
             if(e.which == 13) { add_tag(collection_id); }
         });
-
+        jQuery("#expand-categories-button").on("click", toggle_categories);
         jQuery(".collection-content-loader").hide();
         jQuery(".collection-content").fadeIn(200);
     }).fail(function () {

@@ -70,7 +70,7 @@ function activate () {
     install_touchable_help_icons();
     jQuery("#save").on("click", function () { save_profile (); });
     jQuery("#remove-image").on("click", function () { remove_profile_image (); });
-
+    jQuery("#expand-categories-button").on("click", toggle_categories);
     var fileUploader = new Dropzone("#upload-profile-image", {
         url:               "/v3/profile/picture",
         dictDefaultMessage: "Upload your profile picture",

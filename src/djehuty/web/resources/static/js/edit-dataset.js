@@ -1246,6 +1246,7 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
 
         jQuery("#api-upload-fold").hide();
         jQuery("#api-upload-toggle").on("click", function (event) { toggle_api_upload_text (event); });
+        jQuery("#expand-categories-button").on("click", toggle_categories);
         callback ();
     }).fail(function () { show_message ("failure", `<p>Failed to retrieve article ${dataset_uuid}.</p>`); });
 }
