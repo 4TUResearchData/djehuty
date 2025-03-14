@@ -214,20 +214,6 @@ function repair_md5_sums (dataset_uuid, event) {
     });
 }
 
-function reserve_doi (dataset_uuid) {
-    jQuery.ajax({
-        url:         `/v2/account/articles/${dataset_uuid}/reserve_doi`,
-        type:        "POST",
-        accept:      "application/json",
-    }).done(function (record) {
-        jQuery("#doi-wrapper p").replaceWith(
-            `<p>The DOI of your dataset will be: <strong>${record["doi"]}</strong></p>`
-        );
-    }).fail(function () {
-        show_message ("failure", "<p>Failed to reserve DOI. Please try again later.</p>");
-    });
-}
-
 function render_licenses (dataset) {
     let chosen_license = null;
     // When the dataset hasn't been given a license yet, accessing
@@ -1245,12 +1231,6 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
                     jQuery("#content_embargo").prop("checked", true);
                 }
             }
-        }
-
-        if (data["doi"]) {
-            jQuery("#doi-wrapper p").replaceWith(
-                `<p>The DOI of your dataset will be: <strong>${data["doi"]}</strong></p>`
-            );
         }
         if (data["agreed_to_deposit_agreement"]) {
             jQuery("#deposit_agreement").prop("checked", true);

@@ -411,7 +411,7 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 </table>
 <label>DOI reservation</label><div class="fas fa-question-circle help-icon"><span class="help-text">Upon publication, a DOI will be assigned to your dataset. If you need to have the DOI before publication, you can use this value.</span></div>
 <div id="doi-wrapper" class="options-wrapper">
-  <p><a href="#" onclick="javascript:reserve_doi('{{article["container_uuid"]}}'); return false;">Reserve DOI</a>.</p>
+  <p>The DOI of your dataset will be: <strong>{{article["doi"]}}</strong></p>
 </div>
 <h3 class="corporate-identity-h3">Findability</h3>
 <label for="language">Language</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select a language from the list.</span></div><span class="required-field">&#8727;</span>

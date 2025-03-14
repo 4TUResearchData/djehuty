@@ -2285,6 +2285,8 @@ class WebServer:
             except IndexError:
                 pass  # No value for derived_from.
 
+            dataset["doi"] = self.__standard_doi (dataset["container_uuid"], version = None,
+                                                  container_doi = value_or_none (dataset, "container_doi"))
             return self.__render_template (
                 request,
                 "depositor/edit-dataset.html",
