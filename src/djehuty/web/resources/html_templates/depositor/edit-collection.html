@@ -3,7 +3,7 @@
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js"></script>
-<script src="/static/js/edit-collection.js?cache=1741185295"></script>
+<script src="/static/js/edit-collection.js?cache=1741959850"></script>
 <script>
 jQuery(document).ready(function () {
     root_categories = []
@@ -191,7 +191,7 @@ jQuery(document).ready(function () {
 </table>
 <label>DOI reservation</label><div class="fas fa-question-circle help-icon"><span class="help-text">Upon publication, a DOI will be assigned to your collection. If you need to have the DOI before publication, you can use this value.</span></div>
 <div id="doi-wrapper" class="options-wrapper">
-  <p><a href="#" onclick="javascript:reserve_doi('{{collection["container_uuid"]}}'); return false;">Reserve DOI</a>.</p>
+  <p>The DOI of your collection will be: <strong>{{collection["doi"]}}</strong></p>
 </div>
 <h3>Findability</h3>
 <label for="language">Language</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select a language from the list.</span></div><span class="required-field">&#8727;</span>

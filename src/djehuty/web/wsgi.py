@@ -2461,7 +2461,8 @@ class WebServer:
             categories = self.db.categories_tree ()
             account    = self.db.account_by_uuid (account_uuid)
             groups     = self.__groups_for_account (account)
-
+            collection["doi"] = self.__standard_doi (collection["container_uuid"], version = None,
+                                                     container_doi = value_or_none (collection, "container_doi"))
             return self.__render_template (
                 request,
                 "depositor/edit-collection.html",

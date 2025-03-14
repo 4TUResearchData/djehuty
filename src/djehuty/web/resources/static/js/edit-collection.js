@@ -418,20 +418,6 @@ function publish_collection (collection_id, event) {
     });
 }
 
-function reserve_doi (collection_id) {
-    jQuery.ajax({
-        url:         `/v2/account/collections/${collection_id}/reserve_doi`,
-        type:        "POST",
-        accept:      "application/json",
-    }).done(function (record) {
-        jQuery("#doi-wrapper p").replaceWith(
-            `<p>The DOI of your collection will be: <strong>${record["doi"]}</strong></p>`
-        );
-    }).fail(function () {
-        show_message ("failure", "<p>Failed to reserve DOI. Please try again later.</p>");
-    });
-}
-
 function autocomplete_dataset (event, collection_id) {
     let current_text = jQuery.trim(jQuery("#article-search").val());
     if (current_text == "") {
@@ -636,11 +622,6 @@ function activate (collection_id) {
 
         if (data["group_id"] != null) {
             jQuery(`#group_${data["group_id"]}`).prop("checked", true);
-        }
-        if (data["doi"]) {
-            jQuery("#doi-wrapper p").replaceWith(
-                `<p>The DOI of your collection will be: <strong>${data["doi"]}</strong></p>`
-            );
         }
         jQuery("#add-keyword-button").on("click", function(event) {
             event.preventDefault();
