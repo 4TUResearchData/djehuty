@@ -1,8 +1,7 @@
 jQuery(document).ready(function () {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery("#recalculate-statistics").on("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
+        stop_event_propagation (event);
         jQuery.ajax({
             url:  "/admin/maintenance/recalculate-statistics",
             type: "GET"
@@ -13,8 +12,7 @@ jQuery(document).ready(function () {
         });
     });
     jQuery("#clear-cache").on("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
+        stop_event_propagation (event);
         jQuery.ajax({
             url:  "/admin/maintenance/clear-cache",
             type: "GET",
@@ -25,8 +23,7 @@ jQuery(document).ready(function () {
         });
     });
     jQuery("#clear-website-sessions").on("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
+        stop_event_propagation (event);
         jQuery.ajax({
             url:  "/admin/maintenance/remove-website-sessions",
             type: "GET"
@@ -37,8 +34,7 @@ jQuery(document).ready(function () {
         });
     });
         jQuery("#repair-missing-dois").on("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
+        stop_event_propagation (event);
         jQuery.ajax({
             url:  "/admin/maintenance/repair-doi-registrations",
             type: "GET"

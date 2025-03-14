@@ -302,8 +302,7 @@ function remove_tag (tag, collection_id) {
 }
 
 function delete_collection (collection_id, event) {
-    event.preventDefault();
-    event.stopPropagation();
+    stop_event_propagation (event);
     if (confirm("Deleting this draft collection is unrecoverable. "+
                 "Do you want to continue?"))
     {
@@ -350,8 +349,7 @@ function gather_form_data () {
 }
 
 function save_collection (collection_id, event, notify=true, on_success=jQuery.noop) {
-    event.preventDefault();
-    event.stopPropagation();
+    stop_event_propagation (event);
 
     // When keywords were entered but yet submitted, handle those first.
     add_tag (collection_id);
@@ -380,9 +378,7 @@ function save_collection (collection_id, event, notify=true, on_success=jQuery.n
 }
 
 function publish_collection (collection_id, event) {
-    event.preventDefault();
-    event.stopPropagation();
-
+    stop_event_propagation (event);
     jQuery("#content").addClass("loader-top");
     jQuery("#content-wrapper").css('opacity', '0.15');
     save_collection (collection_id, event, false, function() {
@@ -600,8 +596,7 @@ function activate (collection_id) {
         }
     });
     jQuery("#add-reference-button").on("click", function(event) {
-        event.preventDefault();
-        event.stopPropagation();
+        stop_event_propagation (event);
         add_reference (collection_id);
     });
     jQuery("#article-search").on("input", function (event) {
@@ -624,8 +619,7 @@ function activate (collection_id) {
             jQuery(`#group_${data["group_id"]}`).prop("checked", true);
         }
         jQuery("#add-keyword-button").on("click", function(event) {
-            event.preventDefault();
-            event.stopPropagation();
+            stop_event_propagation (event);
             add_tag (collection_id);
         });
         jQuery("#tag").on("keypress", function(e){

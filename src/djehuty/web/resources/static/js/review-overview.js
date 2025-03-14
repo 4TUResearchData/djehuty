@@ -7,10 +7,7 @@ function update_item_count () {
 }
 
 function clear_reviews_cache (event) {
-    if (event !== null) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
+    stop_event_propagation (event);
     jQuery.ajax({
         url:         "/v3/admin/reviews/clear-cache",
         type:        "GET",

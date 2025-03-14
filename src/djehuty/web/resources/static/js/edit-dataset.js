@@ -1,6 +1,5 @@
 function delete_dataset (dataset_uuid, event) {
-    event.preventDefault();
-    event.stopPropagation();
+    stop_event_propagation (event);
     if (confirm("Deleting this draft dataset is unrecoverable. "+
                 "Do you want to continue?"))
     {
@@ -19,8 +18,7 @@ function delete_dataset (dataset_uuid, event) {
 }
 
 function decline_dataset (dataset_uuid, event) {
-    event.preventDefault();
-    event.stopPropagation();
+    stop_event_propagation (event);
 
     jQuery("#content").addClass("loader-top");
     jQuery("#content-wrapper").css("opacity", "0.15");
@@ -42,8 +40,7 @@ function decline_dataset (dataset_uuid, event) {
 }
 
 function preview_dataset (dataset_uuid, event) {
-    event.preventDefault();
-    event.stopPropagation();
+    stop_event_propagation (event);
     let current_date = new Date();
     let year  = current_date.getFullYear();
     let month = current_date.getMonth() + 1; // getMonth is zero-indexed.
@@ -154,8 +151,7 @@ function gather_form_data () {
 }
 
 function save_dataset (dataset_uuid, event, notify=true, on_success=jQuery.noop) {
-    event.preventDefault();
-    event.stopPropagation();
+    stop_event_propagation (event);
 
     // When keywords were entered but yet submitted, handle those first.
     add_tag (dataset_uuid);
@@ -349,8 +345,7 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
             row += "</tr>";
             jQuery("#collaborators-form tbody").prepend(row);
             jQuery("#add-collaborator-button").on("click", function(event) {
-                event.preventDefault();
-                event.stopPropagation();
+                stop_event_propagation (event);
                 add_collaborator(dataset_uuid, may_edit_metadata);
             });
         }
@@ -601,10 +596,7 @@ function render_funding_for_dataset (dataset_uuid) {
 }
 
 function render_git_branches_for_dataset (dataset_uuid, event) {
-    if (event !== null) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
+    stop_event_propagation (event);
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}.git/branches`,
         type:        "GET",
@@ -632,10 +624,7 @@ function render_git_branches_for_dataset (dataset_uuid, event) {
 }
 
 function set_default_git_branch (dataset_uuid, event) {
-    if (event !== null) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
+    stop_event_propagation (event);
     let branch_name = jQuery("#git-branches").val();
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}.git/set-default-branch`,
@@ -652,10 +641,7 @@ function set_default_git_branch (dataset_uuid, event) {
 }
 
 function render_git_files_for_dataset (dataset_uuid, event) {
-    if (event !== null) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
+    stop_event_propagation (event);
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}.git/files`,
         data:        { "limit": 10000, "order": "id", "order_direction": "asc" },
@@ -1062,8 +1048,7 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
             }
         });
         jQuery("#add-reference-button").on("click", function(event) {
-            event.preventDefault();
-            event.stopPropagation();
+            stop_event_propagation (event);
             add_reference (dataset_uuid);
         });
          jQuery("#collaborators").on("keypress", function(e){
@@ -1080,21 +1065,18 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
 
         if (permissions.data_edit) {
             jQuery("#repair-md5s").on("click", function(event) {
-                event.preventDefault();
-                event.stopPropagation();
+                stop_event_propagation (event);
                 repair_md5_sums (dataset_uuid, event);
             });
         }
         if (permissions.data_remove) {
             jQuery("#remove-all-files").on("click", function(event) {
-                event.preventDefault();
-                event.stopPropagation();
+                stop_event_propagation (event);
                 delete_all_files (dataset_uuid);
             });
         }
         jQuery("#add-keyword-button").on("click", function(event) {
-            event.preventDefault();
-            event.stopPropagation();
+            stop_event_propagation (event);
             add_tag (dataset_uuid);
         });
         jQuery("#tag").on("keypress", function(e){
@@ -1269,9 +1251,7 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
 }
 
 function toggle_api_upload_text (event) {
-    event.preventDefault();
-    event.stopPropagation();
-
+    stop_event_propagation (event);
     if (jQuery("#api-upload-fold").is(":hidden")) {
         jQuery("#api-upload-fold").slideDown(250);
     } else {
@@ -1279,8 +1259,7 @@ function toggle_api_upload_text (event) {
     }
 }
 function toggle_embargo_options (event) {
-    event.preventDefault();
-    event.stopPropagation();
+    stop_event_propagation (event);
     if (jQuery("#embargo_options").is(":hidden")) {
         jQuery("#embargo_options").show();
         jQuery("#configure_embargo").hide();
@@ -1291,9 +1270,7 @@ function toggle_embargo_options (event) {
 }
 
 function toggle_embargo_until (event) {
-    event.preventDefault();
-    event.stopPropagation();
-
+    stop_event_propagation (event);
     jQuery("#embargo_until_date")
         .prop("disabled",
               jQuery("#embargo_until_forever").prop("checked"));
@@ -1417,9 +1394,7 @@ function prettify_size (size) {
 }
 
 function submit_dataset (dataset_uuid, event) {
-    event.preventDefault();
-    event.stopPropagation();
-
+    stop_event_propagation (event);
     jQuery("#content").addClass("loader-top");
     jQuery("#content-wrapper").css('opacity', '0.15');
     save_dataset (dataset_uuid, event, false, function() {
@@ -1479,9 +1454,7 @@ function submit_dataset (dataset_uuid, event) {
 }
 
 function publish_dataset (dataset_uuid, event) {
-    event.preventDefault();
-    event.stopPropagation();
-
+    stop_event_propagation (event);
     jQuery("#content").addClass("loader-top");
     jQuery("#content-wrapper").css('opacity', '0.15');
     save_dataset (dataset_uuid, event, false, function() {

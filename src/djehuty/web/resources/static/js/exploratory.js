@@ -143,10 +143,7 @@ function node_mousedown () {
 }
 
 function clear_exploratory_cache (event) {
-    if (event !== null) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
+    stop_event_propagation (event);
     jQuery.ajax({
         url:         "/v3/explore/clear-cache",
         type:        "GET",

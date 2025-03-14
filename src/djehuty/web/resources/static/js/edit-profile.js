@@ -52,9 +52,6 @@ function render_categories_for_profile () {
 }
 
 function remove_profile_image () {
-    event.preventDefault();
-    event.stopPropagation();
-
     jQuery.ajax({
         url:         "/v3/profile/picture",
         type:        "DELETE",

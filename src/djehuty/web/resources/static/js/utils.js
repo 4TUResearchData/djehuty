@@ -17,6 +17,13 @@ function show_message (type, message) {
     }, 20000);
 }
 
+function stop_event_propagation (event) {
+    if (event !== null) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+}
+
 function install_sticky_header () {
     var submenu_offset = jQuery("#submenu").offset().top;
     jQuery(window).on("resize scroll", function() {
@@ -62,7 +69,7 @@ function toggle_categories () {
 }
 
 function toggle_collaborators (dataset_uuid, may_edit_metadata, event) {
-
+    stop_event_propagation (event);
     function show_collaborators () {
         jQuery("#expanded-collaborators").slideDown(250, function() {
             jQuery("#expand-collaborators-button").text("Hide collaborators");
