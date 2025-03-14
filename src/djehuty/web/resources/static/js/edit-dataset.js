@@ -156,7 +156,10 @@ function save_dataset (dataset_uuid, event, notify=true, on_success=jQuery.noop)
     // When keywords were entered but yet submitted, handle those first.
     add_tag (dataset_uuid);
     add_reference (dataset_uuid);
-
+    let external_url = jQuery("#external_url").val();
+    if (external_url && external_url != "") {
+        submit_external_link (dataset_uuid);
+    }
     form_data = gather_form_data();
     jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}`,
