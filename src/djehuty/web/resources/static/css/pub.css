@@ -30,8 +30,8 @@
 #wrapper #content #citation     { background: #fff; border: solid 1pt #ccc; border-radius: .25em; padding: .25em; margin-bottom: 1em; }
 #wrapper #content #type_versions { margin-bottom:10px }
 #wrapper #content #versions     { width: 220px; position:absolute; }
-#wrapper #content #versions_show { padding: 1pt 7.5pt 1pt 0pt; background-color: transparent; border: none; font: inherit; font-size: inherit; }
-#wrapper #content #versions_show:hover { text-decoration: underline; cursor: pointer }
+#wrapper #content #versions-btn { padding: 1pt 7.5pt 1pt 0pt; background-color: transparent; border: none; font: inherit; font-size: inherit; }
+#wrapper #content #versions-btn:hover { text-decoration: underline; cursor: pointer }
 #wrapper #content #versions a   { display: block }
 #wrapper #content #versions div { color: #999 }
 #wrapper #content .is_active    { font-weight: bold }
@@ -58,3 +58,4 @@
 #collect h3, #cite h3 { margin-top: 0em; font-size: 1.25em !important; font-weight: bold; }
 #cite-btn.close, #collect-btn.close { border-radius: .5em .5em 0em 0em !important; }
 #cite-btn.secondary, #collect-btn.secondary { background: none !important; color: #000; font-weight: normal; text-decoration: underline; border-radius: .5em .5em 0em 0em; }
+#versions-btn.old-version-style { background: #ff0 !important; }

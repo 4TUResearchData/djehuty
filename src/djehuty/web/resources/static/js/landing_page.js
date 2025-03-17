@@ -76,6 +76,20 @@ function prompt_download_all_request (event) {
     show_message ("success", );
 }
 
+function toggle_versions (event) {
+    stop_event_propagation (event);
+    let versions = jQuery("#versions");
+    if (versions.is(":visible")) {
+        versions.slideUp(150, function () {
+            jQuery("#versions-arrow").removeClass("fa-angle-up").addClass("fa-angle-down");
+        });
+    } else {
+        versions.slideDown(150, function () {
+            jQuery("#versions-arrow").removeClass("fa-angle-down").addClass("fa-angle-up");
+        });
+    }
+}
+
 jQuery(document).ready(function (){
     if (document.getElementById ("access-request-reason") !== null) {
         new Quill("#access-request-reason", { theme: "4tu" });
@@ -85,4 +99,5 @@ jQuery(document).ready(function (){
     jQuery("#download-all-files").on("click", prompt_download_all_request);
     jQuery("#cite-btn").on("click", toggle_citation);
     jQuery("#collect-btn").on("click", toggle_collect);
+    jQuery("#versions-btn").on("click", toggle_versions);
 });

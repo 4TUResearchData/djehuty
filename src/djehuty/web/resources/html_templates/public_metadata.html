@@ -52,15 +52,13 @@
     <div id="type_versions">
         <h3 class="label" id="type">{{ dtype }}</h3>
 {%- if not private_view and versions[1:2] %}
-        <button id="versions_show" onclick="document.getElementById('versions').style.display='block'" title="Choose another version."
-            {%- if old %}style="background-color: #ff0"{%- endif %}>version {{thisversion}}
-            {%- if old %} (old){%- endif %} &#x1F53B; </button>
-        <div id ="versions">
-            <button id="versions_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
-            choose version:
+        <button id="versions-btn" title="Choose another version."
+            {%- if old %}class="old-version-style"{%- endif %}>Version {{thisversion}}
+            {%- if old %} (old){%- endif %} <span id="versions-arrow" class="fas fa-angle-down"></span> </button>
+        <div id="versions">
     {%- for ver in versions %}
         {%- set v = ver.version %}
-        {%- set label = "version "~v~" - "~ver.posted_date[:10] %}
+        {%- set label = "Version "~v~" - "~ver.posted_date[:10] %}
         {%- if v == latest %}{%- set label = label~" (latest)" %}{%- endif %}
         {%- if v == thisversion %}
             <div>{{label}}</div>
