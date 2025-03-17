@@ -345,6 +345,10 @@ function gather_form_data () {
         "categories":     category_ids
     };
 
+    if (form_data["description"] !== null) {
+        form_data["description"] = form_data["description"].replace('<p class="ql-align-justify">', '<p>');
+    }
+
     return form_data;
 }
 

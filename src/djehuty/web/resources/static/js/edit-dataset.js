@@ -129,6 +129,9 @@ function gather_form_data () {
         form_data["embargo_until_date"] = or_null(jQuery("#embargo_until_date").val());
         form_data["embargo_title"]  = "Under embargo";
         form_data["embargo_reason"] = or_null(jQuery("#embargo_reason .ql-editor").html());
+        if (form_data["embargo_reason"] !== null) {
+            form_data["embargo_reason"] = form_data["embargo_reason"].replace('<p class="ql-align-justify">', '<p>');
+        }
         form_data["license_id"]     = or_null(jQuery("#license_embargoed").val());
         if (jQuery("#files_only_embargo").prop("checked")) {
             form_data["embargo_type"] = "file";
@@ -141,12 +144,21 @@ function gather_form_data () {
         form_data["embargo_until_date"] = null;
         form_data["embargo_title"]  = "Restricted access";
         form_data["embargo_reason"] = or_null(jQuery("#restricted_access_reason .ql-editor").html());
+        if (form_data["embargo_reason"] !== null) {
+            form_data["embargo_reason"] = form_data["embargo_reason"].replace('<p class="ql-align-justify">', '<p>');
+        }
         form_data["eula"]           = or_null(jQuery("#restricted_access_eula .ql-editor").html());
+        if (form_data["eula"] !== null) {
+            form_data["eula"] = form_data["eula"].replace('<p class="ql-align-justify">', '<p>');
+        }
         form_data["embargo_options"] = [{ "id": 1000, "type": "restricted_access" }];
     } else {
         form_data["license_id"]     = or_null(jQuery("#license_open").val());
     }
 
+    if (form_data["description"] !== null) {
+        form_data["description"] = form_data["description"].replace('<p class="ql-align-justify">', '<p>');
+    }
     return form_data;
 }
 
@@ -1250,6 +1262,9 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
         jQuery("#api-upload-fold").hide();
         jQuery("#api-upload-toggle").on("click", function (event) { toggle_api_upload_text (event); });
         jQuery("#expand-categories-button").on("click", toggle_categories);
+        jQuery("#expand-collaborators-button").on("click", function (event) {
+            toggle_collaborators (dataset_uuid, !is_shared_with_me, event)
+        });
         callback ();
     }).fail(function () { show_message ("failure", `<p>Failed to retrieve article ${dataset_uuid}.</p>`); });
 }
