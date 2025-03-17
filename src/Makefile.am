@@ -282,7 +282,6 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/js/ace/theme-crimson_editor.js               \
     djehuty/web/resources/static/js/admin-dashboard.js                        \
     djehuty/web/resources/static/js/d3.v7.min.js                              \
-    djehuty/web/resources/static/js/dataset_landing_page.js                   \
     djehuty/web/resources/static/js/depositor-dashboard.js                    \
     djehuty/web/resources/static/js/dropzone.min.js                           \
     djehuty/web/resources/static/js/edit-collection.js                        \
@@ -291,6 +290,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/js/exploratory.js                            \
     djehuty/web/resources/static/js/jquery.dataTables.min.js                  \
     djehuty/web/resources/static/js/jquery-3.6.0.min.js                       \
+    djehuty/web/resources/static/js/landing_page.js                           \
     djehuty/web/resources/static/js/query-editor.js                           \
     djehuty/web/resources/static/js/quill.min.js                              \
     djehuty/web/resources/static/js/review-overview.js                        \

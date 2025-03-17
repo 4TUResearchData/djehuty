@@ -24,20 +24,18 @@
             <span>DOI:</span> <a class="corporate-identity" href="https://doi.org/{{container_doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{container_doi}}</a></div>
   {%- endif %}
     </div>
-    <button id="cite_show" class="corporate-identity-standard-button" onclick='document.getElementById("cite").style.display="block"' title="Show citation.">Cite</button>
+    <button id="cite-btn" class="corporate-identity-standard-button" title="Show citation.">Cite</button>
   {%- if my_collections %}
-    <button id="collect_show" class="corporate-identity-standard-button" onclick='document.getElementById("collect").style.display="block"' title="Add this {{item.defined_type_name}} to one of your collections.">Collect</button>
+    <button id="collect-btn" class="corporate-identity-standard-button" title="Add this {{item.defined_type_name}} to one of your collections.">Collect</button>
   {%- endif %}
     <div id="cite">
-        <button id="cite_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
-        Datacite citation style:
+        <h3>Datacite citation style</h3>
         <div id="citation">{{citation}}</div>
         <a class="corporate-identity" href="https://doi.datacite.org/dois/{{item.doi|replace('/','%2F')}}" target="_blank" rel="noopener noreferrer" title="opens in new window">Other citation styles (APA, Harvard, MLA, Vancouver, Chicago, IEEE) available at Datacite</a>
     </div>
   {%- if my_collections %}
     <div id="collect">
-        <button id="collect_hide" class="cancel-button" onclick='this.parentElement.style.display="none"'>x</button>
-        Add to collection:
+        <h3>Add to collection</h3>
         <ul>
     {%- for collection in my_collections %}
             <li><a class="corporate-identity" href="#" onclick="javascript:add_dataset_to_collection('{{item.container_uuid}}','{{collection.container_uuid}}'); return false">{{collection.title}}</a></li>

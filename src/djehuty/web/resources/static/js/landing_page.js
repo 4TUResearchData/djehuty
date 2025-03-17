@@ -83,4 +83,6 @@ jQuery(document).ready(function (){
     jQuery("#access-request").on("click", toggle_access_request);
     jQuery("#submit-access-request").on("click", submit_access_request);
     jQuery("#download-all-files").on("click", prompt_download_all_request);
+    jQuery("#cite-btn").on("click", toggle_citation);
+    jQuery("#collect-btn").on("click", toggle_collect);
 });

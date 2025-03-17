@@ -219,3 +219,40 @@ function autocomplete_funding (event, item_id) {
         });
     }
 }
+
+function toggle_cite_collect (event, action) {
+    stop_event_propagation (event);
+    let other = (action === "collect") ? "cite" : "collect";
+    let label = (action === "collect") ? "Collect" : "Citation";
+    let item = jQuery(`#${action}`);
+    let other_item = jQuery(`#${other}`);
+    if (item.is(":visible")) {
+        item.slideUp(150, function (){
+            jQuery(`#${action}-btn`)
+                .removeClass("close")
+                .addClass("open")
+                .text(label);
+        });
+        if (!other_item.is(":visible")) {
+            jQuery(`#${other}-btn`).removeClass("close").removeClass("secondary");
+        }
+    } else {
+        other_item.slideUp(150, function (){
+            jQuery(`#${other}-btn`).removeClass("open").addClass("secondary");
+        });
+        item.slideDown(150, function (){
+            jQuery(`#${action}-btn`)
+                .removeClass("open")
+                .removeClass("secondary")
+                .addClass("close")
+                .text(label);
+        });
+    }
+}
+
+function toggle_citation (event) {
+    return toggle_cite_collect (event, "cite");
+}
+function toggle_collect (event) {
+    return toggle_cite_collect (event, "collect");
+}
