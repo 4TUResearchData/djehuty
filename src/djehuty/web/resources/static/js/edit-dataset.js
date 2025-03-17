@@ -130,7 +130,7 @@ function gather_form_data () {
         form_data["embargo_title"]  = "Under embargo";
         form_data["embargo_reason"] = or_null(jQuery("#embargo_reason .ql-editor").html());
         if (form_data["embargo_reason"] !== null) {
-            form_data["embargo_reason"] = form_data["embargo_reason"].replace('<p class="ql-align-justify">', '<p>');
+            form_data["embargo_reason"] = form_data["embargo_reason"].replaceAll('<p class="ql-align-justify">', '<p>');
         }
         form_data["license_id"]     = or_null(jQuery("#license_embargoed").val());
         if (jQuery("#files_only_embargo").prop("checked")) {
@@ -145,11 +145,11 @@ function gather_form_data () {
         form_data["embargo_title"]  = "Restricted access";
         form_data["embargo_reason"] = or_null(jQuery("#restricted_access_reason .ql-editor").html());
         if (form_data["embargo_reason"] !== null) {
-            form_data["embargo_reason"] = form_data["embargo_reason"].replace('<p class="ql-align-justify">', '<p>');
+            form_data["embargo_reason"] = form_data["embargo_reason"].replaceAll('<p class="ql-align-justify">', '<p>');
         }
         form_data["eula"]           = or_null(jQuery("#restricted_access_eula .ql-editor").html());
         if (form_data["eula"] !== null) {
-            form_data["eula"] = form_data["eula"].replace('<p class="ql-align-justify">', '<p>');
+            form_data["eula"] = form_data["eula"].replaceAll('<p class="ql-align-justify">', '<p>');
         }
         form_data["embargo_options"] = [{ "id": 1000, "type": "restricted_access" }];
     } else {
@@ -157,7 +157,7 @@ function gather_form_data () {
     }
 
     if (form_data["description"] !== null) {
-        form_data["description"] = form_data["description"].replace('<p class="ql-align-justify">', '<p>');
+        form_data["description"] = form_data["description"].replaceAll('<p class="ql-align-justify">', '<p>');
     }
     return form_data;
 }

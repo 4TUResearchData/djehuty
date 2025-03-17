@@ -346,7 +346,7 @@ function gather_form_data () {
     };
 
     if (form_data["description"] !== null) {
-        form_data["description"] = form_data["description"].replace('<p class="ql-align-justify">', '<p>');
+        form_data["description"] = form_data["description"].replaceAll('<p class="ql-align-justify">', '<p>');
     }
 
     return form_data;
