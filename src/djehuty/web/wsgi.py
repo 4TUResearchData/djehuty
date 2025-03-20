@@ -514,6 +514,7 @@ class WebServer:
             "site_shorttag":       config.site_shorttag,
             "support_email_address": config.support_email_address,
             "small_footer":        config.small_footer,
+            "startup_timestamp":   config.startup_timestamp,
         }
         if account is None:
             parameters = { **parameters,

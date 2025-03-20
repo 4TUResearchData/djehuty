@@ -45,6 +45,7 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         self.site_description            = ""
         self.site_shorttag               = "4tu"
         self.support_email_address       = ""
+        self.startup_timestamp           = 0
         self.allow_crawlers              = False
         self.in_production               = False
         self.in_preproduction            = False

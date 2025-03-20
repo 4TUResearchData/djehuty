@@ -6,6 +6,7 @@ import os
 import socket
 import shutil
 import json
+from datetime import datetime
 from defusedxml import ElementTree
 from werkzeug.serving import run_simple
 from rdflib.plugins.stores import berkeleydb
@@ -1213,11 +1214,13 @@ def main (config_file=None, run_internal_server=True, initialize=True,
 
         if not run_internal_server:
             config.using_uwsgi = True
+            config.startup_timestamp = int(datetime.now().timestamp())
             return server
 
         if inside_reload:
             logger.info ("Reloaded.")
         else:
+            config.startup_timestamp = int(datetime.now().timestamp())
             if not config.menu:
                 logger.warning ("No menu structure provided.")
 
