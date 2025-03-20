@@ -75,6 +75,10 @@ function top_datasets (item_type) {
 }
 
 jQuery(document).ready(function() {
+    jQuery("li.top-downloads a").on("click", function(event) { top_datasets("downloads"); return false; });
+    jQuery("li.top-views a").on("click", function(event) { top_datasets("views"); return false; });
+    jQuery("li.top-shares a").on("click", function(event) { top_datasets("shares"); return false; });
+    jQuery("li.top-cites a").on("click", function(event) { top_datasets("cites"); return false; });
     top_datasets("downloads");
     latest_datasets();
 });
