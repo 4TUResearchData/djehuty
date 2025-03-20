@@ -55,7 +55,8 @@ function install_touchable_help_icons () {
     });
 }
 
-function toggle_categories () {
+function toggle_categories (event=null) {
+    stop_event_propagation (event);
     let expanded_categories = jQuery("#expanded-categories");
     if (expanded_categories.is(":visible")) {
         jQuery("#expanded-categories").slideUp(250, function() {
