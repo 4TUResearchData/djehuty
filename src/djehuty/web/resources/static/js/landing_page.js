@@ -7,9 +7,7 @@ function add_dataset_to_collection (dataset_id, collection_id) {
         data:        JSON.stringify({ "articles": [dataset_id] }),
     }).done(function () {
         show_message ("success", "<p>Dataset succesfully added to collection.</p>");
-        document.getElementById("collect").style.display = "none";
     }).fail(function () {
-        console.log (`Failed to add ${dataset_id}`);
         show_message ("failure", "<p>Failed to add dataset to collection.</p>");
     });
 }
@@ -90,6 +88,34 @@ function toggle_versions (event) {
     }
 }
 
+function render_draft_collections () {
+    if (dataset_uuid == null) { return; }
+    jQuery.ajax({
+        url:         "/v2/account/collections",
+        type:        "GET",
+        accept:      "application/json",
+        dataType:    "json"
+    }).done(function (records) {
+        jQuery("#collect ul").remove();
+        jQuery("#collect").append("<ul></ul>");
+        for (collection of records) {
+            let item = jQuery("<a/>", { "href": "#", "class": "corporate-identity" })
+                .text(collection.title)
+                .on("click", function (event) {
+                    add_dataset_to_collection (dataset_uuid, collection.uuid);
+                    stop_event_propagation (event);
+                });
+            jQuery("#collect ul").append(item);
+        }
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        if (jqXHR.status == 403) {
+            show_message ("failure", "<p>No permission to list collections.</p>");
+        } else {
+            show_message ("failure", "<p>Failed to list collections for your account.</p>");
+        }
+    });
+}
+
 jQuery(document).ready(function (){
     if (document.getElementById ("access-request-reason") !== null) {
         new Quill("#access-request-reason", { theme: "4tu" });
@@ -98,6 +124,10 @@ jQuery(document).ready(function (){
     jQuery("#submit-access-request").on("click", submit_access_request);
     jQuery("#download-all-files").on("click", prompt_download_all_request);
     jQuery("#cite-btn").on("click", toggle_citation);
-    jQuery("#collect-btn").on("click", toggle_collect);
+    jQuery("#collect-btn").on("click", function (event) {
+        toggle_collect (event);
+        render_draft_collections ();
+        stop_event_propagation (event);
+    });
     jQuery("#versions-btn").on("click", toggle_versions);
 });

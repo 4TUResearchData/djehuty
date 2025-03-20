@@ -36,11 +36,6 @@
   {%- if my_collections %}
     <div id="collect">
         <h3>Add to collection</h3>
-        <ul>
-    {%- for collection in my_collections %}
-            <li><a class="corporate-identity" href="#" onclick="javascript:add_dataset_to_collection('{{item.container_uuid}}','{{collection.container_uuid}}'); return false">{{collection.title}}</a></li>
-    {%- endfor %}
-        </ul>
     </div>
   {%- endif %}
 {%- endif %}

@@ -7,7 +7,7 @@
     {%- include 'jsonld.html' %}
 {%- endif %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
-<script src="/static/js/landing_page.js?cache=1742203405"></script>
+<script src="/static/js/landing_page.js?cache=1742461855"></script>
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js?cache=1742203405"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/pub.css?cache=1742203405" />
@@ -17,6 +17,9 @@
 #access-request-wrapper { display: none; }
 #content-wrapper {padding: 0}
 </style>
+<script>
+const dataset_uuid = "{{item.container_uuid}}";
+</script>
 {%- endblock %}
 {%- block body %}
 {%- include 'public_metadata.html' %}
