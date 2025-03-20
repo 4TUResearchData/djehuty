@@ -51,3 +51,6 @@ ul.latest-datasets li a:active { color: {{primary_color_active}}; }
 .public-button:hover { background-color: {{primary_color_hover}}; color: #fff; }
 .public-button:active { background-color: {{primary_color_active}}; color: #fff; }
 #wrapper #content #collect, #cite, #versions { border: 2pt solid {{primary_color}}; background-color: #fff; }
+{%- if sandbox_message_css %}
+.sandbox-message-css { {{sandbox_message_css | safe}} }
+{%- endif %}

@@ -104,7 +104,7 @@ const dataset_uuid = "{{item.container_uuid}}";
     <div id="git-repository">
       <p>To access the source code, use the following command:</p>
       <pre>git clone {{git_repository_url}}{%- if item.git_repository_name %} "{{item.git_repository_name}}"{%- endif %}</pre>
-      <p>Or <a style="text-decoration: underline" href="{{git_repository_url}}/zip">download the latest commit as a ZIP</a>.</p>
+      <p>Or <a class="underline" href="{{git_repository_url}}/zip">download the latest commit as a ZIP</a>.</p>
     </div>
 {%- endif %}
 {%- if files %}

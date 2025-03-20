@@ -246,6 +246,7 @@ a:hover {
     color: #666666;
     text-decoration: underline;
 }
+a.underline { text-decoration: underline !important; }
 #description pre {
     border: none;
     background: #f9f9f9;
@@ -409,6 +410,7 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-tile::before { content: "\f84c"; }
 .fa-list::before { content: "\f03a"; }
 .fa-orcid::before { content: "\f8d2"; }
+.fa-orcid { color: #a6ce39; }
 .fa-thumbs-up::before { content: "\f164"; }
 .fa-thumbs-down::before { content: "\f165"; }
 .fa-comments-dots::before { content: "\f4ad"; }

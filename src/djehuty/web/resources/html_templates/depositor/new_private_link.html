@@ -14,6 +14,7 @@
 }
 #submit-button-label:hover { background: #b76d18; }
 #submit-button-label:active { background: #7a4810; }
+#submit-link { display: none; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -45,7 +46,7 @@
   <input type="text" id="whom" name="whom" value="" placeholder="Example: Peer-reviewers of a journal" />
 
   <input type="checkbox" name="anonymize_link" id="anonymize_link">
-<label class="no-head" for="anonymize_link">Hide authors and affiliation when accessing the dataset through this private link.</label>
-  <input type="submit" id="submit-link" style="display: none;" value="Create link" />
+  <label class="no-head" for="anonymize_link">Hide authors and affiliation when accessing the dataset through this private link.</label>
+  <input type="submit" id="submit-link" value="Create link" />
 </form>
 {% endblock %}

@@ -69,7 +69,7 @@
 {%- endif %}
 </div>
 <div id="left_column">
-    <h2>{{profile.full_name}} {% if profile.orcid_id %}<a class="fab fa-orcid" style="color: #a6ce39;" href="https://orcid.org/{{profile.orcid_id}}" target="_blank" rel="noopener noreferrer" title="ORCID profile (new window)"><span class="no-show">{{profile.orcid_id}}</span></a>{% endif %}</h2>
+    <h2>{{profile.full_name}} {% if profile.orcid_id %}<a class="fab fa-orcid" href="https://orcid.org/{{profile.orcid_id}}" target="_blank" rel="noopener noreferrer" title="ORCID profile (new window)"><span class="no-show">{{profile.orcid_id}}</span></a>{% endif %}</h2>
 {%- if profile.job_title %}
     <div>{{profile.job_title}}</div>
 {%- endif %}

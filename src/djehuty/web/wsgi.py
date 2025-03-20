@@ -508,7 +508,6 @@ class WebServer:
             "orcid_endpoint":      config.orcid_endpoint,
             "path":                request.path,
             "sandbox_message":     config.sandbox_message,
-            "sandbox_message_css": config.sandbox_message_css,
             "site_description":    config.site_description,
             "site_name":           config.site_name,
             "site_shorttag":       config.site_shorttag,
@@ -1667,7 +1666,8 @@ class WebServer:
             primary_foreground_color = config.colors['primary-foreground-color'],
             footer_background_color  = config.colors['footer-background-color'],
             privilege_button_color   = config.colors['privilege-button-color'],
-            background_color         = config.colors["background-color"])
+            background_color         = config.colors["background-color"],
+            sandbox_message_css      = config.sandbox_message_css)
 
     def loader_svg (self, request):
         """Implements /theme/loader.svg."""

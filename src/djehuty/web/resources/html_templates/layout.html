@@ -9,13 +9,13 @@
     <title>{% if page_title %}{{page_title|safe}}{% else %}{{site_name | default("Djehuty", True)}}{% endif %}</title>
     <link rel='shortcut icon' type='image/x-icon' href='/static/images/favicon.ico'>
     <link rel="stylesheet" type="text/css" href="/theme/colors.css?cache={{startup_timestamp}}">
-    <link rel="stylesheet" type="text/css" href="/static/css/main.css?cache=1740569092">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css?cache=1742461855">
     {% block headers %}{% endblock %}
   </head>
   <body>
     <div id="wrapper" {%- if path == "/" %} class="footer1"{% else %} class="footer2"{% endif %}>
       {%- if sandbox_message %}
-      <div id="sandbox-message" class="pre-header" {% if sandbox_message_css %}style="{{sandbox_message_css | safe}}"{% endif %}>
+      <div id="sandbox-message" class="pre-header sandbox-message-css">
         <p>{{sandbox_message | safe}}</p>
       </div>
       {%- endif %}
