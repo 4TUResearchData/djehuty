@@ -662,3 +662,26 @@ def format_group_record (record):
       "association":   conv.value_or_none(record, "association"),
       "is_featured":   conv.value_or_none(record, "is_featured")
     }
+
+def format_review_record (record):
+    """Record formatter for reviews."""
+    return {
+        "uuid":                  conv.value_or_none (record, "uuid"),
+        "container_uuid":        conv.value_or_none (record, "container_uuid"),
+        "dataset_title":         conv.value_or_none (record, "dataset_title"),
+        "dataset_uuid":          conv.value_or_none (record, "dataset_uuid"),
+        "dataset_version":       conv.value_or_none (record, "dataset_version"),
+        "group_name":            conv.value_or_none (record, "group_name"),
+        "has_published_version": conv.value_or_none (record, "has_published_version"),
+        "last_seen_by_reviewer": conv.value_or_none (record, "last_seen_by_reviewer"),
+        "modified_date":         conv.value_or_none (record, "modified_date"),
+        "published_date":        conv.value_or_none (record, "published_date"),
+        "request_date":          conv.value_or_none (record, "request_date"),
+        "reviewer_email":        conv.value_or_none (record, "reviewer_email"),
+        "reviewer_first_name":   conv.value_or_none (record, "reviewer_first_name"),
+        "reviewer_last_name":    conv.value_or_none (record, "reviewer_last_name"),
+        "status":                conv.value_or_none (record, "status"),
+        "submitter_email":       conv.value_or_none (record, "submitter_email"),
+        "submitter_first_name":  conv.value_or_none (record, "submitter_first_name"),
+        "submitter_last_name":   conv.value_or_none (record, "submitter_last_name")
+    }
