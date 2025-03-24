@@ -6,7 +6,6 @@
 <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
 <style>
 #content { max-width: 100% !important; }
-#content-wrapper { display: none; }
 .dataTables_wrapper .dataTables_filter { width: 100%; text-align: center; }
 .dataTables_wrapper .dataTables_filter label input[type="search"] {
   border: solid 1pt #aaa;
@@ -16,6 +15,7 @@
   width: 500pt;
 }
 #table-count { text-transform: lowercase; }
+#overview-table, #overview-h1 { display: none; }
 #overview-table tbody tr td:nth-child(11),
 #overview-table thead tr th:nth-child(11){
     max-width: 8px !important;
@@ -29,17 +29,28 @@
     padding-right: 16px;
     user-select: none;
 }
+#spacer-link { background: none !important; width: 0px !important; cursor: default !important; }
+.normal-text { text-transform: none; }
+.fa-copy:hover { cursor: pointer; }
 </style>
-<script src="/static/js/review-overview.js?cache=1721134140"></script>
 <script>
-activate ();
+  const reviewers = [
+      {%- for reviewer in reviewers: %}
+      { "uuid": "{{reviewer.uuid}}",
+        "first_name": "{{reviewer.first_name}}",
+        "last_name": "{{reviewer.last_name}}",
+        "email": "{{reviewer.email}}"
+      }{% if not loop.last %},{% endif %}
+      {%- endfor %}
+  ]
 </script>
+<script src="/static/js/review-overview.js?cache=1742812917"></script>
 {% endblock %}
 {% block submenu %}
 <ul>
   <li class="active corporate-identity-submenu-active">Overview
-  <li><a style="background: none; width: 0px; cursor: default;">&nbsp;</a>
-  <li><label style="text-transform: none;">Reviewer
+  <li><a id="spacer-link">&nbsp;</a>
+  <li><label class="normal-text">Reviewer
       <select class="reviewer-filter">
         <option value="all">All reviewers</option>
         <option value="unassigned">Unassigned</option>
@@ -50,7 +61,7 @@ activate ();
           </option>
         {%- endfor %}
     </select></label>
-  <li><label style="text-transform: none;">Status
+  <li><label class="normal-text">Status
       <select class="status-filter">
         <option value="all">All</option>
         <option value="approved">Approved</option>
@@ -62,9 +73,10 @@ activate ();
 </ul>
 {% endblock %}
 {% block body %}
-<h1>Overview{% if may_administer %}<span class="no-select"> &nbsp;<a id="remove-cache" href="#" class="fas fa-sync"></a></span>{% else %}<div id="remove-cache"></div>{% endif %}</h1>
+<h1 id="overview-h1">Overview{% if may_administer %}<span class="no-select"> &nbsp;<a id="remove-cache" href="#" class="fas fa-sync"></a></span>{% else %}<div id="remove-cache"></div>{% endif %}</h1>
 <p></p>
 {%- if reviews %}
+<div id="reviews-loader" class="loader"></div>
 <table id="overview-table" class="reviewer-table corporate-identity-table">
   <thead>
     <tr>
@@ -81,62 +93,8 @@ activate ();
       <th></th>
     </tr>
   </thead>
-  <tbody>{% for review in reviews: %}
-    <tr>
-      <td>
-        {%- if review.status == "approved": %}
-        <a href="/datasets/{{review.container_uuid}}/{{review.dataset_version}}">{{review.dataset_title}}</a>
-        {%- else %}
-        <a href="/review/goto-dataset/{{review.dataset_uuid}}">{{review.dataset_title}}</a>
-        {%- endif %}
-      </td>
-      {%- if review.has_published_version %}
-      <td>{{review.dataset_version | default("update", False)}}</td>
-      {%- else %}
-      <td>{{review.dataset_version | default("new", False)}}</td>
-      {% endif %}
-      <td>
-        {{review.submitter_first_name | default("", False)}}
-        {{review.submitter_last_name | default("", False)}}
-      </td>
-      <td>{{review.submitter_email}}</td>
-      <td>{{review.group_name | default("Unknown", False)}}</td>
-      <td id="{{review.dataset_uuid}}_status">
-      {% if review.status == "assigned": %}
-      <span class="fas fa-glasses" title="Assigned to reviewer"><span style="font-size:0pt">assigned</span></span>
-      {%- if 'last_seen_by_reviewer' in review and review.modified_date > review.last_seen_by_reviewer: %}
-      <span class="fas fa-circle-exclamation" title="Modified after seen by reviewer"><span style="font-size:0pt">Modified</span></span>
-      {%- endif %}
-      {% elif review.status == "approved": %}
-      <span class="fas fa-check-double" title="Approved by reviewer"><span style="font-size:0pt">approved</span></span>
-      {% elif review.status == "rejected": %}
-      <span class="fas fa-times fa-lg" title="Declined by reviewer"><span style="font-size:0pt">declined</span></span>
-      {% else: %}
-      <span class="fas fa-hourglass" title="Unassigned"><span style="font-size:0pt">unassigned</span></span>
-      {% endif %}
-      </td>
-      <td>{{review.request_date}}</td>
-      <td>{{review.modified_date}}</td>
-      <td>{{review.published_date | truncate(10,False,'')}}</td>
-      <td>
-        {%- if review.status == "approved" %}
-        {{review.reviewer_first_name | default("", False)}}
-        {{review.reviewer_last_name | default("", False)}}
-        {%- else %}
-        <select class="reviewer-selector">
-          <option value="" hidden>Unassigned</option>
-          {%- for reviewer in reviewers: %}
-          <option value="{{review.dataset_uuid}}:{{reviewer.uuid}}" {% if review.reviewer_email == reviewer.email %}selected{% endif %}>
-            {{reviewer.first_name | default("", False)}}
-            {{reviewer.last_name | default("", False)}}
-          </option>
-          {%- endfor %}
-        </select>
-        {%- endif %}
-      </td>
-      <td><a id="copy-btn-{{review.uuid}}" class="fas fa-copy" href="#" onclick="javascript:copy_row('{{review.uuid}}','{{review.dataset_uuid}}','{{review.dataset_title | replace("'", "\\'")}}', '{% if review.has_published_version %}{{review.dataset_version | default("update", False)}}{% else %}{{review.dataset_version | default("new", False)}}{% endif %}', `{{review.submitter_first_name | default("", False)}}`, `{{review.submitter_last_name | default("", False)}}`, '{{review.submitter_email}}', '{{review.group_name | default("Unknown", False)}}', '{{review.request_date}}', '{{review.modified_date}}', '{{review.published_date}}'); return false"></a></td>
-    </tr>
-  {% endfor %}</tbody>
+  <tbody>
+  </tbody>
 </table>
 {%- else %}
 <p>There are no reviews.</p>
