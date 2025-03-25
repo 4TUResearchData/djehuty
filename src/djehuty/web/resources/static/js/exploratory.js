@@ -65,7 +65,7 @@ function resize_svg () {
 function draw_node (row, column, value) {
     let translate_x = 20 + column * 290;
     let translate_y = 60 + row * 40;
-    let fill_color  = ((row % 2 == 0) ? "#ffffff" : "#eeeeee");
+    let fill_color  = ((row % 2 == 0) ? "white" : "gray");
     let explorer    = d3.select("#data-model-explorer");
     let node_group  = explorer.append("g").attr("transform", "translate("+ translate_x +","+ translate_y +")");
 
@@ -80,12 +80,12 @@ function draw_node (row, column, value) {
         .classed(`column-${column}`, true)
         .append("rect")
         .classed("node-item", true)
-        .attr("style", `fill:  ${fill_color}`);
+        .classed(`node-group-item-${fill_color}`, true);
 
     node_group
         .append("text").text(value)
         .attr("transform", "translate(10,21)")
-        .attr("style", "font-size: 12pt; font-family: 'FiraMono'");
+        .attr("class", "node-group-item")
 
     node_group
         .on("mouseover", node_mouseover)
@@ -97,19 +97,16 @@ function draw_node (row, column, value) {
 function node_mouseover () {
     let group = d3.select(this);
     let rect  = group.select("rect");
-    rect.style("fill-opacity", ".5");
 }
 
 function node_mouseout () {
     let group = d3.select(this);
     let rect  = group.select("rect");
-    rect.style("fill-opacity", "1");
 }
 
 function node_mouseup () {
     let group = d3.select(this);
     let rect  = group.select("rect");
-    rect.style("fill-opacity", "1");
 }
 
 function node_mousedown () {
