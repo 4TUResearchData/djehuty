@@ -774,7 +774,7 @@ function render_search_results(data, page_number) {
         html_tile_view += `</div>`;
 
         html_list_view += '<tr>';
-        html_list_view += `<td><a href="${url_container}">${title}</a></td><td style="text-align: center">${posted_date}</td>`;
+        html_list_view += `<td><a href="${url_container}">${title}</a></td><td class="center">${posted_date}</td>`;
         html_list_view += '</tr>';
     }
 
@@ -833,7 +833,7 @@ function get_pager_html(data, current_page=1) {
         new_url_link.searchParams.append('page', prev_page);
         html += `<div><a href="${new_url_link.href}" class="pager-prev">Previous</a></div>`;
     } else {
-        html += `<div style="color: lightgrey">Prev</div>`;
+        html += `<div class="lightgrey">Prev</div>`;
     }
 
     html += `<div class="pager-cur">Page ${current_page}</div>`;
@@ -842,7 +842,7 @@ function get_pager_html(data, current_page=1) {
         new_url_link.searchParams.append('page', next_page);
         html += `<div><a href="${new_url_link.href}" class="pager-next">Next</a></div>`;
     } else {
-        html += `<div style="color: lightgrey">Next</div>`;
+        html += `<div class="lightgrey">Next</div>`;
     }
     return html;
 }
@@ -959,3 +959,14 @@ function _split_comma_separated_string(value) {
     }
     return values;
 }
+
+jQuery(document).ready(function() {
+    init_search_filter_info();
+    toggle_filter_institutions_showmore(true);
+    toggle_filter_categories_showmore(true);
+    toggle_filter_licenses_showmore(true);
+    register_event_handlers();
+    load_search_filters_from_url();
+    load_search_preferences();
+    load_search_results();
+});

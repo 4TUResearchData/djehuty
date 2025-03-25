@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
-<script src="/static/js/search.js?cache=1736871309"></script>
+<script src="/static/js/search.js?cache=1742886521"></script>
 <style>
 .tile-item {
     display: inline-block;
@@ -24,6 +24,7 @@
     height: 4em;
     font-size: 1.1em;
     font-weight: bold;
+    text-align: left;
 }
 .tile-preview {
     overflow: hidden;
@@ -162,33 +163,39 @@
     text-align: center;
 }
 label { cursor: pointer; }
+.lightgrey { color: lightgrey; }
+#search-filter-buttons-wrapper { display: flex; justify-content: space-between; padding: 5pt 0pt 5pt 0pt;}
+.search-filter-button { flex: 50%; }
+#textinput_institutions_other,
+#textinput_filetypes_other,
+#textinput_publisheddate_other { display: none; }
+.hide-by-default { display: none; }
+.pad-left { padding-left: 1em; }
+#sort-by-wrapper { float: left; height: 4.5em; }
+#sort-by-dropdown-wrapper { justify-content: space-between; padding: 5pt 0pt 5pt 0pt; }
+#sort-by { padding: 0.5em 1.0em 0.5em 0.7em; border-radius: 0.5em; border: 1px solid darkgrey; width: 12em; height: 2.5em; }
+.left { text-align: left; }
+.right { text-align: right; }
+#result-count-wrapper { float: left; height: 4.5em; padding-left: 2em; }
+#result-count-spacer { padding-top: 2em; }
+#view-mode-wrapper { float: right; text-align: right; margin-right: 1em; height: 4.5em; }
+#view-options-wrapper { justify-content: space-between; padding: 5pt 0pt 5pt 0pt; }
+#tile-view-mode { color: #f49120; cursor: pointer; }
+#list-view-mode { color: darkgray; cursor: pointer; }
+#search-results-tile-view { text-align: left; }
 </style>
 {% endblock %}
 {% block body %}
-
-<script>
-    jQuery(document).ready(function() {
-        init_search_filter_info();
-        toggle_filter_institutions_showmore(true);
-        toggle_filter_categories_showmore(true);
-        toggle_filter_licenses_showmore(true);
-        register_event_handlers();
-        load_search_filters_from_url();
-        load_search_preferences();
-        load_search_results();
-    });
-</script>
-
 <div class="search-container">
 
     <!-- Start of Search Sidebar -->
     <div class="search-column left">
-        <b>Filters</b>
-        <div style="display: flex; justify-content: space-between; padding: 5pt 0pt 5pt 0pt;">
-            <div style="text-align: left; flex: 50%">
+        <strong>Filters</strong>
+        <div id="search-filter-buttons-wrapper">
+            <div class="search-filter-button left">
                 <button class="search-filter-apply-button disabled" id="search-filter-apply-button">Apply</button>
             </div>
-            <div style="text-align: right; flex: 50%">
+            <div class="search-filter-button right">
                 <button class="search-filter-reset-button" id="search-filter-reset-button">Reset</button>
             </div>
         </div>
@@ -221,7 +228,7 @@ label { cursor: pointer; }
                     {%- endfor -%}
 
                     <li><input type="checkbox" id="checkbox_institutions_other" name="checkbox_institutions_other" value="other"><label for="checkbox_institutions_other">Other institution</label> </li>
-                    <li><input type="text" style="display: none" id="textinput_institutions_other" name="textinput_institutions_other" placeholder="ex) Amsterdam" value="" maxlength="255"> </li>
+                    <li><input type="text" id="textinput_institutions_other" name="textinput_institutions_other" placeholder="ex) Amsterdam" value="" maxlength="255"> </li>
                 </ul>
             </div>
             {% if ns.featured_institutions > 0 %}
@@ -262,7 +269,7 @@ label { cursor: pointer; }
                     <li> <label for="checkbox_filetypes_netCDF"><input type="checkbox" id="checkbox_filetypes_netCDF" name="netCDF" value="netCDF">netCDF</label> </li>
                     <li> <label for="checkbox_filetypes_zip"><input type="checkbox" id="checkbox_filetypes_zip" name="zip" value="zip">Zip</label> </li>
                     <li> <label for="checkbox_filetypes_other"><input type="checkbox" id="checkbox_filetypes_other" name="other" value="other">Other</label> </li>
-                    <li> <div><input type="text" style="display: none" id="textinput_filetypes_other" name="textinput_filtertypes_other" placeholder="ex) application" value="" maxlength="255"></div> </li>
+                    <li> <div><input type="text" id="textinput_filetypes_other" name="textinput_filtertypes_other" placeholder="ex) application" value="" maxlength="255"></div> </li>
                 </ul>
             </div>
         </div>
@@ -276,7 +283,7 @@ label { cursor: pointer; }
                     <li> <label for="checkbox_publisheddate_2"><input type="checkbox" id="checkbox_publisheddate_2" name="checkbox_publisheddate_2" value="2">Past 2 years</label></li>
                     <li> <label for="checkbox_publisheddate_3"><input type="checkbox" id="checkbox_publisheddate_3" name="checkbox_publisheddate_3" value="3">Past 3 years</label></li>
                     <li> <label for="checkbox_publisheddate_other"><input type="checkbox" id="checkbox_publisheddate_other" name="checkbox_publisheddate_other" value="other">Other</label></li>
-                    <li> <input type="date" style="display: none" id="textinput_publisheddate_other" name="textinput_publisheddate_other" placeholder="YYYY-MM-DD" value="" maxlength="10"></li>
+                    <li> <input type="date" id="textinput_publisheddate_other" name="textinput_publisheddate_other" placeholder="YYYY-MM-DD" value="" maxlength="10"></li>
                 </ul>
             </div>
         </div>
@@ -307,10 +314,10 @@ label { cursor: pointer; }
                         <label for="checkbox_categories_{{category.id}}">{{category.title}}</label>
                     </li>
 
-                    <ul id="subcategories_of_{{category.id}}" style="display: none;">
+                    <ul id="subcategories_of_{{category.id}}" class="hide-by-default">
                         {%- for subcategory in categories -%}
                         {%- if subcategory.parent_id == category.id -%}
-                        <li style="padding-left: 1em">
+                        <li class="pad-left">
                             <input type="checkbox" id="checkbox_categories_{{subcategory.id}}" class="subcategory" name="checkbox_categories_{{subcategory.id}}" value="{{subcategory.id}}">
                         <label for="checkbox_categories_{{subcategory.id}}">{{subcategory.title}}</label>
                         </li>
@@ -330,11 +337,11 @@ label { cursor: pointer; }
     <div class="search-column right">
 
         <!-- Sort by select box -->
-        <div style="float: left; height: 4.5em">
-            <div style="text-align: left;">
+        <div id="sort-by-wrapper">
+            <div class="left">
                 <b>Sort By</b>
-                <div style="justify-content: space-between; padding: 5pt 0pt 5pt 0pt;">
-                    <select id="sort-by" name="sort-by" style="padding: 0.5em 1.0em 0.5em 0.7em; border-radius: 0.5em; border: 1px solid darkgrey; width: 12em; height: 2.5em;">
+                <div id="sort-by-dropdown-wrapper">
+                    <select id="sort-by" name="sort-by">
                         <option value="date_asc">Date (Old First)</option>
                         <option value="date_dsc" selected>Date (New First)</option>
                         <option value="title_asc">Title (A to Z)</option>
@@ -345,29 +352,29 @@ label { cursor: pointer; }
         </div>
 
         <!-- Result count -->
-        <div style="float: left; height: 4.5em; padding-left: 2em">
-            <div style="text-align: left;">
-                <div style="padding-top: 2em"><span id="search-results-count"></span></div>
+        <div id="result-count-wrapper">
+            <div class="left">
+                <div id="result-count-spacer"><span id="search-results-count"></span></div>
             </div>
         </div>
 
         <!-- View mode -->
-        <div style="float: right; text-align: right; margin-right: 1em; height: 4.5em">
+        <div id="view-mode-wrapper">
             <b>View</b>
-            <div style="justify-content: space-between; padding: 5pt 0pt 5pt 0pt;">
-                <span class="fas fa-tile fa-lg" id="tile-view-mode" style="color: #f49120; cursor: pointer;"><span class="hidden">Tile View</span></span>
-                <span class="fas fa-list fa-lg disabled" id="list-view-mode" style="color: darkgray; cursor: pointer;"><span class="hidden">List View</span></span>
+            <div id="view-options-wrapper">
+                <span class="fas fa-tile fa-lg" id="tile-view-mode"><span class="hidden">Tile View</span></span>
+                <span class="fas fa-list fa-lg disabled" id="list-view-mode"><span class="hidden">List View</span></span>
             </div>
         </div>
 
-        <div id="search-loader" style="display: none;">Loading...</div>
-        <div id="search-error" style="display: none;"></div>
+        <div id="search-loader" class="hide-by-default">Loading...</div>
+        <div id="search-error" class="hide-by-default"></div>
 
         <!-- Search results -->
         <div class="search-results" id="search-results">
             <div class="search-results-box" id="search-results-box">
                 <div id="search-results-tile-view"></div>
-                <div id="search-results-list-view" style="display: none"></div>
+                <div id="search-results-list-view" class="hide-by-default"></div>
                 <div class="search-results-pager"></div>
             </div>
         </div>
