@@ -58,6 +58,7 @@ function execute_query (editor) {
 }
 
 jQuery(document).ready(function() {
+    ace.config.set('useStrictCSP', true);
     let editor = ace.edit("editor");
     let session = editor.getSession();
     editor.setTheme("ace/theme/crimson_editor");

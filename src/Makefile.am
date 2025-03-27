@@ -207,6 +207,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/update_seen_by_reviewer.sparql     \
     djehuty/web/resources/sparql_templates/update_session.sparql              \
     djehuty/web/resources/sparql_templates/update_view_and_download_counts.sparql \
+    djehuty/web/resources/static/css/ace.css                                  \
     djehuty/web/resources/static/css/dropzone.min.css                         \
     djehuty/web/resources/static/css/jquery.dataTables.min.css                \
     djehuty/web/resources/static/css/form.css                                 \
