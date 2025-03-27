@@ -5,23 +5,21 @@
 .portal-summary-item { text-align: center; width: 100%; }
 .portal-summary-item-left {
     display: inline-block;
-    width: 300pt;
+    min-width: 275pt;
     text-align: right;
     font-size: 2em;
     font-family: 'FiraMono', monospace;
     padding: .1em .5em .1em 0em;
     border-right: solid 2pt #ccc;
 }
-.portal-summary-item-right { display: inline-block; width: 300pt; text-align: left; padding-left: 1em; }
-.tiles-wrapper { margin: auto auto 1em auto; text-align: center; user-select: none; }
+.portal-summary-item-right { display: inline-block; min-width: 275pt; text-align: left; padding-left: 1em; }
+.tiles-wrapper { margin: auto auto 1em auto; min-width: 852pt; text-align: center; user-select: none; }
 .tiles { display: flex; flex-wrap: wrap; justify-content: center; list-style: none; margin: 0pt; padding: 0pt; }
 .tiles li {
     display: inline-block;
-    margin: .5em 11pt .5em 0pt;
+    margin: .5em .8em .5em 0em;
     overflow: hidden;
     border: none;
-    -webkit-border-radius: 4pt;
-    -moz-border-radius: 4pt;
     border-radius: 4pt;
     border: solid 1pt #ccc;
 }
