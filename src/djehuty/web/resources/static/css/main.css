@@ -260,8 +260,6 @@ pre {
     background: #f9f9f9;
     font-size: 12pt;
     padding: 1em;
-    -webkit-border-radius: 5pt;
-    -moz-border-radius: 5pt;
     border-radius: 5pt;
 }
 #login-panel {
@@ -323,7 +321,6 @@ a.far, a.fab, a.fas { text-decoration: none; }
     font-weight: 900;
 }
 .fa-lg {
-    .fa;
     font-size: 1.5em;
 }
 #search-box-wrapper {
@@ -332,7 +329,6 @@ a.far, a.fab, a.fas { text-decoration: none; }
     height: 110px;
     min-width: 400px;
     margin: 0 auto;
-    padding: 0 auto;
     user-select: none;
 }
 .search-submit-btn {
@@ -421,7 +417,6 @@ a.far, a.fab, a.fas { text-decoration: none; }
 
 .latest-item { background: #fff; margin-bottom: .5em; padding: 1em; border-radius: 4pt; border: solid 1pt #ccc; }
 #latest-datasets ul { list-style: none; margin-left: 0pt; padding: 0pt; font-size: 14pt; }
-.
 table {
     border:none;
     border-spacing: 0pt;
