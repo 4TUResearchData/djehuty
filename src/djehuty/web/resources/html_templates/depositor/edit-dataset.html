@@ -182,6 +182,7 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 #api-upload { text-align: left; }
 #api-upload pre { font-size: 0.9em; white-space: pre-wrap; overflow-wrap: anywhere; }
 #api-upload-fold { display: none; }
+.no-margin { margin: 0em; padding: 0em; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -245,7 +246,7 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 {%- if not disable_collaboration: %}
 <label>Collaborators <span class="beta-badge">Beta</span></label><div class="fas fa-question-circle help-icon"><span class="help-text">Add people who can collaborate on this dataset.  Collaborators are not visible on the publication, but instead are given access to this form to either change metadata, or upload files.</span></div>
 <div id="collaborator-wrapper" class="options-wrapper">
-<a id="expand-collaborators-button" href="#" onclick="javascript:toggle_collaborators('{{container_uuid}}', {% if article.is_shared_with_me %}false{% else %}true{% endif %}); return false;">{% if article.is_shared_with_me %}Show{% else %}Manage{% endif %} collaborators</a>
+<a id="expand-collaborators-button" href="#">{% if article.is_shared_with_me %}Show{% else %}Manage{% endif %} collaborators</a>
 <div class="expand-collaborators">
 </div>
 <div id="expanded-collaborators">
@@ -542,7 +543,7 @@ git push {{site_shorttag}} --tags</pre>
 <label class="no-head" for="publish_agreement">I agree that my dataset will be published once
   the review is complete.</label><span class="required-field">&#8727;</span>
 {%- if not article.is_shared_with_me or permissions.metadata_edit %}
-<p style="margin: 0em; padding: 0em;"><a class="hide-for-javascript save-button button" id="save_bottom" href="#">Save draft</a></p>
+<p class="no-margin"><a class="hide-for-javascript save-button button" id="save_bottom" href="#">Save draft</a></p>
 {%- endif %}
 </div>
 </div>
