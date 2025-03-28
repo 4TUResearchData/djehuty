@@ -96,6 +96,16 @@ function copy_row (uuid, dataset_uuid, title, version, first_name, last_name,
     }, 3000);
 }
 
+function copy_to_clipboard_event (event) {
+    review = event.data["review"];
+    published_date = event.data["published_date"];
+    version = event.data["version"];
+    copy_row (review.uuid, review.dataset_uuid, review.dataset_title,
+              version, review.submitter_first_name, review.submitter_last_name,
+              review.submitter_email, review.group_name, review.request_date,
+                          review.modified_date, published_date);
+}
+
 function render_overview_table () {
     jQuery("#overview-table tbody").empty();
     jQuery.ajax({
@@ -141,15 +151,7 @@ function render_overview_table () {
                 "review": review,
                 "version": version,
                 "published_date": published_date
-            }, function (event) {
-                review = event.data["review"];
-                published_date = event.data["published_date"];
-                version = event.data["version"];
-                copy_row (review.uuid, review.dataset_uuid, review.dataset_title,
-                          version, review.submitter_first_name, review.submitter_last_name,
-                          review.submitter_email, review.group_name, review.request_date,
-                          review.modified_date, published_date);
-            });
+            }, copy_to_clipboard_event);
             if (review.status == "approved" || review.status == "rejected") {
                 reviewer_html = `${review.reviewer_first_name} ${review.reviewer_last_name}`;
             } else {
