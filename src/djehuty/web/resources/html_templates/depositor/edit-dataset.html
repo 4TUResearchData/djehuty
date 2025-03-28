@@ -12,6 +12,16 @@ var initial_thumbnail_file_uuid = "";
 {%- else %}
 var initial_thumbnail_file_uuid = "{{article.thumb_origin}}";
 {%- endif %}
+{%- if article.is_shared_with_me %}
+    const is_shared_with_me = true;
+    const permissions = {{permissions|tojson}};
+{%- else %}
+    const is_shared_with_me = false;
+    const permissions = {
+        "metadata_read": true, "metadata_edit": true, "metadata_remove": true,
+        "data_read": true, "data_edit": true, "data_remove": true
+    }
+{%- endif %}
 jQuery(document).ready(function (){
     root_categories = [];
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
@@ -28,14 +38,6 @@ jQuery(document).ready(function (){
         }
     });
 {%- endfor %}
-{%- if article.is_shared_with_me %}
-    let permissions = {{permissions|tojson}};
-{%- else %}
-    let permissions = {
-        "metadata_read": true, "metadata_edit": true, "metadata_remove": true,
-        "data_read": true, "data_edit": true, "data_remove": true
-    }
-{%- endif %}
     activate ("{{container_uuid}}", permissions, function() {
 {%- if article.is_shared_with_me and not permissions.metadata_edit %}
     jQuery("#content-wrapper :input").prop("disabled", "disabled").css("background", "#EEE");
