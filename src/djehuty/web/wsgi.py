@@ -4396,6 +4396,12 @@ class WebServer:
             output  = self.default_list_response (records, formatter.format_dataset_record,
                                                   base_url = config.base_url)
             output.headers["Access-Control-Allow-Origin"] = "*"
+            if records:
+                record["return_count"] = True
+                total_count = value_or (self.db.datasets (**record), 0, { "datasets": 0 })
+                number_of_records = len(records)
+                output.headers["Number-Of-Records"] = total_count["datasets"]
+                output.headers["Number-Of-Returned-Records"] = number_of_records
             return output
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
