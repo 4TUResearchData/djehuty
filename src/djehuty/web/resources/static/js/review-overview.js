@@ -150,7 +150,7 @@ function render_overview_table () {
             copy_button.on("click", {
                 "review": review,
                 "version": version,
-                "published_date": published_date
+                "published_date": or_empty (published_date)
             }, copy_to_clipboard_event);
             if (review.status == "approved" || review.status == "rejected") {
                 reviewer_html = `${review.reviewer_first_name} ${review.reviewer_last_name}`;
@@ -173,7 +173,7 @@ function render_overview_table () {
                 .append (jQuery ("<td/>").html (status))
                 .append (jQuery ("<td/>").text (or_empty (review.request_date)))
                 .append (jQuery ("<td/>").text (or_empty (review.modified_date)))
-                .append (jQuery ("<td/>").text (published_date))
+                .append (jQuery ("<td/>").text (or_empty (published_date)))
                 .append (jQuery ("<td/>").html (reviewer_html))
                 .append (jQuery ("<td/>").html (copy_button));
             table_body.append (row);
