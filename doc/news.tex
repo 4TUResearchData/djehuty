@@ -5,6 +5,98 @@
 \fi
 \chapter*{News}
 
+\labelWithConsistentHTMLTag{release-25-3}
+\section*{Release notes for \texttt{v25.3}.}
+
+  The March release of 2025 consists of 57 commits made by 2 authors.
+
+  This release contains various bugfixes, minor UI revisions, minor feature
+  updates, and contains the foundation for an extra security layer to prevent
+  cross-site scripting vulnerabilities.
+
+  The release date slipped a couple of days because yours truly wanted to
+  give last-minute changes a little bit of time to make sure no regressions
+  occurred before formalizing the release.
+
+\subsection*{New features}
+\begin{itemize}
+\item{Implement API endpoints for reviewers
+    (\commitLink{1de7f680840ec882752de1fe53004a4bed16f568},
+    \commitLink{038e931b96eeabb72d4f0c305c0dc0ee2afab696},
+    \commitLink{2f5963553910929ef479eadeb1c770780fd8df93}).}
+\item{Report number of search results in the \code{/v2/articles/search} endpoint.
+    (\commitLink{a8917a837e9d5d70a618ff50fd29bb7cc959febd}).}
+\item{Add \code{SoftwareSourceCode} to RO-Crate output
+    (\commitLink{79cf0b32ada27780ef0efadc0d20556c8717eb84}).}
+\end{itemize}
+
+\subsection*{UI revisions}
+\begin{itemize}
+\item{Revise the ``Cite'' and ``Collect'' buttons on landing pages
+    (\commitLink{b0b9dbd1f21e1aec464985daff7c5af100bc5346}).}
+\item{Remove the need for a ``save URL'' button in the dataset metadata form
+    (\commitLink{a853085c98417bcfe8b50d0e41e56a61ef31456e}).}
+\item{Revise the versions drop-down menu on landing pages
+    (\commitLink{e5b89ce23eec6e1284a22db4802d05e459f29454}).}
+\item{Fix tile scaling on the main page for different zoom levels
+    (\commitLink{7a30bfa47ef1c3977180dcc4b0ec31f7ff06e89a}).}
+\end{itemize}
+\subsection*{Security}
+
+\begin{itemize}
+\item{Addressed a Cross-Site-Scripting vulnerability in the search functionality
+    (\commitLink{40b12a5597407a3d67eec5a5cb570d0725197d92}).}
+\item{Only display e-mail address of authors to the creators of such records.
+    (\commitLink{05a56fa18367da28e2366a90e92a43af4639dc5f}).}
+\end{itemize}
+
+\subsection*{Bugfixes}
+\begin{itemize}
+\item{Fix author ordering for collections.
+    (\commitLink{244017a014a4b4d36c8b4d21709996fdf24af635}).}
+\item{Fix bug in cached responses in the IIIF Image API implementation
+    (\commitLink{88d68c78783a654864e4264c6b60a01793d58e44}).}
+\item{Fix bug with proportional scaling in the IIIF Image API implementation
+    (\commitLink{05d5c7a8550e63c395a75c73b873b1b70c08bedd}).}
+\item{Fix various bugs with rendering HTML entities and tags.
+    (\commitLink{d3667ed8bcee0028ceee945351af1182d67d3e99},
+    \commitLink{3b19d7de8c647be71708252c6de123a93fecc327},
+    \commitLink{08e4fc77a90b780b491ca9aa701fa758b43f4a5a},
+    \commitLink{3a1f3dde5e0e72518c2860afeda8c45eca112e6f}).}
+\item{Avoid a divide-by-zero situation with quota usage calculation
+    (\commitLink{cefde15ddb393507004e7f69d8c2658650a88fa2}).}
+\item{Fix creating datasets with repeated fields using the v2 API
+    (\commitLink{74fe025dbc8b6369920ee7a5fe2f3cea35b2e358},
+    \commitLink{87127c1f818110d68644e668388f1c61535f5525}).}
+\item{Fix setting default fields when creating a dataset using the API
+    (\commitLink{7f183389d608121c46cd168cbe40681b72789f71}).}
+\item{Fix returning Git statistics for empty Git repositories
+    (\commitLink{be3630a63cfc3f933be9b130b0825602d5898e98},
+    \commitLink{2cffe955a2f4a95afb56cb41016559fbce8bbc53},
+    \commitLink{c3227a768dd1cd476105f8a86e1de3a752af336f}).}
+\end{itemize}
+
+\subsection*{Technical debt}
+\begin{itemize}
+\item{Work towards a stricter Content-Security-Policy by avoiding inline use
+    of \code{style} attributes, \code{script} elements, and event handlers
+    (\commitLink{b862fdf3d558e9ef030f36ce34d2564999fd94c6},
+    \commitLink{18b3bbe3e721f0154365fb0ed1252620b516fe8d},
+    \commitLink{f08542ecb8f554950bd8387b01b16640cfc70935},
+    \commitLink{1c248a1e238b0fc4bce3766fb7a196d631beec95},
+    \commitLink{99cf348f833b2180425778f900d280d83706dee1},
+    \commitLink{7524bbbd26f4ecee67165d44437b2ad41f1d5919},
+    \commitLink{4d6696335e3fb8a2e01d4b3b5d9176b70c8190be}).}
+\item{Avoid hard-coded versions in the documentation for the RPM download links
+    (\commitLink{21be87dc0efdf5615eefe339ee1ae9c67df6e0c2}).}
+\item{Avoid repetitive text in the documentation by using macros
+    (\commitLink{088f8a13cf79b47adb731b3d24c672695198c863},
+    \commitLink{f3dc9c8cd6a84af0c830fcc905d73eaef03828bc}).}
+\item{Build Docker images with C development libraries to work around
+    ``xmlsec'' build issues.
+    (\commitLink{2c03cb3cb02bfc85279986f7508291349bf5c609}).}
+\end{itemize}
+
 \labelWithConsistentHTMLTag{release-25-2}
 \section*{Release notes for \texttt{v25.2}.}
 
