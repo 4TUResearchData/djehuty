@@ -11,7 +11,7 @@ ARG BRANCH="main"
 #
 # start with: docker container run --rm -ti -v ../etc/djehuty/djehuty-example-config.xml:/config.xml:Z djehuty:latest /bin/djehuty web -c /config.xml
 
-RUN apt-get update && apt-get install -y python3 python3-venv git && rm -rf /var/lib/dpkg/info/*.list /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y build-essential python3 python3-venv python3-dev pkg-config libxmlsec1-dev git && rm -rf /var/lib/dpkg/info/*.list /var/lib/apt/lists/*
 RUN useradd -mg users -d /opt/djehuty -u 7001 djehuty
 RUN mkdir -p /data && chown -R djehuty: /data
 
