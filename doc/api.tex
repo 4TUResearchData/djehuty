@@ -23,6 +23,40 @@
   Each \t{Object} should have two keys: \t{name} and \t{value}. For
   allowed keys, see \t{custom\_fields}.}
 
+\newcommand{\resourceDoiDescription}{%
+  The URL of the DOI of an associated peer-reviewed journal publication.}
+\newcommand{\resourceTitleDescription}{%
+  The title of the associated peer-reviewed journal publication.}
+
+\newcommand{\pagingOptions[1]}{%
+  \t{page}             & Optional & The page number used in combination with
+                                    \t{page\_size}.\\
+  \t{page\_size}       & Optional & The number of {#1}s per page.  Used
+                                    in combination with \t{page}.\\
+  \t{limit}            & Optional & The maximum number of {#1}s to output.
+                                    Used together with \t{offset}.\\
+  \t{offset}           & Optional & The number of {#1}s to skip in the
+                                    output.  Used together with \t{limit}.
+}
+
+\newcommand{\licenseDescription[1]}{%
+  Licences communicate under which conditions the {#1} can be
+  re-used.  The \t{integer} value to submit here can be found as
+  the \t{value} property in a call to \code{/v2/licences}. For more
+  details, see section \refer{sec:v2-licenses}.}
+
+\newcommand{\doiDescription}{%
+  Do not use this field as a DOI will be automatically assigned upon
+  publication.}
+
+\newcommand{\timelineDescription}{%
+  Do not use this field because it will be automatically populated
+  during the publication process.}
+
+\newcommand{\tagsDescription[1]}{%
+  Keywords to enhance the findability of the {#1}. Instead of using
+  the key \code{tags}, you may also use the key \code{keywords}.}
+
 \chapter{Application Programming Interface}
 
   The application programming interface (API) provided by \t{djehuty} allows
@@ -67,21 +101,14 @@
   \t{modified\_since}  & Optional & When set, only datasets modified after
                                     this timestamp are shown from the results.\\
   \t{group}            & Optional & The group identifier to filter on.\\
-  \t{resource\_doi}    & Optional & The DOI of the associated journal publication.
+  \t{resource\_doi}    & Optional & \resourceDoiDescription
                                     When set, only returns datasets associated
                                     with this DOI.\\
   \t{item\_type}       & Optional & Either \code{3} for datasets or \code{9}
                                     for software.\\
   \t{doi}              & Optional & The DOI of the dataset to search for.\\
   \t{handle}           & Optional & Unused.\\
-  \t{page}             & Optional & The page number used in combination with
-                                    \t{page\_size}.\\
-  \t{page\_size}       & Optional & The number of datasets per page.  Used
-                                    in combination with \t{page}.\\
-  \t{limit}            & Optional & The maximum number of datasets to output.
-                                    Used together with \t{offset}.\\
-  \t{offset}           & Optional & The number of datasets to skip in the
-                                    output.  Used together with \t{limit}.
+  \pagingOptions[dataset]
 \end{tabularx}
 
   Example usage:
@@ -321,19 +348,12 @@ curl (@*\djehutybaseurl{}*@)/v2/articles/342e...49d2/files/d3e1...9292 | jq
   \t{modified\_since}  & Optional & When set, only collections modified after
                                     this timestamp are shown from the results.\\
   \t{group}            & Optional & The group identifier to filter on.\\
-  \t{resource\_doi}    & Optional & The DOI of the associated journal publication.
+  \t{resource\_doi}    & Optional & \resourceDoiDescription
                                     When set, only returns collections associated
                                     with this DOI.\\
   \t{doi}              & Optional & The DOI of the collection to search for.\\
   \t{handle}           & Optional & Unused.\\
-  \t{page}             & Optional & The page number used in combination with
-                                    \t{page\_size}.\\
-  \t{page\_size}       & Optional & The number of collections per page.  Used
-                                    in combination with \t{page}.\\
-  \t{limit}            & Optional & The maximum number of collections to output.
-                                    Used together with \t{offset}.\\
-  \t{offset}           & Optional & The number of collections to skip in the
-                                    output.  Used together with \t{limit}.
+  \pagingOptions[collection]
 \end{tabularx}
 
   Example usage:
@@ -718,14 +738,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 \begin{tabularx}{\textwidth}{*{2}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
   \headrow
   \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
-  \t{page}             & Optional & The page number used in combination with
-                                    \t{page\_size}.\\
-  \t{page\_size}       & Optional & The number of datasets per page.  Used
-                                    in combination with \t{page}.\\
-  \t{limit}            & Optional & The maximum number of datasets to output.
-                                    Used together with \t{offset}.\\
-  \t{offset}           & Optional & The number of datasets to skip in the
-                                    output.  Used together with \t{limit}.
+  \pagingOptions[dataset]
 \end{tabularx}
 
   Example usage:
@@ -759,11 +772,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   \textbf{Parameter} & \textbf{Data type}   & \textbf{Description}\\
   \t{title}          & \t{string}           & The title of the dataset.\\
   \t{description}    & \t{string}           & A description of the dataset.\\
-  \t{tags}           & list of \t{string}s  & Keywords to enhance the
-                                              findability of the dataset. Instead
-                                              of using the key \code{tags}, you
-                                              may also use the key
-                                              \code{keywords}.\\
+  \t{tags}           & list of \t{string}s  & \tagsDescription[dataset]\\
   \t{keywords}       & list of \t{string}s  & See \t{tags}.\\
   \t{references}     & list of \t{string}s  & URLs to resources referring to
                                               this dataset, or resources that
@@ -781,34 +790,19 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
                                               \t{thesis} or \t{software}.\\
   \t{funding}        & \t{string}           & One-liner to cite funding.\\
   \t{funding\_list}  & list of funding records & \\
-  \t{license}        & \t{integer}          & Licences communicate under which
-                                              conditions the dataset can be
-                                              re-used.  The \t{integer} value
-                                              to submit here can be found as
-                                              the \t{value} property in a call
-                                              to \code{/v2/licences}. For more
-                                              details, see section
-                                              \refer{sec:v2-licenses}.\\
+  \t{license}        & \t{integer}          & \licenseDescription[dataset]\\
   \t{language}       & \t{string}           & An ISO 639-1 language code.\\
-  \t{doi}            & \t{string}           & Do not use this field as a DOI
-                                              will be automatically assigned
-                                              upon publication..\\
+  \t{doi}            & \t{string}           & \doiDescription\\
   \t{handle}         & \t{string}           & Do not use this field as it is
                                               deprecated.\\
-  \t{resource\_doi}  & \t{string}           & The URL of the DOI of an
-                                              associated peer-reviewed
-                                              journal publication.\\
-  \t{resource\_title} & \t{string}          & The title of the associated
-                                              peer-reviewed journal
-                                              publication.\\
+  \t{resource\_doi}  & \t{string}           & \resourceDoiDescription\\
+  \t{resource\_title} & \t{string}          & \resourceTitleDescription\\
   %\t{group\_id}      & \t{integer}          & \\
   \t{publisher}      & \t{string}           & The name of the data repository
                                               publishing the dataset.\\
   \t{custom\_fields} & list of key-value pairs & \customFieldsDescription\\
   \t{custom\_fields\_list} & list of \t{Objects} & \customFieldsListDescription\\
-  \t{timeline}       &                      & Do not use this field because it
-                                              will be automatically populated
-                                              during the publication process.
+  \t{timeline}       &                      & \timelineDescription
 \end{tabularx}
 
   Example usage:
@@ -861,20 +855,9 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
   \t{title}          & \t{string}           & The title of the dataset.\\
   \t{description}    & \t{string}           & A description of the dataset.\\
-  \t{resource\_doi}  & \t{string}           & The URL of the DOI of an
-                                              associated peer-reviewed
-                                              journal publication.\\
-  \t{resource\_title} & \t{string}          & The title of the associated
-                                              peer-reviewed journal
-                                              publication.\\
-  \t{license}        & \t{integer}          & Licences communicate under which
-                                              conditions the dataset can be
-                                              re-used.  The \t{integer} value
-                                              to submit here can be found as
-                                              the \t{value} property in a call
-                                              to \code{/v2/licences}. For more
-                                              details, see section
-                                              \refer{sec:v2-licenses}.\\
+  \t{resource\_doi}  & \t{string}           & \resourceDoiDescription\\
+  \t{resource\_title} & \t{string}          & \resourceTitleDescription\\
+  \t{license}        & \t{integer}          & \licenseDescription[dataset]\\
   \t{group\_id}      & \t{integer}          & \\
   \t{time\_coverage} & \t{string}           & Free-text field to describe the
                                               time coverage of the dataset.\\
@@ -1576,14 +1559,7 @@ HTTP/1.1 201 CREATED
 \begin{tabularx}{\textwidth}{*{2}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
   \headrow
   \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
-  \t{page}             & Optional & The page number used in combination with
-                                    \t{page\_size}.\\
-  \t{page\_size}       & Optional & The number of datasets per page.  Used
-                                    in combination with \t{page}.\\
-  \t{limit}            & Optional & The maximum number of datasets to output.
-                                    Used together with \t{offset}.\\
-  \t{offset}           & Optional & The number of datasets to skip in the
-                                    output.  Used together with \t{limit}.\\
+  \pagingOptions[dataset]\\
   \t{order}            & Optional & Field to use for sorting.\\
   \t{order\_direction} & Optional & Can be either \code{asc} or \code{desc}.
 \end{tabularx}
@@ -1621,11 +1597,8 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   \textbf{Parameter} & \textbf{Data type}   & \textbf{Description}\\
   \t{title}          & \t{string}           & The title of the collection.\\
   \t{description}    & \t{string}           & A description of the collection.\\
-  \t{tags}           & list of \t{string}s  & Keywords to enhance the
-                                              findability of the collection. Instead
-                                              of using the key \code{tags}, you
-                                              may also use the key
-                                              \code{keywords}.\\
+  \t{tags}           & list of \t{string}s  & \tagsDescription[collection]\\
+  \t{keywords}       & list of \t{string}s  & See \t{tags}.\\
   \t{references}     & list of \t{string}s  & URLs to resources referring to
                                               this collection, or resources that
                                               this collection refers to.\\
@@ -1633,32 +1606,17 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   \t{authors}        & list of author records & \\
   \t{funding}        & \t{string}           & One-liner to cite funding.\\
   \t{funding\_list}  & list of funding records & \\
-  \t{license}        & \t{integer}          & Licences communicate under which
-                                              conditions the collection can be
-                                              re-used.  The \t{integer} value
-                                              to submit here can be found as
-                                              the \t{value} property in a call
-                                              to \code{/v2/licences}. For more
-                                              details, see section
-                                              \refer{sec:v2-licenses}.\\
+  \t{license}        & \t{integer}          & \licenseDescription[collection]\\
   %\t{language}       & \t{string}           & \\
-  \t{doi}            & \t{string}           & Do not use this field as a DOI
-                                              will be automatically assigned
-                                              upon publication..\\
+  \t{doi}            & \t{string}           & \doiDescription\\
   \t{handle}         & \t{string}           & Do not use this field as it is
                                               deprecated.\\
-  \t{resource\_doi}  & \t{string}           & The URL of the DOI of an
-                                              associated peer-reviewed
-                                              journal publication.\\
-  \t{resource\_title} & \t{string}          & The title of the associated
-                                              peer-reviewed journal
-                                              publication.\\
+  \t{resource\_doi}  & \t{string}           & \resourceDoiDescription\\
+  \t{resource\_title} & \t{string}          & \resourceTitleDescription\\
   %\t{group_id}       & \t{integer}          & \\
   \t{custom\_fields} & \t{Object}           & \customFieldsDescription\\
   \t{custom\_fields\_list} & list of \t{Objects} & \customFieldsListDescription\\
-  \t{timeline}       &                      & Do not use this field because it
-                                              will be automatically populated
-                                              during the publication process.\\
+  \t{timeline}       &                      & \timelineDescription\\
   \t{articles}       & list of strings or integers & The articles to include
                                               in the collection.
 \end{tabularx}
@@ -1714,12 +1672,8 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   \textbf{Parameter} & \textbf{Data type} & \textbf{Required} & \textbf{Description}\\
   \t{title}          & \t{string}    & Yes  & The title of the collection.\\
   \t{description}    & \t{string}    & No   & A description of the collection.\\
-  \t{resource\_doi}  & \t{string}    & No   & The URL of the DOI of an
-                                              associated peer-reviewed
-                                              journal publication.\\
-  \t{resource\_title} & \t{string}   & No   & The title of the associated
-                                              peer-reviewed journal
-                                              publication.\\
+  \t{resource\_doi}  & \t{string}    & No   & \resourceDoiDescription\\
+  \t{resource\_title} & \t{string}   & No   & \resourceTitleDescription\\
   \t{group\_id}      & \t{integer}   & No   & \\
   \t{time\_coverage} & \t{string}    & No   & Free-text field to describe the
                                               time coverage of the collection.\\
@@ -2199,4 +2153,3 @@ curl --request DELETE \
 \begin{lstlisting}
 HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
-
