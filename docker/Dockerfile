@@ -27,7 +27,7 @@ RUN VERSION=$(git -C /opt/djehuty/djehuty rev-parse --short HEAD); sed -e "s/@VE
 
 RUN python3 -m venv /opt/djehuty/virtual-env
 RUN . /opt/djehuty/virtual-env/bin/activate && \
-    pip install -r /opt/djehuty/djehuty/requirements.txt python3-saml && \
+    pip install -r /opt/djehuty/djehuty/requirements.txt --no-binary lxml python3-saml && \
     pip install --editable /opt/djehuty/djehuty
 
 CMD ["/bin/bash"]
