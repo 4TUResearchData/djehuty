@@ -4383,6 +4383,7 @@ class WebServer:
             response.headers["Accept"] = "application/json"
             response.headers["Access-Control-Allow-Origin"] = "*"
             response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+            response.headers["Access-Control-Expose-Headers"] = "*"
             response.headers["Access-Control-Request-Methods"] = "POST"
             return response
 
@@ -4396,6 +4397,7 @@ class WebServer:
             output  = self.default_list_response (records, formatter.format_dataset_record,
                                                   base_url = config.base_url)
             output.headers["Access-Control-Allow-Origin"] = "*"
+            output.headers["Access-Control-Expose-Headers"] = "*"
             if records:
                 record["return_count"] = True
                 total_count = value_or (self.db.datasets (**record), 0, { "datasets": 0 })
