@@ -266,6 +266,11 @@ function render_categories_for_dataset (dataset_uuid) {
     });
 }
 
+function remove_reference_event (event) {
+    stop_event_propagation (event);
+    remove_reference (event.data["encoded_url"], event.data["dataset_uuid"]);
+}
+
 function render_references_for_dataset (dataset_uuid) {
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}/references`,
@@ -277,11 +282,16 @@ function render_references_for_dataset (dataset_uuid) {
         for (let url of references) {
             let encoded_url = encodeURIComponent(url);
             encoded_url = encoded_url.replace(/\'/g, "%27");
-            let row = `<tr><td><a target="_blank" href="${encoded_url}">`;
-            row += `${url}</a></td><td><a href="#" `;
-            row += `onclick="javascript:remove_reference('${encoded_url}', `;
-            row += `'${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
-            row += `title="Remove"></a></td></tr>`;
+            let row = jQuery("<tr/>");
+            let column1 = jQuery("<td/>");
+            let column2 = jQuery("<td/>");
+            column1.html(jQuery("<a/>", { "target": "_blank", "href": url }).text(url));
+            let anchor = jQuery("<a/>", { "href": "#", "class": "fas fa-trash-can", "title": "Remove" });
+            anchor.on("click",
+                      { "encoded_url": encoded_url, "dataset_uuid": dataset_uuid },
+                      remove_reference_event);
+            column2.html(anchor);
+            row.append([column1, column2]);
             jQuery("#references-list tbody").append(row);
         }
         jQuery("#references-list").show();
