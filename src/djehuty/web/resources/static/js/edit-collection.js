@@ -205,6 +205,11 @@ function render_funding_for_collection (collection_id) {
     });
 }
 
+function remove_tag_event (event) {
+    stop_event_propagation (event);
+    remove_tag (encodeURIComponent(event.data["tag"]), event.data["collection_id"]);
+}
+
 function render_tags_for_collection (collection_id) {
     jQuery.ajax({
         url:         `/v3/collections/${collection_id}/tags`,
@@ -214,9 +219,11 @@ function render_tags_for_collection (collection_id) {
     }).done(function (tags) {
         jQuery("#tags-list").empty();
         for (let tag of tags) {
-            let row = `<li>${tag} &nbsp; <a href="#" class="fas fa-trash-can"`;
-            row += ` onclick="javascript:remove_tag('${encodeURIComponent(tag)}', `;
-            row += `'${collection_id}'); return false;"></a></li>`;
+            let row = jQuery("<li/>");
+            let anchor = jQuery("<a/>", { "href": "#", "class": "fas fa-trash-can" });
+            anchor.on("click", { "tag": tag, "collection_id": collection_id },
+                      remove_tag_event);
+            row.append(jQuery("<span/>").html(`${tag} &nbsp; `)).append(anchor);
             jQuery("#tags-list").append(row);
         }
         jQuery("#tags-list").show();

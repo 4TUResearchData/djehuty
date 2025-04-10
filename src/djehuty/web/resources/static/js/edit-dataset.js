@@ -485,6 +485,11 @@ function remove_collaborator (collaborator_uuid, dataset_uuid, may_edit_metadata
       .fail(function () { show_message ("failure", `<p>Failed to remove ${collaborator_uuid}</p>`); });
 }
 
+function remove_tag_event (event) {
+    stop_event_propagation (event);
+    remove_tag (encodeURIComponent(event.data["tag"]), event.data["dataset_uuid"]);
+}
+
 function render_tags_for_dataset (dataset_uuid) {
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}/tags`,
@@ -494,9 +499,10 @@ function render_tags_for_dataset (dataset_uuid) {
     }).done(function (tags) {
         jQuery("#tags-list").empty();
         for (let tag of tags) {
-            let row = `<li>${tag} &nbsp; <a href="#" class="fas fa-trash-can"`;
-            row += ` onclick="javascript:remove_tag('${encodeURIComponent(tag)}', `;
-            row += `'${dataset_uuid}'); return false;"></a></li>`;
+            let row = jQuery("<li/>");
+            let anchor = jQuery("<a/>", { "href": "#", "class": "fas fa-trash-can" });
+            anchor.on("click", { "tag": tag, "dataset_uuid": dataset_uuid }, remove_tag_event);
+            row.append(jQuery("<span/>").html(`${tag} &nbsp; `)).append(anchor);
             jQuery("#tags-list").append(row);
         }
         jQuery("#tags-list").show();
