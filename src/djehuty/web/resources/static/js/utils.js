@@ -104,6 +104,11 @@ function fill_collaborator (email, full_name, account_uuid) {
     jQuery("#add_collaborator").removeClass("input-for-ac");
 }
 
+function add_collaborator_event (event) {
+    stop_event_propagation (event);
+    fill_collaborator (event.data["email"], event.data["full_name"], event.data["uuid"]);
+}
+
 function autocomplete_collaborator (event, item_id) {
     let current_text = jQuery.trim(jQuery("#add_collaborator").val());
     let existing_collaborators = [];
@@ -120,23 +125,26 @@ function autocomplete_collaborator (event, item_id) {
             data: JSON.stringify({ "search_for": current_text, "exclude": existing_collaborators}),
             }).done(function (data) {
                 jQuery("#collaborator-ac").remove();
+                let unordered_list = jQuery("<ul/>");
                 let html = "<ul>";
                 for (let item of data) {
                     let full_name = item["full_name"];
                     let account_text = `${item["full_name"]}, ${item["email"]}`;
-                    if (full_name == null) {
-                        account_text = `${item["email"]}`;
-                    }
-                    html += `<li><a href="#" `;
-                    html += `onclick="javascript:fill_collaborator('${item["email"]}','${item["full_name"]}','${item["uuid"]}'`;
-                    html += `); return false;">${account_text}`;
-                    html += "</a>";
+                    if (full_name == null) { account_text = `${item["email"]}`; }
+                    let list_item = jQuery("<li/>");
+                    let anchor = jQuery("<a/>", { "href": "#" });
+                    anchor.text (account_text);
+                    anchor.on("click",
+                              { "email": item["email"], "full_name": item["full_name"], "uuid": item["uuid"] },
+                              add_collaborator_event);
+                    list_item.html (anchor);
+                    unordered_list.append (list_item);
                 }
-                html += "</ul>";
-
+                let wrapper = jQuery("<div/>", { "id": "collaborator-ac", "class": "autocomplete" });
+                wrapper.html (unordered_list);
                 jQuery("#add_collaborator")
                     .addClass("input-for-ac")
-                    .after(`<div id="collaborator-ac" class="autocomplete">${html}</div>`);
+                    .after(wrapper);
             }).fail(function (response, text_status, error_code) { console.log (`Error code: ${error_code} `);
         });
     }
