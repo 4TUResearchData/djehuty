@@ -150,6 +150,15 @@ function autocomplete_collaborator (event, item_id) {
     }
 }
 
+function add_author_event (event) {
+    stop_event_propagation (event);
+    if (event.data && event.data["uuid"]) {
+        add_author (event.data["uuid"], event.data["item_id"]);
+    } else {
+        new_author (event.data["item_id"]);
+    }
+}
+
 function autocomplete_author (event, item_id) {
     let current_text = jQuery.trim(jQuery("#authors").val());
     if (current_text == "") {
@@ -165,33 +174,35 @@ function autocomplete_author (event, item_id) {
             dataType:    "json"
         }).done(function (data) {
             jQuery("#authors-ac").remove();
-            let html = "<ul>";
-            let new_author_description = "";
+            let unordered_list = jQuery("<ul/>");
+            let new_author_text = "Do you want to create a new author record? Then click on the button below.";
             if (data.length == 0) {
-                new_author_description = "Seems like the author is not registered in our system. Click on the button below to add a new author.";
-            } else {
-                new_author_description = "Do you want to create a new author record? Then click on the button below.";
+                new_author_text = "Seems like the author is not registered in our system. Click on the button below to add a new author.";
             }
-
             for (let item of data) {
-                html += `<li><a href="#" `;
-                html += `onclick="javascript:add_author('${item["uuid"]}', `;
-                html += `'${item_id}'); return false;">${item["full_name"]}`;
+                let list_item = jQuery("<li/>");
+                let anchor = jQuery("<a/>", { "href": "#" });
+                let name = item["full_name"]
                 if (item["orcid_id"] != null && item["orcid_id"] != "") {
-                    html += ` (${item["orcid_id"]})`;
+                    name += ` (${item["orcid_id"]})`;
                 }
-                html += "</a>";
+                anchor.on("click", { "uuid": item["uuid"], "item_id": item_id }, add_author_event);
+                anchor.text (name);
+                list_item.html (anchor);
+                unordered_list.append(list_item);
             }
-            html += "</ul>";
+            let new_author_description = jQuery("<span/>", { "id": "new-author-description" });
+            new_author_description.text(new_author_text);
 
-            html += `<span id="new-author-description" style='padding: 1em;'><i><center>${new_author_description}</center></i></span>`;
+            let new_author_button = jQuery("<div/>", { "id": "new-author", "class": "a-button" });
+            let anchor = jQuery("<a/>", { "href": "#" });
+            anchor.on("click", { "item_id": item_id }, add_author_event);
+            anchor.text("Create new author record");
+            new_author_button.html (anchor);
 
-            html += `<div id="new-author" class="a-button"><a href="#" `;
-            html += `onclick="javascript:new_author('${item_id}'); `;
-            html += `return false;">Create new author record</a></div>`;
-            jQuery("#authors")
-                .addClass("input-for-ac")
-                .after(`<div id="authors-ac" class="autocomplete">${html}</div>`);
+            let wrapper = jQuery("<div/>", { "id": "authors-ac", "class": "autocomplete" });
+            wrapper.html(unordered_list.append(new_author_description.append(new_author_button)));
+            jQuery("#authors").addClass("input-for-ac").after(wrapper);
         });
     }
 }

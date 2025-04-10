@@ -505,12 +505,12 @@ function render_tags_for_dataset (dataset_uuid) {
 
 function cancel_edit_author (author_uuid, dataset_uuid) {
     jQuery("#author-inline-edit-form").remove();
-    jQuery(`#edit-author-${author_uuid}`).attr("onclick",
-      `javascript:edit_author('${author_uuid}', ` +
-      `'${dataset_uuid}'); return false`)
+    jQuery(`#edit-author-${author_uuid}`)
         .removeClass("fa-times")
         .removeClass("fa-lg")
-        .addClass("fa-pen");
+        .addClass("fa-pen")
+        .on ("click", { "author_uuid": author_uuid, "dataset_uuid": dataset_uuid },
+             edit_author_event);
 }
 
 function reorder_author (dataset_uuid, author_uuid, direction) {
@@ -548,36 +548,64 @@ function update_author (author_uuid, dataset_uuid) {
     });
 }
 
+function cancel_edit_author_event (event) {
+    stop_event_propagation (event);
+    cancel_edit_author (event.data["author_uuid"], event.data["dataset_uuid"]);
+}
+
+function edit_author_event (event) {
+    stop_event_propagation (event);
+    edit_author (event.data["author_uuid"], event.data["dataset_uuid"]);
+}
+
+function update_author_event (event) {
+    stop_event_propagation (event);
+    update_author (event.data["author_uuid"], event.data["dataset_uuid"]);
+}
+
 function edit_author (author_uuid, dataset_uuid) {
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}/authors/${author_uuid}`,
         type:        "GET",
         accept:      "application/json",
     }).done(function (author) {
-        let html = `<tr id="author-inline-edit-form"><td colspan="3">`;
-        html += `<label for="author_first_name">First name</label> <span class="required-field">∗</span>`;
-        html += `<input type="text" id="edit_author_first_name" name="author_first_name" value="${or_empty (author.first_name)}">`;
-        html += `<label for="author_last_name">Last name</label> <span class="required-field">∗</span>`;
-        html += `<input type="text" id="edit_author_last_name" name="author_last_name" value="${or_empty (author.last_name)}">`;
-        html += `<label for="author_email">E-mail address</label>`;
-        html += `<input type="text" id="edit_author_email" name="author_email" value="${or_empty (author.email)}">`;
-        html += `<label for="author_orcid">ORCID</label>`;
-        html += `<input type="text" id="edit_author_orcid" name="author_orcid" value="${or_empty (author.orcid)}">`;
-        html += `<div id="update-author" class="a-button">`;
-        html += `<a href="#" onclick="javascript:update_author(`;
-        html += `'${author_uuid}', '${dataset_uuid}'); `;
-        html += `return false;">Update author</a></div>`;
-        html += `</td></tr>`;
+        let row = jQuery("<tr/>", { "id": "author-inline-edit-form" });
+        let column1 = jQuery("<td/>", { "colspan": "5" });
+        column1.append (jQuery("<label/>", { "for": "author_first_name" }).text("First name"));
+        column1.append (jQuery("<input/>", { "type": "text", "id": "edit_author_first_name", "name": "author_first_name", "value": or_empty (author.first_name) }));
+        column1.append (jQuery("<label/>", { "for": "author_last_name" }).text("Last name"));
+        column1.append (jQuery("<input/>", { "type": "text", "id": "edit_author_last_name", "name": "author_last_name", "value": or_empty (author.last_name) }));
+        column1.append (jQuery("<label/>", { "for": "author_email" }).text("E-mail address"));
+        column1.append (jQuery("<input/>", { "type": "text", "id": "edit_author_email", "name": "author_email", "value": or_empty (author.email) }));
+        column1.append (jQuery("<label/>", { "for": "author_orcid" }).text("ORCID"));
+        column1.append (jQuery("<input/>", { "type": "text", "id": "edit_author_orcid", "name": "author_orcid", "value": or_empty (author.orcid) }));
 
-        jQuery(`#author-${author_uuid}`).after(html);
+        let button_wrapper = jQuery("<div/>", { "id": "update-author", "class": "a-button" });
+        let anchor = jQuery("<a/>", { "href": "#" }).text("Update author");
+        anchor.on("click", { "author_uuid": author_uuid, "dataset_uuid": dataset_uuid }, update_author_event);
+        button_wrapper.append (anchor);
+        column1.append (button_wrapper);
+        row.append(column1);
+        jQuery(`#author-${author_uuid}`).after(row);
         jQuery(`#edit-author-${author_uuid}`)
             .removeClass("fa-pen")
             .addClass("fa-times")
             .addClass("fa-lg")
-            .attr("onclick",
-              `javascript:cancel_edit_author('${author_uuid}', ` +
-              `'${dataset_uuid}'); return false;`);
+            .on("click", { "author_uuid": author_uuid, "dataset_uuid": dataset_uuid },
+                cancel_edit_author_event);
     });
+}
+
+function reorder_author_event (event) {
+    stop_event_propagation (event);
+    reorder_author (event.data["dataset_uuid"],
+                    event.data["author_uuid"],
+                    event.data["direction"]);
+}
+
+function remove_author_event (event) {
+    stop_event_propagation (event);
+    remove_author (event.data["author_uuid"], event.data["dataset_uuid"]);
 }
 
 function render_authors_for_dataset (dataset_uuid) {
@@ -591,39 +619,64 @@ function render_authors_for_dataset (dataset_uuid) {
         let number_of_items = authors.length;
         for (let index = 0; index < number_of_items; index++) {
             let author = authors[index];
-            let row = `<tr id="author-${author.uuid}"><td>${author.full_name}`;
+            let row = jQuery("<tr/>", { "id": `author-${author.uuid}` });
+            let column1 = jQuery("<td/>").text(author.full_name);
+            let column2 = jQuery("<td/>");
+            let column3 = jQuery("<td/>");
+            let column4 = jQuery("<td/>");
+            let column5 = jQuery("<td/>");
             let orcid = null;
-            if (author.orcid_id && author.orcid_id != "") {
-                orcid = author.orcid_id;
-            } else if (author.orcid && author.orcid != "") {
-                orcid = author.orcid;
-            }
+            if (author.orcid && author.orcid != "") { orcid = author.orcid; }
             if (orcid !== null) {
-                row += ` <a href="https://orcid.org/${orcid}" `;
-                row += `target="_blank" rel="noopener noreferrer"><img `;
-                row += `src="/static/images/orcid.svg" style="height: 15px" `;
-                row += `alt="ORCID" title="ORCID profile (new window)" /></a>`;
+                let orcid_anchor = jQuery("<a/>", {
+                    "href": `https://orcid.org/${orcid}`,
+                    "target": "_blank",
+                    "rel": "noopener noreferrer"
+                });
+                orcid_anchor.html(jQuery("<img/>", {
+                    "src": "/static/images/orcid.svg",
+                    "class": "author-orcid",
+                    "alt": "ORCID",
+                    "title": "ORCID profile (new window)" }));
+                column1.append([ orcid_anchor ]);
             }
             if (author.is_editable) {
-                row += `</td><td><a id="edit-author-${author.uuid}" href="#" onclick="javascript:edit_author('${author.uuid}', `;
-                row += `'${dataset_uuid}'); return false" class="fas fa-pen" title="Edit"></a>`;
-            } else {
-                row += "</td><td>";
+                column2.append(jQuery("<a/>", {
+                    "id": `edit-author-${author.uuid}`,
+                    "href": "#",
+                    "class": "fas fa-pen",
+                    "title": "Edit"
+                }).on("click", { "author_uuid": author.uuid, "dataset_uuid": dataset_uuid }, edit_author_event));
             }
-
             if (number_of_items == 1) {
-                row += "<td></td><td></td>";
             } else if (index == 0) {
-                row += `<td><a onclick="javascript:reorder_author('${dataset_uuid}', '${author.uuid}', 'down'); return false" class="fas fa-angle-down"></a></td><td></td>`;
+                column3.append(jQuery("<a/>", { "class": "fas fa-angle-down"}).on("click", {
+                    "author_uuid": author.uuid,
+                    "dataset_uuid": dataset_uuid,
+                    "direction": "down" }, reorder_author_event));
             } else if (index == number_of_items - 1) {
-                row += `<td></td><td><a onclick="javascript:reorder_author('${dataset_uuid}', '${author.uuid}', 'up'); return false" class="fas fa-angle-up"></a></td>`;
+                column4.append(jQuery("<a/>", { "class": "fas fa-angle-up"}).on("click", {
+                    "author_uuid": author.uuid,
+                    "dataset_uuid": dataset_uuid,
+                    "direction": "up" }, reorder_author_event));
             } else {
-                row += `<td><a onclick="javascript:reorder_author('${dataset_uuid}', '${author.uuid}', 'down'); return false" class="fas fa-angle-down"></a></td><td><a onclick="javascript:reorder_author('${dataset_uuid}', '${author.uuid}', 'up'); return false" class="fas fa-angle-up"></a></td>`;
+                column3.append(jQuery("<a/>", { "class": "fas fa-angle-down"}).on("click", {
+                    "author_uuid": author.uuid,
+                    "dataset_uuid": dataset_uuid,
+                    "direction": "down" }, reorder_author_event));
+                column4.append(jQuery("<a/>", { "class": "fas fa-angle-up"}).on("click", {
+                    "author_uuid": author.uuid,
+                    "dataset_uuid": dataset_uuid,
+                    "direction": "up" }, reorder_author_event));
             }
+            column5.append(jQuery("<a/>", {
+                "href": "#",
+                "class": "fas fa-trash-can",
+                "title": "Remove" }).on("click", { "author_uuid": author.uuid,
+                                                   "dataset_uuid": dataset_uuid },
+                                        remove_author_event));
 
-            row += `</td><td><a href="#" onclick="javascript:remove_author('${author.uuid}', `;
-            row += `'${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
-            row += `title="Remove"></a></td></tr>`;
+            row.append([column1, column2, column3, column4, column5]);
             jQuery("#authors-list tbody").append(row);
         }
         jQuery("#authors-list").show();
@@ -995,22 +1048,34 @@ function submit_new_funding (dataset_uuid) {
     }).fail(function () { show_message ("failure", `<p>Failed to add funding.</p>`); });
 }
 
+function submit_new_author_event (event) {
+    stop_event_propagation (event);
+    submit_new_author (event.data["dataset_uuid"]);
+}
+
 function new_author (dataset_uuid) {
-    let banner = `<br><span id="new-author-description" style='padding: 1em;'><i>Enter the details of the author you want to add.</i></span>`;
-    jQuery("#new-author-description").html(banner);
-    let html = `<div id="new-author-form">`;
-    html += `<label for="author_first_name">First name</label> <span class="required-field">∗</span>`;
-    html += `<input type="text" id="author_first_name" name="author_first_name">`;
-    html += `<label for="author_last_name">Last name</label> <span class="required-field">∗</span>`;
-    html += `<input type="text" id="author_last_name" name="author_last_name">`;
-    html += `<label for="author_email">E-mail address</label>`;
-    html += `<input type="text" id="author_email" name="author_email">`;
-    html += `<label for="author_orcid">ORCID</label>`;
-    html += `<input type="text" id="author_orcid" name="author_orcid">`;
-    html += `<div id="new-author" class="a-button">`;
-    html += `<a href="#" onclick="javascript:submit_new_author('${dataset_uuid}'); `;
-    html += `return false;">Add author</a></div>`;
-    html += `</div>`;
+    let banner = `<br><span><i>Enter the details of the author you want to add.</i></span>`;
+    jQuery("#new-author-description").after(banner).remove();
+    let html = jQuery("<div/>", { "id": "new-author-form" });
+    html.append(jQuery ("<label/>", { "for": "author_first_name" }).text("First name"));
+    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_first_name", "name": "author_first_name" }));
+    html.append(jQuery ("<label/>", { "for": "author_last_name" }).text("Last name"));
+    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_last_name", "name": "author_last_name" }));
+    html.append(jQuery ("<label/>", { "for": "author_email" }).text("E-mail address"));
+    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_email", "name": "author_email" }));
+    html.append(jQuery ("<label/>", { "for": "author_orcid" }).text("ORCID"));
+    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_orcid", "name": "author_orcid" }));
+
+    let button_wrapper = jQuery("<div/>", { "id": "new-author", "class": "a-button" });
+    let anchor = jQuery("<a/>", { "href": "#" }).text("Add author");
+    anchor.on ("click", { "dataset_uuid": dataset_uuid}, submit_new_author_event);
+    button_wrapper.append(anchor);
+
+    html.append(button_wrapper);
     jQuery("#authors-ac ul").remove();
     jQuery("#new-author").remove();
     jQuery("#authors-ac").append(html);

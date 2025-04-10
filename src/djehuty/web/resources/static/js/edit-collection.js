@@ -80,59 +80,94 @@ function reorder_author (collection_id, author_uuid, direction) {
     });
 }
 
-function render_authors_for_collection (collection_id, authors = null) {
+function reorder_author_event (event) {
+    stop_event_propagation (event);
+    reorder_author (event.data["collection_id"],
+                    event.data["author_uuid"],
+                    event.data["direction"]);
+}
 
-    function draw_authors_for_collection (collection_id, authors) {
+function remove_author_event (event) {
+    stop_event_propagation (event);
+    remove_author (event.data["author_uuid"], event.data["collection_id"]);
+}
+
+function render_authors_for_collection (collection_id) {
+    jQuery.ajax({
+        url:         `/v2/account/collections/${collection_id}/authors`,
+        data:        { "limit": 10000 },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (authors) {
         jQuery("#authors-list tbody").empty();
         let number_of_items = authors.length;
         for (let index = 0; index < number_of_items; index++) {
             let author = authors[index];
-            let row = `<tr id="author-${author.uuid}"><td>${author.full_name}`;
+            let row = jQuery("<tr/>", { "id": `author-${author.uuid}` });
+            let column1 = jQuery("<td/>").text(author.full_name);
+            let column2 = jQuery("<td/>");
+            let column3 = jQuery("<td/>");
+            let column4 = jQuery("<td/>");
+            let column5 = jQuery("<td/>");
             let orcid = null;
-            if (author.orcid_id && author.orcid_id != "") {
-                orcid = author.orcid_id;
-            } else if (author.orcid && author.orcid != "") {
-                orcid = author.orcid;
-            }
+            if (author.orcid_id && author.orcid_id != "") { orcid = author.orcid_id; }
             if (orcid !== null) {
-                row += ` <a href="https://orcid.org/${orcid}" `;
-                row += `target="_blank" rel="noopener noreferrer"><img `;
-                row += `src="/static/images/orcid.svg" style="height: 15px" `;
-                row += `alt="ORCID" title="ORCID profile (new window)" /></a>`;
+                let orcid_anchor = jQuery("<a/>", {
+                    "href": `https://orcid.org/${orcid}`,
+                    "target": "_blank",
+                    "rel": "noopener noreferrer"
+                });
+                orcid_anchor.html(jQuery("<img/>", {
+                    "src": "/static/images/orcid.svg",
+                    "class": "author-orcid",
+                    "alt": "ORCID",
+                    "title": "ORCID profile (new window)" }));
+                column1.append([ orcid_anchor ]);
+            }
+            if (author.is_editable) {
+                column2.append(jQuery("<a/>", {
+                    "id": `edit-author-${author.uuid}`,
+                    "href": "#",
+                    "class": "fas fa-pen",
+                    "title": "Edit"
+                }).on("click", { "author_uuid": author.uuid, "collection_id": collection_id },
+                      edit_author_event));
             }
             if (number_of_items == 1) {
-                row += "<td></td><td></td>";
             } else if (index == 0) {
-                row += `<td><a onclick="javascript:reorder_author('${collection_id}', '${author.uuid}', 'down'); return false" class="fas fa-angle-down"></a></td><td></td>`;
+                column3.append(jQuery("<a/>", { "class": "fas fa-angle-down"}).on("click", {
+                    "author_uuid": author.uuid,
+                    "collection_id": collection_id,
+                    "direction": "down" }, reorder_author_event));
             } else if (index == number_of_items - 1) {
-                row += `<td></td><td><a onclick="javascript:reorder_author('${collection_id}', '${author.uuid}', 'up'); return false" class="fas fa-angle-up"></a></td>`;
+                column4.append(jQuery("<a/>", { "class": "fas fa-angle-up"}).on("click", {
+                    "author_uuid": author.uuid,
+                    "collection_id": collection_id,
+                    "direction": "up" }, reorder_author_event));
             } else {
-                row += `<td><a onclick="javascript:reorder_author('${collection_id}', '${author.uuid}', 'down'); return false" class="fas fa-angle-down"></a></td><td><a onclick="javascript:reorder_author('${collection_id}', '${author.uuid}', 'up'); return false" class="fas fa-angle-up"></a></td>`;
+                column3.append(jQuery("<a/>", { "class": "fas fa-angle-down"}).on("click", {
+                    "author_uuid": author.uuid,
+                    "collection_id": collection_id,
+                    "direction": "down" }, reorder_author_event));
+                column4.append(jQuery("<a/>", { "class": "fas fa-angle-up"}).on("click", {
+                    "author_uuid": author.uuid,
+                    "collection_id": collection_id,
+                    "direction": "up" }, reorder_author_event));
             }
+            column5.append(jQuery("<a/>", {
+                "href": "#",
+                "class": "fas fa-trash-can",
+                "title": "Remove" }).on("click", { "author_uuid": author.uuid,
+                                                   "collection_id": collection_id },
+                                        remove_author_event));
 
-            row += `</td><td><a href="#" `;
-            row += `onclick="javascript:remove_author('${author.uuid}', `;
-            row += `'${collection_id}'); return false;" class="fas fa-trash-can" `;
-            row += `title="Remove"></a></td></tr>`;
+            row.append([column1, column2, column3, column4, column5]);
             jQuery("#authors-list tbody").append(row);
         }
         jQuery("#authors-list").show();
-    }
-
-    if (authors === null) {
-        jQuery.ajax({
-            url:         `/v2/account/collections/${collection_id}/authors`,
-            data:        { "limit": 10000 },
-            type:        "GET",
-            accept:      "application/json",
-        }).done(function (authors) {
-            draw_authors_for_collection (collection_id, authors);
-        }).fail(function () {
-            show_message ("failure","<p>Failed to retrieve author details.</p>");
-        });
-    } else {
-        draw_authors_for_collection (collection_id, authors);
-    }
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to retrieve author details.</p>");
+    });
 }
 
 function render_funding_for_collection (collection_id) {
@@ -462,57 +497,34 @@ function autocomplete_dataset (event, collection_id) {
     }
 }
 
-function autocomplete_author (event, collection_id) {
-    let current_text = jQuery.trim(jQuery("#authors").val());
-    if (current_text == "") {
-        jQuery("#authors-ac").remove();
-        jQuery("#authors").removeClass("input-for-ac");
-    } else if (current_text.length > 2) {
-        jQuery.ajax({
-            url:         `/v2/account/authors/search`,
-            type:        "POST",
-            contentType: "application/json",
-            accept:      "application/json",
-            data:        JSON.stringify({ "search": current_text }),
-            dataType:    "json"
-        }).done(function (data) {
-            jQuery("#authors-ac").remove();
-            let html = "<ul>";
-            for (let item of data) {
-                html += `<li><a href="#" `;
-                html += `onclick="javascript:add_author('${item["uuid"]}', `;
-                html += `'${collection_id}'); return false;">${item["full_name"]}`;
-                if (item["orcid_id"] != null && item["orcid_id"] != "") {
-                    html += ` (${item["orcid_id"]})`;
-                }
-                html += "</a>";
-            }
-            html += "</ul>";
-
-            html += `<div id="new-author" class="a-button"><a href="#" `;
-            html += `onclick="javascript:new_author('${collection_id}'); `;
-            html += `return false;">Create new author record</a></div>`;
-            jQuery("#authors")
-                .addClass("input-for-ac")
-                .after(`<div id="authors-ac" class="autocomplete">${html}</div>`);
-        });
-    }
+function submit_new_author_event (event) {
+    stop_event_propagation (event);
+    submit_new_author (event.data["collection_id"]);
 }
 
-function new_author (collection_id) {
-    let html = `<div id="new-author-form">`;
-    html += `<label for="author_first_name">First name</label>`;
-    html += `<input type="text" id="author_first_name" name="author_first_name">`;
-    html += `<label for="author_first_name">Last name</label>`;
-    html += `<input type="text" id="author_last_name" name="author_last_name">`;
-    html += `<label for="author_first_name">E-mail address</label>`;
-    html += `<input type="text" id="author_email" name="author_email">`;
-    html += `<label for="author_first_name">ORCID</label>`;
-    html += `<input type="text" id="author_orcid" name="author_orcid">`;
-    html += `<div id="new-author" class="a-button">`;
-    html += `<a href="#" onclick="javascript:submit_new_author('${collection_id}'); `;
-    html += `return false;">Add author</a></div>`;
-    html += `</div>`;
+function new_author (dataset_uuid) {
+    let banner = `<br><span><i>Enter the details of the author you want to add.</i></span>`;
+    jQuery("#new-author-description").after(banner).remove();
+    let html = jQuery("<div/>", { "id": "new-author-form" });
+    html.append(jQuery ("<label/>", { "for": "author_first_name" }).text("First name"));
+    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_first_name", "name": "author_first_name" }));
+    html.append(jQuery ("<label/>", { "for": "author_last_name" }).text("Last name"));
+    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_last_name", "name": "author_last_name" }));
+    html.append(jQuery ("<label/>", { "for": "author_email" }).text("E-mail address"));
+    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_email", "name": "author_email" }));
+    html.append(jQuery ("<label/>", { "for": "author_orcid" }).text("ORCID"));
+    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_orcid", "name": "author_orcid" }));
+
+    let button_wrapper = jQuery("<div/>", { "id": "new-author", "class": "a-button" });
+    let anchor = jQuery("<a/>", { "href": "#" }).text("Add author");
+    anchor.on ("click", { "collection_id": collection_id}, submit_new_author_event);
+    button_wrapper.append(anchor);
+
+    html.append(button_wrapper);
     jQuery("#authors-ac ul").remove();
     jQuery("#new-author").remove();
     jQuery("#authors-ac").append(html);
