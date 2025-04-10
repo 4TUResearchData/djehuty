@@ -41,6 +41,12 @@ function render_references_for_collection (collection_id) {
     });
 }
 
+
+function remove_dataset_event (event) {
+    stop_event_propagation (event);
+    remove_dataset (event.data["dataset_uuid"], event.data["collection_id"]);
+}
+
 function render_datasets_for_collection (collection_id) {
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/articles`,
@@ -50,14 +56,21 @@ function render_datasets_for_collection (collection_id) {
     }).done(function (datasets) {
         jQuery("#articles-list tbody").empty();
         for (let dataset of datasets) {
-            let row = `<tr><td><a href="/datasets/${dataset.uuid}">${dataset.title}`;
+            let row = jQuery("<tr/>");
+            let column1 = jQuery("<td/>");
+            let column2 = jQuery("<td/>");
+            let anchor = jQuery("<a/>", { "href": `/datasets/${dataset.uuid}` }).text(dataset.title);
             if (dataset.doi != null && dataset.doi != "") {
-                row += ` (${dataset.doi})`;
+                anchor.text (`${dataset.title} (${dataset.doi})`);
             }
-            row += `</a></td><td><a href="#" `;
-            row += `onclick="javascript:remove_dataset('${dataset.uuid}', `;
-            row += `'${collection_id}'); return false;" class="fas fa-trash-can" `;
-            row += `title="Remove"></a></td></tr>`;
+            column1.html(anchor);
+            column2.html(jQuery("<a/>", {
+                "href": "#",
+                "class": "fas fa-trash-can",
+                "title": "Remove"
+            }).on("click", { "dataset_uuid": dataset.uuid, "collection_id": collection_id },
+                  remove_dataset_event));
+            row.append([column1, column2]);
             jQuery("#articles-list tbody").append(row);
         }
         jQuery("#articles-list").show();
@@ -464,6 +477,11 @@ function publish_collection (collection_id, event) {
     });
 }
 
+function add_dataset_event (event) {
+    stop_event_propagation (event);
+    add_dataset (event.data["dataset_uuid"], event.data["collection_id"]);
+}
+
 function autocomplete_dataset (event, collection_id) {
     let current_text = jQuery.trim(jQuery("#article-search").val());
     if (current_text == "") {
@@ -479,20 +497,27 @@ function autocomplete_dataset (event, collection_id) {
             dataType:    "json"
         }).done(function (data) {
             jQuery("#articles-ac").remove();
-            let html = "<ul>";
+            let list = jQuery("<ul/>");
             for (let item of data) {
-                html += `<li><a href="#" `;
-                html += `onclick="javascript:add_dataset('${item["uuid"]}', `;
-                html += `'${collection_id}'); return false;">${item["title"]}`;
+                let row = jQuery("<li/>");
+                let anchor = jQuery("<a/>", {
+                    "href": "#" }).on("click", {
+                        "dataset_uuid": item["uuid"],
+                        "collection_id": collection_id
+                    }, add_dataset_event);
+
+                anchor.text (item["title"]);
                 if (item["doi"] != null && item["doi"] != "") {
-                    html += ` (${item["doi"]})`;
+                    anchor.text (`${item["title"]} (${item["doi"]})`);
                 }
-                html += "</a>";
+                row.append(anchor);
+                list.append(row);
             }
-            html += "</ul>";
             jQuery("#article-search")
                 .addClass("input-for-ac")
-                .after(`<div id="articles-ac" class="autocomplete">${html}</div>`);
+                .after(jQuery("<div/>", {
+                    "id": "articles-ac",
+                    "class": "autocomplete" }).html(list));
         });
     }
 }
