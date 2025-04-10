@@ -274,7 +274,7 @@ function remove_reference_event (event) {
 function render_references_for_dataset (dataset_uuid) {
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}/references`,
-        data:        { "limit": 10000, "order": "asc", "order_direction": "id" },
+        data:        { "limit": 10000, "order": "id", "order_direction": "asc" },
         type:        "GET",
         accept:      "application/json",
     }).done(function (references) {
