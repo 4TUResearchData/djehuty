@@ -207,6 +207,16 @@ function autocomplete_author (event, item_id) {
     }
 }
 
+function add_funding_event (event) {
+    stop_event_propagation (event);
+    add_funding (event.data["uuid"], event.data["item_id"]);
+}
+
+function new_funding_event (event) {
+    stop_event_propagation (event);
+    new_funding (event.data["item_id"]);
+}
+
 function autocomplete_funding (event, item_id) {
     let current_text = jQuery.trim(jQuery("#funding").val());
     if (current_text == "") {
@@ -222,20 +232,23 @@ function autocomplete_funding (event, item_id) {
             dataType:    "json"
         }).done(function (data) {
             jQuery("#funding-ac").remove();
-            let html = "<ul>";
+            let html = jQuery("<ul/>");
             for (let item of data) {
-                html += `<li><a href="#" `;
-                html += `onclick="javascript:add_funding('${item["uuid"]}', `;
-                html += `'${item_id}'); return false;">${item["title"]}</a>`;
+                let list_item = jQuery("<li/>");
+                let anchor = jQuery("<a/>", { "href": "#" });
+                anchor.on ("click", { "uuid": item["uuid"], "item_id": item_id }, add_funding_event);
+                anchor.text(item["title"]);
+                list_item.append(anchor);
+                html.append(list_item);
             }
-            html += "</ul>";
-
-            html += `<div id="new-funding" class="a-button"><a href="#" `;
-            html += `onclick="javascript:new_funding('${item_id}'); `;
-            html += `return false;">Create funding record</a></div>`;
-            jQuery("#funding")
-                .addClass("input-for-ac")
-                .after(`<div id="funding-ac" class="autocomplete">${html}</div>`);
+            let new_funding_button = jQuery("<div/>", { "id": "new-funding", "class": "a-button" });
+            let anchor = jQuery("<a/>", { "href": "#" });
+            anchor.on ("click", { "item_id": item_id }, new_funding_event);
+            anchor.text ("Create funding record");
+            new_funding_button.append (anchor);
+            html.append (new_funding_button);
+            let funding_ac_wrapper = jQuery("<div/>", { "id": "funding-ac", "class": "autocomplete" }).append(html);
+            jQuery("#funding").addClass("input-for-ac").after(funding_ac_wrapper);
         });
     }
 }

@@ -691,6 +691,11 @@ function render_authors_for_dataset (dataset_uuid) {
     });
 }
 
+function remove_funding_event (event) {
+    stop_event_propagation (event);
+    remove_funding (event.data["funding_uuid"], event.data["dataset_uuid"]);
+}
+
 function render_funding_for_dataset (dataset_uuid) {
     jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/funding`,
@@ -700,11 +705,14 @@ function render_funding_for_dataset (dataset_uuid) {
     }).done(function (funders) {
         jQuery("#funding-list tbody").empty();
         for (let funding of funders) {
-            let row = `<tr><td>${funding.title}</td>`;
-            row += `<td><a href="#" `;
-            row += `onclick="javascript:remove_funding('${funding.uuid}', `;
-            row += `'${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
-            row += `title="Remove"></a></td></tr>`;
+            let row = jQuery("<tr/>");
+            let column1 = jQuery("<td/>").text(funding.title);
+            let column2 = jQuery("<td/>");
+            let anchor = jQuery("<a/>", { "href": "#", "class": "fas fa-trash-can", "title": "Remove" });
+            anchor.on ("click", { "funding_uuid": funding.uuid, "dataset_uuid": dataset_uuid },
+                       remove_funding_event);
+            column2.html(anchor);
+            row.append([column1, column2]);
             jQuery("#funding-list tbody").append(row);
         }
         jQuery("#funding-list").show();
@@ -1087,20 +1095,28 @@ function new_author (dataset_uuid) {
     jQuery("#authors-ac").append(html);
 }
 
+function submit_new_funding_event (event) {
+    stop_event_propagation (event);
+    submit_new_funding (event.data["dataset_uuid"]);
+}
+
 function new_funding (dataset_uuid) {
-    let html = `<div id="new-funding-form">`;
-    html += `<label for="funding_title">Title</label>`;
-    html += `<input type="text" id="funding_title" name="funding_title">`;
-    html += `<label for="funding_grant_code">Grant code</label>`;
-    html += `<input type="text" id="funding_grant_code" name="funding_grant_code">`;
-    html += `<label for="funding_funder_name">Funder name</label>`;
-    html += `<input type="text" id="funding_funder_name" name="funding_funder_name">`;
-    html += `<label for="funding_url">URL</label>`;
-    html += `<input type="text" id="funding_url" name="funding_url">`;
-    html += `<div id="new-funding" class="a-button">`;
-    html += `<a href="#" onclick="javascript:submit_new_funding('${dataset_uuid}'); `;
-    html += `return false;">Add funding</a></div>`;
-    html += `</div>`;
+    let html = jQuery("<div/>", { "id": "new-funding-form" });
+    html.append (jQuery ("<label/>", { "for": "funding_title" }).text("Title"));
+    html.append (jQuery ("<input/>", { "type": "text", "id": "funding_title", "name": "funding_title" }));
+    html.append (jQuery ("<label/>", { "for": "funding_grant_code" }).text("Grant code"));
+    html.append (jQuery ("<input/>", { "type": "text", "id": "funding_grant_code", "name": "funding_grant_code" }));
+    html.append (jQuery ("<label/>", { "for": "funding_funder_name" }).text("Funder name"));
+    html.append (jQuery ("<input/>", { "type": "text", "id": "funding_funder_name", "name": "funding_funder_name" }));
+    html.append (jQuery ("<label/>", { "for": "funding_url" }).text("URL"));
+    html.append (jQuery ("<input/>", { "type": "text", "id": "funding_url", "name": "funding_url" }));
+
+    let new_funding_button = jQuery ("<div/>", { "id": "new-funding", "class": "a-button" });
+    let anchor = jQuery("<a/>", { "href": "#" });
+    anchor.on ("click", { "dataset_uuid": dataset_uuid }, submit_new_funding_event).text("Add funding");
+    new_funding_button.append (anchor);
+    html.append (new_funding_button);
+
     jQuery("#funding-ac ul").remove();
     jQuery("#new-funding").remove();
     jQuery("#funding-ac").append(html);
