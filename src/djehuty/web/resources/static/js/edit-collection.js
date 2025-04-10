@@ -8,8 +8,8 @@ function render_categories_for_collection (dataset_uuid, categories) {
 
 function remove_reference_event (event) {
     stop_event_propagation (event);
-    remove_reference_event (event.data["encoded_url"],
-                            event.data["collection_id"]);
+    remove_reference (event.data["encoded_url"],
+                      event.data["collection_id"]);
 }
 
 function render_references_for_collection (collection_id) {
@@ -29,8 +29,8 @@ function render_references_for_collection (collection_id) {
             column1.html(jQuery("<a/>", { "target": "_blank", "href": url }).text(url));
             let anchor = jQuery("<a/>", { "href": "#", "class": "fas fa-trash-can", "title": "Remove" });
             anchor.on("click",
-                      { "encoded_url", encoded_url, "collection_id": collection_id },
-                       remove_reference_event);
+                      { "encoded_url": encoded_url, "collection_id": collection_id },
+                      remove_reference_event);
             column2.html(anchor);
             row.append([column1, column2]);
             jQuery("#references-list tbody").append(row);
