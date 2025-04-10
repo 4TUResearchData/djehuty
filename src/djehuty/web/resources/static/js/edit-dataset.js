@@ -786,6 +786,12 @@ function render_git_files_for_dataset (dataset_uuid, event) {
         show_message ("failure", "<p>Failed to retrieve Git file details.</p>");
     });
 }
+
+function remove_file_event (event) {
+    stop_event_propagation (event);
+    remove_file (event.data["file_uuid"], event.data["dataset_uuid"]);
+}
+
 function render_files_for_dataset (dataset_uuid, fileUploader) {
     jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}/files`,
@@ -808,27 +814,37 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
                 if (file.name === null) {
                     file.name = file.download_url;
                 }
-                let html = `<tr>`;
-                let html_filename = `<a href="/file/${dataset_uuid}/${file.uuid}">${file.name}</a> (${prettify_size(file.size)})`;
+                let row = jQuery("<tr/>");
+                let column1 = jQuery("<td/>");
+                let column2 = jQuery("<td/>");
+                let column3 = jQuery("<td/>");
+                let anchor = jQuery("<a/>", { "href": `/file/${dataset_uuid}/${file.uuid}` }).text(file.name);
+                let file_size = jQuery("<span/>").text(prettify_size(file.size));
+                column1.append([anchor, file_size]);
                 if ("is_incomplete" in file && file["is_incomplete"] == true) {
-                    html_filename += ` <span class="file-incomplete-warning">The file upload was not complete!</span>`;
+                    column1.append(jQuery("<span/>", { "class": "file-incomplete-warning" }).text("The file upload was not complete!"));
                 }
                 let file_handle = "";
                 if ("handle" in file) {
-                    file_handle  = `<a href="https://hdl.handle.net/${file.handle}">`;
-                    file_handle += '<img src="/static/images/handle-logo.png" class="handle-icon" alt="Handle" /></a>';
+                    let handle_anchor = jQuery("<a/>", { "href": `https://hdl.handle.net/${file.handle}` });
+                    handle_anchor.html(jQuery("<img/>", {
+                        "src": "/static/images/handle-logo.png",
+                        "class": "handle-icon",
+                        "alt": "Handle"
+                    }));
+                    column1.append(handle_anchor);
                 }
-                html += `<td>${html_filename} ${file_handle}</td>`;
                 if (file["computed_md5"] === null) {
-                    html += `<td>${render_in_form("Unavailable")}</td>`;
+                    column2.text(`${render_in_form("Unavailable")}`);
                 } else {
-                    html += `<td>${render_in_form(file["computed_md5"])}</td>`;
+                    column2.text(`${render_in_form(file["computed_md5"])}`);
                 }
-                html += `<td><a href="#" onclick="javascript:remove_file('${file.uuid}',`;
-                html += ` '${dataset_uuid}'); return false;" class="fas fa-trash-can" `;
-                html += `title="Remove"></a></td>`;
-                html += `</tr>`;
-                jQuery("#files tbody").append(html);
+
+                let remove_anchor = jQuery("<a/>", { "href": "#", "class": "fas fa-trash-can", "title": "Remove" });
+                remove_anchor.on ("click", { "file_uuid": file.uuid, "dataset_uuid": dataset_uuid }, remove_file_event);
+
+                row.append([column1, column2, column3]);
+                jQuery("#files tbody").append(row);
                 number_of_files += 1;
             }
             jQuery("#remove-all-files").text(`Remove all ${number_of_files} files.`);
