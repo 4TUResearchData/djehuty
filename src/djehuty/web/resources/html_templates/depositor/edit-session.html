@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
-<script>
+<script nonce="{{nonce}}">
 function save_session (session_id) {
     event.preventDefault();
     event.stopPropagation();
@@ -27,7 +27,7 @@ jQuery(document).ready(function (){
     jQuery("#save").on("click", function (event) { save_session ("{{session.uuid}}"); });
 });
 </script>
-<style>
+<style nonce="{{nonce}}">
 pre {
     font-size: 1.25em;
     white-space: normal !important;

@@ -4,7 +4,7 @@
 <script src="/static/js/utils.js?cache=1744290797"></script>
 <script src="/static/js/jquery.dataTables.min.js"></script>
 <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
-<style>
+<style nonce="{{nonce}}">
 #content { max-width: 100% !important; }
 .dataTables_wrapper .dataTables_filter { width: 100%; text-align: center; }
 .dataTables_wrapper .dataTables_filter label input[type="search"] {
@@ -33,7 +33,7 @@
 .normal-text { text-transform: none; }
 .fa-copy:hover { cursor: pointer; }
 </style>
-<script>
+<script nonce="{{nonce}}">
   const reviewers = [
       {%- for reviewer in reviewers: %}
       { "uuid": "{{reviewer.uuid}}",

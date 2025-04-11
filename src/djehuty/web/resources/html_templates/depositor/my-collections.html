@@ -3,12 +3,12 @@
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/jquery.dataTables.min.js"></script>
 <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
-<style>
+<style nonce="{{nonce}}">
 .number-of-articles { color: #707070; }
 .fa-lock { color: #921357; }
 .fa-users { color: #139257; }
 </style>
-<script>
+<script nonce="{{nonce}}">
 jQuery(document).ready(function () {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery("#table-unpublished-collections-loader").remove();

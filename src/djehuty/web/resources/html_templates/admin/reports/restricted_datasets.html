@@ -3,14 +3,14 @@
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/jquery.dataTables.min.js"></script>
 <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
-<style>
+<style nonce="{{nonce}}">
 #reports-table .fa-user-secret { color: #000; }
 #reports-table .fa-user-secret:hover { color: #666; }
 #reports-table .fa-user-secret:active { color: #999; }
 #reports-table { display: none; }
 #reports-table_wrapper { margin-top: 1em; }
 </style>
-<script>
+<script nonce="{{nonce}}">
 jQuery(document).ready(function () {
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     jQuery("#reports-table").DataTable({

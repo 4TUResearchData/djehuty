@@ -13,6 +13,7 @@ import hashlib
 import subprocess
 import secrets
 import re
+import uuid
 import base64
 import csv
 import requests
@@ -498,6 +499,7 @@ class WebServer:
         account       = self.db.account_by_session_token (token)
         parameters    = {
             "base_url":            config.base_url,
+            "nonce":               uuid.uuid4().hex,
             "identity_provider":   config.identity_provider,
             "in_production":       config.in_production,
             "is_logged_in":        account is not None,
@@ -1559,7 +1561,7 @@ class WebServer:
 
     def account_uuid_from_request (self, request, allow_impersonation=True):
         """Procedure to the account UUID for a HTTP request."""
-        uuid  = None
+        account_uuid  = None
         token = self.token_from_request (request)
 
         ## Match the token to an account_uuid.  If the token does not
@@ -1569,13 +1571,13 @@ class WebServer:
             if account is None:
                 return None
             if allow_impersonation:
-                uuid = self.impersonated_account_uuid (request, account)
+                account_uuid = self.impersonated_account_uuid (request, account)
             else:
-                uuid = value_or_none (account, "uuid")
+                account_uuid = value_or_none (account, "uuid")
         except KeyError:
             self.log.error ("Attempt to authenticate with %s failed.", token)
 
-        return uuid
+        return account_uuid
 
     def __account_uuid_for_privilege (self, request, privilege_test):
         """

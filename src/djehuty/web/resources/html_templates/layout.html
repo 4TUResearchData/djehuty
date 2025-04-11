@@ -5,7 +5,7 @@
     <meta name="description" content="{{site_description}}">
     <meta name="keywords" content="{{site_shorttag}}, {{site_name}}, data repository">
     <meta name="author" content="{{site_name}}">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; frame-src https://www.youtube.com">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; script-src 'self' 'nonce-{{nonce}}'; style-src 'self' 'nonce-{{nonce}}'; frame-src https://www.youtube.com">
     <title>{% if page_title %}{{page_title|safe}}{% else %}{{site_name | default("Djehuty", True)}}{% endif %}</title>
     <link rel='shortcut icon' type='image/x-icon' href='/static/images/favicon.ico'>
     <link rel="stylesheet" type="text/css" href="/theme/colors.css?cache={{startup_timestamp}}">

@@ -5,7 +5,7 @@
 <script src="/static/js/utils.js?cache=1744290797"></script>
 <script src="/static/js/edit-dataset.js?cache=1744290797"></script>
 <script src="/static/js/dropzone.min.js"></script>
-<script>
+<script nonce="{{nonce}}">
 Dropzone.autoDiscover = false;
 {%- if not article.thumb_origin %}
 var initial_thumbnail_file_uuid = "";
@@ -54,7 +54,7 @@ jQuery(document).ready(function (){
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
 <link href="/static/css/dropzone.min.css" rel="stylesheet">
 <link href="/static/css/form.css?cache=1738927707" rel="stylesheet">
-<style>
+<style nonce="{{nonce}}">
 #share-form {display: none}
 .upload-wrapper { text-align: center; }
 .upload-container {
