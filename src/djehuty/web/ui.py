@@ -970,8 +970,6 @@ def read_configuration_file (server, config_file, logger, config_files):
     except UnsupportedSAMLProtocol as error:
         raise SystemExit from error
 
-    return {}
-
 def extract_transactions (since_datetime, delayed=False):
     """Extract the queries from the audit log and write them as files."""
 
