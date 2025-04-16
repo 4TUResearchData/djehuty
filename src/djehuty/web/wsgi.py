@@ -4396,6 +4396,11 @@ class WebServer:
         try:
             record  = self.__default_dataset_api_parameters (request.get_json())
             records = self.db.datasets (**record)
+            for dataset in records:
+                dataset["authors"] = self.db.authors (item_uri=dataset["uri"],
+                                                      is_published = True,
+                                                      item_type = "dataset",
+                                                      limit = 10000)
             output  = self.default_list_response (records, formatter.format_dataset_record,
                                                   base_url = config.base_url)
             output.headers["Access-Control-Allow-Origin"] = "*"

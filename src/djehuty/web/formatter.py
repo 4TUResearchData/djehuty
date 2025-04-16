@@ -276,7 +276,7 @@ def format_dataset_record (record):
             }
         }
 
-    return {
+    output = {
         "id":                      conv.value_or_none(record, "dataset_id"),
         "uuid":                    conv.value_or_none(record, "container_uuid"),
         "title":                   conv.value_or_none(record, "title"),
@@ -300,6 +300,11 @@ def format_dataset_record (record):
         "resource_title":          conv.value_or_none(record, "resource_title"),
         "resource_doi":            conv.value_or_none(record, "resource_doi")
     }
+
+    if "authors" in record:
+        output["authors"] = list (map (format_author_record, record["authors"]))
+
+    return output
 
 def format_author_record_v3 (record):
     """Record formatter for the v3 authors API output."""
