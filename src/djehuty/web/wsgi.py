@@ -7176,7 +7176,7 @@ class WebServer:
             files  = self.__git_files_for_zipfly (folder, tree)
             writer = None
             try:
-                zipfly_object = zipfly.ZipFly(paths = files)
+                zipfly_object = zipfly.ZipFly(paths = files, reproducible_timestamps=True)
                 writer = zipfly_object.generator()
             except TypeError:
                 return self.error_500 (f"Could not ZIP files for git repository {git_uuid}.")

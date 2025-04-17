@@ -79,7 +79,7 @@ class ZipflyStream (io.RawIOBase):
 
 class ZipFly:
     """The core ZipFly class."""
-    def __init__(self, paths=None):
+    def __init__(self, paths=None, reproducible_timestamps=False):
         """This class implements the main ZipFly functionality."""
         self.log = logging.getLogger(__name__)
         self.paths = paths if paths is not None else []
@@ -88,6 +88,7 @@ class ZipFly:
         self.arcname = "n"
         self.chunksize = 32768
         self._buffer_size = None
+        self.reproducible_timestamps = reproducible_timestamps
 
     def buffer_prediction_size (self):
         """Returns the predicted size for the Zip buffer."""
@@ -124,7 +125,10 @@ class ZipFly:
                     s3_object.connect()
                     z_info = ZipInfo.from_file (__file__, s3_object.original_filename)
                     z_info.file_size = s3_object.content_length
-                    z_info.date_time = s3_object.last_modified
+                    if not self.reproducible_timestamps:
+                        z_info.date_time = s3_object.last_modified
+                    else:
+                        z_info.date_time = (1980, 1, 1, 0, 0, 0)
                     z_info.external_attr = 33188 << 16  # Unix attributes
                     with zip_stream.open (z_info, mode="w") as zip_writer:
                         retries = 3
@@ -150,6 +154,8 @@ class ZipFly:
                     if not self.arcname in path:
                         path[self.arcname] = path[self.filesystem]
                     z_info = zipfile.ZipInfo.from_file(path[self.filesystem], path[self.arcname])
+                    if self.reproducible_timestamps:
+                        z_info.date_time = (1980, 1, 1, 0, 0, 0)
                     with open (path[self.filesystem], "rb") as e:
                         with zip_stream.open (z_info, mode="w") as d:
                             for chunk in iter(lambda: e.read(self.chunksize), b""):  # pylint: disable=cell-var-from-loop
