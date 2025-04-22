@@ -210,9 +210,9 @@ jQuery(document).ready(function () {
   <label for="latitude">Latitude</label><div class="fas fa-question-circle help-icon"><span class="help-text">Geographic latitude in decimal degrees, North is positive, South is negative. Values: -90 to 90.</span></div>
   <input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{collection["latitude"] | default("", True)}}" />
 </div>
-<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add keywords that will help make your research more discoverable. Use a semicolon (;) or hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
+<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add at least 4 keywords that will help make your research more discoverable. Use a semicolon (;) or hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
 <div class="input-with-button">
-  <input type="text" id="tag" name="tag" value="" placeholder="keyword 1; keyword 2; keyword 3" />
+  <input type="text" id="tag" name="tag" value="" placeholder="keyword 1; keyword 2; keyword 3; keyword 4" />
   <a id="add-keyword-button" class="form-button corporate-identity-standard-button" href="#">Add keyword</a>
 </div>
 <ul id="tags-list"></ul>
