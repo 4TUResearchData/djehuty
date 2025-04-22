@@ -18,6 +18,7 @@ import base64
 import csv
 import requests
 import pygit2
+import math
 from requests.utils import quote, unquote
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
@@ -9476,6 +9477,11 @@ class WebServer:
             else:
                 image = pyvips.Image.new_from_file (input_filename)
 
+            tileSize = 1024
+            maxSize = max(image.width, image.height)
+            layers = math.ceil(math.log2(maxSize / tileSize))
+            scaleFactors = [2 ** i for i in range(layers + 1)]
+
             output = {
                 "@context":  "http://iiif.io/api/image/3/context.json",
                 "id":        f"{config.base_url}/iiif/v3/{file_uuid}",
@@ -9491,6 +9497,13 @@ class WebServer:
                 "extraFeatures": ["cors", "mirroring", "regionByPx",
                                   "regionSquare", "rotationArbitrary",
                                   "rotationBy90s"],
+                "tiles": [
+                    {
+                        "width": tileSize,
+                        "height": tileSize,
+                        "scaleFactors": scaleFactors,
+                    }
+                ],
                 "sizes": [{ "width": image.width, "height": image.height }]
             }
             del image
