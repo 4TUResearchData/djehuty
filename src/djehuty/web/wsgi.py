@@ -355,6 +355,8 @@ class WebServer:
             R("/iiif/v3/<file_uuid>/<region>/<size>/<rotation>/<quality>.<image_format>", self.iiif_v3_image),
             R("/iiif/v3/<file_uuid>",                                            self.iiif_v3_image_context_redirect),
             R("/iiif/v3/<file_uuid>/info.json",                                  self.iiif_v3_image_context),
+            R("/iiif/v3/<container_uuid>/<version>/manifest",                    self.iiif_v3_presentation_manifest),
+            R("/iiif/v3/<file_uuid>/canvas",                                     self.iiif_v3_presentation_canvas),
         ])
 
         ## Static resources and HTML templates.
@@ -9734,3 +9736,57 @@ class WebServer:
             self.log.error ("Pyvips reported: %s", error)
 
         return self.error_500 ()
+
+    def iiif_v3_presentation_manifest (self, request, container_uuid, version):
+        """Implements /iiif/v3/<container_uuid>/<version>/manifest."""
+
+        if not config.enable_iiif:
+            return self.error_404 (request)
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_400 (request, "Invalid file UUID.", "InvalidFileUUID")
+
+        dataset = self.__dataset_by_id_or_uri (container_uuid,
+                                               is_published = (version != "draft"),
+                                               is_latest    = (version == "latest"),
+                                               version      = version if version != "draft" else None)
+
+        if not dataset:
+            return self.error_404 (request)
+
+        all_files = self.db.dataset_files (dataset_uri = dataset["uri"])
+        iiif_files = []
+        for file_object in all_files:
+            image_context = self.__iiif_image_context (file_object)
+            if image_context is not None:
+                file_object["iiif_image_context"] = image_context
+                iiif_files.append (file_object)
+
+        if not iiif_files:
+            return self.error_404 (request)
+
+        authors = self.db.authors (item_uri = dataset["uri"], item_type = "dataset", limit=10000)
+        record = formatter.format_iiif_manifest_record (dataset, iiif_files, authors,
+                                                        version, config.base_url)
+        return self.response (json.dumps(record))
+
+    def iiif_v3_presentation_canvas (self, request, file_uuid):
+        """Implements /iiif/v3/<file_uuid>/canvas."""
+
+        if not config.enable_iiif:
+            return self.error_404 (request)
+
+        if not validator.is_valid_uuid (file_uuid):
+            return self.error_400 (request, "Invalid file UUID.", "InvalidFileUUID")
+
+        metadata = self.db.dataset_files (file_uuid = file_uuid)
+        if not metadata:
+            return self.error_404 (request)
+
+        metadata = metadata[0]
+        image_context = self.__iiif_image_context (metadata)
+        if image_context is not None:
+            metadata["iiif_image_context"] = image_context
+
+        record = formatter.format_iiif_canvas_record (metadata, config.base_url)
+        return self.response (json.dumps(record))

@@ -690,3 +690,72 @@ def format_review_record (record):
         "submitter_first_name":  conv.value_or_none (record, "submitter_first_name"),
         "submitter_last_name":   conv.value_or_none (record, "submitter_last_name")
     }
+
+def format_iiif_canvas_record (record, base_url):
+    """Record formatter for an IIIF canvas."""
+    width = 0
+    height = 0
+    iiif_image_context = None
+    if "iiif_image_context" in record:
+        iiif_image_context = record["iiif_image_context"]
+        width = iiif_image_context["width"]
+        height = iiif_image_context["height"]
+
+    return {
+        "id": f"{base_url}/iiif/v3/{record['uuid']}/canvas",
+        "type": "Canvas",
+        "label": { "none": [ record['name'] ] },
+        "height": height,
+        "width": width,
+        "items": [{
+            "id": f"{base_url}/iiif/v3/{record['uuid']}/annotationpage",
+            "type": "AnnotationPage",
+            "label": { "none": [ record['name'] ] },
+            "items": [{
+                "id": f"{base_url}/iiif/v3/{record['uuid']}/annotationpage/0",
+                "type": "Annotation",
+                "target": f"{base_url}/iiif/v3/{record['uuid']}/canvas",
+                "body": {
+                    "id": f"{base_url}/iiif/v3/{record['uuid']}/full/max/0/default.jpg",
+                    "type": "Image",
+                    "format": "image/jpeg",
+                    "height": height,
+                    "width": width,
+                    "maxHeight": height,
+                    "maxWidth": width,
+                    "service": iiif_image_context
+                }
+            }]
+        }]
+    }
+
+def format_iiif_manifest_record (dataset, files, authors, version, base_url):
+    """Record formatter for IIIF manifests."""
+
+    if version is None:
+        version = "latest"
+
+    metadata = []
+    if authors:
+        metadata = [{
+            "label": { "en": [ "Authors" ] },
+            "value": { "none": [
+                list (map (lambda author: conv.value_or_none (author, "full_name"), authors))
+            ]}
+        }]
+    description = conv.value_or_none (dataset, "description")
+    if description:
+        metadata = metadata + [{
+            "label": { "en": [ "Description" ] },
+            "value": { "en": [ conv.html_to_plaintext (description) ] }
+        }]
+    items = list (map (lambda record: format_iiif_canvas_record (record, base_url), files))
+    output = {
+        "@context": "http://iiif.io/api/presentation/3/context.json",
+        "id": f"{base_url}/iiif/v3/{dataset['container_uuid']}/{version}/manifest",
+        "type": "Manifest",
+        "label": { "en": [ f"IIIF Manifest for '{dataset['title']}'." ] },
+        "metadata": metadata,
+        "items": items
+    }
+    return output
