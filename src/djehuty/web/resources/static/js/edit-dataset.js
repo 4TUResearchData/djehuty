@@ -819,7 +819,7 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
                 let column2 = jQuery("<td/>");
                 let column3 = jQuery("<td/>");
                 let anchor = jQuery("<a/>", { "href": `/file/${dataset_uuid}/${file.uuid}` }).text(file.name);
-                let file_size = jQuery("<span/>").text(prettify_size(file.size));
+                let file_size = jQuery("<span/>", { "class": "file-size" }).text(prettify_size(file.size));
                 column1.append([anchor, file_size]);
                 if ("is_incomplete" in file && file["is_incomplete"] == true) {
                     column1.append(jQuery("<span/>", { "class": "file-incomplete-warning" }).text("The file upload was not complete!"));
@@ -842,7 +842,7 @@ function render_files_for_dataset (dataset_uuid, fileUploader) {
 
                 let remove_anchor = jQuery("<a/>", { "href": "#", "class": "fas fa-trash-can", "title": "Remove" });
                 remove_anchor.on ("click", { "file_uuid": file.uuid, "dataset_uuid": dataset_uuid }, remove_file_event);
-
+                column3.html(remove_anchor);
                 row.append([column1, column2, column3]);
                 jQuery("#files tbody").append(row);
                 number_of_files += 1;
