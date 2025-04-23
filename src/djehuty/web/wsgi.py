@@ -9454,6 +9454,50 @@ class WebServer:
 
         return redirect (f"{config.base_url}/iiif/v3/{file_uuid}/info.json", code=303)
 
+    def __iiif_image_context (self, metadata):
+        """Returns a IIIF ImageService3 dict on success or None on failure."""
+        image = None
+        try:
+            input_filename = self.__filesystem_location (metadata)
+            if isinstance (input_filename, s3.S3DownloadStreamer):
+                s3_cached_file = s3.s3_temporary_file (input_filename)
+                image = pyvips.Image.new_from_file (s3_cached_file)
+            else:
+                image = pyvips.Image.new_from_file (input_filename)
+        except (KeyError, FileNotFoundError, UnidentifiedImageError):
+            self.log.error ("Unable to open image file %s.", metadata['uuid'])
+            return None
+
+        tile_size = 1024
+        largest_size = max(image.width, image.height)
+        layers = max(0, ceil(log2(largest_size / tile_size)))
+        scale_factors = [pow(2, layer) for layer in range(layers + 1)]
+
+        output = {
+            "@context":  "http://iiif.io/api/image/3/context.json",
+            "id":        f"{config.base_url}/iiif/v3/{metadata['uuid']}",
+            "type":      "ImageService3",
+            "protocol":  "http://iiif.io/api/image",
+            "profile":   "level1",
+            "width":     image.width,
+            "height":    image.height,
+            "maxWidth":  image.width,                # Optional
+            "maxHeight": image.height,               # Optional
+            "maxArea":   image.width * image.height, # Optional
+            "extraFormats": ["jpg", "png", "tif", "webp"],
+            "extraFeatures": ["cors", "mirroring", "regionByPx",
+                              "regionSquare", "rotationArbitrary",
+                              "rotationBy90s"],
+            "tiles": [{
+                "width": tile_size,
+                "height": tile_size,
+                "scaleFactors": scale_factors,
+            }],
+            "sizes": [{ "width": image.width, "height": image.height }]
+        }
+        del image
+        return output
+
     def iiif_v3_image_context (self, request, file_uuid):
         """Implements /iiif/v3/<uuid>/info.json."""
 
@@ -9468,43 +9512,9 @@ class WebServer:
             return self.error_404 (request)
 
         try:
-            image = None
-            image_info = metadata[0]
-            input_filename = self.__filesystem_location (image_info)
-            if isinstance (input_filename, s3.S3DownloadStreamer):
-                s3_cached_file = s3.s3_temporary_file (input_filename)
-                image = pyvips.Image.new_from_file (s3_cached_file)
-            else:
-                image = pyvips.Image.new_from_file (input_filename)
-
-            tile_size = 1024
-            largest_size = max(image.width, image.height)
-            layers = max(0, ceil(log2(largest_size / tile_size)))
-            scale_factors = [pow(2, layer) for layer in range(layers + 1)]
-
-            output = {
-                "@context":  "http://iiif.io/api/image/3/context.json",
-                "id":        f"{config.base_url}/iiif/v3/{file_uuid}",
-                "type":      "ImageService3",
-                "protocol":  "http://iiif.io/api/image",
-                "profile":   "level1",
-                "width":     image.width,
-                "height":    image.height,
-                "maxWidth":  image.width,                # Optional
-                "maxHeight": image.height,               # Optional
-                "maxArea":   image.width * image.height, # Optional
-                "extraFormats": ["jpg", "png", "tif", "webp"],
-                "extraFeatures": ["cors", "mirroring", "regionByPx",
-                                  "regionSquare", "rotationArbitrary",
-                                  "rotationBy90s"],
-                "tiles": [{
-                    "width": tile_size,
-                    "height": tile_size,
-                    "scaleFactors": scale_factors,
-                }],
-                "sizes": [{ "width": image.width, "height": image.height }]
-            }
-            del image
+            output = self.__iiif_image_context (metadata[0])
+            if output is None:
+                return self.error_404 (request)
             response = self.response (json.dumps (output),
                                       mimetype=('application/ld+json;profile='
                                                 '"http://iiif.io/api/image/3/'
