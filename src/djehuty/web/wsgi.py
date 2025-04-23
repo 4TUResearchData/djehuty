@@ -2,6 +2,7 @@
 
 from datetime import date, datetime, timedelta
 from io import StringIO
+from math import ceil, log2
 import os.path
 import os
 import shutil
@@ -9476,6 +9477,11 @@ class WebServer:
             else:
                 image = pyvips.Image.new_from_file (input_filename)
 
+            tile_size = 1024
+            largest_size = max(image.width, image.height)
+            layers = max(0, ceil(log2(largest_size / tile_size)))
+            scale_factors = [pow(2, layer) for layer in range(layers + 1)]
+
             output = {
                 "@context":  "http://iiif.io/api/image/3/context.json",
                 "id":        f"{config.base_url}/iiif/v3/{file_uuid}",
@@ -9491,6 +9497,11 @@ class WebServer:
                 "extraFeatures": ["cors", "mirroring", "regionByPx",
                                   "regionSquare", "rotationArbitrary",
                                   "rotationBy90s"],
+                "tiles": [{
+                    "width": tile_size,
+                    "height": tile_size,
+                    "scaleFactors": scale_factors,
+                }],
                 "sizes": [{ "width": image.width, "height": image.height }]
             }
             del image
