@@ -971,11 +971,13 @@ class WebServer:
 
         return account_uuid
 
-    def response (self, content, mimetype='application/json'):
+    def response (self, content, mimetype='application/json', allow_origin=None):
         """Returns a self.response object with some tweaks."""
 
         output                   = Response(content, mimetype=mimetype)
         output.headers["Server"] = config.site_name
+        if allow_origin:
+            output.headers["Access-Control-Allow-Origin"] = allow_origin
         return output
 
     ## GENERAL HELPERS
@@ -9469,7 +9471,7 @@ class WebServer:
         except (KeyError, FileNotFoundError, UnidentifiedImageError):
             self.log.error ("Unable to open image file %s.", metadata['uuid'])
             return None
-        except pyvips.error.Error as error:
+        except pyvips.error.Error:
             return None
 
         tile_size = 1024
@@ -9519,12 +9521,11 @@ class WebServer:
             output = self.__iiif_image_context (metadata[0])
             if output is None:
                 return self.error_404 (request)
-            response = self.response (json.dumps (output),
-                                      mimetype=('application/ld+json;profile='
-                                                '"http://iiif.io/api/image/3/'
-                                                'context.json"'))
-            response.headers["Access-Control-Allow-Origin"] = "*"
-            return response
+            return self.response (json.dumps (output),
+                                  mimetype=('application/ld+json;profile='
+                                            '"http://iiif.io/api/image/3/'
+                                            'context.json"'),
+                                  allow_origin="*")
         except IndexError:
             self.log.error ("Unable to read metadata.")
         except (KeyError, FileNotFoundError, UnidentifiedImageError):
@@ -9770,9 +9771,7 @@ class WebServer:
         authors = self.db.authors (item_uri = dataset["uri"], item_type = "dataset", limit=10000)
         record = formatter.format_iiif_manifest_record (dataset, iiif_files, authors,
                                                         version, config.base_url)
-        response = self.response (json.dumps(record))
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        return response
+        return self.response (json.dumps(record), allow_origin="*")
 
     def iiif_v3_presentation_canvas (self, request, file_uuid):
         """Implements /iiif/v3/<file_uuid>/canvas."""
@@ -9793,6 +9792,4 @@ class WebServer:
             metadata["iiif_image_context"] = image_context
 
         record = formatter.format_iiif_canvas_record (metadata, config.base_url)
-        response = self.response (json.dumps(record))
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        return response
+        return self.response (json.dumps(record), allow_origin="*")
