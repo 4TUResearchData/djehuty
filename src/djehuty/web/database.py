@@ -3002,7 +3002,7 @@ class SparqlInterface:
 
     def reviews (self, assigned_to=None, dataset_uri=None, status=None,
                  account_uuid=None, limit=10, order=None, order_direction=None,
-                 offset=None, review_uuid=None, domain=None):
+                 offset=None, review_uuid=None, domain=None, group_id=None):
         """Returns reviews within the scope of the procedure's parameters."""
 
         filters = rdf.sparql_filter ("dataset", dataset_uri, is_uri=True)
@@ -3011,6 +3011,7 @@ class SparqlInterface:
             "account_uuid":   account_uuid,
             "assigned_to":    assigned_to,
             "domain":         domain,
+            "group_id":       group_id,
             "review_uuid":    review_uuid,
             "status":         status.capitalize() if status is not None else status,
             "filters":        filters,

@@ -31,6 +31,9 @@ WHERE {
     {%- if domain is not none %}
     ?account            djht:domain               "{{domain}}"^^xsd:string .
     {%- endif %}
+    {%- if group_id is not none %}
+    ?dataset            djht:group_id             {{group_id}} .
+    {%- endif %}
 
     OPTIONAL { ?container_uri djht:latest_published_version ?published_version . }
     OPTIONAL {

@@ -3096,15 +3096,15 @@ class WebServer:
         if (not may_review_all and not may_review_institution):
             return self.error_403 (request)
 
-        domain = None
+        group_id = None
         if may_review_institution:
             account = self.db.account_by_session_token (token)
-            domain = value_or_none (account, "domain")
+            group_id = value_or_none (account, "group_id")
 
         reviewers = self.db.reviewer_accounts ()
         reviewers += self.db.institutional_reviewer_accounts (None)
         reviews = self.db.reviews (limit           = 10000,
-                                   domain          = domain,
+                                   group_id        = group_id,
                                    order           = "request_date",
                                    order_direction = "desc")
         return self.__render_template (request, "review/overview.html",
@@ -7208,18 +7208,16 @@ class WebServer:
         if not may_review_all and not may_review_institution:
             return self.error_403 (request)
 
-        reviewer_account = self.db.account_by_session_token (reviewer_token)
-        if may_review_institution:
-            submitter_token = self.token_from_request (request)
-            submitter_account = self.db.account_by_session_token (submitter_token)
-            if value_or (reviewer_account, "domain", "A") != value_or (submitter_account, "domain", "not-A"):
-                return self.error_403 (request)
-
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                account_uuid = account_uuid,
                                                is_published = False)
         if dataset is None:
             return self.error_403 (request)
+
+        reviewer_account = self.db.account_by_session_token (reviewer_token)
+        if may_review_institution:
+            if value_or (dataset, "group_id", "A") != value_or (reviewer_account, "group_id", "not-A"):
+                return self.error_403 (request)
 
         container_uuid = dataset["container_uuid"]
         if self.db.decline_dataset (container_uuid, account_uuid):
@@ -7267,17 +7265,16 @@ class WebServer:
             if not may_review_all and not may_review_institution:
                 return self.error_403 (request)
 
-        reviewer_account = self.db.account_by_session_token (reviewer_token)
-        if may_review_institution:
-            submitter_account = self.db.account_by_session_token (submitter_token)
-            if value_or (reviewer_account, "domain", "A") != value_or (submitter_account, "domain", "not-A"):
-                return self.error_403 (request)
-
         dataset = self.__dataset_by_id_or_uri (dataset_id,
                                                account_uuid = account_uuid,
                                                is_published = False)
         if dataset is None:
             return self.error_403 (request)
+
+        reviewer_account = self.db.account_by_session_token (reviewer_token)
+        if may_review_institution:
+            if value_or (dataset, "group_id", "A") != value_or (reviewer_account, "group_id", "not-A"):
+                return self.error_403 (request)
 
         if not self.db.update_review (dataset["review_uri"],
                                       author_account_uuid = dataset["account_uuid"],
@@ -9016,13 +9013,13 @@ class WebServer:
         if (not may_review_all and not may_review_institution):
             return self.error_403 (request)
 
-        domain = None
+        group_id = None
         if may_review_institution:
             account = self.db.account_by_session_token (token)
-            domain = value_or_none (account, "domain")
+            group_id = value_or_none (account, "group_id")
 
         reviews = self.db.reviews (limit           = 10000,
-                                   domain          = domain,
+                                   group_id        = group_id,
                                    order           = "request_date",
                                    order_direction = "desc")
 
