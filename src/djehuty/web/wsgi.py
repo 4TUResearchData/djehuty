@@ -9749,13 +9749,26 @@ class WebServer:
         if not validator.is_valid_uuid (container_uuid):
             return self.error_400 (request, "Invalid file UUID.", "InvalidFileUUID")
 
+        account_uuid = None
+        if version == "draft":
+            account_uuid = self.account_uuid_from_request (request)
+            if account_uuid is None:
+                return self.error_authorization_failed (request)
+
+        version_number = version if version not in ("draft", "latest") else None
         dataset = self.__dataset_by_id_or_uri (container_uuid,
+                                               account_uuid = account_uuid,
                                                is_published = (version != "draft"),
                                                is_latest    = (version == "latest"),
-                                               version      = version if version != "draft" else None)
+                                               version      = version_number)
 
         if not dataset:
-            return self.error_404 (request)
+            return self.error_404 (request, f"No dataset for container:{container_uuid}.")
+
+        if (value_or (dataset, "is_restricted", False) or
+            value_or (dataset, "is_embargoed", False)):
+            return self.error_403 (request, ("Attempted to view a restricted "
+                                             "dataset's IIIF manifest."))
 
         all_files = self.db.dataset_files (dataset_uri = dataset["uri"])
         iiif_files = []
@@ -9766,7 +9779,8 @@ class WebServer:
                 iiif_files.append (file_object)
 
         if not iiif_files:
-            return self.error_404 (request)
+            return self.error_404 (request, ("No IIIF-enabled files for "
+                                             f"container:{container_uuid}."))
 
         authors = self.db.authors (item_uri = dataset["uri"], item_type = "dataset", limit=10000)
         record = formatter.format_iiif_manifest_record (dataset, iiif_files, authors,
