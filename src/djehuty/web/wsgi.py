@@ -9770,7 +9770,9 @@ class WebServer:
         authors = self.db.authors (item_uri = dataset["uri"], item_type = "dataset", limit=10000)
         record = formatter.format_iiif_manifest_record (dataset, iiif_files, authors,
                                                         version, config.base_url)
-        return self.response (json.dumps(record))
+        response = self.response (json.dumps(record))
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        return response
 
     def iiif_v3_presentation_canvas (self, request, file_uuid):
         """Implements /iiif/v3/<file_uuid>/canvas."""
@@ -9791,4 +9793,6 @@ class WebServer:
             metadata["iiif_image_context"] = image_context
 
         record = formatter.format_iiif_canvas_record (metadata, config.base_url)
-        return self.response (json.dumps(record))
+        response = self.response (json.dumps(record))
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        return response
