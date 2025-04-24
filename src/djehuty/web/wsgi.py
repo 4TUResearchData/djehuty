@@ -9469,6 +9469,8 @@ class WebServer:
         except (KeyError, FileNotFoundError, UnidentifiedImageError):
             self.log.error ("Unable to open image file %s.", metadata['uuid'])
             return None
+        except pyvips.error.Error as error:
+            return None
 
         tile_size = 1024
         largest_size = max(image.width, image.height)
