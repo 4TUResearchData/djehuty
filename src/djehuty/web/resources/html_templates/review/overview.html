@@ -16,8 +16,8 @@
 }
 #table-count { text-transform: lowercase; }
 #overview-table, #overview-h1 { display: none; }
-#overview-table tbody tr td:nth-child(11),
-#overview-table thead tr th:nth-child(11){
+#overview-table tbody tr td:nth-child(12),
+#overview-table thead tr th:nth-child(12){
     max-width: 8px !important;
     min-width: 8px !important;
     user-select: none;
@@ -32,6 +32,70 @@
 #spacer-link { background: none !important; width: 0px !important; cursor: default !important; }
 .normal-text { text-transform: none; }
 .fa-copy:hover { cursor: pointer; }
+
+/* Note */
+.note-container {
+  width: 200px;
+  height: auto;
+  word-wrap: break-word;
+  white-space: normal;
+  padding: 0 10px;
+}
+
+.initial-note-panel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.note-editor-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+}
+.note-editor-panel textarea {
+  width: 98%;
+  min-height: 60px;
+}
+.add-note-wrap { width: 100% }
+.cursor-pointer { cursor: pointer }
+
+.edit-note-btn { margin-left: 16px }
+.note-footer-btn {
+  border-radius: 0.125rem;
+  padding: 3px 6px ;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  border: 0;
+}
+.cancel-note-btn {
+  background: var(--gray-500);
+  margin-right: 5px;
+}
+.cancel-note-btn:hover {
+  background: var(--gray-400);
+}
+
+.block { display: block; }
+.hidden { display: none; }
+.note { display: none; }
+.comments:hover + .note {
+  position: absolute;
+  width: 180px;
+  display: block;
+  background: #fffaea;
+  border: solid 2pt #ffeecc;
+  font-family: 'SourceSans', sans-serif;
+  font-size: 12pt;
+  font-weight: normal;
+  padding: .5em;
+  border-radius: .5em;
+  margin-top: 0;
+  margin-left: 20px;
+}
 </style>
 <script nonce="{{nonce}}">
   const reviewers = [
@@ -90,6 +154,7 @@
       <th>Last modified</th>
       <th>Accepted</th>
       <th>Reviewer</th>
+      <th>Note</th>
       <th></th>
     </tr>
   </thead>

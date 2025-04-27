@@ -1,0 +1,16 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?review          djht:note         ?note .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?session    rdf:type     djht:Review .
+    ?review     djht:note    ?note .
+
+    FILTER (?review = <{{review_uri}}>)
+  }
+}
+{% endblock %}
