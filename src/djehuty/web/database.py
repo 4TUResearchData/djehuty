@@ -3056,15 +3056,30 @@ class SparqlInterface:
 
     def update_review (self, review_uri, dataset_uri=None, assigned_to=None,
                        status=None, reminder_date=None,
-                       author_account_uuid=None):
+                       author_account_uuid=None, note=None):
         """Procedure to update a review."""
 
+        ensured_review_uri = review_uri if rdf.is_uri(review_uri, "review") else rdf.uuid_to_uri(review_uri, "review")
+
         query        = self.__query_from_template ("update_review", {
-            "review_uri":            review_uri,
+            "review_uri":            ensured_review_uri,
             "dataset_uri":           dataset_uri,
             "assigned_to":           assigned_to,
             "status":                status.capitalize() if status is not None else status,
-            "reminder_date":         reminder_date
+            "reminder_date":         reminder_date,
+            "note":                  rdf.escape_string_value(note)
+        })
+
+        self.cache.invalidate_by_prefix (f"datasets_{author_account_uuid}")
+        self.cache.invalidate_by_prefix ("reviews")
+
+        return self.__run_logged_query (query)
+
+    def delete_review_note_by_uuid (self, review_uri,author_account_uuid=None):
+        """Procedure to delete a review note."""
+
+        query        = self.__query_from_template ("delete_review_note", {
+            "review_uri":            rdf.uuid_to_uri(review_uri, "review"),
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{author_account_uuid}")
