@@ -54,3 +54,12 @@ ul.latest-datasets li a:active { color: {{primary_color_active}}; }
 {%- if sandbox_message_css %}
 .sandbox-message-css { {{sandbox_message_css | safe}} }
 {%- endif %}
+
+
+/* Defining colors variables in global scope for reusable colors */
+/* Naming numerical to determine color intensity (increase number, increase intensity). */
+:root {
+  --gray-400: #606060;
+  --gray-500: #505050;
+  --gray-700: #303030;
+}
