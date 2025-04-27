@@ -694,7 +694,9 @@ def format_review_record (record):
         "status":                conv.value_or_none (record, "status"),
         "submitter_email":       conv.value_or_none (record, "submitter_email"),
         "submitter_first_name":  conv.value_or_none (record, "submitter_first_name"),
-        "submitter_last_name":   conv.value_or_none (record, "submitter_last_name")
+        "submitter_last_name":   conv.value_or_none (record, "submitter_last_name"),
+        "submitter_account_uuid":   conv.value_or_none (record, "submitter_account_uuid"),
+        "note":                  conv.value_or_none (record, "review_note")
     }
 
 def format_iiif_canvas_record (record, base_url):
