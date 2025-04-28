@@ -29,7 +29,15 @@ configuration file, for which an example is available at
                                in the web browser.\\
   \t{use-x-forwarded-for}    & When running \t{djehuty} behind a reverse-proxy
                                server, use the HTTP header \t{X-Forwarded-For}
-                               to log IP address information.\\
+                               to log IP address information.  Set to 1 when
+                               \t{djehuty} should use the \t{X-Forwarded-For}
+                               HTTP header.\\
+  \t{static-resources-cache} & When running \t{djehuty} behind a reverse-proxy
+                               server, it can write images, fonts, stylesheets
+                               and JavaScript resources to a folder so it can
+                               be served by the reverse-proxy server. Specify
+                               a filesystem directory to store the resources
+                               at.\\
   \t{disable-collaboration}  & When set to 1, it disables the ``collaborators''
                                feature.\\
   \t{allowed-depositing-domains} & When unset, any authenticated user may

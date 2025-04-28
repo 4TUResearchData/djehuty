@@ -20,6 +20,7 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         self.use_debugger                = None
         self.maximum_workers             = None
         self.transactions_directory      = "."
+        self.static_cache_root           = None
         self.clear_cache_on_start        = False
         self.s3_buckets                  = {}
         self.s3_cache_storage            = None

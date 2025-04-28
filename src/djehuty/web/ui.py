@@ -819,6 +819,10 @@ def read_configuration_file (server, config_file, logger, config_files):
         elif config.s3_cache_storage is None:
             config.s3_cache_storage = os.path.join (config.storage, "s3")
 
+        static_resources_cache = xml_root.find ("static-resources-cache")
+        if static_resources_cache is not None:
+            config.static_cache_root = static_resources_cache.text
+
         production_mode = xml_root.find ("production")
         if production_mode is not None:
             config.in_production = bool(int(production_mode.text))
@@ -1330,6 +1334,9 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                     config.port = config.alternative_port
                 else:
                     logger.info ("Unable to bind to port %s: %s.", config.port, error)
+
+            if config.static_cache_root is not None:
+                server.create_static_error_pages()
 
         run_simple (config.address, config.port, server,
                     threaded=(config.maximum_workers <= 1),

@@ -816,6 +816,31 @@ class WebServer:
 
         return records, None
 
+    def create_static_error_pages (self):
+        """Procedure to create error pages to be served by a proxy server."""
+
+        base_dir = config.static_cache_root
+        resources_path = os.path.dirname(__file__)
+        stylesheet = self.colors_css (Request({}))
+        try:
+            os.makedirs (base_dir, mode=0o755, exist_ok=True)
+            shutil.copytree (os.path.join (resources_path, "resources", "static"),
+                             os.path.join (base_dir, "static"),
+                             dirs_exist_ok=True)
+
+            os.makedirs (os.path.join (base_dir, "theme"), mode=0o755, exist_ok=True)
+            with open (os.path.join (base_dir, "theme", "colors.css"), "wb") as stream:
+                stream.write (stylesheet.get_data())
+
+            for page in ["500", "502"]:
+                with open (os.path.join (base_dir, f"{page}.html"), "wb") as stream:
+                    response = self.__render_template (Request({}), f"{page}.html",
+                                                       email = config.support_email_address)
+                    stream.write (response.get_data())
+
+        except PermissionError:
+            self.log.error ("No permission to write static error pages.")
+
     ## ERROR HANDLERS
     ## ------------------------------------------------------------------------
 

@@ -34,6 +34,8 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/403.html                             \
     djehuty/web/resources/html_templates/404.html                             \
     djehuty/web/resources/html_templates/410.html                             \
+    djehuty/web/resources/html_templates/500.html                             \
+    djehuty/web/resources/html_templates/502.html                             \
     djehuty/web/resources/html_templates/activate_2fa_session.html            \
     djehuty/web/resources/html_templates/admin/dashboard.html                 \
     djehuty/web/resources/html_templates/admin/exploratory.html               \
