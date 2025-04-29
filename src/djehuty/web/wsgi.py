@@ -42,6 +42,7 @@ from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
 from djehuty.utils.convenience import make_citation, is_opendap_url, landing_page_url
 from djehuty.utils.convenience import split_author_name, split_string, html_to_plaintext
 from djehuty.utils.constants import group_to_member, member_url_names, filetypes_by_extension
+from djehuty.utils.constants import iiif_supported_formats
 from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
 from djehuty.web.config import config
 from djehuty.web import zipfly
@@ -3676,6 +3677,13 @@ class WebServer:
         fundings      = self.db.fundings(item_uri=dataset["uri"], limit=None)
         collections   = self.db.collections_from_dataset(dataset["container_uuid"])
 
+        show_iiif_link = False
+        for item in files:
+            filename = value_or (item, "name", "").lower()
+            if os.path.splitext (filename)[1] in iiif_supported_formats:
+                show_iiif_link = True
+                break
+
         statistics    = {
             "views"  : value_or(dataset, "total_views",  0),
             "shares" : value_or(dataset, "total_shares", 0),
@@ -3759,6 +3767,7 @@ class WebServer:
                                        my_name=my_name,
                                        is_own_item=is_own_item,
                                        anonymize=anonymize,
+                                       show_iiif_link = show_iiif_link,
                                        page_title=f"{dataset['title']} ({defined_type_name})")
 
     def ui_data_access_request (self, request):

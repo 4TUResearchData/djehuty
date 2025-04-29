@@ -137,6 +137,12 @@
     {%- endif %}
         </div>
     {%- endif %}
+    {%- if show_iiif_link %}
+        <div id="iiif_manifest">
+          <h3 class="label">IIIF sharing</h3>
+          <a href="/iiif/v3/{{item.container_uuid}}/{{item.version | default('draft')}}/manifest" class="corporate-identity public-button" target="_blank" rel="noopener noreferrer" title="IIIF Manifest">IIIF Manifest</a>
+        </div>
+    {%- endif %}
     {%- if collections %}
         <div id="collections">
             <h3 class="label">Collection{%- if collections[1:] %}s{%- endif %}</h3>

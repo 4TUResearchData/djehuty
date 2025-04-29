@@ -70,3 +70,5 @@ filetypes_by_extension = {
 }
 
 allowed_html_tags = ["p", "strong", "em", "u", "ol", "ul", "li", "code", "pre", "br", "sup", "sub", "h2", "h3"]
+
+iiif_supported_formats = [ ".jpg", ".png", ".pdf", ".tif", ".tiff", ".gif", ".webp" ]
