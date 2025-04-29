@@ -707,6 +707,12 @@ def format_iiif_canvas_record (record, base_url):
         "label": { "none": [ record['name'] ] },
         "height": height,
         "width": width,
+        "thumbnail": [{
+            "id": f"{base_url}/iiif/v3/{record['uuid']}/full/max/0/default.jpg",
+            "type": "Image",
+            "format": "image/jpeg",
+            "service": [ iiif_image_context ]
+        }],
         "items": [{
             "id": f"{base_url}/iiif/v3/{record['uuid']}/annotationpage",
             "type": "AnnotationPage",
@@ -721,9 +727,7 @@ def format_iiif_canvas_record (record, base_url):
                     "format": "image/jpeg",
                     "height": height,
                     "width": width,
-                    "maxHeight": height,
-                    "maxWidth": width,
-                    "service": iiif_image_context
+                    "service": [ iiif_image_context ]
                 }
             }]
         }]
@@ -739,9 +743,9 @@ def format_iiif_manifest_record (dataset, files, authors, version, base_url):
     if authors:
         metadata = [{
             "label": { "en": [ "Authors" ] },
-            "value": { "none": [
-                list (map (lambda author: conv.value_or_none (author, "full_name"), authors))
-            ]}
+            "value": {
+                "none": list (map (lambda author: conv.value_or_none (author, "full_name"), authors))
+            }
         }]
     description = conv.value_or_none (dataset, "description")
     if description:
@@ -750,12 +754,14 @@ def format_iiif_manifest_record (dataset, files, authors, version, base_url):
             "value": { "en": [ conv.html_to_plaintext (description) ] }
         }]
     items = list (map (lambda record: format_iiif_canvas_record (record, base_url), files))
+    thumbnails = list(map (lambda item: item["thumbnail"][0], items))
     output = {
         "@context": "http://iiif.io/api/presentation/3/context.json",
         "id": f"{base_url}/iiif/v3/{dataset['container_uuid']}/{version}/manifest",
         "type": "Manifest",
         "label": { "en": [ f"IIIF Manifest for '{dataset['title']}'." ] },
         "metadata": metadata,
+        "thumbnail": thumbnails,
         "items": items
     }
     return output
