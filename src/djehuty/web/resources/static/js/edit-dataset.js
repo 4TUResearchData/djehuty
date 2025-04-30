@@ -230,7 +230,7 @@ function render_licenses (dataset) {
     // When the dataset hasn't been given a license yet, accessing
     // license.value will throw a TypeError. This is expected.
     try { chosen_license = dataset.license.value; }
-    catch (TypeError) {}
+    catch (error) {}
 
     jQuery.ajax({
         url:         "/v2/licenses",

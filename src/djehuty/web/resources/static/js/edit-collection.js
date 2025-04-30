@@ -687,7 +687,7 @@ function activate (collection_id) {
         accept:      "application/json",
     }).done(function (data) {
         render_categories_for_collection (collection_id, data["categories"]);
-        render_authors_for_collection (collection_id, data["authors"]);
+        render_authors_for_collection (collection_id);
         render_references_for_collection (collection_id);
         render_datasets_for_collection (collection_id);
         render_tags_for_collection (collection_id);
