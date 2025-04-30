@@ -16,6 +16,7 @@ from jinja2 import Environment, FileSystemLoader
 from djehuty.web import cache
 from djehuty.utils import rdf
 from djehuty.utils import convenience as conv
+from djehuty.utils.constants import datetime_format
 from djehuty.web.config import config
 
 def rdflib_network_audit_hook (name, arguments):
@@ -1346,7 +1347,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["thumb_origin"],   thumb_origin,   XSD.string)
         rdf.add (graph, uri, rdf.DJHT["association_criteria"], association_criteria, XSD.string)
 
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["is_public"],      is_public)
@@ -1390,7 +1391,7 @@ class SparqlInterface:
         graph        = Graph()
         uri          = rdf.unique_node ("quota-request")
         account_uri  = rdf.uuid_to_uri (account_uuid, "account")
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
 
         rdf.add (graph, uri, RDF.type, rdf.DJHT["QuotaRequest"], "uri")
         rdf.add (graph, uri, rdf.DJHT["account"], account_uri, "uri")
@@ -1446,7 +1447,7 @@ class SparqlInterface:
         """Procedure to update account settings."""
 
         if modified_date is None:
-            modified_date = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
+            modified_date = datetime.strftime (datetime.now(), datetime_format)
 
         full_name = None
         if first_name is not None and last_name is not None:
@@ -1771,7 +1772,7 @@ class SparqlInterface:
         rdf.add (graph, file_uri, rdf.DJHT["upload_url"],    upload_url,    XSD.string)
         rdf.add (graph, file_uri, rdf.DJHT["upload_token"],  upload_token,  XSD.string)
 
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
         rdf.add (graph, file_uri, rdf.DJHT["created_date"],  current_time,  XSD.dateTime)
         rdf.add (graph, file_uri, rdf.DJHT["modified_date"], current_time,  XSD.dateTime)
 
@@ -1809,7 +1810,7 @@ class SparqlInterface:
                      is_incomplete=None, is_image=None, handle=None):
         """Procedure to update file metadata."""
 
-        modified_date = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        modified_date = datetime.strftime (datetime.now(), datetime_format)
         query   = self.__query_from_template ("update_file", {
             "account_uuid":  account_uuid,
             "file_uuid":     file_uuid,
@@ -2160,7 +2161,7 @@ class SparqlInterface:
 
         collection_uuid = draft["uuid"]
         blank_node   = self.wrap_in_blank_node (collection_uuid, "collection")
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
         query        = self.__query_from_template ("publish_draft_collection", {
             "account_uuid":      account_uuid,
             "blank_node":        blank_node,
@@ -2277,7 +2278,7 @@ class SparqlInterface:
 
         dataset_uuid = draft["uuid"]
         blank_node   = self.wrap_in_blank_node (dataset_uuid, "dataset")
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
         query        = self.__query_from_template ("publish_draft_dataset", {
             "blank_node":        blank_node,
             "version":           new_version_number,
@@ -2432,7 +2433,7 @@ class SparqlInterface:
         if first_name is not None and last_name is not None:
             full_name = f"{first_name} {last_name}"
 
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
         query = self.__query_from_template ("update_author", {
             "author_uuid": author_uuid,
             "created_by": created_by,
@@ -2465,7 +2466,7 @@ class SparqlInterface:
                         funding_list=None):
         """Procedure to overwrite parts of a dataset."""
 
-        modified_date_str = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        modified_date_str = datetime.strftime (datetime.now(), datetime_format)
         first_online_date_str = modified_date_str if is_first_online else None
 
         query   = self.__query_from_template ("update_dataset", {
@@ -2631,7 +2632,7 @@ class SparqlInterface:
     def dataset_update_seen_by_reviewer (self, dataset_uuid):
         """Sets the last_seen_by_reviewer property to the current timestamp."""
 
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
         query = self.__query_from_template ("update_seen_by_reviewer", {
             "timestamp": current_time,
             "dataset_uuid": dataset_uuid
@@ -2771,7 +2772,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["group_id"],       group_id)
         rdf.add (graph, uri, rdf.DJHT["publisher"],      publisher,      XSD.string)
 
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["is_public"],      is_public)
@@ -2814,7 +2815,7 @@ class SparqlInterface:
                            container_doi=None, is_first_online=False):
         """Procedure to overwrite parts of a collection."""
 
-        modified_date_str = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        modified_date_str = datetime.strftime (datetime.now(), datetime_format)
         first_online_date_str = modified_date_str if is_first_online else None
 
         query   = self.__query_from_template ("update_collection", {
@@ -3028,7 +3029,7 @@ class SparqlInterface:
         uri             = rdf.unique_node ("review")
 
         if request_date is None:
-            request_date = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+            request_date = datetime.strftime (datetime.now(), datetime_format)
 
         if not isinstance (dataset_uri, URIRef):
             dataset_uri = URIRef(dataset_uri)
@@ -3286,7 +3287,7 @@ class SparqlInterface:
         if token is None:
             token = secrets.token_hex (64)
 
-        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
         graph        = Graph()
         link_uri     = rdf.unique_node ("session")
         account_uri  = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
@@ -3586,7 +3587,7 @@ class SparqlInterface:
     def export_rdf (self, full_export=False):
         """Export RDF triples."""
 
-        current_time     = datetime.strftime (datetime.now(), "%Y-%m-%d_%H%M%S")
+        current_time     = datetime.strftime (datetime.now(), datetime_format)
         export_directory = os.path.join (config.export_directory, f"{current_time}")
         export_directory += "-full" if full_export else "-public"
 
