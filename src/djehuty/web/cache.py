@@ -44,8 +44,7 @@ class CacheLayer:
         """Returns the cached value or None."""
         try:
             filename = os.path.join (self.storage, f"{prefix}_{key}")
-            with open(filename, "r",
-                      encoding = "utf-8") as cache_file:
+            with open(filename, "r", encoding = "utf-8") as cache_file:
                 cached = cache_file.read()
                 if is_raw:
                     return cached

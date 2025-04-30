@@ -3678,11 +3678,12 @@ class WebServer:
         collections   = self.db.collections_from_dataset(dataset["container_uuid"])
 
         show_iiif_link = False
-        for item in files:
-            filename = value_or (item, "name", "").lower()
-            if os.path.splitext (filename)[1] in iiif_supported_formats:
-                show_iiif_link = True
-                break
+        if config.enable_iiif:
+            for item in files:
+                filename = value_or (item, "name", "").lower()
+                if os.path.splitext (filename)[1] in iiif_supported_formats:
+                    show_iiif_link = True
+                    break
 
         statistics    = {
             "views"  : value_or(dataset, "total_views",  0),
@@ -9801,6 +9802,15 @@ class WebServer:
             return self.error_403 (request, ("Attempted to view a restricted "
                                              "dataset's IIIF manifest."))
 
+        # Translate 'latest' into the actual number to get the cache correct.
+        version_number = value_or (dataset, "version", version_number)
+        cache_key = None
+        if version_number is not None:
+            cache_key = f"{container_uuid}_{version_number}"
+            cached = self.db.cache.cached_value ("iiif_manifest", cache_key)
+            if cached:
+                return self.response (json.dumps(cached), allow_origin="*")
+
         all_files = self.db.dataset_files (dataset_uri = dataset["uri"])
         iiif_files = []
         for file_object in all_files:
@@ -9816,6 +9826,9 @@ class WebServer:
         authors = self.db.authors (item_uri = dataset["uri"], item_type = "dataset", limit=10000)
         record = formatter.format_iiif_manifest_record (dataset, iiif_files, authors,
                                                         version, config.base_url)
+
+        if cache_key is not None:
+            self.db.cache.cache_value ("iiif_manifest", cache_key, record)
         return self.response (json.dumps(record), allow_origin="*")
 
     def iiif_v3_presentation_canvas (self, request, file_uuid):
