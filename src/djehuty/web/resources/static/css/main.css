@@ -126,7 +126,7 @@ a.inline-button {
     font-weight: bold;
     user-select: none;
 }
-.cancel-button { background: #990000; color: #fff; }
+.cancel-button { background: #990000; color: #fff; font-weight: bold; text-decoration: none; }
 .cancel-button:hover {
     background: #660000;
     cursor: pointer;
@@ -137,11 +137,6 @@ a.inline-button {
     background: #330000;
     cursor: pointer;
     color: #fff;
-    text-decoration: none;
-}
-.cancel-button {
-    color: #fff;
-    font-weight: bold;
     text-decoration: none;
 }
 #login-button a { color: #ffffff; text-decoration: none; }
@@ -471,9 +466,9 @@ table {
 #save_bottom {
     margin: 30px 0px 30px 0px;
     text-decoration: none;
+    background: #139257;
+    color: #ffffff;
 }
-
-#save_bottom { background: #139257; color: #ffffff; }
 #save_bottom:hover { background: #18b76d; }
 #save_bottom:active { background: #107a48; }
 #submenu li.orcid-button a { background: #a6ce39; color: #ffffff; }
