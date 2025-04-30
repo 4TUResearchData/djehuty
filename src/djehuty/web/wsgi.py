@@ -6971,7 +6971,6 @@ class WebServer:
         if ("group_ids" in record
             and record["group_ids"] is not None
             and record["group_ids"] != ""):
-            record["group_ids"] = record["group_ids"]
             validator.array_value (record, "group_ids")
             for index, _ in enumerate(record["group_ids"]):
                 record["group_ids"][index] = validator.integer_value (record["group_ids"], index)
