@@ -25,7 +25,7 @@
 #wrapper #content ul            { list-style-type: none; padding:0; margin:0}
 #wrapper #content #data         { clear: right; border-top: 1px solid #000; margin-bottom: 10px }
 #wrapper #content #collect, #cite, #versions { display: none; padding: 1em; margin-bottom: 1em; border-radius: 0em .5em .5em .5em }
-#wrapper #content #collect-btn, #cite-btn { border: none; border-radius: .5em; padding: .5em; text-aligh: center; font-size: 12pt; }
+#wrapper #content #collect-btn, #cite-btn { border: none; border-radius: .5em; padding: .5em; text-align: center; font-size: 12pt; }
 #wrapper #content #versions_hide { border: none }
 #wrapper #content #citation     { background: #fff; border: solid 1pt #ccc; border-radius: .25em; padding: .25em; margin-bottom: 1em; }
 #wrapper #content #type_versions { margin-bottom:10px }

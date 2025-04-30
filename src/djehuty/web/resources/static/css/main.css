@@ -229,7 +229,6 @@ nav { display: block; padding-top: 1pt; }
 #footer a { color: #ffffff; }
 #footer a:hover { color: #cccccc; }
 h1 {
-    margin: 5px;
     color: #000000;
     padding: 0em;
     margin: 0em;
@@ -431,7 +430,6 @@ table {
     margin: 0em;
     text-align: left;
     padding: 0pt;
-    background: #ffffff;
     border-bottom: solid 1px #dddddd;
     background: #f9f9f9;
 }
