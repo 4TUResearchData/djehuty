@@ -555,7 +555,7 @@ class WebServer:
         html_template = self.jinja.get_template (f"{template_name}.html")
         text_template = self.jinja.get_template (f"{template_name}.txt")
 
-        parameters    = { "base_url": config.base_url }
+        parameters    = { "base_url": config.base_url, "site_name": config.site_name }
 
         html_response = html_template.render({ **context, **parameters })
         text_response = text_template.render({ **context, **parameters })
