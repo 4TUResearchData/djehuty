@@ -221,10 +221,9 @@ def uris_from_records (records, prefix, uuid_index=None):
     if records and isinstance (records[0], URIRef):
         return records
 
-    if records and isinstance(records[0], dict):
-        if uuid_index is not None:
-            return list(map (lambda record: URIRef(uuid_to_uri (
-                record[uuid_index], prefix)), records))
+    if records and isinstance(records[0], dict) and uuid_index is not None:
+        return list(map (lambda record: URIRef(uuid_to_uri (
+            record[uuid_index], prefix)), records))
 
     return list(map (lambda record: URIRef(
         uuid_to_uri (record, prefix)), records))

@@ -1480,20 +1480,18 @@ class SparqlInterface:
 
         results = self.__run_logged_query (query)
         if results and categories:
+            graph = Graph()
+            items = rdf.uris_from_records (categories, "category")
+            self.delete_account_property (account_uuid, "categories")
+            self.insert_item_list (graph,
+                                   URIRef(rdf.uuid_to_uri (account_uuid, "account")),
+                                   items,
+                                   "categories")
 
-            if categories:
-                graph = Graph()
-                items = rdf.uris_from_records (categories, "category")
-                self.delete_account_property (account_uuid, "categories")
-                self.insert_item_list (graph,
-                                       URIRef(rdf.uuid_to_uri (account_uuid, "account")),
-                                       items,
-                                       "categories")
-
-                if not self.add_triples_from_graph (graph):
-                    self.log.error ("Updating categories for account %s failed.",
-                                    account_uuid)
-                    return None
+            if not self.add_triples_from_graph (graph):
+                self.log.error ("Updating categories for account %s failed.",
+                                account_uuid)
+                return None
 
         return results
 
@@ -3509,14 +3507,14 @@ class SparqlInterface:
 
     def mark_state_graph_as_initialized (self):
         """Inserts the triplet that marks the graph as initialized."""
-        query = ((f'INSERT {{ GRAPH <{config.state_graph}> {{ <this> '
-                  f'<{rdf.DJHT["initialized"]}> "true"^^<{XSD.boolean}> }} }}'))
+        query = (f'INSERT {{ GRAPH <{config.state_graph}> {{ <this> '
+                 f'<{rdf.DJHT["initialized"]}> "true"^^<{XSD.boolean}> }} }}')
         return self.__run_query (query)
 
     def state_graph_is_initialized (self):
         """"Returns True of the state-graph is already initialized."""
-        query = ((f'ASK {{ GRAPH <{config.state_graph}> {{ <this> '
-                  f'<{rdf.DJHT["initialized"]}> "true"^^<{XSD.boolean}> }} }}'))
+        query = (f'ASK {{ GRAPH <{config.state_graph}> {{ <this> '
+                 f'<{rdf.DJHT["initialized"]}> "true"^^<{XSD.boolean}> }} }}')
         return self.__run_query (query)
 
     def add_triples_from_graph (self, graph, only_log_query=False):
