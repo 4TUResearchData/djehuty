@@ -327,11 +327,9 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
             let row = jQuery("<tr/>", { "id": `row-${encodeURIComponent(collaborator.uuid)}` });
             let column1 = jQuery("<td/>");
             let supervisor_badge = "";
-            let supervisor_disabled = false;
             let group_member_badge = "";
             if (collaborator.is_supervisor) {
                 supervisor_badge = '<span class="active-badge">Supervisor</span>';
-                supervisor_disabled = true;
             }
             if (collaborator.is_inferred) {
                 group_member_badge = `<span class="active-badge">${collaborator.group_name}</span>`;
@@ -421,7 +419,6 @@ function render_collaborators_for_dataset (dataset_uuid, may_edit_metadata, call
 
 function update_collaborator (collaborator_uuid, dataset_uuid, may_edit_metadata) {
     if (may_edit_metadata) {
-        let row = "<tr>";
         let update_form_data = {
             "metadata": {
                 "read": jQuery(`#row-${collaborator_uuid} input[name='read'].subitem-checkbox-metadata`).prop("checked"),
@@ -1179,8 +1176,6 @@ function toggle_access_level () {
 }
 
 function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
-    var submenu_offset = jQuery("#submenu").offset().top;
-
     install_sticky_header();
     install_touchable_help_icons();
 
@@ -1256,7 +1251,6 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
          });
 
          jQuery(".subitem-checkbox-dataset").on("change", function (event) {
-            let read = jQuery(".subitem-checkbox-dataset[name='read']").prop("checked");
             let edit = jQuery(".subitem-checkbox-dataset[name='edit']").prop("checked");
             let remove = jQuery(".subitem-checkbox-dataset[name='remove']").prop("checked");
 
@@ -1264,10 +1258,8 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
                 jQuery(".subitem-checkbox-dataset[name='edit']").prop("checked", true);
                 edit = true;
                 jQuery(".subitem-checkbox-dataset[name='read']").prop("checked", true);
-                read = true;
             } else if (edit) {
                 jQuery(".subitem-checkbox-dataset[name='read']").prop("checked", true);
-                read = true;
             }
             if (remove) {
                 jQuery(".subitem-checkbox-dataset[name='edit']").attr("disabled", true);
@@ -1589,7 +1581,6 @@ function submit_dataset (dataset_uuid, event) {
             let error_messages = jQuery.parseJSON (response.responseText);
             let error_message = "<p>Please fill in all required fields.</p>";
             if (error_messages.length > 0) {
-                error_message = "<p>Please fill in all required fields.</p>";
                 for (let message of error_messages) {
                     if (message.field_name == "license_id") {
                         jQuery("#license_open").addClass("missing-required");
