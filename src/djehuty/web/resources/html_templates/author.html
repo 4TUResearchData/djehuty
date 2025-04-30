@@ -13,7 +13,7 @@
 <div id="right_column">
 {%- if profile.image %}
     <div id="profile_image">
-        <img src="/v3/profile/picture/{{profile.account_uuid}}" />
+        <img src="/v3/profile/picture/{{profile.account_uuid}}" alt="Profile picture of {{profile.full_name}}" />
     </div>
 {%- endif %}
 {%- if member != "other" %}
