@@ -5,6 +5,69 @@
 \fi
 \chapter*{News}
 
+\labelWithConsistentHTMLTag{release-25-4}
+\section*{Release notes for \texttt{v25.4}.}
+
+  The April release of 2025 consists of 51 commits made by 4 authors.
+
+\subsection*{New features}
+\begin{itemize}
+\item{Implement IIIF Presentation API
+    (\commitLink{1eb35f4f424e379462a34a9f032a14d74892d052},
+    \commitLink{b052e5dc7a0a469a5f49d3d6d035fe45f37b4dc5},
+    \commitLink{9dca2ffa5dfec843bfde15a3c61eacdfd3d38ecb},
+    \commitLink{68f2bbacd960aae7a7bbb185562033c78dc191d2},
+    \commitLink{ed0a39e19ea25709cb577ecfb7f41e4d4e004433},
+    \commitLink{8f975910f69b9e4f484eefaf59e02e7a9b5ca527},
+    \commitLink{ce43c4590a3668e10bc0826cd5925169d235cc7f},
+    \commitLink{a4b43cdd778402ad890b48ad42b77f2965d377cc}).}
+\item{Implement tiles property for IIIF Image API
+    (\commitLink{e9453e1ec43514a2fc1a7a6256ee17203f38a82a}).}
+\item{Implement \code{static-resources-cache} option
+    (\commitLink{1529d961aa833fb388809ebb02c6e2d0455411d4}).}
+\end{itemize}
+
+\subsection*{Security}
+\begin{itemize}
+\item{Harden the \t{Content-Security-Policy} as an extra layer of defence against
+    cross-site scripting (\commitLink{3c2c5329089a41d2f4637fed9c0c1de19c5669ef},
+    \commitLink{ce428d824c0f7e30a85054970f62fa0734011d26},
+    \commitLink{4a1abf60e94e07ff6db748c447dc1ed1508a33a5},
+    \commitLink{da39ace8eec25d3a4646b288c2d9156022fd7063},
+    \commitLink{1bcc4f92dbda97bd38328c2f00c843996d3c9418},
+    \commitLink{13c06ef7bd5465adeda52e8fff9fe8d0620547c1},
+    \commitLink{b5434f969275314f4180f28fcf88de1bf1b79c3b},
+    \commitLink{7a157070a9ffcf62e5d0426dbc21ee405248a274},
+    \commitLink{9d84583c80ec001f461bf113bfc52c5045bb3c39}).}
+\end{itemize}
+
+\subsection*{Bugfixes}
+\begin{itemize}
+\item{Ensure ZIP files of Git repositories are bit-reproducible
+    (\commitLink{586c3045883c2b13ebec1c6a7aa88f740b39f40e}).}
+\item{Fix alignment of search results when viewed as a list
+    (\commitLink{2463ebbcff89e8ddb18c06925b2dcfa6520af938}).}
+\item{Document the institution API endpoints
+    (\commitLink{fc27ddf7ab963c964d7ebcbb2e2803f780de19e7}).}
+\item{Show reviews for institutional reviewers based on the group rather
+    than accounts (\commitLink{6ef0eca6c4c498c651e25e3f178dd1dec9e1c91e}).}
+\end{itemize}
+
+\subsection*{Technical debt}
+\begin{itemize}
+\item{Code clean-ups (\commitLink{02ce6b383d2f83cbdb04daaa212f27f4dd0633ba},
+    \commitLink{a1e7c2fe62c0011a214fc7e7edb999ffade3463a},
+    \commitLink{1a3adcfccc8f309d17815f00a51559bf75a9412a},
+    \commitLink{c61f2724723965f4783a1af7ae86e3218e7bcce0},
+    \commitLink{9d6307afa163954ad496007306f65c921ea6773e},
+    \commitLink{a4e5b38a75a019d09b6175a3fc485c16496a4c31},
+    \commitLink{e60e6f3734bc8ec8d32b8d92d0fd375a57aa44e9},
+    \commitLink{51817a2b540adb44bd1b1db8d17b90b3f20f529b},
+    \commitLink{96d338254309ae683935fe9d423a59c0cc39cecd},
+    \commitLink{2de1e417fbc658b79e1f3ba6fb1406fc7cc7c044},
+    \commitLink{35afe28e959f3275489223f028d8d33f2e91e2da})}
+\end{itemize}
+
 \labelWithConsistentHTMLTag{release-25-3}
 \section*{Release notes for \texttt{v25.3}.}
 
