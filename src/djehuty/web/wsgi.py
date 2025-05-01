@@ -195,7 +195,7 @@ class WebServer:
             ## Private institutions
             ## ----------------------------------------------------------------
             R("/v2/account/institution",                                         self.api_private_institution),
-            R("/v2/account/institution/users/<account_uuid>",                    self.api_private_institution_account),
+            R("/v2/account/institution/users/<account_id>",                      self.api_private_institution_account),
             R("/v2/account/institution/accounts",                                self.api_private_institution_accounts),
 
             ## Public articles
@@ -4390,13 +4390,19 @@ class WebServer:
 
         return self.default_list_response (accounts, formatter.format_account_record)
 
-    def api_private_institution_account (self, request, account_uuid):
+    def api_private_institution_account (self, request, account_id):
         """Implements /v2/account/institution/users/<id>."""
         account_uuid = self.default_authenticated_error_handling (request, "GET", "application/json")
         if isinstance (account_uuid, Response):
             return account_uuid
 
-        account   = self.db.account_by_uuid (account_uuid)
+        if (not parses_to_int (account_id) and
+            not validator.is_valid_uuid (account_uuid)):
+            return self.error_400 (request,
+                                   "'id' must be either an integer or a UUID.",
+                                   "InvalidAccountId")
+
+        account   = self.db.account_by_uuid (account_id)
         formatted = formatter.format_account_record(account)
 
         return self.response (json.dumps (formatted))
