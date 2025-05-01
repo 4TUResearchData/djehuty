@@ -726,6 +726,60 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 }
 \end{lstlisting}
 
+\section{Institutions}
+
+\subsection{\t{/v2/account/institution} (\t{GET})}
+
+  This API endpoint returns the accounts within your institution.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Accept: application/json" \
+     --header "Authorization: token ${API_TOKEN}" \
+     (@*\djehutybaseurl{}*@)/v2/account/institution/accounts | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[
+  { /* This example output has been shortened. */
+    "uuid": "485a04c8-7fb0-4361-856f-470930c5fec0",
+    "first_name": "Roel",
+    "last_name": "Janssen",
+    "full_name": "Roel Janssen",
+    "is_active": true,
+    "is_public": false,
+    ...
+  },
+  ...
+]
+\end{lstlisting}
+
+\subsection{\t{/v2/account/institution/users/<account-id>} (\t{GET})}
+
+  This API endpoint returns account information for the
+  specified \code{account-id}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Accept: application/json" \
+     --header "Authorization: token ${API_TOKEN}" \
+     (@*\djehutybaseurl{}*@)/v2/account/institution/users/485a...fec0 | jq
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* This example output has been shortened. */
+  "uuid": "485a04c8-7fb0-4361-856f-470930c5fec0",
+  "first_name": "Roel",
+  "last_name": "Janssen",
+  "full_name": "Roel Janssen",
+  "is_active": true,
+  "is_public": false,
+  ...
+}
+\end{lstlisting}
+
 \section{Creating and editing datasets}
 
 \subsection{\t{/v2/account/articles} (\t{GET})}
