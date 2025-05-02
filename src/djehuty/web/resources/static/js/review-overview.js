@@ -63,7 +63,8 @@ function submit_review_note(data) {
         }),
         accept: "application/json",
     }).done(function (response) {
-        // Replace current note-container with display_note
+        // Replace the note in the page with the updated version, making
+        // the note is in the DOM the source of truth to avoid another API call.
         jQuery(`#note-container-${review_uuid}`).replaceWith(display_note(data["review"], new_note));
     }).fail(function (response) {
         show_message("failure", "<p>Failed to save the note.</p>");
@@ -83,8 +84,8 @@ function delete_review_note(data) {
         }),
         accept: "application/json",
     }).done(function (response) {
-        // Replace current note-container with add_note
-        jQuery(`#note-container-${review_uuid}`).replaceWith(add_note(data["review"]));
+        // Replace the note in the page with add_note panel
+       jQuery(`#note-container-${review_uuid}`).replaceWith(add_note(data["review"]));
     }).fail(function (response) {
         show_message("failure", "<p>Failed to save the note.</p>");
     });
@@ -129,9 +130,9 @@ function filter_status (event) {
 }
 
 function copy_row (uuid, dataset_uuid, title, version, first_name, last_name,
-                   email, group_name, request_date, modified_date, published_date) {
+                   email, group_name, request_date, modified_date, published_date, review_note) {
     let escaped_title = title.replaceAll ('"', '""');
-    let text = `=HYPERLINK("${window.location.origin}/review/goto-dataset/${dataset_uuid}"; "${escaped_title}")\t${version}\t${first_name} ${last_name}\t${email}\t${group_name}\t\t${request_date}\t${modified_date}\t${published_date}\n`;
+    let text = `=HYPERLINK("${window.location.origin}/review/goto-dataset/${dataset_uuid}"; "${escaped_title}")\t${version}\t${first_name} ${last_name}\t${email}\t${group_name}\t\t${request_date}\t${modified_date}\t${published_date}\t${review_note}\n`;
     navigator.clipboard.writeText(text);
     jQuery(`#copy-btn-${uuid}`)
         .removeClass("fa-copy")
@@ -147,10 +148,16 @@ function copy_to_clipboard_event (event) {
     review = event.data["review"];
     published_date = event.data["published_date"];
     version = event.data["version"];
+
+    // Use the note from the page if it's newer than review.note (data loaded with the page) ,
+    // to ensure we copy the most up-to-date version (user actually sees) without another API call.
+    const current_note = jQuery(`#current-note-${review.uuid}`).text()
+    const note = (review.note && review.note === current_note) ? review.note : current_note;
+
     copy_row (review.uuid, review.dataset_uuid, review.dataset_title,
               version, review.submitter_first_name, review.submitter_last_name,
               review.submitter_email, review.group_name, review.request_date,
-                          review.modified_date, published_date);
+                          review.modified_date, published_date, note);
 }
 
 function toggle_note_editor_panel(data) {
@@ -247,6 +254,7 @@ function display_note (review, current_note) {
         }).append(jQuery("<span/>", {
             class: "fas fa-comments-dots comments"
         })).append(jQuery("<span/>", {
+            id: `current-note-${review_uuid}`,
             class: "note"
         }).append(current_note)
     ).append(preview_note);
