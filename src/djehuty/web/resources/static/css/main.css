@@ -23,7 +23,7 @@
     font-style: normal;
 }
 @font-face {
-  font-family: 'Font Awesome 6', sans-serif;
+  font-family: 'Font Awesome 6';
   font-style: normal;
   font-weight: 900;
   font-display: block;
@@ -34,7 +34,7 @@
        url("/static/fonts/fa-solid-900.ttf") format("truetype");
 }
 @font-face {
-  font-family: 'Font Awesome 6 Brands', sans-serif;
+  font-family: 'Font Awesome 6 Brands';
   font-style: normal;
   font-weight: 400;
   font-display: block;
