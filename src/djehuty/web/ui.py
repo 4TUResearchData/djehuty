@@ -1170,7 +1170,7 @@ def main (config_file=None, run_internal_server=True, initialize=True,
             server.db.cache.invalidate_all ()
 
         setup_saml_service_provider (server, logger)
-        if config.handle_url is not None:
+        if config.handle_url is not None and not inside_reload:
             setup_handle_registration (server, logger)
 
         if not config.in_production and not inside_reload:
