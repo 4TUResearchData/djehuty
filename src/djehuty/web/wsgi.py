@@ -1621,7 +1621,7 @@ class WebServer:
         if account_uuid is None:
             error_response = self.error_authorization_failed(request)
 
-        token = self.token_from_cookie (request)
+        token = self.token_from_request (request)
         if not privilege_test (token):
             error_response = self.error_403 (request, (f"account:{account_uuid} "
                                                        "didn't pass privilege test "
@@ -4681,6 +4681,10 @@ class WebServer:
                 return self.error_400 (request, error.message, error.code)
 
         if request.method == 'POST':
+            _, error_response = self.__depositor_account_uuid (request)
+            if error_response is not None:
+                return error_response
+
             record = request.get_json()
             try:
                 license_id  = validator.integer_value (record, "license", 0, pow(2, 63), False)
