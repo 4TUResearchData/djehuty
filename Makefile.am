@@ -31,12 +31,18 @@ dist-rpm: dist
 	ln -s $(abs_top_srcdir)/djehuty-@VERSION@.tar.gz rpmbuild/SOURCES/djehuty-@VERSION@.tar.gz
 	rpmbuild --define "_topdir $(abs_top_srcdir)/rpmbuild" -ba $(abs_top_srcdir)/rpmbuild/SPECS/djehuty.spec
 
+if HAVE_DOCKER
 dist-docker: dist
-	guix pack -C gzip -e '(load "guix.scm")'                                   \
-             --with-source=djehuty-$(VERSION).tar.gz                         \
-             --format=docker --entry-point=/bin/djehuty                      \
-             -S /bin=bin -S /lib=lib -S /share=share -S /etc=etc -S /var=var \
-             glibc-locales tzdata coreutils net-base bash virtuoso-ose
+	@DOCKER@ image build --no-cache                         \
+           --build-arg="PURPOSE=release"                  \
+           --build-arg="BRANCH=main"                      \
+           --build-arg="VERSION=@VERSION@"                \
+           -t docker.io/4turesearchdata/djehuty:@VERSION@ \
+           docker/
+
+publish-docker: dist-docker
+	@DOCKER@ push docker.io/4turesearchdata/djehuty:@VERSION@
+endif
 
 dist-pypi:
 	@PYTHON@ -m build

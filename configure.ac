@@ -1,4 +1,4 @@
-AC_INIT(djehuty, 25.4)
+AC_INIT(djehuty, 25.4-dev)
 AM_INIT_AUTOMAKE([foreign tar-ustar])
 AM_PATH_PYTHON([3.9])
 AC_CONFIG_FILES([
@@ -38,6 +38,15 @@ AM_COND_IF([HAVE_PDFLATEX],
            [AC_CONFIG_FILES([
               doc/Makefile
               doc/djehuty.sty])])
+
+dnl Check for the presence of 'docker' or 'podman'.
+dnl ---------------------------------------------------------------------------
+AC_CHECK_PROG(DOCKER, docker, docker)
+if test "x$DOCKER" = "x"; then
+  AC_CHECK_PROG(DOCKER, podman, podman)
+fi
+
+AM_CONDITIONAL([HAVE_DOCKER], [test -n "$DOCKER"])
 
 dnl Check for the Python 'build' module.
 dnl ---------------------------------------------------------------------------
