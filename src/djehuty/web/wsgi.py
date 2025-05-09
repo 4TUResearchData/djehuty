@@ -325,7 +325,6 @@ class WebServer:
             ## ----------------------------------------------------------------
             R("/v3/datasets/<dataset_uuid>/assign-reviewer/<reviewer_uuid>",     self.api_v3_datasets_assign_reviewer),
             R("/v3/reviews/<review_uuid>/update-note",                           self.api_v3_reviews_update_note),
-            R("/v3/reviews/<review_uuid>/delete-note",                           self.api_v3_reviews_delete_note),
             R("/v3/reviews",                                                     self.api_v3_reviews),
             R("/v3/reviewers",                                                   self.api_v3_reviewers),
 
@@ -9073,34 +9072,6 @@ class WebServer:
         if self.db.update_review (uuid_to_uri(review_uuid, "review"),
                                   author_account_uuid = author_account_uuid,
                                   note = note):
-            return self.respond_204 ()
-
-        return self.error_500()
-
-    def api_v3_reviews_delete_note (self, request, review_uuid):
-        """Implements /v3/reviews/<id>/delete-note."""
-
-        account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json")
-        if isinstance (account_uuid, Response):
-            return account_uuid
-
-        account_token = self.token_from_cookie (request, self.cookie_key)
-        may_review_all = self.db.may_review (account_token)
-        may_review_institution = self.db.may_review_institution (account_token)
-        if not may_review_all and not may_review_institution:
-            return self.error_403 (request)
-
-        if review_uuid is None:
-            return self.error_403(request)
-
-        data = request.get_json()
-        author_account_uuid = value_or_none(data, 'submitter_account_uuid')
-
-        if author_account_uuid is None:
-            return self.error_403(request)
-
-        if self.db.delete_review_note_by_uuid (review_uuid,
-                                               author_account_uuid = author_account_uuid):
             return self.respond_204 ()
 
         return self.error_500()
