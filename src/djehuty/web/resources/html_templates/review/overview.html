@@ -42,11 +42,16 @@
   padding: 0 10px;
 }
 
-.initial-note-panel {
+.note-panel {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+}
+
+.note-editor-panel textarea {
+  width: 98%;
+  min-height: 60px;
 }
 
 .note-editor-footer {
@@ -54,14 +59,7 @@
   flex-direction: row;
   justify-content: end;
 }
-.note-editor-panel textarea {
-  width: 98%;
-  min-height: 60px;
-}
-.add-note-wrap { width: 100% }
-.cursor-pointer { cursor: pointer }
 
-.edit-note-btn { margin-left: 16px }
 .note-footer-btn {
   border-radius: 0.125rem;
   padding: 3px 6px ;
@@ -71,6 +69,11 @@
   text-decoration: none;
   border: 0;
 }
+.cursor-pointer { cursor: pointer }
+
+.add-note-wrap { width: 100% }
+.edit-note-btn { margin-left: 16px }
+
 .cancel-note-btn {
   background: var(--gray-500);
   margin-right: 5px;
@@ -79,23 +82,30 @@
   background: var(--gray-400);
 }
 
+.see-less-btn {
+  margin-right:0.5em;
+  user-select: none;
+}
+
+.full-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.full-note-text {
+  user-select: text;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.note-actions {
+  white-space: nowrap;
+}
+
 .block { display: block; }
 .hidden { display: none; }
-.note { display: none; }
-.comments:hover + .note {
-  position: absolute;
-  width: 180px;
-  display: block;
-  background: #fffaea;
-  border: solid 2pt #ffeecc;
-  font-family: 'SourceSans', sans-serif;
-  font-size: 12pt;
-  font-weight: normal;
-  padding: .5em;
-  border-radius: .5em;
-  margin-top: 0;
-  margin-left: 20px;
-}
 </style>
 <script nonce="{{nonce}}">
   const reviewers = [
