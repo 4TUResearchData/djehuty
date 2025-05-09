@@ -9060,7 +9060,7 @@ class WebServer:
         if not may_review_all and not may_review_institution:
             return self.error_403 (request)
 
-        if review_uuid is None:
+        if not validator.is_valid_uuid(review_uuid):
             return self.error_403(request)
 
         data = request.get_json()
@@ -9070,7 +9070,7 @@ class WebServer:
         if author_account_uuid is None:
             return self.error_403(request)
 
-        if self.db.update_review (review_uuid,
+        if self.db.update_review (uuid_to_uri(review_uuid, "review"),
                                   author_account_uuid = author_account_uuid,
                                   note = note):
             return self.respond_204 ()
