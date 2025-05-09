@@ -227,5 +227,3 @@ def uris_from_records (records, prefix, uuid_index=None):
 
     return list(map (lambda record: URIRef(
         uuid_to_uri (record, prefix)), records))
-
-

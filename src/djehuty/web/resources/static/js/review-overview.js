@@ -44,50 +44,47 @@ function assign_reviewer (event) {
 }
 
 function submit_review_note(data) {
-    const review_uuid = data["review"].uuid;
-    const submitter_account_uuid = data["review"].submitter_account_uuid;
-    const new_note = data["note"];
+    const {review, note} = data;
 
-    if (new_note.length === 0){
+    if (!note) {
         delete_review_note(data)
         return
     }
 
-    jQuery.ajax({
-        url: `/v3/reviews/${review_uuid}/update-note`,
-        type: "PUT",
-        contentType: "application/json",
-        data: JSON.stringify({
-            note: new_note,
-            submitter_account_uuid: submitter_account_uuid
-        }),
-        accept: "application/json",
-    }).done(function (response) {
-        // Replace the note in the page with the updated version, making
-        // the note is in the DOM the source of truth to avoid another API call.
-        jQuery(`#note-container-${review_uuid}`).replaceWith(display_note(data["review"], new_note));
-    }).fail(function (response) {
-        show_message("failure", "<p>Failed to save the note.</p>");
-    });
+    update_review_note(review, note)
+        .done(() => {
+            const $container = $(`#note-container-${review.uuid}`);
+            $container.replaceWith(display_note(review, note));
+        })
+        .fail(() => {
+            show_message("failure", "<p>Failed to save the note.</p>");
+        });
 }
 
 function delete_review_note(data) {
-    const review_uuid = data["review"].uuid;
-    const submitter_account_uuid = data["review"].submitter_account_uuid;
+    const {review} = data;
+    const note = "" // deleting by sending an empty string
 
-    jQuery.ajax({
-        url: `/v3/reviews/${review_uuid}/delete-note`,
+    update_review_note(review, note)
+        .done(() => {
+            const $container = $(`#note-container-${review.uuid}`);
+            $container.replaceWith(add_note(review));
+        })
+        .fail(() => {
+            show_message("failure", "<p>Failed to delete the note.</p>");
+        });
+}
+
+function update_review_note(review, note) {
+    return jQuery.ajax({
+        url: `/v3/reviews/${review.uuid}/update-note`,
         type: "PUT",
         contentType: "application/json",
         data: JSON.stringify({
-            submitter_account_uuid: submitter_account_uuid
+            note: note,
+            submitter_account_uuid: review.submitter_account_uuid,
         }),
-        accept: "application/json",
-    }).done(function (response) {
-        // Replace the note in the page with add_note panel
-       jQuery(`#note-container-${review_uuid}`).replaceWith(add_note(data["review"]));
-    }).fail(function (response) {
-        show_message("failure", "<p>Failed to save the note.</p>");
+        dataType: "json",
     });
 }
 
