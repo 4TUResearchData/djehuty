@@ -165,9 +165,9 @@ function toggle_note_editor_panel(data) {
     * Toggle the display between initial note and note editor (hidde one, display the other)
     * */
 
-    const initial_note_panel = $(`#initial-note-panel-${data["review_uuid"]}`);
+    const note_panel = $(`#note-panel-${data["review_uuid"]}`);
     const note_editor_panel = $(`#note-editor-panel-${data["review_uuid"]}`);
-    initial_note_panel.toggleClass('block hidden');
+    note_panel.toggleClass('block hidden');
     note_editor_panel.toggleClass('hidden block');
 }
 
@@ -218,13 +218,13 @@ function create_note_editor(review, current_note) {
         }).append(textarea).append(note_editor_footer);
 }
 
-function display_note (review, current_note) {
+function display_note (review, note) {
     const review_uuid = review.uuid
 
     // ### --------- Actions ----------------------------------------------------
     // Edit Button - display the note_editor_panel which is initially hidden
     const edit_note_button = jQuery("<a/>", {
-            class: "edit-note-btn fas fa-pen cursor-pointer",
+            class: "fas fa-pen cursor-pointer",
             title: "Edit note"
         })
         .on("click", function () {
@@ -243,33 +243,56 @@ function display_note (review, current_note) {
             });
         })
 
+    const show_less_button = jQuery("<a/>", {
+        title: "See less",
+        class: "see-less-btn cursor-pointer"
+    }).html("See less")
+        .on("click", function () {
+            preview_note.show();
+            full_note.hide();
+        });
 
-    // ### --------- Initial note panel ---------------------------------------
-    // Initial note panel display the current note and the actions to edit/delete this note
-    const preview_max_char = 10 // preview note max char
-    const preview_note = current_note.length > preview_max_char ? `${current_note.substring(0, preview_max_char)}...` : current_note
+    const note_actions = jQuery("<span/>", {
+        class: "note-actions"
+    }).append(show_less_button)
+        .append(edit_note_button)
+        .append(delete_note_button)
 
-    const note_wrap = jQuery("<div/>", {
-            class: "initial-note-panel"
-        }).append(jQuery("<span/>", {
-            class: "fas fa-comments-dots comments"
-        })).append(jQuery("<span/>", {
-            id: `current-note-${review_uuid}`,
-            class: "note"
-        }).append(current_note)
-    ).append(preview_note);
 
-    const note_actions = jQuery("<div/>", {
-            class: "initial-note-panel"
-        }).append(edit_note_button).append(delete_note_button);
+    // ### --------- Note panel ---------------------------------------
+    // initially the note panel display the current note
+    const preview_max_char = 20
+    const preview_note_text = note.length > preview_max_char ? `${note.substring(0, preview_max_char)}...` : note
 
-    const initial_note_panel = jQuery("<div/>", {
-            id: `initial-note-panel-${review_uuid}`,
-            class: "initial-note-panel"
-        }).append(note_wrap).append(note_actions);
+    const full_note_text = jQuery("<span/>", {
+        id: `current-note-${review_uuid}`,
+        class: "full-note-text"
+    }).html(note)
+
+    const preview_note = jQuery("<div/>", {
+        class: "preview-note cursor-pointer",
+        title: "Click to see more",
+        text: preview_note_text
+    });
+
+    const full_note = jQuery("<div/>", {
+        class: "full-note"
+    }).append(full_note_text)
+        .append(note_actions)
+        .hide();
+
+    preview_note.on("click", function () {
+        preview_note.hide();
+        full_note.show();
+    });
+
+    const note_panel = jQuery("<div/>", {
+        id: `note-panel-${review_uuid}`,
+        class: "note-panel"
+    }).append(preview_note, full_note);
 
     // ### --------- Note editor panel ----------------------------------------
-    const note_editor_panel = create_note_editor(review, current_note)
+    const note_editor_panel = create_note_editor(review, note)
 
 
     // ### --------- Note Container -------------------------------------------
@@ -278,7 +301,7 @@ function display_note (review, current_note) {
             id: `note-container-${review_uuid}`,
             class: "note-container"
         })
-        .append(initial_note_panel)
+        .append(note_panel)
         .append(note_editor_panel)
 }
 
@@ -301,9 +324,9 @@ function add_note(review) {
 
     // ### --------- Initial note panel -------------------------------------------
     // Initial note panel contains button to display the editor panel
-    const initial_note_panel = jQuery("<div/>", {
-            id: `initial-note-panel-${review_uuid}`,
-            class: "initial-note-panel"
+    const note_panel = jQuery("<div/>", {
+            id: `note-panel-${review_uuid}`,
+            class: "note-panel"
         }).append(add_note_button);
 
     // ### --------- Note editor panel -------------------------------------------
@@ -316,7 +339,7 @@ function add_note(review) {
             id: `note-container-${review_uuid}`,
             class: "note-container"
         })
-        .append(initial_note_panel)
+        .append(note_panel)
         .append(note_editor_panel)
 }
 
