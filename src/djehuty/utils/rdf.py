@@ -229,7 +229,3 @@ def uris_from_records (records, prefix, uuid_index=None):
         uuid_to_uri (record, prefix)), records))
 
 
-def is_uri(value, datatype):
-    if f"{datatype}:" not in value:
-        return False
-    return True
