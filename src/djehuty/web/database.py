@@ -3073,18 +3073,6 @@ class SparqlInterface:
 
         return self.__run_logged_query (query)
 
-    def delete_review_note_by_uuid (self, review_uri,author_account_uuid=None):
-        """Procedure to delete a review note."""
-
-        query        = self.__query_from_template ("delete_review_note", {
-            "review_uri":            rdf.uuid_to_uri(review_uri, "review"),
-        })
-
-        self.cache.invalidate_by_prefix (f"datasets_{author_account_uuid}")
-        self.cache.invalidate_by_prefix ("reviews")
-
-        return self.__run_logged_query (query)
-
     def account_uuid_by_orcid (self, orcid):
         """Returns the account ID belonging to an ORCID."""
 
