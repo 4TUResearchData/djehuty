@@ -3059,10 +3059,8 @@ class SparqlInterface:
                        author_account_uuid=None, note=None):
         """Procedure to update a review."""
 
-        ensured_review_uri = review_uri if rdf.is_uri(review_uri, "review") else rdf.uuid_to_uri(review_uri, "review")
-
         query        = self.__query_from_template ("update_review", {
-            "review_uri":            ensured_review_uri,
+            "review_uri":            review_uri,
             "dataset_uri":           dataset_uri,
             "assigned_to":           assigned_to,
             "status":                status.capitalize() if status is not None else status,
