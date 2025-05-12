@@ -1628,3 +1628,149 @@ function publish_dataset (dataset_uuid, event) {
         });
     });
 }
+
+function get_current_tag_input_value() {
+    const value = jQuery('#tag').val();
+    const last_index = value.lastIndexOf(';');
+    return (last_index === -1 ? value : value.substring(last_index + 1)).trim();
+}
+
+function search_tags(query) {
+    if (!query || query.length < 2) {
+        hide_dropdown();
+        return;
+    }
+
+    jQuery.ajax({
+        url: '/v3/tags/search',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({search_for: query}),
+    }).done(function (data) {
+        if (data && data.length > 0) {
+            show_dropdown(data);
+        } else {
+            hide_dropdown();
+        }
+    }).fail(function (error) {
+        console.error('Error fetching tags:', error);
+        hide_dropdown();
+    });
+}
+
+function show_dropdown(items) {
+    const dropdown_inner = jQuery('#tags-dropdown-inner');
+    dropdown_inner.empty();
+
+    jQuery.each(items, function (_, item) {
+        const el = jQuery('<div>')
+            .addClass('tags-item')
+            .text(item)
+            .on('click', function () {
+                select_item(item);
+            });
+        dropdown_inner.append(el);
+    });
+
+    jQuery('#tags-dropdown').show();
+    jQuery('#tag').addClass('border-radius-none');
+}
+
+function hide_dropdown() {
+    jQuery('#tags-dropdown').hide();
+    jQuery('#tag').removeClass('border-radius-none');
+    window.current_tag_focus = -1;
+}
+
+function select_item(item) {
+    const input_tag = jQuery('#tag');
+    const value = input_tag.val();
+    const last_index = value.lastIndexOf(';');
+    if (last_index === -1) {
+        input_tag.val(item + '; ');
+    } else {
+        const str_before = value.substring(0, last_index + 1);
+        input_tag.val(str_before + ' ' + item + '; ');
+    }
+    hide_dropdown();
+    input_tag.focus();
+}
+
+function set_item_in_focus() {
+    const items = jQuery('.tags-item');
+    if (!items.length) return;
+
+    items.removeClass('selected');
+    if (window.current_tag_focus >= 0) {
+        const item_in_focus = items.eq(window.current_tag_focus);
+        item_in_focus.addClass('selected');
+
+        // Scrolling inside the dropdown
+        const dropdown = jQuery('#tags-dropdown-inner');
+        const dropdown_height = dropdown.height();
+        const item_height = item_in_focus.outerHeight();
+        const scroll_top = dropdown.scrollTop();
+        const item_top = item_in_focus.position().top + scroll_top;
+
+        if (item_top + item_height > scroll_top + dropdown_height) {
+            dropdown.scrollTop(item_top - dropdown_height + item_height);
+        } else if (item_top < scroll_top) {
+            dropdown.scrollTop(item_top);
+        }
+    }
+}
+
+function handle_tags_dropdown_navigation(e) {
+    const items = $('.tags-item');
+    const down = 40, up = 38, enter = 13, escape = 27;
+
+    switch (e.keyCode) {
+        case down:
+            window.current_tag_focus = (window.current_tag_focus + 1) % items.length;
+            set_item_in_focus();
+            e.preventDefault();
+            break;
+        case up:
+            window.current_tag_focus = (window.current_tag_focus - 1 + items.length) % items.length;
+            set_item_in_focus();
+            e.preventDefault();
+            break;
+        case enter:
+            if (window.current_tag_focus > -1 && items.length) {
+                items.eq(window.current_tag_focus).click();
+            }
+            break;
+        case escape:
+            hide_dropdown();
+            break;
+    }
+}
+
+function init_tags_autocomplete() {
+    const input_tag = jQuery('#tag');
+    let debounce_timer = null;
+    window.current_tag_focus = -1;
+
+    input_tag.on('input', function () {
+        clearTimeout(debounce_timer);
+        debounce_timer = setTimeout(function () {
+            const val = get_current_tag_input_value();
+            search_tags(val);
+        }, 150);
+    });
+
+    input_tag.on('keydown', function (e) {
+        handle_tags_dropdown_navigation(e)
+    });
+
+    jQuery(document).on('click', function (e) {
+        const is_click_outside_input_tag = !jQuery(e.target).closest('.input-tag').length
+        if (is_click_outside_input_tag) {
+            hide_dropdown();
+        }
+    });
+}
+
+jQuery(document).ready(function () {
+    init_tags_autocomplete();
+});

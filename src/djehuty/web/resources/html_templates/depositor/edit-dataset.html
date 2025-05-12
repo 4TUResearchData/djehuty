@@ -3,7 +3,7 @@
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js?cache=1744290797"></script>
-<script src="/static/js/edit-dataset.js?cache=1744290797"></script>
+<script src="/static/js/edit-dataset.js?cache=1747131610"></script>
 <script src="/static/js/dropzone.min.js"></script>
 <script nonce="{{nonce}}">
 Dropzone.autoDiscover = false;
@@ -195,7 +195,52 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 #api-upload pre { font-size: 0.9em; white-space: pre-wrap; overflow-wrap: anywhere; }
 #api-upload-fold { display: none; }
 .no-margin { margin: 0em; padding: 0em; }
+
+.input-tag {
+  position: relative;
+}
+
+.tags-dropdown {
+  position: absolute;
+  width: calc(100% - 5px);
+  margin-top: 2.9rem;
+  max-height: 180px;
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  z-index: 10;
+  display: none;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  padding-right: 4px;
+}
+
+/* Inner container for scrollable content */
+.tags-dropdown-inner {
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.tags-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.tags-item:hover, .tags-item.selected {
+  background-color: #f0f0f0;
+}
+
+.tags-dropdown-inner::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.input-with-button input[type="text"].border-radius-none {
+  border-radius: 0 !important;
+}
 </style>
+
 {% endblock %}
 {% block submenu %}
 <ul>
@@ -450,9 +495,12 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 <label for="same_as">Same As</label><div class="fas fa-question-circle help-icon"><span class="help-text">URL of exactly the same data. This can be a copy in another location or an alternative URL that redirects to the current item.</span></div>
 <input type="text" id="same_as" name="same_as" value="{{article["same_as"] | default("", True)}}" />
 <label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add at least 4 keywords that will help make your research more discoverable. Use a semicolon (;) or hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
-<div class="input-with-button">
+<div class="input-with-button input-tag">
   <input type="text" id="tag" name="tag" value="" placeholder="keyword 1; keyword 2; keyword 3; keyword 4" />
   <a id="add-keyword-button" class="form-button corporate-identity-standard-button" href="#">Add keyword</a>
+  <div id="tags-dropdown" class="tags-dropdown">
+    <div id="tags-dropdown-inner" class="tags-dropdown-inner"></div>
+  </div>
 </div>
 <ul id="tags-list"></ul>
 <label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resource. Separate different names with a semicolon (;)</span></div>
