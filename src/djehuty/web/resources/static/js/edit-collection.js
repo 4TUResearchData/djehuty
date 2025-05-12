@@ -325,6 +325,7 @@ function add_tag (collection_id) {
     }).done(function () {
         render_tags_for_collection (collection_id);
         jQuery("#tag").val("");
+        autocomplete_tags(null, collection_id);
     }).fail(function () { show_message ("failure", `<p>Failed to add ${tag}.</p>`); });
 }
 
@@ -699,6 +700,9 @@ function activate (collection_id) {
         });
         jQuery("#tag").on("keypress", function(e){
             if(e.which == 13) { add_tag(collection_id); }
+        });
+        jQuery("#tag").on("input", function (event) {
+            return autocomplete_tags(event, collection_id);
         });
         jQuery("#expand-categories-button").on("click", toggle_categories);
         jQuery(".collection-content-loader").hide();
