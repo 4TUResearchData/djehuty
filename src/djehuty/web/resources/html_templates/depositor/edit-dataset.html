@@ -3,7 +3,7 @@
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js?cache=1744290797"></script>
-<script src="/static/js/edit-dataset.js?cache=1744290797"></script>
+<script src="/static/js/edit-dataset.js?cache=1747131610"></script>
 <script src="/static/js/dropzone.min.js"></script>
 <script nonce="{{nonce}}">
 Dropzone.autoDiscover = false;
@@ -449,8 +449,8 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 <input type="text" id="derived_from" name="derived_from" value="{{article["derived_from"] | default("", True)}}" />
 <label for="same_as">Same As</label><div class="fas fa-question-circle help-icon"><span class="help-text">URL of exactly the same data. This can be a copy in another location or an alternative URL that redirects to the current item.</span></div>
 <input type="text" id="same_as" name="same_as" value="{{article["same_as"] | default("", True)}}" />
-<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add at least 4 keywords that will help make your research more discoverable. Use a semicolon (;) or hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
-<div class="input-with-button">
+<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add at least 4 keywords that will help make your research more discoverable. Select the keywords from the list or manually add them. Use a semicolon (;) or hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
+<div id="wrap-input-tag" class="input-with-button">
   <input type="text" id="tag" name="tag" value="" placeholder="keyword 1; keyword 2; keyword 3; keyword 4" />
   <a id="add-keyword-button" class="form-button corporate-identity-standard-button" href="#">Add keyword</a>
 </div>

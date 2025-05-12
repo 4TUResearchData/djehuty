@@ -1014,6 +1014,7 @@ function add_tag (dataset_uuid) {
     }).done(function () {
         render_tags_for_dataset (dataset_uuid);
         jQuery("#tag").val("");
+        autocomplete_tags(null, dataset_uuid);
     }).fail(function () { show_message ("failure", `<p>Failed to add ${tag}.</p>`); });
 }
 
@@ -1238,6 +1239,9 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
             if(e.which == 13){
                 add_tag(dataset_uuid);
             }
+        });
+        jQuery("#tag").on("input", function (event) {
+            return autocomplete_tags (event, dataset_uuid);
         });
         jQuery(".subitem-checkbox-metadata").on("change", function (event) {
             if (jQuery(".subitem-checkbox-metadata[name='edit']").prop("checked")) {
