@@ -11,7 +11,7 @@ WHERE {
     ?session    djht:token    ?token .
     ?session    ?predicate   ?object .
 
-    FILTER (?token = "{{token | safe}}"^^xsd:string)
+    FILTER (?token = {{token | safe}})
   }
 }
 {% endblock %}

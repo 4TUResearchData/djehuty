@@ -3365,7 +3365,9 @@ class SparqlInterface:
         if token is None:
             return True
 
-        query = self.__query_from_template ("delete_session", {"token": token})
+        query = self.__query_from_template ("delete_session", {
+            "token": rdf.escape_string_value (token)
+        })
         return self.__run_logged_query (query)
 
     def sessions (self, account_uuid, session_uuid=None, mfa_token=None):
