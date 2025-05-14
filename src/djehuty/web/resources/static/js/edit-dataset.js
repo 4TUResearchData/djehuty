@@ -1091,10 +1091,8 @@ function new_author (dataset_uuid) {
     html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
     html.append(jQuery ("<input/>", { "type": "text", "id": "author_last_name", "name": "author_last_name" }));
     html.append(jQuery ("<label/>", { "for": "author_email" }).text("E-mail address"));
-    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
     html.append(jQuery ("<input/>", { "type": "text", "id": "author_email", "name": "author_email" }));
     html.append(jQuery ("<label/>", { "for": "author_orcid" }).text("ORCID"));
-    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
     html.append(jQuery ("<input/>", { "type": "text", "id": "author_orcid", "name": "author_orcid" }));
 
     let button_wrapper = jQuery("<div/>", { "id": "new-author", "class": "a-button" });
