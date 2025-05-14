@@ -57,6 +57,48 @@
   Keywords to enhance the findability of the {#1}. Instead of using
   the key \code{tags}, you may also use the key \code{keywords}.}
 
+\newcommand{\fundingParameters}{%
+  The following parameters can be used:
+
+\begin{tabularx}{\textwidth}{*{3}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Parameter} & \textbf{Data type} & \textbf{Required} & \textbf{Description}\\
+  \t{title}          & \t{string}         & Yes               & The title of the funding project.\\
+  \t{grant\_code}    & \t{string}         & No                & An optional grant code of the funding.\\
+  \t{funder\_name}   & \t{string}         & No                & The name of the funder.\\
+  \t{url}            & \t{string}         & No                & A URL to the funding project or
+                                                                funding organization.
+\end{tabularx}}
+
+\newcommand{\authorParameters}{%
+  The following parameters can be used:
+
+\begin{tabularx}{\textwidth}{*{3}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Parameter} & \textbf{Data type} & \textbf{Required} & \textbf{Description}\\
+  \t{full\_name}     & \t{string}         & No                & The full name of the author.\\
+  \t{first\_name}    & \t{string}         & Yes               & The first name of the author.\\
+  \t{last\_name}     & \t{string}         & Yes               & The last name of the author.\\
+  \t{email}          & \t{string}         & No                & The e-mail address of the author.\\
+  \t{orcid\_id}      & \t{string}         & No                & The ORCID identifier for the author.\\
+  \t{job\_title}     & \t{string}         & No                & The job title of the author.
+\end{tabularx}}
+
+\newcommand{\categoriesParameters}{%
+  The parameters sent to the server should be a JSON object with a single key
+  named \t{categories}, with as value a list of either the numeric or the UUID
+  identifiers for a category.  The API endpoint described in
+  \refer{sec:api-v2-articles-categories-get} shows how to obtain the category
+  identifiers.
+}
+
+\newcommand{\searchParameters}{%
+\begin{tabularx}{\textwidth}{*{3}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Parameter} & \textbf{Data type} & \textbf{Required} & \textbf{Description}\\
+  \t{search\_for}    & \t{string}         & Optional & The terms to search for.
+\end{tabularx}}
+
 \chapter{Application Programming Interface}
 
   The application programming interface (API) provided by \t{djehuty} allows
@@ -141,15 +183,12 @@ curl "(@*\djehutybaseurl{}*@)/v2/articles?limit=100&published_since=2024-07-25" 
 \end{lstlisting}
 
 \subsection{\t{/v2/articles/search} (\t{POST})}
+\label{sec:api-v2-articles-search-post}
 
   In addition to the parameters of section \refer{sec:v2-articles}, the
   following parameters can be used.
 
-\begin{tabularx}{\textwidth}{*{2}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
-  \headrow
-  \textbf{Parameter}   & \textbf{Required} & \textbf{Description}\\
-  \t{search\_for}      & Optional & The terms to search for.
-\end{tabularx}
+  \searchParameters
 
   Example usage:
 \begin{lstlisting}[language=bash]
@@ -677,6 +716,14 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   This API endpoint can be used to search for authors known to the data
   repository.
 
+  The following parameter can be used:
+
+\begin{tabularx}{\textwidth}{*{3}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Parameter} & \textbf{Data type} & \textbf{Required} & \textbf{Description}\\
+  \t{search}         & \t{string}         & Yes               & The string to search for.
+\end{tabularx}
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl --request POST \
@@ -1071,6 +1118,8 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   This API endpoint can be used to append authors to the dataset identified
   by \code{dataset-id}.
 
+  \authorParameters
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl --request POST \
@@ -1178,6 +1227,8 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   This API endpoint can be used to append funders to the dataset identified
   by \code{dataset-id}.
 
+  \fundingParameters
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl --verbose --request POST \
@@ -1234,6 +1285,7 @@ HTTP/1.1 204 NO CONTENT
 \end{lstlisting}
 
 \subsection{\t{/v2/account/articles/<dataset-id>/categories} (\t{GET})}
+\label{sec:api-v2-articles-categories-get}
 
   This API endpoint lists the categories of the dataset identified by \code{dataset-id}.
   The identifiers for the categories can be found by using the API endpoint
@@ -1275,7 +1327,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 \label{sec:api-v2-articles-categories-post}
 
   This API endpoint can be used to append categories to the dataset identified
-  by \code{dataset-id}.
+  by \code{dataset-id}.  \categoriesParameters
 
   Example usage:
 \begin{lstlisting}[language=bash]
@@ -1478,6 +1530,15 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   This API endpoint can be used to append a private link to the dataset
   identified by \code{dataset-id}.
 
+  The following parameter can be used:
+
+\begin{tabularx}{\textwidth}{*{3}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Parameter} & \textbf{Data type} & \textbf{Required} & \textbf{Description}\\
+  \t{expires\_date}  & \t{string}         & No                & The format of the date string
+                                                                should be \t{YYYY-MM-DD}.
+\end{tabularx}
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl --request POST \
@@ -1520,6 +1581,16 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   This API endpoint can be used to update the expiry date of a private link
   and whether the private link is active or not for the dataset identified
   by \code{dataset-id}.
+
+  The following parameter can be used:
+
+\begin{tabularx}{\textwidth}{*{3}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Parameter} & \textbf{Data type} & \textbf{Required} & \textbf{Description}\\
+  \t{expires\_date}  & \t{string}         & No                & The format of the date string
+                                                                should be \t{YYYY-MM-DD}.\\
+  \t{is\_active}     & \t{boolean}        & No                & Defaults to \t{false}.\\
+\end{tabularx}
 
   Example usage:
 \begin{lstlisting}[language=bash]
@@ -1785,6 +1856,8 @@ HTTP/1.1 204 NO CONTENT
   This API call searches for collections, including drafts created
   by the account performing the search.
 
+  \searchParameters
+
   Example usage:
 \begin{lstlisting}[language=bash]
 curl --request POST \
@@ -1856,6 +1929,8 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Similar to \refer{sec:api-v2-articles-authors-post}, this API endpoint can
   be used to append authors to the collection identified by \code{collection-id}.
+
+  \authorParameters
 
   Example usage:
 \begin{lstlisting}[language=bash]
@@ -1965,6 +2040,7 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   Similar to \refer{sec:api-v2-articles-categories-post} this API endpoint can be
   used to append categories to the collection identified by \code{collection-id}.
+  \categoriesParameters
 
   Example usage:
 \begin{lstlisting}[language=bash]
@@ -2052,6 +2128,13 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
   by \code{collection-id}.  The API endpoint accepts both the \code{id} property
   and the \code{uuid} property of a dataset as identifier.
 
+  The parameters sent to the server should be a JSON object with a single key
+  named \t{articles}, with as value a list of either the \t{id} or the \t{uuid}
+  identifiers for datasets.  The API endpoint described in
+  \refer{sec:api-v2-articles-search-post} shows how to obtain the dataset
+  identifiers.
+
+  Example usage:
 \begin{lstlisting}[language=bash]
 curl --verbose --request POST \
      --header "Authorization: token YOUR_TOKEN_HERE" \
@@ -2152,6 +2235,8 @@ curl --header "Authorization: token YOUR_TOKEN_HERE" \
 
   This API endpoint can be used to append funders to the collection identified
   by \code{collection-id}.
+
+  \fundingParameters
 
   Example usage:
 \begin{lstlisting}[language=bash]
