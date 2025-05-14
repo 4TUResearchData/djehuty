@@ -205,7 +205,13 @@ def format_rocrate_record (base_url, site_name, record, ror_url, tags,
         file["base_url"] = base_url
         ro_file_ids.append({ "@id": file["uuid"] })
 
-    file_records = list (map (format_rocrate_file_record, files))
+    is_embargoed = bool(conv.value_or (record, "is_embargoed", False))
+    is_restricted = bool(conv.value_or (record, "is_restricted", False))
+    if is_embargoed or is_restricted:
+        file_records = []
+    else:
+        file_records = list (map (format_rocrate_file_record, files))
+
     publisher_records = []
     git_record = []
     ro_crate_meta_record = {
