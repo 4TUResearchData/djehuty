@@ -3056,7 +3056,7 @@ class SparqlInterface:
 
     def update_review (self, review_uri, dataset_uri=None, assigned_to=None,
                        status=None, reminder_date=None,
-                       author_account_uuid=None):
+                       author_account_uuid=None, note=None):
         """Procedure to update a review."""
 
         query        = self.__query_from_template ("update_review", {
@@ -3064,7 +3064,8 @@ class SparqlInterface:
             "dataset_uri":           dataset_uri,
             "assigned_to":           assigned_to,
             "status":                status.capitalize() if status is not None else status,
-            "reminder_date":         reminder_date
+            "reminder_date":         reminder_date,
+            "note":                  rdf.escape_string_value(note)
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{author_account_uuid}")
