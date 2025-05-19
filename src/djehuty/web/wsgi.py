@@ -9506,8 +9506,12 @@ class WebServer:
             input_filename = self.__filesystem_location (metadata)
             if isinstance (input_filename, s3.S3DownloadStreamer):
                 s3_cached_file = s3.s3_temporary_file (input_filename)
+                if os.path.splitext (value_or (metadata, "name", ""))[1] == ".pdf":
+                    s3_cached_file = f"{s3_cached_file}[dpi=300]"
                 image = pyvips.Image.new_from_file (s3_cached_file)
             else:
+                if os.path.splitext (value_or (metadata, "name", ""))[1] == ".pdf":
+                    input_filename = f"{input_filename}[dpi=300]"
                 image = pyvips.Image.new_from_file (input_filename)
         except (KeyError, FileNotFoundError, UnidentifiedImageError):
             self.log.error ("Unable to open image file %s.", metadata['uuid'])
@@ -9618,8 +9622,12 @@ class WebServer:
         s3_cached_file = None
         if isinstance (input_filename, s3.S3DownloadStreamer):
             s3_cached_file = s3.s3_temporary_file (input_filename)
+            if os.path.splitext (value_or (metadata, "name", ""))[1] == ".pdf":
+                s3_cached_file = f"{s3_cached_file}[dpi=300]"
             original  = pyvips.Image.new_from_file (s3_cached_file)
         else:
+            if os.path.splitext (value_or (metadata, "name", ""))[1] == ".pdf":
+                input_filename = f"{input_filename}[dpi=300]"
             original  = pyvips.Image.new_from_file (input_filename)
 
         # Region
