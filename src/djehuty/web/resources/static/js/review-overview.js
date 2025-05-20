@@ -51,11 +51,19 @@ function submit_review_note(data) {
         return
     }
 
-    update_review_note(review, note)
-        .done(() => {
-            const $container = $(`#note-container-${review.uuid}`);
-            $container.replaceWith(display_note(review, note));
-        })
+    jQuery.ajax({
+        url: `/v3/reviews/${review.uuid}/update-note`,
+        type: "PUT",
+        contentType: "application/json",
+        data: JSON.stringify({
+            note: note,
+            submitter_account_uuid: review.submitter_account_uuid,
+        }),
+        dataType: "json",
+    }).done(() => {
+        const $container = $(`#note-container-${review.uuid}`);
+        $container.replaceWith(display_note(review, note));
+    })
         .fail(() => {
             show_message("failure", "<p>Failed to save the note.</p>");
         });
@@ -65,19 +73,8 @@ function delete_review_note(data) {
     const {review} = data;
     const note = "" // deleting by sending an empty string
 
-    update_review_note(review, note)
-        .done(() => {
-            const $container = $(`#note-container-${review.uuid}`);
-            $container.replaceWith(add_note(review));
-        })
-        .fail(() => {
-            show_message("failure", "<p>Failed to delete the note.</p>");
-        });
-}
-
-function update_review_note(review, note) {
-    return jQuery.ajax({
-        url: `/v3/reviews/${review.uuid}/update-note`,
+    jQuery.ajax({
+        url: `/v3/reviews/${review.uuid}/delete-note`,
         type: "PUT",
         contentType: "application/json",
         data: JSON.stringify({
@@ -85,7 +82,13 @@ function update_review_note(review, note) {
             submitter_account_uuid: review.submitter_account_uuid,
         }),
         dataType: "json",
-    });
+    }).done(() => {
+        const $container = $(`#note-container-${review.uuid}`);
+        $container.replaceWith(add_note(review));
+    })
+        .fail(() => {
+            show_message("failure", "<p>Failed to delete the note.</p>");
+        });
 }
 
 function apply_filters (event) {
