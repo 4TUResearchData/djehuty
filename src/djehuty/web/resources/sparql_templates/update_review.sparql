@@ -1,3 +1,9 @@
+{% set note_is_empty = (note == '""^^<http://www.w3.org/2001/XMLSchema#string>') %}
+{% set has_insert_data = assigned_to is not none or
+                         status is not none or
+                         reminder_date is not none or
+                         (note is not none and not note_is_empty) %}
+
 {% extends "prefixes.sparql" %}
 {% block query %}
 DELETE {
@@ -13,6 +19,7 @@ DELETE {
     {%- endif%}
   }
 }
+{% if has_insert_data %}
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if assigned_to is not none %}
@@ -26,6 +33,7 @@ INSERT {
     {%- endif%}
   }
 }
+{% endif %}
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review              rdf:type                  djht:Review .
