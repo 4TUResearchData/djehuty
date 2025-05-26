@@ -485,11 +485,12 @@ function load_search_filters_from_url() {
             }
 
             if (filter_name !== "search" && filter_name !== "page") {
-                if (is_other) {
-                    jQuery(`#search-box-wrapper form`).append(`<input type="hidden" name="${filter_name}_other" value="${values}">`);
-                } else {
-                    jQuery(`#search-box-wrapper form`).append(`<input type="hidden" name="${filter_name}" value="${values}">`);
-                }
+                let field = jQuery("<input/>", {
+                    "type": "hidden",
+                    "name": (is_other) ? `${filter_name}_other` : filter_name,
+                    "value": values
+                });
+                jQuery(`#search-box-wrapper form`).append(field);
             } else if (filter_name === "search") {
                 let search_for = jQuery("#search-box").val();
                 if (search_for && search_for.length > 0 && search_for.length > max_parameter_length) {
