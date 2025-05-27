@@ -92,6 +92,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/feedback.html                        \
     djehuty/web/resources/html_templates/git_instructions.html                \
     djehuty/web/resources/html_templates/institutions.html                    \
+    djehuty/web/resources/html_templates/jsonld.html                          \
     djehuty/web/resources/html_templates/layout.html                          \
     djehuty/web/resources/html_templates/loader.svg                           \
     djehuty/web/resources/html_templates/maintenance.html                     \
@@ -102,6 +103,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/html_templates/review/overview.html                 \
     djehuty/web/resources/html_templates/review/published.html                \
     djehuty/web/resources/html_templates/search.html                          \
+    djehuty/web/resources/html_templates/sitemap_template.xml                 \
     djehuty/web/resources/metadata_templates/bibtex.bib                       \
     djehuty/web/resources/metadata_templates/endnote.enw                      \
     djehuty/web/resources/metadata_templates/refman.ris                       \
