@@ -1,15 +1,25 @@
+{% set note_is_empty = (note == '""^^<http://www.w3.org/2001/XMLSchema#string>') %}
+{% set has_insert_data = assigned_to is not none or
+                         status is not none or
+                         reminder_date is not none or
+                         (note is not none and not note_is_empty) %}
+
 {% extends "prefixes.sparql" %}
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
+    {% if assigned_to is not none %}
     ?review          djht:assigned_to           ?assigned_to .
-    {% if status is not none %}
+    {%- endif%}{% if status is not none %}
     ?review          djht:status                ?status .
     {%- endif%}{% if reminder_date is not none %}
     ?review          djht:reminder_date         ?reminder_date .
+    {%- endif%}{% if note is not none %}
+    ?review          djht:note         ?note .
     {%- endif%}
   }
 }
+{% if has_insert_data %}
 INSERT {
   GRAPH <{{state_graph}}> {
     {%- if assigned_to is not none %}
@@ -18,9 +28,12 @@ INSERT {
     ?review          djht:status               djht:Review{{status | safe}} .
     {%- endif%}{% if reminder_date is not none %}
     ?review          djht:reminder_date        "{{reminder_date | safe}}"^^xsd:dateTime .
+    {%- endif%}{% if note is not none %}
+    ?review         djht:note                   {{note | safe}} .
     {%- endif%}
   }
 }
+{% endif %}
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review              rdf:type                  djht:Review .
@@ -30,6 +43,7 @@ WHERE {
     OPTIONAL { ?review   djht:assigned_to           ?assigned_to . }
     OPTIONAL { ?review   djht:status                ?status . }
     OPTIONAL { ?review   djht:reminder_date         ?reminder_date . }
+    OPTIONAL { ?review   djht:note                  ?note . }
   }
   FILTER (?review = <{{review_uri}}>)
 }
