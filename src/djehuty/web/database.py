@@ -401,7 +401,7 @@ class SparqlInterface:
                   search_format=False, version=None, licenses=None, search_for_raw=None,
                   is_published=True, is_under_review=None, git_uuid=None,
                   private_link_id_string=None, use_cache=True, is_restricted=None,
-                  is_embargoed=None, is_software=None, organizations=None):
+                  is_embargoed=None, is_software=None, organizations=None, codecheck=None):
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -421,6 +421,8 @@ class SparqlInterface:
         filters += rdf.sparql_in_filter ("dataset_id", exclude_ids, negate=True)
         filters += rdf.sparql_in_filter ("license_id", licenses)
         filters += rdf.sparql_contains_filter("organizations", organizations)
+        filters += rdf.sparql_filter ("codecheck",       codecheck,     escape=True)
+
 
         if isinstance (search_for, list):
             filters += self.__search_query_to_sparql_filters_v2 (search_for, search_format)
