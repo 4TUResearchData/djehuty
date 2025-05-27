@@ -146,6 +146,13 @@
         <li><a href="/v3/datasets/{{item.container_uuid}}/{% if item.version %}versions/{{item.version}}/{% endif %}ro-crate-metadata.json" class="corporate-identity public-button" target="_blank" rel="noopener noreferrer" title="RO-Crate Metadata">RO-Crate Metadata</a>
         </ul>
     </div>
+{%- if item.codecheck_certificate_doi %}
+        <div id="codecheck_certificate">
+            <h3 class="label">Reproducibility</h3>
+            <a class="corporate-identity" href="https://doi.org/{{item.codecheck_certificate_doi}}"target="_blank" rel="noopener noreferrer" title="CODECHECK Certificate">
+                <img src="/static/images/codeworks-badge.svg" alt="CODE WORKS logo"/></a>
+        </div>
+{%- endif %}
     {%- if collections %}
         <div id="collections">
             <h3 class="label">Collection{%- if collections[1:] %}s{%- endif %}</h3>

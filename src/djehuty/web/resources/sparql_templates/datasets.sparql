@@ -27,6 +27,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?total_cites ?git_uuid ?agreed_to_deposit_agreement ?agreed_to_publish
                 ?private_link_is_expired ?is_shared_with_me ?anonymize
                 ?git_repository_name ?git_code_hosting_url ?group_name
+                ?codecheck_certificate_doi
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -150,6 +151,7 @@ WHERE {
     OPTIONAL { ?dataset djht:agreed_to_publish     ?agreed_to_publish . }
     OPTIONAL { ?dataset djht:git_repository_name   ?git_repository_name . }
     OPTIONAL { ?dataset djht:git_code_hosting_url  ?git_code_hosting_url . }
+    OPTIONAL { ?dataset djht:codecheck_certificate_doi ?codecheck_certificate_doi . }
     OPTIONAL {
       ?dataset   djht:association_criteria  ?association_criteria .
       ?group_uri rdf:type                   djht:InstitutionGroup .
