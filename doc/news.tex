@@ -5,6 +5,53 @@
 \fi
 \chapter*{News}
 
+\labelWithConsistentHTMLTag{release-25-5}
+\section*{Release notes for \texttt{v25.5}.}
+
+  The May release of 2025 consists of 14 commits made by 3 authors.
+
+  This release contains a security fix for a SPARQL injection found by Thomas
+  Thelen and a a security fix for a HTML injection found by Anass Ksiber.  Many
+  thanks to both for reporting and assisting in resolving these vulnerabilities.
+
+\subsection*{UI revisions}
+\begin{itemize}
+\item{Introduce an ``Interoperability'' section with links to the RO-Crate
+    metadata API and the IIIF manifest
+    (\commitLink{2a49687d0fab911f52b461f806dd7eadcc15df30}).}
+\end{itemize}
+
+\subsection*{Security}
+\begin{itemize}
+\item{Properly escape session cookie value
+    (\commitLink{da1cbf2b15155ce4541ab7ca81f3102067fb749f}).}
+\item{Avoid possibility of HTML injection in the search page
+    (\commitLink{4f479f6869a2b7eeaf7cd78832419014eddf06f8}).}
+\end{itemize}
+
+\subsection*{Bugfixes}
+\begin{itemize}
+\item{Avoid re-creating the Handle configuration
+    (\commitLink{80f1f2e3e06b2b85cede6b17e75793bb0ab2d670}).}
+\item{Ensure the v2 API respects the depositing-domains property
+    (\commitLink{45941d2d9217ff2c389a0072002249dac64c5645}).}
+\item{Don't show file metadata for restricted datasets in RO-Crate
+    output (\commitLink{b81c730ec7d36e88f3cb4461c2920c5ec2d79f6c}).}
+\item{Improve render quality of PDF files in the IIIF Image API
+    (\commitLink{6556bf2ff6d7dd57ea8630199e7738dfbd49686f},
+    \commitLink{ffb35961a7bc24477913ca428c44001543342e8a}).}
+\item{Document acceptable parameters for various API endpoints
+    (\commitLink{b5dea019bcaaa1e3beae643ab8ed4c8776e0e532}).}
+\item{Distribute missing files in the release tarball
+    (\commitLink{76b29514e469a28ad3bfc080a2711672aa0f3765}).}
+\end{itemize}
+
+\subsection*{Technical debt}
+\begin{itemize}
+\item{Simplify the \code{dist-docker} target
+    (\commitLink{7b08aae0f3c44447869d7dab53bbb65678ce3747}).}
+\end{itemize}
+
 \labelWithConsistentHTMLTag{release-25-4}
 \section*{Release notes for \texttt{v25.4}.}
 
