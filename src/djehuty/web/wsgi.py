@@ -3412,7 +3412,7 @@ class WebServer:
     def ui_admin_recalculate_statistics (self, request):
         """Implements /admin/maintenance/recalculate-statistics."""
         token = self.token_from_cookie (request)
-        if self.db.may_administer (token):
+        if self.db.may_administer (token) and self.db.may_recalculate_statistics (token):
             if self.db.update_view_and_download_counts ():
                 self.log.info ("Recalculated statistics.")
                 return self.respond_204 ()

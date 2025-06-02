@@ -3435,6 +3435,10 @@ class SparqlInterface:
         """Returns True when the session's account is an administrator."""
         return self.__may_execute_role (session_token, "administer", account)
 
+    def may_recalculate_statistics (self, session_token, account=None):
+        """Returns True when the session's account may recalculate statistics."""
+        return self.__may_execute_role (session_token, "recalculate_statistics", account)
+
     def may_query (self, session_token, account=None):
         """Returns True when the session's account is an administrator and may query."""
         return (self.__may_execute_role (session_token, "administer", account) and

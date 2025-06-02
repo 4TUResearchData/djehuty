@@ -520,6 +520,7 @@ def read_privilege_configuration (xml_root, logger):
                 "may_review_quotas": bool(int(config_value (account, "may-review-quotas", None, False))),
                 "may_review_integrity": bool(int(config_value (account, "may-review-integrity", None, False))),
                 "may_process_feedback": bool(int(config_value (account, "may-process-feedback", None, False))),
+                "may_recalculate_statistics": bool(int(config_value (account, "may-recalculate-statistics", None, False))),
                 "may_receive_email_notifications": bool(int(config_value (account, "may-receive-email-notifications", None, True))),
                 "orcid":           orcid,
                 "first_name":      account.attrib.get("first_name"),
@@ -534,6 +535,7 @@ def read_privilege_configuration (xml_root, logger):
                 config.privileges[lowercase_email]["may_impersonate"] or
                 config.privileges[lowercase_email]["may_review"] or
                 config.privileges[lowercase_email]["may_process_feedback"] or
+                config.privileges[lowercase_email]["may_recalculate_statistics"] or
                 config.privileges[lowercase_email]["may_review_quotas"]
             )
 
