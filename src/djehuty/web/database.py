@@ -198,7 +198,7 @@ class SparqlInterface:
                 return []
 
             if cache_key_string is not None:
-                self.cache.cache_value (prefix, cache_key, results, query)
+                self.cache.cache_value (prefix, cache_key, results)
 
             if not self.sparql_is_up:
                 self.log.info ("SPARQL endpoint seems up again.")
