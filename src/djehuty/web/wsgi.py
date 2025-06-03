@@ -3387,8 +3387,11 @@ class WebServer:
                                                             doi):
                     self.log.error ("Updating the DOI '%s' in the database failed for %s.",
                                     doi, item["uuid"])
+                self.db.cache.invalidate_by_prefix (f"{item['item_type']}s_{item['uuid']}")
 
             if error_count == 0:
+                self.db.cache.invalidate_by_prefix ("datasets")
+                self.db.cache.invalidate_by_prefix ("collections")
                 return self.respond_204 ()
 
             return self.error_500 ()
