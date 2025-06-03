@@ -688,6 +688,7 @@ def format_review_record (record):
         "modified_date":         conv.value_or_none (record, "modified_date"),
         "published_date":        conv.value_or_none (record, "published_date"),
         "request_date":          conv.value_or_none (record, "request_date"),
+        "reviewer_account_uuid": conv.value_or_none (record, "reviewer_account_uuid"),
         "reviewer_email":        conv.value_or_none (record, "reviewer_email"),
         "reviewer_first_name":   conv.value_or_none (record, "reviewer_first_name"),
         "reviewer_last_name":    conv.value_or_none (record, "reviewer_last_name"),
@@ -695,7 +696,7 @@ def format_review_record (record):
         "submitter_email":       conv.value_or_none (record, "submitter_email"),
         "submitter_first_name":  conv.value_or_none (record, "submitter_first_name"),
         "submitter_last_name":   conv.value_or_none (record, "submitter_last_name"),
-        "submitter_account_uuid":   conv.value_or_none (record, "submitter_account_uuid"),
+        "submitter_account_uuid":conv.value_or_none (record, "submitter_account_uuid"),
         "note":                  conv.value_or_none (record, "review_note")
     }
 

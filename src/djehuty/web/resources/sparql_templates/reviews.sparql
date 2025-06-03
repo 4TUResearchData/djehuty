@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to
+SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to ?reviewer_account_uuid
                 ?account_uuid ?dataset_uuid ?dataset_title ?group_name
                 ?submitter_first_name ?submitter_last_name ?submitter_email
                 ?submitter_account_uuid ?published_date ?container_uuid
@@ -65,12 +65,13 @@ WHERE {
     BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)
     BIND(BOUND(?published_version)            AS ?has_published_version)
     BIND(STRAFTER(STR(?account), "account:")  AS ?submitter_account_uuid)
+    BIND(STRAFTER(STR(?assigned_to), "account:")  AS ?reviewer_account_uuid)
   }
 {%- if assigned_to is not none %}
   FILTER (?assigned_to = <account:{{assigned_to}}>)
+{%- endif %}
 {%- if review_uuid is not none: %}
   FILTER (?review = <review:{{review_uuid}}>)
-{%- endif %}
 {%- endif %}
 {%- if status is not none %}
   FILTER (?status_uri = djht:Review{{status | safe}})
