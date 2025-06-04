@@ -8600,7 +8600,7 @@ class WebServer:
 
         _, target = self.__git_head_reference_target (git_repository)
         if target is None:
-            return {}
+            return []
 
         history = git_repository.walk (target, pygit2.enums.SortMode.REVERSE)
         cache_key = f"{git_uuid}_{target}"
