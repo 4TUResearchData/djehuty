@@ -422,7 +422,6 @@ class SparqlInterface:
         filters += rdf.sparql_in_filter ("license_id", licenses)
         filters += rdf.sparql_contains_filter("organizations", organizations)
 
-
         if isinstance (search_for, list):
             filters += self.__search_query_to_sparql_filters_v2 (search_for, search_format)
         elif isinstance (search_for, dict):
