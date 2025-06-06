@@ -241,6 +241,9 @@ a:hover {
     text-decoration: underline;
 }
 a.underline { text-decoration: underline !important; }
+#description {
+    word-wrap: break-word;
+}
 #description pre {
     border: none;
     background: #f9f9f9;
