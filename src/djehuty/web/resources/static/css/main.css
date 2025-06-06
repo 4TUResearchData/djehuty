@@ -247,6 +247,7 @@ a.underline { text-decoration: underline !important; }
     padding: 0em;
     margin: 0em auto 0em auto;
     white-space: normal;
+    word-wrap: break-word;
 }
 #description pre code { padding: 0em; }
 pre {
