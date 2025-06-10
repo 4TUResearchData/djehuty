@@ -6,6 +6,7 @@ configuration file, for which an example is available at
 \file{etc/djehuty/djehuty-example-config.xml}.
 
 \section{Essential options}
+\label{sec:essential-options}
 
 \begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
   \headrow
@@ -575,3 +576,53 @@ djehuty web --config-file=config.xml --apply-transactions
     </account>
   </privileges>
 \end{lstlisting}
+
+\chapter{Running \texttt{djehuty}}
+\label{chap:running-djehuty}
+
+  Before running \t{djehuty}, consider the chapter
+  \refer{chap:configuring-djehuty} which provides the configuration options
+  to enable or disable features, where data will be stored and a way to
+  adapt \t{djehuty} to your organization's style.
+
+\section{Running \t{djehuty}}
+
+  Invoking \t{djehuty web} starts the web interface of \t{djehuty}.  On what
+  port it makes itself available can be configured in its configuration file.
+
+\begin{lstlisting}
+djehuty web --config-file=your-djehuty-config.xml
+\end{lstlisting}
+
+\section{Running \t{djehuty} behind an \t{nginx} reverse-proxy}
+
+  While \t{djehuty} itself does not support SSL/TLS, it is designed to
+  work together with a reverse-proxy HTTP server like \t{nginx}.  When
+  \t{djehuty} starts, it will bind on a pre-configured address and port,
+  which in turn can be \t{proxy\_pass}ed to using \t{nginx}.
+
+  The following snippet shows how to configure \t{nginx}.
+
+\begin{lstlisting}
+server {
+    listen              443 ssl;
+    listen              [::]:443 ssl;
+    server_name         example.domain;
+
+    ssl_certificate     /etc/letsencrypt/live/example.domain/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.domain/privkey.pem;
+
+    location / {
+       # Set 'use-x-forwarded-for' in the djehuty configuration.
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       # The values for address and port depend on what is configured in the
+       # djehuty configuration file.
+       proxy_pass http://127.0.0.1:8080;
+       root /usr/share/nginx/html;
+    }
+}
+\end{lstlisting}
+
+  To ensure \code{djehuty} receives the actual client IP address so it can log
+  this information, one can set the \code{use-x-forwarded-for} option
+  described in section \ref{sec:essential-options}.
