@@ -529,13 +529,7 @@ img { user-select: none; }
     color: #fff;
     text-align: center;
 }
-#sandbox-message {
-    display: block;
-    width: 100%;
-    background: #cc0000;
-    color: #ffffff;
-    text-align: center;
-}
+#sandbox-message { display: block; width: 100%; text-align: center; }
 .pre-header p { padding: .5em; line-height: 2em; font-size: 1.25em; margin: auto; }
 .pre-header a { color: #fff; }
 .pre-header a:hover { color: #ccc; }
