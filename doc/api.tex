@@ -827,6 +827,102 @@ curl --header "Accept: application/json" \
 }
 \end{lstlisting}
 
+\section{Git repositories}
+
+  A published dataset may include a Git repository in its publication.
+  The Git repository has a unique UUID that isn't re-used between versions
+  of the same publication.
+
+\subsection{\t{/v3/datasets/<git-uuid>.git} (\t{GET})}
+
+  This endpoint can be used to pass as a URL to \code{git clone}.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+git clone (@*\djehutybaseurl{}*@)/v3/datasets/de82...20b7.git
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=bash]
+Cloning into 'djehuty'...
+remote: Enumerating objects: 24850, done.
+remote: Counting objects: 100% (4171/4171), done.
+remote: Compressing objects: 100% (599/599), done.
+remote: Total 24850 (delta 3963), reused 3647 (delta 3571), pack-reused 20679 (from 2)
+Receiving objects: 100% (24850/24850), 11.41 MiB | 569.00 KiB/s, done.
+Resolving deltas: 100% (17094/17094), done.
+\end{lstlisting}
+
+\subsection{\t{/v3/datasets/<git-uuid>.git/zip} (\t{GET})}
+
+  This endpoint offers a ZIP file to download the files in the Git
+  repository without using Git.  The ZIP file is generated on the
+  spot, and therefore, the timestamps of files within the
+  ZIP file are set to \textit{January 1, 1980} to ensure that
+  downloading a ZIP file multiple times results in an identical
+  ZIP file.
+
+\subsection{\t{/v3/datasets/<git-uuid>.git/languages} (\t{GET})}
+
+  This API endpoint can be used to gather which programming languages are
+  used in which ratio to each other for the Git repository identified by
+  the \code{git-uuid}.
+
+  The number returned per programming language is the sum of the number
+  of bytes of files identified to belong to that programming language.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Accept: application/json" \
+     (@*\djehutybaseurl{}*@)/v3/datasets/de82...20b7.git/languages
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+{ /* Example output has been shortened. */
+  "Python": 963065,
+  "JavaScript": 188239,
+  "HTML": 186766,
+  ...
+}
+\end{lstlisting}
+
+\subsection{\t{/v3/datasets/<git-uuid>.git/contributors} (\t{GET})}
+
+  This API endpoint provides contributions in the form of additions,
+  deletions and commits per week per author.
+
+  Example usage:
+\begin{lstlisting}[language=bash]
+curl --header "Accept: application/json" \
+     (@*\djehutybaseurl{}*@)/v3/datasets/de82...20b7.git/contributors
+\end{lstlisting}
+
+  Output of the example:
+\begin{lstlisting}[language=JSON]
+[ /* Example output has been annotated and shortened. */
+  {
+    "total": 2769,
+    "additions": 94508,
+    "deletions": 62028,
+    "weeks": [
+      {
+        "w": 1624831200,   /* Timestamp for the week */
+        "a": 100,          /* Additions */
+        "d": 0,            /* Deletions */
+        "c": 2             /* Commits */
+      },
+      ...
+    ],
+    "author": {
+      "name": "Roel Janssen",
+      "email": "..."       /* Omitted from the example. */
+    }
+  },
+  ...
+]
+\end{lstlisting}
+
 \section{Creating and editing datasets}
 
 \subsection{\t{/v2/account/articles} (\t{GET})}
