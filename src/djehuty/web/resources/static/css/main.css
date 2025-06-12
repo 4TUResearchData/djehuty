@@ -111,10 +111,11 @@ a.inline-button.open:active { background: #44aa44; color: #000; text-decoration:
 a.inline-button.close { background: #cc6666; color: #000; text-decoration: none; }
 a.inline-button.close:hover { background: #bb5555; color: #000; text-decoration: none; }
 a.inline-button.close:active { background: #aa4444; color: #000; text-decoration: none; }
-a.inline-button {
+.inline-button {
     text-decoration: none;
     padding: .25em .5em .25em .5em;
     border-radius: .5em;
+    cursor: pointer;
 }
 .button {
     margin: 25px auto auto auto;

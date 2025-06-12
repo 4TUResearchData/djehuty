@@ -125,11 +125,11 @@ jQuery(document).ready(function () {
   </thead>
   <tbody></tbody>
 </table>
-<label>Description</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add as much context as possible so that others can interpret your research and reproduce it. Make sure you include methodology, techniques used, and if relevant information about approval for data collection to confirm adherence to legal or ethical requirements. The description should have at least four characters.</span></div><span class="required-field">&#8727;</span>
+<label for="description">Description</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add as much context as possible so that others can interpret your research and reproduce it. Make sure you include methodology, techniques used, and if relevant information about approval for data collection to confirm adherence to legal or ethical requirements. The description should have at least four characters.</span></div><span class="required-field">&#8727;</span>
 <div id="description" class="texteditor">
   {{collection["description"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
-<label>Categories</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select one or multiple categories that this research best correlates with.</span></div><span class="required-field">&#8727;</span>
+<label for="categories-wrapper">Categories</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select one or multiple categories that this research best correlates with.</span></div><span class="required-field">&#8727;</span>
 <div id="categories-wrapper" class="options-wrapper">
   <a id="expand-categories-button" href="#">Select categories</a>
   <div class="expand-categories"></div>
@@ -146,7 +146,7 @@ jQuery(document).ready(function () {
 {%- endfor %}
   </div>
 </div>
-<label>Group</label><span class="required-field"> &#8727;</span>
+<label for="groups-wrapper">Group</label><span class="required-field"> &#8727;</span>
 <div id="groups-wrapper">
 {%- for group in groups: %}
 <h4>{{group.name}}</h4>
@@ -188,7 +188,7 @@ jQuery(document).ready(function () {
   </thead>
   <tbody></tbody>
 </table>
-<label>DOI reservation</label><div class="fas fa-question-circle help-icon"><span class="help-text">Upon publication, a DOI will be assigned to your collection. If you need to have the DOI before publication, you can use this value.</span></div>
+<label for="doi-wrapper">DOI reservation</label><div class="fas fa-question-circle help-icon"><span class="help-text">Upon publication, a DOI will be assigned to your collection. If you need to have the DOI before publication, you can use this value.</span></div>
 <div id="doi-wrapper" class="options-wrapper">
   <p>The DOI of your collection will be: <strong>{{collection["doi"]}}</strong></p>
 </div>
@@ -198,7 +198,7 @@ jQuery(document).ready(function () {
 {% include 'depositor/language-selector.html' %}
 <label for="time_coverage">Time coverage</label><div class="fas fa-question-circle help-icon"><span class="help-text">Indicate the dates to which the data in the collection refer. Enter the year, or the beginning and ending date.</span></div>
 <input type="text" id="time_coverage" name="time_coverage" value="{{collection["time_coverage"] | default("", True)}}" />
-<label>Geolocation</label>
+<label for="geolocation-wrapper">Geolocation</label>
 <div id="geolocation-wrapper">
   <label for="geolocation">Name</label><div class="fas fa-question-circle help-icon"><span class="help-text">The geographic area to which the data in the collection refer (e.g. municipality, town/city, region, country)</span></div>
   <input type="text" id="geolocation" name="geolocation" placeholder="Example: Dam Square, Amsterdam" value="{{collection["geolocation"] | default("", True)}}" />
