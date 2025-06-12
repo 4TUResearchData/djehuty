@@ -513,8 +513,8 @@ function load_search_filters_from_url() {
                 }
 
                 for (let value of values) {
-                    value = value.replace(/[^a-zA-Z0-9-_]/g, '');
-                    let checkbox_id = `checkbox_${filter_name}_${value}`;
+                    let stripped_value = value.replace(/[^a-zA-Z0-9-_]/g, '');
+                    let checkbox_id = `checkbox_${filter_name}_${stripped_value}`;
                     let checkbox_id_element = jQuery(`#${checkbox_id}`);
                     if (checkbox_id_element.length > 0) {
                         jQuery(`#${checkbox_id}`).prop("checked", true);
