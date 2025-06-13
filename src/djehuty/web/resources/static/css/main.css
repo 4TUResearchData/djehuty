@@ -401,7 +401,7 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-tile::before { content: "\f84c"; }
 .fa-list::before { content: "\f03a"; }
 .fa-orcid::before { content: "\f8d2"; }
-.fa-orcid { color: #a6ce39; }
+.fa-orcid { color: #a6ce39; font-weight: 500 }
 .fa-thumbs-up::before { content: "\f164"; }
 .fa-thumbs-down::before { content: "\f165"; }
 .fa-comments-dots::before { content: "\f4ad"; }
@@ -472,9 +472,9 @@ table {
 }
 #save_bottom:hover { background: #18b76d; }
 #save_bottom:active { background: #107a48; }
-#submenu li.orcid-button a { background: #a6ce39; color: #ffffff; }
-#submenu li.orcid-button a:hover { background: #c6e080; color: #ffffff; }
-#submenu li.orcid-button a:active { background: #739022; color: #ffffff; }
+#submenu li.orcid-button a { background: #447405; color: #ffffff; }
+#submenu li.orcid-button a:hover { background: #599307; color: #ffffff; }
+#submenu li.orcid-button a:active { background: #3a6004; color: #ffffff; }
 #submenu li.create-button a { background: #925713; color: #ffffff; }
 #submenu li.create-button a:hover { background: #b76d18; }
 #submenu li.create-button a:active { background: #7a4810; }
