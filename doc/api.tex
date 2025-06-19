@@ -63,6 +63,10 @@
 \begin{tabularx}{\textwidth}{*{3}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
   \headrow
   \textbf{Parameter} & \textbf{Data type} & \textbf{Required} & \textbf{Description}\\
+  \t{uuid}           & \t{string}         & No                & The uuid of an existing funding
+                                                                record.  When this parameter is
+                                                                set, other parameters will be
+                                                                ignored.\\
   \t{title}          & \t{string}         & Yes               & The title of the funding project.\\
   \t{grant\_code}    & \t{string}         & No                & An optional grant code of the funding.\\
   \t{funder\_name}   & \t{string}         & No                & The name of the funder.\\
