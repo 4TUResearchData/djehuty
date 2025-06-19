@@ -1,7 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?uuid (?funding_id AS ?id) ?title ?grant_code ?funder_name
-                ?url ?order_index
+SELECT DISTINCT ?uuid ?title ?grant_code ?funder_name ?url
 WHERE {
   GRAPH <{{state_graph}}> {
     ?item_uri         rdf:type                     djht:{{prefix}} .
@@ -11,7 +10,6 @@ WHERE {
 
     ?funding          rdf:type                     djht:Funding .
 
-    OPTIONAL { ?funding  djht:id                    ?funding_id . }
     OPTIONAL { ?funding  djht:title                 ?title . }
     OPTIONAL { ?funding  djht:grant_code            ?grant_code . }
     OPTIONAL { ?funding  djht:funder_name           ?funder_name . }
