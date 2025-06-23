@@ -1,0 +1,145 @@
+function load_operational_statistics() {
+    jQuery.when(
+        get_operational_statistics_data()
+    ).done(function (data) {
+        // render_data_table(data);
+        console.log("here", data)
+        render_chart();
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        show_message("failure",
+            "<p>Failed to load operational statistics data (" +
+            textStatus + ": " + errorThrown + ")</p>");
+    });
+}
+
+function render_chart() {
+
+    // 1) For now static data
+    const data = [
+        {year: "2020", Delft: 340, Eindhoven: 40, Twente: 30, Wageningen: 50, Other: 280},
+        {year: "2021", Delft: 435, Eindhoven: 45, Twente: 120, Wageningen: 140, Other: 245},
+        {year: "2022", Delft: 525, Eindhoven: 42, Twente: 60, Wageningen: 90, Other: 245},
+        {year: "2023", Delft: 680, Eindhoven: 78, Twente: 100, Wageningen: 140, Other: 180}
+    ];
+
+    // 2) Configuration & dimensions for the chart
+    const margin = {top: 40, right: 20, bottom: 100, left: 50};
+    const width = 800 - margin.left - margin.right;
+    const height = 500 - margin.top - margin.bottom;
+
+    // 3) Keys & color scale
+    const keys = Object.keys(data[0]).filter(k => k !== "year");
+    const color = d3.scaleOrdinal()
+        .domain(keys)
+        .range(["#00A6D6", "#C72125", "#1E2328", "#008A00", "#f4c300"]);
+
+    // 4) Scales
+    const x0 = d3.scaleBand()
+        .domain(data.map(d => d.year))
+        .range([0, width])
+        .paddingInner(0.1);
+
+    const x1 = d3.scaleBand()
+        .domain(keys)
+        .range([0, x0.bandwidth()])
+        .padding(0.05);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d3.max(keys, key => d[key]))])
+        .nice()
+        .range([height, 0]);
+
+    // 5) SVG container
+    const svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // 6) X & Y axes
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x0));
+
+    svg.append("g")
+        .attr("class", "axis")
+        .call(d3.axisLeft(y).ticks(5));
+
+    // 7) Bars
+    svg.selectAll("g.year")
+        .data(data)
+        .join("g")
+        .attr("class", "year")
+        .attr("transform", d => `translate(${x0(d.year)},0)`)
+        .selectAll("rect")
+        .data(d => keys.map(key => ({key: key, value: d[key]})))
+        .join("rect")
+        .attr("x", d => x1(d.key))
+        .attr("y", d => y(d.value))
+        .attr("width", x1.bandwidth())
+        .attr("height", d => height - y(d.value))
+        .attr("fill", d => color(d.key))
+        .append("title")               // hover tooltip
+        .text(d => `${d.key}: ${d.value}`);
+
+    // 8) Chart title
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", -20)
+        .attr("text-anchor", "middle")
+        .style("font-size", "18px")
+        .style("font-weight", "bold")
+        .text("Number of datasets");
+
+    // 9) Legend
+    const legendY = height + 40;     // Position is 40px below the chart area
+    const legend = svg.append("g")
+        .attr("class", "legend")
+        .attr("transform", `translate(0, ${legendY})`);
+
+    // --- 3) Use a band scale to distribute keys evenly:
+    const legendX = d3.scaleBand()
+        .domain(keys)              // your array ["Delft","Eindhoven",…]
+        .range([0, width])         // full chart width
+        .padding(0.2);             // space between items
+
+    legend.selectAll("g")
+        .data(keys)
+        .join("g")
+        .attr("transform", d => `translate(${legendX(d)},0)`)
+        .call(g => {
+            g.append("rect")
+                .attr("width", 15)
+                .attr("height", 15)
+                .attr("fill", d => color(d));
+            g.append("text")
+                .attr("x", 20)
+                .attr("y", 12)
+                .text(d => d);
+        });
+}
+
+function get_operational_statistics_data() {
+    return jQuery.ajax({
+        url: "/v3/reviews",
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        accept: "application/json",
+    }).done(function (data) {
+        return [
+            {year: "2020", Delft: 340, Eindhoven: 40, Twente: 30, Wageningen: 50, other: 280},
+            {year: "2021", Delft: 435, Eindhoven: 45, Twente: 120, Wageningen: 140, other: 245},
+            {year: "2022", Delft: 525, Eindhoven: 42, Twente: 60, Wageningen: 90, other: 245},
+            {year: "2023", Delft: 680, Eindhoven: 78, Twente: 100, Wageningen: 140, other: 180}
+        ];
+        // if (data.length == 0) {
+        //     show_message("failure",
+        //         "<p>The API has returned null data...</p>");
+        //     return;
+        // }
+        // return data;
+    });
+}

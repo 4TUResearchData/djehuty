@@ -3360,7 +3360,15 @@ class WebServer:
         if not self.db.may_administer (token):
             return self.error_403 (request)
 
-        return self.__render_template (request, "admin/reports/operational_statistics.html")
+        num_datasets = {
+            "Delft": 50,
+            "Eindhoven": 40,
+            "Twente": 30,
+            "Wageningen": 20,
+            "other": 10,
+        }
+
+        return self.__render_template (request, "admin/reports/operational_statistics.html", num_datasets=num_datasets)
 
     def ui_admin_clear_cache (self, request):
         """Implements /admin/maintenance/clear-cache."""
