@@ -145,13 +145,9 @@ function load_operational_statistics() {
         render_chart();
 
     }).fail(function (response) {
-       console.log("fails", response)
+        console.log("fails", response)
     });
 }
-
-jQuery(document).ready(function() {
-    load_operational_statistics()
-});
 
 // function load_operational_statistics() {
 //     jQuery.when(
@@ -166,3 +162,78 @@ jQuery(document).ready(function() {
 //             textStatus + ": " + errorThrown + ")</p>");
 //     });
 // }
+
+function register_event_handlers() {
+    jQuery("#apply-filter-button").click(function () {
+        console.log("here")
+        let filters = []
+        let checkboxGroups = {};
+
+        jQuery(".filter-content input").each(function () {
+
+            let filter = null
+            // Remove existing filter with this ID
+            filters = filters.filter(filter => !filter.hasOwnProperty(this.id));
+            if (this.type === "checkbox") {
+                if (this.checked) {
+                    if (!checkboxGroups[this.name]) {
+                        checkboxGroups[this.name] = [];
+                    }
+                    checkboxGroups[this.name].push(this.value);
+                }
+
+            } else if (this.value && this.value.trim().length > 0) {
+                filter = {[this.id]: this.value}
+            }
+
+            if (filter) {
+                filters.push(filter)
+            }
+
+        });
+
+        // Step 2: Add grouped checkbox values into filters array
+        for (const name in checkboxGroups) {
+            if (checkboxGroups[name].length > 0) {
+                filters.push({[name]: checkboxGroups[name]});
+            }
+        }
+
+        jQuery(".filter-content select").each(function () {
+            let selectId = this.id;
+            let selectedValue = this.value;
+            filters.push({[selectId]: selectedValue});
+        });
+        console.log(filters)
+
+
+        let url = new URL(window.location.href);
+        let params = new URLSearchParams(url.search);
+
+        // Add each filter to the URL
+
+        filters.forEach(filterObj => {
+            let key = Object.keys(filterObj)[0];
+            let value = filterObj[key];
+
+            if (Array.isArray(value)) {
+                if (value.length > 0) {
+                    params.set(key, value.join("+"));
+                }
+            } else if (typeof value === "string" && value.trim().length > 0) {
+                params.set(key, value.trim());
+            }
+        });
+
+        console.log(params.toString());
+
+        let new_url = `${url.origin}${url.pathname}?${params.toString()}`;
+        console.log(new_url);
+        // window.location.href = new_url;
+    });
+}
+
+jQuery(document).ready(function () {
+    load_operational_statistics()
+    register_event_handlers();
+});
