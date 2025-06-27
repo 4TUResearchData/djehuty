@@ -333,6 +333,7 @@ class WebServer:
             R("/v3/admin/files-integrity-statistics",                            self.api_v3_admin_files_integrity_statistics),
             R("/v3/admin/accounts/clear-cache",                                  self.api_v3_admin_accounts_clear_cache),
             R("/v3/admin/reviews/clear-cache",                                   self.api_v3_admin_reviews_clear_cache),
+            R("/v3/admin/operational-statistics",                                self.api_v3_admin_operational_statistics),
 
             ## ----------------------------------------------------------------
             ## GIT HTTP API
@@ -8445,6 +8446,35 @@ class WebServer:
         }
 
         return self.response (json.dumps(output))
+
+    def api_v3_admin_operational_statistics (self, request):
+        """Implements /v3/admin/operational-statistics."""
+        handler = self.default_error_handling (request, "GET", "application/json")
+
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie(request)
+        if not self.db.may_administer(token):
+            return self.error_403(request)
+
+        try:
+            parameters = {
+                "institution":     validator.string_value  (request.args, "institution"),
+                "start_date":      validator.string_value  (request.args, "start_date", maximum_length=32),
+                "end_date":        validator.string_value  (request.args, "end_date", maximum_length=32),
+            }
+            # records = self.db.datasets (**record)
+            print("---> parameters 2", parameters)
+            records = ["banana", "apple"]
+            # return self.default_list_response (records, formatter.format_dataset_record,
+            #                                    base_url = config.base_url)
+
+            return self.response(json.dumps(records))
+
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
 
     def __git_create_repository (self, git_uuid):
         git_directory = os.path.join(config.storage, f"{git_uuid}.git")

@@ -1,18 +1,6 @@
-function load_operational_statistics() {
-    jQuery.when(
-        get_operational_statistics_data()
-    ).done(function (data) {
-        // render_data_table(data);
-        console.log("here", data)
-        render_chart();
-    }).fail(function (jqXHR, textStatus, errorThrown) {
-        show_message("failure",
-            "<p>Failed to load operational statistics data (" +
-            textStatus + ": " + errorThrown + ")</p>");
-    });
-}
-
 function render_chart() {
+
+    console.log("render chart")
 
     // 1) For now static data
     const data = [
@@ -143,3 +131,38 @@ function get_operational_statistics_data() {
         // return data;
     });
 }
+
+
+function load_operational_statistics() {
+    return jQuery.ajax({
+        url: "/v3/admin/operational-statistics?institution=TuDelft&state_date=01-01-2024&end_date=31/12/2024",
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        accept: "application/json",
+    }).done(function (response) {
+        console.log("done", response)
+        render_chart();
+
+    }).fail(function (response) {
+       console.log("fails", response)
+    });
+}
+
+jQuery(document).ready(function() {
+    load_operational_statistics()
+});
+
+// function load_operational_statistics() {
+//     jQuery.when(
+//         get_operational_statistics_data()
+//     ).done(function (data) {
+//         // render_data_table(data);
+//         console.log("here", data)
+//         render_chart();
+//     }).fail(function (jqXHR, textStatus, errorThrown) {
+//         show_message("failure",
+//             "<p>Failed to load operational statistics data (" +
+//             textStatus + ": " + errorThrown + ")</p>");
+//     });
+// }
