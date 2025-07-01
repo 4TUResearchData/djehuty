@@ -1,3 +1,5 @@
+const separator = "+"
+
 function render_chart() {
 
     console.log("render chart")
@@ -109,33 +111,14 @@ function render_chart() {
         });
 }
 
-function get_operational_statistics_data() {
-    return jQuery.ajax({
-        url: "/v3/reviews",
-        type: "GET",
-        dataType: "json",
-        contentType: "application/json",
-        accept: "application/json",
-    }).done(function (data) {
-        return [
-            {year: "2020", Delft: 340, Eindhoven: 40, Twente: 30, Wageningen: 50, other: 280},
-            {year: "2021", Delft: 435, Eindhoven: 45, Twente: 120, Wageningen: 140, other: 245},
-            {year: "2022", Delft: 525, Eindhoven: 42, Twente: 60, Wageningen: 90, other: 245},
-            {year: "2023", Delft: 680, Eindhoven: 78, Twente: 100, Wageningen: 140, other: 180}
-        ];
-        // if (data.length == 0) {
-        //     show_message("failure",
-        //         "<p>The API has returned null data...</p>");
-        //     return;
-        // }
-        // return data;
-    });
-}
-
-
 function load_operational_statistics() {
+
+    let url = new URL(window.location.href);
+    let params = new URLSearchParams(url.search);
+
+
     return jQuery.ajax({
-        url: "/v3/admin/operational-statistics?institution=TuDelft&state_date=01-01-2024&end_date=31/12/2024",
+        url: `/v3/admin/operational-statistics?${params.toString()}`,
         type: "GET",
         dataType: "json",
         contentType: "application/json",
@@ -149,31 +132,40 @@ function load_operational_statistics() {
     });
 }
 
-// function load_operational_statistics() {
-//     jQuery.when(
-//         get_operational_statistics_data()
-//     ).done(function (data) {
-//         // render_data_table(data);
-//         console.log("here", data)
-//         render_chart();
-//     }).fail(function (jqXHR, textStatus, errorThrown) {
-//         show_message("failure",
-//             "<p>Failed to load operational statistics data (" +
-//             textStatus + ": " + errorThrown + ")</p>");
-//     });
-// }
+function load_filters_from_url() {
+
+    let url = new URL(window.location.href);
+    let params = new URLSearchParams(url.search);
+
+    params.forEach((value, key) => {
+        let inputElement
+        const checkboxFilter = key === "host"
+        if (checkboxFilter) {
+            inputElement = document.getElementsByName(key)
+            const values = value.split(separator)
+            inputElement.forEach(checkbox => {
+                if (values.includes(checkbox.id)) {
+                    checkbox.checked = true
+                }
+            })
+        } else {
+            inputElement = document.getElementById(key)
+            inputElement.value = value
+        }
+    });
+
+}
 
 function register_event_handlers() {
     jQuery("#apply-filter-button").click(function () {
-        console.log("here")
-        let filters = []
+        let filters = [];
         let checkboxGroups = {};
 
         jQuery(".filter-content input").each(function () {
-
-            let filter = null
+            let filter = null;
             // Remove existing filter with this ID
-            filters = filters.filter(filter => !filter.hasOwnProperty(this.id));
+            filters = filters.filter(filter => !filter.hasOwnProperty(this.name));
+
             if (this.type === "checkbox") {
                 if (this.checked) {
                     if (!checkboxGroups[this.name]) {
@@ -181,18 +173,15 @@ function register_event_handlers() {
                     }
                     checkboxGroups[this.name].push(this.value);
                 }
-
             } else if (this.value && this.value.trim().length > 0) {
-                filter = {[this.id]: this.value}
+                filter = {[this.id]: this.value};
             }
 
             if (filter) {
-                filters.push(filter)
+                filters.push(filter);
             }
-
         });
 
-        // Step 2: Add grouped checkbox values into filters array
         for (const name in checkboxGroups) {
             if (checkboxGroups[name].length > 0) {
                 filters.push({[name]: checkboxGroups[name]});
@@ -202,15 +191,14 @@ function register_event_handlers() {
         jQuery(".filter-content select").each(function () {
             let selectId = this.id;
             let selectedValue = this.value;
-            filters.push({[selectId]: selectedValue});
+            if (selectedValue && selectedValue.trim().length > 0) {
+                filters.push({[selectId]: selectedValue});
+            }
         });
-        console.log(filters)
 
-
+        // Construct new URL from scratch (only origin + pathname, no old params)
         let url = new URL(window.location.href);
-        let params = new URLSearchParams(url.search);
-
-        // Add each filter to the URL
+        let params = new URLSearchParams(); // START FRESH
 
         filters.forEach(filterObj => {
             let key = Object.keys(filterObj)[0];
@@ -218,22 +206,21 @@ function register_event_handlers() {
 
             if (Array.isArray(value)) {
                 if (value.length > 0) {
-                    params.set(key, value.join("+"));
+                    params.set(key, value.join(separator));
                 }
             } else if (typeof value === "string" && value.trim().length > 0) {
                 params.set(key, value.trim());
             }
         });
 
-        console.log(params.toString());
-
         let new_url = `${url.origin}${url.pathname}?${params.toString()}`;
-        console.log(new_url);
-        // window.location.href = new_url;
+        window.location.href = new_url;
     });
+
 }
 
 jQuery(document).ready(function () {
-    load_operational_statistics()
+    load_operational_statistics();
     register_event_handlers();
+    load_filters_from_url();
 });

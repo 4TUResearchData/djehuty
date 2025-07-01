@@ -8463,6 +8463,8 @@ class WebServer:
                 "institution":     validator.string_value  (request.args, "institution"),
                 "start_date":      validator.string_value  (request.args, "start_date", maximum_length=32),
                 "end_date":        validator.string_value  (request.args, "end_date", maximum_length=32),
+                "unit":        validator.string_value  (request.args, "unit", maximum_length=32),
+                "host": validator.string_value(request.args, "host", maximum_length=32),
             }
             # records = self.db.datasets (**record)
             print("---> parameters 2", parameters)
