@@ -5,6 +5,7 @@
 <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
 <script src="/static/js/operational-statistics.js?cache=1747131610"></script>
 <script src="/static/js/d3.v7.min.js"></script>
+<script src="/static/js/utils.js?cache=1744290797"></script>
 <!-- Remove this line and add CSS under the file itself after stylish -->
 <link rel="stylesheet" type="text/css" href="/static/local_ignore/output.css">
 
@@ -43,34 +44,34 @@
             <input class="w-full px-3 py-2.5 border border-solid border-gray-400 rounded-sm"
                    id="start_date"
                    name="start_date"
-                   type="text"
-                   maxlength="255"
-                   value="01/01/2024"/>
+                   type="date"
+                   maxlength="255"/>
         </div>
         <div>
             <label class="block font-medium text-gray-700 mb-1">From</label>
             <input class="w-full px-3 py-2.5 border border-solid border-gray-400 rounded-sm"
                    id="end_date"
                    name="end_date"
-                   type="text"
-                   maxlength="255"
-                   value="31/12/2024"/>
+                   type="date"
+                   maxlength="255"/>
         </div>
         <div>
-            <label class="block font-medium text-gray-700 mb-1" for="institution">Institution</label>
-            <select id="institution"
-                    name="institution"
-                     class="w-full px-3 py-2.5 border border-solid border-gray-400 rounded-sm">
+            <label class="block font-medium text-gray-700 mb-1" for="group">Institution</label>
+            <select id="group" name="group" class="w-full px-3 py-2.5 border border-solid border-gray-400 rounded-sm">
                 <option value="all">All Institutions</option>
-                <option value="delft">Delft</option>
-                <option value="eindhoven">Eindhoven</option>
-                <option value="twente">Twente</option>
-                <option value="wageningen">Wageningen</option>
-                <option value="other">Other</option>
+<!--                {%- for institution in institutions -%}-->
+<!--                    <option value="{{institution.id}}">{{institution.name}}</option>-->
+<!--                {%- endfor -%}-->
+
+                <!--                <option value="delft">Delft</option>-->
+<!--                <option value="eindhoven">Eindhoven</option>-->
+<!--                <option value="twente">Twente</option>-->
+<!--                <option value="wageningen">Wageningen</option>-->
+<!--                <option value="other">Other</option>-->
             </select>
         </div>
         <div>
-            <label class="block font-medium text-gray-700 mb-1" for="institution">Storage Host:</label>
+            <label class="block font-medium text-gray-700 mb-1">Storage Host:</label>
             <div>
                 <input type="checkbox" id="opendap" name="host" value="opendap">
                 <label for="opendap">OpenDap</label>
@@ -81,10 +82,9 @@
             </div>
         </div>
         <div>
-            <label class="block font-medium text-gray-700 mb-1" for="institution">Unit</label>
-            <select id="unit"
-                    name="unit"
-                     class="w-full px-3 py-2.5 border border-solid border-gray-400 rounded-sm">
+            <label class="block font-medium text-gray-700 mb-1" for="filter_by">Filter By:</label>
+            <select id="filter_by" name="filter_by" class="w-full px-3 py-2.5 border border-solid border-gray-400 rounded-sm">
+
                 <option value="qty">Dataset quantity</option>
                 <option value="size">Storage Size</option>
             </select>

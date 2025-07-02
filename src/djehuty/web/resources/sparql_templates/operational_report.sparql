@@ -1,0 +1,111 @@
+
+{% extends "prefixes.sparql" %}
+{% block query %}
+
+SELECT DISTINCT ?institution ?is_first_version
+                COUNT(?dataset) AS ?datasets
+
+WHERE
+{ GRAPH <{{state_graph}}> {
+  ?container a                                           djht:DatasetContainer ;
+             djht:published_versions/rdf:rest*/rdf:first ?dataset ;
+             djht:published_versions/rdf:first           ?first_version .
+  ?dataset   djht:posted_date                            ?date ;
+             djht:group_id                               ?gid .
+  }
+  BIND ( ?dataset=?first_version AS ?is_first_version )
+  BIND (   1*(?gid=28586 OR ?gid=28628) #Delft
+         + 2*(?gid=28589 OR ?gid=28631) #Eindhoven
+         + 3*(?gid=28592 OR ?gid=28634) #Twente
+         + 4*(?gid=28595)               #Wageningen
+         AS ?institution_num )
+  VALUES (?institution_num ?institution) {
+    (0 "other") (1 "Delft") (2 "Eindhoven") (3 "Twente") (4 "Wageningen")
+  }
+   FILTER ( STR(?date) > "2024-07-15" AND STR(?date) < "2025-07-17")
+    {%- if gid is not none %}
+     FILTER (?gid=28586 OR ?gid=28628)
+    {%- endif %}
+}
+GROUP BY ?is_first_version ?institution
+ORDER BY ?institution DESC(?is_first_version)
+{% endblock %}
+#
+#{% extends "prefixes.sparql" %}
+#{% block query %}
+#SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to
+#                ?account_uuid ?dataset_uuid ?dataset_title ?group_name
+#                ?submitter_first_name ?submitter_last_name ?submitter_email
+#                ?published_date ?container_uuid ?dataset_version ?declined_date
+#                ?reviewer_email ?reviewer_first_name ?reviewer_last_name
+#                ?modified_date (?status_label AS ?status) ?has_published_version
+#                ?last_seen_by_reviewer
+#WHERE {
+#  GRAPH <{{state_graph}}> {
+#    ?review             rdf:type                 djht:Review ;
+#                        djht:dataset              ?dataset .
+#
+#    OPTIONAL { ?review  djht:request_date         ?request_date . }
+#    OPTIONAL { ?review  djht:reminder_date        ?reminder_date . }
+#    OPTIONAL {
+#      ?review           djht:status               ?status_uri .
+#      ?status_uri       rdfs:label                ?status_label .
+#    }
+#
+#    ?dataset            djht:container            ?container_uri ;
+#                        djht:title                ?dataset_title .
+#    OPTIONAL { ?dataset djht:published_date       ?published_date . }
+#    OPTIONAL { ?dataset djht:declined_date        ?declined_date . }
+#    OPTIONAL { ?dataset djht:modified_date        ?modified_date . }
+#    OPTIONAL { ?dataset djht:last_seen_by_reviewer ?last_seen_by_reviewer . }
+#    OPTIONAL { ?dataset djht:version              ?dataset_version . }
+#
+#    ?container_uri      djht:account              ?account .
+#    {%- if domain is not none %}
+#    ?account            djht:domain               "{{domain}}"^^xsd:string .
+#    {%- endif %}
+#    {%- if group_id is not none %}
+#    ?dataset            djht:group_id             {{group_id}} .
+#    {%- endif %}
+#
+#    OPTIONAL { ?container_uri djht:latest_published_version ?published_version . }
+#    OPTIONAL {
+#      ?group            rdf:type                 djht:InstitutionGroup ;
+#                        djht:id                   ?group_id ;
+#                        djht:name                 ?group_name .
+#      ?dataset          djht:group_id             ?group_id .
+#    }
+#
+#    OPTIONAL { ?account djht:email                ?submitter_email . }
+#    OPTIONAL { ?account djht:first_name           ?submitter_first_name . }
+#    OPTIONAL { ?account djht:last_name            ?submitter_last_name . }
+#    OPTIONAL { ?account djht:institution_id       ?institution_id . }
+#
+#    OPTIONAL {
+#      ?review  djht:assigned_to          ?assigned_to .
+#      {#- OPTIONAL within OPTIONAL because if ?assigned_to is unbound,
+#       #- the following OPTIONAL bindings shouldn't just bind freely to anything
+#       #- with these predicates. #}
+#      OPTIONAL { ?assigned_to djht:email            ?reviewer_email . }
+#      OPTIONAL { ?assigned_to djht:first_name       ?reviewer_first_name . }
+#      OPTIONAL { ?assigned_to djht:last_name        ?reviewer_last_name . }
+#    }
+#
+#    BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
+#    BIND(STRAFTER(STR(?dataset), "dataset:")  AS ?dataset_uuid)
+#    BIND(STRAFTER(STR(?account), "account:")  AS ?account_uuid)
+#    BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)
+#    BIND(BOUND(?published_version)            AS ?has_published_version)
+#  }
+#{%- if assigned_to is not none %}
+#  FILTER (?assigned_to = <account:{{assigned_to}}>)
+#{%- if review_uuid is not none: %}
+#  FILTER (?review = <review:{{review_uuid}}>)
+#{%- endif %}
+#{%- endif %}
+#{%- if status is not none %}
+#  FILTER (?status_uri = djht:Review{{status | safe}})
+#{%- endif %}
+#{% if filters is not none %}{{ filters | safe }}{% endif %}
+#}
+#{% endblock %}

@@ -132,11 +132,22 @@ function load_operational_statistics() {
     });
 }
 
-function load_filters_from_url() {
 
+
+function load_institutions_list() {
+    featured_groups(function (featured_groups) {
+        featured_groups.forEach(function (item) {
+            jQuery('#group').append($('<option>', {
+                value: item.id,
+                text: item.name
+            }));
+        });
+    });
+}
+
+function load_values_from_url() {
     let url = new URL(window.location.href);
     let params = new URLSearchParams(url.search);
-
     params.forEach((value, key) => {
         let inputElement
         const checkboxFilter = key === "host"
@@ -153,7 +164,6 @@ function load_filters_from_url() {
             inputElement.value = value
         }
     });
-
 }
 
 function register_event_handlers() {
@@ -218,9 +228,12 @@ function register_event_handlers() {
     });
 
 }
-
+function load_filters() {
+    load_values_from_url();
+    load_institutions_list();
+    register_event_handlers()
+}
 jQuery(document).ready(function () {
     load_operational_statistics();
-    register_event_handlers();
-    load_filters_from_url();
+    load_filters();
 });

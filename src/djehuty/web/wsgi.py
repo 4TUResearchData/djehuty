@@ -3354,6 +3354,8 @@ class WebServer:
 
     def ui_admin_reports_operational_statistics (self, request):
         """Implements /admin/reports/operational_statistics."""
+
+        groups = self.db.group()
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -3369,7 +3371,9 @@ class WebServer:
             "other": 10,
         }
 
-        return self.__render_template (request, "admin/reports/operational_statistics.html", num_datasets=num_datasets)
+        return self.__render_template (request, "admin/reports/operational_statistics.html",
+                                       num_datasets=num_datasets,
+                                       institutions=groups)
 
     def ui_admin_clear_cache (self, request):
         """Implements /admin/maintenance/clear-cache."""
@@ -8466,6 +8470,12 @@ class WebServer:
                 "unit":        validator.string_value  (request.args, "unit", maximum_length=32),
                 "host": validator.string_value(request.args, "host", maximum_length=32),
             }
+
+            # if group_name != "all":
+            #     group = self.db.group_by_name(group_name)
+            #     print("group", group)
+
+
             # records = self.db.datasets (**record)
             print("---> parameters 2", parameters)
             records = ["banana", "apple"]

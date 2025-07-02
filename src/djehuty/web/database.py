@@ -590,6 +590,36 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
         return self.__run_query (query, query, "statistics")
 
+    def operational_statistics(self,
+                               start_date=None,
+                               end_date=None,
+                               institution=None,
+                               host=None,
+                               filter_by=None):
+        """Procedure to retrieve operational statistics."""
+
+        # filters = rdf.sparql_filter("group_id", group_id)
+        # filters += rdf.sparql_filter("id", author_id)
+        # filters += rdf.sparql_filter("institution_id", institution_id)
+        # filters += rdf.sparql_filter("is_active", is_active)
+        # filters += rdf.sparql_filter("is_public", is_public)
+        # filters += rdf.sparql_filter("job_title", job_title, escape=True)
+        # filters += rdf.sparql_filter("first_name", first_name, escape=True)
+        # filters += rdf.sparql_filter("last_name", last_name, escape=True)
+        # filters += rdf.sparql_filter("full_name", full_name, escape=True)
+        # filters += rdf.sparql_filter("orcid_id", orcid_id, escape=True)
+        # filters += rdf.sparql_filter("url_name", url_name, escape=True)
+
+        query = self.__query_from_template("operational_report", {
+            "start_date": start_date,
+            "end_date": end_date,
+            "institution": institution,
+            "host": host,
+            "filter_by": filter_by,
+        })
+        # query += rdf.sparql_suffix(order, order_direction, limit, None)
+        return self.__run_query(query)
+
     def container_uuid_by_id (self, identifier, item_type="dataset"):
         """Procedure to retrieve container_uuid from Figshare id if necessary"""
 
