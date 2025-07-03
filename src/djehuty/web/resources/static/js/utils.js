@@ -306,7 +306,7 @@ function search_tags(text) {
     });
 }
 
-function autocomplete_tags(dataset_uuid) {
+function autocomplete_tags(event, item_id) {
     const current_text = jQuery.trim(jQuery(`#tag`).val());
     if (current_text === "") {
         jQuery("#tag-ac").remove();
@@ -315,11 +315,13 @@ function autocomplete_tags(dataset_uuid) {
     }
     if (current_text.length <= 2) return;
 
+    // TODO: fetch_tags_by_dataset_uuid os for datasets,
+    //  but we need generic way to do it - for collection_id as well
     $.when(
-        // If call for tags fails, resolve with fail snippet
+        // If call for search tags fail, resolve with fail snippet.
         search_tags(current_text).then(data => data),
-        // Call for existing tags never go fail. If success: return data. If fails: resolve with empty array.
-        fetch_tags_by_dataset_uuid(dataset_uuid).then(data => data, () => [])
+        // If call for existing tags fail, resolve with empty array.
+        fetch_tags_by_dataset_uuid(item_id).then(data => data, () => [])
     ).done(function (search_result, existing_result) {
         const filtered_tags = search_result.filter(
             tag => !existing_result.includes(tag)
@@ -330,7 +332,7 @@ function autocomplete_tags(dataset_uuid) {
             const unordered_list = jQuery("<ul/>");
             for (let item of filtered_tags) {
                 const anchor = jQuery("<a/>", {href: "#"}).text(item);
-                anchor.on("click", {"item_id": dataset_uuid, "selected_tag": item}, add_tag_event);
+                anchor.on("click", {"item_id": item_id, "selected_tag": item}, add_tag_event);
                 unordered_list.append(jQuery("<li/>").append(anchor));
             }
             const wrapper = jQuery("<div/>", {id: "tag-ac", class: "autocomplete"}).html(unordered_list);
@@ -340,7 +342,6 @@ function autocomplete_tags(dataset_uuid) {
             jQuery("#tag").removeClass("input-for-ac");
         }
     }).fail(function () {
-        console.warn("Error while searching for tags");
         jQuery("#tag-ac").remove();
         jQuery("#tag").removeClass("input-for-ac");
     });
