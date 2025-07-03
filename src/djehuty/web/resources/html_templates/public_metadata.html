@@ -14,7 +14,7 @@
 <div id="metadata">
  {%- if private_view %}
   {%- if doi %}
- <div id="doi"><span>doi:</span> {{doi}}</a></div>
+ <div id="doi"><span class="doi-label">doi:</span><span class="doi-value">{{doi}}</span></div>
   {%- endif %}
  {%- else %}
     <div id="doi"><span class="doi-label">DOI:</span><a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><span class="doi-value">{{doi}}</span></a>
