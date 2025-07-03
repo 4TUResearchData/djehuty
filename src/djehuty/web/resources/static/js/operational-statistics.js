@@ -1,4 +1,4 @@
-const separator = "+"
+const separator = ","
 
 function render_chart() {
 
@@ -133,35 +133,66 @@ function load_operational_statistics() {
 }
 
 
+// function load_institutions_list() {
+//     featured_groups(function (featured_groups) {
+//         featured_groups.forEach(function (item) {
+//             jQuery('#group').append($('<option>', {
+//                 value: item.id,
+//                 text: item.name
+//             }));
+//         });
+//     });
+// }
 
-function load_institutions_list() {
-    featured_groups(function (featured_groups) {
-        featured_groups.forEach(function (item) {
-            jQuery('#group').append($('<option>', {
-                value: item.id,
-                text: item.name
-            }));
-        });
-    });
-}
+// function load_values_from_url() {
+//     let url = new URL(window.location.href);
+//     let params = new URLSearchParams(url.search);
+//     params.forEach((value, key) => {
+//         let input_element
+//         const checkbox_filter = key === "host"
+//         const group_filter = key === "group"
+//         if (checkbox_filter) {
+//             input_element = document.getElementsByName(key)
+//             const values = value.split(separator)
+//             input_element.forEach(checkbox => {
+//                 if (values.includes(checkbox.id)) {
+//                     checkbox.checked = true
+//                 }
+//             })
+//         } else if {
+//
+//         } else {
+//             input_element = document.getElementById(key)
+//             input_element.value = value
+//         }
+//     });
+// }
 
-function load_values_from_url() {
+function set_filters_values_from_url(groups) {
     let url = new URL(window.location.href);
     let params = new URLSearchParams(url.search);
     params.forEach((value, key) => {
-        let inputElement
-        const checkboxFilter = key === "host"
-        if (checkboxFilter) {
-            inputElement = document.getElementsByName(key)
+        let input_element
+        const checkbox_filter = key === "host"
+        const group_filter = key === "group"
+        if (checkbox_filter) {
+            input_element = document.getElementsByName(key)
             const values = value.split(separator)
-            inputElement.forEach(checkbox => {
+            input_element.forEach(checkbox => {
                 if (values.includes(checkbox.id)) {
                     checkbox.checked = true
                 }
             })
+        } else if (group_filter) {
+            input_element = document.getElementById(key)
+            const options = Array.from(input_element.options);
+            const match = options.find(opt => opt.value === value);
+            if (match) {
+                input_element.value = value;
+            }
         } else {
-            inputElement = document.getElementById(key)
-            inputElement.value = value
+            input_element = document.getElementById(key)
+            input_element.value = value
         }
     });
 }
@@ -228,11 +259,33 @@ function register_event_handlers() {
     });
 
 }
+
 function load_filters() {
-    load_values_from_url();
-    load_institutions_list();
+
+    featured_groups(function (featured_groups) {
+        featured_groups.forEach(function (item) {
+            jQuery('#group').append($('<option>', {
+                id: item.id,
+                value: item.value.join(separator),
+                text: item.label
+            }));
+        });
+        set_filters_values_from_url();
+    });
+
+
+    // featured_groups(function (featured_groups) {
+    //     featured_groups.forEach(function (item) {
+    //         jQuery('#group').append($('<option>', {
+    //             value: item.id,
+    //             text: item.name
+    //         }));
+    //     });
+    // });
+
     register_event_handlers()
 }
+
 jQuery(document).ready(function () {
     load_operational_statistics();
     load_filters();

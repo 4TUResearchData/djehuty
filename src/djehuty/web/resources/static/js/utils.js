@@ -372,8 +372,9 @@ function featured_groups(response) {
 
             if (!results.has(group.id)) {
                 results.set(group.id, {
-                    id: unique_ids,
-                    name: group.name
+                    id: group.id,
+                    value: unique_ids,
+                    label: group.name
                 });
             }
         });

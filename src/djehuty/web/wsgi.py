@@ -8462,9 +8462,11 @@ class WebServer:
         if not self.db.may_administer(token):
             return self.error_403(request)
 
+        print(request.args)
+
         try:
             parameters = {
-                "institution":     validator.string_value  (request.args, "institution"),
+                "group":     validator.string_value  (request.args, "group"),
                 "start_date":      validator.string_value  (request.args, "start_date", maximum_length=32),
                 "end_date":        validator.string_value  (request.args, "end_date", maximum_length=32),
                 "unit":        validator.string_value  (request.args, "unit", maximum_length=32),
