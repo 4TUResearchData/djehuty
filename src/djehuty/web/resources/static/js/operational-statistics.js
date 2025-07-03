@@ -1,8 +1,4 @@
-const separator = ","
-
 function render_chart() {
-
-    console.log("render chart")
 
     // 1) For now static data
     const data = [
@@ -113,16 +109,26 @@ function render_chart() {
 
 function load_operational_statistics() {
 
-    let url = new URL(window.location.href);
-    let params = new URLSearchParams(url.search);
+    const url_params = parse_url_params()
+    if ("group" in url_params && typeof (url_params["group"]) === "string" && url_params["group"].length > 0) {
+        if (url_params["group"] === "all") {
+            delete url_params["group"]
+        } else {
+            url_params["group"] = _split_comma_separated_string(url_params["group"]);
+        }
+    }
 
+    if ("host" in url_params && typeof (url_params["host"]) === "string" && url_params["host"].length > 0) {
+        url_params["host"] = _split_comma_separated_string(url_params["host"]);
+    }
 
     return jQuery.ajax({
-        url: `/v3/admin/operational-statistics?${params.toString()}`,
-        type: "GET",
-        dataType: "json",
+        url:         "/v3/admin/operational-statistics",
+        type:        "POST",
         contentType: "application/json",
-        accept: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify(url_params),
+        dataType:    "json"
     }).done(function (response) {
         console.log("done", response)
         render_chart();
@@ -133,40 +139,25 @@ function load_operational_statistics() {
 }
 
 
-// function load_institutions_list() {
-//     featured_groups(function (featured_groups) {
-//         featured_groups.forEach(function (item) {
-//             jQuery('#group').append($('<option>', {
-//                 value: item.id,
-//                 text: item.name
-//             }));
-//         });
-//     });
-// }
-
-// function load_values_from_url() {
-//     let url = new URL(window.location.href);
-//     let params = new URLSearchParams(url.search);
-//     params.forEach((value, key) => {
-//         let input_element
-//         const checkbox_filter = key === "host"
-//         const group_filter = key === "group"
-//         if (checkbox_filter) {
-//             input_element = document.getElementsByName(key)
-//             const values = value.split(separator)
-//             input_element.forEach(checkbox => {
-//                 if (values.includes(checkbox.id)) {
-//                     checkbox.checked = true
-//                 }
-//             })
-//         } else if {
-//
-//         } else {
-//             input_element = document.getElementById(key)
-//             input_element.value = value
-//         }
-//     });
-// }
+// Duplicated with method used in search.js . Need to add it in utils
+function parse_url_params() {
+    let url_params = new URLSearchParams(window.location.search);
+    let params = {};
+    for (let [key, value] of url_params) {
+        params[key] = value;
+    }
+    return params;
+}
+//also duplicated
+function _split_comma_separated_string(value) {
+    let values = [];
+    if (value && value.length > 0) {
+        for (let v of value.split(",")) {
+            values.push(v);
+        }
+    }
+    return values;
+}
 
 function set_filters_values_from_url(groups) {
     let url = new URL(window.location.href);
@@ -247,7 +238,7 @@ function register_event_handlers() {
 
             if (Array.isArray(value)) {
                 if (value.length > 0) {
-                    params.set(key, value.join(separator));
+                    params.set(key, value.join(","));
                 }
             } else if (typeof value === "string" && value.trim().length > 0) {
                 params.set(key, value.trim());
@@ -266,22 +257,12 @@ function load_filters() {
         featured_groups.forEach(function (item) {
             jQuery('#group').append($('<option>', {
                 id: item.id,
-                value: item.value.join(separator),
+                value: item.value.join(","),
                 text: item.label
             }));
         });
         set_filters_values_from_url();
     });
-
-
-    // featured_groups(function (featured_groups) {
-    //     featured_groups.forEach(function (item) {
-    //         jQuery('#group').append($('<option>', {
-    //             value: item.id,
-    //             text: item.name
-    //         }));
-    //     });
-    // });
 
     register_event_handlers()
 }

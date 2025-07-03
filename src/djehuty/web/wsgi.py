@@ -4359,6 +4359,9 @@ class WebServer:
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
+        print("requestrequestrequestrequest", request.method)
+        print("requestrequestrequestrequest", request.args)
+
         search_for = self.get_parameter(request, "search")
         search_for = validator.string_value (search_for, None,
                                              error_on_disallowed_html=False)
@@ -8453,38 +8456,41 @@ class WebServer:
 
     def api_v3_admin_operational_statistics (self, request):
         """Implements /v3/admin/operational-statistics."""
-        handler = self.default_error_handling (request, "GET", "application/json")
+        handler = self.default_error_handling (request, "POST", "application/json")
 
         if handler is not None:
             return handler
+        parameters = request.get_json()
+
+        print("parametersparametersparametersparameters", parameters)
 
         token = self.token_from_cookie(request)
         if not self.db.may_administer(token):
             return self.error_403(request)
-
-        print(request.args)
-
+        parameters = request.get_json()
         try:
-            parameters = {
-                "group":     validator.string_value  (request.args, "group"),
-                "start_date":      validator.string_value  (request.args, "start_date", maximum_length=32),
-                "end_date":        validator.string_value  (request.args, "end_date", maximum_length=32),
-                "unit":        validator.string_value  (request.args, "unit", maximum_length=32),
-                "host": validator.string_value(request.args, "host", maximum_length=32),
+            # parameters = {
+            #     "group":     validator.string_value  (request.args, "group"),
+            #     "start_date":      validator.string_value  (request.args, "start_date", maximum_length=32),
+            #     "end_date":        validator.string_value  (request.args, "end_date", maximum_length=32),
+            #     "unit":        validator.string_value  (request.args, "unit", maximum_length=32),
+            #     "host": validator.string_value(request.args, "host", maximum_length=32),
+            # }
+
+            filters = {
+                "start_date":      validator.date_value(parameters, "start_date", False),
+                "end_date":        validator.date_value(parameters, "end_date", False),
+                "group":           value_or_none (parameters, "group"),
+                "filter_by":       validator.string_value(parameters, "filter_by", maximum_length=32),
+                "host":            value_or_none (parameters, "host")
             }
 
-            # if group_name != "all":
-            #     group = self.db.group_by_name(group_name)
-            #     print("group", group)
+            print("what is record?", filters)
 
-
-            # records = self.db.datasets (**record)
-            print("---> parameters 2", parameters)
-            records = ["banana", "apple"]
             # return self.default_list_response (records, formatter.format_dataset_record,
             #                                    base_url = config.base_url)
 
-            return self.response(json.dumps(records))
+            return self.response(json.dumps(filters))
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)

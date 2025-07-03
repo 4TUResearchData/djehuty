@@ -417,6 +417,7 @@ function register_event_handlers() {
             }
             if ("other_value" in filter_info[filter_name]) {
                 let other_value = filter_info[filter_name]["other_value"];
+                console.log(other_value)
                 other_value = trim_single_word(other_value);
                 if (other_value && other_value.length > max_parameter_length) {
                     other_value = other_value.substring(0, max_parameter_length);
