@@ -487,9 +487,9 @@ function remove_tag_event (event) {
     remove_tag (encodeURIComponent(event.data["tag"]), event.data["dataset_uuid"]);
 }
 
-function fetch_tags_by_dataset_uuid(datasetUuid) {
+function fetch_tags_by_dataset_uuid(dataset_uuid) {
   return jQuery.ajax({
-    url:    `/v3/datasets/${datasetUuid}/tags`,
+    url:    `/v3/datasets/${dataset_uuid}/tags`,
     type:   "GET",
     data:   { limit: 10000 },
     headers:{ Accept: "application/json" }
@@ -510,25 +510,6 @@ function render_tags_for_dataset (dataset_uuid) {
         jQuery("#tags-list").show();
     }).fail(function () { show_message ("failure", "<p>Failed to retrieve tags.</p>"); });
 }
-
-// function render_tags_for_dataset (dataset_uuid) {
-//     jQuery.ajax({
-//         url:         `/v3/datasets/${dataset_uuid}/tags`,
-//         data:        { "limit": 10000 },
-//         type:        "GET",
-//         accept:      "application/json",
-//     }).done(function (tags) {
-//         jQuery("#tags-list").empty();
-//         for (let tag of tags) {
-//             let row = jQuery("<li/>");
-//             let anchor = jQuery("<a/>", { "href": "#", "class": "fas fa-trash-can" });
-//             anchor.on("click", { "tag": tag, "dataset_uuid": dataset_uuid }, remove_tag_event);
-//             row.append(jQuery("<span/>").html(`${tag} &nbsp; `)).append(anchor);
-//             jQuery("#tags-list").append(row);
-//         }
-//         jQuery("#tags-list").show();
-//     }).fail(function () { show_message ("failure", "<p>Failed to retrieve tags.</p>"); });
-// }
 
 function cancel_edit_author (author_uuid, dataset_uuid) {
     jQuery("#author-inline-edit-form").remove();

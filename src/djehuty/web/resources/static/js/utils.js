@@ -306,8 +306,7 @@ function search_tags(text) {
     });
 }
 
-function autocomplete_tags(event, item_id) {
-    console.log("autocomplete_tags")
+function autocomplete_tags(dataset_uuid) {
     const current_text = jQuery.trim(jQuery(`#tag`).val());
     if (current_text === "") {
         jQuery("#tag-ac").remove();
@@ -315,23 +314,33 @@ function autocomplete_tags(event, item_id) {
         return;
     }
     if (current_text.length <= 2) return;
-    search_tags(current_text)
-        .done(function (data) {
-            jQuery("#tag-ac").remove();
-            if (data?.length) {
-                const unordered_list = jQuery("<ul/>");
-                for (let item of data) {
-                    const anchor = jQuery("<a/>", {href: "#"}).text(item);
-                    anchor.on("click", {"item_id": item_id, "selected_tag": item}, add_tag_event);
-                    unordered_list.append(jQuery("<li/>").append(anchor));
-                }
-                const wrapper = jQuery("<div/>", {id: "tag-ac", class: "autocomplete"}).html(unordered_list);
-                jQuery("#tag").addClass("input-for-ac");
-                jQuery("#wrap-input-tag").after(wrapper);
-            } else {
-                jQuery("#tag").removeClass("input-for-ac");
+
+    $.when(
+        // If call for tags fails, resolve with fail snippet
+        search_tags(current_text).then(data => data),
+        // Call for existing tags never go fail. If success: return data. If fails: resolve with empty array.
+        fetch_tags_by_dataset_uuid(dataset_uuid).then(data => data, () => [])
+    ).done(function (search_result, existing_result) {
+        const filtered_tags = search_result.filter(
+            tag => !existing_result.includes(tag)
+        );
+
+        jQuery("#tag-ac").remove();
+        if (filtered_tags?.length) {
+            const unordered_list = jQuery("<ul/>");
+            for (let item of filtered_tags) {
+                const anchor = jQuery("<a/>", {href: "#"}).text(item);
+                anchor.on("click", {"item_id": dataset_uuid, "selected_tag": item}, add_tag_event);
+                unordered_list.append(jQuery("<li/>").append(anchor));
             }
-        }).fail(function () {
+            const wrapper = jQuery("<div/>", {id: "tag-ac", class: "autocomplete"}).html(unordered_list);
+            jQuery("#tag").addClass("input-for-ac");
+            jQuery("#wrap-input-tag").after(wrapper);
+        } else {
+            jQuery("#tag").removeClass("input-for-ac");
+        }
+    }).fail(function () {
+        console.warn("Error while searching for tags");
         jQuery("#tag-ac").remove();
         jQuery("#tag").removeClass("input-for-ac");
     });
