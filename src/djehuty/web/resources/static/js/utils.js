@@ -295,8 +295,19 @@ function add_tag_event (event) {
     jQuery('#tag').val(event.data["selected_tag"] + '; ').focus();
     add_tag(event.data["item_id"]);
 }
+function search_tags(text) {
+    return jQuery.ajax({
+        url: '/v3/tags/search',
+        type: "POST",
+        contentType: "application/json",
+        accept: "application/json",
+        data: JSON.stringify({"search_for": text}),
+        dataType: "json"
+    });
+}
 
 function autocomplete_tags(event, item_id) {
+    console.log("autocomplete_tags")
     const current_text = jQuery.trim(jQuery(`#tag`).val());
     if (current_text === "") {
         jQuery("#tag-ac").remove();
@@ -304,29 +315,23 @@ function autocomplete_tags(event, item_id) {
         return;
     }
     if (current_text.length <= 2) return;
-    jQuery.ajax({
-        url: '/v3/tags/search',
-        type: "POST",
-        contentType: "application/json",
-        accept: "application/json",
-        data: JSON.stringify({"search_for": current_text}),
-        dataType: "json"
-    }).done(function (data) {
-        jQuery("#tag-ac").remove();
-        if (data?.length) {
-            const unordered_list = jQuery("<ul/>");
-            for (let item of data) {
-                const anchor = jQuery("<a/>", {href: "#"}).text(item);
-                anchor.on("click", {"item_id": item_id, "selected_tag": item}, add_tag_event);
-                unordered_list.append(jQuery("<li/>").append(anchor));
+    search_tags(current_text)
+        .done(function (data) {
+            jQuery("#tag-ac").remove();
+            if (data?.length) {
+                const unordered_list = jQuery("<ul/>");
+                for (let item of data) {
+                    const anchor = jQuery("<a/>", {href: "#"}).text(item);
+                    anchor.on("click", {"item_id": item_id, "selected_tag": item}, add_tag_event);
+                    unordered_list.append(jQuery("<li/>").append(anchor));
+                }
+                const wrapper = jQuery("<div/>", {id: "tag-ac", class: "autocomplete"}).html(unordered_list);
+                jQuery("#tag").addClass("input-for-ac");
+                jQuery("#wrap-input-tag").after(wrapper);
+            } else {
+                jQuery("#tag").removeClass("input-for-ac");
             }
-            const wrapper = jQuery("<div/>", {id: "tag-ac", class: "autocomplete"}).html(unordered_list);
-            jQuery("#tag").addClass("input-for-ac");
-            jQuery("#wrap-input-tag").after(wrapper);
-        } else {
-            jQuery("#tag").removeClass("input-for-ac");
-        }
-    }).fail(function () {
+        }).fail(function () {
         jQuery("#tag-ac").remove();
         jQuery("#tag").removeClass("input-for-ac");
     });
