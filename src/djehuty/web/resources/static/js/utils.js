@@ -379,6 +379,8 @@ function featured_groups(response) {
             }
         });
 
+        console.log(results.values())
+
         const values = Array.from(results.values());
         response(values);
     }).fail(function () {
@@ -386,3 +388,4 @@ function featured_groups(response) {
         response([]);
     });
 }
+

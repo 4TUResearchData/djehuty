@@ -8460,37 +8460,33 @@ class WebServer:
 
         if handler is not None:
             return handler
-        parameters = request.get_json()
-
-        print("parametersparametersparametersparameters", parameters)
 
         token = self.token_from_cookie(request)
         if not self.db.may_administer(token):
             return self.error_403(request)
+
         parameters = request.get_json()
         try:
-            # parameters = {
-            #     "group":     validator.string_value  (request.args, "group"),
-            #     "start_date":      validator.string_value  (request.args, "start_date", maximum_length=32),
-            #     "end_date":        validator.string_value  (request.args, "end_date", maximum_length=32),
-            #     "unit":        validator.string_value  (request.args, "unit", maximum_length=32),
-            #     "host": validator.string_value(request.args, "host", maximum_length=32),
-            # }
 
             filters = {
-                "start_date":      validator.date_value(parameters, "start_date", False),
-                "end_date":        validator.date_value(parameters, "end_date", False),
+                "start_date":      validator.string_value(parameters, "start_date", False),
+                "end_date":        validator.string_value(parameters, "end_date", False),
                 "group":           value_or_none (parameters, "group"),
                 "filter_by":       validator.string_value(parameters, "filter_by", maximum_length=32),
                 "host":            value_or_none (parameters, "host")
             }
 
-            print("what is record?", filters)
+            if filters["group"] is not None:
+                validator.array_value    (filters, "group")
+                for index, _ in enumerate(filters["group"]):
+                    filters["group"][index] = validator.integer_value (filters["group"], index)
 
-            # return self.default_list_response (records, formatter.format_dataset_record,
+            response = self.db.operational_statistics (**filters)
+
+            # return self.default_list_response (response, formatter.format_dataset_record,
             #                                    base_url = config.base_url)
 
-            return self.response(json.dumps(filters))
+            return self.response(json.dumps(response))
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)

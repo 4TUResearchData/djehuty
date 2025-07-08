@@ -474,6 +474,7 @@ class SparqlInterface:
             cache_prefix = f"datasets_{account_uuid}" if account_uuid is not None else "datasets"
             return self.__run_query (query, query, cache_prefix)
 
+
         return self.__run_query (query)
 
     def missing_dois (self):
@@ -593,31 +594,38 @@ class SparqlInterface:
     def operational_statistics(self,
                                start_date=None,
                                end_date=None,
-                               institution=None,
+                               group=None,
                                host=None,
                                filter_by=None):
         """Procedure to retrieve operational statistics."""
 
-        # filters = rdf.sparql_filter("group_id", group_id)
-        # filters += rdf.sparql_filter("id", author_id)
-        # filters += rdf.sparql_filter("institution_id", institution_id)
-        # filters += rdf.sparql_filter("is_active", is_active)
-        # filters += rdf.sparql_filter("is_public", is_public)
-        # filters += rdf.sparql_filter("job_title", job_title, escape=True)
-        # filters += rdf.sparql_filter("first_name", first_name, escape=True)
-        # filters += rdf.sparql_filter("last_name", last_name, escape=True)
-        # filters += rdf.sparql_filter("full_name", full_name, escape=True)
-        # filters += rdf.sparql_filter("orcid_id", orcid_id, escape=True)
-        # filters += rdf.sparql_filter("url_name", url_name, escape=True)
+        filters = rdf.sparql_in_filter("group_id", group)
+
+        if start_date is not None and end_date is not None:
+            start_date_safe = rdf.escape_datetime_value(start_date)
+            end_date_safe = rdf.escape_datetime_value(end_date)
+            filters += f"FILTER ( ?date > {start_date_safe} AND ?date < {end_date_safe})\n"
+
+        elif start_date is not None:
+            start_date_safe = rdf.escape_datetime_value(start_date)
+            filters += f"FILTER ( ?date > {start_date_safe})\n"
+
+        elif end_date is not None:
+            end_date_safe = rdf.escape_datetime_value(end_date)
+            filters += f"FILTER ( ?date > {end_date_safe})\n"
+
+        print("host", host)
+        print("filter_by", filter_by)
+        print("filters", filters)
 
         query = self.__query_from_template("operational_report", {
-            "start_date": start_date,
-            "end_date": end_date,
-            "institution": institution,
             "host": host,
             "filter_by": filter_by,
+            "filters": filters,
         })
-        # query += rdf.sparql_suffix(order, order_direction, limit, None)
+
+        print(query)
+
         return self.__run_query(query)
 
     def container_uuid_by_id (self, identifier, item_type="dataset"):

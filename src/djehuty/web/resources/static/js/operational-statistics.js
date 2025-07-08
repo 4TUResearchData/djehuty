@@ -1,3 +1,5 @@
+let featured_groups_list = []
+
 function render_chart() {
 
     // 1) For now static data
@@ -122,20 +124,82 @@ function load_operational_statistics() {
         url_params["host"] = _split_comma_separated_string(url_params["host"]);
     }
 
+    if ("start_date" in url_params && typeof (url_params["start_date"]) === "string" && url_params["start_date"].length > 0) {
+        url_params["start_date"] = new Date(url_params["start_date"]).toISOString();
+    }
+
+    if ("end_date" in url_params && typeof (url_params["end_date"]) === "string" && url_params["end_date"].length > 0) {
+        url_params["end_date"] = new Date(url_params["end_date"]).toISOString();
+    }
+
     return jQuery.ajax({
-        url:         "/v3/admin/operational-statistics",
-        type:        "POST",
+        url: "/v3/admin/operational-statistics",
+        type: "POST",
         contentType: "application/json",
-        accept:      "application/json",
-        data:        JSON.stringify(url_params),
-        dataType:    "json"
+        accept: "application/json",
+        data: JSON.stringify(url_params),
+        dataType: "json"
     }).done(function (response) {
-        console.log("done", response)
+        const results = get_results_by_featured_groups(response)
         render_chart();
 
     }).fail(function (response) {
         console.log("fails", response)
     });
+}
+
+function get_results_by_featured_groups(data) {
+
+    let featured_results = []
+    let featured_results_map = new Map()
+
+
+    data.forEach(item => {
+        let f_group, f_group_id
+
+        featured_groups_list.forEach(featured_group => {
+            if (featured_group.value.includes(item.group_id)) {
+                f_group = featured_group.label
+                f_group_id = featured_group.id
+            }
+        })
+
+        const featured_result = {
+            ...item,
+            featured_group: {
+                id: f_group_id,
+                label: f_group,
+            },
+        }
+
+        if (!featured_results_map.has(f_group_id)) {
+            const is_first_version = item.is_first_version === 1
+            featured_results_map.set(f_group_id, {
+                featured_group_id: f_group_id,
+                featured_group_label: f_group,
+                results_from_group_ids: [item.group_id],
+                first_version: is_first_version ? item.datasets : 0,
+                updated_version: !is_first_version ? item.datasets : 0
+            });
+        } else {
+            const is_first_version = item.is_first_version === 1
+            const previous = featured_results_map.get(f_group_id)
+            featured_results_map.set(f_group_id, {
+                ...previous,
+                results_from_group_ids: [...previous.results_from_group_ids, item.group_id],
+                first_version: is_first_version ? (previous.first_version + item.datasets) : previous.first_version,
+                updated_version: !is_first_version ? (previous.updated_version + item.datasets) : previous.updated_version,
+            });
+        }
+
+        featured_results.push(featured_result)
+    })
+
+    console.log(featured_results)
+    const values = Array.from(featured_results_map.values());
+    console.log("final values", values)
+
+    return featured_results
 }
 
 
@@ -148,6 +212,7 @@ function parse_url_params() {
     }
     return params;
 }
+
 //also duplicated
 function _split_comma_separated_string(value) {
     let values = [];
@@ -254,6 +319,7 @@ function register_event_handlers() {
 function load_filters() {
 
     featured_groups(function (featured_groups) {
+        featured_groups_list = featured_groups
         featured_groups.forEach(function (item) {
             jQuery('#group').append($('<option>', {
                 id: item.id,
@@ -266,6 +332,7 @@ function load_filters() {
 
     register_event_handlers()
 }
+
 
 jQuery(document).ready(function () {
     load_operational_statistics();
