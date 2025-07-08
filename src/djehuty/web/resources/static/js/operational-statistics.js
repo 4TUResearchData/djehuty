@@ -1,13 +1,273 @@
 let featured_groups_list = []
 
-function render_chart() {
+function render_chart_2(results) {
+
+    console.log(results)
+
+    const group_label = jQuery('#group').find(":selected").text()
+
+    let updated_version = 0
+    let first_version = 0
+
+    if (results.length > 1){
+        results.forEach(item => {
+            updated_version += item.updated_version
+            first_version += item.first_version
+        })
+    } else {
+            updated_version = results[0].updated_version
+            first_version =  results[0].first_version
+    }
+
+
+
+// Parse the Data
+    let data = [
+        {
+            "group": "banana",
+            "updated_version": "12",
+            "first_version": "1",
+        },
+        {
+            "group": "poacee",
+            "updated_version": "6",
+            "first_version": "6",
+        },
+        {
+            "group": "sorgho",
+            "updated_version": "11",
+            "first_version": "28",
+        },
+        {
+            "group": "triticum",
+            "updated_version": "19",
+            "first_version": "6",
+        }
+    ]
+
+
+    let margin = {top: 10, right: 30, bottom: 20, left: 50},
+
+        width = 460 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+    let svg = d3.select("#my_dataviz")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+
+    let subgroups = ['updated_version', 'first_version']
+
+    let groups = d3.map(data, function (d) {
+        return (d.group)
+    }).keys()
+
+    let x = d3.scaleBand()
+        .domain(groups)
+        .range([0, width])
+        .padding([0.2])
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).tickSizeOuter(0));
+
+
+    // Add Y axis
+    let y = d3.scaleLinear()
+        .domain([0, 60])
+        .range([height, 0]);
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+    // color palette = one color per subgroup
+    let color = d3.scaleOrdinal()
+        .domain(subgroups)
+        .range(['#BDD7EE', '#377eb8'])
+
+    //stack the data? --> stack per subgroup
+    let stackedData = d3.stack()
+        .keys(subgroups)
+        (data)
+
+    // Show the bars
+      svg.append("g")
+    .selectAll("g")
+    // Enter in the stack data = loop key per key = group per group
+    .data(stackedData)
+    .enter().append("g")
+      .attr("fill", function(d) { return color(d.key); })
+      .selectAll("rect")
+      // enter a second time = loop subgroup per subgroup to add all rectangles
+      .data(function(d) { return d; })
+      .enter().append("rect")
+        .attr("x", function(d) { return x(d.data.group); })
+        .attr("y", function(d) { return y(d[1]); })
+        .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+        .attr("width",x.bandwidth())
+
+}
+
+//
+// function render_chart(results) {
+//
+//
+//     const group = jQuery('#group').find(":selected").text()
+//
+//     let updated_version = 0
+//     let first_version = 0
+//
+//     if (results.length > 1){
+//         results.forEach(item => {
+//             console.log(item)
+//             updated_version += item.updated_version
+//             first_version += item.first_version
+//         })
+//     } else {
+//             updated_version = results[0].updated_version
+//             first_version =  results[0].first_version
+//     }
+//
+//     console.log(updated_version)
+//     console.log(first_version)
+//
+//     // 1) For now static data
+//     const data = [
+//         // {year: "2020", Delft: 340, Eindhoven: 40, Twente: 30, Wageningen: 50, Other: 280},
+//         {year: "2020", "First Version": first_version, "Updated Version": updated_version, },
+//         // {year: "2021", Delft: 435, Eindhoven: 45, Twente: 120, Wageningen: 140, Other: 245},
+//         // {year: "2022", Delft: 525, Eindhoven: 42, Twente: 60, Wageningen: 90, Other: 245},
+//         // {year: "2023", Delft: 680, Eindhoven: 78, Twente: 100, Wageningen: 140, Other: 180}
+//     ];
+//
+//     // 2) Configuration & dimensions for the chart
+//     const margin = {top: 40, right: 20, bottom: 100, left: 50};
+//     const width = 800 - margin.left - margin.right;
+//     const height = 500 - margin.top - margin.bottom;
+//
+//     // 3) Keys & color scale
+//     const keys = Object.keys(data[0]).filter(k => k !== "year");
+//     const color = d3.scaleOrdinal()
+//         .domain(keys)
+//         .range(["#00A6D6", "#C72125", "#1E2328", "#008A00", "#f4c300"]);
+//
+//     // 4) Scales
+//     const x0 = d3.scaleBand()
+//         .domain(data.map(d => d.year))
+//         .range([0, width])
+//         .paddingInner(0.1);
+//
+//     const x1 = d3.scaleBand()
+//         .domain(keys)
+//         .range([0, x0.bandwidth()])
+//         .padding(0.05);
+//
+//     const y = d3.scaleLinear()
+//         .domain([0, d3.max(data, d => d3.max(keys, key => d[key]))])
+//         .nice()
+//         .range([height, 0]);
+//
+//     // 5) SVG container
+//     const svg = d3.select("#chart")
+//         .append("svg")
+//         .attr("width", width + margin.left + margin.right)
+//         .attr("height", height + margin.top + margin.bottom)
+//         .append("g")
+//         .attr("transform", `translate(${margin.left},${margin.top})`);
+//
+//     // 6) X & Y axes
+//     svg.append("g")
+//         .attr("class", "axis")
+//         .attr("transform", `translate(0,${height})`)
+//         .call(d3.axisBottom(x0));
+//
+//     svg.append("g")
+//         .attr("class", "axis")
+//         .call(d3.axisLeft(y).ticks(5));
+//
+//
+//     // 7) Bars
+//     svg.selectAll("g.year")
+//         .data(data)
+//         .join("g")
+//         .attr("class", "year")
+//         .attr("transform", d => `translate(${x0(d.year)},0)`)
+//         .selectAll("rect")
+//         .data(d => keys.map(key => ({key: key, value: d[key]})))
+//         .join("rect")
+//         .attr("x", d => x1(d.key))
+//         .attr("y", d => y(d.value))
+//         .attr("width", x1.bandwidth())
+//         .attr("height", d => height - y(d.value))
+//         .attr("fill", d => color(d.key))
+//         .append("title")               // hover tooltip
+//         .text(d => `${d.key}: ${d.value}`);
+//
+//     // 8) Chart title
+//     svg.append("text")
+//         .attr("x", width / 2)
+//         .attr("y", -20)
+//         .attr("text-anchor", "middle")
+//         .style("font-size", "18px")
+//         .style("font-weight", "bold")
+//         .text(`Number of datasets (${group})`);
+//
+//     // 9) Legend
+//     const legendY = height + 40;     // Position is 40px below the chart area
+//     const legend = svg.append("g")
+//         .attr("class", "legend")
+//         .attr("transform", `translate(0, ${legendY})`);
+//
+//     // --- 3) Use a band scale to distribute keys evenly:
+//     const legendX = d3.scaleBand()
+//         .domain(keys)              // your array ["Delft","Eindhoven",…]
+//         .range([0, width])         // full chart width
+//         .padding(0.2);             // space between items
+//
+//     legend.selectAll("g")
+//         .data(keys)
+//         .join("g")
+//         .attr("transform", d => `translate(${legendX(d)},0)`)
+//         .call(g => {
+//             g.append("rect")
+//                 .attr("width", 15)
+//                 .attr("height", 15)
+//                 .attr("fill", d => color(d));
+//             g.append("text")
+//                 .attr("x", 20)
+//                 .attr("y", 12)
+//                 .text(d => d);
+//         });
+// }
+
+
+function render_chart(results) {
+
+
+    const group = jQuery('#group').find(":selected").text()
+
+    let updated_version = 0
+    let first_version = 0
+
+    if (results.length > 1){
+        results.forEach(item => {
+            updated_version += item.updated_version
+            first_version += item.first_version
+        })
+    } else {
+            updated_version = results[0].updated_version
+            first_version =  results[0].first_version
+    }
 
     // 1) For now static data
     const data = [
-        {year: "2020", Delft: 340, Eindhoven: 40, Twente: 30, Wageningen: 50, Other: 280},
-        {year: "2021", Delft: 435, Eindhoven: 45, Twente: 120, Wageningen: 140, Other: 245},
-        {year: "2022", Delft: 525, Eindhoven: 42, Twente: 60, Wageningen: 90, Other: 245},
-        {year: "2023", Delft: 680, Eindhoven: 78, Twente: 100, Wageningen: 140, Other: 180}
+        // {year: "2020", Delft: 340, Eindhoven: 40, Twente: 30, Wageningen: 50, Other: 280},
+        {year: "2020", "first_version": first_version, "updated_version": updated_version, },
+        // {year: "2021", Delft: 435, Eindhoven: 45, Twente: 120, Wageningen: 140, Other: 245},
+        // {year: "2022", Delft: 525, Eindhoven: 42, Twente: 60, Wageningen: 90, Other: 245},
+        // {year: "2023", Delft: 680, Eindhoven: 78, Twente: 100, Wageningen: 140, Other: 180}
     ];
 
     // 2) Configuration & dimensions for the chart
@@ -55,6 +315,8 @@ function render_chart() {
         .attr("class", "axis")
         .call(d3.axisLeft(y).ticks(5));
 
+
+
     // 7) Bars
     svg.selectAll("g.year")
         .data(data)
@@ -79,7 +341,7 @@ function render_chart() {
         .attr("text-anchor", "middle")
         .style("font-size", "18px")
         .style("font-weight", "bold")
-        .text("Number of datasets");
+        .text(`Number of datasets (${group})`);
 
     // 9) Legend
     const legendY = height + 40;     // Position is 40px below the chart area
@@ -108,6 +370,7 @@ function render_chart() {
                 .text(d => d);
         });
 }
+
 
 function load_operational_statistics() {
 
@@ -141,7 +404,9 @@ function load_operational_statistics() {
         dataType: "json"
     }).done(function (response) {
         const results = get_results_by_featured_groups(response)
-        render_chart();
+        render_chart(results);
+            render_chart_2(results)
+
 
     }).fail(function (response) {
         console.log("fails", response)
@@ -195,11 +460,11 @@ function get_results_by_featured_groups(data) {
         featured_results.push(featured_result)
     })
 
-    console.log(featured_results)
     const values = Array.from(featured_results_map.values());
-    console.log("final values", values)
+    // console.log("final values", values)
+    return values
 
-    return featured_results
+    // return featured_results
 }
 
 
