@@ -401,7 +401,8 @@ class SparqlInterface:
                   search_format=False, version=None, licenses=None, search_for_raw=None,
                   is_published=True, is_under_review=None, git_uuid=None,
                   private_link_id_string=None, use_cache=True, is_restricted=None,
-                  is_embargoed=None, is_software=None, organizations=None):
+                  is_embargoed=None, is_software=None, organizations=None,
+                  codecheck_certificate_doi=None):
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -414,6 +415,7 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("resource_doi",   resource_doi, escape=True)
         filters += rdf.sparql_filter ("doi",            doi,          escape=True)
         filters += rdf.sparql_filter ("handle",         handle,       escape=True)
+        filters += rdf.sparql_filter ("codecheck_certificate_doi",   codecheck_certificate_doi, escape=True)
         filters += rdf.sparql_filter ("is_restricted",          is_restricted)
         filters += rdf.sparql_filter ("is_embargoed",           is_embargoed)
         filters += rdf.sparql_filter ("private_link_id_string", private_link_id_string, escape=True)
@@ -1246,7 +1248,8 @@ class SparqlInterface:
                         is_latest=0,
                         is_editable=1,
                         git_uuid=None,
-                        version=None):
+                        version=None, 
+                        codecheck_certificate_doi=None):
         """Procedure to insert a dataset to the state graph."""
 
         funding_list    = [] if funding_list    is None else funding_list
@@ -1326,6 +1329,7 @@ class SparqlInterface:
 
         doi = conv.normalize_doi (doi)
         resource_doi = conv.normalize_doi (resource_doi)
+        codecheck_certificate_doi = conv.normalize_doi (codecheck_certificate_doi)
         rdf.add (graph, uri, RDF.type,                   rdf.DJHT["Dataset"], "uri")
         rdf.add (graph, uri, rdf.DJHT["title"],          title,          XSD.string)
         rdf.add (graph, uri, rdf.DJHT["container"],      container,      "uri")
@@ -1361,6 +1365,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["embargo_title"], embargo_title, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["embargo_reason"], embargo_reason, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["eula"],           eula, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["codecheck_certificate_doi"],   codecheck_certificate_doi,   XSD.string)
 
         # Reserve a UUID for a Git repository.
         if git_uuid is None:
@@ -2461,7 +2466,8 @@ class SparqlInterface:
                         is_metadata_record=False, metadata_reason=None,
                         container_doi=None, is_first_online=False, tags=None,
                         git_repository_name=None, git_code_hosting_url=None,
-                        funding_list=None):
+                        funding_list=None, 
+                        requested_codecheck=False, codecheck_certificate_doi=None):
         """Procedure to overwrite parts of a dataset."""
 
         modified_date_str = datetime.strftime (datetime.now(), datetime_format)
@@ -2509,7 +2515,10 @@ class SparqlInterface:
             "git_repository_name": rdf.escape_string_value (git_repository_name),
             "git_code_hosting_url": rdf.escape_string_value (git_code_hosting_url),
             "container_doi":   rdf.escape_string_value (container_doi),
-            "first_online_date": first_online_date_str
+            "first_online_date": first_online_date_str,
+            "requested_codecheck": rdf.escape_boolean_value (requested_codecheck), 
+            "codecheck_certificate_doi":
+                               rdf.escape_string_value (conv.normalize_doi (codecheck_certificate_doi))
         })
 
         collaborators = self.collaborators(dataset_uuid)

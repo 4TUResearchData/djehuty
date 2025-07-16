@@ -70,6 +70,10 @@ DELETE {
     ?container         djht:doi                  ?container_doi .
     {%- endif%}{% if first_online_date is not none %}
     ?container         djht:first_online_date    ?first_online_date .
+    {%- endif%}{% if requested_codecheck is not none %}
+    ?dataset           djht:requested_codecheck ?requested_codecheck .
+    {%- endif%}{% if codecheck_certificate_doi is not none %}
+    ?dataset           djht:codecheck_certificate_doi ?codecheck_certificate_doi .
     {%- endif%}
     ?dataset           djht:modified_date        ?modified_date .
   }
@@ -148,6 +152,10 @@ INSERT {
     ?container         djht:doi                  {{container_doi | safe}} .
     {%- endif%}{% if first_online_date is not none %}
     ?container         djht:first_online_date    "{{first_online_date | safe}}"^^xsd:dateTime .
+    {%- endif%}{% if requested_codecheck is not none %}
+    ?dataset           djht:requested_codecheck {{requested_codecheck | safe}} .
+    {%- endif%}{% if codecheck_certificate_doi is not none %}
+    ?dataset           djht:codecheck_certificate_doi {{codecheck_certificate_doi | safe}} .
     {%- endif%}
     ?dataset           djht:modified_date        "{{modified_date | safe}}"^^xsd:dateTime .
   }
@@ -214,6 +222,8 @@ WHERE {
     OPTIONAL { ?dataset djht:git_code_hosting_url  ?git_code_hosting_url . }
     OPTIONAL { ?container djht:doi                 ?container_doi . }
     OPTIONAL { ?container djht:first_online_date   ?first_online_date . }
+    OPTIONAL { ?dataset djht:requested_codecheck ?requested_codecheck . }
+    OPTIONAL { ?dataset djht:codecheck_certificate_doi ?codecheck_certificate_doi . }
   }
 {%- if account_uuid is not none: %}
   {%- if disable_collaboration %}

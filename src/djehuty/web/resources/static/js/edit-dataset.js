@@ -94,6 +94,7 @@ function gather_form_data () {
     let agreed_to_da  = jQuery("#deposit_agreement").prop("checked");
     let agreed_to_publish = jQuery("#publish_agreement").prop("checked");
     let is_metadata_record = jQuery("#metadata_record_only").prop("checked");
+    let requested_codecheck  = jQuery("#request_codecheck").prop("checked");
 
     let title = or_null(jQuery("#title").val());
     if (title == "" || title == null) { title = "Untitled item"; }
@@ -122,7 +123,9 @@ function gather_form_data () {
         "group_id":       group_id,
         "agreed_to_deposit_agreement": agreed_to_da,
         "agreed_to_publish": agreed_to_publish,
-        "categories":     category_ids
+        "categories":     category_ids, 
+        "requested_codecheck": requested_codecheck,
+        "codecheck_certificate_doi":   or_null(jQuery("#codecheck_certificate_doi").val())
     };
 
     if (is_embargoed) {
@@ -1376,6 +1379,11 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
         if (data["agreed_to_publish"]) {
             jQuery("#publish_agreement").prop("checked", true);
         }
+
+        if (data["requested_codecheck"]) {
+            jQuery("#request_codecheck").prop("checked", true);
+        }
+
 
         toggle_record_type ();
         toggle_access_level ();
