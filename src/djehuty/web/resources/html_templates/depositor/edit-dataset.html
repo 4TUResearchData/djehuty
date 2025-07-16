@@ -507,6 +507,29 @@ git push {{site_shorttag}} --tags</pre>
   <div id="git-files-wrapper" class="options-wrapper">
     <ul id="git-files"></ul>
   </div>
+  
+  {%- if show_codecheck %}
+  {%- if article.group_id is defined and article.group_id
+    and (groups
+          | rejectattr("name", "equalto", "Other institutions")
+          | selectattr("id", "equalto", article.group_id)
+          | selectattr("is_featured")
+          | first) -%}
+  <h4 class="corporate-identity-h4">Reproducibility check</h4>
+  <p>You can request a reproducibility check to see if scientific outputs produced by your software can be independently reproduced. 
+    The check will be conducted using the CODECHECK process. 
+     For details, please visit our dedicated <a target="_blank" rel="noopener noreferrer" href="https://data.4tu.nl/info/about-your-data/codecheck">CODECHECK</a> page. </p>  
+  <label for="reproducibility-check">Request CODECHECK</label><div class="fas fa-question-circle help-icon"><span class="help-text">Learn more about <a target="_blank" rel="noopener noreferrer" href="https://data.4tu.nl/info/about-your-data/codecheck">CODECHECK</a>.</span></div>
+  <div id="codecheck-certificate-wrapper" class="options-wrapper">
+    <input type="checkbox" name="request_codecheck" id="request_codecheck" {%- if article["requested_codecheck"] | default(false) -%}checked{%- endif -%}>
+    <label class="no-head" for="request_codecheck">I am interested in reproducibility check.</label><br/>
+  </div>
+  <p>If you already have a CODECHECK certificate for this software, please enter the certificate DOI below:</p>
+  <label for="codecheck_certificate_doi">CODECHECK certificate DOI</label><div class="fas fa-question-circle help-icon"><span class="help-text">Enter the DOI of your existing CODECHECK certificate, if available.</span></div>
+  <textarea id="codecheck_certificate_doi" name="codecheck_certificate_doi" placeholder="Example: 10.5281/zenodo.15771677">{{article["codecheck_certificate_doi"] | default("", True) }}</textarea>
+  {%- endif -%}
+  {%- endif -%}
+  
   <h4 class="corporate-identity-h4">Distribution artefacts</h4>
   <p>
     Software packages oftentimes have separate distribution tarballs

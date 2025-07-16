@@ -459,6 +459,18 @@ djehuty web --config-file=config.xml --apply-transactions
                                 API requests to avoid re-computing the image.
 \end{tabularx}
 
+\section{Configuring CODECHECK requests}
+
+  When publishing software, \t{djehuty} can be configured to offer reproducibility check.
+  Once enabled, metadata form will include an option to request a reproducibility check or provide CODECHECK certificate.
+  The following parameter can be configured:
+
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Option}             & \textbf{Description}\\
+  \t{enable-codecheck}        & Enable CODECHECK requests in the metadata form.
+\end{tabularx}
+
 \section{Customizing looks}
 
   With the following options, the instance can be branded as necessary.

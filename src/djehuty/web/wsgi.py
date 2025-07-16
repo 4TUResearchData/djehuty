@@ -2322,6 +2322,7 @@ class WebServer:
 
             dataset["doi"] = self.__standard_doi (dataset["container_uuid"], version = None,
                                                   container_doi = value_or_none (dataset, "container_doi"))
+
             return self.__render_template (
                 request,
                 "depositor/edit-dataset.html",
@@ -2332,6 +2333,7 @@ class WebServer:
                 account    = account,
                 categories = categories,
                 groups     = groups,
+                show_codecheck = config.enable_codecheck,
                 api_token  = self.token_from_request (request))
 
         except IndexError:
@@ -4906,7 +4908,9 @@ class WebServer:
                     categories      = categories,
                     references      = references,
                     tags            = tags,
-                    funding_list    = funding_list)
+                    funding_list    = funding_list,
+                    requested_codecheck       = validator.boolean_value (record, "requested_codecheck", False, False),
+                    codecheck_certificate_doi = validator.string_value  (record, "codecheck_certificate_doi",   0, 255))
 
                 if self.__is_reviewing (request):
                     try:
@@ -7560,6 +7564,13 @@ class WebServer:
                     "message": "Please enter a valid DOI."
                 })
 
+            codecheck_certificate_doi = normalize_doi (validator.string_value (record, "codecheck_certificate_doi", 0, 255, False))
+            if not validator.is_valid_doi (codecheck_certificate_doi):
+                errors.append ({
+                    "field_name": "codecheck_certificate_doi",
+                    "message": "Please enter a valid DOI."
+                })
+
             license_id = validator.integer_value (record, "license_id", 0, pow(2, 63), True, errors)
             license_url = self.db.license_url_by_id (license_id)
             parameters = {
@@ -7597,7 +7608,9 @@ class WebServer:
                 "defined_type":       defined_type,
                 "agreed_to_deposit_agreement": agreed_to_deposit_agreement,
                 "agreed_to_publish":  agreed_to_publish,
-                "categories":         validator.array_value   (record, "categories", True, errors)
+                "categories":         validator.array_value   (record, "categories", True, errors),
+                "requested_codecheck": validator.boolean_value (record, "requested_codecheck", True, False, errors),
+                "codecheck_certificate_doi":  codecheck_certificate_doi
             }
 
             if not parameters["is_metadata_record"]:

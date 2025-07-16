@@ -28,6 +28,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?private_link_is_expired ?is_shared_with_me ?anonymize
                 ?git_repository_name ?git_code_hosting_url ?group_name
                 ?codecheck_certificate_doi
+                ?requested_codecheck
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -152,6 +153,7 @@ WHERE {
     OPTIONAL { ?dataset djht:git_repository_name   ?git_repository_name . }
     OPTIONAL { ?dataset djht:git_code_hosting_url  ?git_code_hosting_url . }
     OPTIONAL { ?dataset djht:codecheck_certificate_doi ?codecheck_certificate_doi . }
+    OPTIONAL { ?dataset djht:requested_codecheck     ?requested_codecheck . }
     OPTIONAL {
       ?dataset   djht:association_criteria  ?association_criteria .
       ?group_uri rdf:type                   djht:InstitutionGroup .
