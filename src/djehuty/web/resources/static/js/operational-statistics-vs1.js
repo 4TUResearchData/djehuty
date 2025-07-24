@@ -673,60 +673,6 @@ function load_operational_statistics() {
     });
 }
 
-// function get_results_by_featured_groups(data) {
-//
-//     let featured_results = []
-//     let featured_results_map = new Map()
-//
-//
-//     data.forEach(item => {
-//         let f_group, f_group_id
-//
-//         featured_groups_list.forEach(featured_group => {
-//             if (featured_group.value.includes(item.group_id)) {
-//                 f_group = featured_group.label
-//                 f_group_id = featured_group.id
-//             }
-//         })
-//
-//         const featured_result = {
-//             ...item,
-//             featured_group: {
-//                 id: f_group_id,
-//                 label: f_group,
-//             },
-//         }
-//
-//         if (!featured_results_map.has(f_group_id)) {
-//             const is_first_version = item.is_first_version === 1
-//             featured_results_map.set(f_group_id, {
-//                 featured_group_id: f_group_id,
-//                 featured_group_label: f_group,
-//                 results_from_group_ids: [item.group_id],
-//                 first_version: is_first_version ? item.datasets : 0,
-//                 updated_version: !is_first_version ? item.datasets : 0
-//             });
-//         } else {
-//             const is_first_version = item.is_first_version === 1
-//             const previous = featured_results_map.get(f_group_id)
-//             featured_results_map.set(f_group_id, {
-//                 ...previous,
-//                 results_from_group_ids: [...previous.results_from_group_ids, item.group_id],
-//                 first_version: is_first_version ? (previous.first_version + item.datasets) : previous.first_version,
-//                 updated_version: !is_first_version ? (previous.updated_version + item.datasets) : previous.updated_version,
-//             });
-//         }
-//
-//         featured_results.push(featured_result)
-//     })
-//
-//     const values = Array.from(featured_results_map.values());
-//     // console.log("final values", values)
-//     return values
-//
-//     // return featured_results
-// }
-
 function get_results_by_featured_groups(data) {
 
     let featured_results = []

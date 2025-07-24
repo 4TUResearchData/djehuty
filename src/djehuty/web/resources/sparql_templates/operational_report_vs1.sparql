@@ -1,0 +1,20 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+
+SELECT DISTINCT ?is_first_version
+                COUNT(?dataset) AS ?datasets ?group_id
+
+WHERE
+{ GRAPH <{{state_graph}}> {
+  ?container a                                           djht:DatasetContainer ;
+             djht:published_versions/rdf:rest*/rdf:first ?dataset ;
+             djht:published_versions/rdf:first           ?first_version .
+  ?dataset   djht:posted_date                            ?date ;
+             djht:group_id                               ?group_id .
+  }
+  BIND ( ?dataset=?first_version AS ?is_first_version )
+{% if filters is not none %}{{ filters | safe }}{% endif %}
+
+}
+ORDER BY ?group_id DESC(?is_first_version)
+{% endblock %}

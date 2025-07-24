@@ -612,7 +612,7 @@ class SparqlInterface:
 
         elif end_date is not None:
             end_date_safe = rdf.escape_datetime_value(end_date)
-            filters += f"FILTER ( ?date > {end_date_safe})\n"
+            filters += f"FILTER ( ?date < {end_date_safe})\n"
 
         print("host", host)
         print("filter_by", filter_by)

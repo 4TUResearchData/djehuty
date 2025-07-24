@@ -4,6 +4,7 @@
 <script src="/static/js/jquery.dataTables.min.js"></script>
 <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
 <script src="/static/js/operational-statistics.js?cache=1747131610"></script>
+<script src="/static/js/chartsv2.js?cache=1747131610"></script>
 <script src="/static/js/d3.v7.min.js"></script>
 <script src="/static/js/utils.js?cache=1744290797"></script>
 <!-- Remove this line and add CSS under the file itself after stylish -->
@@ -14,6 +15,330 @@
         jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     });
 </script>
+<style nonce="{{nonce}}">
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.chart-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.chart-container.full-width {
+  grid-column: 1 / -1;
+}
+
+.chart-container h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #334155;
+  text-align: center;
+}
+
+.chart-description {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+/* Stats Grid Styles */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0f172a;
+}
+.stat-label {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+/*.stats-grid {*/
+/*  display: grid;*/
+/*  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));*/
+/*  gap: 2rem;*/
+/*  margin-top: 1rem;*/
+/*}*/
+
+/*.stat-item {*/
+/*  text-align: center;*/
+/*  padding: 1rem;*/
+/*  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);*/
+/*  border-radius: 12px;*/
+/*  border: 2px solid #cbd5e1;*/
+/*  transition: all 0.3s ease;*/
+/*}*/
+
+/*.stat-item:hover {*/
+/*  transform: translateY(-2px);*/
+/*  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);*/
+/*}*/
+
+/*.stat-value {*/
+/*  font-size: 2rem;*/
+/*  font-weight: 900;*/
+/*  color: #0f172a;*/
+/*  !*margin-bottom: 0.5rem;*!*/
+/*  !*text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*!*/
+/*}*/
+
+/*.stat-label {*/
+/*  font-size: 1.1rem;*/
+/*  color: #475569;*/
+/*  font-weight: 600;*/
+/*  text-transform: uppercase;*/
+/*  letter-spacing: 0.5px;*/
+/*}*/
+
+/*!*.stat-item.new {*!*/
+/*!*  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);*!*/
+/*!*  border-color: #3b82f6;*!*/
+/*!*}*!*/
+
+/*!*.stat-item.new .stat-value {*!*/
+/*!*  color: #1d4ed8;*!*/
+/*!*}*!*/
+
+/*!*.stat-item.revisions {*!*/
+/*!*  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);*!*/
+/*!*  border-color: #ef4444;*!*/
+/*!*}*!*/
+
+/*!*.stat-item.revisions .stat-value {*!*/
+/*!*  color: #dc2626;*!*/
+/*!*}*!*/
+
+/*!*.stat-item.total {*!*/
+/*!*  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);*!*/
+/*!*  border-color: #10b981;*!*/
+/*!*}*!*/
+
+/*!*.stat-item.total .stat-value {*!*/
+/*!*  color: #059669;*!*/
+/*!*}*!*/
+
+/* Chart specific styles */
+.bar {
+  transition: all 0.3s ease;
+}
+
+.bar:hover {
+  opacity: 0.8;
+}
+
+.axis {
+  font-size: 12px;
+}
+
+.axis text {
+  fill: #64748b;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #cbd5e1;
+  shape-rendering: crispEdges;
+}
+
+.tooltip {
+  position: absolute;
+    background: #F2EFED;
+  /*background: rgba(0, 0, 0, 0.8);*/
+  color: black;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  /*opacity: 0;*/
+  /*transition: opacity 0.3s;*/
+}
+
+/*.tooltip {*/
+/*  position: absolute;*/
+/*  background: rgba(0, 0, 0, 0.8);*/
+/*  color: white;*/
+/*  padding: 8px 12px;*/
+/*  border-radius: 4px;*/
+/*  font-size: 12px;*/
+/*  pointer-events: none;*/
+/*  opacity: 0;*/
+/*  transition: opacity 0.3s;*/
+/*}*/
+
+.line {
+  fill: none;
+  stroke-width: 3;
+  transition: all 0.3s ease;
+}
+
+.line.new {
+  stroke: #3b82f6;
+}
+
+.line.revisions {
+  stroke: #BDD7EE;
+}
+
+.dot {
+  transition: all 0.3s ease;
+}
+
+.dot:hover {
+  r: 6;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.legend-color {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.125rem;
+}
+</style>
+<!--<style nonce="{{nonce}}">-->
+
+
+<!--    .charts-grid {-->
+<!--        display: grid;-->
+<!--        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));-->
+<!--        gap: 2rem;-->
+<!--        margin-top: 2rem;-->
+<!--    }-->
+
+<!--    .chart-container {-->
+<!--        background: white;-->
+<!--        border-radius: 12px;-->
+<!--        padding: 1.5rem;-->
+<!--        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);-->
+<!--        border: 1px solid #e2e8f0;-->
+<!--    }-->
+
+<!--    .chart-container h2 {-->
+<!--        font-size: 1.25rem;-->
+<!--        margin-bottom: 1rem;-->
+<!--        color: #334155;-->
+<!--        text-align: center;-->
+<!--    }-->
+
+<!--    .chart-description {-->
+<!--        text-align: center;-->
+<!--        font-size: 0.9rem;-->
+<!--        color: #64748b;-->
+<!--        margin-top: 1rem;-->
+<!--        font-style: italic;-->
+<!--    }-->
+
+<!--    /* Chart specific styles */-->
+<!--    .bar {-->
+<!--        transition: all 0.3s ease;-->
+<!--    }-->
+
+<!--    .bar:hover {-->
+<!--        opacity: 0.8;-->
+<!--    }-->
+
+<!--    .axis {-->
+<!--        font-size: 12px;-->
+<!--    }-->
+
+<!--    .axis text {-->
+<!--        fill: #64748b;-->
+<!--    }-->
+
+<!--    .axis path,-->
+<!--    .axis line {-->
+<!--        fill: none;-->
+<!--        stroke: #cbd5e1;-->
+<!--        shape-rendering: crispEdges;-->
+<!--    }-->
+
+<!--    .tooltip {-->
+<!--        position: absolute;-->
+<!--        background: rgba(0, 0, 0, 0.8);-->
+<!--        color: white;-->
+<!--        padding: 8px 12px;-->
+<!--        border-radius: 4px;-->
+<!--        font-size: 12px;-->
+<!--        pointer-events: none;-->
+<!--        opacity: 0;-->
+<!--        transition: opacity 0.3s;-->
+<!--    }-->
+
+<!--    .progress-bar {-->
+<!--        background: #e2e8f0;-->
+<!--        border-radius: 10px;-->
+<!--        overflow: hidden;-->
+<!--    }-->
+
+<!--    .progress-fill {-->
+<!--        height: 40px;-->
+<!--        background: linear-gradient(90deg, #3b82f6, #1d4ed8);-->
+<!--        transition: width 1s ease;-->
+<!--        display: flex;-->
+<!--        align-items: center;-->
+<!--        justify-content: center;-->
+<!--        color: white;-->
+<!--        font-weight: bold;-->
+<!--    }-->
+
+<!--    .stats-grid {-->
+<!--        display: grid;-->
+<!--        grid-template-columns: repeat(3, 1fr);-->
+<!--        gap: 1rem;-->
+<!--        margin-top: 1rem;-->
+<!--    }-->
+
+<!--    .stat-item {-->
+<!--        text-align: center;-->
+<!--        padding: 1rem;-->
+<!--        background: #f1f5f9;-->
+<!--        border-radius: 8px;-->
+<!--    }-->
+
+<!--    .stat-value {-->
+<!--        font-size: 1.5rem;-->
+<!--        font-weight: bold;-->
+<!--        color: #0f172a;-->
+<!--    }-->
+
+<!--    .stat-label {-->
+<!--        font-size: 0.9rem;-->
+<!--        color: #64748b;-->
+<!--    }-->
+<!--</style>-->
 
 {% endblock %}
 {% block submenu %}
@@ -48,7 +373,7 @@
                    maxlength="255"/>
         </div>
         <div>
-            <label class="block font-medium text-gray-700 mb-1">From</label>
+            <label class="block font-medium text-gray-700 mb-1">To</label>
             <input class="w-full px-3 py-2.5 border border-solid border-gray-400 rounded-sm"
                    id="end_date"
                    name="end_date"
@@ -75,7 +400,8 @@
         </div>
         <div>
             <label class="block font-medium text-gray-700 mb-1" for="filter_by">Filter By:</label>
-            <select id="filter_by" name="filter_by" class="w-full px-3 py-2.5 border border-solid border-gray-400 rounded-sm">
+            <select id="filter_by" name="filter_by"
+                    class="w-full px-3 py-2.5 border border-solid border-gray-400 rounded-sm">
 
                 <option value="qty">Dataset quantity</option>
                 <option value="size">Storage Size</option>
@@ -85,8 +411,116 @@
 
     <input type="submit" id="apply-filter-button" class="search-submit-btn fa-search" value="&#xf002;">
 
-    <div id="chart"></div>
-    <div id="my_dataviz"></div>
+    <div class="charts-grid">
+        <!-- Stats Grid -->
+        <div class="chart-container full-width">
+            <h2>Summary Statistics</h2>
+            <div id="stats-grid"></div>
+        </div>
 
+        <!-- Donut Chart -->
+        <div class="chart-container">
+            <h2>Total Distribution - All Years</h2>
+            <div id="donut-chart"></div>
+            <p class="chart-description">Total new vs revisions across all years</p>
+        </div>
+
+        <!-- Time Series Line Chart -->
+        <div class="chart-container">
+            <h2>Time Series - Yearly Progression</h2>
+            <div id="line-chart"></div>
+            <p class="chart-description">Progression of new and revisions over time</p>
+        </div>
+
+        <!-- Stacked Bar Chart -->
+        <div class="chart-container">
+            <h2>Stacked Bar - Yearly Breakdown</h2>
+            <div id="stacked-chart"></div>
+            <p class="chart-description">Annual totals with new and revisions breakdown</p>
+        </div>
+
+        <!-- Bar Chart -->
+        <div class="chart-container">
+            <h2>Bar Chart - Yearly Comparison</h2>
+            <div id="bar-chart"></div>
+            <p class="chart-description">Side-by-side comparison of new vs revisions per year</p>
+        </div>
+    </div>
+
+    <!--    <div id="chart"></div>-->
+    <!--    <div id="chart-sum-bar"></div>-->
+    <!--    <div id="chart-pie"></div>-->
+    <!--    <div id="legend-pie"></div>-->
+    <!--    <div id="stacked-chart"></div>-->
+
+    <!--    <div class="charts-grid">-->
+    <!--        &lt;!&ndash; Chart 1: Donut Chart &ndash;&gt;-->
+    <!--        <div class="chart-container">-->
+    <!--            <h2>1. Donut Chart - Proportion View</h2>-->
+    <!--            <div id="donut-chart"></div>-->
+    <!--            <p class="chart-description">Shows the proportion of Updated vs First Versions</p>-->
+    <!--        </div>-->
+
+    <!--        &lt;!&ndash; Chart 2: Bar Chart &ndash;&gt;-->
+    <!--        <div class="chart-container">-->
+    <!--            <h2>2. Bar Chart - Comparison View</h2>-->
+    <!--            <div id="bar-chart"></div>-->
+    <!--            <p class="chart-description">Direct comparison between Updated and First Versions</p>-->
+    <!--        </div>-->
+
+    <!--        &lt;!&ndash; Chart 3: Stacked Bar Chart &ndash;&gt;-->
+    <!--        <div class="chart-container">-->
+    <!--            <h2>3. Stacked Bar - Total Breakdown</h2>-->
+    <!--            <div id="stacked-chart"></div>-->
+    <!--            <p class="chart-description">Shows total with breakdown of components</p>-->
+    <!--        </div>-->
+
+    <!--        &lt;!&ndash; Chart 4: Progress Chart &ndash;&gt;-->
+    <!--        <div class="chart-container">-->
+    <!--            <h2>4. Progress Chart - Update Rate</h2>-->
+    <!--            <div id="progress-chart"></div>-->
+    <!--            <p class="chart-description">Shows update progress as percentage of total</p>-->
+    <!--        </div>-->
+    <!--        &lt;!&ndash; Chart 5: Gauge Chart &ndash;&gt;-->
+    <!--&lt;!&ndash;        <div class="chart-container">&ndash;&gt;-->
+    <!--&lt;!&ndash;            <h2>5. Gauge Chart - Update Rate Meter</h2>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <div id="gauge-chart"></div>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <p class="chart-description">Shows update rate as a speedometer gauge</p>&ndash;&gt;-->
+    <!--&lt;!&ndash;        </div>&ndash;&gt;-->
+    <!--        &lt;!&ndash; Chart 6: Horizontal Bar Chart &ndash;&gt;-->
+    <!--        <div class="chart-container">-->
+    <!--            <h2>6. Horizontal Bar Chart - Side Comparison</h2>-->
+    <!--            <div id="horizontal-bar-chart"></div>-->
+    <!--            <p class="chart-description">Horizontal comparison with better label space</p>-->
+    <!--        </div>-->
+
+    <!--        &lt;!&ndash; Chart 7: Area Chart &ndash;&gt;-->
+    <!--&lt;!&ndash;        <div class="chart-container">&ndash;&gt;-->
+    <!--&lt;!&ndash;            <h2>7. Area Chart - Filled Comparison</h2>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <div id="area-chart"></div>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <p class="chart-description">Shows data as filled areas for visual impact</p>&ndash;&gt;-->
+    <!--&lt;!&ndash;        </div>&ndash;&gt;-->
+
+    <!--        &lt;!&ndash; Chart 8: Radial Bar Chart &ndash;&gt;-->
+    <!--&lt;!&ndash;        <div class="chart-container">&ndash;&gt;-->
+    <!--&lt;!&ndash;            <h2>8. Radial Bar Chart - Circular Bars</h2>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <div id="radial-chart"></div>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <p class="chart-description">Circular representation of bar data</p>&ndash;&gt;-->
+    <!--&lt;!&ndash;        </div>&ndash;&gt;-->
+
+    <!--        &lt;!&ndash; Chart 9: Waterfall Chart &ndash;&gt;-->
+    <!--&lt;!&ndash;        <div class="chart-container">&ndash;&gt;-->
+    <!--&lt;!&ndash;            <h2>9. Waterfall Chart - Flow Visualization</h2>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <div id="waterfall-chart"></div>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <p class="chart-description">Shows the flow from First to Updated versions</p>&ndash;&gt;-->
+    <!--&lt;!&ndash;        </div>&ndash;&gt;-->
+
+    <!--        &lt;!&ndash; Chart 10: Treemap Chart &ndash;&gt;-->
+    <!--&lt;!&ndash;        <div class="chart-container">&ndash;&gt;-->
+    <!--&lt;!&ndash;            <h2>10. Treemap Chart - Proportional Rectangles</h2>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <div id="treemap-chart"></div>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <p class="chart-description">Shows proportions as sized rectangles</p>&ndash;&gt;-->
+    <!--&lt;!&ndash;        </div>&ndash;&gt;-->
+    <!--    </div>-->
 </div>
 {% endblock %}
