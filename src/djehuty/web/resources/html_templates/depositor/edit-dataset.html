@@ -508,13 +508,18 @@ git push {{site_shorttag}} --tags</pre>
     <ul id="git-files"></ul>
   </div>
   
+  {%- set matched_group =
+    (groups
+    | rejectattr("name", "equalto", "Other institutions")
+    | selectattr("id", "equalto", article.group_id) | list
+     + (groups
+        | map(attribute="subgroups")
+        | sum(start=[])
+        | selectattr("id", "equalto", article.group_id)
+        | list)) | first -%}
+
   {%- if show_codecheck %}
-  {%- if article.group_id is defined and article.group_id
-    and (groups
-          | rejectattr("name", "equalto", "Other institutions")
-          | selectattr("id", "equalto", article.group_id)
-          | selectattr("is_featured")
-          | first) -%}
+  {%- if matched_group and matched_group.is_featured -%}
   <h4 class="corporate-identity-h4">Reproducibility check</h4>
   <p>You can request a reproducibility check to see if scientific outputs produced by your software can be independently reproduced. 
     The check will be conducted using the CODECHECK process. 
