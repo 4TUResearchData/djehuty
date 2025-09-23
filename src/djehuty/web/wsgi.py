@@ -7609,7 +7609,7 @@ class WebServer:
                 "agreed_to_deposit_agreement": agreed_to_deposit_agreement,
                 "agreed_to_publish":  agreed_to_publish,
                 "categories":         validator.array_value   (record, "categories", True, errors),
-                "requested_codecheck": validator.boolean_value (record, "requested_codecheck", True, False, errors),
+                "requested_codecheck": validator.boolean_value (record, "requested_codecheck", False, False),
                 "codecheck_certificate_doi":  codecheck_certificate_doi
             }
 
