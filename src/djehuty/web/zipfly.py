@@ -32,6 +32,8 @@ conditions of 'zipfly'.
 import io
 import zipfile
 import logging
+import os
+import stat
 from zipfile import ZipFile, ZipInfo, ZIP_STORED
 
 try:
@@ -156,11 +158,25 @@ class ZipFly:
                     z_info = zipfile.ZipInfo.from_file(path[self.filesystem], path[self.arcname])
                     if self.reproducible_timestamps:
                         z_info.date_time = (1980, 1, 1, 0, 0, 0)
-                    with open (path[self.filesystem], "rb") as e:
-                        with zip_stream.open (z_info, mode="w") as d:
-                            for chunk in iter(lambda: e.read(self.chunksize), b""):  # pylint: disable=cell-var-from-loop
-                                d.write(chunk)
-                                yield stream.get()
+                    """
+                    Zip files on prevalent *nix supports InfoZIP external attributes to encode file mode
+                    including symbolic links with ((attr >> 16) & S_IFMT) == S_IFLNK, i.e. 0120755 << 16,
+                    using u+rwx,g+rx,o+rx conventions. Content of file is symlink destination. Ignored
+                    on platforms that do not support symbolic links.
+                    """
+                    if os.path.islink( path[self.filesystem] ):
+                        z_info.external_attr = ( 0o120755 << 16 )
+                        z_info.create_system = 3
+                        zip_stream.writestr(z_info,os.readlink(path[self.filesystem]))
+                    else:
+                        with open (path[self.filesystem], "rb") as e:
+                            """never include dereferenced content from symbolic links in stream"""
+                            if stat.S_ISLNK( os.fstat(e.fileno()).st_mode ):
+                                continue
+                            with zip_stream.open (z_info, mode="w") as d:
+                                for chunk in iter(lambda: e.read(self.chunksize), b""):  # pylint: disable=cell-var-from-loop
+                                    d.write(chunk)
+                                    yield stream.get()
 
                 else:
                     raise RuntimeError(f"'{self.filesystem}' or '{self.s3_stream}' key is required")
