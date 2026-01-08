@@ -67,6 +67,8 @@ Follow the instructions in the [README](https://github.com/4TUResearchData/djehu
 7. **Final approval and merge**
 After review and approval, your PR must be squashed into a single commit using the project’s [commit message template](#commit-message-template). Once the checklist is complete, a maintainer will rebase-merge it into the main branch to keep the history clean.
 
+If you want to make a very small contribution, such as one or a few lines of code for which following the code contributions workflow is not convenient, please contact the [core maintainers](mailto:djehuty@4tu.nl).
+
 ---
 
 ## Conventions
