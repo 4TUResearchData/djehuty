@@ -1,0 +1,26 @@
+name: "🪴 Improvement"
+description: Use when you want to refine an existing functionality (enhance functionality).
+title: "[IMPROVEMENT]:"
+labels: ["\U0001FAB4 improvement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use when you want to refine an existing functionality (enhance functionality).
+  - type: textarea
+    attributes:
+      label: Description
+      description: A clear and short description of the enhancement.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Current Behavior x Proposed Improvement
+      description: Brief description of the existing behavior or limitation and how you suggest to improve it.
+      placeholder: |
+        1. Existing behavior or limitation:
+        2. How we can improve it:
+  - type: textarea
+    attributes:
+      label: Additional Notes
+      description: References, related issues, examples.
