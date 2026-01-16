@@ -1,0 +1,36 @@
+name: "🚀 New Feature"
+description: Use when you would like to introduce a new idea.
+title: "[NEW FEATURE]:"
+labels: ["\U0001F680 new feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use when you would like to introduce a new idea.
+  - type: textarea
+    attributes:
+      label: Description
+      description: A short description the new functionality and who will use it.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+      placeholder: |
+        What the problem is. Ex. I'm always frustrated when [...]
+  - type: textarea
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
+      placeholder: |
+        A clear and concise description of what you want to happen. 
+        Suggestion: if possible, describe who will benefit from the functionality and for what reason.
+        Example:
+        - As a "data steward", I want "to do ..." so that "i can ....".
+        - As a "researcher", I want "to do ..." so that "i can ....".
+        - As a "reviewer", I want "to do ..." so that "i can ....".
+  - type: textarea
+    attributes:
+      label: Additional Notes
+      description: Designs, diagrams, examples, screenshots etc.
