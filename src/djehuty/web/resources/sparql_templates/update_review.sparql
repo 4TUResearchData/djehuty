@@ -7,6 +7,8 @@ DELETE {
     ?review          djht:status                ?status .
     {%- endif%}{% if reminder_date is not none %}
     ?review          djht:reminder_date         ?reminder_date .
+    {%- endif%}{% if note is not none %}
+    ?review          djht:note         ?note .
     {%- endif%}
   }
 }
@@ -18,6 +20,8 @@ INSERT {
     ?review          djht:status               djht:Review{{status | safe}} .
     {%- endif%}{% if reminder_date is not none %}
     ?review          djht:reminder_date        "{{reminder_date | safe}}"^^xsd:dateTime .
+    {%- endif%}{% if note is not none and not note_is_unset %}
+    ?review         djht:note                   {{note | safe}} .
     {%- endif%}
   }
 }
@@ -30,6 +34,7 @@ WHERE {
     OPTIONAL { ?review   djht:assigned_to           ?assigned_to . }
     OPTIONAL { ?review   djht:status                ?status . }
     OPTIONAL { ?review   djht:reminder_date         ?reminder_date . }
+    OPTIONAL { ?review   djht:note                  ?note . }
   }
   FILTER (?review = <{{review_uri}}>)
 }
