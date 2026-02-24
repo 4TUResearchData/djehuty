@@ -195,6 +195,7 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 #api-upload pre { font-size: 0.9em; white-space: pre-wrap; overflow-wrap: anywhere; }
 #api-upload-fold { display: none; }
 .no-margin { margin: 0em; padding: 0em; }
+.text-left { text-align: left; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -542,6 +543,11 @@ git push {{site_shorttag}} --tags</pre>
   </p>
 </div>
 <div id="file_upload_field" class="upload-wrapper record-type-field">
+  {% if file_deposit_notice %}
+  <div class="text-left">
+    <p>{{ file_deposit_notice|safe }}</p>
+  </div>
+  {% endif %}
 <form id="dropzone-field" class="upload-container dropzone" action="/v3/datasets/{{container_uuid}}/upload" method="post">
   <div class="fallback">
     <input type="file" name="file" id="file" aria-label="Upload file" multiple="">

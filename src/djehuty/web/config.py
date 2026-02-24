@@ -99,6 +99,7 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         self.datacite_password           = None
         self.datacite_prefix             = None
         self.ssi_psk                     = None
+        self.file_deposit_notice         = None
         self.menu                        = []
         self.colors                      = {
             "primary-color":            "#f49120",

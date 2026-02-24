@@ -472,6 +472,30 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{enable-codecheck}        & Enable CODECHECK requests in the metadata form.
 \end{tabularx}
 
+\section{Configuring dataset upload}
+
+  The dataset upload behaviour can be configured under the \t{upload-dataset}
+  node.  Currently you can add a custom message under dataset file deposit section.
+  The \t{file-deposit} sub-node supports the following option:
+
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Option}             & \textbf{Description}\\
+  \t{file-deposit/notice}     & An HTML message displayed above the file upload
+                                area when a depositor edits a dataset.  HTML
+                                markup, including hyperlinks, is supported.
+\end{tabularx}
+
+  How to use:
+
+\begin{lstlisting}[language=xml]
+<upload-dataset>
+  <file-deposit>
+    <notice>Your message here</notice>
+  </file-deposit>
+</upload-dataset>
+\end{lstlisting}
+
 \section{Customizing looks}
 
   With the following options, the instance can be branded as necessary.

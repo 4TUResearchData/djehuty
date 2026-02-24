@@ -103,9 +103,9 @@ def read_raw_xml (xml_root, path, default_value=None):
     DEFAULT_VALUE upon failure.
     """
     try:
-        length = len(path) + 2 # Add two for the < and >.
         node = config_value (xml_root, path, None, None, return_node=True)
         if node is not None:
+            length = len(node.tag) + 2 # Add two for the < and >.
             # Attributes are rendered in the raw XML. We need to
             # remove it to get the inner XML.
             attributes = node.attrib
@@ -681,6 +681,14 @@ def read_email_configuration (server, xml_root, logger):
             logger.error ("Could not configure the email subsystem:")
             logger.error ("The email port should be a numeric value.")
 
+def read_upload_dataset_configuration (xml_root):
+    """Procedure to parse and set the upload dataset configuration."""
+    upload_dataset = xml_root.find("upload-dataset")
+    if upload_dataset is not None:
+        item = upload_dataset.find("file-deposit/notice")
+        if item is not None:
+            config.file_deposit_notice, _ = read_raw_xml(upload_dataset, "file-deposit/notice")
+
 def read_configuration_file (server, config_file, logger, config_files):
     """Procedure to parse a configuration file."""
 
@@ -919,6 +927,7 @@ def read_configuration_file (server, config_file, logger, config_files):
         read_storage_configuration (xml_root, logger)
         read_quotas_configuration (xml_root)
         read_colors_configuration (xml_root)
+        read_upload_dataset_configuration (xml_root)
 
         for include_element in xml_root.iter('include'):
             include    = include_element.text
