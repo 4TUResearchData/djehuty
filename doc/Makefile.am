@@ -20,10 +20,10 @@ dist_doc_DATA           += $(doc_PDF)
 # Run pdflatex thrice, so that the table of contents and references are
 # properly set up.
 $(doc_PDF):
-	@$(PDFLATEX) $(doc_TEX) $(doc_STYLE) > /dev/null
-	-@$(BIBTEX) $(doc_NAME) > /dev/null
-	@$(PDFLATEX) $(doc_TEX) $(doc_STYLE) > /dev/null
-	@$(PDFLATEX) $(doc_TEX) $(doc_STYLE) > /dev/null
+	@$(PDFLATEX) -interaction=nonstopmode $(doc_TEX) $(doc_STYLE)
+	-@$(BIBTEX) $(doc_NAME)
+	@$(PDFLATEX) -interaction=nonstopmode $(doc_TEX) $(doc_STYLE)
+	@$(PDFLATEX) -interaction=nonstopmode $(doc_TEX) $(doc_STYLE)
 	@printf "Generated $(doc_PDF).\n"
 endif
 
@@ -61,7 +61,7 @@ index.html: $(doc_HTML)
 
 $(doc_HTML): $(doc_PDF)
 	@cp -r ${abs_top_srcdir}/src/djehuty/web/resources/static/fonts ${srcdir}
-	@$(HTLATEX) $(doc_TEX) > /dev/null
+	@$(HTLATEX) $(doc_TEX) "" "" "" " -interaction=nonstopmode"
 	@$(SED) -e 's#class="endfloat" />#class="endfloat">#g' \
           -e 's#class="newline" />#class="newline">#g' \
           -e 's#<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  #<!DOCTYPE html>#g' \
@@ -69,8 +69,10 @@ $(doc_HTML): $(doc_PDF)
           -e 's#<br />#<br>#g' $(doc_NAME).html > index.html
 	@printf "Generated index.html.\n"
 
+$(doc_NAME)2.html $(doc_NAME)3.html $(doc_NAME)4.html \
+$(doc_NAME)5.html $(doc_NAME)6.html $(doc_NAME)7.html: $(doc_HTML)
+
 .PHONY: $(doc_NAME).css
-.PHONY: $(doc_NAME)2.html $(doc_NAME)3.html $(doc_NAME)4.html $(doc_NAME)5.html
 .PHONY: fonts/SourceSansPro-Regular.ttf fonts/SourceSansPro-Italic.ttf
 .PHONY: fonts/SourceSansPro-Bold.ttf fonts/FiraMono-Regular.ttf
 
