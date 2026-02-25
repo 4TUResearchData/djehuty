@@ -2334,6 +2334,7 @@ class WebServer:
                 categories = categories,
                 groups     = groups,
                 show_codecheck = config.enable_codecheck,
+                file_deposit_notice = config.file_deposit_notice,
                 api_token  = self.token_from_request (request))
 
         except IndexError:
