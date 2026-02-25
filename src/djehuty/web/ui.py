@@ -681,12 +681,13 @@ def read_email_configuration (server, xml_root, logger):
             logger.error ("Could not configure the email subsystem:")
             logger.error ("The email port should be a numeric value.")
 
-def read_upload_dataset_configuration (xml_root):
+def read_upload_dataset_configuration (xml_root, logger):
     """Procedure to parse and set the upload dataset configuration."""
     upload_dataset = xml_root.find("upload-dataset")
     if upload_dataset is not None:
-        item = upload_dataset.find("file-deposit/notice")
-        if item is not None:
+        config.allow_full_embargo = read_boolean_value(upload_dataset, "allow-full-embargo", True, logger)
+        file_deposit_notice = upload_dataset.find("file-deposit/notice")
+        if file_deposit_notice is not None:
             config.file_deposit_notice, _ = read_raw_xml(upload_dataset, "file-deposit/notice")
 
 def read_configuration_file (server, config_file, logger, config_files):
@@ -927,7 +928,7 @@ def read_configuration_file (server, config_file, logger, config_files):
         read_storage_configuration (xml_root, logger)
         read_quotas_configuration (xml_root)
         read_colors_configuration (xml_root)
-        read_upload_dataset_configuration (xml_root)
+        read_upload_dataset_configuration (xml_root, logger)
 
         for include_element in xml_root.iter('include'):
             include    = include_element.text

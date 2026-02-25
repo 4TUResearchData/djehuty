@@ -475,12 +475,24 @@ djehuty web --config-file=config.xml --apply-transactions
 \section{Configuring dataset upload}
 
   The dataset upload behaviour can be configured under the \t{upload-dataset}
-  node.  Currently you can add a custom message under dataset file deposit section.
-  The \t{file-deposit} sub-node supports the following option:
+  node.  Currently you can:
+
+\begin{itemize}
+  \item Disable the “Full content embargo” option (enabled by default).
+  \item Add a custom message to be displayed in the dataset file deposit section.
+\end{itemize}
+
+  The \t{upload-dataset} node supports the following option:
 
 \begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
   \headrow
   \textbf{Option}             & \textbf{Description}\\
+  \t{allow-full-embargo}      & ``Full content embargo'' is enabled by default.
+                                Set this option to 0 to disable it. When users
+                                choose to deposit a dataset or software under a
+                                ``Full content embargo'', both the files and the
+                                metadata will remain unavailable during the embargo
+                                period.\\
   \t{file-deposit/notice}     & An HTML message displayed above the file upload
                                 area when a depositor edits a dataset.  HTML
                                 markup, including hyperlinks, is supported.
@@ -490,6 +502,7 @@ djehuty web --config-file=config.xml --apply-transactions
 
 \begin{lstlisting}[language=xml]
 <upload-dataset>
+  <allow-full-embargo>0</allow-full-embargo>
   <file-deposit>
     <notice>Your message here</notice>
   </file-deposit>
