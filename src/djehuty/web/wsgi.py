@@ -2334,6 +2334,7 @@ class WebServer:
                 categories = categories,
                 groups     = groups,
                 show_codecheck = config.enable_codecheck,
+                allow_full_embargo = config.allow_full_embargo,
                 file_deposit_notice = config.file_deposit_notice,
                 api_token  = self.token_from_request (request))
 
@@ -4845,6 +4846,9 @@ class WebServer:
 
                 if is_restricted or is_closed:
                     record["embargo_type"] = "file"
+
+                if not config.allow_full_embargo and record.get("embargo_type") == "article":
+                    return self.error_400 (request, "Full content embargo is not permitted.", 400)
 
                 authors, errors = self.__author_list_from_request_input (record, account_uuid)
                 if errors:

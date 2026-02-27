@@ -176,6 +176,13 @@ function save_dataset (dataset_uuid, event, notify=true, on_success=jQuery.noop)
         submit_external_link (dataset_uuid);
     }
     form_data = gather_form_data();
+    if (form_data["is_embargoed"] && !form_data["embargo_until_date"] &&
+        !jQuery("#restricted_access").prop("checked")) {
+        if (notify) {
+            show_message ("failure", "<p>Please fill in the embargo date or select open access.</p>");
+        }
+        return;
+    }
     jQuery.ajax({
         url:         `/v2/account/articles/${dataset_uuid}`,
         type:        "PUT",
@@ -1366,10 +1373,10 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
                 jQuery("#restricted_access").prop("checked", true);
             } else {
                 jQuery("#embargoed_access").prop("checked", true);
-                if (data["embargo_type"] == "file") {
-                    jQuery("#files_only_embargo").prop("checked", true);
-                } else if (data["embargo_type"] == "article") {
+                if (data["embargo_type"] == "article" && jQuery("#content_embargo").length > 0) {
                     jQuery("#content_embargo").prop("checked", true);
+                } else if (data["embargo_type"] == "file" || jQuery("#content_embargo").length === 0) {
+                    jQuery("#files_only_embargo").prop("checked", true);
                 }
             }
         }
@@ -1400,6 +1407,11 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
             render_git_branches_for_dataset (dataset_uuid, event);
         });
         jQuery("input[name=access_type]").on("change", toggle_access_level);
+        jQuery("#embargoed_access").on("change", function () {
+            if (jQuery("#content_embargo").length === 0) {
+                jQuery("#files_only_embargo").prop("checked", true);
+            }
+        });
         jQuery("#configure_embargo").on("click", toggle_embargo_options);
         jQuery("#embargo_until_forever").on("change", toggle_embargo_until);
         jQuery("#cancel_embargo").on("click", toggle_embargo_options);
