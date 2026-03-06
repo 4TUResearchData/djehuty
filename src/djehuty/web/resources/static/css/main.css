@@ -159,8 +159,16 @@ a.inline-button.close:active { background: #aa4444; color: #000; text-decoration
     user-select: none;
 }
 #primary-menu-wrapper {
-    width: 880pt;
+    max-width: 880pt;
+    width: 100%;
     margin: 0 auto;
+}
+#primary-menu {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3em;
 }
 #primary-menu .menu-item-has-children:not(.hideshow)::after {
     content: '\f0d7';
@@ -169,13 +177,15 @@ a.inline-button.close:active { background: #aa4444; color: #000; text-decoration
     color: #d0d0d0;
 }
 #primary-menu li {
-    display: inline-block;
+    display: block;
     list-style-type: none;
     text-decoration: none;
     color: #000000;
     font-size: 15pt;
-    padding: 5pt 3pt 5pt 0pt;
-    margin: 0em .25em 0em 0em;
+    padding: 5pt 4pt 5pt 0pt;
+    margin: 0em .15em 0em 0em;
+    white-space: nowrap;
+    flex-shrink: 1;
     user-select: none;
 }
 #site-navigation ul:first-child { margin-left: 5mm; }
@@ -188,7 +198,7 @@ a.inline-button.close:active { background: #aa4444; color: #000; text-decoration
 .submenu {
     position: absolute;
     display: none;
-    max-width: 235pt;
+    max-width: 340pt;
     background: #f1f1f1;
     border: solid 1pt #ccc;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.25);
@@ -213,6 +223,7 @@ nav { display: block; padding-top: 1pt; }
 }
 .menu-item a { color: #505050; }
 .menu-item a:hover { color: #303030; }
+.submenu-item { white-space: normal!important; }
 .submenu-item a { font-size: 13pt; color: #000000; }
 .submenu-item a:hover { color: #333333; }
 #footer {
