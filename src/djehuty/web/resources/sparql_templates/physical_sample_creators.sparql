@@ -6,7 +6,7 @@ SELECT DISTINCT ?first_name      ?full_name        ?uuid
                 (?rest AS ?originating_blank_node) ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container         rdf:type                 djht:PhysicalObjectContainer .
+    ?container         rdf:type                 djht:PhysicalSampleContainer .
     ?item_uri          djht:container           ?container ;
                        djht:creators/rdf:rest*  ?rest .
     ?rest              rdf:first                ?creator ;
