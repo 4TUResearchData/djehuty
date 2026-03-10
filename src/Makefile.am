@@ -300,7 +300,7 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/static/js/dropzone.min.js                           \
     djehuty/web/resources/static/js/edit-collection.js                        \
     djehuty/web/resources/static/js/edit-dataset.js                           \
-    djehuty/web/resources/static/js/edit-physical-object.js                   \
+    djehuty/web/resources/static/js/edit-physical-sample.js                   \
     djehuty/web/resources/static/js/edit-profile.js                           \
     djehuty/web/resources/static/js/exploratory.js                            \
     djehuty/web/resources/static/js/jquery.dataTables.min.js                  \
