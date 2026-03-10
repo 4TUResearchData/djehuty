@@ -67,7 +67,7 @@ jQuery(document).ready(function (){
   <li><a href="/my/datasets">My Datasets</a>
   <li><a href="/my/collections">My Collections</a>
   {%- if supports_igsn %}
-  <li><a href="/my/physical-objects">My physical objects</a>
+  <li><a href="/my/physical-samples">My physical samples</a>
   {%- endif %}
 </ul>
 {% endblock %}
@@ -78,6 +78,7 @@ jQuery(document).ready(function (){
 <div class="center">
   <a id="create-new-dataset" href="/my/datasets/new" class="button corporate-identity-standard-button">Add new dataset</a>
   <a id="create-new-collection" href="/my/collections/new" class="button corporate-identity-standard-button">Create new collection</a>
+  <a id="register-physical-sample" href="/my/physical-samples/new" class="button corporate-identity-standard-button">Register physical sample</a>
 </div>
 {%- endif %}
 <h2>Storage usage</h2>

@@ -102,6 +102,10 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         self.datacite_id = None
         self.datacite_password = None
         self.datacite_prefix = None
+        self.igsn_url = None
+        self.igsn_id = None
+        self.igsn_password = None
+        self.igsn_prefix = None
         self.ssi_psk = None
         self.allow_full_embargo = True
         self.file_deposit_notice = None
@@ -115,6 +119,11 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
             "footer-background-color": "#707070",
             "background-color": "#ffffff",
         }
+
+    @property
+    def supports_igsn(self):
+        """Returns True when an IGSN prefix has been configured."""
+        return self.igsn_prefix is not None
 
 
 config = RuntimeConfiguration()
