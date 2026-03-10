@@ -2187,7 +2187,8 @@ class WebServer:
             quota        = pretty_print_size (account_quota),
             requested_quota = requested_quota,
             percentage_used = percentage_used,
-            sessions     = sessions)
+            sessions     = sessions,
+            supports_igsn = config.supports_igsn)
 
     def __datasets_with_storage_usage (self, datasets):
         for dataset in datasets:
@@ -2226,7 +2227,8 @@ class WebServer:
         return self.__render_template (request, "depositor/my-data.html",
                                        draft_datasets     = draft_datasets,
                                        review_datasets    = review_datasets,
-                                       published_datasets = published_datasets)
+                                       published_datasets = published_datasets,
+                                       supports_igsn = config.supports_igsn)
 
     def ui_collection_published (self, request, collection_id):
         """Implements /my/collections/published/<id>."""
@@ -2512,7 +2514,8 @@ class WebServer:
 
         return self.__render_template (request, "depositor/my-collections.html",
                                        draft_collections     = drafts,
-                                       published_collections = published)
+                                       published_collections = published,
+                                       supports_igsn = config.supports_igsn)
 
     def ui_edit_collection (self, request, collection_id):
         """Implements /my/collections/<id>/edit."""
@@ -3216,7 +3219,7 @@ class WebServer:
             return self.__render_template (
                 request, "depositor/edit-physical-object.html",
                 object = physical_object,
-                draft_doi = f"{self.igsn_prefix}/{container_uuid}")
+                draft_doi = f"{config.igsn_prefix}/{container_uuid}")
         except IndexError:
             return self.error_403 (request)
 
