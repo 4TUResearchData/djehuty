@@ -643,6 +643,15 @@ def read_handle_configuration (xml_root):
         config.handle_prefix      = config_value (handle, "prefix")
         config.handle_index       = config_value (handle, "index")
 
+def read_igsn_configuration (xml_root):
+    """Procedure to parse and set the IGSN API configuration."""
+    igsn = xml_root.find("igsn")
+    if igsn:
+        config.igsn_url      = config_value (igsn, "api-url")
+        config.igsn_id       = config_value (igsn, "repository-id")
+        config.igsn_password = config_value (igsn, "password")
+        config.igsn_prefix   = config_value (igsn, "prefix")
+
 def read_automatic_login_configuration (xml_root):
     """Procedure to parse and set automatic login for development setups."""
     automatic_login_email = config_value (xml_root, "authentication/automatic-login-email")
@@ -920,6 +929,7 @@ def read_configuration_file (server, config_file, logger, config_files):
         read_orcid_configuration (xml_root)
         read_datacite_configuration (xml_root)
         read_handle_configuration (xml_root)
+        read_igsn_configuration (xml_root)
         read_email_configuration (server, xml_root, logger)
         read_saml_configuration (xml_root, logger)
         read_sram_configuration (xml_root)
