@@ -1,0 +1,530 @@
+function delete_physical_sample (container_uuid, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (confirm("Deleting this draft is unrecoverable. "+
+                "Do you want to continue?")) {
+        window.location.replace(`/my/physical-samples/${container_uuid}/delete`);
+    }
+}
+
+function gather_form_data (container_uuid) {
+    let categories   = jQuery("input[name='categories']:checked");
+    let category_ids = [];
+    for (let category of categories) {
+        category_ids.push(jQuery(category).val());
+    }
+
+    let group_id = jQuery("input[name='groups']:checked")[0];
+    if (group_id !== undefined) { group_id = group_id["value"]; }
+    else { group_id = null; }
+
+    let form_data = {
+        "title":                  or_null(jQuery("#title").val()),
+        "abstract":               or_null(jQuery("#abstract .ql-editor").html()),
+        "methods":                or_null(jQuery("#methods .ql-editor").html()),
+        "publisher":              or_null(jQuery("#publisher").val()),
+        "publication_year":       or_null(jQuery("#publication_year").val()),
+        "resource_type":          or_null(jQuery("#resource_type").val()),
+        "alternate_identifier":   or_null(jQuery("#alternate_identifier").val()),
+        "related_resource":       or_null(jQuery("#related_resource").val()),
+        "doi":                    or_null(jQuery("#doi").val()),
+        "physical_storage_location": or_null(jQuery("#physical_storage_location").val()),
+        "organizations":          or_null(jQuery("#organizations").val()),
+        "geolocation":            or_null(jQuery("#geolocation").val()),
+        "longitude":              or_null(jQuery("#longitude").val()),
+        "latitude":               or_null(jQuery("#latitude").val()),
+        "sample_owner_name":      or_null(jQuery("#sample_owner_name").val()),
+        "sample_owner_email":     or_null(jQuery("#sample_owner_email").val()),
+        "group_id":               group_id,
+        "categories":             category_ids,
+    };
+    return form_data;
+}
+
+function save_physical_sample (container_uuid, event, notify=true) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    let form_data = gather_form_data();
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}`,
+        type:        "PUT",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify(form_data),
+    }).done(function () {
+        if (notify) {
+            show_message ("success", "<p>Saved changes.</p>");
+        }
+    }).fail(function (jqXHR) {
+        if (notify) {
+            let json = jqXHR.responseJSON;
+            let message = "<p>Failed to save draft. Please try again at a later time.</p>";
+            if (json) { message = `<p>Failed to save draft: ${json.message}</p>`; }
+            show_message ("failure", message);
+        }
+    });
+}
+
+function cancel_edit_author (author_uuid, container_uuid) {
+    jQuery("#author-inline-edit-form").remove();
+    jQuery(`#edit-author-${author_uuid}`)
+        .off("click")
+        .on("click", { "author_uuid": author_uuid, "container_uuid": container_uuid }, edit_author_event)
+        .removeClass("fa-times")
+        .removeClass("fa-lg")
+        .addClass("fa-pen");
+}
+
+function update_author (author_uuid, container_uuid) {
+    let record = {
+        "first_name": jQuery("#edit_author_first_name").val(),
+        "last_name": jQuery("#edit_author_last_name").val(),
+        "email": jQuery("#edit_author_email").val(),
+        "orcid": jQuery("#edit_author_orcid").val()
+    };
+    jQuery.ajax({
+        url:         `/v3/authors/${author_uuid}`,
+        data:        JSON.stringify(record),
+        type:        "PUT",
+        contentType: "application/json",
+        accept:      "application/json",
+    }).done(function () {
+        cancel_edit_author (author_uuid, container_uuid);
+        render_authors (container_uuid);
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to update author details.</p>");
+    });
+}
+
+function edit_author (author_uuid, container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/datasets/${container_uuid}/authors/${author_uuid}`,
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (author) {
+        let html = `<tr id="author-inline-edit-form"><td colspan="3">`;
+        html += `<label for="author_first_name">First name</label>`;
+        html += `<input type="text" id="edit_author_first_name" name="author_first_name" value="${or_empty(author.first_name)}">`;
+        html += `<label for="author_last_name">Last name</label>`;
+        html += `<input type="text" id="edit_author_last_name" name="author_last_name" value="${or_empty(author.last_name)}">`;
+        html += `<label for="author_email">E-mail address</label>`;
+        html += `<input type="text" id="edit_author_email" name="author_email" value="${or_empty(author.email)}">`;
+        html += `<label for="author_orcid">ORCID</label>`;
+        html += `<input type="text" id="edit_author_orcid" name="author_orcid" value="${or_empty(author.orcid)}">`;
+        html += `<div id="update-author" class="a-button"><a href="#" id="update-author-btn">Update author</a></div>`;
+        html += `</td></tr>`;
+
+        jQuery(`#author-${author_uuid}`).after(html);
+        jQuery("#update-author-btn").on("click", { "author_uuid": author_uuid, "container_uuid": container_uuid },
+            function (event) { stop_event_propagation(event); update_author(event.data["author_uuid"], event.data["container_uuid"]); });
+        jQuery(`#edit-author-${author_uuid}`)
+            .off("click")
+            .on("click", { "author_uuid": author_uuid, "container_uuid": container_uuid },
+                function (event) { stop_event_propagation(event); cancel_edit_author(event.data["author_uuid"], event.data["container_uuid"]); })
+            .removeClass("fa-pen")
+            .addClass("fa-times")
+            .addClass("fa-lg");
+    });
+}
+
+function add_author (author_uuid, container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/creators`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify([author_uuid]),
+    }).done(function () {
+        render_authors (container_uuid);
+        jQuery("#authors").val("");
+        autocomplete_author(null, container_uuid);
+    }).fail(function () { show_message ("failure", `<p>Failed to add ${author_uuid}.</p>`); });
+}
+
+function remove_author_event (event) {
+    stop_event_propagation (event);
+    remove_author (event.data["author_uuid"], event.data["container_uuid"]);
+}
+
+function edit_author_event (event) {
+    stop_event_propagation (event);
+    edit_author (event.data["author_uuid"], event.data["container_uuid"]);
+}
+
+function reorder_creator (container_uuid, author_uuid, direction) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/reorder-creators`,
+        data:        JSON.stringify({ "author": author_uuid, "direction": direction }),
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json"
+    }).done(function () {
+        render_authors (container_uuid);
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to change the order of the creators.</p>");
+    });
+}
+
+function reorder_creator_event (event) {
+    stop_event_propagation (event);
+    reorder_creator (event.data["container_uuid"],
+                     event.data["author_uuid"],
+                     event.data["direction"]);
+}
+
+function render_authors (container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/creators`,
+        data:        { "limit": 10000 },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (authors) {
+        jQuery("#authors-list tbody").empty();
+        let number_of_items = authors.length;
+        for (let index = 0; index < number_of_items; index++) {
+            let author  = authors[index];
+            let row     = jQuery("<tr/>", { "id": `author-${author.uuid}` });
+            let column1 = jQuery("<td/>").text(author.full_name);
+            let column2 = jQuery("<td/>");
+            let column3 = jQuery("<td/>");
+            let column4 = jQuery("<td/>");
+            let column5 = jQuery("<td/>");
+            let orcid = null;
+            if (author.orcid_id && author.orcid_id != "") {
+                orcid = author.orcid_id;
+            } else if (author.orcid && author.orcid != "") {
+                orcid = author.orcid;
+            }
+            if (orcid !== null) {
+                let orcid_anchor = jQuery("<a/>", {
+                    "href":   `https://orcid.org/${orcid}`,
+                    "target": "_blank",
+                    "rel":    "noopener noreferrer"
+                });
+                orcid_anchor.append(jQuery("<img/>", {
+                    "src":   "/static/images/orcid.svg",
+                    "class": "author-orcid",
+                    "alt":   "ORCID",
+                    "title": "ORCID profile (new window)"
+                }));
+                column1.append(orcid_anchor);
+            }
+            if (author.is_editable) {
+                column2.append(jQuery("<a/>", {
+                    "id":    `edit-author-${author.uuid}`,
+                    "href":  "#",
+                    "class": "fas fa-pen",
+                    "title": "Edit"
+                }).on("click", { "author_uuid": author.uuid, "container_uuid": container_uuid },
+                               edit_author_event));
+            }
+            if (number_of_items == 1) {
+            } else if (index == 0) {
+                column3.append(jQuery("<a/>", { "class": "fas fa-angle-down" }).on("click", {
+                    "author_uuid":    author.uuid,
+                    "container_uuid": container_uuid,
+                    "direction":      "down" }, reorder_creator_event));
+            } else if (index == number_of_items - 1) {
+                column4.append(jQuery("<a/>", { "class": "fas fa-angle-up" }).on("click", {
+                    "author_uuid":    author.uuid,
+                    "container_uuid": container_uuid,
+                    "direction":      "up" }, reorder_creator_event));
+            } else {
+                column3.append(jQuery("<a/>", { "class": "fas fa-angle-down" }).on("click", {
+                    "author_uuid":    author.uuid,
+                    "container_uuid": container_uuid,
+                    "direction":      "down" }, reorder_creator_event));
+                column4.append(jQuery("<a/>", { "class": "fas fa-angle-up" }).on("click", {
+                    "author_uuid":    author.uuid,
+                    "container_uuid": container_uuid,
+                    "direction":      "up" }, reorder_creator_event));
+            }
+            column5.append(jQuery("<a/>", {
+                "href":  "#",
+                "class": "fas fa-trash-can",
+                "title": "Remove"
+            }).on("click", { "author_uuid": author.uuid, "container_uuid": container_uuid },
+                           remove_author_event));
+            row.append([column1, column2, column3, column4, column5]);
+            jQuery("#authors-list tbody").append(row);
+        }
+        jQuery("#authors-list").show();
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to retrieve author details.</p>");
+    });
+}
+
+function remove_author (author_uuid, container_uuid) {
+    jQuery.ajax({
+        url:    `/v3/physical-samples/${container_uuid}/creators/${author_uuid}`,
+        type:   "DELETE",
+        accept: "application/json",
+    }).done(function () { render_authors (container_uuid); })
+      .fail(function () { show_message ("failure", "<p>Failed to remove author.</p>"); });
+}
+
+function remove_date (date_uuid, container_uuid) {
+    jQuery.ajax({
+        url:    `/v3/physical-samples/${container_uuid}/dates/${date_uuid}`,
+        type:   "DELETE",
+        accept: "application/json",
+    }).done(function () { render_dates (container_uuid); })
+      .fail(function () { show_message ("failure", "<p>Failed to remove date.</p>"); });
+}
+
+function add_date (container_uuid) {
+    let data = {
+        "date": or_null(jQuery("#date").val()),
+        "type": or_null(jQuery("#dateType").val())
+    };
+
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/dates`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify([data]),
+    }).done(function () {
+        render_dates (container_uuid);
+    }).fail(function () {
+        show_message ("failure", `<p>Failed to add date. Try again later.</p>`);
+    });
+}
+
+function render_dates (container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/dates`,
+        data:        { "limit": 10000, "order": "created_date", "order_direction": "desc" },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (dates) {
+        jQuery("#physical-sample-dates tbody").empty();
+
+        let row = '<tr><td><input type="date" name="date" id="date" /></td>';
+        row += '<td><select name="dateType" id="dateType">';
+        row += '<option value="" disabled="disabled" selected="selected">Date type</option>';
+        row += '<option value="collected">Collected</option>';
+        row += '<option value="destroyed">Destroyed</option>';
+        row += '<option value="issued">Issued</option>';
+        row += '<option value="other">Other</option>';
+        row += '</select></td>';
+        row += '<td><a class="form-button corporate-identity-standard-button add-date-button" href="#">Add</a></td></tr>';
+        jQuery("#physical-sample-dates tbody").append(row);
+
+        for (let date_entry of dates) {
+            let [y, m, d] = date_entry.date.split("-");
+            let row = `<tr><td>${d}-${m}-${y}</td>`;
+            row += `<td><span class="resource-badge date-type">${date_entry.type}</span></td>`;
+            row += `<td><a href="#" data-uuid="${date_entry.uuid}" `;
+            row += `class="remove-date fas fa-trash-can" title="Remove"></a></td></tr>`;
+            jQuery("#physical-sample-dates tbody").append(row);
+        }
+    }).fail(function() {
+        show_message ("failure", "<p>Failed to retrieve dates.</p>");
+    });
+}
+
+function remove_related_resource (resource_uuid, container_uuid) {
+    jQuery.ajax({
+        url:    `/v3/physical-samples/${container_uuid}/related-resources/${resource_uuid}`,
+        type:   "DELETE",
+        accept: "application/json",
+    }).done(function () { render_related_resources (container_uuid); })
+      .fail(function () { show_message ("failure", "<p>Failed to remove related resource.</p>"); });
+}
+
+function add_related_resource (container_uuid) {
+    let identifier     = or_null(jQuery("#related-resource").val());
+    let identifierType = or_null(jQuery("#identifierType").val());
+    let relationType   = or_null(jQuery("#relationType").val());
+
+    if (identifier === null) {
+        show_message ("failure", "<p>Please fill in an identifier before adding a related resource.</p>");
+        return;
+    }
+    if (identifierType === null) {
+        show_message ("failure", "<p>Please select an identifier type before adding a related resource.</p>");
+        return;
+    }
+    if (relationType === null) {
+        show_message ("failure", "<p>Please select a relationship type before adding a related resource.</p>");
+        return;
+    }
+
+    let data = {
+        "identifier":      identifier,
+        "identifier-type": identifierType,
+        "relation-type":   relationType
+    };
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/related-resources`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify([data]),
+    }).done(function () {
+        render_related_resources (container_uuid);
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to add related resource. Try again later.</p>");
+    });
+}
+
+function render_related_resources (container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/related-resources`,
+        data:        { "limit": 10000, "order": "created_date", "order_direction": "desc" },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (records) {
+        jQuery("#related-resources tbody").empty();
+
+        let row = '<tr><td><input type="text" name="identifier" id="related-resource" /></td>';
+        row += '<td><select name="identifierType" id="identifierType">';
+        row += '<option value="" disabled="disabled" selected="selected">Identifier type</option>';
+        row += '<option value="IGSNDOI">IGSN DOI</option>';
+        row += '<option value="OtherDOI">Other DOI</option>';
+        row += '<option value="URL">URL</option>';
+        row += '</select></td>';
+        row += '<td><select name="relationType" id="relationType">';
+        row += '<option value="" disabled="disabled" selected="selected">Relationship type</option>';
+        row += '<option value="IsPartOf">Is part of</option>';
+        row += '<option value="IsDerivedFrom">Is derived from</option>';
+        row += '<option value="HasPart">Has part</option>';
+        row += '<option value="IsSourceOf">Is source of</option>';
+        row += '</select></td>';
+        row += '<td><a class="form-button corporate-identity-standard-button add-related-resource-button" href="#">Add</a></td></tr>';
+        jQuery("#related-resources tbody").append(row);
+
+        for (let resource of records) {
+            let row = `<tr><td><span class="resource-identifier">${resource.url}</span></td>`;
+            row += `<td><span class="resource-badge resource-type">${resource.type}</span></td>`;
+            row += `<td><span class="resource-badge resource-relation">${resource.relation}</span></td>`;
+            row += `<td><a href="#" data-uuid="${resource.uuid}" `;
+            row += `class="remove-related-resource fas fa-trash-can" title="Remove"></a></td></tr>`;
+            jQuery("#related-resources tbody").append(row);
+        }
+    }).fail(function() {
+        show_message ("failure", "<p>Failed to retrieve related resources.</p>");
+    });
+
+}
+
+function remove_tag_event (event) {
+    stop_event_propagation (event);
+    remove_tag (encodeURIComponent(event.data["tag"]), event.data["container_uuid"]);
+}
+
+function remove_tag (tag, container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/tags?tag=${tag}`,
+        type:        "DELETE",
+        accept:      "application/json",
+    }).done(function () { render_tags (container_uuid); })
+      .fail(function () { show_message ("failure", `<p>Failed to remove ${tag}.</p>`); });
+}
+
+function render_tags (container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/tags`,
+        data:        { "limit": 10000 },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (tags) {
+        jQuery("#tags-list").empty();
+        for (let tag of tags) {
+            let row = jQuery("<li/>");
+            let anchor = jQuery("<a/>", { "href": "#", "class": "fas fa-trash-can" });
+            anchor.on("click", { "tag": tag, "container_uuid": container_uuid }, remove_tag_event);
+            row.append(jQuery("<span/>").html(`${tag} &nbsp; `)).append(anchor);
+            jQuery("#tags-list").append(row);
+        }
+        jQuery("#tags-list").show();
+    }).fail(function () { show_message ("failure", "<p>Failed to retrieve tags.</p>"); });
+}
+
+function add_tag (container_uuid) {
+    let tag = jQuery.trim(jQuery("#tag").val());
+    if (tag == "") { return 0; }
+
+    let tags = [];
+    if (tag.indexOf(";") >= 0) {
+        let items = tag.split(";");
+        for (let item of items) {
+            if (item != "") { tags.push(jQuery.trim(item)); }
+        }
+    } else {
+        tags = [tag];
+    }
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/tags`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({ "tags": tags }),
+    }).done(function () {
+        render_tags (container_uuid);
+        jQuery("#tag").val("");
+        autocomplete_tags(null, container_uuid);
+    }).fail(function () { show_message ("failure", `<p>Failed to add ${tag}.</p>`); });
+}
+
+function render_categories_for_physical_sample (container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/categories`,
+        data:        { "limit": 10000 },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (categories) {
+        for (let category of categories) {
+            jQuery(`#category_${category["uuid"]}`).prop("checked", true);
+            jQuery(`#category_${category["parent_uuid"]}`).prop("checked", true);
+            jQuery(`#subcategories_${category["parent_uuid"]}`).show();
+        }
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to retrieve categories.</p>");
+    });
+}
+
+function activate (container_uuid, callback=jQuery.noop) {
+    new Quill('#abstract', { theme: '4tu' });
+    new Quill('#methods', { theme: '4tu' });
+    jQuery("#delete").on("click", function (event) { delete_physical_sample (container_uuid, event); });
+    jQuery("#save").on("click", function (event)   { save_physical_sample (container_uuid, event); });
+    jQuery("#authors").on("input", function (event) {
+        return autocomplete_author (event, container_uuid);
+    });
+    render_authors (container_uuid);
+    render_related_resources (container_uuid);
+    render_dates (container_uuid);
+    jQuery("#related-resources").on("click", ".add-related-resource-button", function (event) {
+        event.preventDefault();
+        add_related_resource (container_uuid);
+    });
+    jQuery("#related-resources").on("click", ".remove-related-resource", function (event) {
+        event.preventDefault();
+        remove_related_resource (jQuery(this).data("uuid"), container_uuid);
+    });
+    jQuery("#physical-sample-dates").on("click", ".add-date-button", function (event) {
+        event.preventDefault();
+        add_date (container_uuid);
+    });
+    jQuery("#physical-sample-dates").on("click", ".remove-date", function (event) {
+        event.preventDefault();
+        remove_date (jQuery(this).data("uuid"), container_uuid);
+    });
+    render_tags (container_uuid);
+    render_categories_for_physical_sample (container_uuid);
+    jQuery("#expand-categories-button").on("click", toggle_categories);
+    jQuery("#add-keyword-button").on("click", function (event) {
+        stop_event_propagation (event);
+        add_tag (container_uuid);
+    });
+    jQuery("#tag").on("keypress", function (e) {
+        if (e.which == 13) { add_tag (container_uuid); }
+    });
+    jQuery("#tag").on("input", function (event) {
+        return autocomplete_tags (event, container_uuid);
+    });
+    callback();
+}
