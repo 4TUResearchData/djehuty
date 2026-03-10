@@ -4,7 +4,7 @@ SELECT DISTINCT ?uuid ?url ?type ?relation ?created_date
                 (?rest AS ?originating_blank_node) ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container         rdf:type                 djht:PhysicalObjectContainer .
+    ?container         rdf:type                 djht:PhysicalSampleContainer .
     ?item_uri          djht:container           ?container ;
                        djht:related_identifiers/rdf:rest* ?rest .
     ?rest              rdf:first                ?related ;
@@ -24,7 +24,7 @@ WHERE {
     BIND("false"^^xsd:boolean AS ?is_editable)
     {%- endif %}
 
-    BIND(STRAFTER(STR(?related), "physical-object-related-identifier:") AS ?uuid)
+    BIND(STRAFTER(STR(?related), "physical-sample-related-identifier:") AS ?uuid)
   }
   FILTER (?container = <container:{{container_uuid}}>)
 {%- if account_uuid is not none %}

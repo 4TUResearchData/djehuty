@@ -4,7 +4,7 @@ SELECT DISTINCT ?uuid ?date ?event_type ?created_date
                 (?rest AS ?originating_blank_node) ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container         rdf:type                 djht:PhysicalObjectContainer .
+    ?container         rdf:type                 djht:PhysicalSampleContainer .
     ?item_uri          djht:container           ?container ;
                        djht:events/rdf:rest*    ?rest .
     ?rest              rdf:first                ?event ;
@@ -21,7 +21,7 @@ WHERE {
     BIND("false"^^xsd:boolean AS ?is_editable)
     {%- endif %}
 
-    BIND(STRAFTER(STR(?event), "physical-object-event:") AS ?uuid)
+    BIND(STRAFTER(STR(?event), "physical-sample-event:") AS ?uuid)
   }
   FILTER (?container = <container:{{container_uuid}}>)
 {%- if account_uuid is not none %}

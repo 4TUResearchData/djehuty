@@ -3008,11 +3008,11 @@ class SparqlInterface:
     ## PHYSICAL OBJECTS
     ## ------------------------------------------------------------------------
 
-    def physical_objects (self, account_uuid=None, container_uuid=None,
+    def physical_samples (self, account_uuid=None, container_uuid=None,
                           is_published=True, is_latest=True):
-        """Procedure to retrieve physical objects."""
+        """Procedure to retrieve physical samples."""
 
-        query = self.__query_from_template ("physical-objects", {
+        query = self.__query_from_template ("physical-samples", {
             "account_uuid":   account_uuid,
             "container_uuid": container_uuid,
             "is_published":   is_published,
@@ -3021,27 +3021,27 @@ class SparqlInterface:
 
         return self.__run_query (query)
 
-    def insert_physical_object (self, title, account_uuid, container_uuid=None,
+    def insert_physical_sample (self, title, account_uuid, container_uuid=None,
                                 description=None, publisher=None,
                                 published_date=None, resource_type=None,
                                 subject=None, alternate_identifier=None,
                                 related_identifier=None, doi=None):
-        """Inserts a physical object."""
+        """Inserts a physical sample."""
 
         graph           = Graph()
-        uri             = rdf.unique_node ("physical-object")
+        uri             = rdf.unique_node ("physical-sample")
         container_uri   = None
         if container_uuid is not None:
             container_uri   = URIRef(rdf.uuid_to_uri (container_uuid, "container"))
 
-        container       = self.container_uri (graph, container_uri, "physical-object", account_uuid)
+        container       = self.container_uri (graph, container_uri, "physical-sample", account_uuid)
         account_uri     = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
 
         # Add the dataset to its container.
         graph.add ((container, rdf.DJHT["draft"],       uri))
         graph.add ((container, rdf.DJHT["account"],     account_uri))
 
-        graph.add ((uri, RDF.type,                       rdf.DJHT["PhysicalObject"]))
+        graph.add ((uri, RDF.type,                       rdf.DJHT["PhysicalSample"]))
         graph.add ((uri, rdf.DJHT["title"],              Literal(title, datatype=XSD.string)))
         graph.add ((uri, rdf.DJHT["container"],          container))
 
@@ -3058,32 +3058,32 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.dateTime)
 
-        self.cache.invalidate_by_prefix ("physical-objects")
+        self.cache.invalidate_by_prefix ("physical-samples")
         if self.add_triples_from_graph (graph):
             container_uuid = rdf.uri_to_uuid (container)
-            self.cache.invalidate_by_prefix (f"physical-objects_{account_uuid}")
+            self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
             return container_uuid, rdf.uri_to_uuid (uri)
 
         return None, None
 
-    def delete_physical_object (self, account_uuid, object_uuid):
-        """Removes an unpublished physical object."""
+    def delete_physical_sample (self, account_uuid, sample_uuid):
+        """Removes an unpublished physical sample."""
 
-        query = self.__query_from_template ("delete_physical_object_draft", {
+        query = self.__query_from_template ("delete_physical_sample_draft", {
             "account_uuid": account_uuid,
-            "object_uuid": object_uuid
+            "sample_uuid": sample_uuid
         })
 
         return self.__run_logged_query (query)
 
-    def update_physical_object (self, title, account_uuid, container_uuid=None,
+    def update_physical_sample (self, title, account_uuid, container_uuid=None,
                                 abstract=None, methods=None, publisher=None,
                                 publication_year=None, published_date=None,
                                 resource_type=None, subject=None, doi=None,
                                 alternate_identifier=None, related_identifier=None):
-        """Updates a physical object record."""
+        """Updates a physical sample record."""
 
-        query = self.__query_from_template ("update_physical_object_draft", {
+        query = self.__query_from_template ("update_physical_sample_draft", {
             "title":                  rdf.escape_string_value (title),
             "abstract":               rdf.escape_string_value (abstract),
             "methods":                rdf.escape_string_value (methods),
@@ -3102,26 +3102,26 @@ class SparqlInterface:
 
         return self.__run_logged_query (query)
 
-    def physical_object_creators (self, container_uuid, account_uuid):
-        """Returns the creators of a physical object."""
+    def physical_sample_creators (self, container_uuid, account_uuid):
+        """Returns the creators of a physical sample."""
 
-        query = self.__query_from_template ("physical_object_creators", {
+        query = self.__query_from_template ("physical_sample_creators", {
             "container_uuid": container_uuid,
             "account_uuid":   account_uuid
         })
         return self.__run_query (query)
 
-    def add_creator_to_physical_object (self, container_uuid, creator_uuid, account_uuid):
-        """Adds a creator to a physical object."""
+    def add_creator_to_physical_sample (self, container_uuid, creator_uuid, account_uuid):
+        """Adds a creator to a physical sample."""
 
         creator_uri = URIRef(rdf.uuid_to_uri (creator_uuid, "author"))
-        existing_objects = self.physical_object_creators (container_uuid, account_uuid)
+        existing_objects = self.physical_sample_creators (container_uuid, account_uuid)
         self.log.info ("Existing objects: %s", existing_objects)
         if existing_objects:
             self.log.info ("Existing objects.")
             return self.__append_to_existing_list (creator_uri, existing_objects)
 
-        query = self.__query_from_template ("initiate_creator_for_physical_object", {
+        query = self.__query_from_template ("initiate_creator_for_physical_sample", {
             "container_uuid": container_uuid,
             "creator_uuid":   creator_uuid,
             "account_uuid":   account_uuid,
@@ -3132,37 +3132,37 @@ class SparqlInterface:
 
         return None
 
-    def physical_object_events (self, container_uuid, account_uuid):
-        """Returns events of a physical object."""
+    def physical_sample_events (self, container_uuid, account_uuid):
+        """Returns events of a physical sample."""
 
-        query = self.__query_from_template ("physical_object_events", {
+        query = self.__query_from_template ("physical_sample_events", {
             "container_uuid": container_uuid,
             "account_uuid":   account_uuid
         })
         return self.__run_query (query)
 
-    def add_event_to_physical_object (self, container_uuid, event_type, date, account_uuid):
-        """Adds an event to a physical object."""
+    def add_event_to_physical_sample (self, container_uuid, event_type, date, account_uuid):
+        """Adds an event to a physical sample."""
 
         graph            = Graph()
-        uri              = rdf.unique_node ("physical-object-event")
-        event_type_uri   = rdf.DJHT[f"PhysicalObjectEvent{event_type.capitalize()}"]
+        uri              = rdf.unique_node ("physical-sample-event")
+        event_type_uri   = rdf.DJHT[f"PhysicalSampleEvent{event_type.capitalize()}"]
         current_time     = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
         event_uuid       = rdf.uri_to_uuid (uri)
 
         rdf.add (graph, uri, rdf.DJHT["created_date"], current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["event_type"],   event_type_uri, "uri")
         rdf.add (graph, uri, rdf.DJHT["date"],         date, XSD.date)
-        rdf.add (graph, uri, RDF.type,                 rdf.DJHT["PhysicalObjectEvent"], "uri")
+        rdf.add (graph, uri, RDF.type,                 rdf.DJHT["PhysicalSampleEvent"], "uri")
 
         if not self.add_triples_from_graph (graph):
             return None
 
-        existing_objects = self.physical_object_events (container_uuid, account_uuid)
+        existing_objects = self.physical_sample_events (container_uuid, account_uuid)
         if existing_objects:
             return self.__append_to_existing_list (uri, existing_objects)
 
-        query = self.__query_from_template ("initiate_event_for_physical_object", {
+        query = self.__query_from_template ("initiate_event_for_physical_sample", {
             "container_uuid": container_uuid,
             "event_uuid":     event_uuid,
             "account_uuid":   account_uuid,
@@ -3173,40 +3173,40 @@ class SparqlInterface:
 
         return None
 
-    def physical_object_related_identifiers (self, container_uuid, account_uuid):
-        """Returns related identifiers of a physical object."""
+    def physical_sample_related_identifiers (self, container_uuid, account_uuid):
+        """Returns related identifiers of a physical sample."""
 
-        query = self.__query_from_template ("physical_object_related_identifiers", {
+        query = self.__query_from_template ("physical_sample_related_identifiers", {
             "container_uuid": container_uuid,
             "account_uuid":   account_uuid
         })
         return self.__run_query (query)
 
-    def add_related_identifier_to_physical_object (self, container_uuid,
+    def add_related_identifier_to_physical_sample (self, container_uuid,
                                                    identifier, identifier_type,
                                                    identifier_relation,
                                                    account_uuid):
         graph         = Graph()
-        uri           = rdf.unique_node ("physical-object-related-identifier")
-        type_uri      = rdf.DJHT[f"PhysicalObjectRelatedIdentifier{identifier_type}"]
-        relation_uri  = rdf.DJHT[f"PhysicalObjectRelatedIdentifier{identifier_relation}"]
+        uri           = rdf.unique_node ("physical-sample-related-identifier")
+        type_uri      = rdf.DJHT[f"PhysicalSampleRelatedIdentifier{identifier_type}"]
+        relation_uri  = rdf.DJHT[f"PhysicalSampleRelatedIdentifier{identifier_relation}"]
         current_time  = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
 
         rdf.add (graph, uri, rdf.DJHT["created_date"], current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["type"],         type_uri, "uri")
         rdf.add (graph, uri, rdf.DJHT["relation"],     relation_uri, "uri")
         rdf.add (graph, uri, rdf.DJHT["url"],          identifier, XSD.string)
-        rdf.add (graph, uri, RDF.type, rdf.DJHT["PhysicalObjectRelatedIdentifier"], "uri")
+        rdf.add (graph, uri, RDF.type, rdf.DJHT["PhysicalSampleRelatedIdentifier"], "uri")
 
         if not self.add_triples_from_graph (graph):
             return None
 
-        existing_objects = self.physical_object_related_identifiers (container_uuid, account_uuid)
+        existing_objects = self.physical_sample_related_identifiers (container_uuid, account_uuid)
         if existing_objects:
             return self.__append_to_existing_list (uri, existing_objects)
 
         identifier_uuid = rdf.uri_to_uuid (uri)
-        query = self.__query_from_template ("initiate_related_identifier_for_physical_object", {
+        query = self.__query_from_template ("initiate_related_identifier_for_physical_sample", {
             "container_uuid":  container_uuid,
             "identifier_uuid": identifier_uuid,
             "account_uuid":    account_uuid,

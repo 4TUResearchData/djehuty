@@ -1,0 +1,85 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    {%- if title is not none %}
+    ?physical_sample djht:title                  ?title .
+    {%- endif%}{% if abstract is not none %}
+    ?physical_sample djht:abstract               ?abstract .
+    {%- endif%}{% if methods is not none %}
+    ?physical_sample djht:methods                ?methods .
+    {%- endif%}{% if publisher is not none %}
+    ?physical_sample djht:publisher              ?publisher .
+    {%- endif%}{% if publication_year is not none %}
+    ?physical_sample djht:publication_year       ?publication_year .
+    {%- endif%}{% if published_date is not none %}
+    ?physical_sample djht:published_date         ?published_date .
+    {%- endif%}{% if resource_type is not none %}
+    ?physical_sample djht:resource_type          ?resource_type .
+    {%- endif%}{% if subject is not none %}
+    ?physical_sample djht:subject                ?subject .
+    {%- endif%}{% if alternate_identifier is not none %}
+    ?physical_sample djht:alternate_identifier   ?alternate_identifier .
+    {%- endif%}{% if related_identifier is not none %}
+    ?physical_sample djht:related_identifier     ?related_identifier .
+    {%- endif%}{% if doi is not none %}
+    ?physical_sample djht:doi                    ?doi .
+    {%- endif%}{% if modified_date is not none %}
+    ?physical_sample djht:modified_date          ?modified_date .
+    {%- endif%}
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    {%- if title is not none %}
+    ?physical_sample djht:title                  {{title | safe}} .
+    {%- endif%}{% if abstract is not none %}
+    ?physical_sample djht:abstract               {{abstract | safe}} .
+    {%- endif%}{% if methods is not none %}
+    ?physical_sample djht:methods                {{methods | safe}} .
+    {%- endif%}{% if publisher is not none %}
+    ?physical_sample djht:publisher              {{publisher | safe}} .
+    {%- endif%}{% if publication_year is not none %}
+    ?physical_sample djht:publication_year       {{publication_year}} .
+    {%- endif%}{% if published_date is not none %}
+    ?physical_sample djht:published_date         {{published_date | safe}} .
+    {%- endif%}{% if resource_type is not none %}
+    ?physical_sample djht:resource_type          {{resource_type | safe}} .
+    {%- endif%}{% if subject is not none %}
+    ?physical_sample djht:subject                {{subject | safe}} .
+    {%- endif%}{% if alternate_identifier is not none %}
+    ?physical_sample djht:alternate_identifier   {{alternate_identifier | safe}} .
+    {%- endif%}{% if related_identifier is not none %}
+    ?physical_sample djht:related_identifier     {{related_identifier | safe}} .
+    {%- endif%}{% if doi is not none %}
+    ?physical_sample djht:doi                    {{doi | safe}} .
+    {%- endif%}{% if modified_date is not none %}
+    ?physical_sample djht:modified_date          "{{modified_date | safe}}"^^xsd:dateTime .
+    {%- endif%}
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container                    rdf:type                  djht:PhysicalSampleContainer .
+    ?container                    djht:draft                ?physical_sample .
+    ?container                    djht:account              ?account .
+    ?physical_sample              rdf:type                  djht:PhysicalSample .
+
+    OPTIONAL { ?physical_sample   djht:title                 ?title . }
+    OPTIONAL { ?physical_sample   djht:abstract              ?abstract . }
+    OPTIONAL { ?physical_sample   djht:methods               ?methods . }
+    OPTIONAL { ?physical_sample   djht:publisher             ?publisher . }
+    OPTIONAL { ?physical_sample   djht:publication_year      ?publication_year . }
+    OPTIONAL { ?physical_sample   djht:published_date        ?published_date . }
+    OPTIONAL { ?physical_sample   djht:resource_type         ?resource_type . }
+    OPTIONAL { ?physical_sample   djht:subject               ?subject . }
+    OPTIONAL { ?physical_sample   djht:alternate_identifier  ?alternate_identifier . }
+    OPTIONAL { ?physical_sample   djht:related_identifier    ?related_identifier . }
+    OPTIONAL { ?physical_sample   djht:doi                   ?doi . }
+    OPTIONAL { ?physical_sample   djht:modified_date         ?modified_date . }
+
+  }
+  FILTER (?account = <account:{{account_uuid}}>)
+  FILTER (?container = <container:{{container_uuid}}>)
+}
+{% endblock %}
