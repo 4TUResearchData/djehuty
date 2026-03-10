@@ -123,10 +123,10 @@ class WebServer:
             R("/my/sessions/new",                                                self.ui_new_session),
             R("/my/profile",                                                     self.ui_profile),
             R("/my/profile/connect-with-orcid",                                  self.ui_profile_connect_with_orcid),
-            R("/my/physical-objects",                                            self.ui_my_physical_objects),
-            R("/my/physical-objects/new",                                        self.ui_new_physical_object),
-            R("/my/physical-objects/<container_uuid>/edit",                      self.ui_edit_physical_object),
-            R("/my/physical-objects/<container_uuid>/delete",                    self.ui_delete_physical_object),
+            R("/my/physical-samples",                                            self.ui_my_physical_samples),
+            R("/my/physical-samples/new",                                        self.ui_new_physical_sample),
+            R("/my/physical-samples/<container_uuid>/edit",                      self.ui_edit_physical_sample),
+            R("/my/physical-samples/<container_uuid>/delete",                    self.ui_delete_physical_sample),
             R("/review/overview",                                                self.ui_review_overview),
             R("/review/goto-dataset/<dataset_id>",                               self.ui_review_impersonate_to_dataset),
             R("/review/assign-to-me/<dataset_id>",                               self.ui_review_assign_to_me),
@@ -320,8 +320,8 @@ class WebServer:
 
             ## Physical objects
             ## ----------------------------------------------------------------
-            R("/v3/physical-objects",                                            self.api_v3_physical_object_details),
-            R("/v3/physical-objects/<container_uuid>",                           self.api_v3_physical_object_details),
+            R("/v3/physical-samples",                                            self.api_v3_physical_sample_details),
+            R("/v3/physical-samples/<container_uuid>",                           self.api_v3_physical_sample_details),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -3127,8 +3127,8 @@ class WebServer:
 
         return redirect ("/my/profile", 302)
 
-    def ui_my_physical_objects (self, request):
-        """Implements /my/physical-objects."""
+    def ui_my_physical_samples (self, request):
+        """Implements /my/physical-samples."""
 
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
@@ -3137,15 +3137,15 @@ class WebServer:
         if error_response is not None:
             return error_response
 
-        drafts = self.db.physical_objects (account_uuid   = account_uuid,
+        drafts = self.db.physical_samples (account_uuid   = account_uuid,
                                            is_published   = False,
                                            is_latest      = False)
 
-        return self.__render_template (request, "depositor/physical-objects.html",
+        return self.__render_template (request, "depositor/physical-samples.html",
                                        drafts = drafts)
 
-    def ui_new_physical_object (self, request):
-        """Implements /my/physical-objects/new."""
+    def ui_new_physical_sample (self, request):
+        """Implements /my/physical-samples/new."""
 
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
@@ -3154,26 +3154,26 @@ class WebServer:
         if error_response is not None:
             return error_response
 
-        container_uuid, object_uuid = self.db.insert_physical_object (
+        container_uuid, sample_uuid = self.db.insert_physical_sample (
             title = "Untitled item",
             account_uuid = account_uuid)
 
-        if container_uuid is not None and object_uuid is not None:
+        if container_uuid is not None and sample_uuid is not None:
             # Add oneself as author but don't bail if that doesn't work.
             try:
                 account    = self.db.account_by_uuid (account_uuid)
                 author_uri = URIRef(uuid_to_uri(account["author_uuid"], "author"))
-                self.db.update_item_list (object_uuid, account_uuid,
+                self.db.update_item_list (sample_uuid, account_uuid,
                                           [author_uri], "authors")
             except (TypeError, KeyError):
                 self.log.warning ("No author record for account %s.", account_uuid)
 
-            return redirect (f"/my/physical-objects/{container_uuid}/edit", code=302)
+            return redirect (f"/my/physical-samples/{container_uuid}/edit", code=302)
 
         return self.error_500()
 
-    def ui_edit_physical_object (self, request, container_uuid):
-        """Implements /my/physical-objects/<uuid>/edit."""
+    def ui_edit_physical_sample (self, request, container_uuid):
+        """Implements /my/physical-samples/<uuid>/edit."""
 
         account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
         if isinstance (account_uuid, Response):
@@ -3183,21 +3183,21 @@ class WebServer:
             return self.error_404 (request)
 
         try:
-            physical_object = self.db.physical_objects (
+            physical_sample = self.db.physical_samples (
                 container_uuid = container_uuid,
                 account_uuid   = account_uuid,
                 is_published   = False,
                 is_latest      = False)[0]
 
             return self.__render_template (
-                request, "depositor/edit-physical-object.html",
-                object = physical_object,
+                request, "depositor/edit-physical-sample.html",
+                object = physical_sample,
                 draft_doi = f"{config.igsn_prefix}/{container_uuid}")
         except IndexError:
             return self.error_403 (request)
 
-    def ui_delete_physical_object (self, request, container_uuid):
-        """Implements /my/physical-objects/<uuid>/delete."""
+    def ui_delete_physical_sample (self, request, container_uuid):
+        """Implements /my/physical-samples/<uuid>/delete."""
 
         account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
         if isinstance (account_uuid, Response):
@@ -3207,16 +3207,16 @@ class WebServer:
             return self.error_404 (request)
 
         try:
-            physical_object = self.db.physical_objects (
+            physical_sample = self.db.physical_samples (
                 container_uuid = container_uuid,
                 account_uuid   = account_uuid,
                 is_published   = False,
                 is_latest      = False)[0]
 
-            if self.db.delete_physical_object (account_uuid, physical_object["object_uuid"]):
-                return redirect ("/my/physical-objects", code=303)
+            if self.db.delete_physical_sample (account_uuid, physical_sample["sample_uuid"]):
+                return redirect ("/my/physical-samples", code=303)
 
-            self.log.error ("Failed to delete physical object draft.")
+            self.log.error ("Failed to delete physical sample draft.")
 
         except IndexError:
             return self.error_403 (request)
@@ -3225,32 +3225,32 @@ class WebServer:
 
         return self.error_500 ()
 
-    def api_v3_physical_object_details (self, request, container_uuid=None):
-        """Implements /v3/physical-objects[/<uuid>]."""
+    def api_v3_physical_sample_details (self, request, container_uuid=None):
+        """Implements /v3/physical-samples[/<uuid>]."""
 
         if request.method in ("GET", "HEAD"):
             if not self.accepts_json(request):
                 return self.error_406 ("application/json")
 
             account_uuid = self.account_uuid_from_request (request)
-            physical_object = None
+            physical_sample = None
             try:
                 if account_uuid is not None:
-                    physical_object = self.db.physical_objects (
+                    physical_sample = self.db.physical_samples (
                         container_uuid = container_uuid,
                         account_uuid   = account_uuid,
                         is_published   = False,
                         is_latest      = False)[0]
                 else:
-                    physical_object = self.db.physical_objects (
+                    physical_sample = self.db.physical_samples (
                         container_uuid = container_uuid,
                         is_published   = True,
                         is_latest      = True)[0]
 
-                if not physical_object:
+                if not physical_sample:
                     return self.error_403 (request)
 
-                output = formatter.format_physical_object_record (physical_object)
+                output = formatter.format_physical_sample_record (physical_sample)
                 return self.response (json.dumps(output))
             except IndexError:
                 return self.error_404 (request)
@@ -3263,7 +3263,7 @@ class WebServer:
 
             has_created_new = False
             if container_uuid is None:
-                container_uuid, _ = self.db.insert_physical_object (
+                container_uuid, _ = self.db.insert_physical_sample (
                     title = "Untitled item",
                     account_uuid = account_uuid)
                 has_created_new = True
@@ -3282,12 +3282,12 @@ class WebServer:
                     "subject":         validator.string_value (record, "subject",      0, 512,  False),
                 }
 
-                if not self.db.update_physical_object (**parameters):
+                if not self.db.update_physical_sample (**parameters):
                     return self.error_500 ()
 
                 if has_created_new:
                     return self.respond_201 ({
-                        "location": f"{self.base_url}/v3/physical-objects/{container_uuid}"
+                        "location": f"{self.base_url}/v3/physical-samples/{container_uuid}"
                     })
                 return self.respond_204 ()
             except IndexError:

@@ -1,0 +1,53 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+{%- if return_count %}
+SELECT (COUNT(DISTINCT ?sample) AS ?samples)
+{%- else %}
+SELECT DISTINCT ?account_uuid ?container_uuid ?sample_uuid ?created_date
+                ?title ?abstract ?methods ?publisher ?published_date ?resource_type
+                ?subject ?alternate_identifier ?related_identifier ?doi
+                ?publication_year ?modified_date ?version
+{%endif%}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container      rdf:type                  djht:PhysicalSampleContainer .
+    ?container      djht:account              ?account .
+
+    {%- if is_published is none and is_latest is none: %}
+    ?sample         djht:container            ?container .
+    {%- elif is_latest %}
+    ?container      djht:latest_published_version ?sample .
+    {%- elif is_published %}
+    ?container      djht:published_versions/rdf:rest*/rdf:first ?sample .
+    {%- else %}
+    ?container      djht:draft                ?sample .
+    {%- endif %}
+    ?sample         djht:title                ?title .
+    OPTIONAL { ?container djht:doi                ?container_doi . }
+    OPTIONAL { ?sample djht:version               ?version . }
+    OPTIONAL { ?sample djht:title                 ?title . }
+    OPTIONAL { ?sample djht:abstract              ?abstract . }
+    OPTIONAL { ?sample djht:methods               ?methods . }
+    OPTIONAL { ?sample djht:publisher             ?publisher . }
+    OPTIONAL { ?sample djht:publication_year      ?publication_year . }
+    OPTIONAL { ?sample djht:published_date        ?published_date . }
+    OPTIONAL { ?sample djht:resource_type         ?resource_type . }
+    OPTIONAL { ?sample djht:subject               ?subject . }
+    OPTIONAL { ?sample djht:alternate_identifier  ?alternate_identifier . }
+    OPTIONAL { ?sample djht:related_identifier    ?related_identifier . }
+    OPTIONAL { ?sample djht:doi                   ?doi . }
+    OPTIONAL { ?sample djht:modified_date         ?modified_date . }
+    OPTIONAL { ?sample djht:created_date          ?created_date . }
+
+    BIND(STRAFTER(STR(?container), "container:")    AS ?container_uuid)
+    BIND(STRAFTER(STR(?sample), "physical-sample:") AS ?sample_uuid)
+    BIND(STRAFTER(STR(?account), "account:")        AS ?account_uuid)
+    {%- if is_published %}
+    BIND (xsd:boolean (EXISTS { ?container djht:draft ?draft_dataset . }) AS ?has_draft)
+    {%- endif %}
+  }
+{%- if account_uuid is not none: %}
+FILTER (?account = <account:{{account_uuid}}>)
+{%- endif %}
+}
+{% endblock %}

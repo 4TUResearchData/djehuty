@@ -1,9 +1,9 @@
-function delete_physical_object (container_uuid, event) {
+function delete_physical_sample (container_uuid, event) {
     event.preventDefault();
     event.stopPropagation();
     if (confirm("Deleting this draft is unrecoverable. "+
                 "Do you want to continue?")) {
-        window.location.replace(`/my/physical-objects/${container_uuid}/delete`);
+        window.location.replace(`/my/physical-samples/${container_uuid}/delete`);
     }
 }
 
@@ -23,13 +23,13 @@ function gather_form_data (container_uuid) {
     return form_data;
 }
 
-function save_physical_object (container_uuid, event, notify=true) {
+function save_physical_sample (container_uuid, event, notify=true) {
     event.preventDefault();
     event.stopPropagation();
 
     let form_data = gather_form_data();
     jQuery.ajax({
-        url:         `/v3/physical-objects/${container_uuid}`,
+        url:         `/v3/physical-samples/${container_uuid}`,
         type:        "PUT",
         contentType: "application/json",
         accept:      "application/json",
@@ -110,7 +110,7 @@ function edit_author (author_uuid, container_uuid) {
 
 function add_author (author_uuid, container_uuid) {
     jQuery.ajax({
-        url:         `/v3/physical-objects/${container_uuid}/creators`,
+        url:         `/v3/physical-samples/${container_uuid}/creators`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
@@ -124,7 +124,7 @@ function add_author (author_uuid, container_uuid) {
 
 function render_authors (container_uuid) {
     jQuery.ajax({
-        url:         `/v3/physical-objects/${container_uuid}/creators`,
+        url:         `/v3/physical-samples/${container_uuid}/creators`,
         data:        { "limit": 10000 },
         type:        "GET",
         accept:      "application/json",
@@ -169,7 +169,7 @@ function add_event (container_uuid) {
     };
 
     jQuery.ajax({
-        url:         `/v3/physical-objects/${container_uuid}/events`,
+        url:         `/v3/physical-samples/${container_uuid}/events`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
@@ -183,12 +183,12 @@ function add_event (container_uuid) {
 
 function render_events (container_uuid) {
     jQuery.ajax({
-        url:         `/v3/physical-objects/${container_uuid}/events`,
+        url:         `/v3/physical-samples/${container_uuid}/events`,
         data:        { "limit": 10000, "order": "created_date", "order_direction": "desc" },
         type:        "GET",
         accept:      "application/json",
     }).done(function (events) {
-        jQuery("#physical-object-events tbody").empty();
+        jQuery("#physical-sample-events tbody").empty();
 
         let row = '<tr><td><input type="date" name="date" id="date" /></td>';
         row += '<td><select name="dateType" id="dateType">';
@@ -201,11 +201,11 @@ function render_events (container_uuid) {
         row += '<td><a id="add-event-button" class="fas fa-plus" href="#" ';
         row += 'title="Add event" onclick="javascript:';
         row += `add_event('${container_uuid}'); return false;"></a></td></tr>`;
-        jQuery("#physical-object-events tbody").append(row);
+        jQuery("#physical-sample-events tbody").append(row);
 
         for (let event of events) {
             let row = `<tr><td>${event.date}</td><td>${event.type}</td><td></td></tr>`;
-            jQuery("#physical-object-events tbody").append(row);
+            jQuery("#physical-sample-events tbody").append(row);
         }
     }).fail(function() {
         show_message ("failure", "<p>Failed to retrieve events.</p>");
@@ -219,7 +219,7 @@ function add_related_identifier (container_uuid) {
         "relation-type": or_null(jQuery("#relationType").val())
     };
     jQuery.ajax({
-        url:         `/v3/physical-objects/${container_uuid}/related-identifiers`,
+        url:         `/v3/physical-samples/${container_uuid}/related-identifiers`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
@@ -233,7 +233,7 @@ function add_related_identifier (container_uuid) {
 
 function render_related_identifiers (container_uuid) {
     jQuery.ajax({
-        url:         `/v3/physical-objects/${container_uuid}/related-identifiers`,
+        url:         `/v3/physical-samples/${container_uuid}/related-identifiers`,
         data:        { "limit": 10000, "order": "created_date", "order_direction": "desc" },
         type:        "GET",
         accept:      "application/json",
@@ -272,8 +272,8 @@ function render_related_identifiers (container_uuid) {
 function activate (container_uuid, callback=jQuery.noop) {
     new Quill('#abstract', { theme: '4tu' });
     new Quill('#methods', { theme: '4tu' });
-    jQuery("#delete").on("click", function (event) { delete_physical_object (container_uuid, event); });
-    jQuery("#save").on("click", function (event)   { save_physical_object (container_uuid, event); });
+    jQuery("#delete").on("click", function (event) { delete_physical_sample (container_uuid, event); });
+    jQuery("#save").on("click", function (event)   { save_physical_sample (container_uuid, event); });
     jQuery("#authors").on("input", function (event) {
         return autocomplete_author (event, container_uuid);
     });

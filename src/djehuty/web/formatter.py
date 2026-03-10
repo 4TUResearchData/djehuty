@@ -674,8 +674,8 @@ def format_group_record (record):
       "is_featured":   conv.value_or_none(record, "is_featured")
     }
 
-def format_physical_object_record (record):
-    """Record formatter for physical objects."""
+def format_physical_sample_record (record):
+    """Record formatter for physical samples."""
     return {
         "abstract":      conv.value_or_none (record, "abstract"),
         "methods":       conv.value_or_none (record, "methods"),
@@ -683,7 +683,7 @@ def format_physical_object_record (record):
         "resource_type": conv.value_or_none (record, "resource_type"),
         "subject":       conv.value_or_none (record, "subject"),
         "title":         conv.value_or_none (record, "title"),
-        "uuid":          conv.value_or_none (record, "object_uuid")
+        "uuid":          conv.value_or_none (record, "sample_uuid")
     }
 
 def format_review_record (record):

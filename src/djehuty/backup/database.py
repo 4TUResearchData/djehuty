@@ -938,8 +938,9 @@ class DatabaseInterface:
     def insert_static_triplets (self):
         """Procedure to insert triplets to augment the state graph."""
 
-        self.store.add ((rdf.DJHT["DatasetContainer"],    RDFS.subClassOf, rdf.DJHT["Container"]))
-        self.store.add ((rdf.DJHT["CollectionContainer"], RDFS.subClassOf, rdf.DJHT["Container"]))
+        self.store.add ((rdf.DJHT["DatasetContainer"],        RDFS.subClassOf, rdf.DJHT["Container"]))
+        self.store.add ((rdf.DJHT["CollectionContainer"],     RDFS.subClassOf, rdf.DJHT["Container"]))
+        self.store.add ((rdf.DJHT["PhysicalSampleContainer"], RDFS.subClassOf, rdf.DJHT["Container"]))
 
         ## Review states from Figshare.
         self.store.add ((rdf.DJHT["ReviewApproved"],   RDF.type,   rdf.DJHT["ReviewType"]))
@@ -970,19 +971,19 @@ class DatabaseInterface:
         self.store.add ((rdf.DJHT["LogEntryPrivateView"], RDFS.label, Literal("private_view", datatype=XSD.string)))
 
         ## Physical object event types
-        self.store.add ((rdf.DJHT["PhysicalObjectEventCollected"], RDFS.label, Literal("Collected", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalObjectEventDestroyed"], RDFS.label, Literal("Destroyed", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalObjectEventIssued"], RDFS.label, Literal("Issued", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalObjectEventOther"], RDFS.label, Literal("Other", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleEventCollected"], RDFS.label, Literal("Collected", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleEventDestroyed"], RDFS.label, Literal("Destroyed", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleEventIssued"], RDFS.label, Literal("Issued", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleEventOther"], RDFS.label, Literal("Other", datatype=XSD.string)))
 
-        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierIGSNDOI"], RDFS.label, Literal("IGSN DOI", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierOtherDOI"], RDFS.label, Literal("Other DOI", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierURL"], RDFS.label, Literal("URL", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierIGSNDOI"], RDFS.label, Literal("IGSN DOI", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierOtherDOI"], RDFS.label, Literal("Other DOI", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierURL"], RDFS.label, Literal("URL", datatype=XSD.string)))
 
-        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierIsPartOf"], RDFS.label, Literal("Is part of", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierIsDerivedFrom"], RDFS.label, Literal("Is derived from", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierIsSourceOf"], RDFS.label, Literal("Is source of", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalObjectRelatedIdentifierHasPart"], RDFS.label, Literal("Has part", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierIsPartOf"], RDFS.label, Literal("Is part of", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierIsDerivedFrom"], RDFS.label, Literal("Is derived from", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierIsSourceOf"], RDFS.label, Literal("Is source of", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierHasPart"], RDFS.label, Literal("Has part", datatype=XSD.string)))
 
         languages = self.__load_resource_file("languages.json")
         for language in languages:

@@ -3,7 +3,7 @@
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js"></script>
-<script src="/static/js/edit-physical-object.js"></script>
+<script src="/static/js/edit-physical-sample.js"></script>
 <script>
 jQuery(document).ready(function (){
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
@@ -24,7 +24,7 @@ jQuery(document).ready(function (){
   background: #eee;
 }
 #related-identifiers thead tr th,
-#physical-object-events thead tr th { text-align: left !important; }
+#physical-sample-events thead tr th { text-align: left !important; }
 #date { width: 637pt !important; border-radius: .5em !important; }
 #related-identifier { width: 512pt !important; border-radius: .5em !important; }
 #dateType, #identifierType, #relationType { width: 125pt !important; border-radius: .5em !important; }
@@ -32,8 +32,8 @@ jQuery(document).ready(function (){
 {% endblock %}
 {% block submenu %}
 <ul>
-  <li><a href="/my/physical-objects">&#8592; Go back</a>
-  <li class="active corporate-identity-submenu-active">Edit physical object
+  <li><a href="/my/physical-samples">&#8592; Go back</a>
+  <li class="active corporate-identity-submenu-active">Edit physical sample
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save draft</a>
   <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
 </ul>
@@ -42,15 +42,15 @@ jQuery(document).ready(function (){
 <div class="object-content-loader"></div>
 <div class="object-content">
 {%- if object["title"] == "Untitled item" %}
-<h1>Add new physical object</h1>
+<h1>Add new physical sample</h1>
 {%- else %}
-<h1>Edit physical object</h1>
+<h1>Edit physical sample</h1>
 {%- endif %}
 <noscript>
   <p class="no-script">Sorry, this page requires JavaScript to work correctly.</p>
 </noscript>
 <div class="hide-for-javascript">
-<h2>Physical object details</h2>
+<h2>Physical sample details</h2>
 <p>Fields marked with <span class="required-field">&#8727;</span> are required.</p>
 <label for="title">Title</label><div class="fas fa-question-circle help-icon"><span class="help-text">Giving your object a descriptive title will help making it discoverable via search engines. The title should have at least three characters.</span></div><span class="required-field">&#8727;</span>
 <input type="text" id="title" name="title" value="{{object["title"]}}" />
@@ -69,7 +69,7 @@ jQuery(document).ready(function (){
   {{object["abstract"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
 
-<label>Methods</label><div class="fas fa-question-circle help-icon"><span class="help-text">Describe the collection method(s) by which the physical object was gathered.</span></div><span class="required-field">&#8727;</span>
+<label>Methods</label><div class="fas fa-question-circle help-icon"><span class="help-text">Describe the collection method(s) by which the physical sample was gathered.</span></div><span class="required-field">&#8727;</span>
 <div id="methods" class="texteditor">
   {{object["methods"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
@@ -98,7 +98,7 @@ jQuery(document).ready(function (){
 
 <label>Events</label>
 <div class="options-wrapper">
-  <table id="physical-object-events">
+  <table id="physical-sample-events">
     <thead>
       <tr><th>Date</th><th>Type</th><th></th></tr>
     </thead>
@@ -108,9 +108,9 @@ jQuery(document).ready(function (){
 
 <h3 class="corporate-identity-h3">Linked resource &amp; references</h3>
 
-<label>IGSN</label><div class="fas fa-question-circle help-icon"><span class="help-text">Upon publication, an International Generic Sample Number (IGSN) will be assigned to your physical object. If you need to have the IGSN before publication, you can use this value.</span></div>
+<label>IGSN</label><div class="fas fa-question-circle help-icon"><span class="help-text">Upon publication, an International Generic Sample Number (IGSN) will be assigned to your physical sample. If you need to have the IGSN before publication, you can use this value.</span></div>
 <div id="doi-wrapper" class="options-wrapper">
-  The IGSN of your physical object will be: <strong>{{object["doi"] | default(draft_doi, False)}}</strong>
+  The IGSN of your physical sample will be: <strong>{{object["doi"] | default(draft_doi, False)}}</strong>
 </div>
 </div>
 </div>
