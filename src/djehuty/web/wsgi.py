@@ -318,6 +318,11 @@ class WebServer:
             R("/v3/datasets/<container_uuid>/ro-crate-metadata.json",            self.api_v3_datasets_ro_crate),
             R("/v3/datasets/<container_uuid>/versions/<version>/ro-crate-metadata.json", self.api_v3_datasets_ro_crate),
 
+            ## Physical objects
+            ## ----------------------------------------------------------------
+            R("/v3/physical-objects",                                            self.api_v3_physical_object_details),
+            R("/v3/physical-objects/<container_uuid>",                           self.api_v3_physical_object_details),
+
             ## Data model exploratory
             ## ----------------------------------------------------------------
             R("/v3/explore/types",                                               self.api_v3_explore_types),
@@ -3216,6 +3221,78 @@ class WebServer:
             self.log.error("KeyError: %s", error)
 
         return self.error_500 ()
+
+    def api_v3_physical_object_details (self, request, container_uuid=None):
+        """Implements /v3/physical-objects[/<uuid>]."""
+
+        if request.method in ("GET", "HEAD"):
+            if not self.accepts_json(request):
+                return self.error_406 ("application/json")
+
+            account_uuid = self.account_uuid_from_request (request)
+            physical_object = None
+            try:
+                if account_uuid is not None:
+                    physical_object = self.db.physical_objects (
+                        container_uuid = container_uuid,
+                        account_uuid   = account_uuid,
+                        is_published   = False,
+                        is_latest      = False)[0]
+                else:
+                    physical_object = self.db.physical_objects (
+                        container_uuid = container_uuid,
+                        is_published   = True,
+                        is_latest      = True)[0]
+
+                if not physical_object:
+                    return self.error_403 (request)
+
+                output = formatter.format_physical_object_record (physical_object)
+                return self.response (json.dumps(output))
+            except IndexError:
+                return self.error_404 (request)
+
+        if request.method == "PUT":
+            account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json",
+                                                                       self.db.is_depositor)
+            if isinstance (account_uuid, Response):
+                return account_uuid
+
+            has_created_new = False
+            if container_uuid is None:
+                container_uuid, _ = self.db.insert_physical_object (
+                    title = "Untitled item",
+                    account_uuid = account_uuid)
+                has_created_new = True
+            elif not validator.is_valid_uuid (container_uuid):
+                return self.error_404 (request)
+
+            try:
+                record     = request.get_json()
+                parameters = {
+                    "account_uuid":    account_uuid,
+                    "container_uuid":  container_uuid,
+                    "title":           validator.string_value (record, "title",        0, 1000, False),
+                    "abstract":        validator.string_value (record, "abstract",     0, 8000, False),
+                    "methods":         validator.string_value (record, "methods",      0, 8000, False),
+                    "resource_type":   validator.string_value (record, "resource_type",0, 512,  False),
+                    "subject":         validator.string_value (record, "subject",      0, 512,  False),
+                }
+
+                if not self.db.update_physical_object (**parameters):
+                    return self.error_500 ()
+
+                if has_created_new:
+                    return self.respond_201 ({
+                        "location": f"{self.base_url}/v3/physical-objects/{container_uuid}"
+                    })
+                return self.respond_204 ()
+            except IndexError:
+                return self.error_403 (request)
+            except validator.ValidationException as error:
+                return self.error_400 (request, error.message, error.code)
+
+        return self.error_405 (["GET", "PUT"])
 
     def ui_review_overview (self, request):
         """Implements /review/overview."""
