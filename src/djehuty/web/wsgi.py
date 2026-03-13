@@ -322,6 +322,9 @@ class WebServer:
             ## ----------------------------------------------------------------
             R("/v3/physical-samples",                                            self.api_v3_physical_sample_details),
             R("/v3/physical-samples/<container_uuid>",                           self.api_v3_physical_sample_details),
+            R("/v3/physical-samples/<container_uuid>/creators",                  self.api_v3_physical_sample_creators),
+            R("/v3/physical-samples/<container_uuid>/events",                    self.api_v3_physical_sample_events),
+            R("/v3/physical-samples/<container_uuid>/related-identifiers",       self.api_v3_physical_sample_related_identifiers),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -3296,6 +3299,186 @@ class WebServer:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["GET", "PUT"])
+
+    def api_v3_physical_sample_creators (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/creators."""
+
+        if request.method in ("GET", "HEAD"):
+            handler = self.default_error_handling (request, "GET", "application/json")
+            if handler is not None:
+                return handler
+
+            account_uuid = self.account_uuid_from_request (request)
+            records = self.db.physical_sample_creators (container_uuid, account_uuid)
+            return self.default_list_response (records, formatter.format_author_details_record)
+
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["POST", "PUT", "DELETE"],
+                                                                  "application/json")
+
+        if request.method in ("POST", "PUT"):
+
+            if request.method == "PUT":
+                return self.error_500 ()
+
+            record = request.get_json()
+            validated = []
+            errors = []
+            if not isinstance (record, list):
+                return self.error_400 (request, message = "Expected a list.",
+                                                code    = "UnexpectedContent")
+
+            for author_uuid in record:
+                if validator.is_valid_uuid (author_uuid):
+                    validated.append (author_uuid)
+                else:
+                    errors.append ({
+                        "field_name": author_uuid,
+                        "message": "Expected a valid UUID."
+                    })
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            for author_uuid in validated:
+                if self.db.add_creator_to_physical_sample (container_uuid,
+                                                           author_uuid,
+                                                           account_uuid) is None:
+                    self.log.error ("Failed to add <author:%s> to <container:%s>.",
+                                    author_uuid, container_uuid)
+                    errors.append ({
+                        "field_name": author_uuid,
+                        "message": "Failed database insert."
+                    })
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            return self.respond_204 ()
+
+        if request.method == "DELETE":
+            return self.error_500 ()
+
+        return self.error_405 (["GET", "POST", "PUT", "DELETE"])
+
+    def api_v3_physical_sample_events (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/events."""
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        if request.method in ("GET", "HEAD"):
+            handler = self.default_error_handling (request, "GET", "application/json")
+            if handler is not None:
+                return handler
+
+            account_uuid = self.account_uuid_from_request (request)
+            records = self.db.physical_sample_events (container_uuid, account_uuid)
+            return self.default_list_response (records, formatter.format_physical_sample_event_record)
+
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["POST", "PUT", "DELETE"],
+                                                                  "application/json")
+
+        if request.method in ("POST", "PUT"):
+
+            if request.method == "PUT":
+                return self.error_500 ()
+
+            record = request.get_json()
+            types  = ["collected", "destroyed", "issued", "other"]
+            errors = []
+
+            if not isinstance (record, list):
+                return self.error_400 (request, message = "Expected a list.",
+                                                code    = "UnexpectedContent")
+
+            for event in record:
+                event_type = validator.options_value (event, "type", types, True, errors)
+                date       = validator.date_value (event, "date", True, errors)
+                if event_type is not None and date is not None:
+                    if self.db.add_event_to_physical_sample (container_uuid,
+                                                             event_type,
+                                                             date,
+                                                             account_uuid) is None:
+                        self.log.error ("Failed to add event (%s, %s) to physical sample %s.",
+                                        event_type, date, container_uuid)
+                        errors.append ({
+                            "field_name": "PhysicalSampleEvent",
+                            "message": "Failed to create event."
+                        })
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            return self.respond_204 ()
+
+        if request.method == "DELETE":
+            return self.error_500 ()
+
+        return self.error_405 (["GET", "POST", "PUT", "DELETE"])
+
+    def api_v3_physical_sample_related_identifiers (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/related-identifiers."""
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        if request.method in ("GET", "HEAD"):
+            handler = self.default_error_handling (request, "GET", "application/json")
+            if handler is not None:
+                return handler
+
+            account_uuid = self.account_uuid_from_request (request)
+            records = self.db.physical_sample_related_identifiers (container_uuid, account_uuid)
+            return self.default_list_response (records, formatter.format_physical_sample_related_identifier_record)
+
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["POST", "PUT", "DELETE"],
+                                                                  "application/json")
+
+        if request.method in ("POST", "PUT"):
+
+            if request.method == "PUT":
+                return self.error_500 ()
+
+            records          = request.get_json()
+            identifier_types = ["IGSNDOI", "OtherDOI", "URL"]
+            relation_types   = ["IsPartOf", "IsDerivedFrom", "HasPart", "IsSourceOf"]
+            errors           = []
+
+            if not isinstance (records, list):
+                return self.error_400 (request, message = "Expected a list.",
+                                                code    = "UnexpectedContent")
+
+            for identifier in records:
+                url                 = validator.string_value  (identifier, "identifier",       0, 2048, True, errors)
+                identifier_type     = validator.options_value (identifier, "identifier-type",  identifier_types, True, errors)
+                identifier_relation = validator.options_value (identifier, "relation-type",    relation_types,   True, errors)
+                if (url is not None and
+                    identifier_type is not None and
+                    identifier_relation is not None):
+                    if self.db.add_related_identifier_to_physical_sample (container_uuid,
+                                                                          url,
+                                                                          identifier_type,
+                                                                          identifier_relation,
+                                                                          account_uuid) is None:
+                        self.log.error ("Failed to add related identifier (%s, %s, %s) to physical sample %s.",
+                                        url, identifier_type, identifier_relation, container_uuid)
+                        errors.append ({
+                            "field_name": "PhysicalSampleRelatedIdentifier",
+                            "message": "Failed to create record of related identifier."
+                        })
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            return self.respond_204 ()
+
+        if request.method == "DELETE":
+            return self.error_500 ()
+
+        return self.error_405 (["GET", "POST", "PUT", "DELETE"])
 
     def ui_review_overview (self, request):
         """Implements /review/overview."""

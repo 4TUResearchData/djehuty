@@ -686,6 +686,26 @@ def format_physical_sample_record (record):
         "uuid":          conv.value_or_none (record, "sample_uuid")
     }
 
+def format_physical_sample_event_record (record):
+    """Record formatter for physical sample events."""
+    return {
+        "uuid":          conv.value_or_none (record, "uuid"),
+        "type":          conv.value_or_none (record, "event_type"),
+        "date":          conv.value_or_none (record, "date"),
+        "created_date":  conv.value_or_none (record, "created_date")
+    }
+
+
+def format_physical_sample_related_identifier_record (record):
+    """Record formatter for physical sample related identifiers."""
+    return {
+        "uuid":         conv.value_or_none (record, "uuid"),
+        "url":          conv.value_or_none (record, "url"),
+        "relation":     conv.value_or_none (record, "relation"),
+        "type":         conv.value_or_none (record, "type"),
+        "created_date": conv.value_or_none (record, "created_date")
+    }
+
 def format_review_record (record):
     """Record formatter for reviews."""
     return {
