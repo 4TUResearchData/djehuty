@@ -4,7 +4,7 @@
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js"></script>
 <script src="/static/js/edit-physical-sample.js"></script>
-<script>
+<script nonce="{{nonce}}">
 jQuery(document).ready(function (){
     jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
     activate ("{{object["container_uuid"]}}", function() {});
@@ -12,7 +12,7 @@ jQuery(document).ready(function (){
 </script>
 <link href="/static/css/quill.4tu.css" rel="stylesheet">
 <link href="/static/css/form.css" rel="stylesheet">
-<style>
+<style nonce="{{nonce}}">
 #new-author, #update-author { text-align: center; line-height: 3.5em; height: 3.5em; }
 #tags-list { display: none; border: none; padding: 0em; }
 #tags-list li {
