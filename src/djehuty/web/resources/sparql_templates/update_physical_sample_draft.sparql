@@ -24,7 +24,11 @@ DELETE {
     ?physical_sample djht:related_identifier     ?related_identifier .
     {%- endif%}{% if doi is not none %}
     ?physical_sample djht:doi                    ?doi .
-    {%- endif%}{% if modified_date is not none %}
+    {%- endif%}
+    ?physical_sample djht:geolocation            ?geolocation .
+    ?physical_sample djht:longitude              ?longitude .
+    ?physical_sample djht:latitude               ?latitude .
+    {% if modified_date is not none %}
     ?physical_sample djht:modified_date          ?modified_date .
     {%- endif%}
   }
@@ -53,6 +57,12 @@ INSERT {
     ?physical_sample djht:related_identifier     {{related_identifier | safe}} .
     {%- endif%}{% if doi is not none %}
     ?physical_sample djht:doi                    {{doi | safe}} .
+    {%- endif%}{% if geolocation is not none %}
+    ?physical_sample djht:geolocation            {{geolocation | safe}} .
+    {%- endif%}{% if longitude is not none %}
+    ?physical_sample djht:longitude              {{longitude | safe}} .
+    {%- endif%}{% if latitude is not none %}
+    ?physical_sample djht:latitude               {{latitude | safe}} .
     {%- endif%}{% if modified_date is not none %}
     ?physical_sample djht:modified_date          "{{modified_date | safe}}"^^xsd:dateTime .
     {%- endif%}
@@ -76,6 +86,9 @@ WHERE {
     OPTIONAL { ?physical_sample   djht:alternate_identifier  ?alternate_identifier . }
     OPTIONAL { ?physical_sample   djht:related_identifier    ?related_identifier . }
     OPTIONAL { ?physical_sample   djht:doi                   ?doi . }
+    OPTIONAL { ?physical_sample   djht:geolocation           ?geolocation . }
+    OPTIONAL { ?physical_sample   djht:longitude             ?longitude . }
+    OPTIONAL { ?physical_sample   djht:latitude              ?latitude . }
     OPTIONAL { ?physical_sample   djht:modified_date         ?modified_date . }
 
   }
