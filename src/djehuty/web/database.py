@@ -3012,11 +3012,13 @@ class SparqlInterface:
                           is_published=True, is_latest=True):
         """Procedure to retrieve physical samples."""
 
+        filters  = rdf.sparql_filter ("container", rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
+
         query = self.__query_from_template ("physical-samples", {
             "account_uuid":   account_uuid,
-            "container_uuid": container_uuid,
             "is_published":   is_published,
-            "is_latest":      is_latest
+            "is_latest":      is_latest,
+            "filters":        filters
         })
 
         return self.__run_query (query)
@@ -3080,7 +3082,8 @@ class SparqlInterface:
                                 abstract=None, methods=None, publisher=None,
                                 publication_year=None, published_date=None,
                                 resource_type=None, subject=None, doi=None,
-                                alternate_identifier=None, related_identifier=None):
+                                alternate_identifier=None, related_identifier=None,
+                                geolocation=None, longitude=None, latitude=None):
         """Updates a physical sample record."""
 
         query = self.__query_from_template ("update_physical_sample_draft", {
@@ -3095,6 +3098,9 @@ class SparqlInterface:
             "alternate_identifier":   rdf.escape_string_value (alternate_identifier),
             "related_identifier":     rdf.escape_string_value (related_identifier),
             "doi":                    rdf.escape_string_value (doi),
+            "geolocation":            rdf.escape_string_value (geolocation),
+            "longitude":              rdf.escape_string_value (longitude),
+            "latitude":               rdf.escape_string_value (latitude),
             "modified_date":          datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S"),
             "account_uuid":           account_uuid,
             "container_uuid":         container_uuid

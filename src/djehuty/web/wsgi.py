@@ -3283,6 +3283,9 @@ class WebServer:
                     "methods":         validator.string_value (record, "methods",      0, 8000, False),
                     "resource_type":   validator.string_value (record, "resource_type",0, 512,  False),
                     "subject":         validator.string_value (record, "subject",      0, 512,  False),
+                    "geolocation":     validator.string_value (record, "geolocation",  0, 255,  False),
+                    "longitude":       validator.string_value (record, "longitude",    0, 64,   False),
+                    "latitude":        validator.string_value (record, "latitude",     0, 64,   False),
                 }
 
                 if not self.db.update_physical_sample (**parameters):

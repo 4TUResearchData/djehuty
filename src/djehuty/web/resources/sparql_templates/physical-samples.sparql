@@ -7,6 +7,7 @@ SELECT DISTINCT ?account_uuid ?container_uuid ?sample_uuid ?created_date
                 ?title ?abstract ?methods ?publisher ?published_date ?resource_type
                 ?subject ?alternate_identifier ?related_identifier ?doi
                 ?publication_year ?modified_date ?version
+                ?geolocation ?longitude ?latitude
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -36,6 +37,9 @@ WHERE {
     OPTIONAL { ?sample djht:alternate_identifier  ?alternate_identifier . }
     OPTIONAL { ?sample djht:related_identifier    ?related_identifier . }
     OPTIONAL { ?sample djht:doi                   ?doi . }
+    OPTIONAL { ?sample djht:geolocation           ?geolocation . }
+    OPTIONAL { ?sample djht:longitude             ?longitude . }
+    OPTIONAL { ?sample djht:latitude              ?latitude . }
     OPTIONAL { ?sample djht:modified_date         ?modified_date . }
     OPTIONAL { ?sample djht:created_date          ?created_date . }
 
@@ -49,5 +53,6 @@ WHERE {
 {%- if account_uuid is not none: %}
 FILTER (?account = <account:{{account_uuid}}>)
 {%- endif %}
+{% if filters is not none %}{{ filters | safe }}{% endif %}
 }
 {% endblock %}
