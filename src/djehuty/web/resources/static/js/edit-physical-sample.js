@@ -19,6 +19,7 @@ function gather_form_data (container_uuid) {
         "alternate_identifier":   or_null(jQuery("#alternate_identifier").val()),
         "related_identifier":     or_null(jQuery("#related_identifier").val()),
         "doi":                    or_null(jQuery("#doi").val()),
+        "organizations":          or_null(jQuery("#organizations").val()),
         "geolocation":            or_null(jQuery("#geolocation").val()),
         "longitude":              or_null(jQuery("#longitude").val()),
         "latitude":               or_null(jQuery("#latitude").val()),

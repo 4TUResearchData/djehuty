@@ -3083,7 +3083,8 @@ class SparqlInterface:
                                 publication_year=None, published_date=None,
                                 resource_type=None, subject=None, doi=None,
                                 alternate_identifier=None, related_identifier=None,
-                                geolocation=None, longitude=None, latitude=None,
+                                organizations=None, geolocation=None,
+                                longitude=None, latitude=None,
                                 sample_owner_name=None, sample_owner_email=None):
         """Updates a physical sample record."""
 
@@ -3099,6 +3100,7 @@ class SparqlInterface:
             "alternate_identifier":   rdf.escape_string_value (alternate_identifier),
             "related_identifier":     rdf.escape_string_value (related_identifier),
             "doi":                    rdf.escape_string_value (doi),
+            "organizations":          rdf.escape_string_value (organizations),
             "geolocation":            rdf.escape_string_value (geolocation),
             "longitude":              rdf.escape_string_value (longitude),
             "latitude":               rdf.escape_string_value (latitude),

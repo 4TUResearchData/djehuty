@@ -25,6 +25,7 @@ DELETE {
     {%- endif%}{% if doi is not none %}
     ?physical_sample djht:doi                    ?doi .
     {%- endif%}
+    ?physical_sample djht:organizations          ?organizations .
     ?physical_sample djht:geolocation            ?geolocation .
     ?physical_sample djht:longitude              ?longitude .
     ?physical_sample djht:latitude               ?latitude .
@@ -63,6 +64,8 @@ INSERT {
     ?physical_sample djht:related_identifier     {{related_identifier | safe}} .
     {%- endif%}{% if doi is not none %}
     ?physical_sample djht:doi                    {{doi | safe}} .
+    {%- endif%}{% if organizations is not none %}
+    ?physical_sample djht:organizations          {{organizations | safe}} .
     {%- endif%}{% if geolocation is not none %}
     ?physical_sample djht:geolocation            {{geolocation | safe}} .
     {%- endif%}{% if longitude is not none %}
@@ -96,6 +99,7 @@ WHERE {
     OPTIONAL { ?physical_sample   djht:alternate_identifier  ?alternate_identifier . }
     OPTIONAL { ?physical_sample   djht:related_identifier    ?related_identifier . }
     OPTIONAL { ?physical_sample   djht:doi                   ?doi . }
+    OPTIONAL { ?physical_sample   djht:organizations         ?organizations . }
     OPTIONAL { ?physical_sample   djht:geolocation           ?geolocation . }
     OPTIONAL { ?physical_sample   djht:longitude             ?longitude . }
     OPTIONAL { ?physical_sample   djht:latitude              ?latitude . }
