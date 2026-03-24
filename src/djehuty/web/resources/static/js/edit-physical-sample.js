@@ -19,6 +19,7 @@ function gather_form_data (container_uuid) {
         "alternate_identifier":   or_null(jQuery("#alternate_identifier").val()),
         "related_identifier":     or_null(jQuery("#related_identifier").val()),
         "doi":                    or_null(jQuery("#doi").val()),
+        "physical_storage_location": or_null(jQuery("#physical_storage_location").val()),
         "organizations":          or_null(jQuery("#organizations").val()),
         "geolocation":            or_null(jQuery("#geolocation").val()),
         "longitude":              or_null(jQuery("#longitude").val()),
@@ -44,9 +45,12 @@ function save_physical_sample (container_uuid, event, notify=true) {
         if (notify) {
             show_message ("success", "<p>Saved changes.</p>");
         }
-    }).fail(function () {
+    }).fail(function (jqXHR) {
         if (notify) {
-            show_message ("failure", "<p>Failed to save draft. Please try again at a later time.</p>");
+            let json = jqXHR.responseJSON;
+            let message = "<p>Failed to save draft. Please try again at a later time.</p>";
+            if (json) { message = `<p>Failed to save draft: ${json.message}</p>`; }
+            show_message ("failure", message);
         }
     });
 }
