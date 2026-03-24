@@ -22,6 +22,8 @@ function gather_form_data (container_uuid) {
         "geolocation":            or_null(jQuery("#geolocation").val()),
         "longitude":              or_null(jQuery("#longitude").val()),
         "latitude":               or_null(jQuery("#latitude").val()),
+        "sample_owner_name":      or_null(jQuery("#sample_owner_name").val()),
+        "sample_owner_email":     or_null(jQuery("#sample_owner_email").val()),
     };
     return form_data;
 }

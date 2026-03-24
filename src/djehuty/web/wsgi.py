@@ -3276,16 +3276,18 @@ class WebServer:
             try:
                 record     = request.get_json()
                 parameters = {
-                    "account_uuid":    account_uuid,
-                    "container_uuid":  container_uuid,
-                    "title":           validator.string_value (record, "title",        0, 1000, False),
-                    "abstract":        validator.string_value (record, "abstract",     0, 8000, False),
-                    "methods":         validator.string_value (record, "methods",      0, 8000, False),
-                    "resource_type":   validator.string_value (record, "resource_type",0, 512,  False),
-                    "subject":         validator.string_value (record, "subject",      0, 512,  False),
-                    "geolocation":     validator.string_value (record, "geolocation",  0, 255,  False),
-                    "longitude":       validator.string_value (record, "longitude",    0, 64,   False),
-                    "latitude":        validator.string_value (record, "latitude",     0, 64,   False),
+                    "account_uuid":         account_uuid,
+                    "container_uuid":       container_uuid,
+                    "title":                validator.string_value (record, "title",        0, 1000, False),
+                    "abstract":             validator.string_value (record, "abstract",     0, 8000, False),
+                    "methods":              validator.string_value (record, "methods",      0, 8000, False),
+                    "resource_type":        validator.string_value (record, "resource_type",0, 512,  False),
+                    "subject":              validator.string_value (record, "subject",      0, 512,  False),
+                    "geolocation":          validator.string_value (record, "geolocation",  0, 255,  False),
+                    "longitude":            validator.string_value (record, "longitude",    0, 64,   False),
+                    "latitude":             validator.string_value (record, "latitude",     0, 64,   False),
+                    "sample_owner_name":    validator.string_value (record, "sample_owner_name",  0, 255, False),
+                    "sample_owner_email":   validator.string_value (record, "sample_owner_email", 0, 255, False),
                 }
 
                 if not self.db.update_physical_sample (**parameters):
@@ -5245,7 +5247,7 @@ class WebServer:
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000, strip_html=False),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
-                    resource_title  = validator.string_value  (record, "resource_title", 0, 255),
+                    # resource_title  = validator.string_value  (record, "resource_title", 0, 255),
                     license_url     = license_url,
                     group_id        = validator.integer_value (record, "group_id",       0, pow(2, 63)),
                     time_coverage   = validator.string_value  (record, "time_coverage",  0, 512),

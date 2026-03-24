@@ -28,6 +28,12 @@ DELETE {
     ?physical_sample djht:geolocation            ?geolocation .
     ?physical_sample djht:longitude              ?longitude .
     ?physical_sample djht:latitude               ?latitude .
+    {%- if sample_owner_name is not none %}
+    ?physical_sample djht:sample_owner_name      ?sample_owner_name .
+    {%- endif%}
+    {%- if sample_owner_email is not none %}
+    ?physical_sample djht:sample_owner_email     ?sample_owner_email .
+    {%- endif%}
     {% if modified_date is not none %}
     ?physical_sample djht:modified_date          ?modified_date .
     {%- endif%}
@@ -63,6 +69,10 @@ INSERT {
     ?physical_sample djht:longitude              {{longitude | safe}} .
     {%- endif%}{% if latitude is not none %}
     ?physical_sample djht:latitude               {{latitude | safe}} .
+    {%- endif%}{% if sample_owner_name is not none %}
+    ?physical_sample djht:sample_owner_name           {{sample_owner_name | safe}} .
+    {%- endif%}{% if sample_owner_email is not none %}
+    ?physical_sample djht:sample_owner_email          {{sample_owner_email | safe}} .
     {%- endif%}{% if modified_date is not none %}
     ?physical_sample djht:modified_date          "{{modified_date | safe}}"^^xsd:dateTime .
     {%- endif%}
@@ -89,6 +99,8 @@ WHERE {
     OPTIONAL { ?physical_sample   djht:geolocation           ?geolocation . }
     OPTIONAL { ?physical_sample   djht:longitude             ?longitude . }
     OPTIONAL { ?physical_sample   djht:latitude              ?latitude . }
+    OPTIONAL { ?physical_sample   djht:sample_owner_name          ?sample_owner_name . }
+    OPTIONAL { ?physical_sample   djht:sample_owner_email         ?sample_owner_email . }
     OPTIONAL { ?physical_sample   djht:modified_date         ?modified_date . }
 
   }
