@@ -30,6 +30,8 @@ jQuery(document).ready(function (){
 #dateType, #identifierType, #relationType { width: 125pt !important; border-radius: .5em !important; }
 #geolocation-wrapper label { background: #eee; }
 #geolocation-wrapper input[type="text"] { width: 812pt; }
+#sample-owner-wrapper label { background: #eee; }
+#sample-owner-wrapper input[type="text"] { width: 812pt; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -116,6 +118,14 @@ jQuery(document).ready(function (){
     </thead>
     <tbody></tbody>
   </table>
+</div>
+
+<label for="sample-owner-wrapper">Contact details sample owner</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add the contact details by which the sample owner (person or department) may be contacted, e.g. for queries about the sample or access requests.</span></div><span class="required-field">&#8727;</span>
+<div id="sample-owner-wrapper">
+  <label for="sample_owner_name" class="inner-head">Name</label>
+  <input type="text" id="sample_owner_name" name="sample_owner_name" value="{{object["sample_owner_name"] | default("", True)}}" />
+  <label for="sample_owner_email" class="inner-head">Email address</label>
+  <input type="text" id="sample_owner_email" name="sample_owner_email" value="{{object["sample_owner_email"] | default("", True)}}" />
 </div>
 
 <h3 class="corporate-identity-h3">Linked resource &amp; references</h3>
