@@ -7,7 +7,7 @@ SELECT DISTINCT ?account_uuid ?container_uuid ?sample_uuid ?created_date
                 ?title ?abstract ?methods ?publisher ?published_date ?resource_type
                 ?subject ?alternate_identifier ?related_identifier ?doi
                 ?publication_year ?modified_date ?version
-                ?geolocation ?longitude ?latitude
+                ?geolocation ?longitude ?latitude ?organizations
                 ?sample_owner_name ?sample_owner_email
 {%endif%}
 WHERE {
@@ -38,6 +38,7 @@ WHERE {
     OPTIONAL { ?sample djht:alternate_identifier  ?alternate_identifier . }
     OPTIONAL { ?sample djht:related_identifier    ?related_identifier . }
     OPTIONAL { ?sample djht:doi                   ?doi . }
+    OPTIONAL { ?sample djht:organizations         ?organizations . }
     OPTIONAL { ?sample djht:geolocation           ?geolocation . }
     OPTIONAL { ?sample djht:longitude             ?longitude . }
     OPTIONAL { ?sample djht:latitude              ?latitude . }

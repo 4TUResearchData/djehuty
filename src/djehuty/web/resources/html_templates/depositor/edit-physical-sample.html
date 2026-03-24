@@ -94,6 +94,9 @@ jQuery(document).ready(function (){
   </table>
 </div>
 
+<label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resource. Separate different names with a semicolon (;)</span></div>
+<textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{object["organizations"] | default("", True) }}</textarea>
+
 <label for="publisher">Publisher</label>
 <input type="text" id="publisher" name="publisher" value="{% if object["publisher"] %}{{object["publisher"]}}{% else %}{{site_name}}{% endif %}" />
 
