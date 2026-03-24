@@ -94,6 +94,9 @@ jQuery(document).ready(function (){
   </table>
 </div>
 
+<label for="physical_storage_location">Physical storage location</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add the location details (name university, faculty, department, etc.) where the sample is stored.</span></div><span class="required-field">&#8727;</span>
+<textarea id="physical_storage_location" name="physical_storage_location" placeholder="Example: Delft University of Technology, Faculty of Geoscience & Engineering, Department of Applied Geology - Building 23">{{object["physical_storage_location"] | default("", True) }}</textarea>
+
 <label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resource. Separate different names with a semicolon (;)</span></div>
 <textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{object["organizations"] | default("", True) }}</textarea>
 
