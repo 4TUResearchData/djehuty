@@ -1,27 +1,27 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?uuid ?date ?event_type ?created_date
+SELECT DISTINCT ?uuid ?date ?date_type ?created_date
                 (?rest AS ?originating_blank_node) ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container         rdf:type                 djht:PhysicalSampleContainer .
     ?item_uri          djht:container           ?container ;
-                       djht:events/rdf:rest*    ?rest .
-    ?rest              rdf:first                ?event ;
+                       djht:dates/rdf:rest*     ?rest .
+    ?rest              rdf:first                ?date_entry ;
                        djht:index               ?order_index .
 
-    ?event             djht:event_type          ?event_type_uri .
-    ?event_type_uri    rdfs:label               ?event_type .
-    ?event             djht:date                ?date .
-    ?event             djht:created_date        ?created_date .
+    ?date_entry        djht:date_type           ?date_type_uri .
+    ?date_type_uri     rdfs:label               ?date_type .
+    ?date_entry        djht:date                ?date .
+    ?date_entry        djht:created_date        ?created_date .
 
     {%- if account_uuid is not none %}
     ?container         djht:account             ?account .
-    BIND (xsd:boolean (EXISTS { ?event djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)    {%- else %}
+    BIND (xsd:boolean (EXISTS { ?date_entry djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)    {%- else %}
     BIND("false"^^xsd:boolean AS ?is_editable)
     {%- endif %}
 
-    BIND(STRAFTER(STR(?event), "physical-sample-event:") AS ?uuid)
+    BIND(STRAFTER(STR(?date_entry), "physical-sample-date:") AS ?uuid)
   }
   FILTER (?container = <container:{{container_uuid}}>)
 {%- if account_uuid is not none %}
