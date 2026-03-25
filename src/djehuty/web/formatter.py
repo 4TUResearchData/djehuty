@@ -696,7 +696,7 @@ def format_physical_sample_event_record (record):
     }
 
 
-def format_physical_sample_related_identifier_record (record):
+def format_physical_sample_related_resource_record (record):
     """Record formatter for physical sample related identifiers."""
     return {
         "uuid":         conv.value_or_none (record, "uuid"),

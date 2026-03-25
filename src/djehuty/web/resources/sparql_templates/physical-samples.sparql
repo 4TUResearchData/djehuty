@@ -5,7 +5,7 @@ SELECT (COUNT(DISTINCT ?sample) AS ?samples)
 {%- else %}
 SELECT DISTINCT ?account_uuid ?container_uuid ?sample_uuid ?created_date
                 ?title ?abstract ?methods ?publisher ?published_date ?resource_type
-                ?subject ?alternate_identifier ?related_identifier ?doi
+                ?subject ?alternate_identifier ?related_resource ?doi
                 ?publication_year ?modified_date ?version
                 ?geolocation ?longitude ?latitude ?organizations
                 ?physical_storage_location ?sample_owner_name ?sample_owner_email
@@ -36,7 +36,7 @@ WHERE {
     OPTIONAL { ?sample djht:resource_type         ?resource_type . }
     OPTIONAL { ?sample djht:subject               ?subject . }
     OPTIONAL { ?sample djht:alternate_identifier  ?alternate_identifier . }
-    OPTIONAL { ?sample djht:related_identifier    ?related_identifier . }
+    OPTIONAL { ?sample djht:related_resource      ?related_resource . }
     OPTIONAL { ?sample djht:doi                   ?doi . }
     OPTIONAL { ?sample djht:organizations         ?organizations . }
     OPTIONAL { ?sample djht:physical_storage_location    ?physical_storage_location . }
