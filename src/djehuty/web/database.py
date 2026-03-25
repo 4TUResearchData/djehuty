@@ -3027,7 +3027,7 @@ class SparqlInterface:
                                 description=None, publisher=None,
                                 published_date=None, resource_type=None,
                                 subject=None, alternate_identifier=None,
-                                related_identifier=None, doi=None):
+                                related_resource=None, doi=None):
         """Inserts a physical sample."""
 
         graph           = Graph()
@@ -3053,7 +3053,7 @@ class SparqlInterface:
         rdf.add (graph, uri, rdf.DJHT["resource_type"],  resource_type,  XSD.string)
         rdf.add (graph, uri, rdf.DJHT["subject"],        subject, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["alternate_identifier"], alternate_identifier, XSD.string)
-        rdf.add (graph, uri, rdf.DJHT["related_identifier"], related_identifier, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["related_resource"], related_resource, XSD.string)
         rdf.add (graph, uri, rdf.DJHT["doi"],            doi,            XSD.string)
 
         current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
@@ -3082,7 +3082,7 @@ class SparqlInterface:
                                 abstract=None, methods=None, publisher=None,
                                 publication_year=None, published_date=None,
                                 resource_type=None, subject=None, doi=None,
-                                alternate_identifier=None, related_identifier=None,
+                                alternate_identifier=None, related_resource=None,
                                 organizations=None, physical_storage_location=None,
                                 geolocation=None, longitude=None, latitude=None,
                                 sample_owner_name=None, sample_owner_email=None):
@@ -3098,7 +3098,7 @@ class SparqlInterface:
             "resource_type":          rdf.escape_string_value (resource_type),
             "subject":                rdf.escape_string_value (subject),
             "alternate_identifier":   rdf.escape_string_value (alternate_identifier),
-            "related_identifier":     rdf.escape_string_value (related_identifier),
+            "related_resource":       rdf.escape_string_value (related_resource),
             "doi":                    rdf.escape_string_value (doi),
             "organizations":          rdf.escape_string_value (organizations),
             "physical_storage_location":   rdf.escape_string_value (physical_storage_location),
@@ -3185,40 +3185,40 @@ class SparqlInterface:
 
         return None
 
-    def physical_sample_related_identifiers (self, container_uuid, account_uuid):
+    def physical_sample_related_resources (self, container_uuid, account_uuid):
         """Returns related identifiers of a physical sample."""
 
-        query = self.__query_from_template ("physical_sample_related_identifiers", {
+        query = self.__query_from_template ("physical_sample_related_resources", {
             "container_uuid": container_uuid,
             "account_uuid":   account_uuid
         })
         return self.__run_query (query)
 
-    def add_related_identifier_to_physical_sample (self, container_uuid,
+    def add_related_resource_to_physical_sample (self, container_uuid,
                                                    identifier, identifier_type,
                                                    identifier_relation,
                                                    account_uuid):
         graph         = Graph()
-        uri           = rdf.unique_node ("physical-sample-related-identifier")
-        type_uri      = rdf.DJHT[f"PhysicalSampleRelatedIdentifier{identifier_type}"]
-        relation_uri  = rdf.DJHT[f"PhysicalSampleRelatedIdentifier{identifier_relation}"]
+        uri           = rdf.unique_node ("physical-sample-related-resource")
+        type_uri      = rdf.DJHT[f"PhysicalSampleRelatedResource{identifier_type}"]
+        relation_uri  = rdf.DJHT[f"PhysicalSampleRelatedResource{identifier_relation}"]
         current_time  = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
 
         rdf.add (graph, uri, rdf.DJHT["created_date"], current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["type"],         type_uri, "uri")
         rdf.add (graph, uri, rdf.DJHT["relation"],     relation_uri, "uri")
         rdf.add (graph, uri, rdf.DJHT["url"],          identifier, XSD.string)
-        rdf.add (graph, uri, RDF.type, rdf.DJHT["PhysicalSampleRelatedIdentifier"], "uri")
+        rdf.add (graph, uri, RDF.type, rdf.DJHT["PhysicalSampleRelatedResource"], "uri")
 
         if not self.add_triples_from_graph (graph):
             return None
 
-        existing_objects = self.physical_sample_related_identifiers (container_uuid, account_uuid)
+        existing_objects = self.physical_sample_related_resources (container_uuid, account_uuid)
         if existing_objects:
             return self.__append_to_existing_list (uri, existing_objects)
 
         identifier_uuid = rdf.uri_to_uuid (uri)
-        query = self.__query_from_template ("initiate_related_identifier_for_physical_sample", {
+        query = self.__query_from_template ("initiate_related_resource_for_physical_sample", {
             "container_uuid":  container_uuid,
             "identifier_uuid": identifier_uuid,
             "account_uuid":    account_uuid,

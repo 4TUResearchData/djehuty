@@ -324,7 +324,7 @@ class WebServer:
             R("/v3/physical-samples/<container_uuid>",                           self.api_v3_physical_sample_details),
             R("/v3/physical-samples/<container_uuid>/creators",                  self.api_v3_physical_sample_creators),
             R("/v3/physical-samples/<container_uuid>/events",                    self.api_v3_physical_sample_events),
-            R("/v3/physical-samples/<container_uuid>/related-identifiers",       self.api_v3_physical_sample_related_identifiers),
+            R("/v3/physical-samples/<container_uuid>/related-resources",         self.api_v3_physical_sample_related_resources),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -3425,8 +3425,8 @@ class WebServer:
 
         return self.error_405 (["GET", "POST", "PUT", "DELETE"])
 
-    def api_v3_physical_sample_related_identifiers (self, request, container_uuid):
-        """Implements /v3/physical-samples/<container_uuid>/related-identifiers."""
+    def api_v3_physical_sample_related_resources (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/related-resources."""
 
         if not validator.is_valid_uuid (container_uuid):
             return self.error_404 (request)
@@ -3437,8 +3437,8 @@ class WebServer:
                 return handler
 
             account_uuid = self.account_uuid_from_request (request)
-            records = self.db.physical_sample_related_identifiers (container_uuid, account_uuid)
-            return self.default_list_response (records, formatter.format_physical_sample_related_identifier_record)
+            records = self.db.physical_sample_related_resources (container_uuid, account_uuid)
+            return self.default_list_response (records, formatter.format_physical_sample_related_resource_record)
 
         account_uuid = self.default_authenticated_error_handling (request,
                                                                   ["POST", "PUT", "DELETE"],
@@ -3458,14 +3458,14 @@ class WebServer:
                 return self.error_400 (request, message = "Expected a list.",
                                                 code    = "UnexpectedContent")
 
-            for identifier in records:
-                url                 = validator.string_value  (identifier, "identifier",       0, 2048, True, errors)
-                identifier_type     = validator.options_value (identifier, "identifier-type",  identifier_types, True, errors)
-                identifier_relation = validator.options_value (identifier, "relation-type",    relation_types,   True, errors)
+            for resource in records:
+                url                 = validator.string_value  (resource, "identifier",       0, 2048, True, errors)
+                identifier_type     = validator.options_value (resource, "identifier-type",  identifier_types, True, errors)
+                identifier_relation = validator.options_value (resource, "relation-type",    relation_types,   True, errors)
                 if (url is not None and
                     identifier_type is not None and
                     identifier_relation is not None):
-                    if self.db.add_related_identifier_to_physical_sample (container_uuid,
+                    if self.db.add_related_resource_to_physical_sample (container_uuid,
                                                                           url,
                                                                           identifier_type,
                                                                           identifier_relation,
@@ -3473,7 +3473,7 @@ class WebServer:
                         self.log.error ("Failed to add related identifier (%s, %s, %s) to physical sample %s.",
                                         url, identifier_type, identifier_relation, container_uuid)
                         errors.append ({
-                            "field_name": "PhysicalSampleRelatedIdentifier",
+                            "field_name": "PhysicalSampleRelatedResource",
                             "message": "Failed to create record of related identifier."
                         })
 

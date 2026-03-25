@@ -17,7 +17,7 @@ function gather_form_data (container_uuid) {
         "resource_type":          or_null(jQuery("#resource_type").val()),
         "subject":                or_null(jQuery("#subject").val()),
         "alternate_identifier":   or_null(jQuery("#alternate_identifier").val()),
-        "related_identifier":     or_null(jQuery("#related_identifier").val()),
+        "related_resource":     or_null(jQuery("#related_resource").val()),
         "doi":                    or_null(jQuery("#doi").val()),
         "physical_storage_location": or_null(jQuery("#physical_storage_location").val()),
         "organizations":          or_null(jQuery("#organizations").val()),
@@ -222,35 +222,35 @@ function render_events (container_uuid) {
     });
 }
 
-function add_related_identifier (container_uuid) {
+function add_related_resource (container_uuid) {
     let data = {
-        "identifier": or_null(jQuery("#related-identifier").val()),
+        "identifier": or_null(jQuery("#related-resource").val()),
         "identifier-type": or_null(jQuery("#identifierType").val()),
         "relation-type": or_null(jQuery("#relationType").val())
     };
     jQuery.ajax({
-        url:         `/v3/physical-samples/${container_uuid}/related-identifiers`,
+        url:         `/v3/physical-samples/${container_uuid}/related-resources`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
         data:        JSON.stringify([data]),
     }).done(function () {
-        render_related_identifiers (container_uuid);
+        render_related_resources (container_uuid);
     }).fail(function () {
         show_message ("failure", `<p>Failed to add event. Try again later.</p>`);
     });
 }
 
-function render_related_identifiers (container_uuid) {
+function render_related_resources (container_uuid) {
     jQuery.ajax({
-        url:         `/v3/physical-samples/${container_uuid}/related-identifiers`,
+        url:         `/v3/physical-samples/${container_uuid}/related-resources`,
         data:        { "limit": 10000, "order": "created_date", "order_direction": "desc" },
         type:        "GET",
         accept:      "application/json",
     }).done(function (records) {
-        jQuery("#related-identifiers tbody").empty();
+        jQuery("#related-resources tbody").empty();
 
-        let row = '<tr><td><input type="text" name="identifier" id="related-identifier" /></td>';
+        let row = '<tr><td><input type="text" name="identifier" id="related-resource" /></td>';
         row += '<td><select name="identifierType" id="identifierType">';
         row += '<option value="" disabled="disabled" selected="selected">Identifier type</option>';
         row += '<option value="IGSNDOI">IGSN DOI</option>';
@@ -266,12 +266,12 @@ function render_related_identifiers (container_uuid) {
         row += '</select></td>';
         row += '<td><a id="add-event-button" class="fas fa-plus" href="#" ';
         row += 'title="Add event" onclick="javascript:';
-        row += `add_related_identifier('${container_uuid}'); return false;"></a></td></tr>`;
-        jQuery("#related-identifiers tbody").append(row);
+        row += `add_related_resource('${container_uuid}'); return false;"></a></td></tr>`;
+        jQuery("#related-resources tbody").append(row);
 
-        for (let identifier of records) {
-            let row = `<tr><td>${identifier.url}</td><td>${identifier.type}</td><td>${identifier.relation}</td><td></td></tr>`;
-            jQuery("#related-identifiers tbody").append(row);
+        for (let resource of records) {
+            let row = `<tr><td>${resource.url}</td><td>${resource.type}</td><td>${resource.relation}</td><td></td></tr>`;
+            jQuery("#related-resources tbody").append(row);
         }
     }).fail(function() {
         show_message ("failure", "<p>Failed to retrieve events.</p>");
@@ -288,7 +288,7 @@ function activate (container_uuid, callback=jQuery.noop) {
         return autocomplete_author (event, container_uuid);
     });
     render_authors (container_uuid);
-    render_related_identifiers (container_uuid);
+    render_related_resources (container_uuid);
     render_events (container_uuid);
     callback();
 }
