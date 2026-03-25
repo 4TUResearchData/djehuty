@@ -323,7 +323,7 @@ class WebServer:
             R("/v3/physical-samples",                                            self.api_v3_physical_sample_details),
             R("/v3/physical-samples/<container_uuid>",                           self.api_v3_physical_sample_details),
             R("/v3/physical-samples/<container_uuid>/creators",                  self.api_v3_physical_sample_creators),
-            R("/v3/physical-samples/<container_uuid>/events",                    self.api_v3_physical_sample_events),
+            R("/v3/physical-samples/<container_uuid>/dates",                     self.api_v3_physical_sample_dates),
             R("/v3/physical-samples/<container_uuid>/related-resources",         self.api_v3_physical_sample_related_resources),
 
             ## Data model exploratory
@@ -3368,8 +3368,8 @@ class WebServer:
 
         return self.error_405 (["GET", "POST", "PUT", "DELETE"])
 
-    def api_v3_physical_sample_events (self, request, container_uuid):
-        """Implements /v3/physical-samples/<container_uuid>/events."""
+    def api_v3_physical_sample_dates (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/dates."""
 
         if not validator.is_valid_uuid (container_uuid):
             return self.error_404 (request)
@@ -3380,8 +3380,8 @@ class WebServer:
                 return handler
 
             account_uuid = self.account_uuid_from_request (request)
-            records = self.db.physical_sample_events (container_uuid, account_uuid)
-            return self.default_list_response (records, formatter.format_physical_sample_event_record)
+            records = self.db.physical_sample_dates (container_uuid, account_uuid)
+            return self.default_list_response (records, formatter.format_physical_sample_date_record)
 
         account_uuid = self.default_authenticated_error_handling (request,
                                                                   ["POST", "PUT", "DELETE"],
@@ -3400,19 +3400,19 @@ class WebServer:
                 return self.error_400 (request, message = "Expected a list.",
                                                 code    = "UnexpectedContent")
 
-            for event in record:
-                event_type = validator.options_value (event, "type", types, True, errors)
-                date       = validator.date_value (event, "date", True, errors)
-                if event_type is not None and date is not None:
-                    if self.db.add_event_to_physical_sample (container_uuid,
-                                                             event_type,
-                                                             date,
-                                                             account_uuid) is None:
-                        self.log.error ("Failed to add event (%s, %s) to physical sample %s.",
-                                        event_type, date, container_uuid)
+            for date_record in record:
+                date_type = validator.options_value (date_record, "type", types, True, errors)
+                date      = validator.date_value (date_record, "date", True, errors)
+                if date_type is not None and date is not None:
+                    if self.db.add_date_to_physical_sample (container_uuid,
+                                                            date_type,
+                                                            date,
+                                                            account_uuid) is None:
+                        self.log.error ("Failed to add date (%s, %s) to physical sample %s.",
+                                        date_type, date, container_uuid)
                         errors.append ({
-                            "field_name": "PhysicalSampleEvent",
-                            "message": "Failed to create event."
+                            "field_name": "PhysicalSampleDate",
+                            "message": "Failed to create date."
                         })
 
             if errors:

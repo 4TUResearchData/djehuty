@@ -2,8 +2,8 @@
 {% block query %}
 INSERT {
   GRAPH <{{state_graph}}> {
-    ?sample djht:events <blank:{{blank_uuid}}> .
-    <blank:{{blank_uuid}}> rdf:first <physical-sample-event:{{event_uuid}}> .
+    ?sample djht:dates <blank:{{blank_uuid}}> .
+    <blank:{{blank_uuid}}> rdf:first <physical-sample-date:{{date_uuid}}> .
     <blank:{{blank_uuid}}> rdf:rest rdf:nil .
     <blank:{{blank_uuid}}> djht:index 0 .
   }
@@ -14,7 +14,7 @@ WHERE {
     ?container      djht:account              ?account .
     ?container      djht:draft                ?sample .
 
-    FILTER NOT EXISTS { ?sample djht:events ?events . }
+    FILTER NOT EXISTS { ?sample djht:dates ?dates . }
     FILTER (?container = <container:{{container_uuid}}>)
     FILTER (?account   = <account:{{account_uuid}}>)
   }

@@ -24,7 +24,7 @@ jQuery(document).ready(function (){
   background: #eee;
 }
 #related-resources thead tr th,
-#physical-sample-events thead tr th { text-align: left !important; }
+#physical-sample-dates thead tr th { text-align: left !important; }
 #date { width: 637pt !important; border-radius: .5em !important; }
 #related-resource { width: 512pt !important; border-radius: .5em !important; }
 #dateType, #identifierType, #relationType { width: 125pt !important; border-radius: .5em !important; }
@@ -116,9 +116,9 @@ jQuery(document).ready(function (){
   <input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{object["latitude"] | default("", True)}}" />
 </div>
 
-<label>Events</label>
+<label>Dates</label>
 <div class="options-wrapper">
-  <table id="physical-sample-events">
+  <table id="physical-sample-dates">
     <thead>
       <tr><th>Date</th><th>Type</th><th></th></tr>
     </thead>

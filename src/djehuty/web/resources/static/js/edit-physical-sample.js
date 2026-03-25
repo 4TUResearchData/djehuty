@@ -172,53 +172,53 @@ function render_authors (container_uuid) {
     });
 }
 
-function add_event (container_uuid) {
+function add_date (container_uuid) {
     let data = {
         "date": or_null(jQuery("#date").val()),
         "type": or_null(jQuery("#dateType").val())
     };
 
     jQuery.ajax({
-        url:         `/v3/physical-samples/${container_uuid}/events`,
+        url:         `/v3/physical-samples/${container_uuid}/dates`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
         data:        JSON.stringify([data]),
     }).done(function () {
-        render_events (container_uuid);
+        render_dates (container_uuid);
     }).fail(function () {
-        show_message ("failure", `<p>Failed to add event. Try again later.</p>`);
+        show_message ("failure", `<p>Failed to add date. Try again later.</p>`);
     });
 }
 
-function render_events (container_uuid) {
+function render_dates (container_uuid) {
     jQuery.ajax({
-        url:         `/v3/physical-samples/${container_uuid}/events`,
+        url:         `/v3/physical-samples/${container_uuid}/dates`,
         data:        { "limit": 10000, "order": "created_date", "order_direction": "desc" },
         type:        "GET",
         accept:      "application/json",
-    }).done(function (events) {
-        jQuery("#physical-sample-events tbody").empty();
+    }).done(function (dates) {
+        jQuery("#physical-sample-dates tbody").empty();
 
         let row = '<tr><td><input type="date" name="date" id="date" /></td>';
         row += '<td><select name="dateType" id="dateType">';
-        row += '<option value="" disabled="disabled" selected="selected">Event type</option>';
+        row += '<option value="" disabled="disabled" selected="selected">Date type</option>';
         row += '<option value="collected">Collected</option>';
         row += '<option value="destroyed">Destroyed</option>';
         row += '<option value="issued">Issued</option>';
         row += '<option value="other">Other</option>';
         row += '</select></td>';
-        row += '<td><a id="add-event-button" class="fas fa-plus" href="#" ';
-        row += 'title="Add event" onclick="javascript:';
-        row += `add_event('${container_uuid}'); return false;"></a></td></tr>`;
-        jQuery("#physical-sample-events tbody").append(row);
+        row += '<td><a id="add-date-button" class="fas fa-plus" href="#" ';
+        row += 'title="Add date" onclick="javascript:';
+        row += `add_date('${container_uuid}'); return false;"></a></td></tr>`;
+        jQuery("#physical-sample-dates tbody").append(row);
 
-        for (let event of events) {
-            let row = `<tr><td>${event.date}</td><td>${event.type}</td><td></td></tr>`;
-            jQuery("#physical-sample-events tbody").append(row);
+        for (let date_entry of dates) {
+            let row = `<tr><td>${date_entry.date}</td><td>${date_entry.type}</td><td></td></tr>`;
+            jQuery("#physical-sample-dates tbody").append(row);
         }
     }).fail(function() {
-        show_message ("failure", "<p>Failed to retrieve events.</p>");
+        show_message ("failure", "<p>Failed to retrieve dates.</p>");
     });
 }
 
@@ -237,7 +237,7 @@ function add_related_resource (container_uuid) {
     }).done(function () {
         render_related_resources (container_uuid);
     }).fail(function () {
-        show_message ("failure", `<p>Failed to add event. Try again later.</p>`);
+        show_message ("failure", `<p>Failed to add related resource. Try again later.</p>`);
     });
 }
 
@@ -264,8 +264,8 @@ function render_related_resources (container_uuid) {
         row += '<option value="HasPart">Has part</option>';
         row += '<option value="IsSourceOf">Is source of</option>';
         row += '</select></td>';
-        row += '<td><a id="add-event-button" class="fas fa-plus" href="#" ';
-        row += 'title="Add event" onclick="javascript:';
+        row += '<td><a id="add-related-resource-button" class="fas fa-plus" href="#" ';
+        row += 'title="Add related resource" onclick="javascript:';
         row += `add_related_resource('${container_uuid}'); return false;"></a></td></tr>`;
         jQuery("#related-resources tbody").append(row);
 
@@ -274,7 +274,7 @@ function render_related_resources (container_uuid) {
             jQuery("#related-resources tbody").append(row);
         }
     }).fail(function() {
-        show_message ("failure", "<p>Failed to retrieve events.</p>");
+        show_message ("failure", "<p>Failed to retrieve related resources.</p>");
     });
 
 }
@@ -289,6 +289,6 @@ function activate (container_uuid, callback=jQuery.noop) {
     });
     render_authors (container_uuid);
     render_related_resources (container_uuid);
-    render_events (container_uuid);
+    render_dates (container_uuid);
     callback();
 }
