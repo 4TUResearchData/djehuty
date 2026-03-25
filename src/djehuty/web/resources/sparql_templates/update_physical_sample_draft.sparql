@@ -20,8 +20,8 @@ DELETE {
     ?physical_sample djht:subject                ?subject .
     {%- endif%}{% if alternate_identifier is not none %}
     ?physical_sample djht:alternate_identifier   ?alternate_identifier .
-    {%- endif%}{% if related_identifier is not none %}
-    ?physical_sample djht:related_identifier     ?related_identifier .
+    {%- endif%}{% if related_resource is not none %}
+    ?physical_sample djht:related_resource     ?related_resource .
     {%- endif%}{% if doi is not none %}
     ?physical_sample djht:doi                    ?doi .
     {%- endif%}
@@ -61,8 +61,8 @@ INSERT {
     ?physical_sample djht:subject                {{subject | safe}} .
     {%- endif%}{% if alternate_identifier is not none %}
     ?physical_sample djht:alternate_identifier   {{alternate_identifier | safe}} .
-    {%- endif%}{% if related_identifier is not none %}
-    ?physical_sample djht:related_identifier     {{related_identifier | safe}} .
+    {%- endif%}{% if related_resource is not none %}
+    ?physical_sample djht:related_resource     {{related_resource | safe}} .
     {%- endif%}{% if doi is not none %}
     ?physical_sample djht:doi                    {{doi | safe}} .
     {%- endif%}{% if physical_storage_location is not none %}
@@ -100,7 +100,7 @@ WHERE {
     OPTIONAL { ?physical_sample   djht:resource_type         ?resource_type . }
     OPTIONAL { ?physical_sample   djht:subject               ?subject . }
     OPTIONAL { ?physical_sample   djht:alternate_identifier  ?alternate_identifier . }
-    OPTIONAL { ?physical_sample   djht:related_identifier    ?related_identifier . }
+    OPTIONAL { ?physical_sample   djht:related_resource      ?related_resource . }
     OPTIONAL { ?physical_sample   djht:doi                   ?doi . }
     OPTIONAL { ?physical_sample   djht:organizations         ?organizations . }
     OPTIONAL { ?physical_sample   djht:physical_storage_location  ?physical_storage_location . }
