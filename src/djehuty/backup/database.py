@@ -970,11 +970,11 @@ class DatabaseInterface:
         self.store.add ((rdf.DJHT["LogEntryPrivateView"], RDF.type,   rdf.DJHT["LogEntryType"]))
         self.store.add ((rdf.DJHT["LogEntryPrivateView"], RDFS.label, Literal("private_view", datatype=XSD.string)))
 
-        ## Physical object event types
-        self.store.add ((rdf.DJHT["PhysicalSampleEventCollected"], RDFS.label, Literal("Collected", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalSampleEventDestroyed"], RDFS.label, Literal("Destroyed", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalSampleEventIssued"], RDFS.label, Literal("Issued", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalSampleEventOther"], RDFS.label, Literal("Other", datatype=XSD.string)))
+        ## Physical object date types
+        self.store.add ((rdf.DJHT["PhysicalSampleDateCollected"], RDFS.label, Literal("Collected", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleDateDestroyed"], RDFS.label, Literal("Destroyed", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleDateIssued"], RDFS.label, Literal("Issued", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleDateOther"], RDFS.label, Literal("Other", datatype=XSD.string)))
 
         self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierIGSNDOI"], RDFS.label, Literal("IGSN DOI", datatype=XSD.string)))
         self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierOtherDOI"], RDFS.label, Literal("Other DOI", datatype=XSD.string)))

@@ -3144,44 +3144,44 @@ class SparqlInterface:
 
         return None
 
-    def physical_sample_events (self, container_uuid, account_uuid):
-        """Returns events of a physical sample."""
+    def physical_sample_dates (self, container_uuid, account_uuid):
+        """Returns dates of a physical sample."""
 
-        query = self.__query_from_template ("physical_sample_events", {
+        query = self.__query_from_template ("physical_sample_dates", {
             "container_uuid": container_uuid,
             "account_uuid":   account_uuid
         })
         return self.__run_query (query)
 
-    def add_event_to_physical_sample (self, container_uuid, event_type, date, account_uuid):
-        """Adds an event to a physical sample."""
+    def add_date_to_physical_sample (self, container_uuid, date_type, date, account_uuid):
+        """Adds a date to a physical sample."""
 
-        graph            = Graph()
-        uri              = rdf.unique_node ("physical-sample-event")
-        event_type_uri   = rdf.DJHT[f"PhysicalSampleEvent{event_type.capitalize()}"]
-        current_time     = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
-        event_uuid       = rdf.uri_to_uuid (uri)
+        graph          = Graph()
+        uri            = rdf.unique_node ("physical-sample-date")
+        date_type_uri  = rdf.DJHT[f"PhysicalSampleDate{date_type.capitalize()}"]
+        current_time   = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        date_uuid      = rdf.uri_to_uuid (uri)
 
         rdf.add (graph, uri, rdf.DJHT["created_date"], current_time, XSD.dateTime)
-        rdf.add (graph, uri, rdf.DJHT["event_type"],   event_type_uri, "uri")
+        rdf.add (graph, uri, rdf.DJHT["date_type"],    date_type_uri, "uri")
         rdf.add (graph, uri, rdf.DJHT["date"],         date, XSD.date)
-        rdf.add (graph, uri, RDF.type,                 rdf.DJHT["PhysicalSampleEvent"], "uri")
+        rdf.add (graph, uri, RDF.type,                 rdf.DJHT["PhysicalSampleDate"], "uri")
 
         if not self.add_triples_from_graph (graph):
             return None
 
-        existing_objects = self.physical_sample_events (container_uuid, account_uuid)
+        existing_objects = self.physical_sample_dates (container_uuid, account_uuid)
         if existing_objects:
             return self.__append_to_existing_list (uri, existing_objects)
 
-        query = self.__query_from_template ("initiate_event_for_physical_sample", {
+        query = self.__query_from_template ("initiate_date_for_physical_sample", {
             "container_uuid": container_uuid,
-            "event_uuid":     event_uuid,
+            "date_uuid":      date_uuid,
             "account_uuid":   account_uuid,
             "blank_uuid":     rdf.uri_to_uuid (rdf.blank_node ())
         })
         if self.__run_logged_query (query):
-            return event_uuid
+            return date_uuid
 
         return None
 

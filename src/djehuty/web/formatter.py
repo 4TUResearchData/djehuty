@@ -686,11 +686,11 @@ def format_physical_sample_record (record):
         "uuid":          conv.value_or_none (record, "sample_uuid")
     }
 
-def format_physical_sample_event_record (record):
-    """Record formatter for physical sample events."""
+def format_physical_sample_date_record (record):
+    """Record formatter for physical sample dates."""
     return {
         "uuid":          conv.value_or_none (record, "uuid"),
-        "type":          conv.value_or_none (record, "event_type"),
+        "type":          conv.value_or_none (record, "date_type"),
         "date":          conv.value_or_none (record, "date"),
         "created_date":  conv.value_or_none (record, "created_date")
     }
