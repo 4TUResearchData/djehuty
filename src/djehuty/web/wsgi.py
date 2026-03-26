@@ -325,6 +325,7 @@ class WebServer:
             R("/v3/physical-samples/<container_uuid>/creators",                  self.api_v3_physical_sample_creators),
             R("/v3/physical-samples/<container_uuid>/dates",                     self.api_v3_physical_sample_dates),
             R("/v3/physical-samples/<container_uuid>/related-resources",         self.api_v3_physical_sample_related_resources),
+            R("/v3/physical-samples/<sample_uuid>/tags",                         self.api_v3_physical_sample_tags),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -3486,6 +3487,30 @@ class WebServer:
             return self.error_500 ()
 
         return self.error_405 (["GET", "POST", "PUT", "DELETE"])
+
+    def __physical_sample_by_id_or_uri (self, identifier, account_uuid=None,
+                                        is_published=False, is_latest=False,
+                                        is_under_review=None, version=None,
+                                        use_cache=True):
+        try:
+            if version is not None and not parses_to_int (version):
+                return None
+
+            parameters = {
+                "is_published": is_published,
+                "is_latest":    is_latest,
+                "account_uuid": account_uuid,
+            }
+            sample = None
+            if validator.is_valid_uuid (identifier):
+                sample = self.db.physical_samples (container_uuid = identifier,
+                                                   **parameters)[0]
+            if sample is not None:
+                sample["uri"]  = f"physical-sample:{sample['sample_uuid']}"
+                sample["uuid"] = sample["sample_uuid"]
+            return sample
+        except IndexError:
+            return None
 
     def ui_review_overview (self, request):
         """Implements /review/overview."""
@@ -8735,6 +8760,10 @@ class WebServer:
     def api_v3_dataset_tags (self, request, dataset_id):
         """Implements /v3/datasets/<id>/tags."""
         return self.__api_v3_item_tags (request, "dataset", dataset_id, self.__dataset_by_id_or_uri)
+
+    def api_v3_physical_sample_tags (self, request, sample_uuid):
+        """Implements /v3/physical-samples/<id>/tags."""
+        return self.__api_v3_item_tags (request, "physical-sample", sample_uuid, self.__physical_sample_by_id_or_uri)
 
     def api_v3_groups (self, request):
         """Implements /v3/groups."""

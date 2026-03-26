@@ -21,7 +21,9 @@ jQuery(document).ready(function (){
   margin: 0em 1em .5em 0em;
   padding: .5em;
   border-radius: .5em;
-  background: #eee;
+  background: #fffaea;
+  border: solid 1pt #ffeeaa;
+  color: #000;
 }
 #related-resources thead tr th,
 #physical-sample-dates thead tr th { text-align: left !important; }
@@ -78,8 +80,12 @@ jQuery(document).ready(function (){
   {{object["methods"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
 
-<label for="subject">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">This free-text property contains the subject, keyword, classification code, or key phrase describing the resource.</span></div>
-<input type="text" id="subject" name="subject" value="{{object["subject"]}}" />
+<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add at least 4 keywords that will help make your research more discoverable. Select the keywords from the list or manually add them. Use a semicolon (;) or hit return after each keyword you enter.</span></div>
+<div id="wrap-input-tag" class="input-with-button">
+  <input type="text" id="tag" name="tag" value="" placeholder="keyword 1; keyword 2; keyword 3; keyword 4" />
+  <a id="add-keyword-button" class="form-button corporate-identity-standard-button" href="#">Add keyword</a>
+</div>
+<ul id="tags-list"></ul>
 
 <label for="alternate_identifier">Alternate identifier</label><div class="fas fa-question-circle help-icon"><span class="help-text">When the same instance of the resource has an additional identifier, enter it here. Otherwise, leave it blank.</span></div>
 <input type="text" id="alternate_identifier" name="alternate_identifier" value="{{object["alternate_identifier"]}}" />
