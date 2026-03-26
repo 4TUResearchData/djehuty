@@ -15,9 +15,8 @@ function gather_form_data (container_uuid) {
         "publisher":              or_null(jQuery("#publisher").val()),
         "publication_year":       or_null(jQuery("#publication_year").val()),
         "resource_type":          or_null(jQuery("#resource_type").val()),
-        "subject":                or_null(jQuery("#subject").val()),
         "alternate_identifier":   or_null(jQuery("#alternate_identifier").val()),
-        "related_resource":     or_null(jQuery("#related_resource").val()),
+        "related_resource":       or_null(jQuery("#related_resource").val()),
         "doi":                    or_null(jQuery("#doi").val()),
         "physical_storage_location": or_null(jQuery("#physical_storage_location").val()),
         "organizations":          or_null(jQuery("#organizations").val()),
@@ -279,6 +278,65 @@ function render_related_resources (container_uuid) {
 
 }
 
+function remove_tag_event (event) {
+    stop_event_propagation (event);
+    remove_tag (encodeURIComponent(event.data["tag"]), event.data["container_uuid"]);
+}
+
+function remove_tag (tag, container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/tags?tag=${tag}`,
+        type:        "DELETE",
+        accept:      "application/json",
+    }).done(function () { render_tags (container_uuid); })
+      .fail(function () { show_message ("failure", `<p>Failed to remove ${tag}.</p>`); });
+}
+
+function render_tags (container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/tags`,
+        data:        { "limit": 10000 },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (tags) {
+        jQuery("#tags-list").empty();
+        for (let tag of tags) {
+            let row = jQuery("<li/>");
+            let anchor = jQuery("<a/>", { "href": "#", "class": "fas fa-trash-can" });
+            anchor.on("click", { "tag": tag, "container_uuid": container_uuid }, remove_tag_event);
+            row.append(jQuery("<span/>").html(`${tag} &nbsp; `)).append(anchor);
+            jQuery("#tags-list").append(row);
+        }
+        jQuery("#tags-list").show();
+    }).fail(function () { show_message ("failure", "<p>Failed to retrieve tags.</p>"); });
+}
+
+function add_tag (container_uuid) {
+    let tag = jQuery.trim(jQuery("#tag").val());
+    if (tag == "") { return 0; }
+
+    let tags = [];
+    if (tag.indexOf(";") >= 0) {
+        let items = tag.split(";");
+        for (let item of items) {
+            if (item != "") { tags.push(jQuery.trim(item)); }
+        }
+    } else {
+        tags = [tag];
+    }
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/tags`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({ "tags": tags }),
+    }).done(function () {
+        render_tags (container_uuid);
+        jQuery("#tag").val("");
+        autocomplete_tags(null, container_uuid);
+    }).fail(function () { show_message ("failure", `<p>Failed to add ${tag}.</p>`); });
+}
+
 function activate (container_uuid, callback=jQuery.noop) {
     new Quill('#abstract', { theme: '4tu' });
     new Quill('#methods', { theme: '4tu' });
@@ -290,5 +348,16 @@ function activate (container_uuid, callback=jQuery.noop) {
     render_authors (container_uuid);
     render_related_resources (container_uuid);
     render_dates (container_uuid);
+    render_tags (container_uuid);
+    jQuery("#add-keyword-button").on("click", function (event) {
+        stop_event_propagation (event);
+        add_tag (container_uuid);
+    });
+    jQuery("#tag").on("keypress", function (e) {
+        if (e.which == 13) { add_tag (container_uuid); }
+    });
+    jQuery("#tag").on("input", function (event) {
+        return autocomplete_tags (event, container_uuid);
+    });
     callback();
 }
