@@ -48,7 +48,10 @@ jobs:
           sed 's/@VERSION@/0.0.0+ci/' pyproject.toml.in > pyproject.toml
           pip install -e .
 
-      - name: Initialize SPARQL permissions
+      - name: Install Playwright browsers
+        run: playwright install --with-deps chromium
+
+      - name: Initialize SPARQL database
         run: |
           docker cp docker/dev/sparql-init/001-setup_permissions.sql ${{ job.services.sparql.id }}:/tmp/001-setup_permissions.sql
           docker exec ${{ job.services.sparql.id }} isql 1111 dba dba /tmp/001-setup_permissions.sql
@@ -57,5 +60,36 @@ jobs:
         run: |
           timeout 60 djehuty web --initialize --config-file .github/ci-djehuty.xml || true
 
-      - name: Run tests
-        run: echo "# TODO Add pytest command"
+      - name: Start application
+        run: |
+          djehuty web --config-file .github/ci-djehuty.xml &
+          echo $! > /tmp/djehuty.pid
+          # Wait for the application to be ready
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/ > /dev/null 2>&1; then
+              echo "Application is ready"
+              break
+            fi
+            echo "Waiting for application to start... ($i/30)"
+            sleep 2
+          done
+          # Final check
+          curl -sf http://localhost:8080/ > /dev/null || (echo "Application failed to start" && exit 1)
+
+      - name: Run E2E tests
+        working-directory: e2e
+        env:
+          E2E_BASE_URL: http://localhost:8080
+        run: |
+          python -m pytest tests/ -v --tb=short \
+            --screenshot=only-on-failure \
+            --output=test-results
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: e2e/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
