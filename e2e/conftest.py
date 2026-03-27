@@ -16,6 +16,7 @@ from playwright.sync_api import BrowserContext, Page
 from slugify import slugify
 
 from config import BASE_URL, TIMEOUT
+from helpers.api_response import ApiResponseHelper
 from helpers.screenshot import ScreenshotHelper
 
 
@@ -90,6 +91,23 @@ def screenshot(pytestconfig, request):
     output_dir = Path(pytestconfig.getoption("--output")).absolute()
     test_name = slugify(request.node.nodeid)
     return ScreenshotHelper(output_dir / test_name)
+
+
+@pytest.fixture()
+def save_response(pytestconfig, request):
+    """Provide a callable that saves numbered API JSON responses for the current test.
+
+    Usage::
+
+        def test_example(self, page, save_response):
+            response = page.request.get("/v2/articles")
+            save_response(response, "list-articles")
+
+    Responses are saved as ``<output>/<test-name>/<index>-<description>.json``.
+    """
+    output_dir = Path(pytestconfig.getoption("--output")).absolute()
+    test_name = slugify(request.node.nodeid)
+    return ApiResponseHelper(output_dir / test_name)
 
 
 # ---------------------------------------------------------------------------
