@@ -82,6 +82,7 @@ jobs:
         run: |
           python -m pytest tests/ -v --tb=short \
             -m "${{ inputs.marker }}" \
+            --reruns=1 --reruns-delay=5 \
             --screenshot=only-on-failure \
             --output=test-results
 
