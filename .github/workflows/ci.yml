@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push: ~
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      sparql:
+        image: openlink/virtuoso-opensource-7:7.2.13
+        ports:
+          - 8890:8890
+          - 1111:1111
+        env:
+          DBA_PASSWORD: dba
+          VIRT_Parameters_DirsAllowed: "., ../vsp, /usr/share/proj, /initdb.d"
+        options: --health-cmd="isql 127.0.0.1:1111 dba dba exec='select 1'" --health-interval=10s --health-timeout=5s --health-retries=10 --health-start-period=30s
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxmlsec1-dev pkg-config libxml2-dev libxslt1-dev libxmlsec1-openssl
+
+      - name: Install Python dependencies
+        run: |
+          pip install --no-binary lxml,xmlsec -r requirements.txt
+          pip install --no-binary lxml,xmlsec -r requirements-dev.txt
+
+      - name: Create pyproject.toml and install package
+        run: |
+          sed 's/@VERSION@/0.0.0+ci/' pyproject.toml.in > pyproject.toml
+          pip install -e .
+
+      - name: Initialize SPARQL database
+        run: |
+          docker exec ${{ job.services.sparql.id }} mkdir -p /initdb.d
+          docker cp docker/dev/sparql-init/001-setup_permissions.sql ${{ job.services.sparql.id }}:/initdb.d/001-setup_permissions.sql
+          docker cp docker/dev/sparql-init/002-load-test-data.sql ${{ job.services.sparql.id }}:/initdb.d/002-load-test-data.sql
+          docker cp docker/dev/sparql-init/data.nt ${{ job.services.sparql.id }}:/initdb.d/data.nt
+          docker exec ${{ job.services.sparql.id }} isql 1111 dba dba /initdb.d/001-setup_permissions.sql
+          docker exec ${{ job.services.sparql.id }} isql 1111 dba dba /initdb.d/002-load-test-data.sql
+
+      - name: Initialize database
+        run: |
+          timeout 60 djehuty web --initialize --config-file .github/ci-djehuty.xml || true
+
+      - name: Run tests
+        run: echo "# TODO Add pytest command"
