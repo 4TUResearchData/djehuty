@@ -325,7 +325,8 @@ class WebServer:
             R("/v3/physical-samples/<container_uuid>/creators",                  self.api_v3_physical_sample_creators),
             R("/v3/physical-samples/<container_uuid>/dates",                     self.api_v3_physical_sample_dates),
             R("/v3/physical-samples/<container_uuid>/related-resources",         self.api_v3_physical_sample_related_resources),
-            R("/v3/physical-samples/<sample_uuid>/tags",                         self.api_v3_physical_sample_tags),
+            R("/v3/physical-samples/<container_uuid>/tags",                      self.api_v3_physical_sample_tags),
+            R("/v3/physical-samples/<container_uuid>/categories",                self.api_v3_physical_sample_categories),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -3196,6 +3197,7 @@ class WebServer:
             return self.__render_template (
                 request, "depositor/edit-physical-sample.html",
                 object = physical_sample,
+                categories = self.db.categories_tree(),
                 draft_doi = f"{config.igsn_prefix}/{container_uuid}")
         except IndexError:
             return self.error_403 (request)
@@ -3276,7 +3278,17 @@ class WebServer:
 
             try:
                 record     = request.get_json()
+
+                sample = self.__physical_sample_by_id_or_uri(container_uuid,
+                                                             account_uuid=account_uuid,
+                                                             is_published = False)
+
+                categories, errors = self.__category_list_from_request_input (record)
+                if errors:
+                    return self.error_400_list (request, errors)
+
                 parameters = {
+                    "sample_uuid":          sample["uuid"],
                     "account_uuid":         account_uuid,
                     "container_uuid":       container_uuid,
                     "title":                validator.string_value (record, "title",         0, 1000, False),
@@ -3291,6 +3303,7 @@ class WebServer:
                     "latitude":             validator.string_value (record, "latitude",      0, 64,   False),
                     "sample_owner_name":    validator.string_value (record, "sample_owner_name",  0, 255, False),
                     "sample_owner_email":   validator.string_value (record, "sample_owner_email", 0, 255, False),
+                    "categories":           categories,
                 }
 
                 if not self.db.update_physical_sample (**parameters):
@@ -8761,9 +8774,14 @@ class WebServer:
         """Implements /v3/datasets/<id>/tags."""
         return self.__api_v3_item_tags (request, "dataset", dataset_id, self.__dataset_by_id_or_uri)
 
-    def api_v3_physical_sample_tags (self, request, sample_uuid):
+    def api_v3_physical_sample_tags (self, request, container_uuid):
         """Implements /v3/physical-samples/<id>/tags."""
-        return self.__api_v3_item_tags (request, "physical-sample", sample_uuid, self.__physical_sample_by_id_or_uri)
+        return self.__api_v3_item_tags (request, "physical-sample", container_uuid, self.__physical_sample_by_id_or_uri)
+
+    def api_v3_physical_sample_categories (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/categories."""
+        return self.__api_private_item_categories (request, "physical-sample", container_uuid,
+                                                   self.__physical_sample_by_id_or_uri)
 
     def api_v3_groups (self, request):
         """Implements /v3/groups."""

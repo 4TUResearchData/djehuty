@@ -3078,14 +3078,15 @@ class SparqlInterface:
 
         return self.__run_logged_query (query)
 
-    def update_physical_sample (self, title, account_uuid, container_uuid=None,
-                                abstract=None, methods=None, publisher=None,
-                                publication_year=None, published_date=None,
+    def update_physical_sample (self, title, sample_uuid, account_uuid,
+                                container_uuid=None, abstract=None, methods=None,
+                                publisher=None, publication_year=None, published_date=None,
                                 resource_type=None, subject=None, doi=None,
                                 alternate_identifier=None, related_resource=None,
                                 organizations=None, physical_storage_location=None,
                                 geolocation=None, longitude=None, latitude=None,
-                                sample_owner_name=None, sample_owner_email=None):
+                                sample_owner_name=None, sample_owner_email=None,
+                                categories=None):
         """Updates a physical sample record."""
 
         query = self.__query_from_template ("update_physical_sample_draft", {
@@ -3111,6 +3112,17 @@ class SparqlInterface:
             "account_uuid":           account_uuid,
             "container_uuid":         container_uuid
         })
+
+        self.cache.invalidate_by_prefix(f"physical_sample_{account_uuid}")
+        self.cache.invalidate_by_prefix("physical-sample")
+
+        results = self.__run_logged_query(query)
+        if results:
+            if categories and isinstance(categories, list):
+                items = rdf.uris_from_records(categories, "category", "uuid")
+                self.update_item_list(sample_uuid, account_uuid, items, "categories")
+        else:
+            return False
 
         return self.__run_logged_query (query)
 

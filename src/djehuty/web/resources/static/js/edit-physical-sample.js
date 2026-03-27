@@ -8,6 +8,12 @@ function delete_physical_sample (container_uuid, event) {
 }
 
 function gather_form_data (container_uuid) {
+    let categories   = jQuery("input[name='categories']:checked");
+    let category_ids = [];
+    for (let category of categories) {
+        category_ids.push(jQuery(category).val());
+    }
+
     let form_data = {
         "title":                  or_null(jQuery("#title").val()),
         "abstract":               or_null(jQuery("#abstract .ql-editor").html()),
@@ -25,6 +31,7 @@ function gather_form_data (container_uuid) {
         "latitude":               or_null(jQuery("#latitude").val()),
         "sample_owner_name":      or_null(jQuery("#sample_owner_name").val()),
         "sample_owner_email":     or_null(jQuery("#sample_owner_email").val()),
+        "categories":             category_ids,
     };
     return form_data;
 }
@@ -337,6 +344,23 @@ function add_tag (container_uuid) {
     }).fail(function () { show_message ("failure", `<p>Failed to add ${tag}.</p>`); });
 }
 
+function render_categories_for_physical_sample (container_uuid) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/categories`,
+        data:        { "limit": 10000 },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (categories) {
+        for (let category of categories) {
+            jQuery(`#category_${category["uuid"]}`).prop("checked", true);
+            jQuery(`#category_${category["parent_uuid"]}`).prop("checked", true);
+            jQuery(`#subcategories_${category["parent_uuid"]}`).show();
+        }
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to retrieve categories.</p>");
+    });
+}
+
 function activate (container_uuid, callback=jQuery.noop) {
     new Quill('#abstract', { theme: '4tu' });
     new Quill('#methods', { theme: '4tu' });
@@ -349,6 +373,8 @@ function activate (container_uuid, callback=jQuery.noop) {
     render_related_resources (container_uuid);
     render_dates (container_uuid);
     render_tags (container_uuid);
+    render_categories_for_physical_sample (container_uuid);
+    jQuery("#expand-categories-button").on("click", toggle_categories);
     jQuery("#add-keyword-button").on("click", function (event) {
         stop_event_propagation (event);
         add_tag (container_uuid);
