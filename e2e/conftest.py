@@ -6,12 +6,17 @@ Provides:
     - page:                 Fresh page per test (overrides pytest-playwright default)
     - authenticated_page:   Page with an active session (auto-login)
     - admin_page:           Authenticated page with admin privileges
+    - screenshot:           Callable to capture numbered screenshots
 """
+
+from pathlib import Path
 
 import pytest
 from playwright.sync_api import BrowserContext, Page
+from slugify import slugify
 
 from config import BASE_URL, TIMEOUT
+from helpers.screenshot import ScreenshotHelper
 
 
 # ---------------------------------------------------------------------------
@@ -64,6 +69,27 @@ def admin_page(authenticated_page: Page):
     authenticated_page.goto("/admin/dashboard")
     authenticated_page.wait_for_load_state("domcontentloaded")
     return authenticated_page
+
+
+# ---------------------------------------------------------------------------
+# Screenshots
+# ---------------------------------------------------------------------------
+
+@pytest.fixture()
+def screenshot(pytestconfig, request):
+    """Provide a callable that saves numbered screenshots for the current test.
+
+    Usage::
+
+        def test_example(self, page, screenshot):
+            page.goto("/portal")
+            screenshot(page, "portal-loaded")
+
+    Screenshots are saved as ``<output>/<test-name>/<index>-<description>.png``.
+    """
+    output_dir = Path(pytestconfig.getoption("--output")).absolute()
+    test_name = slugify(request.node.nodeid)
+    return ScreenshotHelper(output_dir / test_name)
 
 
 # ---------------------------------------------------------------------------

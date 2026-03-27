@@ -80,6 +80,7 @@ jobs:
         working-directory: e2e
         env:
           E2E_BASE_URL: http://localhost:8080
+          E2E_SPARQL_URL: http://localhost:8890/sparql
         run: |
           python -m pytest tests/ -v --tb=short \
             --screenshot=only-on-failure \
