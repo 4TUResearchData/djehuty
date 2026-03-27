@@ -1,0 +1,95 @@
+name: E2E tests
+
+on:
+  workflow_call:
+    inputs:
+      marker:
+        required: true
+        type: string
+      artifact-suffix:
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      sparql:
+        image: openlink/virtuoso-opensource-7:7.2.13
+        ports:
+          - 8890:8890
+          - 1111:1111
+        env:
+          DBA_PASSWORD: dba
+          VIRT_Parameters_DirsAllowed: "., ../vsp, /usr/share/proj, /initdb.d"
+        options: --health-cmd="isql 127.0.0.1:1111 dba dba exec='select 1'" --health-interval=10s --health-timeout=5s --health-retries=10 --health-start-period=30s
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxmlsec1-dev pkg-config libxml2-dev libxslt1-dev libxmlsec1-openssl
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Create pyproject.toml and install package
+        run: |
+          sed 's/@VERSION@/0.0.0+ci/' pyproject.toml.in > pyproject.toml
+          pip install -e .
+
+      - name: Install Playwright browsers
+        run: playwright install --with-deps chromium
+
+      - name: Initialize SPARQL database
+        run: |
+          docker cp docker/dev/sparql-init/001-setup_permissions.sql ${{ job.services.sparql.id }}:/tmp/001-setup_permissions.sql
+          docker exec ${{ job.services.sparql.id }} isql 1111 dba dba /tmp/001-setup_permissions.sql
+
+      - name: Start application
+        run: |
+          djehuty web --initialize --config-file .github/ci-djehuty.xml &
+          echo $! > /tmp/djehuty.pid
+          # Wait for the application to be ready
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/ > /dev/null 2>&1; then
+              echo "Application is ready"
+              break
+            fi
+            echo "Waiting for application to start... ($i/30)"
+            sleep 2
+          done
+          # Final check
+          curl -sf http://localhost:8080/ > /dev/null || (echo "Application failed to start" && exit 1)
+
+      - name: Run E2E tests (${{ inputs.marker }})
+        working-directory: e2e
+        env:
+          E2E_BASE_URL: http://localhost:8080
+          E2E_SPARQL_URL: http://localhost:8890/sparql
+        run: |
+          python -m pytest tests/ -v --tb=short \
+            -m "${{ inputs.marker }}" \
+            --screenshot=only-on-failure \
+            --output=test-results
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-${{ inputs.marker }}${{ inputs.artifact-suffix }}
+          path: e2e/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
