@@ -2,32 +2,45 @@
 Dataset helper utilities for E2E tests.
 """
 
+import re
+
 from playwright.sync_api import Page
 
 
 def create_draft_dataset(page: Page) -> str:
-    """Create a new draft dataset via the UI and return its URL.
+    """Create a new draft dataset via the UI and return its edit URL.
 
     Assumes the page is already authenticated.
     """
-    page.goto("/my/datasets")
-    page.get_by_role("button", name="Create new dataset").click()
+    page.goto("/my/datasets/new")
     page.wait_for_load_state("domcontentloaded")
+    # The redirect lands on /my/datasets/<container_uuid>/edit
+    page.wait_for_url("**/my/datasets/*/edit")
+    # Wait for JS to initialize the form
+    page.locator(".article-content").wait_for(state="visible")
     return page.url
+
+
+def get_container_uuid_from_url(url: str) -> str:
+    """Extract the container UUID from a dataset editor URL."""
+    match = re.search(r"/my/datasets/([^/]+)/edit", url)
+    if match:
+        return match.group(1)
+    raise ValueError(f"Cannot extract container UUID from: {url}")
 
 
 def delete_dataset(page: Page, dataset_url: str):
     """Delete a dataset identified by its editor URL.
 
-    Uses the delete action available on the dataset editor page.
+    Uses the JavaScript confirm dialog and the DELETE API endpoint.
     """
     page.goto(dataset_url)
-    page.get_by_role("button", name="Delete").click()
-    # Confirm deletion dialog if present.
-    confirm = page.get_by_role("button", name="Confirm")
-    if confirm.is_visible():
-        confirm.click()
     page.wait_for_load_state("domcontentloaded")
+    page.locator(".article-content-loader").wait_for(state="hidden")
+    page.locator(".article-content").wait_for(state="visible")
+    page.once("dialog", lambda dialog: dialog.accept())
+    page.locator("#delete").click()
+    page.wait_for_url("**/my/datasets", wait_until="domcontentloaded")
 
 
 def upload_file(page: Page, file_path: str):
