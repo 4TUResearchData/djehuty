@@ -1,0 +1,5 @@
+Faker>=37.12.0
+boto3
+playwright>=1.40.0
+pytest>=7.4.0
+pytest-playwright>=0.4.4
