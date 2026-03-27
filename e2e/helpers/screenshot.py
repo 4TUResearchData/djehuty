@@ -45,5 +45,5 @@ class ScreenshotHelper:
         self._index += 1
         self._output_dir.mkdir(parents=True, exist_ok=True)
         filepath = self._output_dir / f"{self._index}-{description}.png"
-        page.screenshot(path=str(filepath))
+        page.screenshot(path=str(filepath), full_page=True)
         return filepath

@@ -44,6 +44,9 @@ def delete_dataset(page: Page, dataset_url: str):
 
 
 def upload_file(page: Page, file_path: str):
-    """Upload a file to the current dataset editor page."""
-    page.locator("input[type='file']").set_input_files(file_path)
-    page.wait_for_load_state("networkidle")
+    """Upload a file to the current dataset editor page via Dropzone."""
+    page.locator("form#dropzone-field").wait_for(state="visible")
+    with page.expect_file_chooser() as fc_info:
+        page.locator("form#dropzone-field").click()
+    fc_info.value.set_files(file_path)
+    page.locator("table#files tbody tr").first.wait_for(state="visible")
