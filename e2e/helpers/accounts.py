@@ -54,6 +54,30 @@ def get_account_uuid(email: str) -> Optional[str]:
     return rows[0]["uuid"] if rows else None
 
 
+def get_non_admin_account(fields: str = "?uuid ?email") -> dict:
+    """Return details of any non-admin account.
+
+    Args:
+        fields: SPARQL SELECT variables to return. Must include ``?uuid``.
+    """
+    rows = _sparql_query(f"""
+        PREFIX djht: <https://ontologies.data.4tu.nl/djehuty/0.0.1/>
+        PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+        SELECT {fields} WHERE {{
+          GRAPH <{SPARQL_GRAPH}> {{
+            ?account a djht:Account .
+            ?account djht:email ?email .
+            OPTIONAL {{ ?account djht:first_name ?first_name }}
+            OPTIONAL {{ ?account djht:last_name ?last_name }}
+            FILTER(?email != "{ADMIN_EMAIL}"^^xsd:string)
+          }}
+          BIND(STRAFTER(STR(?account), "account:") AS ?uuid)
+        }} LIMIT 1
+    """)
+    assert rows, "No non-admin accounts found in the database"
+    return rows[0]
+
+
 def get_non_admin_account_uuid() -> str:
     """Return the UUID of any account that is not the admin.
 
