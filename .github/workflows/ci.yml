@@ -2,6 +2,12 @@ name: CI
 
 on:
   push: ~
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -15,14 +21,12 @@ jobs:
           - 1111:1111
         env:
           DBA_PASSWORD: dba
-          VIRT_Parameters_DirsAllowed: "., ../vsp, /usr/share/proj, /initdb.d"
+          VIRT_Parameters_DirsAllowed: "., ../vsp, /usr/share/proj"
         options: --health-cmd="isql 127.0.0.1:1111 dba dba exec='select 1'" --health-interval=10s --health-timeout=5s --health-retries=10 --health-start-period=30s
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          lfs: true
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -44,14 +48,10 @@ jobs:
           sed 's/@VERSION@/0.0.0+ci/' pyproject.toml.in > pyproject.toml
           pip install -e .
 
-      - name: Initialize SPARQL database
+      - name: Initialize SPARQL permissions
         run: |
-          docker exec ${{ job.services.sparql.id }} mkdir -p /initdb.d
-          docker cp docker/dev/sparql-init/001-setup_permissions.sql ${{ job.services.sparql.id }}:/initdb.d/001-setup_permissions.sql
-          docker cp docker/dev/sparql-init/002-load-test-data.sql ${{ job.services.sparql.id }}:/initdb.d/002-load-test-data.sql
-          docker cp docker/dev/sparql-init/data.nt ${{ job.services.sparql.id }}:/initdb.d/data.nt
-          docker exec ${{ job.services.sparql.id }} isql 1111 dba dba /initdb.d/001-setup_permissions.sql
-          docker exec ${{ job.services.sparql.id }} isql 1111 dba dba /initdb.d/002-load-test-data.sql
+          docker cp docker/dev/sparql-init/001-setup_permissions.sql ${{ job.services.sparql.id }}:/tmp/001-setup_permissions.sql
+          docker exec ${{ job.services.sparql.id }} isql 1111 dba dba /tmp/001-setup_permissions.sql
 
       - name: Initialize database
         run: |
