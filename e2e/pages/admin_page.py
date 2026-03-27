@@ -21,13 +21,12 @@ class AdminPage(BasePage):
         self.page.locator("a[href='/admin/maintenance']").click()
         self.page.wait_for_load_state("domcontentloaded")
 
-    def impersonate_user(self, email: str):
-        """Navigate to the impersonation flow for a given user email.
+    def impersonate_user(self, account_uuid: str):
+        """Impersonate a user by navigating to /admin/impersonate/<uuid>.
 
-        This relies on the admin having ``may-impersonate`` privileges and
-        the admin panel exposing an impersonation action.
+        This relies on the admin having ``may-impersonate`` privileges.
+        After impersonation the browser is redirected to /my/dashboard
+        as the impersonated user.
         """
-        self.open_users()
-        self.page.get_by_text(email).click()
-        self.page.get_by_role("button", name="Impersonate").click()
+        self.page.goto(f"/admin/impersonate/{account_uuid}")
         self.page.wait_for_load_state("domcontentloaded")
