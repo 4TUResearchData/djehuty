@@ -545,7 +545,7 @@ function submit_new_author_event (event) {
     submit_new_author (event.data["collection_id"]);
 }
 
-function new_author (dataset_uuid) {
+function new_author (collection_id) {
     let banner = `<br><span><i>Enter the details of the author you want to add.</i></span>`;
     jQuery("#new-author-description").after(banner).remove();
     let html = jQuery("<div/>", { "id": "new-author-form" });
