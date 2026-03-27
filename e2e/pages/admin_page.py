@@ -17,6 +17,14 @@ class AdminPage(BasePage):
         self.page.locator("a[href='/admin/users']").click()
         self.page.wait_for_load_state("domcontentloaded")
 
+    def open_reports(self):
+        self.page.locator("a[href='/admin/reports']").click()
+        self.page.wait_for_load_state("domcontentloaded")
+
+    def open_quota_requests(self):
+        self.page.locator("a[href='/admin/quota-requests']").click()
+        self.page.wait_for_load_state("domcontentloaded")
+
     def open_maintenance(self):
         self.page.locator("a[href='/admin/maintenance']").click()
         self.page.wait_for_load_state("domcontentloaded")
