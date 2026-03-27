@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<djehuty>
+  <maintenance-mode>0</maintenance-mode>
+  <site-name>CI</site-name>
+  <site-shorttag>djehuty</site-shorttag>
+  <bind-address>127.0.0.1</bind-address>
+  <port>8080</port>
+  <base-url>http://localhost:8080</base-url>
+  <storage-root>./data</storage-root>
+  <storage>
+    <location>./data</location>
+  </storage>
+  <cache-root clear-on-start="1">./data/cache</cache-root>
+  <debug-mode>1</debug-mode>
+  <production>0</production>
+  <disable-2fa>1</disable-2fa>
+  <rdf-store>
+    <sparql-uri>http://localhost:8890/sparql</sparql-uri>
+    <sparql-update-uri>http://localhost:8890/sparql</sparql-update-uri>
+    <state-graph>djehuty://local</state-graph>
+  </rdf-store>
+</djehuty>
