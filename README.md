@@ -77,6 +77,49 @@ option:
 ```bash
 djehuty web --config-file=djehuty.xml
 ```
+## Running the tests
+
+The project includes an end-to-end test suite built with
+[Playwright](https://playwright.dev/python/) and
+[pytest](https://docs.pytest.org/). Tests run against a live instance
+backed by a Virtuoso SPARQL store loaded with test data.
+
+### Prerequisites
+
+Install the test dependencies and the Playwright browser:
+
+```bash
+pip install --requirement requirements-dev.txt
+playwright install --with-deps chromium
+```
+
+### Running locally
+
+Start djehuty with a SPARQL store that has the test data loaded (see
+`docker/dev/sparql-init/`), then run:
+
+```bash
+cd e2e
+E2E_BASE_URL=http://localhost:8080 python -m pytest tests/ -v
+```
+
+Useful options:
+
+```bash
+# Run a specific marker (smoke, auth, dataset, admin, …)
+python -m pytest tests/ -v -m smoke
+
+# Run a single test by name
+python -m pytest tests/ -v -k test_homepage
+```
+
+### CI
+
+Tests run automatically on every push via GitHub Actions. The workflow
+starts a Virtuoso service container, loads the test data, starts the
+application, and runs the full suite. Screenshots are captured on failure
+and uploaded as artifacts.
+
 ---
 ### Contact information
 - **Maintainers**: g.kuhn@tudelft.nl
