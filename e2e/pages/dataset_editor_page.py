@@ -161,3 +161,41 @@ class DatasetEditorPage(BasePage):
         """Return the download URL for the file at the given row index."""
         row = self.get_file_rows().nth(index)
         return row.locator("td:first-child a").first.get_attribute("href")
+
+    # ------------------------------------------------------------------
+    # Access type & embargo
+    # ------------------------------------------------------------------
+
+    def select_access_type(self, access_type: str):
+        """Select an access type radio button.
+
+        Args:
+            access_type: One of 'open_access', 'embargoed_access',
+                         'restricted_access'.
+        """
+        self.page.locator(f"label[for='{access_type}']").click()
+
+    def set_embargo_date(self, date_str: str):
+        """Set the embargo until date (format: YYYY-MM-DD)."""
+        self.page.locator("#embargo_until_date").fill(date_str)
+
+    def get_embargo_date(self) -> str:
+        return self.page.locator("#embargo_until_date").input_value()
+
+    def select_embargo_type(self, embargo_type: str):
+        """Select embargo type: 'files_only_embargo' or 'content_embargo'."""
+        self.page.locator(f"label[for='{embargo_type}']").click()
+
+    def set_embargo_reason(self, reason: str):
+        editor = self.page.locator("#embargo_reason .ql-editor")
+        editor.click()
+        editor.fill(reason)
+
+    def get_embargo_reason_text(self) -> str:
+        return self.page.locator("#embargo_reason .ql-editor").inner_text()
+
+    def is_embargo_form_visible(self) -> bool:
+        return self.page.locator("#embargoed_access_form").is_visible()
+
+    def is_restricted_form_visible(self) -> bool:
+        return self.page.locator("#restricted_access_form").is_visible()

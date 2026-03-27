@@ -43,6 +43,18 @@ def delete_dataset(page: Page, dataset_url: str):
     page.wait_for_url("**/my/datasets", wait_until="domcontentloaded")
 
 
+def get_dataset_uuid_from_editor(page: Page) -> str:
+    """Extract the dataset UUID from the private links button on the editor page.
+
+    The editor page must be loaded before calling this.
+    """
+    href = page.locator("#private-links").get_attribute("href")
+    match = re.search(r"/my/datasets/([^/]+)/private_links", href)
+    if match:
+        return match.group(1)
+    raise ValueError(f"Cannot extract dataset UUID from href: {href}")
+
+
 def upload_file(page: Page, file_path: str):
     """Upload a file to the current dataset editor page via Dropzone."""
     page.locator("form#dropzone-field").wait_for(state="visible")
