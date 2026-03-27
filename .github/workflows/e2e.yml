@@ -60,7 +60,7 @@ jobs:
 
       - name: Start application
         run: |
-          djehuty web --initialize --config-file .github/ci-djehuty.xml &
+          coverage run -m djehuty.ui web --initialize --config-file .github/ci-djehuty.xml &
           echo $! > /tmp/djehuty.pid
           # Wait for the application to be ready
           for i in $(seq 1 30); do
@@ -85,6 +85,22 @@ jobs:
             --screenshot=only-on-failure \
             --output=test-results
 
+      - name: Stop application and collect coverage
+        if: always()
+        run: |
+          PID=$(cat /tmp/djehuty.pid || echo "")
+          if [ -n "$PID" ] && kill -0 "$PID"; then
+            kill -TERM "$PID"
+            for i in $(seq 1 15); do
+              if ! kill -0 "$PID"; then break; fi
+              sleep 1
+            done
+            kill -0 "$PID" && kill -9 "$PID" || true
+          fi
+          ls -la .coverage*
+          mkdir -p /tmp/coverage-data
+          cp --verbose .coverage* /tmp/coverage-data/
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -93,3 +109,13 @@ jobs:
           path: e2e/test-results/
           retention-days: 7
           if-no-files-found: ignore
+
+      - name: Upload coverage data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-data-${{ inputs.marker }}${{ inputs.artifact-suffix }}
+          path: /tmp/coverage-data/
+          retention-days: 1
+          if-no-files-found: error
+          include-hidden-files: true
