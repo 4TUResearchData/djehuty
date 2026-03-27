@@ -373,7 +373,7 @@ class SparqlInterface:
         """
         search_for = search_query["search_for"] # list
         operator   = search_query["operator"]   # str
-        scopes     = search_query["scope"]      # list
+        scopes     = search_query["scope"] or ["title", "description", "tag", "author"]
         andgate    = operator == "AND"
 
         if not search_for:
