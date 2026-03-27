@@ -107,3 +107,16 @@ def created_dataset(authenticated_page: Page):
     dataset_url = create_draft_dataset(authenticated_page)
     yield dataset_url
     delete_dataset(authenticated_page, dataset_url)
+
+
+@pytest.fixture()
+def created_collection(authenticated_page: Page):
+    """Create a draft collection via the UI and return its URL.
+
+    Tears down by deleting the collection after the test.
+    """
+    from helpers.collection import create_draft_collection, delete_collection
+
+    collection_url = create_draft_collection(authenticated_page)
+    yield collection_url
+    delete_collection(authenticated_page, collection_url)
