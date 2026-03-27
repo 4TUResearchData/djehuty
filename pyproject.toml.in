@@ -26,3 +26,24 @@ classifiers     = [
 
 [project.scripts]
 djehuty = "djehuty.ui:main"
+
+[tool.coverage.run]
+source = ["djehuty"]
+branch = true
+parallel = true
+
+[tool.coverage.paths]
+source = [
+    "src/djehuty",
+    "*/site-packages/djehuty",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+omit = [
+    "src/djehuty/backup/*",
+]
+
+[tool.coverage.html]
+directory = "coverage-html"

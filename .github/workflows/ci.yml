@@ -33,3 +33,7 @@ jobs:
     uses: ./.github/workflows/e2e.yml
     with:
       marker: ${{ matrix.marker }}
+
+  coverage-report:
+    needs: e2e
+    uses: ./.github/workflows/coverage.yml
