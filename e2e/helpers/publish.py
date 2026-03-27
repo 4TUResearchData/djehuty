@@ -58,26 +58,37 @@ def fill_required_fields_and_publish(
     match = re.search(r"/my/datasets/([^/]+)/private_links", href)
     dataset_uuid = match.group(1) if match else None
 
-    # Set required metadata (tags, authors, categories) via the v2 dataset
-    # update endpoint.  This single PUT writes tags directly into the database,
-    # avoiding the timing issues that can occur with separate v3 tag POSTs.
-    update_data = {
-        "tags": ["e2e-test"],
-        "authors": [{"first_name": "Test", "last_name": "Author"}],
-        "title": title,
-        "description": description,
-        "defined_type": "dataset",
-    }
-    if category_uuid:
-        update_data["categories"] = [category_uuid]
+    # Add a tag via API (with retry to handle transient database locks)
+    for attempt in range(3):
+        tag_response = page.request.post(
+            f"/v3/datasets/{container_uuid}/tags",
+            data={"tags": ["e2e-test"]},
+        )
+        if tag_response.ok:
+            break
+        page.wait_for_timeout(500)
+    assert tag_response.ok, f"Add tag failed: {tag_response.status} {tag_response.text()}"
 
-    update_response = page.request.put(
-        f"/v2/account/articles/{container_uuid}",
-        data=update_data,
+    # Verify the tag was persisted before proceeding
+    verify_response = page.request.get(f"/v3/datasets/{container_uuid}/tags")
+    assert verify_response.ok, f"Verify tags failed: {verify_response.status}"
+    tags_data = verify_response.json()
+    assert len(tags_data) > 0, "Tag was not persisted after POST"
+
+    # Add an author via API
+    author_response = page.request.post(
+        f"/v2/account/articles/{container_uuid}/authors",
+        data={"authors": [{"first_name": "Test", "last_name": "Author"}]},
     )
-    assert update_response.ok, (
-        f"Dataset update failed: {update_response.status} {update_response.text()}"
-    )
+    assert author_response.ok, f"Add author failed: {author_response.status} {author_response.text()}"
+
+    # Add a category via API
+    if category_uuid:
+        cat_response = page.request.post(
+            f"/v2/account/articles/{container_uuid}/categories",
+            data={"categories": [category_uuid]},
+        )
+        assert cat_response.ok, f"Add category failed: {cat_response.status} {cat_response.text()}"
 
     # Build the form data for submit-for-review
     form_data = {
