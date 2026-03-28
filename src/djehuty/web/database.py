@@ -135,6 +135,8 @@ class SparqlInterface:
                     output[str(name)] = str(row[name])
             elif row[name] is None:
                 output[str(name)] = None
+            elif row[name] == RDF.nil:
+                pass
             else:
                 output[str(name)] = str(row[name])
 
@@ -3065,15 +3067,23 @@ class SparqlInterface:
 
     def update_review (self, review_uri, dataset_uri=None, assigned_to=None,
                        status=None, reminder_date=None,
-                       author_account_uuid=None):
+                       author_account_uuid=None, note=None):
         """Procedure to update a review."""
+
+        _UNSET = object()
+
+        note = (_UNSET if isinstance(note, str) and note.strip() == ""
+                else rdf.escape_string_value(note) if isinstance(note, str)
+                else note)
 
         query        = self.__query_from_template ("update_review", {
             "review_uri":            review_uri,
             "dataset_uri":           dataset_uri,
             "assigned_to":           assigned_to,
             "status":                status.capitalize() if status is not None else status,
-            "reminder_date":         reminder_date
+            "reminder_date":         reminder_date,
+            "note":                  note,
+            "note_is_unset":         (note is _UNSET),
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{author_account_uuid}")
