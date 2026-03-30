@@ -74,6 +74,11 @@ jobs:
           # Final check
           curl -sf http://localhost:8080/ > /dev/null || (echo "Application failed to start" && exit 1)
 
+      - name: Seed test data
+        run: |
+          docker cp docker/dev/sparql-init/002-seed-test-data.sql ${{ job.services.sparql.id }}:/tmp/002-seed-test-data.sql
+          docker exec ${{ job.services.sparql.id }} isql 1111 dba dba /tmp/002-seed-test-data.sql
+
       - name: Run E2E tests (${{ inputs.marker }})
         working-directory: e2e
         env:
