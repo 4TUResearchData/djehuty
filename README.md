@@ -95,8 +95,20 @@ playwright install --with-deps chromium
 
 ### Running locally
 
-Start djehuty with a SPARQL store that has the test data loaded (see
-`docker/dev/sparql-init/`), then run:
+Set up the SPARQL store and application in this order:
+
+1. Start Virtuoso with a clean installation (container or local instance)
+2. Run `001-setup_permissions.sql` via isql
+3. Start djehuty with the initialize flag:
+   `djehuty web --initialize --config-file djehuty.xml`
+4. Run `002-seed-test-data.sql` via isql
+5. Ready to run the e2e tests
+
+The seed scripts are in `docker/dev/sparql-init/`. Note that
+`002-seed-test-data.sql` depends on the `dev@djehuty.com` account
+that is created by `--initialize` in step 3.
+
+Then run:
 
 ```bash
 cd e2e
