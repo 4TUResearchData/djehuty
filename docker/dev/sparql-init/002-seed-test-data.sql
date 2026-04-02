@@ -17,12 +17,12 @@ PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 INSERT {
   GRAPH <djehuty://local> {
     # -- Container ----------------------------------------------------------
-    <container:e2e-search-container-0001>
+    <container:a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d>
         rdf:type                          djht:DatasetContainer ;
         djht:account                      ?account ;
-        djht:dataset_id                   900001 ;
-        djht:latest_published_version     <dataset:e2e-search-dataset-0001> ;
-        djht:published_versions           <blank:e2e-search-publist-0001> ;
+        djht:dataset_id                   "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"^^xsd:string ;
+        djht:latest_published_version     <dataset:b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e> ;
+        djht:published_versions           <blank:c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f> ;
         djht:first_online_date            "2026-01-15T12:00:00"^^xsd:dateTime ;
         djht:total_downloads              0 ;
         djht:total_views                  0 ;
@@ -30,16 +30,16 @@ INSERT {
         djht:total_cites                  0 .
 
     # -- Published versions list (single entry) -----------------------------
-    <blank:e2e-search-publist-0001>
+    <blank:c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f>
         rdf:type                          rdf:List ;
-        rdf:first                         <dataset:e2e-search-dataset-0001> ;
+        rdf:first                         <dataset:b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e> ;
         rdf:rest                          rdf:nil ;
         djht:index                        0 .
 
     # -- Dataset (the published version) ------------------------------------
-    <dataset:e2e-search-dataset-0001>
+    <dataset:b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e>
         rdf:type                          djht:Dataset ;
-        djht:container                    <container:e2e-search-container-0001> ;
+        djht:container                    <container:a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d> ;
         djht:title                        "Search Test Seed Dataset"^^xsd:string ;
         djht:description                  "<p>Dataset seeded for search E2E tests.</p>"^^xsd:string ;
         djht:defined_type                 3 ;
@@ -58,25 +58,25 @@ INSERT {
         djht:published_date               "2026-01-15T12:00:00"^^xsd:dateTime ;
         djht:posted_date                  "2026-01-15T12:00:00"^^xsd:dateTime ;
         djht:submission_date              "2026-01-15T12:00:00"^^xsd:dateTime ;
-        djht:tags                         <blank:e2e-search-tags-0001> ;
-        djht:authors                      <blank:e2e-search-authors-0001> ;
-        djht:categories                   <blank:e2e-search-cats-0001> .
+        djht:tags                         <blank:d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f7a> ;
+        djht:authors                      <blank:e5f6a7b8-c9d0-4e1f-8a2b-3c4d5e6f7a8b> ;
+        djht:categories                   <blank:f6a7b8c9-d0e1-4f2a-8b3c-4d5e6f7a8b9c> .
 
     # -- Tags list ----------------------------------------------------------
-    <blank:e2e-search-tags-0001>
+    <blank:d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f7a>
         rdf:type                          rdf:List ;
         rdf:first                         "e2e-test"^^xsd:string ;
         rdf:rest                          rdf:nil ;
         djht:index                        0 .
 
     # -- Authors list -------------------------------------------------------
-    <blank:e2e-search-authors-0001>
+    <blank:e5f6a7b8-c9d0-4e1f-8a2b-3c4d5e6f7a8b>
         rdf:type                          rdf:List ;
-        rdf:first                         <author:e2e-search-author-0001> ;
+        rdf:first                         <author:a7b8c9d0-e1f2-4a3b-8c4d-5e6f7a8b9c0d> ;
         rdf:rest                          rdf:nil ;
         djht:index                        0 .
 
-    <author:e2e-search-author-0001>
+    <author:a7b8c9d0-e1f2-4a3b-8c4d-5e6f7a8b9c0d>
         rdf:type                          djht:Author ;
         djht:first_name                   "Test"^^xsd:string ;
         djht:last_name                    "Author"^^xsd:string ;
@@ -85,7 +85,7 @@ INSERT {
         djht:is_public                    "true"^^xsd:boolean .
 
     # -- Categories list (Mathematical Sciences = 13431) --------------------
-    <blank:e2e-search-cats-0001>
+    <blank:f6a7b8c9-d0e1-4f2a-8b3c-4d5e6f7a8b9c>
         rdf:type                          rdf:List ;
         rdf:first                         ?category ;
         rdf:rest                          rdf:nil ;
