@@ -3,10 +3,9 @@ djehuty
 
 This Python package provides the repository system for 4TU.ResearchData and Nikhef.
 
-## Reporting (potential) security issues
+## Security
 
-For **security-related matters**, please e-mail
-[djehuty@4tu.nl](mailto:djehuty@4tu.nl). 
+To report a vulnerability, please see [SECURITY.md](./SECURITY.md).
 
 ## Creating a development environment
 
