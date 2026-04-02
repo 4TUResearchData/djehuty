@@ -21,7 +21,6 @@ jobs:
           - dataset
           - files
           - embargo
-          - collaborators
           - review
           - versioning
           - collections
