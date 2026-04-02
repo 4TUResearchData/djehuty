@@ -52,3 +52,7 @@ djehuty.code-workspace
 install-sh~
 query.sparqlbook
 .vscode/launch.json
+e2e/test-results/
+e2e/playwright-report/
+e2e/trace.zip
+.docker-deps.lock

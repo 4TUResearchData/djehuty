@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    strategy:
+      fail-fast: false
+      matrix:
+        marker:
+          - smoke
+          - auth
+          - admin
+          - dataset
+          - files
+          - embargo
+          - review
+          - versioning
+          - collections
+          - profile
+          - dashboard
+          - search
+          - git
+          - citation
+    uses: ./.github/workflows/e2e.yml
+    with:
+      marker: ${{ matrix.marker }}
+
+  coverage-report:
+    needs: e2e
+    uses: ./.github/workflows/coverage.yml
