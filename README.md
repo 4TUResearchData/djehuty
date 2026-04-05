@@ -46,6 +46,18 @@ Edit any Python file under `src/` and the server reloads automatically.
 To stop and remove the development environment, run `just clean`.
 To see all available commands, run `just --list`.
 
+### Code quality
+
+New and modified code must follow PEP 8. To lint and auto-format only the
+files you changed (compared to `main`), run:
+
+```bash
+just lint
+```
+
+This uses [ruff](https://docs.astral.sh/ruff/) to fix style issues and
+format your changes. Review the result with `git diff` before committing.
+
 ## Running in production
 
 Djehuty needs a SPARQL 1.1 endpoint such as

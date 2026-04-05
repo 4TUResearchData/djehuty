@@ -57,7 +57,8 @@ Clone your fork to your local machine and create a new branch for your work.
 Follow the instructions in the [README](https://github.com/4TUResearchData/djehuty/blob/main/README.md) to install dependencies, configure the project, and run the required setup steps. Make sure you can build and test the project locally before starting your contribution.
 
 6. **Work on your branch and open a PR**
-- Make your changes on your branch. 
+- Make your changes on your branch.
+- Run `just lint` before committing to auto-fix style and formatting issues on changed files.
 - Commits must be verified, see the [commit signature verification guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification) for more details.
 - Once your work is ready for review, open a Pull Request (PR) against the main project repository.
     - Provide a clear description of what you changed and link the related issue.

@@ -28,6 +28,19 @@ classifiers     = [
     "Operating System :: OS Independent",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "diff-cover",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
 [project.urls]
 "Homepage"      = "https://data.4tu.nl/"
 "Source Code"   = "https://github.com/4TUResearchData/djehuty"

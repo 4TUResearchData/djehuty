@@ -16,10 +16,19 @@ install prefix="":
 uninstall:
     uv pip uninstall djehuty
 
-# Run linter
+# Lint and format changed Python files (compared to main branch)
 lint:
-    uv run pylint src/djehuty/* > pylint.log || true
-    @printf "Wrote 'pylint.log'.\n"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    changed=$(git diff --name-only --diff-filter=ACMR main -- '*.py')
+    if [ -z "$changed" ]; then
+        printf "No changed Python files to lint.\n"
+        exit 0
+    fi
+    printf "Linting changed files:\n%s\n\n" "$changed"
+    echo "$changed" | xargs uv run --extra dev ruff check --fix
+    echo "$changed" | xargs uv run --extra dev ruff format
+    printf "\nDone. Review changes with 'git diff'.\n"
 
 # Build source distribution
 sdist:
@@ -104,7 +113,7 @@ docs-clean:
 
 # Clean all build artifacts and dev environment
 clean: docs-clean
-    rm -rf build/ dist/ src/djehuty.egg-info/ pylint.log
+    rm -rf build/ dist/ src/djehuty.egg-info/
     {{ dev_compose }} down -v 2>/dev/null || true
 
 # Run Coverity scan
