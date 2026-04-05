@@ -62,6 +62,13 @@ binary-dist:
            -C=--global-option=--formats=gztar
 
 all-local:
+	@printf "\n"
+	@printf "============================================================\n"
+	@printf "DEPRECATION NOTICE: The autotools build system for djehuty\n"
+	@printf "will be discontinued on October 31, 2026.\n"
+	@printf "Please switch to just/uv as described in the README.\n"
+	@printf "============================================================\n"
+	@printf "\n"
 	@PYTHON@ -m build --outdir $(shell readlink -f $(builddir))/build
 
 install-exec-local:
