@@ -102,10 +102,19 @@ docs-clean:
         index.html missfont.log texput.log \
         figures/*-.png
 
-# Clean all build artifacts
+# Clean all build artifacts and dev environment
 clean: docs-clean
     rm -rf build/ dist/ src/djehuty.egg-info/ pylint.log
+    {{ dev_compose }} down -v 2>/dev/null || true
 
 # Run Coverity scan
 coverity-report:
     cov-build --dir cov-int --no-command --fs-capture-search .
+
+# --- Development environment ---
+
+dev_compose := "docker compose -f docker/docker-compose.dev.yml"
+
+# Start development environment (auto-initializes on first run)
+dev:
+    {{ dev_compose }} up --build

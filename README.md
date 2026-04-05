@@ -13,29 +13,48 @@ To report a vulnerability, please see [SECURITY.md](./SECURITY.md).
 
 - [Git](https://git-scm.com/downloads)
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
+- [Docker](https://docs.docker.com/get-docker/) (with Compose)
 - [just](https://github.com/casey/just#installation)
 
 ### Getting started
 
 ```bash
-git clone https://github.com/4TUResearchData/djehuty.git && cd djehuty/
-uv sync
+git clone https://github.com/4TUResearchData/djehuty.git
+cd djehuty/
 ```
 
-To see all available build commands, run `just --list`.
+### Running the development environment
 
-## Setting up the database
+To spin up a fully working local instance, run:
+
+```bash
+just dev
+```
+
+This builds and starts Docker containers for djehuty and
+[Virtuoso](https://github.com/openlink/virtuoso-opensource) (SPARQL store).
+On first run, the database is automatically initialized with categories,
+licences, and a dev account with full admin privileges — no extra setup needed.
+
+Once running:
+
+- **Djehuty**: http://localhost:8080 (auto-login, no auth setup needed)
+- **Virtuoso SPARQL**: http://localhost:8890/sparql (useful for troubleshooting)
+
+Edit any Python file under `src/` and the server reloads automatically.
+
+To stop and remove the development environment, run `just clean`.
+To see all available commands, run `just --list`.
+
+## Running in production
 
 Djehuty needs a SPARQL 1.1 endpoint such as
 [Virtuoso OSE](https://github.com/openlink/virtuoso-opensource) or
 [Jena Fuseki](https://jena.apache.org/documentation/fuseki2/) to
 store its state.
 
-## Run the web service
-
-To start the web service, we recommend copying the
-[example configuration](./etc/djehuty/djehuty-example-config.xml)
-and go from there:
+Copy the [example configuration](./etc/djehuty/djehuty-example-config.xml)
+and adjust it for your environment:
 
 ```bash
 cp etc/djehuty/djehuty-example-config.xml djehuty.xml

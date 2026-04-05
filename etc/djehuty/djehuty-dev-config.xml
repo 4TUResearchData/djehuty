@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<djehuty>
+  <maintenance-mode>0</maintenance-mode>
+  <site-name>Djehuty Dev</site-name>
+  <site-shorttag>dev</site-shorttag>
+  <site-description>Djehuty development instance</site-description>
+  <support-email-address>dev@localhost</support-email-address>
+  <colors>
+    <primary-color>#f49120</primary-color>
+    <primary-color-hover>#d26000</primary-color-hover>
+    <primary-color-active>#9d4800</primary-color-active>
+    <primary-foreground-color>#000000</primary-foreground-color>
+    <privilege-button-color>#fce3bf</privilege-button-color>
+    <footer-background-color>#707070</footer-background-color>
+  </colors>
+  <small-footer>
+    <div id="footer-wrapper2">
+      <p>Development instance powered by <a href="https://github.com/4TUResearchData/djehuty">djehuty</a>.</p>
+    </div>
+  </small-footer>
+  <large-footer>
+    <div id="footer-wrapper2">
+      <p>Development instance powered by <a href="https://github.com/4TUResearchData/djehuty">djehuty</a>.</p>
+    </div>
+  </large-footer>
+  <sandbox-message style="background: #784421; color: #fff;">
+    Development instance — changes are not persisted beyond container restarts unless using named volumes.
+  </sandbox-message>
+  <bind-address>0.0.0.0</bind-address>
+  <port>8080</port>
+  <base-url>http://localhost:8080</base-url>
+  <storage-root>/data</storage-root>
+  <cache-root clear-on-start="1">/data/cache</cache-root>
+  <live-reload>1</live-reload>
+  <debug-mode>1</debug-mode>
+  <production>0</production>
+  <allow-crawlers>0</allow-crawlers>
+  <show-portal-summary>1</show-portal-summary>
+  <show-institutions>1</show-institutions>
+  <show-science-categories>1</show-science-categories>
+  <enable-query-audit-log>0</enable-query-audit-log>
+  <show-latest-datasets>1</show-latest-datasets>
+  <disable-2fa>1</disable-2fa>
+  <use-x-forwarded-for>0</use-x-forwarded-for>
+  <rdf-store>
+    <sparql-uri>http://virtuoso:8890/sparql</sparql-uri>
+    <sparql-update-uri>http://virtuoso:8890/sparql</sparql-update-uri>
+    <state-graph>djehuty://dev</state-graph>
+  </rdf-store>
+  <authentication>
+    <automatic-login-email>dev@localhost</automatic-login-email>
+  </authentication>
+  <privileges>
+    <account first_name="Dev" last_name="User" email="dev@localhost">
+      <may-administer>1</may-administer>
+      <may-run-sparql-queries>1</may-run-sparql-queries>
+      <may-impersonate>1</may-impersonate>
+      <may-review>1</may-review>
+      <may-review-quotas>1</may-review-quotas>
+      <may-process-feedback>1</may-process-feedback>
+    </account>
+  </privileges>
+  <groups>
+    <group name="4TU.ResearchData" domain="4tu.nl" id="28585" parent_id="0" />
+    <group name="Delft University of Technology" domain="tudelft.nl" id="28586" parent_id="28585" is_featured="1" />
+    <group name="Other institutions" domain="nogroup" id="28598" parent_id="28585" is_featured="1" />
+  </groups>
+  <quotas default="5000000000" />
+</djehuty>
