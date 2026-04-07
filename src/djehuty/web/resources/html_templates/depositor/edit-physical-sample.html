@@ -43,6 +43,16 @@ jQuery(document).ready(function (){
 #dateType, #identifierType, #relationType { width: 125pt !important; border-radius: .5em !important; }
 #categories-wrapper .subitem-checkbox { margin-left: 3em; }
 #expanded-categories { display: none; }
+#groups-wrapper h4 {
+    padding: .5em;
+    margin: .5em 0em 0em 0em;
+    font-weight: bold;
+    font-size: 1em;
+    background: #eee;
+    border-radius: .5em;
+    user-select: none;
+}
+#groups-wrapper h4:nth-child(1) { margin: 0em; }
 #geolocation-wrapper label { background: #eee; }
 #geolocation-wrapper input[type="text"] { width: 812pt; }
 #sample-owner-wrapper label { background: #eee; }
@@ -109,6 +119,21 @@ jQuery(document).ready(function (){
 </div>
 {%- endfor %}
   </div>
+</div>
+
+<label for="groups-wrapper">Group</label><span class="required-field"> &#8727;</span>
+<div id="groups-wrapper">
+{%- if not groups: %}
+<p>No group association found.  Please contact <a href="mailto:{{support_email_address}}">support</a>.</p>
+{%- else %}
+{%- for group in groups if group.id == account.group_id %}
+{%- if loop.first %}
+<h4>{{group.name}}</h4>
+<input class="subitem-checkbox" type="radio" name="groups" value="{{group.id}}" id="group_{{group.id}}" checked="checked"><!--
+--><label class="subitem-label no-head" for="group_{{group.id}}">{{group.name}}</label><br>
+{%- endif %}
+{%- endfor %}
+{%- endif %}
 </div>
 
 <label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resource. Separate different names with a semicolon (;)</span></div><span class="required-field">&#8727;</span>

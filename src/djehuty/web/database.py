@@ -3086,7 +3086,7 @@ class SparqlInterface:
                                 organizations=None, physical_storage_location=None,
                                 geolocation=None, longitude=None, latitude=None,
                                 sample_owner_name=None, sample_owner_email=None,
-                                categories=None):
+                                group_id=None, categories=None):
         """Updates a physical sample record."""
 
         query = self.__query_from_template ("update_physical_sample_draft", {
@@ -3108,6 +3108,7 @@ class SparqlInterface:
             "latitude":               rdf.escape_string_value (latitude),
             "sample_owner_name":      rdf.escape_string_value (sample_owner_name),
             "sample_owner_email":     rdf.escape_string_value (sample_owner_email),
+            "group_id":               group_id,
             "modified_date":          datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S"),
             "account_uuid":           account_uuid,
             "container_uuid":         container_uuid
