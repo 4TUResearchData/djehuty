@@ -52,7 +52,67 @@ Core maintainers ensure Djehuty’s direction and are admins on all infrastructu
 
 Process diagram:
 
-![Djehuty governance process](https://github.com/4TUResearchData/djehuty/blob/main/doc/figures/governance_process.png)
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'fontSize': '14px'}}}%%
+flowchart TB
+    %% ── Community Level (green) ──
+    REQUESTS["Report bugs or request features"]:::green
+    INPUTS["Suggest a new idea, improvements\nor report a malfunction"]:::orange
+    INPUTS_note["<i>by creating a GitHub issue\n Feedback form in the website</i>"]:::note
+
+    REQUESTS --> INPUTS
+    INPUTS --- INPUTS_note
+
+    CHANGES{"major architectural or functional changes?"}:::constitutional
+    MAINTAINERS["The maintainers access the suggestion"]:::orange
+    MAINTAINERS_note["<i>Priorization\nAlign with 4TU RD goals?\nDependencies</i>"]:::note
+    CONSTITUCIONAL_LEVEL["Constitucional level representatives asses the suggestion"]:::orange
+
+    INPUTS --> CHANGES
+    MAINTAINERS --- MAINTAINERS_note
+    CHANGES -- YES --> CONSTITUCIONAL_LEVEL
+    CHANGES -- NO --> MAINTAINERS
+
+    IMPLEMENTATION_QUESTION{"Will be implemented?"}:::constitutional
+
+    CONSTITUCIONAL_LEVEL --> IMPLEMENTATION_QUESTION
+    MAINTAINERS --> IMPLEMENTATION_QUESTION
+
+    NO_ARCHITECTURAL["No | Not for now"]:::constitutional
+    YES_ARCHITECTURAL["Yes - How can handle it"]:::green
+
+    IMPLEMENTATION_QUESTION -- Yes --> YES_ARCHITECTURAL
+    IMPLEMENTATION_QUESTION -- No --> NO_ARCHITECTURAL
+
+    CODE_CONTRIBUTOR["Code contributors"]:::green
+    EXTERNAL_CODER["External Coder Contributor"]:::orange
+
+    YES_ARCHITECTURAL --> EXTERNAL_CODER
+    YES_ARCHITECTURAL --> INTERNAL_CODER
+     CODE_CONTRIBUTOR --> EXTERNAL_CODER
+
+    ISSUE_PUBLIC["Keep the issue on GitHub public board and as soon as we have a coder contributor we can assing it to this person"]
+    ISSUE_ASSIGN_PUBLIC["Before being finally implemented into the main code, the implementation is approved by one of the maintainers to ensure that the standards and quality of the code are maintained"]
+
+    EXTERNAL_CODER --> ISSUE_PUBLIC
+    ISSUE_PUBLIC --> ISSUE_ASSIGN_PUBLIC
+
+    INTERNAL_CODER["Internal Development"]
+    ISSUE_INTERNAL["We assign the issue on the GitHub public board to ourselves and we keep the collaborator/community updated on the status"]
+    WONT_DO["Archive as Won't do in GitHub and give context why"]
+    WONT_DO_note["<i>The issue can always be reopened and re-evaluated</i>"]:::note
+
+    WONT_DO --- WONT_DO_note
+
+    INTERNAL_CODER --> ISSUE_INTERNAL
+    NO_ARCHITECTURAL --> WONT_DO
+    %% ── Styles ──
+    classDef green fill:#d5e8d4,stroke:#82b366,color:#333
+    classDef orange fill:#F9A825,stroke:#d6b656,color:#333
+    classDef constitutional fill:#f8cecc,stroke:#b85450,color:#333
+    classDef note fill:#fff,stroke:#999,stroke-dasharray:5 5,color:#666,font-size:12px
+
+```
 
 **Decision rule**: Maintainers decide by consensus where possible; if consensus is not reached, the core maintainers as 
 a group have the power to veto any decision by majority vote. Core maintainers have power to resolve disputes as they 
