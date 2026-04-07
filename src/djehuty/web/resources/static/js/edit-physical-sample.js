@@ -158,7 +158,7 @@ function render_authors (container_uuid) {
             if (orcid !== null) {
                 row += ` <a href="https://orcid.org/${orcid}" `;
                 row += `target="_blank" rel="noopener noreferrer"><img `;
-                row += `src="/static/images/orcid.svg" style="height: 15px" `;
+                row += `src="/static/images/orcid.svg" class="author-orcid" style="height: 15px" `;
                 row += `alt="ORCID" title="ORCID profile (new window)" /></a>`;
             }
             if (author.is_editable) {
