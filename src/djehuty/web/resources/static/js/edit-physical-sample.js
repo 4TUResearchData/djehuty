@@ -14,6 +14,10 @@ function gather_form_data (container_uuid) {
         category_ids.push(jQuery(category).val());
     }
 
+    let group_id = jQuery("input[name='groups']:checked")[0];
+    if (group_id !== undefined) { group_id = group_id["value"]; }
+    else { group_id = null; }
+
     let form_data = {
         "title":                  or_null(jQuery("#title").val()),
         "abstract":               or_null(jQuery("#abstract .ql-editor").html()),
@@ -31,6 +35,7 @@ function gather_form_data (container_uuid) {
         "latitude":               or_null(jQuery("#latitude").val()),
         "sample_owner_name":      or_null(jQuery("#sample_owner_name").val()),
         "sample_owner_email":     or_null(jQuery("#sample_owner_email").val()),
+        "group_id":               group_id,
         "categories":             category_ids,
     };
     return form_data;
