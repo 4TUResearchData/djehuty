@@ -88,7 +88,7 @@ jQuery(document).ready(function (){
   {{object["abstract"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
 
-<label>Methods</label><div class="fas fa-question-circle help-icon"><span class="help-text">Describe the collection method(s) by which the physical sample was gathered.</span></div><span class="required-field">&#8727;</span>
+<label>Methods</label><div class="fas fa-question-circle help-icon"><span class="help-text">Describe the collection method(s) by which the physical sample was gathered.</span></div>
 <div id="methods" class="texteditor">
   {{object["methods"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
@@ -111,7 +111,17 @@ jQuery(document).ready(function (){
   </div>
 </div>
 
-<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add at least 4 keywords that will help make your research more discoverable. Select the keywords from the list or manually add them. Use a semicolon (;) or hit return after each keyword you enter.</span></div>
+<label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resource. Separate different names with a semicolon (;)</span></div><span class="required-field">&#8727;</span>
+<textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{object["organizations"] | default("", True) }}</textarea>
+
+<label for="publisher">Publisher</label><span class="required-field">&#8727;</span>
+<input type="text" id="publisher" name="publisher" value="{% if object["publisher"] %}{{object["publisher"]}}{% else %}{{site_name}}{% endif %}" />
+
+<label for="publication_year">Publication year</label><div class="fas fa-question-circle help-icon"><span class="help-text">Enter the year that a sample was first made available to the research community.</span></div><span class="required-field">&#8727;</span>
+<input type="text" id="publication_year" name="publication_year" value="{{object["publication_year"]}}" />
+
+<h3 class="corporate-identity-h3">Findability</h3>
+<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add at least 4 keywords that will help make your research more discoverable. Select the keywords from the list or manually add them. Use a semicolon (;) or hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
 <div id="wrap-input-tag" class="input-with-button">
   <input type="text" id="tag" name="tag" value="" placeholder="keyword 1; keyword 2; keyword 3; keyword 4" />
   <a id="add-keyword-button" class="form-button corporate-identity-standard-button" href="#">Add keyword</a>
@@ -120,28 +130,6 @@ jQuery(document).ready(function (){
 
 <label for="alternate_identifier">Alternate identifier</label><div class="fas fa-question-circle help-icon"><span class="help-text">When the same instance of the resource has an additional identifier, enter it here. Otherwise, leave it blank.</span></div>
 <input type="text" id="alternate_identifier" name="alternate_identifier" value="{{object["alternate_identifier"]}}" />
-
-<label>Related resources</label>
-<div class="options-wrapper">
-  <table id="related-resources">
-    <thead>
-      <tr><th>Identifier</th><th>Type</th><th>Relation</th><th></th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<label for="physical_storage_location">Physical storage location</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add the location details (name university, faculty, department, etc.) where the sample is stored.</span></div><span class="required-field">&#8727;</span>
-<textarea id="physical_storage_location" name="physical_storage_location" placeholder="Example: Delft University of Technology, Faculty of Geoscience & Engineering, Department of Applied Geology - Building 23">{{object["physical_storage_location"] | default("", True) }}</textarea>
-
-<label for="organizations">Organizations</label><div class="fas fa-question-circle help-icon"><span class="help-text">Name of the organizations that contributed to the creation of the resource. Separate different names with a semicolon (;)</span></div>
-<textarea id="organizations" name="organizations" placeholder="Example: Delft University of Technology">{{object["organizations"] | default("", True) }}</textarea>
-
-<label for="publisher">Publisher</label>
-<input type="text" id="publisher" name="publisher" value="{% if object["publisher"] %}{{object["publisher"]}}{% else %}{{site_name}}{% endif %}" />
-
-<label for="publication_year">Publication year</label><div class="fas fa-question-circle help-icon"><span class="help-text">Enter the year that a sample was first made available to the research community.</span></div>
-<input type="text" id="publication_year" name="publication_year" value="{{object["publication_year"]}}" />
 
 <label for="geolocation-wrapper">Geolocation</label><div class="fas fa-question-circle help-icon"><span class="help-text">The spatial region or named place where the sample was gathered.</span></div>
 <div id="geolocation-wrapper">
@@ -163,6 +151,7 @@ jQuery(document).ready(function (){
   </table>
 </div>
 
+<h3 class="corporate-identity-h3">Contact &amp; storage</h3>
 <label for="sample-owner-wrapper">Contact details sample owner</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add the contact details by which the sample owner (person or department) may be contacted, e.g. for queries about the sample or access requests.</span></div><span class="required-field">&#8727;</span>
 <div id="sample-owner-wrapper">
   <label for="sample_owner_name" class="inner-head">Name</label>
@@ -171,7 +160,20 @@ jQuery(document).ready(function (){
   <input type="text" id="sample_owner_email" name="sample_owner_email" value="{{object["sample_owner_email"] | default("", True)}}" />
 </div>
 
+<label for="physical_storage_location">Physical storage location</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add the location details (name university, faculty, department, etc.) where the sample is stored.</span></div><span class="required-field">&#8727;</span>
+<textarea id="physical_storage_location" name="physical_storage_location" placeholder="Example: Delft University of Technology, Faculty of Geoscience & Engineering, Department of Applied Geology - Building 23">{{object["physical_storage_location"] | default("", True) }}</textarea>
+
 <h3 class="corporate-identity-h3">Linked resource &amp; references</h3>
+
+<label>Related resources</label>
+<div class="options-wrapper">
+  <table id="related-resources">
+    <thead>
+      <tr><th>Identifier</th><th>Type</th><th>Relation</th><th></th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
 
 <label>IGSN</label><div class="fas fa-question-circle help-icon"><span class="help-text">Upon publication, an International Generic Sample Number (IGSN) will be assigned to your physical sample. If you need to have the IGSN before publication, you can use this value.</span></div>
 <div id="doi-wrapper" class="options-wrapper">
