@@ -3194,11 +3194,16 @@ class WebServer:
                 is_published   = False,
                 is_latest      = False)[0]
 
+            account = self.db.account_by_uuid (physical_sample["account_uuid"])
+            groups  = self.__groups_for_account (physical_sample["account_uuid"])
+
             return self.__render_template (
                 request, "depositor/edit-physical-sample.html",
-                object = physical_sample,
+                object     = physical_sample,
+                account    = account,
+                groups     = groups,
                 categories = self.db.categories_tree(),
-                draft_doi = f"{config.igsn_prefix}/{container_uuid}")
+                draft_doi  = f"{config.igsn_prefix}/{container_uuid}")
         except IndexError:
             return self.error_403 (request)
 
@@ -3301,8 +3306,9 @@ class WebServer:
                     "geolocation":          validator.string_value (record, "geolocation",   0, 255,  False),
                     "longitude":            validator.string_value (record, "longitude",     0, 64,   False),
                     "latitude":             validator.string_value (record, "latitude",      0, 64,   False),
-                    "sample_owner_name":    validator.string_value (record, "sample_owner_name",  0, 255, False),
-                    "sample_owner_email":   validator.string_value (record, "sample_owner_email", 0, 255, False),
+                    "sample_owner_name":    validator.string_value  (record, "sample_owner_name",  0, 255, False),
+                    "sample_owner_email":   validator.string_value  (record, "sample_owner_email", 0, 255, False),
+                    "group_id":             validator.integer_value (record, "group_id", 0, pow(2, 63), False),
                     "categories":           categories,
                 }
 

@@ -9,6 +9,7 @@ SELECT DISTINCT ?account_uuid ?container_uuid ?sample_uuid ?created_date
                 ?publication_year ?modified_date ?version
                 ?geolocation ?longitude ?latitude ?organizations
                 ?physical_storage_location ?sample_owner_name ?sample_owner_email
+                ?group_id
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -45,6 +46,7 @@ WHERE {
     OPTIONAL { ?sample djht:latitude              ?latitude . }
     OPTIONAL { ?sample djht:sample_owner_name     ?sample_owner_name . }
     OPTIONAL { ?sample djht:sample_owner_email    ?sample_owner_email . }
+    OPTIONAL { ?sample djht:group_id              ?group_id . }
     OPTIONAL { ?sample djht:modified_date         ?modified_date . }
     OPTIONAL { ?sample djht:created_date          ?created_date . }
 
