@@ -1,6 +1,6 @@
 contact_links:
   - name: "🛡️ Reporting security issues"
-    url: https://github.com/4TUResearchData/djehuty?tab=readme-ov-file#reporting-potential-security-issues
+    url: https://github.com/4TUResearchData/djehuty/blob/main/SECURITY.md
     about: ⚠️ IMPORTANT - For security-related matters, DO NOT create an issue. Please e-mail djehuty@4tu.nl.
   - name: "📣 Contact information"
     url: https://github.com/4TUResearchData/djehuty/blob/main/GOVERNANCE.md#contact-information

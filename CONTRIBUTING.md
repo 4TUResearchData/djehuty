@@ -44,7 +44,7 @@ Before starting any work, please **contact repository maintainers at [djehuty@4t
 Before you start work, **search the [issue tracker](https://github.com/4TUResearchData/djehuty/issues)** to see if your idea is already being discussed: issues.
     - If you find a relevant issue, comment to say you’re taking it on and, if possible, assign yourself. If you cannot assign, leave a comment like “Working on this” so maintainers know.
     - If no issue exists, open a new issue using the [issue template](#issue-template) and include: a short, descriptive title; a brief explanation of the problem or feature and why it’s needed.
-        - ⚠️ **IMPORTANT**: **Do not discuss security-related aspects**, vulnerabilities, or sensitive information in GitHub issues. Contact the maintainers at [djehuty@4tu.nl](djehuty@4tu.nl) privately for any security concerns.
+        - ⚠️ **IMPORTANT**: **Do not discuss security-related aspects**: to report a vulnerability, please see [SECURITY.md](./SECURITY.md)
 
 3. **Work from a fork**
 Contributors should work from a fork of the repository. Maintainers may work directly on the main djehuty instance.
@@ -62,8 +62,8 @@ Follow the instructions in the [README](https://github.com/4TUResearchData/djehu
 - Once your work is ready for review, open a Pull Request (PR) against the main project repository.
     - Provide a clear description of what you changed and link the related issue.
     - Use the [PR template](#pull-request-template) and check the approval checklist before submitting.
-    - ⚠️ **IMPORTANT**: **Do not open a PR for a security issue until** you have received confirmation from the maintainers that all affected instances have been patched. When opening the PR, strictly follow maintainer instructions and keep naming, commit messages, and descriptions neutral.
-        
+    - ⚠️ **IMPORTANT**: **Do not open a PR for a security issue**: to report a vulnerability, please see [SECURITY.md](./SECURITY.md)
+
 7. **Final approval and merge**
 After review and approval, your PR must be squashed into a single commit using the project’s [commit message template](#commit-message-template). Once the checklist is complete, a maintainer will rebase-merge it into the main branch to keep the history clean.
 
