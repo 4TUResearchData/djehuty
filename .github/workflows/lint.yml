@@ -1,0 +1,27 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57
+
+      - name: Check lint (changed lines only)
+        run: |
+          uv run --extra dev ruff check --output-format pylint src/ tests/ > ruff-report.txt || true
+          uv run --extra dev diff-quality --violations ruff --compare-branch origin/main --fail-under 100
+
+      - name: Check format (changed files only)
+        run: |
+          changed=$(git diff --name-only --diff-filter=ACMR origin/main -- '*.py')
+          if [ -n "$changed" ]; then
+            echo "$changed" | xargs uv run --extra dev ruff format --check
+          fi
