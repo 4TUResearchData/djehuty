@@ -16,11 +16,6 @@ install prefix="":
 uninstall:
     uv pip uninstall djehuty
 
-# Run linter
-lint:
-    uv run pylint src/djehuty/* > pylint.log || true
-    @printf "Wrote 'pylint.log'.\n"
-
 # Build source distribution
 sdist:
     uv build --sdist
