@@ -1,0 +1,20 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?dataset  djht:embargo_until_date ?embargo_until_date .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?dataset  djht:embargo_until_date "{{new_embargo_until_date}}"^^xsd:date .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?dataset  rdf:type djht:Dataset .
+    OPTIONAL { ?dataset djht:embargo_until_date ?embargo_until_date . }
+  }
+  FILTER (?dataset = <{{dataset_uri}}>)
+}
+{% endblock %}

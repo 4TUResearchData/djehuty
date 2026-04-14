@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/utils.js?cache=1744290797"></script>
+<script src="/static/js/admin-embargo.js?cache={{nonce}}"></script>
+<style nonce="{{nonce}}">
+#embargo-search-input { width: 400px; padding: .4em; font-size: 1em; }
+#embargo-search-button { background: #009900; color: #fff; text-decoration: none; }
+#embargo-search-button:hover { background: #006600; }
+#embargo-search-button:active { background: #003300; }
+#embargo-results { margin-top: 1em; }
+#embargo-results table { width: 100%; }
+#embargo-results-body tr { cursor: pointer; }
+#embargo-results-body tr:hover { background: #f0f0f0; }
+#embargo-results-body tr.selected-row { background: #e0e8ff; }
+#embargo-detail { margin-top: 1.5em; padding: 1em; border: solid 1pt #ccc; border-radius: .5em; }
+#embargo-detail h3 { margin-top: 0; }
+#embargo-detail table { margin-bottom: 1em; }
+#embargo-detail table td:first-child { font-weight: bold; padding-right: 1em; }
+#embargo-date-input { padding: .3em; font-size: 1em; }
+#embargo-update-button { background: #009900; color: #fff; text-decoration: none; }
+#embargo-update-button:hover { background: #006600; }
+#embargo-update-button:active { background: #003300; }
+.embargo-hidden { display: none !important; }
+#embargo-actions { margin-top: 1em; }
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/admin/dashboard">Dashboard</a>
+  <li><a href="/admin/users">Users</a>
+  <li><a href="/admin/exploratory">Exploratory</a>
+  <li class="active corporate-identity-submenu-active">Embargo
+  <li><a href="/admin/reports">Reports</a>
+  {% if may_query %}<li><a href="/admin/sparql">Query</a>{% endif %}
+  {% if may_review_quotas %}<li><a href="/admin/quota-requests">Quota requests</a>{% endif %}
+</ul>
+{% endblock %}
+{% block body %}
+<noscript>
+  <p class="no-script">Sorry, this page requires JavaScript to function properly.</p>
+</noscript>
+<div class="hide-for-javascript">
+<h1>Embargo management</h1>
+
+<p>Search for a dataset by title or DOI, then manage its embargo.</p>
+
+<div id="embargo-search">
+  <input type="text" id="embargo-search-input" placeholder="Search by title, DOI...">
+  <a id="embargo-search-button" href="#" class="button corporate-identity-standard-button">Search</a>
+</div>
+
+<div id="embargo-results" class="embargo-hidden">
+  <h2>Search results</h2>
+  <table class="corporate-identity-table">
+    <thead><tr><th>Title</th><th>DOI</th><th>Embargo date</th><th>Embargo type</th></tr></thead>
+    <tbody id="embargo-results-body"></tbody>
+  </table>
+</div>
+
+<div id="embargo-detail" class="embargo-hidden">
+  <h3>Embargo details</h3>
+  <table>
+    <tr><td>Title</td><td id="detail-title"></td></tr>
+    <tr><td>DOI</td><td id="detail-doi"></td></tr>
+    <tr><td>Embargo type</td><td id="detail-embargo-type"></td></tr>
+    <tr><td>Embargo title</td><td id="detail-embargo-title"></td></tr>
+    <tr><td>Embargo reason</td><td id="detail-embargo-reason"></td></tr>
+    <tr><td>Current embargo date</td><td id="detail-embargo-date"></td></tr>
+  </table>
+
+  <p><em>To lift an embargo, set the date to today or a past date. Do not remove embargo fields.</em></p>
+
+  <label for="embargo-date-input"><strong>New embargo date:</strong></label>
+  <input type="date" id="embargo-date-input">
+
+  <div id="embargo-actions">
+    <a id="embargo-update-button" href="#" class="button corporate-identity-standard-button">Update embargo date</a>
+  </div>
+</div>
+
+</div>
+{% endblock %}

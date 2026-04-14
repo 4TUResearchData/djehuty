@@ -1,51 +1,70 @@
 """This module implements the entire HTTP interface for users."""
 
+import base64
+import csv
+import getpass
+import hashlib
+import json
+import logging
+import os
+import os.path
+import re
+import secrets
+import shutil
+import subprocess
+import tempfile
+import uuid
 from datetime import date, datetime, timedelta
 from io import StringIO
 from math import ceil, log2
-import os.path
-import os
-import shutil
-import tempfile
-import getpass
-import logging
-import json
-import hashlib
-import subprocess
-import secrets
-import re
-import uuid
-import base64
-import csv
-import requests
+
 import pygit2
-from requests.utils import quote, unquote
-from werkzeug.utils import redirect, send_file
-from werkzeug.wrappers import Request, Response
-from werkzeug.routing import Map, Rule
-from werkzeug.middleware.shared_data import SharedDataMiddleware
-from werkzeug.exceptions import HTTPException, NotFound, BadRequest
-from rdflib import URIRef
+import requests
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
 from PIL import Image, ImageSequence, UnidentifiedImageError
-from djehuty.web import validator
-from djehuty.web import formatter
-from djehuty.web import xml_formatter
-from djehuty.web import database
-from djehuty.web import email_handler
-from djehuty.web import locks
-from djehuty.web import s3
-from djehuty.utils.convenience import pretty_print_size, decimal_coords, normalize_doi
-from djehuty.utils.convenience import value_or, value_or_none, deduplicate_list
-from djehuty.utils.convenience import self_or_value_or_none, parses_to_int
-from djehuty.utils.convenience import make_citation, is_opendap_url, landing_page_url
-from djehuty.utils.convenience import split_author_name, split_string, html_to_plaintext
-from djehuty.utils.constants import group_to_member, member_url_names, filetypes_by_extension
-from djehuty.utils.constants import iiif_supported_formats
-from djehuty.utils.rdf import uuid_to_uri, uri_to_uuid, uris_from_records
+from rdflib import URIRef
+from requests.utils import quote, unquote
+from werkzeug.exceptions import BadRequest, HTTPException, NotFound
+from werkzeug.middleware.shared_data import SharedDataMiddleware
+from werkzeug.routing import Map, Rule
+from werkzeug.utils import redirect, send_file
+from werkzeug.wrappers import Request, Response
+
+from djehuty.utils.constants import (
+    filetypes_by_extension,
+    group_to_member,
+    iiif_supported_formats,
+    member_url_names,
+)
+from djehuty.utils.convenience import (
+    decimal_coords,
+    deduplicate_list,
+    html_to_plaintext,
+    is_opendap_url,
+    landing_page_url,
+    make_citation,
+    normalize_doi,
+    parses_to_int,
+    pretty_print_size,
+    self_or_value_or_none,
+    split_author_name,
+    split_string,
+    value_or,
+    value_or_none,
+)
+from djehuty.utils.rdf import uri_to_uuid, uris_from_records, uuid_to_uri
+from djehuty.web import (
+    database,
+    email_handler,
+    formatter,
+    locks,
+    s3,
+    validator,
+    xml_formatter,
+    zipfly,
+)
 from djehuty.web.config import config
-from djehuty.web import zipfly
 
 ## Error handling for loading python3-saml is done in 'ui'.
 ## So if it fails here, we can safely assume we don't need it.
@@ -134,6 +153,9 @@ class WebServer:
             R("/admin/users",                                                    self.ui_admin_users),
             R("/admin/exploratory",                                              self.ui_admin_exploratory),
             R("/admin/quota-requests",                                           self.ui_admin_quota_requests),
+            R("/admin/embargo",                                                  self.ui_admin_embargo),
+            R("/admin/embargo/search",                                           self.api_admin_embargo_search),
+            R("/admin/embargo/update",                                           self.api_admin_embargo_update),
             R("/admin/sparql",                                                   self.ui_admin_sparql),
             R("/admin/reports",                                                  self.ui_admin_reports),
             R("/admin/reports/restricted_datasets",                              self.ui_admin_reports_restricted_datasets),
@@ -3288,6 +3310,83 @@ class WebServer:
 
         return self.__render_template (request, "admin/exploratory.html")
 
+    def ui_admin_embargo (self, request):
+        """Implements /admin/embargo."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        return self.__render_template (request, "admin/embargo.html")
+
+    def api_admin_embargo_search (self, request):
+        """Implements /admin/embargo/search."""
+
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        try:
+            parameters  = request.get_json()
+            search_for  = self.parse_search_terms (
+                validator.string_value (parameters, "search_for", maximum_length=1024))
+            records = self.db.datasets (search_for=search_for,
+                                        is_latest=True,
+                                        is_published=True,
+                                        limit=50)
+            output = []
+            for dataset in records:
+                output.append ({
+                    "uri":                dataset.get("uri"),
+                    "title":              dataset.get("title"),
+                    "doi":                dataset.get("doi"),
+                    "embargo_until_date": dataset.get("embargo_until_date"),
+                    "embargo_type":       dataset.get("embargo_type"),
+                    "embargo_title":      dataset.get("embargo_title"),
+                    "embargo_reason":     dataset.get("embargo_reason"),
+                    "is_embargoed":       dataset.get("is_embargoed"),
+                })
+            return self.response (json.dumps(output))
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+    def api_admin_embargo_update (self, request):
+        """Implements /admin/embargo/update."""
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        if request.method == "PUT":
+            handler = self.default_error_handling (request, "PUT", "application/json")
+            if handler is not None:
+                return handler
+
+            try:
+                parameters         = request.get_json()
+                dataset_uri        = validator.string_value (parameters, "dataset_uri",
+                                                             maximum_length=255)
+                embargo_until_date = validator.string_value (parameters, "embargo_until_date",
+                                                             maximum_length=10)
+                if dataset_uri is None or embargo_until_date is None:
+                    return self.error_400 (
+                        request,
+                        "Missing dataset_uri or embargo_until_date.",
+                        "MissingRequiredField")
+
+                self.db.admin_update_embargo (dataset_uri, embargo_until_date)
+                return self.respond_204 ()
+            except validator.ValidationException as error:
+                return self.error_400 (request, error.message, error.code)
+
+        return self.error_405 (["PUT"])
+
     def ui_admin_sparql (self, request):
         """Implements /admin/sparql."""
 
@@ -5939,7 +6038,7 @@ class WebServer:
         try:
             doi_type = "doi" if version else "container_doi"
             more_parm = {doi_type: doi,
-                         "is_first_online": not "timeline_first_online" in item}
+                         "is_first_online": "timeline_first_online" not in item}
             if item_type == "dataset":
                 if self.db.update_dataset (
                         item["uuid"],

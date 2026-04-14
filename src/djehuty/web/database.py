@@ -3,21 +3,24 @@ This module provides the communication with the SPARQL endpoint to provide
 data for the API server.
 """
 
+import logging
+import os.path
+import secrets
 import sys
 import uuid
-import secrets
-import os.path
-import logging
 from datetime import datetime
-from rdflib import Dataset, Graph, Literal, RDF, XSD, URIRef
-from rdflib.plugins.stores import sparqlstore, memory
-from rdflib.store import CORRUPTED_STORE, NO_STORE
+
 from jinja2 import Environment, FileSystemLoader
-from djehuty.web import cache
-from djehuty.utils import rdf
+from rdflib import RDF, XSD, Dataset, Graph, Literal, URIRef
+from rdflib.plugins.stores import memory, sparqlstore
+from rdflib.store import CORRUPTED_STORE, NO_STORE
+
 from djehuty.utils import convenience as conv
+from djehuty.utils import rdf
 from djehuty.utils.constants import datetime_format
+from djehuty.web import cache
 from djehuty.web.config import config
+
 
 def rdflib_network_audit_hook (name, arguments):
     """Event handler to audit making unexpected network connections."""
@@ -1248,7 +1251,7 @@ class SparqlInterface:
                         is_latest=0,
                         is_editable=1,
                         git_uuid=None,
-                        version=None, 
+                        version=None,
                         codecheck_certificate_doi=None):
         """Procedure to insert a dataset to the state graph."""
 
@@ -2466,7 +2469,7 @@ class SparqlInterface:
                         is_metadata_record=False, metadata_reason=None,
                         container_doi=None, is_first_online=False, tags=None,
                         git_repository_name=None, git_code_hosting_url=None,
-                        funding_list=None, 
+                        funding_list=None,
                         requested_codecheck=False, codecheck_certificate_doi=None):
         """Procedure to overwrite parts of a dataset."""
 
@@ -2516,7 +2519,7 @@ class SparqlInterface:
             "git_code_hosting_url": rdf.escape_string_value (git_code_hosting_url),
             "container_doi":   rdf.escape_string_value (container_doi),
             "first_online_date": first_online_date_str,
-            "requested_codecheck": rdf.escape_boolean_value (requested_codecheck), 
+            "requested_codecheck": rdf.escape_boolean_value (requested_codecheck),
             "codecheck_certificate_doi":
                                rdf.escape_string_value (conv.normalize_doi (codecheck_certificate_doi))
         })
@@ -2570,6 +2573,18 @@ class SparqlInterface:
         })
 
         self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
+
+        return self.__run_logged_query (query)
+
+    def admin_update_embargo (self, dataset_uri, new_embargo_until_date):
+        """Admin procedure to set or update embargo_until_date on a dataset."""
+
+        query   = self.__query_from_template ("admin_update_embargo", {
+            "dataset_uri":             dataset_uri,
+            "new_embargo_until_date":  new_embargo_until_date
+        })
+
         self.cache.invalidate_by_prefix ("datasets")
 
         return self.__run_logged_query (query)
