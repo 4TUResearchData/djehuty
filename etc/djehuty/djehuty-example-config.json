@@ -1,0 +1,237 @@
+{
+  "djehuty": {
+    "maintenance-mode": "0",
+    "site-name": "Djehuty example instance",
+    "site-shorttag": "example-shorttag",
+    "site-description": "Djehuty example instance",
+    "support-email-address": "support@example.com",
+    "colors": {
+      "primary-color": "#f49120",
+      "primary-color-hover": "#d26000",
+      "primary-color-active": "#9d4800",
+      "primary-foreground-color": "#000000",
+      "privilege-button-color": "#fce3bf",
+      "footer-background-color": "#707070"
+    },
+    "small-footer": "<div id=\"footer-wrapper2\">\n<p>This repository is powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a> built for <a href=\"https://data.4tu.nl\">4TU.ResearchData</a>.\n</p>\n</div>",
+    "large-footer": "<div id=\"footer-wrapper2\">\n<p>This repository is powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a> built for <a href=\"https://data.4tu.nl\">4TU.ResearchData</a>.\n</p>\n</div>",
+    "sandbox-message": {
+      "style": "background: #784421; color: #fff;",
+      "#text": "This is an instance launched with the example configuration. Please review and modify the configuration file."
+    },
+    "notice-message": "Dear users, if you find a bug, a missing functionality, or if you are having difficulty with the website, please <a href=\"/feedback\">let us know</a>.",
+    "bind-address": "127.0.0.1",
+    "port": "8080",
+    "base-url": "http://localhost:8080",
+    "storage-root": "./data",
+    "cache-root": {
+      "clear-on-start": "1",
+      "#text": "./data/cache"
+    },
+    "live-reload": "1",
+    "debug-mode": "1",
+    "production": "0",
+    "show-portal-summary": "1",
+    "show-institutions": "1",
+    "show-science-categories": "1",
+    "enable-query-audit-log": "1",
+    "show-latest-datasets": "1",
+    "disable-2fa": "1",
+    "use-x-forwarded-for": "0",
+    "rdf-store": {
+      "sparql-uri": "http://localhost:8890/sparql",
+      "sparql-update-uri": "http://localhost:8890/sparql",
+      "state-graph": "djehuty://local"
+    },
+    "datacite": {
+      "api-url": "https://api.datacite.org",
+      "repository-id": "",
+      "password": "",
+      "prefix": "10.5438"
+    },
+    "handle": {
+      "url": "https://epic-pid.storage.surfsara.nl:800X/api/handles",
+      "index": "XXX",
+      "certificate": "",
+      "private-key": "",
+      "prefix": "XX.XXXXX"
+    },
+    "authentication": {
+      "orcid": {
+        "client-id": "",
+        "client-secret": "",
+        "endpoint": "https://orcid.org/oauth"
+      }
+    },
+    "email": {
+      "server": "",
+      "port": "587",
+      "starttls": "1",
+      "username": "",
+      "password": "",
+      "from": ""
+    },
+    "privileges": {
+      "account": [
+        {
+          "first_name": "John",
+          "last_name": "Doe",
+          "email": "you@example.com",
+          "orcid": "0000-0000-0000-0001",
+          "may-administer": "1",
+          "may-run-sparql-queries": "1",
+          "may-impersonate": "1",
+          "may-review": "0",
+          "may-review-quotas": "0"
+        }
+      ]
+    },
+    "groups": {
+      "group": [
+        {
+          "name": "4TU.ResearchData",
+          "domain": "4tu.nl",
+          "id": "28585",
+          "parent_id": "0"
+        },
+        {
+          "name": "Delft University of Technology Students",
+          "domain": "student.tudelft.nl",
+          "id": "28628",
+          "parent_id": "28586",
+          "is_featured": "1"
+        },
+        {
+          "name": "Delft University of Technology",
+          "domain": "tudelft.nl",
+          "id": "28586",
+          "parent_id": "28585",
+          "is_featured": "1"
+        },
+        {
+          "name": "Deltares",
+          "domain": "deltares.nl",
+          "id": "34907",
+          "parent_id": "28598"
+        },
+        {
+          "name": "Eindhoven University of Technology Students",
+          "domain": "student.tue.nl",
+          "id": "28631",
+          "parent_id": "28589",
+          "is_featured": "1"
+        },
+        {
+          "name": "Eindhoven University of Technology",
+          "domain": "tue.nl",
+          "id": "28589",
+          "parent_id": "28585",
+          "is_featured": "1"
+        },
+        {
+          "name": "Erasmus University Rotterdam",
+          "domain": "eur.nl",
+          "id": "34904",
+          "parent_id": "28598"
+        },
+        {
+          "name": "IHE Delft Institute for Water Education",
+          "domain": "un-ihe.org",
+          "id": "34910",
+          "parent_id": "28598"
+        },
+        {
+          "name": "Leiden University",
+          "domain": "leidenuniv.nl",
+          "id": "34895",
+          "parent_id": "28598"
+        },
+        {
+          "name": "Maastricht University",
+          "domain": "maastrichtuniversity.nl",
+          "id": "34919",
+          "parent_id": "28598"
+        },
+        {
+          "name": "NIOZ Royal Netherlands Institute for Sea Research",
+          "domain": "nioz.nl",
+          "id": "34892",
+          "parent_id": "28598"
+        },
+        {
+          "name": "Other institutions",
+          "domain": "nogroup",
+          "id": "28598",
+          "parent_id": "28585",
+          "is_featured": "1"
+        },
+        {
+          "name": "Radboud University",
+          "domain": "ru.nl",
+          "id": "34913",
+          "parent_id": "28598"
+        },
+        {
+          "name": "University of Amsterdam Students",
+          "domain": "student.uva.nl",
+          "id": "35313",
+          "parent_id": "34901"
+        },
+        {
+          "name": "University of Amsterdam",
+          "domain": "uva.nl",
+          "id": "34901",
+          "parent_id": "28598"
+        },
+        {
+          "name": "University of Groningen",
+          "domain": "rug.nl",
+          "id": "34916",
+          "parent_id": "28598"
+        },
+        {
+          "name": "University of Twente Students",
+          "domain": "student.utwente.nl",
+          "id": "28634",
+          "parent_id": "28592",
+          "is_featured": "1"
+        },
+        {
+          "name": "University of Twente",
+          "domain": "utwente.nl",
+          "id": "28592",
+          "parent_id": "28585",
+          "is_featured": "1"
+        },
+        {
+          "name": "Utrecht University",
+          "domain": "uu.nl",
+          "id": "34898",
+          "parent_id": "28598"
+        },
+        {
+          "name": "Wageningen University and Research",
+          "domain": "wur.nl",
+          "id": "28595",
+          "parent_id": "28585",
+          "is_featured": "1"
+        }
+      ]
+    },
+    "quotas": {
+      "default": "5000000000",
+      "group": [
+        {
+          "domain": "tudelft.nl",
+          "#text": "50000000000"
+        }
+      ],
+      "account": [
+        {
+          "email": "you@example.com",
+          "#text": "25000000000"
+        }
+      ]
+    }
+  }
+}
