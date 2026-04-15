@@ -325,6 +325,7 @@ class WebServer:
             R("/v3/physical-samples/<container_uuid>/creators",                  self.api_v3_physical_sample_creators),
             R("/v3/physical-samples/<container_uuid>/dates",                     self.api_v3_physical_sample_dates),
             R("/v3/physical-samples/<container_uuid>/related-resources",         self.api_v3_physical_sample_related_resources),
+            R("/v3/physical-samples/<container_uuid>/related-resources/<resource_uuid>", self.api_v3_physical_sample_related_resource_delete),
             R("/v3/physical-samples/<container_uuid>/tags",                      self.api_v3_physical_sample_tags),
             R("/v3/physical-samples/<container_uuid>/categories",                self.api_v3_physical_sample_categories),
 
@@ -3506,6 +3507,38 @@ class WebServer:
             return self.error_500 ()
 
         return self.error_405 (["GET", "POST", "PUT", "DELETE"])
+
+    def api_v3_physical_sample_related_resource_delete (self, request, container_uuid, resource_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/related-resources/<resource_uuid>."""
+
+        if not validator.is_valid_uuid (container_uuid) or not validator.is_valid_uuid (resource_uuid):
+            return self.error_404 (request)
+
+        if request.method != "DELETE":
+            return self.error_405 (["DELETE"])
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        try:
+            item = self.db.container_items (container_uuid = container_uuid,
+                                             account_uuid   = account_uuid,
+                                             is_published   = None,
+                                             is_latest      = None)[0]
+
+            resources = self.db.physical_sample_related_resources (container_uuid, account_uuid)
+            resources.remove (next (filter (lambda r: r["uuid"] == resource_uuid, resources)))
+            resources = list (map (lambda r: URIRef (uuid_to_uri (r["uuid"],
+                                                     "physical-sample-related-resource")), resources))
+
+            if self.db.update_item_list (item["uuid"], account_uuid, resources, "related_resources"):
+                return self.respond_204 ()
+
+            return self.error_500 ()
+
+        except (IndexError, KeyError, StopIteration):
+            return self.error_500 ()
 
     def __physical_sample_by_id_or_uri (self, identifier, account_uuid=None,
                                         is_published=False, is_latest=False,

@@ -233,11 +233,37 @@ function render_dates (container_uuid) {
     });
 }
 
+function remove_related_resource (resource_uuid, container_uuid) {
+    jQuery.ajax({
+        url:    `/v3/physical-samples/${container_uuid}/related-resources/${resource_uuid}`,
+        type:   "DELETE",
+        accept: "application/json",
+    }).done(function () { render_related_resources (container_uuid); })
+      .fail(function () { show_message ("failure", "<p>Failed to remove related resource.</p>"); });
+}
+
 function add_related_resource (container_uuid) {
+    let identifier     = or_null(jQuery("#related-resource").val());
+    let identifierType = or_null(jQuery("#identifierType").val());
+    let relationType   = or_null(jQuery("#relationType").val());
+
+    if (identifier === null) {
+        show_message ("failure", "<p>Please fill in an identifier before adding a related resource.</p>");
+        return;
+    }
+    if (identifierType === null) {
+        show_message ("failure", "<p>Please select an identifier type before adding a related resource.</p>");
+        return;
+    }
+    if (relationType === null) {
+        show_message ("failure", "<p>Please select a relationship type before adding a related resource.</p>");
+        return;
+    }
+
     let data = {
-        "identifier": or_null(jQuery("#related-resource").val()),
-        "identifier-type": or_null(jQuery("#identifierType").val()),
-        "relation-type": or_null(jQuery("#relationType").val())
+        "identifier":      identifier,
+        "identifier-type": identifierType,
+        "relation-type":   relationType
     };
     jQuery.ajax({
         url:         `/v3/physical-samples/${container_uuid}/related-resources`,
@@ -248,7 +274,7 @@ function add_related_resource (container_uuid) {
     }).done(function () {
         render_related_resources (container_uuid);
     }).fail(function () {
-        show_message ("failure", `<p>Failed to add related resource. Try again later.</p>`);
+        show_message ("failure", "<p>Failed to add related resource. Try again later.</p>");
     });
 }
 
@@ -275,13 +301,15 @@ function render_related_resources (container_uuid) {
         row += '<option value="HasPart">Has part</option>';
         row += '<option value="IsSourceOf">Is source of</option>';
         row += '</select></td>';
-        row += '<td><a id="add-related-resource-button" class="fas fa-plus" href="#" ';
-        row += 'title="Add related resource" onclick="javascript:';
-        row += `add_related_resource('${container_uuid}'); return false;"></a></td></tr>`;
+        row += '<td><a class="form-button corporate-identity-standard-button add-related-resource-button" href="#">Add</a></td></tr>';
         jQuery("#related-resources tbody").append(row);
 
         for (let resource of records) {
-            let row = `<tr><td>${resource.url}</td><td>${resource.type}</td><td>${resource.relation}</td><td></td></tr>`;
+            let row = `<tr><td><span class="resource-identifier">${resource.url}</span></td>`;
+            row += `<td><span class="resource-badge resource-type">${resource.type}</span></td>`;
+            row += `<td><span class="resource-badge resource-relation">${resource.relation}</span></td>`;
+            row += `<td><a href="#" data-uuid="${resource.uuid}" `;
+            row += `class="remove-related-resource fas fa-trash-can" title="Remove"></a></td></tr>`;
             jQuery("#related-resources tbody").append(row);
         }
     }).fail(function() {
@@ -377,6 +405,14 @@ function activate (container_uuid, callback=jQuery.noop) {
     render_authors (container_uuid);
     render_related_resources (container_uuid);
     render_dates (container_uuid);
+    jQuery("#related-resources").on("click", ".add-related-resource-button", function (event) {
+        event.preventDefault();
+        add_related_resource (container_uuid);
+    });
+    jQuery("#related-resources").on("click", ".remove-related-resource", function (event) {
+        event.preventDefault();
+        remove_related_resource (jQuery(this).data("uuid"), container_uuid);
+    });
     render_tags (container_uuid);
     render_categories_for_physical_sample (container_uuid);
     jQuery("#expand-categories-button").on("click", toggle_categories);

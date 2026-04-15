@@ -976,14 +976,14 @@ class DatabaseInterface:
         self.store.add ((rdf.DJHT["PhysicalSampleDateIssued"], RDFS.label, Literal("Issued", datatype=XSD.string)))
         self.store.add ((rdf.DJHT["PhysicalSampleDateOther"], RDFS.label, Literal("Other", datatype=XSD.string)))
 
-        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierIGSNDOI"], RDFS.label, Literal("IGSN DOI", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierOtherDOI"], RDFS.label, Literal("Other DOI", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierURL"], RDFS.label, Literal("URL", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedResourceIGSNDOI"], RDFS.label, Literal("IGSN DOI", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedResourceOtherDOI"], RDFS.label, Literal("Other DOI", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedResourceURL"], RDFS.label, Literal("URL", datatype=XSD.string)))
 
-        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierIsPartOf"], RDFS.label, Literal("Is part of", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierIsDerivedFrom"], RDFS.label, Literal("Is derived from", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierIsSourceOf"], RDFS.label, Literal("Is source of", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalSampleRelatedIdentifierHasPart"], RDFS.label, Literal("Has part", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedResourceIsPartOf"], RDFS.label, Literal("Is part of", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedResourceIsDerivedFrom"], RDFS.label, Literal("Is derived from", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedResourceIsSourceOf"], RDFS.label, Literal("Is source of", datatype=XSD.string)))
+        self.store.add ((rdf.DJHT["PhysicalSampleRelatedResourceHasPart"], RDFS.label, Literal("Has part", datatype=XSD.string)))
 
         languages = self.__load_resource_file("languages.json")
         for language in languages:
