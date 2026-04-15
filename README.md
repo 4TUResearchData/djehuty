@@ -132,6 +132,61 @@ option:
 ```bash
 djehuty web --config-file=djehuty.xml
 ```
+## Running the tests
+
+The project includes an end-to-end test suite built with
+[Playwright](https://playwright.dev/python/) and
+[pytest](https://docs.pytest.org/). Tests run against a live instance
+backed by a Virtuoso SPARQL store loaded with test data.
+
+### Prerequisites
+
+Install the test dependencies and the Playwright browser:
+
+```bash
+pip install --requirement requirements-dev.txt
+playwright install --with-deps chromium
+```
+
+### Running locally
+
+Set up the SPARQL store and application in this order:
+
+1. Start Virtuoso with a clean installation (container or local instance)
+2. Run `001-setup_permissions.sql` via isql
+3. Start djehuty with the initialize flag:
+   `djehuty web --initialize --config-file djehuty.xml`
+4. Run `002-seed-test-data.sql` via isql
+5. Ready to run the e2e tests
+
+The seed scripts are in `docker/dev/sparql-init/`. Note that
+`002-seed-test-data.sql` depends on the `dev@djehuty.com` account
+that is created by `--initialize` in step 3.
+
+Then run:
+
+```bash
+cd e2e
+E2E_BASE_URL=http://localhost:8080 python -m pytest tests/ -v
+```
+
+Useful options:
+
+```bash
+# Run a specific marker (smoke, auth, dataset, admin, …)
+python -m pytest tests/ -v -m smoke
+
+# Run a single test by name
+python -m pytest tests/ -v -k test_homepage
+```
+
+### CI
+
+Tests run automatically on every push via GitHub Actions. The workflow
+starts a Virtuoso service container, loads the test data, starts the
+application, and runs the full suite. Screenshots are captured on failure
+and uploaded as artifacts.
+
 ---
 ### Contact information
 - **Maintainers**: g.kuhn@tudelft.nl
