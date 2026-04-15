@@ -65,3 +65,4 @@ tests/e2e/trace.zip
 .docker-deps.lock
 docker/coverage/
 docker/test-results/
+etc/djehuty/*.local.xml

@@ -61,7 +61,9 @@
     </account>
   </privileges>
   <groups>
-    <group name="4TU.ResearchData" domain="4tu.nl" id="28585" parent_id="0" />
+    <group name="4TU.ResearchData" domain="4tu.nl" id="28585" parent_id="0">
+      <account first_name="Dev" last_name="User" email="dev@localhost" />
+    </group>
     <group name="Delft University of Technology" domain="tudelft.nl" id="28586" parent_id="28585" is_featured="1">
       <member email="user@tudelft.nl" first_name="Test" last_name="User" />
     </group>

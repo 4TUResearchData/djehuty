@@ -21,6 +21,10 @@ services:
       dockerfile: docker/Dockerfile.dev
     ports:
       - "8080:8080"
+    # Forwarded from `just db_backup=... dev` so the container loads the
+    # gitignored *.local.xml override instead of the tracked dev config.
+    environment:
+      DJEHUTY_CONFIG: ${DJEHUTY_CONFIG:-/config/djehuty/djehuty-dev-config.xml}
     volumes:
       - ../src:/app/src
       - ../etc:/config:ro
