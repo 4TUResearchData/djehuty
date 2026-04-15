@@ -1,0 +1,34 @@
+services:
+  virtuoso:
+    image: openlink/virtuoso-opensource-7:7.2.13
+    volumes:
+      - virtuoso-data:/database
+      - ./virtuoso-init.sql:/opt/virtuoso-opensource/initdb.d/init.sql:ro
+    ports:
+      - "8890:8890"
+    environment:
+      DBA_PASSWORD: "dba"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8890"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  djehuty:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../src:/app/src
+      - ../etc:/config:ro
+      - djehuty-data:/data
+    depends_on:
+      virtuoso:
+        condition: service_healthy
+
+volumes:
+  virtuoso-data:
+  djehuty-data:

@@ -7,111 +7,56 @@ This Python package provides the repository system for 4TU.ResearchData and Nikh
 
 To report a vulnerability, please see [SECURITY.md](./SECURITY.md).
 
-## Creating a development environment
+## Development environment
 
-This project uses the GNU autotools build system.
+### Prerequisites
 
-### GNU/Linux
+- [Git](https://git-scm.com/downloads)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
+- [Docker](https://docs.docker.com/get-docker/) (with Compose)
+- [just](https://github.com/casey/just#installation)
 
-For development on GNU/Linux we recommend installing `git`, `autoconf`,
-`automake` and `make` through your system's package manager, followed by
-creating a Python virtual environment for `djehuty`:
-
-```bash
-git clone https://github.com/4TUResearchData/djehuty.git && cd djehuty/
-autoreconf -if && ./configure
-python -m venv ../djehuty-env
-. ../djehuty-env/bin/activate
-pip install --upgrade pip
-pip install --requirement requirements.txt
-pip install --editable .
-```
-
-#### Keeping your development environment up-to-date
-
-Because the virtual environment isn't updated by your system's package
-manager, you can use the following snippet to update packages inside your
-virtual environment:
-```bash
-pip freeze | grep -v "djehuty.git" | cut -d= -f1 | xargs -n1 pip install -U
-```
-
-### macOS X
-
-For development on Apple's macOS X, we recommend installing `python3`, `git`,
-`autoconf`, `automake`, and `make` through [homebrew](https://brew.sh/),
-followed by creating a Python virtual environment for `djehuty`:
+### Getting started
 
 ```bash
-brew install python3 git autoconf automake make
-git clone https://github.com/4TUResearchData/djehuty.git && cd djehuty/
-autoreconf -if && ./configure
-python3 -m venv ../djehuty-env
-. ../djehuty-env/bin/activate
-pip install --upgrade pip
-pip install --requirement requirements.txt
-pip install --editable .
+git clone https://github.com/4TUResearchData/djehuty.git
+cd djehuty/
 ```
 
-#### Keeping your development environment up-to-date
+### Running the development environment
 
-Because the virtual environment isn't updated by homebrew, you can use the
-following snippet to update packages inside your virtual environment:
+To spin up a fully working local instance, run:
+
 ```bash
-pip freeze | grep -v "djehuty.git" | cut -d= -f1 | xargs -n1 pip install -U
+just dev
 ```
 
-### Microsoft Windows
+This builds and starts Docker containers for djehuty and
+[Virtuoso](https://github.com/openlink/virtuoso-opensource) (SPARQL store).
+On first run, the database is automatically initialized with categories,
+licences, and a dev account with full admin privileges — no extra setup needed.
 
-For development on Windows we recommend [MSYS2](https://www.msys2.org/)
-and the following approach to installing packages:
-```bash
-PREFIX="mingw-w64-x86_64-" # See https://www.msys2.org/docs/package-naming
-pacman -Suy git autoconf automake make ${PREFIX}python \
-            ${PREFIX}python-pygit2 ${PREFIX}python-rdflib \
-            ${PREFIX}python-jinja ${PREFIX}python-requests \
-            ${PREFIX}python-werkzeug ${PREFIX}python-defusedxml \
-            ${PREFIX}python-pillow ${PREFIX}python-build \
-            ${PREFIX}python-setuptools
-git clone https://github.com/4TUResearchData/djehuty.git && cd djehuty/
-# If you chose a different PREFIX above, change /mingw64 accordingly below.
-# See: https://www.msys2.org/docs/environments
-/mingw64/bin/python -m venv --system-site-packages ../djehuty-env
-. ../djehuty-env/bin/activate
-autoreconf -if && ./configure
-pip install --editable .
-```
+Once running:
 
-#### Keeping your development environment up-to-date
+- **Djehuty**: http://localhost:8080 (auto-login, no auth setup needed)
+- **Virtuoso SPARQL**: http://localhost:8890/sparql (useful for troubleshooting)
 
-The dependencies for `djehuty` are installed via `pacman`, so to update those
-packages use the following snippet:
-```bash
-pacman -Suy
-```
+Edit any Python file under `src/` and the server reloads automatically.
 
-See [Updating MSYS2](https://www.msys2.org/docs/updating/) for more details.
+To stop and remove the development environment, run `just clean`.
+To see all available commands, run `just --list`.
 
-### Verify that the installation works
-Upon completing the installation, you should be able to run:
-```bash
-djehuty --help
-```
-
-## Setting up the database
+## Running in production
 
 Djehuty needs a SPARQL 1.1 endpoint such as
 [Virtuoso OSE](https://github.com/openlink/virtuoso-opensource) or
 [Jena Fuseki](https://jena.apache.org/documentation/fuseki2/) to
 store its state.
 
-## Run the web service
+Copy the [example configuration](./etc/djehuty/djehuty-example-config.xml)
+and adjust it for your environment:
 
-To start the web service, we recommend copying the
-[example configuration](./etc/djehuty/djehuty-example-config.xml)
-and go from there:
-
-```python
+```bash
 cp etc/djehuty/djehuty-example-config.xml djehuty.xml
 ```
 

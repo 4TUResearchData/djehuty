@@ -57,12 +57,12 @@ pip3.9 install build
 %endif
 
 %build
-%{configure}
-make
+%{python3} -m build --outdir build
 
 
 %install
-make install DESTDIR=%{buildroot}
+%{python3} -m pip install --prefix %{buildroot}%{_prefix} \
+    --disable-pip-version-check --no-cache-dir .
 mkdir -p %{buildroot}%{_unitdir}
 cp etc/%{name}.service %{buildroot}%{_unitdir}/
 mkdir -p %{buildroot}/etc/%{name}
