@@ -79,7 +79,7 @@ flowchart TB
     MAINTAINERS --> IMPLEMENTATION_QUESTION
 
     NO_ARCHITECTURAL["No | Not for now"]:::constitutional
-    YES_ARCHITECTURAL["Yes - How can handle it"]:::green
+    YES_ARCHITECTURAL["Yes - Who can handle it"]:::green
 
     IMPLEMENTATION_QUESTION -- Yes --> YES_ARCHITECTURAL
     IMPLEMENTATION_QUESTION -- No --> NO_ARCHITECTURAL
