@@ -45,7 +45,7 @@
   <rdf-store>
     <sparql-uri>http://virtuoso:8890/sparql</sparql-uri>
     <sparql-update-uri>http://virtuoso:8890/sparql</sparql-update-uri>
-    <state-graph>djehuty://dev</state-graph>
+    <state-graph>https://data.4tu.nl</state-graph>
   </rdf-store>
   <authentication>
     <automatic-login-email>dev@localhost</automatic-login-email>
@@ -61,7 +61,9 @@
     </account>
   </privileges>
   <groups>
-    <group name="4TU.ResearchData" domain="4tu.nl" id="28585" parent_id="0" />
+    <group name="4TU.ResearchData" domain="4tu.nl" id="28585" parent_id="0">
+      <account first_name="Dev" last_name="User" email="dev@localhost" />
+    </group>
     <group name="Delft University of Technology" domain="tudelft.nl" id="28586" parent_id="28585" is_featured="1" />
     <group name="Other institutions" domain="nogroup" id="28598" parent_id="28585" is_featured="1" />
   </groups>
