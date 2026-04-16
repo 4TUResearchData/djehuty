@@ -324,6 +324,7 @@ class WebServer:
             R("/v3/physical-samples/<container_uuid>",                           self.api_v3_physical_sample_details),
             R("/v3/physical-samples/<container_uuid>/creators",                  self.api_v3_physical_sample_creators),
             R("/v3/physical-samples/<container_uuid>/dates",                     self.api_v3_physical_sample_dates),
+            R("/v3/physical-samples/<container_uuid>/dates/<date_uuid>",         self.api_v3_physical_sample_date_delete),
             R("/v3/physical-samples/<container_uuid>/related-resources",         self.api_v3_physical_sample_related_resources),
             R("/v3/physical-samples/<container_uuid>/related-resources/<resource_uuid>", self.api_v3_physical_sample_related_resource_delete),
             R("/v3/physical-samples/<container_uuid>/tags",                      self.api_v3_physical_sample_tags),
@@ -3445,6 +3446,38 @@ class WebServer:
             return self.error_500 ()
 
         return self.error_405 (["GET", "POST", "PUT", "DELETE"])
+
+    def api_v3_physical_sample_date_delete (self, request, container_uuid, date_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/dates/<date_uuid>."""
+
+        if not validator.is_valid_uuid (container_uuid) or not validator.is_valid_uuid (date_uuid):
+            return self.error_404 (request)
+
+        if request.method != "DELETE":
+            return self.error_405 (["DELETE"])
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        try:
+            item = self.db.container_items (container_uuid = container_uuid,
+                                             account_uuid   = account_uuid,
+                                             is_published   = None,
+                                             is_latest      = None)[0]
+
+            dates = self.db.physical_sample_dates (container_uuid, account_uuid)
+            dates.remove (next (filter (lambda d: d["uuid"] == date_uuid, dates)))
+            dates = list (map (lambda d: URIRef (uuid_to_uri (d["uuid"],
+                                                 "physical-sample-date")), dates))
+
+            if self.db.update_item_list (item["uuid"], account_uuid, dates, "dates"):
+                return self.respond_204 ()
+
+            return self.error_500 ()
+
+        except (IndexError, KeyError, StopIteration):
+            return self.error_500 ()
 
     def api_v3_physical_sample_related_resources (self, request, container_uuid):
         """Implements /v3/physical-samples/<container_uuid>/related-resources."""
