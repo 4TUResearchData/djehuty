@@ -183,6 +183,15 @@ function render_authors (container_uuid) {
     });
 }
 
+function remove_date (date_uuid, container_uuid) {
+    jQuery.ajax({
+        url:    `/v3/physical-samples/${container_uuid}/dates/${date_uuid}`,
+        type:   "DELETE",
+        accept: "application/json",
+    }).done(function () { render_dates (container_uuid); })
+      .fail(function () { show_message ("failure", "<p>Failed to remove date.</p>"); });
+}
+
 function add_date (container_uuid) {
     let data = {
         "date": or_null(jQuery("#date").val()),
@@ -219,13 +228,15 @@ function render_dates (container_uuid) {
         row += '<option value="issued">Issued</option>';
         row += '<option value="other">Other</option>';
         row += '</select></td>';
-        row += '<td><a id="add-date-button" class="fas fa-plus" href="#" ';
-        row += 'title="Add date" onclick="javascript:';
-        row += `add_date('${container_uuid}'); return false;"></a></td></tr>`;
+        row += '<td><a class="form-button corporate-identity-standard-button add-date-button" href="#">Add</a></td></tr>';
         jQuery("#physical-sample-dates tbody").append(row);
 
         for (let date_entry of dates) {
-            let row = `<tr><td>${date_entry.date}</td><td>${date_entry.type}</td><td></td></tr>`;
+            let [y, m, d] = date_entry.date.split("-");
+            let row = `<tr><td>${d}-${m}-${y}</td>`;
+            row += `<td><span class="resource-badge date-type">${date_entry.type}</span></td>`;
+            row += `<td><a href="#" data-uuid="${date_entry.uuid}" `;
+            row += `class="remove-date fas fa-trash-can" title="Remove"></a></td></tr>`;
             jQuery("#physical-sample-dates tbody").append(row);
         }
     }).fail(function() {
@@ -412,6 +423,14 @@ function activate (container_uuid, callback=jQuery.noop) {
     jQuery("#related-resources").on("click", ".remove-related-resource", function (event) {
         event.preventDefault();
         remove_related_resource (jQuery(this).data("uuid"), container_uuid);
+    });
+    jQuery("#physical-sample-dates").on("click", ".add-date-button", function (event) {
+        event.preventDefault();
+        add_date (container_uuid);
+    });
+    jQuery("#physical-sample-dates").on("click", ".remove-date", function (event) {
+        event.preventDefault();
+        remove_date (jQuery(this).data("uuid"), container_uuid);
     });
     render_tags (container_uuid);
     render_categories_for_physical_sample (container_uuid);
