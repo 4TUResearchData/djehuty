@@ -100,10 +100,10 @@ jQuery(document).ready(function (){
 <div class="hide-for-javascript">
 <h2>Physical sample details</h2>
 <p>Fields marked with <span class="required-field">&#8727;</span> are required.</p>
-<label for="title">Title</label><div class="fas fa-question-circle help-icon"><span class="help-text">Giving your object a descriptive title will help making it discoverable via search engines. The title should have at least three characters.</span></div><span class="required-field">&#8727;</span>
+<label for="title">Title</label><div class="fas fa-question-circle help-icon"><span class="help-text">The title should include appropriate elements that would help find and distinguish a sample. Appropriate elements might include: the basic form of the object that is registered (e.g. polished section, core, pulp, solution, dredge haul in a box, lot, or piece of material); the material(s) that compose the sample (e.g. water, granite, or tissue); local sample identifiers.</span></div><span class="required-field">&#8727;</span>
 <input type="text" id="title" name="title" value="{{object["title"]}}" />
 
-<label for="authors">Creators</label><div class="fas fa-question-circle help-icon"><span class="help-text">Select creators from the list or manually add them by creating a new creator record. Hit enter after adding each creator and drag and drop names to arrange them in the order you wish.</span></div><span class="required-field">&#8727;</span>
+<label for="authors">Creators</label><div class="fas fa-question-circle help-icon"><span class="help-text">Main researcher(s) involved, in priority order. For IGSN IDs, this could be the sample collector/creator, chief scientist, curator, or even the person who deposited the sample into a repository. Select creators from the list or manually add them by creating a new creator record. Hit enter after adding each creator and drag and drop names to arrange them in the order you wish.</span></div><span class="required-field">&#8727;</span>
 <input type="text" id="authors" name="authors" />
 <table class="inside-form-table multi-list" id="authors-list">
   <thead>
@@ -112,12 +112,12 @@ jQuery(document).ready(function (){
   <tbody></tbody>
 </table>
 
-<label>Abstract</label><div class="fas fa-question-circle help-icon"><span class="help-text">Give a brief description of the resource and the context in which it was created.</span></div><span class="required-field">&#8727;</span>
+<label>Abstract</label><div class="fas fa-question-circle help-icon"><span class="help-text">Brief description of the resource and the context in which it was created.</span></div><span class="required-field">&#8727;</span>
 <div id="abstract" class="texteditor">
   {{object["abstract"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
 
-<label>Methods</label><div class="fas fa-question-circle help-icon"><span class="help-text">Describe the collection method(s) by which the physical sample was gathered.</span></div>
+<label>Methods</label><div class="fas fa-question-circle help-icon"><span class="help-text">Describe the collection method(s) by which the sample was gathered.</span></div>
 <div id="methods" class="texteditor">
   {{object["methods"] | default("", True) | replace("\\n", "<br>") | safe }}
 </div>
@@ -165,14 +165,14 @@ jQuery(document).ready(function (){
 <input type="text" id="publication_year" name="publication_year" value="{{object["publication_year"]}}" />
 
 <h3 class="corporate-identity-h3">Findability</h3>
-<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add at least 4 keywords that will help make your research more discoverable. Select the keywords from the list or manually add them. Use a semicolon (;) or hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
+<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add keywords that will help make your resource more discoverable. For IGSN IDs, this is the materials that compose the sample. Use a semicolon (;) or hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
 <div id="wrap-input-tag" class="input-with-button">
   <input type="text" id="tag" name="tag" value="" placeholder="keyword 1; keyword 2; keyword 3; keyword 4" />
   <a id="add-keyword-button" class="form-button corporate-identity-standard-button" href="#">Add keyword</a>
 </div>
 <ul id="tags-list"></ul>
 
-<label for="alternate_identifier">Alternate identifier</label><div class="fas fa-question-circle help-icon"><span class="help-text">When the same instance of the resource has an additional identifier, enter it here. Otherwise, leave it blank.</span></div>
+<label for="alternate_identifier">Alternate identifier</label><div class="fas fa-question-circle help-icon"><span class="help-text">May be used to enter any other identifiers for the material sample, including local sample identifiers.</span></div>
 <input type="text" id="alternate_identifier" name="alternate_identifier" value="{{object["alternate_identifier"]}}" />
 
 <label for="geolocation-wrapper">Geolocation</label><div class="fas fa-question-circle help-icon"><span class="help-text">The spatial region or named place where the sample was gathered.</span></div>
@@ -185,7 +185,7 @@ jQuery(document).ready(function (){
   <input type="text" id="latitude" name="latitude" placeholder="Example: 52.893" value="{{object["latitude"] | default("", True)}}" />
 </div>
 
-<label>Dates</label>
+<label>Dates</label><div class="fas fa-question-circle help-icon"><span class="help-text">This property may be used to log events relevant to the physical sample. Enter the date, and select the date type.</span></div>
 <div class="options-wrapper">
   <table id="physical-sample-dates">
     <thead>
@@ -195,22 +195,10 @@ jQuery(document).ready(function (){
   </table>
 </div>
 
-<h3 class="corporate-identity-h3">Contact &amp; storage</h3>
-<label for="sample-owner-wrapper">Contact details sample owner</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add the contact details by which the sample owner (person or department) may be contacted, e.g. for queries about the sample or access requests.</span></div><span class="required-field">&#8727;</span>
-<div id="sample-owner-wrapper">
-  <label for="sample_owner_name" class="inner-head">Name</label>
-  <input type="text" id="sample_owner_name" name="sample_owner_name" value="{{object["sample_owner_name"] | default("", True)}}" />
-  <label for="sample_owner_email" class="inner-head">Email address</label>
-  <input type="text" id="sample_owner_email" name="sample_owner_email" value="{{object["sample_owner_email"] | default("", True)}}" />
-</div>
-
-<label for="physical_storage_location">Physical storage location</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add the location details (name university, faculty, department, etc.) where the sample is stored.</span></div><span class="required-field">&#8727;</span>
-<textarea id="physical_storage_location" name="physical_storage_location" placeholder="Example: Delft University of Technology, Faculty of Geoscience & Engineering, Department of Applied Geology - Building 23">{{object["physical_storage_location"] | default("", True) }}</textarea>
-
 <h3 class="corporate-identity-h3">Linked resource &amp; references</h3>
 
 
-  <label>Related resources</label>
+  <label>Related resources</label><div class="fas fa-question-circle help-icon"><span class="help-text">Specify identifiers of related resources (parent samples, subsamples, datasets, publications, etc.) for the physical sample. Enter the identifier, and select the identifier type and relation type of the related resource.</span></div>
 <div class="options-wrapper">
   <table id="related-resources">
     <thead>
@@ -225,6 +213,21 @@ jQuery(document).ready(function (){
 <div id="doi-wrapper" class="options-wrapper">
   The IGSN of your physical sample will be: <strong>{{object["doi"] | default(draft_doi, False)}}</strong>
 </div>
+
+  <h3 class="corporate-identity-h3">Contact &amp; storage</h3>
+<label for="sample-owner-wrapper">Contact details sample owner</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add the contact details by which the sample owner (person or department) may be contacted, e.g. for queries about the sample or access requests.</span></div><span class="required-field"> &#8727;</span>
+<div id="sample-owner-wrapper">
+  <label for="sample_owner_name" class="inner-head">Name</label>
+  <input type="text" id="sample_owner_name" name="sample_owner_name" value="{{object["sample_owner_name"] | default("", True)}}" />
+  <label for="sample_owner_email" class="inner-head">Email address</label>
+  <input type="text" id="sample_owner_email" name="sample_owner_email" value="{{object["sample_owner_email"] | default("", True)}}" />
+</div>
+
+<label for="physical_storage_location">Physical storage location</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add the location details (name university, faculty, department, etc.) where the sample is stored.</span></div><span class="required-field">&#8727;</span>
+<textarea id="physical_storage_location" name="physical_storage_location" placeholder="Example: Delft University of Technology, Faculty of Geoscience & Engineering, Department of Applied Geology - Building 23">{{object["physical_storage_location"] | default("", True) }}</textarea>
+
+
 </div>
 </div>
+
 {% endblock %}
