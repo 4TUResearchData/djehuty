@@ -110,6 +110,57 @@ coverity-report:
 
 dev_compose := "docker compose -f docker/docker-compose.dev.yml"
 
-# Start development environment (auto-initializes on first run)
+db_backup := ""
+state_graph := "https://data.4tu.nl"
+
+# Start dev environment. Restore a DB backup: just db_backup=<file> dev
 dev:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if [ -n "{{ db_backup }}" ]; then
+        BACKUP_FILE="$(cd "$(dirname "{{ db_backup }}")" && pwd)/$(basename "{{ db_backup }}")"
+        if [ ! -f "${BACKUP_FILE}" ]; then
+            echo "Error: Backup file '${BACKUP_FILE}' not found"
+            exit 1
+        fi
+
+        # Extract restore name: "prod-2025-10-09_#1.bp" -> "prod-2025-10-09_#"
+        BACKUP_BASENAME="$(basename "${BACKUP_FILE}")"
+        RESTORE_NAME="$(echo "${BACKUP_BASENAME}" | sed 's/[0-9]*\.bp$//')"
+        echo "Backup file: ${BACKUP_FILE}"
+        echo "Restore name: ${RESTORE_NAME}"
+        echo "State graph:  {{ state_graph }}"
+
+        echo "==> Ensuring virtuoso.ini exists (initializing if needed)..."
+        {{ dev_compose }} up -d virtuoso
+        {{ dev_compose }} stop virtuoso
+
+        echo "==> Removing old database files (keeping virtuoso.ini)..."
+        {{ dev_compose }} run --rm --no-deps --entrypoint sh virtuoso -c \
+            'rm -f /database/virtuoso.db /database/virtuoso.lck /database/virtuoso.log \
+                   /database/virtuoso.pxa /database/virtuoso.trx /database/virtuoso-temp.db'
+
+        echo "==> Restoring backup..."
+        {{ dev_compose }} run --rm --no-deps \
+            -v "${BACKUP_FILE}:/backups/${BACKUP_BASENAME}:ro" \
+            --entrypoint /opt/virtuoso-opensource/bin/virtuoso-t \
+            virtuoso \
+            +configfile /database/virtuoso.ini \
+            +restore-backup "${RESTORE_NAME}" \
+            +backup-dirs /backups \
+            +foreground
+
+        echo "==> Updating state-graph in dev config..."
+        DEV_CONFIG="etc/djehuty/djehuty-dev-config.xml"
+        # GNU sed (Linux) uses -i without argument, BSD sed (macOS) requires -i ''
+        if sed --version 2>/dev/null | grep -q GNU; then
+            sed -i 's|<state-graph>.*</state-graph>|<state-graph>{{ state_graph }}</state-graph>|' "${DEV_CONFIG}"
+        else
+            sed -i '' 's|<state-graph>.*</state-graph>|<state-graph>{{ state_graph }}</state-graph>|' "${DEV_CONFIG}"
+        fi
+        echo "    Set state-graph to: {{ state_graph }}"
+    fi
+
+    echo "==> Starting development environment..."
     {{ dev_compose }} up --build
