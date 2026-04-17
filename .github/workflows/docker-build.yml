@@ -1,0 +1,40 @@
+name: Docker Image Build
+
+on:
+  pull_request:
+    paths:
+      - "docker/Dockerfile"
+      - "pyproject.toml"
+      - "requirements.lock"
+      - "uv.lock"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+
+      - name: Generate requirements.lock
+        run: uv export --frozen --no-dev --no-hashes -o docker/requirements.lock
+
+      - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Build Docker image
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        with:
+          context: docker/
+          file: docker/Dockerfile
+          push: false
+          load: true
+          tags: djehuty:test
+          build-args: |
+            PURPOSE=release
+            BRANCH=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
