@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/utils.js?cache=1744290797"></script>
+<script nonce="{{nonce}}">
+jQuery(document).ready(function () {
+    jQuery(".hide-for-javascript").removeClass("hide-for-javascript");
+});
+</script>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/admin/dashboard">Dashboard</a>
+  <li><a href="/admin/users">Users</a>
+  <li><a href="/admin/exploratory">Exploratory</a>
+  <li class="active corporate-identity-submenu-active">Update Published Dataset
+  <li><a href="/admin/reports">Reports</a>
+  {% if may_query %}<li><a href="/admin/sparql">Query</a>{% endif %}
+  {% if may_review_quotas %}<li><a href="/admin/quota-requests">Quota requests</a>{% endif %}
+</ul>
+{% endblock %}
+{% block body %}
+<div class="hide-for-javascript">
+<h1>Update Published Dataset</h1>
+<table class="corporate-identity-table">
+  <thead><tr><th>Action</th><th>Description</th></thead>
+  <tbody>
+    <tr>
+      <td><a href="/admin/update-published-dataset/embargos">Embargos</a></td>
+      <td>Search for a dataset and manage its embargo date</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -153,9 +153,10 @@ class WebServer:
             R("/admin/users",                                                    self.ui_admin_users),
             R("/admin/exploratory",                                              self.ui_admin_exploratory),
             R("/admin/quota-requests",                                           self.ui_admin_quota_requests),
-            R("/admin/embargo",                                                  self.ui_admin_embargo),
-            R("/admin/embargo/search",                                           self.api_admin_embargo_search),
-            R("/admin/embargo/update",                                           self.api_admin_embargo_update),
+            R("/admin/update-published-dataset",                                  self.ui_admin_update_published_dataset),
+            R("/admin/update-published-dataset/embargos",                        self.ui_admin_embargo),
+            R("/admin/update-published-dataset/embargos/search",                 self.api_admin_embargo_search),
+            R("/admin/update-published-dataset/embargos/update",                 self.api_admin_embargo_update),
             R("/admin/sparql",                                                   self.ui_admin_sparql),
             R("/admin/reports",                                                  self.ui_admin_reports),
             R("/admin/reports/restricted_datasets",                              self.ui_admin_reports_restricted_datasets),
@@ -3310,8 +3311,8 @@ class WebServer:
 
         return self.__render_template (request, "admin/exploratory.html")
 
-    def ui_admin_embargo (self, request):
-        """Implements /admin/embargo."""
+    def ui_admin_update_published_dataset (self, request):
+        """Implements /admin/update-published-dataset."""
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -3319,10 +3320,21 @@ class WebServer:
         if not self.db.may_administer (token):
             return self.error_403 (request)
 
-        return self.__render_template (request, "admin/embargo.html")
+        return self.__render_template (request, "admin/update_published_dataset/dashboard.html")
+
+    def ui_admin_embargo (self, request):
+        """Implements /admin/update-published-dataset/embargos."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        return self.__render_template (request, "admin/update_published_dataset/embargos.html")
 
     def api_admin_embargo_search (self, request):
-        """Implements /admin/embargo/search."""
+        """Implements /admin/update-published-dataset/embargos/search."""
 
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
@@ -3357,7 +3369,7 @@ class WebServer:
             return self.error_400 (request, error.message, error.code)
 
     def api_admin_embargo_update (self, request):
-        """Implements /admin/embargo/update."""
+        """Implements /admin/update-published-dataset/embargos/update."""
 
         token = self.token_from_cookie (request)
         if not self.db.may_administer (token):
