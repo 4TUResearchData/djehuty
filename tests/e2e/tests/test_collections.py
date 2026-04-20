@@ -10,7 +10,7 @@ Covers:
     - Collection publish workflow
 
 Run with:
-    cd e2e && python -m pytest tests/test_collections.py -v
+    cd tests/e2e && python -m pytest tests/test_collections.py -v
 """
 
 import re

@@ -7,7 +7,7 @@ Covers:
     - Download each export format and verify non-empty response
 
 Run with:
-    cd e2e && python -m pytest tests/test_citation.py -v
+    cd tests/e2e && python -m pytest tests/test_citation.py -v
 """
 
 from pathlib import Path

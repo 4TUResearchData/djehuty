@@ -80,7 +80,7 @@ jobs:
           docker exec ${{ job.services.sparql.id }} isql 1111 dba dba /tmp/002-seed-test-data.sql
 
       - name: Run E2E tests (${{ inputs.marker }})
-        working-directory: e2e
+        working-directory: tests/e2e
         env:
           E2E_BASE_URL: http://localhost:8080
           E2E_SPARQL_URL: http://localhost:8890/sparql
@@ -112,7 +112,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: playwright-results-${{ inputs.marker }}${{ inputs.artifact-suffix }}
-          path: e2e/test-results/
+          path: tests/e2e/test-results/
           retention-days: 7
           if-no-files-found: ignore
 

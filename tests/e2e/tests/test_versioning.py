@@ -8,7 +8,7 @@ Covers:
     - Verify metadata preserved in new version
 
 Run with:
-    cd e2e && python -m pytest tests/test_versioning.py -v
+    cd tests/e2e && python -m pytest tests/test_versioning.py -v
 """
 
 from pathlib import Path

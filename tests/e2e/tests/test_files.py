@@ -11,7 +11,7 @@ Covers:
     - Git instructions display for software deposits
 
 Run with:
-    cd e2e && python -m pytest tests/test_files.py -v
+    cd tests/e2e && python -m pytest tests/test_files.py -v
 """
 
 import re

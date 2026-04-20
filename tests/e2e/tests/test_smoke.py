@@ -2,7 +2,7 @@
 Smoke tests to verify the Playwright test infrastructure works.
 
 Run with:
-    cd e2e && python -m pytest tests/test_smoke.py -v
+    cd tests/e2e && python -m pytest tests/test_smoke.py -v
 """
 
 import pytest

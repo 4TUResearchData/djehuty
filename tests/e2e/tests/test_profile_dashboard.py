@@ -9,7 +9,7 @@ Covers:
     - Verify submitted for review list
 
 Run with:
-    cd e2e && python -m pytest tests/test_profile_dashboard.py -v
+    cd tests/e2e && python -m pytest tests/test_profile_dashboard.py -v
 """
 
 import uuid

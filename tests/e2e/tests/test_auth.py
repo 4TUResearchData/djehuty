@@ -7,7 +7,7 @@ Covers:
     - Admin impersonation: switch user and stop impersonation
 
 Run with:
-    cd e2e && python -m pytest tests/test_auth.py -v
+    cd tests/e2e && python -m pytest tests/test_auth.py -v
 """
 
 import pytest

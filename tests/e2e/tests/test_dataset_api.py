@@ -18,7 +18,7 @@ Covers the V2 and V3 dataset API endpoints:
     - Published dataset versions
 
 Run with:
-    cd e2e && python -m pytest tests/test_dataset_api.py -v
+    cd tests/e2e && python -m pytest tests/test_dataset_api.py -v
 """
 
 import uuid

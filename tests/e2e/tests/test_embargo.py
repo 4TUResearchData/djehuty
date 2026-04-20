@@ -12,7 +12,7 @@ Covers:
     - Data access request form submission
 
 Run with:
-    cd e2e && python -m pytest tests/test_embargo.py -v
+    cd tests/e2e && python -m pytest tests/test_embargo.py -v
 """
 
 from datetime import date, timedelta

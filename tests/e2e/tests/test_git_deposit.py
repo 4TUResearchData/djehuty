@@ -9,7 +9,7 @@ Covers:
     - Verify git branch selector updates after push
 
 Run with:
-    cd e2e && python -m pytest tests/test_git_deposit.py -v
+    cd tests/e2e && python -m pytest tests/test_git_deposit.py -v
 """
 
 import re

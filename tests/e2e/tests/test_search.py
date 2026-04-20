@@ -10,7 +10,7 @@ Covers:
     - Navigate institution pages
 
 Run with:
-    cd e2e && python -m pytest tests/test_search.py -v
+    cd tests/e2e && python -m pytest tests/test_search.py -v
 """
 
 import pytest

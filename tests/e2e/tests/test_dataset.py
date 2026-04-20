@@ -9,7 +9,7 @@ Covers:
     - Verify 403 for unauthorized access to dataset editor
 
 Run with:
-    cd e2e && python -m pytest tests/test_dataset.py -v
+    cd tests/e2e && python -m pytest tests/test_dataset.py -v
 """
 
 import re

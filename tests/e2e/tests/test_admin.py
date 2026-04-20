@@ -9,7 +9,7 @@ Covers:
     - Quota request approve/deny through UI
 
 Run with:
-    cd e2e && python -m pytest tests/test_admin.py -v
+    cd tests/e2e && python -m pytest tests/test_admin.py -v
 """
 
 from pathlib import Path

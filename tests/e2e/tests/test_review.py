@@ -10,7 +10,7 @@ Covers:
     - Verify DOI appears after publication
 
 Run with:
-    cd e2e && python -m pytest tests/test_review.py -v
+    cd tests/e2e && python -m pytest tests/test_review.py -v
 """
 
 import re

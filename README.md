@@ -111,7 +111,7 @@ that is created by `--initialize` in step 3.
 Then run:
 
 ```bash
-cd e2e
+cd tests/e2e
 E2E_BASE_URL=http://localhost:8080 python -m pytest tests/ -v
 ```
 
