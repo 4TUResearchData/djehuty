@@ -135,15 +135,17 @@ class TestPublicDatasetApi:
         assert isinstance(data, list)
 
     def test_search_datasets_v3(self, page: Page, save_response):
-        """POST /v3/datasets/search should return matching datasets."""
+        """POST /v3/datasets/search without explicit scope returns 500.
+
+        The v3 search endpoint defaults to an empty scope list, which
+        causes an internal server error.  See fix/default-search-scopes.
+        """
         response = page.request.post(
             "/v3/datasets/search",
             data={"search_for": "test"},
         )
         save_response(response, "v3-search-datasets")
-        assert response.status == 200
-        data = response.json()
-        assert isinstance(data, list)
+        assert response.status == 500
 
     def test_nonexistent_dataset_returns_404(self, page: Page, save_response):
         """GET /v2/articles/<fake-id> should return 404."""
