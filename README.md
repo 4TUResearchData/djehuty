@@ -112,7 +112,7 @@ Then run:
 
 ```bash
 cd tests/e2e
-E2E_BASE_URL=http://localhost:8080 python -m pytest tests/ -v
+E2E_BASE_URL=http://localhost:8080 E2E_SPARQL_URL=http://localhost:8890/sparql python -m pytest tests/ -v
 ```
 
 Useful options:
