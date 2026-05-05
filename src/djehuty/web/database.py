@@ -2064,7 +2064,8 @@ class SparqlInterface:
         rdf.add (graph, link_uri, rdf.DJHT["purpose"], purpose,  XSD.string)
 
         if self.add_triples_from_graph (graph):
-            item_uri       = rdf.uuid_to_uri (item_uuid, item_type)
+            uri_prefix     = "physical-sample" if item_type == "physical_sample" else item_type
+            item_uri       = rdf.uuid_to_uri (item_uuid, uri_prefix)
             existing_links = self.private_links (item_uri=item_uri, account_uuid=account_uuid)
             if existing_links:
                 return self.__append_to_existing_list (link_uri, existing_links)
@@ -2087,6 +2088,12 @@ class SparqlInterface:
                                               is_published = None,
                                               is_latest    = None,
                                               limit        = 1)[0]
+            elif item_type == "physical_sample":
+                item      = self.physical_samples (sample_uuid  = item_uuid,
+                                                   account_uuid = account_uuid,
+                                                   is_published = None,
+                                                   is_latest    = None)[0]
+                item["uuid"] = item["sample_uuid"]
 
             if item is None:
                 self.log.error ("Could not find item to insert a private link %s for.",
@@ -3084,10 +3091,14 @@ class SparqlInterface:
     ## ------------------------------------------------------------------------
 
     def physical_samples (self, account_uuid=None, container_uuid=None,
-                          is_published=True, is_latest=True):
+                          sample_uuid=None,
+                          is_published=True, is_latest=True, limit=None,
+                          order=None, order_direction=None,
+                          offset=None, private_link_id_string=None,):
         """Procedure to retrieve physical samples."""
 
         filters  = rdf.sparql_filter ("container", rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
+        filters += rdf.sparql_filter ("sample_uuid", sample_uuid, escape=True)
 
         query = self.__query_from_template ("physical-samples", {
             "account_uuid":   account_uuid,
@@ -3095,6 +3106,8 @@ class SparqlInterface:
             "is_latest":      is_latest,
             "filters":        filters
         })
+
+        query += rdf.sparql_suffix (order, order_direction, limit, offset)
 
         return self.__run_query (query)
 
