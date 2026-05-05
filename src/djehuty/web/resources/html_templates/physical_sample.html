@@ -1,6 +1,26 @@
+{%- extends "layout.html" %}
+{%- set doi = item.doi %}
+{%- set pid = item.dataset_id %}
+{%- set item_type = "dataset" %}
 {%- block headers %}
+{%- if item.embargo_type is not defined or item.embargo_type != 'article' %}
+    {%- include 'jsonld.html' %}
+{%- endif %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/landing_page.js?cache=1742461855"></script>
+<script src="/static/js/quill.min.js"></script>
+<script src="/static/js/utils.js?cache=1744290797"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/pub.css?cache=1742203405" />
+<link href="/static/css/quill.4tu.css" rel="stylesheet">
+<link href="/static/css/form.css?cache=1739977731" rel="stylesheet">
+<style nonce="{{nonce}}">
+#access-request-wrapper { display: none; }
+#content-wrapper {padding: 0}
+</style>
+<script nonce="{{nonce}}">
+const dataset_uuid = "{{item.container_uuid}}";
+</script>
 {%- endblock %}
 {%- block body %}
-physical sample
-
+{%- include 'public_metadata.html' %}
 {%- endblock %}
