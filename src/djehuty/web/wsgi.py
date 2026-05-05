@@ -4780,9 +4780,22 @@ class WebServer:
         is_own_item    = (account_uuid is not None and
                           account_uuid == value_or_none (physical_sample, "account_uuid"))
 
+        physical_sample["uri"] = f"physical-sample:{physical_sample['sample_uuid']}"
+
         creators          = self.db.physical_sample_creators (container_uuid, account_uuid)
-        dates             = self.db.physical_sample_dates (container_uuid, account_uuid)
+        raw_dates         = self.db.physical_sample_dates (container_uuid, account_uuid)
         related_resources = self.db.physical_sample_related_resources (container_uuid, account_uuid)
+        tags              = self.db.tags (item_uri=physical_sample["uri"], limit=None)
+
+        posted_date = value_or_none (physical_sample, "published_date")
+        posted_date = posted_date[:4] if posted_date else "unpublished"
+        citation    = make_citation (creators, posted_date, physical_sample["title"],
+                                     value_or (physical_sample, "version", 1),
+                                     "Physical Sample",
+                                     value_or (physical_sample, "doi", "unavailable"))
+
+        dates = [("-".join(reversed(str(d.get("date", ""))[:10].split("-"))), str(d.get("date_type", "")))
+                 for d in raw_dates if d.get("date")]
 
         lat = self_or_value_or_none (physical_sample, "latitude")
         lon = self_or_value_or_none (physical_sample, "longitude")
@@ -4798,9 +4811,11 @@ class WebServer:
         return self.__render_template (request, "physical_sample.html",
                                        item             = physical_sample,
                                        version          = version,
-                                       authors          = creators,
+                                       creators         = creators,
+                                       citation         = citation,
                                        dates            = dates,
                                        related_resources= related_resources,
+                                       tags             = tags,
                                        coordinates      = coordinates,
                                        is_own_item      = is_own_item,
                                        private_view     = private_view,
