@@ -3180,7 +3180,7 @@ class WebServer:
                                            is_published   = False,
                                            is_latest      = False)
 
-        return self.__render_template (request, "depositor/physical-samples.html",
+        return self.__render_template (request, "depositor/my-physical-samples.html",
                                        drafts = drafts)
 
     def ui_new_physical_sample (self, request):
@@ -4762,7 +4762,51 @@ class WebServer:
                             physical_sample=None, private_view=False):
         """Implements /physical_sample/<id>."""
 
-        return self.__render_template (request, "physical_sample.html")
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
+
+        if physical_sample is None:
+            try:
+                physical_sample = self.db.physical_samples (
+                    container_uuid = physical_sample_id,
+                    is_published   = True,
+                    is_latest      = True)[0]
+            except IndexError:
+                return self.error_404 (request)
+
+        container_uuid = physical_sample["container_uuid"]
+        account_uuid   = self.account_uuid_from_request (request)
+        is_own_item    = (account_uuid is not None and
+                          account_uuid == value_or_none (physical_sample, "account_uuid"))
+
+        creators          = self.db.physical_sample_creators (container_uuid, account_uuid)
+        dates             = self.db.physical_sample_dates (container_uuid, account_uuid)
+        related_resources = self.db.physical_sample_related_resources (container_uuid, account_uuid)
+
+        lat = self_or_value_or_none (physical_sample, "latitude")
+        lon = self_or_value_or_none (physical_sample, "longitude")
+        lat_valid, lon_valid = decimal_coords (lat, lon)
+        coordinates = {"lat": lat, "lon": lon, "lat_valid": lat_valid, "lon_valid": lon_valid}
+
+        if not private_view:
+            self.__log_event (request, container_uuid, "physical_sample", "view")
+
+        member          = value_or (group_to_member, value_or_none (physical_sample, "group_id"), "other")
+        member_url_name = member_url_names[member]
+
+        return self.__render_template (request, "physical_sample.html",
+                                       item             = physical_sample,
+                                       version          = version,
+                                       authors          = creators,
+                                       dates            = dates,
+                                       related_resources= related_resources,
+                                       coordinates      = coordinates,
+                                       is_own_item      = is_own_item,
+                                       private_view     = private_view,
+                                       member           = member,
+                                       member_url_name  = member_url_name,
+                                       page_title       = physical_sample["title"])
 
     def ui_author (self, request, author_uuid):
         """Implements /authors/<id>."""
