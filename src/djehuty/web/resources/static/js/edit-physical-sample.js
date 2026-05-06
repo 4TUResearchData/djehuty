@@ -152,6 +152,27 @@ function edit_author_event (event) {
     edit_author (event.data["author_uuid"], event.data["container_uuid"]);
 }
 
+function reorder_creator (container_uuid, author_uuid, direction) {
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/reorder-creators`,
+        data:        JSON.stringify({ "author": author_uuid, "direction": direction }),
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json"
+    }).done(function () {
+        render_authors (container_uuid);
+    }).fail(function () {
+        show_message ("failure", "<p>Failed to change the order of the creators.</p>");
+    });
+}
+
+function reorder_creator_event (event) {
+    stop_event_propagation (event);
+    reorder_creator (event.data["container_uuid"],
+                     event.data["author_uuid"],
+                     event.data["direction"]);
+}
+
 function render_authors (container_uuid) {
     jQuery.ajax({
         url:         `/v3/physical-samples/${container_uuid}/creators`,
@@ -160,11 +181,15 @@ function render_authors (container_uuid) {
         accept:      "application/json",
     }).done(function (authors) {
         jQuery("#authors-list tbody").empty();
-        for (let author of authors) {
+        let number_of_items = authors.length;
+        for (let index = 0; index < number_of_items; index++) {
+            let author  = authors[index];
             let row     = jQuery("<tr/>", { "id": `author-${author.uuid}` });
             let column1 = jQuery("<td/>").text(author.full_name);
             let column2 = jQuery("<td/>");
             let column3 = jQuery("<td/>");
+            let column4 = jQuery("<td/>");
+            let column5 = jQuery("<td/>");
             let orcid = null;
             if (author.orcid_id && author.orcid_id != "") {
                 orcid = author.orcid_id;
@@ -194,13 +219,34 @@ function render_authors (container_uuid) {
                 }).on("click", { "author_uuid": author.uuid, "container_uuid": container_uuid },
                                edit_author_event));
             }
-            column3.append(jQuery("<a/>", {
+            if (number_of_items == 1) {
+            } else if (index == 0) {
+                column3.append(jQuery("<a/>", { "class": "fas fa-angle-down" }).on("click", {
+                    "author_uuid":    author.uuid,
+                    "container_uuid": container_uuid,
+                    "direction":      "down" }, reorder_creator_event));
+            } else if (index == number_of_items - 1) {
+                column4.append(jQuery("<a/>", { "class": "fas fa-angle-up" }).on("click", {
+                    "author_uuid":    author.uuid,
+                    "container_uuid": container_uuid,
+                    "direction":      "up" }, reorder_creator_event));
+            } else {
+                column3.append(jQuery("<a/>", { "class": "fas fa-angle-down" }).on("click", {
+                    "author_uuid":    author.uuid,
+                    "container_uuid": container_uuid,
+                    "direction":      "down" }, reorder_creator_event));
+                column4.append(jQuery("<a/>", { "class": "fas fa-angle-up" }).on("click", {
+                    "author_uuid":    author.uuid,
+                    "container_uuid": container_uuid,
+                    "direction":      "up" }, reorder_creator_event));
+            }
+            column5.append(jQuery("<a/>", {
                 "href":  "#",
                 "class": "fas fa-trash-can",
                 "title": "Remove"
             }).on("click", { "author_uuid": author.uuid, "container_uuid": container_uuid },
                            remove_author_event));
-            row.append([column1, column2, column3]);
+            row.append([column1, column2, column3, column4, column5]);
             jQuery("#authors-list tbody").append(row);
         }
         jQuery("#authors-list").show();

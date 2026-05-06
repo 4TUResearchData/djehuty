@@ -2413,17 +2413,19 @@ class SparqlInterface:
 
         return None
 
-    def reorder_authors (self, account_uuid, container_uuid, author_uuid, action):
+    def reorder_authors (self, account_uuid, container_uuid, author_uuid, action,
+                         predicate="authors"):
         """
-        Change the order of author with AUTHOR_UUID in the authors list of
+        Change the order of author with AUTHOR_UUID in the authors/creators list of
         the draft of the container identified by CONTAINER_UUID.
         """
 
         query = self.__query_from_template ("update_authors_order", {
             "container_uuid": container_uuid,
-            "account_uuid": account_uuid,
-            "author_uuid": author_uuid,
-            "action": "+1" if action == "down" else "-1"
+            "account_uuid":   account_uuid,
+            "author_uuid":    author_uuid,
+            "action":         "+1" if action == "down" else "-1",
+            "predicate":      predicate,
         })
 
         return self.__run_logged_query (query)
