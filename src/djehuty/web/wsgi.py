@@ -349,6 +349,7 @@ class WebServer:
             R("/v3/physical-samples",                                            self.api_v3_physical_sample_details),
             R("/v3/physical-samples/<container_uuid>",                           self.api_v3_physical_sample_details),
             R("/v3/physical-samples/<container_uuid>/creators",                  self.api_v3_physical_sample_creators),
+            R("/v3/physical-samples/<container_uuid>/creators/<creator_uuid>",   self.api_v3_physical_sample_creator_delete),
             R("/v3/physical-samples/<container_uuid>/dates",                     self.api_v3_physical_sample_dates),
             R("/v3/physical-samples/<container_uuid>/dates/<date_uuid>",         self.api_v3_physical_sample_date_delete),
             R("/v3/physical-samples/<container_uuid>/related-resources",         self.api_v3_physical_sample_related_resources),
@@ -3416,6 +3417,37 @@ class WebServer:
             return self.error_500 ()
 
         return self.error_405 (["GET", "POST", "PUT", "DELETE"])
+
+    def api_v3_physical_sample_creator_delete (self, request, container_uuid, creator_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/creators/<creator_uuid>."""
+
+        if not validator.is_valid_uuid (container_uuid) or not validator.is_valid_uuid (creator_uuid):
+            return self.error_404 (request)
+
+        if request.method != "DELETE":
+            return self.error_405 (["DELETE"])
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        try:
+            item = self.db.container_items (container_uuid = container_uuid,
+                                             account_uuid   = account_uuid,
+                                             is_published   = None,
+                                             is_latest      = None)[0]
+
+            creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+            creators.remove (next (filter (lambda c: c["uuid"] == creator_uuid, creators)))
+            creators = list (map (lambda c: URIRef (uuid_to_uri (c["uuid"], "author")), creators))
+
+            if self.db.update_item_list (item["uuid"], account_uuid, creators, "creators"):
+                return self.respond_204 ()
+
+            return self.error_500 ()
+
+        except (IndexError, KeyError, StopIteration):
+            return self.error_500 ()
 
     def api_v3_physical_sample_dates (self, request, container_uuid):
         """Implements /v3/physical-samples/<container_uuid>/dates."""
