@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 import uuid
 from datetime import date, datetime, timedelta
-from io import StringIO
+from io import StringIO, BytesIO
 from math import ceil, log2
 
 import pygit2
@@ -79,6 +79,13 @@ except (ImportError, ModuleNotFoundError):
 try:
     import pyvips
 except (OSError, ImportError, ModuleNotFoundError):
+    pass
+
+## Similarly, error handling for loading qrcode is done in 'ui'.
+try:
+    import qrcode
+    import qrcode.image.svg
+except (ImportError, ModuleNotFoundError):
     pass
 
 def R (uri_path, endpoint):  # pylint: disable=invalid-name
@@ -4794,6 +4801,16 @@ class WebServer:
                                      "Physical Sample",
                                      value_or (physical_sample, "doi", "unavailable"))
 
+        qr_code_svg = None
+        sample_doi  = value_or_none (physical_sample, "doi")
+        if sample_doi is None and private_view:
+            sample_doi = f"{config.igsn_prefix}/{container_uuid}"
+        if sample_doi:
+            qr_buf = BytesIO()
+            qrcode.make (f"https://doi.org/{sample_doi}",
+                         image_factory = qrcode.image.svg.SvgPathImage).save (qr_buf)
+            qr_code_svg = qr_buf.getvalue().decode("utf-8")
+
         dates = [("-".join(reversed(str(d.get("date", ""))[:10].split("-"))), str(d.get("date_type", "")))
                  for d in raw_dates if d.get("date")]
 
@@ -4813,6 +4830,8 @@ class WebServer:
                                        version          = version,
                                        creators         = creators,
                                        citation         = citation,
+                                       qr_code_svg      = qr_code_svg,
+                                       qr_doi           = sample_doi,
                                        dates            = dates,
                                        related_resources= related_resources,
                                        tags             = tags,
