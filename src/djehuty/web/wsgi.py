@@ -4427,6 +4427,7 @@ class WebServer:
             physical_sample = self.db.physical_samples (private_link_id_string = private_link_id,
                                                 is_published = None,
                                                 is_latest    = None)[0]
+
             if value_or (physical_sample, "private_link_is_expired", False):
                 return self.__render_template (request, "private_link_is_expired.html")
 
@@ -9309,10 +9310,6 @@ class WebServer:
                 if expires_date:
                     expires_date = expires_date + "T00:00:00Z"
 
-                print("---------")
-                print(physical_sample)
-                print("---------")
-
                 link_uri = self.db.insert_private_link(
                     item_uuid=physical_sample["sample_uuid"],
                     account_uuid=account_uuid,
@@ -9321,10 +9318,6 @@ class WebServer:
                     read_only=validator.boolean_value(parameters, "read_only", False),
                     id_string=id_string,
                     is_active=True)
-
-                print("link_uri")
-                print(link_uri)
-                print("---------")
 
                 if link_uri is None:
                     return self.error_500(("Creating a private link failed for physical_sample"
@@ -9339,10 +9332,6 @@ class WebServer:
                                                 links, "private_links"):
                     return self.error_500(("Updating private links failed for "
                                            f"{physical_sample['container_uuid']}."))
-
-                print(f"-----------------------------------------------------")
-                print(f"{config.base_url}/private_physical_sample/{id_string}")
-                print(f"-----------------------------------------------------")
 
                 return self.response(json.dumps({
                     "location": f"{config.base_url}/private_physical_sample/{id_string}"
