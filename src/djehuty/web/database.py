@@ -3099,12 +3099,14 @@ class SparqlInterface:
 
         filters  = rdf.sparql_filter ("container", rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
         filters += rdf.sparql_filter ("sample_uuid", sample_uuid, escape=True)
+        filters += rdf.sparql_filter ("private_link_id_string", private_link_id_string, escape=True)
 
         query = self.__query_from_template ("physical-samples", {
-            "account_uuid":   account_uuid,
-            "is_published":   is_published,
-            "is_latest":      is_latest,
-            "filters":        filters
+            "account_uuid":            account_uuid,
+            "is_published":            is_published,
+            "is_latest":               is_latest,
+            "private_link_id_string":  private_link_id_string,
+            "filters":                 filters
         })
 
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
