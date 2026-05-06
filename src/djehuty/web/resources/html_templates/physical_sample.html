@@ -10,6 +10,7 @@
 <style nonce="{{nonce}}">
 #access-request-wrapper { display: none; }
 #content-wrapper {padding: 0}
+#metadata { overflow: hidden; }
 
 /* Dates */
 #dates .date-list        { display: flex; flex-wrap: wrap; gap: .5em; margin: 0; padding: 0; }
@@ -19,6 +20,14 @@
 #dates .date-value       { font-weight: bold; font-size: 1em; white-space: nowrap; }
 #dates .date-type        { font-size: .75em; color: #666; text-transform: capitalize;
                            margin-top: .15em; text-align: center; }
+
+/* QR code */
+#qr-code          { margin-top: 1em; }
+#qr-code h3       { margin-bottom: .4em; }
+#qr-code svg      { width: 150px; height: 150px; display: block; }
+.qr-draft-notice  { margin-top: .6em; font-size: .82em; color: #7a5c00;
+                    background: #fff8e1; border: 1px solid #ffe082;
+                    border-radius: 4px; padding: .4em .7em; }
 
 /* Related resources */
 #related_resources ul              { padding: 0; margin: 0; }
@@ -38,11 +47,11 @@ const dataset_uuid = "{{item.container_uuid}}";
 
 <div id="metadata">
  {%- if private_view %}
-  {%- if doi %}
- <div id="doi"><span class="doi-label">doi:</span><span class="doi-value">{{doi}}</span></div>
+  {%- if qr_doi %}
+        <div id="doi"><span class="doi-label">IGSN:</span><span class="doi-value">{{qr_doi}}</span></div>
   {%- endif %}
  {%- else %}
-    <div id="doi"><span class="doi-label">DOI:</span><a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><span class="doi-value">{{doi}}</span></a></div>
+    <div id="doi"><span class="doi-label">IGSN:</span><a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><span class="doi-value">{{doi}}</span></a></div>
     <button id="cite-btn" class="corporate-identity-standard-button" title="Show citation.">Cite</button>
     <div id="cite">
         <h3>Datacite citation style</h3>
@@ -107,6 +116,19 @@ const dataset_uuid = "{{item.container_uuid}}";
         <div id="physical_storage_location">
             <h3 class="label">Physical storage location</h3>
             {{item.physical_storage_location}}
+        </div>
+{%- endif %}
+{%- if qr_code_svg %}
+        <div id="qr-code">
+            <h3 class="label">QR code</h3>
+            <div title="https://doi.org/{{qr_doi}}">
+{%- autoescape false %}
+                {{qr_code_svg}}
+{%- endautoescape %}
+            </div>
+{%- if private_view %}
+            <p class="qr-draft-notice">&#9432; This IGSN is reserved but the physical sample has not been published yet. The QR code will become active upon publication.</p>
+{%- endif %}
         </div>
 {%- endif %}
     </div>
