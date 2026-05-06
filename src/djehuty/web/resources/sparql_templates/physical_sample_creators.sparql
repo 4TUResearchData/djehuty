@@ -33,4 +33,5 @@ WHERE {
   FILTER (?account = <account:{{account_uuid}}>)
 {%- endif %}
 }
+ORDER BY ?order_index
 {% endblock %}

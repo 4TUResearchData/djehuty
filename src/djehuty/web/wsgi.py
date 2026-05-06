@@ -324,6 +324,7 @@ class WebServer:
             R("/v3/physical-samples/<container_uuid>",                           self.api_v3_physical_sample_details),
             R("/v3/physical-samples/<container_uuid>/creators",                  self.api_v3_physical_sample_creators),
             R("/v3/physical-samples/<container_uuid>/creators/<creator_uuid>",   self.api_v3_physical_sample_creator_delete),
+            R("/v3/physical-samples/<container_uuid>/reorder-creators",          self.api_v3_physical_sample_creators_reorder),
             R("/v3/physical-samples/<container_uuid>/dates",                     self.api_v3_physical_sample_dates),
             R("/v3/physical-samples/<container_uuid>/dates/<date_uuid>",         self.api_v3_physical_sample_date_delete),
             R("/v3/physical-samples/<container_uuid>/related-resources",         self.api_v3_physical_sample_related_resources),
@@ -3340,7 +3341,7 @@ class WebServer:
 
             account_uuid = self.account_uuid_from_request (request)
             records = self.db.physical_sample_creators (container_uuid, account_uuid)
-            return self.default_list_response (records, formatter.format_author_details_record)
+            return self.default_list_response (records, formatter.format_author_record_v3)
 
         account_uuid = self.default_authenticated_error_handling (request,
                                                                   ["POST", "PUT", "DELETE"],
@@ -3421,6 +3422,10 @@ class WebServer:
 
         except (IndexError, KeyError, StopIteration):
             return self.error_500 ()
+
+    def api_v3_physical_sample_creators_reorder (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/reorder-creators."""
+        return self.__reorder_authors_for_item (request, container_uuid, predicate="creators")
 
     def api_v3_physical_sample_dates (self, request, container_uuid):
         """Implements /v3/physical-samples/<container_uuid>/dates."""
@@ -7252,7 +7257,7 @@ class WebServer:
 
         return self.error_405 (["GET", "PUT"])
 
-    def __reorder_authors_for_item (self, request, container_uuid):
+    def __reorder_authors_for_item (self, request, container_uuid, predicate="authors"):
         """Generalization for api_v3_[datasets|collections]_authors_reorder."""
 
         if not validator.is_valid_uuid (container_uuid):
@@ -7275,7 +7280,8 @@ class WebServer:
         if errors:
             return self.error_400_list (request, errors)
 
-        if self.db.reorder_authors (account_uuid, container_uuid, author_uuid, direction):
+        if self.db.reorder_authors (account_uuid, container_uuid, author_uuid, direction,
+                                    predicate=predicate):
             return self.respond_205()
 
         return self.error_500()
