@@ -582,9 +582,17 @@ def read_menu_configuration (xml_root):
         submenu = []
         for submenu_item in primary_menu_item:
             if submenu_item.tag == "sub-menu":
+                sub_submenu = []
+                for sub_submenu_item in submenu_item:
+                    if sub_submenu_item.tag == "sub-sub-menu":
+                        sub_submenu.append({
+                            "title": config_value (sub_submenu_item, "title"),
+                            "href":  config_value (sub_submenu_item, "href")
+                        })
                 submenu.append({
-                    "title": config_value (submenu_item, "title"),
-                    "href":  config_value (submenu_item, "href")
+                    "title":       config_value (submenu_item, "title"),
+                    "href":        config_value (submenu_item, "href"),
+                    "sub_submenu": sub_submenu
                 })
 
         config.menu.append({
