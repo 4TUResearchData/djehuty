@@ -104,7 +104,7 @@ Set up the SPARQL store and application in this order:
 4. Run `002-seed-test-data.sql` via isql
 5. Ready to run the e2e tests
 
-The seed scripts are in `docker/dev/sparql-init/`. Note that
+The seed scripts are in `docker/sparql-init/`. Note that
 `002-seed-test-data.sql` depends on the `dev@djehuty.com` account
 that is created by `--initialize` in step 3.
 

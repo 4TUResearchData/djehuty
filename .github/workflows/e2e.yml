@@ -51,7 +51,7 @@ jobs:
 
       - name: Initialize SPARQL database
         run: |
-          docker cp docker/dev/sparql-init/001-setup_permissions.sql ${{ job.services.sparql.id }}:/tmp/001-setup_permissions.sql
+          docker cp docker/sparql-init/001-setup_permissions.sql ${{ job.services.sparql.id }}:/tmp/001-setup_permissions.sql
           docker exec ${{ job.services.sparql.id }} isql 1111 dba dba /tmp/001-setup_permissions.sql
 
       - name: Start application
@@ -72,7 +72,7 @@ jobs:
 
       - name: Seed test data
         run: |
-          docker cp docker/dev/sparql-init/002-seed-test-data.sql ${{ job.services.sparql.id }}:/tmp/002-seed-test-data.sql
+          docker cp docker/sparql-init/002-seed-test-data.sql ${{ job.services.sparql.id }}:/tmp/002-seed-test-data.sql
           docker exec ${{ job.services.sparql.id }} isql 1111 dba dba /tmp/002-seed-test-data.sql
 
       - name: Run E2E tests (${{ inputs.marker }})
