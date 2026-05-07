@@ -43,7 +43,14 @@ jobs:
           uv run coverage html
 
       - name: Comment coverage on PR
-        if: github.event_name == 'pull_request'
+        # Fork-originated PRs get a read-only GITHUB_TOKEN regardless of
+        # the permissions block above, so the comment API call cannot
+        # succeed. Skip the step in that case; the coverage table is
+        # still posted to the job step summary.
+        if: >-
+          github.event_name == 'pull_request'
+          && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7.1.0
         with:
           script: |
