@@ -63,3 +63,5 @@ tests/e2e/test-results/
 tests/e2e/playwright-report/
 tests/e2e/trace.zip
 .docker-deps.lock
+docker/coverage/
+docker/test-results/
