@@ -62,7 +62,9 @@
   </privileges>
   <groups>
     <group name="4TU.ResearchData" domain="4tu.nl" id="28585" parent_id="0" />
-    <group name="Delft University of Technology" domain="tudelft.nl" id="28586" parent_id="28585" is_featured="1" />
+    <group name="Delft University of Technology" domain="tudelft.nl" id="28586" parent_id="28585" is_featured="1">
+      <member email="user@tudelft.nl" first_name="Test" last_name="User" />
+    </group>
     <group name="Other institutions" domain="nogroup" id="28598" parent_id="28585" is_featured="1" />
   </groups>
   <quotas default="5000000000" />

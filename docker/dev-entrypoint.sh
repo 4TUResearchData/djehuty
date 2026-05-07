@@ -12,7 +12,10 @@ else
     set -- djehuty web
 fi
 
-if [ ! -f "$MARKER" ]; then
+# DJEHUTY_FORCE_INITIALIZE=1 always re-runs --initialize. Used by the
+# e2e stack so a stale volume cannot leave the SPARQL store out of sync
+# with the configured account or state-graph.
+if [ "${DJEHUTY_FORCE_INITIALIZE:-0}" = "1" ] || [ ! -f "$MARKER" ]; then
     touch "$MARKER"
     exec "$@" --initialize --config-file "$CONFIG"
 fi

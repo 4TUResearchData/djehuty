@@ -14,6 +14,7 @@ services:
         INSTALL_DEV: "1"
     environment:
       DJEHUTY_COVERAGE: "1"
+      DJEHUTY_FORCE_INITIALIZE: "1"
       COVERAGE_FILE: /coverage/.coverage
     volumes:
       - ./coverage:/coverage
@@ -42,6 +43,10 @@ services:
       E2E_SPARQL_URL: http://virtuoso:8890/sparql
       E2E_SPARQL_GRAPH: djehuty://local
       E2E_AUTO_LOGIN_EMAIL: dev@djehuty.com
+      # Source tree is mounted read-only; keep pytest from trying to
+      # write a cache or .pyc files into it.
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTEST_ADDOPTS: -p no:cacheprovider
     volumes:
       - ../tests:/app/tests:ro
       - ./test-results:/app/test-results

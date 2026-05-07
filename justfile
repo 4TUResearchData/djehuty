@@ -100,7 +100,7 @@ docs-clean:
 # Clean all build artifacts and dev environment
 clean: docs-clean
     rm -rf build/ dist/ src/djehuty.egg-info/ pylint.log
-    {{ dev_compose }} down -v 2>/dev/null || true
+    {{ e2e_compose }} down -v --remove-orphans 2>/dev/null || true
 
 # Run Coverity scan
 coverity-report:
@@ -109,7 +109,16 @@ coverity-report:
 # --- Development environment ---
 
 dev_compose := "docker compose -f docker/docker-compose.dev.yml"
+e2e_compose := dev_compose + " -f docker/docker-compose.e2e.yml"
 
 # Start development environment (auto-initializes on first run)
 dev:
     {{ dev_compose }} up --build
+
+# Run the e2e tests in containers (pass extra pytest args, e.g. -m smoke)
+test *args="":
+    {{ e2e_compose }} run --rm --build tests \
+        pytest tests/ -v --tb=short \
+        --reruns=1 --reruns-delay=5 \
+        --screenshot=only-on-failure \
+        --output=/app/test-results {{ args }}
