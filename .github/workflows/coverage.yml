@@ -19,11 +19,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install coverage
-        run: pip install "coverage[toml]>=7.0"
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.10
 
-      - name: Create pyproject.toml
-        run: sed 's/@VERSION@/0.0.0+ci/' pyproject.toml.in > pyproject.toml
+      - name: Install coverage
+        run: uv sync --frozen --only-group dev
 
       - name: Download coverage data
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
@@ -34,13 +34,13 @@ jobs:
       - name: Combine and report coverage
         run: |
           ls -la .coverage* 2>/dev/null || { echo "No coverage files found"; exit 0; }
-          coverage combine
-          coverage report | tee coverage-report.txt
+          uv run coverage combine
+          uv run coverage report | tee coverage-report.txt
           echo '## Coverage Report' >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
           cat coverage-report.txt >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
-          coverage html
+          uv run coverage html
 
       - name: Comment coverage on PR
         if: github.event_name == 'pull_request'

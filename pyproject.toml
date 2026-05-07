@@ -7,7 +7,7 @@ build-backend   = "setuptools.build_meta"
 
 [project]
 name            = "djehuty"
-version         = "26.1"
+version         = "26.2"
 authors         = [{ name="Roel Janssen", email="r.r.e.janssen@tudelft.nl" }]
 description     = "The 4TU.ResearchData and Nikhef data repository system"
 readme          = "README.md"
@@ -35,3 +35,36 @@ classifiers     = [
 
 [project.scripts]
 djehuty = "djehuty.ui:main"
+
+[dependency-groups]
+dev = [
+    "boto3",
+    "coverage[toml]>=7.0",
+    "Faker>=37.12.0",
+    "playwright>=1.40.0",
+    "pytest>=7.4.0",
+    "pytest-playwright>=0.4.4",
+    "pytest-rerunfailures>=14.0",
+    "python-slugify>=8.0.0",
+]
+
+[tool.coverage.run]
+source = ["djehuty"]
+branch = true
+parallel = true
+
+[tool.coverage.paths]
+source = [
+    "src/djehuty",
+    "*/site-packages/djehuty",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+omit = [
+    "src/djehuty/backup/*",
+]
+
+[tool.coverage.html]
+directory = "coverage-html"

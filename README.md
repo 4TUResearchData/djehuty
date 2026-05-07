@@ -89,8 +89,8 @@ backed by a Virtuoso SPARQL store loaded with test data.
 Install the test dependencies and the Playwright browser:
 
 ```bash
-pip install --requirement requirements-dev.txt
-playwright install --with-deps chromium
+uv sync
+uv run playwright install --with-deps chromium
 ```
 
 ### Running locally

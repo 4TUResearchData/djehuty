@@ -40,18 +40,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libxmlsec1-dev pkg-config libxml2-dev libxslt1-dev libxmlsec1-openssl
 
-      - name: Install Python dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.10
 
-      - name: Create pyproject.toml and install package
-        run: |
-          sed 's/@VERSION@/0.0.0+ci/' pyproject.toml.in > pyproject.toml
-          pip install -e .
+      - name: Install package with dev dependencies
+        run: uv sync --frozen
 
       - name: Install Playwright browsers
-        run: playwright install --with-deps chromium
+        run: uv run playwright install --with-deps chromium
 
       - name: Initialize SPARQL database
         run: |
@@ -60,7 +56,7 @@ jobs:
 
       - name: Start application
         run: |
-          coverage run -m djehuty.ui web --initialize --config-file .github/ci-djehuty.xml &
+          uv run coverage run -m djehuty.ui web --initialize --config-file .github/ci-djehuty.xml &
           echo $! > /tmp/djehuty.pid
           # Wait for the application to be ready
           for i in $(seq 1 30); do
@@ -85,7 +81,7 @@ jobs:
           E2E_BASE_URL: http://localhost:8080
           E2E_SPARQL_URL: http://localhost:8890/sparql
         run: |
-          python -m pytest tests/ -v --tb=short \
+          uv run pytest tests/ -v --tb=short \
             -m "${{ inputs.marker }}" \
             --reruns=1 --reruns-delay=5 \
             --screenshot=only-on-failure \
