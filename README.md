@@ -81,56 +81,49 @@ djehuty web --config-file=djehuty.xml
 
 The project includes an end-to-end test suite built with
 [Playwright](https://playwright.dev/python/) and
-[pytest](https://docs.pytest.org/). Tests run against a live instance
-backed by a Virtuoso SPARQL store loaded with test data.
-
-### Prerequisites
-
-Install the test dependencies and the Playwright browser:
+[pytest](https://docs.pytest.org/). Tests run against a live djehuty +
+Virtuoso stack seeded with test data — all in containers, so no host
+Python or browser setup is required.
 
 ```bash
-uv sync
-uv run playwright install --with-deps chromium
+just test
 ```
 
-### Running locally
+That single command builds the test image (with Playwright and
+chromium), brings up Virtuoso and djehuty, loads the SPARQL
+permissions, runs `--initialize`, applies the seed dataset, and runs
+the suite inside the docker network. Coverage data lands in
+`docker/coverage/`; failure screenshots in `docker/test-results/`.
 
-Set up the SPARQL store and application in this order:
-
-1. Start Virtuoso with a clean installation (container or local instance)
-2. Run `001-setup_permissions.sql` via isql
-3. Start djehuty with the initialize flag:
-   `djehuty web --initialize --config-file djehuty.xml`
-4. Run `002-seed-test-data.sql` via isql
-5. Ready to run the e2e tests
-
-The seed scripts are in `docker/sparql-init/`. Note that
-`002-seed-test-data.sql` depends on the `dev@djehuty.com` account
-that is created by `--initialize` in step 3.
-
-Then run:
+Filter the run with any pytest argument:
 
 ```bash
-cd tests/e2e
-E2E_BASE_URL=http://localhost:8080 E2E_SPARQL_URL=http://localhost:8890/sparql python -m pytest tests/ -v
+just test -m smoke              # one marker
+just test -k test_homepage      # by keyword
+just test tests/test_auth.py    # specific file
 ```
 
-Useful options:
+### Marker isolation
+
+CI runs each marker (`smoke`, `auth`, `dataset`, `admin`, `embargo`,
+`citation`, `versioning`, …) in its own job with a fresh stack, so a
+test never sees data left over from another marker. `just test` runs
+everything against one shared stack, which is faster but means a few
+state-sensitive tests can fail locally that pass in CI. When that
+happens, run the affected marker on its own:
 
 ```bash
-# Run a specific marker (smoke, auth, dataset, admin, …)
-python -m pytest tests/ -v -m smoke
-
-# Run a single test by name
-python -m pytest tests/ -v -k test_homepage
+just clean   # drop volumes for a truly fresh stack
+just test -m citation
 ```
 
 ### CI
 
-Tests run automatically on every push via GitHub Actions. The workflow
-starts a Virtuoso service container, loads the test data, starts the
-application, and runs the full suite. Screenshots are captured on failure
-and uploaded as artifacts.
+Tests run automatically on every push via GitHub Actions. Each runner
+in the matrix invokes `just test -m <marker>` against the same compose
+stack used locally, so a green `just test` on your laptop reproduces
+what CI sees. Screenshots are captured on failure and uploaded as
+artifacts; coverage from each shard is combined into a single report.
 
 ---
 ### Contact information
