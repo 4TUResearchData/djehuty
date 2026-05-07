@@ -59,3 +59,7 @@ doc/index.html
 djehuty.code-workspace
 query.sparqlbook
 .vscode/launch.json
+tests/e2e/test-results/
+tests/e2e/playwright-report/
+tests/e2e/trace.zip
+.docker-deps.lock
