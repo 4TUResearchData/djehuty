@@ -45,13 +45,13 @@
   <rdf-store>
     <sparql-uri>http://virtuoso:8890/sparql</sparql-uri>
     <sparql-update-uri>http://virtuoso:8890/sparql</sparql-update-uri>
-    <state-graph>djehuty://dev</state-graph>
+    <state-graph>djehuty://local</state-graph>
   </rdf-store>
   <authentication>
-    <automatic-login-email>dev@localhost</automatic-login-email>
+    <automatic-login-email>dev@djehuty.com</automatic-login-email>
   </authentication>
   <privileges>
-    <account first_name="Dev" last_name="User" email="dev@localhost">
+    <account first_name="Dev" last_name="User" email="dev@djehuty.com">
       <may-administer>1</may-administer>
       <may-run-sparql-queries>1</may-run-sparql-queries>
       <may-impersonate>1</may-impersonate>
