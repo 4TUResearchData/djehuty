@@ -35,6 +35,15 @@ except OSError as pyvips_oserror_message:
     PYVIPS_DEPENDENCY_LOADED = False
     PYVIPS_ERROR_MESSAGE = pyvips_oserror_message
 
+# The 'qrcode' module is required when IGSN is configured so that physical
+# sample pages can render a QR code linking to the sample DOI.
+try:
+    import qrcode  # pylint: disable=unused-import
+    import qrcode.image.svg  # pylint: disable=unused-import
+    QRCODE_DEPENDENCY_LOADED = True
+except (ImportError, ModuleNotFoundError):
+    QRCODE_DEPENDENCY_LOADED = False
+
 # The 'uwsgi' module only needs to be available when deploying using uwsgi.
 # To catch potential run-time problems early on in the situation that the
 # uwsgi module is required, we set UWSGI_DEPENDENCY_LOADED here without
@@ -1288,6 +1297,11 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                                        PYVIPS_ERROR_MESSAGE)
                     raise DependencyNotAvailable
                 logging.getLogger('pyvips').setLevel(logging.ERROR)
+
+            if config.igsn_prefix is not None:
+                if not QRCODE_DEPENDENCY_LOADED:
+                    logger.error ("Dependency 'qrcode' is required for IGSN.")
+                    raise DependencyNotAvailable
 
             if config.s3_buckets:
                 os.makedirs (config.s3_cache_storage, mode=0o700, exist_ok=True)

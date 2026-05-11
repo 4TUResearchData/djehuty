@@ -29,8 +29,6 @@ from rdflib import URIRef
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
 from PIL import Image, ImageSequence, UnidentifiedImageError
-import qrcode
-import qrcode.image.svg
 from djehuty.web import validator
 from djehuty.web import formatter
 from djehuty.web import xml_formatter
@@ -62,6 +60,13 @@ except (ImportError, ModuleNotFoundError):
 try:
     import pyvips
 except (OSError, ImportError, ModuleNotFoundError):
+    pass
+
+## Similarly, error handling for loading qrcode is done in 'ui'.
+try:
+    import qrcode
+    import qrcode.image.svg
+except (ImportError, ModuleNotFoundError):
     pass
 
 def R (uri_path, endpoint):  # pylint: disable=invalid-name
