@@ -1,0 +1,61 @@
+# Override applied on top of docker-compose.dev.yml to run the e2e
+# test suite. Brings up djehuty under coverage, seeds the test data,
+# and runs Playwright tests inside the docker network.
+#
+#   docker compose \
+#       -f docker/docker-compose.dev.yml \
+#       -f docker/docker-compose.e2e.yml \
+#       run --rm tests pytest tests/
+
+services:
+  djehuty:
+    build:
+      args:
+        INSTALL_DEV: "1"
+    environment:
+      DJEHUTY_COVERAGE: "1"
+      DJEHUTY_FORCE_INITIALIZE: "1"
+      COVERAGE_FILE: /coverage/.coverage
+    volumes:
+      - ./coverage:/coverage
+
+  seed:
+    image: openlink/virtuoso-opensource-7:7.2.13
+    depends_on:
+      djehuty:
+        condition: service_healthy
+    volumes:
+      - ./sparql-init/002-seed-test-data.sql:/seed.sql:ro
+    entrypoint: []
+    command: ["isql", "virtuoso:1111", "dba", "dba", "/seed.sql"]
+
+  tests:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+      args:
+        INSTALL_DEV: "1"
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    environment:
+      E2E_BASE_URL: http://djehuty:8080
+      E2E_SPARQL_URL: http://virtuoso:8890/sparql
+      E2E_SPARQL_GRAPH: djehuty://local
+      E2E_AUTO_LOGIN_EMAIL: dev@djehuty.com
+      # Source tree is mounted read-only; keep pytest from trying to
+      # write a cache or .pyc files into it.
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTEST_ADDOPTS: -p no:cacheprovider
+    volumes:
+      - ../tests:/app/tests:ro
+      - ./test-results:/app/test-results
+    working_dir: /app/tests/e2e
+    entrypoint: []
+    command:
+      - pytest
+      - tests/
+      - -v
+      - --tb=short
+      - --screenshot=only-on-failure
+      - --output=/app/test-results

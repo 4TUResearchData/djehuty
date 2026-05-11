@@ -1,5 +1,9 @@
 FROM python:3.12-slim-bookworm
 
+# INSTALL_DEV=1 includes dev dependencies (pytest, playwright, coverage, …)
+# and a Playwright-compatible chromium. Used by the e2e compose override.
+ARG INSTALL_DEV=0
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        git \
@@ -18,16 +22,29 @@ ENV UV_COMPILE_BYTECODE=1
 # Install dependencies first (cached layer)
 COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-install-project --no-dev
+    if [ "$INSTALL_DEV" = "1" ]; then \
+        uv sync --frozen --no-install-project; \
+    else \
+        uv sync --frozen --no-install-project --no-dev; \
+    fi
 
 # Install the package in editable mode
 # Source is bind-mounted at runtime, but we need the package structure
 COPY src/ ./src/
 COPY README.md ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev
+    if [ "$INSTALL_DEV" = "1" ]; then \
+        uv sync --frozen; \
+    else \
+        uv sync --frozen --no-dev; \
+    fi
 
 ENV PATH="/app/.venv/bin:$PATH"
+
+# Install Playwright's chromium with system deps when dev tooling is enabled.
+RUN if [ "$INSTALL_DEV" = "1" ]; then \
+        playwright install --with-deps chromium; \
+    fi
 
 COPY docker/dev-entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 

@@ -3,7 +3,7 @@ services:
     image: openlink/virtuoso-opensource-7:7.2.13
     volumes:
       - virtuoso-data:/database
-      - ./virtuoso-init.sql:/opt/virtuoso-opensource/initdb.d/init.sql:ro
+      - ./sparql-init/001-setup_permissions.sql:/opt/virtuoso-opensource/initdb.d/001-setup_permissions.sql:ro
     ports:
       - "8890:8890"
     environment:
@@ -28,6 +28,12 @@ services:
     depends_on:
       virtuoso:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ > /dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
 
 volumes:
   virtuoso-data:
