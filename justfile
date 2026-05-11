@@ -33,14 +33,14 @@ dist-rpm: sdist
     rpmbuild --define "_topdir $(pwd)/rpmbuild" -ba rpmbuild/SPECS/djehuty.spec
 
 # Build Docker image
-dist-docker: sdist
+dist-docker:
     uv export --frozen --no-dev --no-hashes -o docker/requirements.lock
     docker image build --no-cache \
         --build-arg="PURPOSE=release" \
-        --build-arg="BRANCH=main" \
         --build-arg="VERSION={{ version }}" \
         -t docker.io/4turesearchdata/djehuty:{{ version }} \
-        docker/
+        -f docker/Dockerfile \
+        .
     rm -f docker/requirements.lock
 
 # Push Docker image to registry

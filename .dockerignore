@@ -1,0 +1,38 @@
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Python
+.venv/
+**/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+src/djehuty.egg-info/
+
+# Build artifacts
+build/
+dist/
+rpmbuild/BUILD/
+rpmbuild/RPMS/
+rpmbuild/SOURCES/
+rpmbuild/SRPMS/
+
+# Test outputs
+tests/e2e/test-results/
+tests/e2e/playwright-report/
+tests/e2e/trace.zip
+docker/coverage/
+docker/test-results/
+coverage/
+test-results/
+
+# Autotools (deprecated, scheduled for removal)
+autom4te.cache/
+config.log
+config.status
+
+# CI / project tooling
+.github/

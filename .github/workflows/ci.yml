@@ -10,6 +10,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
   e2e:
     strategy:
       fail-fast: false

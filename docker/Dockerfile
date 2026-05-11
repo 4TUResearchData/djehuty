@@ -1,14 +1,13 @@
 FROM debian:bookworm-slim
 LABEL authors="Nikhef, 4TU.ResearchData"
 ARG PURPOSE="release"
-ARG BRANCH="main"
 ARG VERSION="0.0.0"
 
 # Build a self-updating (development) container:
-# docker image build --build-arg="PURPOSE=development" -t djehuty:devel .
+# docker image build --build-arg="PURPOSE=development" -t djehuty:devel -f docker/Dockerfile .
 #
 # Or a non-self-updating (release) container:
-# docker image build -t djehuty:latest .
+# docker image build -t djehuty:latest -f docker/Dockerfile .
 #
 # start with: docker container run --rm -ti -v ../etc/djehuty/djehuty-example-config.xml:/config.xml:Z djehuty:latest /bin/djehuty web -c /config.xml
 
@@ -24,17 +23,18 @@ RUN apt-get update \
 
 USER djehuty
 
-COPY requirements.lock* /tmp/
+COPY --chown=djehuty:users . /opt/djehuty/djehuty/
 
-RUN git clone --branch "$BRANCH" --depth 1 https://github.com/4TUResearchData/djehuty.git /opt/djehuty/djehuty \
-    && python3 -m venv /opt/djehuty/virtual-env \
+WORKDIR /opt/djehuty/djehuty
+
+RUN python3 -m venv /opt/djehuty/virtual-env \
     && . /opt/djehuty/virtual-env/bin/activate \
-    && pip install --no-binary lxml python3-saml \
-    && if [ -f /tmp/requirements.lock ]; then \
-         pip install -r /tmp/requirements.lock; \
-         pip install --no-deps --editable /opt/djehuty/djehuty; \
+    && pip install --no-binary lxml,xmlsec python3-saml \
+    && if [ -f docker/requirements.lock ]; then \
+         pip install -r docker/requirements.lock; \
+         pip install --no-deps --editable .; \
        else \
-         pip install --editable /opt/djehuty/djehuty; \
+         pip install --editable .; \
        fi
 
 CMD ["/bin/bash"]
