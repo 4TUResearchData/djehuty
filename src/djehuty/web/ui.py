@@ -909,9 +909,18 @@ def read_configuration_file (server, config_file, logger, config_files):
         if site_shorttag is not None:
             config.site_shorttag = site_shorttag.text
 
-        ror_url = xml_root.find ("ror-url")
-        if ror_url is not None:
-            config.ror_url = ror_url.text
+        publisher_rors = xml_root.find ("publisher-rors")
+        if publisher_rors is not None:
+            for entry in publisher_rors:
+                if entry.tag != "publisher-ror":
+                    logger.error ("Unexpected '%s' in 'publisher-rors'.", entry.tag)
+                    raise SystemExit
+                name = entry.get ("name")
+                url  = entry.get ("url")
+                if not name or not url:
+                    logger.error ("'publisher-ror' requires non-empty 'name' and 'url' attributes.")
+                    raise SystemExit
+                config.publisher_rors[name.strip()] = url.strip()
 
         support_email_address = xml_root.find ("support-email-address")
         if support_email_address is not None:

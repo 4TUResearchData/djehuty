@@ -4,6 +4,17 @@
   <site-name>Djehuty example instance</site-name>
   <site-shorttag>example-shorttag</site-shorttag>
   <site-description>Djehuty example instance</site-description>
+  <!-- Mapping of publisher names to ROR URLs. When a dataset's publisher
+       matches an entry, its name is rendered as a link to the ROR record
+       with the ROR icon. Add an entry whose name matches <site-name> to
+       identify this instance's own organization in the RO-Crate export. -->
+  <!--
+  <publisher-rors>
+    <publisher-ror name="Djehuty example instance" url="https://ror.org/02d887280" />
+    <publisher-ror name="Delft University of Technology" url="https://ror.org/02e2c7k09" />
+    <publisher-ror name="Eindhoven University of Technology" url="https://ror.org/02c2kyt77" />
+  </publisher-rors>
+  -->
   <support-email-address>support@example.com</support-email-address>
   <!-- <restrict-depositing-to-domain>example.com</restrict-depositing-to-domain> -->
   <colors>
