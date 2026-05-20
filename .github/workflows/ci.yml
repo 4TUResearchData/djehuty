@@ -39,3 +39,4 @@ jobs:
   coverage-report:
     needs: e2e
     uses: ./.github/workflows/coverage.yml
+    secrets: inherit
