@@ -3346,9 +3346,20 @@ class WebServer:
 
         try:
             parameters  = request.get_json()
-            search_for  = self.parse_search_terms (
-                validator.string_value (parameters, "search_for", maximum_length=1024))
-            records = self.db.datasets (search_for=search_for,
+            search_for  = validator.string_value (parameters, "search_for",
+                                                  maximum_length=1024,
+                                                  strip_html=False)
+            search_query = None
+            if search_for is not None:
+                search_tokens = re.findall(r'[^" ]+|"[^"]+"|\([^)]+\)', search_for)
+                search_tokens = [s.strip('"') for s in search_tokens]
+                search_query = {
+                    "operator":   "AND",
+                    "search_for": search_tokens,
+                    "scope":      ["title"],
+                }
+            records = self.db.datasets (search_for=search_query,
+                                        search_for_raw=html_to_plaintext (search_for) if search_for else None,
                                         is_latest=True,
                                         is_published=True,
                                         limit=50)

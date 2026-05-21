@@ -121,8 +121,6 @@ class TestAdminEmbargoManagement:
         embargo_page.wait_for_results()
         screenshot(admin_page, "embargos-search-results")
 
-        # The search backend tokenises terms, so other datasets may match.
-        # Assert the target dataset is among the results regardless of order.
         target_row = embargo_page.row_for_title(EMBARGO_TITLE)
         expect(target_row.first).to_be_visible()
 
