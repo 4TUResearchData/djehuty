@@ -6,6 +6,7 @@ services:
       - ./sparql-init/001-setup_permissions.sql:/opt/virtuoso-opensource/initdb.d/001-setup_permissions.sql:ro
     ports:
       - "8890:8890"
+      - "1111:1111"
     environment:
       DBA_PASSWORD: "dba"
     healthcheck:
