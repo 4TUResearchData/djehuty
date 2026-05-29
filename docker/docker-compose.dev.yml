@@ -9,6 +9,11 @@ services:
       - "1111:1111"
     environment:
       DBA_PASSWORD: "dba"
+      # Relax SPARQL planner limits for dev work against prod-sized restored
+      # data. Applied to virtuoso.ini on first boot of a fresh volume; preserved
+      # across `just db_backup=… dev` since the restore step keeps virtuoso.ini.
+      VIRT_SPARQL_MaxQueryCostEstimationTime: "0"
+      VIRT_SPARQL_MaxQueryExecutionTime: "600"
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost 8890"]
       interval: 5s
