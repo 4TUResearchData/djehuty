@@ -43,6 +43,18 @@ Once running:
 
 Edit any Python file under `src/` and the server reloads automatically.
 
+To start the development environment with a Virtuoso database backup
+(e.g. to test against specific production data):
+
+```bash
+just db_backup=path/to/prod-2025-10-09_#1.bp dev
+```
+
+Point `db_backup` at any one of the backup files. All siblings sharing
+the same prefix in that directory are applied in order, so a full backup
+plus its incrementals (e.g. `prod-2025-10-09_#1.bp`, `…_#2.bp`,
+`…_#3.bp`) are restored together.
+
 To stop and remove the development environment, run `just clean`.
 To see all available commands, run `just --list`.
 

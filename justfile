@@ -100,6 +100,9 @@ docs-clean:
 # Clean all build artifacts and dev environment
 clean: docs-clean
     rm -rf build/ dist/ src/djehuty.egg-info/ pylint.log
+    # Restore-time overlay written by `just db_backup=... dev`; pairs with
+    # the dev volume teardown below so the next `just dev` boots clean.
+    rm -f etc/djehuty/*.local.xml
     {{ e2e_compose }} down -v --remove-orphans 2>/dev/null || true
 
 # Run Coverity scan
@@ -111,8 +114,68 @@ coverity-report:
 dev_compose := "docker compose -f docker/docker-compose.dev.yml"
 e2e_compose := dev_compose + " -f docker/docker-compose.e2e.yml"
 
-# Start development environment (auto-initializes on first run)
+db_backup := ""
+state_graph := "https://data.4tu.nl"
+
+# Start dev environment. Restore a DB backup: just db_backup=<file> dev
 dev:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if [ -n "{{ db_backup }}" ]; then
+        BACKUP_FILE="$(cd "$(dirname "{{ db_backup }}")" && pwd)/$(basename "{{ db_backup }}")"
+        if [ ! -f "${BACKUP_FILE}" ]; then
+            echo "Error: Backup file '${BACKUP_FILE}' not found"
+            exit 1
+        fi
+
+        # Extract restore name: "prod-2025-10-09_#1.bp" -> "prod-2025-10-09_#"
+        BACKUP_DIR="$(dirname "${BACKUP_FILE}")"
+        BACKUP_BASENAME="$(basename "${BACKUP_FILE}")"
+        RESTORE_NAME="$(echo "${BACKUP_BASENAME}" | sed 's/[0-9]*\.bp$//')"
+        echo "Backup dir:   ${BACKUP_DIR}"
+        echo "Restore name: ${RESTORE_NAME}"
+        echo "Backup files found:"
+        ls -1 "${BACKUP_DIR}/${RESTORE_NAME}"*.bp 2>/dev/null | sed 's|^|    |' \
+            || { echo "    (none matching ${RESTORE_NAME}*.bp)"; exit 1; }
+        echo "State graph:  {{ state_graph }}"
+
+        echo "==> Ensuring virtuoso.ini exists (initializing if needed)..."
+        {{ dev_compose }} up -d virtuoso
+        {{ dev_compose }} stop virtuoso
+
+        echo "==> Removing old database files (keeping virtuoso.ini)..."
+        {{ dev_compose }} run --rm --no-deps --entrypoint sh virtuoso -c \
+            'rm -f /database/virtuoso.db /database/virtuoso.lck /database/virtuoso.log \
+                   /database/virtuoso.pxa /database/virtuoso.trx /database/virtuoso-temp.db'
+
+        echo "==> Restoring backup (full + incrementals)..."
+        {{ dev_compose }} run --rm --no-deps \
+            -v "${BACKUP_DIR}:/backups:ro" \
+            --entrypoint /opt/virtuoso-opensource/bin/virtuoso-t \
+            virtuoso \
+            +configfile /database/virtuoso.ini \
+            +restore-backup "${RESTORE_NAME}" \
+            +backup-dirs /backups \
+            +foreground
+
+        # Write the restore-time override into a gitignored *.local.xml copy
+        # so the tracked dev config stays clean. The container reads it via
+        # DJEHUTY_CONFIG (see docker/dev-entrypoint.sh).
+        echo "==> Writing restore-time config override..."
+        DEV_CONFIG="etc/djehuty/djehuty-dev-config.xml"
+        LOCAL_CONFIG="etc/djehuty/djehuty-dev-config.local.xml"
+        cp "${DEV_CONFIG}" "${LOCAL_CONFIG}"
+        if sed --version 2>/dev/null | grep -q GNU; then
+            sed -i 's|<state-graph>.*</state-graph>|<state-graph>{{ state_graph }}</state-graph>|' "${LOCAL_CONFIG}"
+        else
+            sed -i '' 's|<state-graph>.*</state-graph>|<state-graph>{{ state_graph }}</state-graph>|' "${LOCAL_CONFIG}"
+        fi
+        echo "    ${LOCAL_CONFIG} (state-graph: {{ state_graph }})"
+        export DJEHUTY_CONFIG="/config/djehuty/djehuty-dev-config.local.xml"
+    fi
+
+    echo "==> Starting development environment..."
     {{ dev_compose }} up --build
 
 # Run the e2e tests in containers (pass extra pytest args, e.g. -m smoke)
