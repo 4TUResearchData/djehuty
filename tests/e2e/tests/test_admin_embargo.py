@@ -111,31 +111,54 @@ class TestAdminEmbargoManagement:
     def test_search_select_and_update_embargo(
         self, embargoed_dataset, admin_page: Page, screenshot
     ):
-        """End-to-end: search for the embargoed dataset, select it, update the
-        embargo date, and confirm the change persists."""
+        """End-to-end: search for the embargoed dataset, select it (Step 1),
+        set a new embargo date (Step 2), preview & confirm (Step 3), and
+        verify the change persists."""
+        initial_date = _iso_date(INITIAL_EMBARGO_DAYS)
         new_date = _iso_date(30)
 
         embargo_page = AdminEmbargoPage(admin_page)
         embargo_page.navigate()
+
+        # Step 1: search & select.
         embargo_page.search(EMBARGO_TITLE)
         embargo_page.wait_for_results()
-        screenshot(admin_page, "embargos-search-results")
+        screenshot(admin_page, "embargos-step1-search-results")
 
         target_row = embargo_page.row_for_title(EMBARGO_TITLE)
         expect(target_row.first).to_be_visible()
-
         embargo_page.select_row_by_title(EMBARGO_TITLE)
-        screenshot(admin_page, "embargo-detail-populated")
 
+        # Step 2: dataset detail + new date.
+        screenshot(admin_page, "embargos-step2-edit")
         assert embargo_page.detail_value("title") == EMBARGO_TITLE
-        assert embargo_page.detail_value("embargo-date") == _iso_date(INITIAL_EMBARGO_DAYS)
+        assert embargo_page.detail_value("embargo-date") == initial_date
         date_input = admin_page.locator("#embargo-date-input")
-        assert date_input.input_value() == _iso_date(INITIAL_EMBARGO_DAYS)
+        assert date_input.input_value() == initial_date
+
+        # "Change dataset" goes back to Step 1, then we re-select.
+        embargo_page.click_change_dataset()
+        embargo_page.select_row_by_title(EMBARGO_TITLE)
 
         embargo_page.set_embargo_date(new_date)
-        embargo_page.click_update()
-        screenshot(admin_page, "embargo-after-update")
-        expect(admin_page.locator("#detail-embargo-date")).to_have_text(new_date)
+        embargo_page.click_preview()
+
+        # Step 3: preview & confirm.
+        screenshot(admin_page, "embargos-step3-preview")
+        assert embargo_page.confirm_value("title") == EMBARGO_TITLE
+        assert embargo_page.confirm_value("from-date") == initial_date
+        assert embargo_page.confirm_value("to-date") == new_date
+
+        # "Back to edit" returns to Step 2, then preview again.
+        embargo_page.click_back_to_edit()
+        assert admin_page.locator("#embargo-date-input").input_value() == new_date
+        embargo_page.click_preview()
+
+        embargo_page.click_confirm()
+        screenshot(admin_page, "embargos-after-confirm")
+
+        # After confirm, the page returns to Step 1 with a success message.
+        expect(admin_page.locator("#embargo-step-1")).to_be_visible()
 
         # Reload and search again to confirm persistence.
         embargo_page.navigate()

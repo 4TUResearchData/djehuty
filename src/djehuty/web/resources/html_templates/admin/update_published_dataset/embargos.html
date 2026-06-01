@@ -13,16 +13,27 @@
 #embargo-results-body tr { cursor: pointer; }
 #embargo-results-body tr:hover { background: #f0f0f0; }
 #embargo-results-body tr.selected-row { background: #e0e8ff; }
-#embargo-detail { margin-top: 1.5em; padding: 1em; border: solid 1pt #ccc; border-radius: .5em; }
-#embargo-detail h3 { margin-top: 0; }
-#embargo-detail table { margin-bottom: 1em; }
-#embargo-detail table td:first-child { font-weight: bold; padding-right: 1em; }
+.embargo-step { margin-top: 1em; }
+.embargo-step h2 { margin-top: 0; }
+.embargo-step table { margin-bottom: 1em; }
+.embargo-step table td:first-child { font-weight: bold; padding-right: 1em; }
 #embargo-date-input { padding: .3em; font-size: 1em; }
-#embargo-update-button { background: #009900; color: #fff; text-decoration: none; }
-#embargo-update-button:hover { background: #006600; }
-#embargo-update-button:active { background: #003300; }
+.embargo-primary-button { background: #009900; color: #fff; text-decoration: none; }
+.embargo-primary-button:hover { background: #006600; }
+.embargo-primary-button:active { background: #003300; }
+.embargo-secondary-button { background: #777; color: #fff; text-decoration: none; }
+.embargo-secondary-button:hover { background: #555; }
+.embargo-secondary-button:active { background: #333; }
 .embargo-hidden { display: none !important; }
-#embargo-actions { margin-top: 1em; }
+.embargo-actions { margin-top: 1em; }
+.embargo-actions a + a { margin-left: .5em; }
+.embargo-steps-indicator { margin-bottom: 1em; color: #666; font-size: .95em; }
+.embargo-steps-indicator span { margin-right: .8em; }
+.embargo-steps-indicator span.active { color: #000; font-weight: bold; }
+.embargo-confirm-diff { background: #fffbe0; padding: .5em .8em; border-radius: .3em; border: 1px solid #e0c870; }
+.embargo-confirm-diff .from { color: #777; }
+.embargo-confirm-diff .arrow { margin: 0 .5em; }
+.embargo-confirm-diff .to { font-weight: bold; color: #007700; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -43,23 +54,35 @@
 <div class="hide-for-javascript">
 <h1>Embargo management</h1>
 
-<p>Search for a dataset by title or DOI, then manage its embargo.</p>
-
-<div id="embargo-search">
-  <input type="text" id="embargo-search-input" placeholder="Search by title">
-  <a id="embargo-search-button" href="#" class="button corporate-identity-standard-button">Search</a>
+<div class="embargo-steps-indicator" id="embargo-steps-indicator">
+  <span id="step-indicator-1" class="active">1. Select dataset</span>
+  <span id="step-indicator-2">2. Set new embargo date</span>
+  <span id="step-indicator-3">3. Review &amp; confirm</span>
 </div>
 
-<div id="embargo-results" class="embargo-hidden">
-  <h2>Search results</h2>
-  <table class="corporate-identity-table">
-    <thead><tr><th>Title</th><th>DOI</th><th>Embargo date</th><th>Embargo type</th></tr></thead>
-    <tbody id="embargo-results-body"></tbody>
-  </table>
+<!-- Step 1: search & select -->
+<div id="embargo-step-1" class="embargo-step">
+  <h2>Step 1 &mdash; Select dataset</h2>
+  <p>Search for a dataset by title or DOI, then pick it from the results.</p>
+  <div id="embargo-search">
+    <input type="text" id="embargo-search-input" placeholder="Search by title">
+    <a id="embargo-search-button" href="#" class="button corporate-identity-standard-button">Search</a>
+  </div>
+
+  <div id="embargo-results" class="embargo-hidden">
+    <h3>Search results</h3>
+    <p>Click a row to select the dataset.</p>
+    <table class="corporate-identity-table">
+      <thead><tr><th>Title</th><th>DOI</th><th>Embargo date</th><th>Embargo type</th></tr></thead>
+      <tbody id="embargo-results-body"></tbody>
+    </table>
+  </div>
 </div>
 
-<div id="embargo-detail" class="embargo-hidden">
-  <h3>Embargo details</h3>
+<!-- Step 2: edit -->
+<div id="embargo-step-2" class="embargo-step embargo-hidden">
+  <h2>Step 2 &mdash; Set new embargo date</h2>
+  <p>Selected dataset:</p>
   <table>
     <tr><td>Title</td><td id="detail-title"></td></tr>
     <tr><td>DOI</td><td id="detail-doi"></td></tr>
@@ -74,8 +97,32 @@
   <label for="embargo-date-input"><strong>New embargo date:</strong></label>
   <input type="date" id="embargo-date-input">
 
-  <div id="embargo-actions">
-    <a id="embargo-update-button" href="#" class="button corporate-identity-standard-button">Update embargo date</a>
+  <div class="embargo-actions">
+    <a id="embargo-back-to-search-button" href="#" class="button embargo-secondary-button">&larr; Change dataset</a>
+    <a id="embargo-preview-button" href="#" class="button corporate-identity-standard-button embargo-primary-button">Preview change &rarr;</a>
+  </div>
+</div>
+
+<!-- Step 3: preview & confirm -->
+<div id="embargo-step-3" class="embargo-step embargo-hidden">
+  <h2>Step 3 &mdash; Review &amp; confirm</h2>
+  <p>Please review the change below before confirming.</p>
+  <table>
+    <tr><td>Title</td><td id="confirm-title"></td></tr>
+    <tr><td>DOI</td><td id="confirm-doi"></td></tr>
+    <tr><td>Embargo type</td><td id="confirm-embargo-type"></td></tr>
+  </table>
+
+  <p><strong>Embargo date change:</strong></p>
+  <p class="embargo-confirm-diff">
+    <span class="from" id="confirm-from-date">Not set</span>
+    <span class="arrow">&rarr;</span>
+    <span class="to" id="confirm-to-date"></span>
+  </p>
+
+  <div class="embargo-actions">
+    <a id="embargo-back-to-edit-button" href="#" class="button embargo-secondary-button">&larr; Back to edit</a>
+    <a id="embargo-confirm-button" href="#" class="button corporate-identity-standard-button embargo-primary-button">Confirm update</a>
   </div>
 </div>
 
