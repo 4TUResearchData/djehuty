@@ -1,0 +1,22 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?dataset djht:license ?current_license .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?dataset djht:license <{{new_license_url}}> .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container rdf:type                      djht:DatasetContainer ;
+               djht:latest_published_version ?dataset .
+    OPTIONAL { ?dataset djht:license ?current_license . }
+    FILTER (?container = <{{container_uri}}>)
+    FILTER (?dataset   = <{{dataset_uri}}>)
+  }
+}
+{% endblock %}

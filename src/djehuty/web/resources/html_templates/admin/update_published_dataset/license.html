@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/utils.js?cache=1744290797"></script>
+<script src="/static/js/admin-license.js?cache={{nonce}}"></script>
+<style nonce="{{nonce}}">
+#license-search-input { width: 400px; padding: .4em; font-size: 1em; }
+#license-search-button { background: #009900; color: #fff; text-decoration: none; }
+#license-search-button:hover { background: #006600; }
+#license-search-button:active { background: #003300; }
+#license-results { margin-top: 1em; }
+#license-results table { width: 100%; }
+#license-results-body tr { cursor: pointer; }
+#license-results-body tr:hover { background: #f0f0f0; }
+#license-results-body tr.selected-row { background: #e0e8ff; }
+.license-step { margin-top: 1em; }
+.license-step h2 { margin-top: 0; }
+.license-step table { margin-bottom: 1em; }
+.license-step table td:first-child { font-weight: bold; padding-right: 1em; }
+#license-select { padding: .3em; font-size: 1em; min-width: 360px; }
+.license-primary-button { background: #009900; color: #fff; text-decoration: none; }
+.license-primary-button:hover { background: #006600; }
+.license-primary-button:active { background: #003300; }
+.license-secondary-button { background: #777; color: #fff; text-decoration: none; }
+.license-secondary-button:hover { background: #555; }
+.license-secondary-button:active { background: #333; }
+.license-hidden { display: none !important; }
+.license-actions { margin-top: 1em; }
+.license-actions a + a { margin-left: .5em; }
+.license-steps-indicator { margin-bottom: 1em; color: #666; font-size: .95em; }
+.license-steps-indicator span { margin-right: .8em; }
+.license-steps-indicator span.active { color: #000; font-weight: bold; }
+.license-warning { background: #fff8e0; padding: .8em 1em; border-radius: .3em; border: 1px solid #cc8800; color: #553300; margin-bottom: 1em; }
+.license-warning strong { color: #aa5500; }
+.license-confirm-diff { background: #f4f4f4; padding: .5em .8em; border-radius: .3em; border: 1px solid #bbb; }
+.license-confirm-diff .from { color: #777; }
+.license-confirm-diff .arrow { margin: 0 .5em; }
+.license-confirm-diff .to { font-weight: bold; color: #007700; }
+.license-confirm-diff .license-url { display: block; font-size: .85em; color: #555; word-break: break-all; }
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/admin/dashboard">Dashboard</a>
+  <li><a href="/admin/users">Users</a>
+  <li><a href="/admin/exploratory">Exploratory</a>
+  <li class="active corporate-identity-submenu-active">Update Published Dataset
+  <li><a href="/admin/reports">Reports</a>
+  {% if may_query %}<li><a href="/admin/sparql">Query</a>{% endif %}
+  {% if may_review_quotas %}<li><a href="/admin/quota-requests">Quota requests</a>{% endif %}
+</ul>
+{% endblock %}
+{% block body %}
+<noscript>
+  <p class="no-script">Sorry, this page requires JavaScript to function properly.</p>
+</noscript>
+<div class="hide-for-javascript">
+<h1>Change dataset license</h1>
+
+<div class="license-steps-indicator" id="license-steps-indicator">
+  <span id="license-step-indicator-1" class="active">1. Select dataset</span>
+  <span id="license-step-indicator-2">2. Pick new license</span>
+  <span id="license-step-indicator-3">3. Review &amp; confirm</span>
+</div>
+
+<!-- Step 1: search & select -->
+<div id="license-step-1" class="license-step">
+  <h2>Step 1 &mdash; Select dataset</h2>
+  <p>Search for a published dataset by title, then pick it from the results.</p>
+  <div id="license-search">
+    <input type="text" id="license-search-input" placeholder="Search by title">
+    <a id="license-search-button" href="#" class="button corporate-identity-standard-button">Search</a>
+  </div>
+
+  <div id="license-results" class="license-hidden">
+    <h3>Search results</h3>
+    <p>Click a row to select the dataset.</p>
+    <table class="corporate-identity-table">
+      <thead><tr><th>Title</th><th>DOI</th><th>Version</th><th>Current license</th></tr></thead>
+      <tbody id="license-results-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Step 2: pick new license -->
+<div id="license-step-2" class="license-step license-hidden">
+  <h2>Step 2 &mdash; Pick new license</h2>
+  <p>Selected dataset:</p>
+  <table>
+    <tr><td>Title</td><td id="license-detail-title"></td></tr>
+    <tr><td>DOI</td><td id="license-detail-doi"></td></tr>
+    <tr><td>Version</td><td id="license-detail-version"></td></tr>
+    <tr><td>Current license</td><td id="license-detail-current-name"></td></tr>
+    <tr><td>Current license URL</td><td id="license-detail-current-url"></td></tr>
+    <tr><td>Container URI</td><td id="license-detail-container-uri"></td></tr>
+    <tr><td>Dataset URI</td><td id="license-detail-dataset-uri"></td></tr>
+  </table>
+
+  <label for="license-select"><strong>New license:</strong></label>
+  <select id="license-select">
+    <option value="">-- Pick a license --</option>
+    {% for lic in licenses %}
+    <option value="{{ lic.url }}" data-name="{{ lic.name }}">{{ lic.name }}{% if lic.type %} ({{ lic.type }}){% endif %}</option>
+    {% endfor %}
+  </select>
+
+  <div class="license-actions">
+    <a id="license-back-to-search-button" href="#" class="button license-secondary-button">&larr; Change dataset</a>
+    <a id="license-preview-button" href="#" class="button corporate-identity-standard-button license-primary-button">Review change &rarr;</a>
+  </div>
+</div>
+
+<!-- Step 3: review & confirm -->
+<div id="license-step-3" class="license-step license-hidden">
+  <h2>Step 3 &mdash; Review &amp; confirm</h2>
+
+  <div class="license-warning">
+    <p><strong>Warning:</strong> changing the license on a published version &mdash; without cutting a new version &mdash; can have legal implications, especially when moving from a more permissive to a more restrictive license. Make sure you have a record of why this change is being made and, where appropriate, the owner's consent.</p>
+  </div>
+
+  <table>
+    <tr><td>Title</td><td id="license-confirm-title"></td></tr>
+    <tr><td>DOI</td><td id="license-confirm-doi"></td></tr>
+    <tr><td>Version</td><td id="license-confirm-version"></td></tr>
+  </table>
+
+  <p><strong>License change:</strong></p>
+  <p class="license-confirm-diff">
+    <span class="from" id="license-confirm-from-name">Not set</span>
+    <span class="license-url" id="license-confirm-from-url"></span>
+    <span class="arrow">&rarr;</span>
+    <span class="to" id="license-confirm-to-name"></span>
+    <span class="license-url" id="license-confirm-to-url"></span>
+  </p>
+
+  <div class="license-actions">
+    <a id="license-back-to-pick-button" href="#" class="button license-secondary-button">&larr; Back</a>
+    <a id="license-confirm-button" href="#" class="button corporate-identity-standard-button license-primary-button">Confirm change</a>
+  </div>
+</div>
+
+</div>
+{% endblock %}
