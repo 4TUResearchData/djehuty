@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+    branches: ['**']
   pull_request:
     branches: [main]
 
@@ -44,3 +45,13 @@ jobs:
     needs: [unit, e2e]
     uses: ./.github/workflows/coverage.yml
     secrets: inherit
+
+  publish-dev:
+    needs: [build, e2e]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/build.yml
+    with:
+      push_image: true
+    permissions:
+      contents: read
+      packages: write

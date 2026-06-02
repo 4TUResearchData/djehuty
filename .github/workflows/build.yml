@@ -1,16 +1,57 @@
-name: Test Build
+name: Build
 
 on:
   workflow_call:
-  release:
-    types: [published]
+    inputs:
+      push_image:
+        description: "Push the Docker image to the container registry."
+        type: boolean
+        default: false
+      upload_python_artifacts:
+        description: "Upload the sdist and wheel as workflow artifacts."
+        type: boolean
+        default: false
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+permissions:
+  contents: read
+
 jobs:
-  docker-build:
+  pypi-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
+
+      - name: Build sdist and wheel
+        run: just build
+
+      - name: Upload Python distribution artifacts
+        if: inputs.upload_python_artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: python-dist
+          path: build/
+          if-no-files-found: error
+
+  docker-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
@@ -21,14 +62,35 @@ jobs:
 
       - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
+      - name: Log in to GitHub Container Registry
+        if: inputs.push_image
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.8.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=match,pattern=\d+\.\d+,enable=${{ inputs.push_image && startsWith(github.ref, 'refs/tags/') }}
+            type=raw,value=latest,enable=${{ inputs.push_image && startsWith(github.ref, 'refs/tags/') }}
+            type=raw,value=dev,enable=${{ inputs.push_image && github.ref == 'refs/heads/main' }}
+            type=sha,enable=${{ inputs.push_image && github.ref == 'refs/heads/main' }}
+            type=raw,value=test,enable=${{ !inputs.push_image }}
+
       - name: Build Docker image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: docker/Dockerfile
-          push: false
-          load: true
-          tags: djehuty:test
+          push: ${{ inputs.push_image }}
+          load: ${{ !inputs.push_image }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             PURPOSE=release
           cache-from: type=gha
@@ -66,15 +128,3 @@ jobs:
             kill "$just_pid" 2>/dev/null || true
           fi
           just clean
-
-  pypi-build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
-
-      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
-
-      - name: Build sdist and wheel
-        run: just build
