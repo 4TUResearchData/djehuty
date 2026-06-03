@@ -82,7 +82,17 @@
           <li class="menu-item menu-item-has-children">{{primary_menu.title}}
             <ul class="submenu">
               {% for submenu in primary_menu.submenu %}
+              {% if submenu.sub_submenu %}
+              <li class="submenu-item submenu-item-has-children"><a href="{{ submenu.href }}">{{ submenu.title }}</a>
+                <ul class="sub-submenu">
+                  {% for sub in submenu.sub_submenu %}
+                  <li class="sub-submenu-item"><a href="{{ sub.href }}">{{ sub.title }}</a></li>
+                  {% endfor %}
+                </ul>
+              </li>
+              {% else %}
               <li class="submenu-item"><a href="{{ submenu.href }}">{{ submenu.title }}</a></li>
+              {% endif %}
               {% endfor %}
             </ul>
           </li>

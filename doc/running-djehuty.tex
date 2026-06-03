@@ -564,6 +564,91 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{background-color}         & Background color for the content section.
 \end{tabularx}
 
+\section{Customizing the menu}
+\label{sec:customize-menu}
+
+  The top navigation menu is defined using the \t{menu} XML element, which can
+  be placed in a separated menu configuration file and loaded via \t{include} in the Djehuty
+  configuration.
+  The menu supports up to three levels of nesting:
+  primary menu items, sub-menus, and sub-sub-menus.
+
+\subsection{Menu structure}
+
+  A \t{menu} element contains one or more \t{primary-menu} elements, each
+  rendered as a top-level entry in the navigation bar.  Hovering over a primary
+  item reveals its \t{sub-menu} children in a dropdown panel.  A \t{sub-menu}
+  may contain a \t{sub-sub-menu} children.
+
+  Every item requires a \t{title} with its display text.
+  \t{sub-menu} and \t{sub-sub-menu} items also require an \t{href} element
+  with the destination URL.
+
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Element}    & \textbf{Description}\\
+  \t{menu}            & Root element that groups all primary menu items.\\
+  \t{primary-menu}    & A top-level navigation bar entry.  Requires a
+                        \t{title} child.\\
+  \t{sub-menu}        & A dropdown item inside a \t{primary-menu}.  Requires
+                        \t{title} and \t{href} children.  May contain one or
+                        more \t{sub-sub-menu} children.\\
+  \t{sub-sub-menu}    & A flyout item inside a \t{sub-menu}, displayed to the
+                        right on hover.  Requires \t{title} and \t{href}
+                        children.\\
+\end{tabularx}
+
+\subsection{Example}
+
+\begin{lstlisting}[language=XML]
+<djehuty>
+  <menu>
+
+    <primary-menu>
+      <title>About your Data</title>
+      <sub-menu>
+        <title>Getting started</title>
+        <href>/info/about-your-data/getting-started</href>
+      </sub-menu>
+      <sub-menu>
+        <title>Publish and Cite</title>
+        <href>/info/about-your-data/publish-cite</href>
+      </sub-menu>
+    </primary-menu>
+
+    <primary-menu>
+      <title>Collaborations</title>
+      <sub-menu>
+        <title>Collaborations overview</title>
+        <href>https://example.org/collaborations/</href>
+      </sub-menu>
+      <sub-menu>
+        <title>Digital Capacity for NES</title>
+        <href>https://example.org/digital-capacity/</href>
+        <sub-sub-menu>
+          <title>Call 1: Instructors</title>
+          <href>https://example.org/digital-capacity/call-1/</href>
+        </sub-sub-menu>
+        <sub-sub-menu>
+          <title>Call 2: Learners</title>
+          <href>https://example.org/digital-capacity/call-2/</href>
+        </sub-sub-menu>
+      </sub-menu>
+    </primary-menu>
+
+  </menu>
+</djehuty>
+\end{lstlisting}
+
+  Keep the menu definition in a dedicated config file and load it
+  from the main configuration file using \t{include}:
+
+\begin{lstlisting}[language=XML]
+<djehuty>
+  <include>/etc/djehuty/djehuty-menu.xml</include>
+</djehuty>
+\end{lstlisting}
+
 \section{Configuring privileged users}
 
   By default an authenticated user may deposit data. But users can have
