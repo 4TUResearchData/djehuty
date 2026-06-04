@@ -466,6 +466,16 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-circle-exclamation::before { content: "\f06a"; }
 .fa-empty::before {}
 
+.img-fa img {
+  width: 16px;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.img-fa:hover img {
+  filter: grayscale(100%) brightness(1.2);
+  opacity: 0.8; /* gives a #cccccc-ish feel */
+}
+
 .latest-item { background: #fff; margin-bottom: .5em; padding: 1em; border-radius: 4pt; border: solid 1pt #ccc; }
 #latest-datasets ul { list-style: none; margin-left: 0pt; padding: 0pt; font-size: 14pt; }
 table {
