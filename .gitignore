@@ -31,6 +31,7 @@ rpmbuild/SRPMS/
 .DS_Store
 .idea/
 djehuty.xml
+djehuty.json
 guix.scm
 doc/djehuty.sty
 doc/figures/*.svg
