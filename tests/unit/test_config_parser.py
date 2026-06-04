@@ -144,6 +144,16 @@ class TestElementIteration:
         assert len(featured) > 0
         assert len(not_featured) > 0
 
+    def test_group_has_no_iterable_children(self, config_root):
+        # Each <group/> is self-closing in XML: name/domain/id/... are
+        # attributes, not children. Iterating a group must yield nothing so the
+        # member-loop in ui.py does not mistake attributes for member entries.
+        groups = config_root.find("groups")
+        first_group = list(groups)[0]
+        assert list(first_group) == []
+        assert len(first_group) == 0
+        assert first_group.attrib.get("name") is not None
+
 
 class TestNestedConfigurations:
     @pytest.mark.parametrize(

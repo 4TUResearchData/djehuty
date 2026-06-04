@@ -57,6 +57,9 @@ class JsonConfigElement:
         self._attrib = {}
         self._text = None
         self._children = []
+        # Scalar JSON keys are findable via find() but excluded from iteration,
+        # mirroring XML where attributes are not children.
+        self._scalar_index = {}
 
         if isinstance(data, dict):
             for key, value in data.items():
@@ -74,11 +77,9 @@ class JsonConfigElement:
                     for item in value:
                         self._children.append(JsonConfigElement(key, item))
                 else:
-                    # Scalar: expose under both .attrib (XML-attribute access)
-                    # and as a child element (XML find() access).
                     resolved = _resolve_reference(str(value)) if value is not None else ""
                     self._attrib[key] = resolved
-                    self._children.append(JsonConfigElement(key, value))
+                    self._scalar_index[key] = JsonConfigElement(key, value)
         elif isinstance(data, bool):
             self._text = "1" if data else "0"
         elif data is not None:
@@ -120,6 +121,8 @@ class JsonConfigElement:
                     if child.tag == part:
                         found = child
                         break
+                if found is None:
+                    found = current._scalar_index.get(part)
                 current = found
             if current is None:
                 return None
