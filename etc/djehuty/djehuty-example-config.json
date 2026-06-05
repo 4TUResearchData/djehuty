@@ -4,6 +4,13 @@
     "site-name": "Djehuty example instance",
     "site-shorttag": "example-shorttag",
     "site-description": "Djehuty example instance",
+    "publisher-rors": {
+      "publisher-ror": [
+        { "name": "Djehuty example instance",          "url": "https://ror.org/02d887280" },
+        { "name": "Delft University of Technology",    "url": "https://ror.org/02e2c7k09" },
+        { "name": "Eindhoven University of Technology", "url": "https://ror.org/02c2kyt77" }
+      ]
+    },
     "support-email-address": "support@example.com",
     "colors": {
       "primary-color": "#f49120",
