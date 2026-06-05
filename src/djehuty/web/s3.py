@@ -3,6 +3,7 @@
 import logging
 import uuid
 import os
+import threading
 from datetime import datetime
 from djehuty.web.config import config
 from djehuty.utils.convenience import value_or
@@ -15,6 +16,41 @@ try:
     from urllib3.exceptions import IncompleteRead
 except (ImportError, ModuleNotFoundError):
     pass
+
+class S3ClientFactory:
+    """Thread-safe singleton manager for boto3 S3 clients."""
+
+    _clients = {}
+    _lock = threading.Lock()
+    _boto_config = Config(retries = { "total_max_attempts": 30,
+                                      "mode": "standard" },
+                          max_pool_connections = 25,
+                          read_timeout = 120)
+
+    @classmethod
+    def get_client(cls, endpoint, access_key, secret_key):
+        """
+        Returns a cached boto3 S3 client for the given endpoint/credentials.
+        Creates a new client only if one doesn't exist for this configuration.
+        """
+        cache_key = (endpoint, access_key, secret_key)
+
+        if cache_key not in cls._clients:
+            with cls._lock:
+                # Double-check after acquiring lock
+                if cache_key not in cls._clients:
+                    logging.getLogger (__name__).info (
+                        "Creating new S3 client for endpoint: %s", endpoint
+                    )
+
+                    cls._clients[cache_key] = boto3.client(
+                        "s3",
+                        endpoint_url=endpoint,
+                        aws_access_key_id=access_key,
+                        aws_secret_access_key=secret_key,
+                        config=cls._boto_config
+                    )
+        return cls._clients[cache_key]
 
 class S3DownloadStreamer:
     """Generator to stream the contents of a file stored in S3."""
@@ -36,17 +72,14 @@ class S3DownloadStreamer:
         self.last_modified = None
         self.file_object = None
         self.file_contents = None
-        self.boto_config = Config(retries = { "total_max_attempts": 30,
-                                              "mode": "standard" },
-                                  max_pool_connections = 1,
-                                  read_timeout = 120)
 
     def connect (self):
         """Initialize procedure that can be recalled."""
-        self.client = boto3.client ("s3", endpoint_url    = self.endpoint,
-                                    aws_access_key_id     = self.access_key,
-                                    aws_secret_access_key = self.secret_key,
-                                    config                = self.boto_config)
+        self.client = S3ClientFactory.get_client(
+            endpoint=self.endpoint,
+            access_key=self.access_key,
+            secret_key=self.secret_key
+        )
         try:
             self.file_object   = self.client.get_object (Bucket = self.bucket,
                                                          Key    = self.filename,
@@ -83,17 +116,18 @@ class S3DownloadStreamer:
         return self.file_contents.iter_chunks (chunk_size=self.chunk_size)
 
     def close (self):
-        """Closes the S3 client and resets the internal state."""
-        self.file_contents.close()
-        self.client.close()
+        """Closes the file stream and resets the internal state."""
+        if self.file_contents is not None:
+            self.file_contents.close()
         self.file_object = None
         self.file_contents = None
         self.content_length = 0
         self.content_type = "binary/octet-stream"
         self.last_modified = None
+        self.client = None
 
     def reset (self, offset=0):
-        """Resets the S3 connection and ttempt to contunie reading at OFFSET."""
+        """Resets the S3 connection and attempt to continue reading at OFFSET."""
         self.close ()
         self.offset = offset
         self.connect ()
@@ -101,9 +135,11 @@ class S3DownloadStreamer:
 def s3_file_exists (endpoint, bucket, access_key, secret_key, filename):
     """Returns True when FILENAME exists in BUCKET, False otherwise."""
     try:
-        client = boto3.client("s3", endpoint_url=endpoint,
-                              aws_access_key_id=access_key,
-                              aws_secret_access_key=secret_key)
+        client = S3ClientFactory.get_client(
+            endpoint=endpoint,
+            access_key=access_key,
+            secret_key=secret_key
+        )
         client.head_object (Bucket=bucket, Key=filename)
         return True
     except PartialCredentialsError:
