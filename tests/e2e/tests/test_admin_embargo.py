@@ -216,7 +216,7 @@ class TestAdminEmbargoAccessControl:
             "/admin/update-published-dataset/embargos/update",
             method="PUT",
             data=json.dumps({
-                "dataset_uri": "container:00000000-0000-0000-0000-000000000000",
+                "dataset_uuid": "00000000-0000-0000-0000-000000000000",
                 "embargo_until_date": _iso_date(1),
             }),
             headers={"Content-Type": "application/json"},

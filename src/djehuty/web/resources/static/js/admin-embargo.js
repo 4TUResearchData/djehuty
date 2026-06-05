@@ -110,7 +110,7 @@ jQuery(document).ready(function () {
             type: "PUT",
             contentType: "application/json",
             data: JSON.stringify({
-                dataset_uri: selected_dataset.uri,
+                dataset_uuid: selected_dataset.uuid,
                 embargo_until_date: pending_new_date
             })
         }).done(function () {

@@ -7,7 +7,7 @@ DELETE {
 }
 INSERT {
   GRAPH <{{state_graph}}> {
-    ?dataset  djht:embargo_until_date "{{new_embargo_until_date}}"^^xsd:date .
+    ?dataset  djht:embargo_until_date {{new_embargo_until_date | safe}} .
   }
 }
 WHERE {

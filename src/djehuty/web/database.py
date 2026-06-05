@@ -2577,12 +2577,12 @@ class SparqlInterface:
 
         return self.__run_logged_query (query)
 
-    def admin_update_embargo (self, dataset_uri, new_embargo_until_date):
+    def admin_update_embargo (self, dataset_uuid, new_embargo_until_date):
         """Admin procedure to set or update embargo_until_date on a dataset."""
 
         query   = self.__query_from_template ("admin_update_embargo", {
-            "dataset_uri":             dataset_uri,
-            "new_embargo_until_date":  new_embargo_until_date
+            "dataset_uri":             rdf.uuid_to_uri (dataset_uuid, "dataset"),
+            "new_embargo_until_date":  rdf.escape_date_value (new_embargo_until_date)
         })
 
         self.cache.invalidate_by_prefix ("datasets")

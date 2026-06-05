@@ -3366,7 +3366,7 @@ class WebServer:
             output = []
             for dataset in records:
                 output.append ({
-                    "uri":                dataset.get("uri"),
+                    "uuid":               dataset.get("uuid"),
                     "title":              dataset.get("title"),
                     "doi":                dataset.get("doi"),
                     "embargo_until_date": dataset.get("embargo_until_date"),
@@ -3393,17 +3393,22 @@ class WebServer:
 
             try:
                 parameters         = request.get_json()
-                dataset_uri        = validator.string_value (parameters, "dataset_uri",
-                                                             maximum_length=255)
+                dataset_uuid       = validator.string_value (parameters, "dataset_uuid",
+                                                             maximum_length=36)
                 embargo_until_date = validator.string_value (parameters, "embargo_until_date",
                                                              maximum_length=10)
-                if dataset_uri is None or embargo_until_date is None:
+                if dataset_uuid is None or embargo_until_date is None:
                     return self.error_400 (
                         request,
-                        "Missing dataset_uri or embargo_until_date.",
+                        "Missing dataset_uuid or embargo_until_date.",
                         "MissingRequiredField")
+                if not validator.is_valid_uuid (dataset_uuid):
+                    return self.error_400 (
+                        request,
+                        "Invalid dataset_uuid.",
+                        "InvalidUuid")
 
-                self.db.admin_update_embargo (dataset_uri, embargo_until_date)
+                self.db.admin_update_embargo (dataset_uuid, embargo_until_date)
                 return self.respond_204 ()
             except validator.ValidationException as error:
                 return self.error_400 (request, error.message, error.code)
