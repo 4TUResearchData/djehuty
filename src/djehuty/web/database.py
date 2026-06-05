@@ -3256,6 +3256,23 @@ class SparqlInterface:
 
         return None
 
+    def containers_for_account_merge (self, account_uuid):
+        """Returns containers owned by ACCOUNT_UUID for the merge preview."""
+
+        query = self.__query_from_template ("account_containers_for_merge", {
+            "account_uuid": account_uuid
+        })
+        return self.__run_query (query)
+
+    def merge_account_ownership (self, from_account_uuid, to_account_uuid):
+        """Reassign all containers from FROM_ACCOUNT_UUID to TO_ACCOUNT_UUID."""
+
+        query = self.__query_from_template ("merge_account_ownership", {
+            "from_account_uuid": from_account_uuid,
+            "to_account_uuid":   to_account_uuid
+        })
+        return self.__run_logged_query (query)
+
     def missing_checksummed_files_for_container (self, container_uuid):
         """
         Returns a list of file UUIDs and paths of files without checksums
