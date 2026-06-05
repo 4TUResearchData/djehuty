@@ -178,7 +178,11 @@ dev:
     echo "==> Starting development environment..."
     {{ dev_compose }} up --build
 
-# Run the e2e tests in containers (pass extra pytest args, e.g. -m smoke)
+# Run unit tests locally (fast, no container). Emits .coverage.* for the coverage pipeline.
+test-unit *args="":
+    uv run --group dev coverage run -m pytest tests/unit -v {{ args }}
+
+# Run e2e tests in containers (pass extra pytest args, e.g. -m smoke)
 test *args="":
     {{ e2e_compose }} run --rm --build tests \
         pytest tests/ -v --tb=short \

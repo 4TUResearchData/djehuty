@@ -1,19 +1,22 @@
 """This module contains the command-line interface for the 'web' subcommand."""
 
-import logging
-import sys
-import os
-import socket
-import shutil
 import json
+import logging
+import os
+import shutil
+import socket
+import sys
 from datetime import datetime
+
 from defusedxml import ElementTree
-from werkzeug.serving import run_simple
 from rdflib.plugins.stores import berkeleydb
-from djehuty.web import wsgi
-from djehuty.utils import convenience
+from werkzeug.serving import run_simple
+
 import djehuty.backup.database as backup_database
+from djehuty.utils import convenience
+from djehuty.web import wsgi
 from djehuty.web.config import config
+from djehuty.web.config.json_parser import JsonConfigElement, parse_config_root
 
 # Even though we don't use these imports in 'ui', the state of
 # SAML2_DEPENDENCY_LOADED is important to catch the situation
@@ -105,7 +108,10 @@ def read_raw_xml (xml_root, path, default_value=None):
     try:
         node = config_value (xml_root, path, None, None, return_node=True)
         if node is not None:
-            length = len(node.tag) + 2 # Add two for the < and >.
+            if isinstance(node, JsonConfigElement):
+                return node.text, node.attrib
+
+            length = len(node.tag) + 2  # Add two for the < and >.
             # Attributes are rendered in the raw XML. We need to
             # remove it to get the inner XML.
             attributes = node.attrib
@@ -410,8 +416,7 @@ def setup_saml_service_provider (server, logger):
 def refresh_group_configuration (server, logger, config_files):
     """Read and apply the group configuration from CONFIG_FILES."""
     for config_file in config_files:
-        tree = ElementTree.parse(config_file)
-        xml_root = tree.getroot()
+        xml_root = parse_config_root(config_file)
         if xml_root.tag != "djehuty":
             continue
         groups = xml_root.find("groups")
@@ -706,14 +711,11 @@ def read_configuration_file (server, config_file, logger, config_files):
         if config_file is None:
             raise FileNotFoundError
 
-        xml_root = None
-        tree = ElementTree.parse(config_file)
-        if config_file is not None:
-            config_files.add (config_file)
-            if not inside_reload:
-                logger.info ("Reading config file: %s", config_file)
+        xml_root = parse_config_root(config_file)
+        config_files.add(config_file)
+        if not inside_reload:
+            logger.info("Reading config file: %s", config_file)
 
-        xml_root = tree.getroot()
         if not xml_root or xml_root.tag != "djehuty":
             raise ConfigFileNotFound
 
@@ -986,6 +988,10 @@ def read_configuration_file (server, config_file, logger, config_files):
     except ElementTree.ParseError as error:
         if not inside_reload:
             logger.error ("%s does not contain valid XML.", config_file)
+        raise SystemExit from error
+    except json.JSONDecodeError as error:
+        if not inside_reload:
+            logger.error("%s does not contain valid JSON.", config_file)
         raise SystemExit from error
     except FileNotFoundError as error:
         if not inside_reload:

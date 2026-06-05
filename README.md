@@ -72,6 +72,10 @@ and adjust it for your environment:
 cp etc/djehuty/djehuty-example-config.xml djehuty.xml
 ```
 
+JSON is also supported and recommended for new deployments
+(see [djehuty-example-config.json](./etc/djehuty/djehuty-example-config.json));
+pass it the same way with `--config-file djehuty.json`.
+
 ### First run
 
 Upon first run, `djehuty` needs to initialize the database with categories,

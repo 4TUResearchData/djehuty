@@ -16,7 +16,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/dpkg/info/*.list /var/lib/apt/lists/* \
     && useradd -mg users -d /opt/djehuty -u 7001 djehuty \
-    && mkdir -p /data && chown -R djehuty: /data \
+    && mkdir -p /data && chown -R djehuty:0 /data && chmod -R g=u /data \
     &&  echo '#!/bin/sh\n/usr/bin/git -C /opt/djehuty/djehuty pull\nVIRTUAL_ENV=/opt/djehuty/virtual-env\n/opt/djehuty/virtual-env/bin/pip install --editable /opt/djehuty/djehuty\n' > /usr/bin/update-djehuty \
     && chmod +x /usr/bin/update-djehuty \
     && UPDATE_COMMAND=""; if [ "$PURPOSE" = "development" ]; then UPDATE_COMMAND="/usr/bin/update-djehuty"; fi; echo '#!/bin/sh\n'${UPDATE_COMMAND}'\nVIRTUAL_ENV=/opt/djehuty/virtual-env\n/opt/djehuty/virtual-env/bin/djehuty $@' > /usr/bin/djehuty && chmod +x /usr/bin/djehuty
