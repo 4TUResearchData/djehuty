@@ -1,0 +1,32 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?container_uuid ?container_type ?title ?doi
+                ?has_draft ?has_published
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container       djht:account                  <account:{{account_uuid}}> .
+    ?container       rdf:type                      ?type .
+    FILTER (?type IN (djht:DatasetContainer, djht:CollectionContainer))
+
+    OPTIONAL { ?container djht:doi                      ?doi . }
+    OPTIONAL { ?container djht:draft                    ?draft_item . }
+    OPTIONAL { ?container djht:latest_published_version ?published_item . }
+
+    OPTIONAL {
+      ?container       djht:latest_published_version ?lpv .
+      ?lpv             djht:title                    ?published_title .
+    }
+    OPTIONAL {
+      ?container       djht:draft                    ?d .
+      ?d               djht:title                    ?draft_title .
+    }
+
+    BIND(STRAFTER(STR(?container), "container:") AS ?container_uuid)
+    BIND(STRAFTER(STR(?type), "https://ontologies.data.4tu.nl/djehuty/0.0.1/") AS ?container_type)
+    BIND(COALESCE(?published_title, ?draft_title, "") AS ?title)
+    BIND(BOUND(?draft_item) AS ?has_draft)
+    BIND(BOUND(?published_item) AS ?has_published)
+  }
+}
+ORDER BY ?container_type ?title
+{% endblock %}
