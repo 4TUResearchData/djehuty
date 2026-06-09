@@ -3201,12 +3201,27 @@ class WebServer:
         if error_response is not None:
             return error_response
 
-        drafts = self.db.physical_samples (account_uuid   = account_uuid,
-                                           is_published   = False,
-                                           is_latest      = False)
+        drafts = self.db.physical_samples (account_uuid    = account_uuid,
+                                           limit           = 10000,
+                                           is_published    = False,
+                                           is_latest       = False,
+                                           is_under_review = False)
+
+        review_samples = self.db.physical_samples (account_uuid    = account_uuid,
+                                                   limit           = 10000,
+                                                   is_published    = False,
+                                                   is_latest       = False,
+                                                   is_under_review = True)
+
+        published_samples = self.db.physical_samples (account_uuid    = account_uuid,
+                                                      limit           = 10000,
+                                                      is_latest       = True,
+                                                      is_under_review = False)
 
         return self.__render_template (request, "depositor/my-physical-samples.html",
-                                       drafts = drafts)
+                                       drafts = drafts,
+                                       review_samples=review_samples,
+                                       published_samples=published_samples)
 
     def ui_new_physical_sample (self, request):
         """Implements /my/physical-samples/new."""
