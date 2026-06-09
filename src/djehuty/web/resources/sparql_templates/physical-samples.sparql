@@ -10,6 +10,8 @@ SELECT DISTINCT ?account_uuid ?container_uuid ?sample_uuid ?created_date
                 ?geolocation ?longitude ?latitude ?organizations
                 ?physical_storage_location ?sample_owner_name ?sample_owner_email
                 ?group_id ?private_link_is_expired
+                ?is_under_review (?review AS ?review_uri) ?review_submit_date
+                ?review_status
 {%endif%}
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -36,6 +38,16 @@ WHERE {
     {%- endif %}
 
     ?sample         djht:title                ?title .
+
+    OPTIONAL {
+      ?review           rdf:type                  djht:Review ;
+                        djht:dataset              ?sample .
+      OPTIONAL { ?review  djht:status/rdfs:label  ?review_status . }
+      ?review           djht:request_date         ?review_submit_date .
+    }
+    OPTIONAL { ?sample djht:is_under_review       ?is_under_review_tmp . }
+    BIND(COALESCE(?is_under_review_tmp, "false"^^xsd:boolean) AS ?is_under_review)
+
     OPTIONAL { ?container djht:doi                ?container_doi . }
     OPTIONAL { ?sample djht:version               ?version . }
     OPTIONAL { ?sample djht:title                 ?title . }
@@ -69,6 +81,13 @@ WHERE {
   }
 {%- if account_uuid is not none: %}
 FILTER (?account = <account:{{account_uuid}}>)
+{%- endif %}
+{%- if is_under_review is not none: %}
+{%- if is_under_review: %}
+FILTER (?is_under_review = "true"^^xsd:boolean)
+{%- else %}
+FILTER (?is_under_review = "false"^^xsd:boolean)
+{%- endif %}
 {%- endif %}
 {% if filters is not none %}{{ filters | safe }}{% endif %}
 }

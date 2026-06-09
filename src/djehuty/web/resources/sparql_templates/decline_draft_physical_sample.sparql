@@ -1,0 +1,28 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?review        djht:status                   ?review_status .
+    ?draft_sample  djht:is_under_review          ?is_under_review .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?review        djht:status                   djht:ReviewRejected .
+    ?draft_sample  djht:is_under_review          "false"^^xsd:boolean ;
+                   djht:declined_date            ?now .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container     rdf:type                      djht:PhysicalSampleContainer ;
+                   djht:draft                    ?draft_sample .
+    ?draft_sample  djht:is_under_review          ?is_under_review .
+    ?review        rdf:type                      djht:Review ;
+                   djht:dataset                  ?draft_sample ;
+                   djht:status                   ?review_status .
+    BIND(NOW() AS ?now)
+  }
+  FILTER (?container = <container:{{container_uuid}}>)
+}
+{% endblock %}
