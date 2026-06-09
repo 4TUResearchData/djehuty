@@ -41,9 +41,17 @@ WHERE {
 
     OPTIONAL {
       ?review           rdf:type                  djht:Review ;
-                        djht:dataset              ?sample .
+                        djht:dataset              ?sample ;
+                        djht:request_date         ?review_submit_date .
       OPTIONAL { ?review  djht:status/rdfs:label  ?review_status . }
-      ?review           djht:request_date         ?review_submit_date .
+      # Only consider the most recent review, so samples that went through
+      # multiple decline/re-submit cycles do not appear once per review.
+      FILTER NOT EXISTS {
+        ?newer_review   rdf:type                  djht:Review ;
+                        djht:dataset              ?sample ;
+                        djht:request_date         ?newer_review_date .
+        FILTER (?newer_review_date > ?review_submit_date)
+      }
     }
     OPTIONAL { ?sample djht:is_under_review       ?is_under_review_tmp . }
     BIND(COALESCE(?is_under_review_tmp, "false"^^xsd:boolean) AS ?is_under_review)
