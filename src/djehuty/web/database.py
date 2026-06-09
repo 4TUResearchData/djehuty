@@ -3094,7 +3094,8 @@ class SparqlInterface:
                           sample_uuid=None,
                           is_published=True, is_latest=True, limit=None,
                           order=None, order_direction=None,
-                          offset=None, private_link_id_string=None,):
+                          offset=None, private_link_id_string=None,
+                          is_under_review=None):
         """Procedure to retrieve physical samples."""
 
         filters  = rdf.sparql_filter ("container", rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -3105,6 +3106,7 @@ class SparqlInterface:
             "account_uuid":            account_uuid,
             "is_published":            is_published,
             "is_latest":               is_latest,
+            "is_under_review":         is_under_review,
             "private_link_id_string":  private_link_id_string,
             "filters":                 filters
         })
@@ -3167,6 +3169,81 @@ class SparqlInterface:
         })
 
         return self.__run_logged_query (query)
+
+    def publish_physical_sample (self, container_uuid, account_uuid):
+        """Procedure to publish a draft physical sample."""
+
+        # Prevent caches from playing a role.
+        self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+        self.cache.invalidate_by_prefix ("physical-samples")
+
+        draft = None
+        try:
+            draft = self.physical_samples (container_uuid = container_uuid,
+                                           is_published   = False,
+                                           is_latest      = False)[0]
+        except IndexError:
+            self.log.error ("Attempted to publish without a draft <container:%s>.",
+                            container_uuid)
+            return False
+
+        new_version_number = 1
+        latest             = None
+        try:
+            latest = self.physical_samples (container_uuid = container_uuid,
+                                            is_published   = True,
+                                            is_latest      = True)[0]
+            new_version_number = conv.value_or (latest, "version", 0) + 1
+        except IndexError:
+            self.log.info ("No latest version for <container:%s>.", container_uuid)
+
+        sample_uuid  = draft["sample_uuid"]
+        blank_node   = self.wrap_in_blank_node (sample_uuid, "physical-sample")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
+        query        = self.__query_from_template ("publish_draft_physical_sample", {
+            "blank_node":        blank_node,
+            "version":           new_version_number,
+            "container_uuid":    container_uuid,
+            "sample_uuid":       sample_uuid,
+            "timestamp":         current_time,
+            "first_publication": not latest
+        })
+
+        if self.__run_logged_query (query):
+            self.cache.invalidate_by_prefix ("repository_statistics")
+            self.cache.invalidate_by_prefix ("reviews")
+            self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+            return True
+
+        return False
+
+    def decline_physical_sample (self, container_uuid, account_uuid):
+        """Procedure to decline a draft physical sample."""
+
+        # Prevent caches from playing a role.
+        self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+        self.cache.invalidate_by_prefix ("physical-samples")
+
+        try:
+            self.physical_samples (container_uuid = container_uuid,
+                                   is_published   = False,
+                                   is_latest      = False)[0]
+        except IndexError:
+            self.log.error ("Attempted to decline without a draft <container:%s>.",
+                            container_uuid)
+            return False
+
+        query = self.__query_from_template ("decline_draft_physical_sample", {
+            "container_uuid": container_uuid,
+        })
+
+        if self.__run_logged_query (query):
+            self.cache.invalidate_by_prefix ("reviews")
+            self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+            return True
+
+        self.log.error ("Failed to decline physical sample %s", container_uuid)
+        return False
 
     def update_physical_sample (self, title, sample_uuid, account_uuid,
                                 container_uuid=None, abstract=None, methods=None,
