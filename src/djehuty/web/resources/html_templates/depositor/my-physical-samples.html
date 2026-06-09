@@ -20,6 +20,7 @@
     <tr>
       <th>Physical sample</th>
       <th>Type</th>
+      <th>Status</th>
       <th>Created&nbsp;at</th>
       <th>Actions</th>
     </tr>
@@ -28,8 +29,9 @@
     <tr>
       <td><a href="/my/physical-samples/{{object.container_uuid}}/edit">{{object.title}}</a></td>
       <td>{{object.resource_type | default("undefined", False)}}</td>
+      <td>{% if object.is_under_review %}Under review{% else %}Draft{% endif %}</td>
       <td>{{object.created_date | truncate(10,False,'')}}</td>
-      <td><a href="/my/physical-samples/{{object.container_uuid}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+      <td>{% if not object.is_under_review %}<a href="/my/physical-samples/{{object.container_uuid}}/delete" class="fas fa-trash-can" title="Remove"></a>{% endif %}</td>
     </tr>
   {% endfor %}</tbody>
 </table>
