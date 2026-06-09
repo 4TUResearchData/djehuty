@@ -151,13 +151,16 @@ class WebServer:
             R("/my/profile/connect-with-orcid",                                  self.ui_profile_connect_with_orcid),
             R("/my/physical-samples",                                            self.ui_my_physical_samples),
             R("/my/physical-samples/new",                                        self.ui_new_physical_sample),
+            R("/my/physical-samples/submitted-for-review",                       self.ui_physical_sample_submitted),
             R("/my/physical-samples/<container_uuid>/edit",                      self.ui_edit_physical_sample),
             R("/my/physical-samples/<container_uuid>/delete",                    self.ui_delete_physical_sample),
             R("/review/overview",                                                self.ui_review_overview),
             R("/review/goto-dataset/<dataset_id>",                               self.ui_review_impersonate_to_dataset),
+            R("/review/goto-physical-sample/<container_uuid>",                   self.ui_review_impersonate_to_physical_sample),
             R("/review/assign-to-me/<dataset_id>",                               self.ui_review_assign_to_me),
             R("/review/unassign/<dataset_id>",                                   self.ui_review_unassign),
             R("/review/published/<dataset_id>",                                  self.ui_review_published),
+            R("/review/physical-sample/published/<container_uuid>",              self.ui_review_physical_sample_published),
             R("/admin/approve-quota-request/<quota_request_uuid>",               self.ui_admin_approve_quota_request),
             R("/admin/dashboard",                                                self.ui_admin_dashboard),
             R("/admin/deny-quota-request/<quota_request_uuid>",                  self.ui_admin_deny_quota_request),
@@ -367,6 +370,10 @@ class WebServer:
             R("/v3/physical-samples/<container_uuid>/categories",                self.api_v3_physical_sample_categories),
             R("/v3/physical-samples/<container_uuid>/private_links",             self.api_private_physical_sample_private_links),
             R("/v3/physical-samples/<container_uuid>/private_links/<link_id>",   self.api_private_physical_sample_private_links_details),
+            R("/v3/physical-samples/<container_uuid>/submit-for-review",         self.api_v3_physical_sample_submit),
+            R("/v3/physical-samples/<container_uuid>/publish",                   self.api_v3_physical_sample_publish),
+            R("/v3/physical-samples/<container_uuid>/decline",                   self.api_v3_physical_sample_decline),
+            R("/v3/physical-samples/<container_uuid>/assign-reviewer/<reviewer_uuid>", self.api_v3_physical_samples_assign_reviewer),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -2272,6 +2279,17 @@ class WebServer:
 
         return self.__render_template (request, "depositor/submitted-for-review.html")
 
+    def ui_physical_sample_submitted (self, request):
+        """Implements /my/physical-samples/submitted-for-review."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        _, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
+
+        return self.__render_template (request, "depositor/physical-sample-submitted-for-review.html")
+
     def ui_new_dataset (self, request):
         """Implements /my/datasets/new."""
         if not self.accepts_html (request):
@@ -3656,9 +3674,10 @@ class WebServer:
                 return None
 
             parameters = {
-                "is_published": is_published,
-                "is_latest":    is_latest,
-                "account_uuid": account_uuid,
+                "is_published":    is_published,
+                "is_latest":       is_latest,
+                "is_under_review": is_under_review,
+                "account_uuid":    account_uuid,
             }
             sample = None
             if validator.is_valid_uuid (identifier):
@@ -3670,6 +3689,255 @@ class WebServer:
             return sample
         except IndexError:
             return None
+
+    def api_v3_physical_sample_submit (self, request, container_uuid):
+        """Implements /v3/physical-samples/<id>/submit-for-review."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "PUT",
+                                                                  "application/json",
+                                                                  self.db.is_depositor)
+
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        sample = self.__physical_sample_by_id_or_uri (container_uuid,
+                                                      account_uuid    = account_uuid,
+                                                      is_published    = False,
+                                                      is_under_review = False)
+        if sample is None:
+            return self.error_404 (request)
+
+        record = request.get_json ()
+        try:
+            errors = []
+            agreed_to_deposit_agreement = validator.boolean_value (record, "agreed_to_deposit_agreement", True, False, errors)
+            agreed_to_publish = validator.boolean_value (record, "agreed_to_publish", True, False, errors)
+
+            if not agreed_to_deposit_agreement:
+                errors.append ({
+                    "field_name": "agreed_to_deposit_agreement",
+                    "message": "The physical sample cannot be published without agreeing to the Deposit Agreement."})
+
+            if not agreed_to_publish:
+                errors.append ({
+                    "field_name": "agreed_to_publish",
+                    "message": "The physical sample cannot be published without giving the reviewer permission to do so."})
+
+            creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+            if not creators:
+                errors.append ({
+                    "field_name": "authors",
+                    "message": "The physical sample must have at least one creator."})
+
+            tags = self.db.tags (item_uri     = sample["uri"],
+                                 account_uuid = account_uuid)
+            if not tags:
+                errors.append ({
+                    "field_name": "tag",
+                    "message": "The physical sample must have at least one keyword."})
+
+            categories, category_errors = self.__category_list_from_request_input (record)
+            if category_errors:
+                errors += category_errors
+            if not categories:
+                errors.append ({
+                    "field_name": "categories",
+                    "message": "Please specify at least one category."})
+
+            parameters = {
+                "sample_uuid":          sample["uuid"],
+                "account_uuid":         account_uuid,
+                "container_uuid":       container_uuid,
+                "title":                validator.string_value  (record, "title",            3, 1000,  True,  errors),
+                "abstract":             validator.string_value  (record, "abstract",         0, 8000,  True,  errors, strip_html=False),
+                "methods":              validator.string_value  (record, "methods",          0, 8000,  False, errors, strip_html=False),
+                "resource_type":        validator.string_value  (record, "resource_type",    0, 512,   False, errors),
+                "subject":              validator.string_value  (record, "subject",          0, 512,   False, errors),
+                "publisher":            validator.string_value  (record, "publisher",        0, 10000, True,  errors),
+                "publication_year":     validator.string_value  (record, "publication_year", 0, 4,     True,  errors),
+                "alternate_identifier": validator.string_value  (record, "alternate_identifier", 0, 255, False, errors),
+                "organizations":        validator.string_value  (record, "organizations",    0, 2048,  True,  errors),
+                "physical_storage_location": validator.string_value (record, "physical_storage_location", 1, 2048, True, errors),
+                "geolocation":          validator.string_value  (record, "geolocation",      0, 255,   False, errors),
+                "longitude":            validator.string_value  (record, "longitude",        0, 64,    False, errors),
+                "latitude":             validator.string_value  (record, "latitude",         0, 64,    False, errors),
+                "sample_owner_name":    validator.string_value  (record, "sample_owner_name",  0, 255, True,  errors),
+                "sample_owner_email":   validator.string_value  (record, "sample_owner_email", 0, 255, True,  errors),
+                "group_id":             validator.integer_value (record, "group_id", 0, pow(2, 63), True, errors),
+                "categories":           categories,
+            }
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            account = self.db.account_by_uuid (sample["account_uuid"])
+            if not account:
+                return self.error_500 ()
+
+            if not self.db.update_physical_sample (**parameters):
+                return self.error_500 ()
+
+            if self.db.insert_review (sample["uri"]) is not None:
+                subject = f"Request for review: {sample['container_uuid']}"
+                self.__send_email_to_reviewers (subject, "physical_sample_submitted_notification",
+                                                account_email = value_or_none (account, "email"),
+                                                dataset = sample,
+                                                account = account)
+                return self.respond_204 ()
+
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+        except (IndexError, KeyError):
+            pass
+
+        return self.error_500 ()
+
+    def api_v3_physical_sample_publish (self, request, container_uuid):
+        """Implements /v3/physical-samples/<id>/publish."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        reviewer_token  = self.token_from_cookie (request, self.impersonator_cookie_key)
+        submitter_token = self.token_from_request (request)
+        may_review_all = self.db.may_review (reviewer_token)
+        may_review_institution = self.db.may_review_institution (reviewer_token)
+        if not may_review_all and not may_review_institution:
+            # When using the API, the impersonator cookie isn't set,
+            # so we fall back to using the regular token.
+            may_review_all = self.db.may_review (submitter_token)
+            may_review_institution = self.db.may_review_institution (submitter_token)
+            if not may_review_all and not may_review_institution:
+                return self.error_403 (request)
+
+        sample = self.__physical_sample_by_id_or_uri (container_uuid,
+                                                      account_uuid = account_uuid,
+                                                      is_published = False)
+        if sample is None:
+            return self.error_403 (request)
+
+        reviewer_account = self.db.account_by_session_token (reviewer_token)
+        if may_review_institution:
+            if value_or (sample, "group_id", "A") != value_or (reviewer_account, "group_id", "not-A"):
+                return self.error_403 (request)
+
+        review_uri = value_or_none (sample, "review_uri")
+        if review_uri is not None and reviewer_account is not None:
+            if not self.db.update_review (review_uri,
+                                          author_account_uuid = sample["account_uuid"],
+                                          assigned_to = reviewer_account["uuid"],
+                                          status      = "assigned"):
+                self.log.error ("Unable to assign reviewer before publishing for %s.",
+                                container_uuid)
+
+        if self.db.publish_physical_sample (container_uuid, account_uuid):
+            try:
+                account = self.db.account_by_uuid (sample["account_uuid"])
+                subject = f"Approved: {sample['title']}"
+                parameters = {
+                    "base_url": config.base_url,
+                    "support_email": config.support_email_address,
+                    "title": sample["title"],
+                    "container_uuid": sample["container_uuid"]
+                }
+                self.__send_templated_email ([account["email"]], subject,
+                                             "physical_sample_approved", **parameters)
+            except (TypeError, IndexError, KeyError) as error:
+                self.log.error ("Unable to send approval e-mail for physical sample %s: %s.",
+                                sample["uuid"], error)
+
+            return self.respond_201 ({
+                "location": f"{config.base_url}/review/physical-sample/published/{container_uuid}"
+            })
+
+        return self.error_500 ()
+
+    def api_v3_physical_sample_decline (self, request, container_uuid):
+        """Implements /v3/physical-samples/<id>/decline."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "POST", "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        reviewer_token = self.token_from_cookie (request, self.impersonator_cookie_key)
+        may_review_all = self.db.may_review (reviewer_token)
+        may_review_institution = self.db.may_review_institution (reviewer_token)
+        if not may_review_all and not may_review_institution:
+            return self.error_403 (request)
+
+        sample = self.__physical_sample_by_id_or_uri (container_uuid,
+                                                      account_uuid = account_uuid,
+                                                      is_published = False)
+        if sample is None:
+            return self.error_403 (request)
+
+        reviewer_account = self.db.account_by_session_token (reviewer_token)
+        if may_review_institution:
+            if value_or (sample, "group_id", "A") != value_or (reviewer_account, "group_id", "not-A"):
+                return self.error_403 (request)
+
+        if self.db.decline_physical_sample (container_uuid, account_uuid):
+            try:
+                account = self.db.account_by_uuid (sample["account_uuid"])
+                subject = f"Declined: {sample['title']}"
+                parameters = {
+                    "base_url": config.base_url,
+                    "support_email": config.support_email_address,
+                    "title": sample["title"]
+                }
+                self.__send_templated_email ([account["email"]], subject,
+                                             "physical_sample_declined", **parameters)
+            except (TypeError, IndexError, KeyError):
+                self.log.error ("Unable to send decline e-mail for physical sample: %s.",
+                                sample["uuid"])
+
+            return self.respond_201 ({
+                "location": f"{config.base_url}/review/overview"
+            })
+
+        return self.error_500 ()
+
+    def api_v3_physical_samples_assign_reviewer (self, request, container_uuid, reviewer_uuid):
+        """Implements /v3/physical-samples/<id>/assign-reviewer/<rid>."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (reviewer_uuid):
+            return self.error_403 (request)
+
+        account_token = self.token_from_cookie (request, self.cookie_key)
+        may_review_all = self.db.may_review (account_token)
+        may_review_institution = self.db.may_review_institution (account_token)
+        if not may_review_all and not may_review_institution:
+            return self.error_403 (request)
+
+        reviewer = self.db.account_by_uuid (reviewer_uuid)
+        sample   = None
+        try:
+            sample = self.db.physical_samples (container_uuid   = container_uuid,
+                                               is_published    = False,
+                                               is_latest       = False,
+                                               is_under_review = True)[0]
+        except (IndexError, TypeError):
+            pass
+
+        if sample is None or reviewer is None:
+            return self.error_403 (request)
+
+        if self.db.update_review (value_or_none (sample, "review_uri"),
+                                  author_account_uuid = sample["account_uuid"],
+                                  assigned_to = reviewer["uuid"],
+                                  status      = "assigned"):
+            return self.respond_204 ()
+
+        return self.error_500 ()
 
     def ui_review_overview (self, request):
         """Implements /review/overview."""
@@ -3753,6 +4021,65 @@ class WebServer:
 
         return self.__render_template (request, "review/published.html",
                                        container_uuid=dataset["container_uuid"])
+
+    def ui_review_impersonate_to_physical_sample (self, request, container_uuid):
+        """Implements /review/goto-physical-sample/<id>."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html",
+                                                                  self.db.may_impersonate)
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        sample = None
+        try:
+            sample = self.db.physical_samples (container_uuid   = container_uuid,
+                                               is_published    = False,
+                                               is_latest       = False,
+                                               is_under_review = True)[0]
+        except (IndexError, TypeError):
+            pass
+
+        if sample is None:
+            return self.error_403 (request, (f"account:{account_uuid} attempted impersonation "
+                                             f"on physical-sample container:{container_uuid}."))
+
+        # Add a secondary cookie to go back to at one point.
+        response = redirect (f"/my/physical-samples/{sample['container_uuid']}/edit", code=302)
+        response.set_cookie (key    = self.impersonator_cookie_key,
+                             value  = self.token_from_request (request),
+                             secure = config.in_production)
+        response.set_cookie (key    = "redirect_to",
+                             value  = "/review/overview",
+                             secure = config.in_production)
+
+        # Create a new session for the user to be impersonated as.
+        new_token, _, _ = self.db.insert_session (sample["account_uuid"],
+                                                  name="Reviewer",
+                                                  override_mfa=True)
+        response.set_cookie (key    = self.cookie_key,
+                             value  = new_token,
+                             secure = config.in_production)
+        return response
+
+    def ui_review_physical_sample_published (self, request, container_uuid):
+        """Implements /review/physical-sample/published/<id>."""
+        account_uuid, error_response = self.__reviewer_account_uuid (request)
+        if error_response is not None:
+            self.log.error ("Account %s attempted a reviewer action.", account_uuid)
+            return error_response
+
+        sample = self.__physical_sample_by_id_or_uri (container_uuid,
+                                                      is_published = True,
+                                                      is_latest    = True)
+        if sample is None:
+            return self.error_403 (request)
+
+        return self.__render_template (request, "review/published.html",
+                                       container_uuid = sample["container_uuid"],
+                                       item_type      = "physical-sample")
 
     def __process_quota_request (self, request, quota_request_uuid, status):
         token = self.token_from_cookie (request)
