@@ -86,11 +86,23 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout repository at tag
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.ref }}
+
       - name: Download Python distribution artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: python-dist
           path: dist
+
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          awk "/^## \[v$REF_NAME\]/{flag=1; next} /^## \[v/{flag=0} flag" CHANGELOG.md > release-notes.md
+          test -s release-notes.md || { echo "::error::No '## [v$REF_NAME]' section in CHANGELOG.md"; exit 1; }
 
       - name: Create GitHub release
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -104,6 +116,7 @@ jobs:
               repo: context.repo.repo,
               name: process.env.REF_NAME,
               tag_name: process.env.REF_NAME,
+              body: fs.readFileSync('release-notes.md', 'utf8'),
               generate_release_notes: true,
             });
             for (const file of fs.readdirSync('dist')) {
