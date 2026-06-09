@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <djehuty>
   <maintenance-mode>0</maintenance-mode>
-  <site-name>Djehuty Dev</site-name>
+  <site-name>4TU.ResearchData</site-name>
   <site-shorttag>dev</site-shorttag>
   <site-description>Djehuty development instance</site-description>
+  <publisher-rors>
+    <publisher-ror name="4TU.ResearchData" url="https://ror.org/02d887280" />
+    <publisher-ror name="Delft University of Technology" url="https://ror.org/02e2c7k09" />
+    <publisher-ror name="Eindhoven University of Technology" url="https://ror.org/02c2kyt77" />
+  </publisher-rors>
   <support-email-address>dev@localhost</support-email-address>
   <colors>
     <primary-color>#f49120</primary-color>

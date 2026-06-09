@@ -209,7 +209,12 @@
 {%- if item.publisher %}
         <div id="publisher">
             <h3 class="label">Publisher</h3>
+    {%- set publisher_ror = publisher_rors.get(item.publisher) if publisher_rors else none %}
+    {%- if publisher_ror %}
+                <a class="corporate-identity" href="{{publisher_ror}}" target="_blank" rel="noopener noreferrer" title="View {{item.publisher}} in the Research Organization Registry (opens in new window)">{{item.publisher}} <img src="/static/images/ror-icon.svg" alt="ROR" class="ror-icon" /></a>
+    {%- else %}
                 {{item.publisher}}
+    {%- endif %}
         </div>
 {%- endif %}
 {%- if item.format %}

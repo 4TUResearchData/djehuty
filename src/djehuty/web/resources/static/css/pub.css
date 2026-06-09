@@ -39,6 +39,7 @@
 #wrapper #content .is_active    { font-weight: bold }
 #wrapper #content .small        { font-size: 75%; opacity: 0.8 }
 #wrapper #content #orcid img    { height: 20px }
+#wrapper #content #publisher .ror-icon { height: 16px; vertical-align: middle; margin-left: .25em; }
 #wrapper #content #has-account  { margin-top: 80px; clear: both }
 #wrapper #content #limited_access p { margin-top: 5px; margin-bottom: 5px }
 #wrapper #content #limited_access h4 { margin-top: 10px; margin-bottom: 0px }

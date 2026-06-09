@@ -209,3 +209,24 @@ class TestSiteMetadata:
     )
     def test_site_fields(self, config_root, path, expected):
         assert config_value(config_root, path) == expected
+
+
+class TestPublisherRors:
+    def test_block_present(self, config_root):
+        block = config_root.find("publisher-rors")
+        assert block is not None
+
+    def test_entries_have_name_and_url(self, config_root):
+        block = config_root.find("publisher-rors")
+        entries = list(block)
+        assert len(entries) >= 1
+        for entry in entries:
+            assert entry.tag == "publisher-ror"
+            assert entry.attrib.get("name")
+            assert entry.attrib.get("url", "").startswith("https://ror.org/")
+
+    def test_site_name_entry_resolvable(self, config_root):
+        block = config_root.find("publisher-rors")
+        mapping = {e.attrib["name"]: e.attrib["url"] for e in block}
+        site_name = config_root.find("site-name").text
+        assert mapping.get(site_name, "").startswith("https://ror.org/")
