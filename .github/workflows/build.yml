@@ -14,6 +14,8 @@ jobs:
 
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
+
       - name: Generate requirements.lock
         run: uv export --frozen --no-dev --no-hashes -o docker/requirements.lock
 
@@ -31,6 +33,39 @@ jobs:
             PURPOSE=release
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Start dev environment (just dev)
+        run: |
+          just dev &
+          JUST_PID=$!
+          echo "just_pid=$JUST_PID" >> "$GITHUB_ENV"
+
+      - name: Wait for djehuty to be ready
+        run: |
+          echo "Polling http://127.0.0.1:8080/ until djehuty responds..."
+          DEADLINE=$(( $(date +%s) + 300 ))
+          until curl -fsS -o /dev/null --max-time 5 http://127.0.0.1:8080/; do
+            if (( $(date +%s) >= DEADLINE )); then
+              echo "ERROR: djehuty did not become ready within 5 minutes"
+              docker compose -f docker/docker-compose.dev.yml ps
+              docker compose -f docker/docker-compose.dev.yml logs --tail=200
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "djehuty is up on http://127.0.0.1:8080/"
+
+      - name: Dump compose logs on failure
+        if: failure()
+        run: docker compose -f docker/docker-compose.dev.yml logs --tail=500
+
+      - name: Tear down dev environment
+        if: always()
+        run: |
+          if [ -n "${just_pid:-}" ]; then
+            kill "$just_pid" 2>/dev/null || true
+          fi
+          just clean
 
   pypi-build:
     runs-on: ubuntu-latest
