@@ -3471,14 +3471,14 @@ class WebServer:
             output = []
             for dataset in records:
                 output.append ({
-                    "uri":           dataset.get("uri"),
-                    "container_uri": dataset.get("container_uri"),
-                    "account_uuid":  dataset.get("account_uuid"),
-                    "title":         dataset.get("title"),
-                    "doi":           dataset.get("doi"),
-                    "version":       dataset.get("version"),
-                    "license_url":   dataset.get("license_url"),
-                    "license_name":  dataset.get("license_name"),
+                    "uuid":            dataset.get("uuid"),
+                    "container_uuid":  dataset.get("container_uuid"),
+                    "account_uuid":    dataset.get("account_uuid"),
+                    "title":           dataset.get("title"),
+                    "doi":             dataset.get("doi"),
+                    "version":         dataset.get("version"),
+                    "license_url":     dataset.get("license_url"),
+                    "license_name":    dataset.get("license_name"),
                 })
             return self.response (json.dumps(output))
         except validator.ValidationException as error:
@@ -3500,22 +3500,38 @@ class WebServer:
 
         try:
             parameters      = request.get_json()
-            container_uri   = validator.string_value (parameters, "container_uri",
-                                                      maximum_length=255)
-            dataset_uri     = validator.string_value (parameters, "dataset_uri",
-                                                      maximum_length=255)
+            container_uuid  = validator.string_value (parameters, "container_uuid",
+                                                      maximum_length=36)
+            dataset_uuid    = validator.string_value (parameters, "dataset_uuid",
+                                                      maximum_length=36)
             new_license_url = validator.string_value (parameters, "new_license_url",
                                                       maximum_length=1024)
             owner_account_uuid = validator.string_value (
                 parameters, "owner_account_uuid",
-                maximum_length=255, required=False)
+                maximum_length=36, required=False)
 
-            if (container_uri is None or dataset_uri is None
+            if (container_uuid is None or dataset_uuid is None
                 or new_license_url is None):
                 return self.error_400 (
                     request,
-                    "Missing container_uri, dataset_uri or new_license_url.",
+                    "Missing container_uuid, dataset_uuid or new_license_url.",
                     "MissingRequiredField")
+            if not validator.is_valid_uuid (container_uuid):
+                return self.error_400 (
+                    request,
+                    "Invalid container_uuid.",
+                    "InvalidUuid")
+            if not validator.is_valid_uuid (dataset_uuid):
+                return self.error_400 (
+                    request,
+                    "Invalid dataset_uuid.",
+                    "InvalidUuid")
+            if (owner_account_uuid is not None
+                and not validator.is_valid_uuid (owner_account_uuid)):
+                return self.error_400 (
+                    request,
+                    "Invalid owner_account_uuid.",
+                    "InvalidUuid")
 
             allowed_urls = {row.get("url") for row in (self.db.licenses() or [])}
             if new_license_url not in allowed_urls:
@@ -3530,8 +3546,8 @@ class WebServer:
                 admin_account_uuid = admin_account.get("uuid")
 
             success = self.db.admin_update_license (
-                container_uri,
-                dataset_uri,
+                container_uuid,
+                dataset_uuid,
                 new_license_url,
                 admin_account_uuid,
                 owner_account_uuid=owner_account_uuid)

@@ -18,8 +18,6 @@ jQuery(document).ready(function () {
         jQuery("#license-detail-version").text(d.version || "-");
         jQuery("#license-detail-current-name").text(d.license_name || "Not set");
         jQuery("#license-detail-current-url").text(d.license_url || "-");
-        jQuery("#license-detail-container-uri").text(d.container_uri || "-");
-        jQuery("#license-detail-dataset-uri").text(d.uri || "-");
         // Pre-select current license in the dropdown if it matches.
         if (d.license_url) {
             jQuery("#license-select").val(d.license_url);
@@ -127,8 +125,8 @@ jQuery(document).ready(function () {
             type: "PUT",
             contentType: "application/json",
             data: JSON.stringify({
-                container_uri:      selected_dataset.container_uri,
-                dataset_uri:        selected_dataset.uri,
+                container_uuid:     selected_dataset.container_uuid,
+                dataset_uuid:       selected_dataset.uuid,
                 owner_account_uuid: selected_dataset.account_uuid,
                 new_license_url:    pending_license_url
             })
