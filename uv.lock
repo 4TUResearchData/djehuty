@@ -527,6 +527,7 @@ name = "djehuty"
 version = "26.2"
 source = { editable = "." }
 dependencies = [
+    { name = "boto3" },
     { name = "defusedxml" },
     { name = "jinja2" },
     { name = "pillow", version = "11.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -542,7 +543,6 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "boto3" },
     { name = "coverage", version = "7.10.7", source = { registry = "https://pypi.org/simple" }, extra = ["toml"], marker = "python_full_version < '3.10'" },
     { name = "coverage", version = "7.13.5", source = { registry = "https://pypi.org/simple" }, extra = ["toml"], marker = "python_full_version >= '3.10'" },
     { name = "faker", version = "37.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -559,6 +559,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "boto3" },
     { name = "defusedxml", specifier = ">=0.7.1" },
     { name = "jinja2", specifier = ">=3.0.3" },
     { name = "pillow", specifier = ">=9.4.0" },
@@ -570,7 +571,6 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "boto3" },
     { name = "coverage", extras = ["toml"], specifier = ">=7.0" },
     { name = "faker", specifier = ">=37.12.0" },
     { name = "playwright", specifier = ">=1.40.0" },
