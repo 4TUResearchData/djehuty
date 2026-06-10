@@ -45,7 +45,7 @@ class AdminLicensePage(BasePage):
 
     def detail_value(self, field: str) -> str:
         """Read the text of a Step 2 detail field (title, doi, version,
-        current-name, current-url, container-uri, dataset-uri)."""
+        current-name, current-url)."""
         return self.page.locator(f"#license-detail-{field}").inner_text()
 
     def select_license(self, url: str):

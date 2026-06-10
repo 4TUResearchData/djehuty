@@ -64,7 +64,7 @@ class TestAdminLicenseDashboardLink:
 
 
 @pytest.mark.admin
-@pytest.mark.admin_embargo
+@pytest.mark.admin_license
 class TestAdminLicenseFlow:
     """End-to-end license-change flow against the seeded dataset."""
 
@@ -91,7 +91,6 @@ class TestAdminLicenseFlow:
         assert license_page.detail_value("doi") == SEED_DOI
         assert license_page.detail_value("current-name") == SEED_CURRENT_NAME
         assert license_page.detail_value("current-url") == SEED_CURRENT_URL
-        assert license_page.detail_value("container-uri") == f"container:{SEED_CONTAINER_UUID}"
         screenshot(admin_page, "license-step2-detail")
 
         # Back-and-forth navigation works.
@@ -137,6 +136,7 @@ class TestAdminLicenseFlow:
 
 
 @pytest.mark.admin
+@pytest.mark.admin_license
 class TestAdminLicenseAccessControl:
     """Non-admin users cannot reach the license page or APIs."""
 
@@ -171,8 +171,8 @@ class TestAdminLicenseAccessControl:
             "/admin/update-published-dataset/license/update",
             method="PUT",
             data=json.dumps({
-                "container_uri":    "container:00000000-0000-0000-0000-000000000000",
-                "dataset_uri":      "dataset:00000000-0000-0000-0000-000000000000",
+                "container_uuid":   "00000000-0000-0000-0000-000000000000",
+                "dataset_uuid":     "00000000-0000-0000-0000-000000000000",
                 "new_license_url":  NEW_LICENSE_URL,
             }),
             headers={"Content-Type": "application/json"},
@@ -194,8 +194,8 @@ class TestAdminLicenseAccessControl:
             "/admin/update-published-dataset/license/update",
             method="PUT",
             data=json.dumps({
-                "container_uri":    "container:00000000-0000-0000-0000-000000000000",
-                "dataset_uri":      "dataset:00000000-0000-0000-0000-000000000000",
+                "container_uuid":   "00000000-0000-0000-0000-000000000000",
+                "dataset_uuid":     "00000000-0000-0000-0000-000000000000",
                 "new_license_url":  "https://example.invalid/not-a-real-license/",
             }),
             headers={"Content-Type": "application/json"},
