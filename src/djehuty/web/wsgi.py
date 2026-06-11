@@ -151,6 +151,9 @@ class WebServer:
             R("/admin/dashboard",                                                self.ui_admin_dashboard),
             R("/admin/deny-quota-request/<quota_request_uuid>",                  self.ui_admin_deny_quota_request),
             R("/admin/users",                                                    self.ui_admin_users),
+            R("/admin/users/merge",                                              self.ui_admin_users_merge),
+            R("/admin/users/merge/preview",                                      self.ui_admin_users_merge_preview),
+            R("/admin/users/merge/execute",                                      self.ui_admin_users_merge_execute),
             R("/admin/exploratory",                                              self.ui_admin_exploratory),
             R("/admin/quota-requests",                                           self.ui_admin_quota_requests),
             R("/admin/update-published-dataset",                                  self.ui_admin_update_published_dataset),
@@ -3300,6 +3303,118 @@ class WebServer:
         accounts = self.db.accounts()
         return self.__render_template (request, "admin/users.html",
                                        accounts = accounts)
+
+    def ui_admin_users_merge (self, request):
+        """Implements /admin/users/merge."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        return self.__render_template (request, "admin/merge_accounts.html")
+
+    def __lookup_account_for_merge (self, email):
+        """Returns (account, error_message). Exactly one of the two is None."""
+        if not isinstance (email, str) or not email.strip():
+            return None, "E-mail address is required."
+        account = self.db.account_by_email (email.strip())
+        if account is None:
+            return None, f"No account found for '{email}'."
+        return account, None
+
+    def ui_admin_users_merge_preview (self, request):
+        """Implements POST /admin/users/merge/preview."""
+        if request.method != "POST":
+            return self.error_405 (["POST"])
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        try:
+            parameters = request.get_json()
+        except BadRequest:
+            return self.error_400 (request, "Invalid JSON body.", 400)
+
+        from_email = value_or_none (parameters, "from_email")
+        to_email   = value_or_none (parameters, "to_email")
+
+        from_account, error = self.__lookup_account_for_merge (from_email)
+        if error is not None:
+            return self.error_400 (request, f"Source account: {error}", 400)
+
+        to_account, error = self.__lookup_account_for_merge (to_email)
+        if error is not None:
+            return self.error_400 (request, f"Target account: {error}", 400)
+
+        if from_account["uuid"] == to_account["uuid"]:
+            return self.error_400 (request, "Source and target accounts are the same.", 400)
+
+        containers = self.db.containers_for_account_merge (from_account["uuid"])
+
+        return self.response (json.dumps({
+            "from_account": {
+                "uuid":       from_account["uuid"],
+                "email":      from_account.get("email"),
+                "first_name": from_account.get("first_name"),
+                "last_name":  from_account.get("last_name"),
+            },
+            "to_account": {
+                "uuid":       to_account["uuid"],
+                "email":      to_account.get("email"),
+                "first_name": to_account.get("first_name"),
+                "last_name":  to_account.get("last_name"),
+            },
+            "containers": containers,
+        }))
+
+    def ui_admin_users_merge_execute (self, request):
+        """Implements POST /admin/users/merge/execute."""
+        if request.method != "POST":
+            return self.error_405 (["POST"])
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        try:
+            parameters = request.get_json()
+        except BadRequest:
+            return self.error_400 (request, "Invalid JSON body.", 400)
+
+        from_uuid = value_or_none (parameters, "from_account_uuid")
+        to_uuid   = value_or_none (parameters, "to_account_uuid")
+
+        if not validator.is_valid_uuid (from_uuid):
+            return self.error_400 (request, "Invalid source account UUID.", 400)
+        if not validator.is_valid_uuid (to_uuid):
+            return self.error_400 (request, "Invalid target account UUID.", 400)
+        if from_uuid == to_uuid:
+            return self.error_400 (request, "Source and target accounts are the same.", 400)
+
+        from_account = self.db.account_by_uuid (from_uuid)
+        to_account   = self.db.account_by_uuid (to_uuid)
+        if from_account is None:
+            return self.error_400 (request, "Source account does not exist.", 400)
+        if to_account is None:
+            return self.error_400 (request, "Target account does not exist.", 400)
+
+        container_count = len (self.db.containers_for_account_merge (from_uuid))
+        if not self.db.merge_account_ownership (from_uuid, to_uuid):
+            self.log.error ("Account merge from %s to %s failed.", from_uuid, to_uuid)
+            return self.error_500 ("Failed to merge accounts.")
+
+        self.log.info ("Merged %s containers from account %s to account %s.",
+                       container_count, from_uuid, to_uuid)
+        self.db.cache.invalidate_all ()
+
+        return self.response (json.dumps({
+            "moved_containers": container_count,
+            "from_account_uuid": from_uuid,
+            "to_account_uuid":   to_uuid,
+        }))
 
     def ui_admin_exploratory (self, request):
         """Implements /admin/exploratory."""
