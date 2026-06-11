@@ -4,7 +4,7 @@ SELECT DISTINCT ?container_uuid ?container_type ?title ?doi
                 ?has_draft ?has_published
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container       djht:account                  <account:{{account_uuid}}> .
+    ?container       djht:account                  <{{account_uri}}> .
     ?container       rdf:type                      ?type .
     FILTER (?type IN (djht:DatasetContainer, djht:CollectionContainer))
 

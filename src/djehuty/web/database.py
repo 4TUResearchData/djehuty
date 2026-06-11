@@ -3260,7 +3260,7 @@ class SparqlInterface:
         """Returns containers owned by ACCOUNT_UUID for the merge preview."""
 
         query = self.__query_from_template ("account_containers_for_merge", {
-            "account_uuid": account_uuid
+            "account_uri": rdf.uuid_to_uri (account_uuid, "account")
         })
         return self.__run_query (query)
 
@@ -3268,8 +3268,8 @@ class SparqlInterface:
         """Reassign all containers from FROM_ACCOUNT_UUID to TO_ACCOUNT_UUID."""
 
         query = self.__query_from_template ("merge_account_ownership", {
-            "from_account_uuid": from_account_uuid,
-            "to_account_uuid":   to_account_uuid
+            "from_account_uri": rdf.uuid_to_uri (from_account_uuid, "account"),
+            "to_account_uri":   rdf.uuid_to_uri (to_account_uuid,   "account")
         })
         return self.__run_logged_query (query)
 
