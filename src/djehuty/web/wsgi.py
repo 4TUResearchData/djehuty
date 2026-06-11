@@ -157,6 +157,9 @@ class WebServer:
             R("/admin/update-published-dataset/embargos",                        self.ui_admin_embargo),
             R("/admin/update-published-dataset/embargos/search",                 self.api_admin_embargo_search),
             R("/admin/update-published-dataset/embargos/update",                 self.api_admin_embargo_update),
+            R("/admin/update-published-dataset/license",                         self.ui_admin_license),
+            R("/admin/update-published-dataset/license/search",                  self.api_admin_license_search),
+            R("/admin/update-published-dataset/license/update",                  self.api_admin_license_update),
             R("/admin/sparql",                                                   self.ui_admin_sparql),
             R("/admin/reports",                                                  self.ui_admin_reports),
             R("/admin/reports/restricted_datasets",                              self.ui_admin_reports_restricted_datasets),
@@ -3415,6 +3418,144 @@ class WebServer:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["PUT"])
+
+    def ui_admin_license (self, request):
+        """Implements /admin/update-published-dataset/license."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        licenses = self.db.licenses ()
+        return self.__render_template (
+            request,
+            "admin/update_published_dataset/license.html",
+            licenses=licenses)
+
+    def api_admin_license_search (self, request):
+        """Implements /admin/update-published-dataset/license/search.
+
+        Returns the latest published version per matching container along
+        with its current djht:license URL, so the admin can review what is
+        about to change before picking a replacement."""
+
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        try:
+            parameters  = request.get_json()
+            search_for  = validator.string_value (parameters, "search_for",
+                                                  maximum_length=1024,
+                                                  strip_html=False)
+            search_query = None
+            if search_for is not None:
+                search_tokens = re.findall(r'[^" ]+|"[^"]+"|\([^)]+\)', search_for)
+                search_tokens = [s.strip('"') for s in search_tokens]
+                search_query = {
+                    "operator":   "AND",
+                    "search_for": search_tokens,
+                    "scope":      ["title"],
+                }
+            records = self.db.datasets (search_for=search_query,
+                                        search_for_raw=html_to_plaintext (search_for) if search_for else None,
+                                        is_latest=True,
+                                        is_published=True,
+                                        limit=50)
+            output = []
+            for dataset in records:
+                output.append ({
+                    "uuid":            dataset.get("uuid"),
+                    "container_uuid":  dataset.get("container_uuid"),
+                    "account_uuid":    dataset.get("account_uuid"),
+                    "title":           dataset.get("title"),
+                    "doi":             dataset.get("doi"),
+                    "version":         dataset.get("version"),
+                    "license_url":     dataset.get("license_url"),
+                    "license_name":    dataset.get("license_name"),
+                })
+            return self.response (json.dumps(output))
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+    def api_admin_license_update (self, request):
+        """Implements /admin/update-published-dataset/license/update."""
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        if request.method != "PUT":
+            return self.error_405 (["PUT"])
+
+        handler = self.default_error_handling (request, "PUT", "application/json")
+        if handler is not None:
+            return handler
+
+        try:
+            parameters      = request.get_json()
+            container_uuid  = validator.string_value (parameters, "container_uuid",
+                                                      maximum_length=36)
+            dataset_uuid    = validator.string_value (parameters, "dataset_uuid",
+                                                      maximum_length=36)
+            new_license_url = validator.string_value (parameters, "new_license_url",
+                                                      maximum_length=1024)
+            owner_account_uuid = validator.string_value (
+                parameters, "owner_account_uuid",
+                maximum_length=36, required=False)
+
+            if (container_uuid is None or dataset_uuid is None
+                or new_license_url is None):
+                return self.error_400 (
+                    request,
+                    "Missing container_uuid, dataset_uuid or new_license_url.",
+                    "MissingRequiredField")
+            if not validator.is_valid_uuid (container_uuid):
+                return self.error_400 (
+                    request,
+                    "Invalid container_uuid.",
+                    "InvalidUuid")
+            if not validator.is_valid_uuid (dataset_uuid):
+                return self.error_400 (
+                    request,
+                    "Invalid dataset_uuid.",
+                    "InvalidUuid")
+            if (owner_account_uuid is not None
+                and not validator.is_valid_uuid (owner_account_uuid)):
+                return self.error_400 (
+                    request,
+                    "Invalid owner_account_uuid.",
+                    "InvalidUuid")
+
+            allowed_urls = {row.get("url") for row in (self.db.licenses() or [])}
+            if new_license_url not in allowed_urls:
+                return self.error_400 (
+                    request,
+                    "new_license_url is not in the configured license catalogue.",
+                    "UnknownLicense")
+
+            admin_account = self.db.account_by_session_token (token)
+            admin_account_uuid = None
+            if isinstance (admin_account, dict):
+                admin_account_uuid = admin_account.get("uuid")
+
+            success = self.db.admin_update_license (
+                container_uuid,
+                dataset_uuid,
+                new_license_url,
+                admin_account_uuid,
+                owner_account_uuid=owner_account_uuid)
+            if not success:
+                return self.error_500 ()
+            return self.respond_204 ()
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
 
     def ui_admin_sparql (self, request):
         """Implements /admin/sparql."""

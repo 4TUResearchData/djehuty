@@ -1,9 +1,9 @@
--- Seed a published dataset for E2E search tests.
+-- Seed a published dataset for E2E search and license-change tests.
 --
 -- This script inserts a minimal published dataset directly into the
--- SPARQL store so search, filter, sort, and view-mode tests have data
--- to work with.  It looks up the dev account by email so the UUIDs
--- match whatever --initialize created.
+-- SPARQL store so search, filter, sort, view-mode and license-change
+-- tests have data to work with.  It looks up the dev account by email so
+-- the UUIDs match whatever --initialize created.
 --
 -- Run after the application has been started with --initialize (which
 -- creates the dev@djehuty.com account and the category/license data).
@@ -42,6 +42,8 @@ INSERT {
         djht:container                    <container:a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d> ;
         djht:title                        "Search Test Seed Dataset"^^xsd:string ;
         djht:description                  "<p>Dataset seeded for search E2E tests.</p>"^^xsd:string ;
+        djht:doi                          "10.4121/search-seed-a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"^^xsd:string ;
+        djht:license                      <https://creativecommons.org/licenses/by-nc/4.0/> ;
         djht:defined_type                 3 ;
         djht:defined_type_name            "Dataset"^^xsd:string ;
         djht:language                     "en"^^xsd:string ;

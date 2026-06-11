@@ -2589,6 +2589,42 @@ class SparqlInterface:
 
         return self.__run_logged_query (query)
 
+    def admin_update_license (self, container_uuid, dataset_uuid, new_license_url,
+                              admin_account_uuid, owner_account_uuid=None):
+        """Admin procedure to replace djht:license on the latest published
+        version of a container.
+
+        Runs as a single SPARQL mutation through __run_logged_query so the
+        change is captured by the query audit log when enable_query_audit_log
+        is set, just like queries submitted via /admin/sparql. Additionally
+        emits a structured INFO log entry naming the admin, container, and
+        dataset UUIDs for trace independent of the audit-log flag.
+
+        Returns True on success, False on failure."""
+
+        self.log.info (
+            "Admin license change start: admin=%s container=%s dataset=%s new_license=%s",
+            admin_account_uuid, container_uuid, dataset_uuid, new_license_url)
+
+        query = self.__query_from_template ("admin_update_license", {
+            "container_uri":    rdf.uuid_to_uri (container_uuid, "container"),
+            "dataset_uri":      rdf.uuid_to_uri (dataset_uuid, "dataset"),
+            "new_license_url":  new_license_url,
+        })
+        if not self.__run_logged_query (query):
+            self.log.error ("Admin license change failed (SPARQL update).")
+            return False
+
+        self.cache.invalidate_by_prefix (container_uuid)
+        if owner_account_uuid:
+            self.cache.invalidate_by_prefix (f"datasets_{owner_account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
+
+        self.log.info (
+            "Admin license change success: admin=%s container=%s dataset=%s new_license=%s",
+            admin_account_uuid, container_uuid, dataset_uuid, new_license_url)
+        return True
+
     def delete_private_links (self, container_uuid, account_uuid, link_id):
         """Procedure to remove private links to a dataset."""
 
