@@ -1,0 +1,130 @@
+name: Release
+
+# Triggered by pushing a version tag, e.g. `git tag 26.3 && git push origin 26.3`.
+#
+# Flow:
+#   1. `build`         - builds sdist + wheel and the Docker image (no push).
+#                        Uploads sdist + wheel as a workflow artifact.
+#   2. `approve`       - blocks on the `release` environment for maintainer
+#                        approval (single approval gates both publish steps).
+#   3. `publish-image` - rebuilds the Docker image (cache hit) and pushes
+#                        `<version>` and `latest` tags to ghcr.io.
+#   4. `publish-pypi`  - publishes sdist + wheel to PyPI using a Trusted
+#                        Publisher (OIDC, no API token).
+#   5. `github-release`- creates the GitHub Release with auto-generated notes
+#                        and attaches sdist + wheel.
+#
+# One-time PyPI setup (see https://docs.pypi.org/trusted-publishers/):
+#   On PyPI, add a Trusted Publisher for the `djehuty` project with:
+#     Owner:             4TUResearchData
+#     Repository:        djehuty
+#     Workflow filename: release.yml
+#     Environment:       (leave empty — the approval is on the `approve` job,
+#                         not on `publish-pypi`)
+#
+# One-time GitHub setup:
+#   Create a `release` environment in repo settings with required reviewers.
+#   This is the single human gate before either GHCR or PyPI gets touched.
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+'
+
+concurrency: release
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      push_image: false
+      upload_python_artifacts: true
+
+  approve:
+    name: Wait for release approval
+    needs: build
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Approved
+        run: echo "Release approved - proceeding to publish."
+
+  publish-image:
+    name: Publish container image to GHCR
+    needs: approve
+    uses: ./.github/workflows/build.yml
+    with:
+      push_image: true
+    permissions:
+      contents: read
+      packages: write
+
+  publish-pypi:
+    name: Publish to PyPI (Trusted Publisher)
+    needs: approve
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Download Python distribution artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: python-dist
+          path: dist
+
+      - name: Publish to PyPI
+        if: github.repository == '4TUResearchData/djehuty'
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
+
+  github-release:
+    name: Publish GitHub release
+    needs: [publish-image, publish-pypi]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository at tag
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Download Python distribution artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: python-dist
+          path: dist
+
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          awk "/^## \[v$REF_NAME\]/{flag=1; next} /^## \[v/{flag=0} flag" CHANGELOG.md > release-notes.md
+          test -s release-notes.md || { echo "::error::No '## [v$REF_NAME]' section in CHANGELOG.md"; exit 1; }
+
+      - name: Create GitHub release
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        with:
+          script: |
+            const fs = require('fs');
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: process.env.REF_NAME,
+              tag_name: process.env.REF_NAME,
+              body: fs.readFileSync('release-notes.md', 'utf8'),
+              generate_release_notes: true,
+            });
+            for (const file of fs.readdirSync('dist')) {
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.data.id,
+                name: file,
+                data: fs.readFileSync(`dist/${file}`),
+              });
+            }

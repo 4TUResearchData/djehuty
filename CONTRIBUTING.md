@@ -126,6 +126,12 @@ wip-<type>-<issue-number>-<short-description>
 
 ---
 
+## Releases
+
+Releases are handled by maintainers and automated by GitHub Actions. See [RELEASE.md](./RELEASE.md) for the step-by-step procedure.
+
+---
+
 ## Templates
 
 ### Issue Template
