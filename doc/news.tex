@@ -5,6 +5,58 @@
 \fi
 \chapter*{News}
 
+\labelWithConsistentHTMLTag{release-26-3}
+\section*{Release notes for \texttt{v26.3}.}
+
+  The third release of 2026 consists of 21 commits made by 3 authors.
+
+  We’ve kicked off a new phase of improvements focused on reliability, usability, 
+and long-term sustainability. This release expand automated testing and automated 
+process and quality assurance efforts, helping make Djehuty more robust, efficient, 
+and easier to evolve for both users and developers.
+
+\subsection*{New features}
+\begin{itemize}
+\item{Add JSON as a supported Djehuty config format alongside XML to support future cloud-native deployments.
+    (\commitLink{6ace7fe252325c517682fd4e0f7bf88d5e6ed21b}).}
+\item{Add dashboard for administrative changes in published datasets allowing embargo dates updates.
+    (\commitLink{e14c93d8b42562fe6d5a6e7e81d0a05af1f6b8d1}).}
+\item{Add dashboard for administrative changes in published datasets allowing licenses updates.
+    (\commitLink{34a9909e6c4d7d71e17555a7ec4b24628e52d0e7}).}
+\item{Add ROR link to the landing page of the publications.
+    (\commitLink{68aa9891108523ba806b2e6c2f7f7475d67bd233}).}
+\end{itemize}
+
+\subsection*{Incremental improvements}
+\begin{itemize}
+\item{Add E2E testing setup using Playwright.
+    (\commitLink{0f587a2da459b1db210d9c6c33d4ee00eb6a2df3}).}
+\item{Add code coverage using codecov.
+    (\commitLink{d50761adbf6d3293bc387c5888bb68aaa659ec2a}).}
+\item{Add container image and python build workflow for automate release and test process.
+    (\commitLink{75cad1e8b194c8c45c207a3768c94e737f2c55e8}).}
+\item{Add process to do easy restore of the database for the development environment.
+    (\commitLink{c66cb30ae99ee7120da7bfd8bb3f9f36c092519d}).}
+\item{Add configuration to support sub-submenus in the layout.
+    (\commitLink{d54d2d56f98cf41ab8b3b7fc89dfab5c4d19a2bd}).}
+\item{Add image support for non-font awesome icons.
+    (\commitLink{7e8e0b078d600c13b90697f7e452988b06ae45ba}).}
+\item{Update python dependencies for security and performance.
+    (\commitLink{2ec35fd17c3ac525c8f48eef370d994a785e2e09}).}
+\end{itemize}
+
+\subsection*{Bugfixes}
+\begin{itemize}
+\item{Implement S3 factory for reusable clients to lower memory footprint.
+    (\commitLink{4dbc4cac1f9cc90bdc8546f41d2065fb98b046e1}).}
+\end{itemize}
+
+\subsection*{Documentation}
+\begin{itemize}
+\item{Documents the full release process and add a CHANGELOG.md file as single source of historical changes.
+    (\commitLink{58f075e03329a3e769e9d1b1fdf9b31a2039600e}).}
+\end{itemize}
+
 \labelWithConsistentHTMLTag{release-26-2}
 \section*{Release notes for \texttt{v26.2}.}
 
