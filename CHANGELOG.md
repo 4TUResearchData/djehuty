@@ -6,6 +6,40 @@ news section (`doc/news.tex`) is regenerated at release time by `just news`.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.3]
+
+The third release of 2026 consists of 21 commits made by 3 authors.
+
+We’ve kicked off a new phase of improvements focused on reliability, usability, 
+and long-term sustainability. This release expand automated testing and automated 
+process and quality assurance efforts, helping make Djehuty more robust, efficient, 
+and easier to evolve for both users and developers.
+
+### New features
+
+- Add JSON as a supported Djehuty config format alongside XML to support future cloud-native deployments. ([6ace7fe](https://github.com/4TUResearchData/djehuty/commit/6ace7fe252325c517682fd4e0f7bf88d5e6ed21b))
+- Add dashboard for administrative changes in published datasets allowing embargo dates updates. ([e14c93d](https://github.com/4TUResearchData/djehuty/commit/e14c93d8b42562fe6d5a6e7e81d0a05af1f6b8d1))
+- Add dashboard for administrative changes in published datasets allowing licenses updates. ([34a9909](https://github.com/4TUResearchData/djehuty/commit/34a9909e6c4d7d71e17555a7ec4b24628e52d0e7))
+- Add ROR link to the landing page of the publications. ([68aa989](https://github.com/4TUResearchData/djehuty/commit/68aa9891108523ba806b2e6c2f7f7475d67bd233))
+
+### Incremental improvements
+
+- Add E2E testing setup using Playwright. ([0f587a2](https://github.com/4TUResearchData/djehuty/commit/0f587a2da459b1db210d9c6c33d4ee00eb6a2df3)
+- Add code coverage using codecov. ([d50761a](https://github.com/4TUResearchData/djehuty/commit/d50761adbf6d3293bc387c5888bb68aaa659ec2a))
+- Add container image and python build workflow for automate release and test process. ([75cad1e](https://github.com/4TUResearchData/djehuty/commit/75cad1e8b194c8c45c207a3768c94e737f2c55e8))
+- Add process to do easy restore of the database for the development environment. ([c66cb30](https://github.com/4TUResearchData/djehuty/commit/c66cb30ae99ee7120da7bfd8bb3f9f36c092519d))
+- Add configuration to support sub-submenus in the layout. ([d54d2d5](https://github.com/4TUResearchData/djehuty/commit/d54d2d56f98cf41ab8b3b7fc89dfab5c4d19a2bd))
+- Add image support for non-font awesome icons. ([7e8e0b0](https://github.com/4TUResearchData/djehuty/commit/7e8e0b078d600c13b90697f7e452988b06ae45ba))
+- Update python dependencies for security and performance. ([2ec35fd](https://github.com/4TUResearchData/djehuty/commit/2ec35fd17c3ac525c8f48eef370d994a785e2e09))
+
+### Bugfixes
+
+- Implement S3 factory for reusable clients to lower memory footprint. ([4dbc4ca](https://github.com/4TUResearchData/djehuty/commit/4dbc4cac1f9cc90bdc8546f41d2065fb98b046e1))
+
+### Documentation
+
+- Documents the full release process and add a CHANGELOG.md file as single source of historical changes. ([58f075e](https://github.com/4TUResearchData/djehuty/commit/58f075e03329a3e769e9d1b1fdf9b31a2039600e))
+
 ## [v26.2]
 
 The second release of 2026 consists of 9 commits made by 2 authors.
