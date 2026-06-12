@@ -41,13 +41,13 @@ Once approved, the container image is pushed to GHCR, the package is published t
    > [!WARNING]
    > Wait the PR is mergerd to go for step 5
 
-5. After the Release PR is merged, **tag the merge commit and push the tag.** The tag must match `X.Y`
-   (digits only, no `v` prefix) and match the version in `pyproject.toml`:
+5. After the Release PR is merged, **tag the merge commit and push the tag.** The tag must match `vX.Y` or `vX.Y.Z`
+   (e.g. `v26.3`, `v26.3.1`) and the numeric part must match the version in `pyproject.toml`:
    ```sh
    git checkout main
    git pull
-   git tag 26.3
-   git push origin 26.3
+   git tag v26.3
+   git push origin v26.3
    ```
 
 6. **Approve the release.** In the `Release` workflow on GitHub Actions, the `approve` job waits on the `release` environment for a maintainer approval.  
