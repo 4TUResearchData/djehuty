@@ -43,6 +43,9 @@ jobs:
     with:
       push_image: false
       upload_python_artifacts: true
+    permissions:
+      contents: read
+      packages: write
 
   approve:
     name: Wait for release approval
