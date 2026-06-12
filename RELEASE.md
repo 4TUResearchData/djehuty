@@ -6,7 +6,10 @@ Once approved, the container image is pushed to GHCR, the package is published t
 
 ## How to release
 
-1. **Bump the version** in `pyproject.toml` (e.g. `version = "26.3"`).
+1. **Bump the version** in `pyproject.toml` (e.g. `version = "26.3"`) and `configure.ac` (e.g `AC_INIT(djehuty, 26.3)`).
+
+   > [!Note]
+   > `configure.ac` will be discontinued on October 31, 2026
 
 2. **Add the release section at the top of `CHANGELOG.md`.** `CHANGELOG.md` is
    the single source of truth for release notes. Maintainers only edit this
@@ -46,8 +49,6 @@ Once approved, the container image is pushed to GHCR, the package is published t
    git tag 26.3
    git push origin 26.3
    ```
-
-   Note:
 
 6. **Approve the release.** In the `Release` workflow on GitHub Actions, the `approve` job waits on the `release` environment for a maintainer approval.  
    Approving it unblocks the GHCR push, the PyPI publish, and the
