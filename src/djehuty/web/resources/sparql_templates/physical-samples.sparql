@@ -83,7 +83,7 @@ WHERE {
     BIND(STRAFTER(STR(?container), "container:")    AS ?container_uuid)
     BIND(STRAFTER(STR(?sample), "physical-sample:") AS ?sample_uuid)
     BIND(STRAFTER(STR(?account), "account:")        AS ?account_uuid)
-    {%- if is_published %}
+    {%- if is_published or is_latest %}
     BIND (xsd:boolean (EXISTS { ?container djht:draft ?draft_dataset . }) AS ?has_draft)
     {%- endif %}
   }
