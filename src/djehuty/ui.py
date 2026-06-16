@@ -10,6 +10,7 @@ import os
 import importlib.metadata
 
 import djehuty.backup.ui as backup_ui
+import djehuty.schema.cli as migrate_cli
 import djehuty.web.ui as web_ui
 
 def show_version ():
@@ -24,6 +25,18 @@ def show_help ():
 
     print("""This is djehuty.\n
 Available subcommands and options:
+
+  migrate <action>:
+    status               Show migration status against the configured endpoint.
+    upgrade [--to ID]    Apply pending migrations (up to ID, default: head).
+    stamp [--to ID]      Record migrations as applied without running their
+                         bodies.  Use this when bootstrapping the runner
+                         against a graph that already contains the data
+                         (e.g. an existing production deployment).
+    verify               Re-check on-disk checksums against the audit log.
+
+    --config-file=ARG    -c Load configuration from a file.
+    --to=ARG             -t Target migration id (default: head).
 
   backup:
     --help               -h Show a help message.
@@ -82,7 +95,7 @@ def main_inner ():
     ## COMMAND-LINE ARGUMENTS
     ## ------------------------------------------------------------------------
     parser = argparse.ArgumentParser(
-        usage    = '\n  %(prog)s [backup|web] ...',
+        usage    = '\n  %(prog)s [backup|migrate|web] ...',
         prog     = 'djehuty',
         add_help = False)
 
@@ -95,6 +108,13 @@ def main_inner ():
     backup_parser.add_argument('--stats-auth',  '-a', type=str, default='')
     backup_parser.add_argument('--account-id',  '-i', type=str, default=None)
     backup_parser.add_argument('--api-url',     '-u', type=str, default=None)
+
+    ### MIGRATE SUBCOMMAND
+    ### -----------------------------------------------------------------------
+    migrate_parser = subparsers.add_parser('migrate', help="Manage RDF-store migrations.")
+    migrate_parser.add_argument('action', choices=['status', 'upgrade', 'stamp', 'verify'])
+    migrate_parser.add_argument('--config-file', '-c', type=str, default=None)
+    migrate_parser.add_argument('--to',          '-t', type=str, default=None)
 
     ### WEB SUBCOMMAND
     ### -----------------------------------------------------------------------
@@ -137,6 +157,11 @@ def main_inner ():
         else:
             backup_ui.main (args.token, args.stats_auth, args.account_id,
                             args.api_url)
+
+    elif args.command == "migrate":
+        sys.exit (migrate_cli.main (args.action,
+                                    config_file = args.config_file,
+                                    target      = args.to))
 
     elif args.command == "web":
         web_ui.main (args.config_file, True, args.initialize,
