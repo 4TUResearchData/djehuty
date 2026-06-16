@@ -1,0 +1,148 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/utils.js?cache=1744290797"></script>
+<script src="/static/js/admin-retract.js?cache={{nonce}}"></script>
+<style nonce="{{nonce}}">
+#retract-search-input { width: 400px; padding: .4em; font-size: 1em; }
+#retract-search-button { background: #009900; color: #fff; text-decoration: none; }
+#retract-search-button:hover { background: #006600; }
+#retract-search-button:active { background: #003300; }
+#retract-results { margin-top: 1em; }
+#retract-results table { width: 100%; }
+#retract-results-body tr { cursor: pointer; }
+#retract-results-body tr:hover { background: #f0f0f0; }
+#retract-results-body tr.selected-row { background: #e0e8ff; }
+.retract-step { margin-top: 1em; }
+.retract-step h2 { margin-top: 0; }
+.retract-step table { margin-bottom: 1em; }
+.retract-step table td:first-child { font-weight: bold; padding-right: 1em; }
+.retract-primary-button { background: #cc0000; color: #fff; text-decoration: none; }
+.retract-primary-button:hover { background: #990000; }
+.retract-primary-button:active { background: #660000; }
+.retract-primary-button.disabled { background: #ccc; color: #fff; pointer-events: none; cursor: not-allowed; }
+.retract-secondary-button { background: #777; color: #fff; text-decoration: none; }
+.retract-secondary-button:hover { background: #555; }
+.retract-secondary-button:active { background: #333; }
+.retract-hidden { display: none !important; }
+.retract-actions { margin-top: 1em; }
+.retract-actions a + a { margin-left: .5em; }
+.retract-steps-indicator { margin-bottom: 1em; color: #666; font-size: .95em; }
+.retract-steps-indicator span { margin-right: .8em; }
+.retract-steps-indicator span.active { color: #000; font-weight: bold; }
+.retract-warning { background: #fff0f0; padding: .8em 1em; border-radius: .3em; border: 1px solid #cc0000; color: #660000; margin-bottom: 1em; }
+.retract-warning strong { color: #cc0000; }
+.retract-confirm-diff { background: #fff0f0; padding: .5em .8em; border-radius: .3em; border: 1px solid #cc0000; }
+.retract-confirm-diff .from { color: #007700; font-weight: bold; }
+.retract-confirm-diff .arrow { margin: 0 .5em; }
+.retract-confirm-diff .to { color: #cc0000; font-weight: bold; }
+#retract-doi-confirm-input { padding: .3em; font-size: 1em; width: 360px; }
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/admin/dashboard">Dashboard</a>
+  <li><a href="/admin/users">Users</a>
+  <li><a href="/admin/exploratory">Exploratory</a>
+  <li class="active corporate-identity-submenu-active">Update Published Dataset
+  <li><a href="/admin/reports">Reports</a>
+  {% if may_query %}<li><a href="/admin/sparql">Query</a>{% endif %}
+  {% if may_review_quotas %}<li><a href="/admin/quota-requests">Quota requests</a>{% endif %}
+</ul>
+{% endblock %}
+{% block body %}
+<noscript>
+  <p class="no-script">Sorry, this page requires JavaScript to function properly.</p>
+</noscript>
+<div class="hide-for-javascript">
+<h1>Retract dataset</h1>
+
+<div class="retract-steps-indicator" id="retract-steps-indicator">
+  <span id="retract-step-indicator-1" class="active">1. Select dataset</span>
+  <span id="retract-step-indicator-2">2. Confirm target</span>
+  <span id="retract-step-indicator-3">3. Review &amp; retract</span>
+</div>
+
+<!-- Step 1: search & select -->
+<div id="retract-step-1" class="retract-step">
+  <h2>Step 1 &mdash; Select dataset</h2>
+  <p>Search for a published dataset by title, then pick it from the results.</p>
+  <div id="retract-search">
+    <input type="text" id="retract-search-input" placeholder="Search by title">
+    <a id="retract-search-button" href="#" class="button corporate-identity-standard-button">Search</a>
+  </div>
+
+  <div id="retract-results" class="retract-hidden">
+    <h3>Search results</h3>
+    <p>Click a row to select the dataset.</p>
+    <table class="corporate-identity-table">
+      <thead><tr><th>Title</th><th>DOI</th><th>Version</th><th>Published</th></tr></thead>
+      <tbody id="retract-results-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Step 2: confirm target -->
+<div id="retract-step-2" class="retract-step retract-hidden">
+  <h2>Step 2 &mdash; Confirm target</h2>
+  <p>Selected dataset:</p>
+  <table>
+    <tr><td>Title</td><td id="retract-detail-title"></td></tr>
+    <tr><td>DOI</td><td id="retract-detail-doi"></td></tr>
+    <tr><td>Version</td><td id="retract-detail-version"></td></tr>
+    <tr><td>Published</td><td id="retract-detail-published"></td></tr>
+    <tr><td>Container UUID</td><td id="retract-detail-container-uuid"></td></tr>
+    <tr><td>Dataset UUID</td><td id="retract-detail-dataset-uuid"></td></tr>
+  </table>
+
+  <div class="retract-actions">
+    <a id="retract-back-to-search-button" href="#" class="button retract-secondary-button">&larr; Change dataset</a>
+    <a id="retract-preview-button" href="#" class="button corporate-identity-standard-button retract-primary-button">Continue to review &rarr;</a>
+  </div>
+</div>
+
+<!-- Step 3: preview & confirm -->
+<div id="retract-step-3" class="retract-step retract-hidden">
+  <h2>Step 3 &mdash; Review &amp; retract</h2>
+
+  <div class="retract-warning">
+    <p><strong>You are about to retract a published dataset.</strong> This will:</p>
+    <ul>
+      <li>Mark the published version as inactive, non-public, and not latest (its public page will show <em>"CONTENT WAS REMOVED"</em>).</li>
+      <li>Move the published version into the container's retracted versions list.</li>
+      <li>Promote the published dataset back to a draft the owner can edit.</li>
+      <li>Delete the dataset's Review record (if any).</li>
+      <li>Strip <em>posted_date</em>, <em>published_date</em>, <em>is_under_review</em>, and <em>first_online_date</em>.</li>
+    </ul>
+    <p>This operation is destructive. Please review carefully.</p>
+  </div>
+
+  <table>
+    <tr><td>Title</td><td id="retract-confirm-title"></td></tr>
+    <tr><td>DOI</td><td id="retract-confirm-doi"></td></tr>
+    <tr><td>Version</td><td id="retract-confirm-version"></td></tr>
+  </table>
+
+  <p><strong>State change:</strong></p>
+  <p class="retract-confirm-diff">
+    <span class="from">Published (latest)</span>
+    <span class="arrow">&rarr;</span>
+    <span class="to">Retracted &amp; reverted to draft</span>
+  </p>
+
+  <p>
+    <label for="retract-doi-confirm-input">
+      To confirm, type the dataset DOI:
+      <strong id="retract-expected-doi-hint"></strong>
+    </label><br>
+    <input type="text" id="retract-doi-confirm-input" placeholder="Type DOI to enable Confirm">
+  </p>
+
+  <div class="retract-actions">
+    <a id="retract-back-to-detail-button" href="#" class="button retract-secondary-button">&larr; Back</a>
+    <a id="retract-confirm-button" href="#" class="button retract-primary-button disabled">Confirm retraction</a>
+  </div>
+</div>
+
+</div>
+{% endblock %}

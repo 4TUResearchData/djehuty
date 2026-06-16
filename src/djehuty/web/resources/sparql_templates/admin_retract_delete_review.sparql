@@ -1,0 +1,13 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    <{{review_uri}}> ?p ?v .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    <{{review_uri}}> ?p ?v .
+  }
+}
+{% endblock %}
