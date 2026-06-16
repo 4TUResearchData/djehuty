@@ -192,6 +192,7 @@ class WebServer:
             R("/datasets/<dataset_id>/<version>",                                self.ui_dataset),
             R("/private_datasets/<private_link_id>",                             self.ui_private_dataset),
             R("/private_collections/<private_link_id>",                          self.ui_private_collection),
+            R("/physical_sample/<physical_sample_id>",                           self.ui_physical_sample),
             R("/private_physical_sample/<private_link_id>",                      self.ui_private_physical_sample),
             R("/file/<dataset_id>/<file_id>",                                    self.ui_download_file),
             R("/collections/<collection_id>",                                    self.ui_collection),
@@ -3262,11 +3263,9 @@ class WebServer:
             return self.error_404 (request)
 
         try:
-            physical_sample = self.db.physical_samples (
-                container_uuid = container_uuid,
-                account_uuid   = account_uuid,
-                is_published   = False,
-                is_latest      = False)[0]
+            physical_sample = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+            if physical_sample is None:
+                return self.error_403 (request)
 
             account = self.db.account_by_uuid (physical_sample["account_uuid"])
             groups  = self.__groups_for_account (physical_sample["account_uuid"])
@@ -3280,6 +3279,33 @@ class WebServer:
                 draft_doi  = f"{config.igsn_prefix}/{container_uuid}")
         except IndexError:
             return self.error_403 (request)
+
+    def __editable_physical_sample_draft (self, container_uuid, account_uuid):
+        """Returns the container's draft physical sample, creating one from the
+        published record when only a published version exists (an update)."""
+
+        try:
+            return self.db.physical_samples (
+                container_uuid = container_uuid,
+                account_uuid   = account_uuid,
+                is_published   = False,
+                is_latest      = False)[0]
+        except IndexError:
+            pass
+
+        # No draft yet: this is an update of a published sample.  Copy the
+        # published record into a fresh draft (same container, same IGSN).
+        if self.db.create_draft_from_published_physical_sample (container_uuid, account_uuid) is None:
+            return None
+
+        try:
+            return self.db.physical_samples (
+                container_uuid = container_uuid,
+                account_uuid   = account_uuid,
+                is_published   = False,
+                is_latest      = False)[0]
+        except IndexError:
+            return None
 
     def ui_delete_physical_sample (self, request, container_uuid):
         """Implements /my/physical-samples/<uuid>/delete."""
@@ -3950,6 +3976,9 @@ class WebServer:
                                   author_account_uuid = sample["account_uuid"],
                                   assigned_to = reviewer["uuid"],
                                   status      = "assigned"):
+
+            self.db.cache.invalidate_by_prefix ("physical-samples")
+            self.db.cache.invalidate_by_prefix (f"physical-samples_{sample['account_uuid']}")
             return self.respond_204 ()
 
         return self.error_500 ()
@@ -5124,9 +5153,10 @@ class WebServer:
 
         physical_sample["uri"] = f"physical-sample:{physical_sample['sample_uuid']}"
 
-        creators          = self.db.physical_sample_creators (container_uuid, account_uuid)
-        raw_dates         = self.db.physical_sample_dates (container_uuid, account_uuid)
-        related_resources = self.db.physical_sample_related_resources (container_uuid, account_uuid)
+        sample_uri        = physical_sample["uri"]
+        creators          = self.db.physical_sample_creators (container_uuid, None, sample_uri=sample_uri)
+        raw_dates         = self.db.physical_sample_dates (container_uuid, None, sample_uri=sample_uri)
+        related_resources = self.db.physical_sample_related_resources (container_uuid, None, sample_uri=sample_uri)
         tags              = self.db.tags (item_uri=physical_sample["uri"], limit=None)
 
         posted_date = value_or_none (physical_sample, "published_date")
