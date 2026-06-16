@@ -1,0 +1,25 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?dataset djht:is_active "1"^^xsd:boolean .
+    ?dataset djht:is_public "1"^^xsd:boolean .
+    ?dataset djht:is_latest "1"^^xsd:boolean .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?dataset djht:is_active "0"^^xsd:boolean .
+    ?dataset djht:is_public "0"^^xsd:boolean .
+    ?dataset djht:is_latest "0"^^xsd:boolean .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container rdf:type                      djht:DatasetContainer ;
+               djht:latest_published_version ?dataset .
+    FILTER (?container = <{{container_uri}}>)
+    FILTER (?dataset   = <{{dataset_uri}}>)
+  }
+}
+{% endblock %}

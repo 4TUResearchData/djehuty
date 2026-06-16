@@ -1,0 +1,12 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?review_uri ?review_status ?review_submit_date
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?review_uri rdf:type     djht:Review ;
+                djht:dataset <{{dataset_uri}}> .
+    OPTIONAL { ?review_uri djht:status/rdfs:label ?review_status . }
+    OPTIONAL { ?review_uri djht:request_date      ?review_submit_date . }
+  }
+}
+{% endblock %}

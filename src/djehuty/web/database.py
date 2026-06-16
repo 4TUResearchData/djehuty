@@ -2647,6 +2647,96 @@ class SparqlInterface:
             admin_account_uuid, container_uuid, dataset_uuid, new_license_url)
         return True
 
+    def admin_retract_dataset (self, container_uuid, dataset_uuid,
+                               admin_account_uuid, owner_account_uuid=None):
+        """Admin procedure to retract a published dataset and revert the
+        container's published version to a draft.
+
+        Runs each step from the retract playbook as its own SPARQL mutation
+        so every step lands in the audit log (when enable_query_audit_log is
+        on) just like queries submitted via /admin/sparql.
+
+        Returns True on success, False on any failure (one of the mutations
+        returned a falsy result)."""
+
+        self.log.info (
+            "Admin retract start: admin=%s container=%s dataset=%s",
+            admin_account_uuid, container_uuid, dataset_uuid)
+
+        container_uri = rdf.uuid_to_uri (container_uuid, "container")
+        dataset_uri   = rdf.uuid_to_uri (dataset_uuid, "dataset")
+
+        # STEP 3 — flip is_active / is_public / is_latest 1 -> 0 on the
+        # published version.
+        step3 = self.__query_from_template ("admin_retract_flip_published", {
+            "container_uri": container_uri,
+            "dataset_uri":   dataset_uri,
+        })
+        if not self.__run_logged_query (step3):
+            self.log.error ("Admin retract failed at STEP 3 (flip published).")
+            return False
+
+        # STEP 4 — move published_versions -> retracted_versions, promote draft.
+        step4 = self.__query_from_template (
+            "admin_retract_move_versions_and_promote_draft", {
+                "container_uri": container_uri,
+                "dataset_uri":   dataset_uri,
+            })
+        if not self.__run_logged_query (step4):
+            self.log.error ("Admin retract failed at STEP 4 (move + promote).")
+            return False
+
+        # STEP 5 — find any Review attached to this dataset and delete it.
+        find_review_query = self.__query_from_template (
+            "admin_retract_find_review", { "dataset_uri": dataset_uri })
+        if config.enable_query_audit_log:
+            self.__log_query (find_review_query, "Query Audit Log")
+        reviews = self.__run_query (find_review_query)
+        for review in reviews or []:
+            review_uri = review.get("review_uri")
+            if not review_uri:
+                continue
+            self.log.info ("Admin retract: deleting review %s", review_uri)
+            delete_review_query = self.__query_from_template (
+                "admin_retract_delete_review", { "review_uri": review_uri })
+            if not self.__run_logged_query (delete_review_query):
+                self.log.error (
+                    "Admin retract failed at STEP 5c (delete review %s).",
+                    review_uri)
+                return False
+
+        # STEP 6 — flip draft.is_active 0 -> 1.
+        step6 = self.__query_from_template ("admin_retract_flip_draft_active", {
+            "container_uri": container_uri,
+            "dataset_uri":   dataset_uri,
+        })
+        if not self.__run_logged_query (step6):
+            self.log.error ("Admin retract failed at STEP 6 (flip draft active).")
+            return False
+
+        # STEP 7 — strip published_date, posted_date, is_under_review,
+        # first_online_date.
+        step7 = self.__query_from_template (
+            "admin_retract_strip_publish_metadata", {
+                "container_uri": container_uri,
+                "dataset_uri":   dataset_uri,
+            })
+        if not self.__run_logged_query (step7):
+            self.log.error ("Admin retract failed at STEP 7 (strip metadata).")
+            return False
+
+        # STEP 9 — cache invalidation. Covers container, account (if known)
+        # and the global datasets prefix.
+        self.cache.invalidate_by_prefix (container_uuid)
+        if owner_account_uuid:
+            self.cache.invalidate_by_prefix (f"datasets_{owner_account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
+
+        self.log.info (
+            "Admin retract success: admin=%s container=%s dataset=%s",
+            admin_account_uuid, container_uuid, dataset_uuid)
+        return True
+
     def delete_private_links (self, container_uuid, account_uuid, link_id):
         """Procedure to remove private links to a dataset."""
 
