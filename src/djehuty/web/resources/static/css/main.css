@@ -419,6 +419,7 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-angle-up::before { content: "\f106"; }
 .fa-angle-down::before { content: "\f107"; }
 .fa-circle-exclamation::before { content: "\f06a"; }
+.fa-qrcode::before { content: "\f029"; }
 .fa-empty::before {}
 
 .latest-item { background: #fff; margin-bottom: .5em; padding: 1em; border-radius: 4pt; border: solid 1pt #ccc; }
