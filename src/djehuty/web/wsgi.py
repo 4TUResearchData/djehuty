@@ -3217,7 +3217,7 @@ class WebServer:
                 account    = self.db.account_by_uuid (account_uuid)
                 author_uri = URIRef(uuid_to_uri(account["author_uuid"], "author"))
                 self.db.update_item_list (sample_uuid, account_uuid,
-                                          [author_uri], "authors")
+                                          [author_uri], "creators")
             except (TypeError, KeyError):
                 self.log.warning ("No author record for account %s.", account_uuid)
 
