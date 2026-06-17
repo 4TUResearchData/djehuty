@@ -3422,8 +3422,36 @@ class WebServer:
                 return self.error_500 ()
 
             record = request.get_json()
-            validated = []
             errors = []
+
+            # A dictionary payload with an "authors" field creates a brand-new
+            # author record and links it as a creator, mirroring the dataset
+            # author flow.  A list payload links existing authors by UUID.
+            if isinstance (record, dict):
+                new_creators, errors = self.__author_list_from_request_input (record, account_uuid)
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                try:
+                    item = self.db.container_items (container_uuid = container_uuid,
+                                                    account_uuid   = account_uuid,
+                                                    is_published   = None,
+                                                    is_latest      = None)[0]
+                except (IndexError, KeyError):
+                    return self.error_500 ()
+
+                existing_creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+                existing_creators = list (map (
+                    lambda creator: URIRef (uuid_to_uri (creator["uuid"], "author")),
+                    existing_creators))
+
+                creators = existing_creators + new_creators
+                if self.db.update_item_list (item["uuid"], account_uuid, creators, "creators"):
+                    return self.respond_204 ()
+
+                return self.error_500 ()
+
+            validated = []
             if not isinstance (record, list):
                 return self.error_400 (request, message = "Expected a list.",
                                                 code    = "UnexpectedContent")
