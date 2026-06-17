@@ -140,7 +140,7 @@ function render_overview_table () {
                 status = review_approved;
                 published_date = review.published_date;
                 if (is_physical_sample) {
-                    title_html = `${review.dataset_title}`;
+                    title_html = `<a href="/physical_sample/${review.container_uuid}">${review.dataset_title}</a>`;
                 } else {
                     title_html = `<a href="/datasets/${review.container_uuid}/${review.dataset_version}">${review.dataset_title}</a>`;
                 }
