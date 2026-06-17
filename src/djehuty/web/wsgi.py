@@ -195,6 +195,7 @@ class WebServer:
             R("/private_datasets/<private_link_id>",                             self.ui_private_dataset),
             R("/private_collections/<private_link_id>",                          self.ui_private_collection),
             R("/physical_sample/<physical_sample_id>",                           self.ui_physical_sample),
+            R("/physical_sample/<physical_sample_id>/qr-code",                   self.ui_physical_sample_qr_code),
             R("/private_physical_sample/<private_link_id>",                      self.ui_private_physical_sample),
             R("/file/<dataset_id>/<file_id>",                                    self.ui_download_file),
             R("/collections/<collection_id>",                                    self.ui_collection),
@@ -5251,6 +5252,35 @@ class WebServer:
                                        member           = member,
                                        member_url_name  = member_url_name,
                                        page_title       = physical_sample["title"])
+
+    def ui_physical_sample_qr_code (self, request, physical_sample_id):
+        """Implements /physical_sample/<id>/qr-code (downloadable QR image)."""
+
+        handler = self.default_error_handling (request, "GET", "image/png")
+        if handler is not None:
+            return handler
+
+        try:
+            physical_sample = self.db.physical_samples (
+                container_uuid = physical_sample_id,
+                is_published   = True,
+                is_latest      = True)[0]
+        except IndexError:
+            return self.error_404 (request)
+
+        sample_doi = value_or_none (physical_sample, "doi")
+        if sample_doi is None and config.igsn_prefix is not None:
+            sample_doi = f"{config.igsn_prefix}/{physical_sample_id}"
+        if sample_doi is None:
+            return self.error_404 (request)
+
+        qr_buf = BytesIO()
+        qrcode.make (f"https://doi.org/{sample_doi}").save (qr_buf, format="PNG")
+
+        filename = f"{sample_doi.replace('/', '_')}.png"
+        response = self.response (qr_buf.getvalue(), mimetype="image/png")
+        response.headers["Content-disposition"] = f"attachment; filename={filename}"
+        return response
 
     def ui_author (self, request, author_uuid):
         """Implements /authors/<id>."""
