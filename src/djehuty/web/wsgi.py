@@ -3886,6 +3886,12 @@ class WebServer:
                 self.log.error ("Unable to assign reviewer before publishing for %s.",
                                 container_uuid)
 
+        ## Register the IGSN at DataCite before flipping the draft to published,
+        if (config.igsn_prefix is not None
+                and config.in_production and not config.in_preproduction):
+            if not self.__register_physical_sample_doi (sample, account_uuid):
+                return self.error_500 ((f"Registering IGSN for {container_uuid} failed."))
+
         if self.db.publish_physical_sample (container_uuid, account_uuid):
             try:
                 account = self.db.account_by_uuid (sample["account_uuid"])
@@ -7131,24 +7137,35 @@ class WebServer:
 
         return self.error_500 ()
 
-    def __datacite_reserve_doi (self, doi=None):
+    def __datacite_credentials (self, use_igsn=False):
+        """Returns the (api_url, repository_id, password, prefix) tuple to use
+        when talking to DataCite.  Physical samples are registered through the
+        IGSN repository; datasets and collections through the regular one."""
+        if use_igsn:
+            return (config.igsn_url, config.igsn_id,
+                    config.igsn_password, config.igsn_prefix)
+        return (config.datacite_url, config.datacite_id,
+                config.datacite_password, config.datacite_prefix)
+
+    def __datacite_reserve_doi (self, doi=None, use_igsn=False):
         """
         Reserve a DOI at DataCite and return its API response on success or
         None on failure.
         """
 
+        api_url, repository_id, password, prefix = self.__datacite_credentials (use_igsn)
         headers = {
             "Accept": "application/vnd.api+json",
             "Content-Type": "application/vnd.api+json"
         }
-        attributes = { "doi": doi } if doi else { "prefix": config.datacite_prefix }
+        attributes = { "doi": doi } if doi else { "prefix": prefix }
         json_data = { "data": { "type": "dois", "attributes": attributes } }
 
         try:
-            response = requests.post(f"{config.datacite_url}/dois",
+            response = requests.post(f"{api_url}/dois",
                                      headers = headers,
-                                     auth    = (config.datacite_id,
-                                                config.datacite_password),
+                                     auth    = (repository_id,
+                                                password),
                                      timeout = 60,
                                      json    = json_data)
             data = None
@@ -7322,6 +7339,110 @@ class WebServer:
                             response.status_code, response.text)
         except requests.exceptions.ConnectionError:
             self.log.error ("Failed to update a DOI due to a connection error.")
+
+        return False
+
+    def __physical_sample_datacite_parameters (self, sample, doi):
+        """Collect the parameters needed to render a physical sample's DataCite
+        (IGSN) metadata."""
+
+        container_uuid = sample["container_uuid"]
+        sample_uri = f"physical-sample:{sample['sample_uuid']}"
+
+        creators   = self.db.physical_sample_creators (container_uuid, None, sample_uri=sample_uri)
+        categories = self.db.categories (item_uri=sample_uri, limit=None)
+        tags       = [tag["tag"] for tag in self.db.tags (item_uri=sample_uri, limit=None)]
+        dates      = self.db.physical_sample_dates (container_uuid, None, sample_uri=sample_uri)
+        related    = self.db.physical_sample_related_resources (container_uuid, None, sample_uri=sample_uri)
+
+        lat = self_or_value_or_none (sample, "latitude")
+        lon = self_or_value_or_none (sample, "longitude")
+        lat_valid, lon_valid = decimal_coords (lat, lon)
+
+        ## A sample is published "now"; the IGSN's Issued date and publication
+        ## year follow from that.
+        published_date = date.today().isoformat()
+
+        return {
+            "item"              : sample,
+            "doi"               : doi,
+            "creators"          : creators,
+            "categories"        : categories,
+            "tags"              : tags,
+            "dates"             : dates,
+            "related_resources" : related,
+            "organizations"     : self.parse_organizations (value_or (sample, "organizations", "")),
+            "published_date"    : published_date,
+            "published_year"    : published_date[:4],
+            "coordinates"       : {"lat_valid": lat_valid, "lon_valid": lon_valid},
+        }
+
+    def __register_physical_sample_doi (self, sample, account_uuid):
+        """Reserves and registers the IGSN for a physical sample at DataCite.
+
+        Physical samples are not versioned, so there is a single IGSN per
+        container.  Returns True on success, False otherwise."""
+
+        container_uuid = sample["container_uuid"]
+        if config.igsn_prefix is None or config.igsn_url is None:
+            self.log.error ("IGSN is not configured; cannot register sample %s.",
+                            container_uuid)
+            return False
+
+        doi = f"{config.igsn_prefix}/{container_uuid}"
+
+        ## Reserve the DOI.  An 'errors' payload means it was already reserved,
+        ## harmless when (re)publishing.
+        data = self.__datacite_reserve_doi (doi, use_igsn=True)
+        if data is None:
+            return False
+
+        ## Persist the IGSN on the draft so it carries over into the published
+        ## record.  Shares update_doi_after_publishing with datasets/collections.
+        if not self.db.update_doi_after_publishing (sample["sample_uuid"],
+                                                    "physical-sample", doi):
+            self.log.error ("Saving IGSN %s on sample %s failed.", doi, container_uuid)
+            return False
+        self.db.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+        self.db.cache.invalidate_by_prefix ("physical-samples")
+
+        parameters = self.__physical_sample_datacite_parameters (sample, doi)
+        xml = str (xml_formatter.datacite_physical_sample (parameters, indent=False),
+                   encoding="utf-8")
+        xml = '<?xml version="1.0" encoding="UTF-8"?>' + xml.split('?>', 1)[1] #Datacite is very choosy about this
+        encoded_bytes = base64.b64encode (xml.encode ("utf-8"))
+
+        api_url, repository_id, password, _ = self.__datacite_credentials (use_igsn=True)
+        headers = {
+            "Accept": "application/vnd.api+json",
+            "Content-Type": "application/vnd.api+json"
+        }
+        json_data = {
+            "data": {
+                "attributes": {
+                    "event": "publish", #does no harm when already published
+                    "url": f"{config.base_url}/physical_sample/{container_uuid}",
+                    "xml": str (encoded_bytes, "utf-8")
+                }
+            }
+        }
+
+        try:
+            response = requests.put (f"{api_url}/dois/{doi}",
+                                     headers = headers,
+                                     auth    = (repository_id, password),
+                                     timeout = 60,
+                                     json    = json_data)
+            if response.status_code == 201:
+                return True
+            if response.status_code == 200:
+                self.log.warning ("IGSN %s already active, updated", doi)
+                return True
+
+            self.log.error ("DataCite responded with %s (%s)",
+                            response.status_code, response.text)
+        except requests.exceptions.ConnectionError:
+            self.log.error ("Failed to register IGSN %s due to a connection error.", doi)
 
         return False
 
