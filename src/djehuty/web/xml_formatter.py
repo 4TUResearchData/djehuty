@@ -363,7 +363,9 @@ def datacite (parameters, indent=True):
 ## mapped to "Other".
 DATACITE_SAMPLE_DATE_TYPES = {
     "Collected": "Collected",
+    "Created":   "Created",
     "Issued":    "Issued",
+    "Updated":   "Updated",
     "Other":     "Other",
     "Destroyed": "Other",
 }
