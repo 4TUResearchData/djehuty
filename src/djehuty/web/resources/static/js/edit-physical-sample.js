@@ -238,6 +238,73 @@ function add_author (author_uuid, container_uuid) {
     }).fail(function () { show_message ("failure", `<p>Failed to add ${author_uuid}.</p>`); });
 }
 
+function submit_new_author (container_uuid) {
+    let first_name = jQuery("#author_first_name").val();
+    let last_name = jQuery("#author_last_name").val();
+    jQuery("#author_first_name").removeClass("missing-required");
+    jQuery("#author_last_name").removeClass("missing-required");
+
+    if (first_name == "" && last_name == "") {
+        let error_message = "<p>You must enter at least one of the first or last names.</p>";
+        jQuery("#author_first_name").addClass("missing-required");
+        show_message ("failure", `${error_message}`);
+        return false;
+    }
+
+    let authors = [{
+        "name":       `${first_name} ${last_name}`,
+        "first_name": first_name,
+        "last_name":  last_name,
+        "email":      jQuery("#author_email").val(),
+        "orcid_id":   jQuery("#author_orcid").val()
+    }];
+
+    jQuery.ajax({
+        url:         `/v3/physical-samples/${container_uuid}/creators`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({ "authors": authors }),
+    }).done(function () {
+        jQuery("#authors-ac").remove();
+        jQuery("#authors").removeClass("input-for-ac");
+        jQuery("#authors").val("");
+        render_authors (container_uuid);
+    }).fail(function () { show_message ("failure", `<p>Failed to add author.</p>`); });
+    return true;
+}
+
+function submit_new_author_event (event) {
+    stop_event_propagation (event);
+    submit_new_author (event.data["item_id"]);
+}
+
+function new_author (container_uuid) {
+    let banner = `<br><span><i>Enter the details of the author you want to add.</i></span>`;
+    jQuery("#new-author-description").after(banner).remove();
+    let html = jQuery("<div/>", { "id": "new-author-form" });
+    html.append(jQuery ("<label/>", { "for": "author_first_name" }).text("First name"));
+    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_first_name", "name": "author_first_name" }));
+    html.append(jQuery ("<label/>", { "for": "author_last_name" }).text("Last name"));
+    html.append(jQuery ("<span/>", { "class": "required-field" }).text("*"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_last_name", "name": "author_last_name" }));
+    html.append(jQuery ("<label/>", { "for": "author_email" }).text("E-mail address"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_email", "name": "author_email" }));
+    html.append(jQuery ("<label/>", { "for": "author_orcid" }).text("ORCID"));
+    html.append(jQuery ("<input/>", { "type": "text", "id": "author_orcid", "name": "author_orcid" }));
+
+    let button_wrapper = jQuery("<div/>", { "id": "new-author", "class": "a-button" });
+    let anchor = jQuery("<a/>", { "href": "#" }).text("Add author");
+    anchor.on ("click", { "item_id": container_uuid }, submit_new_author_event);
+    button_wrapper.append(anchor);
+
+    html.append(button_wrapper);
+    jQuery("#authors-ac ul").remove();
+    jQuery("#new-author").remove();
+    jQuery("#authors-ac").append(html);
+}
+
 function remove_author_event (event) {
     stop_event_propagation (event);
     remove_author (event.data["author_uuid"], event.data["container_uuid"]);
