@@ -3549,7 +3549,7 @@ class WebServer:
                 return self.error_500 ()
 
             record = request.get_json()
-            types  = ["collected", "destroyed", "issued", "other"]
+            types  = ["collected", "created", "destroyed", "issued", "updated", "other"]
             errors = []
 
             if not isinstance (record, list):
