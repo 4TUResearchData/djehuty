@@ -4933,7 +4933,7 @@ class WebServer:
 
         qr_code_svg = None
         sample_doi  = value_or_none (physical_sample, "doi")
-        if sample_doi is None and private_view:
+        if sample_doi is None and config.igsn_prefix is not None:
             sample_doi = f"{config.igsn_prefix}/{container_uuid}"
         if sample_doi:
             qr_buf = BytesIO()
