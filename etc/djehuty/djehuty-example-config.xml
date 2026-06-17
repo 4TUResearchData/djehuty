@@ -70,6 +70,15 @@
     <password><!-- Password for this repository ID. --></password>
     <prefix>10.5438</prefix>
   </datacite>
+  <!-- Physical samples are registered as IGSNs through a separate DataCite
+       repository, with its own repository-id, password and prefix.  Setting
+       the prefix enables the physical-sample workflow. -->
+  <igsn>
+    <api-url>https://api.datacite.org</api-url>
+    <repository-id><!-- Repository ID received from DataCite for the IGSN repository. --></repository-id>
+    <password><!-- Password for this repository ID. --></password>
+    <prefix>10.XXXXX</prefix>
+  </igsn>
   <handle>
     <url>https://epic-pid.storage.surfsara.nl:800X/api/handles</url>
     <index>XXX</index>
