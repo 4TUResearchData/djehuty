@@ -36,7 +36,11 @@ Available subcommands and options:
   web:
     --help               -h Show a help message.
     --config-file=ARG    -c Load configuration from a file.
-    --initialize         -i Populate the RDF store with default triples.
+    --initialize         -i Initialize the RDF store on start-up.  This is now
+                            the default (initialization is idempotent); the flag
+                            is kept for backwards compatibility.
+    --no-init               Skip RDF store initialization and only serve.  Use
+                            for instances that must not initialize.
     --extract-transactions-from-log=ARG
                          -e Extract transactions from the log file.  It does
                             not extract delayed transactions, so it matches
@@ -100,7 +104,10 @@ def main_inner ():
     ### -----------------------------------------------------------------------
     web_parser = subparsers.add_parser('web', help="Options for the 'web' subcommand.")
     web_parser.add_argument('--config-file','-c', type=str, default=None)
+    # Initialization is on by default and idempotent; --initialize is kept as a
+    # no-op for backwards compatibility, --no-init opts out (serve only).
     web_parser.add_argument('--initialize', '-i', action='store_true')
+    web_parser.add_argument('--no-init', action='store_true')
     web_parser.add_argument('--extract-transactions-from-log', '-e', nargs='?',
                             const='', default=None)
     web_parser.add_argument('--extract-delayed-transactions-from-log', '-d', nargs='?',
@@ -139,7 +146,7 @@ def main_inner ():
                             args.api_url)
 
     elif args.command == "web":
-        web_ui.main (args.config_file, True, args.initialize,
+        web_ui.main (args.config_file, True, not args.no_init,
                      args.extract_transactions_from_log,
                      args.extract_delayed_transactions_from_log,
                      args.apply_transactions, args.full_rdf_export,
