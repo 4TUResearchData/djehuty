@@ -178,7 +178,7 @@ jQuery(document).ready(function (){
 <input type="text" id="publisher" name="publisher" value="{% if object["publisher"] %}{{object["publisher"]}}{% else %}{{site_name}}{% endif %}" />
 
 <label for="publication_year">Publication year</label><div class="fas fa-question-circle help-icon"><span class="help-text">Enter the year that a sample was first made available to the research community.</span></div><span class="required-field">&#8727;</span>
-<input type="text" id="publication_year" name="publication_year" value="{{object["publication_year"]}}" />
+<input type="text" id="publication_year" name="publication_year" value="{{current_year}}" readonly />
 
 <h3 class="corporate-identity-h3">Findability</h3>
 <label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add keywords that will help make your resource more discoverable. For IGSN IDs, this is the materials that compose the sample. Use a semicolon (;) or hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>

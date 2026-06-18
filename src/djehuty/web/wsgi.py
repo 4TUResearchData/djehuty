@@ -3249,7 +3249,8 @@ class WebServer:
                 account    = account,
                 groups     = groups,
                 categories = self.db.categories_tree(),
-                draft_doi  = f"{config.igsn_prefix}/{container_uuid}")
+                draft_doi  = f"{config.igsn_prefix}/{container_uuid}",
+                current_year = datetime.now().strftime("%Y"))
         except IndexError:
             return self.error_403 (request)
 
@@ -3799,7 +3800,7 @@ class WebServer:
                 "resource_type":        validator.string_value  (record, "resource_type",    0, 512,   False, errors),
                 "subject":              validator.string_value  (record, "subject",          0, 512,   False, errors),
                 "publisher":            validator.string_value  (record, "publisher",        0, 10000, True,  errors),
-                "publication_year":     validator.string_value  (record, "publication_year", 0, 4,     True,  errors),
+                "publication_year":     datetime.now().strftime("%Y"),
                 "alternate_identifier": validator.string_value  (record, "alternate_identifier", 0, 255, False, errors),
                 "organizations":        validator.string_value  (record, "organizations",    0, 2048,  True,  errors),
                 "physical_storage_location": validator.string_value (record, "physical_storage_location", 1, 2048, True, errors),
