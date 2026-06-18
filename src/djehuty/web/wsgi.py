@@ -348,6 +348,7 @@ class WebServer:
             R("/v3/physical-samples/<container_uuid>/private_links/<link_id>",   self.api_private_physical_sample_private_links_details),
             R("/v3/physical-samples/<container_uuid>/submit-for-review",         self.api_v3_physical_sample_submit),
             R("/v3/physical-samples/<container_uuid>/publish",                   self.api_v3_physical_sample_publish),
+            R("/v3/physical-samples/<container_uuid>/datacite.xml",              self.api_v3_physical_sample_datacite_preview),
             R("/v3/physical-samples/<container_uuid>/decline",                   self.api_v3_physical_sample_decline),
             R("/v3/physical-samples/<container_uuid>/assign-reviewer/<reviewer_uuid>", self.api_v3_physical_samples_assign_reviewer),
 
@@ -3921,6 +3922,44 @@ class WebServer:
             })
 
         return self.error_500 ()
+
+    def api_v3_physical_sample_datacite_preview (self, request, container_uuid):
+        """Implements /v3/physical-samples/<id>/datacite.xml.
+
+        Debug helper that renders the DataCite (IGSN) metadata XML for a
+        physical sample's draft without registering anything at DataCite.  It is
+        only available in environments where DataCite registration is disabled,
+        so it cannot be used to inspect metadata in production."""
+
+        if config.in_production and not config.in_preproduction:
+            return self.error_404 (request)
+
+        account_uuid = self.default_authenticated_error_handling (request, "GET",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        ## Prefer the draft (what publishing would register); fall back to the
+        ## published record so already-published samples can be inspected too.
+        sample = self.__physical_sample_by_id_or_uri (container_uuid,
+                                                      account_uuid = account_uuid,
+                                                      is_published = False)
+        if sample is None:
+            sample = self.__physical_sample_by_id_or_uri (container_uuid,
+                                                          account_uuid = account_uuid,
+                                                          is_published = True,
+                                                          is_latest    = True)
+        if sample is None:
+            return self.error_403 (request)
+
+        doi = f"{config.igsn_prefix}/{container_uuid}"
+        parameters = self.__physical_sample_datacite_parameters (sample, doi)
+        xml = str (xml_formatter.datacite_physical_sample (parameters, indent=True),
+                   encoding="utf-8")
+        return self.response (xml, mimetype="application/xml")
 
     def api_v3_physical_sample_decline (self, request, container_uuid):
         """Implements /v3/physical-samples/<id>/decline."""
