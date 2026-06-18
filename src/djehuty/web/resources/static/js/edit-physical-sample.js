@@ -692,6 +692,7 @@ function activate (container_uuid, callback=jQuery.noop) {
     new Quill('#methods', { theme: '4tu' });
     jQuery("#delete").on("click", function (event) { delete_physical_sample (container_uuid, event); });
     jQuery("#save").on("click", function (event)   { save_physical_sample (container_uuid, event); });
+    jQuery("#save_bottom").on("click", function (event)   { save_physical_sample (container_uuid, event); });
     jQuery("#submit").on("click", function (event) { submit_physical_sample (container_uuid, event); });
     jQuery("#publish").on("click", function (event) { publish_physical_sample (container_uuid, event); });
     jQuery("#decline").on("click", function (event) { decline_physical_sample (container_uuid, event); });
