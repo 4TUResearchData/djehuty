@@ -448,6 +448,10 @@ def datacite_physical_sample_tree (parameters, debug=False):
         if not date_value:
             continue
         date_type = DATACITE_SAMPLE_DATE_TYPES.get (value_or (entry, 'date_type', 'Other'), 'Other')
+        ## The Issued date is emitted above from the publication date; skip the
+        ## persisted copy so it is not written twice.
+        if date_type == 'Issued':
+            continue
         maker.child (dates_element, 'date', {'dateType': date_type}, str (date_value)[:10])
 
     #10 alternateIdentifiers

@@ -3551,7 +3551,9 @@ class WebServer:
                 return self.error_500 ()
 
             record = request.get_json()
-            types  = ["collected", "created", "destroyed", "issued", "updated", "other"]
+            ## "issued" is intentionally omitted: the Issued date is set
+            ## automatically to the publication date and cannot be entered by hand.
+            types  = ["collected", "created", "destroyed", "updated", "other"]
             errors = []
 
             if not isinstance (record, list):
@@ -3877,6 +3879,19 @@ class WebServer:
                                           assigned_to = reviewer_account["uuid"],
                                           status      = "assigned"):
                 self.log.error ("Unable to assign reviewer before publishing for %s.",
+                                container_uuid)
+
+        ## Persist the Issued date (= the publication date) on the first
+        ## publication.  It is captured automatically rather than entered by the
+        ## depositor, and it is kept as-is on later updates so the original issue
+        ## date is preserved.
+        existing_dates = self.db.physical_sample_dates (container_uuid, account_uuid)
+        if not any (value_or (entry, "date_type", "") == "Issued"
+                    for entry in existing_dates):
+            if self.db.add_date_to_physical_sample (container_uuid, "issued",
+                                                    date.today().isoformat(),
+                                                    account_uuid) is None:
+                self.log.error ("Failed to record Issued date for physical sample %s.",
                                 container_uuid)
 
         ## Register the IGSN at DataCite before flipping the draft to published,
