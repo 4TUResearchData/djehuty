@@ -161,12 +161,17 @@ jQuery(document).ready(function (){
 {%- if not groups: %}
 <p>No group association found.  Please contact <a href="mailto:{{support_email_address}}">support</a>.</p>
 {%- else %}
-{%- for group in groups if group.id == account.group_id %}
-{%- if loop.first %}
+{%- set selected_group = object.group_id | default(account.group_id, true) %}
+{%- for group in groups: %}
 <h4>{{group.name}}</h4>
-<input class="subitem-checkbox" type="radio" name="groups" value="{{group.id}}" id="group_{{group.id}}" checked="checked"><!--
+<div id="subgroups_{{group.id}}" class="subgroup-wrapper">
+<input class="subitem-checkbox" type="radio" name="groups" value="{{group.id}}" id="group_{{group.id}}" {% if selected_group == group.id: %}checked="checked"{% endif %}><!--
 --><label class="subitem-label no-head" for="group_{{group.id}}">{{group.name}}</label><br>
-{%- endif %}
+{%- for sub in group.subgroups: %}
+<input class="subitem-checkbox" type="radio" name="groups" value="{{sub.id}}" id="group_{{sub.id}}" {% if selected_group == sub.id: %}checked="checked"{% endif %}><!--
+--><label class="subitem-label no-head" for="group_{{sub.id}}">{{sub.name}}</label><br>
+{%- endfor %}
+</div>
 {%- endfor %}
 {%- endif %}
 </div>
