@@ -198,6 +198,19 @@ def unique_node (prefix):
     identifier       = str(uuid.uuid4())
     return prefix_namespace[identifier]
 
+def stable_node (prefix, seed):
+    """Return a deterministic node for PREFIX derived from SEED.
+
+    Unlike 'unique_node', the same (PREFIX, SEED) always yields the same URI
+    (a UUIDv5), so re-inserting a record produces identical triples rather than
+    a duplicate carrying a fresh UUID. Used for static records seeded from
+    resource files (categories, languages) so that '--initialize' is
+    idempotent and safe to run more than once against the same store.
+    """
+    prefix_namespace = Namespace(f"{prefix}:")
+    identifier       = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{prefix}:{seed}"))
+    return prefix_namespace[identifier]
+
 def uri_to_uuid (uri):
     """Returns the UUID of a URI created by 'unique_node' or 'blank_node'."""
     if uri is None:

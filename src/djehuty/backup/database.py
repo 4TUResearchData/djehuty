@@ -288,7 +288,10 @@ class DatabaseInterface:
         if uri is not None:
             return uri
 
-        uri = rdf.unique_node ("category")
+        # Derive a deterministic URI from the category id so re-running
+        # --initialize re-inserts identical triples instead of creating a
+        # duplicate category under a fresh UUID.
+        uri = rdf.stable_node ("category", category_id)
         self.store.add ((uri, RDF.type,      rdf.DJHT["Category"]))
         self.store.add ((uri, rdf.DJHT["id"], Literal(category_id)))
 
@@ -971,7 +974,9 @@ class DatabaseInterface:
 
         languages = self.__load_resource_file("languages.json")
         for language in languages:
-            uri = rdf.unique_node ("language")
+            # Deterministic URI keyed on the shortcode, so re-initializing does
+            # not create duplicate Language records (see insert_category).
+            uri = rdf.stable_node ("language", language["shortcode"])
             self.store.add ((uri, RDF.type, rdf.DJHT["Language"]))
             self.store.add ((uri, RDFS.label,
                              Literal(language["name"], datatype=XSD.string)))
