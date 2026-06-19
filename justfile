@@ -34,14 +34,11 @@ dist-rpm: sdist
 
 # Build Docker image
 dist-docker:
-    uv export --frozen --no-dev --no-hashes -o docker/requirements.lock
     docker image build --no-cache \
-        --build-arg="PURPOSE=release" \
         --build-arg="VERSION={{ version }}" \
         -t docker.io/4turesearchdata/djehuty:{{ version }} \
         -f docker/Dockerfile \
         .
-    rm -f docker/requirements.lock
 
 # Push Docker image to registry
 publish-docker: dist-docker
@@ -106,7 +103,7 @@ clean: docs-clean
     rm -rf build/ dist/ src/djehuty.egg-info/ pylint.log
     # Restore-time overlay written by `just db_backup=... dev`; pairs with
     # the dev volume teardown below so the next `just dev` boots clean.
-    rm -f etc/djehuty/*.local.xml
+    rm -f etc/djehuty/*.local.json
     {{ e2e_compose }} down -v --remove-orphans 2>/dev/null || true
 
 # Run Coverity scan
@@ -163,20 +160,18 @@ dev:
             +backup-dirs /backups \
             +foreground
 
-        # Write the restore-time override into a gitignored *.local.xml copy
+        # Write the restore-time override into a gitignored *.local.json copy
         # so the tracked dev config stays clean. The container reads it via
-        # DJEHUTY_CONFIG (see docker/dev-entrypoint.sh).
+        # DJEHUTY_CONFIG (forwarded into the djehuty service's command). python3
+        # edits the JSON state-graph so we avoid GNU/BSD sed differences.
         echo "==> Writing restore-time config override..."
-        DEV_CONFIG="etc/djehuty/djehuty-dev-config.xml"
-        LOCAL_CONFIG="etc/djehuty/djehuty-dev-config.local.xml"
+        DEV_CONFIG="etc/djehuty/djehuty-dev-config.json"
+        LOCAL_CONFIG="etc/djehuty/djehuty-dev-config.local.json"
         cp "${DEV_CONFIG}" "${LOCAL_CONFIG}"
-        if sed --version 2>/dev/null | grep -q GNU; then
-            sed -i 's|<state-graph>.*</state-graph>|<state-graph>{{ state_graph }}</state-graph>|' "${LOCAL_CONFIG}"
-        else
-            sed -i '' 's|<state-graph>.*</state-graph>|<state-graph>{{ state_graph }}</state-graph>|' "${LOCAL_CONFIG}"
-        fi
+        python3 -c "import json,sys; p=sys.argv[1]; d=json.load(open(p)); d['djehuty']['rdf-store']['state-graph']=sys.argv[2]; json.dump(d, open(p,'w'), indent=2)" \
+            "${LOCAL_CONFIG}" "{{ state_graph }}"
         echo "    ${LOCAL_CONFIG} (state-graph: {{ state_graph }})"
-        export DJEHUTY_CONFIG="/config/djehuty/djehuty-dev-config.local.xml"
+        export DJEHUTY_CONFIG="/config/djehuty/djehuty-dev-config.local.json"
     fi
 
     echo "==> Starting development environment..."

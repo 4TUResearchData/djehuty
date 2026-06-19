@@ -524,7 +524,7 @@ wheels = [
 
 [[package]]
 name = "djehuty"
-version = "26.2"
+version = "26.3"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },

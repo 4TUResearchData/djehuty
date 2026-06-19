@@ -17,7 +17,6 @@ doc/Makefile.in
 missing
 install-sh
 install-sh~
-docker/requirements.lock
 pylint.log
 *__pycache__*
 dist/
@@ -66,4 +65,5 @@ tests/e2e/trace.zip
 .docker-deps.lock
 docker/coverage/
 docker/test-results/
+etc/djehuty/*.local.json
 etc/djehuty/*.local.xml

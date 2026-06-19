@@ -1,0 +1,109 @@
+{
+  "djehuty": {
+    "maintenance-mode": "0",
+    "site-name": "4TU.ResearchData",
+    "site-shorttag": "dev",
+    "site-description": "Djehuty development instance",
+    "publisher-rors": {
+      "publisher-ror": [
+        { "name": "4TU.ResearchData", "url": "https://ror.org/02d887280" },
+        { "name": "Delft University of Technology", "url": "https://ror.org/02e2c7k09" },
+        { "name": "Eindhoven University of Technology", "url": "https://ror.org/02c2kyt77" }
+      ]
+    },
+    "support-email-address": "dev@localhost",
+    "colors": {
+      "primary-color": "#f49120",
+      "primary-color-hover": "#d26000",
+      "primary-color-active": "#9d4800",
+      "primary-foreground-color": "#000000",
+      "privilege-button-color": "#fce3bf",
+      "footer-background-color": "#707070"
+    },
+    "small-footer": "<div id=\"footer-wrapper2\">\n<p>Development instance powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a>.</p>\n</div>",
+    "large-footer": "<div id=\"footer-wrapper2\">\n<p>Development instance powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a>.</p>\n</div>",
+    "sandbox-message": {
+      "style": "background: #784421; color: #fff;",
+      "#text": "Development instance — changes are not persisted beyond container restarts unless using named volumes."
+    },
+    "bind-address": "0.0.0.0",
+    "port": "8080",
+    "base-url": "http://localhost:8080",
+    "storage-root": "/data",
+    "cache-root": {
+      "clear-on-start": "1",
+      "#text": "/data/cache"
+    },
+    "live-reload": "1",
+    "debug-mode": "1",
+    "production": "0",
+    "allow-crawlers": "0",
+    "show-portal-summary": "1",
+    "show-institutions": "1",
+    "show-science-categories": "1",
+    "enable-query-audit-log": "0",
+    "show-latest-datasets": "1",
+    "disable-2fa": "1",
+    "use-x-forwarded-for": "0",
+    "rdf-store": {
+      "sparql-uri": "http://virtuoso:8890/sparql",
+      "sparql-update-uri": "http://virtuoso:8890/sparql",
+      "state-graph": "djehuty://local"
+    },
+    "authentication": {
+      "automatic-login-email": "dev@djehuty.com"
+    },
+    "privileges": {
+      "account": [
+        {
+          "first_name": "Dev",
+          "last_name": "User",
+          "email": "dev@djehuty.com",
+          "may-administer": "1",
+          "may-run-sparql-queries": "1",
+          "may-impersonate": "1",
+          "may-review": "1",
+          "may-review-quotas": "1",
+          "may-process-feedback": "1"
+        }
+      ]
+    },
+    "groups": {
+      "group": [
+        {
+          "name": "4TU.ResearchData",
+          "domain": "4tu.nl",
+          "id": "28585",
+          "parent_id": "0",
+          "account": {
+            "first_name": "Dev",
+            "last_name": "User",
+            "email": "dev@localhost"
+          }
+        },
+        {
+          "name": "Delft University of Technology",
+          "domain": "tudelft.nl",
+          "id": "28586",
+          "parent_id": "28585",
+          "is_featured": "1",
+          "member": {
+            "email": "user@tudelft.nl",
+            "first_name": "Test",
+            "last_name": "User"
+          }
+        },
+        {
+          "name": "Other institutions",
+          "domain": "nogroup",
+          "id": "28598",
+          "parent_id": "28585",
+          "is_featured": "1"
+        }
+      ]
+    },
+    "quotas": {
+      "default": "5000000000"
+    }
+  }
+}
