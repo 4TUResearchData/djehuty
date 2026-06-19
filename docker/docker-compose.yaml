@@ -5,12 +5,12 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
-    image: djehuty:24.6
-    command: '/bin/djehuty web -c /djehuty-config.xml'
+    image: djehuty:latest
+    command: '/bin/djehuty web --initialize -c /etc/djehuty/config.json'
     read_only: true
     volumes:
       - /opt/djehuty/data/:/data/
-      - /opt/djehuty/djehuty-config.xml:/djehuty-config.xml
+      - /opt/djehuty/djehuty-config.json:/etc/djehuty/config.json
     restart: always
     ports:
       - 9001:8080

@@ -28,9 +28,10 @@ services:
     ports:
       - "8080:8080"
     # Forwarded from `just db_backup=... dev` so the container loads the
-    # gitignored *.local.xml override instead of the tracked dev config.
+    # gitignored *.local.json override instead of the tracked dev config.
+    # The image's default CMD runs `djehuty web --initialize` against this.
     environment:
-      DJEHUTY_CONFIG: ${DJEHUTY_CONFIG:-/config/djehuty/djehuty-dev-config.xml}
+      DJEHUTY_CONFIG: ${DJEHUTY_CONFIG:-/config/djehuty/djehuty-dev-config.json}
     volumes:
       - ../src:/app/src
       - ../etc:/config:ro

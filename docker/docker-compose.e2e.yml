@@ -13,9 +13,13 @@ services:
       args:
         INSTALL_DEV: "1"
     environment:
-      DJEHUTY_COVERAGE: "1"
-      DJEHUTY_FORCE_INITIALIZE: "1"
       COVERAGE_FILE: /coverage/.coverage
+    # $$ escapes compose interpolation so the container shell expands
+    # DJEHUTY_CONFIG from the environment (set on the dev compose service).
+    command:
+      - sh
+      - -c
+      - exec coverage run -m djehuty.ui web --initialize --config-file "$$DJEHUTY_CONFIG"
     volumes:
       - ./coverage:/coverage
 

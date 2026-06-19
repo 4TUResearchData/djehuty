@@ -1,40 +1,55 @@
-FROM debian:bookworm-slim
-LABEL authors="Nikhef, 4TU.ResearchData"
-ARG PURPOSE="release"
-ARG VERSION="0.0.0"
+FROM python:3.14-slim-bookworm@sha256:a70519002c49552ea0a853de47599cf40479b001bd7a624f1112eaf44dcaccc7
 
-# Build a self-updating (development) container:
-# docker image build --build-arg="PURPOSE=development" -t djehuty:devel -f docker/Dockerfile .
-#
-# Or a non-self-updating (release) container:
-# docker image build -t djehuty:latest -f docker/Dockerfile .
-#
-# start with: docker container run --rm -ti -v ../etc/djehuty/djehuty-example-config.xml:/config.xml:Z djehuty:latest /bin/djehuty web -c /config.xml
+LABEL authors="Nikhef, 4TU.ResearchData"
+ARG VERSION="0.0.0"
+LABEL org.opencontainers.image.version="${VERSION}"
 
 RUN apt-get update \
-    && apt-get install -y build-essential git libxmlsec1-dev pkg-config python3 python3-dev python3-venv \
+    && apt-get install -y --no-install-recommends \
+       git \
+       libxmlsec1-dev \
+       pkg-config \
+       curl \
     && apt-get clean \
-    && rm -rf /var/lib/dpkg/info/*.list /var/lib/apt/lists/* \
-    && useradd -mg users -d /opt/djehuty -u 7001 djehuty \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=ghcr.io/astral-sh/uv:0.11.21@sha256:ff07b86af50d4d9391d9daf4ff89ce427bc544f9aae87057e69a1cc0aa369946 /uv /usr/local/bin/uv
+
+WORKDIR /app
+
+ENV UV_COMPILE_BYTECODE=1
+
+# Install dependencies first (cached layer).
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --no-dev
+
+# Build and install djehuty from the source (non-editable, so the release image
+# ships it in site-packages rather than as an editable link to /app/src).
+# Dependencies still come from the locked uv.lock resolved above.
+COPY src/ ./src/
+COPY README.md ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-editable
+
+# Optional SAML login support. python3-saml is not a locked dependency (it is
+# only needed when SAML auth is configured), so it is installed separately,
+# after the project sync that would otherwise prune it.
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --python /app/.venv python3-saml
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Run as a non-root user with an OpenShift-friendly /data, matching the
+# read-only / cap-drop posture in docker/docker-compose.yaml. The /bin/djehuty
+# shim keeps the existing compose/helm `command:` working unchanged.
+RUN useradd -mg users -d /opt/djehuty -u 7001 djehuty \
     && mkdir -p /data && chown -R djehuty:0 /data && chmod -R g=u /data \
-    &&  echo '#!/bin/sh\n/usr/bin/git -C /opt/djehuty/djehuty pull\nVIRTUAL_ENV=/opt/djehuty/virtual-env\n/opt/djehuty/virtual-env/bin/pip install --editable /opt/djehuty/djehuty\n' > /usr/bin/update-djehuty \
-    && chmod +x /usr/bin/update-djehuty \
-    && UPDATE_COMMAND=""; if [ "$PURPOSE" = "development" ]; then UPDATE_COMMAND="/usr/bin/update-djehuty"; fi; echo '#!/bin/sh\n'${UPDATE_COMMAND}'\nVIRTUAL_ENV=/opt/djehuty/virtual-env\n/opt/djehuty/virtual-env/bin/djehuty $@' > /usr/bin/djehuty && chmod +x /usr/bin/djehuty
+    && printf '#!/bin/sh\nexec /app/.venv/bin/djehuty "$@"\n' > /bin/djehuty \
+    && chmod +x /bin/djehuty
 
 USER djehuty
 
-COPY --chown=djehuty:users . /opt/djehuty/djehuty/
+EXPOSE 8080
 
-WORKDIR /opt/djehuty/djehuty
-
-RUN python3 -m venv /opt/djehuty/virtual-env \
-    && . /opt/djehuty/virtual-env/bin/activate \
-    && pip install --no-binary lxml,xmlsec python3-saml \
-    && if [ -f docker/requirements.lock ]; then \
-         pip install -r docker/requirements.lock; \
-         pip install --no-deps --editable .; \
-       else \
-         pip install --editable .; \
-       fi
-
-CMD ["/bin/bash"]
+CMD ["djehuty", "web", "--initialize", "--config-file", "/etc/djehuty/config.json"]

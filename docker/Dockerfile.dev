@@ -1,4 +1,4 @@
-FROM python:3.14-slim-bookworm
+FROM python:3.14-slim-bookworm@sha256:a70519002c49552ea0a853de47599cf40479b001bd7a624f1112eaf44dcaccc7
 
 # INSTALL_DEV=1 includes dev dependencies (pytest, playwright, coverage, …)
 # and a Playwright-compatible chromium. Used by the e2e compose override.
@@ -13,7 +13,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.11.21@sha256:ff07b86af50d4d9391d9daf4ff89ce427bc544f9aae87057e69a1cc0aa369946 /uv /usr/local/bin/uv
 
 WORKDIR /app
 
@@ -46,8 +46,6 @@ RUN if [ "$INSTALL_DEV" = "1" ]; then \
         playwright install --with-deps chromium; \
     fi
 
-COPY docker/dev-entrypoint.sh /usr/local/bin/dev-entrypoint.sh
-
 EXPOSE 8080
 
-ENTRYPOINT ["dev-entrypoint.sh"]
+CMD ["sh", "-c", "exec djehuty web --initialize --config-file \"${DJEHUTY_CONFIG:-/config/djehuty/djehuty-dev-config.json}\""]
