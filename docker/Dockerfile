@@ -1,6 +1,7 @@
 FROM python:3.14-slim-bookworm@sha256:a70519002c49552ea0a853de47599cf40479b001bd7a624f1112eaf44dcaccc7
 
 LABEL authors="Nikhef, 4TU.ResearchData"
+ARG VERSION="0.0.0"
 LABEL org.opencontainers.image.version="${VERSION}"
 
 RUN apt-get update \
