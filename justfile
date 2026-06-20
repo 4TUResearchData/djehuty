@@ -184,7 +184,7 @@ test-unit *args="":
 # Run e2e tests in containers (pass extra pytest args, e.g. -m smoke)
 test *args="":
     {{ e2e_compose }} run --rm --build tests \
-        pytest tests/ -v --tb=short \
+        pytest -W always -rw tests/ -v --tb=short \
         --reruns=1 --reruns-delay=5 \
         --screenshot=only-on-failure \
         --output=/app/test-results {{ args }}
