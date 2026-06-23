@@ -140,6 +140,7 @@ def main (figshare_token, figshare_stats_auth, account_id, api_url):
 
     if not endpoint.rdf_store.insert_static_triplets ():
         logging.error ("Failed to insert static triplets")
+    endpoint.rdf_store.mark_state_graph_as_initialized ()
 
     accounts                = endpoint.get_institutional_accounts ()
     number_of_accounts      = len(accounts)
