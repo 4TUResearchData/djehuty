@@ -1,0 +1,69 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+{#- Physical samples are not versioned.  Publishing a draft makes it the single
+ #- published record of its container.  When a published record already exists
+ #- (an update), it is replaced: the container keeps the same identity
+ #- (and therefore the same IGSN), no new version is created. #}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?container     djht:draft                    ?draft_sample .
+
+    ?draft_sample  djht:is_latest                ?is_latest .
+    ?draft_sample  djht:is_public                ?is_public .
+    ?draft_sample  djht:is_editable              ?is_editable .
+    ?draft_sample  djht:version                  ?version .
+    ?draft_sample  djht:is_under_review          ?is_under_review .
+
+    ?review        djht:status                   ?review_status .
+
+    {%- if not first_publication %}
+    ?container     djht:latest_published_version ?old_published .
+    ?container     djht:published_versions       ?old_cell .
+    ?old_published djht:is_latest                ?old_is_latest .
+    ?old_published djht:is_public                ?old_is_public .
+    {%- endif %}
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?container     djht:latest_published_version <physical-sample:{{sample_uuid}}> .
+    ?container     djht:published_versions       <{{blank_node}}> .
+
+    ?draft_sample  djht:is_latest                "true"^^xsd:boolean ;
+                   djht:is_public                "true"^^xsd:boolean ;
+                   djht:is_editable              "false"^^xsd:boolean ;
+                   djht:is_under_review          "false"^^xsd:boolean ;
+                   djht:published_date           ?now ;
+                   djht:posted_date              ?now ;
+                   djht:version                  {{version}} .
+    ?review        djht:status                   djht:ReviewApproved .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container     rdf:type                      djht:PhysicalSampleContainer ;
+                   djht:draft                    ?draft_sample .
+    ?review        rdf:type                      djht:Review ;
+                   djht:dataset                  ?draft_sample ;
+                   djht:status                   ?review_status .
+
+    {%- if not first_publication %}
+    {#- The container holds exactly one published record, so its
+     #- published_versions list has a single cell that we replace. #}
+    ?container     djht:published_versions       ?old_cell .
+    ?old_cell      rdf:first                     ?old_published .
+    OPTIONAL { ?old_published djht:is_latest     ?old_is_latest . }
+    OPTIONAL { ?old_published djht:is_public     ?old_is_public . }
+    {%- endif %}
+
+    OPTIONAL { ?draft_sample djht:is_latest       ?is_latest . }
+    OPTIONAL { ?draft_sample djht:is_public       ?is_public . }
+    OPTIONAL { ?draft_sample djht:is_editable     ?is_editable . }
+    OPTIONAL { ?draft_sample djht:is_under_review ?is_under_review . }
+    OPTIONAL { ?draft_sample djht:version         ?version . }
+
+    BIND("{{timestamp}}"^^xsd:dateTime AS ?now)
+  }
+  FILTER (?container = <container:{{container_uuid}}>)
+}
+{% endblock %}
