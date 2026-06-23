@@ -357,3 +357,151 @@ def datacite (parameters, indent=True):
     """Procedure to create a DataCite XML string from PARAMETERS.
        For registration at Datacite, set indent to False"""
     return serialize_tree_to_string (datacite_tree(parameters), indent=indent)
+
+## DataCite dateType values that DataCite's schema accepts for physical samples.
+## "Destroyed" is captured internally but has no DataCite equivalent, so it is
+## mapped to "Other".
+DATACITE_SAMPLE_DATE_TYPES = {
+    "Collected": "Collected",
+    "Issued":    "Issued",
+    "Other":     "Other",
+    "Destroyed": "Other",
+}
+
+def datacite_physical_sample_tree (parameters, debug=False):
+    """Procedure to create a DataCite XML tree for a physical sample (IGSN)."""
+    if parameters is None:
+        return None
+    parameters = scrub (parameters)
+    namespaces = {'': 'http://datacite.org/schema/kernel-4'}
+    schemas    = {'': 'http://schema.datacite.org/meta/kernel-4.4/metadata.xsd'}
+    maker = ElementMaker (namespaces)
+    root = maker.root ('resource', schemas=schemas)
+    item = parameters['item']
+
+    #01 identifier
+    maker.child (root, 'identifier', {'identifierType': 'DOI'}, parameters['doi'])
+
+    #02 creators
+    orcid_att = {'nameIdentifierScheme': 'https://orcid.org/'}
+    personal_att = {'nameType': 'Personal'}
+    if "creators" in parameters:
+        creators_element = maker.child (root, 'creators')
+        for creator in parameters['creators']:
+            creator_att = personal_att if 'orcid_id' in creator else {}
+            creator_element = maker.child (creators_element, 'creator')
+            maker.child_option (creator_element, 'creatorName', creator, 'full_name', creator_att)
+            maker.child_option (creator_element, 'givenName', creator, 'first_name')
+            maker.child_option (creator_element, 'familyName', creator, 'last_name')
+            maker.child_option (creator_element, 'nameIdentifier', creator, 'orcid_id', orcid_att)
+
+    #03 titles
+    maker.child (maker.child (root, 'titles'), 'title', {}, item['title'])
+
+    #04 publisher
+    maker.child (root, 'publisher', {}, value_or (item, 'publisher', '4TU.ResearchData'))
+
+    #05 publicationYear
+    maker.child (root, 'publicationYear', {}, value_or (parameters, 'published_year', None))
+
+    #06 resourceType
+    maker.child (root, 'resourceType', {'resourceTypeGeneral': 'PhysicalObject'},
+                 value_or (item, 'resource_type', 'Physical Object'))
+
+    #07 subjects (categories + keywords)
+    has_categories = 'categories' in parameters
+    has_tags = 'tags' in parameters
+    if has_categories or has_tags:
+        subjects_element = maker.child (root, 'subjects')
+        if has_categories:
+            for cat in parameters['categories']:
+                maker.child (
+                    subjects_element,
+                    'subject',
+                    { 'subjectScheme'     :
+                      'Australian and New Zealand Standard Research Classification (ANZSRC), 2008',
+                      'classificationCode': cat['classification_code'] },
+                    cat['title']
+                )
+        if has_tags:
+            for tag in parameters['tags']:
+                maker.child (subjects_element, 'subject', {}, tag)
+
+    #08 contributors (organizations)
+    if 'organizations' in parameters:
+        contributors_element = maker.child (root, 'contributors')
+        for name in parameters['organizations']:
+            contributor_element = maker.child (contributors_element, 'contributor',
+                                               {'contributorType': 'Other'})
+            maker.child (contributor_element, 'contributorName',
+                         {'nameType': 'Organizational'}, name)
+
+    #09 dates (Issued is captured automatically; others come from the events list)
+    dates_element = maker.child (root, 'dates')
+    if 'published_date' in parameters:
+        maker.child (dates_element, 'date', {'dateType': 'Issued'},
+                     parameters['published_date'])
+    for entry in value_or (parameters, 'dates', []):
+        date_value = value_or_none (entry, 'date')
+        if not date_value:
+            continue
+        date_type = DATACITE_SAMPLE_DATE_TYPES.get (value_or (entry, 'date_type', 'Other'), 'Other')
+        maker.child (dates_element, 'date', {'dateType': date_type}, str (date_value)[:10])
+
+    #10 alternateIdentifiers
+    if 'alternate_identifier' in item:
+        maker.child (maker.child (root, 'alternateIdentifiers'),
+                     'alternateIdentifier',
+                     {'alternateIdentifierType': 'Local accession number'},
+                     item['alternate_identifier'])
+
+    #11 relatedIdentifiers
+    if 'related_resources' in parameters:
+        relations_element = maker.child (root, 'relatedIdentifiers')
+        for resource in parameters['related_resources']:
+            url = value_or_none (resource, 'url')
+            if not url:
+                continue
+            type_id = value_or (resource, 'type_id', 'URL')
+            identifier_type = 'DOI' if type_id in ('IGSNDOI', 'OtherDOI') else 'URL'
+            relation_type = value_or (resource, 'relation_id', 'IsPartOf')
+            maker.child (relations_element, 'relatedIdentifier',
+                         {'relatedIdentifierType': identifier_type,
+                          'relationType': relation_type}, url)
+
+    #12 descriptions (Abstract, Methods, physical storage as TechnicalInfo)
+    descriptions_element = maker.child (root, 'descriptions')
+    if 'abstract' in item:
+        maker.child (descriptions_element, 'description',
+                     {'descriptionType': 'Abstract'}, item['abstract'])
+    if 'methods' in item:
+        maker.child (descriptions_element, 'description',
+                     {'descriptionType': 'Methods'}, item['methods'])
+    if 'physical_storage_location' in item:
+        maker.child (descriptions_element, 'description',
+                     {'descriptionType': 'TechnicalInfo'}, item['physical_storage_location'])
+
+    #13 geoLocations
+    has_geo = 'geolocation' in item
+    coordinates = value_or (parameters, 'coordinates', {})
+    has_point = 'lat_valid' in coordinates and 'lon_valid' in coordinates
+    if has_geo or has_point:
+        geo_element = maker.child (maker.child (root, 'geoLocations'), 'geoLocation')
+        if has_geo:
+            maker.child (geo_element, 'geoLocationPlace', {}, item['geolocation'])
+        if has_point:
+            point_element = maker.child (geo_element, 'geoLocationPoint')
+            maker.child (point_element, 'pointLongitude', {}, coordinates['lon_valid'])
+            maker.child (point_element, 'pointLatitude', {}, coordinates['lat_valid'])
+
+    #debug
+    if debug:
+        param_strings = [f'{key:<15}: {val}' for key, val in parameters.items()]
+        root.insert (0, ElementTree.Comment ('DEBUG\n' + '\n'.join (param_strings)))
+
+    return root
+
+def datacite_physical_sample (parameters, indent=True):
+    """Procedure to create a DataCite XML string for a physical sample.
+       For registration at DataCite, set indent to False."""
+    return serialize_tree_to_string (datacite_physical_sample_tree (parameters), indent=indent)
