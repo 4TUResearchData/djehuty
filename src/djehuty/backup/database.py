@@ -972,10 +972,8 @@ class DatabaseInterface:
 
         ## Physical object date types
         self.store.add ((rdf.DJHT["PhysicalSampleDateCollected"], RDFS.label, Literal("Collected", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalSampleDateCreated"], RDFS.label, Literal("Created", datatype=XSD.string)))
         self.store.add ((rdf.DJHT["PhysicalSampleDateDestroyed"], RDFS.label, Literal("Destroyed", datatype=XSD.string)))
         self.store.add ((rdf.DJHT["PhysicalSampleDateIssued"], RDFS.label, Literal("Issued", datatype=XSD.string)))
-        self.store.add ((rdf.DJHT["PhysicalSampleDateUpdated"], RDFS.label, Literal("Updated", datatype=XSD.string)))
         self.store.add ((rdf.DJHT["PhysicalSampleDateOther"], RDFS.label, Literal("Other", datatype=XSD.string)))
 
         self.store.add ((rdf.DJHT["PhysicalSampleRelatedResourceIGSNDOI"], RDFS.label, Literal("IGSN DOI", datatype=XSD.string)))
