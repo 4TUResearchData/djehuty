@@ -3244,7 +3244,7 @@ class WebServer:
                 account    = self.db.account_by_uuid (account_uuid)
                 author_uri = URIRef(uuid_to_uri(account["author_uuid"], "author"))
                 self.db.update_item_list (sample_uuid, account_uuid,
-                                          [author_uri], "authors")
+                                          [author_uri], "creators")
             except (TypeError, KeyError):
                 self.log.warning ("No author record for account %s.", account_uuid)
 
@@ -3276,7 +3276,8 @@ class WebServer:
                 account    = account,
                 groups     = groups,
                 categories = self.db.categories_tree(),
-                draft_doi  = f"{config.igsn_prefix}/{container_uuid}")
+                draft_doi  = f"{config.igsn_prefix}/{container_uuid}",
+                current_year = datetime.now().strftime("%Y"))
         except IndexError:
             return self.error_403 (request)
 
@@ -3402,7 +3403,7 @@ class WebServer:
                     "resource_type":        validator.string_value (record, "resource_type", 0, 512,  False),
                     "subject":              validator.string_value (record, "subject",       0, 512,  False),
                     "organizations":        validator.string_value (record, "organizations", 0, 2048, False),
-                    "physical_storage_location":   validator.string_value (record, "physical_storage_location", 1, 2048, True),
+                    "physical_storage_location":   validator.string_value (record, "physical_storage_location", 0, 2048, False),
                     "geolocation":          validator.string_value (record, "geolocation",   0, 255,  False),
                     "longitude":            validator.string_value (record, "longitude",     0, 64,   False),
                     "latitude":             validator.string_value (record, "latitude",      0, 64,   False),
@@ -3449,8 +3450,36 @@ class WebServer:
                 return self.error_500 ()
 
             record = request.get_json()
-            validated = []
             errors = []
+
+            # A dictionary payload with an "authors" field creates a brand-new
+            # author record and links it as a creator, mirroring the dataset
+            # author flow.  A list payload links existing authors by UUID.
+            if isinstance (record, dict):
+                new_creators, errors = self.__author_list_from_request_input (record, account_uuid)
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                try:
+                    item = self.db.container_items (container_uuid = container_uuid,
+                                                    account_uuid   = account_uuid,
+                                                    is_published   = None,
+                                                    is_latest      = None)[0]
+                except (IndexError, KeyError):
+                    return self.error_500 ()
+
+                existing_creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+                existing_creators = list (map (
+                    lambda creator: URIRef (uuid_to_uri (creator["uuid"], "author")),
+                    existing_creators))
+
+                creators = existing_creators + new_creators
+                if self.db.update_item_list (item["uuid"], account_uuid, creators, "creators"):
+                    return self.respond_204 ()
+
+                return self.error_500 ()
+
+            validated = []
             if not isinstance (record, list):
                 return self.error_400 (request, message = "Expected a list.",
                                                 code    = "UnexpectedContent")
@@ -3798,7 +3827,7 @@ class WebServer:
                 "resource_type":        validator.string_value  (record, "resource_type",    0, 512,   False, errors),
                 "subject":              validator.string_value  (record, "subject",          0, 512,   False, errors),
                 "publisher":            validator.string_value  (record, "publisher",        0, 10000, True,  errors),
-                "publication_year":     validator.string_value  (record, "publication_year", 0, 4,     True,  errors),
+                "publication_year":     datetime.now().strftime("%Y"),
                 "alternate_identifier": validator.string_value  (record, "alternate_identifier", 0, 255, False, errors),
                 "organizations":        validator.string_value  (record, "organizations",    0, 2048,  True,  errors),
                 "physical_storage_location": validator.string_value (record, "physical_storage_location", 1, 2048, True, errors),
@@ -5174,7 +5203,7 @@ class WebServer:
 
         qr_code_svg = None
         sample_doi  = value_or_none (physical_sample, "doi")
-        if sample_doi is None and private_view:
+        if sample_doi is None and config.igsn_prefix is not None:
             sample_doi = f"{config.igsn_prefix}/{container_uuid}"
         if sample_doi:
             qr_buf = BytesIO()
