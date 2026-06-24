@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 import uuid
 from datetime import date, datetime, timedelta
-from io import StringIO
+from io import StringIO, BytesIO
 from math import ceil, log2
 
 import pygit2
@@ -79,6 +79,13 @@ except (ImportError, ModuleNotFoundError):
 try:
     import pyvips
 except (OSError, ImportError, ModuleNotFoundError):
+    pass
+
+## Similarly, error handling for loading qrcode is done in 'ui'.
+try:
+    import qrcode
+    import qrcode.image.svg
+except (ImportError, ModuleNotFoundError):
     pass
 
 def R (uri_path, endpoint):  # pylint: disable=invalid-name
@@ -182,6 +189,7 @@ class WebServer:
             R("/datasets/<dataset_id>/<version>",                                self.ui_dataset),
             R("/private_datasets/<private_link_id>",                             self.ui_private_dataset),
             R("/private_collections/<private_link_id>",                          self.ui_private_collection),
+            R("/private_physical_sample/<private_link_id>",                      self.ui_private_physical_sample),
             R("/file/<dataset_id>/<file_id>",                                    self.ui_download_file),
             R("/collections/<collection_id>",                                    self.ui_collection),
             R("/collections/<collection_id>/<version>",                          self.ui_collection),
@@ -344,7 +352,7 @@ class WebServer:
             R("/v3/datasets/<container_uuid>/ro-crate-metadata.json",            self.api_v3_datasets_ro_crate),
             R("/v3/datasets/<container_uuid>/versions/<version>/ro-crate-metadata.json", self.api_v3_datasets_ro_crate),
 
-            ## Physical objects
+            ## Physical samples
             ## ----------------------------------------------------------------
             R("/v3/physical-samples",                                            self.api_v3_physical_sample_details),
             R("/v3/physical-samples/<container_uuid>",                           self.api_v3_physical_sample_details),
@@ -357,6 +365,8 @@ class WebServer:
             R("/v3/physical-samples/<container_uuid>/related-resources/<resource_uuid>", self.api_v3_physical_sample_related_resource_delete),
             R("/v3/physical-samples/<container_uuid>/tags",                      self.api_v3_physical_sample_tags),
             R("/v3/physical-samples/<container_uuid>/categories",                self.api_v3_physical_sample_categories),
+            R("/v3/physical-samples/<container_uuid>/private_links",             self.api_private_physical_sample_private_links),
+            R("/v3/physical-samples/<container_uuid>/private_links/<link_id>",   self.api_private_physical_sample_private_links_details),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -3177,7 +3187,7 @@ class WebServer:
                                            is_published   = False,
                                            is_latest      = False)
 
-        return self.__render_template (request, "depositor/physical-samples.html",
+        return self.__render_template (request, "depositor/my-physical-samples.html",
                                        drafts = drafts)
 
     def ui_new_physical_sample (self, request):
@@ -4407,6 +4417,28 @@ class WebServer:
 
         return self.error_404 (request)
 
+    def ui_private_physical_sample (self, request, private_link_id):
+        """Implements /private_physical_sample/<id>."""
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
+
+        try:
+            physical_sample = self.db.physical_samples (private_link_id_string = private_link_id,
+                                                is_published = None,
+                                                is_latest    = None)[0]
+
+            if value_or (physical_sample, "private_link_is_expired", False):
+                return self.__render_template (request, "private_link_is_expired.html")
+
+            self.__log_event (request, physical_sample["container_uuid"], "physical_sample", "privateView")
+            return self.ui_physical_sample (request, physical_sample["container_uuid"],
+                                            physical_sample=physical_sample, private_view=True)
+        except IndexError:
+            pass
+
+        return self.error_404 (request)
+
     def ui_compat_dataset (self, request, slug, dataset_id, version=None):  # pylint: disable=unused-argument
         """Implements backward-compatibility landing page URLs for datasets."""
         return self.ui_dataset (request, dataset_id, version)
@@ -4725,6 +4757,83 @@ class WebServer:
                                        statistics=statistics,
                                        private_view=private_view,
                                        page_title=f"{collection['title']} (collection)")
+
+    def ui_physical_sample (self, request, physical_sample_id, version=None,
+                            physical_sample=None, private_view=False):
+        """Implements /physical_sample/<id>."""
+
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
+
+        if physical_sample is None:
+            try:
+                physical_sample = self.db.physical_samples (
+                    container_uuid = physical_sample_id,
+                    is_published   = True,
+                    is_latest      = True)[0]
+            except IndexError:
+                return self.error_404 (request)
+
+        container_uuid = physical_sample["container_uuid"]
+        account_uuid   = self.account_uuid_from_request (request)
+        is_own_item    = (account_uuid is not None and
+                          account_uuid == value_or_none (physical_sample, "account_uuid"))
+
+        physical_sample["uri"] = f"physical-sample:{physical_sample['sample_uuid']}"
+
+        creators          = self.db.physical_sample_creators (container_uuid, account_uuid)
+        raw_dates         = self.db.physical_sample_dates (container_uuid, account_uuid)
+        related_resources = self.db.physical_sample_related_resources (container_uuid, account_uuid)
+        tags              = self.db.tags (item_uri=physical_sample["uri"], limit=None)
+
+        posted_date = value_or_none (physical_sample, "published_date")
+        posted_date = posted_date[:4] if posted_date else "unpublished"
+        citation    = make_citation (creators, posted_date, physical_sample["title"],
+                                     value_or (physical_sample, "version", 1),
+                                     "Physical Sample",
+                                     value_or (physical_sample, "doi", "unavailable"))
+
+        qr_code_svg = None
+        sample_doi  = value_or_none (physical_sample, "doi")
+        if sample_doi is None and private_view:
+            sample_doi = f"{config.igsn_prefix}/{container_uuid}"
+        if sample_doi:
+            qr_buf = BytesIO()
+            qrcode.make (f"https://doi.org/{sample_doi}",
+                         image_factory = qrcode.image.svg.SvgPathImage).save (qr_buf)
+            qr_code_svg = qr_buf.getvalue().decode("utf-8")
+
+        dates = [("-".join(reversed(str(d.get("date", ""))[:10].split("-"))), str(d.get("date_type", "")))
+                 for d in raw_dates if d.get("date")]
+
+        lat = self_or_value_or_none (physical_sample, "latitude")
+        lon = self_or_value_or_none (physical_sample, "longitude")
+        lat_valid, lon_valid = decimal_coords (lat, lon)
+        coordinates = {"lat": lat, "lon": lon, "lat_valid": lat_valid, "lon_valid": lon_valid}
+
+        if not private_view:
+            self.__log_event (request, container_uuid, "physical_sample", "view")
+
+        member          = value_or (group_to_member, value_or_none (physical_sample, "group_id"), "other")
+        member_url_name = member_url_names[member]
+
+        return self.__render_template (request, "physical_sample.html",
+                                       item             = physical_sample,
+                                       version          = version,
+                                       creators         = creators,
+                                       citation         = citation,
+                                       qr_code_svg      = qr_code_svg,
+                                       qr_doi           = sample_doi,
+                                       dates            = dates,
+                                       related_resources= related_resources,
+                                       tags             = tags,
+                                       coordinates      = coordinates,
+                                       is_own_item      = is_own_item,
+                                       private_view     = private_view,
+                                       member           = member,
+                                       member_url_name  = member_url_name,
+                                       page_title       = physical_sample["title"])
 
     def ui_author (self, request, author_uuid):
         """Implements /authors/<id>."""
@@ -9161,6 +9270,136 @@ class WebServer:
         """Implements /v3/physical-samples/<container_uuid>/categories."""
         return self.__api_private_item_categories (request, "physical-sample", container_uuid,
                                                    self.__physical_sample_by_id_or_uri)
+    def api_private_physical_sample_private_links(self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/private_links."""
+
+        account_uuid = self.default_authenticated_error_handling(request,
+                                                                 ["GET", "POST"],
+                                                                 "application/json")
+        if isinstance(account_uuid, Response):
+            return account_uuid
+
+        if request.method in ("GET", "HEAD"):
+
+            physical_sample = self.__physical_sample_by_id_or_uri(container_uuid,
+                                                          account_uuid=account_uuid,
+                                                          is_published=False)
+
+            if physical_sample is None:
+                return self.error_404(request)
+
+
+            links = self.db.private_links(item_uri=physical_sample["uri"],
+                                          account_uuid=account_uuid)
+
+            return self.default_list_response(links, formatter.format_private_links_record)
+
+        if request.method == 'POST':
+            parameters = request.get_json()
+            try:
+                physical_sample = self.__physical_sample_by_id_or_uri(container_uuid,
+                                                      is_published=False,
+                                                      account_uuid=account_uuid)
+                if physical_sample is None:
+                    return self.error_404(request)
+
+                id_string = secrets.token_urlsafe()
+                expires_date = validator.date_value(parameters, "expires_date", False)
+
+                # expires_date validates to YYYY-MM-DD but we need a full timestamp.
+                if expires_date:
+                    expires_date = expires_date + "T00:00:00Z"
+
+                link_uri = self.db.insert_private_link(
+                    item_uuid=physical_sample["sample_uuid"],
+                    account_uuid=account_uuid,
+                    item_type="physical_sample",
+                    expires_date=expires_date,
+                    read_only=validator.boolean_value(parameters, "read_only", False),
+                    id_string=id_string,
+                    is_active=True)
+
+                if link_uri is None:
+                    return self.error_500(("Creating a private link failed for physical_sample"
+                                           f"{physical_sample['uuid']}"))
+
+                links = self.db.private_links(item_uri=physical_sample["uri"],
+                                              account_uuid=account_uuid)
+                links = list(map(lambda item: URIRef(item["uri"]), links))
+                links = links + [URIRef(link_uri)]
+
+                if not self.db.update_item_list(physical_sample["uuid"], account_uuid,
+                                                links, "private_links"):
+                    return self.error_500(("Updating private links failed for "
+                                           f"{physical_sample['container_uuid']}."))
+
+                return self.response(json.dumps({
+                    "location": f"{config.base_url}/private_physical_sample/{id_string}"
+                }))
+
+            except validator.ValidationException as error:
+                return self.error_400(request, error.message, error.code)
+
+        return self.error_500()
+
+    def api_private_physical_sample_private_links_details(self, request, container_uuid, link_id):
+        """Implements /v3/physical-samples/<container_uuid>/private_links/<link_id>."""
+
+        account_uuid = self.default_authenticated_error_handling(request,
+                                                                 ["GET", "PUT", "DELETE"],
+                                                                 "application/json")
+        if isinstance(account_uuid, Response):
+            return account_uuid
+
+        physical_sample = self.__physical_sample_by_id_or_uri(container_uuid,
+                                              account_uuid=account_uuid,
+                                              is_published=False)
+
+        if physical_sample is None:
+            return self.error_404(request)
+
+        if request.method in ("GET", "HEAD"):
+
+            links = self.db.private_links(
+                item_uri=physical_sample["uri"],
+                id_string=link_id,
+                account_uuid=account_uuid)
+
+            return self.default_list_response(links, formatter.format_private_links_record)
+
+        if request.method == 'PUT':
+
+            parameters = request.get_json()
+            try:
+                result = self.db.update_private_link(
+                    physical_sample["uri"],
+                    account_uuid,
+                    link_id,
+                    expires_date=validator.string_value(parameters, "expires_date", 0, 255, False),
+                    is_active=validator.boolean_value(parameters, "is_active", False))
+
+                if result is None:
+                    return self.error_500()
+
+                return self.response(json.dumps({
+                    "location": f"{config.base_url}/private_datasets/{link_id}"
+                }))
+
+            except validator.ValidationException as error:
+                return self.error_400(request, error.message, error.code)
+
+        if request.method == 'DELETE':
+
+            result = self.db.delete_private_links(physical_sample["container_uuid"],
+                                                  account_uuid,
+                                                  link_id)
+
+            if result is None:
+                return self.error_500()
+
+            return self.respond_204()
+
+        return self.error_500()
 
     def api_v3_groups (self, request):
         """Implements /v3/groups."""
