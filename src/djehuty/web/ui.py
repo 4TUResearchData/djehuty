@@ -1362,7 +1362,6 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                                    "is disabled; run `djehuty migrate upgrade`."))
                     return None
                 server.db.initialize_privileged_accounts ()
-                initialize = False
 
         if not inside_reload:
             refresh_group_configuration (server, logger, config_files)

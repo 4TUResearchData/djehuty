@@ -5,8 +5,6 @@ against an in-memory rdflib ``Dataset`` so they run without a real
 Virtuoso instance.  The real boot path is covered by the e2e suite.
 """
 
-import hashlib
-import os
 import tempfile
 from pathlib import Path
 
