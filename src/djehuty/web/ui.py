@@ -12,7 +12,7 @@ from defusedxml import ElementTree
 from rdflib.plugins.stores import berkeleydb
 from werkzeug.serving import run_simple
 
-import djehuty.backup.database as backup_database
+from djehuty.schema.migrate import DriftDetected, MigrationRunner
 from djehuty.utils import convenience
 from djehuty.web import wsgi
 from djehuty.web.config import config
@@ -738,6 +738,12 @@ def read_configuration_file (server, config_file, logger, config_files):
         config.base_url     = config_value (xml_root, "base-url", None, config.base_url)
         config.storage      = config_value (xml_root, "storage-root", None, config.storage)
         config.state_graph  = config_value (xml_root, "rdf-store/state-graph", None, config.state_graph)
+        config.migrations_graph    = config_value (xml_root, "rdf-store/migrations-graph",
+                                                   None, config.migrations_graph)
+        config.auto_migrate_on_boot = read_boolean_value (xml_root,
+                                                          "rdf-store/auto-migrate-on-boot",
+                                                          config.auto_migrate_on_boot,
+                                                          logger)
 
         live_reload             = convenience.value_or_none (config, "live-reload")
         config.use_reloader  = config_value (xml_root, "live-reload", None, live_reload)
@@ -1280,6 +1286,8 @@ def main (config_file=None, run_internal_server=True, initialize=True,
             if config.endpoint != config.update_endpoint:
                 logger.info ("SPARQL update_endpoint:  %s", config.update_endpoint)
             logger.info ("State graph:             %s", config.state_graph)
+            logger.info ("Migrations graph:        %s", config.migrations_graph)
+            logger.info ("Auto-migrate on boot:    %s", config.auto_migrate_on_boot)
             logger.info ("Storage path:            %s", config.storage)
             if config.storage_locations:
                 for location in config.storage_locations:
@@ -1332,29 +1340,28 @@ def main (config_file=None, run_internal_server=True, initialize=True,
                     logger.info ("Enabled 2FA for %s.", email_address)
 
             if initialize:
-                if not server.db.state_graph_is_initialized ():
-                    if not server.db.sparql_is_up:
-                        logger.error ("Cannot initialize because the SPARQL endpoint is down.")
+                if not server.db.sparql_is_up:
+                    logger.error ("Cannot initialize because the SPARQL endpoint is down.")
+                    return None
+
+                runner = MigrationRunner.from_config (server.db, config)
+                if config.auto_migrate_on_boot:
+                    try:
+                        applied = runner.upgrade ()
+                    except DriftDetected as error:
+                        logger.error ("Migration drift detected: %s", error)
                         return None
-
-                    logger.info ("Invalidating caches ...")
-                    server.db.cache.invalidate_all ()
-                    logger.info ("Initializing RDF store ...")
-                    rdf_store = backup_database.DatabaseInterface()
-
-                    if not rdf_store.insert_static_triplets ():
-                        logger.error ("Failed to gather static triplets")
-
-                    if server.db.add_triples_from_graph (rdf_store.store):
-                        logger.info ("Initialization completed.")
-
-                    server.db.initialize_privileged_accounts ()
-                    server.db.mark_state_graph_as_initialized ()
-                    initialize = False
-                else:
-                    logger.warning (("Skipping initialization of the database "
-                                     "because it has been initialized before."))
-                    logger.warning ("Empty the state-graph to re-initialize.")
+                    if applied:
+                        logger.info ("Invalidating caches ...")
+                        server.db.cache.invalidate_all ()
+                        logger.info ("Applied %d migration(s).", applied)
+                    else:
+                        logger.info ("Database already at head; no migration applied.")
+                elif runner.current () != runner.head ():
+                    logger.error (("Database is not at head and auto-migrate-on-boot "
+                                   "is disabled; run `djehuty migrate upgrade`."))
+                    return None
+                server.db.initialize_privileged_accounts ()
 
         if not inside_reload:
             refresh_group_configuration (server, logger, config_files)
