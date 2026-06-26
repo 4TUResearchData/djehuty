@@ -3246,7 +3246,9 @@ class SparqlInterface:
                                 organizations=None, physical_storage_location=None,
                                 geolocation=None, longitude=None, latitude=None,
                                 sample_owner_name=None, sample_owner_email=None,
-                                group_id=None, categories=None):
+                                group_id=None, categories=None,
+                                agreed_to_deposit_agreement=None,
+                                agreed_to_publish=None):
         """Updates a physical sample record."""
 
         query = self.__query_from_template ("update_physical_sample_draft", {
@@ -3268,24 +3270,26 @@ class SparqlInterface:
             "latitude":               rdf.escape_string_value (latitude),
             "sample_owner_name":      rdf.escape_string_value (sample_owner_name),
             "sample_owner_email":     rdf.escape_string_value (sample_owner_email),
+            "agreed_to_deposit_agreement": rdf.escape_boolean_value (agreed_to_deposit_agreement),
+            "agreed_to_publish":      rdf.escape_boolean_value (agreed_to_publish),
             "group_id":               group_id,
             "modified_date":          datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S"),
             "account_uuid":           account_uuid,
             "container_uuid":         container_uuid
         })
 
-        self.cache.invalidate_by_prefix(f"physical_sample_{account_uuid}")
-        self.cache.invalidate_by_prefix("physical-sample")
+        self.cache.invalidate_by_prefix(f"physical-samples_{account_uuid}")
+        self.cache.invalidate_by_prefix("physical-samples")
 
         results = self.__run_logged_query(query)
-        if results:
-            if categories and isinstance(categories, list):
-                items = rdf.uris_from_records(categories, "category", "uuid")
-                self.update_item_list(sample_uuid, account_uuid, items, "categories")
-        else:
+        if not results:
             return False
 
-        return self.__run_logged_query (query)
+        if categories and isinstance(categories, list):
+            items = rdf.uris_from_records(categories, "category", "uuid")
+            self.update_item_list(sample_uuid, account_uuid, items, "categories")
+
+        return results
 
     def create_draft_from_published_physical_sample (self, container_uuid, account_uuid):
         """Procedure to copy a published physical sample as a draft in its container.

@@ -3403,6 +3403,7 @@ class WebServer:
                     "methods":              validator.string_value (record, "methods",       0, 8000, False),
                     "resource_type":        validator.string_value (record, "resource_type", 0, 512,  False),
                     "subject":              validator.string_value (record, "subject",       0, 512,  False),
+                    "alternate_identifier": validator.string_value (record, "alternate_identifier", 0, 512, False),
                     "organizations":        validator.string_value (record, "organizations", 0, 2048, False),
                     "physical_storage_location":   validator.string_value (record, "physical_storage_location", 0, 2048, False),
                     "geolocation":          validator.string_value (record, "geolocation",   0, 255,  False),
@@ -3411,6 +3412,8 @@ class WebServer:
                     "sample_owner_name":    validator.string_value  (record, "sample_owner_name",  0, 255, False),
                     "sample_owner_email":   validator.string_value  (record, "sample_owner_email", 0, 255, False),
                     "group_id":             validator.integer_value (record, "group_id", 0, pow(2, 63), False),
+                    "agreed_to_deposit_agreement": validator.boolean_value (record, "agreed_to_deposit_agreement", False, False),
+                    "agreed_to_publish":    validator.boolean_value (record, "agreed_to_publish", False, False),
                     "categories":           categories,
                 }
 
@@ -3840,6 +3843,8 @@ class WebServer:
                 "sample_owner_name":    validator.string_value  (record, "sample_owner_name",  0, 255, True,  errors),
                 "sample_owner_email":   validator.string_value  (record, "sample_owner_email", 0, 255, True,  errors),
                 "group_id":             validator.integer_value (record, "group_id", 0, pow(2, 63), True, errors),
+                "agreed_to_deposit_agreement": agreed_to_deposit_agreement,
+                "agreed_to_publish":    agreed_to_publish,
                 "categories":           categories,
             }
 
