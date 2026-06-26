@@ -3274,18 +3274,18 @@ class SparqlInterface:
             "container_uuid":         container_uuid
         })
 
-        self.cache.invalidate_by_prefix(f"physical_sample_{account_uuid}")
-        self.cache.invalidate_by_prefix("physical-sample")
+        self.cache.invalidate_by_prefix(f"physical-samples_{account_uuid}")
+        self.cache.invalidate_by_prefix("physical-samples")
 
         results = self.__run_logged_query(query)
-        if results:
-            if categories and isinstance(categories, list):
-                items = rdf.uris_from_records(categories, "category", "uuid")
-                self.update_item_list(sample_uuid, account_uuid, items, "categories")
-        else:
+        if not results:
             return False
 
-        return self.__run_logged_query (query)
+        if categories and isinstance(categories, list):
+            items = rdf.uris_from_records(categories, "category", "uuid")
+            self.update_item_list(sample_uuid, account_uuid, items, "categories")
+
+        return results
 
     def create_draft_from_published_physical_sample (self, container_uuid, account_uuid):
         """Procedure to copy a published physical sample as a draft in its container.
