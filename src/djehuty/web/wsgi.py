@@ -3412,6 +3412,8 @@ class WebServer:
                     "sample_owner_name":    validator.string_value  (record, "sample_owner_name",  0, 255, False),
                     "sample_owner_email":   validator.string_value  (record, "sample_owner_email", 0, 255, False),
                     "group_id":             validator.integer_value (record, "group_id", 0, pow(2, 63), False),
+                    "agreed_to_deposit_agreement": validator.boolean_value (record, "agreed_to_deposit_agreement", False, False),
+                    "agreed_to_publish":    validator.boolean_value (record, "agreed_to_publish", False, False),
                     "categories":           categories,
                 }
 
@@ -3841,6 +3843,8 @@ class WebServer:
                 "sample_owner_name":    validator.string_value  (record, "sample_owner_name",  0, 255, True,  errors),
                 "sample_owner_email":   validator.string_value  (record, "sample_owner_email", 0, 255, True,  errors),
                 "group_id":             validator.integer_value (record, "group_id", 0, pow(2, 63), True, errors),
+                "agreed_to_deposit_agreement": agreed_to_deposit_agreement,
+                "agreed_to_publish":    agreed_to_publish,
                 "categories":           categories,
             }
 

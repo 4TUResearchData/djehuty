@@ -3246,7 +3246,9 @@ class SparqlInterface:
                                 organizations=None, physical_storage_location=None,
                                 geolocation=None, longitude=None, latitude=None,
                                 sample_owner_name=None, sample_owner_email=None,
-                                group_id=None, categories=None):
+                                group_id=None, categories=None,
+                                agreed_to_deposit_agreement=None,
+                                agreed_to_publish=None):
         """Updates a physical sample record."""
 
         query = self.__query_from_template ("update_physical_sample_draft", {
@@ -3268,6 +3270,8 @@ class SparqlInterface:
             "latitude":               rdf.escape_string_value (latitude),
             "sample_owner_name":      rdf.escape_string_value (sample_owner_name),
             "sample_owner_email":     rdf.escape_string_value (sample_owner_email),
+            "agreed_to_deposit_agreement": rdf.escape_boolean_value (agreed_to_deposit_agreement),
+            "agreed_to_publish":      rdf.escape_boolean_value (agreed_to_publish),
             "group_id":               group_id,
             "modified_date":          datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S"),
             "account_uuid":           account_uuid,
