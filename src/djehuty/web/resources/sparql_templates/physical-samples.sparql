@@ -9,7 +9,8 @@ SELECT DISTINCT ?account_uuid ?container_uuid ?sample_uuid ?created_date
                 ?publication_year ?modified_date ?version
                 ?geolocation ?longitude ?latitude ?organizations
                 ?physical_storage_location ?sample_owner_name ?sample_owner_email
-                ?group_id ?private_link_is_expired
+                ?group_id ?agreed_to_deposit_agreement ?agreed_to_publish
+                ?private_link_is_expired
                 ?is_under_review (?review AS ?review_uri) ?review_submit_date
                 ?review_status
 {%endif%}
@@ -77,6 +78,8 @@ WHERE {
     OPTIONAL { ?sample djht:sample_owner_name     ?sample_owner_name . }
     OPTIONAL { ?sample djht:sample_owner_email    ?sample_owner_email . }
     OPTIONAL { ?sample djht:group_id              ?group_id . }
+    OPTIONAL { ?sample djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
+    OPTIONAL { ?sample djht:agreed_to_publish     ?agreed_to_publish . }
     OPTIONAL { ?sample djht:modified_date         ?modified_date . }
     OPTIONAL { ?sample djht:created_date          ?created_date . }
 
