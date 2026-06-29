@@ -1899,7 +1899,19 @@ class SparqlInterface:
     def insert_group (self, name, is_inferred, is_featured, group_id, parent_id, domain):
         """Procedure to create a new group."""
         graph = Graph()
-        group_uri = rdf.unique_node("group")
+
+        # The group 'id' is a stable external key, so the URI is derived
+        # deterministically from it.
+        # Groups without an id fall back to a random URI, which cannot be
+        # reconciled across boots.
+        if group_id is None:
+            self.log.warning(
+                "Inserting group '%s' without an id. Using a random URI.",
+                name
+            )
+            group_uri = rdf.unique_node("group")
+        else:
+            group_uri = rdf.stable_node("group", group_id)
 
         rdf.add(graph, group_uri, rdf.DJHT["association_criteria"], domain, XSD.string)
         rdf.add(graph, group_uri, rdf.DJHT["name"], name, XSD.string)
@@ -1913,14 +1925,24 @@ class SparqlInterface:
             return rdf.uri_to_uuid(group_uri)
         return None
 
-    def delete_inferred_groups (self):
-        """Procedure to remove groups that were loaded from a configuration file."""
-        query = self.__query_from_template ("delete_group_members")
-        self.__run_logged_query (query)
-        query = self.__query_from_template ("delete_inferred_groups")
-        self.__run_logged_query (query)
-        query = self.__query_from_template ("delete_account_groups_associations")
-        self.__run_logged_query (query)
+    def delete_groups_by_id (self, group_ids):
+        """Procedure to remove groups (and their members) by their 'id'.
+
+        Reconciles config-managed groups regardless of how they were
+        seeded.
+        """
+        valid_ids = [group_id for group_id in group_ids if group_id is not None]
+        if not valid_ids:
+            return
+
+        values = " ".join(str(int(group_id)) for group_id in valid_ids)
+        for template in (
+            "delete_group_members_by_id",
+            "delete_account_groups_by_id",
+            "delete_groups_by_id"
+        ):
+            query = self.__query_from_template(template, { "group_ids": values })
+            self.__run_logged_query(query)
 
     def item_collaborative_permissions (self, item_type, item_uuid,
                                         collaborator_account_uuid):
