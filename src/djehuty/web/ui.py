@@ -424,7 +424,9 @@ def refresh_group_configuration (server, logger, config_files):
             continue
 
         logger.info ("Refreshing groups configuration.")
-        server.db.delete_inferred_groups()
+        # Reconcile by 'id' rather than the 'is_inferred' flag: groups
+        group_ids = [group.attrib.get("id") for group in groups]
+        server.db.delete_groups_by_id(group_ids)
 
         for group in groups:
             group_name = group.attrib["name"]

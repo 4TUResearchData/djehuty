@@ -1,0 +1,24 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?group       djht:members        ?members .
+    ?rest        ?rest_p             ?rest_o .
+    ?member      ?member_p           ?member_o .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    VALUES ?id { {{ group_ids | safe }} }
+    ?group       rdf:type            djht:InstitutionGroup .
+    ?group       djht:id             ?id .
+    ?group       djht:members        ?members .
+    ?members     rdf:rest*           ?rest .
+    ?rest        ?rest_p             ?rest_o .
+    OPTIONAL {
+      ?rest      rdf:first           ?member .
+      ?member    ?member_p           ?member_o .
+    }
+  }
+}
+{% endblock %}

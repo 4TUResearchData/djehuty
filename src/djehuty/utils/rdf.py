@@ -198,6 +198,19 @@ def unique_node (prefix):
     identifier       = str(uuid.uuid4())
     return prefix_namespace[identifier]
 
+def stable_node(prefix, *seeds):
+    """Return a deterministic node for PREFIX derived from SEEDS.
+
+    This produces the same URI for the same SEEDS (a UUIDv5 hash).
+    Use it for records whose identity is owned by a key, so that
+    re-inserting them is idempotent instead of creating duplicates.
+    """
+    prefix_namespace = Namespace(f"{prefix}:")
+    seed = ":".join(str(part) for part in seeds)
+    identifier = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{prefix}:{seed}"))
+
+    return prefix_namespace[identifier]
+
 def uri_to_uuid (uri):
     """Returns the UUID of a URI created by 'unique_node' or 'blank_node'."""
     if uri is None:

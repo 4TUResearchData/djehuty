@@ -144,16 +144,16 @@ EXTRA_RESOURCES =                                                             \
     djehuty/web/resources/sparql_templates/dataset_versions.sparql            \
     djehuty/web/resources/sparql_templates/datasets.sparql                    \
     djehuty/web/resources/sparql_templates/decline_draft_dataset.sparql       \
-    djehuty/web/resources/sparql_templates/delete_account_groups_associations.sparql \
+    djehuty/web/resources/sparql_templates/delete_account_groups_by_id.sparql \
     djehuty/web/resources/sparql_templates/delete_account_property.sparql     \
     djehuty/web/resources/sparql_templates/delete_associations.sparql         \
     djehuty/web/resources/sparql_templates/delete_collaborator.sparql         \
     djehuty/web/resources/sparql_templates/delete_collection_draft.sparql     \
     djehuty/web/resources/sparql_templates/delete_dataset_draft.sparql        \
     djehuty/web/resources/sparql_templates/delete_dataset_embargo.sparql      \
-    djehuty/web/resources/sparql_templates/delete_group_members.sparql        \
+    djehuty/web/resources/sparql_templates/delete_group_members_by_id.sparql        \
     djehuty/web/resources/sparql_templates/delete_inactive_session_by_uuid.sparql \
-    djehuty/web/resources/sparql_templates/delete_inferred_groups.sparql \
+    djehuty/web/resources/sparql_templates/delete_groups_by_id.sparql \
     djehuty/web/resources/sparql_templates/delete_item_from_list.sparql       \
     djehuty/web/resources/sparql_templates/delete_items_all_from_list.sparql  \
     djehuty/web/resources/sparql_templates/delete_private_links.sparql        \
