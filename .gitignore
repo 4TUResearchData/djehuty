@@ -33,7 +33,6 @@ djehuty.xml
 djehuty.json
 guix.scm
 doc/djehuty.sty
-doc/figures/*.svg
 doc/fonts
 *.bak
 *.BAK
