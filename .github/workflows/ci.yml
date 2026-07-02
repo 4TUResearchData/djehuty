@@ -37,6 +37,7 @@ jobs:
           - search
           - git
           - citation
+          - api
     uses: ./.github/workflows/e2e.yml
     with:
       marker: ${{ matrix.marker }}
