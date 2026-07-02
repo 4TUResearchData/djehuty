@@ -6,6 +6,30 @@ news section (`doc/news.tex`) is regenerated at release time by `just news`.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.3.1]
+
+This patch release includes 12 commits focused on maintenance and bug fixes.
+It updates multiple Python, Docker, and GitHub Actions dependencies, improves
+the image build process, deprecates Python 3.9 support, and fixes an issue that
+could generate duplicate groups in the database.
+
+### Incremental improvements
+
+- Deprecate Python 3.9 support. ([6b25918](https://github.com/4TUResearchData/djehuty/commit/6b25918bb9112bd3f69c5bec3f74ad8c0399decd))
+- Make the production Docker image build the same way as the development image.
+([b651c96](https://github.com/4TUResearchData/djehuty/commit/b651c969d1226cad6e6d1c8d2c878dae3a69b048))
+- Update the Docker base image to the latest patched python version.([60ce009](https://github.com/4TUResearchData/djehuty/commit/60ce009cb8468b53c6922e91a789aabca9ac8221))
+- Update GitHub Actions dependencies.([4995863](https://github.com/4TUResearchData/djehuty/commit/4995863f654cafc5d9c282b36b21272e80248eac),
+[0aef7c8](https://github.com/4TUResearchData/djehuty/commit/0aef7c8bab2154d56c71bcf35b890290087f7436))
+- Update Python dependencies for security and performance. ([bc89ceb](https://github.com/4TUResearchData/djehuty/commit/bc89cebc71c0db10a27c253122b52cf9b618c097),
+[64a0ef5](https://github.com/4TUResearchData/djehuty/commit/64a0ef52a1777cb8cd174318810e9e7364cdeda0),
+[ee4ef99](https://github.com/4TUResearchData/djehuty/commit/ee4ef99c4fc5989f827e937268871a44e911e3be),
+[b30a44c](https://github.com/4TUResearchData/djehuty/commit/b30a44c6dd22941e480fb32ee69aa88414c0dbbe))
+
+### Bugfixes
+
+- Fix an issue where `start` could generate duplicate groups in the database. ([2ffafde](https://github.com/4TUResearchData/djehuty/commit/2ffafde812ec8653275c530437aa05c597e00e5a))
+
 ## [v26.3]
 
 The third release of 2026 consists of 21 commits made by 3 authors.
