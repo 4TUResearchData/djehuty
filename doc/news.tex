@@ -5,6 +5,38 @@
 \fi
 \chapter*{News}
 
+\labelWithConsistentHTMLTag{release-26-3-1}
+\section*{Release notes for \texttt{v26.3.1}.}
+
+  This patch release includes 12 commits focused on maintenance and bug fixes.
+It updates multiple Python, Docker, and GitHub Actions dependencies, improves
+the image build process, deprecates Python 3.9 support, and fixes an issue that
+could generate duplicate groups in the database.
+
+\subsection*{Incremental improvements}
+\begin{itemize}
+\item{Deprecate Python 3.9 support.
+    (\commitLink{6b25918bb9112bd3f69c5bec3f74ad8c0399decd}).}
+\item{Make the production Docker image build the same way as the development image.
+    (\commitLink{b651c969d1226cad6e6d1c8d2c878dae3a69b048}).}
+\item{Update the Docker base image to the latest patched python version.
+    (\commitLink{60ce009cb8468b53c6922e91a789aabca9ac8221}).}
+\item{Update GitHub Actions dependencies.
+    (\commitLink{4995863f654cafc5d9c282b36b21272e80248eac},
+    \commitLink{0aef7c8bab2154d56c71bcf35b890290087f7436}).}
+\item{Update Python dependencies for security and performance.
+    (\commitLink{bc89cebc71c0db10a27c253122b52cf9b618c097},
+    \commitLink{64a0ef52a1777cb8cd174318810e9e7364cdeda0},
+    \commitLink{ee4ef99c4fc5989f827e937268871a44e911e3be},
+    \commitLink{b30a44c6dd22941e480fb32ee69aa88414c0dbbe}).}
+\end{itemize}
+
+\subsection*{Bugfixes}
+\begin{itemize}
+\item{Fix an issue where \code{start} could generate duplicate groups in the database.
+    (\commitLink{2ffafde812ec8653275c530437aa05c597e00e5a}).}
+\end{itemize}
+
 \labelWithConsistentHTMLTag{release-26-3}
 \section*{Release notes for \texttt{v26.3}.}
 

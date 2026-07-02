@@ -143,5 +143,5 @@ artifacts; coverage from each shard is combined into a single report.
 
 ---
 ### Contact information
-- **Maintainers**: g.kuhn@tudelft.nl
+- **Maintainers**: a.e.wilczynska@tudelft.nl, g.kuhn@tudelft.nl, k.f.deAraujo@tudelft.nl
 - **Security issues**: djehuty@4tu.nl
