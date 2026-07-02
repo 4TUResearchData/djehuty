@@ -1,0 +1,2272 @@
+@prefix djht: <https://ontologies.data.4tu.nl/djehuty/0.0.1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<category:0036a36a-d676-5f90-91b2-2c6caec1c631> a djht:Category ;
+    djht:classification_code "9604"^^xsd:string ;
+    djht:id 13389 ;
+    djht:parent_id 13385 ;
+    djht:title "Control of Pests, Diseases and Exotic Species"^^xsd:string .
+
+<category:020a2193-c188-5b24-97e7-97c69c376fa2> a djht:Category ;
+    djht:classification_code "0199"^^xsd:string ;
+    djht:id 13437 ;
+    djht:parent_id 13431 ;
+    djht:title "Other Mathematical Sciences"^^xsd:string .
+
+<category:04dd7e28-1f48-5d3f-b3de-41f66507ffb1> a djht:Category ;
+    djht:classification_code "0104"^^xsd:string ;
+    djht:id 13435 ;
+    djht:parent_id 13431 ;
+    djht:title "Statistics"^^xsd:string .
+
+<category:0681f071-a215-569e-97af-019747bb6001> a djht:Category ;
+    djht:classification_code "8614"^^xsd:string ;
+    djht:id 13538 ;
+    djht:parent_id 13524 ;
+    djht:title "Machinery and Equipment"^^xsd:string .
+
+<category:069a08e8-7cff-5f6a-8d27-b97654335142> a djht:Category ;
+    djht:classification_code "94"^^xsd:string ;
+    djht:id 13369 ;
+    djht:title "Law, Politics and Community Services"^^xsd:string .
+
+<category:070e196f-2762-55e2-84d1-b2ba74412738> a djht:Category ;
+    djht:classification_code "1401"^^xsd:string ;
+    djht:id 13567 ;
+    djht:parent_id 13566 ;
+    djht:title "Economic Theory"^^xsd:string .
+
+<category:071342e3-f058-50cb-a122-60822eb6ffac> a djht:Category ;
+    djht:classification_code "05"^^xsd:string ;
+    djht:id 13410 ;
+    djht:title "Environmental Sciences"^^xsd:string .
+
+<category:077a7303-2dbf-511a-8abe-5b1920738af5> a djht:Category ;
+    djht:classification_code "95"^^xsd:string ;
+    djht:id 13493 ;
+    djht:title "Cultural Understanding"^^xsd:string .
+
+<category:07ba60b2-cd1b-594d-9542-0cd6669d0e36> a djht:Category ;
+    djht:classification_code "04"^^xsd:string ;
+    djht:id 13551 ;
+    djht:title "Earth Sciences"^^xsd:string .
+
+<category:07ddd00b-cfa6-5611-b2c9-37294751b35f> a djht:Category ;
+    djht:classification_code "9201"^^xsd:string ;
+    djht:id 13416 ;
+    djht:parent_id 13415 ;
+    djht:title "Clinical Health (organs, Diseases and Abnormal Conditions)"^^xsd:string .
+
+<category:07f97093-4b38-5838-848b-f6fa20c748e9> a djht:Category ;
+    djht:classification_code "8798"^^xsd:string ;
+    djht:id 13515 ;
+    djht:parent_id 13509 ;
+    djht:title "Environmentally Sustainable Construction"^^xsd:string .
+
+<category:083e9824-80ac-5ca1-8edb-7f3bca0959a4> a djht:Category ;
+    djht:classification_code "8201"^^xsd:string ;
+    djht:id 13402 ;
+    djht:parent_id 13401 ;
+    djht:title "Forestry"^^xsd:string .
+
+<category:08775d61-e141-51ba-affe-31b0da569ebd> a djht:Category ;
+    djht:classification_code "8902"^^xsd:string ;
+    djht:id 13546 ;
+    djht:parent_id 13544 ;
+    djht:title "Computer Software and Services"^^xsd:string .
+
+<category:08b1dfea-45e7-5c68-8b8e-d0db44334431> a djht:Category ;
+    djht:classification_code "9305"^^xsd:string ;
+    djht:id 13576 ;
+    djht:parent_id 13571 ;
+    djht:title "Education and Training Systems"^^xsd:string .
+
+<category:08e60282-fec9-51db-80c2-797cc308a17b> a djht:Category ;
+    djht:classification_code "0608"^^xsd:string ;
+    djht:id 13586 ;
+    djht:parent_id 13578 ;
+    djht:title "Zoology"^^xsd:string .
+
+<category:0ae93362-a9ce-53c5-85bb-d2aa371c4ee2> a djht:Category ;
+    djht:classification_code "8904"^^xsd:string ;
+    djht:id 13548 ;
+    djht:parent_id 13544 ;
+    djht:title "Media Services"^^xsd:string .
+
+<category:0aedf0d2-a324-50be-ba1a-e989066c4ee4> a djht:Category ;
+    djht:classification_code "1007"^^xsd:string ;
+    djht:id 13659 ;
+    djht:parent_id 13652 ;
+    djht:title "Nanotechnology"^^xsd:string .
+
+<category:0af46f73-31cd-5d78-805e-50db56b9cf5f> a djht:Category ;
+    djht:classification_code "2103"^^xsd:string ;
+    djht:id 13451 ;
+    djht:parent_id 13448 ;
+    djht:title "Historical Studies"^^xsd:string .
+
+<category:0bcb0b94-2e24-575f-bcec-e5f0903fb5f2> a djht:Category ;
+    djht:classification_code "9403"^^xsd:string ;
+    djht:id 13372 ;
+    djht:parent_id 13369 ;
+    djht:title "International Relations"^^xsd:string .
+
+<category:0f040693-8b41-5d5b-9f64-780bcfb4402e> a djht:Category ;
+    djht:classification_code "1602"^^xsd:string ;
+    djht:id 13466 ;
+    djht:parent_id 13464 ;
+    djht:title "Criminology"^^xsd:string .
+
+<category:10d8fffd-3233-54b2-a4be-b5efbb9e911d> a djht:Category ;
+    djht:classification_code "90"^^xsd:string ;
+    djht:id 13457 ;
+    djht:title "Commercial Services and Tourism"^^xsd:string .
+
+<category:11170b23-b095-53de-a7a8-cc93ff22cd76> a djht:Category ;
+    djht:classification_code "8702"^^xsd:string ;
+    djht:id 13511 ;
+    djht:parent_id 13509 ;
+    djht:title "Construction Design"^^xsd:string .
+
+<category:11cfaf9f-ee84-5838-a397-ef8bc7527d71> a djht:Category ;
+    djht:classification_code "1605"^^xsd:string ;
+    djht:id 13469 ;
+    djht:parent_id 13464 ;
+    djht:title "Policy and Administration"^^xsd:string .
+
+<category:12ee09d8-0ee1-5773-9c9c-f7af3de34982> a djht:Category ;
+    djht:classification_code "0607"^^xsd:string ;
+    djht:id 13585 ;
+    djht:parent_id 13578 ;
+    djht:title "Plant Biology"^^xsd:string .
+
+<category:141129c7-58bd-5f86-8cae-8d2b0de40768> a djht:Category ;
+    djht:classification_code "0499"^^xsd:string ;
+    djht:id 13558 ;
+    djht:parent_id 13551 ;
+    djht:title "Other Earth Sciences"^^xsd:string .
+
+<category:15cbeb3b-a4a8-5a50-96e1-3d589449e9fd> a djht:Category ;
+    djht:classification_code "1904"^^xsd:string ;
+    djht:id 13563 ;
+    djht:parent_id 13559 ;
+    djht:title "Performing Arts and Creative Writing"^^xsd:string .
+
+<category:15d71f1b-e7ec-5043-a2fa-5bbbf378ea3b> a djht:Category ;
+    djht:classification_code "0501"^^xsd:string ;
+    djht:id 13411 ;
+    djht:parent_id 13410 ;
+    djht:title "Ecological Applications"^^xsd:string .
+
+<category:17dbd9e2-5974-53d5-ab0e-e1ef56c154df> a djht:Category ;
+    djht:classification_code "9607"^^xsd:string ;
+    djht:id 13392 ;
+    djht:parent_id 13385 ;
+    djht:title "Environmental Policy, Legislation and Standards"^^xsd:string .
+
+<category:1b089974-1660-543a-a32d-56d48641fcff> a djht:Category ;
+    djht:classification_code "9304"^^xsd:string ;
+    djht:id 13575 ;
+    djht:parent_id 13571 ;
+    djht:title "School/institution"^^xsd:string .
+
+<category:1c4e2144-66e8-5b1b-8112-c4bcd4a01b1e> a djht:Category ;
+    djht:classification_code "0707"^^xsd:string ;
+    djht:id 13383 ;
+    djht:parent_id 13376 ;
+    djht:title "Veterinary Sciences"^^xsd:string .
+
+<category:1d245a78-5c13-5eb9-9bc3-27fb807a61af> a djht:Category ;
+    djht:classification_code "8704"^^xsd:string ;
+    djht:id 13513 ;
+    djht:parent_id 13509 ;
+    djht:title "Construction Processes"^^xsd:string .
+
+<category:1da1e15f-6313-50ea-97bc-dbdb42e0358b> a djht:Category ;
+    djht:classification_code "8203"^^xsd:string ;
+    djht:id 13404 ;
+    djht:parent_id 13401 ;
+    djht:title "Industrial Crops"^^xsd:string .
+
+<category:1dd02b30-ac19-5a75-bec3-3a0365a5a3a8> a djht:Category ;
+    djht:classification_code "1112"^^xsd:string ;
+    djht:id 13486 ;
+    djht:parent_id 13474 ;
+    djht:title "Oncology and Carcinogenesis"^^xsd:string .
+
+<category:1e6a61a4-37ef-5069-95d0-310bcc29d4e5> a djht:Category ;
+    djht:classification_code "0704"^^xsd:string ;
+    djht:id 13380 ;
+    djht:parent_id 13376 ;
+    djht:title "Fisheries Sciences"^^xsd:string .
+
+<category:1ec1ad09-a8cf-5ded-a522-a408dba6b2ec> a djht:Category ;
+    djht:classification_code "9613"^^xsd:string ;
+    djht:id 13398 ;
+    djht:parent_id 13385 ;
+    djht:title "Remnant Vegetation and Protected Conservation Areas"^^xsd:string .
+
+<category:1fce756c-7f9b-55d5-b6ef-6cfe9b222e68> a djht:Category ;
+    djht:classification_code "20"^^xsd:string ;
+    djht:id 13517 ;
+    djht:title "Language, Communication and Culture"^^xsd:string .
+
+<category:22faf411-4056-56a3-805d-96ecc66e05d5> a djht:Category ;
+    djht:classification_code "0303"^^xsd:string ;
+    djht:id 13597 ;
+    djht:parent_id 13594 ;
+    djht:title "Macromolecular and Materials Chemistry"^^xsd:string .
+
+<category:23356462-4687-59ad-a27c-926b7a91ffc7> a djht:Category ;
+    djht:classification_code "8402"^^xsd:string ;
+    djht:id 13423 ;
+    djht:parent_id 13421 ;
+    djht:title "Primary Mining and Extraction of Mineral Resources"^^xsd:string .
+
+<category:23bd3618-8062-5422-ae16-5e7f61e43764> a djht:Category ;
+    djht:classification_code "0304"^^xsd:string ;
+    djht:id 13598 ;
+    djht:parent_id 13594 ;
+    djht:title "Medicinal and Biomolecular Chemistry"^^xsd:string .
+
+<category:24c95ebe-965d-5e7a-93d0-443de1e35b48> a djht:Category ;
+    djht:classification_code "8705"^^xsd:string ;
+    djht:id 13514 ;
+    djht:parent_id 13509 ;
+    djht:title "Building Management and Services"^^xsd:string .
+
+<category:25428351-6053-5ba4-af2d-5c1a8b3d4618> a djht:Category ;
+    djht:classification_code "9299"^^xsd:string ;
+    djht:id 13420 ;
+    djht:parent_id 13415 ;
+    djht:title "Other Health"^^xsd:string .
+
+<category:259e1a62-31f8-57fd-ae9f-f26b121323ae> a djht:Category ;
+    djht:classification_code "0201"^^xsd:string ;
+    djht:id 13604 ;
+    djht:parent_id 13603 ;
+    djht:title "Astronomical and Space Sciences"^^xsd:string .
+
+<category:26ebde63-fc93-5248-97fa-bbba2f0cd836> a djht:Category ;
+    djht:classification_code "1505"^^xsd:string ;
+    djht:id 13505 ;
+    djht:parent_id 13500 ;
+    djht:title "Marketing"^^xsd:string .
+
+<category:27f85d27-6cab-5c5e-954b-022fecb60b79> a djht:Category ;
+    djht:classification_code "1507"^^xsd:string ;
+    djht:id 13507 ;
+    djht:parent_id 13500 ;
+    djht:title "Transportation and Freight Services"^^xsd:string .
+
+<category:28ce0c89-906e-5dad-b039-4b79b9097a3a> a djht:Category ;
+    djht:classification_code "82"^^xsd:string ;
+    djht:id 13401 ;
+    djht:title "Plant Production and Plant Primary Products"^^xsd:string .
+
+<category:2a2cb880-ded0-56d0-87c6-373fc9dfdddb> a djht:Category ;
+    djht:classification_code "0999"^^xsd:string ;
+    djht:id 13646 ;
+    djht:parent_id 13630 ;
+    djht:title "Other Engineering"^^xsd:string .
+
+<category:2a69312a-5c0f-5979-b086-d0ef800346a4> a djht:Category ;
+    djht:classification_code "8399"^^xsd:string ;
+    djht:id 13447 ;
+    djht:parent_id 13440 ;
+    djht:title "Other Animal Production and Animal Primary Products"^^xsd:string .
+
+<category:2b160221-c846-533a-8104-528874f097b7> a djht:Category ;
+    djht:classification_code "08"^^xsd:string ;
+    djht:id 13611 ;
+    djht:title "Information and Computing Sciences"^^xsd:string .
+
+<category:2bcfbd19-27de-58aa-8242-da6b7125d53d> a djht:Category ;
+    djht:classification_code "9405"^^xsd:string ;
+    djht:id 13374 ;
+    djht:parent_id 13369 ;
+    djht:title "Work and Institutional Development"^^xsd:string .
+
+<category:2c04ce8d-9c45-5ab4-a87e-1098d4e63676> a djht:Category ;
+    djht:classification_code "8498"^^xsd:string ;
+    djht:id 13425 ;
+    djht:parent_id 13421 ;
+    djht:title "Environmentally Sustainable Mineral Resource Activities"^^xsd:string .
+
+<category:2c5a8a92-acc6-5a8b-9863-f05add1e9658> a djht:Category ;
+    djht:classification_code "1702"^^xsd:string ;
+    djht:id 13455 ;
+    djht:parent_id 13453 ;
+    djht:title "Cognitive Sciences"^^xsd:string .
+
+<category:2d1dff9d-ba64-57cd-9751-e7d8db17f990> a djht:Category ;
+    djht:classification_code "8499"^^xsd:string ;
+    djht:id 13426 ;
+    djht:parent_id 13421 ;
+    djht:title "Other Mineral Resources (excl. Energy Resources)"^^xsd:string .
+
+<category:2ea1122c-0cd3-550b-b50d-fc655d47773a> a djht:Category ;
+    djht:classification_code "0904"^^xsd:string ;
+    djht:id 13634 ;
+    djht:parent_id 13630 ;
+    djht:title "Chemical Engineering"^^xsd:string .
+
+<category:2fc03e23-73ea-58dc-9383-4a4a2a715bb4> a djht:Category ;
+    djht:classification_code "9610"^^xsd:string ;
+    djht:id 13395 ;
+    djht:parent_id 13385 ;
+    djht:title "Natural Hazards"^^xsd:string .
+
+<category:31d60a8a-f60b-5e09-ab28-e744a4499ffe> a djht:Category ;
+    djht:classification_code "0905"^^xsd:string ;
+    djht:id 13635 ;
+    djht:parent_id 13630 ;
+    djht:title "Civil Engineering"^^xsd:string .
+
+<category:32401fc8-3160-516f-a9e9-12c49560596b> a djht:Category ;
+    djht:classification_code "85"^^xsd:string ;
+    djht:id 13620 ;
+    djht:title "Energy"^^xsd:string .
+
+<category:33127e9a-d682-59e4-bee0-762ab0e2589d> a djht:Category ;
+    djht:classification_code "89"^^xsd:string ;
+    djht:id 13544 ;
+    djht:title "Information and Communication Services"^^xsd:string .
+
+<category:33215b40-2692-546b-91f6-7da0bf17ddf8> a djht:Category ;
+    djht:classification_code "1113"^^xsd:string ;
+    djht:id 13487 ;
+    djht:parent_id 13474 ;
+    djht:title "Ophthalmology and Optometry"^^xsd:string .
+
+<category:33ce2c6f-ba5b-5492-a03b-52f784bb2d1d> a djht:Category ;
+    djht:classification_code "0702"^^xsd:string ;
+    djht:id 13378 ;
+    djht:parent_id 13376 ;
+    djht:title "Animal Production"^^xsd:string .
+
+<category:33d58ca2-2797-5f59-8f8c-f208e9889895> a djht:Category ;
+    djht:classification_code "9098"^^xsd:string ;
+    djht:id 13462 ;
+    djht:parent_id 13457 ;
+    djht:title "Environmentally Sustainable Commercial Services and Tourism"^^xsd:string .
+
+<category:3507bb3d-0506-5833-902b-5f03ad48230e> a djht:Category ;
+    djht:classification_code "81"^^xsd:string ;
+    djht:id 13360 ;
+    djht:title "Defence"^^xsd:string .
+
+<category:35a2e6ca-549b-5da3-aa30-a6ba34203169> a djht:Category ;
+    djht:classification_code "9612"^^xsd:string ;
+    djht:id 13397 ;
+    djht:parent_id 13385 ;
+    djht:title "Rehabilitation of Degraded Environments"^^xsd:string .
+
+<category:35ffae4e-191f-5bf3-8baa-5fdc089ab6e5> a djht:Category ;
+    djht:classification_code "8302"^^xsd:string ;
+    djht:id 13442 ;
+    djht:parent_id 13440 ;
+    djht:title "Fisheries - Wild Caught"^^xsd:string .
+
+<category:37610232-cca1-5407-bdd0-f513a49e06a1> a djht:Category ;
+    djht:classification_code "0902"^^xsd:string ;
+    djht:id 13632 ;
+    djht:parent_id 13630 ;
+    djht:title "Automotive Engineering"^^xsd:string .
+
+<category:381e3270-5381-567c-a76d-5dce41724f1b> a djht:Category ;
+    djht:classification_code "8305"^^xsd:string ;
+    djht:id 13445 ;
+    djht:parent_id 13440 ;
+    djht:title "Primary Animal Products"^^xsd:string .
+
+<category:38470877-54d5-5e21-b01d-6126b3b1e4a2> a djht:Category ;
+    djht:classification_code "0915"^^xsd:string ;
+    djht:id 13645 ;
+    djht:parent_id 13630 ;
+    djht:title "Interdisciplinary Engineering"^^xsd:string .
+
+<category:3884b5ef-a993-5e0f-b5dc-3fd592818e60> a djht:Category ;
+    djht:classification_code "1101"^^xsd:string ;
+    djht:id 13475 ;
+    djht:parent_id 13474 ;
+    djht:title "Medical Biochemistry and Metabolomics"^^xsd:string .
+
+<category:38bb7063-38c4-5c3f-b7f2-bf1c4ee45b99> a djht:Category ;
+    djht:classification_code "8802"^^xsd:string ;
+    djht:id 13663 ;
+    djht:parent_id 13661 ;
+    djht:title "Water Transport"^^xsd:string .
+
+<category:3a1dafd5-313e-5a72-8806-9b6e0e8a70f7> a djht:Category ;
+    djht:classification_code "1104"^^xsd:string ;
+    djht:id 13478 ;
+    djht:parent_id 13474 ;
+    djht:title "Complementary and Alternative Medicine"^^xsd:string .
+
+<category:3ba8fd10-830f-5899-91e4-708d03c2d8b2> a djht:Category ;
+    djht:classification_code "0803"^^xsd:string ;
+    djht:id 13614 ;
+    djht:parent_id 13611 ;
+    djht:title "Computer Software"^^xsd:string .
+
+<category:3c1b9788-adbb-519c-b756-a197a99eb22b> a djht:Category ;
+    djht:classification_code "8398"^^xsd:string ;
+    djht:id 13446 ;
+    djht:parent_id 13440 ;
+    djht:title "Environmentally Sustainable Animal Production"^^xsd:string .
+
+<category:3ec23531-76e6-59f0-a76d-ad6cb8b82676> a djht:Category ;
+    djht:classification_code "10"^^xsd:string ;
+    djht:id 13652 ;
+    djht:title "Technology"^^xsd:string .
+
+<category:3ef5e57d-57c6-5e66-a1e8-10cfb63ae0e8> a djht:Category ;
+    djht:classification_code "93"^^xsd:string ;
+    djht:id 13571 ;
+    djht:title "Education and Training"^^xsd:string .
+
+<category:3fc91819-15b1-5170-a4f9-e88a45a01363> a djht:Category ;
+    djht:classification_code "1005"^^xsd:string ;
+    djht:id 13657 ;
+    djht:parent_id 13652 ;
+    djht:title "Communications Technologies"^^xsd:string .
+
+<category:400cc2ab-edfe-51d9-9d4a-f9dfe77315f8> a djht:Category ;
+    djht:classification_code "8899"^^xsd:string ;
+    djht:id 13666 ;
+    djht:parent_id 13661 ;
+    djht:title "Other Transport"^^xsd:string .
+
+<category:40d50078-7069-5850-aba8-ebf121f2bea3> a djht:Category ;
+    djht:classification_code "1502"^^xsd:string ;
+    djht:id 13502 ;
+    djht:parent_id 13500 ;
+    djht:title "Banking, Finance and Investment"^^xsd:string .
+
+<category:41a4a174-7dbc-55dd-b99a-6bf124e48391> a djht:Category ;
+    djht:classification_code "8616"^^xsd:string ;
+    djht:id 13540 ;
+    djht:parent_id 13524 ;
+    djht:title "Computer Hardware and Electronic Equipment"^^xsd:string .
+
+<category:4245e0be-4a8f-58ab-be03-e884ebd258d8> a djht:Category ;
+    djht:classification_code "2003"^^xsd:string ;
+    djht:id 13520 ;
+    djht:parent_id 13517 ;
+    djht:title "Language Studies"^^xsd:string .
+
+<category:432fdd94-2e00-558a-a4b6-af71aa2a1a00> a djht:Category ;
+    djht:classification_code "0705"^^xsd:string ;
+    djht:id 13381 ;
+    djht:parent_id 13376 ;
+    djht:title "Forestry Sciences"^^xsd:string .
+
+<category:45012c3a-d7dc-59f4-8549-a350384aa888> a djht:Category ;
+    djht:classification_code "2099"^^xsd:string ;
+    djht:id 13523 ;
+    djht:parent_id 13517 ;
+    djht:title "Other Language, Communication and Culture"^^xsd:string .
+
+<category:4701a387-3d8f-5c89-a92c-22937dca3c74> a djht:Category ;
+    djht:classification_code "83"^^xsd:string ;
+    djht:id 13440 ;
+    djht:title "Animal Production and Animal Primary Products"^^xsd:string .
+
+<category:474d438d-d84d-5d0e-82c6-9b31c0f2291a> a djht:Category ;
+    djht:classification_code "1205"^^xsd:string ;
+    djht:id 13367 ;
+    djht:parent_id 13362 ;
+    djht:title "Urban and Regional Planning"^^xsd:string .
+
+<category:4755d63e-45e6-5f4b-b6fc-e3e31684e4b1> a djht:Category ;
+    djht:classification_code "9603"^^xsd:string ;
+    djht:id 13388 ;
+    djht:parent_id 13385 ;
+    djht:title "Climate and Climate Change"^^xsd:string .
+
+<category:47b8672a-9d74-509b-aef4-05239926c296> a djht:Category ;
+    djht:classification_code "0907"^^xsd:string ;
+    djht:id 13637 ;
+    djht:parent_id 13630 ;
+    djht:title "Environmental Engineering"^^xsd:string .
+
+<category:4895130f-f218-5657-af9d-e18365a6115b> a djht:Category ;
+    djht:classification_code "8602"^^xsd:string ;
+    djht:id 13526 ;
+    djht:parent_id 13524 ;
+    djht:title "Dairy Products"^^xsd:string .
+
+<category:4cc9cd2c-0df1-5a98-8532-15e95bf9e91d> a djht:Category ;
+    djht:classification_code "9105"^^xsd:string ;
+    djht:id 13672 ;
+    djht:parent_id 13667 ;
+    djht:title "Measurement Standards and Calibration Services"^^xsd:string .
+
+<category:4d468ee3-7edf-56db-bab5-d0cb4f39598e> a djht:Category ;
+    djht:classification_code "14"^^xsd:string ;
+    djht:id 13566 ;
+    djht:title "Economics"^^xsd:string .
+
+<category:4dd709cc-2026-5c70-8f8c-8edbc130898c> a djht:Category ;
+    djht:classification_code "9611"^^xsd:string ;
+    djht:id 13396 ;
+    djht:parent_id 13385 ;
+    djht:title "Physical and Chemical Conditions of Water"^^xsd:string .
+
+<category:4e615ffb-a028-5a83-bab1-378e1cdd68e5> a djht:Category ;
+    djht:classification_code "0102"^^xsd:string ;
+    djht:id 13433 ;
+    djht:parent_id 13431 ;
+    djht:title "Applied Mathematics"^^xsd:string .
+
+<category:4ec74206-c4bb-5b68-ad77-3d02e4e4095f> a djht:Category ;
+    djht:classification_code "03"^^xsd:string ;
+    djht:id 13594 ;
+    djht:title "Chemical Sciences"^^xsd:string .
+
+<category:50b17f55-15b5-52e4-979c-9971fefcd77b> a djht:Category ;
+    djht:classification_code "1299"^^xsd:string ;
+    djht:id 13368 ;
+    djht:parent_id 13362 ;
+    djht:title "Other Built Environment and Design"^^xsd:string .
+
+<category:50e2e08f-7758-5541-a23e-958ffab71a1a> a djht:Category ;
+    djht:classification_code "1607"^^xsd:string ;
+    djht:id 13471 ;
+    djht:parent_id 13464 ;
+    djht:title "Social Work"^^xsd:string .
+
+<category:52b127c9-3365-5f72-b198-235967434e18> a djht:Category ;
+    djht:classification_code "1106"^^xsd:string ;
+    djht:id 13480 ;
+    djht:parent_id 13474 ;
+    djht:title "Human Movement and Sports Science"^^xsd:string .
+
+<category:52c1f018-f23e-5107-a59e-c1468b44ce57> a djht:Category ;
+    djht:classification_code "0503"^^xsd:string ;
+    djht:id 13413 ;
+    djht:parent_id 13410 ;
+    djht:title "Soil Sciences"^^xsd:string .
+
+<category:55c52b52-5c86-567f-944a-6a45327b663f> a djht:Category ;
+    djht:classification_code "1601"^^xsd:string ;
+    djht:id 13465 ;
+    djht:parent_id 13464 ;
+    djht:title "Anthropology"^^xsd:string .
+
+<category:567c8211-6925-51c1-9c3c-a68ae12ebc40> a djht:Category ;
+    djht:classification_code "0302"^^xsd:string ;
+    djht:id 13596 ;
+    djht:parent_id 13594 ;
+    djht:title "Inorganic Chemistry"^^xsd:string .
+
+<category:569a7260-a0cc-5dc4-919b-8b8412deffed> a djht:Category ;
+    djht:classification_code "22"^^xsd:string ;
+    djht:id 13588 ;
+    djht:title "Philosophy and Religious Studies"^^xsd:string .
+
+<category:56b049d1-3289-57a9-bbeb-dc20c949e017> a djht:Category ;
+    djht:classification_code "1107"^^xsd:string ;
+    djht:id 13481 ;
+    djht:parent_id 13474 ;
+    djht:title "Immunology"^^xsd:string .
+
+<category:56fe3abc-47d3-5ff6-b490-0de6ae89fc8e> a djht:Category ;
+    djht:classification_code "1116"^^xsd:string ;
+    djht:id 13490 ;
+    djht:parent_id 13474 ;
+    djht:title "Medical Physiology"^^xsd:string .
+
+<category:57716863-6215-5d4d-a96b-882a49bd5404> a djht:Category ;
+    djht:classification_code "1699"^^xsd:string ;
+    djht:id 13473 ;
+    djht:parent_id 13464 ;
+    djht:title "Other Studies in Human Society"^^xsd:string .
+
+<category:58adb004-5757-5a18-a149-d65c25410445> a djht:Category ;
+    djht:classification_code "0801"^^xsd:string ;
+    djht:id 13612 ;
+    djht:parent_id 13611 ;
+    djht:title "Artificial Intelligence and Image Processing"^^xsd:string .
+
+<category:5cdfd02e-57c5-59cc-b131-162a9e3a580a> a djht:Category ;
+    djht:classification_code "1115"^^xsd:string ;
+    djht:id 13489 ;
+    djht:parent_id 13474 ;
+    djht:title "Pharmacology and Pharmaceutical Sciences"^^xsd:string .
+
+<category:5d3e0a0b-5f2d-526e-8a6e-ec680203a5de> a djht:Category ;
+    djht:classification_code "86"^^xsd:string ;
+    djht:id 13524 ;
+    djht:title "Manufacturing"^^xsd:string .
+
+<category:5de1a65b-5bb3-51dd-ae17-eb82d07421fe> a djht:Category ;
+    djht:classification_code "2203"^^xsd:string ;
+    djht:id 13591 ;
+    djht:parent_id 13588 ;
+    djht:title "Philosophy"^^xsd:string .
+
+<category:5e7b3dc4-3f5d-558b-9c5b-4e11dc20796a> a djht:Category ;
+    djht:classification_code "8303"^^xsd:string ;
+    djht:id 13443 ;
+    djht:parent_id 13440 ;
+    djht:title "Livestock Raising"^^xsd:string .
+
+<category:5eccd621-4662-5cab-8703-e62e05b98f9b> a djht:Category ;
+    djht:classification_code "8401"^^xsd:string ;
+    djht:id 13422 ;
+    djht:parent_id 13421 ;
+    djht:title "Mineral Exploration"^^xsd:string .
+
+<category:608f81ac-bf32-554a-85d2-e1157b9a7532> a djht:Category ;
+    djht:classification_code "1108"^^xsd:string ;
+    djht:id 13482 ;
+    djht:parent_id 13474 ;
+    djht:title "Medical Microbiology"^^xsd:string .
+
+<category:61edb0a8-027e-522c-aeee-a590aee00543> a djht:Category ;
+    djht:classification_code "0806"^^xsd:string ;
+    djht:id 13617 ;
+    djht:parent_id 13611 ;
+    djht:title "Information Systems"^^xsd:string .
+
+<category:624f651e-2895-51b9-9219-7faa5f220d9a> a djht:Category ;
+    djht:classification_code "1003"^^xsd:string ;
+    djht:id 13655 ;
+    djht:parent_id 13652 ;
+    djht:title "Industrial Biotechnology"^^xsd:string .
+
+<category:62532623-5478-5b36-8500-be9ba90dcf15> a djht:Category ;
+    djht:classification_code "1801"^^xsd:string ;
+    djht:id 13428 ;
+    djht:parent_id 13427 ;
+    djht:title "Law"^^xsd:string .
+
+<category:62d3a488-013c-58ba-bd83-2c9e6a4cba9c> a djht:Category ;
+    djht:classification_code "1506"^^xsd:string ;
+    djht:id 13506 ;
+    djht:parent_id 13500 ;
+    djht:title "Tourism"^^xsd:string .
+
+<category:63b19f26-c4d7-541e-8d0f-8168023358b8> a djht:Category ;
+    djht:classification_code "0401"^^xsd:string ;
+    djht:id 13552 ;
+    djht:parent_id 13551 ;
+    djht:title "Atmospheric Sciences"^^xsd:string .
+
+<category:6541c70e-7c38-50fa-afcf-94bba7dd79a8> a djht:Category ;
+    djht:classification_code "1006"^^xsd:string ;
+    djht:id 13658 ;
+    djht:parent_id 13652 ;
+    djht:title "Computer Hardware"^^xsd:string .
+
+<category:66a66afc-3fcd-569e-abb7-833f0f2a52ae> a djht:Category ;
+    djht:classification_code "2202"^^xsd:string ;
+    djht:id 13590 ;
+    djht:parent_id 13588 ;
+    djht:title "History and Philosophy of Specific Fields"^^xsd:string .
+
+<category:67960c18-4f3f-51bf-b7e1-48e80e66dfa1> a djht:Category ;
+    djht:classification_code "07"^^xsd:string ;
+    djht:id 13376 ;
+    djht:title "Agricultural and Veterinary Sciences"^^xsd:string .
+
+<category:67a705c9-8182-5558-942c-286821545b26> a djht:Category ;
+    djht:classification_code "0701"^^xsd:string ;
+    djht:id 13377 ;
+    djht:parent_id 13376 ;
+    djht:title "Agriculture, Land and Farm Management"^^xsd:string .
+
+<category:68d5fd00-acbd-50c6-a908-def3071aa634> a djht:Category ;
+    djht:classification_code "0601"^^xsd:string ;
+    djht:id 13579 ;
+    djht:parent_id 13578 ;
+    djht:title "Biochemistry and Cell Biology"^^xsd:string .
+
+<category:69d72c65-8de6-5c42-bd94-d05e90897b66> a djht:Category ;
+    djht:classification_code "9004"^^xsd:string ;
+    djht:id 13461 ;
+    djht:parent_id 13457 ;
+    djht:title "Water and Waste Services"^^xsd:string .
+
+<category:6a329dff-dcda-562b-86dd-847c455b57e8> a djht:Category ;
+    djht:classification_code "1701"^^xsd:string ;
+    djht:id 13454 ;
+    djht:parent_id 13453 ;
+    djht:title "Psychology"^^xsd:string .
+
+<category:6a57162d-6091-57d1-8f86-a2471ecb266d> a djht:Category ;
+    djht:classification_code "8601"^^xsd:string ;
+    djht:id 13525 ;
+    djht:parent_id 13524 ;
+    djht:title "Processed Food Products and Beverages (excl. Dairy Products)"^^xsd:string .
+
+<category:6b4d80ea-172d-5d94-8a5d-b35ebef413b2> a djht:Category ;
+    djht:classification_code "0405"^^xsd:string ;
+    djht:id 13556 ;
+    djht:parent_id 13551 ;
+    djht:title "Oceanography"^^xsd:string .
+
+<category:6ba88b02-44af-5464-ac34-392a8b9c0b22> a djht:Category ;
+    djht:classification_code "8298"^^xsd:string ;
+    djht:id 13408 ;
+    djht:parent_id 13401 ;
+    djht:title "Environmentally Sustainable Plant Production"^^xsd:string .
+
+<category:6ccc16d4-7797-5b27-8e2f-4cc86b02f79d> a djht:Category ;
+    djht:classification_code "8615"^^xsd:string ;
+    djht:id 13539 ;
+    djht:parent_id 13524 ;
+    djht:title "Instrumentation"^^xsd:string .
+
+<category:6d90b808-b352-52b9-b03c-80be64a55af2> a djht:Category ;
+    djht:classification_code "9104"^^xsd:string ;
+    djht:id 13671 ;
+    djht:parent_id 13667 ;
+    djht:title "Management and Productivity"^^xsd:string .
+
+<category:6e5adf1d-e120-5d7d-ae51-f50d508d0ba1> a djht:Category ;
+    djht:classification_code "9202"^^xsd:string ;
+    djht:id 13417 ;
+    djht:parent_id 13415 ;
+    djht:title "Health and Support Services"^^xsd:string .
+
+<category:6fe5f743-00a8-5eeb-bfbe-18a4f28192f2> a djht:Category ;
+    djht:classification_code "8998"^^xsd:string ;
+    djht:id 13549 ;
+    djht:parent_id 13544 ;
+    djht:title "Environmentally Sustainable Information and Communication Services"^^xsd:string .
+
+<category:710045b7-4c9c-59bc-bb67-11ddd51af60b> a djht:Category ;
+    djht:classification_code "0202"^^xsd:string ;
+    djht:id 13605 ;
+    djht:parent_id 13603 ;
+    djht:title "Atomic, Molecular, Nuclear, Particle and Plasma Physics"^^xsd:string .
+
+<category:71190d59-8661-58e8-b76d-1ed6a9a6979b> a djht:Category ;
+    djht:classification_code "0299"^^xsd:string ;
+    djht:id 13610 ;
+    djht:parent_id 13603 ;
+    djht:title "Other Physical Sciences"^^xsd:string .
+
+<category:712956d7-eb5c-5e85-8daf-8c7c0d9ae126> a djht:Category ;
+    djht:classification_code "0205"^^xsd:string ;
+    djht:id 13608 ;
+    djht:parent_id 13603 ;
+    djht:title "Optical Physics"^^xsd:string .
+
+<category:7307384c-e544-5c85-bd17-b49231c0489d> a djht:Category ;
+    djht:classification_code "92"^^xsd:string ;
+    djht:id 13415 ;
+    djht:title "Health"^^xsd:string .
+
+<category:796a1865-8c74-57b5-91c6-28f45a97bb1e> a djht:Category ;
+    djht:classification_code "13"^^xsd:string ;
+    djht:id 13647 ;
+    djht:title "Education"^^xsd:string .
+
+<category:79c6a90d-d2d1-5253-b552-bf93bc36eee0> a djht:Category ;
+    djht:classification_code "0403"^^xsd:string ;
+    djht:id 13554 ;
+    djht:parent_id 13551 ;
+    djht:title "Geology"^^xsd:string .
+
+<category:79eae794-8288-5468-9550-db9bee9caa7b> a djht:Category ;
+    djht:classification_code "8604"^^xsd:string ;
+    djht:id 13528 ;
+    djht:parent_id 13524 ;
+    djht:title "Leather Products, Fibre Processing and Textiles"^^xsd:string .
+
+<category:7b202a67-ee59-5ef9-ab9c-32dafdcb9706> a djht:Category ;
+    djht:classification_code "8699"^^xsd:string ;
+    djht:id 13543 ;
+    djht:parent_id 13524 ;
+    djht:title "Other Manufacturing"^^xsd:string .
+
+<category:7bdd29fc-2a08-58ba-b040-496f6ad2ae43> a djht:Category ;
+    djht:classification_code "8599"^^xsd:string ;
+    djht:id 13629 ;
+    djht:parent_id 13620 ;
+    djht:title "Other Energy"^^xsd:string .
+
+<category:7bf6fb59-e69d-5b1f-bf98-c70c153e7aca> a djht:Category ;
+    djht:classification_code "1201"^^xsd:string ;
+    djht:id 13363 ;
+    djht:parent_id 13362 ;
+    djht:title "Architecture"^^xsd:string .
+
+<category:7cbd4d75-05b1-57bc-9a6e-a80f57a75f7e> a djht:Category ;
+    djht:classification_code "1301"^^xsd:string ;
+    djht:id 13648 ;
+    djht:parent_id 13647 ;
+    djht:title "Education Systems"^^xsd:string .
+
+<category:7d6d3270-3548-563c-977a-a6b85223e845> a djht:Category ;
+    djht:classification_code "1103"^^xsd:string ;
+    djht:id 13477 ;
+    djht:parent_id 13474 ;
+    djht:title "Clinical Sciences"^^xsd:string .
+
+<category:7ddc9178-f344-5bba-a4d9-42bb038899eb> a djht:Category ;
+    djht:classification_code "1202"^^xsd:string ;
+    djht:id 13364 ;
+    djht:parent_id 13362 ;
+    djht:title "Building"^^xsd:string .
+
+<category:7eb0bd33-e8bb-5e5b-b81b-b0c137e275e4> a djht:Category ;
+    djht:classification_code "8606"^^xsd:string ;
+    djht:id 13530 ;
+    djht:parent_id 13524 ;
+    djht:title "Industrial Chemicals and Related Products"^^xsd:string .
+
+<category:7f21930f-6caf-5f67-a32d-530300602cf6> a djht:Category ;
+    djht:classification_code "1503"^^xsd:string ;
+    djht:id 13503 ;
+    djht:parent_id 13500 ;
+    djht:title "Business and Management"^^xsd:string .
+
+<category:7f367c62-93fb-5338-b32e-30cf8d36fe07> a djht:Category ;
+    djht:classification_code "8903"^^xsd:string ;
+    djht:id 13547 ;
+    djht:parent_id 13544 ;
+    djht:title "Information Services"^^xsd:string .
+
+<category:7fd36b12-7be6-5075-b1a4-6a402a0b661e> a djht:Category ;
+    djht:classification_code "1102"^^xsd:string ;
+    djht:id 13476 ;
+    djht:parent_id 13474 ;
+    djht:title "Cardiorespiratory Medicine and Haematology"^^xsd:string .
+
+<category:7fde2ff1-5939-54e1-981f-8adbe49898a4> a djht:Category ;
+    djht:classification_code "9003"^^xsd:string ;
+    djht:id 13460 ;
+    djht:parent_id 13457 ;
+    djht:title "Tourism"^^xsd:string .
+
+<category:7ff90c1f-edfe-5999-bfd3-5f4190053e02> a djht:Category ;
+    djht:classification_code "9204"^^xsd:string ;
+    djht:id 13418 ;
+    djht:parent_id 13415 ;
+    djht:title "Public Health (excl. Specific Population Health)"^^xsd:string .
+
+<category:80da3810-8f04-565e-a0da-3b3438e49fc8> a djht:Category ;
+    djht:classification_code "1799"^^xsd:string ;
+    djht:id 13456 ;
+    djht:parent_id 13453 ;
+    djht:title "Other Psychology and Cognitive Sciences"^^xsd:string .
+
+<category:80fc3515-93f9-5094-aff6-52b0537faf38> a djht:Category ;
+    djht:classification_code "0906"^^xsd:string ;
+    djht:id 13636 ;
+    djht:parent_id 13630 ;
+    djht:title "Electrical and Electronic Engineering"^^xsd:string .
+
+<category:8161c156-2eae-51cd-928d-68ed33936325> a djht:Category ;
+    djht:classification_code "9302"^^xsd:string ;
+    djht:id 13573 ;
+    djht:parent_id 13571 ;
+    djht:title "Teaching and Instruction"^^xsd:string .
+
+<category:81dd60d6-f5ca-5864-9da5-2383f0e1c732> a djht:Category ;
+    djht:classification_code "1114"^^xsd:string ;
+    djht:id 13488 ;
+    djht:parent_id 13474 ;
+    djht:title "Paediatrics and Reproductive Medicine"^^xsd:string .
+
+<category:82023043-3772-5af1-89ad-1e2cbb05163e> a djht:Category ;
+    djht:classification_code "9699"^^xsd:string ;
+    djht:id 13400 ;
+    djht:parent_id 13385 ;
+    djht:title "Other Environment"^^xsd:string .
+
+<category:849b193c-29da-5659-a345-c87d1811b3a0> a djht:Category ;
+    djht:classification_code "8202"^^xsd:string ;
+    djht:id 13403 ;
+    djht:parent_id 13401 ;
+    djht:title "Horticultural Crops"^^xsd:string .
+
+<category:8525a63a-07e9-56a7-a471-25bf6394175b> a djht:Category ;
+    djht:classification_code "8503"^^xsd:string ;
+    djht:id 13623 ;
+    djht:parent_id 13620 ;
+    djht:title "Preparation and Production of Energy Sources"^^xsd:string .
+
+<category:86434804-efd7-5957-9bb2-6fce5684a1af> a djht:Category ;
+    djht:classification_code "0402"^^xsd:string ;
+    djht:id 13553 ;
+    djht:parent_id 13551 ;
+    djht:title "Geochemistry"^^xsd:string .
+
+<category:87a93201-67e3-5799-8b32-461cff56a32f> a djht:Category ;
+    djht:classification_code "0903"^^xsd:string ;
+    djht:id 13633 ;
+    djht:parent_id 13630 ;
+    djht:title "Biomedical Engineering"^^xsd:string .
+
+<category:8858de45-750b-5783-a2ba-edca8cc70691> a djht:Category ;
+    djht:classification_code "2004"^^xsd:string ;
+    djht:id 13521 ;
+    djht:parent_id 13517 ;
+    djht:title "Linguistics"^^xsd:string .
+
+<category:88e7ef82-81ca-54a9-9dbf-97c9fe629d83> a djht:Category ;
+    djht:classification_code "9499"^^xsd:string ;
+    djht:id 13375 ;
+    djht:parent_id 13369 ;
+    djht:title "Other Law, Politics and Community Services"^^xsd:string .
+
+<category:8b46ed97-c2a8-5af5-ba82-5416fbfc4a86> a djht:Category ;
+    djht:classification_code "9501"^^xsd:string ;
+    djht:id 13494 ;
+    djht:parent_id 13493 ;
+    djht:title "Arts and Leisure"^^xsd:string .
+
+<category:8d39bf26-a66f-5cae-ba98-01439e9a26d0> a djht:Category ;
+    djht:classification_code "1110"^^xsd:string ;
+    djht:id 13484 ;
+    djht:parent_id 13474 ;
+    djht:title "Nursing"^^xsd:string .
+
+<category:8dec2282-c6a0-5db8-8da4-96b4ea233e4a> a djht:Category ;
+    djht:classification_code "9614"^^xsd:string ;
+    djht:id 13399 ;
+    djht:parent_id 13385 ;
+    djht:title "Soils"^^xsd:string .
+
+<category:8df3caad-c8d8-5b38-9473-fbe950ee8f81> a djht:Category ;
+    djht:classification_code "0912"^^xsd:string ;
+    djht:id 13642 ;
+    djht:parent_id 13630 ;
+    djht:title "Materials Engineering"^^xsd:string .
+
+<category:8e15b78d-f9cf-555c-935b-00bc0a8505ce> a djht:Category ;
+    djht:classification_code "0307"^^xsd:string ;
+    djht:id 13601 ;
+    djht:parent_id 13594 ;
+    djht:title "Theoretical and Computational Chemistry"^^xsd:string .
+
+<category:8eca20d6-96ef-59c8-8137-5db20a2878d2> a djht:Category ;
+    djht:classification_code "97"^^xsd:string ;
+    djht:id 13438 ;
+    djht:title "Expanding Knowledge"^^xsd:string .
+
+<category:907c9f3b-22c7-5ec7-960e-a5040833e3ae> a djht:Category ;
+    djht:classification_code "9101"^^xsd:string ;
+    djht:id 13668 ;
+    djht:parent_id 13667 ;
+    djht:title "Macroeconomics"^^xsd:string .
+
+<category:92222bef-c4a6-5fa2-b542-1c9e6d5649ec> a djht:Category ;
+    djht:classification_code "9504"^^xsd:string ;
+    djht:id 13497 ;
+    djht:parent_id 13493 ;
+    djht:title "Religion and Ethics"^^xsd:string .
+
+<category:925080e2-2993-5a61-a94d-e0fcae8f190f> a djht:Category ;
+    djht:classification_code "1303"^^xsd:string ;
+    djht:id 13650 ;
+    djht:parent_id 13647 ;
+    djht:title "Specialist Studies in Education"^^xsd:string .
+
+<category:93d4c8ed-8464-54a2-802d-374317de083b> a djht:Category ;
+    djht:classification_code "8611"^^xsd:string ;
+    djht:id 13535 ;
+    djht:parent_id 13524 ;
+    djht:title "Basic Metal Products (incl. Smelting, Rolling, Drawing and Extruding)"^^xsd:string .
+
+<category:94215f5f-c771-5ff2-9446-1742058b5abd> a djht:Category ;
+    djht:classification_code "1199"^^xsd:string ;
+    djht:id 13492 ;
+    djht:parent_id 13474 ;
+    djht:title "Other Medical and Health Sciences"^^xsd:string .
+
+<category:9460e66c-b997-5ff7-a9f0-1b02c47845b6> a djht:Category ;
+    djht:classification_code "91"^^xsd:string ;
+    djht:id 13667 ;
+    djht:title "Economic Framework"^^xsd:string .
+
+<category:95c890e2-82cf-5a1e-afa1-7d58d479a653> a djht:Category ;
+    djht:classification_code "9606"^^xsd:string ;
+    djht:id 13391 ;
+    djht:parent_id 13385 ;
+    djht:title "Environmental and Natural Resource Evaluation"^^xsd:string .
+
+<category:960569d7-cd2c-5afe-8c0c-f17048276cf5> a djht:Category ;
+    djht:classification_code "8898"^^xsd:string ;
+    djht:id 13665 ;
+    djht:parent_id 13661 ;
+    djht:title "Environmentally Sustainable Transport"^^xsd:string .
+
+<category:992846fc-f142-52b7-a5c9-7880e980b51e> a djht:Category ;
+    djht:classification_code "88"^^xsd:string ;
+    djht:id 13661 ;
+    djht:title "Transport"^^xsd:string .
+
+<category:9a6f5de8-a252-5520-a483-e19a0dc65f74> a djht:Category ;
+    djht:classification_code "2001"^^xsd:string ;
+    djht:id 13518 ;
+    djht:parent_id 13517 ;
+    djht:title "Communication and Media Studies"^^xsd:string .
+
+<category:9b2bfd2d-6d1c-5b2f-bfa1-ca4b1700af1a> a djht:Category ;
+    djht:classification_code "96"^^xsd:string ;
+    djht:id 13385 ;
+    djht:title "Environment"^^xsd:string .
+
+<category:9b736f86-cac5-5932-b6ec-0bc5b6b69a78> a djht:Category ;
+    djht:classification_code "1606"^^xsd:string ;
+    djht:id 13470 ;
+    djht:parent_id 13464 ;
+    djht:title "Political Science"^^xsd:string .
+
+<category:9b9ba646-cc76-5b7c-bb2f-08303087917a> a djht:Category ;
+    djht:classification_code "0305"^^xsd:string ;
+    djht:id 13599 ;
+    djht:parent_id 13594 ;
+    djht:title "Organic Chemistry"^^xsd:string .
+
+<category:9d026cd6-308a-58ee-91a0-0af3de32c2b2> a djht:Category ;
+    djht:classification_code "1603"^^xsd:string ;
+    djht:id 13467 ;
+    djht:parent_id 13464 ;
+    djht:title "Demography"^^xsd:string .
+
+<category:9d4ab632-dc91-53e2-a2c0-d3c04e899737> a djht:Category ;
+    djht:classification_code "8502"^^xsd:string ;
+    djht:id 13622 ;
+    djht:parent_id 13620 ;
+    djht:title "Mining and Extraction of Energy Resources"^^xsd:string .
+
+<category:9dfbc367-26c0-5780-b0e9-a4b3861eb977> a djht:Category ;
+    djht:classification_code "1302"^^xsd:string ;
+    djht:id 13649 ;
+    djht:parent_id 13647 ;
+    djht:title "Curriculum and Pedagogy"^^xsd:string .
+
+<category:9e841798-3250-59ec-b6e1-867570c3a6de> a djht:Category ;
+    djht:classification_code "0914"^^xsd:string ;
+    djht:id 13644 ;
+    djht:parent_id 13630 ;
+    djht:title "Resources Engineering and Extractive Metallurgy"^^xsd:string .
+
+<category:9f049b1b-da95-5746-9652-797f077b3e8d> a djht:Category ;
+    djht:classification_code "9608"^^xsd:string ;
+    djht:id 13393 ;
+    djht:parent_id 13385 ;
+    djht:title "Flora, Fauna and Biodiversity"^^xsd:string .
+
+<category:9fe04a09-4dab-5bda-b731-f5790b4ec261> a djht:Category ;
+    djht:classification_code "2204"^^xsd:string ;
+    djht:id 13592 ;
+    djht:parent_id 13588 ;
+    djht:title "Religion and Religious Studies"^^xsd:string .
+
+<category:a0f18568-b2ff-597e-a870-fb842af0a454> a djht:Category ;
+    djht:classification_code "9402"^^xsd:string ;
+    djht:id 13371 ;
+    djht:parent_id 13369 ;
+    djht:title "Government and Politics"^^xsd:string .
+
+<category:a0f603fb-7793-5519-8e5a-dfdaf222c754> a djht:Category ;
+    djht:classification_code "1403"^^xsd:string ;
+    djht:id 13569 ;
+    djht:parent_id 13566 ;
+    djht:title "Econometrics"^^xsd:string .
+
+<category:a28884ad-83f9-54f5-8269-d8856eec8e96> a djht:Category ;
+    djht:classification_code "1399"^^xsd:string ;
+    djht:id 13651 ;
+    djht:parent_id 13647 ;
+    djht:title "Other Education"^^xsd:string .
+
+<category:a369ead0-46ca-5800-95d1-558e6aa91168> a djht:Category ;
+    djht:classification_code "9601"^^xsd:string ;
+    djht:id 13386 ;
+    djht:parent_id 13385 ;
+    djht:title "Air Quality"^^xsd:string .
+
+<category:a3e03098-9501-577c-87ea-ff7c7993a2c9> a djht:Category ;
+    djht:classification_code "19"^^xsd:string ;
+    djht:id 13559 ;
+    djht:title "Studies in Creative Arts and Writing"^^xsd:string .
+
+<category:a5268586-147d-5925-a1c1-7ff6f7f44b39> a djht:Category ;
+    djht:classification_code "21"^^xsd:string ;
+    djht:id 13448 ;
+    djht:title "History and Archaeology"^^xsd:string .
+
+<category:a547f914-ec51-5bcc-a804-f569944d592d> a djht:Category ;
+    djht:classification_code "0910"^^xsd:string ;
+    djht:id 13640 ;
+    djht:parent_id 13630 ;
+    djht:title "Manufacturing Engineering"^^xsd:string .
+
+<category:a570bc7c-8d87-50e9-b5a2-57d64cfcf8c6> a djht:Category ;
+    djht:classification_code "9301"^^xsd:string ;
+    djht:id 13572 ;
+    djht:parent_id 13571 ;
+    djht:title "Learner and Learning"^^xsd:string .
+
+<category:a6f0259f-68ad-547d-a6c7-3c87258c0742> a djht:Category ;
+    djht:classification_code "0604"^^xsd:string ;
+    djht:id 13582 ;
+    djht:parent_id 13578 ;
+    djht:title "Genetics"^^xsd:string .
+
+<category:a7e1e1a5-856d-53da-aef2-0c7a154872eb> a djht:Category ;
+    djht:classification_code "0105"^^xsd:string ;
+    djht:id 13436 ;
+    djht:parent_id 13431 ;
+    djht:title "Mathematical Physics"^^xsd:string .
+
+<category:a82642be-2c46-5142-80b2-970457361a2e> a djht:Category ;
+    djht:classification_code "8703"^^xsd:string ;
+    djht:id 13512 ;
+    djht:parent_id 13509 ;
+    djht:title "Construction Materials Performance and Processes"^^xsd:string .
+
+<category:a8a090b1-086a-52de-a81b-e3e6bb140dee> a djht:Category ;
+    djht:classification_code "8501"^^xsd:string ;
+    djht:id 13621 ;
+    djht:parent_id 13620 ;
+    djht:title "Energy Exploration"^^xsd:string .
+
+<category:aa53bff6-9faa-58c2-92ec-f08405cd39c4> a djht:Category ;
+    djht:classification_code "9609"^^xsd:string ;
+    djht:id 13394 ;
+    djht:parent_id 13385 ;
+    djht:title "Land and Water Management"^^xsd:string .
+
+<category:ac699a6b-0ae2-570c-8a59-2d1c80bf6080> a djht:Category ;
+    djht:classification_code "2201"^^xsd:string ;
+    djht:id 13589 ;
+    djht:parent_id 13588 ;
+    djht:title "Applied Ethics"^^xsd:string .
+
+<category:ac726bea-24d2-5be4-bcb6-b13e13128403> a djht:Category ;
+    djht:classification_code "0605"^^xsd:string ;
+    djht:id 13583 ;
+    djht:parent_id 13578 ;
+    djht:title "Microbiology"^^xsd:string .
+
+<category:ac8cba5b-a110-5788-8771-7127411cfa14> a djht:Category ;
+    djht:classification_code "0909"^^xsd:string ;
+    djht:id 13639 ;
+    djht:parent_id 13630 ;
+    djht:title "Geomatic Engineering"^^xsd:string .
+
+<category:acfabcec-7c9f-5f18-8d26-71b352970b24> a djht:Category ;
+    djht:classification_code "8301"^^xsd:string ;
+    djht:id 13441 ;
+    djht:parent_id 13440 ;
+    djht:title "Fisheries - Aquaculture"^^xsd:string .
+
+<category:b066ab21-228b-5859-b230-59d5e3ccc5c6> a djht:Category ;
+    djht:classification_code "2101"^^xsd:string ;
+    djht:id 13449 ;
+    djht:parent_id 13448 ;
+    djht:title "Archaeology"^^xsd:string .
+
+<category:b115725a-eb9a-5f46-bd36-6fbcef23eb7c> a djht:Category ;
+    djht:classification_code "02"^^xsd:string ;
+    djht:id 13603 ;
+    djht:title "Physical Sciences"^^xsd:string .
+
+<category:b1477747-10a8-57fc-b866-20956f5a4e56> a djht:Category ;
+    djht:classification_code "0799"^^xsd:string ;
+    djht:id 13384 ;
+    djht:parent_id 13376 ;
+    djht:title "Other Agricultural and Veterinary Sciences"^^xsd:string .
+
+<category:b31d0053-29fc-5a59-91c6-18bc69eac5a8> a djht:Category ;
+    djht:classification_code "8304"^^xsd:string ;
+    djht:id 13444 ;
+    djht:parent_id 13440 ;
+    djht:title "Pasture, Browse and Fodder Crops"^^xsd:string .
+
+<category:b32b1da0-ffe9-5b3b-9cf9-88ee0d090722> a djht:Category ;
+    djht:classification_code "0706"^^xsd:string ;
+    djht:id 13382 ;
+    djht:parent_id 13376 ;
+    djht:title "Horticultural Production"^^xsd:string .
+
+<category:b3b9ea30-c9f1-5e77-b44b-b1e8e9c33b70> a djht:Category ;
+    djht:classification_code "1402"^^xsd:string ;
+    djht:id 13568 ;
+    djht:parent_id 13566 ;
+    djht:title "Applied Economics"^^xsd:string .
+
+<category:b53c43b4-73f8-5dca-97b7-41562528abc2> a djht:Category ;
+    djht:classification_code "9605"^^xsd:string ;
+    djht:id 13390 ;
+    djht:parent_id 13385 ;
+    djht:title "Ecosystem Assessment and Management"^^xsd:string .
+
+<category:b56f3169-bc3b-55ee-a105-b426e137ff57> a djht:Category ;
+    djht:classification_code "0699"^^xsd:string ;
+    djht:id 13587 ;
+    djht:parent_id 13578 ;
+    djht:title "Other Biological Sciences"^^xsd:string .
+
+<category:b5ea3e98-0291-5b7b-b511-26eb9a18988d> a djht:Category ;
+    djht:classification_code "0913"^^xsd:string ;
+    djht:id 13643 ;
+    djht:parent_id 13630 ;
+    djht:title "Mechanical Engineering"^^xsd:string .
+
+<category:b6123532-420f-55ab-afd8-4aa71f5e46b6> a djht:Category ;
+    djht:classification_code "2002"^^xsd:string ;
+    djht:id 13519 ;
+    djht:parent_id 13517 ;
+    djht:title "Cultural Studies"^^xsd:string .
+
+<category:b713c4ab-578b-56a0-8c03-bb0f31a653af> a djht:Category ;
+    djht:classification_code "1501"^^xsd:string ;
+    djht:id 13501 ;
+    djht:parent_id 13500 ;
+    djht:title "Accounting, Auditing and Accountability"^^xsd:string .
+
+<category:b8e75fe8-fc5d-5586-a6bb-4bed980059e0> a djht:Category ;
+    djht:classification_code "9399"^^xsd:string ;
+    djht:id 13577 ;
+    djht:parent_id 13571 ;
+    djht:title "Other Education and Training"^^xsd:string .
+
+<category:b913318b-cf3e-5215-9aa7-df49f6d4b867> a djht:Category ;
+    djht:classification_code "8999"^^xsd:string ;
+    djht:id 13550 ;
+    djht:parent_id 13544 ;
+    djht:title "Other Information and Communication Services"^^xsd:string .
+
+<category:b924ce3c-612d-5c26-aa68-c4e9fa7002b1> a djht:Category ;
+    djht:classification_code "9502"^^xsd:string ;
+    djht:id 13495 ;
+    djht:parent_id 13493 ;
+    djht:title "Communication"^^xsd:string .
+
+<category:b93e59c0-b589-5632-abfd-307044677b25> a djht:Category ;
+    djht:classification_code "0404"^^xsd:string ;
+    djht:id 13555 ;
+    djht:parent_id 13551 ;
+    djht:title "Geophysics"^^xsd:string .
+
+<category:b9cbdb17-3337-5f51-91b0-4574815a5e0b> a djht:Category ;
+    djht:classification_code "8506"^^xsd:string ;
+    djht:id 13626 ;
+    djht:parent_id 13620 ;
+    djht:title "Energy Storage, Distribution and Supply"^^xsd:string .
+
+<category:ba55fde3-7833-5da5-ab60-7e19490fec7d> a djht:Category ;
+    djht:classification_code "09"^^xsd:string ;
+    djht:id 13630 ;
+    djht:title "Engineering"^^xsd:string .
+
+<category:bab97160-c4a6-55ee-8c38-8bb616ddf2a0> a djht:Category ;
+    djht:classification_code "8507"^^xsd:string ;
+    djht:id 13627 ;
+    djht:parent_id 13620 ;
+    djht:title "Energy Conservation and Efficiency"^^xsd:string .
+
+<category:bb6a2704-4f9a-52a7-ab23-3e287113957e> a djht:Category ;
+    djht:classification_code "8801"^^xsd:string ;
+    djht:id 13662 ;
+    djht:parent_id 13661 ;
+    djht:title "Ground Transport"^^xsd:string .
+
+<category:bc30d9a0-530d-5f18-8691-47a289564eb4> a djht:Category ;
+    djht:classification_code "2299"^^xsd:string ;
+    djht:id 13593 ;
+    djht:parent_id 13588 ;
+    djht:title "Other Philosophy and Religious Studies"^^xsd:string .
+
+<category:bc887d01-c89d-5352-8090-cdbb78066e4a> a djht:Category ;
+    djht:classification_code "0911"^^xsd:string ;
+    djht:id 13641 ;
+    djht:parent_id 13630 ;
+    djht:title "Maritime Engineering"^^xsd:string .
+
+<category:be65e00e-5485-5878-a9c2-98ed7922c702> a djht:Category ;
+    djht:classification_code "1899"^^xsd:string ;
+    djht:id 13430 ;
+    djht:parent_id 13427 ;
+    djht:title "Other Law and Legal Studies"^^xsd:string .
+
+<category:c13af92f-b14e-5225-ba69-5fcfdb9e365f> a djht:Category ;
+    djht:classification_code "1604"^^xsd:string ;
+    djht:id 13468 ;
+    djht:parent_id 13464 ;
+    djht:title "Human Geography"^^xsd:string .
+
+<category:c269154b-8bdd-5c6a-9792-a106ec54e51e> a djht:Category ;
+    djht:classification_code "8799"^^xsd:string ;
+    djht:id 13516 ;
+    djht:parent_id 13509 ;
+    djht:title "Other Construction"^^xsd:string .
+
+<category:c27b6fe7-5d6f-58a9-ac29-879c8405f833> a djht:Category ;
+    djht:classification_code "0203"^^xsd:string ;
+    djht:id 13606 ;
+    djht:parent_id 13603 ;
+    djht:title "Classical Physics"^^xsd:string .
+
+<category:c30479e3-8fc4-5d6e-b0c9-866745e31b1c> a djht:Category ;
+    djht:classification_code "0301"^^xsd:string ;
+    djht:id 13595 ;
+    djht:parent_id 13594 ;
+    djht:title "Analytical Chemistry"^^xsd:string .
+
+<category:c547a70f-b219-5c45-b909-4484d4c763ac> a djht:Category ;
+    djht:classification_code "16"^^xsd:string ;
+    djht:id 13464 ;
+    djht:title "Studies in Human Society"^^xsd:string .
+
+<category:c636aa20-3491-5355-a3fe-cea3dcade364> a djht:Category ;
+    djht:classification_code "0101"^^xsd:string ;
+    djht:id 13432 ;
+    djht:parent_id 13431 ;
+    djht:title "Pure Mathematics"^^xsd:string .
+
+<category:c6e375ec-d59c-5ea7-abd5-6b40acebf32b> a djht:Category ;
+    djht:classification_code "12"^^xsd:string ;
+    djht:id 13362 ;
+    djht:title "Built Environment and Design"^^xsd:string .
+
+<category:c7d24680-2fda-518f-a805-21bb42b52f5a> a djht:Category ;
+    djht:classification_code "84"^^xsd:string ;
+    djht:id 13421 ;
+    djht:title "Mineral Resources (excl. Energy Resources)"^^xsd:string .
+
+<category:c8b28d67-fcfa-5222-b90c-97877d1bbb37> a djht:Category ;
+    djht:classification_code "9505"^^xsd:string ;
+    djht:id 13498 ;
+    djht:parent_id 13493 ;
+    djht:title "Understanding Past Societies"^^xsd:string .
+
+<category:c99858b1-495e-5f15-960e-27d6391eed3c> a djht:Category ;
+    djht:classification_code "15"^^xsd:string ;
+    djht:id 13500 ;
+    djht:title "Commerce, Management, Tourism and Services"^^xsd:string .
+
+<category:ca09903a-8ff7-55fd-9ee7-c79a0fa01032> a djht:Category ;
+    djht:classification_code "0804"^^xsd:string ;
+    djht:id 13615 ;
+    djht:parent_id 13611 ;
+    djht:title "Data Format"^^xsd:string .
+
+<category:ca32fb4a-40c9-59b7-97f2-bd9d85a632c9> a djht:Category ;
+    djht:classification_code "9303"^^xsd:string ;
+    djht:id 13574 ;
+    djht:parent_id 13571 ;
+    djht:title "Curriculum"^^xsd:string .
+
+<category:cb5bef89-d298-5842-8784-bee30217d4e7> a djht:Category ;
+    djht:classification_code "1001"^^xsd:string ;
+    djht:id 13653 ;
+    djht:parent_id 13652 ;
+    djht:title "Agricultural Biotechnology"^^xsd:string .
+
+<category:cbf35ce8-fb60-543f-a692-1ae9a97d65d3> a djht:Category ;
+    djht:classification_code "9602"^^xsd:string ;
+    djht:id 13387 ;
+    djht:parent_id 13385 ;
+    djht:title "Atmosphere and Weather"^^xsd:string .
+
+<category:cf2cabbc-776b-5edc-8e7c-25a0a9f1f843> a djht:Category ;
+    djht:classification_code "1002"^^xsd:string ;
+    djht:id 13654 ;
+    djht:parent_id 13652 ;
+    djht:title "Environmental Biotechnology"^^xsd:string .
+
+<category:cf7ff3a5-ae3e-5294-8706-a3b460f2a601> a djht:Category ;
+    djht:classification_code "8613"^^xsd:string ;
+    djht:id 13537 ;
+    djht:parent_id 13524 ;
+    djht:title "Transport Equipment"^^xsd:string .
+
+<category:d1aafe6f-5417-5c12-938b-87e24696a4c0> a djht:Category ;
+    djht:classification_code "1109"^^xsd:string ;
+    djht:id 13483 ;
+    djht:parent_id 13474 ;
+    djht:title "Neurosciences"^^xsd:string .
+
+<category:d1ca01aa-d6ba-5682-bc99-1203fbd6e57d> a djht:Category ;
+    djht:classification_code "0901"^^xsd:string ;
+    djht:id 13631 ;
+    djht:parent_id 13630 ;
+    djht:title "Aerospace Engineering"^^xsd:string .
+
+<category:d314f6ac-4cd8-5629-a9b3-8d018621b284> a djht:Category ;
+    djht:classification_code "9002"^^xsd:string ;
+    djht:id 13459 ;
+    djht:parent_id 13457 ;
+    djht:title "Property, Business Support Services and Trade"^^xsd:string .
+
+<category:d5160bcf-3ddb-5b3d-b32c-6cbc8b2f0848> a djht:Category ;
+    djht:classification_code "1504"^^xsd:string ;
+    djht:id 13504 ;
+    djht:parent_id 13500 ;
+    djht:title "Commercial Services"^^xsd:string .
+
+<category:d58a61d4-a8d3-53f9-acaf-c84ed5284ca8> a djht:Category ;
+    djht:classification_code "0204"^^xsd:string ;
+    djht:id 13607 ;
+    djht:parent_id 13603 ;
+    djht:title "Condensed Matter Physics"^^xsd:string .
+
+<category:d5c648e8-9390-5415-b490-2d2469c33f99> a djht:Category ;
+    djht:classification_code "9102"^^xsd:string ;
+    djht:id 13669 ;
+    djht:parent_id 13667 ;
+    djht:title "Microeconomics"^^xsd:string .
+
+<category:d73daadb-6b8b-527c-87f3-be44f7220f81> a djht:Category ;
+    djht:classification_code "0602"^^xsd:string ;
+    djht:id 13580 ;
+    djht:parent_id 13578 ;
+    djht:title "Ecology"^^xsd:string .
+
+<category:dcd61ae6-f9fb-5c08-8da1-cab3959947ba> a djht:Category ;
+    djht:classification_code "0899"^^xsd:string ;
+    djht:id 13619 ;
+    djht:parent_id 13611 ;
+    djht:title "Other Information and Computing Sciences"^^xsd:string .
+
+<category:dcd6d5ff-844d-5e86-a74c-5de369373a92> a djht:Category ;
+    djht:classification_code "1105"^^xsd:string ;
+    djht:id 13479 ;
+    djht:parent_id 13474 ;
+    djht:title "Dentistry"^^xsd:string .
+
+<category:de3ee011-5cbf-50ea-82af-147ec44d1c39> a djht:Category ;
+    djht:classification_code "06"^^xsd:string ;
+    djht:id 13578 ;
+    djht:title "Biological Sciences"^^xsd:string .
+
+<category:e037870e-e8a3-5837-8cac-cc90f47cfdac> a djht:Category ;
+    djht:classification_code "9205"^^xsd:string ;
+    djht:id 13419 ;
+    djht:parent_id 13415 ;
+    djht:title "Specific Population Health"^^xsd:string .
+
+<category:e0a06c66-1149-57ff-a49b-124c9de22c49> a djht:Category ;
+    djht:classification_code "1111"^^xsd:string ;
+    djht:id 13485 ;
+    djht:parent_id 13474 ;
+    djht:title "Nutrition and Dietetics"^^xsd:string .
+
+<category:e0fcdab2-8923-5dbf-bfaf-1778ea83102b> a djht:Category ;
+    djht:classification_code "8901"^^xsd:string ;
+    djht:id 13545 ;
+    djht:parent_id 13544 ;
+    djht:title "Communication Networks and Services"^^xsd:string .
+
+<category:e26be7af-5bb8-5fdd-bb85-88f1dc204326> a djht:Category ;
+    djht:classification_code "01"^^xsd:string ;
+    djht:id 13431 ;
+    djht:title "Mathematical Sciences"^^xsd:string .
+
+<category:e33ea7d5-a82d-545c-b650-7f13b9b867b6> a djht:Category ;
+    djht:classification_code "9199"^^xsd:string ;
+    djht:id 13673 ;
+    djht:parent_id 13667 ;
+    djht:title "Other Economic Framework"^^xsd:string .
+
+<category:e34b145d-9b4c-590a-881b-9445f87ee29d> a djht:Category ;
+    djht:classification_code "0599"^^xsd:string ;
+    djht:id 13414 ;
+    djht:parent_id 13410 ;
+    djht:title "Other Environmental Sciences"^^xsd:string .
+
+<category:e35dbe21-a1ed-58cf-8564-0ad065265878> a djht:Category ;
+    djht:classification_code "9599"^^xsd:string ;
+    djht:id 13499 ;
+    djht:parent_id 13493 ;
+    djht:title "Other Cultural Understanding"^^xsd:string .
+
+<category:e39b079e-09da-52e1-9a0a-228906c79029> a djht:Category ;
+    djht:classification_code "1499"^^xsd:string ;
+    djht:id 13570 ;
+    djht:parent_id 13566 ;
+    djht:title "Other Economics"^^xsd:string .
+
+<category:e56e436e-b795-5c72-8785-b2a17bf42975> a djht:Category ;
+    djht:classification_code "9001"^^xsd:string ;
+    djht:id 13458 ;
+    djht:parent_id 13457 ;
+    djht:title "Financial Services"^^xsd:string .
+
+<category:e5b991a7-32d5-5a1d-be38-16d6a41b77c3> a djht:Category ;
+    djht:classification_code "8299"^^xsd:string ;
+    djht:id 13409 ;
+    djht:parent_id 13401 ;
+    djht:title "Other Plant Production and Plant Primary Products"^^xsd:string .
+
+<category:e5fd59b4-bf79-5e05-8153-1d03268a8ccc> a djht:Category ;
+    djht:classification_code "9503"^^xsd:string ;
+    djht:id 13496 ;
+    djht:parent_id 13493 ;
+    djht:title "Heritage"^^xsd:string .
+
+<category:e6024461-0a7f-58cc-93c8-65ef82a6d2d7> a djht:Category ;
+    djht:classification_code "8598"^^xsd:string ;
+    djht:id 13628 ;
+    djht:parent_id 13620 ;
+    djht:title "Environmentally Sustainable Energy Activities"^^xsd:string .
+
+<category:e6acbcc9-257f-5835-9ae3-8a86d1008a14> a djht:Category ;
+    djht:classification_code "0103"^^xsd:string ;
+    djht:id 13434 ;
+    djht:parent_id 13431 ;
+    djht:title "Numerical and Computational Mathematics"^^xsd:string .
+
+<category:e6d74322-6de3-5292-a649-692dedd6e996> a djht:Category ;
+    djht:classification_code "0807"^^xsd:string ;
+    djht:id 13618 ;
+    djht:parent_id 13611 ;
+    djht:title "Library and Information Studies"^^xsd:string .
+
+<category:e8196e86-0ecd-549d-8acd-503d70f029f1> a djht:Category ;
+    djht:classification_code "0406"^^xsd:string ;
+    djht:id 13557 ;
+    djht:parent_id 13551 ;
+    djht:title "Physical Geography and Environmental Geoscience"^^xsd:string .
+
+<category:e95802ef-2568-5108-80de-4b751826cb6c> a djht:Category ;
+    djht:classification_code "17"^^xsd:string ;
+    djht:id 13453 ;
+    djht:title "Psychology and Cognitive Sciences"^^xsd:string .
+
+<category:e97d6b18-720c-5428-a57b-060e0c9f803c> a djht:Category ;
+    djht:classification_code "0399"^^xsd:string ;
+    djht:id 13602 ;
+    djht:parent_id 13594 ;
+    djht:title "Other Chemical Sciences"^^xsd:string .
+
+<category:eae01692-b86a-5336-abab-4f919f7a1d79> a djht:Category ;
+    djht:classification_code "0802"^^xsd:string ;
+    djht:id 13613 ;
+    djht:parent_id 13611 ;
+    djht:title "Computation Theory and Mathematics"^^xsd:string .
+
+<category:ec058f17-0f54-5562-adfe-f1a3dba25dcc> a djht:Category ;
+    djht:classification_code "8505"^^xsd:string ;
+    djht:id 13625 ;
+    djht:parent_id 13620 ;
+    djht:title "Renewable Energy"^^xsd:string .
+
+<category:ecd353fd-4771-5c02-a9a1-0dfa20703f29> a djht:Category ;
+    djht:classification_code "1099"^^xsd:string ;
+    djht:id 13660 ;
+    djht:parent_id 13652 ;
+    djht:title "Other Technology"^^xsd:string .
+
+<category:ed2c0556-4dbb-5dce-ba2b-358a7b615276> a djht:Category ;
+    djht:classification_code "18"^^xsd:string ;
+    djht:id 13427 ;
+    djht:title "Law and Legal Studies"^^xsd:string .
+
+<category:eddae08b-34c7-5337-a535-bac48658a827> a djht:Category ;
+    djht:classification_code "0603"^^xsd:string ;
+    djht:id 13581 ;
+    djht:parent_id 13578 ;
+    djht:title "Evolutionary Biology"^^xsd:string .
+
+<category:eedd4a71-ac09-596b-9d00-f0c0a842d997> a djht:Category ;
+    djht:classification_code "8698"^^xsd:string ;
+    djht:id 13542 ;
+    djht:parent_id 13524 ;
+    djht:title "Environmentally Sustainable Manufacturing"^^xsd:string .
+
+<category:ef878ea2-8e63-5204-82d6-c255c49207d7> a djht:Category ;
+    djht:classification_code "0206"^^xsd:string ;
+    djht:id 13609 ;
+    djht:parent_id 13603 ;
+    djht:title "Quantum Physics"^^xsd:string .
+
+<category:ef8fae60-ff67-55e3-9152-2673871e3fb4> a djht:Category ;
+    djht:classification_code "1204"^^xsd:string ;
+    djht:id 13366 ;
+    djht:parent_id 13362 ;
+    djht:title "Engineering Design"^^xsd:string .
+
+<category:f03045ca-0893-5420-bc2e-19b542de05df> a djht:Category ;
+    djht:classification_code "1203"^^xsd:string ;
+    djht:id 13365 ;
+    djht:parent_id 13362 ;
+    djht:title "Design Practice and Management"^^xsd:string .
+
+<category:f17a3ca4-1506-5616-b71e-ce857fd0ea57> a djht:Category ;
+    djht:classification_code "1902"^^xsd:string ;
+    djht:id 13561 ;
+    djht:parent_id 13559 ;
+    djht:title "Film, Television and Digital Media"^^xsd:string .
+
+<category:f18ab84b-69e1-54b3-a4b5-bbd9807c0489> a djht:Category ;
+    djht:classification_code "9404"^^xsd:string ;
+    djht:id 13373 ;
+    djht:parent_id 13369 ;
+    djht:title "Justice and The Law"^^xsd:string .
+
+<category:f19780dc-dadf-52fd-b49c-b0259adfc388> a djht:Category ;
+    djht:classification_code "9701"^^xsd:string ;
+    djht:id 13439 ;
+    djht:parent_id 13438 ;
+    djht:title "Expanding Knowledge"^^xsd:string .
+
+<category:f1c7ec11-b323-53fa-b98f-25e7eb9270ec> a djht:Category ;
+    djht:classification_code "0306"^^xsd:string ;
+    djht:id 13600 ;
+    djht:parent_id 13594 ;
+    djht:title "Physical Chemistry (incl. Structural)"^^xsd:string .
+
+<category:f210e5b5-f982-5671-867f-a17c33df6c3d> a djht:Category ;
+    djht:classification_code "1004"^^xsd:string ;
+    djht:id 13656 ;
+    djht:parent_id 13652 ;
+    djht:title "Medical Biotechnology"^^xsd:string .
+
+<category:f298a399-0747-5e0a-b545-94ad8b0f36d5> a djht:Category ;
+    djht:classification_code "0908"^^xsd:string ;
+    djht:id 13638 ;
+    djht:parent_id 13630 ;
+    djht:title "Food Sciences"^^xsd:string .
+
+<category:f37354ce-2550-5e3b-bcba-d29b5432cf28> a djht:Category ;
+    djht:classification_code "1905"^^xsd:string ;
+    djht:id 13564 ;
+    djht:parent_id 13559 ;
+    djht:title "Visual Arts and Crafts"^^xsd:string .
+
+<category:f470bac0-d8df-57a3-b67e-63a00f398cca> a djht:Category ;
+    djht:classification_code "0703"^^xsd:string ;
+    djht:id 13379 ;
+    djht:parent_id 13376 ;
+    djht:title "Crop and Pasture Production"^^xsd:string .
+
+<category:f6c38612-8977-59bb-bd3b-3ed87b08d786> a djht:Category ;
+    djht:classification_code "1117"^^xsd:string ;
+    djht:id 13491 ;
+    djht:parent_id 13474 ;
+    djht:title "Public Health and Health Services"^^xsd:string .
+
+<category:f7946529-fa7e-5e30-8c84-1fe5b6ebef13> a djht:Category ;
+    djht:classification_code "8504"^^xsd:string ;
+    djht:id 13624 ;
+    djht:parent_id 13620 ;
+    djht:title "Energy Transformation"^^xsd:string .
+
+<category:f79dff9d-6f99-5511-addc-5e62875bb79c> a djht:Category ;
+    djht:classification_code "0502"^^xsd:string ;
+    djht:id 13412 ;
+    djht:parent_id 13410 ;
+    djht:title "Environmental Science and Management"^^xsd:string .
+
+<category:f7b43800-58ed-51f7-9657-ac0a0b556520> a djht:Category ;
+    djht:classification_code "9103"^^xsd:string ;
+    djht:id 13670 ;
+    djht:parent_id 13667 ;
+    djht:title "International Trade"^^xsd:string .
+
+<category:f870c315-df79-5405-aeb9-1c32bd497f65> a djht:Category ;
+    djht:classification_code "8701"^^xsd:string ;
+    djht:id 13510 ;
+    djht:parent_id 13509 ;
+    djht:title "Construction Planning"^^xsd:string .
+
+<category:f89a140a-af2f-5988-8acb-64d7e63620d0> a djht:Category ;
+    djht:classification_code "1599"^^xsd:string ;
+    djht:id 13508 ;
+    djht:parent_id 13500 ;
+    djht:title "Other Commerce, Management, Tourism and Services"^^xsd:string .
+
+<category:f91f4715-9416-52f2-8789-d2ca264dc5f3> a djht:Category ;
+    djht:classification_code "0606"^^xsd:string ;
+    djht:id 13584 ;
+    djht:parent_id 13578 ;
+    djht:title "Physiology"^^xsd:string .
+
+<category:fd092eb1-aacb-5243-98a3-198362106896> a djht:Category ;
+    djht:classification_code "8101"^^xsd:string ;
+    djht:id 13361 ;
+    djht:parent_id 13360 ;
+    djht:title "Defence"^^xsd:string .
+
+<category:fd5eba63-9d51-5d6f-832d-58f98291dcf1> a djht:Category ;
+    djht:classification_code "8608"^^xsd:string ;
+    djht:id 13532 ;
+    djht:parent_id 13524 ;
+    djht:title "Human Pharmaceutical Products"^^xsd:string .
+
+<category:fd8ab628-daf5-56b2-afa8-d40b00648c3c> a djht:Category ;
+    djht:classification_code "87"^^xsd:string ;
+    djht:id 13509 ;
+    djht:title "Construction"^^xsd:string .
+
+<category:ff432090-d6bd-51f5-9a58-4d65c6c9053b> a djht:Category ;
+    djht:classification_code "8803"^^xsd:string ;
+    djht:id 13664 ;
+    djht:parent_id 13661 ;
+    djht:title "Aerospace Transport"^^xsd:string .
+
+<category:ffb2389f-a157-53c0-9099-b68a117866ad> a djht:Category ;
+    djht:classification_code "11"^^xsd:string ;
+    djht:id 13474 ;
+    djht:title "Medical and Health Sciences"^^xsd:string .
+
+<category:ffb804d7-1c4e-5ee4-af18-7d1883a7dcd9> a djht:Category ;
+    djht:classification_code "0805"^^xsd:string ;
+    djht:id 13616 ;
+    djht:parent_id 13611 ;
+    djht:title "Distributed Computing"^^xsd:string .
+
+<category:ffd92628-8954-56c8-bc55-9858022f6562> a djht:Category ;
+    djht:classification_code "1608"^^xsd:string ;
+    djht:id 13472 ;
+    djht:parent_id 13464 ;
+    djht:title "Sociology"^^xsd:string .
+
+<https://creativecommons.org/licenses/by-nc-nd/4.0/> a djht:License ;
+    djht:id 12 ;
+    djht:name "CC BY-NC-ND 4.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CC-BY-NC-ND-4.0> ;
+    djht:type djht:DataLicense .
+
+<https://creativecommons.org/licenses/by-nc-sa/3.0/> a djht:License ;
+    djht:id 61 ;
+    djht:name "CC BY-NC-SA 3.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CC-BY-NC-SA-3.0> ;
+    djht:type djht:DataLicense .
+
+<https://creativecommons.org/licenses/by-nc-sa/3.0/igo/> a djht:License ;
+    djht:id 998 ;
+    djht:name "CC-BY-NC-SA 3.0 IGO"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CC-BY-SA-3.0-IGO> ;
+    djht:type djht:DataLicense .
+
+<https://creativecommons.org/licenses/by-nc-sa/4.0/> a djht:License ;
+    djht:id 11 ;
+    djht:name "CC BY-NC-SA 4.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CC-BY-NC-SA-4.0> ;
+    djht:type djht:DataLicense .
+
+<https://creativecommons.org/licenses/by-nc/4.0/> a djht:License ;
+    djht:id 10 ;
+    djht:name "CC BY-NC 4.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CC-BY-NC-4.0> ;
+    djht:type djht:DataLicense .
+
+<https://creativecommons.org/licenses/by-nd/4.0/> a djht:License ;
+    djht:id 9 ;
+    djht:name "CC BY-ND 4.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CC-BY-ND-4.0> ;
+    djht:type djht:DataLicense .
+
+<https://creativecommons.org/licenses/by-sa/4.0/> a djht:License ;
+    djht:id 8 ;
+    djht:name "CC BY-SA 4.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CC-BY-SA-4.0> ;
+    djht:type djht:DataLicense .
+
+<https://creativecommons.org/licenses/by/4.0/> a djht:License ;
+    djht:id 1 ;
+    djht:name "CC BY 4.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CC-BY-4.0> ;
+    djht:type djht:DataLicense .
+
+<https://creativecommons.org/publicdomain/zero/1.0/> a djht:License ;
+    djht:id 2 ;
+    djht:name "CC0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CC0-1.0> ;
+    djht:type djht:DataLicense .
+
+<https://data.4tu.nl/info/fileadmin/user_upload/Documenten/4TU.ResearchData_Restricted_Data_2022.pdf> a djht:License ;
+    djht:id 149 ;
+    djht:name "Restrictive Licence"^^xsd:string ;
+    djht:type djht:LegacyLicense .
+
+<https://doi.org/10.4121/resource:terms_of_use> a djht:License ;
+    djht:id 98 ;
+    djht:name "4TU General Terms of Use"^^xsd:string ;
+    djht:type djht:LegacyLicense .
+
+djht:CollectionContainer rdfs:subClassOf djht:Container .
+
+djht:DatasetContainer rdfs:subClassOf djht:Container .
+
+djht:LogEntryCite a djht:LogEntryType ;
+    rdfs:label "cite"^^xsd:string .
+
+djht:LogEntryDownload a djht:LogEntryType ;
+    rdfs:label "download"^^xsd:string .
+
+djht:LogEntryGitDownload a djht:LogEntryType ;
+    rdfs:label "git_download"^^xsd:string .
+
+djht:LogEntryPrivateView a djht:LogEntryType ;
+    rdfs:label "private_view"^^xsd:string .
+
+djht:LogEntryShare a djht:LogEntryType ;
+    rdfs:label "share"^^xsd:string .
+
+djht:LogEntryView a djht:LogEntryType ;
+    rdfs:label "view"^^xsd:string .
+
+djht:ReviewApproved a djht:ReviewType ;
+    rdfs:label "approved"^^xsd:string .
+
+djht:ReviewAssigned a djht:ReviewType ;
+    rdfs:label "assigned"^^xsd:string .
+
+djht:ReviewClosed a djht:ReviewType ;
+    rdfs:label "closed"^^xsd:string .
+
+djht:ReviewRejected a djht:ReviewType ;
+    rdfs:label "rejected"^^xsd:string .
+
+djht:ReviewUnassigned a djht:ReviewType ;
+    rdfs:label "unassigned"^^xsd:string .
+
+<https://opendatacommons.org/licenses/odbl/1-0/> a djht:License ;
+    djht:id 997 ;
+    djht:name "ODbL-1.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/ODbL-1.0> ;
+    djht:type djht:DataLicense .
+
+<https://opensource.org/license/cern-ohl-p> a djht:License ;
+    djht:id 994 ;
+    djht:name "CERN-OHL-P-2.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CERN-OHL-P-2.0> ;
+    djht:type djht:HardwareLicense .
+
+<https://opensource.org/license/cern-ohl-s> a djht:License ;
+    djht:id 996 ;
+    djht:name "CERN-OHL-S-2.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CERN-OHL-S-2.0> ;
+    djht:type djht:HardwareLicense .
+
+<https://opensource.org/license/cern-ohl-w> a djht:License ;
+    djht:id 995 ;
+    djht:name "CERN-OHL-W-2.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/CERN-OHL-W-2.0> ;
+    djht:type djht:HardwareLicense .
+
+<https://opensource.org/licenses/BSD-3-Clause> a djht:License ;
+    djht:id 148 ;
+    djht:name "BSD-3-Clause"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/BSD-3-Clause> ;
+    djht:type djht:SoftwareLicense .
+
+<https://opensource.org/licenses/EUPL-1.2> a djht:License ;
+    djht:id 99 ;
+    djht:name "EUPL-1.2"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/EUPL-1.2> ;
+    djht:type djht:SoftwareLicense .
+
+<https://opensource.org/licenses/MIT> a djht:License ;
+    djht:id 3 ;
+    djht:name "MIT"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/MIT> ;
+    djht:type djht:SoftwareLicense .
+
+<https://www.apache.org/licenses/LICENSE-2.0.html> a djht:License ;
+    djht:id 145 ;
+    djht:name "Apache-2.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/Apache-2.0> ;
+    djht:type djht:SoftwareLicense .
+
+<https://www.gnu.org/licenses/agpl-3.0.en.html> a djht:License ;
+    djht:id 85 ;
+    djht:name "AGPL-3.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/AGPL-3.0-only> ;
+    djht:type djht:SoftwareLicense .
+
+<https://www.gnu.org/licenses/gpl-3.0.html> a djht:License ;
+    djht:id 94 ;
+    djht:name "GPL-3.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/GPL-3.0-only> ;
+    djht:type djht:SoftwareLicense .
+
+<https://www.gnu.org/licenses/lgpl-3.0.en.html> a djht:License ;
+    djht:id 86 ;
+    djht:name "LGPL-3.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/LGPL-3.0-only> ;
+    djht:type djht:SoftwareLicense .
+
+<https://www.gnu.org/licenses/old-licenses/gpl-2.0.html> a djht:License ;
+    djht:id 88 ;
+    djht:name "GPL-2.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/GPL-2.0-only> ;
+    djht:type djht:SoftwareLicense .
+
+<https://www.mozilla.org/en-US/MPL/2.0/> a djht:License ;
+    djht:id 999 ;
+    djht:name "MPL 2.0"^^xsd:string ;
+    djht:spdx <https://spdx.org/licenses/MPL-2.0> ;
+    djht:type djht:SoftwareLicense .
+
+<language:006fc180-f799-5418-bdab-b540c7a94b15> a djht:Language ;
+    rdfs:label "Macedonian"^^xsd:string ;
+    djht:shortcode "mk"^^xsd:string .
+
+<language:058b8e7c-92c0-5c07-a185-97e09da0350c> a djht:Language ;
+    rdfs:label "Norwegian Bokmål"^^xsd:string ;
+    djht:shortcode "nb"^^xsd:string .
+
+<language:06609f52-fe7b-5666-a10a-e44116c7c8fc> a djht:Language ;
+    rdfs:label "Mongolian"^^xsd:string ;
+    djht:shortcode "mn"^^xsd:string .
+
+<language:09c2b7b1-1668-5dbb-8d50-ffbbac20bb69> a djht:Language ;
+    rdfs:label "Latvian"^^xsd:string ;
+    djht:shortcode "lv"^^xsd:string .
+
+<language:0d18aa26-2f85-59d8-8d67-e70bb5c43726> a djht:Language ;
+    rdfs:label "Esperanto"^^xsd:string ;
+    djht:shortcode "eo"^^xsd:string .
+
+<language:109e0f83-764f-57b7-9b95-6cea309c6b29> a djht:Language ;
+    rdfs:label "Bengali, Bangla"^^xsd:string ;
+    djht:shortcode "bn"^^xsd:string .
+
+<language:132cba74-0a3f-5aae-af1a-f104321b7d45> a djht:Language ;
+    rdfs:label "Upper Sorbian"^^xsd:string ;
+    djht:shortcode "hsb"^^xsd:string .
+
+<language:21eef19e-2184-53f5-8a46-0a4dde36c6a2> a djht:Language ;
+    rdfs:label "Portuguese, Brazil"^^xsd:string ;
+    djht:shortcode "pt-br"^^xsd:string .
+
+<language:223d972c-c776-5e65-8e09-0ddbd7eb90c7> a djht:Language ;
+    rdfs:label "Kannada"^^xsd:string ;
+    djht:shortcode "kn"^^xsd:string .
+
+<language:266d159c-2260-593e-8c1f-6a6302012372> a djht:Language ;
+    rdfs:label "French"^^xsd:string ;
+    djht:shortcode "fr"^^xsd:string .
+
+<language:28d0099e-2878-59f8-9cb7-74f2ecb98aa4> a djht:Language ;
+    rdfs:label "Farsi"^^xsd:string ;
+    djht:shortcode "fa"^^xsd:string .
+
+<language:30c53697-9ea5-5ade-b39c-4eeefa78ba45> a djht:Language ;
+    rdfs:label "English"^^xsd:string ;
+    djht:shortcode "en"^^xsd:string .
+
+<language:3300b09d-8535-5917-83c3-2c7d9fa921fb> a djht:Language ;
+    rdfs:label "Asturian, Asturleonese, Bable, Leonese"^^xsd:string ;
+    djht:shortcode "ast"^^xsd:string .
+
+<language:3bf1f640-9e2a-537b-8d55-c54549df7391> a djht:Language ;
+    rdfs:label "Swahili"^^xsd:string ;
+    djht:shortcode "sw"^^xsd:string .
+
+<language:3f19030e-5690-58d0-9c92-9074251a3483> a djht:Language ;
+    rdfs:label "Telugu"^^xsd:string ;
+    djht:shortcode "te"^^xsd:string .
+
+<language:40e46100-c8c1-5756-acde-157b70af3b8b> a djht:Language ;
+    rdfs:label "Swedish"^^xsd:string ;
+    djht:shortcode "sv"^^xsd:string .
+
+<language:41e8acc4-881d-5c45-9cbf-70ec033173a6> a djht:Language ;
+    rdfs:label "Kazakh"^^xsd:string ;
+    djht:shortcode "kk"^^xsd:string .
+
+<language:4239ad7d-b469-57c8-8fd6-ac5174093f3e> a djht:Language ;
+    rdfs:label "Norwegian Nynorsk"^^xsd:string ;
+    djht:shortcode "nn"^^xsd:string .
+
+<language:4a729486-3b83-568a-92c7-f21e1eff9921> a djht:Language ;
+    rdfs:label "Danish"^^xsd:string ;
+    djht:shortcode "da"^^xsd:string .
+
+<language:4aaba673-5a69-5e12-9e35-98cb1b926bcb> a djht:Language ;
+    rdfs:label "English, British"^^xsd:string ;
+    djht:shortcode "en-gb"^^xsd:string .
+
+<language:4b9fd938-14e7-5830-9ba6-976d602427ab> a djht:Language ;
+    rdfs:label "Russian"^^xsd:string ;
+    djht:shortcode "ru"^^xsd:string .
+
+<language:4ca528ea-3dd6-5c2e-843e-e1170896270e> a djht:Language ;
+    rdfs:label "Japanese"^^xsd:string ;
+    djht:shortcode "ja"^^xsd:string .
+
+<language:4dae8d7d-ac4e-5574-872b-86c8b9ceff0c> a djht:Language ;
+    rdfs:label "Azerbaijani"^^xsd:string ;
+    djht:shortcode "az"^^xsd:string .
+
+<language:4e282811-3136-5999-bf7c-6dead8be5264> a djht:Language ;
+    rdfs:label "Polish"^^xsd:string ;
+    djht:shortcode "pl"^^xsd:string .
+
+<language:501d81d5-8981-5e8b-9a95-d20baddbc029> a djht:Language ;
+    rdfs:label "Panjabi, Punjabi"^^xsd:string ;
+    djht:shortcode "pa"^^xsd:string .
+
+<language:5271fbce-d5ff-55b1-9093-366a4b042002> a djht:Language ;
+    rdfs:label "Romanian"^^xsd:string ;
+    djht:shortcode "ro"^^xsd:string .
+
+<language:5386094c-265b-5042-b0be-2820e700fcc3> a djht:Language ;
+    rdfs:label "Serbian, Latin"^^xsd:string ;
+    djht:shortcode "sr-latn"^^xsd:string .
+
+<language:64e8eb3d-d4b9-584b-b771-1e5fad339dc8> a djht:Language ;
+    rdfs:label "Scottish Gaelic, Gaelic"^^xsd:string ;
+    djht:shortcode "gd"^^xsd:string .
+
+<language:6550ce27-5c0b-5ebf-a0b5-a26e7365827b> a djht:Language ;
+    rdfs:label "Tatar"^^xsd:string ;
+    djht:shortcode "tt"^^xsd:string .
+
+<language:6c45289f-7923-5f6f-b3f5-0b74b6618137> a djht:Language ;
+    rdfs:label "Estonian"^^xsd:string ;
+    djht:shortcode "et"^^xsd:string .
+
+<language:6ee4a535-27c1-5bd4-b0dd-a83a26fb6269> a djht:Language ;
+    rdfs:label "Interlingua"^^xsd:string ;
+    djht:shortcode "ia"^^xsd:string .
+
+<language:71cc7d11-f357-5da5-b2b7-1b577d10edf2> a djht:Language ;
+    rdfs:label "Marathi"^^xsd:string ;
+    djht:shortcode "mr"^^xsd:string .
+
+<language:72bcd26b-afe1-5a35-b7b3-f7aca9050e09> a djht:Language ;
+    rdfs:label "Dutch, Flemish"^^xsd:string ;
+    djht:shortcode "nl"^^xsd:string .
+
+<language:739ffaa6-26ba-5d96-82c6-5467c4f46016> a djht:Language ;
+    rdfs:label "Spanish, Argentina"^^xsd:string ;
+    djht:shortcode "es-ar"^^xsd:string .
+
+<language:750bd095-3dd4-591a-ab27-9eaaf2a23efb> a djht:Language ;
+    rdfs:label "Catalan, Valencian"^^xsd:string ;
+    djht:shortcode "ca"^^xsd:string .
+
+<language:774990a7-31c1-5ae2-aace-c8306d6b954b> a djht:Language ;
+    rdfs:label "Albanian"^^xsd:string ;
+    djht:shortcode "sq"^^xsd:string .
+
+<language:7e428fd5-bf4e-5ac8-b9e9-00194f18c4b9> a djht:Language ;
+    rdfs:label "Spanish, Colombia"^^xsd:string ;
+    djht:shortcode "es-co"^^xsd:string .
+
+<language:7efcd8b4-4547-5979-9046-2337a9be357f> a djht:Language ;
+    rdfs:label "Welsh"^^xsd:string ;
+    djht:shortcode "cy"^^xsd:string .
+
+<language:7f9ecc9d-c6ad-57b7-8460-7aeb3eb42b5a> a djht:Language ;
+    rdfs:label "Khmer, Central Khmer"^^xsd:string ;
+    djht:shortcode "km"^^xsd:string .
+
+<language:8377d97c-c3fe-537c-833d-cfbb09e1e267> a djht:Language ;
+    rdfs:label "Basque"^^xsd:string ;
+    djht:shortcode "eu"^^xsd:string .
+
+<language:8643a09b-f501-54d9-a692-4f722299604f> a djht:Language ;
+    rdfs:label "Udmurt"^^xsd:string ;
+    djht:shortcode "udm"^^xsd:string .
+
+<language:89324987-65b3-5d3c-bc3d-19305e07e7f3> a djht:Language ;
+    rdfs:label "Serbian"^^xsd:string ;
+    djht:shortcode "sr"^^xsd:string .
+
+<language:8a5e2c28-0622-5b73-b2e3-a429c6135ee2> a djht:Language ;
+    rdfs:label "Irish"^^xsd:string ;
+    djht:shortcode "ga"^^xsd:string .
+
+<language:8aa4ec5a-5497-5f8e-b645-1010cef42b2a> a djht:Language ;
+    rdfs:label "Hindi"^^xsd:string ;
+    djht:shortcode "hi"^^xsd:string .
+
+<language:92e7830d-c279-510b-ad01-b10f98c34976> a djht:Language ;
+    rdfs:label "Vietnamese"^^xsd:string ;
+    djht:shortcode "vi"^^xsd:string .
+
+<language:98121afc-b9f3-54b1-841d-6bc086231652> a djht:Language ;
+    rdfs:label "Breton"^^xsd:string ;
+    djht:shortcode "br"^^xsd:string .
+
+<language:9c4c38e2-7ae7-5cbc-8533-f7b7542c625f> a djht:Language ;
+    rdfs:label "Slovak"^^xsd:string ;
+    djht:shortcode "sk"^^xsd:string .
+
+<language:9e853813-1a1a-56f1-8da6-5bca55696267> a djht:Language ;
+    rdfs:label "Thai"^^xsd:string ;
+    djht:shortcode "th"^^xsd:string .
+
+<language:9e9c9ab7-a61c-5af1-9d9f-5b2ea5bf2499> a djht:Language ;
+    rdfs:label "Turkish"^^xsd:string ;
+    djht:shortcode "tr"^^xsd:string .
+
+<language:a0520fd0-ad38-52ec-8def-e877802ceb23> a djht:Language ;
+    rdfs:label "Georgian"^^xsd:string ;
+    djht:shortcode "ka"^^xsd:string .
+
+<language:a1e2dd8f-5b5d-57c3-92ef-3a61a486d56c> a djht:Language ;
+    rdfs:label "Spanish, Venezuela"^^xsd:string ;
+    djht:shortcode "es-ve"^^xsd:string .
+
+<language:a217d1f4-1621-5dfd-ab8c-72087103caf5> a djht:Language ;
+    rdfs:label "Spanish, Castilian"^^xsd:string ;
+    djht:shortcode "es"^^xsd:string .
+
+<language:a3925f43-c1d6-5490-9164-747979375620> a djht:Language ;
+    rdfs:label "Bulgarian"^^xsd:string ;
+    djht:shortcode "bg"^^xsd:string .
+
+<language:a4189850-b149-5949-8c83-202a3cb0219e> a djht:Language ;
+    rdfs:label "Belarusian"^^xsd:string ;
+    djht:shortcode "be"^^xsd:string .
+
+<language:a784302b-d855-57db-810b-b683c2fcf552> a djht:Language ;
+    rdfs:label "Italian"^^xsd:string ;
+    djht:shortcode "it"^^xsd:string .
+
+<language:a78696b3-e451-55bd-b8f3-18c0ec9d3054> a djht:Language ;
+    rdfs:label "Burmese"^^xsd:string ;
+    djht:shortcode "my"^^xsd:string .
+
+<language:a9c240cc-3de6-5d83-a464-f536e2579221> a djht:Language ;
+    rdfs:label "Icelandic"^^xsd:string ;
+    djht:shortcode "is"^^xsd:string .
+
+<language:add5e9e5-e37a-56db-b9e9-50c5f1c356e2> a djht:Language ;
+    rdfs:label "Ukrainian"^^xsd:string ;
+    djht:shortcode "uk"^^xsd:string .
+
+<language:b055d9e4-4bf7-562f-ad3e-c00957c6f2bf> a djht:Language ;
+    rdfs:label "Ido"^^xsd:string ;
+    djht:shortcode "io"^^xsd:string .
+
+<language:b0f94704-e5d7-52d0-9e54-176ad4ec4f3e> a djht:Language ;
+    rdfs:label "Bosnian"^^xsd:string ;
+    djht:shortcode "bs"^^xsd:string .
+
+<language:b43cff92-2bb3-5807-82c8-5b26763b201b> a djht:Language ;
+    rdfs:label "Ossetian, Ossetic"^^xsd:string ;
+    djht:shortcode "os"^^xsd:string .
+
+<language:b4d282bc-601c-5f65-8b76-67123cf54958> a djht:Language ;
+    rdfs:label "Urdu"^^xsd:string ;
+    djht:shortcode "ur"^^xsd:string .
+
+<language:b58af565-f985-57a9-bbfb-ef568adc6062> a djht:Language ;
+    rdfs:label "Croatian"^^xsd:string ;
+    djht:shortcode "hr"^^xsd:string .
+
+<language:b5e7c867-54e4-545d-b58c-9a879e5cbd59> a djht:Language ;
+    rdfs:label "Spanish, Mexico"^^xsd:string ;
+    djht:shortcode "es-mx"^^xsd:string .
+
+<language:b5f2cbfc-fd08-54da-a8af-d22b84a1ecc7> a djht:Language ;
+    rdfs:label "Lower Sorbian"^^xsd:string ;
+    djht:shortcode "dsb"^^xsd:string .
+
+<language:bf7f7038-c572-5911-8692-1070bca3952b> a djht:Language ;
+    rdfs:label "Tamil"^^xsd:string ;
+    djht:shortcode "ta"^^xsd:string .
+
+<language:c2a6d104-230a-5bb2-9208-982cd81f0029> a djht:Language ;
+    rdfs:label "Hungarian"^^xsd:string ;
+    djht:shortcode "hu"^^xsd:string .
+
+<language:c487b802-aad5-5aac-97dc-0ab924d75f64> a djht:Language ;
+    rdfs:label "Portuguese"^^xsd:string ;
+    djht:shortcode "pt"^^xsd:string .
+
+<language:c4991884-782a-53fa-bd5f-4daea38908ea> a djht:Language ;
+    rdfs:label "Modern Greek (1453-)"^^xsd:string ;
+    djht:shortcode "el"^^xsd:string .
+
+<language:c7a4d87d-ad31-5663-81b5-6905d8ca5e52> a djht:Language ;
+    rdfs:label "English, American"^^xsd:string ;
+    djht:shortcode "en-us"^^xsd:string .
+
+<language:c8e031b1-d106-5af6-9506-a36e90d4c3d9> a djht:Language ;
+    rdfs:label "Nepali"^^xsd:string ;
+    djht:shortcode "ne"^^xsd:string .
+
+<language:cbb96dad-ea68-5d7e-85e8-33287ac02489> a djht:Language ;
+    rdfs:label "Arabic"^^xsd:string ;
+    djht:shortcode "ar"^^xsd:string .
+
+<language:cec167d6-30b2-5bc1-bd94-8b4f4ea84196> a djht:Language ;
+    rdfs:label "Spanish, Nicaragua"^^xsd:string ;
+    djht:shortcode "es-ni"^^xsd:string .
+
+<language:ceca80ae-e830-58c7-a5d3-947ea616998e> a djht:Language ;
+    rdfs:label "Finnish"^^xsd:string ;
+    djht:shortcode "fi"^^xsd:string .
+
+<language:d84e254a-db92-5584-97aa-0354c85eaa22> a djht:Language ;
+    rdfs:label "Slovenian"^^xsd:string ;
+    djht:shortcode "sl"^^xsd:string .
+
+<language:d912177f-2e85-5a23-934c-232f5e27584a> a djht:Language ;
+    rdfs:label "Czech"^^xsd:string ;
+    djht:shortcode "cs"^^xsd:string .
+
+<language:da57599e-5f33-58cd-8259-f636ceb2ca15> a djht:Language ;
+    rdfs:label "Galician"^^xsd:string ;
+    djht:shortcode "gl"^^xsd:string .
+
+<language:dcd5b9bd-124d-5b77-8b3d-cec1345c036e> a djht:Language ;
+    rdfs:label "Korean"^^xsd:string ;
+    djht:shortcode "ko"^^xsd:string .
+
+<language:dde399d2-72e4-59ab-8bf8-6fb4d3067693> a djht:Language ;
+    rdfs:label "English, Australian"^^xsd:string ;
+    djht:shortcode "en-au"^^xsd:string .
+
+<language:de4bf207-d0b5-5947-a0fe-e4ec8d6b0dbb> a djht:Language ;
+    rdfs:label "Chinese, Traditional"^^xsd:string ;
+    djht:shortcode "zh-hant"^^xsd:string .
+
+<language:e25b6834-8b44-5513-9ebb-0bc453cecfd3> a djht:Language ;
+    rdfs:label "Western Frisian"^^xsd:string ;
+    djht:shortcode "fy"^^xsd:string .
+
+<language:e59f5b00-16b4-51cb-8066-221e4efccd15> a djht:Language ;
+    rdfs:label "Afrikaans"^^xsd:string ;
+    djht:shortcode "af"^^xsd:string .
+
+<language:e7d3631e-14d6-573b-a8b0-3cfacbdc21c8> a djht:Language ;
+    rdfs:label "Malayalam"^^xsd:string ;
+    djht:shortcode "ml"^^xsd:string .
+
+<language:ea926788-3f51-5729-8673-6ae3bd40a115> a djht:Language ;
+    rdfs:label "Chinese, Simplified"^^xsd:string ;
+    djht:shortcode "zh-hans"^^xsd:string .
+
+<language:f7e6ab5b-cc3e-5f4f-9e46-8ffa88168bf3> a djht:Language ;
+    rdfs:label "Hebrew"^^xsd:string ;
+    djht:shortcode "he"^^xsd:string .
+
+<language:f82bb325-d48d-55ef-bc9e-3eff6645f54e> a djht:Language ;
+    rdfs:label "Lithuanian"^^xsd:string ;
+    djht:shortcode "lt"^^xsd:string .
+
+<language:f8e69416-876b-52f4-b0b1-150f134274a0> a djht:Language ;
+    rdfs:label "Indonesian"^^xsd:string ;
+    djht:shortcode "id"^^xsd:string .
+
+<language:fdc1e658-6f7d-527b-a6e0-e6bf07231545> a djht:Language ;
+    rdfs:label "German"^^xsd:string ;
+    djht:shortcode "de"^^xsd:string .
+
+<language:ff244a70-8743-5123-8036-692b4d4af146> a djht:Language ;
+    rdfs:label "Luxembourgish, Letzeburgesch"^^xsd:string ;
+    djht:shortcode "lb"^^xsd:string .
+
+djht:LegacyLicense rdfs:label "legacy"^^xsd:string .
+
+djht:HardwareLicense rdfs:label "hardware"^^xsd:string .
+
+djht:SoftwareLicense rdfs:label "software"^^xsd:string .
+
+djht:DataLicense rdfs:label "data"^^xsd:string .
+

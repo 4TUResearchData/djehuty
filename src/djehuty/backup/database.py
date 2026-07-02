@@ -288,7 +288,16 @@ class DatabaseInterface:
         if uri is not None:
             return uri
 
-        uri = rdf.unique_node ("category")
+        # Derive the URI from the stable 'id' so re-inserts are idempotent.
+        # Without an id, fall back to a random (non-reconcilable) URI.
+        if category_id is None:
+            logging.warning (
+                "Inserting category '%s' without an id. Using a random URI.",
+                value_or (record, "title", "?"))
+            uri = rdf.unique_node ("category")
+        else:
+            uri = rdf.stable_node ("category", category_id)
+
         self.store.add ((uri, RDF.type,      rdf.DJHT["Category"]))
         self.store.add ((uri, rdf.DJHT["id"], Literal(category_id)))
 
@@ -971,7 +980,8 @@ class DatabaseInterface:
 
         languages = self.__load_resource_file("languages.json")
         for language in languages:
-            uri = rdf.unique_node ("language")
+            # URI from the stable 'shortcode' so re-inserts are idempotent.
+            uri = rdf.stable_node ("language", language["shortcode"])
             self.store.add ((uri, RDF.type, rdf.DJHT["Language"]))
             self.store.add ((uri, RDFS.label,
                              Literal(language["name"], datatype=XSD.string)))
@@ -987,3 +997,11 @@ class DatabaseInterface:
             self.insert_category(category)
 
         return True
+
+    def mark_state_graph_as_initialized (self):
+        """Mark the seed as present so the migration runner auto-stamps
+        ``0001_initial`` instead of re-inserting it. See ``djehuty.schema.migrate``.
+        """
+        self.store.add ((URIRef ("this"),
+                         rdf.DJHT["initialized"],
+                         Literal ("true", datatype=XSD.boolean)))
