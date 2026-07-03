@@ -1,6 +1,10 @@
 {
   "djehuty": {
     "maintenance-mode": "0",
+    "web-service": {
+      "default": "new",
+      "groups": {}
+    },
     "site-name": "4TU.ResearchData",
     "site-shorttag": "dev",
     "site-description": "Djehuty development instance",

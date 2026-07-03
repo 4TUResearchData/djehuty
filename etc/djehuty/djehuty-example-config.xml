@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <djehuty>
   <maintenance-mode>0</maintenance-mode>
+  <!-- New HTTP stack switch (see doc/http-migration.md). default is new|legacy;
+       list a functional group under <groups> to pin it, e.g.
+       <groups><api-v2>legacy</api-v2></groups>. The docs (/api/) are always new. -->
+  <web-service>
+    <default>new</default>
+    <groups/>
+  </web-service>
   <site-name>Djehuty example instance</site-name>
   <site-shorttag>example-shorttag</site-shorttag>
   <site-description>Djehuty example instance</site-description>
