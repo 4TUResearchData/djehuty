@@ -22,6 +22,15 @@
     font-weight: normal;
     font-style: normal;
 }
+/* Typography variables. These variables resolved to the default fonts, so an
+   instance that does not override them renders exactly as before. Instances
+   can restyle typography without patching this file by overriding these
+   variables in /theme/fonts.css*/
+:root {
+    --font-body: 'SourceSans', sans-serif;
+    --font-ui:   'SourceSans', sans-serif;
+    --font-mono: 'FiraMono', monospace;
+}
 @font-face {
   font-family: 'Font Awesome 6';
   font-style: normal;
@@ -63,7 +72,7 @@ body,html {
     height: 100%;
     padding: 0em;
     margin: 0em;
-    font-family: 'SourceSans', sans-serif;
+    font-family: var(--font-body);
     font-size: 12pt;
     color: #000000;
 }
@@ -194,7 +203,7 @@ a.inline-button.close:active { background: #aa4444; color: #000; text-decoration
     display: block;
     min-width: 120pt;
 }
-#primary-menu li a { text-decoration: none; }
+#primary-menu li a { text-decoration: none; font-family: var(--font-ui); }
 .submenu {
     position: absolute;
     display: none;
@@ -284,14 +293,14 @@ h1 {
     color: #000000;
     padding: 0em;
     margin: 0em;
-    font-family: 'SourceSans', sans-serif;
+    font-family: var(--font-body);
     font-weight: normal;
     text-transform: uppercase;
 }
 a {
     color: #000000;
     text-decoration: underline;
-    font-family: 'SourceSans', sans-serif;
+    font-family: var(--font-body);
 }
 a:hover {
     color: #666666;
@@ -617,7 +626,7 @@ img { user-select: none; }
   display: block;
   background: #fffaea;
   border: solid 2pt #ffeecc;
-  font-family: 'SourceSans', sans-serif;
+  font-family: var(--font-body);
   font-size: 12pt;
   font-weight: normal;
   padding: .5em;
