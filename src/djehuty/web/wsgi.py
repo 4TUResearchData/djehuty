@@ -9350,7 +9350,7 @@ class WebServer:
             except validator.ValidationException as error:
                 return self.error_400(request, error.message, error.code)
 
-        return self.error_500()
+        return self.error_405 (["GET", "POST"])
 
     def api_private_physical_sample_private_links_details(self, request, container_uuid, link_id):
         """Implements /v3/physical-samples/<container_uuid>/private_links/<link_id>."""
@@ -9409,7 +9409,7 @@ class WebServer:
 
             return self.respond_204()
 
-        return self.error_500()
+        return self.error_405 (["GET", "PUT", "DELETE"])
 
     def api_v3_groups (self, request):
         """Implements /v3/groups."""
