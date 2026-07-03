@@ -23,7 +23,7 @@ def _call(app, path):
 
 def test_unregistered_path_goes_to_legacy():
     app = WebServiceDispatcher(_legacy, _new, default="new", overrides={})
-    assert _call(app, "/v3/x") == [b"LEGACY"]
+    assert _call(app, "/not-a-registered-group/x") == [b"LEGACY"]
 
 
 def test_registered_group_default_new_goes_to_new(monkeypatch):
