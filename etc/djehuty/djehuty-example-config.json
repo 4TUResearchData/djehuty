@@ -1,6 +1,10 @@
 {
   "djehuty": {
     "maintenance-mode": "0",
+    "web-service": {
+      "default": "new",
+      "groups": {}
+    },
     "site-name": "Djehuty example instance",
     "site-shorttag": "example-shorttag",
     "site-description": "Djehuty example instance",
