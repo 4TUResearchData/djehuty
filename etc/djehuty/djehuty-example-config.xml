@@ -6,7 +6,9 @@
        <groups><api-v2>legacy</api-v2></groups>. The docs (/api/) are always new. -->
   <web-service>
     <default>new</default>
-    <groups/>
+    <groups>
+      <api-v2>new</api-v2>
+    </groups>
   </web-service>
   <site-name>Djehuty example instance</site-name>
   <site-shorttag>example-shorttag</site-shorttag>
