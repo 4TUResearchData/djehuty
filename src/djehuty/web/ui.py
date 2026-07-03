@@ -908,6 +908,8 @@ def read_orcid_configuration(xml_root):
 
 def read_email_configuration(server, xml_root, logger):
     """Procedure to parse and set the email server configuration."""
+    # Share the mail sender with the HTTP API's email service.
+    config.email_interface = server.email
     email = xml_root.find("email")
     if email:
         try:
