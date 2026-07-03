@@ -114,6 +114,7 @@ class WebServer:
             R("/browse",                                                         self.ui_redirect_to_home),
             R("/robots.txt",                                                     self.robots_txt),
             R("/theme/colors.css",                                               self.colors_css),
+            R("/theme/fonts.css",                                                self.fonts_css),
             R("/theme/loader.svg",                                               self.loader_svg),
             R("/login",                                                          self.ui_login),
             R("/account/home",                                                   self.ui_account_home),
@@ -850,6 +851,7 @@ class WebServer:
         base_dir = config.static_cache_root
         resources_path = os.path.dirname(__file__)
         stylesheet = self.colors_css (Request({}))
+        fonts_stylesheet = self.fonts_css (Request({}))
         try:
             os.makedirs (base_dir, mode=0o755, exist_ok=True)
             shutil.copytree (os.path.join (resources_path, "resources", "static"),
@@ -859,6 +861,9 @@ class WebServer:
             os.makedirs (os.path.join (base_dir, "theme"), mode=0o755, exist_ok=True)
             with open (os.path.join (base_dir, "theme", "colors.css"), "wb") as stream:
                 stream.write (stylesheet.get_data())
+
+            with open (os.path.join (base_dir, "theme", "fonts.css"), "wb") as stream:
+                stream.write (fonts_stylesheet.get_data())
 
             for page in ["500", "502"]:
                 with open (os.path.join (base_dir, f"{page}.html"), "wb") as stream:
@@ -1729,6 +1734,14 @@ class WebServer:
             privilege_button_color   = config.colors['privilege-button-color'],
             background_color         = config.colors["background-color"],
             sandbox_message_css      = config.sandbox_message_css)
+
+    def fonts_css (self, request):
+        """Implements /theme/fonts.css."""
+
+        if not self.accepts_content_type (request, "text/css", strict=False):
+            return self.error_406 ("text/css")
+
+        return self.__render_css_template ("fonts.css", fonts = config.fonts)
 
     def loader_svg (self, request):
         """Implements /theme/loader.svg."""

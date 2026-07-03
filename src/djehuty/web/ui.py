@@ -639,6 +639,30 @@ def read_colors_configuration (xml_root):
                       "background-color"]:
             config.colors[color] = config_value (colors, color, fallback=config.colors[color])
 
+def read_fonts_configuration (xml_root):
+    """Procedure to parse and set the custom typography configuration."""
+    fonts = xml_root.find("fonts")
+    if fonts is None:
+        return
+
+    font_faces = []
+    for face in fonts.findall("font-face"):
+        font_faces.append({
+            "family":  config_value (face, "family"),
+            "src":     config_value (face, "src"),
+            "format":  config_value (face, "format", fallback="woff2"),
+            "weight":  config_value (face, "weight"),
+            "style":   config_value (face, "style"),
+            "display": config_value (face, "display", fallback="swap"),
+        })
+
+    config.fonts = {
+        "font_faces": font_faces,
+        "body_font":  config_value (fonts, "body-font-family"),
+        "ui_font":    config_value (fonts, "ui-font-family"),
+        "mono_font":  config_value (fonts, "mono-font-family"),
+    }
+
 def read_datacite_configuration (xml_root):
     """Procedure to parse and set the DataCite API configuration."""
     datacite = xml_root.find("datacite")
@@ -955,6 +979,7 @@ def read_configuration_file (server, config_file, logger, config_files):
         read_storage_configuration (xml_root, logger)
         read_quotas_configuration (xml_root)
         read_colors_configuration (xml_root)
+        read_fonts_configuration (xml_root)
         read_upload_dataset_configuration (xml_root, logger)
 
         for include_element in xml_root.iter('include'):
