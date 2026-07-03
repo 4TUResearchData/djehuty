@@ -14,8 +14,11 @@ nav:
   - Home: index.md
   - Configuring & running djehuty: running-djehuty.md
   - Deployment: deployment.md
-  - Knowledge graph: knowledge-graph.md
-  - Contributing: contributing.md
+  - Architecture & design:
+      - Knowledge graph: knowledge-graph.md
+      - HTTP stack migration: http-migration.md
+  - Contributing:
+      - Contributing guide: contributing.md
   - API: api.md
   - Contact: contact.md
   - News: news.md
@@ -28,6 +31,10 @@ markdown_extensions:
   - tables
   - fenced_code
   - admonition
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight:
       anchor_linenums: true
