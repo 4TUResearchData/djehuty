@@ -187,6 +187,8 @@ class WebServer:
             R("/opendap_to_doi",                                                 self.ui_opendap_to_doi),
             R("/datasets/<dataset_id>",                                          self.ui_dataset),
             R("/datasets/<dataset_id>/<version>",                                self.ui_dataset),
+            R("/physical_sample/<physical_sample_id>",                           self.ui_physical_sample),
+            R("/physical_sample/<physical_sample_id>/<version>",                 self.ui_physical_sample),
             R("/private_datasets/<private_link_id>",                             self.ui_private_dataset),
             R("/private_collections/<private_link_id>",                          self.ui_private_collection),
             R("/private_physical_sample/<private_link_id>",                      self.ui_private_physical_sample),
