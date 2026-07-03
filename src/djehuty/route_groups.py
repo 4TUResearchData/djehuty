@@ -24,6 +24,7 @@ class RouteGroup:
 ROUTE_GROUPS: tuple = (
     # always_new: the docs stay available even when everything else is legacy.
     RouteGroup("api-docs", exact=("/api/docs", "/api/redoc", "/api/openapi.json"), always_new=True),
+    RouteGroup("api-v2", prefixes=("/v2/",)),
 )
 
 
