@@ -184,7 +184,13 @@ def create_repository(git_uuid: str) -> bool:
 
     Mirrors ``ApiServer.__git_create_repository``: initialises a bare
     repository and enables receive-pack over smart-HTTP in its config file.
+    Refuses a git_uuid that is not a UUID, so a caller cannot turn it into a
+    path outside ``config.storage``.
     """
+    from djehuty.web import validator
+
+    if not validator.is_valid_uuid(git_uuid):
+        return False
     git_directory = os.path.join(config.storage, f"{git_uuid}.git")
     if not os.path.exists(git_directory):
         initial_repository = pygit2.init_repository(git_directory, True)
