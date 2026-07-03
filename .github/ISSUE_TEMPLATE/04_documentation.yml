@@ -1,0 +1,44 @@
+name: "📚 Documentation"
+description: Report missing, outdated, or unclear documentation, or propose a documentation improvement.
+title: "[DOCUMENTATION]:"
+labels: ["\U0001F4DA documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this to report documentation that is missing, outdated, unclear, or broken, or to propose a documentation improvement.
+  - type: textarea
+    attributes:
+      label: Description
+      description: A clear and short description of the documentation change.
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Type of documentation issue
+      options:
+        - Missing documentation
+        - Outdated / incorrect
+        - Unclear / confusing
+        - Broken link or typo
+        - Migration / tooling
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Affected documentation
+      description: Which page(s) or section(s)? Link to the hosted docs or the source file.
+      placeholder: |
+        e.g. https://djehuty.4tu.nl/#x1-100004
+        e.g. the source file for the affected section
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Proposed change
+      description: What do the docs currently say (or omit), and how should they change?
+      placeholder: |
+        1. Current documentation or gap:
+        2. Proposed change:
+    validations:
+      required: false
