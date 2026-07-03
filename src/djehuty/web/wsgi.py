@@ -9392,7 +9392,7 @@ class WebServer:
                     return self.error_500()
 
                 return self.response(json.dumps({
-                    "location": f"{config.base_url}/private_datasets/{link_id}"
+                    "location": f"{config.base_url}/private_physical_sample/{link_id}"
                 }))
 
             except validator.ValidationException as error:
