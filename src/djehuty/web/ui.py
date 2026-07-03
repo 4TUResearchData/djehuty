@@ -186,6 +186,53 @@ def read_storage_configuration(xml_root, logger):
     return None
 
 
+def _read_web_service_targets(node):
+    """Collect {group_name: 'new'|'legacy'} from a config node.
+
+    Handles both formats: XML child elements (<admin>legacy</admin>) and JSON
+    scalar keys (which the JSON parser exposes via .attrib).
+    """
+    targets = {}
+    for child in node:
+        if child.text in ("new", "legacy"):
+            targets[child.tag] = child.text
+    for name, value in node.attrib.items():
+        if value in ("new", "legacy"):
+            targets[name] = value
+    return targets
+
+
+def read_web_service_configuration(xml_root):
+    """Read the per-group new/legacy switch.
+
+    Accepts a flat value (<web-service>new</web-service>) for the global default,
+    or an object with <default> and a <groups> map for per-group overrides. The
+    old key "api-service" is accepted as a back-compat alias.
+    """
+    node = xml_root.find("web-service")
+    if node is None:
+        node = xml_root.find("api-service")
+    if node is None:
+        return
+
+    # Flat form: sets the global default only.
+    if node.text in ("new", "legacy"):
+        config.web_service = node.text
+        return
+
+    # Object form: default + per-group overrides.
+    default = node.get("default")
+    if default is None:
+        default_node = node.find("default")
+        default = default_node.text if default_node is not None else None
+    if default in ("new", "legacy"):
+        config.web_service = default
+
+    groups_node = node.find("groups")
+    if groups_node is not None:
+        config.web_service_groups.update(_read_web_service_targets(groups_node))
+
+
 def read_quotas_configuration(xml_root):
     """Read quota information from XML_ROOT."""
 
@@ -220,21 +267,23 @@ def read_quotas_configuration(xml_root):
     return None
 
 
-def read_integer_value (xml_root, path, default_value, minimum = None):
+def read_integer_value(xml_root, path, default_value, minimum=None):
     """Parses an integer option, falling back to default_value when absent."""
-    parsed = config_value (xml_root, path, None, None)
+    parsed = config_value(xml_root, path, None, None)
     if parsed is None:
         return default_value
     try:
         value = int(parsed)
     except (ValueError, TypeError) as error:
-        raise ElementTree.ParseError (f"Invalid value for '{path}': '{parsed}'.") from error
+        raise ElementTree.ParseError(f"Invalid value for '{path}': '{parsed}'.") from error
     if minimum is not None and value < minimum:
-        raise ElementTree.ParseError (
-            f"Invalid value for '{path}': '{parsed}' (must be >= {minimum}).")
+        raise ElementTree.ParseError(
+            f"Invalid value for '{path}': '{parsed}' (must be >= {minimum})."
+        )
     return value
 
-def read_sram_configuration (xml_root):
+
+def read_sram_configuration(xml_root):
     """Read the SRAM configuration from XML_ROOT."""
 
     sram = xml_root.find("authentication/saml/sram")
@@ -706,8 +755,7 @@ def read_colors_configuration(xml_root):
 
 
 def read_fonts_configuration(xml_root, logger):
-    """Procedure to parse and set the custom typography configuration.
-    """
+    """Procedure to parse and set the custom typography configuration."""
     fonts = xml_root.find("fonts")
     if fonts is None:
         return
@@ -717,9 +765,7 @@ def read_fonts_configuration(xml_root, logger):
         family = config_value(face, "family")
         src = config_value(face, "src")
         if not family or not src:
-            logger.warning(
-                "Dropping font-face #%d: 'family' and 'src' are both required.", index
-            )
+            logger.warning("Dropping font-face #%d: 'family' and 'src' are both required.", index)
             continue
 
         font_faces.append(
@@ -778,7 +824,10 @@ def warn_about_unresolvable_assets(assets_root, logger):
     if config.fonts:
         for face in config.fonts["font_faces"]:
             warn_about_unresolvable_asset(
-                assets_root, face["src"], f"Font '{face['family']}' (font-face #{face['index']})", logger
+                assets_root,
+                face["src"],
+                f"Font '{face['family']}' (font-face #{face['index']})",
+                logger,
             )
 
     for stylesheet in config.custom_stylesheets:
@@ -894,19 +943,20 @@ def read_configuration_file(server, config_file, logger, config_files):
         if config.base_url is None:
             config.base_url = f"http://{config.address}:{config.port}"
 
-        config.base_url     = config_value (xml_root, "base-url", None, config.base_url)
-        config.storage      = config_value (xml_root, "storage-root", None, config.storage)
-        config.minimum_keywords_count = read_integer_value (xml_root, "minimum-keywords-count",
-                                                            config.minimum_keywords_count,
-                                                            minimum = 0)
-        config.state_graph  = config_value (xml_root, "rdf-store/state-graph", None, config.state_graph)
-        config.migrations_graph    = config_value (xml_root, "rdf-store/migrations-graph",
-                                                   None, config.migrations_graph)
-        config.auto_migrate_on_boot = read_boolean_value (xml_root,
-                                                          "rdf-store/auto-migrate-on-boot",
-                                                          config.auto_migrate_on_boot,
-                                                          logger)
-
+        config.base_url = config_value(xml_root, "base-url", None, config.base_url)
+        config.storage = config_value(xml_root, "storage-root", None, config.storage)
+        config.minimum_keywords_count = read_integer_value(
+            xml_root, "minimum-keywords-count", config.minimum_keywords_count, minimum=0
+        )
+        config.state_graph = config_value(
+            xml_root, "rdf-store/state-graph", None, config.state_graph
+        )
+        config.migrations_graph = config_value(
+            xml_root, "rdf-store/migrations-graph", None, config.migrations_graph
+        )
+        config.auto_migrate_on_boot = read_boolean_value(
+            xml_root, "rdf-store/auto-migrate-on-boot", config.auto_migrate_on_boot, logger
+        )
 
         live_reload = convenience.value_or_none(config, "live-reload")
         config.use_reloader = config_value(xml_root, "live-reload", None, live_reload)
@@ -948,6 +998,8 @@ def read_configuration_file(server, config_file, logger, config_files):
         config.allow_crawlers = read_boolean_value(
             xml_root, "allow-crawlers", config.allow_crawlers, logger
         )
+
+        read_web_service_configuration(xml_root)
 
         config.enable_iiif = read_boolean_value(xml_root, "enable-iiif", config.enable_iiif, logger)
 
@@ -1613,10 +1665,17 @@ def main(
             if config.static_cache_root is not None:
                 server.create_static_error_pages()
 
+        # Wrap the legacy server in the per-group new/legacy dispatcher. With no
+        # route groups registered this is a no-op (everything resolves to
+        # legacy); each group PR makes its prefix live.
+        from djehuty.dispatch import build_wsgi_app
+
+        wsgi_app = build_wsgi_app(server, server.db, config.web_service, config.web_service_groups)
+
         run_simple(
             config.address,
             config.port,
-            server,
+            wsgi_app,
             threaded=(config.maximum_workers <= 1),
             processes=config.maximum_workers,
             extra_files=list(config_files),
@@ -1633,6 +1692,8 @@ def main(
 ## ----------------------------------------------------------------------------
 ## Starting point for uWSGI
 ## ----------------------------------------------------------------------------
+
+_UWSGI_APP = None
 
 
 def application(env, start_response):
@@ -1655,5 +1716,12 @@ def application(env, start_response):
         start_response("200 OK", [("Content-Type", "text/html")])
         return [b"<p>Please set the <code>DJEHUTY_CONFIG_FILE</code> environment variable.</p>"]
 
-    server = main(config_file=config_file, run_internal_server=False)
-    return server(env, start_response)
+    global _UWSGI_APP
+    if _UWSGI_APP is None:
+        server = main(config_file=config_file, run_internal_server=False)
+        from djehuty.dispatch import build_wsgi_app
+
+        _UWSGI_APP = build_wsgi_app(
+            server, server.db, config.web_service, config.web_service_groups
+        )
+    return _UWSGI_APP(env, start_response)
