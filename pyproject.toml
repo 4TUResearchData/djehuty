@@ -21,6 +21,7 @@ dependencies    = [
     "Werkzeug>=2.0.2",
     "defusedxml>=0.7.1",
     "pillow>=9.4.0",
+    "qrcode>=8.2",
 ]
 classifiers     = [
     "Programming Language :: Python :: 3",
