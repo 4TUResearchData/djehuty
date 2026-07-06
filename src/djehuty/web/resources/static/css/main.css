@@ -464,6 +464,7 @@ a.far, a.fab, a.fas { text-decoration: none; }
 .fa-angle-up::before { content: "\f106"; }
 .fa-angle-down::before { content: "\f107"; }
 .fa-circle-exclamation::before { content: "\f06a"; }
+.fa-qrcode::before { content: "\f029"; }
 .fa-empty::before {}
 
 .img-fa img {
