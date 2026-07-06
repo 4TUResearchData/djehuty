@@ -128,6 +128,13 @@ class JsonConfigElement:
                 return None
         return current
 
+    def findall(self, path):
+        tag = path.replace("./", "")
+        matches = [child for child in self._children if child.tag == tag]
+        if not matches and tag in self._scalar_index:
+            matches.append(self._scalar_index[tag])
+        return matches
+
     def iter(self, tag):
         if self._tag == tag:
             yield self
