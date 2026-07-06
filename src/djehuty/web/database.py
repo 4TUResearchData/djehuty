@@ -3094,7 +3094,8 @@ class SparqlInterface:
                           sample_uuid=None,
                           is_published=True, is_latest=True, limit=None,
                           order=None, order_direction=None,
-                          offset=None, private_link_id_string=None,):
+                          offset=None, private_link_id_string=None,
+                          is_under_review=None, use_cache=True):
         """Procedure to retrieve physical samples."""
 
         filters  = rdf.sparql_filter ("container", rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -3105,11 +3106,17 @@ class SparqlInterface:
             "account_uuid":            account_uuid,
             "is_published":            is_published,
             "is_latest":               is_latest,
+            "is_under_review":         is_under_review,
             "private_link_id_string":  private_link_id_string,
             "filters":                 filters
         })
 
         query += rdf.sparql_suffix (order, order_direction, limit, offset)
+
+        if use_cache:
+            cache_prefix = (f"physical-samples_{account_uuid}"
+                            if account_uuid is not None else "physical-samples")
+            return self.__run_query (query, query, cache_prefix)
 
         return self.__run_query (query)
 
@@ -3166,7 +3173,92 @@ class SparqlInterface:
             "sample_uuid": sample_uuid
         })
 
-        return self.__run_logged_query (query)
+        if self.__run_logged_query (query):
+            self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+            self.cache.invalidate_by_prefix ("physical-samples")
+            return True
+
+        return False
+
+    def publish_physical_sample (self, container_uuid, account_uuid):
+        """Procedure to publish a draft physical sample."""
+
+        # Prevent caches from playing a role.
+        self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+        self.cache.invalidate_by_prefix ("physical-samples")
+
+        # Read the current state fresh so these reads don't repopulate the
+        # cache with the pre-publish data.
+        draft = None
+        try:
+            draft = self.physical_samples (container_uuid = container_uuid,
+                                           is_published   = False,
+                                           is_latest      = False,
+                                           use_cache      = False)[0]
+        except IndexError:
+            self.log.error ("Attempted to publish without a draft <container:%s>.",
+                            container_uuid)
+            return False
+
+        # Physical samples are not versioned: an update replaces the single
+        # published record in place, so the version number stays at 1.
+        latest = None
+        try:
+            latest = self.physical_samples (container_uuid = container_uuid,
+                                            is_published   = True,
+                                            is_latest      = True,
+                                            use_cache      = False)[0]
+        except IndexError:
+            self.log.info ("No published version yet for <container:%s>.", container_uuid)
+
+        sample_uuid  = draft["sample_uuid"]
+        blank_node   = self.wrap_in_blank_node (sample_uuid, "physical-sample")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
+        query        = self.__query_from_template ("publish_draft_physical_sample", {
+            "blank_node":        blank_node,
+            "version":           1,
+            "container_uuid":    container_uuid,
+            "sample_uuid":       sample_uuid,
+            "timestamp":         current_time,
+            "first_publication": not latest
+        })
+
+        if self.__run_logged_query (query):
+            self.cache.invalidate_by_prefix ("repository_statistics")
+            self.cache.invalidate_by_prefix ("reviews")
+            self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+            self.cache.invalidate_by_prefix ("physical-samples")
+            return True
+
+        return False
+
+    def decline_physical_sample (self, container_uuid, account_uuid):
+        """Procedure to decline a draft physical sample."""
+
+        # Prevent caches from playing a role.
+        self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+        self.cache.invalidate_by_prefix ("physical-samples")
+
+        try:
+            self.physical_samples (container_uuid = container_uuid,
+                                   is_published   = False,
+                                   is_latest      = False)[0]
+        except IndexError:
+            self.log.error ("Attempted to decline without a draft <container:%s>.",
+                            container_uuid)
+            return False
+
+        query = self.__query_from_template ("decline_draft_physical_sample", {
+            "container_uuid": container_uuid,
+        })
+
+        if self.__run_logged_query (query):
+            self.cache.invalidate_by_prefix ("reviews")
+            self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+            return True
+
+        self.log.error ("Failed to decline physical sample %s", container_uuid)
+        return False
 
     def update_physical_sample (self, title, sample_uuid, account_uuid,
                                 container_uuid=None, abstract=None, methods=None,
@@ -3217,12 +3309,114 @@ class SparqlInterface:
 
         return results
 
-    def physical_sample_creators (self, container_uuid, account_uuid):
-        """Returns the creators of a physical sample."""
+    def create_draft_from_published_physical_sample (self, container_uuid, account_uuid):
+        """Procedure to copy a published physical sample as a draft in its container.
+
+        Physical samples are not versioned: an update reuses the same container
+        (and therefore the same IGSN).  This creates a separate editable draft so
+        the published record stays untouched until a reviewer approves the update.
+        Returns the new draft's sample UUID, or None on failure. It uses similar
+        workflow than dataset but without create a versioning at end
+        """
+
+        try:
+            published = self.physical_samples (container_uuid = container_uuid,
+                                               account_uuid   = account_uuid,
+                                               is_published   = True,
+                                               is_latest      = True)[0]
+        except (IndexError, TypeError):
+            return None
+
+        published_uri = f"physical-sample:{published['sample_uuid']}"
+
+        ## Mint a new draft node linked to the existing container.
+        container_uuid, draft_uuid = self.insert_physical_sample (
+            title          = conv.value_or (published, "title", "Untitled item"),
+            account_uuid   = account_uuid,
+            container_uuid = container_uuid)
+
+        if draft_uuid is None:
+            return None
+
+        ## Copy the scalar metadata onto the draft.  We deliberately skip the DOI,
+        ## published/posted dates and version: the IGSN lives on the container and
+        ## the draft is yet-to-be-published.
+        self.update_physical_sample (
+            title                     = conv.value_or (published, "title", "Untitled item"),
+            sample_uuid               = draft_uuid,
+            account_uuid              = account_uuid,
+            container_uuid            = container_uuid,
+            abstract                  = conv.value_or_none (published, "abstract"),
+            methods                   = conv.value_or_none (published, "methods"),
+            publisher                 = conv.value_or_none (published, "publisher"),
+            publication_year          = conv.value_or_none (published, "publication_year"),
+            resource_type             = conv.value_or_none (published, "resource_type"),
+            subject                   = conv.value_or_none (published, "subject"),
+            alternate_identifier      = conv.value_or_none (published, "alternate_identifier"),
+            related_resource          = conv.value_or_none (published, "related_resource"),
+            organizations             = conv.value_or_none (published, "organizations"),
+            physical_storage_location = conv.value_or_none (published, "physical_storage_location"),
+            geolocation               = conv.value_or_none (published, "geolocation"),
+            longitude                 = conv.value_or_none (published, "longitude"),
+            latitude                  = conv.value_or_none (published, "latitude"),
+            sample_owner_name         = conv.value_or_none (published, "sample_owner_name"),
+            sample_owner_email        = conv.value_or_none (published, "sample_owner_email"),
+            group_id                  = conv.value_or_none (published, "group_id"))
+
+        ## Copy the lists metadata.  Like, creators reference shared author URIs,
+        ## so only a new list cell is created.  Dates and related resources are
+        ## per sample, so fresh entities are created for the draft.  We read the
+        ## published lists by sample URI only (account_uuid=None): the URI already
+        ## pins the sample, and combining sample_uri with account_uuid triggers a
+        ## pathological query plan on the large state graph.
+        for creator in self.physical_sample_creators (container_uuid, None,
+                                                       sample_uri = published_uri):
+            self.add_creator_to_physical_sample (container_uuid, creator["uuid"], account_uuid)
+
+        for date in self.physical_sample_dates (container_uuid, None,
+                                                 sample_uri = published_uri):
+            self.add_date_to_physical_sample (container_uuid,
+                                              conv.value_or (date, "date_type", "other"),
+                                              conv.value_or_none (date, "date"),
+                                              account_uuid)
+
+        for resource in self.physical_sample_related_resources (container_uuid, None,
+                                                                sample_uri = published_uri):
+            self.add_related_resource_to_physical_sample (
+                container_uuid,
+                conv.value_or_none (resource, "url"),
+                conv.value_or (resource, "type_id", "URL"),
+                conv.value_or (resource, "relation_id", "IsPartOf"),
+                account_uuid)
+
+        ## Copy the categories, which reference shared category URIs.
+        categories = self.categories (item_uri = published_uri, limit = None)
+        if categories:
+            category_uris = rdf.uris_from_records (categories, "category", "uuid")
+            self.update_item_list (draft_uuid, account_uuid, category_uris, "categories")
+
+        ## Copy the keywords/tags (stored as a list of string literals).
+        tags = self.tags (item_uri = published_uri, limit = None)
+        if tags:
+            tag_values = [tag["tag"] for tag in tags if conv.value_or_none (tag, "tag")]
+            self.update_item_list (draft_uuid, account_uuid, tag_values, "tags")
+
+        self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+        self.cache.invalidate_by_prefix ("physical-samples")
+        return draft_uuid
+
+    def physical_sample_creators (self, container_uuid, account_uuid, sample_uri=None):
+        """Returns the creators of a physical sample.
+
+        By default the container's draft is used.  Pass SAMPLE_URI to read the
+        creators of a specific sample (e.g. the published one), so a draft and a
+        published sample can coexist in the same container.
+        """
 
         query = self.__query_from_template ("physical_sample_creators", {
             "container_uuid": container_uuid,
-            "account_uuid":   account_uuid
+            "account_uuid":   account_uuid,
+            "sample_uri":     sample_uri
         })
         return self.__run_query (query)
 
@@ -3246,12 +3440,17 @@ class SparqlInterface:
 
         return None
 
-    def physical_sample_dates (self, container_uuid, account_uuid):
-        """Returns dates of a physical sample."""
+    def physical_sample_dates (self, container_uuid, account_uuid, sample_uri=None):
+        """Returns dates of a physical sample.
+
+        By default the container's draft is used.  Pass SAMPLE_URI to read the
+        dates of a specific sample (e.g. the published one).
+        """
 
         query = self.__query_from_template ("physical_sample_dates", {
             "container_uuid": container_uuid,
-            "account_uuid":   account_uuid
+            "account_uuid":   account_uuid,
+            "sample_uri":     sample_uri
         })
         return self.__run_query (query)
 
@@ -3287,12 +3486,17 @@ class SparqlInterface:
 
         return None
 
-    def physical_sample_related_resources (self, container_uuid, account_uuid):
-        """Returns related identifiers of a physical sample."""
+    def physical_sample_related_resources (self, container_uuid, account_uuid, sample_uri=None):
+        """Returns related identifiers of a physical sample.
+
+        By default the container's draft is used.  Pass SAMPLE_URI to read the
+        related resources of a specific sample (e.g. the published one).
+        """
 
         query = self.__query_from_template ("physical_sample_related_resources", {
             "container_uuid": container_uuid,
-            "account_uuid":   account_uuid
+            "account_uuid":   account_uuid,
+            "sample_uri":     sample_uri
         })
         return self.__run_query (query)
 
