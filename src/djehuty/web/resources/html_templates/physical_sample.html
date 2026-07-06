@@ -1,0 +1,236 @@
+{%- extends "layout.html" %}
+{%- set doi = item.doi %}
+{%- set pid = item.sample_uuid %}
+{%- block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/landing_page.js?cache=1742461855"></script>
+<script src="/static/js/utils.js?cache=1744290797"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/pub.css?cache=1742203405" />
+<link href="/static/css/form.css?cache=1739977731" rel="stylesheet">
+<style nonce="{{nonce}}">
+#access-request-wrapper { display: none; }
+#content-wrapper {padding: 0}
+#metadata { overflow: hidden; }
+
+/* Dates */
+#dates .date-list        { display: flex; flex-wrap: wrap; gap: .5em; margin: 0; padding: 0; }
+#dates .date-entry       { display: flex; flex-direction: column; align-items: center;
+                           background: #fff; border: solid 1pt #ccc; border-radius: .5em;
+                           padding: .4em .8em; min-width: 90px; }
+#dates .date-value       { font-weight: bold; font-size: 1em; white-space: nowrap; }
+#dates .date-type        { font-size: .75em; color: #666; text-transform: capitalize;
+                           margin-top: .15em; text-align: center; }
+
+/* QR code */
+#qr-code          { margin-top: 1em; }
+#qr-code h3       { margin-bottom: .4em; }
+#qr-code svg      { width: 150px; height: 150px; display: block; }
+.qr-draft-notice  { margin-top: .6em; font-size: .82em; color: #7a5c00;
+                    background: #fff8e1; border: 1px solid #ffe082;
+                    border-radius: 4px; padding: .4em .7em; }
+
+/* Related resources */
+#related_resources ul              { padding: 0; margin: 0; }
+#related_resources .rr-entry       { padding: .4em 0; border-bottom: solid 1pt #eee; }
+#related_resources .rr-entry:last-child { border-bottom: none; }
+#related_resources .rr-entry a     { display: block; word-break: break-all; }
+#related_resources .rr-meta        { display: flex; flex-wrap: wrap; gap: 0 1.25em; margin-top: .2em; }
+#related_resources .rr-field       { font-size: .8em; color: #666; }
+#related_resources .rr-label       { font-weight: bold; color: #444; margin-right: .2em; }
+</style>
+<script nonce="{{nonce}}">
+const dataset_uuid = "{{item.container_uuid}}";
+</script>
+{%- endblock %}
+{%- block body %}
+<h2>{{item.title}}</h2>
+
+<div id="metadata">
+ {%- if private_view %}
+  {%- if qr_doi %}
+        <div id="doi"><span class="doi-label">IGSN:</span><span class="doi-value">{{qr_doi}}</span></div>
+  {%- endif %}
+ {%- else %}
+    <div id="doi"><span class="doi-label">IGSN:</span><a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><span class="doi-value">{{doi}}</span></a></div>
+    <button id="cite-btn" class="corporate-identity-standard-button" title="Show citation.">Cite</button>
+    <div id="cite">
+        <h3>Datacite citation style</h3>
+        <div id="citation">{{citation}}</div>
+        <a class="corporate-identity" href="https://doi.datacite.org/dois/{{doi|replace('/','%2F')}}" target="_blank" rel="noopener noreferrer" title="opens in new window">Other citation styles (APA, Harvard, MLA, Vancouver, Chicago, IEEE) available at Datacite</a>
+    </div>
+{%- endif %}
+
+    <div id="type_versions">
+        <h3 class="label" id="type">Physical Sample</h3>
+    </div>
+
+    <div id="right_column">
+{%- if member != "other" %}
+        <div id="member">
+            <a class="corporate-identity" href="/institutions/{{member_url_name}}"><img src="/static/images/logo-{{member}}.png" alt="{{member_url_name.replace('_',' ')}} logo" /></a>
+        </div>
+{%- endif %}
+{%- set geo = item.geolocation %}
+{%- set lat = coordinates.lat %}
+{%- set lon = coordinates.lon %}
+{%- if geo or lat or lon %}
+    {%- set vlat = coordinates.lat_valid %}
+    {%- set vlon = coordinates.lon_valid %}
+        <div id="geo">
+            <h3 class="label">Geolocation</h3>
+    {%- if geo %}
+            <div id="geo_name">{{geo}}</div>
+    {%- endif %}
+    {%- if lat %}
+            <div id="lat">lat (N): {{lat}}</div>
+    {%- endif %}
+    {%- if lon %}
+            <div id="lon">lon (E): {{lon}}</div>
+    {%- endif %}
+    {%- if vlat and vlon %}
+            <a class="corporate-identity" href="https://www.openstreetmap.org/?mlat={{vlat}}&mlon={{vlon}}#map=12/{{vlat}}/{{vlon}}"
+               target="_blank" rel="noopener noreferrer" title="opens in new window">view on openstreetmap</a>
+    {%- endif %}
+        </div>
+{%- endif %}
+{%- if tags %}
+        <div id="tags">
+            <h3 class="label">Keywords</h3>
+    {%- for t in tags|sort(attribute='tag') %}
+            <a class="corporate-identity public-button" href="/search?searchscope=tag&search={{t.tag|urlencode}}">{{t.tag}}</a>
+    {%- endfor %}
+        </div>
+{%- endif %}
+{%- if item.sample_owner_name or item.sample_owner_email %}
+        <div id="contact">
+            <h3 class="label">Contact sample owner</h3>
+    {%- if item.sample_owner_name %}
+            <div>{{item.sample_owner_name}}</div>
+    {%- endif %}
+    {%- if item.sample_owner_email %}
+            <div><a class="corporate-identity" href="mailto:{{item.sample_owner_email}}">{{item.sample_owner_email}}</a></div>
+    {%- endif %}
+        </div>
+{%- endif %}
+{%- if item.physical_storage_location %}
+        <div id="physical_storage_location">
+            <h3 class="label">Physical storage location</h3>
+            {{item.physical_storage_location}}
+        </div>
+{%- endif %}
+{%- if qr_code_svg %}
+        <div id="qr-code">
+            <h3 class="label">QR code</h3>
+            <div title="https://doi.org/{{qr_doi}}">
+{%- autoescape false %}
+                {{qr_code_svg}}
+{%- endautoescape %}
+            </div>
+{%- if private_view %}
+            <p class="qr-draft-notice">&#9432; This IGSN is reserved but the physical sample has not been published yet. The QR code will become active upon publication.</p>
+{%- endif %}
+        </div>
+{%- endif %}
+    </div>
+
+    <div id="left_column">
+        <div id="authors">by
+{%- for c in creators %}
+            <a class="corporate-identity{%- if c.is_active %} is_active{%- endif %}" href="/authors/{{c.uuid}}">{{c.full_name}}</a>
+    {%- if c.orcid_id %}
+            <a class="corporate-identity" href="https://orcid.org/{{c.orcid_id}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
+    {%- endif %}
+    {%- if loop.revindex0 %}, {%- endif %}
+{%- endfor %}
+        </div>
+{%- if item.abstract %}
+        <div id="description">
+{%- autoescape false %}
+            {{ item.abstract.replace('\\n', '\n') }}
+{%- endautoescape %}
+        </div>
+{%- endif %}
+{%- if item.methods %}
+        <div id="methods">
+            <h3 class="label">Methods</h3>
+{%- autoescape false %}
+            {{ item.methods.replace('\\n', '\n') }}
+{%- endautoescape %}
+        </div>
+{%- endif %}
+{%- if item.resource_type %}
+        <div id="resource_type">
+            <h3 class="label">Resource type</h3>
+            {{item.resource_type}}
+        </div>
+{%- endif %}
+{%- if item.subject %}
+        <div id="subject">
+            <h3 class="label">Subject</h3>
+            {{item.subject}}
+        </div>
+{%- endif %}
+{%- if item.publication_year %}
+        <div id="publication_year">
+            <h3 class="label">Publication year</h3>
+            {{item.publication_year}}
+        </div>
+{%- endif %}
+{%- if item.alternate_identifier %}
+        <div id="alternate_identifier">
+            <h3 class="label">Alternate identifier</h3>
+            {{item.alternate_identifier}}
+        </div>
+{%- endif %}
+{%- if dates %}
+        <div id="dates">
+            <h3 class="label">Dates</h3>
+            <div class="date-list">
+{%- for (date, dtype) in dates %}
+                <div class="date-entry">
+                    <span class="date-value">{{date}}</span>
+                    <span class="date-type">{{dtype}}</span>
+                </div>
+{%- endfor %}
+            </div>
+        </div>
+{%- endif %}
+{%- if item.publisher %}
+        <div id="publisher">
+            <h3 class="label">Publisher</h3>
+            {{item.publisher}}
+        </div>
+{%- endif %}
+{%- if related_resources %}
+        <div id="related_resources">
+            <h3 class="label">Related resources</h3>
+
+            <ul>
+    {%- for r in related_resources %}
+                <li class="rr-entry">
+                    <a class="corporate-identity" href="{{r.url}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{r.url}}</a>
+                    <div class="rr-meta">
+            {%- if r.type %}
+                        <span class="rr-field"><span class="rr-label">Type</span>{{r.type}}</span>
+            {%- endif %}
+            {%- if r.relation %}
+                        <span class="rr-field"><span class="rr-label">Relation</span>{{r.relation}}</span>
+            {%- endif %}
+                    </div>
+                </li>
+    {%- endfor %}
+            </ul>
+
+        </div>
+{%- endif %}
+{%- if item.organizations %}
+    {%- autoescape false %}
+        <div id="organizations">
+            <h3 class="label">Organizations</h3>
+            {{ item.organizations.replace('\n', '<br />') }}
+        </div>
+    {%- endautoescape %}
+{%- endif %}
+    </div>
+</div>
+{%- endblock %}

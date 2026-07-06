@@ -25,6 +25,7 @@ dependencies    = [
     "pydantic>=2.0",
     "a2wsgi>=1.10.0",
     "python-multipart>=0.0.9",
+    "qrcode>=8.2",
 ]
 classifiers     = [
     "Programming Language :: Python :: 3",
