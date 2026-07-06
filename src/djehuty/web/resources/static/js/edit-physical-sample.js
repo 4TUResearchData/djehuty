@@ -486,11 +486,48 @@ function render_categories_for_physical_sample (container_uuid) {
     });
 }
 
+
+function preview_physical_sample (container_uuid, event) {
+    stop_event_propagation (event);
+    let current_date = new Date();
+    let year  = current_date.getFullYear();
+    let month = current_date.getMonth() + 1; // getMonth is zero-indexed.
+    let day   = current_date.getDate() + 1;
+    if (month < 10) { month = `0${month}`; }
+    if (day < 10) { day = `0${day}`; }
+
+
+        jQuery.ajax({
+            accept:      "application/json",
+            contentType: "application/json",
+            data:        JSON.stringify({ "expires_date": `${year}-${month}-${day}` }),
+            type:        "POST",
+            url:         `/v3/physical-samples/${container_uuid}/private_links`
+        }).done(function (data) {
+            console.log("oi?")
+            console.log("data", data)
+            let preview_window = window.open(data["location"], '_blank');
+            if (preview_window) { preview_window.focus(); }
+            else {
+                show_message ("failure",
+                              "<p>Cannot open preview window because your " +
+                              "browser disabled pop-ups.</p>");
+            }
+        }).fail(function (response, text_status, error_code) {
+            console.log("oi2?")
+            show_message ("failure",
+                          `<p>Could not create a private link due to error ` +
+                          `<code>${error_code}</code>.</p>`);
+        });
+
+}
+
 function activate (container_uuid, callback=jQuery.noop) {
     new Quill('#abstract', { theme: '4tu' });
     new Quill('#methods', { theme: '4tu' });
     jQuery("#delete").on("click", function (event) { delete_physical_sample (container_uuid, event); });
     jQuery("#save").on("click", function (event)   { save_physical_sample (container_uuid, event); });
+    jQuery("#preview").on("click", function (event) { preview_physical_sample (container_uuid, event); });
     jQuery("#authors").on("input", function (event) {
         return autocomplete_author (event, container_uuid);
     });

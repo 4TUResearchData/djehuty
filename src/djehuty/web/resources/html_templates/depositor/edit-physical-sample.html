@@ -76,6 +76,8 @@ jQuery(document).ready(function (){
 #geolocation-wrapper input[type="text"] { width: 812pt; }
 #sample-owner-wrapper label { background: #eee; }
 #sample-owner-wrapper input[type="text"] { width: 812pt; }
+.preview-button a { background: #736f53 !important; }
+.preview-button a:hover { background: #96937e !important; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -84,6 +86,7 @@ jQuery(document).ready(function (){
   <li class="active corporate-identity-submenu-active">Edit physical sample
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save draft</a>
   <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
+  <li class="hide-for-javascript preview-button"><a id="preview" href="#">Preview</a>
 </ul>
 {% endblock %}
 {% block body %}
