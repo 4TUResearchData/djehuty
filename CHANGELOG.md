@@ -6,6 +6,21 @@ news section (`doc/news.tex`) is regenerated at release time by `just news`.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.3.2]
+
+This patch release includes 5 commits focused on security, maintenance and dependencies.
+
+### Incremental improvements
+
+- Create a support for database migrations. ([dee251c](https://github.com/4TUResearchData/djehuty/commit/dee251c20c9e9e27fbbb76e526fecddbc9758646))
+- Update Python dependencies for security and performance. ([70fbb8b](https://github.com/4TUResearchData/djehuty/commit/70fbb8be809571c62626bb65a716a720b2e84386),
+[11ce5e8](https://github.com/4TUResearchData/djehuty/commit/11ce5e8cf1e49b97bbfb8f8baf93fe93ff29deca))
+
+### Bugfixes
+
+- Restrict search order to an allow-list. ([897c915](https://github.com/4TUResearchData/djehuty/commit/897c9159334ccbde530ba19bbcfaad09a21d3f53))
+- Escape the session name field before templating. ([f9f3e47](https://github.com/4TUResearchData/djehuty/commit/f9f3e470d0fcf74ff6bf1a67c0451078f14d2862))
+
 ## [v26.3.1]
 
 This patch release includes 12 commits focused on maintenance and bug fixes.

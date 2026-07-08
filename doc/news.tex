@@ -5,6 +5,28 @@
 \fi
 \chapter*{News}
 
+\labelWithConsistentHTMLTag{release-26-3-2}
+\section*{Release notes for \texttt{v26.3.2}.}
+
+  This patch release includes 5 commits focused on security, maintenance and dependencies.
+
+\subsection*{Incremental improvements}
+\begin{itemize}
+\item{Create a support for database migrations.
+    (\commitLink{dee251c20c9e9e27fbbb76e526fecddbc9758646}).}
+\item{Update Python dependencies for security and performance.
+    (\commitLink{70fbb8be809571c62626bb65a716a720b2e84386},
+    \commitLink{11ce5e8cf1e49b97bbfb8f8baf93fe93ff29deca}).}
+\end{itemize}
+
+\subsection*{Bugfixes}
+\begin{itemize}
+\item{Restrict search order to an allow-list.
+    (\commitLink{897c9159334ccbde530ba19bbcfaad09a21d3f53}).}
+\item{Escape the session name field before templating.
+    (\commitLink{f9f3e470d0fcf74ff6bf1a67c0451078f14d2862}).}
+\end{itemize}
+
 \labelWithConsistentHTMLTag{release-26-3-1}
 \section*{Release notes for \texttt{v26.3.1}.}
 
