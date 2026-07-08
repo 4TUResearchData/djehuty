@@ -19,6 +19,14 @@ QUERY_PATTERN    = re.compile(
     r"(?P<queryType>(CONSTRUCT|SELECT|ASK|DESCRIBE|INSERT|DELETE|CREATE|CLEAR|DROP|LOAD|COPY|MOVE|ADD))",
     re.VERBOSE | re.IGNORECASE,
 )
+SPARQL_ORDER_ALLOWLIST = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
+
+def is_unsafe_sparql_name (value, allow_none=False):
+    """Returns True if VALUE contains syntactic characters used in SPARQL."""
+    if value is None:
+        return not allow_none
+
+    return not bool(SPARQL_ORDER_ALLOWLIST.match(value))
 
 def query_type (query):
     """
@@ -157,16 +165,12 @@ def sparql_bound_filter (name):
 def sparql_suffix (order, order_direction, limit=None, offset=None):
     """Returns a query suffix including order, limit and offset."""
 
-    if order_direction is None:
-        order_direction = "DESC"
-    else:
-        order_direction = order_direction.upper()
-
     query = ""
-    if order and order_direction:
-        if order[0] != '?':
-            order = f"?{order}"
-        query += f"ORDER BY {order_direction}({order})"
+    # Only emit an ORDER BY for a safe column name. An absent or unsafe order
+    # drops the ordering but must still honour LIMIT/OFFSET below.
+    if not is_unsafe_sparql_name (order, allow_none=False):
+        order_direction = (order_direction or "DESC").upper()
+        query = f"ORDER BY {order_direction}(?{order})"
 
     if limit is not None:
         query += f"\nLIMIT {limit}"
