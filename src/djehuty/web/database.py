@@ -3401,8 +3401,8 @@ class SparqlInterface:
         query = self.__query_from_template ("update_session", {
             "account_uuid":  account_uuid,
             "session_uuid":  session_uuid,
-            "name":          name,
-            "active":        rdf.escape_boolean_value (active)
+            "name":          rdf.escape_string_value(name),
+            "active":        rdf.escape_boolean_value(active)
         })
 
         return self.__run_logged_query (query)
