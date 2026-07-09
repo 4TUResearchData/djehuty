@@ -84,12 +84,40 @@ jobs:
         with:
           context: .
           file: docker/Dockerfile
-          push: ${{ inputs.push_image }}
-          load: ${{ !inputs.push_image }}
+          push: false
+          load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # Guard against wheels built without the bundled resources (SPARQL/HTML
+      # templates); an image missing them crashes on startup.
+      - name: Smoke test the production image
+        run: |
+          IMAGE=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+          docker run --rm "$IMAGE" djehuty --version
+          expected=$(find src/djehuty/web/resources src/djehuty/backup/resources -type f | wc -l)
+          packaged=$(docker run --rm -i --entrypoint python "$IMAGE" - <<'PY'
+          import djehuty, os
+          root = os.path.dirname(djehuty.__file__)
+          print(sum(len(files) for pkg in ("web", "backup")
+                    for _, _, files in os.walk(os.path.join(root, pkg, "resources"))))
+          PY
+          )
+          echo "resource files: ${packaged} packaged, ${expected} in src"
+          [ "$packaged" -eq "$expected" ]
+
+      - name: Push Docker image
+        if: inputs.push_image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
 
       - name: Start dev environment (just dev)
         run: |
