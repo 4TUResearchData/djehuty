@@ -97,12 +97,13 @@ jobs:
         run: |
           IMAGE=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
           docker run --rm "$IMAGE" djehuty --version
-          expected=$(find src/djehuty/web/resources src/djehuty/backup/resources -type f | wc -l)
+          expected=$(find src/djehuty/web/resources src/djehuty/backup/resources src/djehuty/schema/migrations -type f | wc -l)
           packaged=$(docker run --rm -i --entrypoint python "$IMAGE" - <<'PY'
           import djehuty, os
           root = os.path.dirname(djehuty.__file__)
-          print(sum(len(files) for pkg in ("web", "backup")
-                    for _, _, files in os.walk(os.path.join(root, pkg, "resources"))))
+          dirs = ("web/resources", "backup/resources", "schema/migrations")
+          print(sum(len(files) for d in dirs
+                    for _, _, files in os.walk(os.path.join(root, *d.split("/")))))
           PY
           )
           echo "resource files: ${packaged} packaged, ${expected} in src"

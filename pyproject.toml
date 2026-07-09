@@ -41,6 +41,7 @@ djehuty = "djehuty.ui:main"
 [tool.setuptools.package-data]
 "djehuty.web"    = ["resources/**"]
 "djehuty.backup" = ["resources/**"]
+"djehuty.schema" = ["migrations/**"]
 
 [dependency-groups]
 dev = [
