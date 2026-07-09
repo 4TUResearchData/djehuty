@@ -22,10 +22,10 @@ class S3ClientFactory:
 
     _clients = {}
     _lock = threading.Lock()
-    _boto_config = Config(retries = { "total_max_attempts": 30,
-                                      "mode": "standard" },
-                          max_pool_connections = 25,
-                          read_timeout = 120)
+
+    # Built on first use rather than at class-definition time, so that importing
+    # this module without boto3 installed doesn't raise a NameError.
+    _boto_config = None
 
     @classmethod
     def get_client(cls, endpoint, access_key, secret_key):
@@ -42,6 +42,12 @@ class S3ClientFactory:
                     logging.getLogger (__name__).info (
                         "Creating new S3 client for endpoint: %s", endpoint
                     )
+
+                    if cls._boto_config is None:
+                        cls._boto_config = Config(retries = { "total_max_attempts": 30,
+                                                              "mode": "standard" },
+                                                  max_pool_connections = 25,
+                                                  read_timeout = 120)
 
                     cls._clients[cache_key] = boto3.client(
                         "s3",
