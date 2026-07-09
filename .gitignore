@@ -21,6 +21,7 @@ pylint.log
 *__pycache__*
 dist/
 build/
+site/
 dump/
 rpmbuild/BUILD/
 rpmbuild/RPMS/

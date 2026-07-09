@@ -1,0 +1,34 @@
+site_name: djehuty
+site_description: The 4TU.ResearchData and Nikhef repository system
+repo_url: https://github.com/4TUResearchData/djehuty
+repo_name: 4TUResearchData/djehuty
+docs_dir: doc/markdown
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Introduction: introduction.md
+  - Configuring & running djehuty: running-djehuty.md
+  - Knowledge graph: knowledge-graph.md
+  - Contributing: contributing.md
+  - API: api.md
+  - Contact: contact.md
+  - News: news.md
+
+plugins:
+  - search
+  - include-markdown
+
+markdown_extensions:
+  - tables
+  - fenced_code
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
