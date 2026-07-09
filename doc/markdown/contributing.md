@@ -98,7 +98,7 @@ records = self.db.latest_datasets_portal(30)
 
 It then passes that information to `__render_template`, which renders
 `portal.html` from
-[src/djehuty/web/resources/html_templates](../../src/djehuty/web/resources/html_templates)
+[src/djehuty/web/resources/html_templates](https://github.com/4TUResearchData/djehuty/tree/main/src/djehuty/web/resources/html_templates)
 using [Jinja](https://jinja.palletsprojects.com/en/3.1.x/):
 
 ```python
@@ -131,4 +131,4 @@ returns results as a list of Python dictionaries.
 
 `self.__query_from_template` takes the name of a template file (without extension)
 containing a SPARQL query. These templates can be found in
-[src/djehuty/web/resources/sparql_templates](../../src/djehuty/web/resources/sparql_templates).
+[src/djehuty/web/resources/sparql_templates](https://github.com/4TUResearchData/djehuty/tree/main/src/djehuty/web/resources/sparql_templates).
