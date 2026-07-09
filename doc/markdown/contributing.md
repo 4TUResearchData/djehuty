@@ -1,8 +1,16 @@
-# Contributing
+{%
+  include-markdown "../../CONTRIBUTING.md"
+  heading-offset=0
+%}
 
-For contribution guidelines, bug reporting, pull request workflow, branch
-naming conventions, and how to set up the development environment, see
-[CONTRIBUTING.md](../../CONTRIBUTING.md) and [README.md](../../README.md).
+## Development environment
+
+{%
+  include-markdown "../../README.md"
+  start="## Development environment"
+  end="## Running in production"
+  heading-offset=0
+%}
 
 ## Navigating the source code
 
@@ -19,7 +27,7 @@ found in `pyproject.toml`:
 djehuty = "djehuty.ui:main"
 ```
 
-The tour starts at [src/djehuty/ui.py](../../src/djehuty/ui.py) in the
+The tour starts at [src/djehuty/ui.py](https://github.com/4TUResearchData/djehuty/blob/main/src/djehuty/ui.py) in the
 procedure called `main`.
 
 ### How `djehuty` initializes
@@ -38,10 +46,10 @@ if args.command == "web":
 ```
 
 The entry-point for the `web` subcommand is found in
-[src/djehuty/web/ui.py](../../src/djehuty/web/ui.py) at the `main` procedure.
+[src/djehuty/web/ui.py](https://github.com/4TUResearchData/djehuty/blob/main/src/djehuty/web/ui.py) at the `main` procedure.
 
 This procedure sets up an instance of `WebServer` (found in
-[src/djehuty/web/wsgi.py](../../src/djehuty/web/wsgi.py)) and uses
+[src/djehuty/web/wsgi.py](https://github.com/4TUResearchData/djehuty/blob/main/src/djehuty/web/wsgi.py)) and uses
 `werkzeug`'s `run_simple` to start the web server.
 
 ### Translating URI paths to internal procedures
@@ -62,7 +70,7 @@ are handled by a procedure in the `WebServer` instance.
 
 The mapping between URIs and their handler procedures can be found in the
 `url_map` defined in the `WebServer` class in
-[src/djehuty/web/wsgi.py](../../src/djehuty/web/wsgi.py).
+[src/djehuty/web/wsgi.py](https://github.com/4TUResearchData/djehuty/blob/main/src/djehuty/web/wsgi.py).
 
 ### Diving into the code that displays the homepage
 
@@ -115,7 +123,7 @@ from djehuty.web import database
 ```
 
 This leads to
-[src/djehuty/web/database.py](../../src/djehuty/web/database.py).
+[src/djehuty/web/database.py](https://github.com/4TUResearchData/djehuty/blob/main/src/djehuty/web/database.py).
 
 In `repository_statistics`, a call to `self.__query_from_template` is followed
 by a call to `__run_query`, which sends the query to the SPARQL endpoint and

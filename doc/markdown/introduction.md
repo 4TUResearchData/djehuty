@@ -31,7 +31,7 @@ sections describe installing the prerequisites on various GNU/Linux
 distributions. The figure below displays the complete run-time dependencies
 from `djehuty` to `glibc`.
 
-![Run-time dependencies when constructed with the packages from GNU Guix](../figures/references-graph.svg)
+![Run-time dependencies when constructed with the packages from GNU Guix](figures/references-graph.svg)
 
 `djehuty` stores its information in a
 [SPARQL 1.1](https://www.w3.org/TR/sparql11-query/) endpoint. We recommend
@@ -80,7 +80,7 @@ just dev
 
 This spins up `djehuty` and a Virtuoso SPARQL store in containers, initializes
 the database, and starts a live-reloading server at http://localhost:8080. See
-[README.md](../../README.md) for the full development workflow.
+[README.md](https://github.com/4TUResearchData/djehuty/blob/main/README.md) for the full development workflow.
 
 ### From PyPI
 

@@ -31,14 +31,14 @@ When the `object` in a triple is *typed*, we introduce the shorthand to only
 show the type, rather than the actual value of the `object`. The figures below
 display this for URIs and for literals respectively.
 
-![](../figures/typed-notation.svg)
+![](figures/typed-notation.svg)
 
 *Figure: Shorthand notation for triples with an `rdf:type`, which features a hollow predicate arrow and a colored type specifier with rounded corners.*
 
 Literals are depicted by rectangles (with sharp edges) in contrast to URIs
 which are depicted as rectangles with rounded edges.
 
-![](../figures/typed-literals-notation.svg)
+![](figures/typed-literals-notation.svg)
 
 *Figure: Shorthand notation for triples with a literal, which features a hollow predicate arrow and a colored rectangular type specifier.*
 
@@ -51,7 +51,7 @@ To preserve the order in which lists were formed, the data model makes use of
 `rdf:List` with numeric indexes. This pattern will be abbreviated in the
 remainder of the figures as displayed below.
 
-![](../figures/rdf-list-abbrev.svg)
+![](figures/rdf-list-abbrev.svg)
 
 *Figure: Shorthand notation for `rdf:List` with numeric indexes, which features a hollow double-arrow. Lists have arbitrary lengths, and the numeric indexes use 1-based indexing.*
 
@@ -64,7 +64,7 @@ links in one way or another to it. The user submits files along with data about
 those bytes as a single record which we call a `djht:Dataset`. The figure below
 shows how the remainder of types in this chapter relate to a `djht:Dataset`.
 
-![](../figures/dataset.svg)
+![](figures/dataset.svg)
 
 *Figure: The RDF pattern for a `djht:Dataset`. For a full overview of `djht:Dataset` properties, use the exploratory from the administration panel.*
 
@@ -73,7 +73,7 @@ differ, except all versions of a dataset share an identifier. We use
 `djht:DatasetContainer` to describe the version-unspecific properties of a set
 of versioned datasets.
 
-![](../figures/dataset-container.svg)
+![](figures/dataset-container.svg)
 
 *Figure: The RDF pattern for a `djht:DatasetContainer`. All versions of a dataset share a `djht:dataset_id` and a UUID in the container URI.*
 
@@ -85,7 +85,7 @@ list. The figure above further reveals that the *view*, *download*, *share* and
 
 Collections provide a way to group `djht:Dataset` objects.
 
-![](../figures/collection.svg)
+![](figures/collection.svg)
 
 *Figure: The RDF pattern for a `djht:Collection`. For a full overview of `djht:Collection` properties, use the exploratory from the administration panel.*
 
@@ -94,7 +94,7 @@ versions can differ, except all versions of a collection share an identifier.
 We use `djht:CollectionContainer` to describe the version-unspecific properties
 of a set of versioned collections.
 
-![](../figures/collection-container.svg)
+![](figures/collection-container.svg)
 
 *Figure: The RDF pattern for a `djht:CollectionContainer`. All versions of a collection share a `djht:collection_id` and a UUID in the container URI.*
 
@@ -107,7 +107,7 @@ list. The figure above further reveals that the *view*, *download*, *share* and
 `djehuty` keeps records of authors including their full name, ORCID, and e-mail
 address. Furthermore, each `djht:Account` has a linked `djht:Author` record.
 
-![](../figures/author.svg)
+![](figures/author.svg)
 
 *Figure: The RDF pattern for a `djht:Author`.*
 
@@ -116,7 +116,7 @@ address. Furthermore, each `djht:Account` has a linked `djht:Author` record.
 `djehuty` uses an external identity provider, but stores an e-mail address,
 full name, and preferences for categories.
 
-![](../figures/account.svg)
+![](figures/account.svg)
 
 *Figure: The RDF pattern for a `djht:Account`.*
 
@@ -126,7 +126,7 @@ When the `djht:Dataset` originated out of a funded project, the funders can be
 listed using `djht:Funding`. The figure below displays the details for this
 structure.
 
-![](../figures/funding.svg)
+![](figures/funding.svg)
 
 *Figure: The RDF pattern for a `djht:Funding`.*
 
@@ -136,7 +136,7 @@ Categories in `djehuty` are a controlled vocabulary based on the
 [Australian and New Zealand Standard Research Classification (ANZSRC)](https://www.abs.gov.au/Ausstats/abs@.nsf/Latestproducts/4AE1B46AE2048A28CA25741800044242).
 The hierarchical structure is captured by using `id` and `parent_id` properties.
 
-![](../figures/category.svg)
+![](figures/category.svg)
 
 *Figure: The RDF pattern for a `djht:Category`.*
 
@@ -147,7 +147,7 @@ A `djht:Account` has an affiliation with an institute or research group. The
 groups can be structured hierarchically by using the `id` and `parent_id`
 properties.
 
-![](../figures/institutiongroup.svg)
+![](figures/institutiongroup.svg)
 
 *Figure: The RDF pattern for a `djht:InstitutionGroup`.*
 
@@ -158,7 +158,7 @@ stored in the knowledge graph while the file contents are stored on a
 filesystem. The location of the file data is tracked via the
 `djht:filesystem_location` property.
 
-![](../figures/file.svg)
+![](figures/file.svg)
 
 *Figure: The RDF pattern for a `djht:File`.*
 
@@ -169,7 +169,7 @@ can be shared using a private link. The figure below displays how private links
 are stored for a `djht:Dataset`, and it works the same for a
 `djht:Collection`.
 
-![](../figures/privatelink.svg)
+![](figures/privatelink.svg)
 
 *Figure: The RDF pattern for a `djht:PrivateLink`.*
 
@@ -180,6 +180,6 @@ each `djht:Dataset` can have a list of `djht:Collaborator` objects. A
 `djht:Collaborator` can be given read, edit, and/or remove rights independently
 for both metadata (the form fields) and data (the files).
 
-![](../figures/collaborators.svg)
+![](figures/collaborators.svg)
 
 *Figure: The RDF pattern for a `djht:Collaborator`.*
