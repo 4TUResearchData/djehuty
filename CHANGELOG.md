@@ -6,6 +6,16 @@ news section (`doc/news.tex`) is regenerated at release time by `just news`.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.3.3]
+
+This patch release fixes the Djehuty container image, which failed to start
+because the published wheel shipped none of the bundled resources. Both the
+container image and the Python wheel are now complete.
+
+### Bugfixes
+
+- Fix the djehuty container image and improves the python whells. ([e53aa4a](https://github.com/4TUResearchData/djehuty/commit/e53aa4a6f0ef4468ed0f65109f1198c0bd0802ca))
+
 ## [v26.3.2]
 
 This patch release includes 5 commits focused on security, maintenance and dependencies.

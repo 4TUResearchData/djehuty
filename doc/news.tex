@@ -5,6 +5,19 @@
 \fi
 \chapter*{News}
 
+\labelWithConsistentHTMLTag{release-26-3-3}
+\section*{Release notes for \texttt{v26.3.3}.}
+
+  This patch release fixes the Djehuty container image, which failed to start
+because the published wheel shipped none of the bundled resources. Both the
+container image and the Python wheel are now complete.
+
+\subsection*{Bugfixes}
+\begin{itemize}
+\item{Fix the djehuty container image and improves the python whells.
+    (\commitLink{e53aa4a6f0ef4468ed0f65109f1198c0bd0802ca}).}
+\end{itemize}
+
 \labelWithConsistentHTMLTag{release-26-3-2}
 \section*{Release notes for \texttt{v26.3.2}.}
 
