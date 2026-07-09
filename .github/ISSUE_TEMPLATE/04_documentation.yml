@@ -22,8 +22,9 @@ body:
         - Unclear / confusing
         - Broken link or typo
         - Migration / tooling
+        - Other
     validations:
-      required: false
+      required: true
   - type: textarea
     attributes:
       label: Affected documentation
