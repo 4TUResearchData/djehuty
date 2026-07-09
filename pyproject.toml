@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=42",
+    "setuptools>=83.0.0",
     "wheel"
 ]
 build-backend   = "setuptools.build_meta"
@@ -36,6 +36,12 @@ classifiers     = [
 
 [project.scripts]
 djehuty = "djehuty.ui:main"
+
+# Ship all bundled resources
+[tool.setuptools.package-data]
+"djehuty.web"    = ["resources/**"]
+"djehuty.backup" = ["resources/**"]
+"djehuty.schema" = ["migrations/**"]
 
 [dependency-groups]
 dev = [
