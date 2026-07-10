@@ -11,6 +11,9 @@
     <link rel="stylesheet" type="text/css" href="/theme/colors.css?cache={{startup_timestamp}}">
     <link rel="stylesheet" type="text/css" href="/static/css/main.css?cache=1780577091">
     <link rel="stylesheet" type="text/css" href="/theme/fonts.css?cache={{startup_timestamp}}">
+    {%- for stylesheet in custom_stylesheets | default([], true) %}
+    <link rel="stylesheet" type="text/css" href="{{stylesheet}}?cache={{startup_timestamp}}">
+    {%- endfor %}
     {% block headers %}{% endblock %}
   </head>
   <body>

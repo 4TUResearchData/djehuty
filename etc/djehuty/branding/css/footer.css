@@ -1,0 +1,34 @@
+/* 4TU.ResearchData 2026 branding.
+
+   Instance-scoped overrides, loaded through <custom-stylesheet> so that the
+   upstream defaults in main.css stay untouched for other djehuty instances.
+   This file is served from the /assets root, which satisfies the
+   'style-src self' content-security-policy; an inline <style> in the footer
+   configuration would be blocked. */
+
+/* main.css lays the footer out as a fixed-height three-column multicol. The
+   2026 brand column is taller than that, and the overflow spills sideways into
+   a fourth column, so let the content drive the height instead. */
+#footer-wrapper {
+    height: auto;
+    column-count: initial;
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding-bottom: 2em;
+}
+
+/* .footer-column sets margin:auto, and auto cross-axis margins beat
+   align-items, which leaves the three columns vertically ragged. */
+#footer-wrapper .footer-column {
+    height: auto;
+    margin: 0;
+    flex: 1 1 260px;
+}
+
+/* The brand images are supplied at their full source resolution, the logo being
+   4939px wide, so the footer has to bound them. The logo is the tagline
+   lockup: its spacing is set in the asset itself, so it is placed as one
+   image rather than assembled here from the separate symbol and wordmark. */
+#footer-wrapper .footer-logo { height: 72px; width: auto; }
+#footer-wrapper .footer-partner-logo { height: 36px; width: auto; margin-top: .5em; }

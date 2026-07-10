@@ -531,6 +531,7 @@ class WebServer:
         parameters    = {
             "base_url":            config.base_url,
             "nonce":               uuid.uuid4().hex,
+            "custom_stylesheets":  config.custom_stylesheets,
             "identity_provider":   config.identity_provider,
             "in_production":       config.in_production,
             "is_logged_in":        account is not None,

@@ -663,6 +663,38 @@ def read_fonts_configuration (xml_root):
         "mono_font":  config_value (fonts, "mono-font-family"),
     }
 
+def read_custom_stylesheets (xml_root):
+    """Procedure to parse and set the instance-specific stylesheets."""
+    for stylesheet in xml_root.findall ("custom-stylesheet"):
+        if not stylesheet.text:
+            continue
+        href = stylesheet.text.strip()
+        if href not in config.custom_stylesheets:
+            config.custom_stylesheets.append (href)
+
+def warn_about_unresolvable_asset (assets_root, source, description, logger):
+    """Procedure to warn when SOURCE cannot be served from ASSETS_ROOT."""
+    prefix = "/assets/"
+    if not source.startswith (prefix):
+        return
+
+    if assets_root is None:
+        logger.warning ("%s refers to '%s' but 'custom-assets-root' is unset.",
+                        description, source)
+    elif not os.path.isfile (os.path.join (assets_root, source[len(prefix):])):
+        logger.warning ("%s refers to '%s' which does not exist under '%s'.",
+                        description, source, assets_root)
+
+def warn_about_unresolvable_assets (assets_root, logger):
+    """Procedure to warn about configured assets that cannot be served."""
+    if config.fonts:
+        for face in config.fonts["font_faces"]:
+            warn_about_unresolvable_asset (assets_root, face["src"],
+                                           f"Font '{face['family']}'", logger)
+
+    for stylesheet in config.custom_stylesheets:
+        warn_about_unresolvable_asset (assets_root, stylesheet, "Stylesheet", logger)
+
 def read_datacite_configuration (xml_root):
     """Procedure to parse and set the DataCite API configuration."""
     datacite = xml_root.find("datacite")
@@ -994,6 +1026,17 @@ def read_configuration_file (server, config_file, logger, config_files):
             read_configuration_file (server, include, logger, config_files)
 
         read_menu_configuration (xml_root)
+        read_custom_stylesheets (xml_root)
+
+        custom_assets_root = config_value (xml_root, "custom-assets-root", None, None)
+        if custom_assets_root:
+            if not os.path.isabs (custom_assets_root):
+                custom_assets_root = os.path.abspath(os.path.join (config_dir, custom_assets_root))
+            if (server.add_static_root ("/assets", custom_assets_root) and not inside_reload):
+                logger.info ("Added assets root: %s", custom_assets_root)
+
+        if not inside_reload:
+            warn_about_unresolvable_assets (custom_assets_root, logger)
 
         custom_logo_path = config_value (xml_root, "custom-logo-path", None, None)
         if custom_logo_path:
