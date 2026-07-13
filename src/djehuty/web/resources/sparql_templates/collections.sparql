@@ -87,7 +87,12 @@ WHERE {
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?collection), "collection:") AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:") AS ?account_uuid)
-    BIND (xsd:boolean (EXISTS { ?container_uri djht:draft ?draft_collection . }) AS ?has_draft)
+    {#- Avoid xsd:boolean(EXISTS{...}), which crashes the Virtuoso query
+     #- optimizer (SQ156). An OPTIONAL + BOUND produces the same typed
+     #- boolean without triggering the bug. #}
+     # Modification for virtuoso bin on test env - remove from code (quick workaround)
+    OPTIONAL { ?container_uri djht:draft ?draft_collection . }
+    BIND (xsd:boolean (BOUND (?draft_collection)) AS ?has_draft)
     {%- if private_link_id_string is not none %}
     OPTIONAL { ?private_link djht:expires_date     ?private_link_expires_date . }
     {#- Wrapping the xsd:dateTime in strings is needed because Virtuoso seems to

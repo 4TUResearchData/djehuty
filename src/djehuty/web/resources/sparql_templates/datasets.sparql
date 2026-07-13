@@ -194,7 +194,12 @@ WHERE {
     BIND(STRAFTER(STR(?dataset), "dataset:")         AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:")         AS ?account_uuid)
     {%- if is_published %}
-    BIND (xsd:boolean (EXISTS { ?container_uri djht:draft ?draft_dataset . }) AS ?has_draft)
+    {#- Avoid xsd:boolean(EXISTS{...}), which crashes the Virtuoso query
+     #- optimizer (SQ156). An OPTIONAL + BOUND produces the same typed
+     #- boolean without triggering the bug. #}
+     # Modification for virtuoso bin on test env - remove from code (quick workaround)
+    OPTIONAL { ?container_uri djht:draft            ?draft_dataset . }
+    BIND (xsd:boolean (BOUND (?draft_dataset)) AS ?has_draft)
     {%- endif %}
     BIND((BOUND(?embargo_until_date)  && ?embargo_until_date > NOW()) AS ?is_embargoed)
     BIND((!BOUND(?embargo_until_date) && BOUND(?embargo_type)) AS ?is_restricted)

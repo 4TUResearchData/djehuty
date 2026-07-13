@@ -57,7 +57,13 @@ WHERE {
     OPTIONAL { ?author djht:email               ?email . }
 
     {%- if account_uuid is not none %}
-    BIND (xsd:boolean (EXISTS { ?author djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)
+    {#- Avoid xsd:boolean(EXISTS{...}), which crashes the Virtuoso query
+     #- optimizer (SQ156). An OPTIONAL + BOUND produces the same typed
+     #- boolean without triggering the bug. #}
+     # Modification for virtuoso bin on test env - remove from code (quick workaround)
+    OPTIONAL { ?author djht:created_by ?created_by_account .
+               FILTER (?created_by_account = <account:{{account_uuid}}>) }
+    BIND (xsd:boolean (BOUND (?created_by_account)) AS ?is_editable)
     {%- else %}
     BIND("false"^^xsd:boolean AS ?is_editable)
     {%- endif %}
