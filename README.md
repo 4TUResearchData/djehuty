@@ -141,7 +141,21 @@ stack used locally, so a green `just test` on your laptop reproduces
 what CI sees. Screenshots are captured on failure and uploaded as
 artifacts; coverage from each shard is combined into a single report.
 
+## Linting
+
+Code style is enforced with [Ruff](https://docs.astral.sh/ruff/) and
+rolled out incrementally: only paths that have already been cleaned are
+checked (the `lint_paths` variable in the justfile), starting with
+`src/djehuty/utils/`.
+
+```bash
+just lint
+```
+
+This runs `ruff check` (bugs, style errors, import sorting) and `ruff format --check` over the cleaned paths, using the Ruff version pinned in `uv.lock . CI runs the same recipe on every push and pull request, so a clean `just lint` locally means a green Lint job. 
+
 ---
 ### Contact information
 - **Maintainers**: a.e.wilczynska@tudelft.nl, g.kuhn@tudelft.nl, k.f.deAraujo@tudelft.nl
 - **Security issues**: djehuty@4tu.nl
+
