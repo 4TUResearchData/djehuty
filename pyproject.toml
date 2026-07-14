@@ -96,6 +96,9 @@ include = [
     "src/djehuty/ui.py",
     "src/djehuty/__init__.py",
     "tests/**/*.py",
+    "src/djehuty/web/cache.py",
+    "src/djehuty/web/s3.py",
+    "src/djehuty/web/zipfly.py",
 ]
 
 [tool.ruff.lint]
