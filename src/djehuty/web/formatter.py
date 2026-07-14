@@ -66,10 +66,13 @@ def collection_urls(record):
 
         return {
             "url": f"{record['base_url']}/v2/collections/{record['container_uuid']}",
-            "url_private_api": f"{record['base_url']}/v2/account/collections/{record['container_uuid']}",
+            "url_private_api": f"{record['base_url']}/v2/account/collections/"
+            f"{record['container_uuid']}",
             "url_public_api": f"{record['base_url']}/v2/collections/{record['container_uuid']}",
-            "url_private_html": f"{record['base_url']}/my/collections/{record['container_uuid']}/edit",
-            "url_public_html": f"{record['base_url']}/collections/{record['container_uuid']}{version}",
+            "url_private_html": f"{record['base_url']}/my/collections/"
+            f"{record['container_uuid']}/edit",
+            "url_public_html": f"{record['base_url']}/collections/"
+            f"{record['container_uuid']}{version}",
         }
 
     return {
@@ -90,7 +93,8 @@ def dataset_urls(record):
             version = f"/{record['version']}"
         return {
             "url": f"{record['base_url']}/v2/articles/{record['container_uuid']}",
-            "url_private_api": f"{record['base_url']}/v2/account/articles/{record['container_uuid']}",
+            "url_private_api": f"{record['base_url']}/v2/account/articles/"
+            f"{record['container_uuid']}",
             "url_public_api": f"{record['base_url']}/v2/articles/{record['container_uuid']}",
             "url_private_html": f"{record['base_url']}/my/datasets/{record['container_uuid']}/edit",
             "url_public_html": f"{record['base_url']}/datasets/{record['container_uuid']}{version}",
