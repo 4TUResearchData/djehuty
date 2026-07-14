@@ -3,24 +3,26 @@ This module contains the entry point for the program.
 """
 
 import argparse
-import signal
-import sys
+import importlib.metadata
 import logging
 import os
-import importlib.metadata
+import signal
+import sys
 
 import djehuty.backup.ui as backup_ui
 import djehuty.schema.cli as migrate_cli
 import djehuty.web.ui as web_ui
 
-def show_version ():
+
+def show_version():
     """Show the program's version."""
 
-    version = importlib.metadata.version (__package__ or __name__)
+    version = importlib.metadata.version(__package__ or __name__)
     print(f"This is djehuty v{version}")
     sys.exit(0)
 
-def show_help ():
+
+def show_help():
     """Show a GNU-style help message."""
 
     print("""This is djehuty.\n
@@ -77,63 +79,66 @@ Available subcommands and options:
   --version              -v  Show versioning information.\n""")
     sys.exit(0)
 
-def sigint_handler (sig, frame):  # pylint: disable=unused-argument
+
+def sigint_handler(sig, frame):  # pylint: disable=unused-argument
     """Signal handler for SIGINT and SIGTERM."""
     logger = logging.getLogger(__name__)
-    logger.info ("Received shutdown signal.  Goodbye!")
+    logger.info("Received shutdown signal.  Goodbye!")
     sys.exit(0)
 
-def main_inner ():
+
+def main_inner():
     """The main entry point of the program."""
 
     signal.signal(signal.SIGINT, sigint_handler)
     signal.signal(signal.SIGTERM, sigint_handler)
 
-    logging.basicConfig(format='[%(levelname)s] %(asctime)s - %(name)s: %(message)s',
-                        level=logging.INFO)
+    logging.basicConfig(
+        format="[%(levelname)s] %(asctime)s - %(name)s: %(message)s", level=logging.INFO
+    )
 
     ## COMMAND-LINE ARGUMENTS
     ## ------------------------------------------------------------------------
     parser = argparse.ArgumentParser(
-        usage    = '\n  %(prog)s [backup|migrate|web] ...',
-        prog     = 'djehuty',
-        add_help = False)
+        usage="\n  %(prog)s [backup|migrate|web] ...", prog="djehuty", add_help=False
+    )
 
-    subparsers = parser.add_subparsers(dest='command', help='sub-command help')
+    subparsers = parser.add_subparsers(dest="command", help="sub-command help")
 
     ### BACKUP SUBCOMMAND
     ### -----------------------------------------------------------------------
-    backup_parser = subparsers.add_parser('backup', help="Options for the 'backup' subcommand.")
-    backup_parser.add_argument('--token',       '-t', type=str, default='')
-    backup_parser.add_argument('--stats-auth',  '-a', type=str, default='')
-    backup_parser.add_argument('--account-id',  '-i', type=str, default=None)
-    backup_parser.add_argument('--api-url',     '-u', type=str, default=None)
+    backup_parser = subparsers.add_parser("backup", help="Options for the 'backup' subcommand.")
+    backup_parser.add_argument("--token", "-t", type=str, default="")
+    backup_parser.add_argument("--stats-auth", "-a", type=str, default="")
+    backup_parser.add_argument("--account-id", "-i", type=str, default=None)
+    backup_parser.add_argument("--api-url", "-u", type=str, default=None)
 
     ### MIGRATE SUBCOMMAND
     ### -----------------------------------------------------------------------
-    migrate_parser = subparsers.add_parser('migrate', help="Manage RDF-store migrations.")
-    migrate_parser.add_argument('action', choices=['status', 'upgrade', 'stamp', 'verify'])
-    migrate_parser.add_argument('--config-file', '-c', type=str, default=None)
-    migrate_parser.add_argument('--to',          '-t', type=str, default=None)
+    migrate_parser = subparsers.add_parser("migrate", help="Manage RDF-store migrations.")
+    migrate_parser.add_argument("action", choices=["status", "upgrade", "stamp", "verify"])
+    migrate_parser.add_argument("--config-file", "-c", type=str, default=None)
+    migrate_parser.add_argument("--to", "-t", type=str, default=None)
 
     ### WEB SUBCOMMAND
     ### -----------------------------------------------------------------------
-    web_parser = subparsers.add_parser('web', help="Options for the 'web' subcommand.")
-    web_parser.add_argument('--config-file','-c', type=str, default=None)
-    web_parser.add_argument('--initialize', '-i', action='store_true')
-    web_parser.add_argument('--extract-transactions-from-log', '-e', nargs='?',
-                            const='', default=None)
-    web_parser.add_argument('--extract-delayed-transactions-from-log', '-d', nargs='?',
-                            const='', default=None)
-    web_parser.add_argument('--apply-transactions', '-A', nargs='?',
-                            const='', default=None)
-    web_parser.add_argument('--full-rdf-export', '-f', action='store_true')
-    web_parser.add_argument('--public-rdf-export', '-p', action='store_true')
+    web_parser = subparsers.add_parser("web", help="Options for the 'web' subcommand.")
+    web_parser.add_argument("--config-file", "-c", type=str, default=None)
+    web_parser.add_argument("--initialize", "-i", action="store_true")
+    web_parser.add_argument(
+        "--extract-transactions-from-log", "-e", nargs="?", const="", default=None
+    )
+    web_parser.add_argument(
+        "--extract-delayed-transactions-from-log", "-d", nargs="?", const="", default=None
+    )
+    web_parser.add_argument("--apply-transactions", "-A", nargs="?", const="", default=None)
+    web_parser.add_argument("--full-rdf-export", "-f", action="store_true")
+    web_parser.add_argument("--public-rdf-export", "-p", action="store_true")
 
     ### GLOBAL ARGUMENTS
     ### -----------------------------------------------------------------------
-    parser.add_argument('--help',    '-h', action='store_true')
-    parser.add_argument('--version', '-v', action='store_true')
+    parser.add_argument("--help", "-h", action="store_true")
+    parser.add_argument("--version", "-v", action="store_true")
 
     # When using PyInstaller and Nuitka, argv[0] seems to get duplicated.
     # In the case of Nuitka, relative paths are converted to absolute paths.
@@ -152,35 +157,39 @@ def main_inner ():
 
     if args.command == "backup":
         if "" in (args.token, args.stats_auth):
-            print ("The 'backup' command requires multiple arguments.")
-            print ("Try --help for usage options.")
+            print("The 'backup' command requires multiple arguments.")
+            print("Try --help for usage options.")
         else:
-            backup_ui.main (args.token, args.stats_auth, args.account_id,
-                            args.api_url)
+            backup_ui.main(args.token, args.stats_auth, args.account_id, args.api_url)
 
     elif args.command == "migrate":
-        sys.exit (migrate_cli.main (args.action,
-                                    config_file = args.config_file,
-                                    target      = args.to))
+        sys.exit(migrate_cli.main(args.action, config_file=args.config_file, target=args.to))
 
     elif args.command == "web":
-        web_ui.main (args.config_file, True, args.initialize,
-                     args.extract_transactions_from_log,
-                     args.extract_delayed_transactions_from_log,
-                     args.apply_transactions, args.full_rdf_export,
-                     args.public_rdf_export)
+        web_ui.main(
+            args.config_file,
+            True,
+            args.initialize,
+            args.extract_transactions_from_log,
+            args.extract_delayed_transactions_from_log,
+            args.apply_transactions,
+            args.full_rdf_export,
+            args.public_rdf_export,
+        )
 
     elif len(sys.argv) == 1:
         print("Try --help for usage options.")
 
-def main ():
+
+def main():
     """Wrapper to catch KeyboardInterrupts for main_inner."""
     try:
         main_inner()
     except KeyboardInterrupt:
-        sigint_handler (None, None)
+        sigint_handler(None, None)
 
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
