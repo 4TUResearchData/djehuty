@@ -662,7 +662,8 @@ class DatabaseInterface:
                     field = {"name": "Organizations", "value": extra["organizations"]}
                 except KeyError:
                     pass
-            # add "Data Link Size" field for opendap catalogs in "Data Link" field, correct opendap url if needed
+            # add "Data Link Size" field for opendap catalogs in "Data Link" field,
+            # correct opendap url if needed
             if field["name"] == "Data Link":
                 urls = field["value"]
                 urls = [
@@ -732,7 +733,6 @@ class DatabaseInterface:
                 XSD.integer,
             )
             ## group_resource_id is always empty/NULL.
-            # rdf.add (self.store, uri, rdf.DJHT["group_resource_id"],   value_or_none (record, "group_resource_id"), XSD.integer)
             rdf.add(
                 self.store,
                 uri,
@@ -751,7 +751,6 @@ class DatabaseInterface:
                 self.store, uri, rdf.DJHT["version"], value_or_none(record, "version"), XSD.integer
             )
             ## resource_id is always empty/NULL.
-            # rdf.add (self.store, uri, rdf.DJHT["resource_id"],         value_or_none (record, "resource_id"), XSD.integer)
             rdf.add(
                 self.store,
                 uri,
@@ -1416,7 +1415,6 @@ class DatabaseInterface:
             datatype=XSD.integer,
         )
         ## resource_id is always empty.
-        # rdf.add (self.store, uri, rdf.DJHT["resource_id"],          value_or_none (record, "resource_id"), datatype=XSD.string)
         rdf.add(
             self.store, uri, rdf.DJHT["name"], value_or_none(record, "name"), datatype=XSD.string
         )
