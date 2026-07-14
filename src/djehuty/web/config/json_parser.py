@@ -16,7 +16,6 @@ import re
 
 from defusedxml import ElementTree
 
-
 _SECRET_REF_RE = re.compile(r"^\$\{(env|file):([^}]+)\}$")
 
 
@@ -44,9 +43,7 @@ def _resolve_reference(value):
         with open(target, "r", encoding="utf-8") as handle:
             return handle.read().strip()
     except OSError as exc:
-        raise ConfigurationError(
-            f"could not read secret file '{target}': {exc}"
-        ) from exc
+        raise ConfigurationError(f"could not read secret file '{target}': {exc}") from exc
 
 
 class JsonConfigElement:
