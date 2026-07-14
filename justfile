@@ -194,5 +194,5 @@ lint_paths := "src/djehuty/utils"
 
 # Lint and check formatting of cleaned paths
 lint:
-    uv run --group dev ruff check {{ lint_paths }}
-    uv run --group dev ruff format --check {{ lint_paths }}
+    uv run --group lint ruff check {{ lint_paths }}
+    uv run --group lint ruff format --check {{ lint_paths }}
