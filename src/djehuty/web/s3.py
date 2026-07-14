@@ -1,31 +1,38 @@
 """This module implements interaction with an S3 endpoint."""
 
 import logging
-import uuid
 import os
 import threading
+import uuid
 from datetime import datetime
-from djehuty.web.config import config
+
 from djehuty.utils.convenience import value_or
+from djehuty.web.config import config
 
 try:
     import boto3
-    from botocore.exceptions import ClientError, PartialCredentialsError
-    from botocore.exceptions import ResponseStreamingError, ReadTimeoutError
     from botocore.config import Config
+    from botocore.exceptions import (
+        ClientError,
+        PartialCredentialsError,
+        ReadTimeoutError,
+        ResponseStreamingError,
+    )
     from urllib3.exceptions import IncompleteRead
 except (ImportError, ModuleNotFoundError):
     pass
+
 
 class S3ClientFactory:
     """Thread-safe singleton manager for boto3 S3 clients."""
 
     _clients = {}
     _lock = threading.Lock()
-    _boto_config = Config(retries = { "total_max_attempts": 30,
-                                      "mode": "standard" },
-                          max_pool_connections = 25,
-                          read_timeout = 120)
+    _boto_config = Config(
+        retries={"total_max_attempts": 30, "mode": "standard"},
+        max_pool_connections=25,
+        read_timeout=120,
+    )
 
     @classmethod
     def get_client(cls, endpoint, access_key, secret_key):
@@ -39,7 +46,7 @@ class S3ClientFactory:
             with cls._lock:
                 # Double-check after acquiring lock
                 if cache_key not in cls._clients:
-                    logging.getLogger (__name__).info (
+                    logging.getLogger(__name__).info(
                         "Creating new S3 client for endpoint: %s", endpoint
                     )
 
@@ -48,14 +55,17 @@ class S3ClientFactory:
                         endpoint_url=endpoint,
                         aws_access_key_id=access_key,
                         aws_secret_access_key=secret_key,
-                        config=cls._boto_config
+                        config=cls._boto_config,
                     )
         return cls._clients[cache_key]
+
 
 class S3DownloadStreamer:
     """Generator to stream the contents of a file stored in S3."""
 
-    def __init__ (self, endpoint, bucket, access_key, secret_key, filename, name, chunk_size=32768, offset=0):
+    def __init__(
+        self, endpoint, bucket, access_key, secret_key, filename, name, chunk_size=32768, offset=0
+    ):
         self.client = None
         self.endpoint = endpoint
         self.bucket = bucket
@@ -64,7 +74,7 @@ class S3DownloadStreamer:
         self.filename = filename
         self.chunk_size = chunk_size
         self.offset = offset
-        self.log = logging.getLogger (__name__)
+        self.log = logging.getLogger(__name__)
         self.chunk_size = chunk_size
         self.original_filename = name
         self.content_length = 0
@@ -73,49 +83,53 @@ class S3DownloadStreamer:
         self.file_object = None
         self.file_contents = None
 
-    def connect (self):
+    def connect(self):
         """Initialize procedure that can be recalled."""
         self.client = S3ClientFactory.get_client(
-            endpoint=self.endpoint,
-            access_key=self.access_key,
-            secret_key=self.secret_key
+            endpoint=self.endpoint, access_key=self.access_key, secret_key=self.secret_key
         )
         try:
-            self.file_object   = self.client.get_object (Bucket = self.bucket,
-                                                         Key    = self.filename,
-                                                         Range  = f"bytes={self.offset}-")
+            self.file_object = self.client.get_object(
+                Bucket=self.bucket, Key=self.filename, Range=f"bytes={self.offset}-"
+            )
             self.file_contents = self.file_object["Body"]
         except (ClientError, KeyError) as error:
-            self.log.error ("An S3 download stream error occurred: %s", error)
+            self.log.error("An S3 download stream error occurred: %s", error)
 
         try:
             http_headers = self.file_object["ResponseMetadata"]["HTTPHeaders"]
-            self.content_type   = value_or (http_headers, "content-type", self.content_type)
-            self.content_length = int(value_or (http_headers, "content-length", 0))
-            modified = datetime.strptime (value_or (http_headers, "last-modified",
-                                                    "Tue, 01 Jan 1980 12:00:00 GMT"),
-                                          "%a, %d %b %Y %H:%M:%S %Z")
-            self.last_modified  = (modified.year, modified.month, modified.day,
-                                   modified.hour, modified.minute, modified.second)
+            self.content_type = value_or(http_headers, "content-type", self.content_type)
+            self.content_length = int(value_or(http_headers, "content-length", 0))
+            modified = datetime.strptime(
+                value_or(http_headers, "last-modified", "Tue, 01 Jan 1980 12:00:00 GMT"),
+                "%a, %d %b %Y %H:%M:%S %Z",
+            )
+            self.last_modified = (
+                modified.year,
+                modified.month,
+                modified.day,
+                modified.hour,
+                modified.minute,
+                modified.second,
+            )
         except (KeyError, TypeError):
-            self.log.warning ("Could not read metadata for s3://%s/%s",
-                              self.bucket, self.filename)
+            self.log.warning("Could not read metadata for s3://%s/%s", self.bucket, self.filename)
 
-    def body (self):
+    def body(self):
         """Returns the request body to directly read from."""
         if self.file_contents is None:
-            self.connect ()
+            self.connect()
 
         return self.file_contents
 
-    def iterator (self):
+    def iterator(self):
         """Returns an iterator to read the request body."""
         if self.file_contents is None:
-            self.connect ()
+            self.connect()
 
-        return self.file_contents.iter_chunks (chunk_size=self.chunk_size)
+        return self.file_contents.iter_chunks(chunk_size=self.chunk_size)
 
-    def close (self):
+    def close(self):
         """Closes the file stream and resets the internal state."""
         if self.file_contents is not None:
             self.file_contents.close()
@@ -126,50 +140,55 @@ class S3DownloadStreamer:
         self.last_modified = None
         self.client = None
 
-    def reset (self, offset=0):
+    def reset(self, offset=0):
         """Resets the S3 connection and attempt to continue reading at OFFSET."""
-        self.close ()
+        self.close()
         self.offset = offset
-        self.connect ()
+        self.connect()
 
-def s3_file_exists (endpoint, bucket, access_key, secret_key, filename):
+
+def s3_file_exists(endpoint, bucket, access_key, secret_key, filename):
     """Returns True when FILENAME exists in BUCKET, False otherwise."""
     try:
         client = S3ClientFactory.get_client(
-            endpoint=endpoint,
-            access_key=access_key,
-            secret_key=secret_key
+            endpoint=endpoint, access_key=access_key, secret_key=secret_key
         )
-        client.head_object (Bucket=bucket, Key=filename)
+        client.head_object(Bucket=bucket, Key=filename)
         return True
     except PartialCredentialsError:
         logger = logging.getLogger(__name__)
-        logger.warning ("Potential misconfiguration of S3 bucket '%s'.", bucket)
+        logger.warning("Potential misconfiguration of S3 bucket '%s'.", bucket)
         return False
     except ClientError:
         return False
 
-def s3_temporary_file (reader):
+
+def s3_temporary_file(reader):
     """Downloads the S3 file from READER and returns the local filesystem path."""
-    cached_filename = os.path.join (config.s3_cache_storage, str(uuid.uuid4()))
-    with open (cached_filename, "wb") as output_stream:
+    cached_filename = os.path.join(config.s3_cache_storage, str(uuid.uuid4()))
+    with open(cached_filename, "wb") as output_stream:
         retries = 3
         while retries > 0:
             try:
                 for chunk in reader.iterator():
-                    output_stream.write (chunk)
+                    output_stream.write(chunk)
                 retries = 0
             except (ResponseStreamingError, ReadTimeoutError, IncompleteRead):
-                logger = logging.getLogger (__name__)
+                logger = logging.getLogger(__name__)
                 current_offset = reader.body().tell()
-                reader.reset (offset = current_offset)
+                reader.reset(offset=current_offset)
                 retries -= 1
                 if retries > 0:
-                    logger.warning ("Retrying to fetch after %s bytes of %s.",
-                                    current_offset, reader.original_filename)
+                    logger.warning(
+                        "Retrying to fetch after %s bytes of %s.",
+                        current_offset,
+                        reader.original_filename,
+                    )
                     continue
-                logger.error ("Failed to fetch S3 object %s (%s) for ZIP.",
-                              reader.original_filename,
-                              reader.content_length)
+                logger.error(
+                    "Failed to fetch S3 object %s (%s) for ZIP.",
+                    reader.original_filename,
+                    reader.content_length,
+                )
     reader.close()
     return cached_filename
