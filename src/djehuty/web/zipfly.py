@@ -45,7 +45,7 @@ except (ImportError, ModuleNotFoundError):
     S3_ENABLED = False
 
 
-class LargePredictionSize(Exception):
+class LargePredictionSizeError(Exception):
     """Raised when Buffer is larger than ZIP64."""
 
 
@@ -115,7 +115,7 @@ class ZipFly:
 
         zs = sum([end_of_central_directory, file_offset, size_paths])
         if zs > 2147483649:  # (1 << 31) + 1
-            raise LargePredictionSize("File predicted to be larger than the ZIP64 limit.")
+            raise LargePredictionSizeError("File predicted to be larger than the ZIP64 limit.")
 
         return zs
 
@@ -171,10 +171,10 @@ class ZipFly:
                     if self.reproducible_timestamps:
                         z_info.date_time = (1980, 1, 1, 0, 0, 0)
                     """
-                    Zip files on prevalent *nix supports InfoZIP external attributes to encode file mode
-                    including symbolic links with ((attr >> 16) & S_IFMT) == S_IFLNK, i.e. 0120755 << 16,
-                    using u+rwx,g+rx,o+rx conventions. Content of file is symlink destination. Ignored
-                    on platforms that do not support symbolic links.
+                    Zip files on prevalent *nix supports InfoZIP external attributes to encode
+                    file mode including symbolic links with ((attr >> 16) & S_IFMT) == S_IFLNK,
+                    i.e. 0120755 << 16, using u+rwx,g+rx,o+rx conventions. Content of file is
+                    symlink destination. Ignored on platforms that do not support symbolic links.
                     """
                     if os.path.islink(path[self.filesystem]):
                         z_info.external_attr = 0o120755 << 16
