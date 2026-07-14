@@ -58,6 +58,10 @@ dev = [
     "python-slugify>=8.0.0",
 ]
 
+lint = [
+    "ruff>=0.15.21",
+]
+
 [tool.coverage.run]
 source = ["djehuty"]
 branch = true
@@ -79,3 +83,17 @@ omit = [
 
 [tool.coverage.html]
 directory = "coverage-html"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "N",
+    "B"
+]
+
