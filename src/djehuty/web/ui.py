@@ -22,8 +22,8 @@ from djehuty.web.config.json_parser import JsonConfigElement, parse_config_root
 # SAML2_DEPENDENCY_LOADED is important to catch the situation
 # in which this dependency is required due to the run-time configuration.
 try:
-    from onelogin.saml2.auth import OneLogin_Saml2_Auth  # pylint: disable=unused-import
-    from onelogin.saml2.errors import OneLogin_Saml2_Error  # pylint: disable=unused-import
+    from onelogin.saml2.auth import OneLogin_Saml2_Auth  # noqa: F401 -- availability probe
+    from onelogin.saml2.errors import OneLogin_Saml2_Error  # noqa: F401 -- availability probe
 
     SAML2_DEPENDENCY_LOADED = True
 except (ImportError, ModuleNotFoundError):
@@ -31,7 +31,7 @@ except (ImportError, ModuleNotFoundError):
 
 PYVIPS_ERROR_MESSAGE = None
 try:
-    import pyvips  # pylint: disable=unused-import
+    import pyvips  # noqa: F401 -- availability probe
 
     PYVIPS_DEPENDENCY_LOADED = True
 except (ImportError, ModuleNotFoundError):
@@ -46,7 +46,7 @@ except OSError as pyvips_oserror_message:
 # actually using the module itself. It merely provides a mechanism to detect
 # a run-time configuration error.
 try:
-    import uwsgi  # pylint: disable=unused-import
+    import uwsgi  # noqa: F401 -- availability probe
 
     UWSGI_DEPENDENCY_LOADED = True
 except ModuleNotFoundError:
@@ -57,22 +57,22 @@ except ModuleNotFoundError:
 # The BOTO3_DEPENDENCY_LOADED is used to report the problem at startup when
 # it is required due to the run-time configuration.
 try:
-    import boto3  # pylint: disable=unused-import
+    import boto3  # noqa: F401 -- availability probe
 
     BOTO3_DEPENDENCY_LOADED = True
 except (ImportError, ModuleNotFoundError):
     BOTO3_DEPENDENCY_LOADED = False
 
 
-class ConfigFileNotFound(Exception):
-    """Raised when the database is not queryable."""
+class ConfigFileNotFoundError(Exception):
+    """Raised when a file does not look like a Djehuty configuration file."""
 
 
-class UnsupportedSAMLProtocol(Exception):
+class UnsupportedSAMLProtocolError(Exception):
     """Raised when an unsupported SAML protocol is used."""
 
 
-class DependencyNotAvailable(Exception):
+class DependencyNotAvailableError(Exception):
     """Raised when a required software dependency isn't available."""
 
 
@@ -248,7 +248,7 @@ def read_saml_configuration(xml_root, logger):
 
     if saml_version != "2.0":
         logger.error("Only SAML 2.0 is supported.")
-        raise UnsupportedSAMLProtocol
+        raise UnsupportedSAMLProtocolError
 
     saml_strict = bool(int(config_value(saml, "strict", None, True)))
     saml_debug = bool(int(config_value(saml, "debug", None, False)))
@@ -397,7 +397,7 @@ def setup_saml_service_provider(server, logger):
         if not SAML2_DEPENDENCY_LOADED:
             logger.error("Missing python3-saml dependency.")
             logger.error("Cannot initiate authentication with SAML.")
-            raise DependencyNotAvailable
+            raise DependencyNotAvailableError
 
         saml_cache_dir = os.path.join(server.db.cache.storage, "saml-config")
         os.makedirs(saml_cache_dir, mode=0o700, exist_ok=True)
@@ -768,7 +768,7 @@ def read_configuration_file(server, config_file, logger, config_files):
             logger.info("Reading config file: %s", config_file)
 
         if not xml_root or xml_root.tag != "djehuty":
-            raise ConfigFileNotFound
+            raise ConfigFileNotFoundError
 
         config_dir = os.path.dirname(config_file)
         log_file = config_value(xml_root, "log-file", None, None)
@@ -1065,7 +1065,7 @@ def read_configuration_file(server, config_file, logger, config_files):
 
         return config
 
-    except ConfigFileNotFound as error:
+    except ConfigFileNotFoundError as error:
         if not inside_reload:
             logger.error("%s does not look like a Djehuty configuration file.", config_file)
         raise SystemExit from error
@@ -1084,7 +1084,7 @@ def read_configuration_file(server, config_file, logger, config_files):
             else:
                 logger.error("Could not open '%s'.", config_file)
         raise SystemExit from error
-    except UnsupportedSAMLProtocol as error:
+    except UnsupportedSAMLProtocolError as error:
         raise SystemExit from error
 
 
@@ -1293,7 +1293,7 @@ def main(
                     "or the 'berkeleydb' Python package is missing."
                 )
             )
-            raise DependencyNotAvailable
+            raise DependencyNotAvailableError
 
         if not server.db.cache.cache_is_ready() and not inside_reload:
             logger.error("Failed to set up cache layer.")
@@ -1362,7 +1362,7 @@ def main(
             if shutil.which("git") is None:
                 logger.error("Cannot find the 'git' executable.  Please install it.")
                 if config.in_production:
-                    raise DependencyNotAvailable
+                    raise DependencyNotAvailableError
 
             if config.orcid_client_id is not None and config.orcid_read_public_token is None:
                 if server.obtain_orcid_read_public_token():
@@ -1397,14 +1397,14 @@ def main(
                         logging.error(
                             "Loading 'pyvips' failed with:\n---\n%s\n---", PYVIPS_ERROR_MESSAGE
                         )
-                    raise DependencyNotAvailable
+                    raise DependencyNotAvailableError
                 logging.getLogger("pyvips").setLevel(logging.ERROR)
 
             if config.s3_buckets:
                 os.makedirs(config.s3_cache_storage, mode=0o700, exist_ok=True)
                 if not BOTO3_DEPENDENCY_LOADED:
                     logger.error("Dependency 'boto3' is required for S3 buckets.")
-                    raise DependencyNotAvailable
+                    raise DependencyNotAvailableError
 
             if config.identity_provider is not None:
                 logger.info("Using %s as identity provider.", config.identity_provider.upper())
@@ -1490,7 +1490,7 @@ def main(
             use_reloader=config.use_reloader,
         )
 
-    except (FileNotFoundError, DependencyNotAvailable, MissingConfigurationError):
+    except (FileNotFoundError, DependencyNotAvailableError, MissingConfigurationError):
         pass
 
     return None
