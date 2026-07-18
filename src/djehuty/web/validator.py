@@ -16,7 +16,7 @@ def raise_or_return_error(error_list, error):
     error_list.append({"field_name": error.field_name, "message": error.message})
 
 
-class ValidationException(Exception):
+class ValidationException(Exception):  # noqa: N818 -- renaming would touch ~60 handlers in wsgi.py
     """Base class for validation errors."""
 
     def __init__(self, field_name, message, code):
@@ -296,7 +296,7 @@ def search_filters(value, error_list=None):
                 ),
             )
 
-    for k, v in value.items():
+    for v in value.values():
         return v
 
 
