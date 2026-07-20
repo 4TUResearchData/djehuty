@@ -3602,7 +3602,7 @@ class WebServer:
             record = request.get_json()
             ## "issued" is intentionally omitted: the Issued date is set
             ## automatically to the publication date and cannot be entered by hand.
-            types  = ["collected", "destroyed", "other"]
+            types  = ["collected", "created", "destroyed", "updated", "other"]
             errors = []
 
             if not isinstance (record, list):
