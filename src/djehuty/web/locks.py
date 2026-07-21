@@ -2,6 +2,7 @@
 
 from enum import Enum
 from threading import Lock
+
 from djehuty.web.config import config
 
 try:
@@ -9,12 +10,15 @@ try:
 except ModuleNotFoundError:
     pass
 
+
 class LockTypes(Enum):
     """Enumeration of lock types."""
-    FILE_LIST     = 1
+
+    FILE_LIST = 1
     PRIVATE_LINKS = 2
-    AUTHORS       = 3
+    AUTHORS = 3
     SUBMIT_DATASET = 4
+
 
 class Locks:
     """This class implements multiple locks"""
@@ -22,12 +26,13 @@ class Locks:
     ## Only ever allow one instance of this class to exist,
     ## so that we prevent re-initializing locks.
     _instance = None
-    def __new__ (cls):
+
+    def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__ (self):
+    def __init__(self):
         self.locks = {
             LockTypes.FILE_LIST: Lock(),
             LockTypes.PRIVATE_LINKS: Lock(),
@@ -35,7 +40,7 @@ class Locks:
             LockTypes.SUBMIT_DATASET: Lock(),
         }
 
-    def lock (self, lock_type):
+    def lock(self, lock_type):
         """Lock critical section LOCK_TYPE."""
 
         if config.using_uwsgi:
@@ -44,7 +49,7 @@ class Locks:
             lock = self.locks.get(lock_type)
             lock.acquire(blocking=True, timeout=30)
 
-    def unlock (self, lock_type):
+    def unlock(self, lock_type):
         """Unlock critical section LOCK_TYPE."""
         if config.using_uwsgi:
             uwsgi.unlock(lock_type.value)

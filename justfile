@@ -188,3 +188,11 @@ test *args="":
         --reruns=1 --reruns-delay=5 \
         --screenshot=only-on-failure \
         --output=/app/test-results {{ args }}
+
+# Paths already cleaned and enforced by ruff (extended per sub-issue)
+lint_paths := "src/djehuty/utils src/djehuty/web/config src/djehuty/web/locks.py src/djehuty/web/email_handler.py"
+
+# Lint and check formatting of cleaned paths
+lint:
+    uv run --group lint ruff check {{ lint_paths }}
+    uv run --group lint ruff format --check {{ lint_paths }}
