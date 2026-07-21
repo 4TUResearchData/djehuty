@@ -67,3 +67,4 @@ docker/coverage/
 docker/test-results/
 etc/djehuty/*.local.json
 etc/djehuty/*.local.xml
+*.bp 
