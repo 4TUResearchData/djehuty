@@ -3600,7 +3600,7 @@ class WebServer:
 
             for date_record in record:
                 date_type = validator.options_value (date_record, "type", types, True, errors)
-                date      = validator.date_value (date_record, "date", True, errors)
+                date      = validator.partial_date_value (date_record, "date", True, errors)
                 if date_type is not None and date is not None:
                     if self.db.add_date_to_physical_sample (container_uuid,
                                                             date_type,
