@@ -466,7 +466,10 @@ function render_dates (container_uuid) {
     }).done(function (dates) {
         jQuery("#physical-sample-dates tbody").empty();
 
-        let row = '<tr><td><input type="date" name="date" id="date" /></td>';
+        let row = '<tr><td><input type="text" name="date" id="date" ';
+        row += 'placeholder="YYYY-MM-DD, YYYY-MM or YYYY" ';
+        row += 'pattern="\\d{4}(-\\d{2}(-\\d{2})?)?" ';
+        row += 'title="Enter a full date (YYYY-MM-DD), a year and month (YYYY-MM), or only a year (YYYY)." /></td>';
         row += '<td><select name="dateType" id="dateType">';
         row += '<option value="" disabled="disabled" selected="selected">Date type</option>';
         row += '<option value="collected">Collected</option>';
@@ -479,8 +482,9 @@ function render_dates (container_uuid) {
         jQuery("#physical-sample-dates tbody").append(row);
 
         for (let date_entry of dates) {
-            let [y, m, d] = date_entry.date.split("-");
-            let row = `<tr><td>${d}-${m}-${y}</td>`;
+            // Reverse the ISO parts to day-first: 2010, 05-2010 or 17-05-2010.
+            let display_date = date_entry.date.split("-").reverse().join("-");
+            let row = `<tr><td>${display_date}</td>`;
             row += `<td><span class="resource-badge date-type">${date_entry.type}</span></td>`;
             row += `<td><a href="#" data-uuid="${date_entry.uuid}" `;
             row += `class="remove-date fas fa-trash-can" title="Remove"></a></td></tr>`;
