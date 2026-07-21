@@ -81,9 +81,11 @@ Follow existing code conventions and existing patterns such as:
     - Use snake_case for functions and variables.
     - Be descriptive but concise in names.
 - **Indentation**: Use the same indentation style (tabs vs. spaces, number of spaces) already present in the codebase.
-    - Line length: Keep lines within the project’s limit.
+    - Line length: Keep lines within the project’s limit (100 characters, enforced by Ruff).
     - Comments & docs: Write comments/docstrings in the same style.
 - **No unused code**: Remove dead or commented-out code before committing.
+- **Linting**: Run `just lint` before committing. Ruff is enforced in CI on already-cleaned paths (see `lint_paths` in the `justfile`).
+
 
 
 ### Commits
