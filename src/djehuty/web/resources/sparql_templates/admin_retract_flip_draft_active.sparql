@@ -1,0 +1,13 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE { GRAPH <{{state_graph}}> { ?draft djht:is_active "0"^^xsd:boolean . } }
+INSERT { GRAPH <{{state_graph}}> { ?draft djht:is_active "1"^^xsd:boolean . } }
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container rdf:type djht:DatasetContainer ;
+               djht:draft ?draft .
+    FILTER (?container = <{{container_uri}}>)
+    FILTER (?draft     = <{{dataset_uri}}>)
+  }
+}
+{% endblock %}
