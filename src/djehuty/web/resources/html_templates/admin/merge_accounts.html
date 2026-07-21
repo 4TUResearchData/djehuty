@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/utils.js?cache=1744290797"></script>
+<script src="/static/js/admin-merge-accounts.js"></script>
+<style nonce="{{nonce}}">
+#merge-form { max-width: 720px; }
+#merge-form .field { margin-bottom: 1em; }
+#merge-form label { display: block; font-weight: bold; margin-bottom: .25em; }
+#merge-form input[type="email"] { width: 100%; padding: .5em; box-sizing: border-box; }
+#merge-preview { margin-top: 2em; display: none; }
+#merge-preview .account-summary { background: #f4f4f4; padding: .75em 1em; border-radius: .25em; margin-bottom: 1em; }
+#merge-preview .account-summary .arrow { font-weight: bold; margin: 0 .5em; }
+#merge-containers-table td.type-tag { white-space: nowrap; }
+#merge-containers-table .flag { display: inline-block; padding: .1em .4em; border-radius: .25em; font-size: .8em; margin-right: .25em; }
+#merge-containers-table .flag.published { background: #e0f0e0; }
+#merge-containers-table .flag.draft { background: #f0e6c0; }
+#merge-confirm-wrapper { margin-top: 1em; }
+#merge-confirm-button.disabled { opacity: .5; pointer-events: none; }
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/admin/dashboard">Dashboard</a>
+  <li class="active corporate-identity-submenu-active"><a href="/admin/users">Users</a>
+  <li><a href="/admin/exploratory">Exploratory</a>
+  <li><a href="/admin/reports">Reports</a>
+  {% if may_query %}<li><a href="/admin/sparql">Query</a>{% endif %}
+  {% if may_review_quotas %}<li><a href="/admin/quota-requests">Quota requests</a>{% endif %}
+</ul>
+{% endblock %}
+{% block body %}
+<h1>Merge accounts</h1>
+<p>Reassign ownership of all containers (datasets and collections) from a
+source account to a target account. The source account is not deleted.
+The change is performed as a single SPARQL UPDATE and recorded in the
+query audit log.</p>
+
+<div id="merge-form">
+  <div class="field">
+    <label for="from-email">From account (source e-mail)</label>
+    <input type="email" id="from-email" placeholder="from@example.org" autocomplete="off">
+  </div>
+  <div class="field">
+    <label for="to-email">To account (target e-mail)</label>
+    <input type="email" id="to-email" placeholder="to@example.org" autocomplete="off">
+  </div>
+  <div class="center">
+    <a id="merge-preview-button" href="#" class="button corporate-identity-standard-button">Load preview</a>
+  </div>
+</div>
+
+<div id="merge-preview">
+  <h2>Preview</h2>
+  <div class="account-summary">
+    <span id="preview-from"></span>
+    <span class="arrow">&rarr;</span>
+    <span id="preview-to"></span>
+  </div>
+  <p><span id="preview-count">0</span> container(s) will be moved.</p>
+  <table id="merge-containers-table" class="corporate-identity-table">
+    <thead><tr><th>Type</th><th>Title</th><th>DOI</th><th>State</th><th>Container UUID</th></tr></thead>
+    <tbody id="merge-containers-tbody"></tbody>
+  </table>
+  <div id="merge-confirm-wrapper" class="center">
+    <a id="merge-confirm-button" href="#" class="button corporate-identity-standard-button disabled">Confirm merge</a>
+  </div>
+</div>
+{% endblock %}
