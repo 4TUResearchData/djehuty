@@ -3683,7 +3683,9 @@ class WebServer:
 
             records          = request.get_json()
             identifier_types = ["IGSNDOI", "OtherDOI", "URL"]
-            relation_types   = ["IsPartOf", "IsDerivedFrom", "HasPart", "IsSourceOf"]
+            relation_types   = ["IsPartOf", "HasPart", "IsDerivedFrom", "IsSourceOf",
+                                 "IsReferencedBy", "References", "IsCitedBy", "Cites",
+                                 "IsDescribedBy", "Describes"]
             errors           = []
 
             if not isinstance (records, list):
