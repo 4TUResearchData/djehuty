@@ -37,7 +37,6 @@ function gather_form_data (container_uuid) {
         "sample_owner_email":     or_null(jQuery("#sample_owner_email").val()),
         "group_id":               group_id,
         "categories":             category_ids,
-        "agreed_to_deposit_agreement": jQuery("#deposit_agreement").prop("checked"),
         "agreed_to_publish":      jQuery("#publish_agreement").prop("checked"),
     };
     return form_data;
@@ -75,7 +74,6 @@ function submit_physical_sample (container_uuid, event) {
     jQuery("#content-wrapper").css("opacity", "0.15");
     save_physical_sample (container_uuid, event, false, function () {
         let form_data = gather_form_data();
-        form_data["agreed_to_deposit_agreement"] = jQuery("#deposit_agreement").prop("checked");
         form_data["agreed_to_publish"] = jQuery("#publish_agreement").prop("checked");
         jQuery.ajax({
             url:         `/v3/physical-samples/${container_uuid}/submit-for-review`,
@@ -99,8 +97,6 @@ function submit_physical_sample (container_uuid, event) {
                         jQuery("#authors").addClass("missing-required");
                     } else if (message.field_name == "tag") {
                         jQuery("#tag").addClass("missing-required");
-                    } else if (message.field_name == "agreed_to_deposit_agreement") {
-                        jQuery("label[for='deposit_agreement']").addClass("missing-required");
                     } else if (message.field_name == "agreed_to_publish") {
                         jQuery("label[for='publish_agreement']").addClass("missing-required");
                     } else {
@@ -651,16 +647,22 @@ function render_related_resources (container_uuid) {
         let row = '<tr><td><input type="text" name="identifier" id="related-resource" /></td>';
         row += '<td><select name="identifierType" id="identifierType">';
         row += '<option value="" disabled="disabled" selected="selected">Identifier type</option>';
-        row += '<option value="IGSNDOI">IGSN DOI</option>';
-        row += '<option value="OtherDOI">Other DOI</option>';
+        row += '<option value="IGSNDOI">IGSN</option>';
+        row += '<option value="OtherDOI">DOI</option>';
         row += '<option value="URL">URL</option>';
         row += '</select></td>';
         row += '<td><select name="relationType" id="relationType">';
         row += '<option value="" disabled="disabled" selected="selected">Relationship type</option>';
         row += '<option value="IsPartOf">Is part of</option>';
-        row += '<option value="IsDerivedFrom">Is derived from</option>';
         row += '<option value="HasPart">Has part</option>';
+        row += '<option value="IsDerivedFrom">Is derived from</option>';
         row += '<option value="IsSourceOf">Is source of</option>';
+        row += '<option value="IsReferencedBy">Is referenced by</option>';
+        row += '<option value="References">References</option>';
+        row += '<option value="IsCitedBy">Is cited by</option>';
+        row += '<option value="Cites">Cites</option>';
+        row += '<option value="IsDescribedBy">Is described by</option>';
+        row += '<option value="Describes">Describes</option>';
         row += '</select></td>';
         row += '<td><a class="form-button corporate-identity-standard-button add-related-resource-button" href="#">Add</a></td></tr>';
         jQuery("#related-resources tbody").append(row);
