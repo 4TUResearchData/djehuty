@@ -438,11 +438,114 @@ function remove_date (date_uuid, container_uuid) {
       .fail(function () { show_message ("failure", "<p>Failed to remove date.</p>"); });
 }
 
-function add_date (container_uuid) {
-    let data = {
-        "date": or_null(jQuery("#date").val()),
-        "type": or_null(jQuery("#dateType").val())
+function set_date_format (format) {
+    // Show only the picker for the chosen format and clear the others and update the tip.
+    let hints = {
+        "year":  "Enter the year only.",
+        "month": "Enter the month and year.",
+        "day":   "Enter the full calendar date."
     };
+    jQuery("#date-year, #date-month, #date-day").hide().val("");
+    if (format === "year") { jQuery("#date-year").show(); }
+    else if (format === "month") { jQuery("#date-month").show(); }
+    else { jQuery("#date-day").show(); }
+    jQuery("#date-hint").text (hints[format] || "");
+}
+
+function get_new_date_value () {
+    let format = jQuery("input[name='dateFormat']:checked").val();
+    if (format === "year") { return or_null(jQuery("#date-year").val()); }
+    if (format === "month") { return or_null(jQuery("#date-month").val()); }
+    return or_null(jQuery("#date-day").val());
+}
+
+function auto_format_date (input, format) {
+    // Keep only digits and re-insert the "/" separators as the user types
+    let digits = input.value.replace(/\D/g, "");
+    let out = "";
+    if (format === "year") {
+        out = digits.slice(0, 4);
+    } else if (format === "month") {
+        digits = digits.slice(0, 6);
+        out = digits.slice(0, 2);
+        if (digits.length > 2) { out += "/" + digits.slice(2); }
+    } else {
+        digits = digits.slice(0, 8);
+        out = digits.slice(0, 2);
+        if (digits.length > 2) { out += "/" + digits.slice(2, 4); }
+        if (digits.length > 4) { out += "/" + digits.slice(4); }
+    }
+    input.value = out;
+}
+
+function to_iso_date (format, raw) {
+    // Convert the "user friendly" day first input to ISO (year-first).
+    // Returns the ISO string, or false when the value is not a valid date.
+    let value = raw.trim();
+    if (format === "year") {
+        return (/^\d{4}$/.test(value)) ? value : false;
+    }
+
+    let parts = value.split("/");
+    if (format === "month") {
+        if (parts.length !== 2) { return false; }
+        let [mm, yyyy] = parts;
+        let month = parseInt(mm, 10);
+        if (!(/^\d{4}$/.test(yyyy)) || month < 1 || month > 12) { return false; }
+        return `${yyyy}-${String(month).padStart(2, "0")}`;
+    }
+
+    if (parts.length !== 3) { return false; }
+    let [dd, mm, yyyy] = parts;
+    let day = parseInt(dd, 10);
+    let month = parseInt(mm, 10);
+    if (!(/^\d{4}$/.test(yyyy)) || month < 1 || month > 12 || day < 1 || day > 31) {
+        return false;
+    }
+    let iso = `${yyyy}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    // Reject impossible calendar dates such as 31/02/2024.
+    let check = new Date(`${iso}T00:00:00Z`);
+    if (check.getUTCMonth() + 1 !== month || check.getUTCDate() !== day) { return false; }
+    return iso;
+}
+
+function format_display_date (iso) {
+    if (iso === null || iso === undefined || iso === "") { return ""; }
+    let months = ["January", "February", "March", "April", "May", "June",
+                  "July", "August", "September", "October", "November", "December"];
+    let parts = String(iso).split("-");
+    let year = parts[0];
+    if (parts.length < 2) { return year; }
+    let month_name = months[parseInt(parts[1], 10) - 1] || parts[1];
+    if (parts.length < 3) { return `${month_name} ${year}`; }
+    return `${parseInt(parts[2], 10)} ${month_name} ${year}`;
+}
+
+function add_date (container_uuid) {
+    let format  = jQuery("input[name='dateFormat']:checked").val();
+    let raw_value  = get_new_date_value ();
+    let type_value = or_null(jQuery("#dateType").val());
+
+    if (raw_value === null) {
+        show_message ("failure", "<p>Enter a date before adding it.</p>");
+        return;
+    }
+    let iso_value = to_iso_date (format, raw_value);
+    if (iso_value === false) {
+        let hints = {
+            "year":  "yyyy, for example 2024",
+            "month": "mm/yyyy, for example 05/2024",
+            "day":   "dd/mm/yyyy, for example 17/05/2024"
+        };
+        show_message ("failure", `<p>Enter the date as ${hints[format]}.</p>`);
+        return;
+    }
+    if (type_value === null) {
+        show_message ("failure", "<p>Select a date type before adding it.</p>");
+        return;
+    }
+
+    let data = { "date": iso_value, "type": type_value };
 
     jQuery.ajax({
         url:         `/v3/physical-samples/${container_uuid}/dates`,
@@ -451,6 +554,9 @@ function add_date (container_uuid) {
         accept:      "application/json",
         data:        JSON.stringify([data]),
     }).done(function () {
+        // Reset the entry fields and refresh the list below.
+        jQuery("#date-year, #date-month, #date-day").val("");
+        jQuery("#dateType").val("");
         render_dates (container_uuid);
     }).fail(function () {
         show_message ("failure", `<p>Failed to add date. Try again later.</p>`);
@@ -464,26 +570,19 @@ function render_dates (container_uuid) {
         type:        "GET",
         accept:      "application/json",
     }).done(function (dates) {
+        // Render the list of dates already added to the data.
         jQuery("#physical-sample-dates tbody").empty();
 
-        let row = '<tr><td><input type="text" name="date" id="date" ';
-        row += 'placeholder="YYYY-MM-DD, YYYY-MM or YYYY" ';
-        row += 'pattern="\\d{4}(-\\d{2}(-\\d{2})?)?" ';
-        row += 'title="Enter a full date (YYYY-MM-DD), a year and month (YYYY-MM), or only a year (YYYY)." /></td>';
-        row += '<td><select name="dateType" id="dateType">';
-        row += '<option value="" disabled="disabled" selected="selected">Date type</option>';
-        row += '<option value="collected">Collected</option>';
-        row += '<option value="created">Created</option>';
-        row += '<option value="destroyed">Destroyed</option>';
-        row += '<option value="updated">Updated</option>';
-        row += '<option value="other">Other</option>';
-        row += '</select></td>';
-        row += '<td><a class="form-button corporate-identity-standard-button add-date-button" href="#">Add</a></td></tr>';
-        jQuery("#physical-sample-dates tbody").append(row);
+        // Sort by the date value chronologically.
+        dates.sort (function (a, b) {
+            if (a.date < b.date) { return 1; }
+            if (a.date > b.date) { return -1; }
+            return 0;
+        });
 
         for (let date_entry of dates) {
-            // Reverse the ISO parts to day-first: 2010, 05-2010 or 17-05-2010.
-            let display_date = date_entry.date.split("-").reverse().join("-");
+            // Show dates with the month spelled e.g. "2010", "May 2010" or "17 May 2010".
+            let display_date = format_display_date (date_entry.date);
             let row = `<tr><td>${display_date}</td>`;
             row += `<td><span class="resource-badge date-type">${date_entry.type}</span></td>`;
             row += `<td><a href="#" data-uuid="${date_entry.uuid}" `;
@@ -716,14 +815,22 @@ function activate (container_uuid, callback=jQuery.noop) {
         event.preventDefault();
         remove_related_resource (jQuery(this).data("uuid"), container_uuid);
     });
-    jQuery("#physical-sample-dates").on("click", ".add-date-button", function (event) {
+    jQuery("#physical-sample-dates-wrapper").on("change", "input[name='dateFormat']", function () {
+        set_date_format (jQuery(this).val());
+    });
+    jQuery("#physical-sample-dates-wrapper").on("input", ".date-input", function () {
+        auto_format_date (this, jQuery("input[name='dateFormat']:checked").val());
+    });
+    jQuery("#physical-sample-dates-wrapper").on("click", ".add-date-button", function (event) {
         event.preventDefault();
         add_date (container_uuid);
     });
-    jQuery("#physical-sample-dates").on("click", ".remove-date", function (event) {
+    jQuery("#physical-sample-dates-wrapper").on("click", ".remove-date", function (event) {
         event.preventDefault();
         remove_date (jQuery(this).data("uuid"), container_uuid);
     });
+    // Set the initial format date (Full date) once the static markup exists.
+    set_date_format (jQuery("input[name='dateFormat']:checked").val());
     render_tags (container_uuid);
     render_categories_for_physical_sample (container_uuid);
     jQuery("#expand-categories-button").on("click", toggle_categories);
