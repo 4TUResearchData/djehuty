@@ -3467,9 +3467,13 @@ class SparqlInterface:
         current_time   = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
         date_uuid      = rdf.uri_to_uuid (uri)
 
+        ## Pick a datatype that matches the depositor entered, so
+        ## year (YYYY), a year and month (YYYY-MM) or a full date (YYYY-MM-DD).
+        date_datatype = {4: XSD.gYear, 7: XSD.gYearMonth}.get (len (date), XSD.date)
+
         rdf.add (graph, uri, rdf.DJHT["created_date"], current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["date_type"],    date_type_uri, "uri")
-        rdf.add (graph, uri, rdf.DJHT["date"],         date, XSD.date)
+        rdf.add (graph, uri, rdf.DJHT["date"],         date, date_datatype)
         rdf.add (graph, uri, RDF.type,                 rdf.DJHT["PhysicalSampleDate"], "uri")
 
         if not self.add_triples_from_graph (graph):
