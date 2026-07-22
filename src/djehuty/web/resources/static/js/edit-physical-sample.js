@@ -37,7 +37,6 @@ function gather_form_data (container_uuid) {
         "sample_owner_email":     or_null(jQuery("#sample_owner_email").val()),
         "group_id":               group_id,
         "categories":             category_ids,
-        "agreed_to_deposit_agreement": jQuery("#deposit_agreement").prop("checked"),
         "agreed_to_publish":      jQuery("#publish_agreement").prop("checked"),
     };
     return form_data;
@@ -75,7 +74,6 @@ function submit_physical_sample (container_uuid, event) {
     jQuery("#content-wrapper").css("opacity", "0.15");
     save_physical_sample (container_uuid, event, false, function () {
         let form_data = gather_form_data();
-        form_data["agreed_to_deposit_agreement"] = jQuery("#deposit_agreement").prop("checked");
         form_data["agreed_to_publish"] = jQuery("#publish_agreement").prop("checked");
         jQuery.ajax({
             url:         `/v3/physical-samples/${container_uuid}/submit-for-review`,
@@ -99,8 +97,6 @@ function submit_physical_sample (container_uuid, event) {
                         jQuery("#authors").addClass("missing-required");
                     } else if (message.field_name == "tag") {
                         jQuery("#tag").addClass("missing-required");
-                    } else if (message.field_name == "agreed_to_deposit_agreement") {
-                        jQuery("label[for='deposit_agreement']").addClass("missing-required");
                     } else if (message.field_name == "agreed_to_publish") {
                         jQuery("label[for='publish_agreement']").addClass("missing-required");
                     } else {

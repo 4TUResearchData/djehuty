@@ -3801,13 +3801,11 @@ class WebServer:
         record = request.get_json ()
         try:
             errors = []
-            agreed_to_deposit_agreement = validator.boolean_value (record, "agreed_to_deposit_agreement", True, False, errors)
+            ## The Deposit Agreement does not yet cover physical samples, so
+            ## agreeing to it is not required for now.  To be replaced by the
+            ## Terms of Service at a later time.
+            agreed_to_deposit_agreement = validator.boolean_value (record, "agreed_to_deposit_agreement", False, False, errors)
             agreed_to_publish = validator.boolean_value (record, "agreed_to_publish", True, False, errors)
-
-            if not agreed_to_deposit_agreement:
-                errors.append ({
-                    "field_name": "agreed_to_deposit_agreement",
-                    "message": "The physical sample cannot be published without agreeing to the Deposit Agreement."})
 
             if not agreed_to_publish:
                 errors.append ({
