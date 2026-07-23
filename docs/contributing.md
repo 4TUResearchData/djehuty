@@ -1,12 +1,12 @@
 {%
-  include-markdown "../../CONTRIBUTING.md"
+  include-markdown "../CONTRIBUTING.md"
   heading-offset=0
 %}
 
 ## Development environment
 
 {%
-  include-markdown "../../README.md"
+  include-markdown "../README.md"
   start="## Development environment"
   end="## Running in production"
   heading-offset=0

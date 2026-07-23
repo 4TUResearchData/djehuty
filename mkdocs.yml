@@ -2,7 +2,6 @@ site_name: djehuty
 site_description: The 4TU.ResearchData and Nikhef repository system
 repo_url: https://github.com/4TUResearchData/djehuty
 repo_name: 4TUResearchData/djehuty
-docs_dir: doc/markdown
 
 theme:
   name: material

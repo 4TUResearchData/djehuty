@@ -143,7 +143,7 @@ artifacts; coverage from each shard is combined into a single report.
 
 ## Documentation
 
-The documentation source lives in `doc/markdown/`. It is built with
+The documentation source lives in `docs/`. It is built with
 [MkDocs](https://www.mkdocs.org/) using the Material theme.
 
 To preview the docs locally with live reload:
