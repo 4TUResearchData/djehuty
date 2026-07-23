@@ -1,5 +1,6 @@
 """This module contains the command-line interface for the 'web' subcommand."""
 
+import importlib.metadata
 import json
 import logging
 import os
@@ -1259,6 +1260,8 @@ def main (config_file=None, run_internal_server=True, initialize=True,
 
         if perform_export:
             return perform_rdf_export (logger, server, full_rdf_export)
+
+        config.djehuty_version = importlib.metadata.version("djehuty")
 
         if not run_internal_server:
             config.using_uwsgi = True

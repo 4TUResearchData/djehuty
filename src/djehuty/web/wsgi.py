@@ -535,6 +535,7 @@ class WebServer:
             "is_logged_in":        account is not None,
             "may_deposit":         self.db.is_depositor (token, account),
             "large_footer":        config.large_footer,
+            "djehuty_version":     config.djehuty_version,
             "maintenance_mode":    config.maintenance_mode,
             "menu":                config.menu,
             "orcid_client_id":     config.orcid_client_id,
