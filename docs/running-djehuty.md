@@ -19,7 +19,7 @@ file. A JSON example is available at `etc/djehuty/djehuty-example-config.json`.
 | `allow-crawlers` | Set to 1 to allow crawlers in the `robots.txt`, otherwise set to 0. |
 | `production` | Performs extra checks before starting. Enable this when running a production instance. |
 | `live-reload` | When set to 1, it reloads Python code on-the-fly. We recommend to set it to 0 when running in production. |
-| `debug-mode` | When set to 1, it will display backtraces and error messages in the web browser. When set to 0, it will only show backtraces and error messages in the web browser. |
+| `debug-mode` | When set to 1, it will display backtraces and error messages in the web browser. When set to 0, it will not show backtraces and error messages in the web browser. |
 | `use-x-forwarded-for` | When running `djehuty` behind a reverse-proxy server, use the HTTP header `X-Forwarded-For` to log IP address information. Set to 1 when `djehuty` should use the `X-Forwarded-For` HTTP header. |
 | `static-resources-cache` | When running `djehuty` behind a reverse-proxy server, it can write images, fonts, stylesheets and JavaScript resources to a folder so it can be served by the reverse-proxy server. Specify a filesystem directory to store the resources at. |
 | `disable-collaboration` | When set to 1, it disables the "collaborators" feature. |
@@ -29,7 +29,7 @@ file. A JSON example is available at `etc/djehuty/djehuty-example-config.json`.
 | `disable-2fa` | Accounts with privileges receive a code by e-mail as a second factor when logging in. Setting this option to 1 disables the second factor authentication. |
 | `sandbox-message` | Display a message on the top of every page. |
 | `notice-message` | Display a message on the main page. |
-| `maintenance-mode` | When set to 1, all HTTP requests result in the displayment of a maintenance message. Use this option while backing up the database, or when performing major updates. |
+| `maintenance-mode` | When set to 1, all HTTP requests result in the display of a maintenance message. Use this option while backing up the database, or when performing major updates. |
 
 ## Configuring the Database
 
@@ -61,6 +61,8 @@ the starting point to extract from can be specified as an argument. The
 following example displays its use:
 
 ```bash
+djehuty web --config-file=config.json --extract-transactions-from-log="YYYY-MM-DD HH:MM:SS"
+# or, with the deprecated XML format:
 djehuty web --config-file=config.xml --extract-transactions-from-log="YYYY-MM-DD HH:MM:SS"
 ```
 
@@ -71,6 +73,8 @@ To replay the extracted transactions, use the `--apply-transactions`
 command-line option:
 
 ```bash
+djehuty web --config-file=config.json --apply-transactions
+# or, with the deprecated XML format:
 djehuty web --config-file=config.xml --apply-transactions
 ```
 
@@ -530,6 +534,8 @@ Invoking `djehuty web` starts the web interface of `djehuty`. On what port it
 makes itself available can be configured in its configuration file.
 
 ```
+djehuty web --config-file=your-djehuty-config.json
+# or, with the deprecated XML format:
 djehuty web --config-file=your-djehuty-config.xml
 ```
 

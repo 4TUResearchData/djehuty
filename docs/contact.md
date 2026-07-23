@@ -27,7 +27,7 @@ If you have questions, suggestions, or would like to contribute to the
 Software Engineer @ TU Delft
 
 **Kairo de Araujo** |
-[g.kuhn@tudelft.nl](mailto:K.F.deAraujo@tudelft.nl) |
+[K.F.deAraujo@tudelft.nl](mailto:K.F.deAraujo@tudelft.nl) |
 Senior Software Engineer @ TU Delft
 
 **For general questions about 4TU.ResearchData** :
