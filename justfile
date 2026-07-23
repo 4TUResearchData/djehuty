@@ -86,6 +86,14 @@ docs-html: docs-pdf
         -e 's#<br />#<br>#g' djehuty.html > index.html && \
     printf "Generated index.html.\n"
 
+# Build Markdown documentation with MkDocs
+docs-md:
+    uv run --group docs mkdocs build
+
+# Serve Markdown documentation locally with live reload
+docs-md-serve:
+    uv run --group docs mkdocs serve
+
 # Clean documentation build artifacts
 docs-clean:
     cd doc && rm -rf \

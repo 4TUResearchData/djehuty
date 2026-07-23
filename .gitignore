@@ -21,6 +21,7 @@ pylint.log
 *__pycache__*
 dist/
 build/
+site/
 dump/
 rpmbuild/BUILD/
 rpmbuild/RPMS/
@@ -33,7 +34,6 @@ djehuty.xml
 djehuty.json
 guix.scm
 doc/djehuty.sty
-doc/figures/*.svg
 doc/fonts
 *.bak
 *.BAK
