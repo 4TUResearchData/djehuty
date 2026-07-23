@@ -16,9 +16,9 @@ WHERE {
                        djht:index               ?order_index .
 
     ?related           djht:type              ?type_uri .
-    ?type_uri          rdfs:label             ?type .
+    OPTIONAL { ?type_uri rdfs:label           ?type . }
     ?related           djht:relation          ?relation_uri .
-    ?relation_uri      rdfs:label             ?relation .
+    OPTIONAL { ?relation_uri rdfs:label       ?relation . }
     ?related           djht:url               ?url .
 
     BIND(STRAFTER(STR(?type_uri),     "PhysicalSampleRelatedResource") AS ?type_id)

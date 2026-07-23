@@ -16,7 +16,7 @@ WHERE {
                        djht:index               ?order_index .
 
     ?date_entry        djht:date_type           ?date_type_uri .
-    ?date_type_uri     rdfs:label               ?date_type .
+    OPTIONAL { ?date_type_uri rdfs:label        ?date_type . }
     ?date_entry        djht:date                ?date_raw .
     ?date_entry        djht:created_date        ?created_date .
 
