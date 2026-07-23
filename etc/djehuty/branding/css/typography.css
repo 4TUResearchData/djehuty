@@ -1,0 +1,81 @@
+/* 4TU.ResearchData 2026 branding — typography hierarchy.
+
+   Instance-scoped overrides, loaded through <custom-stylesheet> after main.css
+   so the upstream defaults stay untouched for other djehuty instances (see
+   footer.css for the full rationale).
+
+   Brand system:
+     Aspekta        — the backbone. Titles, introductory text and body copy.
+                      Clear, structured, calm, easy to scan.
+     Space Grotesk  — the data-driven accent (var(--font-ui)). Reserved for
+                      subtitles and the metadata labels that structure a
+                      dataset page, where its slightly technical character
+                      reads as "this is data".
+
+   main.css styles h1 only; h2 and h3 fall back to inconsistent browser
+   defaults, which is what blurred the hierarchy. The scale below is anchored
+   to the 12pt body set in main.css and steps up in ~1.25 increments so that
+   titles, subtitles and body copy are unmistakably distinct. Everything is
+   scoped to #content to leave the header, primary menu and footer as they are. */
+
+/* Body & lists — generous line height for readability. -------------------- */
+#content p,
+#content li {
+    line-height: 1.6;
+}
+
+/* Titles — Aspekta, the backbone. ---------------------------------------- */
+#content h1 {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 27pt;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.5em 0;
+}
+
+#content h2 {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 18pt;
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+    text-transform: none;
+    margin: 1.75em 0 0.5em 0;
+}
+
+/* The inline "All" affordance in a title stays a quiet utility accent rather
+   than inheriting the 27pt title size. */
+#content h1 .h1-suffix {
+    font-family: var(--font-ui);
+    font-weight: 400;
+    font-size: 12pt;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+/* Menu — Space Grotesk throughout. --------------------------------------
+   The top-level menu titles are bare text in the <li> and inherit the Aspekta
+   body font, while the dropdown links already use --font-ui, so the menu
+   visibly mixed the two faces. Setting the whole primary menu (and the submenu
+   action bar) to --font-ui makes navigation uniformly Space Grotesk. */
+#primary-menu,
+#submenu li a {
+    font-family: var(--font-ui);
+}
+
+/* Subtitles & data labels — Space Grotesk, the technical accent. ---------
+   The .label selector carries an extra id + element so it wins over the
+   per-page #wrapper #content .label rule in pub.css, which loads afterwards. */
+#content h3,
+#content h4,
+#wrapper #content h3.label {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 11pt;
+    line-height: 1.3;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #2b2b2b;
+    margin: 1.5em 0 0.5em 0;
+}
