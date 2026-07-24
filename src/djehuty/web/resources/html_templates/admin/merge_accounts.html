@@ -17,6 +17,7 @@
 #merge-containers-table .flag.draft { background: #f0e6c0; }
 #merge-confirm-wrapper { margin-top: 1em; }
 #merge-confirm-button.disabled { opacity: .5; pointer-events: none; }
+.destructive-warning { color: #cc0000; font-weight: bold; margin-top: 1em; }
 </style>
 {% endblock %}
 {% block submenu %}
@@ -57,11 +58,16 @@ query audit log.</p>
     <span class="arrow">&rarr;</span>
     <span id="preview-to"></span>
   </div>
-  <p><span id="preview-count">0</span> container(s) will be moved.</p>
+  <p>The <span id="preview-count">0</span> container(s) below will be moved
+  from <strong id="preview-from-email"></strong> to
+  <strong id="preview-to-email"></strong>.</p>
   <table id="merge-containers-table" class="corporate-identity-table">
     <thead><tr><th>Type</th><th>Title</th><th>DOI</th><th>State</th><th>Container UUID</th></tr></thead>
     <tbody id="merge-containers-tbody"></tbody>
   </table>
+  <p class="destructive-warning">Warning: this is a destructive action that
+  cannot be undone from the UI. Ownership of the containers listed above will
+  be permanently reassigned.</p>
   <div id="merge-confirm-wrapper" class="center">
     <a id="merge-confirm-button" href="#" class="button corporate-identity-standard-button disabled">Confirm merge</a>
   </div>

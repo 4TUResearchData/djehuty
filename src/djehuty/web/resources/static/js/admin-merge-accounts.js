@@ -54,6 +54,8 @@ function load_preview (event) {
         merge_preview_state = data;
         jQuery("#preview-from").html (render_account_summary (data.from_account));
         jQuery("#preview-to").html (render_account_summary (data.to_account));
+        jQuery("#preview-from-email").text (data.from_account.email || data.from_account.uuid);
+        jQuery("#preview-to-email").text (data.to_account.email || data.to_account.uuid);
         jQuery("#preview-count").text (data.containers.length);
         render_containers_table (data.containers);
         jQuery("#merge-preview").show();

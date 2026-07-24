@@ -3382,6 +3382,9 @@ class WebServer:
         if not self.db.may_administer (token):
             return self.error_403 (request)
 
+        admin_account = self.db.account_by_session_token (token)
+        admin_uuid = value_or_none (admin_account, "uuid")
+
         try:
             parameters = request.get_json()
         except BadRequest:
@@ -3404,13 +3407,18 @@ class WebServer:
         if to_account is None:
             return self.error_400 (request, "Target account does not exist.", 400)
 
-        container_count = len (self.db.containers_for_account_merge (from_uuid))
+        containers = self.db.containers_for_account_merge (from_uuid)
+        container_uuids = [value_or_none (container, "container_uuid")
+                           for container in containers]
+        container_count = len (containers)
         if not self.db.merge_account_ownership (from_uuid, to_uuid):
             self.log.error ("Account merge from %s to %s failed.", from_uuid, to_uuid)
             return self.error_500 ("Failed to merge accounts.")
 
-        self.log.info ("Merged %s containers from account %s to account %s.",
-                       container_count, from_uuid, to_uuid)
+        self.log.info ("Admin %s merged %s containers from account %s to "
+                       "account %s. Moved containers: %s.",
+                       admin_uuid, container_count, from_uuid, to_uuid,
+                       ", ".join (filter (None, container_uuids)) or "(none)")
         self.db.cache.invalidate_all ()
 
         return self.response (json.dumps({
