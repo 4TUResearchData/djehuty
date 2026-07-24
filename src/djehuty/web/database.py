@@ -2670,9 +2670,18 @@ class SparqlInterface:
         container_uri = rdf.uuid_to_uri (container_uuid, "container")
         dataset_uri   = rdf.uuid_to_uri (dataset_uuid, "dataset")
 
+        # Only single-version datasets can be retracted.
+        versions = self.dataset_versions (container_uri=container_uri)
+        if versions is not None and len (versions) > 1:
+            self.log.error (
+                "Admin retract refused: container %s has %s published "
+                "versions; only single-version datasets can be retracted.",
+                container_uuid, len (versions))
+            return False
+
         # STEP 3 — flip is_active / is_public / is_latest 1 -> 0 on the
         # published version.
-        step3 = self.__query_from_template ("admin_retract_flip_published", {
+        step3 = self.__query_from_template ("retract/admin_retract_flip_published", {
             "container_uri": container_uri,
             "dataset_uri":   dataset_uri,
         })
@@ -2682,7 +2691,7 @@ class SparqlInterface:
 
         # STEP 4 — move published_versions -> retracted_versions, promote draft.
         step4 = self.__query_from_template (
-            "admin_retract_move_versions_and_promote_draft", {
+            "retract/admin_retract_move_versions_and_promote_draft", {
                 "container_uri": container_uri,
                 "dataset_uri":   dataset_uri,
             })
@@ -2692,7 +2701,7 @@ class SparqlInterface:
 
         # STEP 5 — find any Review attached to this dataset and delete it.
         find_review_query = self.__query_from_template (
-            "admin_retract_find_review", { "dataset_uri": dataset_uri })
+            "retract/admin_retract_find_review", { "dataset_uri": dataset_uri })
         if config.enable_query_audit_log:
             self.__log_query (find_review_query, "Query Audit Log")
         reviews = self.__run_query (find_review_query)
@@ -2702,7 +2711,7 @@ class SparqlInterface:
                 continue
             self.log.info ("Admin retract: deleting review %s", review_uri)
             delete_review_query = self.__query_from_template (
-                "admin_retract_delete_review", { "review_uri": review_uri })
+                "retract/admin_retract_delete_review", { "review_uri": review_uri })
             if not self.__run_logged_query (delete_review_query):
                 self.log.error (
                     "Admin retract failed at STEP 5c (delete review %s).",
@@ -2710,7 +2719,7 @@ class SparqlInterface:
                 return False
 
         # STEP 6 — flip draft.is_active 0 -> 1.
-        step6 = self.__query_from_template ("admin_retract_flip_draft_active", {
+        step6 = self.__query_from_template ("retract/admin_retract_flip_draft_active", {
             "container_uri": container_uri,
             "dataset_uri":   dataset_uri,
         })
@@ -2721,7 +2730,7 @@ class SparqlInterface:
         # STEP 7 — strip published_date, posted_date, is_under_review,
         # first_online_date.
         step7 = self.__query_from_template (
-            "admin_retract_strip_publish_metadata", {
+            "retract/admin_retract_strip_publish_metadata", {
                 "container_uri": container_uri,
                 "dataset_uri":   dataset_uri,
             })

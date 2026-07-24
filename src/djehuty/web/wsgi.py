@@ -3730,15 +3730,23 @@ class WebServer:
                                         limit=50)
             output = []
             for dataset in records:
+                container_uuid = dataset.get("container_uuid")
+                # version_count lets the UI block multi-version datasets early.
+                version_count = None
+                if container_uuid is not None:
+                    versions = self.db.dataset_versions (
+                        container_uri=uuid_to_uri (container_uuid, "container"))
+                    version_count = len (versions) if versions is not None else None
                 output.append ({
                     "uuid":            dataset.get("uuid"),
-                    "container_uuid":  dataset.get("container_uuid"),
+                    "container_uuid":  container_uuid,
                     "account_uuid":    dataset.get("account_uuid"),
                     "title":           dataset.get("title"),
                     "doi":             dataset.get("doi"),
                     "version":         dataset.get("version"),
                     "published_date":  dataset.get("published_date"),
                     "is_embargoed":    dataset.get("is_embargoed"),
+                    "version_count":   version_count,
                 })
             return self.response (json.dumps(output))
         except validator.ValidationException as error:
@@ -3800,6 +3808,16 @@ class WebServer:
                     request,
                     "Confirmation DOI does not match the dataset DOI.",
                     "ConfirmationMismatch")
+
+            # Only single-version datasets can be retracted.
+            container_uri = uuid_to_uri (container_uuid, "container")
+            versions = self.db.dataset_versions (container_uri=container_uri)
+            if versions is not None and len (versions) > 1:
+                return self.error_400 (
+                    request,
+                    "This dataset has more than one published version and "
+                    "cannot be retracted via this tool.",
+                    "MultipleVersions")
 
             admin_account = self.db.account_by_session_token (token)
             admin_account_uuid = None

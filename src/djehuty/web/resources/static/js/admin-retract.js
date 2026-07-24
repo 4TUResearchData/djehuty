@@ -70,8 +70,23 @@ jQuery(document).ready(function () {
         }
     });
 
+    function has_single_version (d) {
+        // Only single-version datasets can be retracted (backend enforces it).
+        if (d && typeof d.version_count === "number") {
+            return d.version_count <= 1;
+        }
+        return true;
+    }
+
     jQuery("#retract-results-body").on("click", "tr", function () {
-        selected_dataset = jQuery(this).data("dataset");
+        var dataset = jQuery(this).data("dataset");
+        if (!has_single_version (dataset)) {
+            show_message ("failure",
+                "<p>This dataset has more than one published version and " +
+                "cannot be retracted via this tool.</p>");
+            return;
+        }
+        selected_dataset = dataset;
         jQuery("#retract-results-body tr").removeClass("selected-row");
         jQuery(this).addClass("selected-row");
         populate_step_2 (selected_dataset);
