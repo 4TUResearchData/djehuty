@@ -1,0 +1,78 @@
+/* 4TU.ResearchData 2026 branding — Vibrant Orange on controls.
+
+   Instance-scoped, loaded through <custom-stylesheet> after main.css and the
+   generated /theme/colors.css. Puts the Vibrant Orange (#FF6829) on buttons
+   and links. Note: white on #FF6829 is ~2.9:1, below WCAG AA. */
+
+:root {
+    --warm-orange:    #F29100;
+    --vibrant-orange: #FF6829;
+    --vibrant-hover:  #f2551a;
+    --vibrant-active: #db4a12;
+    --fresh-blue: #B9DBEF;
+    --soft-grey: #969696;
+    --dark-grey: #3C3C3C;
+    --off-white: #FBF5E9;
+}
+
+/* Buttons / filled surfaces -> vibrant orange (white text kept). ----------- */
+.public-button,
+#files ul li.zip,
+.h1-suffix,
+.corporate-identity li.active,
+.corporate-identity-table thead tr,
+.corporate-identity-table thead tr th {
+    background: var(--vibrant-orange);
+}
+.public-button:hover,
+.h1-suffix:hover { background: var(--vibrant-hover); }
+.public-button:active,
+.h1-suffix:active { background: var(--vibrant-active); }
+
+/* Login button -> warm orange (primary brand colour), white text kept. ----- */
+#login-button { background: var(--warm-orange); }
+#login-button:hover { background: #D97E00; }
+#login-button:active { background: #B36700; }
+
+.corporate-identity-standard-button { background: var(--vibrant-orange) !important; }
+.corporate-identity-standard-button:hover { background: var(--vibrant-hover) !important; }
+.corporate-identity-standard-button:active { background: var(--vibrant-active) !important; }
+.publish-button a { background: var(--vibrant-orange) !important; }
+.publish-button a:hover { background: var(--vibrant-hover) !important; }
+.publish-button a:active { background: var(--vibrant-active) !important; }
+
+/* Links -> vibrant orange text. ------------------------------------------- */
+.corporate-identity,
+ul.latest-datasets li a,
+#files ul li a,
+.sub-submenu-item a {
+    color: var(--vibrant-orange);
+}
+.corporate-identity:hover,
+ul.latest-datasets li a:hover,
+#files ul li a:hover,
+.sub-submenu-item a:hover {
+    color: var(--vibrant-hover);
+}
+
+/* Category chips carry BOTH .corporate-identity and .public-button, so their
+   label must stay white with higher specificity than the link colour above,
+   otherwise it renders orange-on-orange and disappears. */
+.corporate-identity.public-button,
+.corporate-identity.public-button:hover,
+.corporate-identity.public-button:active { color: #ffffff; }
+
+/* DOI value pill -> warm orange background with white text. pub.css sets both
+   later with high specificity, so !important is needed. (White on #F29100 is
+   ~2.4:1, below WCAG AA.) */
+/*#wrapper #content #doi span.doi-value {*/
+/*    background-color: var(--warm-orange) !important;*/
+/*    color: #FBF5E9 !important;*/
+/*}*/
+
+#wrapper #content #doi span.doi-value {
+    background-color: var(--warm-orange) !important;
+    /*color: #ffffff !important;*/
+    color: var(--dark-grey) !important;
+    border-color: var(--warm-orange) !important;
+}
