@@ -81,9 +81,7 @@ a.inline-button.open:active,
 }
 
 /* Delete — outlined, so it reads as a warning rather than as one more
-   coloured button, and so it does not compete with Submit for review. The red
-   is the vibrant orange pulled round and down until it carries as text:
-   5.3:1 on the toolbar, 5.2:1 with off white once it fills. */
+   coloured button. */
 #submenu li.delete-button a {
     background: transparent;
     color: var(--btn-delete);
@@ -122,9 +120,7 @@ a.inline-button.open:active,
     color: var(--off-white);
 }
 
-/* Destructive — decline, cancel and log out. These stay filled: they appear
-   on their own, where there is no row of buttons for an outline to stand
-   apart from. */
+/* Destructive, decline, cancel and log out. These stay filled. */
 #submenu li.decline-button a,
 .cancel-button,
 a.inline-button.close {
@@ -145,6 +141,26 @@ a.inline-button.close:active {
 }
 #logout-button { color: var(--btn-danger); }
 #logout-button:hover { color: var(--btn-danger-hover); }
+
+/* Selects in the action bar for the overview. Reviewer and status filters. */
+#submenu li select {
+    font-family: var(--font-ui);
+    font-size: 12pt;
+    color: var(--dark-grey);
+    background: #ffffff;
+    border: solid 1pt #c4c4c4;
+    border-radius: 4pt;
+    padding: 2pt 6pt;
+    line-height: 1.75em;
+    text-transform: none;
+    vertical-align: middle;
+    margin-left: .35em;
+}
+#submenu li select:hover { border-color: var(--dark-grey); cursor: pointer; }
+#submenu li select:focus-visible {
+    outline: 2px solid var(--dark-grey);
+    outline-offset: 2px;
+}
 
 /* Keyboard focus, which main.css leaves to the browser default and the filled
    backgrounds swallow. */
