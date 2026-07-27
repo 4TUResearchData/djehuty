@@ -3854,15 +3854,17 @@ class WebServer:
         if isinstance (account_uuid, Response):
             return account_uuid
 
-        reviewer_token  = self.token_from_cookie (request, self.impersonator_cookie_key)
-        submitter_token = self.token_from_request (request)
+        reviewer_token = self.token_from_cookie (request, self.impersonator_cookie_key)
         may_review_all = self.db.may_review (reviewer_token)
         may_review_institution = self.db.may_review_institution (reviewer_token)
         if not may_review_all and not may_review_institution:
-            # When using the API, the impersonator cookie isn't set,
-            # so we fall back to using the regular token.
-            may_review_all = self.db.may_review (submitter_token)
-            may_review_institution = self.db.may_review_institution (submitter_token)
+            # When using the API, the impersonator cookie isn't set, so we fall
+            # back to the caller's own token.  Keep using it as the reviewer's
+            # token from here on, otherwise the institutional check below has no
+            # reviewer to compare the sample against.
+            reviewer_token = self.token_from_request (request)
+            may_review_all = self.db.may_review (reviewer_token)
+            may_review_institution = self.db.may_review_institution (reviewer_token)
             if not may_review_all and not may_review_institution:
                 return self.error_403 (request)
 
@@ -3919,7 +3921,11 @@ class WebServer:
         may_review_all = self.db.may_review (reviewer_token)
         may_review_institution = self.db.may_review_institution (reviewer_token)
         if not may_review_all and not may_review_institution:
-            return self.error_403 (request)
+            reviewer_token = self.token_from_request (request)
+            may_review_all = self.db.may_review (reviewer_token)
+            may_review_institution = self.db.may_review_institution (reviewer_token)
+            if not may_review_all and not may_review_institution:
+                return self.error_403 (request)
 
         sample = self.__physical_sample_by_id_or_uri (container_uuid,
                                                       account_uuid = account_uuid,
@@ -3963,6 +3969,9 @@ class WebServer:
         if not validator.is_valid_uuid (reviewer_uuid):
             return self.error_403 (request)
 
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
         account_token = self.token_from_cookie (request, self.cookie_key)
         may_review_all = self.db.may_review (account_token)
         may_review_institution = self.db.may_review_institution (account_token)
@@ -3981,6 +3990,12 @@ class WebServer:
 
         if sample is None or reviewer is None:
             return self.error_403 (request)
+
+        ## An institutional reviewer may only act on samples of its own group,
+        if may_review_institution:
+            account = self.db.account_by_session_token (account_token)
+            if value_or (sample, "group_id", "A") != value_or (account, "group_id", "not-A"):
+                return self.error_403 (request)
 
         if self.db.update_review (value_or_none (sample, "review_uri"),
                                   author_account_uuid = sample["account_uuid"],
