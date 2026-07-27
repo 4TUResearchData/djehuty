@@ -1,21 +1,23 @@
 /* 4TU.ResearchData 2026 branding.
 
    Instance-scoped overrides, loaded through <custom-stylesheet> so that the
-   upstream defaults in main.css stay untouched for other djehuty instances.
+   defaults in main.css stay untouched for other djehuty instances.
    This file is served from the /assets root, which satisfies the
    'style-src self' content-security-policy; an inline <style> in the footer
    configuration would be blocked. */
 
-/* main.css lays the footer out as a fixed-height three-column multicol. The
-   2026 brand column is taller than that, and the overflow spills sideways into
-   a fourth column, so let the content drive the height instead. */
 #footer-wrapper {
     height: auto;
     column-count: initial;
     display: flex;
-    align-items: flex-start;
+    /* Equal-height columns, so the three blocks share one bottom edge instead
+       of each ending wherever its content runs out. */
+    align-items: stretch;
     flex-wrap: wrap;
-    padding-bottom: 2em;
+    /* Spacing steps come from spacing.css. */
+    gap: var(--brand-space-xl, 52pt);
+    padding-top: var(--brand-space-l, 34pt);
+    padding-bottom: var(--brand-space-l, 34pt);
 }
 
 /* .footer-column sets margin:auto, and auto cross-axis margins beat
@@ -24,11 +26,129 @@
     height: auto;
     margin: 0;
     flex: 1 1 260px;
+    padding: 0;
 }
 
-/* The brand images are supplied at their full source resolution, the logo being
-   4939px wide, so the footer has to bound them. The logo is the tagline
-   lockup: its spacing is set in the asset itself, so it is placed as one
-   image rather than assembled here from the separate symbol and wordmark. */
-#footer-wrapper .footer-logo { height: 72px; width: auto; }
-#footer-wrapper .footer-partner-logo { height: 36px; width: auto; margin-top: .5em; }
+/* Inside a column, separate the blocks and let the lines breathe.*/
+#footer-wrapper .footer-column > * + * {
+    margin-top: var(--brand-space-s, 14pt);
+}
+#footer-wrapper .footer-column p,
+#footer-wrapper .footer-column li {
+    line-height: 1.7;
+    margin-bottom: 0;
+}
+#footer-wrapper .footer-column ul {
+    list-style: none;
+    margin: var(--brand-space-xs, 8pt) 0 0 0;
+    padding: 0;
+}
+#footer-wrapper .footer-column li + li {
+    margin-top: var(--brand-space-2xs, 4pt);
+}
+
+/* One heading treatment, matching the utility style in typography.css: Space
+   Grotesk, uppercase, tracked out, quiet. */
+#footer-wrapper .footer-column h1,
+#footer-wrapper .footer-column h2,
+#footer-wrapper .footer-column h3,
+#footer-wrapper .footer-column h4 {
+    font-family: var(--font-ui);
+    font-size: 10pt;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+    margin: 0 0 var(--brand-space-xs, 8pt) 0;
+}
+
+/* Body copy and links sit one step back from the headings */
+#footer-wrapper .footer-column,
+#footer-wrapper .footer-column p,
+#footer-wrapper .footer-column li {
+    font-size: 11pt;
+    color: #e6e2da;
+}
+#footer-wrapper .footer-column a {
+    color: #e6e2da;
+    text-decoration: none;
+}
+#footer-wrapper .footer-column a:hover,
+#footer-wrapper .footer-column a:focus-visible {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* Logos. */
+#footer-wrapper .footer-logo { height: 52px; width: auto; }
+#footer-wrapper .footer-partner-logo {
+    height: 42px;
+    width: auto;
+    margin-top: var(--brand-space-xs, 8pt);
+}
+
+#footer .logos {
+    height: 56px;
+}
+#footer #whitelogos {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+}
+#footer #whitelogos::before {
+    content: "";
+    flex: none;
+    width: 40px;
+    height: 40px;
+    /* Pushes the institution logos to the far edge, so the two marks bracket
+       the band rather than clustering. */
+    margin-right: auto;
+    background-image: url("/assets/images/4TUResearchData_Symbol_OffWhite.png");
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: contain;
+}
+
+/* The Core Trust Seal */
+#footer-wrapper img.cts { width: 84px; }
+
+/* The contact column carries the most blocks, so it is the one that ran past
+   the others. */
+#footer-wrapper .footer-column:last-child > * + * {
+    margin-top: var(--brand-space-xs, 8pt);
+}
+#footer-wrapper .footer-column:last-child p {
+    line-height: 1.5;
+}
+
+/* Brand pattern ----------------------------------------------------------*/
+#footer {
+    position: relative;
+    background-color: var(--dark-grey, #3C3C3C);
+    overflow: hidden;
+}
+#footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    right: 0;
+    bottom: 0;
+    background-image: url("/assets/images/4TUResearchData_Pattern_Rectangle_07.png");
+    /* One copy, exactly as tall as the footer */
+    background-repeat: repeat-x;
+    background-position: right top;
+    background-size: auto 100%;
+    /* Full strength at the right edge. */
+    -webkit-mask-image: linear-gradient(to left, #000 0%, rgba(0,0,0,0.55) 45%, transparent 100%);
+    mask-image: linear-gradient(to left, #000 0%, rgba(0,0,0,0.55) 45%, transparent 100%);
+    pointer-events: none;
+}
+
+/* Keep the footer's own content above the pattern.*/
+#footer > * {
+    position: relative;
+    z-index: 1;
+}

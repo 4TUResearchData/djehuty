@@ -1,0 +1,72 @@
+/* 4TU.ResearchData 2026 branding — spacing & layout.
+
+   Instance-scoped overrides, loaded through <custom-stylesheet> after main.css
+   so the defaults stay untouched for other djehuty instances.*/
+
+/* The scale — a 4pt base, stepping up by roughly 1.5. Six steps is enough to
+   describe every gap on the page; anything not on the scale is a one-off that
+   should be argued for rather than typed. */
+:root {
+    --brand-space-2xs:  4pt;   /* inside a line of text */
+    --brand-space-xs:   8pt;
+    --brand-space-s:   14pt;   /* inside a card */
+    --brand-space-m:   22pt;   /* between cards, title to its block */
+    --brand-space-l:   34pt;   /* after a block */
+    --brand-space-xl:  52pt;   /* between sections */
+}
+
+/* Page frame — more room under the menu, and more space before the footer */
+#wrapper #content-wrapper {
+    padding-top: var(--brand-space-l);
+    padding-bottom: calc(var(--brand-space-xl) * 1.5);
+}
+
+/* Headings — let a title breathe before the block. ---------- */
+#wrapper #content h1 {
+    margin-bottom: var(--brand-space-m);
+}
+
+/* Front page section rhythm ----------------------------------------------
+   Summary, Institutions, Subjects and Latest */
+#wrapper.footer1 #content h1 {
+    margin-top: var(--brand-space-xl);
+}
+#wrapper.footer1 #content h1:first-of-type {
+    margin-top: var(--brand-space-xs);
+}
+
+/* Summary figures — space between the rows. */
+#wrapper #content #portal-summary {
+    padding: var(--brand-space-m) var(--brand-space-xs) var(--brand-space-m) 0pt;
+}
+#wrapper #content .portal-summary-item {
+    margin: var(--brand-space-2xs) 0pt;
+}
+
+/* Subjects & Institutions  */
+#wrapper #content .tiles-wrapper {
+    margin-bottom: var(--brand-space-l);
+}
+#wrapper #content .tiles li {
+    margin-bottom: var(--brand-space-s);
+}
+
+/* Dataset, collection and author pages ----------------------------------
+   Every metadata section on these pages opens with an h3.label — History,
+   Publisher, Format, Funding, Organizations, and their equivalents in the
+   right-hand column. The gap between sections is that heading's top margin,
+   so widening it here separates the sections everywhere at once.*/
+#wrapper #content h3.label {
+    margin-top: var(--brand-space-m);
+    margin-bottom: var(--brand-space-xs);
+}
+
+/* Latest datasets — roomier cards, and a clearer gap between the title and
+   the author line inside each one. */
+#wrapper #content .latest-item {
+    padding: var(--brand-space-s) var(--brand-space-m);
+    margin-bottom: var(--brand-space-s);
+}
+#wrapper #content .latest-item .authors {
+    margin-top: var(--brand-space-xs);
+}
