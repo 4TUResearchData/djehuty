@@ -15,6 +15,24 @@
     --off-white: #FBF5E9;
 }
 
+/* Text -> dark grey, the brand's dark ink, instead of pure black. 10.2:1 on the
+   off white page, so it reads as softer without giving anything up.
+
+   main.css sets #000000 on the body and then again on each of these, so the
+   body alone does not cascade; every one has to be named. */
+body,
+html,
+#content,
+h1,
+a,
+#primary-menu li,
+.submenu-item a,
+#submenu li,
+#submenu li.active,
+.tabs li {
+    color: var(--dark-grey);
+}
+
 /* Buttons / filled surfaces -> vibrant orange (white text kept). ----------- */
 .public-button,
 .h1-suffix,
