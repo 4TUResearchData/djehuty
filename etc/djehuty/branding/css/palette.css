@@ -17,12 +17,21 @@
 
 /* Buttons / filled surfaces -> vibrant orange (white text kept). ----------- */
 .public-button,
-#files ul li.zip,
 .h1-suffix,
-.corporate-identity li.active,
+.corporate-identity li.active {
+    background: var(--vibrant-orange);
+}
+
+/* Tables -> warm orange, header and frame together. colors.css draws the
+   frame in primary-color, so it is set here too or the frame and the header
+   sit a shade apart. The header keeps the black text from
+   primary-foreground-color, which is 8.8:1 on warm orange. */
 .corporate-identity-table thead tr,
 .corporate-identity-table thead tr th {
-    background: var(--vibrant-orange);
+    background: var(--warm-orange);
+}
+.corporate-identity-table {
+    border-color: var(--warm-orange);
 }
 .public-button:hover,
 .h1-suffix:hover { background: var(--vibrant-hover); }

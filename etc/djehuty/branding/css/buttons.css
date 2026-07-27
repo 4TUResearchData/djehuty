@@ -1,0 +1,158 @@
+/* 4TU.ResearchData 2026 branding — buttons.
+
+   Instance-scoped for buttons, loaded after palette.css.
+   Being a bit careful about the accessibility check so we
+   cannot fully implement all color. */
+
+:root {
+    --btn-request:        #B9DBEF;  /* fresh blue, at full strength */
+    --btn-request-hover:  #A6CFE7;
+    --btn-request-active: #93C3DF;
+
+    --btn-neutral:        #3C3C3C;
+    --btn-neutral-hover:  #2A2A2A;
+    --btn-neutral-active: #1A1A1A;
+
+    --btn-delete:         #C7290F;  /* the vibrant orange, turned red */
+    --btn-delete-hover:   #B32D14;
+
+    --btn-danger:         #8E1B2E;
+    --btn-danger-hover:   #761724;
+    --btn-danger-active:  #5E121D;
+}
+
+/* Fresh blue — the working buttons on the edit page, plus the two request
+   links. Dark grey on the blue is 7.6:1.
+
+   edit-dataset.html and edit-collection.html set .preview-button and
+   .private-links-button inline with !important, in a <style> block the layout
+   renders after the custom stylesheets, so !important is needed here to land.
+   The id keeps this ahead of the template's plain class selector. */
+a.inline-button.open,
+#submenu li.save-button a,
+#submenu li.preview-button a,
+#submenu li.private-links-button a,
+#save_bottom {
+    background: var(--btn-request) !important;
+    color: var(--dark-grey) !important;
+}
+a.inline-button.open:hover,
+#submenu li.save-button a:hover,
+#submenu li.preview-button a:hover,
+#submenu li.private-links-button a:hover,
+#save_bottom:hover {
+    background: var(--btn-request-hover) !important;
+    color: var(--dark-grey) !important;
+}
+a.inline-button.open:active,
+#submenu li.save-button a:active,
+#submenu li.preview-button a:active,
+#submenu li.private-links-button a:active,
+#save_bottom:active {
+    background: var(--btn-request-active) !important;
+    color: var(--dark-grey) !important;
+}
+
+/* Submit for review — the one action the edit page is working towards, so it
+   keeps the vibrant orange the other primary buttons use. */
+#submenu li.submit-button a {
+    background: var(--vibrant-orange);
+    color: #ffffff;
+}
+#submenu li.submit-button a:hover {
+    background: var(--vibrant-hover);
+    color: #ffffff;
+}
+#submenu li.submit-button a:active {
+    background: var(--vibrant-active);
+    color: #ffffff;
+}
+
+/* Download all files — warm orange. Its label and byte count are links and
+   would otherwise inherit the orange link colour from palette.css. Dark grey
+   on #F29100 is 4.6:1; white would be 2.4:1 and fail AA. */
+#files ul li.zip { background: var(--warm-orange); }
+#files ul li.zip:hover { background: #D97E00; }
+#files ul li.zip:active { background: #B36700; }
+#files ul li.zip a,
+#files ul li.zip a:hover,
+#files ul li.zip #total_size {
+    color: var(--dark-grey);
+}
+
+/* Delete — outlined, so it reads as a warning rather than as one more
+   coloured button, and so it does not compete with Submit for review. The red
+   is the vibrant orange pulled round and down until it carries as text:
+   5.3:1 on the toolbar, 5.2:1 with off white once it fills. */
+#submenu li.delete-button a {
+    background: transparent;
+    color: var(--btn-delete);
+    border: solid 1pt var(--btn-delete);
+    font-weight: 500;
+}
+#submenu li.delete-button a:hover {
+    background: var(--btn-delete);
+    color: var(--off-white);
+    border-color: var(--btn-delete);
+}
+#submenu li.delete-button a:active {
+    background: var(--btn-delete-hover);
+    color: var(--off-white);
+    border-color: var(--btn-delete-hover);
+}
+
+/* Neutral — navigation and everything unclassified. ---------------------- */
+#submenu li a,
+#dashboard-button,
+#dashboard-button a,
+#submenu li.orcid-button a {
+    background: var(--btn-neutral);
+    color: var(--off-white);
+}
+#submenu li a:hover,
+#dashboard-button:hover,
+#submenu li.orcid-button a:hover {
+    background: var(--btn-neutral-hover);
+    color: var(--off-white);
+}
+#submenu li a:active,
+#dashboard-button:active,
+#submenu li.orcid-button a:active {
+    background: var(--btn-neutral-active);
+    color: var(--off-white);
+}
+
+/* Destructive — decline, cancel and log out. These stay filled: they appear
+   on their own, where there is no row of buttons for an outline to stand
+   apart from. */
+#submenu li.decline-button a,
+.cancel-button,
+a.inline-button.close {
+    background: var(--btn-danger) !important;
+    color: var(--off-white);
+}
+#submenu li.decline-button a:hover,
+.cancel-button:hover,
+a.inline-button.close:hover {
+    background: var(--btn-danger-hover) !important;
+    color: var(--off-white);
+}
+#submenu li.decline-button a:active,
+.cancel-button:active,
+a.inline-button.close:active {
+    background: var(--btn-danger-active) !important;
+    color: var(--off-white);
+}
+#logout-button { color: var(--btn-danger); }
+#logout-button:hover { color: var(--btn-danger-hover); }
+
+/* Keyboard focus, which main.css leaves to the browser default and the filled
+   backgrounds swallow. */
+.button:focus-visible,
+.public-button:focus-visible,
+.inline-button:focus-visible,
+#submenu li a:focus-visible,
+#files ul li.zip:focus-visible {
+    outline: 2px solid var(--dark-grey);
+    outline-offset: 2px;
+}
