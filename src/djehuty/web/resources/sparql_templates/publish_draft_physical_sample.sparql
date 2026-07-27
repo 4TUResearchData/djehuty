@@ -44,8 +44,10 @@ WHERE {
     ?container     rdf:type                      djht:PhysicalSampleContainer ;
                    djht:draft                    ?draft_sample .
     ?review        rdf:type                      djht:Review ;
-                   djht:dataset                  ?draft_sample ;
-                   djht:status                   ?review_status .
+                   djht:dataset                  ?draft_sample .
+    {#- A review only gets a status once a reviewer is assigned to it.  Keep it
+     #- optional so that publishing an unassigned review is not silently. #}
+    OPTIONAL { ?review djht:status                ?review_status . }
 
     {%- if not first_publication %}
     {#- The container holds exactly one published record, so its

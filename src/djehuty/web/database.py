@@ -3228,9 +3228,26 @@ class SparqlInterface:
             self.cache.invalidate_by_prefix ("reviews")
             self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
             self.cache.invalidate_by_prefix ("physical-samples")
+            if not self.__physical_sample_is_published (container_uuid, sample_uuid):
+                self.log.error ("Publishing physical sample %s did not change its state.",
+                                container_uuid)
+                return False
             return True
 
         return False
+
+    def __physical_sample_is_published (self, container_uuid, sample_uuid):
+        """Returns True when SAMPLE_UUID is the published record of its container."""
+
+        try:
+            published = self.physical_samples (container_uuid = container_uuid,
+                                               is_published   = True,
+                                               is_latest      = True,
+                                               use_cache      = False)[0]
+        except IndexError:
+            return False
+
+        return conv.value_or_none (published, "sample_uuid") == sample_uuid
 
     def decline_physical_sample (self, container_uuid, account_uuid):
         """Procedure to decline a draft physical sample."""
@@ -3239,10 +3256,13 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
         self.cache.invalidate_by_prefix ("physical-samples")
 
+        # Read the current state fresh so this read doesn't repopulate the
+        # cache with some pre-decline data.
         try:
             self.physical_samples (container_uuid = container_uuid,
                                    is_published   = False,
-                                   is_latest      = False)[0]
+                                   is_latest      = False,
+                                   use_cache      = False)[0]
         except IndexError:
             self.log.error ("Attempted to decline without a draft <container:%s>.",
                             container_uuid)
@@ -3255,10 +3275,32 @@ class SparqlInterface:
         if self.__run_logged_query (query):
             self.cache.invalidate_by_prefix ("reviews")
             self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+            self.cache.invalidate_by_prefix ("physical-samples")
+            if self.__physical_sample_is_under_review (container_uuid):
+                self.log.error ("Declining physical sample %s did not change its state.",
+                                container_uuid)
+                return False
             return True
 
         self.log.error ("Failed to decline physical sample %s", container_uuid)
         return False
+
+    def __physical_sample_is_under_review (self, container_uuid):
+        """Returns True when the container's draft is still under review.
+
+        An UPDATE whose WHERE clause matches nothing is not an error, so the
+        outcome of publishing or declining has to be verified separately.
+        """
+
+        try:
+            draft = self.physical_samples (container_uuid = container_uuid,
+                                           is_published   = False,
+                                           is_latest      = False,
+                                           use_cache      = False)[0]
+        except IndexError:
+            return False
+
+        return bool (conv.value_or (draft, "is_under_review", False))
 
     def update_physical_sample (self, title, sample_uuid, account_uuid,
                                 container_uuid=None, abstract=None, methods=None,
