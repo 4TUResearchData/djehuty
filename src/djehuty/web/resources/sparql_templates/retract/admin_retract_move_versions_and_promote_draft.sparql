@@ -1,0 +1,24 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?container djht:published_versions       ?published_versions .
+    ?container djht:latest_published_version ?dataset .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?container djht:retracted_versions ?published_versions .
+    ?container djht:draft              ?dataset .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container rdf:type                      djht:DatasetContainer ;
+               djht:published_versions       ?published_versions ;
+               djht:latest_published_version ?dataset .
+    FILTER (?container = <{{container_uri}}>)
+    FILTER (?dataset   = <{{dataset_uri}}>)
+  }
+}
+{% endblock %}
