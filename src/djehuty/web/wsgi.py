@@ -3754,15 +3754,22 @@ class WebServer:
         if not validator.is_valid_uuid (container_uuid):
             return self.error_404 (request)
 
-        sample = self.__physical_sample_by_id_or_uri (container_uuid,
-                                                      account_uuid    = account_uuid,
-                                                      is_published    = False,
-                                                      is_under_review = False)
-        if sample is None:
-            return self.error_404 (request)
-
-        record = request.get_json ()
+        ## Submitting is guarded so that two concurrent submits (a double click
+        ## or a second tab) cannot both pass the is_under_review check and each
+        ## insert a review for the same draft.
+        sample     = None
+        account    = None
+        review_uri = None
+        self.locks.lock (locks.LockTypes.SUBMIT_PHYSICAL_SAMPLE)
         try:
+            sample = self.__physical_sample_by_id_or_uri (container_uuid,
+                                                          account_uuid    = account_uuid,
+                                                          is_published    = False,
+                                                          is_under_review = False)
+            if sample is None:
+                return self.error_404 (request)
+
+            record = request.get_json ()
             errors = []
             agreed_to_deposit_agreement = validator.boolean_value (record, "agreed_to_deposit_agreement", True, False, errors)
             agreed_to_publish = validator.boolean_value (record, "agreed_to_publish", True, False, errors)
@@ -3831,20 +3838,24 @@ class WebServer:
             if not self.db.update_physical_sample (**parameters):
                 return self.error_500 ()
 
-            if self.db.insert_review (sample["uri"]) is not None:
-                subject = f"Request for review: {sample['container_uuid']}"
-                self.__send_email_to_reviewers (subject, "physical_sample_submitted_notification",
-                                                account_email = value_or_none (account, "email"),
-                                                dataset = sample,
-                                                account = account)
-                return self.respond_204 ()
+            review_uri = self.db.insert_review (sample["uri"])
 
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
         except (IndexError, KeyError):
-            pass
+            return self.error_500 ()
+        finally:
+            self.locks.unlock (locks.LockTypes.SUBMIT_PHYSICAL_SAMPLE)
 
-        return self.error_500 ()
+        if review_uri is None:
+            return self.error_500 ()
+
+        subject = f"Request for review: {sample['container_uuid']}"
+        self.__send_email_to_reviewers (subject, "physical_sample_submitted_notification",
+                                        account_email = value_or_none (account, "email"),
+                                        dataset = sample,
+                                        account = account)
+        return self.respond_204 ()
 
     def api_v3_physical_sample_publish (self, request, container_uuid):
         """Implements /v3/physical-samples/<id>/publish."""
