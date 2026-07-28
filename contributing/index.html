@@ -1410,11 +1410,12 @@ We welcome all contributions - code, documentation, bug reports, or ideas.</p>
 </ul>
 </li>
 <li><strong>Indentation</strong>: Use the same indentation style (tabs vs. spaces, number of spaces) already present in the codebase.<ul>
-<li>Line length: Keep lines within the project’s limit.</li>
+<li>Line length: Keep lines within the project’s limit (100 characters, enforced by Ruff).</li>
 <li>Comments &amp; docs: Write comments/docstrings in the same style.</li>
 </ul>
 </li>
 <li><strong>No unused code</strong>: Remove dead or commented-out code before committing.</li>
+<li><strong>Linting</strong>: Run <code>just lint</code> before committing. Ruff is enforced in CI on already-cleaned paths (see <code>lint_paths</code> in the <code>justfile</code>).</li>
 </ul>
 <h3 id="commits">Commits</h3>
 <p>All <strong>commits will be squashed into a single commit</strong> before merging into main. This has two purposes:</p>
