@@ -1,0 +1,2159 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The 4TU.ResearchData and Nikhef repository system">
+      
+      
+      
+      
+        <link rel="prev" href="../introduction/">
+      
+      
+        <link rel="next" href="../knowledge-graph/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Configuring & running djehuty - djehuty</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#configuring-djehuty" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="djehuty" class="md-header__button md-logo" aria-label="djehuty" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            djehuty
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Configuring & running djehuty
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/4TUResearchData/djehuty" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    4TUResearchData/djehuty
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="djehuty" class="md-nav__button md-logo" aria-label="djehuty" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    djehuty
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/4TUResearchData/djehuty" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    4TUResearchData/djehuty
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuring & running djehuty
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuring & running djehuty
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#essential-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Essential options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-the-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring the Database
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-trails-and-database-reconstruction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit trails and database reconstruction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Audit trails and database reconstruction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reconstructing-the-database-from-the-query-audit-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reconstructing the database from the query audit log
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring storage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-s3-buckets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring S3 buckets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-an-identity-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring an identity provider
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring an identity provider">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#saml20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SAML2.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SAML2.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-attributes-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The attributes configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-sram-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The sram configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-service-provider-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The service-provider configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orcid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ORCID
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-an-e-mail-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring an e-mail server
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-doi-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring DOI registration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-handle-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring Handle registration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-iiif-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring IIIF support
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-codecheck-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring CODECHECK requests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-dataset-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring dataset upload
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customizing-looks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing looks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Customizing looks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#customizing-colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing colors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customizing-the-menu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing the menu
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Customizing the menu">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#menu-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Menu structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-privileged-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring privileged users
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge-graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../news/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    News
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#essential-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Essential options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-the-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring the Database
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-trails-and-database-reconstruction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit trails and database reconstruction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Audit trails and database reconstruction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reconstructing-the-database-from-the-query-audit-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reconstructing the database from the query audit log
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring storage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-s3-buckets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring S3 buckets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-an-identity-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring an identity provider
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring an identity provider">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#saml20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SAML2.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SAML2.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-attributes-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The attributes configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-sram-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The sram configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-service-provider-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The service-provider configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orcid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ORCID
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-an-e-mail-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring an e-mail server
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-doi-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring DOI registration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-handle-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring Handle registration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-iiif-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring IIIF support
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-codecheck-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring CODECHECK requests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-dataset-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring dataset upload
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customizing-looks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing looks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Customizing looks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#customizing-colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing colors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customizing-the-menu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing the menu
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Customizing the menu">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#menu-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Menu structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-privileged-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring privileged users
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="configuring-djehuty">Configuring <code>djehuty</code></h1>
+<p>Now that <code>djehuty</code> is installed, it's a good moment to look into its run-time
+configuration options. All configuration can be done through a configuration
+file. A JSON example is available at <code>etc/djehuty/djehuty-example-config.json</code>.</p>
+<blockquote>
+<p><strong>Note:</strong> XML configuration is deprecated and will be removed in December 2026.
+Migrate to JSON (see <code>etc/djehuty/djehuty-example-config.json</code>).</p>
+</blockquote>
+<h2 id="essential-options">Essential options</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bind-address</code></td>
+<td>The address to bind a TCP socket on.</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td>The port to bind a TCP socket on.</td>
+</tr>
+<tr>
+<td><code>alternative-port</code></td>
+<td>A fall-back port to bind on when <code>port</code> is already in use.</td>
+</tr>
+<tr>
+<td><code>base-url</code></td>
+<td>The URL on which the instance will be available to the outside world.</td>
+</tr>
+<tr>
+<td><code>log-file</code></td>
+<td>Path to a file where log output is written. When omitted, logs go to stdout.</td>
+</tr>
+<tr>
+<td><code>allow-crawlers</code></td>
+<td>Set to 1 to allow crawlers in the <code>robots.txt</code>, otherwise set to 0.</td>
+</tr>
+<tr>
+<td><code>production</code></td>
+<td>Performs extra checks before starting. Enable this when running a production instance.</td>
+</tr>
+<tr>
+<td><code>live-reload</code></td>
+<td>When set to 1, it reloads Python code on-the-fly. We recommend to set it to 0 when running in production.</td>
+</tr>
+<tr>
+<td><code>debug-mode</code></td>
+<td>When set to 1, it will display backtraces and error messages in the web browser. When set to 0, it will not show backtraces and error messages in the web browser.</td>
+</tr>
+<tr>
+<td><code>use-x-forwarded-for</code></td>
+<td>When running <code>djehuty</code> behind a reverse-proxy server, use the HTTP header <code>X-Forwarded-For</code> to log IP address information. Set to 1 when <code>djehuty</code> should use the <code>X-Forwarded-For</code> HTTP header.</td>
+</tr>
+<tr>
+<td><code>static-resources-cache</code></td>
+<td>When running <code>djehuty</code> behind a reverse-proxy server, it can write images, fonts, stylesheets and JavaScript resources to a folder so it can be served by the reverse-proxy server. Specify a filesystem directory to store the resources at.</td>
+</tr>
+<tr>
+<td><code>disable-collaboration</code></td>
+<td>When set to 1, it disables the "collaborators" feature.</td>
+</tr>
+<tr>
+<td><code>allowed-depositing-domains</code></td>
+<td>When unset, any authenticated user may deposit data. Otherwise, this option limits the ability to deposit to users with an e-mail address of the listed domain names.</td>
+</tr>
+<tr>
+<td><code>cache-root</code></td>
+<td><code>djehuty</code> can cache query responses to lower the load on the database server. Specify the directory where to store cache files. This element takes an attribute <code>clear-on-start</code>, and when set to 1, it will remove all cache files on start-up of <code>djehuty</code>.</td>
+</tr>
+<tr>
+<td><code>profile-images-root</code></td>
+<td>Users can upload a profile image in <code>djehuty</code>. This option should point to a filesystem directory where these profile images can be stored.</td>
+</tr>
+<tr>
+<td><code>disable-2fa</code></td>
+<td>Accounts with privileges receive a code by e-mail as a second factor when logging in. Setting this option to 1 disables the second factor authentication.</td>
+</tr>
+<tr>
+<td><code>sandbox-message</code></td>
+<td>Display a message on the top of every page.</td>
+</tr>
+<tr>
+<td><code>notice-message</code></td>
+<td>Display a message on the main page.</td>
+</tr>
+<tr>
+<td><code>maintenance-mode</code></td>
+<td>When set to 1, all HTTP requests result in the display of a maintenance message. Use this option while backing up the database, or when performing major updates.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuring-the-database">Configuring the Database</h2>
+<p>The <code>djehuty</code> program stores its state in a SPARQL 1.1 compliant RDF store.
+Configuring the connection details is done in the <code>rdf-store</code> node.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>state-graph</code></td>
+<td>The graph name to store triplets in.</td>
+</tr>
+<tr>
+<td><code>sparql-uri</code></td>
+<td>The URI at which the SPARQL 1.1 endpoint can be reached. When the <code>sparql-uri</code> begins with <code>bdb://</code>, followed by a path to a filesystem directory, it will use the BerkeleyDB back-end, for which the <code>berkeleydb</code> Python package needs to be installed.</td>
+</tr>
+<tr>
+<td><code>sparql-update-uri</code></td>
+<td>The URI at which the SPARQL 1.1 Update endpoint can be reached (in case it is different from the <code>sparql-uri</code>).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="audit-trails-and-database-reconstruction">Audit trails and database reconstruction</h2>
+<p>The <code>djehuty</code> program can keep an audit log of all database modifications made
+by itself from which a database state can be reconstructed. Whether <code>djehuty</code>
+keeps such an audit log can be configured with the following option:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enable-query-audit-log</code></td>
+<td>When set to 1, it writes every SPARQL query that modifies the database in the web logs. This can be replayed to reconstruct the database at a later time. Setting this option to 0 disables this feature. This element takes an attribute <code>transactions-directory</code> that should specify an empty directory to which transactions can be written that are extracted from the audit log.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="reconstructing-the-database-from-the-query-audit-log">Reconstructing the database from the query audit log</h3>
+<p>Each query that modifies the database state while the query audit logs are
+enabled can be extracted from the query audit log using the
+<code>--extract-transactions-from-log</code> command-line option. A timestamp to specify
+the starting point to extract from can be specified as an argument. The
+following example displays its use:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.json<span class="w"> </span>--extract-transactions-from-log<span class="o">=</span><span class="s2">&quot;YYYY-MM-DD HH:MM:SS&quot;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># or, with the deprecated XML format:</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.xml<span class="w"> </span>--extract-transactions-from-log<span class="o">=</span><span class="s2">&quot;YYYY-MM-DD HH:MM:SS&quot;</span>
+</code></pre></div>
+<p>This will create a file for each query in the folder specified in the
+<code>transactions-directory</code> attribute.</p>
+<p>To replay the extracted transactions, use the <code>--apply-transactions</code>
+command-line option:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.json<span class="w"> </span>--apply-transactions
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># or, with the deprecated XML format:</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.xml<span class="w"> </span>--apply-transactions
+</code></pre></div>
+<p>When a query cannot be executed, the command stops, allowing to fix or remove
+the query to-be-replayed. Invoking <code>--apply-transactions</code> a second time will
+continue replaying where the previous run stopped.</p>
+<h2 id="configuring-storage">Configuring storage</h2>
+<p>Storage locations can be configured with the <code>storage</code> node. When configuring
+multiple locations, <code>djehuty</code> attempts to find a file by looking at the first
+configured location, and in case it cannot find the file there, it will look at
+the second configured location, and so on, until it has tried each storage
+location.</p>
+<p>This allows for moving files between storage systems transparently without
+requiring specific interactions with <code>djehuty</code> other than having the files made
+available as a POSIX filesystem or in an S3 bucket.</p>
+<p>One use-case that suits this mechanism is letting uploads write to fast online
+storage and later move the uploaded files to a slower but less costly storage.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>storage-root</code></td>
+<td>The primary filesystem path where files, cache, and profile images are stored. Sub-directories are created automatically.</td>
+</tr>
+<tr>
+<td><code>location</code></td>
+<td>A filesystem path to where files are stored. This is a repeatable property.</td>
+</tr>
+<tr>
+<td><code>s3-bucket</code></td>
+<td>An S3 bucket configuration. See <a href="#configuring-s3-buckets">Configuring S3 buckets</a>. This is a repeatable property.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="configuring-s3-buckets">Configuring S3 buckets</h3>
+<p>Other than configuring storage locations on a POSIX filesystem, <code>djehuty</code> can
+be configured to serve files from an S3 bucket. To do so, the following
+parameters must be configured within a <code>s3-bucket</code> node.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>endpoint</code></td>
+<td>Endpoint URL to connect to.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Name of the bucket.</td>
+</tr>
+<tr>
+<td><code>key-id</code></td>
+<td>Key ID for the bucket.</td>
+</tr>
+<tr>
+<td><code>secret-key</code></td>
+<td>Secret key for the bucket.</td>
+</tr>
+</tbody>
+</table>
+<p>For example, configuring one filesystem location and one S3 bucket as storage
+locations looks as following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">&lt;storage&gt;</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&lt;location&gt;</span>/data<span class="nt">&lt;/location&gt;</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&lt;s3-bucket&gt;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">&lt;endpoint&gt;</span>https://some.example<span class="nt">&lt;/endpoint&gt;</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">&lt;name&gt;</span>example-bucket<span class="nt">&lt;/name&gt;</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">&lt;key-id&gt;</span>...<span class="nt">&lt;/key-id&gt;</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">&lt;secret-key&gt;</span>...<span class="nt">&lt;/secret-key&gt;</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="nt">&lt;/s3-bucket&gt;</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="nt">&lt;/storage&gt;</span>
+</code></pre></div>
+<p>There are a few scenarios in which <code>djehuty</code> downloads an S3 object to perform
+some operation on: creating thumbnails and IIIF image transformations. To direct
+where these temporary files will be stored, the <code>s3-cache-root</code> can be
+configured.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>s3-cache-root</code></td>
+<td>The directory to store the S3 objects while performing some operation on the objects. This option can only be configured globally and applies to all S3 buckets.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuring-an-identity-provider">Configuring an identity provider</h2>
+<p>Ideally, <code>djehuty</code> makes use of an external identity provider. <code>djehuty</code> can
+use SAML2.0, ORCID, or an internal identity provider (for testing and
+development purposes only).</p>
+<p>This section will outline the configuration options for each identity provision
+mechanism.</p>
+<h3 id="saml20">SAML2.0</h3>
+<p>For SAML 2.0, the configuration can be placed in the <code>saml</code> section under
+<code>authentication</code>. That looks as following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">&lt;authentication&gt;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&lt;saml</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;2.0&quot;</span><span class="nt">&gt;</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="cm">&lt;!-- Configuration goes here. --&gt;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&lt;/saml&gt;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="nt">&lt;/authentication&gt;</span>
+</code></pre></div>
+<p>The options outlined in the remainder of this section should be placed where the
+example shows <code>&lt;!-- Configuration goes here. --&gt;</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>strict</code></td>
+<td>When set to 1, SAML responses must be signed. <strong>Never disable <code>strict</code> mode in a production environment.</strong></td>
+</tr>
+<tr>
+<td><code>debug</code></td>
+<td>Increases logging verbosity for SAML-related messages.</td>
+</tr>
+<tr>
+<td><code>attributes</code></td>
+<td>In this section the attributes provided by the identity provider can be aligned to the attributes <code>djehuty</code> expects.</td>
+</tr>
+<tr>
+<td><code>service-provider</code></td>
+<td>The <code>djehuty</code> program fulfills the role of service provider. In this section the certificate and service provider metadata can be configured.</td>
+</tr>
+<tr>
+<td><code>identity-provider</code></td>
+<td>In this section the certificate and single-sign-on URL of the identity provider can be configured.</td>
+</tr>
+<tr>
+<td><code>sram</code></td>
+<td>In this section, SURF Research Access Management-specific attributes can be configured.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="the-attributes-configuration">The <code>attributes</code> configuration</h4>
+<p>To create account and author records and to authenticate a user, <code>djehuty</code>
+stores information provided by the identity provider. Each identity provider may
+provide this information using different attributes. Therefore, the translation
+from attributes used by <code>djehuty</code> and attributes given by the identity provider
+can be configured. The following attributes must be configured.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>first-name</code></td>
+<td>A user's first name.</td>
+</tr>
+<tr>
+<td><code>last-name</code></td>
+<td>A user's last name.</td>
+</tr>
+<tr>
+<td><code>common-name</code></td>
+<td>A user's full name.</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>A user's e-mail address.</td>
+</tr>
+<tr>
+<td><code>groups</code></td>
+<td>The attribute denoting groups.</td>
+</tr>
+<tr>
+<td><code>group-prefix</code></td>
+<td>The prefix for each group short name.</td>
+</tr>
+</tbody>
+</table>
+<p>As an example, the attributes configuration for SURFConext looks like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">&lt;attributes&gt;</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&lt;first-name&gt;</span>urn:mace:dir:attribute-def:givenName<span class="nt">&lt;/first-name&gt;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&lt;last-name&gt;</span>urn:mace:dir:attribute-def:sn<span class="nt">&lt;/last-name&gt;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&lt;common-name&gt;</span>urn:mace:dir:attribute-def:cn<span class="nt">&lt;/common-name&gt;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nt">&lt;email&gt;</span>urn:mace:dir:attribute-def:mail<span class="nt">&lt;/email&gt;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nt">&lt;/attributes&gt;</span>
+</code></pre></div>
+<p>And for SURF Research Access Management (SRAM), the attributes configuration
+looks like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">&lt;attributes&gt;</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&lt;first-name&gt;</span>urn:oid:2.5.4.42<span class="nt">&lt;/first-name&gt;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&lt;last-name&gt;</span>urn:oid:2.5.4.4<span class="nt">&lt;/last-name&gt;</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">&lt;common-name&gt;</span>urn:oid:2.5.4.3<span class="nt">&lt;/common-name&gt;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">&lt;email&gt;</span>urn:oid:0.9.2342.19200300.100.1.3<span class="nt">&lt;/email&gt;</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nt">&lt;groups&gt;</span>urn:oid:1.3.6.1.4.1.5923.1.1.1.7<span class="nt">&lt;/groups&gt;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">&lt;group-prefix&gt;</span>urn:mace:surf.nl:sram:group:[organisation]:[service]<span class="nt">&lt;/group-prefix&gt;</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="nt">&lt;/attributes&gt;</span>
+</code></pre></div>
+<h4 id="the-sram-configuration">The <code>sram</code> configuration</h4>
+<p>When using SURF Research Access Management (SRAM), <code>djehuty</code> can persuade SRAM
+to send an invitation to anyone inside or outside the institution to join the
+SRAM collaboration that provides access to the <code>djehuty</code> instance. To do so,
+the following attributes must be configured.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>organization-api-token</code></td>
+<td>An organization-level API token.</td>
+</tr>
+<tr>
+<td><code>collaboration-id</code></td>
+<td>The UUID of the collaboration to invite users to.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="the-service-provider-configuration">The <code>service-provider</code> configuration</h4>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>x509-certificate</code></td>
+<td>Contents of the public certificate without whitespacing.</td>
+</tr>
+<tr>
+<td><code>private-key</code></td>
+<td>Contents of the private key belonging to the <code>x509-certificate</code> to sign messages with.</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>This section contains metadata that may be displayed by the identity provider to users before authorizing them.</td>
+</tr>
+<tr>
+<td>→ <code>display-name</code></td>
+<td>The name to be displayed by the identity provider when authorizing the user to the service.</td>
+</tr>
+<tr>
+<td>→ <code>url</code></td>
+<td>The URL to the service.</td>
+</tr>
+<tr>
+<td>→ <code>description</code></td>
+<td>Textual description of the service.</td>
+</tr>
+<tr>
+<td>→ <code>organization</code></td>
+<td>This section contains metadata to describe the organization behind the service.</td>
+</tr>
+<tr>
+<td>→ → <code>name</code></td>
+<td>The name of the service provider's organization.</td>
+</tr>
+<tr>
+<td>→ → <code>url</code></td>
+<td>The URL to the web page of the organization.</td>
+</tr>
+<tr>
+<td>→ <code>contact</code></td>
+<td>A repeatable section to list contact persons and their roles within the organization. The role can be configured by setting the <code>type</code> attribute.</td>
+</tr>
+<tr>
+<td>→ → <code>first-name</code></td>
+<td>The first name of the contact person.</td>
+</tr>
+<tr>
+<td>→ → <code>last-name</code></td>
+<td>The last name of the contact person.</td>
+</tr>
+<tr>
+<td>→ → <code>email</code></td>
+<td>The e-mail address of the contact person. Note that some identity providers prefer functional e-mail addresses (e.g. support@... instead of jdoe@...).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="orcid">ORCID</h3>
+<p><a href="https://orcid.org">ORCID.org</a> plays a key role in making researchers findable.
+Its identity provider service can be used by <code>djehuty</code> in two ways:</p>
+<ol>
+<li>As primary identity provider to log in and deposit data;</li>
+<li>As additional identity provider to couple an author record to its ORCID record.</li>
+</ol>
+<p>When another identity provider is configured in addition to ORCID, that identity
+provider will be used as primary and ORCID will only be used to couple author
+records to the author's ORCID record.</p>
+<p>To configure ORCID, the configuration can be placed in the <code>orcid</code> section
+under <code>authentication</code>. That looks as following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">&lt;authentication&gt;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&lt;orcid&gt;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="cm">&lt;!-- Configuration goes here. --&gt;</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">&lt;/orcid&gt;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="nt">&lt;/authentication&gt;</span>
+</code></pre></div>
+<p>Then the following parameters can be configured:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>client-id</code></td>
+<td>The client ID provided by ORCID.</td>
+</tr>
+<tr>
+<td><code>client-secret</code></td>
+<td>The client secret provided by ORCID.</td>
+</tr>
+<tr>
+<td><code>endpoint</code></td>
+<td>The URL to the ORCID endpoint to use.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuring-an-e-mail-server">Configuring an e-mail server</h2>
+<p>On various occasions, <code>djehuty</code> will attempt to send an e-mail to either an
+author, a reviewer or an administrator. To be able to do so, an e-mail server
+must be configured from which the instance may send e-mails.</p>
+<p>The configuration is done under the <code>email</code> node, and the following items can
+be configured:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>server</code></td>
+<td>Address of the e-mail server without protocol specification.</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td>The port the e-mail server operates on.</td>
+</tr>
+<tr>
+<td><code>starttls</code></td>
+<td>When 1, <code>djehuty</code> attempts to use StartTLS.</td>
+</tr>
+<tr>
+<td><code>username</code></td>
+<td>The username to authenticate with to the e-mail server.</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>The password to authenticate with to the e-mail server.</td>
+</tr>
+<tr>
+<td><code>from</code></td>
+<td>The e-mail address used to send e-mail from.</td>
+</tr>
+<tr>
+<td><code>subject-prefix</code></td>
+<td>Text to prefix in the subject of all e-mails sent from the instance of <code>djehuty</code>. This can be used to distinguish a test instance from a production instance.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuring-doi-registration">Configuring DOI registration</h2>
+<p>When publishing a dataset or collection, <code>djehuty</code> can register a persistent
+identifier with DataCite. To enable this feature, configure it under the
+<code>datacite</code> node. The following parameters can be configured:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>api-url</code></td>
+<td>The URL of the API endpoint of DataCite.</td>
+</tr>
+<tr>
+<td><code>repository-id</code></td>
+<td>The repository identifier given by DataCite.</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>The password to authenticate with to DataCite.</td>
+</tr>
+<tr>
+<td><code>prefix</code></td>
+<td>The DOI prefix to use when registering a DOI.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuring-handle-registration">Configuring Handle registration</h2>
+<p>Each uploaded file can be assigned a persistent identifier using the Handle
+system. To enable this feature, configure it under the <code>handle</code> node. The
+following parameters can be configured:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>url</code></td>
+<td>The URL of the API endpoint of the Handle system implementor.</td>
+</tr>
+<tr>
+<td><code>certificate</code></td>
+<td>Certificate to use for authenticating to the endpoint.</td>
+</tr>
+<tr>
+<td><code>private-key</code></td>
+<td>The private key paired with the certificate used to authenticate to the endpoint.</td>
+</tr>
+<tr>
+<td><code>prefix</code></td>
+<td>The Handle prefix to use when registering a handle.</td>
+</tr>
+<tr>
+<td><code>index</code></td>
+<td>The index to use when registering a handle.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuring-iiif-support">Configuring IIIF support</h2>
+<p>When publishing images, <code>djehuty</code> can enable the IIIF Image API for the images.
+It uses <code>libvips</code> and <code>pyvips</code> under the hood to perform image manipulation. The
+following parameters can be configured:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enable-iiif</code></td>
+<td>Enable support for the IIIF image API. This requires the <code>pyvips</code> package to be available in the run-time environment.</td>
+</tr>
+<tr>
+<td><code>iiif-cache-root</code></td>
+<td>The directory to store the output of IIIF Image API requests to avoid re-computing the image.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuring-codecheck-requests">Configuring CODECHECK requests</h2>
+<p>When publishing software, <code>djehuty</code> can be configured to offer reproducibility
+check. Once enabled, the metadata form will include an option to request a
+reproducibility check or provide a CODECHECK certificate. The option will be
+visible for the groups for which the <code>is_featured</code> parameter is set to True. The
+following parameter can be configured:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enable-codecheck</code></td>
+<td>Enable CODECHECK requests in the metadata form.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuring-dataset-upload">Configuring dataset upload</h2>
+<p>The dataset upload behaviour can be configured under the <code>upload-dataset</code> node.
+Currently you can:</p>
+<ul>
+<li>Disable the "Full content embargo" option (enabled by default).</li>
+<li>Add a custom message to be displayed in the dataset file deposit section.</li>
+</ul>
+<p>The <code>upload-dataset</code> node supports the following options:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>allow-full-embargo</code></td>
+<td>"Full content embargo" is enabled by default. Set this option to 0 to disable it. When users choose to deposit a dataset or software under a "Full content embargo", both the files and the metadata will remain unavailable during the embargo period.</td>
+</tr>
+<tr>
+<td><code>file-deposit/notice</code></td>
+<td>An HTML message displayed above the file upload area when a depositor edits a dataset. HTML markup, including hyperlinks, is supported.</td>
+</tr>
+</tbody>
+</table>
+<p>How to use:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">&lt;upload-dataset&gt;</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&lt;allow-full-embargo&gt;</span>0<span class="nt">&lt;/allow-full-embargo&gt;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">&lt;file-deposit&gt;</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">&lt;notice&gt;</span>Your<span class="w"> </span>message<span class="w"> </span>here<span class="nt">&lt;/notice&gt;</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="nt">&lt;/file-deposit&gt;</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="nt">&lt;/upload-dataset&gt;</span>
+</code></pre></div>
+<h2 id="customizing-looks">Customizing looks</h2>
+<p>With the following options, the instance can be branded as necessary.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>site-name</code></td>
+<td>Name for the instance used in the title of a browser window and as default value in the publisher field for new datasets.</td>
+</tr>
+<tr>
+<td><code>site-description</code></td>
+<td>Description used as a meta-tag in the HTML output.</td>
+</tr>
+<tr>
+<td><code>site-shorttag</code></td>
+<td>Used as keyword and as Git remote name.</td>
+</tr>
+<tr>
+<td><code>publisher-rors</code></td>
+<td>Mapping of publisher names to ROR URLs. Each child is a <code>&lt;publisher-ror name="..." url="..."/&gt;</code> element. Used in RO-Crate exports and as the ROR link rendered next to the publisher on the dataset page when the dataset's publisher matches one of the configured names.</td>
+</tr>
+<tr>
+<td><code>support-email-address</code></td>
+<td>E-mail address used in e-mails sent to users in automated messages.</td>
+</tr>
+<tr>
+<td><code>custom-logo-path</code></td>
+<td>Path to a PNG image file that will be used as logo on the website.</td>
+</tr>
+<tr>
+<td><code>custom-favicon-path</code></td>
+<td>Path to an ICO file that will be used as favicon.</td>
+</tr>
+<tr>
+<td><code>small-footer</code></td>
+<td>HTML that will be used as footer for all pages except for the main page.</td>
+</tr>
+<tr>
+<td><code>large-footer</code></td>
+<td>HTML that will be used as footer on the main page.</td>
+</tr>
+<tr>
+<td><code>show-portal-summary</code></td>
+<td>When set to 1, it shows the repository summary of number of datasets, authors, collections, files and bytes on the main page.</td>
+</tr>
+<tr>
+<td><code>show-institutions</code></td>
+<td>When set to 1, it shows the list of institutions on the main page.</td>
+</tr>
+<tr>
+<td><code>show-science-categories</code></td>
+<td>When set to 1, it shows the subjects (categories) on the main page.</td>
+</tr>
+<tr>
+<td><code>show-latest-datasets</code></td>
+<td>When set to 1, it shows the list of latest published datasets on the main page.</td>
+</tr>
+<tr>
+<td><code>colors</code></td>
+<td>Colors used in the HTML output. See <a href="#customizing-colors">Customizing colors</a>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="customizing-colors">Customizing colors</h3>
+<p>The following options can be configured in the <code>colors</code> section.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>primary-color</code></td>
+<td>The main background color to use.</td>
+</tr>
+<tr>
+<td><code>primary-foreground-color</code></td>
+<td>The main foreground color to use.</td>
+</tr>
+<tr>
+<td><code>primary-color-hover</code></td>
+<td>Color to use when hovering a link.</td>
+</tr>
+<tr>
+<td><code>primary-color-active</code></td>
+<td>Color to use when a link is clicked.</td>
+</tr>
+<tr>
+<td><code>privilege-button-color</code></td>
+<td>The background color of buttons for privileged actions.</td>
+</tr>
+<tr>
+<td><code>footer-background-color</code></td>
+<td>Color to use in the footer.</td>
+</tr>
+<tr>
+<td><code>background-color</code></td>
+<td>Background color for the content section.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="customizing-the-menu">Customizing the menu</h2>
+<p>The top navigation menu is defined using the <code>menu</code> XML element, which can be
+placed in a separate menu configuration file and loaded via <code>include</code> in the
+<code>djehuty</code> configuration. The menu supports up to three levels of nesting:
+primary menu items, sub-menus, and sub-sub-menus.</p>
+<h3 id="menu-structure">Menu structure</h3>
+<p>A <code>menu</code> element contains one or more <code>primary-menu</code> elements, each rendered as
+a top-level entry in the navigation bar. Hovering over a primary item reveals
+its <code>sub-menu</code> children in a dropdown panel. A <code>sub-menu</code> may contain
+<code>sub-sub-menu</code> children.</p>
+<p>Every item requires a <code>title</code> with its display text. <code>sub-menu</code> and
+<code>sub-sub-menu</code> items also require an <code>href</code> element with the destination URL.</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>menu</code></td>
+<td>Root element that groups all primary menu items.</td>
+</tr>
+<tr>
+<td><code>primary-menu</code></td>
+<td>A top-level navigation bar entry. Requires a <code>title</code> child.</td>
+</tr>
+<tr>
+<td><code>sub-menu</code></td>
+<td>A dropdown item inside a <code>primary-menu</code>. Requires <code>title</code> and <code>href</code> children. May contain one or more <code>sub-sub-menu</code> children.</td>
+</tr>
+<tr>
+<td><code>sub-sub-menu</code></td>
+<td>A flyout item inside a <code>sub-menu</code>, displayed to the right on hover. Requires <code>title</code> and <code>href</code> children.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">&lt;djehuty&gt;</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&lt;menu&gt;</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">&lt;primary-menu&gt;</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">      </span><span class="nt">&lt;title&gt;</span>About<span class="w"> </span>your<span class="w"> </span>Data<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Getting<span class="w"> </span>started<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>/info/about-your-data/getting-started<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Publish<span class="w"> </span>and<span class="w"> </span>Cite<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>/info/about-your-data/publish-cite<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">    </span><span class="nt">&lt;/primary-menu&gt;</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">    </span><span class="nt">&lt;primary-menu&gt;</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">      </span><span class="nt">&lt;title&gt;</span>Collaborations<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Collaborations<span class="w"> </span>overview<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>https://example.org/collaborations/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Digital<span class="w"> </span>Capacity<span class="w"> </span>for<span class="w"> </span>NES<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="w">        </span><span class="nt">&lt;sub-sub-menu&gt;</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">          </span><span class="nt">&lt;title&gt;</span>Call<span class="w"> </span>1:<span class="w"> </span>Instructors<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="w">          </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/call-1/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a><span class="w">        </span><span class="nt">&lt;/sub-sub-menu&gt;</span>
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="w">        </span><span class="nt">&lt;sub-sub-menu&gt;</span>
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="w">          </span><span class="nt">&lt;title&gt;</span>Call<span class="w"> </span>2:<span class="w"> </span>Learners<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="w">          </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/call-2/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a><span class="w">        </span><span class="nt">&lt;/sub-sub-menu&gt;</span>
+<a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a><span class="w">    </span><span class="nt">&lt;/primary-menu&gt;</span>
+<a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a>
+<a id="__codelineno-8-36" name="__codelineno-8-36" href="#__codelineno-8-36"></a><span class="w">  </span><span class="nt">&lt;/menu&gt;</span>
+<a id="__codelineno-8-37" name="__codelineno-8-37" href="#__codelineno-8-37"></a><span class="nt">&lt;/djehuty&gt;</span>
+</code></pre></div>
+<p>Keep the menu definition in a dedicated config file and load it from the main
+configuration file using <code>include</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">&lt;djehuty&gt;</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&lt;include&gt;</span>/etc/djehuty/djehuty-menu.xml<span class="nt">&lt;/include&gt;</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nt">&lt;/djehuty&gt;</span>
+</code></pre></div>
+<h2 id="configuring-privileged-users">Configuring privileged users</h2>
+<p>By default an authenticated user may deposit data. But users can have additional
+roles; for example: a dataset reviewer, a technical administrator or a quota
+reviewer.</p>
+<p>Such additional roles are configured in terms of privileges. The following
+privileges can be configured in the <code>privileges</code> section:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>may-administer</code></td>
+<td>Allows access to perform maintenance tasks, view accounts and view reports on restricted and embargoed datasets.</td>
+</tr>
+<tr>
+<td><code>may-run-sparql-queries</code></td>
+<td>Allows to run arbitrary SPARQL queries on the database.</td>
+</tr>
+<tr>
+<td><code>may-impersonate</code></td>
+<td>Allows to log in to any account and therefore perform any action as that account.</td>
+</tr>
+<tr>
+<td><code>may-review</code></td>
+<td>Allows to see which datasets are sent for review, and allows to perform reviews.</td>
+</tr>
+<tr>
+<td><code>may-review-quotas</code></td>
+<td>Allows access to see requests for storage quota increases and approve or decline them.</td>
+</tr>
+<tr>
+<td><code>may-review-integrity</code></td>
+<td>Allows access to an API call that provides statistics on the accessibility of files on the filesystem.</td>
+</tr>
+<tr>
+<td><code>may-process-feedback</code></td>
+<td>Accounts with this privilege will receive e-mails with the information entered into the feedback form by other users.</td>
+</tr>
+<tr>
+<td><code>may-recalculate-statistics</code></td>
+<td>Views and downloads statistics are not calculated in real time. An administrator with this additional privilege can trigger a recalculation of these statistics, which can be a database-intensive action.</td>
+</tr>
+<tr>
+<td><code>may-receive-email-notifications</code></td>
+<td>This "privilege" can be used to disable sending any e-mails to an account by setting it to <code>0</code>. The default is <code>1</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>To enable a privilege for an account, set the value of the desired privilege to
+<code>1</code>. Privileges are disabled by default, except for
+<code>may-receive-email-notifications</code> which defaults to <code>1</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">&lt;privileges&gt;</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&lt;account</span><span class="w"> </span><span class="na">email=</span><span class="s">&quot;you@example.com&quot;</span><span class="w"> </span><span class="na">orcid=</span><span class="s">&quot;0000-0000-0000-0001&quot;</span><span class="nt">&gt;</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nt">&lt;may-administer&gt;</span>1<span class="nt">&lt;/may-administer&gt;</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">&lt;may-run-sparql-queries&gt;</span>1<span class="nt">&lt;/may-run-sparql-queries&gt;</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nt">&lt;may-impersonate&gt;</span>1<span class="nt">&lt;/may-impersonate&gt;</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">&lt;may-review&gt;</span>0<span class="nt">&lt;/may-review&gt;</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nt">&lt;may-review-quotas&gt;</span>0<span class="nt">&lt;/may-review-quotas&gt;</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="nt">&lt;may-review-integrity&gt;</span>0<span class="nt">&lt;/may-review-integrity&gt;</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="nt">&lt;may-process-feedback&gt;</span>0<span class="nt">&lt;/may-process-feedback&gt;</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="nt">&lt;may-receive-email-notifications&gt;</span>1<span class="nt">&lt;/may-receive-email-notifications&gt;</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">  </span><span class="nt">&lt;/account&gt;</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="nt">&lt;/privileges&gt;</span>
+</code></pre></div>
+<h1 id="running-djehuty">Running <code>djehuty</code></h1>
+<p>Before running <code>djehuty</code>, consider the <a href="#configuring-djehuty">Configuring <code>djehuty</code></a>
+chapter which provides the configuration options to enable or disable features,
+where data will be stored and a way to adapt <code>djehuty</code> to your organization's style.</p>
+<h2 id="running-djehuty_1">Running <code>djehuty</code></h2>
+<p>Invoking <code>djehuty web</code> starts the web interface of <code>djehuty</code>. On what port it
+makes itself available can be configured in its configuration file.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>djehuty web --config-file=your-djehuty-config.json
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a># or, with the deprecated XML format:
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>djehuty web --config-file=your-djehuty-config.xml
+</code></pre></div>
+<h2 id="running-djehuty-behind-an-nginx-reverse-proxy">Running <code>djehuty</code> behind an <code>nginx</code> reverse-proxy</h2>
+<p>While <code>djehuty</code> itself does not support SSL/TLS, it is designed to work together
+with a reverse-proxy HTTP server like <code>nginx</code>. When <code>djehuty</code> starts, it will
+bind on a pre-configured address and port, which in turn can be <code>proxy_pass</code>ed
+to using <code>nginx</code>.</p>
+<p>The following snippet shows how to configure <code>nginx</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">server</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="kn">listen</span><span class="w">              </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="kn">listen</span><span class="w">              </span><span class="s">[::]:443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="kn">server_name</span><span class="w">         </span><span class="s">example.domain</span><span class="p">;</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="kn">ssl_certificate</span><span class="w">     </span><span class="s">/etc/letsencrypt/live/example.domain/fullchain.pem</span><span class="p">;</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="kn">ssl_certificate_key</span><span class="w"> </span><span class="s">/etc/letsencrypt/live/example.domain/privkey.pem</span><span class="p">;</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">       </span><span class="c1"># Set &#39;use-x-forwarded-for&#39; in the djehuty configuration.</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">       </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">       </span><span class="c1"># The values for address and port depend on what is configured in the</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">       </span><span class="c1"># djehuty configuration file.</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">       </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:8080</span><span class="p">;</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">       </span><span class="kn">root</span><span class="w"> </span><span class="s">/usr/share/nginx/html</span><span class="p">;</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="p">}</span>
+</code></pre></div>
+<p>To ensure <code>djehuty</code> receives the actual client IP address so it can log this
+information, one can set the <code>use-x-forwarded-for</code> option described in
+<a href="#essential-options">Essential options</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

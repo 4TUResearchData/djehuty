@@ -1,0 +1,1830 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The 4TU.ResearchData and Nikhef repository system">
+      
+      
+      
+      
+        <link rel="prev" href="../knowledge-graph/">
+      
+      
+        <link rel="next" href="../api/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Contributing - djehuty</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#contributing-guidelines" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="djehuty" class="md-header__button md-logo" aria-label="djehuty" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            djehuty
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Contributing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/4TUResearchData/djehuty" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    4TUResearchData/djehuty
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="djehuty" class="md-nav__button md-logo" aria-label="djehuty" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    djehuty
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/4TUResearchData/djehuty" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    4TUResearchData/djehuty
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../running-djehuty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuring & running djehuty
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge-graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-contribute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to Contribute?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recognition-of-contributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recognition of Contributions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contribution-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contribution workflows
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contribution workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#report-bugs-or-request-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Report bugs or request features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-contributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code contributions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conventions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#code-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code conventions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#branch-naming-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Branch Naming Conventions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Branch Naming Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-of-branch-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example of branch name:
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Releases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Templates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Templates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue Template
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue Template">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🐞 Bug
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#improvement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🪴 Improvement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-feature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 New Feature
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-a-short-description-the-functionality-and-who-will-use-it-is-your-feature-request-related-to-a-problem-a-clear-and-concise-description-of-what-the-problem-is-ex-im-always-frustrated-when-describe-the-solution-youd-like-a-clear-and-concise-description-of-what-you-want-to-happen-suggestion-if-possible-describe-who-will-benefit-from-the-functionality-and-for-what-reason-example-as-a-data-steward-i-want-to-do-so-that-i-can-as-a-researcher-i-want-to-do-so-that-i-can-as-a-reviewer-i-want-to-do-so-that-i-can-additional-context-designs-diagrams-examples-screenshots-etc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        **Summary** A short description the functionality and who will use it. **Is your feature request related to a problem? ** A clear and concise description of what the problem is. Ex. I&#39;m always frustrated when [...] **Describe the solution you&#39;d like** A clear and concise description of what you want to happen. Suggestion: if possible, describe who will benefit from the functionality and for what reason. Example: - As a &quot;data steward&quot;, I want &quot;to do ...&quot; so that &quot;i can ....&quot;. - As a &quot;researcher&quot;, I want &quot;to do ...&quot; so that &quot;i can ....&quot;. - As a &quot;reviewer&quot;, I want &quot;to do ...&quot; so that &quot;i can ....&quot;. **Additional Context** Designs, diagrams, examples, screenshots etc.
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="**Summary** A short description the functionality and who will use it. **Is your feature request related to a problem? ** A clear and concise description of what the problem is. Ex. I&#39;m always frustrated when [...] **Describe the solution you&#39;d like** A clear and concise description of what you want to happen. Suggestion: if possible, describe who will benefit from the functionality and for what reason. Example: - As a &#34;data steward&#34;, I want &#34;to do ...&#34; so that &#34;i can ....&#34;. - As a &#34;researcher&#34;, I want &#34;to do ...&#34; so that &#34;i can ....&#34;. - As a &#34;reviewer&#34;, I want &#34;to do ...&#34; so that &#34;i can ....&#34;. **Additional Context** Designs, diagrams, examples, screenshots etc.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pull-request-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull Request Template
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-a-clear-and-short-description-of-the-change-please-provide-what-and-why-changes-filename-description-of-key-update-keep-it-concise-approval-checklist-i-agree-to-follow-_djehutys_-code-of-conducthttpsgithubcom4turesearchdatadjehutytabcoc-ov-filereadme-i-have-read-and-i-have-follow-the-code-contribution-workflowhttpsgithubcom4turesearchdatadjehutyblobmaincontributingmd-code-style-and-conventions-were-respected-documentation-has-been-updated-where-needed-readme-docs-or-examples-review-approved-by-at-least-one-maintainer-merge-readiness-pr-is-squashed-into-a-single-commit-and-follows-the-commit-templatehttpsgithubcom4turesearchdatadjehutyblobmaincontributingmdcommit-message-template-issue-reference-optional-prs-may-not-be-associated-with-an-issue-closes-issue_number-screenshots-optional-beforeafter-visuals-ui-changes-or-relevant-logs-notes-optional-additional-context-caveats-or-follow-up-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        **Summary** A clear and short description of the change. Please provide what and why. **Changes** - filename: description of key update. Keep it concise. **Approval Checklist** - [ ] I agree to follow _Djehuty&#39;s_ [code of conduct](https://github.com/4TUResearchData/djehuty?tab=coc-ov-file#readme). - [ ] I have read and I have follow the [code contribution workflow](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md). - [ ] Code style and conventions were respected. - [ ] Documentation has been updated where needed (README, docs, or examples). - [ ] Review approved by at least one maintainer. - [ ] Merge readiness (PR is squashed into a single commit and follows the [commit template](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md#commit-message-template)). **Issue Reference (optional - PRs may not be associated with an issue)** Closes #ISSUE_NUMBER **Screenshots (optional)** Before/After visuals, UI changes, or relevant logs. **Notes (optional)** Additional context, caveats, or follow-up tasks.
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="**Summary** A clear and short description of the change. Please provide what and why. **Changes** - filename: description of key update. Keep it concise. **Approval Checklist** - [ ] I agree to follow _Djehuty&#39;s_ [code of conduct](https://github.com/4TUResearchData/djehuty?tab=coc-ov-file#readme). - [ ] I have read and I have follow the [code contribution workflow](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md). - [ ] Code style and conventions were respected. - [ ] Documentation has been updated where needed (README, docs, or examples). - [ ] Review approved by at least one maintainer. - [ ] Merge readiness (PR is squashed into a single commit and follows the [commit template](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md#commit-message-template)). **Issue Reference (optional - PRs may not be associated with an issue)** Closes #ISSUE_NUMBER **Screenshots (optional)** Before/After visuals, UI changes, or relevant logs. **Notes (optional)** Additional context, caveats, or follow-up tasks.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#commit-message-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commit Message Template
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#label-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Label Guide
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development environment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Development environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting started
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-development-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the development environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#navigating-the-source-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigating the source code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Navigating the source code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#starting-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starting point
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-djehuty-initializes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How djehuty initializes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#translating-uri-paths-to-internal-procedures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Translating URI paths to internal procedures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diving-into-the-code-that-displays-the-homepage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diving into the code that displays the homepage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-communication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database communication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../news/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    News
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-contribute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to Contribute?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recognition-of-contributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recognition of Contributions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contribution-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contribution workflows
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contribution workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#report-bugs-or-request-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Report bugs or request features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-contributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code contributions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conventions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#code-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code conventions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#branch-naming-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Branch Naming Conventions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Branch Naming Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-of-branch-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example of branch name:
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Releases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Templates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Templates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue Template
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Issue Template">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🐞 Bug
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#improvement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🪴 Improvement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-feature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 New Feature
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-a-short-description-the-functionality-and-who-will-use-it-is-your-feature-request-related-to-a-problem-a-clear-and-concise-description-of-what-the-problem-is-ex-im-always-frustrated-when-describe-the-solution-youd-like-a-clear-and-concise-description-of-what-you-want-to-happen-suggestion-if-possible-describe-who-will-benefit-from-the-functionality-and-for-what-reason-example-as-a-data-steward-i-want-to-do-so-that-i-can-as-a-researcher-i-want-to-do-so-that-i-can-as-a-reviewer-i-want-to-do-so-that-i-can-additional-context-designs-diagrams-examples-screenshots-etc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        **Summary** A short description the functionality and who will use it. **Is your feature request related to a problem? ** A clear and concise description of what the problem is. Ex. I&#39;m always frustrated when [...] **Describe the solution you&#39;d like** A clear and concise description of what you want to happen. Suggestion: if possible, describe who will benefit from the functionality and for what reason. Example: - As a &quot;data steward&quot;, I want &quot;to do ...&quot; so that &quot;i can ....&quot;. - As a &quot;researcher&quot;, I want &quot;to do ...&quot; so that &quot;i can ....&quot;. - As a &quot;reviewer&quot;, I want &quot;to do ...&quot; so that &quot;i can ....&quot;. **Additional Context** Designs, diagrams, examples, screenshots etc.
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="**Summary** A short description the functionality and who will use it. **Is your feature request related to a problem? ** A clear and concise description of what the problem is. Ex. I&#39;m always frustrated when [...] **Describe the solution you&#39;d like** A clear and concise description of what you want to happen. Suggestion: if possible, describe who will benefit from the functionality and for what reason. Example: - As a &#34;data steward&#34;, I want &#34;to do ...&#34; so that &#34;i can ....&#34;. - As a &#34;researcher&#34;, I want &#34;to do ...&#34; so that &#34;i can ....&#34;. - As a &#34;reviewer&#34;, I want &#34;to do ...&#34; so that &#34;i can ....&#34;. **Additional Context** Designs, diagrams, examples, screenshots etc.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pull-request-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull Request Template
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-a-clear-and-short-description-of-the-change-please-provide-what-and-why-changes-filename-description-of-key-update-keep-it-concise-approval-checklist-i-agree-to-follow-_djehutys_-code-of-conducthttpsgithubcom4turesearchdatadjehutytabcoc-ov-filereadme-i-have-read-and-i-have-follow-the-code-contribution-workflowhttpsgithubcom4turesearchdatadjehutyblobmaincontributingmd-code-style-and-conventions-were-respected-documentation-has-been-updated-where-needed-readme-docs-or-examples-review-approved-by-at-least-one-maintainer-merge-readiness-pr-is-squashed-into-a-single-commit-and-follows-the-commit-templatehttpsgithubcom4turesearchdatadjehutyblobmaincontributingmdcommit-message-template-issue-reference-optional-prs-may-not-be-associated-with-an-issue-closes-issue_number-screenshots-optional-beforeafter-visuals-ui-changes-or-relevant-logs-notes-optional-additional-context-caveats-or-follow-up-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        **Summary** A clear and short description of the change. Please provide what and why. **Changes** - filename: description of key update. Keep it concise. **Approval Checklist** - [ ] I agree to follow _Djehuty&#39;s_ [code of conduct](https://github.com/4TUResearchData/djehuty?tab=coc-ov-file#readme). - [ ] I have read and I have follow the [code contribution workflow](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md). - [ ] Code style and conventions were respected. - [ ] Documentation has been updated where needed (README, docs, or examples). - [ ] Review approved by at least one maintainer. - [ ] Merge readiness (PR is squashed into a single commit and follows the [commit template](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md#commit-message-template)). **Issue Reference (optional - PRs may not be associated with an issue)** Closes #ISSUE_NUMBER **Screenshots (optional)** Before/After visuals, UI changes, or relevant logs. **Notes (optional)** Additional context, caveats, or follow-up tasks.
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="**Summary** A clear and short description of the change. Please provide what and why. **Changes** - filename: description of key update. Keep it concise. **Approval Checklist** - [ ] I agree to follow _Djehuty&#39;s_ [code of conduct](https://github.com/4TUResearchData/djehuty?tab=coc-ov-file#readme). - [ ] I have read and I have follow the [code contribution workflow](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md). - [ ] Code style and conventions were respected. - [ ] Documentation has been updated where needed (README, docs, or examples). - [ ] Review approved by at least one maintainer. - [ ] Merge readiness (PR is squashed into a single commit and follows the [commit template](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md#commit-message-template)). **Issue Reference (optional - PRs may not be associated with an issue)** Closes #ISSUE_NUMBER **Screenshots (optional)** Before/After visuals, UI changes, or relevant logs. **Notes (optional)** Additional context, caveats, or follow-up tasks.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#commit-message-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commit Message Template
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#label-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Label Guide
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development environment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Development environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting started
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-development-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the development environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#navigating-the-source-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigating the source code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Navigating the source code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#starting-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starting point
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-djehuty-initializes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How djehuty initializes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#translating-uri-paths-to-internal-procedures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Translating URI paths to internal procedures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diving-into-the-code-that-displays-the-homepage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diving into the code that displays the homepage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-communication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database communication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="contributing-guidelines">Contributing Guidelines</h1>
+<p>Thanks for your interest in contributing! 🎉<br />
+We welcome all contributions - code, documentation, bug reports, or ideas.</p>
+<p>When contributing, remember to follow our <a href="https://github.com/4TUResearchData/djehuty/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a>.</p>
+<h2 id="how-to-contribute">How to Contribute?</h2>
+<ul>
+<li><strong>Report bugs or request features</strong> by opening an issue.<ul>
+<li>By opening an issue you can be in touch with us to request a new feature or report a bug. Check in the Report bugs or request features section how to make the request.</li>
+</ul>
+</li>
+<li><strong>Code contributions:</strong> pick an open issue or propose a new idea.<ul>
+<li>Do you have development skills? You also can contribute by helping us to develop Djehuty. Check the Code contributions section on how to become a developer contributor.</li>
+</ul>
+</li>
+</ul>
+<h2 id="recognition-of-contributions">Recognition of Contributions</h2>
+<p>All contributions - whether it’s code, bug reports, or ideas are appreciated and recognized. Contributors may be credited in release notes or project acknowledgments. Thank you for helping make the project better!</p>
+<h2 id="contribution-workflows">Contribution workflows</h2>
+<h3 id="report-bugs-or-request-features">Report bugs or request features</h3>
+<p>We welcome contributions in the form of bug reports and feature suggestions. Here’s how to make them most useful:</p>
+<ol>
+<li>
+<p><strong>Look for Existing Issues</strong></p>
+<p>Before opening a new report or suggestion, <a href="https://github.com/4TUResearchData/djehuty/issues">check the issue tracker</a> to see if it’s already been raised. This helps prevent duplicates and keeps the conversation focused.</p>
+</li>
+<li>
+<p><strong>Submit a New Issue</strong></p>
+<p>If you don’t find an existing issue, create a new one <a href="#issue-template">using the appropriate template</a>. Add relevant labels if applicable.</p>
+</li>
+<li>
+<p><strong>Provide Useful Information</strong></p>
+<ul>
+<li><strong>For Bugs:</strong> Explain the steps to reproduce the problem, what you expected to happen, what actually happened, and include any relevant screenshots, logs, or environment details.</li>
+<li><strong>For Feature Suggestions:</strong> Describe the idea clearly and explain why it would improve the project.</li>
+</ul>
+</li>
+<li>
+<p><strong>Participate in Discussion</strong></p>
+<p>Be ready to answer questions or provide additional details. Open discussion helps the team understand the issue and work toward the best solution.</p>
+</li>
+</ol>
+<h3 id="code-contributions">Code contributions</h3>
+<ol>
+<li>
+<p><strong>Contact us!</strong></p>
+<p>Before starting any work, please <strong>contact repository maintainers at <a href="mailto:djehuty@4tu.nl">djehuty@4tu.nl</a></strong> to discuss how your idea fits with our strategic goals.</p>
+</li>
+<li>
+<p><strong>Check or open an issue</strong></p>
+<p>Before you start work, <strong>search the <a href="https://github.com/4TUResearchData/djehuty/issues">issue tracker</a></strong> to see if your idea is already being discussed.</p>
+<ul>
+<li>If you find a relevant issue, comment to say you’re taking it on and, if possible, assign yourself. If you cannot assign, leave a comment like “Working on this” so maintainers know.</li>
+<li>If no issue exists, open a new issue using the <a href="#issue-template">issue template</a> and include: a short, descriptive title; a brief explanation of the problem or feature and why it’s needed.</li>
+<li>⚠️ <strong>IMPORTANT</strong>: <strong>Do not discuss security-related aspects</strong>: to report a vulnerability, please see <a href="https://github.com/4TUResearchData/djehuty/blob/main/SECURITY.md">SECURITY.md</a></li>
+</ul>
+</li>
+<li>
+<p><strong>Work from a fork</strong></p>
+<p>Contributors should work from a fork of the repository. Maintainers may work directly on the main djehuty instance. If you’re new to the fork-and-pull-request workflow, <a href="https://github.com/firstcontributions/first-contributions">check out the First Contributions</a> guide for a step-by-step introduction.</p>
+</li>
+<li>
+<p><strong>Clone and create a branch</strong></p>
+<p>Clone your fork to your local machine and create a new branch for your work.</p>
+</li>
+<li>
+<p><strong>Set up your development environment</strong></p>
+<p>Follow the instructions in the <a href="https://github.com/4TUResearchData/djehuty/blob/main/README.md">README</a> to install dependencies, configure the project, and run the required setup steps. Make sure you can build and test the project locally before starting your contribution.</p>
+</li>
+<li>
+<p><strong>Work on your branch and open a PR</strong></p>
+<ul>
+<li>Make your changes on your branch.</li>
+<li>Commits must be verified, see the <a href="https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification">commit signature verification guide</a> for more details.</li>
+<li>Once your work is ready for review, open a Pull Request (PR) against the main project repository.</li>
+<li>Provide a clear description of what you changed and link the related issue.</li>
+<li>Use the <a href="#pull-request-template">PR template</a> and check the approval checklist before submitting.</li>
+<li>⚠️ <strong>IMPORTANT</strong>: <strong>Do not open a PR for a security issue</strong>: to report a vulnerability, please see <a href="https://github.com/4TUResearchData/djehuty/blob/main/SECURITY.md">SECURITY.md</a></li>
+</ul>
+</li>
+<li>
+<p><strong>Final approval and merge</strong></p>
+<p>After review and approval, your PR must be squashed into a single commit using the project’s <a href="#commit-message-template">commit message template</a>. Once the checklist is complete, a maintainer will rebase-merge it into the main branch to keep the history clean.</p>
+</li>
+</ol>
+<p>If you want to make a very small contribution, such as one or a few lines of code for which following the code contributions workflow is not convenient, please contact the <a href="mailto:djehuty@4tu.nl">core maintainers</a>.</p>
+<hr />
+<h2 id="conventions">Conventions</h2>
+<h3 id="code-conventions">Code conventions</h3>
+<p>Follow existing code conventions and existing patterns such as:</p>
+<ul>
+<li><strong>Naming conventions</strong>: Follow existing patterns for variables, functions, classes, and file names.<ul>
+<li>Use snake_case for functions and variables.</li>
+<li>Be descriptive but concise in names.</li>
+</ul>
+</li>
+<li><strong>Indentation</strong>: Use the same indentation style (tabs vs. spaces, number of spaces) already present in the codebase.<ul>
+<li>Line length: Keep lines within the project’s limit.</li>
+<li>Comments &amp; docs: Write comments/docstrings in the same style.</li>
+</ul>
+</li>
+<li><strong>No unused code</strong>: Remove dead or commented-out code before committing.</li>
+</ul>
+<h3 id="commits">Commits</h3>
+<p>All <strong>commits will be squashed into a single commit</strong> before merging into main. This has two purposes:</p>
+<ul>
+<li><strong>Clean history</strong>: The main branch stays tidy.</li>
+<li><strong>Readable log</strong>: Each merge commit clearly tells the story of a completed change.</li>
+</ul>
+<p>When planning a change remember to:</p>
+<ul>
+<li><strong>Limit the scope</strong>: Keep the diff as small as possible so reviewers can understand the change quickly.</li>
+<li><strong>Avoid commit noise</strong>: Don’t include generated files, formatting-only changes, or experimental code unless they are the sole purpose of the commit.</li>
+</ul>
+<p>For the <strong>squashed commit message</strong> please also have a look at the <a href="#commit-message-template">commit message template</a>.</p>
+<h3 id="branch-naming-conventions">Branch Naming Conventions</h3>
+<p>Branches must follow a <strong>consistent naming scheme</strong> to make collaboration, reviews, and automation easier.
+Use the following pattern:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>wip-&lt;type&gt;-&lt;issue-number&gt;-&lt;short-description&gt;
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">-</span><span class="w"> </span>wip = prefix for “Work in Progress”
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">-</span><span class="w"> </span>type = category of change (bug, feat, impr, docs, chore)
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">-</span><span class="w"> </span>issue-number = the GitHub issue number related to the work (if applicable)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">-</span><span class="w"> </span>short-description = a brief, kebab-case summary of the change
+</code></pre></div>
+<h4 id="example-of-branch-name">Example of branch name:</h4>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Branch name example</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bug</td>
+<td>wip-bug-123-fix-login-crash</td>
+<td>Bug fixes</td>
+</tr>
+<tr>
+<td>feat</td>
+<td>wip-feat-007-add-endpoint</td>
+<td>New features</td>
+</tr>
+<tr>
+<td>impr</td>
+<td>wip-impr-321-optimize-query</td>
+<td>Improvements, refactors, cleanup</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>wip-docs-789-update-install-guide</td>
+<td>Documentation updates</td>
+</tr>
+<tr>
+<td>chore</td>
+<td>wip-chore-101-bump-dependencies</td>
+<td>Maintenance or config updates</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="releases">Releases</h2>
+<p>Releases are handled by maintainers and automated by GitHub Actions. See <a href="https://github.com/4TUResearchData/djehuty/blob/main/RELEASE.md">RELEASE.md</a> for the step-by-step procedure.</p>
+<hr />
+<h2 id="templates">Templates</h2>
+<h3 id="issue-template">Issue Template</h3>
+<h4 id="bug">🐞 Bug</h4>
+<p>Use when something is <strong>broken</strong> or misbehaving (broken functionality).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="gs">**Describe the bug**</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>A clear and short description of the bug.
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>** Steps to Reproduce**
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>Steps to reproduce the behavior:
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">1.</span> Go to &#39;...&#39;
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="k">2.</span> Click on &#39;....&#39;
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="k">3.</span> Scroll down to &#39;....&#39;
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="k">4.</span> See error
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="gs">**Expected behavior**</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>A clear and short description of what you expected to happen.
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="gs">**Screenshots**</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>If applicable, add screenshots to help explain the problem.
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="gs">**Your personal set up:**</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w"> </span><span class="k">-</span><span class="w"> </span>Smartphone or Desktop
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w"> </span><span class="k">-</span><span class="w"> </span>OS: [e.g. iOS]
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w"> </span><span class="k">-</span><span class="w"> </span>Browser [e.g. chrome, safari]
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="gs">**Additional context**</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>Add any other context about the problem here.
+</code></pre></div>
+<h4 id="improvement">🪴 <strong>Improvement</strong></h4>
+<p>Use when you want to refine an <strong>existing functionality</strong> (enhance functionality).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="gs">**Summary**</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>A clear and short description of the enhancement.
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="gs">**Current Behavior**</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>Brief description of the existing behavior or limitation.
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="gs">**Proposed Improvement**</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>How you suggest to improve it.
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="gs">**Additional Notes**</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>References, related issues, examples.
+</code></pre></div>
+<h4 id="new-feature">🚀 <strong>New Feature</strong></h4>
+<p>Use when you would like to introduce a <strong>new idea</strong>.</p>
+<h2 id="summary-a-short-description-the-functionality-and-who-will-use-it-is-your-feature-request-related-to-a-problem-a-clear-and-concise-description-of-what-the-problem-is-ex-im-always-frustrated-when-describe-the-solution-youd-like-a-clear-and-concise-description-of-what-you-want-to-happen-suggestion-if-possible-describe-who-will-benefit-from-the-functionality-and-for-what-reason-example-as-a-data-steward-i-want-to-do-so-that-i-can-as-a-researcher-i-want-to-do-so-that-i-can-as-a-reviewer-i-want-to-do-so-that-i-can-additional-context-designs-diagrams-examples-screenshots-etc"><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="gs">**Summary**</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>A short description the functionality and who will use it.
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="gs">**Is your feature request related to a problem? **</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>A clear and concise description of what the problem is. Ex. I&#39;m always frustrated when [...]
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="gs">**Describe the solution you&#39;d like**</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>A clear and concise description of what you want to happen. 
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>Suggestion: if possible, describe who will benefit from the functionality and for what reason.
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>Example:
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="k">-</span><span class="w"> </span>As a &quot;data steward&quot;, I want &quot;to do ...&quot; so that &quot;i can ....&quot;.
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="k">-</span><span class="w"> </span>As a &quot;researcher&quot;, I want &quot;to do ...&quot; so that &quot;i can ....&quot;.
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="k">-</span><span class="w"> </span>As a &quot;reviewer&quot;, I want &quot;to do ...&quot; so that &quot;i can ....&quot;.
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="gs">**Additional Context**</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>Designs, diagrams, examples, screenshots etc.
+</code></pre></div></h2>
+<h3 id="pull-request-template">Pull Request Template</h3>
+<p>Regardless of the issue type, <strong>use the PR template below</strong>. Note that some PRs may not be associated with an issue.</p>
+<h2 id="summary-a-clear-and-short-description-of-the-change-please-provide-what-and-why-changes-filename-description-of-key-update-keep-it-concise-approval-checklist-i-agree-to-follow-_djehutys_-code-of-conducthttpsgithubcom4turesearchdatadjehutytabcoc-ov-filereadme-i-have-read-and-i-have-follow-the-code-contribution-workflowhttpsgithubcom4turesearchdatadjehutyblobmaincontributingmd-code-style-and-conventions-were-respected-documentation-has-been-updated-where-needed-readme-docs-or-examples-review-approved-by-at-least-one-maintainer-merge-readiness-pr-is-squashed-into-a-single-commit-and-follows-the-commit-templatehttpsgithubcom4turesearchdatadjehutyblobmaincontributingmdcommit-message-template-issue-reference-optional-prs-may-not-be-associated-with-an-issue-closes-issue_number-screenshots-optional-beforeafter-visuals-ui-changes-or-relevant-logs-notes-optional-additional-context-caveats-or-follow-up-tasks"><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="gs">**Summary**</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>A clear and short description of the change. Please provide what and why.
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="gs">**Changes**</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">-</span><span class="w"> </span>filename: description of key update. Keep it concise.
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="gs">**Approval Checklist**</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="k">- [ ]</span> I agree to follow <span class="ge">_Djehuty&#39;s_</span> [<span class="nt">code of conduct</span>](<span class="na">https://github.com/4TUResearchData/djehuty?tab=coc-ov-file#readme</span>).
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">- [ ]</span> I have read and I have follow the [<span class="nt">code contribution workflow</span>](<span class="na">https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md</span>).
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="k">- [ ]</span> Code style and conventions were respected.
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="k">- [ ]</span> Documentation has been updated where needed (README, docs, or examples).
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="k">- [ ]</span> Review approved by at least one maintainer.
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="k">- [ ]</span> Merge readiness (PR is squashed into a single commit and follows the [<span class="nt">commit template</span>](<span class="na">https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md#commit-message-template</span>)).
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="gs">**Issue Reference (optional - PRs may not be associated with an issue)**</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>Closes <span class="ni">#ISSUE_NUMBER</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="gs">**Screenshots (optional)**</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>Before/After visuals, UI changes, or relevant logs.
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="gs">**Notes (optional)**</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>Additional context, caveats, or follow-up tasks.
+</code></pre></div></h2>
+<h3 id="commit-message-template">Commit Message Template</h3>
+<p>The <strong>commits in djehuty have a specific format</strong>. By being detailed in your commit message, you help specific changes to the software be more traceable, and if necessary, revertible.</p>
+<p>The commits should be clear and focused. In the commit message:</p>
+<ul>
+<li>The first line provides a general idea of what change has been done and in which part of code.</li>
+<li>The following lines give a one-line summary of changes made to each individual file with the commit.</li>
+<li>If a line extends 80 characters, a line break should be introduced.</li>
+<li>Imperative mood (e.g. “Add test for …”, “Implement error handling …”, “Fix UUID validator …”) is used to describe the changes made.</li>
+</ul>
+<p>The message follows the format:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>[<span class="nl">folder</span>]:<span class="na">[subfolder]: &lt;Describe a change in one line&gt;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">*</span><span class="w"> </span>[<span class="nl">path to 1st file changed</span>]: <span class="na">&lt;Describe change in the file&gt;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">*</span><span class="w"> </span>[<span class="nl">path to 2nd file changed</span>]: <span class="na">&lt;Describe change in the file&gt;</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">*</span><span class="w"> </span>[<span class="nl">path to 3rd file changed</span>]: <span class="na">&lt;Describe change in the file&gt;</span>
+</code></pre></div>
+...</p>
+<p>Example of a commit message:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>web: html_templates: Add keyword autocomplete options.
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">*</span><span class="w"> </span>src/djehuty/web/resources/html_templates/depositor/edit-dataset.html: Add
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  ID for displaying keyword autocomplete and edit help text.
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">*</span><span class="w"> </span>src/djehuty/web/resources/static/js/edit-dataset.js: Load keyword
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>  autocomplete options when typing a keyword.
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">*</span><span class="w"> </span>src/djehuty/web/resources/html_templates/depositor/edit-collection.html: Add
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>  ID for displaying keyword autocomplete and edit help text.
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="k">*</span><span class="w"> </span>src/djehuty/web/resources/static/js/edit-collection.js: Load keyword
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>  autocomplete options when typing a keyword.
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="k">*</span><span class="w"> </span>src/djehuty/web/resources/static/js/utils.js: Add method to search keyword
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>  options and load them as an autocomplete dropdown.
+</code></pre></div></p>
+<hr />
+<h2 id="label-guide">Label Guide</h2>
+<p>To help indicate the status of issue or pull request discussions, maintainers will <a href="https://github.com/4TUResearchData/djehuty/labels">apply labels</a> to each as described below:</p>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🐞 <img alt="bug" src="https://img.shields.io/badge/bug-red?style=flat" /></td>
+<td>Something is broken or behaves unexpectedly</td>
+</tr>
+<tr>
+<td>🪴 <img alt="improvement" src="https://img.shields.io/badge/improvement-d4c5f9?style=flat" /></td>
+<td>Refining current functionality</td>
+</tr>
+<tr>
+<td>🚀 <img alt="new feature" src="https://img.shields.io/badge/new_feature-mediumseagreen?style=flat" /></td>
+<td>Introducing functionality that did not previously exist</td>
+</tr>
+<tr>
+<td>📚 <img alt="documentation" src="https://img.shields.io/badge/documentation-0075ca?style=flat" /></td>
+<td>Docs updates, corrections, or additions</td>
+</tr>
+<tr>
+<td>🔧 <img alt="refactor" src="https://img.shields.io/badge/refactor-c2e0c6?style=flat" /></td>
+<td>Internal code restructuring without changing external behavior</td>
+</tr>
+<tr>
+<td>🌱 <img alt="good first issue" src="https://img.shields.io/badge/good_first_issue-ABE6E4?style=flat" /></td>
+<td>Beginner-friendly tasks with clear steps</td>
+</tr>
+<tr>
+<td>💬 <img alt="needs discussion" src="https://img.shields.io/badge/needs_discussion-moccasin?style=flat" /></td>
+<td>Further clarification or consensus is required</td>
+</tr>
+<tr>
+<td>⛔ <img alt="blocked" src="https://img.shields.io/badge/blocked-indianred?style=flat" /></td>
+<td>Waiting on dependencies, or prerequisites</td>
+</tr>
+<tr>
+<td><img alt="wontfix" src="https://img.shields.io/badge/wontfix-FFF?style=flat" /></td>
+<td>This will not be worked on</td>
+</tr>
+<tr>
+<td><img alt="duplicate" src="https://img.shields.io/badge/duplicate-lightgray?style=flat" /></td>
+<td>Waiting on dependencies, or prerequisites</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>💡 By contributing to this project, you help us build a positive and supportive community. Thank you!</p>
+<h2 id="development-environment">Development environment</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li><a href="https://git-scm.com/downloads">Git</a></li>
+<li><a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a></li>
+<li><a href="https://docs.docker.com/get-docker/">Docker</a> (with Compose)</li>
+<li><a href="https://github.com/casey/just#installation">just</a></li>
+</ul>
+<h3 id="getting-started">Getting started</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/4TUResearchData/djehuty.git
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">cd</span><span class="w"> </span>djehuty/
+</code></pre></div>
+<h3 id="running-the-development-environment">Running the development environment</h3>
+<p>To spin up a fully working local instance, run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>just<span class="w"> </span>dev
+</code></pre></div>
+<p>This builds and starts Docker containers for djehuty and
+<a href="https://github.com/openlink/virtuoso-opensource">Virtuoso</a> (SPARQL store).
+On first run, the database is automatically initialized with categories,
+licences, and a dev account with full admin privileges — no extra setup needed.</p>
+<p>Once running:</p>
+<ul>
+<li><strong>Djehuty</strong>: http://localhost:8080 (auto-login, no auth setup needed)</li>
+<li><strong>Virtuoso SPARQL</strong>: http://localhost:8890/sparql (useful for troubleshooting)</li>
+</ul>
+<p>Edit any Python file under <code>src/</code> and the server reloads automatically.</p>
+<p>To start the development environment with a Virtuoso database backup
+(e.g. to test against specific production data):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>just<span class="w"> </span><span class="nv">db_backup</span><span class="o">=</span>path/to/prod-2025-10-09_#1.bp<span class="w"> </span>dev
+</code></pre></div>
+<p>Point <code>db_backup</code> at any one of the backup files. All siblings sharing
+the same prefix in that directory are applied in order, so a full backup
+plus its incrementals (e.g. <code>prod-2025-10-09_#1.bp</code>, <code>…_#2.bp</code>,
+<code>…_#3.bp</code>) are restored together.</p>
+<p>To stop and remove the development environment, run <code>just clean</code>.
+To see all available commands, run <code>just --list</code>.</p>
+<h2 id="navigating-the-source-code">Navigating the source code</h2>
+<p>This section traces the path from invoking <code>djehuty</code> to responding to an HTTP
+request.</p>
+<h3 id="starting-point">Starting point</h3>
+<p>Because <code>djehuty</code> is installable as a Python package, the starting point can be
+found in <code>pyproject.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">[project.scripts]</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">djehuty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;djehuty.ui:main&quot;</span>
+</code></pre></div>
+<p>The tour starts at <a href="https://github.com/4TUResearchData/djehuty/blob/main/src/djehuty/ui.py">src/djehuty/ui.py</a> in the
+procedure called <code>main</code>.</p>
+<h3 id="how-djehuty-initializes">How <code>djehuty</code> initializes</h3>
+<p>The <code>main</code> procedure calls <code>main_inner</code>, which handles the command-line
+arguments. When invoking <code>djehuty web</code>, the following snippet handles it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">djehuty.web.ui</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">web_ui</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="o">...</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;web&quot;</span><span class="p">:</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">web_ui</span><span class="o">.</span><span class="n">main</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> 
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>                 <span class="n">args</span><span class="o">.</span><span class="n">initialize</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>                 <span class="n">extract_transactions_from_log</span><span class="p">,</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>                 <span class="n">args</span><span class="o">.</span><span class="n">apply_transactions</span><span class="p">)</span>
+</code></pre></div>
+<p>The entry-point for the <code>web</code> subcommand is found in
+<a href="https://github.com/4TUResearchData/djehuty/blob/main/src/djehuty/web/ui.py">src/djehuty/web/ui.py</a> at the <code>main</code> procedure.</p>
+<p>This procedure sets up an instance of <code>WebServer</code> (found in
+<a href="https://github.com/4TUResearchData/djehuty/blob/main/src/djehuty/web/wsgi.py">src/djehuty/web/wsgi.py</a>) and uses
+<code>werkzeug</code>'s <code>run_simple</code> to start the web server.</p>
+<h3 id="translating-uri-paths-to-internal-procedures">Translating URI paths to internal procedures</h3>
+<p>An instance of <code>WebServer</code> is passed along in werkzeug's <code>run_simple</code>
+procedure. Werkzeug calls the instance directly, which is handled by the
+<code>__call__</code> procedure of the <code>WebServer</code> class. The <code>__call__</code> procedure
+invokes its <code>wsgi</code> instance, configured as follows:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">wsgi</span> <span class="o">=</span> <span class="n">SharedDataMiddleware</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__respond</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">static_roots</span><span class="p">)</span>
+</code></pre></div>
+<p>The <code>__respond</code> procedure calls <code>__dispatch_request</code>, where the requested URI
+is translated into a procedure name using the <code>url_map</code>. Except for static
+resources in <code>src/djehuty/web/resources</code> and pre-configured static pages, URIs
+are handled by a procedure in the <code>WebServer</code> instance.</p>
+<p>The mapping between URIs and their handler procedures can be found in the
+<code>url_map</code> defined in the <code>WebServer</code> class in
+<a href="https://github.com/4TUResearchData/djehuty/blob/main/src/djehuty/web/wsgi.py">src/djehuty/web/wsgi.py</a>.</p>
+<h3 id="diving-into-the-code-that-displays-the-homepage">Diving into the code that displays the homepage</h3>
+<p>As an example, the <code>url_map</code> contains:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">R</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui_home</span><span class="p">),</span>
+</code></pre></div>
+<p><code>self</code> is a reference to a <code>WebServer</code> instance, so we look for a procedure
+called <code>ui_home</code> inside that class. Most code editors have a "go to definition"
+feature to help navigate.</p>
+<p><code>ui_home</code> gathers summary numbers from the SPARQL endpoint:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">summary_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">repository_statistics</span><span class="p">()</span>
+</code></pre></div>
+<p>And a list of the latest datasets:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">latest_datasets_portal</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+</code></pre></div>
+<p>It then passes that information to <code>__render_template</code>, which renders
+<code>portal.html</code> from
+<a href="https://github.com/4TUResearchData/djehuty/tree/main/src/djehuty/web/resources/html_templates">src/djehuty/web/resources/html_templates</a>
+using <a href="https://jinja.palletsprojects.com/en/3.1.x/">Jinja</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__render_template</span> <span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;portal.html&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>                               <span class="n">summary_data</span> <span class="o">=</span> <span class="n">summary_data</span><span class="p">,</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>                               <span class="n">latest</span> <span class="o">=</span> <span class="n">records</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="database-communication">Database communication</h3>
+<p>In <code>ui_home</code>, we found a call to <code>self.db.repository_statistics</code>. To find
+where <code>self.db</code> is assigned:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">SparqlInterface</span><span class="p">()</span>
+</code></pre></div>
+<p>And where <code>database</code> comes from:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">djehuty.web</span><span class="w"> </span><span class="kn">import</span> <span class="n">database</span>
+</code></pre></div>
+<p>This leads to
+<a href="https://github.com/4TUResearchData/djehuty/blob/main/src/djehuty/web/database.py">src/djehuty/web/database.py</a>.</p>
+<p>In <code>repository_statistics</code>, a call to <code>self.__query_from_template</code> is followed
+by a call to <code>__run_query</code>, which sends the query to the SPARQL endpoint and
+returns results as a list of Python dictionaries.</p>
+<p><code>self.__query_from_template</code> takes the name of a template file (without extension)
+containing a SPARQL query. These templates can be found in
+<a href="https://github.com/4TUResearchData/djehuty/tree/main/src/djehuty/web/resources/sparql_templates">src/djehuty/web/resources/sparql_templates</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
