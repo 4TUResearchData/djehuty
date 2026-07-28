@@ -3383,7 +3383,7 @@ class SparqlInterface:
         ## Copy the scalar metadata onto the draft.  We deliberately skip the DOI,
         ## published/posted dates and version: the IGSN lives on the container and
         ## the draft is yet-to-be-published.
-        self.update_physical_sample (
+        copied = self.update_physical_sample (
             title                     = conv.value_or (published, "title", "Untitled item"),
             sample_uuid               = draft_uuid,
             account_uuid              = account_uuid,
@@ -3405,6 +3405,10 @@ class SparqlInterface:
             sample_owner_email        = conv.value_or_none (published, "sample_owner_email"),
             group_id                  = conv.value_or_none (published, "group_id"))
 
+        if not copied:
+            self.log.error ("Failed to copy the metadata of %s into draft %s.",
+                            container_uuid, draft_uuid)
+
         ## Copy the lists metadata.  Like, creators reference shared author URIs,
         ## so only a new list cell is created.  Dates and related resources are
         ## per sample, so fresh entities are created for the draft.  We read the
@@ -3413,35 +3417,45 @@ class SparqlInterface:
         ## pathological query plan on the large state graph.
         for creator in self.physical_sample_creators (container_uuid, None,
                                                        sample_uri = published_uri):
-            self.add_creator_to_physical_sample (container_uuid, creator["uuid"], account_uuid)
+            if self.add_creator_to_physical_sample (container_uuid, creator["uuid"],
+                                                    account_uuid) is None:
+                self.log.error ("Failed to copy creator %s into draft %s.",
+                                creator["uuid"], draft_uuid)
 
         for date in self.physical_sample_dates (container_uuid, None,
                                                  sample_uri = published_uri):
-            self.add_date_to_physical_sample (container_uuid,
-                                              conv.value_or (date, "date_type", "other"),
-                                              conv.value_or_none (date, "date"),
-                                              account_uuid)
+            if self.add_date_to_physical_sample (container_uuid,
+                                                 conv.value_or (date, "date_type", "other"),
+                                                 conv.value_or_none (date, "date"),
+                                                 account_uuid) is None:
+                self.log.error ("Failed to copy date %s into draft %s.",
+                                conv.value_or_none (date, "uuid"), draft_uuid)
 
         for resource in self.physical_sample_related_resources (container_uuid, None,
                                                                 sample_uri = published_uri):
-            self.add_related_resource_to_physical_sample (
+            resource_uuid = self.add_related_resource_to_physical_sample (
                 container_uuid,
                 conv.value_or_none (resource, "url"),
                 conv.value_or (resource, "type_id", "URL"),
                 conv.value_or (resource, "relation_id", "IsPartOf"),
                 account_uuid)
+            if resource_uuid is None:
+                self.log.error ("Failed to copy related resource %s into draft %s.",
+                                conv.value_or_none (resource, "uuid"), draft_uuid)
 
         ## Copy the categories, which reference shared category URIs.
         categories = self.categories (item_uri = published_uri, limit = None)
         if categories:
             category_uris = rdf.uris_from_records (categories, "category", "uuid")
-            self.update_item_list (draft_uuid, account_uuid, category_uris, "categories")
+            if not self.update_item_list (draft_uuid, account_uuid, category_uris, "categories"):
+                self.log.error ("Failed to copy the categories into draft %s.", draft_uuid)
 
         ## Copy the keywords/tags (stored as a list of string literals).
         tags = self.tags (item_uri = published_uri, limit = None)
         if tags:
             tag_values = [tag["tag"] for tag in tags if conv.value_or_none (tag, "tag")]
-            self.update_item_list (draft_uuid, account_uuid, tag_values, "tags")
+            if not self.update_item_list (draft_uuid, account_uuid, tag_values, "tags"):
+                self.log.error ("Failed to copy the keywords into draft %s.", draft_uuid)
 
         self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
         self.cache.invalidate_by_prefix ("physical-samples")
