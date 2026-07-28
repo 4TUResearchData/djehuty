@@ -194,7 +194,6 @@ class WebServer:
             R("/physical_sample/<physical_sample_id>/<version>",                 self.ui_physical_sample),
             R("/private_datasets/<private_link_id>",                             self.ui_private_dataset),
             R("/private_collections/<private_link_id>",                          self.ui_private_collection),
-            R("/physical_sample/<physical_sample_id>",                           self.ui_physical_sample),
             R("/private_physical_sample/<private_link_id>",                      self.ui_private_physical_sample),
             R("/file/<dataset_id>/<file_id>",                                    self.ui_download_file),
             R("/collections/<collection_id>",                                    self.ui_collection),
@@ -3317,6 +3316,7 @@ class WebServer:
             return account_uuid
 
         if not validator.is_valid_uuid (container_uuid):
+
             return self.error_404 (request)
 
         try:
