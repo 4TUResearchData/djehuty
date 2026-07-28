@@ -1,0 +1,88 @@
+/* 4TU.ResearchData 2026 branding — corner radius.
+
+   Instance-scoped overrides, loaded through <custom-stylesheet> so the
+   defaults in main.css, pub.css and the generated colors.css stay untouched
+   for other djehuty instances.
+
+   Upstream draws corners at four different values — .5em, .25em, 4pt and 5pt
+   — depending on which stylesheet a control happens to live in, so no two
+   rows of the page round the same way. One token, applied to every button and
+   to the two boxes at the top of a dataset page, settles that.
+
+   The chips in chips.css are deliberately left square; they are labels rather
+   than controls, and the flat corner is what separates them from the buttons
+   around them. */
+
+:root {
+    --brand-radius: 0.3em;
+}
+
+/* Buttons ---------------------------------------------------------------
+   .button covers the header's log in and dashboard; #submenu li a covers the
+   whole action bar (save, submit, preview, private links, delete, decline,
+   ORCID and plain navigation); the rest are the one-off controls. */
+.button,
+.inline-button,
+a.inline-button.open,
+a.inline-button.close,
+.corporate-identity-standard-button,
+#submenu li a,
+#save_bottom,
+#files ul li.zip {
+    border-radius: var(--brand-radius);
+}
+
+/* pub.css is linked from dataset.html, collection.html and author.html rather
+   than from the layout head, so it loads after every custom stylesheet. On
+   those three pages an equal-specificity rule here loses to it, and each of
+   the selectors below therefore carries a leading `body` to get ahead. */
+body #wrapper #content #collect-btn,
+body #wrapper #content #cite-btn {
+    border-radius: var(--brand-radius);
+}
+
+/* The cite and collect buttons square off their bottom edge while their panel
+   is open, so the two read as one shape. Upstream sets that with !important,
+   which has to be matched here. */
+body #wrapper #content #cite-btn.close,
+body #wrapper #content #collect-btn.close,
+body #wrapper #content #cite-btn.secondary,
+body #wrapper #content #collect-btn.secondary {
+    border-radius: var(--brand-radius) var(--brand-radius) 0em 0em !important;
+}
+body #wrapper #content #collect,
+body #wrapper #content #cite,
+body #wrapper #content #versions {
+    border-radius: 0em var(--brand-radius) var(--brand-radius) var(--brand-radius);
+}
+
+/* The search field and its submit button meet in the middle, so each keeps
+   its radius on the outer edge only. */
+#search-box {
+    border-radius: var(--brand-radius) 0em 0em var(--brand-radius);
+}
+.search-submit-btn {
+    border-radius: 0em var(--brand-radius) var(--brand-radius) 0em;
+}
+
+/* The filter selects in the action bar sit in the same row as the buttons. */
+#submenu li select {
+    border-radius: var(--brand-radius);
+}
+
+/* Description and DOI ---------------------------------------------------
+   The two boxes that open a dataset page. The DOI is a label and a value
+   welded into one pill, so the halves round on their outer edges only. */
+body #wrapper #content #description {
+    border-radius: var(--brand-radius);
+}
+body #wrapper #content #doi {
+    border-radius: var(--brand-radius);
+}
+body #wrapper #content #doi span.doi-label {
+    border-radius: var(--brand-radius) 0em 0em var(--brand-radius);
+}
+
+/*body #wrapper #content #doi span.doi-value {*/
+/*    border-radius: 0em var(--brand-radius) var(--brand-radius) 0em;*/
+/*}*/

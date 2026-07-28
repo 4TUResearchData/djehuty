@@ -36,7 +36,9 @@
       "/assets/css/typography.css",
       "/assets/css/spacing.css",
       "/assets/css/header.css",
-      "/assets/css/buttons.css"
+      "/assets/css/buttons.css",
+      "/assets/css/shapes.css",
+      "/assets/css/chips.css"
     ],
     "custom-logo-path": "branding/images/4TUResearchData_Logo_Grey_WarmOrange.png",
     "custom-favicon-path": "branding/images/favicon.ico",
