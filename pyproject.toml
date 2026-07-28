@@ -44,6 +44,10 @@ djehuty = "djehuty.ui:main"
 "djehuty.schema" = ["migrations/**"]
 
 [dependency-groups]
+docs = [
+    "mkdocs-material",
+    "mkdocs-include-markdown-plugin",
+]
 dev = [
     "coverage[toml]>=7.0",
     "Faker>=37.12.0",

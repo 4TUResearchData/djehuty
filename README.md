@@ -141,6 +141,23 @@ stack used locally, so a green `just test` on your laptop reproduces
 what CI sees. Screenshots are captured on failure and uploaded as
 artifacts; coverage from each shard is combined into a single report.
 
+## Documentation
+
+The documentation source lives in `docs/`. It is built with
+[MkDocs](https://www.mkdocs.org/) using the Material theme.
+
+To preview the docs locally with live reload:
+
+```bash
+just docs-md-serve
+```
+
+To build a static site into `site/`:
+
+```bash
+just docs-md
+```
+
 ---
 ### Contact information
 - **Maintainers**: a.e.wilczynska@tudelft.nl, g.kuhn@tudelft.nl, k.f.deAraujo@tudelft.nl

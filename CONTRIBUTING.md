@@ -7,9 +7,9 @@ When contributing, remember to follow our [Code of Conduct](https://github.com/4
 
 ## How to Contribute?
 - **Report bugs or request features** by opening an issue.
-  - By opening an issue you can be in touch with us to request a new feature or report a bug. Check in the Report bugs or request features section how to make the request.
+    - By opening an issue you can be in touch with us to request a new feature or report a bug. Check in the Report bugs or request features section how to make the request.
 - **Code contributions:** pick an open issue or propose a new idea.
-  - Do you have development skills? You also can contribute by helping us to develop Djehuty. Check the Code contributions section on how to become a developer contributor.
+    - Do you have development skills? You also can contribute by helping us to develop Djehuty. Check the Code contributions section on how to become a developer contributor.
 
 ## Recognition of Contributions
 
@@ -22,50 +22,60 @@ All contributions - whether it’s code, bug reports, or ideas are appreciated a
 We welcome contributions in the form of bug reports and feature suggestions. Here’s how to make them most useful:
 
 1. **Look for Existing Issues**
-Before opening a new report or suggestion, [check the issue tracker](https://github.com/4TUResearchData/djehuty/issues) to see if it’s already been raised. This helps prevent duplicates and keeps the conversation focused.
+
+    Before opening a new report or suggestion, [check the issue tracker](https://github.com/4TUResearchData/djehuty/issues) to see if it’s already been raised. This helps prevent duplicates and keeps the conversation focused.
 
 2. **Submit a New Issue**
-If you don’t find an existing issue, create a new one [using the appropriate template](#issue-template). Add relevant labels if applicable.
 
+    If you don’t find an existing issue, create a new one [using the appropriate template](#issue-template). Add relevant labels if applicable.
 
 3. **Provide Useful Information**
+
     - **For Bugs:** Explain the steps to reproduce the problem, what you expected to happen, what actually happened, and include any relevant screenshots, logs, or environment details.
     - **For Feature Suggestions:** Describe the idea clearly and explain why it would improve the project.
 
-**4. Participate in Discussion**
-Be ready to answer questions or provide additional details. Open discussion helps the team understand the issue and work toward the best solution.
+4. **Participate in Discussion**
+
+    Be ready to answer questions or provide additional details. Open discussion helps the team understand the issue and work toward the best solution.
 
 ### Code contributions
 
 1. **Contact us!**
-Before starting any work, please **contact repository maintainers at [djehuty@4tu.nl](mailto:djehuty@4tu.nl)** to discuss how your idea fits with our strategic goals.
+
+    Before starting any work, please **contact repository maintainers at [djehuty@4tu.nl](mailto:djehuty@4tu.nl)** to discuss how your idea fits with our strategic goals.
 
 2. **Check or open an issue**
-Before you start work, **search the [issue tracker](https://github.com/4TUResearchData/djehuty/issues)** to see if your idea is already being discussed: issues.
+
+    Before you start work, **search the [issue tracker](https://github.com/4TUResearchData/djehuty/issues)** to see if your idea is already being discussed.
+
     - If you find a relevant issue, comment to say you’re taking it on and, if possible, assign yourself. If you cannot assign, leave a comment like “Working on this” so maintainers know.
     - If no issue exists, open a new issue using the [issue template](#issue-template) and include: a short, descriptive title; a brief explanation of the problem or feature and why it’s needed.
-        - ⚠️ **IMPORTANT**: **Do not discuss security-related aspects**: to report a vulnerability, please see [SECURITY.md](./SECURITY.md)
+      - ⚠️ **IMPORTANT**: **Do not discuss security-related aspects**: to report a vulnerability, please see [SECURITY.md](https://github.com/4TUResearchData/djehuty/blob/main/SECURITY.md)
 
 3. **Work from a fork**
-Contributors should work from a fork of the repository. Maintainers may work directly on the main djehuty instance.
-If you’re new to the fork-and-pull-request workflow, [check out the First Contributions](https://github.com/firstcontributions/first-contributions) guide for a step-by-step introduction.
+
+    Contributors should work from a fork of the repository. Maintainers may work directly on the main djehuty instance. If you’re new to the fork-and-pull-request workflow, [check out the First Contributions](https://github.com/firstcontributions/first-contributions) guide for a step-by-step introduction.
 
 4. **Clone and create a branch**
-Clone your fork to your local machine and create a new branch for your work.
+
+    Clone your fork to your local machine and create a new branch for your work.
 
 5. **Set up your development environment**
-Follow the instructions in the [README](https://github.com/4TUResearchData/djehuty/blob/main/README.md) to install dependencies, configure the project, and run the required setup steps. Make sure you can build and test the project locally before starting your contribution.
+
+    Follow the instructions in the [README](https://github.com/4TUResearchData/djehuty/blob/main/README.md) to install dependencies, configure the project, and run the required setup steps. Make sure you can build and test the project locally before starting your contribution.
 
 6. **Work on your branch and open a PR**
-- Make your changes on your branch. 
-- Commits must be verified, see the [commit signature verification guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification) for more details.
-- Once your work is ready for review, open a Pull Request (PR) against the main project repository.
-    - Provide a clear description of what you changed and link the related issue.
-    - Use the [PR template](#pull-request-template) and check the approval checklist before submitting.
-    - ⚠️ **IMPORTANT**: **Do not open a PR for a security issue**: to report a vulnerability, please see [SECURITY.md](./SECURITY.md)
+
+    - Make your changes on your branch.
+    - Commits must be verified, see the [commit signature verification guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification) for more details.
+    - Once your work is ready for review, open a Pull Request (PR) against the main project repository.
+      - Provide a clear description of what you changed and link the related issue.
+      - Use the [PR template](#pull-request-template) and check the approval checklist before submitting.
+      - ⚠️ **IMPORTANT**: **Do not open a PR for a security issue**: to report a vulnerability, please see [SECURITY.md](https://github.com/4TUResearchData/djehuty/blob/main/SECURITY.md)
 
 7. **Final approval and merge**
-After review and approval, your PR must be squashed into a single commit using the project’s [commit message template](#commit-message-template). Once the checklist is complete, a maintainer will rebase-merge it into the main branch to keep the history clean.
+
+    After review and approval, your PR must be squashed into a single commit using the project’s [commit message template](#commit-message-template). Once the checklist is complete, a maintainer will rebase-merge it into the main branch to keep the history clean.
 
 If you want to make a very small contribution, such as one or a few lines of code for which following the code contributions workflow is not convenient, please contact the [core maintainers](mailto:djehuty@4tu.nl).
 
@@ -77,6 +87,7 @@ If you want to make a very small contribution, such as one or a few lines of cod
 ### Code conventions
 
 Follow existing code conventions and existing patterns such as:
+
 - **Naming conventions**: Follow existing patterns for variables, functions, classes, and file names.
     - Use snake_case for functions and variables.
     - Be descriptive but concise in names.
@@ -89,10 +100,12 @@ Follow existing code conventions and existing patterns such as:
 ### Commits
 
 All **commits will be squashed into a single commit** before merging into main. This has two purposes:
+
 - **Clean history**: The main branch stays tidy.
 - **Readable log**: Each merge commit clearly tells the story of a completed change.
 
 When planning a change remember to:
+
 - **Limit the scope**: Keep the diff as small as possible so reviewers can understand the change quickly.
 - **Avoid commit noise**: Don’t include generated files, formatting-only changes, or experimental code unless they are the sole purpose of the commit.
 
@@ -128,7 +141,7 @@ wip-<type>-<issue-number>-<short-description>
 
 ## Releases
 
-Releases are handled by maintainers and automated by GitHub Actions. See [RELEASE.md](./RELEASE.md) for the step-by-step procedure.
+Releases are handled by maintainers and automated by GitHub Actions. See [RELEASE.md](https://github.com/4TUResearchData/djehuty/blob/main/RELEASE.md) for the step-by-step procedure.
 
 ---
 
@@ -241,6 +254,7 @@ Additional context, caveats, or follow-up tasks.
 The **commits in djehuty have a specific format**. By being detailed in your commit message, you help specific changes to the software be more traceable, and if necessary, revertible.
 
 The commits should be clear and focused. In the commit message:
+
 - The first line provides a general idea of what change has been done and in which part of code.
 - The following lines give a one-line summary of changes made to each individual file with the commit.
 - If a line extends 80 characters, a line break should be introduced.
