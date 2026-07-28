@@ -1,13 +1,15 @@
 name: Docs
 
+
 # Builds the MkDocs documentation and publishes it to the gh-pages
 # branch, which GitHub Pages serves.
-#
+
 # Only the Markdown docs are built here for now! When the API docs
 # (Swagger/OpenAPI) and ontology docs exist, add their build steps
 # here too, writing into their own subfolder of `site/` (e.g.
 # site/api/, site/ontology/) before the publish step runs, so the
 # whole site is assembled and published atomically in one go.
+
 
 on:
   push:
